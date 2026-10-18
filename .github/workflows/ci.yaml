@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    name: server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+
+      - name: gofmt
+        run: |
+          out="$(gofmt -l .)"
+          if [ -n "$out" ]; then
+            echo "gofmt needed:"
+            echo "$out"
+            exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      # golangci-lint v2.13.2 cannot read the export data of go1.27.2; run
+      # it under go1.27.1 (see Makefile) until a fixed release is available.
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        env:
+          GOTOOLCHAIN: go1.27.1
+        with:
+          version: v2.13.2
+          working-directory: server
+
+      - name: go test
+        run: go test ./...
