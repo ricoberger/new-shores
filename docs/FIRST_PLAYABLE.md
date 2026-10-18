@@ -60,6 +60,21 @@ GLB assets, sound.
   composition property passes; a 12-hour catch-up of the reference world runs
   in < 50 ms.
 
+### M1b — Dev server and first visible island
+
+- A `--dev` mode of the server binary that holds **one in-memory world**
+  (no Postgres, no auth, no Redis) behind the real `GET /world` and
+  `POST /world/commands` handlers and the real `Display` payload shape.
+- Client: display model + extrapolation, Babylon scene with terrain chunks
+  and instanced placeholder buildings, placement ghost with validity, roads
+  drag, carts and production bars from timers, minimal HUD (gold, population,
+  build menu). Mouse only is acceptable at this stage.
+- Purpose: see and play a single island early for motivation and UX
+  learning without compromising the architecture. The dev mode is throwaway
+  glue (one file); the API shape it serves is the one M2 persists.
+- Acceptance: place the tier-1 chains on the start island in the browser and
+  watch production flow; restarting the server resets the world (expected).
+
 ### M2 — Server (persistence, API, events)
 
 - Store with row locking; `GET /world`, `POST /world/commands`; events worker
@@ -69,12 +84,11 @@ GLB assets, sound.
   (integration test); cross-user access denied; a command issued to instance
   A is visible from instance B immediately; event lag metric exported.
 
-### M3 — Client (render, HUD, placement)
+### M3 — Client (complete HUD, panels, touch)
 
-- Display model + extrapolation; Babylon scene with terrain chunks and
-  instanced placeholder buildings; carts and ship from timers; React HUD,
-  build menu with lock reasons, info panels, warnings tray; placement ghost
-  with validity; roads drag; touch gestures.
+- Builds on M1b against the real M2 API: auth screens, ship from timers,
+  React HUD complete, build menu with lock reasons, info panels, warnings
+  tray, touch gestures, WebSocket-driven refresh.
 - Acceptance: Playwright scripts place a chain and see production; touch
   emulation pans/zooms/places without gesture conflicts; extrapolated numbers
   match server fixtures within rounding at sampled times.
@@ -84,6 +98,12 @@ GLB assets, sound.
 - Island 2 settlement flow; route editor; Citizens unlock; "while you were
   away"; intro steps; balancing pass on CONTENT numbers for tiers 1–2.
 - Acceptance: see §3.
+
+Ordering rationale: M1 carries the design risk and needs no UI (the scenario
+runner balances faster than playing). The UI starts in M1b as soon as the
+`Display` payload shape is stable, because the client is a view of that
+payload (D-027) and would otherwise be built twice. Persistence (M2) slots in
+underneath an already visible game.
 
 ## 3. Acceptance criteria for the slice
 
