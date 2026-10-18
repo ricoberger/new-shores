@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/goods.schema.json",
+  "title": "Goods",
+  "description": "Goods of a region (CONTENT §3).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "name", "type"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+      "name": { "type": "string", "minLength": 1 },
+      "type": {
+        "enum": ["raw", "construction", "intermediate", "food", "clothing", "drink", "luxury"]
+      }
+    }
+  }
+}

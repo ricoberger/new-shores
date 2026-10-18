@@ -1,0 +1,185 @@
+{
+  "name": "unconnected_producer",
+  "content_version": "old_coast-0.1.0",
+  "boundary_count": 1,
+  "totals": {
+    "main": {
+      "planks": {
+        "produced": 0,
+        "consumed": 0,
+        "lost": 0,
+        "spent": 5000,
+        "granted": 5000
+      },
+      "wood": {
+        "produced": 5000,
+        "consumed": 0,
+        "lost": 0
+      }
+    }
+  },
+  "bottlenecks": [
+    {
+      "island_id": "main",
+      "building_id": 2,
+      "type": "lumberjack",
+      "status": "not_connected",
+      "reason": "No road to a warehouse"
+    }
+  ],
+  "snapshots": [
+    {
+      "step": 2,
+      "at": "2026-01-01T00:02:00.000Z",
+      "boundaries": 0,
+      "inventory": {
+        "main": {}
+      },
+      "statuses": {
+        "not_connected": 1
+      }
+    },
+    {
+      "step": 3,
+      "at": "2026-01-01T00:10:00.000Z",
+      "boundaries": 1,
+      "inventory": {
+        "main": {}
+      },
+      "statuses": {
+        "not_connected": 1
+      }
+    }
+  ],
+  "final": {
+    "evaluated_at": "2026-01-01T00:10:00.000Z",
+    "next_change_at": null,
+    "gold": 0,
+    "islands": [
+      {
+        "id": "main",
+        "width": 16,
+        "height": 8,
+        "inventory": {
+          "fish": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "planks": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wood": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wool": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wool_garments": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          }
+        },
+        "roads": [
+          {
+            "x": 8,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 9,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 10,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 11,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 12,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 13,
+            "y": 4,
+            "type": "road_dirt"
+          }
+        ],
+        "buildings": [
+          {
+            "id": 1,
+            "type": "warehouse",
+            "x": 1,
+            "y": 1,
+            "rotation": 0,
+            "entrance": {
+              "x": 2,
+              "y": 3
+            },
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "level": 1,
+            "capacity": 300000,
+            "throughput_per_min": 60000,
+            "load_permille": 0
+          },
+          {
+            "id": 2,
+            "type": "lumberjack",
+            "x": 10,
+            "y": 2,
+            "rotation": 0,
+            "entrance": {
+              "x": 10,
+              "y": 3
+            },
+            "paused": false,
+            "paused_reason": "",
+            "status": "not_connected",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "rates": {
+              "inputs": {},
+              "outputs": {
+                "wood": 0
+              }
+            },
+            "cycle_seconds": 30,
+            "cycle_progress_permille": 0,
+            "transfer_delay_ms": 0,
+            "assigned_warehouse_id": 0,
+            "road_distance": 0,
+            "buffer": {
+              "stock": {
+                "wood": 5000
+              },
+              "capacity": 5000
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
