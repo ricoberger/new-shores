@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"maps"
 	"math"
 	"path/filepath"
 	"runtime"
@@ -684,5 +685,45 @@ func TestAddStockRejectsOversizedGrants(t *testing.T) {
 	}
 	if got := w.Islands[0].Inventory.Stock["planks"]; got != 300_000 {
 		t.Errorf("planks = %d", got)
+	}
+}
+
+// TestThroughputSharedOnlyAmongRunningProducers: producers stopped because
+// their chain is blocked downstream (planks full -> sawmill stopped -> wood
+// full -> lumberjack stopped) do not count towards the warehouse load.
+func TestThroughputSharedOnlyAmongRunningProducers(t *testing.T) {
+	base := catalogue(t)
+	whDef := *base.BuildingByID["warehouse"]
+	wh := *whDef.Warehouse
+	wh.Levels = []content.WarehouseLevel{{Capacity: 300_000, ThroughputPerMin: 3_000}}
+	whDef.Warehouse = &wh
+	c := *base
+	c.BuildingByID = maps.Clone(base.BuildingByID)
+	c.BuildingByID["warehouse"] = &whDef
+
+	w := testWorld(t, &c)
+	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
+	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})
+	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})
+	for _, good := range []string{"wood", "planks"} {
+		free := 300_000 - w.Islands[0].Inventory.Stock[good]
+		if err := AddStock(w, &c, "main", good, free, nil); err != nil {
+			t.Fatal(err)
+		}
+	}
+	mustAdvance(t, w, &c, 10*time.Minute)
+
+	ds := display(t, w, &c)
+	for _, id := range []int64{2, 3} {
+		if b := buildingDisplay(t, ds, id); b.Status != StatusWarehouseFull {
+			t.Errorf("%s status = %s", b.Type, b.Status)
+		}
+	}
+	fisher := buildingDisplay(t, ds, 4)
+	if fisher.Status != StatusOK || fisher.ThroughputFactorPermille != 1000 || fisher.Rates.Outputs["fish"] != 1500 {
+		t.Errorf("fisher = %s factor %d rate %d", fisher.Status, fisher.ThroughputFactorPermille, fisher.Rates.Outputs["fish"])
+	}
+	if load := *buildingDisplay(t, ds, 1).LoadPermille; load != 500 {
+		t.Errorf("warehouse load = %d, want 500", load)
 	}
 }

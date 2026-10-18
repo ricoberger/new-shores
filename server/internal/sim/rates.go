@@ -20,8 +20,9 @@ import (
 //     producer has inputs (it cannot fetch them) or its buffer is full.
 //  2. throughput: per warehouse, R = sum of base output rates of the assigned
 //     producers that are running (connected, base > 0, not fully starved, not
-//     fully blocked by a full good without any active consumer) and T is the
-//     level throughput; if R > T every such producer gets tp = base * T / R.
+//     blocked by a full output good that no running producer consumes,
+//     resolved as a fixed point along the chain) and T is the level
+//     throughput; if R > T every such producer gets tp = base * T / R.
 //  3. starvation: for every good in the starved regime, consumers share the
 //     current arrival rate I in proportion to their demand D: cap = tp * I / D
 //     when D > I.
@@ -184,25 +185,39 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 		}
 		return false
 	}
-	activeConsumer := map[string]bool{}
+	// The running set is a fixed point: a producer is blocked when one of
+	// its outputs is in the full regime and no running producer consumes
+	// that good. Blocking a consumer can in turn block the producers of its
+	// inputs (e.g. planks full -> sawmill blocked -> wood full -> lumberjack
+	// blocked), so iterate until nothing changes.
+	run := map[*producer]bool{}
 	for _, p := range r.producers {
-		if p.connected && p.base > 0 && !fullyStarved(p) {
-			for _, in := range p.def.Recipe.Inputs {
-				activeConsumer[in.Good] = true
+		run[p] = p.connected && p.base > 0 && !fullyStarved(p)
+	}
+	for changed := true; changed; {
+		changed = false
+		consumed := map[string]bool{}
+		for _, p := range r.producers {
+			if run[p] {
+				for _, in := range p.def.Recipe.Inputs {
+					consumed[in.Good] = true
+				}
+			}
+		}
+		for _, p := range r.producers {
+			if !run[p] {
+				continue
+			}
+			for _, out := range p.def.Recipe.Outputs {
+				if is.Inventory.Full[out.Good] && !consumed[out.Good] {
+					run[p] = false
+					changed = true
+					break
+				}
 			}
 		}
 	}
-	running := func(p *producer) bool {
-		if !p.connected || p.base == 0 || fullyStarved(p) {
-			return false
-		}
-		for _, out := range p.def.Recipe.Outputs {
-			if is.Inventory.Full[out.Good] && !activeConsumer[out.Good] {
-				return false
-			}
-		}
-		return true
-	}
+	running := func(p *producer) bool { return run[p] }
 	for _, b := range is.Buildings {
 		if def := c.BuildingByID[b.Type]; def != nil && def.Warehouse != nil {
 			r.loads[b.ID] = warehouseLoad{t: warehouseLevel(def, b).ThroughputPerMin * SubPerMilli / msPerMinute}
