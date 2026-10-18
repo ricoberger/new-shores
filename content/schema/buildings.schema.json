@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/buildings.schema.json",
+  "title": "Buildings",
+  "description": "Buildings of a region (CONTENT §5, §9). Behaviour is attached through optional capability blocks: recipe, house, warehouse, road, service, work_area.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name",
+      "region",
+      "tier",
+      "footprint",
+      "coastal",
+      "requires_road",
+      "cost",
+      "upkeep_per_min",
+      "pause_category"
+    ],
+    "properties": {
+      "id": { "$ref": "#/$defs/id" },
+      "name": { "type": "string", "minLength": 1 },
+      "region": { "$ref": "#/$defs/id" },
+      "tier": { "$ref": "#/$defs/id" },
+      "footprint": {
+        "description": "[width, height] in tiles at rotation 0.",
+        "type": "array",
+        "prefixItems": [
+          { "type": "integer", "minimum": 1 },
+          { "type": "integer", "minimum": 1 }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "coastal": { "type": "boolean" },
+      "requires_road": { "type": "boolean" },
+      "cost": {
+        "description": "Construction cost: 'gold' plus materials by good ID (units).",
+        "type": "object",
+        "properties": {
+          "gold": { "type": "number", "minimum": 0 }
+        },
+        "patternProperties": {
+          "^[a-z][a-z0-9_]*$": { "type": "number", "minimum": 0 }
+        },
+        "additionalProperties": false
+      },
+      "upkeep_per_min": { "type": "number", "minimum": 0 },
+      "pause_category": {
+        "enum": ["need_goods", "public", "intermediate", "food_basic", "never"]
+      },
+      "recipe": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["inputs", "outputs", "cycle_seconds"],
+        "properties": {
+          "inputs": { "type": "array", "items": { "$ref": "#/$defs/good_amount" } },
+          "outputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/good_amount" }
+          },
+          "cycle_seconds": { "type": "number", "exclusiveMinimum": 0 }
+        }
+      },
+      "house": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tier"],
+        "properties": {
+          "tier": { "$ref": "#/$defs/id" }
+        }
+      },
+      "warehouse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["levels"],
+        "properties": {
+          "levels": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["capacity", "throughput_per_min"],
+              "properties": {
+                "capacity": { "type": "number", "exclusiveMinimum": 0 },
+                "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 }
+              }
+            }
+          }
+        }
+      },
+      "road": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["seconds_per_tile"],
+        "properties": {
+          "seconds_per_tile": { "type": "number", "minimum": 0 }
+        }
+      },
+      "service": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["radius"],
+        "properties": {
+          "radius": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "work_area": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["radius", "terrain", "required_tiles"],
+        "properties": {
+          "radius": { "type": "integer", "minimum": 1 },
+          "terrain": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "enum": ["water", "coast", "grass", "forest", "mountain"] }
+          },
+          "required_tiles": { "type": "integer", "minimum": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "good_amount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["good", "amount"],
+      "properties": {
+        "good": { "$ref": "#/$defs/id" },
+        "amount": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    }
+  }
+}

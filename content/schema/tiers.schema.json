@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/tiers.schema.json",
+  "title": "Tiers",
+  "description": "Population tiers in progression order (CONTENT §2, MECHANICS §6, §12).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "name", "residents", "tax_per_resident_per_min", "house", "unlock"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+      "name": { "type": "string", "minLength": 1 },
+      "residents": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["floor", "max"],
+        "properties": {
+          "floor": { "type": "integer", "minimum": 0 },
+          "max": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "tax_per_resident_per_min": { "type": "number", "minimum": 0 },
+      "house": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+      "unlock": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["population", "buildings", "goods_delivered"],
+        "properties": {
+          "population": {
+            "type": "object",
+            "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+            "additionalProperties": { "type": "integer", "minimum": 0 }
+          },
+          "buildings": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+          },
+          "goods_delivered": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+          }
+        }
+      }
+    }
+  }
+}

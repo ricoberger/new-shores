@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/needs.schema.json",
+  "title": "Needs",
+  "description": "Needs per tier (CONTENT §2, MECHANICS §6.2). A need is either a goods need (good + per_resident_per_min) or a building need (building + radius).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "tier", "weight", "category"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+      "tier": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+      "good": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+      "per_resident_per_min": { "type": "number", "exclusiveMinimum": 0 },
+      "building": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+      "radius": { "type": "integer", "minimum": 1 },
+      "weight": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+      "category": { "enum": ["basic", "luxury"] }
+    },
+    "oneOf": [
+      {
+        "required": ["good", "per_resident_per_min"],
+        "not": { "anyOf": [{ "required": ["building"] }, { "required": ["radius"] }] }
+      },
+      {
+        "required": ["building", "radius"],
+        "not": { "anyOf": [{ "required": ["good"] }, { "required": ["per_resident_per_min"] }] }
+      }
+    ]
+  }
+}
