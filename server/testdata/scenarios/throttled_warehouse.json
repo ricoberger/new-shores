@@ -1,0 +1,62 @@
+{
+  "name": "throttled_warehouse",
+  "description": "32 lumberjacks at 100 % (2 wood/min each, R = 64/min) share one level-1 warehouse (T = 60/min): throughput factor 60/64.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
+      "~ccccffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
+      "~....ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
+      "~....ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
+      "~............................................................................~",
+      "~....ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
+      "~....ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
+      "~............................................................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 2,
+      "rotation": 0
+    },
+    "gold": 1600,
+    "stock": {
+      "planks": 160
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          76,
+          5
+        ]
+      }
+    },
+    {
+      "place_grid": {
+        "type": "lumberjack",
+        "x": 9,
+        "y": 3,
+        "rotation": 0,
+        "count": 32,
+        "dx": 2,
+        "dy": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    }
+  ]
+}

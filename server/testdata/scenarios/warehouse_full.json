@@ -1,0 +1,61 @@
+{
+  "name": "warehouse_full",
+  "description": "A fisher without consumer fills the island to capacity (300 fish) and stops; nothing is lost.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~",
+      "~cccccccccc~",
+      "~..........~",
+      "~..........~",
+      "~..........~",
+      "~..........~",
+      "~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 60,
+    "stock": {
+      "planks": 6
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          6,
+          3
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "3h20m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "40m"
+      }
+    }
+  ]
+}

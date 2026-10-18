@@ -1,0 +1,87 @@
+{
+  "name": "chain_planks",
+  "description": "Warehouse, lumberjack (road distance 7) and sawmill (road distance 13) on one dirt road, advanced 10 minutes in steps.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~",
+      "~ccccffffffff......~",
+      "~....ffffffff......~",
+      "~....ffffffff......~",
+      "~..................~",
+      "~....ffffffff......~",
+      "~....ffffffff......~",
+      "~..................~",
+      "~..................~",
+      "~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 130,
+    "stock": {
+      "planks": 13
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          17,
+          4
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "16s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "22s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "559s"
+      }
+    }
+  ]
+}
