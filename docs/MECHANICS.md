@@ -57,10 +57,15 @@ transaction.
 ## 2. Map and placement
 
 - Islands are flat tile grids (provisional 64×64 to 128×128). Tiles have a
-  terrain type (water, coast, grass, forest, mountain), optional **fertility**
-  tags (e.g. `wheat`, `hemp`, `grapes`) and optional **deposits** (stone, iron,
-  salt, quartz, copper, gold) with finite or infinite quantity (provisional:
-  infinite at launch).
+  terrain type (water, coast, grass, meadow, forest, mountain). An island has
+  island-wide **fertility** tags (e.g. `wheat`, `hemp`, `grapes`) and a fixed
+  set of typed **deposit slots** (stone, iron, clay, salt, quartz, copper,
+  gold, coal) placed on mountain tiles. Deposits are infinite; scarcity comes
+  from the number of slots (D-036). Mines and quarries occupy exactly one slot
+  of their type.
+- **Harbour area**: coast tiles are a finite slot resource; coastal buildings
+  (warehouse, fisher, shipyard, salt pans, oyster beds, harbourmaster) compete
+  for them (D-036).
 - Buildings have a rectangular footprint, a rotation, and an **entrance tile**
   that must touch a road (except roads, decorations, and farm fields).
 - Coastal buildings (warehouse, fisher, shipyard, harbourmaster) need a
@@ -98,14 +103,22 @@ outputs: [{good, amount}]      added to the inventory after transfer delay
 cycle:   seconds               at 100 % efficiency
 ```
 
-- **Rate** = `amount / cycle × efficiency × throughput_factor`, where
-  efficiency comes from the work area (farms) and `throughput_factor` from the
-  assigned warehouse (section 5).
+- **Rate** = `amount / cycle × efficiency × throughput_factor ×
+  workforce_factor`, where efficiency comes from the work area (farms),
+  `throughput_factor` from the assigned warehouse (section 5) and
+  `workforce_factor` from the island's workforce pool (below).
 - Inputs are drawn from the island inventory continuously at the same rate
   (fluid model). If any input stock is zero and its net rate is ≤ 0, the
   building is **input-starved** and its rate is zero.
 - Output is blocked when the good is at **capacity** in the island inventory
   (D-008); the building shows "warehouse full".
+- **Workforce** (D-035): each production building declares
+  `workforce: {tier, amount}`. On each island, the residents of a tier form a
+  pool; buildings draw from it in placement order. If the pool is short, every
+  building of that tier on the island gets
+  `workforce_factor = min(1, pool / Σ required)` (proportional, not
+  first-come). Rate is multiplied by `workforce_factor`. Houses never need
+  workforce; public buildings do not either at launch.
 - Each building has `upkeep` (gold/min) and a `paused` flag (player or
   insolvency, section 7). Paused buildings have zero rate and zero upkeep.
 - Visible carts and cycle progress bars are derived from the rate and the
@@ -134,7 +147,8 @@ cycle:   seconds               at 100 % efficiency
 - A house belongs to a tier and has `residents` in `[floor, max]`
   (provisional Settlers 2–8, Citizens 5–15, Merchants 9–25, Patricians
   14–40). `floor` is the minimum that never leaves (D-009).
-- **Growth rate** = `growth_per_min × satisfaction` when `satisfaction ≥ 0.5`;
+- **Growth rate** = `growth_per_min × satisfaction × variety_multiplier` when
+  `satisfaction ≥ 0.5`;
   **decline rate** = `decline_per_min × (0.5 − satisfaction)` down to `floor`
   when below. Provisional: +1 resident/min at full satisfaction, −0.5/min at
   zero.
@@ -148,10 +162,16 @@ cycle:   seconds               at 100 % efficiency
 
 Each tier has a list of needs, each either:
 
-- **Goods need:** `{good, per_resident_per_min, weight}`. The island's houses of
-  that tier consume `residents × per_resident_per_min` continuously from the
-  island inventory. Fulfilment = `min(1, supply_rate / demand_rate)` when stock
-  is zero, else 1.
+- **Goods need (category, D-031):**
+  `{category, weight, goods: [{good, per_resident_per_min}], variety_bonus,
+  max_extra_goods}`. The island's houses of that tier consume each listed
+  good that is in stock at `residents × per_resident_per_min`, drawing from
+  the goods in list order until the category's demand is met (so a house
+  supplied with two goods does not eat double). Fulfilment =
+  `min(1, Σ_goods supply_rate / demand_rate)`. **Variety** = number of the
+  category's goods with positive supply, minus one, capped at
+  `max_extra_goods`. Lower-tier goods are not accepted by higher tiers'
+  categories (D-033). Tier 1 categories have exactly one good (D-032).
 - **Building need:** `{building_type, radius, weight}`. Fulfilled (1) if a
   connected public building of that type is within `radius` tiles of the house
   entrance; else 0.
@@ -159,13 +179,16 @@ Each tier has a list of needs, each either:
   D-012 guardrail).
 
 **Satisfaction** of a house = weighted mean of its basic needs' fulfilment.
-Luxury needs add up to +25 % tax.
+**Variety multiplier** of a house = `1 + Σ_categories variety × variety_bonus`
+(provisional bonus 0.10 per extra good, max 2 extras per category); it
+multiplies both tax and growth rate. Luxury needs add up to +25 % tax.
 
 ### 6.3 Taxes
 
 - `tax_rate[tier]` gold per resident per minute (provisional Settlers 0.05,
   Citizens 0.12, Merchants 0.3, Patricians 0.7), multiplied by
-  `satisfaction` and by `(1 + 0.25 × luxury_fulfilment)`.
+  `satisfaction`, by the `variety_multiplier` (§6.2) and by
+  `(1 + 0.25 × luxury_fulfilment)`.
 - Taxes only accrue from houses; nothing else creates gold (D-018).
 
 ## 7. Gold, upkeep and insolvency (D-017)
@@ -241,11 +264,20 @@ route: { stops: [{island, load: [{good, max_amount}], unload: [{good}]}], ships:
 
 ## 10. Islands, archipelago and settling (D-016)
 
-- Each archipelago has 4–6 islands generated from a seed with a guaranteed
-  **resource distribution**: the start island always has forest, fish, grass
-  and stone; iron and hemp are guaranteed on *other* islands so the trade
-  route is a real need by tier 2; later deposits (salt, quartz, copper, gold)
-  are spread so no single island has everything.
+- Each archipelago has 6–8 islands of varied size (small/medium/large)
+  generated from a seed. Each island gets fertilities (2–4 from the pool),
+  typed deposit slots (0–4) and a harbour area proportional to its coast.
+- **Settling is gated** (D-039): the start island and one further island are
+  settleable at once; additional islands unlock at tier milestones defined in
+  content (`islands.json: unlock`). Locked islands are visible and show their
+  resources and unlock condition.
+- **Generator guarantees** (over the archipelago, per tier): the start island
+  always has forest, fish, grass, stone slot(s) and one of wheat/apple; iron
+  and hemp are on the second settleable island, never the first; clay, salt,
+  hops, woad and coal are reachable with the islands unlocked at Merchants;
+  grapes, quartz, copper and gold (exactly one gold slot) with those unlocked
+  at Patricians. Slot totals are chosen so that a balanced top-tier economy
+  needs most islands.
 - All islands are visible from the start. Settling requires a warehouse
   delivery by ship (section 8).
 
@@ -279,6 +311,9 @@ permanent (no regression).
 - `0 ≤ stock ≤ capacity` for every good on every island after every step.
 - `gold ≥ 0` always.
 - `floor ≤ residents ≤ max` for every house.
+- `0 ≤ workforce_factor ≤ 1`; a building never occupies more than one slot.
+- Variety never reduces fulfilment: adding a good to a category is
+  monotonic non-decreasing for tax and growth.
 - `advance(advance(s, t1), t2) == advance(s, t2)` for `t1 ≤ t2`.
 - Applying an event at `due_at` then advancing equals the recorded behaviour
   regardless of processing delay.
@@ -295,3 +330,5 @@ Each building state maps to one icon and one sentence with a fix:
 | throttled | "Warehouse overloaded (140 %)" | second warehouse / upgrade |
 | unpaid | "Paused: insufficient gold" | demolish / grow / resume manually |
 | low efficiency | "Only 60 % fertile land in range" | move / clear |
+| short of workers | "Needs 12 Citizens on this island (8 available)" | build/upgrade houses here |
+| no slot | "No free iron slot on this island" | other island / trade |
