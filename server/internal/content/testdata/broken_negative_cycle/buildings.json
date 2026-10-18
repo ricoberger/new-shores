@@ -1,0 +1,156 @@
+[
+  {
+    "id": "house_settlers",
+    "name": "Settler house",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 0, "planks": 10 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "house": { "tier": "settlers" }
+  },
+  {
+    "id": "road_dirt",
+    "name": "Dirt road",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 0 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "road": { "seconds_per_tile": 1.0 }
+  },
+  {
+    "id": "warehouse",
+    "name": "Warehouse",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [4, 3],
+    "coastal": true,
+    "requires_road": false,
+    "cost": { "gold": 200, "planks": 30 },
+    "upkeep_per_min": 4,
+    "pause_category": "never",
+    "warehouse": {
+      "levels": [{ "capacity": 300, "throughput_per_min": 60 }]
+    }
+  },
+  {
+    "id": "market_small",
+    "name": "Small market",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 150, "planks": 15 },
+    "upkeep_per_min": 3,
+    "pause_category": "never",
+    "service": { "radius": 12 }
+  },
+  {
+    "id": "chapel",
+    "name": "Chapel",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 300, "planks": 15 },
+    "upkeep_per_min": 3,
+    "pause_category": "never",
+    "service": { "radius": 16 }
+  },
+  {
+    "id": "lumberjack",
+    "name": "Lumberjack",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 50, "planks": 5 },
+    "upkeep_per_min": 1,
+    "pause_category": "intermediate",
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "wood", "amount": 1 }],
+      "cycle_seconds": -30
+    },
+    "work_area": { "radius": 4, "terrain": ["forest"], "required_tiles": 24 }
+  },
+  {
+    "id": "sawmill",
+    "name": "Sawmill",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 80, "planks": 8 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "recipe": {
+      "inputs": [{ "good": "wood", "amount": 1 }],
+      "outputs": [{ "good": "planks", "amount": 1 }],
+      "cycle_seconds": 30
+    }
+  },
+  {
+    "id": "fisher",
+    "name": "Fisher",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [2, 2],
+    "coastal": true,
+    "requires_road": true,
+    "cost": { "gold": 60, "planks": 6 },
+    "upkeep_per_min": 1,
+    "pause_category": "food_basic",
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "fish", "amount": 1 }],
+      "cycle_seconds": 40
+    }
+  },
+  {
+    "id": "sheep_farm",
+    "name": "Sheep farm",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 100, "planks": 10 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "wool", "amount": 1 }],
+      "cycle_seconds": 60
+    },
+    "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24 }
+  },
+  {
+    "id": "weaver_wool",
+    "name": "Wool weaver",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 120, "planks": 10 },
+    "upkeep_per_min": 2,
+    "pause_category": "need_goods",
+    "recipe": {
+      "inputs": [{ "good": "wool", "amount": 1 }],
+      "outputs": [{ "good": "wool_garments", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  }
+]

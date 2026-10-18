@@ -1,0 +1,26 @@
+[
+  {
+    "id": "settlers_fish",
+    "tier": "settlers",
+    "good": "fish",
+    "per_resident_per_min": 0.010,
+    "weight": 0.5,
+    "category": "basic"
+  },
+  {
+    "id": "settlers_wool_garments",
+    "tier": "settlers",
+    "good": "wool_garments",
+    "per_resident_per_min": 0.005,
+    "weight": 0.2,
+    "category": "basic"
+  },
+  {
+    "id": "settlers_market_small",
+    "tier": "settlers",
+    "building": "market_small",
+    "radius": 12,
+    "weight": 0.4,
+    "category": "basic"
+  }
+]
