@@ -38,14 +38,10 @@ jobs:
       - name: go vet
         run: go vet ./...
 
-      # golangci-lint v2.13.2 cannot read the export data of go1.27.2; run
-      # it under go1.27.1 (see Makefile) until a fixed release is available.
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
-        env:
-          GOTOOLCHAIN: go1.27.1
         with:
-          version: v2.13.2
+          version: v2.15.0
           working-directory: server
 
       - name: go test

@@ -28,11 +28,8 @@ or directly (AGENTS.md §4):
 cd server && gofmt -l . && go vet ./... && golangci-lint run && go test ./...
 ```
 
-`golangci-lint` picks up the repository-root `.golangci.yaml`
-(`golangci-lint config path`). golangci-lint v2.13.2 cannot type-check
-packages built by go1.27.2; the Makefile and CI therefore run it with
-`GOTOOLCHAIN=go1.27.1` (override with `make server-lint
-GOLANGCI_LINT_GOTOOLCHAIN=local`).
+`golangci-lint` (v2.15.0, pinned in CI) picks up the repository-root
+`.golangci.yaml` (`golangci-lint config path`).
 
 ## Golden scenarios
 
