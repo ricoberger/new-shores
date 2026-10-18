@@ -135,6 +135,7 @@ func TestLoadBrokenFixtures(t *testing.T) {
 		{"broken_dangling_building_need", []string{"needs.json", `need "settlers_market_small"`, "building", `unknown building "market_grand"`}},
 		{"broken_negative_cycle", []string{"buildings.json", `building "lumberjack"`, "recipe.cycle_seconds", "schema violation"}},
 		{"broken_duplicate_id", []string{"goods.json", `good "wood"`, "duplicate ID"}},
+		{"broken_zero_cost_reference", []string{"buildings.json", `building "sawmill"`, "cost.missing_good", `unknown good "missing_good"`}},
 		{"broken_weights_sum", []string{"needs.json", `tier "settlers"`, "weight"}},
 	}
 	for _, tt := range tests {

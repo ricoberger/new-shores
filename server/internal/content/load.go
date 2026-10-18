@@ -397,7 +397,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			col.add(FileBuildings, ent, "id", "duplicate ID")
 			continue
 		}
-		b := decodeBuilding(col, ent, rb)
+		b := decodeBuilding(col, ent, rb, cat.GoodByID)
 		cat.Buildings = append(cat.Buildings, b)
 		cat.BuildingByID[b.ID] = b
 	}
@@ -429,7 +429,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 	return cat, nil
 }
 
-func decodeBuilding(col *collector, ent string, rb rawBuilding) *Building {
+func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string]*Good) *Building {
 	const file = FileBuildings
 	b := &Building{
 		ID:            rb.ID,
@@ -458,6 +458,12 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding) *Building {
 		v := col.fixed(file, ent, "cost."+k, rb.Cost[k], 3)
 		if k == "gold" {
 			b.Cost.Gold = v
+			continue
+		}
+		// Every cost key is a good reference, including zero amounts, which
+		// are validated here because they are not kept in Materials.
+		if goods[k] == nil {
+			col.add(file, ent, "cost."+k, "unknown good %q", k)
 			continue
 		}
 		if v > 0 {
