@@ -1,0 +1,285 @@
+# New Shores — Architecture and Tech Stack
+
+Status: **Agreed** (D-001, D-002, D-025 – D-028). Supersedes the earlier
+PocketBase/client-authoritative draft entirely.
+
+## 1. Overview
+
+| Area | Choice |
+|---|---|
+| Game server | Go (latest stable), `net/http` with Go 1.22+ routing, stdlib-first |
+| Simulation | Pure Go package `internal/sim`, deterministic, no I/O |
+| Database | PostgreSQL 16+: world state as versioned JSONB + relational tables |
+| Jobs/events | `scheduled_events` table drained by in-process workers (`FOR UPDATE SKIP LOCKED`) |
+| Cache / messaging | Redis: pub/sub for WebSocket fan-out, rate limiting, presence |
+| API | JSON over HTTPS (OpenAPI described) + WebSocket for push |
+| Client | TypeScript, Vite, React (HTML/CSS overlay), Babylon.js (WebGL) |
+| Content | JSON in `content/`, JSON Schema, validated by the server at startup |
+| Payments | Stripe (web); store IAP via Capacitor later; provider-agnostic ledger |
+| Delivery | Static client on a CDN; server + Postgres + Redis via Docker Compose, later Kubernetes |
+| Observability | OpenTelemetry traces, Prometheus metrics, structured logs (slog) |
+| Testing | `go test` (sim golden fixtures, API, concurrency), Vitest, Playwright |
+
+```
+ Browser / Capacitor app
+ ┌───────────────────────────────────────────────┐
+ │ React UI  ◄──► display model ◄──► Babylon.js  │
+ │                 ▲ extrapolate                 │
+ │                 │ state+rates+next_change_at  │
+ └─────────────────┼─────────────────────────────┘
+          HTTPS JSON │ commands/queries   WebSocket │ "world changed" pushes
+ ┌─────────────────▼───────────────────────────────▼──────────────┐
+ │ Go game server (N stateless replicas)                          │
+ │  api ─► command handlers ─► sim.Advance ─► store (tx, row lock)│
+ │  events worker ─► sim.Advance + handlers ─► store              │
+ │  ws hub ◄── Redis pub/sub ◄── publish(world_id) after commit    │
+ └───────────────┬──────────────────────────────┬─────────────────┘
+          PostgreSQL (source of truth)         Redis (ephemeral)
+```
+
+## 2. Principles
+
+1. **Server owns the truth.** Clients send commands; the server validates
+   against content and state, applies, persists, and returns the new state.
+2. **Lazy, deterministic simulation.** `sim.Advance(world, to)` is pure. All
+   rules are rates/capacities/events (MECHANICS.md). No server tick loop.
+3. **One transaction per change.** Lock the world row(s), advance, apply,
+   commit. Events are applied at their due time.
+4. **Content is data.** Buildings, goods, needs, tiers, quests are JSON; the
+   simulation is content-agnostic.
+5. **Client has no rules.** It extrapolates linearly from server-provided
+   rates and timestamps (D-027). WASM is out of scope.
+6. **Boring infrastructure.** Postgres is the only stateful dependency that
+   matters; Redis can be flushed without data loss.
+
+## 3. Repository layout
+
+```
+new-shores/
+├── server/                     Go module github.com/ricoberger/new-shores/server
+│   ├── cmd/server/             main: HTTP + worker in one binary (flags select roles)
+│   ├── internal/sim/           pure simulation: types, Advance, placement, routes
+│   ├── internal/content/       loading + validation of content JSON, typed catalogue
+│   ├── internal/store/         pgx queries (sqlc), migrations (goose or tern)
+│   ├── internal/api/           handlers, request validation, OpenAPI
+│   ├── internal/events/        scheduled-events worker + handlers
+│   ├── internal/ws/            WebSocket hub, Redis pub/sub
+│   ├── internal/auth/          sessions, argon2id, email verification
+│   ├── internal/payments/      ledger + provider adapters (stripe, appstore, play)
+│   └── testdata/               golden fixtures (shared with client tests)
+├── client/                     Vite + React + Babylon.js
+│   ├── src/api/                generated types (openapi-typescript), fetch/ws client
+│   ├── src/display/            extrapolation + display model
+│   ├── src/render/             Babylon scene, chunks, instancing, pickers
+│   ├── src/ui/                 React HUD, panels, build menu, world map
+│   └── e2e/                    Playwright
+├── content/
+│   ├── schema/                 JSON Schema per entity
+│   └── old_coast/              tiers, goods, buildings, needs, ships, quests, islands, decorations
+├── deploy/                     docker-compose.yaml, Dockerfiles, later Helm/Kustomize
+├── docs/
+├── AGENTS.md
+└── README.md
+```
+
+## 4. Server
+
+### 4.1 Simulation package (`internal/sim`)
+
+- `type World struct` — islands, buildings, inventories, houses, ships, routes,
+  gold, rng state, `LastEvaluatedAt`. Serialises to the JSONB column via a
+  versioned envelope `{schema_version, content_version, world}`.
+- `func Advance(w *World, c *content.Catalogue, to time.Time) []Boundary` —
+  pure; returns the boundary list for debugging/UI.
+- `func Apply(w *World, c *content.Catalogue, cmd Command) error` — placement,
+  demolish, pause, route edit, upgrade, order ship, etc. Each command
+  validates fully before mutating.
+- `func Display(w *World, c *content.Catalogue, now time.Time) DisplayState` —
+  state + rates + cycle timers + ship legs + `NextChangeAt`.
+- Fixed-point integers; no `time.Now()`, no `math/rand` without the stored
+  seed.
+- Migrations between `schema_version`s live here and are tested against stored
+  fixtures from every released version.
+
+### 4.2 Store and transactions
+
+```sql
+CREATE TABLE worlds (
+  id              uuid PRIMARY KEY,
+  player_id       uuid NOT NULL REFERENCES players(id),
+  region          text NOT NULL,
+  state           jsonb NOT NULL,
+  schema_version  int  NOT NULL,
+  version         bigint NOT NULL DEFAULT 0,        -- optimistic token for clients
+  last_evaluated_at timestamptz NOT NULL,
+  updated_at      timestamptz NOT NULL
+);
+```
+
+Command path:
+
+```
+BEGIN
+  SELECT ... FROM worlds WHERE id = $1 FOR UPDATE
+  w := decode(state); Advance(w, now); err := Apply(w, cmd)
+  UPDATE worlds SET state=..., version=version+1, last_evaluated_at=now
+  INSERT scheduled_events ... (if the command created any)
+COMMIT
+publish(redis, "world:"+id)
+return Display(w, now)
+```
+
+- Multi-world handlers lock in ascending world ID to avoid deadlocks.
+- Read-only queries (own world view, visits) advance in memory without
+  writing; a write happens at most every N seconds per world to keep
+  `last_evaluated_at` fresh (optional optimisation).
+- JSONB size budget: measure; expect 50–300 KB per mature archipelago.
+  Compress (zstd) in a `bytea` column if it grows past ~1 MB.
+
+### 4.3 Scheduled events worker
+
+```sql
+CREATE TABLE scheduled_events (
+  id         bigserial PRIMARY KEY,
+  due_at     timestamptz NOT NULL,
+  kind       text NOT NULL,
+  world_ids  uuid[] NOT NULL,
+  payload    jsonb NOT NULL,
+  status     text NOT NULL DEFAULT 'pending',  -- pending|done|failed
+  attempts   int NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX ON scheduled_events (due_at) WHERE status = 'pending';
+```
+
+- Every replica runs the loop: `SELECT … WHERE due_at <= now() AND status =
+  'pending' ORDER BY due_at LIMIT 10 FOR UPDATE SKIP LOCKED`, then per event:
+  lock worlds, `Advance(w, due_at)`, run handler, schedule follow-ups, set
+  `done`, commit, publish.
+- Failures: increment `attempts`, exponential backoff; after 5 attempts mark
+  `failed` and alert. Handlers are idempotent because status flips in the same
+  transaction.
+- Poll interval 1 s with `LISTEN/NOTIFY` wake-up on insert; no leader election.
+- Metrics: queue depth, lag (`now − due_at` at processing), handler duration.
+
+### 4.4 API
+
+- REST-ish JSON, versioned under `/api/v1`. OpenAPI spec is the contract;
+  `openapi-typescript` generates client types.
+- Core endpoints: `POST /auth/*`, `GET /world` (display state), `POST
+  /world/commands` (single command; returns display state + `version`),
+  `GET /world/islands/{id}`, `GET /map/*`, `POST /offers`, …, `GET /shop`,
+  `POST /payments/stripe/webhook`.
+- Commands carry the client's last seen `version`; a mismatch is not an
+  error (server state wins) but is logged for diagnostics.
+- Validation: content-aware in Go; never trust client types. Rate limits per
+  player (Redis token bucket).
+
+### 4.5 WebSocket push
+
+- `/ws` authenticated; the hub subscribes to Redis channels for the player's
+  world(s) and sends `{type: "world_changed", world_id}` plus small
+  notifications (`trade_accepted`, `expedition_done`). Payloads carry no game
+  state; the client re-fetches.
+- Missing a push only costs freshness: the client also re-fetches at
+  `next_change_at` and on focus/visibility change.
+
+### 4.6 Auth and accounts
+
+- Email + password (argon2id), verification and reset via SMTP; session
+  cookie (HttpOnly, SameSite) for web; bearer token for Capacitor.
+- Optional later: Sign in with Apple / Google (required by App Store if any
+  third-party login exists).
+- Guest play: a world can be created under an anonymous player with a device
+  token and claimed by registering (no separate offline mode).
+
+### 4.7 Payments
+
+See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
+(Entitlement, error) }`; the ledger is append-only and idempotent on
+`provider_ref`.
+
+## 5. Client
+
+- **Display model:** `display = extrapolate(serverDisplayState, now)`; linear
+  for stocks (clamped to capacity), modulo for cycle progress, lerp for ship
+  legs; refreshed at 4 Hz, interpolated per frame.
+- **Renderer:** Babylon.js scene; chunked terrain; instanced meshes per
+  content ID; procedural placeholder meshes first, GLB later via an asset
+  manifest `{content_id → mesh, footprint offset, animations}`.
+- **UI:** React, CSS Modules, small store (Zustand) for UI state; subscribes
+  to display-model slices. Strict Mode-safe engine lifecycle.
+- **Input:** pointer events unified for mouse/touch; UI layer stops
+  propagation; gesture recogniser for pan/pinch/long-press/rotate.
+- **PWA:** installable, cached shell; the game itself requires connectivity.
+
+## 6. Content pipeline
+
+- `content/schema/*.schema.json` → Go types (hand-written structs, validated
+  with a JSON Schema library at startup) and TS types (`json-schema-to-typescript`).
+- Reference checks: every good/building/need/tier ID referenced must exist;
+  recipes balanced per the checklist in CONTENT.md §10 (a `go test` runs the
+  balance checks over the catalogue).
+- `content_version` is embedded in worlds; content changes that alter rules
+  for existing worlds must be backward compatible or ship with a world
+  migration.
+
+## 7. Deployment
+
+- **Phase 1:** single VPS, Docker Compose: `server` (×2 to exercise
+  multi-instance), `postgres`, `redis`, `caddy` (TLS). Client on a static
+  host/CDN. Nightly `pg_dump` + WAL archiving to object storage; restore tested.
+- **Phase 2:** Kubernetes (Helm chart in `deploy/`), managed Postgres or
+  CloudNativePG, Redis, HPA on the server. Server replicas are stateless.
+- Config via environment variables; secrets via the platform's secret store;
+  never in the repo.
+- Migrations run as a job before rollout; backward-compatible schema changes
+  only (expand/contract).
+
+## 8. Observability
+
+- Traces per request and per event with world ID attributes; spans for
+  `Advance` with boundary count.
+- Metrics: request latency, `advance` duration histogram, boundaries per
+  advance, event queue depth and lag, WebSocket connections, Redis publish
+  errors, payment webhook outcomes.
+- Logs: structured `slog`, request ID, player ID (never emails or tokens).
+- Alerts: event lag > 60 s, failed events, 5xx rate, DB connection saturation,
+  backup failure.
+
+## 9. Security
+
+- All authorisation server-side by `player_id` from the session; world IDs in
+  URLs are checked for ownership on every request.
+- Commands validated against content and state; sizes bounded; JSON depth
+  limited.
+- Rate limits on auth, commands, offers; CSRF protection for cookie sessions.
+- Transfer log for all player-to-player movements (ONLINE.md §4.4).
+- Dependencies pinned; `govulncheck` and `npm audit` in CI.
+
+## 10. Testing strategy
+
+| Layer | Tool | Must cover |
+|---|---|---|
+| Simulation | `go test`, golden fixtures, property tests | invariants (MECHANICS §13), determinism, `Advance` composition, pause order, migrations |
+| Content | `go test` | reference integrity, balance checklist |
+| Store/API | `go test` with a real Postgres (testcontainers) | ownership denial, row-lock serialisation, event idempotency, retries, two-world locking |
+| Multi-instance | integration test running 2 server processes | same event never processed twice; commands from both instances serialise |
+| Client display | Vitest | extrapolation matches server fixtures at sampled times |
+| Client e2e | Playwright | placement, selection, pan/zoom, touch emulation, fixed-seed screenshots |
+| Devices | manual | mid-range Android + iPhone: fps, memory, resume, thermal |
+
+CI runs `gofmt`, `go vet`, `golangci-lint` (config in repo), `go test ./...`,
+`tsc`, `eslint`, Vitest and a Playwright smoke test on every PR.
+
+## 11. Alternatives considered
+
+| Option | Why not |
+|---|---|
+| PocketBase + SQLite | single-writer DB, CRUD-shaped API, pre-1.0 — unsuitable as a game server |
+| Nakama | over-featured for async play; sandboxed logic runtime fights a custom economy |
+| Continuous server tick | cost scales with registered players; no gameplay return offline |
+| Go → WASM shared sim in client | solves a problem A′ makes moot; bundle size on mobile |
+| Full TS rule port in client | duplication/drift; unnecessary with server-provided rates |
+| ConnectRPC/protobuf | fine, but one more toolchain; OpenAPI + generated TS types suffice |
+| Three.js / 2D sprites | see D-024 |
