@@ -239,7 +239,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		}
 	}
 	is.Buildings = append(is.Buildings, b)
-	afterChange(is, c, l, w.LastEvaluatedAt.UnixMilli())
+	afterChange(is, c)
 	return nil
 }
 
@@ -280,7 +280,7 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 	for _, p := range cmd.Tiles {
 		is.Roads[is.index(p.X, p.Y)] = def.ID
 	}
-	afterChange(is, c, l, w.LastEvaluatedAt.UnixMilli())
+	afterChange(is, c)
 	return nil
 }
 
@@ -363,7 +363,7 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 		}
 	}
 	refund(is, c, def.Cost, 1, l, now)
-	afterChange(is, c, l, now)
+	afterChange(is, c)
 	return nil
 }
 
@@ -404,7 +404,7 @@ func demolishRoad(w *World, c *content.Catalogue, cmd DemolishRoad, l *Ledger) e
 			refund(is, c, def.Cost, count[rt], l, now)
 		}
 	}
-	afterChange(is, c, l, now)
+	afterChange(is, c)
 	return nil
 }
 
@@ -432,9 +432,9 @@ func setPaused(w *World, c *content.Catalogue, cmd SetPaused) error {
 }
 
 // afterChange recomputes derived placement state after a map change.
-func afterChange(is *Island, c *content.Catalogue, l *Ledger, now int64) {
+func afterChange(is *Island, c *content.Catalogue) {
 	recomputeEfficiency(is, c)
-	recomputeConnectivity(is, c, l, now)
+	recomputeConnectivity(is, c)
 	clearRegimes(is)
 }
 

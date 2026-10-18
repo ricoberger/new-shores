@@ -454,10 +454,10 @@ func TestEfficiencyRecomputedWhenNeighboursChange(t *testing.T) {
 	}
 }
 
-func TestBufferDeliveredOnConnect(t *testing.T) {
-	c := catalogue(t)
-	w := testWorld(t, c)
-	// Lumberjack on its own road piece below the main road (no connection).
+// unconnectedLumberjack places a lumberjack on its own road piece below the
+// main road of testWorld, runs it until its buffer is full and returns it.
+func unconnectedLumberjack(t *testing.T, w *World, c *content.Catalogue) *Building {
+	t.Helper()
 	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{9, 7}, {10, 7}}})
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 9, Y: 5, Rotation: 0})
 	b := w.Islands[0].Building(2)
@@ -468,13 +468,79 @@ func TestBufferDeliveredOnConnect(t *testing.T) {
 	if got := buildingDisplay(t, display(t, w, c), 2); got.Status != StatusNotConnected || got.Buffer == nil || got.Buffer.Stock["wood"] != 5_000 {
 		t.Fatalf("lumberjack = %s buffer %+v", got.Status, got.Buffer)
 	}
-	// Connect the lumberjack's road to the main road at (8,4).
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{8, 5}, {8, 6}, {8, 7}}})
-	if b.AssignedWarehouseID != 1 || b.Buffer != nil {
-		t.Fatalf("after connect: warehouse %d buffer %v", b.AssignedWarehouseID, b.Buffer)
+	return b
+}
+
+// connectRoad links the lumberjack's road to the main road at (8,4).
+var connectRoad = PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{8, 5}, {8, 6}, {8, 7}}}
+
+func woodTotal(w *World) int64 {
+	return total(w.Islands[0], "wood", w.LastEvaluatedAt.UnixMilli())
+}
+
+// TestBufferLeavesWithOutputStreamOnConnect: after connecting, the buffered
+// goods leave first with the producer's output stream; nothing is lost.
+func TestBufferLeavesWithOutputStreamOnConnect(t *testing.T) {
+	c := catalogue(t)
+	w := testWorld(t, c)
+	b := unconnectedLumberjack(t, w, c)
+	before := woodTotal(w)
+
+	l := NewLedger()
+	if err := ApplyWithLedger(w, c, connectRoad, l); err != nil {
+		t.Fatal(err)
 	}
-	if got := display(t, w, c).Islands[0].Inventory["wood"].Stock; got != 5_000 {
-		t.Errorf("wood = %d, want buffer delivered", got)
+	if b.AssignedWarehouseID != 1 || woodTotal(w) != before || l.Flow("main", "wood").Lost != 0 {
+		t.Fatalf("after connect: warehouse %d total %d -> %d lost %d", b.AssignedWarehouseID, before, woodTotal(w), l.Flow("main", "wood").Lost)
+	}
+	if _, err := AdvanceWithLedger(w, c, w.LastEvaluatedAt.Add(10*time.Minute), l); err != nil {
+		t.Fatal(err)
+	}
+	f := l.Flow("main", "wood")
+	if b.Buffer != nil || b.BufferSub != nil || f.Lost != 0 || woodTotal(w) != before+f.Produced {
+		t.Errorf("buffer %v sub %v, total %d, want %d + produced %d", b.Buffer, b.BufferSub, woodTotal(w), before, f.Produced)
+	}
+	// The stream ran at the producer's rate the whole time: the buffer left
+	// first, so production is 10 minutes of output minus the buffer.
+	if stream := b.Efficiency * 2 * 10 * SubPerMilli; f.Produced != stream-before {
+		t.Errorf("produced %d, want %d", f.Produced, stream-before)
+	}
+}
+
+// TestBufferKeptWhenConnectingToFullInventory: connecting while the good is
+// at capacity keeps the buffer instead of losing it; it leaves once there is
+// consumption.
+func TestBufferKeptWhenConnectingToFullInventory(t *testing.T) {
+	c := catalogue(t)
+	w := testWorld(t, c)
+	b := unconnectedLumberjack(t, w, c)
+	if err := AddStock(w, c, "main", "wood", 300_000, nil); err != nil {
+		t.Fatal(err)
+	}
+	before := woodTotal(w) // 300 in stock + 5 buffered
+
+	l := NewLedger()
+	if err := ApplyWithLedger(w, c, connectRoad, l); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := AdvanceWithLedger(w, c, w.LastEvaluatedAt.Add(time.Hour), l); err != nil {
+		t.Fatal(err)
+	}
+	if got := woodTotal(w); got != before || l.Flow("main", "wood").Lost != 0 {
+		t.Fatalf("wood total %d, want %d; lost %d", got, before, l.Flow("main", "wood").Lost)
+	}
+	if got := buildingDisplay(t, display(t, w, c), 2); got.Status != StatusWarehouseFull || got.Buffer == nil || got.Buffer.Stock["wood"] != 5_000 {
+		t.Fatalf("lumberjack = %s buffer %+v", got.Status, got.Buffer)
+	}
+
+	// A sawmill consumes wood; the buffer leaves with the stream.
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})
+	if _, err := AdvanceWithLedger(w, c, w.LastEvaluatedAt.Add(time.Hour), l); err != nil {
+		t.Fatal(err)
+	}
+	f := l.Flow("main", "wood")
+	if b.Buffer != nil || f.Lost != 0 || woodTotal(w) != before+f.Produced-f.Consumed {
+		t.Errorf("buffer %v lost %d total %d", b.Buffer, f.Lost, woodTotal(w))
 	}
 }
 

@@ -11,12 +11,14 @@ import (
 // sub-milli units (see SubPerMilli). It is diagnostic output, not world
 // state.
 type Flow struct {
-	// Produced by recipes (into transit or an unconnected buffer).
+	// Produced by recipes (into transit or an unconnected buffer). Buffered
+	// goods that later leave with a connected producer's output stream are
+	// not counted again.
 	Produced int64 `json:"produced"`
 	// Consumed by recipes from the island inventory.
 	Consumed int64 `json:"consumed"`
-	// Lost to capacity clamping (coarse steps, refunds, surplus loss,
-	// demolished buffers, buffers delivered on connect).
+	// Lost to capacity clamping (coarse steps, refunds, surplus loss) and
+	// demolished buffers.
 	Lost int64 `json:"lost"`
 	// Spent on construction.
 	Spent int64 `json:"spent"`

@@ -203,11 +203,21 @@ func step(is *Island, c *content.Catalogue, r *rates, now, dt int64, coarse bool
 		for _, out := range p.def.Recipe.Outputs {
 			rate := p.rate * out.Amount
 			amount := rate * dt
-			l.flow(is.ID, out.Good).Produced += amount
 			if p.connected {
+				// The output stream of a connected producer leaves at its
+				// current rate. Goods still held in its buffer (from a time
+				// without road connection) leave first; new production only
+				// fills the remainder. Only producers without inputs ever
+				// hold a buffer, so no inputs are involved.
+				fromBuffer := min(amount, b.bufferFine(out.Good))
+				if fromBuffer > 0 {
+					b.setBufferFine(out.Good, b.bufferFine(out.Good)-fromBuffer)
+				}
+				l.flow(is.ID, out.Good).Produced += amount - fromBuffer
 				appendTransit(b, out.Good, now+b.TransferDelayMs, end+b.TransferDelayMs, rate)
 				continue
 			}
+			l.flow(is.ID, out.Good).Produced += amount
 			buf := b.bufferFine(out.Good) + amount
 			if buf > bufCap {
 				l.flow(is.ID, out.Good).Lost += buf - bufCap

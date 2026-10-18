@@ -77,10 +77,11 @@ func warehouseField(is *Island, c *content.Catalogue, start []Pos) roadField {
 }
 
 // recomputeConnectivity assigns every producer to its nearest connected
-// warehouse and updates road distance and transfer delay. Producers that
-// become connected deliver their unconnected buffer immediately (up to the
-// free committed capacity; the rest is lost and recorded in the ledger).
-func recomputeConnectivity(is *Island, c *content.Catalogue, l *Ledger, now int64) {
+// warehouse and updates road distance and transfer delay. The buffer of a
+// producer that becomes connected is not touched here: it leaves with the
+// producer's output stream during Advance (see step), so it is subject to
+// throughput and the warehouse-full rule and is never lost.
+func recomputeConnectivity(is *Island, c *content.Catalogue) {
 	type wh struct {
 		id    int64
 		field roadField
@@ -100,7 +101,6 @@ func recomputeConnectivity(is *Island, c *content.Catalogue, l *Ledger, now int6
 		if def == nil || def.Recipe == nil {
 			continue
 		}
-		wasConnected := b.AssignedWarehouseID != 0
 		b.AssignedWarehouseID, b.RoadDistance, b.TransferDelayMs = 0, 0, 0
 		adj := is.roadsAt(entrance(def, b.X, b.Y, b.Rotation))
 		bestDist := unreachable
@@ -127,22 +127,6 @@ func recomputeConnectivity(is *Island, c *content.Catalogue, l *Ledger, now int6
 			// At least 1 ms so that new output never arrives within the step
 			// in which it is produced.
 			b.TransferDelayMs = max(c.Region.Rules.TransferBaseMs+bestDelay, 1)
-			if !wasConnected {
-				deliverBuffer(is, c, b, l, now)
-			}
 		}
-	}
-}
-
-// deliverBuffer moves the unconnected buffer of a producer into the island
-// inventory, limited by the free committed capacity; any excess is lost.
-func deliverBuffer(is *Island, c *content.Catalogue, b *Building, l *Ledger, now int64) {
-	for _, good := range sortedKeys(b.Buffer, b.BufferSub) {
-		amount := b.bufferFine(good)
-		free := capacityFine(is, c) - committedFine(is, good, now)
-		take := max(min(amount, free), 0)
-		is.Inventory.setFine(good, is.Inventory.fine(good)+take)
-		l.flow(is.ID, good).Lost += amount - take
-		b.setBufferFine(good, 0)
 	}
 }
