@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"math"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -663,5 +664,25 @@ func TestFullWithConsumer(t *testing.T) {
 	wood := ds.Islands[0].Inventory["wood"]
 	if c := wood.Stock + wood.InTransit; c > wood.Capacity || c < wood.Capacity-50 {
 		t.Errorf("wood = %+v, want committed at capacity", wood)
+	}
+}
+
+func TestAddStockRejectsOversizedGrants(t *testing.T) {
+	c := catalogue(t)
+	w := testWorld(t, c) // 200 planks, capacity 300
+	for _, qty := range []Qty{math.MaxInt64, math.MaxInt64 / SubPerMilli, 100_001} {
+		before := encode(t, w)
+		if err := AddStock(w, c, "main", "planks", qty, nil); !errors.Is(err, ErrOverCapacity) {
+			t.Errorf("AddStock(%d) = %v, want ErrOverCapacity", qty, err)
+		}
+		if !bytes.Equal(before, encode(t, w)) {
+			t.Errorf("AddStock(%d) changed the world", qty)
+		}
+	}
+	if err := AddStock(w, c, "main", "planks", 100_000, nil); err != nil {
+		t.Errorf("AddStock up to capacity: %v", err)
+	}
+	if got := w.Islands[0].Inventory.Stock["planks"]; got != 300_000 {
+		t.Errorf("planks = %d", got)
 	}
 }

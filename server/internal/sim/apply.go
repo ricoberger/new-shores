@@ -102,10 +102,13 @@ func AddStock(w *World, c *content.Catalogue, islandID, good string, qty Qty, l 
 		return fmt.Errorf("%w: negative quantity", ErrInvalidCommand)
 	}
 	now := w.LastEvaluatedAt.UnixMilli()
-	add := qty * SubPerMilli
-	if committedFine(is, good, now)+add > capacityFine(is, c) {
+	// Compare in milli-units before scaling so that huge quantities cannot
+	// overflow: qty*SubPerMilli <= free  <=>  qty <= free/SubPerMilli.
+	free := capacityFine(is, c) - committedFine(is, good, now)
+	if free < 0 || qty > free/SubPerMilli {
 		return fmt.Errorf("%w: %s", ErrOverCapacity, good)
 	}
+	add := qty * SubPerMilli
 	is.Inventory.setFine(good, is.Inventory.fine(good)+add)
 	l.flow(is.ID, good).Granted += add
 	clearRegimes(is)

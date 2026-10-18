@@ -3,6 +3,7 @@ package scenario
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"os"
 	"path/filepath"
@@ -276,6 +277,22 @@ func TestStepErrorsCarryIndex(t *testing.T) {
 	}
 	_, err = Run(s, loadCatalogue(t))
 	if err == nil || !strings.Contains(err.Error(), "step 1 (place)") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestOversizedStockStepFails(t *testing.T) {
+	s, err := Parse([]byte(`{
+		"name": "huge", "start": "2026-01-01T00:00:00Z",
+		"island": {"rows": ["~~~~~~", "~cccc~", "~....~", "~....~", "~~~~~~"]},
+		"seed": {"warehouse": {"x": 1, "y": 1}},
+		"steps": [{"stock": {"good": "wood", "amount": 9223372036854775.807}}]
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = Run(s, loadCatalogue(t))
+	if !errors.Is(err, sim.ErrOverCapacity) || !strings.Contains(err.Error(), "step 0 (stock)") {
 		t.Fatalf("err = %v", err)
 	}
 }
