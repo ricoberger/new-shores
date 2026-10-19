@@ -8,7 +8,10 @@
 //   - rates per minute (upkeep, taxes, needs, warehouse throughput): milli-units
 //     per minute,
 //   - durations (cycles, transfer delays, coarse step): milliseconds,
-//   - need weights: parts per million.
+//   - need weights, satisfaction-like ratios (growth threshold): parts per
+//     million,
+//   - variety and optional tax bonuses: parts per million,
+//   - growth and decline rates: milli-residents per minute.
 package content
 
 // Qty is a fixed-point quantity in milli-units (1 unit = 1000).
@@ -47,6 +50,17 @@ type Catalogue struct {
 	BuildingByID map[string]*Building
 	// NeedsByTier maps a tier ID to its needs in file order.
 	NeedsByTier map[string][]*Need
+	// Start is the starting stock granted after the first warehouse.
+	Start Start
+}
+
+// Start is the starting stock of a new world (start.json): granted after the
+// first warehouse stands (MECHANICS §8).
+type Start struct {
+	// Gold in milli-gold.
+	Gold Qty
+	// Goods sorted by good ID, in milli-units.
+	Goods []GoodAmount
 }
 
 // Region holds the region identity, its content version and the
@@ -70,6 +84,19 @@ type Rules struct {
 	IterationCap int
 	// CoarseStepMs is the length of one coarse step.
 	CoarseStepMs int64
+	// GrowthPerMin is the growth of a house at satisfaction 1 in
+	// milli-residents per minute (MECHANICS §6.1).
+	GrowthPerMin Qty
+	// DeclinePerMin is the decline rate factor in milli-residents per minute:
+	// decline = DeclinePerMin x (threshold - satisfaction).
+	DeclinePerMin Qty
+	// GrowthThreshold is the satisfaction (ppm) from which houses grow.
+	GrowthThreshold int64
+	// OptionalTaxBonus is the tax bonus of fully met optional needs (ppm).
+	OptionalTaxBonus int64
+	// AutoResumeMs is the gold reserve, in milliseconds of a building's
+	// upkeep, required before an unpaid building is auto-resumed.
+	AutoResumeMs int64
 }
 
 // Tier is a population tier.
@@ -83,8 +110,10 @@ type Tier struct {
 	ResidentsMax   Qty
 	// TaxPerResidentPerMin is in milli-gold per resident per minute.
 	TaxPerResidentPerMin Qty
-	House                string
-	Unlock               Unlock
+	// House is the house building of the tier; "" for a declared-only tier
+	// (no house and no needs yet).
+	House  string
+	Unlock Unlock
 }
 
 // Unlock lists the conditions to unlock a tier (MECHANICS §12).
@@ -131,6 +160,15 @@ type Building struct {
 	Road      *Road
 	Service   *Service
 	WorkArea  *WorkArea
+	Workforce *Workforce
+}
+
+// Workforce is the number of residents of a tier a producer needs on its
+// island (D-035).
+type Workforce struct {
+	Tier string
+	// Amount in milli-residents (whole residents).
+	Amount Qty
 }
 
 // Cost is a construction cost.
@@ -185,20 +223,44 @@ type WorkArea struct {
 	RequiredTiles int
 }
 
-// Need is a goods or building need of a tier (MECHANICS §6.2).
+// Need kinds (MECHANICS §6.2).
+const (
+	NeedRequired = "required"
+	NeedOptional = "optional"
+)
+
+// Need is a goods or building need of a tier (MECHANICS §6.2). A goods need
+// has a Category and a non-empty Goods list; a building need has Building and
+// Radius.
 type Need struct {
 	ID   string
 	Tier string
-	// Good and PerResidentPerMin (milli-units) are set for goods needs.
-	Good              string
-	PerResidentPerMin Qty
+	// Kind is NeedRequired or NeedOptional.
+	Kind string
+	// Weight in parts per million.
+	Weight int64
+
+	// Category, Goods, VarietyBonus (ppm per extra good) and MaxExtraGoods
+	// are set for goods needs. Goods keep the file order.
+	Category      string
+	Goods         []NeedGood
+	VarietyBonus  int64
+	MaxExtraGoods int
+
 	// Building and Radius are set for building needs.
 	Building string
 	Radius   int
-	// Weight in parts per million.
-	Weight   int64
-	Category string
 }
+
+// NeedGood is an acceptable good of a goods need.
+type NeedGood struct {
+	Good string
+	// PerResidentPerMin in milli-units per resident per minute.
+	PerResidentPerMin Qty
+}
+
+// IsGoods reports whether the need is a goods need.
+func (n *Need) IsGoods() bool { return len(n.Goods) > 0 }
 
 // MatchesTerrain reports whether terrain counts for the work area.
 func (wa *WorkArea) MatchesTerrain(terrain string) bool {

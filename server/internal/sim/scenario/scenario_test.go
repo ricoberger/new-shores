@@ -53,7 +53,7 @@ func loadScenario(t testing.TB, name string) *Scenario {
 func runScenario(t testing.TB, name string) *Report {
 	t.Helper()
 	s := loadScenario(t, name)
-	c, err := content.Load(s.ContentDir(repoRoot(t)))
+	c, err := s.LoadContent(repoRoot(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -234,7 +234,10 @@ func TestChainPlanks12h(t *testing.T) {
 
 	// Timing: one warm-up run, best of three.
 	s := loadScenario(t, "chain_planks_12h")
-	c := loadCatalogue(t)
+	c, err := s.LoadContent(repoRoot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
 	best := time.Duration(1<<63 - 1)
 	for i := range 4 {
 		rep, err := Run(s, c)
@@ -296,3 +299,4 @@ func TestOversizedStockStepFails(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+

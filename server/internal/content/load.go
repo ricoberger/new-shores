@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -21,9 +22,10 @@ const (
 	FileGoods     = "goods.json"
 	FileBuildings = "buildings.json"
 	FileNeeds     = "needs.json"
+	FileStart     = "start.json"
 )
 
-var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeeds}
+var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeeds, FileStart}
 
 // Error describes one content problem. It names the file, the offending
 // entity (if any) and the field.
@@ -175,6 +177,8 @@ func entityKind(file string) string {
 		return "building"
 	case FileNeeds:
 		return "need"
+	case FileStart:
+		return "start"
 	}
 	return "entity"
 }
@@ -208,6 +212,11 @@ type rawRegion struct {
 		UnconnectedBufferUnits json.Number `json:"unconnected_buffer_units"`
 		IterationCap           int         `json:"iteration_cap"`
 		CoarseStepSeconds      json.Number `json:"coarse_step_seconds"`
+		GrowthPerMin           json.Number `json:"growth_per_min"`
+		DeclinePerMin          json.Number `json:"decline_per_min"`
+		GrowthThreshold        json.Number `json:"growth_satisfaction_threshold"`
+		OptionalTaxBonus       json.Number `json:"optional_tax_bonus"`
+		AutoResumeMinutes      json.Number `json:"auto_resume_upkeep_minutes"`
 	} `json:"rules"`
 }
 
@@ -272,17 +281,31 @@ type rawBuilding struct {
 		Terrain       []string `json:"terrain"`
 		RequiredTiles int      `json:"required_tiles"`
 	} `json:"work_area"`
+	Workforce *struct {
+		Tier   string `json:"tier"`
+		Amount int64  `json:"amount"`
+	} `json:"workforce"`
 }
 
 type rawNeed struct {
-	ID                string      `json:"id"`
-	Tier              string      `json:"tier"`
-	Good              string      `json:"good"`
-	PerResidentPerMin json.Number `json:"per_resident_per_min"`
-	Building          string      `json:"building"`
-	Radius            int         `json:"radius"`
-	Weight            json.Number `json:"weight"`
-	Category          string      `json:"category"`
+	ID       string      `json:"id"`
+	Tier     string      `json:"tier"`
+	Kind     string      `json:"kind"`
+	Weight   json.Number `json:"weight"`
+	Category string      `json:"category"`
+	Goods    []struct {
+		Good              string      `json:"good"`
+		PerResidentPerMin json.Number `json:"per_resident_per_min"`
+	} `json:"goods"`
+	VarietyBonus  json.Number `json:"variety_bonus"`
+	MaxExtraGoods int         `json:"max_extra_goods"`
+	Building      string      `json:"building"`
+	Radius        int         `json:"radius"`
+}
+
+type rawStart struct {
+	Gold  json.Number            `json:"gold"`
+	Goods map[string]json.Number `json:"goods"`
 }
 
 func unmarshal(data []byte, v any) error {
@@ -324,9 +347,10 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		goods     []rawGood
 		buildings []rawBuilding
 		needs     []rawNeed
+		start     rawStart
 	)
 	for name, v := range map[string]any{
-		FileRegion: &region, FileTiers: &tiers, FileGoods: &goods, FileBuildings: &buildings, FileNeeds: &needs,
+		FileRegion: &region, FileTiers: &tiers, FileGoods: &goods, FileBuildings: &buildings, FileNeeds: &needs, FileStart: &start,
 	} {
 		if err := unmarshal(raw[name], v); err != nil {
 			return nil, &Error{File: name, Msg: fmt.Sprintf("decode: %v", err)}
@@ -351,6 +375,13 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			UnconnectedBuffer: col.fixed(FileRegion, ent, "rules.unconnected_buffer_units", region.Rules.UnconnectedBufferUnits, 3),
 			IterationCap:      region.Rules.IterationCap,
 			CoarseStepMs:      col.fixed(FileRegion, ent, "rules.coarse_step_seconds", region.Rules.CoarseStepSeconds, 3),
+			GrowthPerMin:      col.fixed(FileRegion, ent, "rules.growth_per_min", region.Rules.GrowthPerMin, 3),
+			DeclinePerMin:     col.fixed(FileRegion, ent, "rules.decline_per_min", region.Rules.DeclinePerMin, 3),
+			// Ratios have at most 3 decimal places and are kept in ppm.
+			GrowthThreshold:  col.fixed(FileRegion, ent, "rules.growth_satisfaction_threshold", region.Rules.GrowthThreshold, 3) * 1000,
+			OptionalTaxBonus: col.fixed(FileRegion, ent, "rules.optional_tax_bonus", region.Rules.OptionalTaxBonus, 3) * 1000,
+			// Minutes with 3 decimal places are milli-minutes; x60 gives ms.
+			AutoResumeMs: col.fixed(FileRegion, ent, "rules.auto_resume_upkeep_minutes", region.Rules.AutoResumeMinutes, 3) * 60,
 		},
 	}
 
@@ -411,16 +442,35 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		}
 		seenNeeds[rn.ID] = true
 		n := &Need{
-			ID:       rn.ID,
-			Tier:     rn.Tier,
-			Good:     rn.Good,
-			Building: rn.Building,
-			Radius:   rn.Radius,
-			Weight:   col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),
-			Category: rn.Category,
+			ID:            rn.ID,
+			Tier:          rn.Tier,
+			Kind:          rn.Kind,
+			Weight:        col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),
+			Category:      rn.Category,
+			VarietyBonus:  col.fixed(FileNeeds, ent, "variety_bonus", rn.VarietyBonus, 3) * 1000,
+			MaxExtraGoods: rn.MaxExtraGoods,
+			Building:      rn.Building,
+			Radius:        rn.Radius,
 		}
-		n.PerResidentPerMin = col.fixed(FileNeeds, ent, "per_resident_per_min", rn.PerResidentPerMin, 3)
+		for i, g := range rn.Goods {
+			n.Goods = append(n.Goods, NeedGood{
+				Good:              g.Good,
+				PerResidentPerMin: col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].per_resident_per_min", i), g.PerResidentPerMin, 3),
+			})
+		}
 		cat.NeedsByTier[n.Tier] = append(cat.NeedsByTier[n.Tier], n)
+	}
+
+	cat.Start.Gold = col.fixed(FileStart, "", "gold", start.Gold, 3)
+	for _, good := range slices.Sorted(maps.Keys(start.Goods)) {
+		v := col.fixed(FileStart, "", "goods."+good, start.Goods[good], 3)
+		if cat.GoodByID[good] == nil {
+			col.add(FileStart, "", "goods."+good, "unknown good %q", good)
+			continue
+		}
+		if v > 0 {
+			cat.Start.Goods = append(cat.Start.Goods, GoodAmount{Good: good, Amount: v})
+		}
 	}
 
 	if err := col.err(); err != nil {
@@ -515,6 +565,9 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 	}
 	if s := rb.Service; s != nil {
 		b.Service = &Service{Radius: s.Radius}
+	}
+	if wf := rb.Workforce; wf != nil {
+		b.Workforce = &Workforce{Tier: wf.Tier, Amount: wf.Amount * MilliPerUnit}
 	}
 	if wa := rb.WorkArea; wa != nil {
 		b.WorkArea = &WorkArea{Radius: wa.Radius, Terrain: wa.Terrain, RequiredTiles: wa.RequiredTiles}

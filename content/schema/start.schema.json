@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/start.schema.json",
+  "title": "Starting stock",
+  "description": "Gold and goods granted after the first warehouse of a new world stands (CONTENT §12, MECHANICS §8). Amounts in units.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["gold", "goods"],
+  "properties": {
+    "gold": { "type": "number", "minimum": 0 },
+    "goods": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+      "additionalProperties": { "type": "number", "minimum": 0 }
+    }
+  }
+}

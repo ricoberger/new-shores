@@ -1,0 +1,9 @@
+[
+  { "id": "wood", "name": "Wood", "type": "raw" },
+  { "id": "planks", "name": "Planks", "type": "construction" },
+  { "id": "fish", "name": "Fish", "type": "food" },
+  { "id": "bread", "name": "Bread", "type": "food" },
+  { "id": "wool", "name": "Wool", "type": "raw" },
+  { "id": "wool_garments", "name": "Wool garments", "type": "clothing" },
+  { "id": "sails", "name": "Sails", "type": "construction" }
+]

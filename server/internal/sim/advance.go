@@ -24,6 +24,21 @@ const (
 	// BoundaryCoarseMode: the iteration cap was reached; the rest of the
 	// advancement uses coarse steps.
 	BoundaryCoarseMode = "coarse_mode"
+	// BoundaryResidents: a house accumulator reaches +/-1 resident (or 0 at
+	// a residents bound).
+	BoundaryResidents = "residents"
+	// BoundaryGoldZero: gold can no longer cover one millisecond of the
+	// negative balance; buildings are auto-paused.
+	BoundaryGoldZero = "gold_zero"
+	// BoundaryAutoPause: a building was paused for insolvency (island and
+	// building set).
+	BoundaryAutoPause = "auto_pause"
+	// BoundaryAutoResume: an unpaid building was resumed (island and
+	// building set), or gold reaches the resume threshold of the next unpaid
+	// building (no building set).
+	BoundaryAutoResume = "auto_resume"
+	// BoundaryTierUnlocked: a tier's unlock conditions hold.
+	BoundaryTierUnlocked = "tier_unlocked"
 )
 
 // maxStepMs bounds the length of a single linear step so that rate*duration
@@ -38,12 +53,15 @@ type Boundary struct {
 	IslandID   string    `json:"island_id,omitempty"`
 	BuildingID int64     `json:"building_id,omitempty"`
 	Good       string    `json:"good,omitempty"`
+	Tier       string    `json:"tier,omitempty"`
 }
 
 // Advance moves the world forward to time to (truncated to milliseconds)
 // using the piecewise-constant-rate model of MECHANICS §1.1 and returns the
-// boundaries that were crossed. It never changes gold in this slice.
-// Advancing to LastEvaluatedAt is a no-op; an earlier time is an error.
+// boundaries that were crossed, including the discrete events applied at
+// them (auto_pause, auto_resume, tier_unlocked). Gold accrues from taxes and
+// upkeep. Advancing to LastEvaluatedAt is a no-op; an earlier time is an
+// error.
 func Advance(w *World, c *content.Catalogue, to time.Time) ([]Boundary, error) {
 	return AdvanceWithLedger(w, c, to, nil)
 }
@@ -62,45 +80,47 @@ func AdvanceWithLedger(w *World, c *content.Catalogue, to time.Time, l *Ledger) 
 	rules := c.Region.Rules
 	var out []Boundary
 	count, coarse := 0, false
-	rs := make([]*rates, len(w.Islands))
 	for now < end {
 		if !coarse && count >= rules.IterationCap {
 			coarse = true
 			out = append(out, Boundary{At: time.UnixMilli(now).UTC(), Kind: BoundaryCoarseMode})
 		}
-		for i, is := range w.Islands {
-			rs[i] = settle(is, c, now)
-		}
+		wr, events := settleWorld(w, c, now)
+		out = append(out, events...)
 		if coarse {
 			dt := min(rules.CoarseStepMs, end-now)
 			for i, is := range w.Islands {
-				step(is, c, rs[i], now, dt, true, l)
+				step(is, c, wr.islands[i], now, dt, true, l)
 			}
+			stepWorld(w, wr, dt)
 			now += dt
 			continue
 		}
 
-		at, cands := nextBoundary(w, c, rs, now)
+		at, cands := nextBoundary(w, c, wr, now)
 		stepEnd := min(at, end, now+maxStepMs)
 		for i, is := range w.Islands {
-			step(is, c, rs[i], now, stepEnd-now, false, l)
+			step(is, c, wr.islands[i], now, stepEnd-now, false, l)
 		}
+		stepWorld(w, wr, stepEnd-now)
 		if at == stepEnd {
 			count++
 			out = append(out, cands...)
 		}
 		now = stepEnd
 	}
-	for _, is := range w.Islands {
-		settle(is, c, now)
-	}
+	_, events := settleWorld(w, c, now)
+	out = append(out, events...)
 	w.LastEvaluatedAt = to
 	return out, nil
 }
 
+// ceilDiv returns ceil(a/b) for a >= 0 and b > 0.
+func ceilDiv(a, b int64) int64 { return (a + b - 1) / b }
+
 // nextBoundary returns the earliest boundary strictly after now (math.MaxInt64
 // if there is none) and the boundaries occurring at that time.
-func nextBoundary(w *World, c *content.Catalogue, rs []*rates, now int64) (int64, []Boundary) {
+func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (int64, []Boundary) {
 	best := int64(math.MaxInt64)
 	var list []Boundary
 	consider := func(t int64, b Boundary) {
@@ -124,7 +144,7 @@ func nextBoundary(w *World, c *content.Catalogue, rs []*rates, now int64) (int64
 	}
 
 	for i, is := range w.Islands {
-		r := rs[i]
+		r := wr.islands[i]
 		inv := &is.Inventory
 		capFine := capacityFine(is, c)
 		for _, good := range sortedKeys(r.cons, r.prod, r.inflow) {
@@ -176,6 +196,42 @@ func nextBoundary(w *World, c *content.Catalogue, rs []*rates, now int64) (int64
 					consider(s.ToMs, Boundary{Kind: BoundaryTransfer, IslandID: is.ID, BuildingID: b.ID, Good: s.Good})
 				}
 			}
+		}
+		// Residents: the accumulator reaches +/-1 resident, or 0 when the
+		// house is at the bound it moves towards.
+		for _, h := range r.houses {
+			g, a, hs := h.growth, h.b.House.Growth, h.b.House
+			var dist int64
+			switch {
+			case g > 0 && hs.Residents < h.tier.ResidentsMax:
+				dist = ceilDiv(ResidentSub-a, g)
+			case g > 0:
+				dist = ceilDiv(-a, g)
+			case g < 0 && hs.Residents > h.tier.ResidentsFloor:
+				dist = ceilDiv(a+ResidentSub, -g)
+			case g < 0:
+				dist = ceilDiv(a, -g)
+			default:
+				continue
+			}
+			consider(now+dist, Boundary{Kind: BoundaryResidents, IslandID: is.ID, BuildingID: h.b.ID})
+		}
+	}
+
+	// Gold: the balance can no longer be covered for one more millisecond,
+	// or gold reaches the resume threshold of the next unpaid building.
+	gold := w.goldFine()
+	if wr.goldRate < 0 {
+		consider(now+gold/-wr.goldRate, Boundary{Kind: BoundaryGoldZero})
+	}
+	// The threshold boundary carries no building; the resume itself is
+	// reported by settle with island and building. If the conditions already
+	// hold (only for a building paused during this very settle), the resume
+	// happens at the next millisecond, which is a boundary as well.
+	if _, b := resumeCandidate(w); b != nil && wr.balance > 0 {
+		upkeep := c.BuildingByID[b.Type].UpkeepPerMin
+		if thr := resumeThreshold(c, upkeep); wr.balance-upkeep >= 0 {
+			consider(now+ceilDiv(max(thr-gold, 0), wr.balance), Boundary{Kind: BoundaryAutoResume})
 		}
 	}
 	return best, list
@@ -232,6 +288,12 @@ func step(is *Island, c *content.Catalogue, r *rates, now, dt int64, coarse bool
 				l.flow(is.ID, in.Good).Consumed += amount
 			}
 		}
+	}
+
+	for good, rate := range r.houseCons {
+		amount := rate * dt
+		delta[good] -= amount
+		l.flow(is.ID, good).Consumed += amount
 	}
 
 	// Arrivals are computed after the new output was appended, so that a
@@ -322,6 +384,10 @@ func limitToAvailable(is *Island, r *rates, dt int64, arrivals map[string]int64)
 				p.rate = mulDiv(p.rate, max(avail, 0), need)
 			}
 			cons += p.rate * p.inputAmount(good)
+		}
+		if h := r.houseCons[good]; h > 0 {
+			r.houseCons[good] = mulDiv(h, max(avail, 0), need)
+			cons += r.houseCons[good]
 		}
 		r.cons[good] = cons
 	}

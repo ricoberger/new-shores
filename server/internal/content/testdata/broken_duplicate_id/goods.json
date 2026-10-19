@@ -1,8 +1,9 @@
 [
   { "id": "wood", "name": "Wood", "type": "raw" },
   { "id": "planks", "name": "Planks", "type": "construction" },
-  { "id": "fish", "name": "Fish", "type": "food" },
   { "id": "wood", "name": "Driftwood", "type": "raw" },
+  { "id": "fish", "name": "Fish", "type": "food" },
   { "id": "wool", "name": "Wool", "type": "raw" },
-  { "id": "wool_garments", "name": "Wool garments", "type": "clothing" }
+  { "id": "wool_garments", "name": "Wool garments", "type": "clothing" },
+  { "id": "sails", "name": "Sails", "type": "construction" }
 ]

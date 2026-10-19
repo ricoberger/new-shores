@@ -40,11 +40,20 @@ type DemolishRoad struct {
 	Tiles    []Pos
 }
 
-// SetPaused pauses or resumes a production building.
+// SetPaused pauses or resumes a building. Pausing is allowed for buildings
+// whose pause_category is not never; resuming for every paused building,
+// whatever the reason.
 type SetPaused struct {
 	IslandID   string
 	BuildingID int64
 	Paused     bool
+}
+
+// UpgradeHouse upgrades a full house to the next tier's house (MECHANICS
+// §6.1).
+type UpgradeHouse struct {
+	IslandID   string
+	BuildingID int64
 }
 
 func (PlaceBuilding) isCommand() {}
@@ -52,6 +61,7 @@ func (PlaceRoad) isCommand()     {}
 func (Demolish) isCommand()      {}
 func (DemolishRoad) isCommand()  {}
 func (SetPaused) isCommand()     {}
+func (UpgradeHouse) isCommand()  {}
 
 // Apply validates and executes a command at w.LastEvaluatedAt (the caller
 // advances the world first). Every command validates completely before it
@@ -61,23 +71,32 @@ func Apply(w *World, c *content.Catalogue, cmd Command) error {
 }
 
 // ApplyWithLedger is Apply that records goods movements in l (may be nil).
+// Tier unlocks are evaluated after every successful command.
 func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) error {
+	var err error
 	switch cmd := cmd.(type) {
 	case PlaceBuilding:
-		return placeBuilding(w, c, cmd, true, l)
+		err = placeBuilding(w, c, cmd, true, l)
 	case PlaceRoad:
-		return placeRoad(w, c, cmd, l)
+		err = placeRoad(w, c, cmd, l)
 	case Demolish:
-		return demolish(w, c, cmd, l)
+		err = demolish(w, c, cmd, l)
 	case DemolishRoad:
-		return demolishRoad(w, c, cmd, l)
+		err = demolishRoad(w, c, cmd, l)
 	case SetPaused:
-		return setPaused(w, c, cmd)
+		err = setPaused(w, c, cmd)
+	case UpgradeHouse:
+		err = upgradeHouse(w, c, cmd, l)
 	case nil:
 		return fmt.Errorf("%w: nil command", ErrInvalidCommand)
 	default:
 		return fmt.Errorf("%w: %T", ErrInvalidCommand, cmd)
 	}
+	if err != nil {
+		return err
+	}
+	evaluateUnlocks(w, c)
+	return nil
 }
 
 // PlaceFree places a building without charging its cost. It is meant for
@@ -175,6 +194,9 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if def == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownBuilding, cmd.Type)
 	}
+	if charge && !TierUnlocked(w, c, def.Tier) {
+		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
+	}
 	if def.Road != nil {
 		if !charge {
 			return fmt.Errorf("%w: roads cannot be placed free", ErrInvalidCommand)
@@ -254,6 +276,9 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 	}
 	if def.Road == nil {
 		return fmt.Errorf("%w: %q is not a road", ErrInvalidCommand, cmd.Type)
+	}
+	if !TierUnlocked(w, c, def.Tier) {
+		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
 	}
 	if len(cmd.Tiles) == 0 {
 		return fmt.Errorf("%w: no tiles", ErrInvalidCommand)
@@ -418,17 +443,92 @@ func setPaused(w *World, c *content.Catalogue, cmd SetPaused) error {
 		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
 	}
 	def := c.BuildingByID[b.Type]
-	if def == nil || def.Recipe == nil {
+	pausable := def != nil && pauseRank(def.PauseCategory) > 0
+	switch {
+	case cmd.Paused && !pausable:
 		return fmt.Errorf("%w: %s", ErrNotPausable, b.Type)
-	}
-	if cmd.Paused {
-		b.Paused, b.PausedReason = true, PausedReasonPlayer
-	} else {
-		// Resuming is allowed for both player and unpaid pauses (MECHANICS §14).
-		b.Paused, b.PausedReason = false, ""
+	case cmd.Paused:
+		b.Paused, b.PausedReason, b.PauseSeq = true, PausedReasonPlayer, 0
+	case b.Paused:
+		// Resuming is allowed for any paused building, player or unpaid
+		// (MECHANICS §14). An unpaid building resumed while the balance is
+		// still negative is paused again at the next settle.
+		b.Paused, b.PausedReason, b.PauseSeq = false, "", 0
+	case !pausable:
+		return fmt.Errorf("%w: %s", ErrNotPausable, b.Type)
 	}
 	clearRegimes(is)
 	return nil
+}
+
+func upgradeHouse(w *World, c *content.Catalogue, cmd UpgradeHouse, l *Ledger) error {
+	is, err := lookupIsland(w, cmd.IslandID)
+	if err != nil {
+		return err
+	}
+	b := is.Building(cmd.BuildingID)
+	if b == nil {
+		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
+	}
+	def := c.BuildingByID[b.Type]
+	tier := houseTier(b, c)
+	if def == nil || tier == nil {
+		return fmt.Errorf("%w: %s", ErrNotAHouse, b.Type)
+	}
+	var next *content.Tier
+	if tier.Index+1 < len(c.Tiers) {
+		next = c.Tiers[tier.Index+1]
+	}
+	if next == nil || next.House == "" || c.BuildingByID[next.House] == nil {
+		return fmt.Errorf("%w: no house of the next tier after %s", ErrUpgradeUnavailable, tier.ID)
+	}
+	nextDef := c.BuildingByID[next.House]
+	if !TierUnlocked(w, c, next.ID) {
+		return fmt.Errorf("%w: %s", ErrTierLocked, next.ID)
+	}
+	if b.House.Residents < tier.ResidentsMax {
+		return fmt.Errorf("%w: %d of %d milli-residents", ErrHouseNotFull, b.House.Residents, tier.ResidentsMax)
+	}
+	if need := unmetRequiredNeed(w, c, is, b.ID); need != "" {
+		return fmt.Errorf("%w: %s", ErrNeedsUnmet, need)
+	}
+	if nextDef.Width != def.Width || nextDef.Height != def.Height {
+		return fmt.Errorf("%w: footprint of %s differs", ErrUpgradeUnavailable, nextDef.ID)
+	}
+	if err := checkCost(w, is, nextDef.Cost, 1); err != nil {
+		return err
+	}
+
+	// Validation complete: mutate.
+	chargeCost(w, is, nextDef.Cost, 1, l)
+	b.Type = nextDef.ID
+	b.House = &HouseState{Residents: next.ResidentsFloor}
+	afterChange(is, c)
+	return nil
+}
+
+// unmetRequiredNeed returns the ID of the first required need of the house
+// that is not fully met at this instant ("" when all are met). It settles a
+// copy of the world, so the world itself is not changed.
+func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) string {
+	cw := w.Clone()
+	wr, _ := settleWorld(cw, c, cw.LastEvaluatedAt.UnixMilli())
+	for i, cis := range cw.Islands {
+		if cis.ID != is.ID {
+			continue
+		}
+		for _, h := range wr.islands[i].houses {
+			if h.b.ID != id {
+				continue
+			}
+			for _, n := range h.needs {
+				if n.need.Kind != content.NeedOptional && n.fulfilment < ppm {
+					return n.need.ID
+				}
+			}
+		}
+	}
+	return ""
 }
 
 // afterChange recomputes derived placement state after a map change.

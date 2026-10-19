@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
+
+const timeLayout = "2006-01-02T15:04:05.000Z07:00"
 
 // Report is the deterministic result of a scenario run (except
 // AdvanceDurationMs, which is wall time and omitted when zero).
@@ -21,6 +24,9 @@ type Report struct {
 	Totals map[string]map[string]Totals `json:"totals"`
 	// Bottlenecks lists every building whose status is not ok.
 	Bottlenecks []Bottleneck `json:"bottlenecks"`
+	// PauseEvents lists the insolvency pauses and resumes in occurrence
+	// order.
+	PauseEvents []PauseEvent `json:"pause_events"`
 	// Snapshots after every advance step.
 	Snapshots []Snapshot `json:"snapshots"`
 	// Final is the Display payload at the end of the run.
@@ -49,13 +55,28 @@ type Bottleneck struct {
 	Reason     string `json:"reason"`
 }
 
-// Snapshot is the inventory after an advance step.
+// PauseEvent is an auto-pause or auto-resume of a building.
+type PauseEvent struct {
+	At         string `json:"at"`
+	Action     string `json:"action"`
+	IslandID   string `json:"island_id"`
+	BuildingID int64  `json:"building_id"`
+	Type       string `json:"type"`
+}
+
+// Snapshot is the state after an advance step.
 type Snapshot struct {
 	Step          int                              `json:"step"`
 	At            string                           `json:"at"`
 	Boundaries    int                              `json:"boundaries"`
 	Inventory     map[string]map[string]GoodAmount `json:"inventory"`
 	StatusesCount map[string]int                   `json:"statuses"`
+	// Gold in milli-gold and the balance in milli-gold per minute.
+	Gold              int64 `json:"gold"`
+	BalanceRatePerMin int64 `json:"balance_rate_per_min"`
+	// Population per tier over all islands (milli-residents).
+	Population    map[string]int64 `json:"population"`
+	UnlockedTiers []string         `json:"unlocked_tiers"`
 }
 
 // GoodAmount is stock and in-transit of a good (milli-units).
@@ -80,13 +101,15 @@ func (r *runner) display() (sim.DisplayState, error) {
 
 func (r *runner) snapshot(step, boundaries int) Snapshot {
 	snap := Snapshot{
-		Step: step, At: r.w.LastEvaluatedAt.Format("2006-01-02T15:04:05.000Z07:00"), Boundaries: boundaries,
+		Step: step, At: r.w.LastEvaluatedAt.Format(timeLayout), Boundaries: boundaries,
 		Inventory: map[string]map[string]GoodAmount{}, StatusesCount: map[string]int{},
+		Population: map[string]int64{}, UnlockedTiers: sim.UnlockedTiers(r.w, r.c),
 	}
 	ds, err := r.display()
 	if err != nil {
 		return snap
 	}
+	snap.Gold, snap.BalanceRatePerMin = ds.Gold, ds.BalanceRatePerMin
 	for _, is := range ds.Islands {
 		inv := map[string]GoodAmount{}
 		for good, g := range is.Inventory {
@@ -95,6 +118,9 @@ func (r *runner) snapshot(step, boundaries int) Snapshot {
 			}
 		}
 		snap.Inventory[is.ID] = inv
+		for tier, n := range is.Population {
+			snap.Population[tier] += n
+		}
 		for _, b := range is.Buildings {
 			if b.Rates != nil {
 				snap.StatusesCount[b.Status]++
@@ -129,21 +155,49 @@ func (r *runner) finish() error {
 		rep.Totals[island] = t
 	}
 	rep.Bottlenecks = []Bottleneck{}
+	if rep.PauseEvents == nil {
+		rep.PauseEvents = []PauseEvent{}
+	}
 	for _, is := range ds.Islands {
 		for _, b := range is.Buildings {
 			if b.Status == sim.StatusOK {
 				continue
 			}
 			rep.Bottlenecks = append(rep.Bottlenecks, Bottleneck{
-				IslandID: is.ID, BuildingID: b.ID, Type: b.Type, Status: b.Status, Reason: reason(is, b),
+				IslandID: is.ID, BuildingID: b.ID, Type: b.Type, Status: b.Status, Reason: reason(r.c, is, b),
 			})
 		}
 	}
 	return nil
 }
 
+// recordPauseEvents appends the auto-pause and auto-resume events of an
+// Advance to the report.
+func (r *runner) recordPauseEvents(bs []sim.Boundary) {
+	for _, b := range bs {
+		action := ""
+		switch {
+		case b.Kind == sim.BoundaryAutoPause:
+			action = "auto_pause"
+		case b.Kind == sim.BoundaryAutoResume && b.BuildingID != 0:
+			action = "auto_resume"
+		default:
+			continue
+		}
+		typ := ""
+		if is := r.w.Island(b.IslandID); is != nil {
+			if bd := is.Building(b.BuildingID); bd != nil {
+				typ = bd.Type
+			}
+		}
+		r.report.PauseEvents = append(r.report.PauseEvents, PauseEvent{
+			At: b.At.Format(timeLayout), Action: action, IslandID: b.IslandID, BuildingID: b.BuildingID, Type: typ,
+		})
+	}
+}
+
 // reason renders the MECHANICS §14 message for a building status.
-func reason(is sim.IslandDisplay, b sim.BuildingDisplay) string {
+func reason(c *content.Catalogue, is sim.IslandDisplay, b sim.BuildingDisplay) string {
 	switch b.Status {
 	case sim.StatusPaused:
 		if b.PausedReason == sim.PausedReasonUnpaid {
@@ -168,6 +222,16 @@ func reason(is sim.IslandDisplay, b sim.BuildingDisplay) string {
 		return "Missing input"
 	case sim.StatusThrottled:
 		return fmt.Sprintf("Warehouse overloaded (throughput factor %d ‰)", b.ThroughputFactorPermille)
+	case sim.StatusShortOfWorkers:
+		if b.Workforce != nil {
+			name := b.Workforce.Tier
+			if t := c.TierByID[name]; t != nil {
+				name = t.Name
+			}
+			wf := is.Workforce[b.Workforce.Tier]
+			return fmt.Sprintf("Needs %s %s on this island (%s available)", units(wf.Required), name, units(wf.Available))
+		}
+		return "Short of workers"
 	case sim.StatusLowEfficiency:
 		return fmt.Sprintf("Only %d ‰ of the work area usable", b.EfficiencyPermille)
 	}

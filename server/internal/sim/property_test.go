@@ -16,23 +16,54 @@ import (
 
 const propertyCases = 200
 
-var (
-	propertyTypes = []string{"lumberjack", "sawmill", "fisher", "sheep_farm", "weaver_wool", "house_settlers", "market_small", "warehouse"}
-	goodIDs       = []string{"wood", "planks", "fish", "wool", "wool_garments"}
-)
+// propertyTypes returns the building types placed by property cases: every
+// building of the catalogue except roads, with the warehouse last (it is
+// excluded from placements at roads).
+func propertyTypes(c *content.Catalogue) []string {
+	var out []string
+	var wh string
+	for _, b := range c.Buildings {
+		switch {
+		case b.Road != nil:
+		case b.Warehouse != nil:
+			wh = b.ID
+		default:
+			out = append(out, b.ID)
+		}
+	}
+	return append(out, wh)
+}
+
+// propertyCatalogues are the shipped content and the variety test content
+// (two-good food category, optional need, upgradeable Citizens house,
+// locked tier-2 buildings).
+func propertyCatalogues(t *testing.T) map[string]*content.Catalogue {
+	return map[string]*content.Catalogue{"old_coast": catalogue(t), "variety": varietyCatalogue(t)}
+}
 
 type propCase struct {
-	t   *testing.T
-	c   *content.Catalogue
-	rng *rand.Rand
-	w   *World
-	l   *Ledger
+	t     *testing.T
+	c     *content.Catalogue
+	types []string
+	rng   *rand.Rand
+	w     *World
+	l     *Ledger
+	// unlocked is the last observed set of unlocked tiers.
+	unlocked []string
 	// log of operations for failure messages
 	ops []string
 }
 
+// addStockOp grants goods like a ship delivery; it is applied with AddStock.
+type addStockOp struct {
+	good string
+	qty  Qty
+}
+
+func (addStockOp) isCommand() {}
+
 func newPropCase(t *testing.T, c *content.Catalogue, seed uint64) *propCase {
-	p := &propCase{t: t, c: c, rng: rand.New(rand.NewPCG(seed, 0x5eed)), l: NewLedger()} // #nosec G404 -- deterministic test data
+	p := &propCase{t: t, c: c, types: propertyTypes(c), rng: rand.New(rand.NewPCG(seed, 0x5eed)), l: NewLedger()} // #nosec G404 -- deterministic test data
 	p.w = p.randomWorld()
 	return p
 }
@@ -72,7 +103,16 @@ func (p *propCase) randomWorld() *World {
 	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, p.l); err != nil {
 		p.fail("seed warehouse: %v", err)
 	}
-	w.Gold = 1_000_000_000
+	// Most cases are rich; some start poor so that insolvency pauses and
+	// auto-resumes happen.
+	switch p.rng.IntN(4) {
+	case 0:
+		w.Gold = 400_000
+	case 1:
+		w.Gold = 2_000_000
+	default:
+		w.Gold = 1_000_000_000
+	}
 	if err := AddStock(w, p.c, "main", "planks", 250_000, p.l); err != nil {
 		p.fail("seed stock: %v", err)
 	}
@@ -104,6 +144,76 @@ func (p *propCase) randomWorld() *World {
 	return w
 }
 
+// townWorld is a settlement with a random subset of up to eight houses,
+// market, chapel and the tier-1 chains along one road, little gold and some
+// need goods, so that houses grow and decline, insolvency pauses and
+// auto-resumes happen and tiers unlock.
+func (p *propCase) townWorld() *World {
+	p.l = NewLedger() // the ledger of the replaced random world
+	rows := make([]string, 14)
+	for y := range rows {
+		row := make([]byte, 30)
+		for x := range row {
+			switch {
+			case x == 0 || y == 0 || x == 29 || y == 13:
+				row[x] = '~'
+			case y == 1 && x <= 8:
+				row[x] = 'c'
+			default:
+				row[x] = '.'
+			}
+		}
+		rows[y] = string(row)
+	}
+	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
+	w.Islands = []*Island{islandFromRows("main", rows...)}
+	free := func(typ string, x, y, rot int) {
+		if p.c.BuildingByID[typ] == nil {
+			return
+		}
+		if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: typ, X: x, Y: y, Rotation: rot}, p.l); err != nil {
+			p.fail("town %s: %v", typ, err)
+		}
+	}
+	free("warehouse", 1, 1, 0)
+	var road []Pos
+	for x := 2; x <= 28; x++ {
+		road = append(road, Pos{x, 4})
+	}
+	road = append(road, Pos{6, 3})
+	if err := ApplyWithLedger(w, p.c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: road}, p.l); err != nil {
+		p.fail("town road: %v", err)
+	}
+	type spot struct {
+		typ       string
+		x, y, rot int
+	}
+	spots := []spot{
+		{"fisher", 6, 1, 0}, {"market_small", 17, 1, 0}, {"weaver_wool", 21, 2, 0},
+		{"sheep_farm", 24, 5, 180}, {"chapel", 19, 5, 180}, {"bakery", 21, 5, 180},
+	}
+	for _, x := range []int{9, 11, 13, 15} {
+		spots = append(spots, spot{"house_settlers", x, 2, 0}, spot{"house_settlers", x, 5, 180})
+	}
+	for _, sp := range spots {
+		if p.rng.IntN(4) > 0 {
+			free(sp.typ, sp.x, sp.y, sp.rot)
+		}
+	}
+	for _, n := range p.c.NeedsByTier[p.c.Tiers[0].ID] {
+		for _, g := range n.Goods {
+			if err := AddStock(w, p.c, "main", g.Good, Qty(p.rng.IntN(30))*1000, p.l); err != nil {
+				p.fail("town stock: %v", err)
+			}
+		}
+	}
+	if err := AddStock(w, p.c, "main", "planks", 100_000, p.l); err != nil {
+		p.fail("town stock: %v", err)
+	}
+	w.Gold = Qty(p.rng.IntN(1500)) * 1000
+	return w
+}
+
 func (p *propCase) randomPos() (int, int) {
 	is := p.w.Islands[0]
 	return p.rng.IntN(is.Width), p.rng.IntN(is.Height)
@@ -113,11 +223,34 @@ func (p *propCase) randomPos() (int, int) {
 func (p *propCase) randomCommand() Command {
 	is := p.w.Islands[0]
 	switch r := p.rng.IntN(100); {
-	case r < 15:
+	case r < 12:
 		x, y := p.randomPos()
-		return PlaceBuilding{IslandID: "main", Type: propertyTypes[p.rng.IntN(len(propertyTypes))], X: x, Y: y, Rotation: 90 * p.rng.IntN(4)}
-	case r < 55:
+		return PlaceBuilding{IslandID: "main", Type: p.types[p.rng.IntN(len(p.types))], X: x, Y: y, Rotation: 90 * p.rng.IntN(4)}
+	case r < 47:
 		return p.placeAtRoad()
+	case r < 52:
+		var houses []*Building
+		for _, b := range is.Buildings {
+			if b.House != nil {
+				houses = append(houses, b)
+			}
+		}
+		if len(houses) == 0 {
+			return nil
+		}
+		return UpgradeHouse{IslandID: "main", BuildingID: houses[p.rng.IntN(len(houses))].ID}
+	case r < 55:
+		// Mostly goods that houses consume, so that houses grow and decline.
+		var goods []string
+		for _, n := range p.c.NeedsByTier[p.c.Tiers[0].ID] {
+			for _, g := range n.Goods {
+				goods = append(goods, g.Good)
+			}
+		}
+		if p.rng.IntN(4) == 0 {
+			goods = []string{p.c.Goods[p.rng.IntN(len(p.c.Goods))].ID}
+		}
+		return addStockOp{good: goods[p.rng.IntN(len(goods))], qty: Qty(1+p.rng.IntN(60)) * 1000}
 	case r < 65:
 		x, y := p.randomPos()
 		return PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{x, y}}}
@@ -167,7 +300,7 @@ func (p *propCase) placeAtRoadOnce() Command {
 	fmt.Sscanf(i, "%d,%d", &road.X, &road.Y)
 	d := neighbours()[p.rng.IntN(4)]
 	e := Pos{road.X + d.X, road.Y + d.Y}
-	typ := propertyTypes[p.rng.IntN(len(propertyTypes)-1)] // no warehouse
+	typ := p.types[p.rng.IntN(len(p.types)-1)] // no warehouse
 	rot := 90 * p.rng.IntN(4)
 	off := entrance(p.c.BuildingByID[typ], 0, 0, rot)
 	return PlaceBuilding{IslandID: "main", Type: typ, X: e.X - off.X, Y: e.Y - off.Y, Rotation: rot}
@@ -201,13 +334,15 @@ func total(is *Island, good string, now int64) int64 {
 	return t
 }
 
-// checkInvariants asserts conservation, capacity bounds, gold and residents.
+// checkInvariants asserts conservation, capacity bounds, gold, residents,
+// growth accumulators, workforce factors, unpaid pauses and unlocks.
 func (p *propCase) checkInvariants(stage string) {
 	p.t.Helper()
 	is := p.w.Islands[0]
 	now := p.w.LastEvaluatedAt.UnixMilli()
 	capFine := capacityFine(is, p.c)
-	for _, good := range goodIDs {
+	for _, g := range p.c.Goods {
+		good := g.ID
 		s := is.Inventory.fine(good)
 		if s < 0 || s > capFine {
 			p.fail("%s: %s stock %d outside [0, %d]", stage, good, s, capFine)
@@ -221,18 +356,38 @@ func (p *propCase) checkInvariants(stage string) {
 			p.fail("%s: conservation of %s: stock+transit+buffer = %d, ledger = %d (%+v)", stage, good, got, want, f)
 		}
 	}
-	if p.w.Gold < 0 {
-		p.fail("%s: gold %d < 0", stage, p.w.Gold)
+	if p.w.Gold < 0 || p.w.GoldSub < 0 || p.w.GoldSub >= GoldSubPerMilli {
+		p.fail("%s: gold %d sub %d", stage, p.w.Gold, p.w.GoldSub)
 	}
 	for _, b := range is.Buildings {
+		def := p.c.BuildingByID[b.Type]
+		if b.PausedReason == PausedReasonUnpaid && (!b.Paused || def.UpkeepPerMin <= 0 || b.PauseSeq <= 0) {
+			p.fail("%s: unpaid building %d (%s) paused %v upkeep %d seq %d", stage, b.ID, b.Type, b.Paused, def.UpkeepPerMin, b.PauseSeq)
+		}
 		if b.House == nil {
 			continue
 		}
-		tier := p.c.TierByID[p.c.BuildingByID[b.Type].House.Tier]
-		if b.House.Residents < tier.ResidentsFloor || b.House.Residents > tier.ResidentsMax {
-			p.fail("%s: residents %d outside [%d, %d]", stage, b.House.Residents, tier.ResidentsFloor, tier.ResidentsMax)
+		tier := p.c.TierByID[def.House.Tier]
+		h := b.House
+		if h.Residents < tier.ResidentsFloor || h.Residents > tier.ResidentsMax || h.Residents%1000 != 0 {
+			p.fail("%s: residents %d outside [%d, %d] or not whole", stage, h.Residents, tier.ResidentsFloor, tier.ResidentsMax)
+		}
+		if h.Growth <= -ResidentSub || h.Growth >= ResidentSub {
+			p.fail("%s: growth accumulator %d outside (-1, +1) resident", stage, h.Growth)
 		}
 	}
+	r := computeRates(is.clone(), p.c, now)
+	for _, pr := range r.producers {
+		if pr.workforce < 0 || pr.workforce > 1000 {
+			p.fail("%s: workforce factor %d of building %d", stage, pr.workforce, pr.b.ID)
+		}
+	}
+	for _, id := range p.unlocked {
+		if !TierUnlocked(p.w, p.c, id) {
+			p.fail("%s: tier %s was locked again", stage, id)
+		}
+	}
+	p.unlocked = UnlockedTiers(p.w, p.c)
 }
 
 func (p *propCase) apply(cmd Command) {
@@ -244,7 +399,11 @@ func (p *propCase) apply(cmd Command) {
 	if err != nil {
 		p.fail("encode: %v", err)
 	}
-	if err := ApplyWithLedger(p.w, p.c, cmd, p.l); err != nil {
+	apply := func() error { return ApplyWithLedger(p.w, p.c, cmd, p.l) }
+	if op, ok := cmd.(addStockOp); ok {
+		apply = func() error { return AddStock(p.w, p.c, "main", op.good, op.qty, p.l) }
+	}
+	if err := apply(); err != nil {
 		after, _ := Encode(p.w, "p")
 		if !bytes.Equal(before, after) {
 			p.fail("Apply(%#v) failed with %v but changed the world", cmd, err)
@@ -334,23 +493,63 @@ func (p *propCase) run(compose bool) ([]byte, []Boundary) {
 
 // TestPropertyConservationAndBounds: for every good, the change of stock +
 // in-transit + buffers equals produced - consumed - lost (plus construction
-// spending, refunds and grants for commands), and 0 <= stock <= capacity,
-// gold >= 0 and floor <= residents <= max hold after every Apply and Advance.
+// spending, refunds and grants for commands; house consumption is counted as
+// consumed), and 0 <= stock <= capacity, gold >= 0, floor <= residents <=
+// max (whole residents), -1 < growth accumulator < +1, 0 <= workforce factor
+// <= 1, unpaid pauses only on buildings with upkeep and permanent unlocks
+// hold after every Apply and Advance piece.
 func TestPropertyConservationAndBounds(t *testing.T) {
-	c := catalogue(t)
-	for seed := range uint64(propertyCases) {
-		p := newPropCase(t, c, seed)
-		p.checkInvariants("initial")
-		p.run(false)
+	for name, c := range propertyCatalogues(t) {
+		t.Run(name, func(t *testing.T) {
+			for seed := range uint64(propertyCases) {
+				p := newPropCase(t, c, seed)
+				p.checkInvariants("initial")
+				p.run(false)
+			}
+		})
 	}
 }
 
 // TestPropertyComposition: Advance(Advance(s, t1), t2) == Advance(s, t2)
 // for random split points, compared via the encoded world.
 func TestPropertyComposition(t *testing.T) {
-	c := catalogue(t)
-	for seed := range uint64(propertyCases) {
-		p := newPropCase(t, c, 10_000+seed)
+	for name, c := range propertyCatalogues(t) {
+		t.Run(name, func(t *testing.T) {
+			for seed := range uint64(propertyCases) {
+				p := newPropCase(t, c, 10_000+seed)
+				p.run(true)
+			}
+		})
+	}
+}
+
+// TestPropertyTownComposition runs the conservation/bounds and composition
+// checks on settlements (townWorld) where growth, insolvency pauses,
+// auto-resumes, upgrades and unlocks actually occur.
+func TestPropertyTownComposition(t *testing.T) {
+	for name, c := range propertyCatalogues(t) {
+		t.Run(name, func(t *testing.T) {
+			for seed := range uint64(propertyCases) {
+				p := newPropCase(t, c, 30_000+seed)
+				p.w = p.townWorld()
+				p.checkInvariants("initial")
+				p.run(true)
+			}
+		})
+	}
+}
+
+// TestPropertyTownCompositionNoReserve repeats the town composition check
+// with auto_resume_upkeep_minutes = 0, where a building could satisfy the
+// resume condition right after being paused.
+func TestPropertyTownCompositionNoReserve(t *testing.T) {
+	base := varietyCatalogue(t)
+	c := *base
+	c.Region.Rules.AutoResumeMs = 0
+	for seed := range uint64(propertyCases / 2) {
+		p := newPropCase(t, &c, 50_000+seed)
+		p.w = p.townWorld()
+		p.checkInvariants("initial")
 		p.run(true)
 	}
 }
@@ -358,12 +557,15 @@ func TestPropertyComposition(t *testing.T) {
 // TestPropertyDeterminism: the same random scenario run twice yields the
 // identical world and boundaries.
 func TestPropertyDeterminism(t *testing.T) {
-	c := catalogue(t)
-	for seed := range uint64(propertyCases) {
-		a, abs := newPropCase(t, c, 20_000+seed).run(false)
-		b, bbs := newPropCase(t, c, 20_000+seed).run(false)
-		if !bytes.Equal(a, b) || fmt.Sprint(abs) != fmt.Sprint(bbs) {
-			t.Fatalf("seed %d: runs differ", seed)
-		}
+	for name, c := range propertyCatalogues(t) {
+		t.Run(name, func(t *testing.T) {
+			for seed := range uint64(propertyCases) {
+				a, abs := newPropCase(t, c, 20_000+seed).run(false)
+				b, bbs := newPropCase(t, c, 20_000+seed).run(false)
+				if !bytes.Equal(a, b) || fmt.Sprint(abs) != fmt.Sprint(bbs) {
+					t.Fatalf("seed %d: runs differ", seed)
+				}
+			}
+		})
 	}
 }

@@ -7,7 +7,7 @@
   "items": {
     "type": "object",
     "additionalProperties": false,
-    "required": ["id", "name", "residents", "tax_per_resident_per_min", "house", "unlock"],
+    "required": ["id", "name", "residents", "tax_per_resident_per_min", "unlock"],
     "properties": {
       "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
       "name": { "type": "string", "minLength": 1 },
@@ -21,7 +21,11 @@
         }
       },
       "tax_per_resident_per_min": { "type": "number", "minimum": 0 },
-      "house": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+      "house": {
+        "description": "House building of the tier. A tier without house is declared only: it has no needs and no house building yet.",
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
       "unlock": {
         "type": "object",
         "additionalProperties": false,

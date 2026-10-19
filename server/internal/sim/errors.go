@@ -25,3 +25,12 @@ var (
 	ErrSchemaVersion         = errors.New("unsupported schema version")
 	ErrDisplayTime           = errors.New("display time differs from last evaluation")
 )
+
+// Sentinel errors of the population and economy rules.
+var (
+	ErrTierLocked         = errors.New("tier locked")
+	ErrNotAHouse          = errors.New("building is not a house")
+	ErrUpgradeUnavailable = errors.New("upgrade unavailable")
+	ErrHouseNotFull       = errors.New("house not at maximum residents")
+	ErrNeedsUnmet         = errors.New("needs of the current tier not met")
+)

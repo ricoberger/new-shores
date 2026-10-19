@@ -1,6 +1,7 @@
 {
   "name": "warehouse_full",
   "description": "A fisher without consumer fills the island to capacity (300 fish) and stops; nothing is lost.",
+  "content": "server/testdata/content/old_coast_no_workforce",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
@@ -20,7 +21,7 @@
       "y": 1,
       "rotation": 0
     },
-    "gold": 60,
+    "gold": 1261,
     "stock": {
       "planks": 6
     }

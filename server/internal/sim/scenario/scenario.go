@@ -46,6 +46,9 @@ type Island struct {
 type Seed struct {
 	// Warehouse is placed without cost (optional).
 	Warehouse *Placement `json:"warehouse,omitempty"`
+	// Start grants the content starting stock (start.json: gold and goods)
+	// after the warehouse; it excludes Gold and Stock.
+	Start bool `json:"start,omitempty"`
 	// Gold in units.
 	Gold json.Number `json:"gold,omitempty"`
 	// Stock in units per good (requires a warehouse for capacity).
@@ -104,6 +107,7 @@ type Step struct {
 	DemolishRd *Road        `json:"demolish_road,omitempty"`
 	Pause      *At          `json:"pause,omitempty"`
 	Resume     *At          `json:"resume,omitempty"`
+	Upgrade    *At          `json:"upgrade,omitempty"`
 	Stock      *StockGrant  `json:"stock,omitempty"`
 	Advance    *AdvanceStep `json:"advance,omitempty"`
 }
@@ -113,7 +117,7 @@ func (s Step) kind() (string, error) {
 	for name, set := range map[string]bool{
 		"place": s.Place != nil, "place_grid": s.PlaceGrid != nil, "road": s.Road != nil,
 		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "pause": s.Pause != nil,
-		"resume": s.Resume != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
+		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 	} {
 		if set {
 			kinds = append(kinds, name)
@@ -158,6 +162,13 @@ func (s *Scenario) ContentDir(repoRoot string) string {
 	return filepath.Join(repoRoot, filepath.FromSlash(s.Content))
 }
 
+// LoadContent loads the scenario's content validated against the shipped
+// schemas (content/schema below repoRoot), so that test-only content
+// directories need no schema copy.
+func (s *Scenario) LoadContent(repoRoot string) (*content.Catalogue, error) {
+	return content.LoadWithSchemas(s.ContentDir(repoRoot), filepath.Join(repoRoot, "content", "schema"))
+}
+
 // BuildWorld creates the scenario's initial world (island and seed).
 func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, error) {
 	is, err := parseIsland(s.Island)
@@ -173,6 +184,17 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		}
 		if err := sim.PlaceFree(w, c, sim.PlaceBuilding{IslandID: is.ID, Type: typ, X: wh.X, Y: wh.Y, Rotation: wh.Rotation}, l); err != nil {
 			return nil, fmt.Errorf("seed warehouse: %w", err)
+		}
+	}
+	if s.Seed.Start {
+		if s.Seed.Gold != "" || len(s.Seed.Stock) > 0 {
+			return nil, errors.New("seed: start excludes gold and stock")
+		}
+		w.Gold = c.Start.Gold
+		for _, g := range c.Start.Goods {
+			if err := sim.AddStock(w, c, is.ID, g.Good, g.Amount, l); err != nil {
+				return nil, fmt.Errorf("seed start: %w", err)
+			}
 		}
 	}
 	if s.Seed.Gold != "" {
@@ -350,6 +372,12 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		return r.apply(sim.SetPaused{IslandID: id, BuildingID: b.ID, Paused: paused})
+	case st.Upgrade != nil:
+		b, err := r.buildingAt(st.Upgrade)
+		if err != nil {
+			return err
+		}
+		return r.apply(sim.UpgradeHouse{IslandID: id, BuildingID: b.ID})
 	case st.Stock != nil:
 		qty, err := content.ParseFixed(st.Stock.Amount, 3)
 		if err != nil {
@@ -369,6 +397,7 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		r.report.BoundaryCount += len(bs)
+		r.recordPauseEvents(bs)
 		r.report.Snapshots = append(r.report.Snapshots, r.snapshot(i, len(bs)))
 		return nil
 	}
