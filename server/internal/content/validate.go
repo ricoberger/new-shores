@@ -45,8 +45,11 @@ func checkReferences(c *Catalogue) error {
 	if rules.OptionalTaxBonus < 0 {
 		col.add(FileRegion, rent, "rules.optional_tax_bonus", "must be >= 0")
 	}
-	if rules.AutoResumeMs < 0 {
-		col.add(FileRegion, rent, "rules.auto_resume_upkeep_minutes", "must be >= 0")
+	// The reserve is the hysteresis between insolvency pauses and
+	// auto-resumes; without it a building can be paused and resumed every
+	// millisecond (MECHANICS §7).
+	if rules.AutoResumeMs <= 0 {
+		col.add(FileRegion, rent, "rules.auto_resume_upkeep_minutes", "must be > 0")
 	}
 
 	for _, t := range c.Tiers {

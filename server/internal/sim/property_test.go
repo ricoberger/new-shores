@@ -748,11 +748,18 @@ func TestPropertyTownComposition(t *testing.T) {
 	}
 }
 
-// fishWeaverCatalogue is the shipped catalogue with no resume reserve and a
-// weaver that consumes fish: pausing the weaver frees fish for the houses,
-// raises taxes and can make it resumable right after its insolvency pause
-// (review round 1).
+// minimalReserveMs is the smallest valid auto-resume reserve: 0.001 minutes
+// (3 decimal places) = 60 ms. A zero reserve is invalid content.
+const minimalReserveMs = 60
+
+// fishWeaverCatalogue is the shipped catalogue with the given resume reserve
+// (must be > 0) and a weaver that consumes fish: pausing the weaver frees
+// fish for the houses, raises taxes and can make it resumable soon after its
+// insolvency pause (review rounds 1 and 2).
 func fishWeaverCatalogue(base *content.Catalogue, reserveMs int64) *content.Catalogue {
+	if reserveMs <= 0 {
+		panic("fishWeaverCatalogue: the resume reserve must be > 0 (a zero reserve is invalid content)")
+	}
 	c := *base
 	c.Region.Rules.AutoResumeMs = reserveMs
 	weaver := *base.BuildingByID["weaver_wool"]
@@ -764,10 +771,11 @@ func fishWeaverCatalogue(base *content.Catalogue, reserveMs int64) *content.Cata
 	return &c
 }
 
-// TestPropertyTownCompositionNoReserve repeats the town composition check
-// with auto_resume_upkeep_minutes = 0 and the fish-consuming weaver.
-func TestPropertyTownCompositionNoReserve(t *testing.T) {
-	c := fishWeaverCatalogue(varietyCatalogue(t), 0)
+// TestPropertyTownCompositionMinimalReserve repeats the town composition
+// check with the smallest valid resume reserve (60 ms) and the
+// fish-consuming weaver, where pauses and resumes follow each other fastest.
+func TestPropertyTownCompositionMinimalReserve(t *testing.T) {
+	c := fishWeaverCatalogue(varietyCatalogue(t), minimalReserveMs)
 	for seed := range uint64(propertyCases / 2) {
 		p := newPropCase(t, c, 50_000+seed)
 		p.w = p.townWorld()
@@ -778,14 +786,15 @@ func TestPropertyTownCompositionNoReserve(t *testing.T) {
 
 // TestPropertyPauseResumeInterplay targets insolvency pauses that change
 // taxes at once: houses share a fisher's fish with two fish-consuming
-// weavers, gold is nearly zero and there is no resume reserve. Pausing a
+// weavers, gold is nearly zero and the resume reserve is the smallest valid
+// one (60 ms). Pausing a
 // weaver frees fish and raises taxes, resuming it lowers them again; before
 // review round 1 this flapped every millisecond until the iteration cap.
 // Advances are split at random times and exactly at boundary instants
 // (including pauses); every piece must leave a settled world, the split
 // result must equal a single Advance and coarse mode is never reached.
 func TestPropertyPauseResumeInterplay(t *testing.T) {
-	c := fishWeaverCatalogue(catalogue(t), 0)
+	c := fishWeaverCatalogue(catalogue(t), minimalReserveMs)
 	pauses, resumes := 0, 0
 	for seed := range uint64(propertyCases) {
 		p := newPropCase(t, c, 60_000+seed)

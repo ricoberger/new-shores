@@ -309,6 +309,16 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{FileRegion, "schema violation"},
 		},
 		{
+			"zero resume reserve", FileRegion,
+			[]string{`"auto_resume_upkeep_minutes": 5`, `"auto_resume_upkeep_minutes": 0`},
+			[]string{FileRegion, `region "old_coast"`, "rules.auto_resume_upkeep_minutes", "schema violation"},
+		},
+		{
+			"negative resume reserve", FileRegion,
+			[]string{`"auto_resume_upkeep_minutes": 5`, `"auto_resume_upkeep_minutes": -1`},
+			[]string{FileRegion, `region "old_coast"`, "rules.auto_resume_upkeep_minutes", "schema violation"},
+		},
+		{
 			"region decimals", FileRegion,
 			[]string{`"decline_per_min": 0.5`, `"decline_per_min": 0.5001`},
 			[]string{FileRegion, "rules.decline_per_min", "more than 3 decimal places"},
@@ -388,5 +398,24 @@ func TestLoadTestContent(t *testing.T) {
 	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
 	if _, err := LoadWithSchemas(filepath.Join(repoRoot(t), "server", "testdata", "content", "old_coast_variety"), schemaDir); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// TestCheckRejectsZeroResumeReserve covers the loader check behind the
+// schema: a catalogue whose resume reserve is not positive (e.g. built by
+// code, bypassing the schema) is rejected naming file, entity and field.
+func TestCheckRejectsZeroResumeReserve(t *testing.T) {
+	for _, ms := range []int64{0, -60_000} {
+		c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		c.Region.Rules.AutoResumeMs = ms
+		err = checkReferences(c)
+		for _, want := range []string{FileRegion, `region "old_coast"`, "rules.auto_resume_upkeep_minutes", "must be > 0"} {
+			if err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("reserve %d ms: error %v does not contain %q", ms, err, want)
+			}
+		}
 	}
 }

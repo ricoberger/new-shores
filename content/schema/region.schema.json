@@ -50,9 +50,9 @@
           "minimum": 0
         },
         "auto_resume_upkeep_minutes": {
-          "description": "Gold reserve, in minutes of a building's upkeep, required before an unpaid building is auto-resumed (MECHANICS §7).",
+          "description": "Gold reserve, in minutes of a building's upkeep, required before an unpaid building is auto-resumed (MECHANICS §7). Strictly positive: the reserve is the hysteresis that prevents pause/resume flapping.",
           "type": "number",
-          "minimum": 0
+          "exclusiveMinimum": 0
         }
       }
     }
