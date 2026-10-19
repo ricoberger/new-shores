@@ -198,7 +198,10 @@ export interface components {
              */
             type: "demolish";
             island_id: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Building ID (unscaled integer identifier, from BuildingDisplay.id).
+             */
             building_id: number;
             /**
              * @description Accept losing goods above the remaining capacity (answer to `surplus_loss`).
@@ -222,7 +225,10 @@ export interface components {
              */
             type: "set_paused";
             island_id: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Building ID (unscaled integer identifier, from BuildingDisplay.id).
+             */
             building_id: number;
             paused: boolean;
         };
@@ -233,7 +239,10 @@ export interface components {
              */
             type: "upgrade_house";
             island_id: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Building ID (unscaled integer identifier, from BuildingDisplay.id).
+             */
             building_id: number;
         };
         Island: {
@@ -443,7 +452,10 @@ export interface components {
          *     recipe, warehouse fields for warehouses, house fields for houses.
          */
         BuildingDisplay: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Building ID (unscaled integer identifier, unique per world, assigned sequentially).
+             */
             id: number;
             /** @description Content building ID. */
             type: string;

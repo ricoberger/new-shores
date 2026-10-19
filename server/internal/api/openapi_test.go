@@ -300,3 +300,68 @@ func TestErrorCodeEnumMatchesSpec(t *testing.T) {
 		t.Errorf("internal-only codes: %v", internalOnly)
 	}
 }
+
+// TestNumericFieldsStateTheirUnit walks every schema of openapi.yaml
+// (components, request bodies, responses and parameters, including nested
+// properties, items and map values) and requires a description on every
+// integer or number schema, so that each numeric field states its unit and
+// scale (or that it is an unscaled identifier or count).
+func TestNumericFieldsStateTheirUnit(t *testing.T) {
+	spec := loadSpec(t)
+	visited := map[*openapi3.Schema]bool{}
+	var missing []string
+	var walk func(path string, ref *openapi3.SchemaRef)
+	walk = func(path string, ref *openapi3.SchemaRef) {
+		if ref == nil || ref.Value == nil || visited[ref.Value] {
+			return
+		}
+		s := ref.Value
+		visited[s] = true
+		if (s.Type.Is(openapi3.TypeInteger) || s.Type.Is(openapi3.TypeNumber)) && strings.TrimSpace(s.Description) == "" {
+			missing = append(missing, path)
+		}
+		for name, p := range s.Properties {
+			walk(path+"."+name, p)
+		}
+		walk(path+"[]", s.Items)
+		if s.AdditionalProperties.Schema != nil {
+			walk(path+"{}", s.AdditionalProperties.Schema)
+		}
+		for i, sub := range s.OneOf {
+			walk(path+"|"+strconv.Itoa(i), sub)
+		}
+		for i, sub := range s.AllOf {
+			walk(path+"&"+strconv.Itoa(i), sub)
+		}
+		for i, sub := range s.AnyOf {
+			walk(path+"~"+strconv.Itoa(i), sub)
+		}
+	}
+	for name, ref := range spec.doc.Components.Schemas {
+		walk(name, ref)
+	}
+	for path, item := range spec.doc.Paths.Map() {
+		for method, op := range item.Operations() {
+			for _, p := range op.Parameters {
+				walk(method+" "+path+" param "+p.Value.Name, p.Value.Schema)
+			}
+			if op.RequestBody != nil {
+				for _, mt := range op.RequestBody.Value.Content {
+					walk(method+" "+path+" body", mt.Schema)
+				}
+			}
+			for code, res := range op.Responses.Map() {
+				for _, mt := range res.Value.Content {
+					walk(method+" "+path+" "+code, mt.Schema)
+				}
+			}
+		}
+	}
+	if len(visited) < 40 {
+		t.Fatalf("walked only %d schemas", len(visited))
+	}
+	slices.Sort(missing)
+	for _, m := range missing {
+		t.Errorf("numeric schema without a unit description: %s", m)
+	}
+}

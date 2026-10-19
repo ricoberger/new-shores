@@ -338,6 +338,7 @@ components:
         building_id:
           type: integer
           format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
         accept_surplus_loss:
           type: boolean
           default: false
@@ -367,6 +368,7 @@ components:
         building_id:
           type: integer
           format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
         paused:
           type: boolean
     UpgradeHouseCommand:
@@ -382,6 +384,7 @@ components:
         building_id:
           type: integer
           format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
     # ------------------------------------------------------------------
     # Island (static data)
     # ------------------------------------------------------------------
@@ -530,6 +533,7 @@ components:
           additionalProperties:
             type: integer
             format: int64
+            description: Residents (milli-residents).
     GoodDisplay:
       type: object
       additionalProperties: false
@@ -604,12 +608,14 @@ components:
           additionalProperties:
             type: integer
             format: int64
+            description: Consumption (milli-units per minute).
         outputs:
           type: object
           description: Production per output good (milli-units per minute).
           additionalProperties:
             type: integer
             format: int64
+            description: Production (milli-units per minute).
     BufferDisplay:
       type: object
       additionalProperties: false
@@ -621,6 +627,7 @@ components:
           additionalProperties:
             type: integer
             format: int64
+            description: Buffered amount (milli-units).
         capacity:
           type: integer
           format: int64
@@ -668,6 +675,7 @@ components:
           additionalProperties:
             type: integer
             format: int64
+            description: Consumption (milli-units per minute).
     BuildingDisplay:
       type: object
       additionalProperties: false
@@ -680,6 +688,7 @@ components:
         id:
           type: integer
           format: int64
+          description: Building ID (unscaled integer identifier, unique per world, assigned sequentially).
         type:
           type: string
           description: Content building ID.
@@ -925,6 +934,7 @@ components:
           additionalProperties:
             type: integer
             format: int64
+            description: Residents (milli-residents).
         buildings:
           type: array
           items:
@@ -999,6 +1009,7 @@ components:
               additionalProperties:
                 type: integer
                 format: int64
+                description: Amount (milli-units).
         upkeep_per_min:
           type: integer
           format: int64
