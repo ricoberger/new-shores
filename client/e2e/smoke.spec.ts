@@ -1,5 +1,10 @@
 import { expect, type Page, test } from "@playwright/test";
-import { HOUSE, ISLAND, LUMBERJACK, ROAD_FROM, ROAD_TO, SAWMILL, START_GOLD, WATER } from "./constants";
+import { E2E_TIME_SCALE, HOUSE, ISLAND, LUMBERJACK, ROAD_FROM, ROAD_TO, SAWMILL, START_GOLD, WATER } from "./constants";
+
+/** The planks must flow within this much simulated time after placing the sawmill. */
+const PLANKS_WITHIN_SIM_MS = 90_000;
+/** Wall-clock allowance on top of the scaled bound (requests, rendering). */
+const WALL_MARGIN_MS = 5_000;
 
 interface Tile {
   x: number;
@@ -77,19 +82,34 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await pick(page, "production", "sawmill", SAWMILL.rotation);
   await clickTile(page, SAWMILL);
   await expectVersion(page, 4);
+  // World time of the sawmill placement (the command response's state).
+  const placedAt = await page.evaluate(() => Date.parse(window.__newShores!.getServer()!.display.evaluated_at));
   await page.keyboard.press("Escape");
 
-  // Select the sawmill; its server-provided planks rate becomes > 0 within
-  // 90 s of simulated time (the client re-fetches at next_change_at).
+  // Select the sawmill; its server-provided planks rate must become > 0
+  // within 90 s of simulated time after the placement. The client re-fetches
+  // at next_change_at; the first payload with a positive rate is recorded
+  // with its server timestamp.
   await clickTile(page, { x: SAWMILL.x, y: SAWMILL.y });
   await expect(page.getByTestId("info-name")).toHaveText("Sawmill");
-  const rate = page.getByTestId("rate-output-planks");
-  await expect.poll(async () => Number(await rate.textContent()), { timeout: 30_000 }).toBeGreaterThan(0);
-  const serverRate = await page.evaluate(() => {
-    const is = window.__newShores!.getServer()!.display.islands[0]!;
-    return is.buildings.find((x) => x.type === "sawmill")?.rates?.outputs.planks ?? 0;
-  });
-  expect(serverRate).toBeGreaterThan(0);
+  let firstPositiveAt = NaN;
+  await expect
+    .poll(
+      async () => {
+        const s = await page.evaluate(() => {
+          const server = window.__newShores!.getServer()!;
+          const sm = server.display.islands[0]!.buildings.find((x) => x.type === "sawmill");
+          return { at: Date.parse(server.display.evaluated_at), rate: sm?.rates?.outputs.planks ?? 0 };
+        });
+        if (s.rate > 0 && Number.isNaN(firstPositiveAt)) firstPositiveAt = s.at;
+        return s.rate;
+      },
+      { timeout: PLANKS_WITHIN_SIM_MS / E2E_TIME_SCALE + WALL_MARGIN_MS, intervals: [100] },
+    )
+    .toBeGreaterThan(0);
+  console.log(`first positive planks rate ${firstPositiveAt - placedAt} simulated ms after the sawmill placement`);
+  expect(firstPositiveAt - placedAt).toBeLessThanOrEqual(PLANKS_WITHIN_SIM_MS);
+  await expect.poll(async () => Number(await page.getByTestId("rate-output-planks").textContent())).toBeGreaterThan(0);
 
   // An invalid placement (on water) shows a toast and leaves the version.
   const before = await version(page);
