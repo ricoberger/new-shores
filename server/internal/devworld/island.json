@@ -1,0 +1,58 @@
+{
+  "name": "dev_island",
+  "description": "Hand-written start island of the --dev server: one in-memory world seeded with the free first warehouse and the content starting stock (start.json). The scenario runner builds it; it has no steps.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "start",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~ccccccccccccccccccccccc~~~~~~~~ccccccccccccccccccccccc~",
+      "~c......................cccccccc......................c~",
+      "~c....................................................c~",
+      "~c....................................................c~",
+      "~c................................ffffffffffffffffffffc~",
+      "~~c...............................fffffffffffffffffffc~~",
+      "~~c...............................fffffffffffffffffffc~~",
+      "~~c...............................fffffffffffffffffffc~~",
+      "~~c...............................fffffffffffffffffffc~~",
+      "~~c...............................fffffffffffffffffffc~~",
+      "~~c...............................fffffffffffffffffffc~~",
+      "~c................................ffffffffffffffffffffc~",
+      "~c................................ffffffffffffffffffffc~",
+      "~c................................ffffffffffffffffffffc~",
+      "~c................................ffffffffffffffffffffc~",
+      "~c.ffffffff.......................ffffffffffffffffffffc~",
+      "~c.ffffffff.......................ffffffffffffffffffffc~",
+      "~c.ffffffff.......................ffffffffffffffffffffc~",
+      "~c.ffffffff.......................ffffffffffffffffffffc~",
+      "~c.ffffffff.......................ffffffffffffffffffffc~",
+      "~c.ffffffff.......................ffffffffffffffffffffc~",
+      "~c.ffffffff.......................ffffffffffffffffffffc~",
+      "~c.ffffffff.......................ffffffffffffffffffffc~",
+      "~~cffffffff.......................fffffffffffffffffffc~~",
+      "~~cffffffff.......................fffffffffffffffffffc~~",
+      "~~c...............................fffffffffffffffffffc~~",
+      "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+      "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+      "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+      "~c..............mmmmmmm...............................c~",
+      "~c..............mmmmmmm...............................c~",
+      "~c..............mmmmmmm...............................c~",
+      "~c....................................................c~",
+      "~c....................................................c~",
+      "~c....................................................c~",
+      "~c............ccccccc..............ccccccc............c~",
+      "~ccccccccccccc~~~~~~~cccccccccccccc~~~~~~~ccccccccccccc~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 2,
+      "y": 1,
+      "rotation": 0
+    },
+    "start": true
+  }
+}
