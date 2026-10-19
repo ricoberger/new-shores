@@ -425,16 +425,23 @@ func fill(n int, v int64) []int64 {
 // rates, so settling at an arbitrary split time is a no-op; this is what
 // makes Advance exactly composable.
 func settle(is *Island, c *content.Catalogue, now int64) *rates {
+	return settleRegimes(is, c, now, true)
+}
+
+// settleRegimes is settle; without entries only the rate-based exit
+// conditions are applied, so the result does not depend on stock levels
+// (used for the hypothetical rates of an auto-resume, see economy.go).
+func settleRegimes(is *Island, c *content.Catalogue, now int64, entries bool) *rates {
 	for range 32 {
 		r := computeRates(is, c, now)
-		if !updateRegimes(is, c, r, now) {
+		if !updateRegimes(is, c, r, now, entries) {
 			return r
 		}
 	}
 	return computeRates(is, c, now)
 }
 
-func updateRegimes(is *Island, c *content.Catalogue, r *rates, now int64) bool {
+func updateRegimes(is *Island, c *content.Catalogue, r *rates, now int64, entries bool) bool {
 	inv := &is.Inventory
 	changed := false
 	for _, good := range sortedKeys(inv.Starved) {
@@ -480,8 +487,8 @@ func updateRegimes(is *Island, c *content.Catalogue, r *rates, now int64) bool {
 	if len(inv.Full) == 0 {
 		inv.Full = nil
 	}
-	if changed {
-		return true
+	if changed || !entries {
+		return changed
 	}
 
 	capFine := capacityFine(is, c)

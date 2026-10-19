@@ -34,9 +34,12 @@ const (
 	// building set).
 	BoundaryAutoPause = "auto_pause"
 	// BoundaryAutoResume: an unpaid building was resumed (island and
-	// building set), or gold reaches the resume threshold of the next unpaid
-	// building (no building set).
+	// building set).
 	BoundaryAutoResume = "auto_resume"
+	// BoundaryGoldReserve: gold reaches the auto-resume reserve of the next
+	// unpaid building (island and building of the candidate set); settle
+	// re-evaluates the resume.
+	BoundaryGoldReserve = "gold_reserve"
 	// BoundaryTierUnlocked: a tier's unlock conditions hold.
 	BoundaryTierUnlocked = "tier_unlocked"
 )
@@ -224,13 +227,14 @@ func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (in
 	if wr.goldRate < 0 {
 		consider(now+gold/-wr.goldRate, Boundary{Kind: BoundaryGoldZero})
 	}
-	// The threshold boundary carries no building; the resume itself is
-	// reported by settle with island and building. If the conditions already
-	// hold (only for a building paused at this very millisecond), the resume
-	// happens at the next millisecond, which is a boundary as well.
+	// Gold reaches the reserve of the eligible resume candidate. If gold
+	// already covers it (only for a building paused at this very
+	// millisecond), the resume happens at the next millisecond.
 	if b := wr.resumable; b != nil && wr.balance > 0 {
 		thr := resumeThreshold(c, c.BuildingByID[b.Type].UpkeepPerMin)
-		consider(now+ceilDiv(max(thr-gold, 0), wr.balance), Boundary{Kind: BoundaryAutoResume})
+		consider(now+ceilDiv(max(thr-gold, 0), wr.balance), Boundary{Kind: BoundaryGoldReserve, IslandID: wr.resumableIsland.ID, BuildingID: b.ID})
+	} else if b != nil && gold >= resumeThreshold(c, c.BuildingByID[b.Type].UpkeepPerMin) {
+		consider(now+1, Boundary{Kind: BoundaryGoldReserve, IslandID: wr.resumableIsland.ID, BuildingID: b.ID})
 	}
 	return best, list
 }

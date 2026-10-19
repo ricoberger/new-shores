@@ -18,12 +18,13 @@ import (
 //     need_goods < public < intermediate < food_basic, then building tier
 //     descending, upkeep ascending, ID ascending, until balance >= 0. With no
 //     candidate left, gold is held (rate 0) while the condition holds.
-//   - auto-resume: the unpaid building with the highest pause sequence
-//     resumes when gold >= auto_resume_upkeep_minutes x its upkeep,
-//     balance - its upkeep >= 0 and the balance with it resumed and all rates
-//     recomputed is >= 0 (so a resume never re-triggers the cascade at once,
-//     e.g. when the building competes with houses for a starved need good);
-//     the next one is checked at the same instant.
+//   - auto-resume (R21): the unpaid building with the highest pause
+//     sequence resumes when (a) gold >= auto_resume_upkeep_minutes x its
+//     upkeep and (b) the balance with it running and all rates recomputed
+//     (regimes and arrival rates, not stock levels; see balanceAfterResume)
+//     is >= 0; the next one is checked at the same instant, and the check
+//     stops at the first candidate that fails. Gold reaching the reserve of
+//     an eligible candidate is a gold_reserve boundary.
 //     A building is never resumed at the millisecond it was paused
 //     (Building.PausedAtMs), so settling twice at one time changes nothing.
 //   - tier unlocks are evaluated after every settle and successful Apply;
@@ -58,20 +59,27 @@ type worldRates struct {
 	// goldRate is the effective gold rate: the balance, or 0 while gold is
 	// held at zero with nothing left to pause.
 	goldRate int64
-	// resumable is the next unpaid building if the balance stays >= 0 when
-	// it resumes (both with its upkeep only and with all rates recomputed);
-	// it resumes once gold reaches its reserve.
-	resumable *Building
+	// resumable is the next unpaid building if the balance with it running
+	// and all rates recomputed is >= 0; it resumes once gold reaches its
+	// reserve (a gold_reserve boundary).
+	resumable       *Building
+	resumableIsland *Island
 }
 
 // balanceAfterResume returns the world balance (gold sub-units per ms) with
-// building b of island is resumed and all rates recomputed, without
-// changing w. Resuming can change more than the upkeep at once: a consumer
-// of a need good takes arrivals from the houses (lower taxes), a public
-// building fulfils building needs again (higher taxes).
+// building b of island is running and all rates recomputed, without
+// changing w (R21 (b)). Resuming can change more than the upkeep at once: a
+// consumer of a need good takes arrivals from the houses (lower taxes), a
+// public building fulfils building needs again (higher taxes), a producer
+// draws on the workforce pool.
+//
+// The hypothetical rates use the current regimes and only the rate-based
+// regime exits, never the stock-based entries: a good counts as available by
+// its regime and arrival rate, not by its stock at this instant. The result
+// therefore only changes at boundaries and commands, which keeps Advance
+// composable. A resumed building that makes a good run out is paused again
+// through gold_zero after the gold reserve is used up.
 func balanceAfterResume(w *World, c *content.Catalogue, now int64, is *Island, b *Building) int64 {
-	// Exactly what the resume in settleWorld does (regimes are kept and
-	// re-settled), on copies of the islands.
 	var balance int64
 	for _, ois := range w.Islands {
 		cis := ois.clone()
@@ -79,7 +87,7 @@ func balanceAfterResume(w *World, c *content.Catalogue, now int64, is *Island, b
 			cb := cis.Building(b.ID)
 			cb.Paused, cb.PausedReason, cb.PauseSeq, cb.PausedAtMs = false, "", 0, 0
 		}
-		r := settle(cis, c, now)
+		r := settleRegimes(cis, c, now, false)
 		balance += r.tax - r.upkeep
 	}
 	return balance
@@ -130,8 +138,8 @@ func settleWorld(w *World, c *content.Catalogue, now int64) (*worldRates, []Boun
 			}
 		} else if is, b := resumeCandidate(w); b != nil {
 			upkeep := c.BuildingByID[b.Type].UpkeepPerMin
-			if wr.balance-upkeep >= 0 && balanceAfterResume(w, c, now, is, b) >= 0 {
-				wr.resumable = b
+			if balanceAfterResume(w, c, now, is, b) >= 0 {
+				wr.resumable, wr.resumableIsland = b, is
 				if gold >= resumeThreshold(c, upkeep) && now > b.PausedAtMs {
 					b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = false, "", 0, 0
 					events = append(events, Boundary{At: at, Kind: BoundaryAutoResume, IslandID: is.ID, BuildingID: b.ID})

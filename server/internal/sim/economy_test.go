@@ -415,7 +415,7 @@ func TestDisplayPopulationFields(t *testing.T) {
 		t.Fatalf("balance %d next_change_at %v", ds.BalanceRatePerMin, ds.NextChangeAt)
 	}
 	bs = mustAdvance(t, w, c, time.Minute)
-	if len(bs) < 2 || bs[0].Kind != BoundaryAutoResume || bs[0].BuildingID != 0 || bs[1].Kind != BoundaryAutoResume || bs[1].BuildingID != f ||
+	if len(bs) < 2 || bs[0].Kind != BoundaryGoldReserve || bs[0].BuildingID != f || bs[1].Kind != BoundaryAutoResume || bs[1].BuildingID != f ||
 		bs[1].At.Format(timeLayout) != *ds.NextChangeAt {
 		t.Errorf("boundaries = %+v", bs)
 	}
@@ -511,5 +511,87 @@ func TestDeferredResumeComposition(t *testing.T) {
 	}
 	if pause.IsZero() || !resume.Equal(pause.Add(time.Millisecond)) {
 		t.Errorf("pause %s resume %s: %+v", pause, resume, bs)
+	}
+}
+
+// fishWeaverTown: eight full settler houses with a market and clothing in
+// stock, an unpaid weaver that consumes fish (shipped catalogue with the
+// default 5-minute reserve) and fish arriving at fishPerMin milli-units per
+// minute with an empty stock.
+func fishWeaverTown(t *testing.T, fishPerMin Qty) (*content.Catalogue, *World, int64) {
+	t.Helper()
+	c := catalogue(t)
+	weaver := *c.BuildingByID["weaver_wool"]
+	rec := *weaver.Recipe
+	rec.Inputs = []content.GoodAmount{{Good: "fish", Amount: 1000}}
+	weaver.Recipe = &rec
+	c.BuildingByID = maps.Clone(c.BuildingByID)
+	c.BuildingByID["weaver_wool"] = &weaver
+
+	w := newTown(t, c, 1_000)
+	hs := placeHouses(t, w, c, 8)
+	for _, id := range hs {
+		house(w, id).Residents = 8_000
+	}
+	placeFree(t, w, c, "market_small", 17, 1, 0)
+	wv := placeFree(t, w, c, "weaver_wool", 21, 2, 0)
+	addStock(t, w, c, "wool_garments", 100)
+	is := w.Islands[0]
+	now := w.LastEvaluatedAt.UnixMilli()
+	b := is.Building(wv)
+	b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = true, PausedReasonUnpaid, 1, now-1
+	w.PauseSeq = 1
+	is.Building(hs[0]).Transit = []TransitSegment{{Good: "fish", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, fishPerMin)}}
+	return c, w, wv
+}
+
+// TestResumeNeedsRecomputedBalance (R21 (b)): fish arrives at 0.6/min for
+// houses that need 0.64/min. Gold covers the reserve and balance - upkeep =
+// 5.4 - 2 >= 0, but with the weaver running it takes its share of the fish,
+// taxes drop and the recomputed balance is negative: the weaver stays
+// unpaid, and no gold_reserve boundary is scheduled for it.
+func TestResumeNeedsRecomputedBalance(t *testing.T) {
+	c, w, wv := fishWeaverTown(t, 600)
+	ds := display(t, w, c)
+	if ds.BalanceRatePerMin != 5_400 || ds.BalanceRatePerMin-2_000 < 0 {
+		t.Fatalf("balance = %d", ds.BalanceRatePerMin)
+	}
+	if b := buildingDisplay(t, ds, wv); !b.Paused || b.PausedReason != PausedReasonUnpaid {
+		t.Fatalf("weaver = %+v", b)
+	}
+	bs := mustAdvance(t, w, c, time.Hour)
+	if countKind(bs, BoundaryAutoResume) != 0 || countKind(bs, BoundaryGoldReserve) != 0 || !w.Islands[0].Building(wv).Paused {
+		t.Errorf("weaver resumed: %+v", bs)
+	}
+}
+
+// TestResumeRegimeBasedNotStockBased (R21, review round 2): fish arrives at
+// 0.65/min, a little more than the houses eat, so the fish stock grows from
+// zero. The resume decision depends on the fish regime (not starved, i.e.
+// available) and not on the growing stock: the weaver resumes at once, and
+// any split of the advancement, including splits while the stock grows,
+// gives the same world as one Advance.
+func TestResumeRegimeBasedNotStockBased(t *testing.T) {
+	c, w, wv := fishWeaverTown(t, 650)
+	single := w.Clone()
+	bs := mustAdvance(t, single, c, time.Hour)
+	if len(pauseEvents(bs, BoundaryAutoResume)) == 0 || pauseEvents(bs, BoundaryAutoResume)[0] != wv || !bs[0].At.Equal(t0) {
+		t.Fatalf("weaver not resumed at once: %+v", bs)
+	}
+	for _, splits := range [][]time.Duration{
+		{time.Second, 59 * time.Second},
+		{time.Millisecond, time.Millisecond, 7 * time.Second, 13 * time.Minute},
+		{5 * time.Minute, 20 * time.Minute, 30 * time.Minute},
+	} {
+		split := w.Clone()
+		var done time.Duration
+		for _, d := range splits {
+			mustAdvance(t, split, c, d)
+			done += d
+		}
+		mustAdvance(t, split, c, time.Hour-done)
+		if !bytes.Equal(encode(t, single), encode(t, split)) {
+			t.Errorf("splits %v differ from a single Advance", splits)
+		}
 	}
 }
