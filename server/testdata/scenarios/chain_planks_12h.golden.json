@@ -255,6 +255,9 @@
             "status": "warehouse_full",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "status_goods": [
+              "wood"
+            ],
             "rates": {
               "inputs": {},
               "outputs": {
@@ -287,6 +290,9 @@
             "status": "warehouse_full",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "status_goods": [
+              "planks"
+            ],
             "rates": {
               "inputs": {
                 "wood": 0

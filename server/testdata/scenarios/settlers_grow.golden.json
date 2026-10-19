@@ -475,6 +475,7 @@
             "transfer_delay_ms": 16000,
             "assigned_warehouse_id": 1,
             "road_distance": 6,
+            "cycle_rate_permille_per_min": 1500,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -525,6 +526,7 @@
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
+            "cycle_rate_permille_per_min": 1000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -557,6 +559,7 @@
             "transfer_delay_ms": 34000,
             "assigned_warehouse_id": 1,
             "road_distance": 24,
+            "cycle_rate_permille_per_min": 1000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
