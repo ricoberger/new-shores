@@ -84,11 +84,16 @@ Recurring decisions the player makes:
 ## Progression
 
 Four tiers in the home region (D-010): **Settlers → Citizens → Merchants →
-Patricians**. Each tier adds goods needs, building needs, construction
-materials and new production buildings. Tier advancement requires a population
-threshold of the previous tier and specific buildings (details in
-[CONTENT.md](CONTENT.md)). Houses upgrade individually when their needs are met,
-so tiers coexist in a city.
+Patricians**. Each tier adds need categories, building needs, one new
+construction material and new production buildings. From Citizens upward,
+each need category offers **2–3 alternative goods** (D-031): one is enough,
+more give a variety bonus — so archipelagos with different fertilities play
+differently and neighbours have complementary surpluses. Tier advancement
+requires a population threshold of the previous tier and specific buildings
+(details in [CONTENT.md](CONTENT.md)). Houses upgrade individually when their
+needs are met, and production buildings need **workforce of a specific tier
+on the same island** (D-035), so tiers coexist in every city by necessity.
+Further islands unlock at tier milestones (D-039).
 
 Expected progression for a casual player: Citizens within the first session,
 Merchants in the first week (unlocking the world map), Patricians in weeks

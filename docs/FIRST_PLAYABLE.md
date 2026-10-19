@@ -10,10 +10,16 @@ proceeds in the milestones below, each with acceptance criteria.
 ### In
 
 - **World:** one archipelago, **2 islands** generated from a fixed seed
-  (start island: forest, grass, fish, stone, wheat; island 2: iron deposit,
-  hemp, forest, grass).
+  (start island: forest, grass, fish, stone slot, wheat & apple fertility;
+  island 2: iron slot, hemp fertility, forest, grass). Other islands of the
+  archipelago may be generated but are locked (D-039).
 - **Tiers:** Settlers fully; Citizens unlock and the first Citizen houses
-  (needs: fish, bread, cider, linen; buildings: market, chapel, tavern).
+  (categories: food = bread, drink = cider, clothing = linen garments — one
+  good per category in the slice; the alternatives cheese/mead/leather come
+  with the content pass; buildings: market, chapel, tavern).
+- **Needs model:** categories with alternative goods and variety bonus
+  (D-031) and **workforce per island** (D-035) are implemented in the slice
+  with tier-1/2 numbers, even though tier 1 has single goods.
 - **Chains:** fish; wood → planks; stone; sheep → wool garments; wheat → flour
   → bread; apples → cider; hemp → linen; iron ore + charcoal → iron → tools
   (iron only on island 2 → forced trade route).
@@ -35,8 +41,9 @@ proceeds in the milestones below, each with acceptance criteria.
 ### Out
 
 World map, neighbours, trading, gifts, expeditions, contracts, achievements,
-leaderboards, shop/payments, tiers 3–4, decorations, Capacitor, social login,
-GLB assets, sound.
+leaderboards, shop/payments, tiers 3–4, tier-2 alternative goods, bricks,
+coal, island unlock gating beyond two islands, decorations, Capacitor, social
+login, GLB assets, sound.
 
 ## 2. Milestones
 
