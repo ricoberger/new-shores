@@ -36,6 +36,19 @@ func catalogue(t testing.TB) *content.Catalogue {
 	return c
 }
 
+// varietyCatalogue loads the variety test content (server/testdata/content):
+// a two-good food category, an optional chapel need, an upgradeable Citizens
+// house and Citizens-tier buildings that start locked.
+func varietyCatalogue(t testing.TB) *content.Catalogue {
+	t.Helper()
+	root := repoRoot(t)
+	c, err := content.LoadWithSchemas(filepath.Join(root, "server", "testdata", "content", "old_coast_variety"), filepath.Join(root, "content", "schema"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return c
+}
+
 // islandFromRows builds an island from ASCII rows ('~' water, 'c' coast,
 // '.' grass, 'f' forest, 'm' mountain).
 func islandFromRows(id string, rows ...string) *Island {
@@ -78,10 +91,20 @@ func testWorld(t testing.TB, c *content.Catalogue) *World {
 	if err := AddStock(w, c, "main", "planks", 200_000, nil); err != nil {
 		t.Fatal(err)
 	}
+	grantWorkers(t, w, c)
 	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: road}); err != nil {
 		t.Fatal(err)
 	}
 	return w
+}
+
+// grantWorkers grants 1000 settlers of workforce, so that production tests
+// without houses run at workforce factor 1 (seed-only grant, R28a).
+func grantWorkers(t testing.TB, w *World, c *content.Catalogue) {
+	t.Helper()
+	if err := GrantWorkforce(w, c, "main", "settlers", 1_000_000); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func mustApply(t testing.TB, w *World, c *content.Catalogue, cmd Command) {
@@ -401,6 +424,7 @@ func TestStarvationSharesInflow(t *testing.T) {
 	if err := AddStock(w, c, "main", "planks", 100_000, nil); err != nil {
 		t.Fatal(err)
 	}
+	grantWorkers(t, w, c)
 	var road []Pos
 	for x := 2; x <= 19; x++ {
 		road = append(road, Pos{x, 4})
@@ -557,8 +581,9 @@ func TestAdvanceTimeRules(t *testing.T) {
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 2})
 	gold := w.Gold
 	mustAdvance(t, w, c, 2*time.Hour)
-	if w.Gold != gold {
-		t.Errorf("Advance changed gold: %d -> %d", gold, w.Gold)
+	// Upkeep of warehouse (4/min) and fisher (1/min), no houses, no taxes.
+	if want := gold - 120*5_000; w.Gold != want || w.GoldSub != 0 {
+		t.Errorf("gold after 2h = %d (sub %d), want %d", w.Gold, w.GoldSub, want)
 	}
 	if _, err := Display(w, c, w.LastEvaluatedAt.Add(time.Second)); !errors.Is(err, ErrDisplayTime) {
 		t.Errorf("Display at another time: %v", err)
@@ -570,6 +595,7 @@ func TestIterationCapFallback(t *testing.T) {
 	c := *base
 	c.Region.Rules.IterationCap = 3
 	w := testWorld(t, &c)
+	w.Gold = 1_000_000_000 // 90 days of upkeep (7 gold/min) without pauses
 	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
 	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})
 	l := NewLedger()
@@ -652,10 +678,20 @@ func TestDisplayFieldsAndNextChange(t *testing.T) {
 		t.Errorf("first boundary %s != next_change_at %s", got, *ds.NextChangeAt)
 	}
 
-	// An idle world has no next change.
+	// An idle world only changes when the warehouse upkeep (4 gold/min)
+	// has used up the 10 000 gold: gold_zero after 2500 minutes. The
+	// warehouse cannot be paused, so gold is then held at zero and nothing
+	// changes any more.
 	idle := testWorld(t, c)
-	if ds := display(t, idle, c); ds.NextChangeAt != nil {
-		t.Errorf("idle next_change_at = %v", *ds.NextChangeAt)
+	if ds := display(t, idle, c); ds.NextChangeAt == nil || *ds.NextChangeAt != "2026-01-02T17:40:00.000Z" {
+		t.Errorf("idle next_change_at = %v", ds.NextChangeAt)
+	}
+	bs = mustAdvance(t, idle, c, 2500*time.Minute)
+	if len(bs) != 1 || bs[0].Kind != BoundaryGoldZero || idle.Gold != 0 || idle.GoldSub != 0 {
+		t.Errorf("idle boundaries %+v gold %d", bs, idle.Gold)
+	}
+	if ds := display(t, idle, c); ds.NextChangeAt != nil || ds.BalanceRatePerMin != -4_000 {
+		t.Errorf("held idle world: next %v balance %d", ds.NextChangeAt, ds.BalanceRatePerMin)
 	}
 }
 

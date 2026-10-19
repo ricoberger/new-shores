@@ -1,6 +1,6 @@
 {
   "name": "unconnected_producer",
-  "content_version": "old_coast-0.1.0",
+  "content_version": "old_coast-0.2.0",
   "boundary_count": 1,
   "totals": {
     "main": {
@@ -27,6 +27,7 @@
       "reason": "No road to a warehouse"
     }
   ],
+  "pause_events": [],
   "snapshots": [
     {
       "step": 2,
@@ -37,7 +38,13 @@
       },
       "statuses": {
         "not_connected": 1
-      }
+      },
+      "gold": 41000,
+      "balance_rate_per_min": -5000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ]
     },
     {
       "step": 3,
@@ -48,13 +55,46 @@
       },
       "statuses": {
         "not_connected": 1
-      }
+      },
+      "gold": 1000,
+      "balance_rate_per_min": -5000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ]
     }
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:10:00.000Z",
-    "next_change_at": null,
-    "gold": 0,
+    "next_change_at": "2026-01-01T00:10:12.000Z",
+    "gold": 1000,
+    "balance_rate_per_min": -5000,
+    "tax_rate_per_min": 0,
+    "upkeep_rate_per_min": 5000,
+    "tiers": [
+      {
+        "id": "settlers",
+        "unlocked": true,
+        "population": {},
+        "buildings": {},
+        "goods_delivered": {}
+      },
+      {
+        "id": "citizens",
+        "unlocked": false,
+        "population": {
+          "settlers": {
+            "have": 0,
+            "need": 120000
+          }
+        },
+        "buildings": {
+          "chapel": false,
+          "market_small": false
+        },
+        "goods_delivered": {}
+      }
+    ],
     "islands": [
       {
         "id": "main",
@@ -68,6 +108,12 @@
             "rate_per_min": 0
           },
           "planks": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "sails": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
@@ -176,9 +222,22 @@
                 "wood": 5000
               },
               "capacity": 5000
+            },
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 4000
             }
           }
-        ]
+        ],
+        "workforce": {
+          "settlers": {
+            "available": 1000000,
+            "required": 4000,
+            "factor_permille": 1000
+          }
+        },
+        "population": {}
       }
     ]
   }

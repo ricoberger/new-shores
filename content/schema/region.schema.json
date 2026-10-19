@@ -17,12 +17,43 @@
     "rules": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["transfer_base_seconds", "unconnected_buffer_units", "iteration_cap", "coarse_step_seconds"],
+      "required": [
+        "transfer_base_seconds",
+        "unconnected_buffer_units",
+        "iteration_cap",
+        "coarse_step_seconds",
+        "growth_per_min",
+        "decline_per_min",
+        "growth_satisfaction_threshold",
+        "optional_tax_bonus",
+        "auto_resume_upkeep_minutes"
+      ],
       "properties": {
         "transfer_base_seconds": { "type": "number", "minimum": 0 },
         "unconnected_buffer_units": { "type": "number", "exclusiveMinimum": 0 },
         "iteration_cap": { "type": "integer", "minimum": 1 },
-        "coarse_step_seconds": { "type": "number", "exclusiveMinimum": 0 }
+        "coarse_step_seconds": { "type": "number", "exclusiveMinimum": 0 },
+        "growth_per_min": {
+          "description": "Residents per minute a house gains at satisfaction 1 (MECHANICS §6.1).",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "decline_per_min": {
+          "description": "Residents per minute lost per unit of satisfaction below the threshold.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "growth_satisfaction_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+        "optional_tax_bonus": {
+          "description": "Maximum tax bonus of fully met optional needs (0.25 = +25 %).",
+          "type": "number",
+          "minimum": 0
+        },
+        "auto_resume_upkeep_minutes": {
+          "description": "Gold reserve, in minutes of a building's upkeep, required before an unpaid building is auto-resumed (MECHANICS §7). Strictly positive: the reserve is the hysteresis that prevents pause/resume flapping.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
       }
     }
   }

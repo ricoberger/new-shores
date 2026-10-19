@@ -17,6 +17,9 @@ import (
 //     to the lowest warehouse ID.
 //   - transfer delay = transfer_base + sum of seconds_per_tile of every road
 //     tile on the path.
+//   - Public buildings (service block) are connected by the same rule; they
+//     get AssignedWarehouseID (connection only, no transfers), which building
+//     needs require (MECHANICS §6.2).
 
 const unreachable = -1
 
@@ -76,8 +79,8 @@ func warehouseField(is *Island, c *content.Catalogue, start []Pos) roadField {
 	return f
 }
 
-// recomputeConnectivity assigns every producer to its nearest connected
-// warehouse and updates road distance and transfer delay. The buffer of a
+// recomputeConnectivity assigns every producer and public building to its
+// nearest connected warehouse and updates road distance and transfer delay. The buffer of a
 // producer that becomes connected is not touched here: it leaves with the
 // producer's output stream during Advance (see step), so it is subject to
 // throughput and the warehouse-full rule and is never lost.
@@ -98,7 +101,7 @@ func recomputeConnectivity(is *Island, c *content.Catalogue) {
 
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
-		if def == nil || def.Recipe == nil {
+		if def == nil || (def.Recipe == nil && def.Service == nil) {
 			continue
 		}
 		b.AssignedWarehouseID, b.RoadDistance, b.TransferDelayMs = 0, 0, 0
@@ -122,7 +125,7 @@ func recomputeConnectivity(is *Island, c *content.Catalogue) {
 				b.AssignedWarehouseID = w.id
 			}
 		}
-		if b.AssignedWarehouseID != 0 {
+		if b.AssignedWarehouseID != 0 && def.Recipe != nil {
 			b.RoadDistance = bestDist
 			// At least 1 ms so that new output never arrives within the step
 			// in which it is produced.

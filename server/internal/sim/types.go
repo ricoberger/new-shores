@@ -15,6 +15,12 @@
 // transfer rate is an exact integer per millisecond; inventories keep the
 // sub-milli remainder next to the milli-unit stock. Durations are integer
 // milliseconds and timestamps are UTC with millisecond precision.
+//
+// Gold is accounted in GoldSubPerMilli sub-units per milli-gold, so that a
+// rate of n sub-units per millisecond is exactly n milli-gold per minute.
+// Houses grow through a signed accumulator in ResidentSub units per resident.
+// Ratios (satisfaction, fulfilment, variety multiplier, workforce factor) are
+// parts per million (ppm) internally and per-mille in the display.
 package sim
 
 import (
@@ -38,6 +44,18 @@ const SubPerMilli int64 = 360_000_000
 // msPerMinute is the number of milliseconds in a minute.
 const msPerMinute = 60_000
 
+// GoldSubPerMilli is the number of internal gold sub-units per milli-gold.
+// A gold rate of n sub-units per millisecond equals n milli-gold per minute,
+// so upkeep and tax rates in milli-gold per minute are exact per-ms rates.
+const GoldSubPerMilli int64 = msPerMinute
+
+// ResidentSub is the number of growth accumulator units per resident. A rate
+// of 1 milli-resident per minute is exactly 1000 units per millisecond.
+const ResidentSub int64 = 60_000_000_000
+
+// ppm is the fixed-point scale of ratios (parts per million).
+const ppm = 1_000_000
+
 // Paused reasons (MECHANICS §7).
 const (
 	PausedReasonPlayer = "player"
@@ -48,7 +66,9 @@ const (
 type World struct {
 	Islands []*Island `json:"islands"`
 	// Gold in milli-gold. World-level, shared by all islands.
-	Gold            Qty       `json:"gold"`
+	Gold Qty `json:"gold"`
+	// GoldSub is the gold remainder in [0, GoldSubPerMilli).
+	GoldSub         int64     `json:"gold_sub,omitempty"`
 	LastEvaluatedAt time.Time `json:"last_evaluated_at"`
 	// NextBuildingID is the ID assigned to the next placed building.
 	// Building IDs are sequential per world (deterministic, no UUIDs).
@@ -56,6 +76,13 @@ type World struct {
 	// RNGState is the seed of the world's deterministic RNG. Unused by this
 	// slice; reserved for event handlers (MECHANICS §1.2).
 	RNGState uint64 `json:"rng_state"`
+	// PauseSeq is the sequence number of the last insolvency pause
+	// (world-wide, monotonic); auto-resume goes in reverse order.
+	PauseSeq int64 `json:"pause_seq,omitempty"`
+	// UnlockedTiers lists the tiers unlocked by their unlock conditions in
+	// progression order. The first tier is always unlocked and not listed.
+	// Unlocks are permanent (MECHANICS §12).
+	UnlockedTiers []string `json:"unlocked_tiers,omitempty"`
 }
 
 // Island is a tile grid with its buildings, roads and shared inventory.
@@ -71,6 +98,10 @@ type Island struct {
 	// Buildings sorted by ascending ID.
 	Buildings []*Building `json:"buildings,omitempty"`
 	Inventory Inventory   `json:"inventory"`
+	// WorkforceGrant holds phantom workers per tier (milli-residents)
+	// granted at seed time by GrantWorkforce. They count only towards the
+	// island's workforce pool, never as population.
+	WorkforceGrant map[string]Qty `json:"workforce_grant,omitempty"`
 }
 
 // Tile is one map tile.
@@ -115,6 +146,13 @@ type Building struct {
 	Rotation     int    `json:"rotation"`
 	Paused       bool   `json:"paused,omitempty"`
 	PausedReason string `json:"paused_reason,omitempty"`
+	// PauseSeq is the world pause sequence number of an insolvency pause
+	// (0 unless PausedReason is unpaid).
+	PauseSeq int64 `json:"pause_seq,omitempty"`
+	// PausedAtMs is the time (Unix ms) of an insolvency pause; the building
+	// can be auto-resumed only after that millisecond, which keeps settle
+	// idempotent at the pause instant.
+	PausedAtMs int64 `json:"paused_at_ms,omitempty"`
 	// Efficiency in per-mille from the work area (1000 without work area).
 	Efficiency int64 `json:"efficiency"`
 	// Level of a warehouse (1-based); 0 for other buildings.
@@ -153,8 +191,13 @@ type TransitSegment struct {
 
 // HouseState is the state of a residential building.
 type HouseState struct {
-	// Residents in milli-residents.
+	// Residents in milli-residents; always whole residents (a multiple of
+	// 1000) in [floor, max] of the house tier.
 	Residents Qty `json:"residents"`
+	// Growth is the signed growth accumulator in ResidentSub units per
+	// resident, strictly between -ResidentSub and +ResidentSub after every
+	// settle. Reaching +/-ResidentSub adds/removes one resident.
+	Growth int64 `json:"growth,omitempty"`
 }
 
 // Pos is a tile position.
@@ -267,6 +310,14 @@ func (inv *Inventory) setFine(good string, f int64) {
 	}
 }
 
+// goldFine returns the world's gold in sub-units.
+func (w *World) goldFine() int64 { return w.Gold*GoldSubPerMilli + w.GoldSub }
+
+// setGoldFine stores gold given in sub-units (must be >= 0).
+func (w *World) setGoldFine(f int64) {
+	w.Gold, w.GoldSub = f/GoldSubPerMilli, f%GoldSubPerMilli
+}
+
 func (b *Building) bufferFine(good string) int64 {
 	return fine(b.Buffer[good], b.BufferSub[good])
 }
@@ -300,6 +351,9 @@ func (b *Building) setBufferFine(good string, f int64) {
 // Clone returns a deep copy of the world.
 func (w *World) Clone() *World {
 	c := *w
+	if w.UnlockedTiers != nil {
+		c.UnlockedTiers = append([]string(nil), w.UnlockedTiers...)
+	}
 	c.Islands = make([]*Island, len(w.Islands))
 	for i, is := range w.Islands {
 		c.Islands[i] = is.clone()
@@ -321,6 +375,7 @@ func (is *Island) clone() *Island {
 		}
 	}
 	c.Roads = maps.Clone(is.Roads)
+	c.WorkforceGrant = maps.Clone(is.WorkforceGrant)
 	if is.Buildings != nil {
 		c.Buildings = make([]*Building, len(is.Buildings))
 		for i, b := range is.Buildings {

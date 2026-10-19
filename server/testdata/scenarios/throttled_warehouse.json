@@ -23,7 +23,10 @@
       "y": 2,
       "rotation": 0
     },
-    "gold": 1600,
+    "gold": 1673,
+    "workforce": {
+      "settlers": 1000
+    },
     "stock": {
       "planks": 160
     }

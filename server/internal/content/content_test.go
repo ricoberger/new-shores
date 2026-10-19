@@ -2,6 +2,7 @@ package content
 
 import (
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -32,6 +33,9 @@ func TestLoadOldCoast(t *testing.T) {
 	if rules.TransferBaseMs != 10_000 || rules.UnconnectedBuffer != 5_000 || rules.IterationCap != 10_000 || rules.CoarseStepMs != 60_000 {
 		t.Errorf("rules = %+v", rules)
 	}
+	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.GrowthThreshold != 500_000 || rules.OptionalTaxBonus != 250_000 || rules.AutoResumeMs != 300_000 {
+		t.Errorf("rules = %+v", rules)
+	}
 
 	wantIDs := func(kind string, got []string, want ...string) {
 		t.Helper()
@@ -43,7 +47,7 @@ func TestLoadOldCoast(t *testing.T) {
 	for _, g := range c.Goods {
 		ids = append(ids, g.ID)
 	}
-	wantIDs("goods", ids, "wood", "planks", "fish", "wool", "wool_garments")
+	wantIDs("goods", ids, "wood", "planks", "fish", "wool", "wool_garments", "sails")
 	ids = nil
 	for _, b := range c.Buildings {
 		ids = append(ids, b.ID)
@@ -54,14 +58,39 @@ func TestLoadOldCoast(t *testing.T) {
 	for _, tr := range c.Tiers {
 		ids = append(ids, tr.ID)
 	}
-	wantIDs("tiers", ids, "settlers")
+	wantIDs("tiers", ids, "settlers", "citizens")
 	if _, ok := c.GoodByID["stone"]; ok {
 		t.Error("stone must not exist in tier-1 content")
 	}
 
 	settlers := c.TierByID["settlers"]
-	if settlers.ResidentsFloor != 2000 || settlers.ResidentsMax != 8000 || settlers.TaxPerResidentPerMin != 50 || settlers.House != "house_settlers" {
+	if settlers.ResidentsFloor != 2000 || settlers.ResidentsMax != 8000 || settlers.TaxPerResidentPerMin != 200 || settlers.House != "house_settlers" {
 		t.Errorf("settlers = %+v", settlers)
+	}
+	citizens := c.TierByID["citizens"]
+	if citizens.Index != 1 || citizens.ResidentsFloor != 5000 || citizens.ResidentsMax != 15000 || citizens.TaxPerResidentPerMin != 480 || citizens.House != "" ||
+		citizens.Unlock.Population["settlers"] != 120 || strings.Join(citizens.Unlock.Buildings, ",") != "market_small,chapel" || len(citizens.Unlock.GoodsDelivered) != 0 {
+		t.Errorf("citizens = %+v", citizens)
+	}
+	if len(c.NeedsByTier["citizens"]) != 0 {
+		t.Error("declared-only citizens tier has needs")
+	}
+
+	// Balance (CONTENT §12): at 120 Settlers with the balanced tier-1 set,
+	// taxes cover upkeep with at least 20 % margin.
+	var upkeep int64
+	for _, id := range []string{"warehouse", "fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "market_small", "chapel"} {
+		upkeep += c.BuildingByID[id].UpkeepPerMin
+	}
+	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 18_000 || tax*10 < upkeep*12 {
+		t.Errorf("tax %d vs upkeep %d milli-gold/min: margin below 20 %%", tax, upkeep)
+	}
+
+	if c.Start.Gold != 500_000 || len(c.Start.Goods) != 2 || c.Start.Goods[0] != (GoodAmount{"planks", 130_000}) || c.Start.Goods[1] != (GoodAmount{"sails", 10_000}) {
+		t.Errorf("start = %+v", c.Start)
+	}
+	if g := c.GoodByID["sails"]; g == nil || g.Type != "construction" {
+		t.Errorf("sails = %+v", g)
 	}
 
 	// Spot-check numbers copied from CONTENT.md (converted to fixed point).
@@ -116,12 +145,198 @@ func TestLoadOldCoast(t *testing.T) {
 	if c.BuildingByID["market_small"].Service.Radius != 12 || c.BuildingByID["chapel"].Service.Radius != 16 {
 		t.Error("service radii")
 	}
+	for id, amount := range map[string]Qty{"lumberjack": 4000, "sawmill": 4000, "fisher": 4000, "sheep_farm": 4000, "weaver_wool": 6000} {
+		if wf := c.BuildingByID[id].Workforce; wf == nil || wf.Tier != "settlers" || wf.Amount != amount {
+			t.Errorf("%s workforce = %+v", id, wf)
+		}
+	}
+	for _, b := range c.Buildings {
+		if b.Recipe == nil && b.Workforce != nil {
+			t.Errorf("%s has a workforce without recipe", b.ID)
+		}
+	}
 
 	needs := c.NeedsByTier["settlers"]
-	if len(needs) != 3 || needs[0].Good != "fish" || needs[0].PerResidentPerMin != 10 || needs[0].Weight != 500_000 ||
-		needs[1].Good != "wool_garments" || needs[1].PerResidentPerMin != 5 ||
-		needs[2].Building != "market_small" || needs[2].Radius != 12 || needs[2].Weight != 300_000 {
-		t.Errorf("needs = %+v %+v %+v", needs[0], needs[1], needs[2])
+	if len(needs) != 3 {
+		t.Fatalf("needs = %+v", needs)
+	}
+	food, clothing, market := needs[0], needs[1], needs[2]
+	if food.ID != "settlers_food" || food.Kind != NeedRequired || food.Category != "food" || food.Weight != 500_000 ||
+		len(food.Goods) != 1 || food.Goods[0] != (NeedGood{"fish", 10}) || food.VarietyBonus != 100_000 || food.MaxExtraGoods != 2 || !food.IsGoods() {
+		t.Errorf("food = %+v", food)
+	}
+	if clothing.ID != "settlers_clothing" || clothing.Category != "clothing" || clothing.Weight != 200_000 ||
+		len(clothing.Goods) != 1 || clothing.Goods[0] != (NeedGood{"wool_garments", 5}) || clothing.VarietyBonus != 100_000 || clothing.MaxExtraGoods != 2 {
+		t.Errorf("clothing = %+v", clothing)
+	}
+	if market.ID != "settlers_market_small" || market.Kind != NeedRequired || market.Building != "market_small" || market.Radius != 12 || market.Weight != 300_000 || market.IsGoods() {
+		t.Errorf("market = %+v", market)
+	}
+}
+
+// copyContent copies the shipped old_coast content into a temporary
+// directory and applies replace (old -> new pairs, each must match) to file;
+// a single replace value replaces the whole file.
+func copyContent(t *testing.T, file string, replace ...string) string {
+	t.Helper()
+	src := filepath.Join(repoRoot(t), "content", "old_coast")
+	dst := t.TempDir()
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		data, err := os.ReadFile(filepath.Join(src, e.Name())) // #nosec G304 -- test fixture path.
+		if err != nil {
+			t.Fatal(err)
+		}
+		if e.Name() == file && len(replace) == 1 {
+			data = []byte(replace[0])
+		} else if e.Name() == file {
+			s := string(data)
+			for i := 0; i+1 < len(replace); i += 2 {
+				if !strings.Contains(s, replace[i]) {
+					t.Fatalf("%s does not contain %q", file, replace[i])
+				}
+				s = strings.Replace(s, replace[i], replace[i+1], 1)
+			}
+			data = []byte(s)
+		}
+		if err := os.WriteFile(filepath.Join(dst, e.Name()), data, 0o600); err != nil { // #nosec G703 -- test temp dir and fixture names.
+			t.Fatal(err)
+		}
+	}
+	return dst
+}
+
+// TestLoadRejectsInvalidNeedsTiersAndStart covers the content rules of the
+// needs/workforce/tier/start format (schema and loader).
+func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
+	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
+	const settlersHouse = `"house": "house_settlers",`
+	tests := []struct {
+		name    string
+		file    string
+		replace []string
+		want    []string
+	}{
+		{
+			"old category shape", FileNeeds,
+			[]string{`"kind": "required",
+    "weight": 0.5,
+    "category": "food",
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.010 }],
+    "variety_bonus": 0.10,
+    "max_extra_goods": 2`, `"weight": 0.5, "category": "basic", "good": "fish", "per_resident_per_min": 0.010`},
+			[]string{FileNeeds, `need "settlers_food"`, "schema violation"},
+		},
+		{
+			"mixed shape", FileNeeds,
+			[]string{`"radius": 12`, `"radius": 12, "variety_bonus": 0.1`},
+			[]string{FileNeeds, `need "settlers_market_small"`, "schema violation"},
+		},
+		{
+			"duplicate good in category", FileNeeds,
+			[]string{`"goods": [{ "good": "fish", "per_resident_per_min": 0.010 }]`, `"goods": [{ "good": "fish", "per_resident_per_min": 0.010 }, { "good": "fish", "per_resident_per_min": 0.02 }]`},
+			[]string{FileNeeds, `need "settlers_food"`, "goods[1].good", `duplicate good "fish"`},
+		},
+		{
+			"unknown good in category", FileNeeds,
+			[]string{`{ "good": "fish",`, `{ "good": "bread",`},
+			[]string{FileNeeds, `need "settlers_food"`, "goods[0].good", `unknown good "bread"`},
+		},
+		{
+			"required weights", FileNeeds,
+			[]string{`"weight": 0.2,`, `"weight": 0.25,`},
+			[]string{FileNeeds, `tier "settlers"`, "weight", "required need weights sum to 1050000"},
+		},
+		{
+			"optional weight does not count as required", FileNeeds,
+			[]string{`"kind": "required",
+    "weight": 0.2,`, `"kind": "optional",
+    "weight": 0.2,`},
+			[]string{FileNeeds, `tier "settlers"`, "required need weights sum to 800000"},
+		},
+		{
+			"workforce on non-producer", FileBuildings,
+			[]string{`"service": { "radius": 12 }`, `"service": { "radius": 12 },
+    "workforce": { "tier": "settlers", "amount": 2 }`},
+			[]string{FileBuildings, `building "market_small"`, "workforce", "recipe"},
+		},
+		{
+			"workforce unknown tier", FileBuildings,
+			[]string{`"workforce": { "tier": "settlers", "amount": 4 }`, `"workforce": { "tier": "peasants", "amount": 4 }`},
+			[]string{FileBuildings, `building "lumberjack"`, "workforce.tier", `unknown tier "peasants"`},
+		},
+		{
+			"workforce zero amount", FileBuildings,
+			[]string{`"workforce": { "tier": "settlers", "amount": 4 }`, `"workforce": { "tier": "settlers", "amount": 0 }`},
+			[]string{FileBuildings, `building "lumberjack"`, "schema violation"},
+		},
+		{
+			"tier with house but no needs", FileNeeds,
+			[]string{"[]"},
+			[]string{FileNeeds, `tier "settlers"`, "tier has no needs"},
+		},
+		{
+			"declared-only tier with needs", FileTiers,
+			[]string{settlersHouse, ""},
+			[]string{FileNeeds, `tier "settlers"`, "declared-only tier"},
+		},
+		{
+			"population of a later tier", FileTiers,
+			[]string{`"population": {}`, `"population": { "citizens": 5 }`},
+			[]string{FileTiers, `tier "settlers"`, "unlock.population", `tier "citizens" does not precede "settlers"`},
+		},
+		{
+			"unknown good in start", FileStart,
+			[]string{`"sails": 10`, `"sails": 10, "stone": 5`},
+			[]string{FileStart, "goods.stone", `unknown good "stone"`},
+		},
+		{
+			"negative start gold", FileStart,
+			[]string{`"gold": 500`, `"gold": -1`},
+			[]string{FileStart, "schema violation"},
+		},
+		{
+			"region threshold above 1", FileRegion,
+			[]string{`"growth_satisfaction_threshold": 0.5`, `"growth_satisfaction_threshold": 1.5`},
+			[]string{FileRegion, "schema violation"},
+		},
+		{
+			"region missing growth", FileRegion,
+			[]string{`"growth_per_min": 1,`, ""},
+			[]string{FileRegion, "schema violation"},
+		},
+		{
+			"zero resume reserve", FileRegion,
+			[]string{`"auto_resume_upkeep_minutes": 5`, `"auto_resume_upkeep_minutes": 0`},
+			[]string{FileRegion, `region "old_coast"`, "rules.auto_resume_upkeep_minutes", "schema violation"},
+		},
+		{
+			"negative resume reserve", FileRegion,
+			[]string{`"auto_resume_upkeep_minutes": 5`, `"auto_resume_upkeep_minutes": -1`},
+			[]string{FileRegion, `region "old_coast"`, "rules.auto_resume_upkeep_minutes", "schema violation"},
+		},
+		{
+			"region decimals", FileRegion,
+			[]string{`"decline_per_min": 0.5`, `"decline_per_min": 0.5001`},
+			[]string{FileRegion, "rules.decline_per_min", "more than 3 decimal places"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dir := copyContent(t, tt.file, tt.replace...)
+			_, err := LoadWithSchemas(dir, schemaDir)
+			if err == nil {
+				t.Fatal("Load succeeded, want error")
+			}
+			for _, w := range tt.want {
+				if !strings.Contains(err.Error(), w) {
+					t.Errorf("error %q does not contain %q", err, w)
+				}
+			}
+		})
 	}
 }
 
@@ -173,6 +388,34 @@ func TestParseFixed(t *testing.T) {
 		got, err := ParseFixed(json.Number(tt.in), tt.places)
 		if (err != nil) != tt.wantErr || got != tt.want {
 			t.Errorf("ParseFixed(%q, %d) = %d, %v; want %d, err %v", tt.in, tt.places, got, err, tt.want, tt.wantErr)
+		}
+	}
+}
+
+// TestLoadTestContent validates the test-only content used by the
+// simulation tests against the shipped schemas (R32).
+func TestLoadTestContent(t *testing.T) {
+	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
+	if _, err := LoadWithSchemas(filepath.Join(repoRoot(t), "server", "testdata", "content", "old_coast_variety"), schemaDir); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestCheckRejectsZeroResumeReserve covers the loader check behind the
+// schema: a catalogue whose resume reserve is not positive (e.g. built by
+// code, bypassing the schema) is rejected naming file, entity and field.
+func TestCheckRejectsZeroResumeReserve(t *testing.T) {
+	for _, ms := range []int64{0, -60_000} {
+		c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		c.Region.Rules.AutoResumeMs = ms
+		err = checkReferences(c)
+		for _, want := range []string{FileRegion, `region "old_coast"`, "rules.auto_resume_upkeep_minutes", "must be > 0"} {
+			if err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("reserve %d ms: error %v does not contain %q", ms, err, want)
+			}
 		}
 	}
 }

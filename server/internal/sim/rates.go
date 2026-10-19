@@ -1,6 +1,7 @@
 package sim
 
 import (
+	"math"
 	"math/bits"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -16,16 +17,19 @@ import (
 //
 // rho is derived in stages, each rounding down:
 //
-//  1. base = nominal * efficiency / 1000; 0 when paused, when an unconnected
-//     producer has inputs (it cannot fetch them) or its buffer is full.
+//  1. base = nominal * efficiency / 1000 * workforce_factor; 0 when paused,
+//     when an unconnected producer has inputs (it cannot fetch them) or its
+//     buffer is full. workforce_factor = min(1, pool / required) of the
+//     building's workforce tier on the island (see workforcePools).
 //  2. throughput: per warehouse, R = sum of base output rates of the assigned
 //     producers that are running (connected, base > 0, not fully starved, not
 //     blocked by a full output good that no running producer consumes,
-//     resolved as a fixed point along the chain) and T is the level
+//     resolved as a fixed point along the chain; houses demanding a good
+//     count as running consumers) and T is the level
 //     throughput; if R > T every such producer gets tp = base * T / R.
-//  3. starvation: for every good in the starved regime, consumers share the
-//     current arrival rate I in proportion to their demand D: cap = tp * I / D
-//     when D > I.
+//  3. starvation: for every good in the starved regime, consumers (producer
+//     inputs and houses, see population.go) share the current arrival rate I
+//     in proportion to their demand D: cap = tp * I / D when D > I.
 //  4. full: for every good in the full regime, its producers are scaled so
 //     that their production does not exceed the consumption of the good;
 //     repeated until stable because scaling a producer reduces the
@@ -49,6 +53,9 @@ type producer struct {
 	starveCap []int64
 	fullCap   []int64
 	rate      int64
+	// workforce is the workforce factor in per-mille (1000 without a
+	// workforce block).
+	workforce int64
 }
 
 func (p *producer) inputAmount(good string) Qty {
@@ -109,6 +116,27 @@ type rates struct {
 	prod   map[string]int64
 	cons   map[string]int64
 	loads  map[int64]warehouseLoad
+
+	// Population (population.go).
+	workforce map[string]*workforcePool
+	// goodsNeeds are the island-wide goods needs of every tier with
+	// residents, by tier ID in need file order.
+	goodsNeeds map[string][]*goodsNeedState
+	// houseDemand is the nominal house demand of supplied goods; houseExit
+	// the demand used for the starved-regime exit test; houseCons the actual
+	// house consumption. All sub-milli per ms.
+	houseDemand map[string]int64
+	houseExit   map[string]int64
+	houseCons   map[string]int64
+	// starvedShare records, for every starved good, the arrival rate and the
+	// nominal demand of all consumers (producer inputs and houses). When the
+	// demand exceeds the arrivals, consumers share them in proportion;
+	// otherwise the excess arrivals are slack that houses may draw for the
+	// shortfall of other goods of a category.
+	starvedShare map[string][2]int64
+	houses       []*houseCalc
+	// tax and upkeep of the island in gold sub-units per ms.
+	tax, upkeep int64
 }
 
 // mulDiv returns floor(a*b/c) for non-negative a, b and positive c with
@@ -126,6 +154,24 @@ func mulDiv(a, b, c int64) int64 {
 	return int64(q)                            // #nosec G115 -- q < a <= MaxInt64
 }
 
+// mulDivAny returns floor(a*b/c) for non-negative a, b and positive c using
+// 128-bit intermediate arithmetic. The caller guarantees that the result
+// fits into an int64.
+func mulDivAny(a, b, c int64) int64 {
+	if a <= 0 || b <= 0 || c <= 0 {
+		return 0
+	}
+	hi, lo := bits.Mul64(uint64(a), uint64(b)) // #nosec G115 -- a, b > 0
+	if hi >= uint64(c) {                       // #nosec G115 -- c > 0
+		return math.MaxInt64
+	}
+	q, _ := bits.Div64(hi, lo, uint64(c)) // #nosec G115 -- c > 0, hi < c
+	if q > math.MaxInt64 {
+		return math.MaxInt64
+	}
+	return int64(q) // #nosec G115 -- q <= MaxInt64
+}
+
 // nominalRate is the progress rate at 100 % efficiency.
 func nominalRate(def *content.Building) int64 {
 	return SubPerMilli / def.Recipe.CycleMs
@@ -138,7 +184,14 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 		prod:   map[string]int64{},
 		cons:   map[string]int64{},
 		loads:  map[int64]warehouseLoad{},
+
+		goodsNeeds:   map[string][]*goodsNeedState{},
+		houseDemand:  map[string]int64{},
+		houseExit:    map[string]int64{},
+		houseCons:    map[string]int64{},
+		starvedShare: map[string][2]int64{},
 	}
+	r.workforce = workforcePools(is, c)
 	for _, b := range is.Buildings {
 		for _, s := range b.Transit {
 			if s.FromMs <= now && now < s.ToMs {
@@ -154,11 +207,17 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 			continue
 		}
 		p := &producer{
-			b: b, def: def, connected: b.AssignedWarehouseID != 0, throughput: 1000,
+			b: b, def: def, connected: b.AssignedWarehouseID != 0, throughput: 1000, workforce: 1000,
 			starveCap: fill(len(def.Recipe.Inputs), -1),
 			fullCap:   fill(len(def.Recipe.Outputs), -1),
 		}
 		base := nominalRate(def) * b.Efficiency / 1000
+		if wf := def.Workforce; wf != nil {
+			if pool := r.workforce[wf.Tier]; pool != nil && pool.required > pool.available {
+				base = mulDiv(base, pool.available, pool.required)
+				p.workforce = pool.available * 1000 / pool.required
+			}
+		}
 		switch {
 		case b.Paused:
 			base = 0
@@ -175,6 +234,9 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 		p.base, p.tp = base, base
 		r.producers = append(r.producers, p)
 	}
+
+	// House demand depends only on regimes, arrivals and population.
+	r.prepareHouseDemand(is, c)
 
 	// Throughput sharing per warehouse.
 	fullyStarved := func(p *producer) bool {
@@ -197,6 +259,11 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 	for changed := true; changed; {
 		changed = false
 		consumed := map[string]bool{}
+		for good, d := range r.houseDemand {
+			if d > 0 {
+				consumed[good] = true
+			}
+		}
 		for _, p := range r.producers {
 			if run[p] {
 				for _, in := range p.def.Recipe.Inputs {
@@ -242,12 +309,13 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 	// Starvation: consumers share the arrival rate of a starved good.
 	for _, good := range sortedKeys(is.Inventory.Starved) {
 		in := r.inflow[good]
-		var demand int64
+		demand := r.houseDemand[good]
 		for _, p := range r.producers {
 			if p.connected {
 				demand += p.tp * p.inputAmount(good)
 			}
 		}
+		r.starvedShare[good] = [2]int64{in, demand}
 		if demand <= in {
 			continue
 		}
@@ -264,12 +332,16 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 		}
 	}
 
+	// Houses consume what the starvation shares leave them; their
+	// consumption does not depend on the producer caps below.
+	r.consumeHouseNeeds(is, c)
+
 	// Full: producers of a full good are limited to its consumption.
 	fullGoods := sortedKeys(is.Inventory.Full)
 	for iter := 0; iter < 64 && len(fullGoods) > 0; iter++ {
 		changed := false
 		for _, good := range fullGoods {
-			var prod, cons int64
+			prod, cons := int64(0), r.houseCons[good]
 			for _, p := range r.producers {
 				if p.connected {
 					prod += p.rate * p.outputAmount(good)
@@ -313,6 +385,10 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 			r.cons[in.Good] += p.rate * in.Amount
 		}
 	}
+	for good, v := range r.houseCons {
+		r.cons[good] += v
+	}
+	r.computeHouses(is, c)
 	return r
 }
 
@@ -349,20 +425,30 @@ func fill(n int, v int64) []int64 {
 // rates, so settling at an arbitrary split time is a no-op; this is what
 // makes Advance exactly composable.
 func settle(is *Island, c *content.Catalogue, now int64) *rates {
+	return settleRegimes(is, c, now, true)
+}
+
+// settleRegimes is settle; without entries only the rate-based exit
+// conditions are applied, so the result does not depend on stock levels
+// (used for the hypothetical rates of an auto-resume, see economy.go).
+func settleRegimes(is *Island, c *content.Catalogue, now int64, entries bool) *rates {
 	for range 32 {
 		r := computeRates(is, c, now)
-		if !updateRegimes(is, c, r, now) {
+		if !updateRegimes(is, c, r, now, entries) {
 			return r
 		}
 	}
 	return computeRates(is, c, now)
 }
 
-func updateRegimes(is *Island, c *content.Catalogue, r *rates, now int64) bool {
+func updateRegimes(is *Island, c *content.Catalogue, r *rates, now int64, entries bool) bool {
 	inv := &is.Inventory
 	changed := false
 	for _, good := range sortedKeys(inv.Starved) {
-		var demand int64
+		// Houses count with the demand they would have if the good were
+		// supplied, so that an unsupplied good does not leave the regime
+		// only because nobody draws from it.
+		demand := r.houseExit[good]
 		for _, p := range r.producers {
 			if !p.connected {
 				continue
@@ -401,8 +487,8 @@ func updateRegimes(is *Island, c *content.Catalogue, r *rates, now int64) bool {
 	if len(inv.Full) == 0 {
 		inv.Full = nil
 	}
-	if changed {
-		return true
+	if changed || !entries {
+		return changed
 	}
 
 	capFine := capacityFine(is, c)

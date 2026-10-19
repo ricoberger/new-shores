@@ -1,6 +1,7 @@
 package sim
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -109,6 +110,33 @@ func TestNoBuildingIDLiterals(t *testing.T) {
 				}
 				return true
 			})
+		}
+	}
+}
+
+// TestWorkforceGrantIsNotACommand (R28a): workforce can only be granted by
+// GrantWorkforce (seeding), never through a Command passed to Apply.
+func TestWorkforceGrantIsNotACommand(t *testing.T) {
+	for path, f := range parseNonTest(t, simDir(t)) {
+		for _, decl := range f.Decls {
+			fn, ok := decl.(*ast.FuncDecl)
+			if !ok {
+				continue
+			}
+			if fn.Name.Name == "isCommand" && fn.Recv != nil {
+				typ := fmt.Sprint(fn.Recv.List[0].Type)
+				if strings.Contains(strings.ToLower(typ), "workforce") || strings.Contains(strings.ToLower(typ), "grant") {
+					t.Errorf("%s: command type %s grants workforce", path, typ)
+				}
+			}
+			if fn.Name.Name == "ApplyWithLedger" || fn.Name.Name == "Apply" {
+				ast.Inspect(fn, func(n ast.Node) bool {
+					if id, ok := n.(*ast.Ident); ok && id.Name == "GrantWorkforce" {
+						t.Errorf("%s: %s reaches GrantWorkforce", path, fn.Name.Name)
+					}
+					return true
+				})
+			}
 		}
 	}
 }

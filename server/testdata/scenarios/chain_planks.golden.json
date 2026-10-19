@@ -1,6 +1,6 @@
 {
   "name": "chain_planks",
-  "content_version": "old_coast-0.1.0",
+  "content_version": "old_coast-0.2.0",
   "boundary_count": 2,
   "totals": {
     "main": {
@@ -19,6 +19,7 @@
     }
   },
   "bottlenecks": [],
+  "pause_events": [],
   "snapshots": [
     {
       "step": 3,
@@ -35,7 +36,13 @@
       "statuses": {
         "input_starved": 1,
         "ok": 1
-      }
+      },
+      "gold": 69133,
+      "balance_rate_per_min": -7000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ]
     },
     {
       "step": 4,
@@ -55,7 +62,13 @@
       },
       "statuses": {
         "ok": 2
-      }
+      },
+      "gold": 68900,
+      "balance_rate_per_min": -7000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ]
     },
     {
       "step": 5,
@@ -75,7 +88,13 @@
       },
       "statuses": {
         "ok": 2
-      }
+      },
+      "gold": 66333,
+      "balance_rate_per_min": -7000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ]
     },
     {
       "step": 6,
@@ -95,7 +114,13 @@
       },
       "statuses": {
         "ok": 2
-      }
+      },
+      "gold": 66216,
+      "balance_rate_per_min": -7000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ]
     },
     {
       "step": 7,
@@ -115,13 +140,46 @@
       },
       "statuses": {
         "ok": 2
-      }
+      },
+      "gold": 1000,
+      "balance_rate_per_min": -7000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ]
     }
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:10:00.000Z",
-    "next_change_at": "2026-01-01T02:30:17.000Z",
-    "gold": 0,
+    "next_change_at": "2026-01-01T00:10:08.571Z",
+    "gold": 1000,
+    "balance_rate_per_min": -7000,
+    "tax_rate_per_min": 0,
+    "upkeep_rate_per_min": 7000,
+    "tiers": [
+      {
+        "id": "settlers",
+        "unlocked": true,
+        "population": {},
+        "buildings": {},
+        "goods_delivered": {}
+      },
+      {
+        "id": "citizens",
+        "unlocked": false,
+        "population": {
+          "settlers": {
+            "have": 0,
+            "need": 120000
+          }
+        },
+        "buildings": {
+          "chapel": false,
+          "market_small": false
+        },
+        "goods_delivered": {}
+      }
+    ],
     "islands": [
       {
         "id": "main",
@@ -139,6 +197,12 @@
             "capacity": 300000,
             "in_transit": 767,
             "rate_per_min": 2000
+          },
+          "sails": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
           },
           "wood": {
             "stock": 0,
@@ -287,7 +351,12 @@
             "cycle_progress_permille": 0,
             "transfer_delay_ms": 17000,
             "assigned_warehouse_id": 1,
-            "road_distance": 7
+            "road_distance": 7,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 4000
+            }
           },
           {
             "id": 3,
@@ -316,9 +385,22 @@
             "cycle_progress_permille": 433,
             "transfer_delay_ms": 23000,
             "assigned_warehouse_id": 1,
-            "road_distance": 13
+            "road_distance": 13,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 4000
+            }
           }
-        ]
+        ],
+        "workforce": {
+          "settlers": {
+            "available": 1000000,
+            "required": 8000,
+            "factor_permille": 1000
+          }
+        },
+        "population": {}
       }
     ]
   }
