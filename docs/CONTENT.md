@@ -20,10 +20,10 @@ Content IDs are stable snake_case strings and never reused.
 
 | # | ID | Name | Residents (floor–max) | Tax/res/min | House cost | Workforce role |
 |---|---|---|---|---|---|---|
-| 1 | `settlers` | Settlers | 2–8 | 0.05 | 10 planks | farms, fishers, lumber, gatherers |
-| 2 | `citizens` | Citizens | 5–15 | 0.12 | 15 planks, 10 stone, 200 gold | mines, kilns, mills, basic workshops |
-| 3 | `merchants` | Merchants | 9–25 | 0.30 | 20 planks, 20 stone, 10 bricks, 1 500 gold | refined workshops, printing, brewing |
-| 4 | `patricians` | Patricians | 14–40 | 0.70 | 20 stone, 20 bricks, 10 glass, 8 000 gold | fine crafts, studios, opticians (small numbers) |
+| 1 | `settlers` | Settlers | 2–8 | 0.20 | 10 planks | farms, fishers, lumber, gatherers |
+| 2 | `citizens` | Citizens | 5–15 | 0.48 | 15 planks, 10 stone, 200 gold | mines, kilns, mills, basic workshops |
+| 3 | `merchants` | Merchants | 9–25 | 1.20 | 20 planks, 20 stone, 10 bricks, 1 500 gold | refined workshops, printing, brewing |
+| 4 | `patricians` | Patricians | 14–40 | 2.80 | 20 stone, 20 bricks, 10 glass, 8 000 gold | fine crafts, studios, opticians (small numbers) |
 
 ### Unlock conditions (archipelago-wide)
 
@@ -396,6 +396,7 @@ acceptable goods:
   balanced chain set with ≥ 20 % margin.
 - Charcoal demand of a balanced Merchant economy must exceed one island's
   forest capacity so coal or a second forest island becomes relevant.
-- Starting stock must allow: warehouse + 8 settler houses + fisher +
-  lumberjack + sawmill + ~40 road tiles + 15 min upkeep.
+- Starting stock (500 gold, 130 planks, 10 sails) must allow: warehouse +
+  8 settler houses + fisher + lumberjack + sawmill + ~40 road tiles + 15 min
+  upkeep.
 - Verify with headless scenarios before touching any client code.
