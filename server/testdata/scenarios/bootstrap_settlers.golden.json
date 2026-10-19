@@ -599,6 +599,7 @@
             "transfer_delay_ms": 16000,
             "assigned_warehouse_id": 1,
             "road_distance": 6,
+            "cycle_rate_permille_per_min": 1500,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -631,6 +632,7 @@
             "transfer_delay_ms": 43000,
             "assigned_warehouse_id": 1,
             "road_distance": 33,
+            "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -665,6 +667,7 @@
             "transfer_delay_ms": 38000,
             "assigned_warehouse_id": 1,
             "road_distance": 28,
+            "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1554,6 +1557,7 @@
             "transfer_delay_ms": 35000,
             "assigned_warehouse_id": 1,
             "road_distance": 25,
+            "cycle_rate_permille_per_min": 791,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1575,6 +1579,9 @@
             "status": "input_starved",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "status_goods": [
+              "wool"
+            ],
             "rates": {
               "inputs": {
                 "wool": 791
@@ -1588,6 +1595,7 @@
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
+            "cycle_rate_permille_per_min": 791,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",

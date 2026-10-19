@@ -6,11 +6,16 @@ Go module `github.com/ricoberger/new-shores/server`. See
 
 | Package | Contents |
 |---|---|
-| `cmd/server` | server binary (stub: prints its version) |
+| `cmd/server` | server binary; `--dev` serves one in-memory world, otherwise it prints its version |
+| `api` | `openapi.yaml`: the HTTP API contract (hand-written; validated by `internal/api` tests) |
+| `internal/api` | `/api/v1` handlers, command/error mapping, content payload, CORS, request logging, clock |
+| `internal/store` | `Store` interface (M2: PostgreSQL) and the one-world in-memory store of the dev server |
+| `internal/devworld` | embedded dev island (scenario document without steps) built with the scenario runner |
 | `internal/content` | loads and validates `content/<region>` against `content/schema` |
 | `internal/sim` | pure, deterministic simulation: `Apply`, `Advance`, `Display`, envelope |
 | `internal/sim/scenario` | headless scenario runner used by golden tests and balancing |
 | `testdata/scenarios` | scenario documents and their golden reports |
+| `testdata/display` | client extrapolation fixtures (`TestDisplayFixtures`, regenerate with `-update`) |
 
 ## Checks
 
@@ -41,6 +46,13 @@ content numbers, regenerate the goldens and review the diff:
 ```sh
 cd server && go test ./internal/sim/scenario/ -run TestGolden -update
 git diff testdata/scenarios
+```
+
+The client extrapolation fixtures in `testdata/display` derive from the same
+scenarios; regenerate them together with the goldens:
+
+```sh
+cd server && go test ./internal/sim/scenario/ -run 'TestGolden|TestDisplayFixtures' -update
 ```
 
 Scenario format (all quantities in units, durations in Go syntax):

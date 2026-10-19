@@ -767,6 +767,7 @@
             "transfer_delay_ms": 18000,
             "assigned_warehouse_id": 1,
             "road_distance": 8,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -799,6 +800,7 @@
             "transfer_delay_ms": 20000,
             "assigned_warehouse_id": 1,
             "road_distance": 10,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -831,6 +833,7 @@
             "transfer_delay_ms": 22000,
             "assigned_warehouse_id": 1,
             "road_distance": 12,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -863,6 +866,7 @@
             "transfer_delay_ms": 24000,
             "assigned_warehouse_id": 1,
             "road_distance": 14,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -895,6 +899,7 @@
             "transfer_delay_ms": 26000,
             "assigned_warehouse_id": 1,
             "road_distance": 16,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -927,6 +932,7 @@
             "transfer_delay_ms": 28000,
             "assigned_warehouse_id": 1,
             "road_distance": 18,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -959,6 +965,7 @@
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -991,6 +998,7 @@
             "transfer_delay_ms": 32000,
             "assigned_warehouse_id": 1,
             "road_distance": 22,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1023,6 +1031,7 @@
             "transfer_delay_ms": 34000,
             "assigned_warehouse_id": 1,
             "road_distance": 24,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1055,6 +1064,7 @@
             "transfer_delay_ms": 36000,
             "assigned_warehouse_id": 1,
             "road_distance": 26,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1087,6 +1097,7 @@
             "transfer_delay_ms": 38000,
             "assigned_warehouse_id": 1,
             "road_distance": 28,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1119,6 +1130,7 @@
             "transfer_delay_ms": 40000,
             "assigned_warehouse_id": 1,
             "road_distance": 30,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1151,6 +1163,7 @@
             "transfer_delay_ms": 42000,
             "assigned_warehouse_id": 1,
             "road_distance": 32,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1183,6 +1196,7 @@
             "transfer_delay_ms": 44000,
             "assigned_warehouse_id": 1,
             "road_distance": 34,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1215,6 +1229,7 @@
             "transfer_delay_ms": 46000,
             "assigned_warehouse_id": 1,
             "road_distance": 36,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1247,6 +1262,7 @@
             "transfer_delay_ms": 48000,
             "assigned_warehouse_id": 1,
             "road_distance": 38,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1279,6 +1295,7 @@
             "transfer_delay_ms": 50000,
             "assigned_warehouse_id": 1,
             "road_distance": 40,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1311,6 +1328,7 @@
             "transfer_delay_ms": 52000,
             "assigned_warehouse_id": 1,
             "road_distance": 42,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1343,6 +1361,7 @@
             "transfer_delay_ms": 54000,
             "assigned_warehouse_id": 1,
             "road_distance": 44,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1375,6 +1394,7 @@
             "transfer_delay_ms": 56000,
             "assigned_warehouse_id": 1,
             "road_distance": 46,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1407,6 +1427,7 @@
             "transfer_delay_ms": 58000,
             "assigned_warehouse_id": 1,
             "road_distance": 48,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1439,6 +1460,7 @@
             "transfer_delay_ms": 60000,
             "assigned_warehouse_id": 1,
             "road_distance": 50,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1471,6 +1493,7 @@
             "transfer_delay_ms": 62000,
             "assigned_warehouse_id": 1,
             "road_distance": 52,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1503,6 +1526,7 @@
             "transfer_delay_ms": 64000,
             "assigned_warehouse_id": 1,
             "road_distance": 54,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1535,6 +1559,7 @@
             "transfer_delay_ms": 66000,
             "assigned_warehouse_id": 1,
             "road_distance": 56,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1567,6 +1592,7 @@
             "transfer_delay_ms": 68000,
             "assigned_warehouse_id": 1,
             "road_distance": 58,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1599,6 +1625,7 @@
             "transfer_delay_ms": 70000,
             "assigned_warehouse_id": 1,
             "road_distance": 60,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1631,6 +1658,7 @@
             "transfer_delay_ms": 72000,
             "assigned_warehouse_id": 1,
             "road_distance": 62,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1663,6 +1691,7 @@
             "transfer_delay_ms": 74000,
             "assigned_warehouse_id": 1,
             "road_distance": 64,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1695,6 +1724,7 @@
             "transfer_delay_ms": 76000,
             "assigned_warehouse_id": 1,
             "road_distance": 66,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1727,6 +1757,7 @@
             "transfer_delay_ms": 78000,
             "assigned_warehouse_id": 1,
             "road_distance": 68,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1759,6 +1790,7 @@
             "transfer_delay_ms": 80000,
             "assigned_warehouse_id": 1,
             "road_distance": 70,
+            "cycle_rate_permille_per_min": 1875,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",

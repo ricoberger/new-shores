@@ -1,0 +1,1151 @@
+openapi: 3.0.3
+info:
+  title: New Shores API
+  version: 1.0.0
+  description: |
+    HTTP API of the New Shores game server (docs/ARCHITECTURE.md §4.4).
+    This file is hand-written and is the contract: Go tests validate the
+    handlers' requests and responses against it, and the client's types are
+    generated from it (`npm run gen:api`).
+
+    Units. All quantities are fixed-point integers; the schema of every
+    numeric field states its unit:
+
+    - **milli-units**: goods, 1 unit = 1000 milli-units;
+    - **milli-residents**: residents, 1 resident = 1000;
+    - **milli-gold**: gold, 1 gold = 1000 milli-gold;
+    - **… per minute**: rates are per minute of world time;
+    - **permille**: ratios, 1000 = 100 %;
+    - **ppm**: ratios in parts per million, 1 000 000 = 100 %;
+    - **ms**: durations in milliseconds;
+    - **tiles**: tile coordinates, distances and sizes.
+
+    Timestamps are RFC 3339 strings in UTC with millisecond precision.
+    JSON field names are snake_case throughout. Objects with fixed fields do
+    not allow additional properties; maps keyed by a good, tier or building
+    ID are the exception.
+servers:
+  - url: http://localhost:8080
+paths:
+  /healthz:
+    get:
+      operationId: getHealth
+      summary: Readiness probe.
+      responses:
+        "200":
+          description: The server is ready.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+        "405":
+          $ref: "#/components/responses/Error"
+  /api/v1/world:
+    get:
+      operationId: getWorld
+      summary: Advance the world to now and return its display state.
+      responses:
+        "200":
+          $ref: "#/components/responses/World"
+        "404":
+          $ref: "#/components/responses/Error"
+        "405":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+    options:
+      operationId: preflightWorld
+      summary: CORS preflight.
+      responses:
+        "204":
+          description: Preflight accepted.
+  /api/v1/world/commands:
+    post:
+      operationId: postCommand
+      summary: Advance the world to now and apply one command.
+      description: |
+        On success the version is incremented and the new display state is
+        returned. On error the world and its version are unchanged. A
+        `version` that differs from the current one is not an error (the
+        server state wins); it is only logged.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommandRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/World"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "405":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+    options:
+      operationId: preflightCommands
+      summary: CORS preflight.
+      responses:
+        "204":
+          description: Preflight accepted.
+  /api/v1/world/islands/{island_id}:
+    get:
+      operationId: getIsland
+      summary: Static data of an island (terrain).
+      description: |
+        Static per island; clients cache it by `revision` and fetch it once
+        per island. Further static data (fertilities, deposit slots) will be
+        added as sibling arrays of `terrain`.
+      parameters:
+        - name: island_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The island.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Island"
+        "404":
+          $ref: "#/components/responses/Error"
+        "405":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+  /api/v1/content:
+    get:
+      operationId: getContent
+      summary: The content catalogue in the units of the display payload.
+      responses:
+        "200":
+          description: The catalogue.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Content"
+        "405":
+          $ref: "#/components/responses/Error"
+    options:
+      operationId: preflightContent
+      summary: CORS preflight.
+      responses:
+        "204":
+          description: Preflight accepted.
+components:
+  responses:
+    World:
+      description: The world's version and display state.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WorldResponse"
+    Error:
+      description: Error envelope.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    # ------------------------------------------------------------------
+    # Envelopes and errors
+    # ------------------------------------------------------------------
+    WorldResponse:
+      type: object
+      additionalProperties: false
+      required: [version, display]
+      properties:
+        version:
+          type: integer
+          format: int64
+          minimum: 0
+          description: World version (count of committed commands).
+        display:
+          $ref: "#/components/schemas/DisplayState"
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message]
+          properties:
+            code:
+              $ref: "#/components/schemas/ErrorCode"
+            message:
+              type: string
+              description: Human-readable detail (English; shown verbatim in M1b).
+    ErrorCode:
+      type: string
+      description: |
+        Stable error code. HTTP status by class:
+
+        - 400: `bad_request` (malformed JSON, unknown fields, body > 64 KiB),
+          `invalid_command`, `unknown_building`, `out_of_bounds`;
+        - 404: `not_found` (unknown endpoint), `unknown_island`,
+          `building_not_found`;
+        - 405: `method_not_allowed`;
+        - 409: `occupied`, `terrain`, `not_coastal`, `no_road_at_entrance`,
+          `no_work_area`, `insufficient_gold`, `insufficient_materials`,
+          `surplus_loss`, `not_pausable`, `no_road`, `tier_locked`,
+          `not_a_house`, `upgrade_unavailable`, `house_not_full`,
+          `needs_unmet`;
+        - 500: `internal`.
+
+        **Internal-only codes** (HTTP 500, never caused by a client command;
+        clients should treat them like `internal` and not handle them
+        specifically): `over_capacity`, `time_backwards`, `schema_version`,
+        `display_time`.
+      enum:
+        - bad_request
+        - not_found
+        - method_not_allowed
+        - internal
+        - invalid_command
+        - unknown_building
+        - out_of_bounds
+        - unknown_island
+        - building_not_found
+        - occupied
+        - terrain
+        - not_coastal
+        - no_road_at_entrance
+        - no_work_area
+        - insufficient_gold
+        - insufficient_materials
+        - surplus_loss
+        - not_pausable
+        - no_road
+        - tier_locked
+        - not_a_house
+        - upgrade_unavailable
+        - house_not_full
+        - needs_unmet
+        - over_capacity
+        - time_backwards
+        - schema_version
+        - display_time
+    # ------------------------------------------------------------------
+    # Commands
+    # ------------------------------------------------------------------
+    CommandRequest:
+      type: object
+      additionalProperties: false
+      required: [command]
+      properties:
+        version:
+          type: integer
+          format: int64
+          description: World version the client last saw (optional; a mismatch is only logged).
+        command:
+          $ref: "#/components/schemas/Command"
+    Command:
+      oneOf:
+        - $ref: "#/components/schemas/PlaceBuildingCommand"
+        - $ref: "#/components/schemas/PlaceRoadCommand"
+        - $ref: "#/components/schemas/DemolishCommand"
+        - $ref: "#/components/schemas/DemolishRoadCommand"
+        - $ref: "#/components/schemas/SetPausedCommand"
+        - $ref: "#/components/schemas/UpgradeHouseCommand"
+      discriminator:
+        propertyName: type
+        mapping:
+          place_building: "#/components/schemas/PlaceBuildingCommand"
+          place_road: "#/components/schemas/PlaceRoadCommand"
+          demolish: "#/components/schemas/DemolishCommand"
+          demolish_road: "#/components/schemas/DemolishRoadCommand"
+          set_paused: "#/components/schemas/SetPausedCommand"
+          upgrade_house: "#/components/schemas/UpgradeHouseCommand"
+    Tile:
+      type: object
+      additionalProperties: false
+      required: [x, y]
+      properties:
+        x:
+          type: integer
+          description: Column (tiles).
+        y:
+          type: integer
+          description: Row (tiles).
+    TileList:
+      type: array
+      description: Tiles; at most the island area (width × height).
+      items:
+        $ref: "#/components/schemas/Tile"
+    PlaceBuildingCommand:
+      type: object
+      additionalProperties: false
+      required: [type, island_id, building_type, x, y, rotation]
+      properties:
+        type:
+          type: string
+          enum: [place_building]
+        island_id:
+          type: string
+        building_type:
+          type: string
+          description: Content building ID.
+        x:
+          type: integer
+          description: Left column of the rotated footprint (tiles).
+        y:
+          type: integer
+          description: Top row of the rotated footprint (tiles).
+        rotation:
+          type: integer
+          enum: [0, 90, 180, 270]
+          description: Degrees; 90 and 270 swap width and height.
+    PlaceRoadCommand:
+      type: object
+      additionalProperties: false
+      required: [type, island_id, road_type, tiles]
+      properties:
+        type:
+          type: string
+          enum: [place_road]
+        island_id:
+          type: string
+        road_type:
+          type: string
+          description: Content building ID with a road block.
+        tiles:
+          $ref: "#/components/schemas/TileList"
+    DemolishCommand:
+      type: object
+      additionalProperties: false
+      required: [type, island_id, building_id]
+      properties:
+        type:
+          type: string
+          enum: [demolish]
+        island_id:
+          type: string
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
+        accept_surplus_loss:
+          type: boolean
+          default: false
+          description: Accept losing goods above the remaining capacity (answer to `surplus_loss`).
+    DemolishRoadCommand:
+      type: object
+      additionalProperties: false
+      required: [type, island_id, tiles]
+      properties:
+        type:
+          type: string
+          enum: [demolish_road]
+        island_id:
+          type: string
+        tiles:
+          $ref: "#/components/schemas/TileList"
+    SetPausedCommand:
+      type: object
+      additionalProperties: false
+      required: [type, island_id, building_id, paused]
+      properties:
+        type:
+          type: string
+          enum: [set_paused]
+        island_id:
+          type: string
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
+        paused:
+          type: boolean
+    UpgradeHouseCommand:
+      type: object
+      additionalProperties: false
+      required: [type, island_id, building_id]
+      properties:
+        type:
+          type: string
+          enum: [upgrade_house]
+        island_id:
+          type: string
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
+    # ------------------------------------------------------------------
+    # Island (static data)
+    # ------------------------------------------------------------------
+    Island:
+      type: object
+      additionalProperties: false
+      required: [id, width, height, revision, terrain]
+      properties:
+        id:
+          type: string
+        width:
+          type: integer
+          description: Columns (tiles).
+        height:
+          type: integer
+          description: Rows (tiles).
+        revision:
+          type: string
+          description: |
+            Identity of the static island data for caching. Currently the
+            world's content version; island generation (M4) will give it
+            its own identity.
+        terrain:
+          type: array
+          description: Terrain ID per tile, row-major (index = y × width + x).
+          items:
+            type: string
+            enum: [water, coast, grass, forest, mountain]
+    # ------------------------------------------------------------------
+    # Display payload (sim.DisplayState)
+    # ------------------------------------------------------------------
+    DisplayState:
+      type: object
+      additionalProperties: false
+      description: |
+        Authoritative state at `evaluated_at` plus the rates the client
+        extrapolates linearly until `next_change_at` (D-027).
+      required:
+        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, islands]
+      properties:
+        evaluated_at:
+          type: string
+          description: World time of this state (RFC 3339, UTC, ms).
+        next_change_at:
+          type: string
+          nullable: true
+          description: Earliest time the rates change without a command (RFC 3339, UTC, ms); null if never.
+        gold:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Gold (milli-gold).
+        balance_rate_per_min:
+          type: integer
+          format: int64
+          description: Net gold rate, taxes minus upkeep (milli-gold per minute, signed).
+        tax_rate_per_min:
+          type: integer
+          format: int64
+          description: Taxes (milli-gold per minute).
+        upkeep_rate_per_min:
+          type: integer
+          format: int64
+          description: Upkeep of non-paused buildings (milli-gold per minute).
+        tiers:
+          type: array
+          description: Tiers in progression order.
+          items:
+            $ref: "#/components/schemas/TierDisplay"
+        islands:
+          type: array
+          items:
+            $ref: "#/components/schemas/IslandDisplay"
+    TierDisplay:
+      type: object
+      additionalProperties: false
+      required: [id, unlocked, population, buildings, goods_delivered]
+      properties:
+        id:
+          type: string
+        unlocked:
+          type: boolean
+        population:
+          type: object
+          description: Population unlock conditions keyed by tier ID.
+          additionalProperties:
+            $ref: "#/components/schemas/PopulationDisplay"
+        buildings:
+          type: object
+          description: Building unlock conditions keyed by building ID (true = built).
+          additionalProperties:
+            type: boolean
+        goods_delivered:
+          type: object
+          description: Delivery unlock conditions keyed by good ID.
+          additionalProperties:
+            type: boolean
+    PopulationDisplay:
+      type: object
+      additionalProperties: false
+      required: [have, need]
+      properties:
+        have:
+          type: integer
+          format: int64
+          description: Residents of the tier in the archipelago (milli-residents).
+        need:
+          type: integer
+          format: int64
+          description: Residents required (milli-residents).
+    IslandDisplay:
+      type: object
+      additionalProperties: false
+      required: [id, width, height, inventory, roads, buildings, workforce, population]
+      properties:
+        id:
+          type: string
+        width:
+          type: integer
+          description: Columns (tiles).
+        height:
+          type: integer
+          description: Rows (tiles).
+        inventory:
+          type: object
+          description: Island inventory keyed by good ID (every good of the content).
+          additionalProperties:
+            $ref: "#/components/schemas/GoodDisplay"
+        roads:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoadDisplay"
+        buildings:
+          type: array
+          description: Buildings by ascending ID.
+          items:
+            $ref: "#/components/schemas/BuildingDisplay"
+        workforce:
+          type: object
+          description: Workforce pool keyed by tier ID.
+          additionalProperties:
+            $ref: "#/components/schemas/WorkforceDisplay"
+        population:
+          type: object
+          description: Residents keyed by tier ID (milli-residents).
+          additionalProperties:
+            type: integer
+            format: int64
+            description: Residents (milli-residents).
+    GoodDisplay:
+      type: object
+      additionalProperties: false
+      required: [stock, capacity, in_transit, rate_per_min]
+      properties:
+        stock:
+          type: integer
+          format: int64
+          description: Stock (milli-units).
+        capacity:
+          type: integer
+          format: int64
+          description: Capacity (milli-units).
+        in_transit:
+          type: integer
+          format: int64
+          description: Goods on the road to the warehouse (milli-units).
+        rate_per_min:
+          type: integer
+          format: int64
+          description: Net stock rate, arrivals minus consumption (milli-units per minute, signed).
+    WorkforceDisplay:
+      type: object
+      additionalProperties: false
+      required: [available, required, factor_permille]
+      properties:
+        available:
+          type: integer
+          format: int64
+          description: Workers available (milli-residents).
+        required:
+          type: integer
+          format: int64
+          description: Workers required by producers (milli-residents).
+        factor_permille:
+          type: integer
+          format: int64
+          description: Workforce factor min(1, available/required) (permille).
+    RoadDisplay:
+      type: object
+      additionalProperties: false
+      required: [x, y, type]
+      properties:
+        x:
+          type: integer
+          description: Column (tiles).
+        y:
+          type: integer
+          description: Row (tiles).
+        type:
+          type: string
+          description: Content building ID of the road type.
+    Pos:
+      type: object
+      additionalProperties: false
+      required: [x, y]
+      properties:
+        x:
+          type: integer
+          description: Column (tiles).
+        y:
+          type: integer
+          description: Row (tiles).
+    RatesDisplay:
+      type: object
+      additionalProperties: false
+      required: [inputs, outputs]
+      properties:
+        inputs:
+          type: object
+          description: Consumption per input good (milli-units per minute).
+          additionalProperties:
+            type: integer
+            format: int64
+            description: Consumption (milli-units per minute).
+        outputs:
+          type: object
+          description: Production per output good (milli-units per minute).
+          additionalProperties:
+            type: integer
+            format: int64
+            description: Production (milli-units per minute).
+    BufferDisplay:
+      type: object
+      additionalProperties: false
+      required: [stock, capacity]
+      properties:
+        stock:
+          type: object
+          description: Buffered output per good (milli-units).
+          additionalProperties:
+            type: integer
+            format: int64
+            description: Buffered amount (milli-units).
+        capacity:
+          type: integer
+          format: int64
+          description: Buffer capacity per good (milli-units).
+    BuildingWorkforce:
+      type: object
+      additionalProperties: false
+      required: [tier, required]
+      properties:
+        tier:
+          type: string
+        required:
+          type: integer
+          format: int64
+          description: Workers required (milli-residents).
+    NeedDisplay:
+      type: object
+      additionalProperties: false
+      required: [id, kind, fulfilment_permille, reason]
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+          enum: [required, optional]
+        category:
+          type: string
+          description: Goods needs only.
+        building:
+          type: string
+          description: Building needs only (content building ID).
+        fulfilment_permille:
+          type: integer
+          format: int64
+          description: Fulfilment (permille).
+        reason:
+          type: string
+          enum: [ok, short_supply, no_supply, out_of_range, not_connected, paused]
+        variety:
+          type: integer
+          description: Extra goods supplied in the category (count; goods needs only).
+        goods:
+          type: object
+          description: Island-wide consumption of the tier's houses per acceptable good (milli-units per minute).
+          additionalProperties:
+            type: integer
+            format: int64
+            description: Consumption (milli-units per minute).
+    BuildingDisplay:
+      type: object
+      additionalProperties: false
+      description: |
+        A building. Producer fields are present for buildings with a
+        recipe, warehouse fields for warehouses, house fields for houses.
+      required:
+        [id, type, x, y, rotation, entrance, paused, paused_reason, status, efficiency_permille, throughput_factor_permille]
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Building ID (unscaled integer identifier, unique per world, assigned sequentially).
+        type:
+          type: string
+          description: Content building ID.
+        x:
+          type: integer
+          description: Left column of the rotated footprint (tiles).
+        y:
+          type: integer
+          description: Top row of the rotated footprint (tiles).
+        rotation:
+          type: integer
+          enum: [0, 90, 180, 270]
+          description: Degrees.
+        entrance:
+          $ref: "#/components/schemas/Pos"
+        paused:
+          type: boolean
+        paused_reason:
+          type: string
+          enum: ["", player, unpaid]
+          description: Empty when not paused.
+        status:
+          type: string
+          enum: [paused, not_connected, warehouse_full, input_starved, throttled, short_of_workers, low_efficiency, ok]
+          description: Primary status (MECHANICS §14).
+        efficiency_permille:
+          type: integer
+          format: int64
+          description: Work-area efficiency (permille; 1000 without work area).
+        throughput_factor_permille:
+          type: integer
+          format: int64
+          description: Warehouse throughput factor (permille).
+        status_goods:
+          type: array
+          description: Goods behind the status, sorted by ID; starve-limited inputs for input_starved, full outputs for warehouse_full.
+          items:
+            type: string
+        rates:
+          $ref: "#/components/schemas/RatesDisplay"
+        cycle_seconds:
+          type: number
+          description: Nominal cycle length at 100 % (seconds).
+        cycle_progress_permille:
+          type: integer
+          format: int64
+          description: Progress of the current cycle (permille, 0–999).
+        transfer_delay_ms:
+          type: integer
+          format: int64
+          description: Delivery latency to the assigned warehouse (ms).
+        assigned_warehouse_id:
+          type: integer
+          format: int64
+          description: Building ID of the assigned warehouse; 0 when not connected.
+        road_distance:
+          type: integer
+          description: Road distance to the assigned warehouse (tiles).
+        buffer:
+          $ref: "#/components/schemas/BufferDisplay"
+        cycle_rate_permille_per_min:
+          type: integer
+          format: int64
+          description: Cycle progress per minute at the current rate (permille per minute); absent when 0.
+        workforce_factor_permille:
+          type: integer
+          format: int64
+          description: Workforce factor of the producer (permille).
+        workforce:
+          $ref: "#/components/schemas/BuildingWorkforce"
+        level:
+          type: integer
+          description: Warehouse level (1-based).
+        capacity:
+          type: integer
+          format: int64
+          description: Warehouse capacity per good (milli-units).
+        throughput_per_min:
+          type: integer
+          format: int64
+          description: Warehouse throughput (milli-units per minute).
+        load_permille:
+          type: integer
+          format: int64
+          description: Warehouse load R/T (permille; above 1000 = overloaded).
+        residents:
+          type: integer
+          format: int64
+          description: Residents (milli-residents, whole residents).
+        residents_floor:
+          type: integer
+          format: int64
+          description: Minimum residents of the tier (milli-residents).
+        residents_max:
+          type: integer
+          format: int64
+          description: Maximum residents of the tier (milli-residents).
+        growth_progress_permille:
+          type: integer
+          format: int64
+          description: Growth accumulator towards the next resident (permille of one resident, −999…999).
+        growth_rate_per_min:
+          type: integer
+          format: int64
+          description: Growth (milli-residents per minute, signed); equivalently permille of a resident per minute.
+        satisfaction_permille:
+          type: integer
+          format: int64
+          description: Satisfaction (permille).
+        variety_multiplier_permille:
+          type: integer
+          format: int64
+          description: Variety multiplier (permille; 1000 = ×1).
+        tax_rate_per_min:
+          type: integer
+          format: int64
+          description: Taxes of the house (milli-gold per minute).
+        needs:
+          type: array
+          items:
+            $ref: "#/components/schemas/NeedDisplay"
+    # ------------------------------------------------------------------
+    # Content payload
+    # ------------------------------------------------------------------
+    Content:
+      type: object
+      additionalProperties: false
+      required: [region, tiers, goods, buildings, needs]
+      properties:
+        region:
+          $ref: "#/components/schemas/ContentRegion"
+        tiers:
+          type: array
+          description: Tiers in progression order.
+          items:
+            $ref: "#/components/schemas/ContentTier"
+        goods:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContentGood"
+        buildings:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContentBuilding"
+        needs:
+          type: array
+          description: Needs grouped by tier in progression order, file order within a tier.
+          items:
+            $ref: "#/components/schemas/ContentNeed"
+    ContentRegion:
+      type: object
+      additionalProperties: false
+      required: [id, name, version, rules]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+          description: Content version (e.g. old_coast-0.2.0).
+        rules:
+          $ref: "#/components/schemas/ContentRules"
+    ContentRules:
+      type: object
+      additionalProperties: false
+      required:
+        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, optional_tax_bonus, auto_resume_upkeep_ms]
+      properties:
+        transfer_base_ms:
+          type: integer
+          format: int64
+          description: Base delivery latency (ms).
+        unconnected_buffer:
+          type: integer
+          format: int64
+          description: Output buffer of an unconnected producer per good (milli-units).
+        iteration_cap:
+          type: integer
+          description: Boundaries per advancement before coarse steps (count).
+        coarse_step_ms:
+          type: integer
+          format: int64
+          description: Coarse step length (ms).
+        growth_per_min:
+          type: integer
+          format: int64
+          description: House growth at full satisfaction (milli-residents per minute).
+        decline_per_min:
+          type: integer
+          format: int64
+          description: House decline factor (milli-residents per minute).
+        growth_satisfaction_threshold:
+          type: integer
+          format: int64
+          description: Satisfaction from which houses grow (ppm).
+        optional_tax_bonus:
+          type: integer
+          format: int64
+          description: Tax bonus of fully met optional needs (ppm).
+        auto_resume_upkeep_ms:
+          type: integer
+          format: int64
+          description: Gold reserve for auto-resume, as a duration of the building's upkeep (ms).
+    ContentTier:
+      type: object
+      additionalProperties: false
+      required: [id, name, index, residents_floor, residents_max, tax_per_resident_per_min, house, unlock]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        index:
+          type: integer
+          description: Position in progression order (0 = first tier).
+        residents_floor:
+          type: integer
+          format: int64
+          description: Minimum residents per house (milli-residents).
+        residents_max:
+          type: integer
+          format: int64
+          description: Maximum residents per house (milli-residents).
+        tax_per_resident_per_min:
+          type: integer
+          format: int64
+          description: Tax per resident (milli-gold per minute).
+        house:
+          type: string
+          nullable: true
+          description: House building ID; null for a declared-only tier.
+        unlock:
+          $ref: "#/components/schemas/ContentUnlock"
+    ContentUnlock:
+      type: object
+      additionalProperties: false
+      required: [population, buildings, goods_delivered]
+      properties:
+        population:
+          type: object
+          description: Residents required per earlier tier (milli-residents).
+          additionalProperties:
+            type: integer
+            format: int64
+            description: Residents (milli-residents).
+        buildings:
+          type: array
+          items:
+            type: string
+        goods_delivered:
+          type: array
+          items:
+            type: string
+    ContentGood:
+      type: object
+      additionalProperties: false
+      required: [id, name, type]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+    ContentGoodAmount:
+      type: object
+      additionalProperties: false
+      required: [good, amount]
+      properties:
+        good:
+          type: string
+        amount:
+          type: integer
+          format: int64
+          description: Amount per cycle (milli-units).
+    ContentBuilding:
+      type: object
+      additionalProperties: false
+      required:
+        [id, name, tier, category, width, height, coastal, requires_road, cost, upkeep_per_min, pause_category]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        tier:
+          type: string
+        category:
+          type: string
+          enum: [houses, production, public, harbour, roads, other]
+          description: |
+            Build-menu group derived by the server from the capability
+            blocks: house → houses, recipe → production, service → public,
+            warehouse → harbour, road → roads; other for none of these.
+        width:
+          type: integer
+          description: Footprint width at rotation 0 (tiles).
+        height:
+          type: integer
+          description: Footprint height at rotation 0 (tiles).
+        coastal:
+          type: boolean
+        requires_road:
+          type: boolean
+        cost:
+          type: object
+          additionalProperties: false
+          required: [gold, materials]
+          properties:
+            gold:
+              type: integer
+              format: int64
+              description: Gold cost (milli-gold).
+            materials:
+              type: object
+              description: Material cost per good (milli-units).
+              additionalProperties:
+                type: integer
+                format: int64
+                description: Amount (milli-units).
+        upkeep_per_min:
+          type: integer
+          format: int64
+          description: Upkeep (milli-gold per minute).
+        pause_category:
+          type: string
+        recipe:
+          type: object
+          additionalProperties: false
+          required: [inputs, outputs, cycle_ms]
+          properties:
+            inputs:
+              type: array
+              items:
+                $ref: "#/components/schemas/ContentGoodAmount"
+            outputs:
+              type: array
+              items:
+                $ref: "#/components/schemas/ContentGoodAmount"
+            cycle_ms:
+              type: integer
+              format: int64
+              description: Cycle length at 100 % (ms).
+        house:
+          type: object
+          additionalProperties: false
+          required: [tier]
+          properties:
+            tier:
+              type: string
+        warehouse:
+          type: object
+          additionalProperties: false
+          required: [levels]
+          properties:
+            levels:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required: [capacity, throughput_per_min]
+                properties:
+                  capacity:
+                    type: integer
+                    format: int64
+                    description: Capacity per good (milli-units).
+                  throughput_per_min:
+                    type: integer
+                    format: int64
+                    description: Throughput (milli-units per minute).
+        road:
+          type: object
+          additionalProperties: false
+          required: [ms_per_tile]
+          properties:
+            ms_per_tile:
+              type: integer
+              format: int64
+              description: Transfer time per road tile (ms).
+        service:
+          type: object
+          additionalProperties: false
+          required: [radius]
+          properties:
+            radius:
+              type: integer
+              description: Service radius (tiles).
+        work_area:
+          type: object
+          additionalProperties: false
+          required: [radius, terrain, required_tiles]
+          properties:
+            radius:
+              type: integer
+              description: Work-area radius (tiles).
+            terrain:
+              type: array
+              items:
+                type: string
+            required_tiles:
+              type: integer
+              description: Matching tiles for full efficiency (count).
+        workforce:
+          type: object
+          additionalProperties: false
+          required: [tier, amount]
+          properties:
+            tier:
+              type: string
+            amount:
+              type: integer
+              format: int64
+              description: Workers required (milli-residents).
+    ContentNeed:
+      type: object
+      additionalProperties: false
+      required: [id, tier, kind, weight]
+      properties:
+        id:
+          type: string
+        tier:
+          type: string
+        kind:
+          type: string
+          enum: [required, optional]
+        weight:
+          type: integer
+          format: int64
+          description: Weight (ppm).
+        category:
+          type: string
+          description: Goods needs only.
+        goods:
+          type: array
+          description: Goods needs only.
+          items:
+            type: object
+            additionalProperties: false
+            required: [good, per_resident_per_min]
+            properties:
+              good:
+                type: string
+              per_resident_per_min:
+                type: integer
+                format: int64
+                description: Consumption per resident (milli-units per minute).
+        variety_bonus:
+          type: integer
+          format: int64
+          description: Bonus per extra good (ppm; goods needs only).
+        max_extra_goods:
+          type: integer
+          description: Maximum extra goods counted for variety (count; goods needs only).
+        building:
+          type: string
+          description: Building needs only (content building ID).
+        radius:
+          type: integer
+          description: Radius (tiles; building needs only).

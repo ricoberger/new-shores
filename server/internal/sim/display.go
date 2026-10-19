@@ -152,6 +152,10 @@ type BuildingDisplay struct {
 	Status                   string `json:"status"`
 	EfficiencyPermille       int64  `json:"efficiency_permille"`
 	ThroughputFactorPermille int64  `json:"throughput_factor_permille"`
+	// StatusGoods names the goods behind a producer's status, sorted by ID:
+	// the starve-limited inputs for input_starved and the outputs in the
+	// full regime for warehouse_full; empty for every other status.
+	StatusGoods []string `json:"status_goods,omitempty"`
 
 	// Producers.
 	Rates                 *RatesDisplay  `json:"rates,omitempty"`
@@ -161,6 +165,12 @@ type BuildingDisplay struct {
 	AssignedWarehouseID   *int64         `json:"assigned_warehouse_id,omitempty"`
 	RoadDistance          *int           `json:"road_distance,omitempty"`
 	Buffer                *BufferDisplay `json:"buffer,omitempty"`
+
+	// CycleRatePermillePerMin is the progress of the production cycle per
+	// minute at the current rate (0 when the producer does not run), so that
+	// the client can extrapolate the cycle bar without recipe amounts.
+	CycleRatePermillePerMin int64 `json:"cycle_rate_permille_per_min,omitempty"`
+
 	// WorkforceFactorPermille and Workforce are set for producers with a
 	// workforce block.
 	WorkforceFactorPermille *int64             `json:"workforce_factor_permille,omitempty"`
@@ -336,6 +346,7 @@ func displayProducer(bd *BuildingDisplay, is *Island, c *content.Catalogue, p *p
 	}
 	bd.CycleSeconds = ptr(float64(rec.CycleMs) / 1000)
 	bd.CycleProgressPermille = ptr(b.Progress * 1000 / SubPerMilli)
+	bd.CycleRatePermillePerMin = p.rate * msPerMinute * 1000 / SubPerMilli
 	bd.TransferDelayMs = ptr(b.TransferDelayMs)
 	bd.AssignedWarehouseID = ptr(b.AssignedWarehouseID)
 	bd.RoadDistance = ptr(b.RoadDistance)
@@ -351,6 +362,29 @@ func displayProducer(bd *BuildingDisplay, is *Island, c *content.Catalogue, p *p
 		bd.Workforce = &BuildingWorkforce{Tier: wf.Tier, Required: wf.Amount}
 	}
 	bd.Status = producerStatus(is, p)
+	bd.StatusGoods = statusGoods(is, p, bd.Status)
+}
+
+// statusGoods returns the goods behind an input_starved or warehouse_full
+// status, sorted by good ID; nil for every other status.
+func statusGoods(is *Island, p *producer, status string) []string {
+	var goods []string
+	switch status {
+	case StatusInputStarved:
+		for i, in := range p.def.Recipe.Inputs {
+			if c := p.starveCap[i]; c >= 0 && c < p.tp {
+				goods = append(goods, in.Good)
+			}
+		}
+	case StatusWarehouseFull:
+		for _, out := range p.def.Recipe.Outputs {
+			if is.Inventory.Full[out.Good] {
+				goods = append(goods, out.Good)
+			}
+		}
+	}
+	slices.Sort(goods)
+	return goods
 }
 
 func producerStatus(is *Island, p *producer) string {

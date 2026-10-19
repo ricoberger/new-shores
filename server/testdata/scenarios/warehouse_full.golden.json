@@ -216,6 +216,9 @@
             "status": "warehouse_full",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "status_goods": [
+              "fish"
+            ],
             "rates": {
               "inputs": {},
               "outputs": {

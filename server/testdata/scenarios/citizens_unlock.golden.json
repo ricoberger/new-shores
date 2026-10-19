@@ -494,6 +494,9 @@
             "status": "warehouse_full",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "status_goods": [
+              "fish"
+            ],
             "rates": {
               "inputs": {},
               "outputs": {
@@ -505,6 +508,7 @@
             "transfer_delay_ms": 16000,
             "assigned_warehouse_id": 1,
             "road_distance": 6,
+            "cycle_rate_permille_per_min": 1200,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -542,6 +546,9 @@
             "status": "warehouse_full",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "status_goods": [
+              "wool_garments"
+            ],
             "rates": {
               "inputs": {
                 "wool": 600
@@ -555,6 +562,7 @@
             "transfer_delay_ms": 35000,
             "assigned_warehouse_id": 1,
             "road_distance": 25,
+            "cycle_rate_permille_per_min": 600,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -587,6 +595,7 @@
             "transfer_delay_ms": 38000,
             "assigned_warehouse_id": 1,
             "road_distance": 28,
+            "cycle_rate_permille_per_min": 1000,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
