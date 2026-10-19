@@ -1,6 +1,8 @@
 package sim
 
 import (
+	"math"
+
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
@@ -98,7 +100,9 @@ func workforcePools(is *Island, c *content.Catalogue) map[string]*workforcePool 
 		get(tier).available += n
 	}
 	for tier, n := range is.WorkforceGrant {
-		get(tier).available += n
+		// Saturating: a seed grant may be as large as an int64 allows.
+		p := get(tier)
+		p.available += min(n, math.MaxInt64-p.available)
 	}
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]

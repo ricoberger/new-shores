@@ -8,11 +8,13 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"math"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -698,5 +700,48 @@ func TestWorkforceGrantSeedOnly(t *testing.T) {
 		if s.Content != DefaultContent || s.Seed.Workforce["settlers"] != 1000 {
 			t.Errorf("%s: content %s workforce %v", name, s.Content, s.Seed.Workforce)
 		}
+	}
+}
+
+// TestSeedWorkforceBounds (R28a, R34): seed.workforce is validated in whole
+// residents before conversion to milli-residents; negative counts and
+// counts whose milli-resident value does not fit into an int64 are rejected
+// with sim.ErrInvalidCommand instead of wrapping around.
+func TestSeedWorkforceBounds(t *testing.T) {
+	c := loadCatalogue(t)
+	build := func(n string) (*sim.World, error) {
+		t.Helper()
+		s, err := Parse([]byte(`{"name": "grant", "start": "2026-01-01T00:00:00Z",
+			"island": {"rows": ["~~~~~~", "~cccc~", "~....~", "~....~", "~~~~~~"]},
+			"seed": {"warehouse": {"x": 1, "y": 1}, "workforce": {"settlers": ` + n + `}}, "steps": []}`))
+		if err != nil {
+			t.Fatalf("parse %s: %v", n, err)
+		}
+		return BuildWorld(s, c, nil)
+	}
+	limit := int64(math.MaxInt64 / 1000)
+	for _, n := range []string{"-9223372036854775808", "-1", strconv.FormatInt(limit+1, 10), "9223372036854775807"} {
+		if w, err := build(n); !errors.Is(err, sim.ErrInvalidCommand) || w != nil {
+			t.Errorf("workforce %s: world %v err %v, want ErrInvalidCommand", n, w != nil, err)
+		}
+	}
+	w, err := build(strconv.FormatInt(limit, 10))
+	if err != nil || w.Islands[0].WorkforceGrant["settlers"] != limit*1000 {
+		t.Fatalf("largest grant: %v %v", err, w)
+	}
+	// A further grant that would overflow is rejected and changes nothing.
+	before, _ := sim.Encode(w, "x")
+	if err := sim.GrantWorkforce(w, c, w.Islands[0].ID, "settlers", 1000*1000); !errors.Is(err, sim.ErrInvalidCommand) {
+		t.Errorf("overflowing grant: %v", err)
+	}
+	if after, _ := sim.Encode(w, "x"); !bytes.Equal(before, after) {
+		t.Error("world changed on error")
+	}
+	// The saturated pool still yields a valid display.
+	if ds, err := sim.Display(w, c, w.LastEvaluatedAt); err != nil || ds.Islands[0].Workforce["settlers"].FactorPermille != 1000 {
+		t.Errorf("display: %v %+v", err, ds.Islands[0].Workforce)
+	}
+	if w, err := build("0"); err != nil || len(w.Islands[0].WorkforceGrant) != 0 {
+		t.Errorf("zero grant: %v %v", err, w.Islands[0].WorkforceGrant)
 	}
 }

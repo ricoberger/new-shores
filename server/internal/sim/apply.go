@@ -2,6 +2,7 @@ package sim
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
@@ -152,6 +153,9 @@ func GrantWorkforce(w *World, c *content.Catalogue, islandID, tier string, qty Q
 	}
 	if qty == 0 {
 		return nil
+	}
+	if qty > math.MaxInt64-is.WorkforceGrant[tier] {
+		return fmt.Errorf("%w: workforce grant of %s overflows", ErrInvalidCommand, tier)
 	}
 	if is.WorkforceGrant == nil {
 		is.WorkforceGrant = map[string]Qty{}

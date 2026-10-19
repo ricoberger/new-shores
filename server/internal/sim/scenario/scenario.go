@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io/fs"
 	"maps"
+	"math"
 	"path/filepath"
 	"slices"
 	"time"
@@ -218,7 +219,13 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		}
 	}
 	for _, tier := range sortedKeys(s.Seed.Workforce) {
-		if err := sim.GrantWorkforce(w, c, is.ID, tier, s.Seed.Workforce[tier]*content.MilliPerUnit); err != nil {
+		// Validate in whole residents before converting to milli-residents,
+		// so that a negative or huge count cannot overflow into a valid one.
+		n := s.Seed.Workforce[tier]
+		if n < 0 || n > math.MaxInt64/content.MilliPerUnit {
+			return nil, fmt.Errorf("seed workforce: %w: %s = %d residents is negative or too large", sim.ErrInvalidCommand, tier, n)
+		}
+		if err := sim.GrantWorkforce(w, c, is.ID, tier, n*content.MilliPerUnit); err != nil {
 			return nil, fmt.Errorf("seed workforce: %w", err)
 		}
 	}
