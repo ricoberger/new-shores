@@ -76,7 +76,7 @@ bricks; T4 stone + bricks + glass.
 | `tallow` | `rendering_house` (pigs) | — | soap_maker, candle_foundry |
 | `honey` | `apiary` (meadow) | — | meadery, confectioner |
 | `wood` | `lumberjack` | — | sawmill, charcoal_burner, paper_mill |
-| `leather` | `tannery` (pigs) | — | leather_jerkins is the T2 good itself; `tailor` (coats) |
+| `leather` | `leather_works` (pigs, T3) | — | `tailor` (coats); `tannery` makes the T2 good `leather_jerkins` directly (D-041) |
 | `barrels` | `cooperage` (planks + iron) | — | winepress, distillery (grain spirit) |
 | `brass` | `copper_smelter` (copper slot + charcoal) | — | optician, luthier |
 | `dye` | `dyer_works` (woad fertility) | — | dyer (dyed garments), studio (pigments) |
@@ -110,11 +110,15 @@ Infrastructure: `warehouse` lvl 1, `road_dirt`, `market_small`, `chapel`,
 | drink | mead | `apiary` (meadow → honey, 90 s) [4 S], `meadery` (honey → mead, 60 s) [6 C] | 3 : 2 |
 | clothing | linen_garments | `hemp_farm` (hemp fert. → hemp, 60 s) [6 S], `weaver_linen` (hemp → linen_garments, 45 s) [6 C] | 3 : 2 |
 | clothing | leather_jerkins | `pig_farm` (grass → pigs, 90 s) [6 S], `tannery` (pigs → leather_jerkins, 60 s) [8 C] | 3 : 2 |
-| construction | stone, tools | `quarry` (stone slot → stone, 45 s) [8 C]; `iron_mine` (iron slot → iron_ore, 60 s) [10 C], `charcoal_burner` (wood → charcoal, 45 s) [4 C], `smelter` (iron_ore + charcoal → iron, 60 s) [8 C], `toolmaker` (iron → tools, 60 s) [8 C] | tools 1 : 1.3 : 1 : 1 |
+| construction | stone, tools | `quarry` (stone slot → stone, 45 s) [8 S]; `iron_mine` (iron slot → iron_ore, 60 s) [10 S], `charcoal_burner` (wood → charcoal, 45 s) [4 S], `smelter` (iron_ore + charcoal → iron, 60 s) [8 S], `toolmaker` (iron → tools, 60 s) [8 S] | tools 1 : 1.3 : 1 : 1 |
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
 Infrastructure: `warehouse` lvl 2, `road_paved`, `tavern`, `house_citizens`,
 brig. Iron and hemp are on the second settleable island, never the first.
+The construction chains (quarry, tool chain) are **Settler-staffed** per the
+bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
+must be producible before any Citizen exists. Likewise bricks (tier 3) are
+made by Citizens and glass (tier 4) by Citizens.
 
 ### Tier 3 — Merchants
 
@@ -124,7 +128,7 @@ brig. Iron and hemp are on the second settleable island, never the first.
 | food | pies | `wheat_farm`, `mill`, `orchard`, `pastry_kitchen` (flour + apples → pies, 60 s) [8 M] | 2 : 1 : 2 : 2 |
 | drink | beer | `wheat_farm`, `hop_farm` (hop fert. → hops, 60 s) [6 S], `brewery` (wheat + hops → beer, 60 s) [10 M] | 1 : 1 : 1 |
 | drink | brandy | `orchard`, `cidery`, `distillery` (cider + charcoal → brandy, 90 s) [8 M] | 4 : 2 : 1 |
-| clothing | coats | `weaver_wool`, `tannery`*, `tailor` (wool_garments + leather → coats, 90 s) [10 M] | 1 : 1 : 1 |
+| clothing | coats | `weaver_wool`, `pig_farm`, `leather_works` (pigs → leather, 60 s) [8 C], `tailor` (wool_garments + leather → coats, 90 s) [10 M] | 1 : 1 : 1 : 1 |
 | clothing | dyed_garments | `weaver_linen`, `woad_farm` (woad fert. → woad, 90 s) [6 S], `dyer_works` (woad → dye, 60 s) [6 C], `dyer` (linen_garments + dye → dyed_garments, 60 s) [8 M] | 1 : 1 : 1 : 1 |
 | clothing | fur_coats | `trapper` (forest → furs, 90 s) [4 S], `furrier` (furs → fur_coats, 90 s) [8 M] | 1 : 1 |
 | comfort | books | `lumberjack`, `paper_mill` (wood → paper, 30 s) [8 C], `printing_press` (paper → books, 60 s) [10 M] | 1 : 1 : 2 |
@@ -134,8 +138,8 @@ brig. Iron and hemp are on the second settleable island, never the first.
 | construction | bricks | `clay_pit`, `brickworks` (clay + charcoal → bricks, 45 s) [8 C] | 1 : 1 |
 | energy | coal | `coal_mine` (coal slot → coal, 45 s) [10 C]; coal substitutes charcoal 1:1 | — |
 
-\*`tannery` gets a second recipe variant producing `leather` for the tailor;
-the player chooses the recipe per building (data: `recipes: [...]`).
+One recipe per building (D-041): `leather_works` is a separate building from
+`tannery` rather than a second recipe.
 
 Infrastructure: `warehouse` lvl 3, `market_medium`, `church`,
 `harbourmaster_office` (world map, expeditions, contracts), `house_merchants`,
@@ -177,12 +181,54 @@ category: ~14. Everything else is variety bonus and trade material.
 
 ## 7. Buildings — reference table
 
-Costs and upkeep for tier 1–2 buildings as in the previous revision (see git
-history) remain the provisional baseline; tier 3–4 entries are authored with
-the post-first-playable content pass. Every building entry carries:
-`footprint`, `coastal`/`slot` requirement, `requires_road`, `cost`,
-`upkeep_per_min`, `workforce {tier, amount}`, `recipes[]`, `pause_category`,
-`work_area` (farms/gatherers) and `tier`.
+Tier 1–2 entries are the provisional baseline (tier 1 is implemented in
+`content/old_coast/`); tier 3–4 entries are authored with the
+post-first-playable content pass. Every building entry carries: `footprint`,
+`coastal`/`slot` requirement, `requires_road`, `cost`, `upkeep_per_min`,
+`workforce {tier, amount}`, `recipes[]` (one entry at launch, D-041),
+`pause_category`, `work_area` (farms/gatherers) and `tier`.
+
+Footprint in tiles; upkeep in gold/min; `R` = requires road connection;
+workforce as `amount tier` (S = Settlers, C = Citizens).
+
+| ID | Tier | Footprint | Cost (gold / planks / stone / tools) | Upkeep | Workforce | Notes |
+|---|---|---|---|---|---|---|
+| `house_settlers` | 1 | 2×2 | 0 / 10 | 0 | — | R |
+| `road_dirt` | 1 | 1×1 | 0 | 0 | — | |
+| `warehouse` | 1 | 4×3 harbour slot | 200 / 30 | 4 | — | lvl 1: cap 300/good, T 60/min |
+| `market_small` | 1 | 3×3 | 150 / 15 | 3 | — | R, radius 12 |
+| `chapel` | 1 | 2×2 | 300 / 15 | 3 | — | R, radius 16 |
+| `lumberjack` | 1 | 2×2 | 50 / 5 | 1 | 4 S | R, work radius 4 forest, 24 tiles |
+| `sawmill` | 1 | 2×2 | 80 / 8 | 2 | 4 S | R |
+| `fisher` | 1 | 2×2 harbour slot | 60 / 6 | 1 | 4 S | R |
+| `sheep_farm` | 1 | 3×3 + fields | 100 / 10 | 2 | 4 S | R, work radius 4 grass, 24 tiles |
+| `weaver_wool` | 1 | 2×2 | 120 / 10 | 2 | 6 S | R |
+| `shipyard` | 1 | 5×4 harbour slot | 500 / 40 | 5 | — | R |
+| `house_citizens` | 2 | 2×2 | 200 / 15 / 10 | 0 | — | upgrade only |
+| `road_paved` | 2 | 1×1 | 5 / – / 1 | 0 | — | |
+| `quarry` | 2 | 3×3 stone slot | 300 / 20 | 4 | 8 S | R |
+| `iron_mine` | 2 | 3×3 iron slot | 400 / 25 / 10 | 5 | 10 S | R |
+| `charcoal_burner` | 2 | 2×2 | 150 / 10 | 3 | 4 S | R |
+| `smelter` | 2 | 3×3 | 400 / 20 / 20 | 6 | 8 S | R |
+| `toolmaker` | 2 | 2×2 | 400 / 15 / 15 | 5 | 8 S | R |
+| `wheat_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, wheat fertility |
+| `mill` | 2 | 2×2 | 250 / 20 / 10 | 3 | 4 C | R |
+| `bakery` | 2 | 2×2 | 300 / 15 / 15 | 4 | 6 C | R |
+| `dairy_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass |
+| `cheese_dairy` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
+| `orchard` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, apple fertility |
+| `cidery` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
+| `apiary` | 2 | 2×2 + fields | 200 / 15 / 5 | 3 | 4 S | R, meadow |
+| `meadery` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
+| `hemp_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, hemp fertility |
+| `weaver_linen` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
+| `pig_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass |
+| `tannery` | 2 | 3×3 | 400 / 20 / 15 | 5 | 8 C | R |
+| `sailmaker` | 2 | 2×2 | 300 / 20 / 5 | 3 | 6 C | R |
+| `tavern` | 2 | 3×3 | 600 / 30 / 20 | 6 | — | R, radius 14 |
+
+Tier 3–4 buildings: see the chain tables in §5 for inputs, outputs, cycles
+and workforce; costs and upkeep to be authored (cost ramp in §3).
 
 Warehouse levels (provisional): lvl 1 cap 300 / T 60; lvl 2 cap 500 / T 90;
 lvl 3 cap 800 / T 130; lvl 4 cap 1 200 / T 180.
@@ -231,14 +277,14 @@ references; the client gets generated TypeScript types for display only.
   "tier": "citizens",
   "footprint": [3, 3],
   "requires_road": true,
-  "slot": null,
   "cost": { "gold": 400, "planks": 20, "stone": 20 },
   "upkeep_per_min": 6,
-  "workforce": { "tier": "citizens", "amount": 8 },
-  "recipes": [
-    { "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": "charcoal", "amount": 1 }],
-      "outputs": [{ "good": "iron", "amount": 1 }], "cycle_seconds": 60 }
-  ],
+  "workforce": { "tier": "settlers", "amount": 8 },
+  "recipe": {
+    "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": "charcoal", "amount": 1 }],
+    "outputs": [{ "good": "iron", "amount": 1 }],
+    "cycle_seconds": 60
+  },
   "pause_category": "intermediate"
 }
 ```
@@ -254,7 +300,7 @@ references; the client gets generated TypeScript types for display only.
   ],
   "variety_bonus": 0.10,
   "max_extra_goods": 2,
-  "kind": "basic"
+  "kind": "required"
 }
 ```
 
@@ -270,6 +316,10 @@ references; the client gets generated TypeScript types for display only.
 - Workforce: the house count needed for a tier's unlock population must
   also cover the workforce of that tier's balanced chain set on the same
   island(s) with ≥ 20 % slack.
+- **Bootstrap:** for each tier, a scenario starting from the starting stock
+  must reach the tier's unlock and build its first house without a deadlock
+  (no required material or good whose only producers need workforce of the
+  tier being unlocked). Run in the scenario runner for every content change.
 - Warehouse throughput at each level must cover a "typical" island at that
   tier with one warehouse ≈ 80 % load.
 - Tax income at each tier's unlock population must cover upkeep of the

@@ -119,6 +119,15 @@ cycle:   seconds               at 100 % efficiency
   `workforce_factor = min(1, pool / Σ required)` (proportional, not
   first-come). Rate is multiplied by `workforce_factor`. Houses never need
   workforce; public buildings do not either at launch.
+- **Bootstrap rule:** a building whose output is needed to *create* the
+  first houses of tier `n` (that tier's construction materials and the goods
+  required to upgrade into it) must be staffed by tier `n-1` or lower.
+  Otherwise the first stone could only be quarried by Citizens who cannot
+  exist without stone. The balancing checklist (CONTENT §12) verifies this
+  with a bootstrap scenario per tier.
+- One recipe per building at launch. Buildings whose output could come from
+  two recipes are modelled as two building types; selectable recipes are
+  deferred (D-041).
 - Each building has `upkeep` (gold/min) and a `paused` flag (player or
   insolvency, section 7). Paused buildings have zero rate and zero upkeep.
 - Visible carts and cycle progress bars are derived from the rate and the
@@ -175,20 +184,23 @@ Each tier has a list of needs, each either:
 - **Building need:** `{building_type, radius, weight}`. Fulfilled (1) if a
   connected public building of that type is within `radius` tiles of the house
   entrance; else 0.
-- Needs are `basic` (required for growth and tax) or `luxury` (bonus only;
-  D-012 guardrail).
+- Every need carries a flag `required` (counts toward satisfaction, so it
+  gates growth and base tax) or `optional` (bonus only; D-012 guardrail).
+  The flag is independent of the category name: the Patricians' `luxury`
+  category is a `required` category like any other; `optional` needs are
+  the mechanism for adding bonus needs to an existing tier after launch.
 
-**Satisfaction** of a house = weighted mean of its basic needs' fulfilment.
+**Satisfaction** of a house = weighted mean of its required needs' fulfilment.
 **Variety multiplier** of a house = `1 + Σ_categories variety × variety_bonus`
 (provisional bonus 0.10 per extra good, max 2 extras per category); it
-multiplies both tax and growth rate. Luxury needs add up to +25 % tax.
+multiplies both tax and growth rate. Optional needs add up to +25 % tax.
 
 ### 6.3 Taxes
 
 - `tax_rate[tier]` gold per resident per minute (provisional Settlers 0.05,
   Citizens 0.12, Merchants 0.3, Patricians 0.7), multiplied by
   `satisfaction`, by the `variety_multiplier` (§6.2) and by
-  `(1 + 0.25 × luxury_fulfilment)`.
+  `(1 + 0.25 × optional_fulfilment)`.
 - Taxes only accrue from houses; nothing else creates gold (D-018).
 
 ## 7. Gold, upkeep and insolvency (D-017)

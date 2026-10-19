@@ -134,8 +134,8 @@ Tier unlock conditions are content data (`population`, `buildings`,
 produced in a new region.
 
 - *Guardrail:* Never add new **mandatory** needs to an existing tier after
-  launch. New-region goods become needs of **new** tiers or **optional luxury**
-  needs (bonus only) of existing tiers.
+  launch. New-region goods become needs of **new** tiers or **`optional`**
+  needs (bonus only, MECHANICS §6.2) of existing tiers.
 
 ## D-013 Needs model: consumption-rate goods needs + radius building needs
 
@@ -345,6 +345,11 @@ Tiers coexist by necessity; outposts need their own housing.
 - *Rationale:* Anno 1800/117. Largest source of ongoing optimisation; reuses
   the tier/house system; rate-based and lazy-friendly.
 - *Rejected:* no workforce (1404/Online); archipelago-wide pool.
+- *Bootstrap rule:* producers of a tier's construction materials (and of the
+  goods needed to upgrade into that tier) are staffed by the previous tier,
+  so the first houses of a tier can always be built (MECHANICS §4). This is
+  why quarry, iron mine, charcoal burner, smelter and toolmaker are
+  Settler-staffed although they unlock at Citizens.
 
 ## D-036 Infinite deposits, limited slots; harbour area as a slot
 
@@ -379,7 +384,8 @@ Colonial goods remain reserved for later regions (D-011).
 **Decision:** Archipelagos have 6–8 islands of varied size. The start island
 plus one are settleable immediately; further islands unlock at tier
 milestones (data-driven). The generator guarantees that resources required
-by a tier are reachable with the islands unlocked at that tier.
+by a tier are reachable with the islands unlocked at that tier. Refines
+D-016: all islands stay visible; only *settling* is gated.
 
 - *Rejected:* settle freely (archipelago "done" in week one); islands via
   expeditions (core progression behind RNG timers).
@@ -391,3 +397,18 @@ implemented in the next simulation task (houses/needs/taxes) with tier-1
 numbers, since retrofitting them later would rewrite the needs code and
 migrate worlds. D-036 slots land with island generation (M4). All tier 2–4
 content (D-033, D-034, D-037–D-039) is authored after the first playable.
+
+## D-041 One recipe per building; selectable recipes deferred
+
+**Decision:** A production building has exactly one recipe at launch. Where
+the catalogue wants two outputs from similar inputs (tannery → leather
+jerkins vs leather for the tailor), two building types are used
+(`tannery`, `leather_works`). Player-selectable recipes per building are a
+new mechanic (command, display state, UI control) and are deferred; the
+content format keeps `recipes[]` as an array so enabling them later is
+additive.
+
+- *Rationale:* keeps the first needs/production implementation small; two
+  building types cost one content entry, selectable recipes cost sim + UI
+  work and a decision about switching costs/buffers.
+- *Refines:* D-034.
