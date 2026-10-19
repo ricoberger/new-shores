@@ -73,9 +73,9 @@ func houseTier(b *Building, c *content.Catalogue) *content.Tier {
 	return c.TierByID[def.House.Tier]
 }
 
-// workforcePools returns the workforce pool of every tier that has houses or
-// demand on the island. Paused buildings require no workers; unconnected
-// ones do.
+// workforcePools returns the workforce pool of every tier that has houses,
+// a seed grant or demand on the island. Paused buildings require no workers;
+// unconnected ones do.
 func workforcePools(is *Island, c *content.Catalogue) map[string]*workforcePool {
 	pools := map[string]*workforcePool{}
 	get := func(tier string) *workforcePool {
@@ -87,6 +87,9 @@ func workforcePools(is *Island, c *content.Catalogue) map[string]*workforcePool 
 		return p
 	}
 	for tier, n := range islandPopulation(is, c) {
+		get(tier).available += n
+	}
+	for tier, n := range is.WorkforceGrant {
 		get(tier).available += n
 	}
 	for _, b := range is.Buildings {

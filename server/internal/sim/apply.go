@@ -134,6 +134,33 @@ func AddStock(w *World, c *content.Catalogue, islandID, good string, qty Qty, l 
 	return nil
 }
 
+// GrantWorkforce adds qty milli-residents (whole residents) of a tier to an
+// island's workforce pool without creating population. Like PlaceFree and
+// AddStock it is meant for world creation and test seeding only and is not
+// a player command. The grant does not count for unlocks, taxes, needs or
+// population displays.
+func GrantWorkforce(w *World, c *content.Catalogue, islandID, tier string, qty Qty) error {
+	is := w.Island(islandID)
+	if is == nil {
+		return fmt.Errorf("%w: %q", ErrUnknownIsland, islandID)
+	}
+	if c.TierByID[tier] == nil {
+		return fmt.Errorf("%w: unknown tier %q", ErrInvalidCommand, tier)
+	}
+	if qty < 0 || qty%content.MilliPerUnit != 0 {
+		return fmt.Errorf("%w: workforce %d is not a whole number of residents >= 0", ErrInvalidCommand, qty)
+	}
+	if qty == 0 {
+		return nil
+	}
+	if is.WorkforceGrant == nil {
+		is.WorkforceGrant = map[string]Qty{}
+	}
+	is.WorkforceGrant[tier] += qty
+	clearRegimes(is)
+	return nil
+}
+
 func lookupIsland(w *World, id string) (*Island, error) {
 	is := w.Island(id)
 	if is == nil {

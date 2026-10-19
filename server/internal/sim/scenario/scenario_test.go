@@ -5,8 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"slices"
 	"strings"
@@ -582,5 +586,56 @@ func TestSeedStartExcludesGoldAndStock(t *testing.T) {
 	}
 	if _, err := Run(s, loadCatalogue(t)); err == nil || !strings.Contains(err.Error(), "start excludes") {
 		t.Fatalf("err = %v", err)
+	}
+}
+
+// TestWorkforceGrantSeedOnly (R28a): workforce can be granted in the seed
+// only. A step that tries to grant workforce does not parse, the Step type
+// has no workforce field, and only BuildWorld (the seed) calls
+// sim.GrantWorkforce.
+func TestWorkforceGrantSeedOnly(t *testing.T) {
+	_, err := Parse([]byte(`{
+		"name": "bad", "start": "2026-01-01T00:00:00Z",
+		"island": {"rows": ["~~~~~~", "~cccc~", "~....~", "~....~", "~~~~~~"]},
+		"seed": {"warehouse": {"x": 1, "y": 1}},
+		"steps": [{"workforce": {"settlers": 100}}]
+	}`))
+	if err == nil || !strings.Contains(err.Error(), "workforce") {
+		t.Errorf("step with workforce parsed: %v", err)
+	}
+	if _, err := Parse([]byte(`{"name": "bad", "start": "2026-01-01T00:00:00Z", "island": {"rows": ["~"]},
+		"seed": {"workforce": {"settlers": 1.5}}, "steps": []}`)); err == nil {
+		t.Error("fractional workforce grant parsed")
+	}
+	st := reflect.TypeFor[Step]()
+	for i := range st.NumField() {
+		if f := st.Field(i); strings.Contains(strings.ToLower(f.Name+f.Tag.Get("json")), "workforce") {
+			t.Errorf("Step has a workforce field %s", f.Name)
+		}
+	}
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, filepath.Join(repoRoot(t), "server", "internal", "sim", "scenario", "scenario.go"), nil, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, decl := range f.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok {
+			continue
+		}
+		ast.Inspect(fn, func(n ast.Node) bool {
+			if sel, ok := n.(*ast.SelectorExpr); ok && sel.Sel.Name == "GrantWorkforce" && fn.Name.Name != "BuildWorld" {
+				t.Errorf("%s calls sim.GrantWorkforce", fn.Name.Name)
+			}
+			return true
+		})
+	}
+
+	// The legacy scenarios use the shipped content plus the seed grant.
+	for _, name := range []string{"chain_planks", "chain_planks_12h", "throttled_warehouse", "unconnected_producer", "warehouse_full"} {
+		s := loadScenario(t, name)
+		if s.Content != DefaultContent || s.Seed.Workforce["settlers"] != 1000 {
+			t.Errorf("%s: content %s workforce %v", name, s.Content, s.Seed.Workforce)
+		}
 	}
 }

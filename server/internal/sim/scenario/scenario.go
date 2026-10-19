@@ -53,6 +53,10 @@ type Seed struct {
 	Gold json.Number `json:"gold,omitempty"`
 	// Stock in units per good (requires a warehouse for capacity).
 	Stock map[string]json.Number `json:"stock,omitempty"`
+	// Workforce grants whole phantom residents per tier to the island's
+	// workforce pool (sim.GrantWorkforce). It is a seed-only grant, like the
+	// free warehouse: no step can grant workforce.
+	Workforce map[string]int64 `json:"workforce,omitempty"`
 }
 
 // Placement is a building position.
@@ -211,6 +215,11 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		}
 		if err := sim.AddStock(w, c, is.ID, good, qty, l); err != nil {
 			return nil, fmt.Errorf("seed stock: %w", err)
+		}
+	}
+	for _, tier := range sortedKeys(s.Seed.Workforce) {
+		if err := sim.GrantWorkforce(w, c, is.ID, tier, s.Seed.Workforce[tier]*content.MilliPerUnit); err != nil {
+			return nil, fmt.Errorf("seed workforce: %w", err)
 		}
 	}
 	return w, nil

@@ -1,6 +1,6 @@
 {
   "name": "unconnected_producer",
-  "content_version": "old_coast-0.2.0-no-workforce",
+  "content_version": "old_coast-0.2.0",
   "boundary_count": 1,
   "totals": {
     "main": {
@@ -222,10 +222,21 @@
                 "wood": 5000
               },
               "capacity": 5000
+            },
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 4000
             }
           }
         ],
-        "workforce": {},
+        "workforce": {
+          "settlers": {
+            "available": 1000000,
+            "required": 4000,
+            "factor_permille": 1000
+          }
+        },
         "population": {}
       }
     ]

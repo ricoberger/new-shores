@@ -355,3 +355,73 @@ func TestSetPausedRules(t *testing.T) {
 		t.Errorf("resumed = %+v", b)
 	}
 }
+
+// TestGrantWorkforce (R28a): a seed grant raises the workforce pool and the
+// factor but not population, unlock progress, taxes or consumption; it
+// survives Clone and Encode/Decode and is validated.
+func TestGrantWorkforce(t *testing.T) {
+	c := catalogue(t)
+	w := newTown(t, c, 1_000)
+	h := placeHouses(t, w, c, 1)[0] // 2 settlers
+	placeFree(t, w, c, "market_small", 17, 1, 0)
+	fisher := placeFree(t, w, c, "fisher", 6, 1, 0)
+	placeFree(t, w, c, "weaver_wool", 21, 2, 0) // 4 + 6 required
+	addStock(t, w, c, "fish", 50)
+	before := display(t, w, c)
+	if wf := before.Islands[0].Workforce["settlers"]; wf.FactorPermille != 200 {
+		t.Fatalf("workforce before grant = %+v", wf)
+	}
+
+	for _, bad := range []struct {
+		tier string
+		qty  Qty
+	}{{"peasants", 1000}, {"settlers", -1000}, {"settlers", 1500}} {
+		enc := encode(t, w)
+		if err := GrantWorkforce(w, c, "main", bad.tier, bad.qty); !errors.Is(err, ErrInvalidCommand) {
+			t.Errorf("GrantWorkforce(%s, %d) = %v", bad.tier, bad.qty, err)
+		}
+		if !bytes.Equal(enc, encode(t, w)) {
+			t.Error("world changed on error")
+		}
+	}
+	if err := GrantWorkforce(w, c, "nowhere", "settlers", 1000); !errors.Is(err, ErrUnknownIsland) {
+		t.Errorf("unknown island: %v", err)
+	}
+	if err := GrantWorkforce(w, c, "main", "settlers", 8_000); err != nil {
+		t.Fatal(err)
+	}
+
+	after := display(t, w, c)
+	wf := after.Islands[0].Workforce["settlers"]
+	if wf.Available != 10_000 || wf.Required != 10_000 || wf.FactorPermille != 1000 {
+		t.Errorf("workforce after grant = %+v", wf)
+	}
+	if f := buildingDisplay(t, after, fisher); *f.WorkforceFactorPermille != 1000 || f.Status != StatusOK {
+		t.Errorf("fisher = %s %d", f.Status, *f.WorkforceFactorPermille)
+	}
+	if after.Islands[0].Population["settlers"] != 2_000 || after.Tiers[1].Population["settlers"].Have != 2_000 {
+		t.Errorf("population %v, unlock progress %+v", after.Islands[0].Population, after.Tiers[1].Population)
+	}
+	if after.TaxRatePerMin != before.TaxRatePerMin {
+		t.Errorf("tax %d -> %d", before.TaxRatePerMin, after.TaxRatePerMin)
+	}
+	hb, ha := buildingDisplay(t, before, h), buildingDisplay(t, after, h)
+	if hb.Needs[0].Goods["fish"] != ha.Needs[0].Goods["fish"] || *ha.TaxRatePerMin != *hb.TaxRatePerMin {
+		t.Errorf("house consumption/tax changed: %+v -> %+v", hb.Needs[0], ha.Needs[0])
+	}
+
+	// Clone and envelope round trip.
+	cw := w.Clone()
+	cw.Islands[0].WorkforceGrant["settlers"] = 1_000
+	if w.Islands[0].WorkforceGrant["settlers"] != 8_000 {
+		t.Error("clone shares the grant map")
+	}
+	data := encode(t, w)
+	w2, _, err := Decode(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if w2.Islands[0].WorkforceGrant["settlers"] != 8_000 || !bytes.Equal(data, encode(t, w2)) {
+		t.Error("grant not round-tripped")
+	}
+}

@@ -1,6 +1,6 @@
 {
   "name": "chain_planks",
-  "content_version": "old_coast-0.2.0-no-workforce",
+  "content_version": "old_coast-0.2.0",
   "boundary_count": 2,
   "totals": {
     "main": {
@@ -351,7 +351,12 @@
             "cycle_progress_permille": 0,
             "transfer_delay_ms": 17000,
             "assigned_warehouse_id": 1,
-            "road_distance": 7
+            "road_distance": 7,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 4000
+            }
           },
           {
             "id": 3,
@@ -380,10 +385,21 @@
             "cycle_progress_permille": 433,
             "transfer_delay_ms": 23000,
             "assigned_warehouse_id": 1,
-            "road_distance": 13
+            "road_distance": 13,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 4000
+            }
           }
         ],
-        "workforce": {},
+        "workforce": {
+          "settlers": {
+            "available": 1000000,
+            "required": 8000,
+            "factor_permille": 1000
+          }
+        },
         "population": {}
       }
     ]

@@ -49,23 +49,6 @@ func varietyCatalogue(t testing.TB) *content.Catalogue {
 	return c
 }
 
-// prodCatalogue returns the shipped catalogue without workforce blocks, for
-// tests of the production and logistics rules that run without houses.
-func prodCatalogue(t testing.TB) *content.Catalogue {
-	t.Helper()
-	base := catalogue(t)
-	c := *base
-	c.BuildingByID = maps.Clone(base.BuildingByID)
-	c.Buildings = nil
-	for _, b := range base.Buildings {
-		nb := *b
-		nb.Workforce = nil
-		c.Buildings = append(c.Buildings, &nb)
-		c.BuildingByID[nb.ID] = &nb
-	}
-	return &c
-}
-
 // islandFromRows builds an island from ASCII rows ('~' water, 'c' coast,
 // '.' grass, 'f' forest, 'm' mountain).
 func islandFromRows(id string, rows ...string) *Island {
@@ -108,10 +91,20 @@ func testWorld(t testing.TB, c *content.Catalogue) *World {
 	if err := AddStock(w, c, "main", "planks", 200_000, nil); err != nil {
 		t.Fatal(err)
 	}
+	grantWorkers(t, w, c)
 	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: road}); err != nil {
 		t.Fatal(err)
 	}
 	return w
+}
+
+// grantWorkers grants 1000 settlers of workforce, so that production tests
+// without houses run at workforce factor 1 (seed-only grant, R28a).
+func grantWorkers(t testing.TB, w *World, c *content.Catalogue) {
+	t.Helper()
+	if err := GrantWorkforce(w, c, "main", "settlers", 1_000_000); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func mustApply(t testing.TB, w *World, c *content.Catalogue, cmd Command) {
@@ -349,7 +342,7 @@ func TestDemolishRefund(t *testing.T) {
 }
 
 func TestDemolishWarehouseSurplus(t *testing.T) {
-	c := prodCatalogue(t)
+	c := catalogue(t)
 	w := testWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 2})
 	mustAdvance(t, w, c, time.Minute)
@@ -379,7 +372,7 @@ func TestDemolishWarehouseSurplus(t *testing.T) {
 }
 
 func TestPauseAndResume(t *testing.T) {
-	c := prodCatalogue(t)
+	c := catalogue(t)
 	w := testWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 2})
 	mustApply(t, w, c, SetPaused{IslandID: "main", BuildingID: 2, Paused: true})
@@ -411,7 +404,7 @@ func TestPauseAndResume(t *testing.T) {
 }
 
 func TestStarvationSharesInflow(t *testing.T) {
-	c := prodCatalogue(t)
+	c := catalogue(t)
 	w := NewWorld(t0)
 	// Lumberjack with 18 forest tiles: efficiency 750 -> 1.5 wood/min.
 	w.Islands = []*Island{islandFromRows("main",
@@ -431,6 +424,7 @@ func TestStarvationSharesInflow(t *testing.T) {
 	if err := AddStock(w, c, "main", "planks", 100_000, nil); err != nil {
 		t.Fatal(err)
 	}
+	grantWorkers(t, w, c)
 	var road []Pos
 	for x := 2; x <= 19; x++ {
 		road = append(road, Pos{x, 4})
@@ -464,7 +458,7 @@ func TestStarvationSharesInflow(t *testing.T) {
 }
 
 func TestEfficiencyRecomputedWhenNeighboursChange(t *testing.T) {
-	c := prodCatalogue(t)
+	c := catalogue(t)
 	w := testWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
 	if eff := w.Islands[0].Building(2).Efficiency; eff != 1000 {
@@ -511,7 +505,7 @@ func woodTotal(w *World) int64 {
 // TestBufferLeavesWithOutputStreamOnConnect: after connecting, the buffered
 // goods leave first with the producer's output stream; nothing is lost.
 func TestBufferLeavesWithOutputStreamOnConnect(t *testing.T) {
-	c := prodCatalogue(t)
+	c := catalogue(t)
 	w := testWorld(t, c)
 	b := unconnectedLumberjack(t, w, c)
 	before := woodTotal(w)
@@ -541,7 +535,7 @@ func TestBufferLeavesWithOutputStreamOnConnect(t *testing.T) {
 // at capacity keeps the buffer instead of losing it; it leaves once there is
 // consumption.
 func TestBufferKeptWhenConnectingToFullInventory(t *testing.T) {
-	c := prodCatalogue(t)
+	c := catalogue(t)
 	w := testWorld(t, c)
 	b := unconnectedLumberjack(t, w, c)
 	if err := AddStock(w, c, "main", "wood", 300_000, nil); err != nil {
@@ -575,7 +569,7 @@ func TestBufferKeptWhenConnectingToFullInventory(t *testing.T) {
 }
 
 func TestAdvanceTimeRules(t *testing.T) {
-	c := prodCatalogue(t)
+	c := catalogue(t)
 	w := testWorld(t, c)
 	if _, err := Advance(w, c, t0.Add(-time.Millisecond)); !errors.Is(err, ErrTimeBackwards) {
 		t.Errorf("err = %v", err)
@@ -597,7 +591,7 @@ func TestAdvanceTimeRules(t *testing.T) {
 }
 
 func TestIterationCapFallback(t *testing.T) {
-	base := prodCatalogue(t)
+	base := catalogue(t)
 	c := *base
 	c.Region.Rules.IterationCap = 3
 	w := testWorld(t, &c)
@@ -633,7 +627,7 @@ func TestIterationCapFallback(t *testing.T) {
 }
 
 func TestDisplayFieldsAndNextChange(t *testing.T) {
-	c := prodCatalogue(t)
+	c := catalogue(t)
 	w := testWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})
@@ -739,7 +733,7 @@ func TestEntranceRule(t *testing.T) {
 // producers to the consumption rate instead of oscillating between stop and
 // resume (no Zeno boundaries).
 func TestFullWithConsumer(t *testing.T) {
-	c := prodCatalogue(t)
+	c := catalogue(t)
 	w := testWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 10, Y: 2})
@@ -800,7 +794,7 @@ func TestAddStockRejectsOversizedGrants(t *testing.T) {
 // their chain is blocked downstream (planks full -> sawmill stopped -> wood
 // full -> lumberjack stopped) do not count towards the warehouse load.
 func TestThroughputSharedOnlyAmongRunningProducers(t *testing.T) {
-	base := prodCatalogue(t)
+	base := catalogue(t)
 	whDef := *base.BuildingByID["warehouse"]
 	wh := *whDef.Warehouse
 	wh.Levels = []content.WarehouseLevel{{Capacity: 300_000, ThroughputPerMin: 3_000}}

@@ -1,7 +1,6 @@
 {
   "name": "throttled_warehouse",
   "description": "32 lumberjacks at 100 % (2 wood/min each, R = 64/min) share one level-1 warehouse (T = 60/min): throughput factor 60/64.",
-  "content": "server/testdata/content/old_coast_no_workforce",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
@@ -25,6 +24,9 @@
       "rotation": 0
     },
     "gold": 1673,
+    "workforce": {
+      "settlers": 1000
+    },
     "stock": {
       "planks": 160
     }

@@ -98,6 +98,10 @@ type Island struct {
 	// Buildings sorted by ascending ID.
 	Buildings []*Building `json:"buildings,omitempty"`
 	Inventory Inventory   `json:"inventory"`
+	// WorkforceGrant holds phantom workers per tier (milli-residents)
+	// granted at seed time by GrantWorkforce. They count only towards the
+	// island's workforce pool, never as population.
+	WorkforceGrant map[string]Qty `json:"workforce_grant,omitempty"`
 }
 
 // Tile is one map tile.
@@ -367,6 +371,7 @@ func (is *Island) clone() *Island {
 		}
 	}
 	c.Roads = maps.Clone(is.Roads)
+	c.WorkforceGrant = maps.Clone(is.WorkforceGrant)
 	if is.Buildings != nil {
 		c.Buildings = make([]*Building, len(is.Buildings))
 		for i, b := range is.Buildings {

@@ -1,7 +1,6 @@
 {
   "name": "unconnected_producer",
   "description": "A lumberjack whose road does not reach the warehouse fills its 5-unit buffer in 150 s and stops; the island stock is unchanged.",
-  "content": "server/testdata/content/old_coast_no_workforce",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
@@ -23,6 +22,9 @@
       "rotation": 0
     },
     "gold": 101,
+    "workforce": {
+      "settlers": 1000
+    },
     "stock": {
       "planks": 5
     }

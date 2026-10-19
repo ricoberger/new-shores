@@ -1,7 +1,6 @@
 {
   "name": "chain_planks_12h",
   "description": "chain_planks advanced 12 hours in one Advance: both goods end at capacity with production stopped.",
-  "content": "server/testdata/content/old_coast_no_workforce",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
@@ -25,6 +24,9 @@
       "rotation": 0
     },
     "gold": 5171,
+    "workforce": {
+      "settlers": 1000
+    },
     "stock": {
       "planks": 13
     }

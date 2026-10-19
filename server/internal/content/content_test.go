@@ -383,18 +383,10 @@ func TestParseFixed(t *testing.T) {
 }
 
 // TestLoadTestContent validates the test-only content used by the
-// simulation tests and scenarios against the shipped schemas (R32).
+// simulation tests against the shipped schemas (R32).
 func TestLoadTestContent(t *testing.T) {
 	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
-	for _, name := range []string{"old_coast_variety", "old_coast_no_workforce"} {
-		c, err := LoadWithSchemas(filepath.Join(repoRoot(t), "server", "testdata", "content", name), schemaDir)
-		if err != nil {
-			t.Fatalf("%s: %v", name, err)
-		}
-		for _, b := range c.Buildings {
-			if name == "old_coast_no_workforce" && b.Workforce != nil {
-				t.Errorf("%s: %s has a workforce", name, b.ID)
-			}
-		}
+	if _, err := LoadWithSchemas(filepath.Join(repoRoot(t), "server", "testdata", "content", "old_coast_variety"), schemaDir); err != nil {
+		t.Fatal(err)
 	}
 }
