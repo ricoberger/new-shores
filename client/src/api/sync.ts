@@ -2,6 +2,14 @@
 // spec, E.24): the server payload is replaced by every response, the display
 // model is recomputed at 4 Hz, the world is re-fetched at next_change_at,
 // on focus/visibility and never by polling otherwise.
+//
+// World requests (GET /world and commands) go through one queue: at most one
+// is in flight and commands reach the server in invocation order. A refresh
+// requested while a GET is the last queued request shares that GET; a GET
+// queued behind a command is skipped when the command's response (a fresh
+// world state too) arrived first. Because responses are therefore applied in request order, a
+// response with a lower version than the current state means the world was
+// reset (dev-server restart) and replaces the state.
 import { clockOffsetMs, extrapolate, serverTimeMs } from "../display/extrapolate";
 import {
   ApiError,
@@ -45,17 +53,32 @@ export interface SyncSnapshot {
 
 type Listener = () => void;
 
+/** A failed background request (not a command; commands reject to the caller). */
+export interface SyncError {
+  /** What was being loaded, e.g. "world", "content", "island start". */
+  what: string;
+  error: ApiError;
+}
+
+type ErrorListener = (e: SyncError) => void;
+
 export class GameSync {
   private snapshot: SyncSnapshot = { server: null, model: null, content: null, islands: new Map(), unreachable: false };
   private offsetMs = 0;
   private receivedAtMs = 0;
   private listeners = new Set<Listener>();
-  private inFlight: Promise<void> | null = null;
+  private errorListeners = new Set<ErrorListener>();
+  /** Resolves when the last queued world request has finished. */
+  private tail: Promise<void> = Promise.resolve();
+  /** The last queued world request if it is a GET (for coalescing). */
+  private lastGet: Promise<void> | null = null;
+  /** Number of world responses applied so far. */
+  private accepted = 0;
   private nextChangeTimer: ReturnType<typeof setTimeout> | undefined;
-  private retryTimer: ReturnType<typeof setTimeout> | undefined;
-  private retryMs = RETRY_MIN_MS;
+  private retries = new Map<string, { timer: ReturnType<typeof setTimeout>; delayMs: number }>();
   private modelTimer: ReturnType<typeof setInterval> | undefined;
   private islandRequests = new Set<string>();
+  private contentRequest = false;
   private stopped = true;
 
   private readonly onVisible = (): void => {
@@ -78,7 +101,8 @@ export class GameSync {
     this.stopped = true;
     clearInterval(this.modelTimer);
     clearTimeout(this.nextChangeTimer);
-    clearTimeout(this.retryTimer);
+    for (const r of this.retries.values()) clearTimeout(r.timer);
+    this.retries.clear();
     document.removeEventListener("visibilitychange", this.onVisible);
     window.removeEventListener("focus", this.onFocus);
   }
@@ -87,6 +111,12 @@ export class GameSync {
     this.listeners.add(l);
     return () => this.listeners.delete(l);
   };
+
+  /** Errors of background requests (GET world, content, island), for toasts. */
+  subscribeErrors(l: ErrorListener): () => void {
+    this.errorListeners.add(l);
+    return () => this.errorListeners.delete(l);
+  }
 
   getSnapshot = (): SyncSnapshot => this.snapshot;
 
@@ -110,76 +140,144 @@ export class GameSync {
     if (server) this.set({ model: extrapolate(server.display, this.serverNowMs()) });
   }
 
-  private async loadContent(): Promise<void> {
-    try {
-      const content = await getContent();
-      if (!this.stopped) this.set({ content });
-    } catch (err) {
-      this.handleNetwork(err, () => void this.loadContent());
-    }
+  /** Runs a world request after every earlier one (one in flight). */
+  private enqueue<T>(job: () => Promise<T>): Promise<T> {
+    const run = this.tail.then(job);
+    this.tail = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
   }
 
-  /** Re-fetches the world; overlapping calls share one request. */
+  /**
+   * Re-fetches the world. Coalesced: while a GET is the last queued world
+   * request, callers share it; a GET queued behind a command is skipped if
+   * a newer response was applied before it starts.
+   */
   refresh(): Promise<void> {
-    if (this.inFlight) return this.inFlight;
-    this.inFlight = (async () => {
+    if (this.lastGet) return this.lastGet;
+    const seen = this.accepted;
+    const p = this.enqueue(async () => {
+      if (this.accepted > seen || this.stopped) return;
       try {
         const res = await getWorld();
         this.accept(res, Date.now());
+        this.succeeded("world");
       } catch (err) {
-        this.handleNetwork(err, () => void this.refresh());
-      } finally {
-        this.inFlight = null;
+        this.failed("world", err, () => void this.refresh());
       }
-    })();
-    return this.inFlight;
+    });
+    this.lastGet = p;
+    const clear = () => {
+      if (this.lastGet === p) this.lastGet = null;
+    };
+    p.then(clear, clear);
+    return p;
   }
 
-  /** Sends a command; the response replaces the state. Errors are rethrown. */
-  async send(command: Command): Promise<WorldResponse> {
+  /**
+   * Sends a command after every earlier world request; the response
+   * replaces the state. Errors are rethrown to the caller (which shows
+   * them); a network error also starts the reconnect retry.
+   */
+  send(command: Command): Promise<WorldResponse> {
+    this.lastGet = null; // a refresh after this command needs its own GET
+    return this.enqueue(async () => {
+      try {
+        const res = await sendCommand(command, this.snapshot.server?.version);
+        this.accept(res, Date.now());
+        this.succeeded("world");
+        return res;
+      } catch (err) {
+        if (err instanceof NetworkError) this.failed("world", err, () => void this.refresh(), false);
+        throw err;
+      }
+    });
+  }
+
+  private async loadContent(): Promise<void> {
+    if (this.contentRequest || this.stopped) return;
+    this.contentRequest = true;
     try {
-      const res = await sendCommand(command, this.snapshot.server?.version);
-      this.accept(res, Date.now());
-      return res;
+      const content = await getContent();
+      if (this.stopped) return;
+      this.set({ content });
+      this.succeeded("content");
     } catch (err) {
-      if (err instanceof NetworkError) this.handleNetwork(err, () => void this.refresh());
-      throw err;
+      this.failed("content", err, () => void this.loadContent());
+    } finally {
+      this.contentRequest = false;
     }
   }
 
-  private handleNetwork(err: unknown, retry: () => void): void {
-    if (!(err instanceof NetworkError) || this.stopped) {
-      if (err instanceof ApiError || this.stopped) return;
+  private async loadIsland(id: string): Promise<void> {
+    if (this.snapshot.islands.has(id) || this.islandRequests.has(id) || this.stopped) return;
+    this.islandRequests.add(id);
+    try {
+      const island = await getIsland(id);
+      if (this.stopped) return;
+      const islands = new Map(this.snapshot.islands);
+      islands.set(id, island);
+      this.set({ islands });
+      this.succeeded(`island ${id}`);
+    } catch (err) {
+      this.failed(`island ${id}`, err, () => void this.loadIsland(id));
+    } finally {
+      this.islandRequests.delete(id);
+    }
+  }
+
+  private succeeded(key: string): void {
+    const r = this.retries.get(key);
+    if (r) {
+      clearTimeout(r.timer);
+      this.retries.delete(key);
+    }
+    if (this.snapshot.unreachable) this.set({ unreachable: false });
+  }
+
+  /**
+   * Handles a failed background request: network errors raise the
+   * unreachable banner, API errors are reported to the error listeners
+   * (toasts); both retry with exponential backoff until the request
+   * succeeds.
+   */
+  private failed(key: string, err: unknown, retry: () => void, report = true): void {
+    if (this.stopped) return;
+    if (err instanceof NetworkError) {
+      if (!this.snapshot.unreachable) this.set({ unreachable: true });
+    } else if (err instanceof ApiError) {
+      if (report) for (const l of this.errorListeners) l({ what: key, error: err });
+    } else {
       throw err;
     }
-    this.set({ unreachable: true });
-    clearTimeout(this.retryTimer);
-    this.retryTimer = setTimeout(retry, this.retryMs);
-    this.retryMs = Math.min(RETRY_MAX_MS, this.retryMs * 2);
+    const prev = this.retries.get(key);
+    if (prev) clearTimeout(prev.timer);
+    const delayMs = prev ? Math.min(RETRY_MAX_MS, prev.delayMs * 2) : RETRY_MIN_MS;
+    this.retries.set(key, { delayMs, timer: setTimeout(retry, delayMs) });
   }
 
   private accept(res: WorldResponse, receivedAtMs: number): void {
     if (this.stopped) return;
     const cur = this.snapshot.server;
-    // Never let an older response overwrite a newer one.
-    if (
-      cur &&
-      (res.version < cur.version ||
-        (res.version === cur.version && serverTimeMs(res.display.evaluated_at) < serverTimeMs(cur.display.evaluated_at)))
-    ) {
-      return;
-    }
+    // Responses arrive in request order (one queue), so a lower version is
+    // a reset world (dev-server restart): drop the island cache and reload
+    // the content, which may have changed with the restart.
+    const reset = cur !== null && res.version < cur.version;
+    this.accepted++;
     this.offsetMs = clockOffsetMs(res.display, receivedAtMs);
     this.receivedAtMs = receivedAtMs;
-    this.retryMs = RETRY_MIN_MS;
     this.set({
       server: res,
       model: extrapolate(res.display, this.serverNowMs()),
-      unreachable: false,
+      ...(reset ? { islands: new Map<string, Island>() } : {}),
     });
-    if (!this.snapshot.content) void this.loadContent();
+    if (reset || (!this.snapshot.content && !this.retries.has("content"))) void this.loadContent();
     this.armNextChange(res);
-    for (const is of res.display.islands) void this.loadIsland(is.id);
+    for (const is of res.display.islands) {
+      if (!this.retries.has(`island ${is.id}`)) void this.loadIsland(is.id);
+    }
   }
 
   private armNextChange(res: WorldResponse): void {
@@ -188,20 +286,5 @@ export class GameSync {
     if (next === null) return;
     const delay = Math.max(0, serverTimeMs(next) - this.serverNowMs()) / TIME_SCALE + NEXT_CHANGE_MARGIN_MS;
     this.nextChangeTimer = setTimeout(() => void this.refresh(), delay);
-  }
-
-  private async loadIsland(id: string): Promise<void> {
-    if (this.snapshot.islands.has(id) || this.islandRequests.has(id)) return;
-    this.islandRequests.add(id);
-    try {
-      const island = await getIsland(id);
-      const islands = new Map(this.snapshot.islands);
-      islands.set(id, island);
-      if (!this.stopped) this.set({ islands });
-    } catch (err) {
-      this.handleNetwork(err, () => void this.refresh());
-    } finally {
-      this.islandRequests.delete(id);
-    }
   }
 }

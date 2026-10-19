@@ -131,6 +131,13 @@ export function App() {
     setTool(b.road ? { kind: "road", roadType: b.id } : { kind: "build", buildingType: b.id, rotation: 0 });
   };
 
+  // Background request failures (GET world, content, island) are toasts too
+  // (G.41); GameSync keeps retrying them.
+  useEffect(
+    () => sync.subscribeErrors(({ what, error }) => toast(`Could not load ${what}: ${error.message} (retrying)`)),
+    [sync, toast],
+  );
+
   const onRenderer = useCallback((r: GameRenderer | null) => {
     rendererRef.current = r;
   }, []);
