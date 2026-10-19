@@ -158,10 +158,14 @@ galleon.
 | clothing | lace | `hemp_farm`, `thread_spinner` (hemp → thread, 45 s) [6 C], `lace_maker` (thread → lace, 120 s) [10 P] | 1 : 1 : 2 |
 | comfort | candles | `rendering_house`, `hemp_farm`, `candle_foundry` (tallow + hemp → candles, 45 s) [6 P] | 2 : 1 : 2 |
 | comfort | spectacles | `glass_smelter`, `copper_mine` (copper slot → copper_ore, 60 s) [10 C], `copper_smelter` (copper_ore + charcoal → brass, 60 s) [8 C], `optician` (glass + brass → spectacles, 90 s) [8 P] | 1 : 1 : 1 : 1.5 |
-| luxury | jewellery | `gold_mine` (gold slot → gold_ore, 120 s) [10 C], `gold_smelter` (gold_ore + charcoal → gold, 60 s) [8 C], `goldsmith` (gold → jewellery, 90 s) [6 P] | 1 : 2 : 1.5 |
-| luxury | paintings | `weaver_linen`, `dyer_works`, `quartz_quarry` (minerals variant), `studio` (linen_garments + dye + minerals → paintings, 180 s) [6 P] | 1 : 1 : 1 : 3 |
+| luxury | jewellery | `gold_mine` (gold slot → gold_ore, 120 s) [10 C], `gold_smelter` (gold_ore + charcoal → gold_bars, 60 s) [8 C], `goldsmith` (gold_bars → jewellery, 90 s) [6 P] | 1 : 2 : 1.5 |
+| luxury | paintings | `weaver_linen`, `dyer_works`, `mineral_quarry` (quartz slot → minerals, 60 s) [10 C], `studio` (linen_garments + dye + minerals → paintings, 180 s) [6 P] | 1 : 1 : 1 : 3 |
 | luxury | instruments | `sawmill`, `copper_smelter`, `luthier` (planks + brass → instruments, 120 s) [8 P] | 1 : 1 : 2 |
 | construction | glass | `quartz_quarry` (quartz slot → quartz, 60 s) [10 C], `glass_smelter` (quartz + charcoal → glass, 60 s) [8 C] | 1 : 1 |
+
+`mineral_quarry` is a separate building on the same quartz slot type rather
+than a second quartz_quarry recipe (D-041); `gold_bars` avoids a good named
+`gold`, which is the reserved cost key (§11).
 
 Infrastructure: `warehouse` lvl 4, `market_large`, `theatre`, `university`,
 `house_patricians`.
@@ -383,6 +387,9 @@ acceptable goods:
   must reach the tier's unlock and build its first house without a deadlock
   (no required material or good whose only producers need workforce of the
   tier being unlocked). Run in the scenario runner for every content change.
+  Current staffing satisfies it: stone and tools [S] for Citizens, bricks
+  [C] for Merchants, glass (quartz_quarry, glass_smelter) [C] for
+  Patricians.
 - Warehouse throughput at each level must cover a "typical" island at that
   tier with one warehouse ≈ 80 % load.
 - Tax income at each tier's unlock population must cover upkeep of the
