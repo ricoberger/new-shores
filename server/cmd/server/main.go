@@ -12,8 +12,10 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -30,12 +32,12 @@ var version = "dev"
 const devWorldID store.WorldID = "dev"
 
 type options struct {
-	dev        bool
-	addr       string
-	content    string
-	corsOrigin string
-	timeScale  float64
-	logFormat  string
+	dev         bool
+	addr        string
+	content     string
+	corsOrigins []string
+	timeScale   float64
+	logFormat   string
 }
 
 func parseFlags(args []string, stderr io.Writer) (options, error) {
@@ -45,12 +47,17 @@ func parseFlags(args []string, stderr io.Writer) (options, error) {
 	fs.BoolVar(&o.dev, "dev", false, "serve one in-memory world (no persistence; restarting resets it)")
 	fs.StringVar(&o.addr, "addr", ":8080", "listen address")
 	fs.StringVar(&o.content, "content", "../content/old_coast", "region content directory")
-	fs.StringVar(&o.corsOrigin, "cors-origin", "http://localhost:5173", "Access-Control-Allow-Origin of /api/ responses")
+	corsOrigin := fs.String("cors-origin", defaultCORSOrigins, "comma-separated browser origins allowed to call /api/ (scheme://host[:port])")
 	fs.Float64Var(&o.timeScale, "time-scale", 1, "world seconds per wall-clock second (> 0)")
 	fs.StringVar(&o.logFormat, "log-format", "text", "log format: text or json")
 	if err := fs.Parse(args); err != nil {
 		return o, err
 	}
+	origins, err := parseOrigins(*corsOrigin)
+	if err != nil {
+		return o, fmt.Errorf("--cors-origin: %w", err)
+	}
+	o.corsOrigins = origins
 	if fs.NArg() > 0 {
 		return o, fmt.Errorf("unexpected arguments: %v", fs.Args())
 	}
@@ -61,6 +68,32 @@ func parseFlags(args []string, stderr io.Writer) (options, error) {
 		return o, fmt.Errorf("--log-format must be text or json, got %q", o.logFormat)
 	}
 	return o, nil
+}
+
+// defaultCORSOrigins are the origins of the Vite dev server: Vite prints
+// http://127.0.0.1:5173 or http://localhost:5173 depending on how the
+// system resolves "localhost", and the browser treats them as different
+// origins, so both are allowed.
+const defaultCORSOrigins = "http://localhost:5173,http://127.0.0.1:5173"
+
+// parseOrigins splits a comma-separated origin list and validates that each
+// entry is an origin (http or https scheme, host, optional port; no path,
+// query or wildcard), since browsers compare origins exactly.
+func parseOrigins(list string) ([]string, error) {
+	var out []string
+	for _, raw := range strings.Split(list, ",") {
+		origin := strings.TrimSpace(raw)
+		if origin == "" {
+			continue
+		}
+		u, err := url.Parse(origin)
+		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" ||
+			u.Path != "" || u.RawQuery != "" || u.Fragment != "" || u.User != nil || strings.Contains(u.Host, "*") {
+			return nil, fmt.Errorf("%q is not an origin like http://localhost:5173", origin)
+		}
+		out = append(out, origin)
+	}
+	return out, nil
 }
 
 func newLogger(format string, w io.Writer) *slog.Logger {
@@ -107,7 +140,7 @@ func runDev(o options, logger *slog.Logger) error {
 		Clock:        clock,
 		TimeScale:    api.TimeScale{Start: start, Scale: o.timeScale},
 		ResolveWorld: func(*http.Request) (store.WorldID, error) { return devWorldID, nil },
-		CORSOrigin:   o.corsOrigin,
+		CORSOrigins:  o.corsOrigins,
 		Logger:       logger,
 	})
 	if err != nil {
@@ -126,7 +159,7 @@ func runDev(o options, logger *slog.Logger) error {
 	defer stop()
 	errc := make(chan error, 1)
 	go func() { errc <- srv.ListenAndServe() }()
-	logger.Info("dev server listening", "addr", o.addr, "content_version", cat.Region.Version, "time_scale", o.timeScale, "version", version)
+	logger.Info("dev server listening", "addr", o.addr, "content_version", cat.Region.Version, "time_scale", o.timeScale, "cors_origins", o.corsOrigins, "version", version)
 
 	select {
 	case err := <-errc:

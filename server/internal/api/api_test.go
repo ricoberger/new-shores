@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -66,9 +67,10 @@ func (c *fakeClock) Add(d time.Duration) {
 var testStart = time.Date(2026, 10, 19, 12, 0, 0, 0, time.UTC)
 
 const (
-	testWorld  = store.WorldID("dev")
-	testIsland = "start"
-	testOrigin = "http://localhost:5173"
+	testWorld          = store.WorldID("dev")
+	testIsland         = "start"
+	testOrigin         = "http://localhost:5173"
+	testOriginLoopback = "http://127.0.0.1:5173"
 )
 
 type testServer struct {
@@ -94,7 +96,7 @@ func newTestServer(t *testing.T, scale float64) *testServer {
 		Clock:        clock,
 		TimeScale:    TimeScale{Start: testStart, Scale: scale},
 		ResolveWorld: func(*http.Request) (store.WorldID, error) { return testWorld, nil },
-		CORSOrigin:   testOrigin,
+		CORSOrigins:  []string{testOrigin, testOriginLoopback},
 		Logger:       slog.New(slog.NewTextHandler(&syncWriter{w: logs}, nil)),
 	})
 	if err != nil {
@@ -397,6 +399,35 @@ func TestPreflight(t *testing.T) {
 		h := res.header
 		if h.Get("Access-Control-Allow-Origin") != testOrigin || h.Get("Access-Control-Allow-Methods") != "GET, POST, OPTIONS" || h.Get("Access-Control-Allow-Headers") != "Content-Type" {
 			t.Fatalf("%s: headers %v", path, h)
+		}
+	}
+}
+
+// TestCORSOrigins: every configured origin is echoed (the Vite dev server is
+// reached as localhost or 127.0.0.1, which browsers treat as different
+// origins); other origins get no Access-Control-Allow-Origin.
+func TestCORSOrigins(t *testing.T) {
+	ts := newTestServer(t, 1)
+	for _, c := range []struct{ origin, want string }{
+		{testOrigin, testOrigin},
+		{testOriginLoopback, testOriginLoopback},
+		{"http://127.0.0.1:5137", ""},
+		{"http://evil.example", ""},
+		{"", ""},
+	} {
+		for _, method := range []string{http.MethodGet, http.MethodOptions} {
+			req := httptest.NewRequestWithContext(context.Background(), method, "/api/v1/world", nil)
+			if c.origin != "" {
+				req.Header.Set("Origin", c.origin)
+			}
+			rec := httptest.NewRecorder()
+			ts.srv.ServeHTTP(rec, req)
+			if got := rec.Header().Get("Access-Control-Allow-Origin"); got != c.want {
+				t.Errorf("%s Origin %q: Access-Control-Allow-Origin %q, want %q", method, c.origin, got, c.want)
+			}
+			if !slices.Contains(rec.Header().Values("Vary"), "Origin") {
+				t.Errorf("%s Origin %q: missing Vary: Origin", method, c.origin)
+			}
 		}
 	}
 }

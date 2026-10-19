@@ -15,6 +15,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -37,10 +38,12 @@ type Config struct {
 	// TimeScale maps wall-clock time to world time.
 	TimeScale    TimeScale
 	ResolveWorld WorldResolver
-	// CORSOrigin is the value of Access-Control-Allow-Origin on /api/
-	// responses; empty disables CORS headers.
-	CORSOrigin string
-	Logger     *slog.Logger
+	// CORSOrigins are the browser origins allowed to call /api/ (exact
+	// match, e.g. "http://localhost:5173"). A request whose Origin header is
+	// in the list gets it echoed in Access-Control-Allow-Origin; other
+	// origins get no CORS headers. Empty disables CORS.
+	CORSOrigins []string
+	Logger      *slog.Logger
 }
 
 // Server is the API handler.
@@ -121,10 +124,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
-	if strings.HasPrefix(r.URL.Path, "/api/") && s.cfg.CORSOrigin != "" {
+	if strings.HasPrefix(r.URL.Path, "/api/") && len(s.cfg.CORSOrigins) > 0 {
 		h := w.Header()
-		h.Set("Access-Control-Allow-Origin", s.cfg.CORSOrigin)
 		h.Add("Vary", "Origin")
+		if origin := r.Header.Get("Origin"); origin != "" && slices.Contains(s.cfg.CORSOrigins, origin) {
+			h.Set("Access-Control-Allow-Origin", origin)
+		}
 		if r.Method == http.MethodOptions {
 			h.Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 			h.Set("Access-Control-Allow-Headers", "Content-Type")

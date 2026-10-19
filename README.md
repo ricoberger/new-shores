@@ -46,7 +46,8 @@ make client-install   # npm ci in client/
 make dev              # dev server on :8080 + Vite on :5173; Ctrl-C stops both
 ```
 
-Open <http://localhost:5173>. The server (`go run ./cmd/server --dev` in
+Open <http://localhost:5173> (or <http://127.0.0.1:5173>, the address Vite
+prints on some systems; both are allowed). The server (`go run ./cmd/server --dev` in
 `server/`) holds **one in-memory world** seeded on a fixed start island;
 restarting it resets the world — this is expected until persistence lands
 (M2). The API is at <http://localhost:8080/api/v1> (`/healthz` for
@@ -56,8 +57,10 @@ readiness).
   `--time-scale 10`, client `VITE_TIME_SCALE=10` so its extrapolation keeps
   up). Without the client setting the display lags between re-fetches.
 - Other server flags: `--addr` (default `:8080`), `--content` (region
-  directory), `--cors-origin` (default `http://localhost:5173`),
-  `--log-format text|json`.
+  directory), `--cors-origin` (comma-separated browser origins allowed to
+  call the API; default `http://localhost:5173,http://127.0.0.1:5173`),
+  `--log-format text|json`. If you open the client from another origin
+  (another host or port), add it there.
 - Checks: `make check` (server, content and client: lint, typecheck,
   Vitest). Browser smoke test: `cd client && npx playwright install
   chromium`, then `make client-e2e`.
