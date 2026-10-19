@@ -464,6 +464,26 @@ func TestIslandData(t *testing.T) {
 	}
 }
 
+// TestIslandRequestAdvancesTheWorld: GET /world/islands/{id} advances the
+// world like every /api/v1/world* request (A.6) without a new version.
+func TestIslandRequestAdvancesTheWorld(t *testing.T) {
+	ts := newTestServer(t, 1)
+	ts.clock.Add(5 * time.Second)
+	if res := ts.do(http.MethodGet, "/api/v1/world/islands/start", "", true); res.status != http.StatusOK {
+		t.Fatalf("%d %s", res.status, res.body)
+	}
+	// Step the wall clock back: the next GET is clamped to the last
+	// evaluation, which the island request must have moved to start+5s.
+	ts.clock.Add(-5 * time.Second)
+	w := ts.getWorld()
+	if got := evaluatedAt(t, w); !got.Equal(testStart.Add(5 * time.Second)) {
+		t.Fatalf("evaluated_at = %s, want %s", got, testStart.Add(5*time.Second))
+	}
+	if w.Version != 0 {
+		t.Fatalf("version = %d after an island request", w.Version)
+	}
+}
+
 func TestFailedCommandLeavesDisplayIdentical(t *testing.T) {
 	ts := newTestServer(t, 1)
 	ts.clock.Add(1500 * time.Millisecond)

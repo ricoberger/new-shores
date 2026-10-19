@@ -258,6 +258,8 @@ type islandResponse struct {
 	Terrain  []string `json:"terrain"`
 }
 
+// getIsland serves the static data of an island. Like every world request it
+// advances the world to the current world time first.
 func (s *Server) getIsland(w http.ResponseWriter, r *http.Request) {
 	islandID := strings.TrimPrefix(r.URL.Path, islandPathPrefix)
 	id, err := s.cfg.ResolveWorld(r)
@@ -267,6 +269,10 @@ func (s *Server) getIsland(w http.ResponseWriter, r *http.Request) {
 	}
 	var resp islandResponse
 	_, err = s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64) (bool, error) {
+		// Every world request advances first (read-only: no new version).
+		if _, err := s.advance(world); err != nil {
+			return false, err
+		}
 		is := world.Island(islandID)
 		if is == nil {
 			return false, fmt.Errorf("%w: %q", sim.ErrUnknownIsland, islandID)
