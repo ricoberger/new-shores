@@ -1,0 +1,80 @@
+.root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+  touch-action: none;
+}
+
+/* The overlay never takes pointer events itself; only its panels do, and
+   they are siblings of the canvas, so clicks on panels never reach it. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "top top"
+    "left right"
+    "bottom bottom";
+}
+
+.overlay > * {
+  pointer-events: auto;
+}
+
+.top {
+  grid-area: top;
+}
+
+.left {
+  grid-area: left;
+  align-self: end;
+  justify-self: start;
+  margin: 8px;
+}
+
+.right {
+  grid-area: right;
+  margin: 8px;
+  align-self: start;
+}
+
+.bottom {
+  grid-area: bottom;
+}
+
+.banner {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d55e00;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  pointer-events: auto;
+}
+
+.hint {
+  position: absolute;
+  bottom: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgb(0 0 0 / 65%);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  pointer-events: none;
+  font-size: 13px;
+}

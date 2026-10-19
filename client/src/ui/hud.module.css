@@ -1,0 +1,301 @@
+.panel {
+  background: rgb(250 247 240 / 95%);
+  border: 1px solid #b9ad94;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+  padding: 8px 10px;
+}
+
+.topBar {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 6px 14px;
+  background: rgb(250 247 240 / 95%);
+  border-bottom: 1px solid #b9ad94;
+}
+
+.stat {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.label {
+  color: #6b6152;
+  font-size: 12px;
+}
+
+.value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.positive {
+  color: #007a55;
+}
+
+.negative {
+  color: #b34700;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.version {
+  color: #6b6152;
+  font-size: 12px;
+}
+
+.buildMenu {
+  display: flex;
+  flex-direction: column;
+  background: rgb(250 247 240 / 95%);
+  border-top: 1px solid #b9ad94;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px 0;
+}
+
+.tab {
+  border: 1px solid #b9ad94;
+  border-bottom: none;
+  background: #ece5d6;
+  border-radius: 6px 6px 0 0;
+  padding: 4px 12px;
+}
+
+.tabActive {
+  background: #fffaf0;
+  font-weight: 600;
+}
+
+.items {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px 8px;
+  overflow-x: auto;
+  min-height: 88px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 150px;
+  text-align: left;
+  border: 1px solid #b9ad94;
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: #fffaf0;
+}
+
+.item:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.itemActive {
+  outline: 3px solid #0072b2;
+}
+
+.itemName {
+  font-weight: 600;
+}
+
+.small {
+  font-size: 12px;
+  color: #4d463b;
+}
+
+.lock {
+  font-size: 12px;
+  color: #b34700;
+  font-weight: 600;
+}
+
+.toolButton {
+  margin-left: auto;
+  border: 1px solid #b9ad94;
+  border-radius: 6px;
+  padding: 4px 12px;
+  background: #ece5d6;
+}
+
+.infoPanel {
+  width: 320px;
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 2px;
+}
+
+.statusRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 8px 0;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #1b1b1b;
+  font-weight: 700;
+  font-size: 13px;
+  color: #111;
+}
+
+.fix {
+  font-size: 12px;
+  color: #4d463b;
+}
+
+.section {
+  margin-top: 10px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6b6152;
+  margin-bottom: 4px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.table td,
+.table th {
+  padding: 2px 4px;
+  text-align: right;
+}
+
+.table td:first-child,
+.table th:first-child {
+  text-align: left;
+}
+
+.bar {
+  height: 8px;
+  background: #ddd3bf;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: #0072b2;
+}
+
+.buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.button {
+  border: 1px solid #8c7f66;
+  border-radius: 6px;
+  padding: 4px 12px;
+  background: #fffaf0;
+}
+
+.danger {
+  border-color: #b34700;
+  color: #b34700;
+}
+
+.link {
+  border: none;
+  background: none;
+  color: #0072b2;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.tray {
+  width: 340px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.trayHeader {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  border: none;
+  background: none;
+  font-weight: 700;
+  padding: 0;
+}
+
+.trayList {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+.trayEntry {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 3px 0;
+  text-align: left;
+}
+
+.toasts {
+  position: absolute;
+  top: 48px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  background: #3d2b1f;
+  color: #fff;
+  border-left: 6px solid #d55e00;
+  border-radius: 6px;
+  padding: 8px 12px;
+  max-width: 360px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 35%);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 35%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.dialog {
+  width: 380px;
+}
