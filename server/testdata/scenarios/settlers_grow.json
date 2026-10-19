@@ -1,0 +1,184 @@
+{
+  "name": "settlers_grow",
+  "description": "Eight settler houses with a fisher, the wool chain and a small market in range: every house reaches satisfaction 1 and 8 residents, gold never runs out and the balance ends positive.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~cccccccc....................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 1000,
+    "stock": {
+      "planks": 130
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          28,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          6,
+          4
+        ],
+        "to": [
+          6,
+          3
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 17,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 21,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 24,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 11,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 13,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 11,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 13,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "4m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "40m"
+      }
+    }
+  ]
+}

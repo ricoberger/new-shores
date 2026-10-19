@@ -1,0 +1,172 @@
+{
+  "name": "offline_12h_stalled",
+  "description": "A town without market whose fisher is cut off from the warehouse (food need stalled) is left alone for 12 hours in one Advance: houses stay at their floor, gold runs out and the economy pauses instead of going negative, every good stays within capacity.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~cccccccc....................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~...................fffffffff~",
+      "~...................fffffffff~",
+      "~...................fffffffff~",
+      "~...................fffffffff~",
+      "~...................fffffffff~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 2000,
+    "stock": {
+      "planks": 140
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          28,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          5,
+          2
+        ],
+        "to": [
+          5,
+          2
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 21,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 27,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 24,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 24,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 11,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 13,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 11,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 13,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "advance": {
+        "duration": "12h"
+      }
+    }
+  ]
+}

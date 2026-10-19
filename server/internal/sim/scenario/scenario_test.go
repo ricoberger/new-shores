@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -300,3 +301,286 @@ func TestOversizedStockStepFails(t *testing.T) {
 	}
 }
 
+func houses(rep *Report) []sim.BuildingDisplay {
+	var out []sim.BuildingDisplay
+	for _, b := range rep.Final.Islands[0].Buildings {
+		if b.Residents != nil {
+			out = append(out, b)
+		}
+	}
+	return out
+}
+
+func checkGoldNonNegative(t *testing.T, rep *Report) {
+	t.Helper()
+	for _, s := range rep.Snapshots {
+		if s.Gold < 0 {
+			t.Errorf("%s: gold %d < 0", s.At, s.Gold)
+		}
+	}
+	if rep.Final.Gold < 0 {
+		t.Errorf("final gold %d < 0", rep.Final.Gold)
+	}
+}
+
+// bestAdvance runs a scenario four times and returns the best Advance wall
+// time of the last three runs and the last report.
+func bestAdvance(t *testing.T, s *Scenario) (time.Duration, *Report) {
+	t.Helper()
+	c, err := s.LoadContent(repoRoot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	best := time.Duration(1<<63 - 1)
+	var rep *Report
+	for i := range 4 {
+		if rep, err = Run(s, c); err != nil {
+			t.Fatal(err)
+		}
+		if i > 0 {
+			best = min(best, rep.AdvanceDuration())
+		}
+	}
+	return best, rep
+}
+
+// TestSettlersGrow checks scenario (f): every house reaches satisfaction 1
+// and its maximum, gold never goes negative and the balance ends positive.
+func TestSettlersGrow(t *testing.T) {
+	rep := runScenario(t, "settlers_grow")
+	hs := houses(rep)
+	if len(hs) != 8 {
+		t.Fatalf("houses = %d", len(hs))
+	}
+	for _, h := range hs {
+		if *h.Residents != *h.ResidentsMax || *h.SatisfactionPermille != 1000 || *h.GrowthRatePerMin != 0 {
+			t.Errorf("house %d: residents %d satisfaction %d", h.ID, *h.Residents, *h.SatisfactionPermille)
+		}
+	}
+	checkGoldNonNegative(t, rep)
+	if rep.Final.BalanceRatePerMin < 0 || len(rep.PauseEvents) != 0 {
+		t.Errorf("balance %d, pauses %v", rep.Final.BalanceRatePerMin, rep.PauseEvents)
+	}
+	if got := rep.Snapshots[len(rep.Snapshots)-1].Population["settlers"]; got != 64_000 {
+		t.Errorf("population = %d", got)
+	}
+}
+
+// TestFishShort checks scenario (g): without market and fish, residents
+// decline to their floor and stay there; nothing is destroyed (D-009).
+func TestFishShort(t *testing.T) {
+	rep := runScenario(t, "fish_short")
+	prev := int64(1 << 62)
+	for i, s := range rep.Snapshots {
+		pop := s.Population["settlers"]
+		if pop < 8*2_000 {
+			t.Errorf("%s: population %d below the floor of 8 houses", s.At, pop)
+		}
+		if i > 0 && pop > prev {
+			t.Errorf("%s: population grew %d -> %d", s.At, prev, pop)
+		}
+		prev = pop
+	}
+	if first := rep.Snapshots[0].Population["settlers"]; first != 64_000 {
+		t.Errorf("population before the shortage = %d", first)
+	}
+	hs := houses(rep)
+	if len(hs) != 8 || len(rep.Final.Islands[0].Buildings) != 9 {
+		t.Fatalf("buildings = %d, houses %d", len(rep.Final.Islands[0].Buildings), len(hs))
+	}
+	for _, h := range hs {
+		if *h.Residents != *h.ResidentsFloor || *h.GrowthRatePerMin != 0 || *h.SatisfactionPermille >= 500 {
+			t.Errorf("house %d: residents %d rate %d satisfaction %d", h.ID, *h.Residents, *h.GrowthRatePerMin, *h.SatisfactionPermille)
+		}
+	}
+	// The last day changes nothing but gold.
+	n := len(rep.Snapshots)
+	if a, b := rep.Snapshots[n-2].Population["settlers"], rep.Snapshots[n-1].Population["settlers"]; a != 16_000 || b != 16_000 {
+		t.Errorf("population over the long advance %d -> %d", a, b)
+	}
+	checkGoldNonNegative(t, rep)
+}
+
+// TestInsolvency checks scenario (h): pause order (MECHANICS §7), resume in
+// reverse order, unpaid status and gold >= 0.
+func TestInsolvency(t *testing.T) {
+	rep := runScenario(t, "insolvency")
+	var pauses, resumes []string
+	for _, e := range rep.PauseEvents {
+		if e.Action == "auto_pause" {
+			pauses = append(pauses, e.Type)
+		} else {
+			resumes = append(resumes, e.Type)
+		}
+	}
+	want := []string{"weaver_wool", "lumberjack", "sawmill", "sheep_farm", "fisher"}
+	if strings.Join(pauses, ",") != strings.Join(want, ",") {
+		t.Errorf("pauses = %v, want %v", pauses, want)
+	}
+	slices.Reverse(want)
+	if strings.Join(resumes, ",") != strings.Join(want, ",") {
+		t.Errorf("resumes = %v, want %v", resumes, want)
+	}
+	for i := 1; i < 5; i++ {
+		if rep.PauseEvents[i].At != rep.PauseEvents[0].At {
+			t.Errorf("cascade not at one instant: %v", rep.PauseEvents[:5])
+		}
+	}
+	// At 3 minutes all five are paused for insolvency and gold is zero.
+	s := rep.Snapshots[1]
+	if s.StatusesCount[sim.StatusPaused] != 5 || s.Gold != 0 {
+		t.Errorf("snapshot %s: %+v gold %d", s.At, s.StatusesCount, s.Gold)
+	}
+	checkGoldNonNegative(t, rep)
+	for _, b := range rep.Final.Islands[0].Buildings {
+		if b.Paused {
+			t.Errorf("%s still paused", b.Type)
+		}
+	}
+	if rep.Final.BalanceRatePerMin < 0 {
+		t.Errorf("final balance %d", rep.Final.BalanceRatePerMin)
+	}
+}
+
+// TestWorkforceShort checks scenario (i): the workforce factor is
+// pool/required for every producer and rises as houses are added.
+func TestWorkforceShort(t *testing.T) {
+	s := loadScenario(t, "workforce_short")
+	c, err := s.LoadContent(repoRoot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Run the scenario up to each advance and inspect the display there.
+	want := []int64{333, 666, 1000}
+	k := 0
+	for i, st := range s.Steps {
+		if st.Advance == nil {
+			continue
+		}
+		part := *s
+		part.Steps = s.Steps[:i+1]
+		rep, err := Run(&part, c)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wf := rep.Final.Islands[0].Workforce["settlers"]
+		if wf.Required != 12_000 || wf.Available != int64(4_000*(k+1)) || wf.FactorPermille != want[k] {
+			t.Errorf("advance %d: workforce %+v", k, wf)
+		}
+		for _, b := range rep.Final.Islands[0].Buildings {
+			if b.Workforce == nil {
+				continue
+			}
+			if *b.WorkforceFactorPermille != want[k] {
+				t.Errorf("advance %d: %s factor %d", k, b.Type, *b.WorkforceFactorPermille)
+			}
+			if b.Type == "sheep_farm" && (want[k] < 1000) != (b.Status == sim.StatusShortOfWorkers) {
+				t.Errorf("advance %d: sheep farm status %s", k, b.Status)
+			}
+		}
+		k++
+	}
+	rep := runScenario(t, "workforce_short")
+	if got := rep.Snapshots[0].StatusesCount[sim.StatusShortOfWorkers]; got != 2 {
+		t.Errorf("short_of_workers producers = %d", got)
+	}
+}
+
+// TestOffline12hStalled checks scenario (j): one 12-hour Advance with a
+// stalled food need keeps houses at their floor, gold at >= 0 and every good
+// within capacity, without coarse mode and within the 50 ms budget.
+func TestOffline12hStalled(t *testing.T) {
+	rep := runScenario(t, "offline_12h_stalled")
+	for _, h := range houses(rep) {
+		if *h.Residents != *h.ResidentsFloor {
+			t.Errorf("house %d residents %d", h.ID, *h.Residents)
+		}
+	}
+	checkGoldNonNegative(t, rep)
+	for good, g := range rep.Final.Islands[0].Inventory {
+		if g.Stock+g.InTransit > g.Capacity || g.Stock < 0 {
+			t.Errorf("%s = %+v", good, g)
+		}
+	}
+	if rep.BoundaryCount > 50 {
+		t.Errorf("%d boundaries", rep.BoundaryCount)
+	}
+	best, rep := bestAdvance(t, loadScenario(t, "offline_12h_stalled"))
+	t.Logf("12h stalled advance: best of 3 = %s, boundaries = %d", best, rep.BoundaryCount)
+	if best >= 50*time.Millisecond {
+		t.Errorf("12h advance took %s, budget 50ms", best)
+	}
+}
+
+// TestCitizensUnlock checks scenario (k): Citizens unlock exactly when the
+// population reaches 120 and stay unlocked after the chapel is demolished.
+func TestCitizensUnlock(t *testing.T) {
+	rep := runScenario(t, "citizens_unlock")
+	before, at := rep.Snapshots[1], rep.Snapshots[2]
+	if before.Population["settlers"] != 105_000 || slices.Contains(before.UnlockedTiers, "citizens") {
+		t.Errorf("before: %s population %d unlocked %v", before.At, before.Population["settlers"], before.UnlockedTiers)
+	}
+	if at.Population["settlers"] != 120_000 || !slices.Contains(at.UnlockedTiers, "citizens") || at.At != "2026-01-01T00:06:00.000Z" {
+		t.Errorf("at: %s population %d unlocked %v", at.At, at.Population["settlers"], at.UnlockedTiers)
+	}
+	last := rep.Snapshots[len(rep.Snapshots)-1]
+	cit := rep.Final.Tiers[1]
+	if !slices.Contains(last.UnlockedTiers, "citizens") || cit.ID != "citizens" || !cit.Unlocked || cit.Buildings["chapel"] {
+		t.Errorf("after demolishing the chapel: %v %+v", last.UnlockedTiers, cit)
+	}
+	checkGoldNonNegative(t, rep)
+}
+
+// TestTwelveHoursFifteenHouses measures one 12-hour Advance of the
+// citizens_unlock town (15 growing houses, fisher, wool chain): boundary
+// count and wall time (best of 3) within the 50 ms budget.
+func TestTwelveHoursFifteenHouses(t *testing.T) {
+	s := loadScenario(t, "citizens_unlock")
+	var steps []Step
+	for _, st := range s.Steps {
+		if st.Advance == nil && st.Demolish == nil {
+			steps = append(steps, st)
+		}
+	}
+	s.Steps = append(steps, Step{Advance: &AdvanceStep{Duration: "12h"}})
+	best, rep := bestAdvance(t, s)
+	t.Logf("12h with 15 houses: best of 3 = %s, boundaries = %d", best, rep.BoundaryCount)
+	if best >= 50*time.Millisecond || rep.BoundaryCount >= 10_000 {
+		t.Errorf("12h advance took %s with %d boundaries, budget 50ms", best, rep.BoundaryCount)
+	}
+	if !slices.Contains(rep.Snapshots[0].UnlockedTiers, "citizens") {
+		t.Error("citizens not unlocked")
+	}
+}
+
+// TestBootstrapSettlers checks the tier-1 bootstrap from the content
+// starting stock: Citizens unlock without deadlock and gold stays >= 0.
+func TestBootstrapSettlers(t *testing.T) {
+	s := loadScenario(t, "bootstrap_settlers")
+	if !s.Seed.Start || s.Seed.Gold != "" || len(s.Seed.Stock) != 0 {
+		t.Fatalf("seed = %+v, want the content starting stock only", s.Seed)
+	}
+	rep := runScenario(t, "bootstrap_settlers")
+	if last := rep.Snapshots[len(rep.Snapshots)-1]; !slices.Contains(last.UnlockedTiers, "citizens") {
+		t.Errorf("unlocked = %v", last.UnlockedTiers)
+	}
+	if g := rep.Totals["main"]["sails"].Granted; g != 10_000 {
+		t.Errorf("sails granted = %d", g)
+	}
+	checkGoldNonNegative(t, rep)
+}
+
+func TestSeedStartExcludesGoldAndStock(t *testing.T) {
+	s, err := Parse([]byte(`{
+		"name": "bad", "start": "2026-01-01T00:00:00Z",
+		"island": {"rows": ["~~~~~~", "~cccc~", "~....~", "~....~", "~~~~~~"]},
+		"seed": {"warehouse": {"x": 1, "y": 1}, "start": true, "gold": 5},
+		"steps": []
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Run(s, loadCatalogue(t)); err == nil || !strings.Contains(err.Error(), "start excludes") {
+		t.Fatalf("err = %v", err)
+	}
+}

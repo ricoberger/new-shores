@@ -1,0 +1,251 @@
+{
+  "name": "citizens_unlock",
+  "description": "Fifteen settler houses with fish, wool garments, a small market and a chapel grow in step from 7 to 8 residents at 6 minutes: Citizens unlock exactly when the population reaches 120. Demolishing the chapel afterwards does not revoke the unlock.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~cccccccc..............................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 2000,
+    "stock": {
+      "planks": 210,
+      "fish": 100,
+      "wool_garments": 60
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          37,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          6,
+          4
+        ],
+        "to": [
+          6,
+          3
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 17,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "chapel",
+        "x": 23,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 25,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 28,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 11,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 13,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 21,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 23,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 25,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 27,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 11,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 13,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 17,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 19,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 21,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "59.999s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1ms"
+      }
+    },
+    {
+      "demolish": {
+        "x": 23,
+        "y": 5
+      }
+    },
+    {
+      "advance": {
+        "duration": "12h"
+      }
+    }
+  ]
+}

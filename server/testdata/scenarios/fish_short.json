@@ -1,0 +1,160 @@
+{
+  "name": "fish_short",
+  "description": "Eight full settler houses lose their market and live on a dwindling fish stock without a fisher: once fish runs out satisfaction is 0.2, residents decline to the floor of 2 and stay there over a long advance (D-009); no building is destroyed.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~cccccccc....................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~............................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 3000,
+    "stock": {
+      "planks": 100,
+      "fish": 30,
+      "wool_garments": 60
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          28,
+          4
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 17,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 11,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 13,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 11,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 13,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "demolish": {
+        "x": 17,
+        "y": 1
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "20m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "20m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "20m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "24h"
+      }
+    }
+  ]
+}
