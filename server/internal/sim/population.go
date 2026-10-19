@@ -16,11 +16,19 @@ import (
 // supplied when it is not starved, or starved with a positive arrival rate;
 // m is the number of supplied goods. Every supplied good has the nominal
 // demand N x rate_i / m. A starved good gets its proportional share of the
-// arrivals (shared with producer inputs); the shortfall is drawn from the
-// first non-starved supplied good in file order (non-starved goods have
-// unlimited slack until their stock empties, which is a stock_empty
-// boundary). Fulfilment is 1 when a supplied good is not starved, else
-// sum(consumed_i / (N x rate_i)); variety = min(m - 1, max_extra_goods).
+// arrivals when its consumers demand more than arrives; otherwise it gets
+// its demand and the excess arrivals are its slack. The shortfall of each
+// good (demand - consumed, converted at the per-resident rates) is drawn in
+// file order from the goods with slack: a non-starved good has unlimited
+// slack (until its stock empties, which is a stock_empty boundary), a
+// starved good its excess arrivals. Fulfilment is 1 when a supplied good is
+// not starved, else sum(consumed_i / (N x rate_i)), at most 1; variety =
+// min(m - 1, max_extra_goods).
+//
+// A starved good leaves the regime when the consumption it would have if it
+// were not starved (the same allocation with unlimited slack for this good)
+// plus its producer demand does not exceed its arrivals, so regime entry and
+// exit agree with the allocation and nothing alternates within a settle.
 //
 // Building needs are per house: fulfilled when a non-paused, road-connected
 // building of the type has a footprint tile within Euclidean distance radius
@@ -154,17 +162,15 @@ func (r *rates) prepareHouseDemand(is *Island, c *content.Catalogue) {
 				}
 			}
 			for i, g := range need.Goods {
-				// Demand the good would have if it were supplied: the exit
-				// test of the starved regime uses it.
-				others := gs.m
-				if gs.supplied[i] {
-					others--
+				if !gs.supplied[i] {
+					// Demand the good would have if it were supplied (only
+					// used for the exit test of the starved regime; with no
+					// arrivals any positive demand keeps the good starved).
+					r.houseExit[g.Good] += gs.full[i] / int64(gs.m+1)
+					continue
 				}
-				r.houseExit[g.Good] += gs.full[i] / int64(others+1)
-				if gs.supplied[i] {
-					gs.demand[i] = gs.full[i] / int64(gs.m)
-					r.houseDemand[g.Good] += gs.demand[i]
-				}
+				gs.demand[i] = gs.full[i] / int64(gs.m)
+				r.houseDemand[g.Good] += gs.demand[i]
 			}
 			if gs.m > 0 {
 				gs.variety = min(gs.m-1, need.MaxExtraGoods)
@@ -174,47 +180,93 @@ func (r *rates) prepareHouseDemand(is *Island, c *content.Catalogue) {
 	}
 }
 
-// consumeHouseNeeds applies the starvation shares and the shortfall fill
-// and sets the fulfilment of every goods need.
-func (r *rates) consumeHouseNeeds(is *Island) {
+// consumeHouseNeeds sets the house consumption and the fulfilment of every
+// goods need, and the exit demand of starved supplied goods.
+func (r *rates) consumeHouseNeeds(is *Island, c *content.Catalogue) {
+	r.houseCons = r.allocateHouses(is, c, "", true)
+	for _, good := range sortedKeys(is.Inventory.Starved) {
+		if r.inflow[good] > 0 && r.houseDemand[good] > 0 {
+			r.houseExit[good] += r.allocateHouses(is, c, good, false)[good]
+		}
+	}
+}
+
+// allocateHouses computes the house consumption per good (sub-milli per
+// ms). The good treat is handled as if it were not starved (exit test).
+// With commit set, the consumption and fulfilment are stored on the goods
+// need states.
+func (r *rates) allocateHouses(is *Island, c *content.Catalogue, treat string, commit bool) map[string]int64 {
 	inv := &is.Inventory
-	for _, list := range r.goodsNeeds {
-		for _, gs := range list {
-			if gs.residents == 0 {
-				gs.fulfilment = ppm
-				continue
-			}
-			fillTo := -1
-			for i, g := range gs.need.Goods {
-				if !gs.supplied[i] {
-					continue
-				}
-				gs.cons[i] = gs.demand[i]
-				if share, ok := r.starvedShare[g.Good]; ok {
-					gs.cons[i] = mulDiv(gs.demand[i], share[0], share[1])
-				}
-				if fillTo < 0 && !inv.Starved[g.Good] {
-					fillTo = i
-				}
-			}
-			if fillTo >= 0 {
-				for i := range gs.need.Goods {
-					if short := gs.demand[i] - gs.cons[i]; short > 0 {
-						gs.cons[fillTo] += mulDivAny(short, gs.full[fillTo], gs.full[i])
+	starved := func(g string) bool { return g != treat && inv.Starved[g] }
+	// slack is the island-wide excess arrival rate of starved goods,
+	// shared by all needs in tier and file order.
+	slack := map[string]int64{}
+	for g, share := range r.starvedShare {
+		if g != treat {
+			slack[g] = max(share[0]-share[1], 0)
+		}
+	}
+	total := map[string]int64{}
+	for _, t := range c.Tiers {
+		for _, gs := range r.goodsNeeds[t.ID] {
+			goods := gs.need.Goods
+			use := make([]int64, len(goods))
+			fulfilment := int64(ppm)
+			if gs.residents > 0 {
+				unlimited := false
+				for i, g := range goods {
+					if !gs.supplied[i] {
+						continue
+					}
+					use[i] = gs.demand[i]
+					if !starved(g.Good) {
+						unlimited = true
+					} else if share := r.starvedShare[g.Good]; share[1] > share[0] {
+						use[i] = mulDiv(gs.demand[i], share[0], share[1])
 					}
 				}
-				gs.fulfilment = ppm
-			} else {
-				for i := range gs.need.Goods {
-					gs.fulfilment += mulDivAny(gs.cons[i], ppm, gs.full[i])
+				for j := range goods {
+					short := gs.demand[j] - use[j]
+					for k := 0; k < len(goods) && short > 0; k++ {
+						if k == j || !gs.supplied[k] {
+							continue
+						}
+						want := mulDivAny(short, gs.full[k], gs.full[j])
+						if !starved(goods[k].Good) {
+							use[k] += want
+							short = 0
+							continue
+						}
+						take := min(want, slack[goods[k].Good])
+						if take <= 0 {
+							continue
+						}
+						use[k] += take
+						slack[goods[k].Good] -= take
+						if take == want {
+							short = 0
+						} else {
+							short -= mulDivAny(take, gs.full[j], gs.full[k])
+						}
+					}
 				}
-				gs.fulfilment = min(gs.fulfilment, ppm)
+				if !unlimited {
+					fulfilment = 0
+					for i := range goods {
+						fulfilment += mulDivAny(use[i], ppm, gs.full[i])
+					}
+					fulfilment = min(fulfilment, ppm)
+				}
 			}
-			for i, g := range gs.need.Goods {
-				r.houseCons[g.Good] += gs.cons[i]
+			for i, g := range goods {
+				total[g.Good] += use[i]
+			}
+			if commit {
+				gs.cons, gs.fulfilment = use, fulfilment
 			}
 		}
 	}
+	return total
 }
 
 // needResult is the fulfilment of one need for one house.

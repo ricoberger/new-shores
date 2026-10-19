@@ -425,3 +425,52 @@ func TestGrantWorkforce(t *testing.T) {
 		t.Error("grant not round-tripped")
 	}
 }
+
+// TestShortfallDrawsSlackOfStarvedGood (review round 1): both foods starved
+// with arrivals, fish 0.01/min (below its 0.05 demand) and bread 0.06/min
+// (above its 0.04 demand). The fish shortfall is drawn from the excess bread
+// arrivals: fulfilment = 0.01/0.1 + 0.06/0.08 = 0.85, the regimes are
+// stable and a split Advance equals a single one.
+func TestShortfallDrawsSlackOfStarvedGood(t *testing.T) {
+	c := varietyCatalogue(t)
+	w := newTown(t, c, 1_000)
+	hs := placeHouses(t, w, c, 5) // 10 settlers
+	is := w.Islands[0]
+	now := w.LastEvaluatedAt.UnixMilli()
+	is.Building(hs[0]).Transit = []TransitSegment{
+		{Good: "fish", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, 10)},
+		{Good: "bread", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, 60)},
+	}
+	is.Inventory.Starved = map[string]bool{"fish": true, "bread": true}
+	wr, _ := settleWorld(w, c, now)
+	gs := wr.islands[0].goodsNeeds["settlers"][0]
+	if gs.fulfilment != 850_000 || gs.cons[0] != needRate(1000, 10) || gs.cons[1] != needRate(1000, 60) {
+		t.Errorf("fulfilment %d consumption %v", gs.fulfilment, gs.cons)
+	}
+	if !is.Inventory.Starved["fish"] || !is.Inventory.Starved["bread"] {
+		t.Errorf("regimes = %v", is.Inventory.Starved)
+	}
+	// Settling again changes nothing.
+	before := encode(t, w)
+	settleWorld(w, c, now)
+	if !bytes.Equal(before, encode(t, w)) {
+		t.Error("settle is not idempotent")
+	}
+	single, split := w.Clone(), w.Clone()
+	mustAdvance(t, single, c, time.Minute)
+	mustAdvance(t, split, c, 30*time.Second)
+	mustAdvance(t, split, c, 30*time.Second)
+	if !bytes.Equal(encode(t, single), encode(t, split)) {
+		t.Error("composition violated")
+	}
+
+	// With 0.08 bread/min the bread slack covers the fish shortfall
+	// (0.04 fish = 0.032 bread): bread leaves the starved regime and the
+	// need is fulfilled.
+	is.Building(hs[0]).Transit[1].RateSub = needRate(1000, 80)
+	wr, _ = settleWorld(w, c, now)
+	gs = wr.islands[0].goodsNeeds["settlers"][0]
+	if is.Inventory.Starved["bread"] || gs.fulfilment != ppm || gs.cons[1] != needRate(1000, 72) {
+		t.Errorf("bread %v fulfilment %d consumption %v", is.Inventory.Starved, gs.fulfilment, gs.cons)
+	}
+}

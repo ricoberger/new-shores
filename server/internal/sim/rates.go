@@ -128,8 +128,11 @@ type rates struct {
 	houseDemand map[string]int64
 	houseExit   map[string]int64
 	houseCons   map[string]int64
-	// starvedShare records, for every starved good with demand above its
-	// arrivals, the arrival rate and total demand that consumers share.
+	// starvedShare records, for every starved good, the arrival rate and the
+	// nominal demand of all consumers (producer inputs and houses). When the
+	// demand exceeds the arrivals, consumers share them in proportion;
+	// otherwise the excess arrivals are slack that houses may draw for the
+	// shortfall of other goods of a category.
 	starvedShare map[string][2]int64
 	houses       []*houseCalc
 	// tax and upkeep of the island in gold sub-units per ms.
@@ -312,10 +315,10 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 				demand += p.tp * p.inputAmount(good)
 			}
 		}
+		r.starvedShare[good] = [2]int64{in, demand}
 		if demand <= in {
 			continue
 		}
-		r.starvedShare[good] = [2]int64{in, demand}
 		for _, p := range r.producers {
 			if !p.connected {
 				continue
@@ -331,7 +334,7 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 
 	// Houses consume what the starvation shares leave them; their
 	// consumption does not depend on the producer caps below.
-	r.consumeHouseNeeds(is)
+	r.consumeHouseNeeds(is, c)
 
 	// Full: producers of a full good are limited to its consumption.
 	fullGoods := sortedKeys(is.Inventory.Full)
