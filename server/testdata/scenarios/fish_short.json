@@ -1,24 +1,24 @@
 {
   "name": "fish_short",
-  "description": "Eight full settler houses lose their market and live on a dwindling fish stock without a fisher: once fish runs out satisfaction is 0.2, residents decline to the floor of 2 and stay there over a long advance (D-009); no building is destroyed.",
+  "description": "Twenty-four settler houses grow to 192 residents with two markets and a fisher. Without the markets satisfaction is 0.5 x food: once the fish stock is used up, the fisher's 1.5 fish/min cover only part of the 1.92 fish/min demand (food fulfilment between 0 and 1, satisfaction below 0.5) and residents decline. Then the fisher is demolished: no fish at all, residents decline to the floor of 2 and stay there over a long advance (D-009); no other building is destroyed.",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
     "rows": [
-      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-      "~cccccccc....................~",
-      "~............................~",
-      "~............................~",
-      "~............................~",
-      "~............................~",
-      "~............................~",
-      "~............................~",
-      "~............................~",
-      "~............................~",
-      "~............................~",
-      "~............................~",
-      "~............................~",
-      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~cccccccc..................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~..........................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     ]
   },
   "seed": {
@@ -29,9 +29,8 @@
     },
     "gold": 3000,
     "stock": {
-      "planks": 100,
-      "fish": 30,
-      "wool_garments": 60
+      "planks": 280,
+      "fish": 20
     }
   },
   "steps": [
@@ -43,15 +42,44 @@
           4
         ],
         "to": [
-          28,
+          42,
           4
         ]
       }
     },
     {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          6,
+          4
+        ],
+        "to": [
+          6,
+          3
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
       "place": {
         "type": "market_small",
-        "x": 17,
+        "x": 19,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 32,
         "y": 1,
         "rotation": 0
       }
@@ -91,6 +119,70 @@
     {
       "place": {
         "type": "house_settlers",
+        "x": 17,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 22,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 24,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 26,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 28,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 30,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 35,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 37,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
         "x": 9,
         "y": 5,
         "rotation": 180
@@ -121,34 +213,105 @@
       }
     },
     {
+      "place": {
+        "type": "house_settlers",
+        "x": 17,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 19,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 21,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 23,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 25,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 27,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 29,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 31,
+        "y": 5,
+        "rotation": 180
+      }
+    },
+    {
       "advance": {
         "duration": "10m"
       }
     },
     {
       "demolish": {
-        "x": 17,
+        "x": 19,
+        "y": 1
+      }
+    },
+    {
+      "demolish": {
+        "x": 32,
         "y": 1
       }
     },
     {
       "advance": {
-        "duration": "30m"
+        "duration": "1h"
       }
     },
     {
       "advance": {
-        "duration": "20m"
+        "duration": "1h"
+      }
+    },
+    {
+      "demolish": {
+        "x": 6,
+        "y": 1
       }
     },
     {
       "advance": {
-        "duration": "20m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "20m"
+        "duration": "2h"
       }
     },
     {

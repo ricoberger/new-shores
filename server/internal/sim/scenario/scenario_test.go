@@ -370,37 +370,98 @@ func TestSettlersGrow(t *testing.T) {
 	}
 }
 
-// TestFishShort checks scenario (g): without market and fish, residents
-// decline to their floor and stay there; nothing is destroyed (D-009).
+// runUntilAdvance runs a scenario up to and including its k-th advance step
+// (0-based) and returns the report, whose final display is the state there.
+func runUntilAdvance(t *testing.T, name string, k int) *Report {
+	t.Helper()
+	s := loadScenario(t, name)
+	c, err := s.LoadContent(repoRoot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, st := range s.Steps {
+		if st.Advance == nil {
+			continue
+		}
+		if k == 0 {
+			s.Steps = s.Steps[:i+1]
+			rep, err := Run(s, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			return rep
+		}
+		k--
+	}
+	t.Fatalf("%s has too few advance steps", name)
+	return nil
+}
+
+func foodNeed(t *testing.T, h sim.BuildingDisplay) sim.NeedDisplay {
+	t.Helper()
+	for _, n := range h.Needs {
+		if n.Category == "food" {
+			return n
+		}
+	}
+	t.Fatalf("house %d has no food need", h.ID)
+	return sim.NeedDisplay{}
+}
+
+// TestFishShort checks scenario (g): with the markets gone, a fisher that
+// covers only part of the fish demand leaves food fulfilment between 0 and 1
+// and satisfaction below 0.5, so residents decline; without the fisher
+// fulfilment is 0 and residents decline to their floor and stay there;
+// nothing but the demolished buildings disappears (D-009).
 func TestFishShort(t *testing.T) {
 	rep := runScenario(t, "fish_short")
-	prev := int64(1 << 62)
+	pops := make([]int64, len(rep.Snapshots))
 	for i, s := range rep.Snapshots {
-		pop := s.Population["settlers"]
-		if pop < 8*2_000 {
-			t.Errorf("%s: population %d below the floor of 8 houses", s.At, pop)
+		pops[i] = s.Population["settlers"]
+		if pops[i] < 24*2_000 {
+			t.Errorf("%s: population %d below the floor of 24 houses", s.At, pops[i])
 		}
-		if i > 0 && pop > prev {
-			t.Errorf("%s: population grew %d -> %d", s.At, prev, pop)
+		if i > 0 && pops[i] > pops[i-1] {
+			t.Errorf("%s: population grew %d -> %d", s.At, pops[i-1], pops[i])
 		}
-		prev = pop
 	}
-	if first := rep.Snapshots[0].Population["settlers"]; first != 64_000 {
-		t.Errorf("population before the shortage = %d", first)
+	if pops[0] != 192_000 {
+		t.Errorf("population before the shortage = %d", pops[0])
+	}
+
+	// Phase 1 (after 1h10m): fish starved with arrivals, partial supply.
+	p1 := runUntilAdvance(t, "fish_short", 1)
+	fish := p1.Final.Islands[0].Inventory["fish"]
+	if fish.Stock != 0 || fish.InTransit == 0 {
+		t.Errorf("phase 1 fish = %+v, want empty stock with arrivals", fish)
+	}
+	for _, h := range houses(p1) {
+		food := foodNeed(t, h)
+		if food.FulfilmentPermille <= 0 || food.FulfilmentPermille >= 1000 || food.Reason != sim.NeedShortSupply || food.Goods["fish"] <= 0 {
+			t.Errorf("phase 1 house %d food = %+v", h.ID, food)
+		}
+		if *h.SatisfactionPermille >= 500 || *h.GrowthRatePerMin >= 0 {
+			t.Errorf("phase 1 house %d: satisfaction %d growth %d", h.ID, *h.SatisfactionPermille, *h.GrowthRatePerMin)
+		}
+	}
+	if pops[2] >= pops[1] {
+		t.Errorf("no decline during partial supply: %d -> %d", pops[1], pops[2])
+	}
+
+	// Phase 2: no fish at all; residents at the floor and staying there.
+	n := len(rep.Snapshots)
+	if pops[n-2] != 48_000 || pops[n-1] != 48_000 {
+		t.Errorf("phase 2 population %d -> %d, want the floor 48000", pops[n-2], pops[n-1])
 	}
 	hs := houses(rep)
-	if len(hs) != 8 || len(rep.Final.Islands[0].Buildings) != 9 {
+	if len(hs) != 24 || len(rep.Final.Islands[0].Buildings) != 25 {
 		t.Fatalf("buildings = %d, houses %d", len(rep.Final.Islands[0].Buildings), len(hs))
 	}
 	for _, h := range hs {
-		if *h.Residents != *h.ResidentsFloor || *h.GrowthRatePerMin != 0 || *h.SatisfactionPermille >= 500 {
-			t.Errorf("house %d: residents %d rate %d satisfaction %d", h.ID, *h.Residents, *h.GrowthRatePerMin, *h.SatisfactionPermille)
+		food := foodNeed(t, h)
+		if *h.Residents != *h.ResidentsFloor || *h.GrowthRatePerMin != 0 || food.FulfilmentPermille != 0 || food.Reason != sim.NeedNoSupply {
+			t.Errorf("phase 2 house %d: residents %d rate %d food %+v", h.ID, *h.Residents, *h.GrowthRatePerMin, food)
 		}
-	}
-	// The last day changes nothing but gold.
-	n := len(rep.Snapshots)
-	if a, b := rep.Snapshots[n-2].Population["settlers"], rep.Snapshots[n-1].Population["settlers"]; a != 16_000 || b != 16_000 {
-		t.Errorf("population over the long advance %d -> %d", a, b)
 	}
 	checkGoldNonNegative(t, rep)
 }
