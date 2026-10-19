@@ -3,6 +3,7 @@ package sim
 import (
 	"bytes"
 	"fmt"
+	"maps"
 	"math/rand/v2"
 	"testing"
 	"time"
@@ -361,7 +362,7 @@ func (p *propCase) checkInvariants(stage string) {
 	}
 	for _, b := range is.Buildings {
 		def := p.c.BuildingByID[b.Type]
-		if b.PausedReason == PausedReasonUnpaid && (!b.Paused || def.UpkeepPerMin <= 0 || b.PauseSeq <= 0) {
+		if b.PausedReason == PausedReasonUnpaid && (!b.Paused || def.UpkeepPerMin <= 0 || b.PauseSeq <= 0 || b.PausedAtMs <= 0 || b.PausedAtMs > now) {
 			p.fail("%s: unpaid building %d (%s) paused %v upkeep %d seq %d", stage, b.ID, b.Type, b.Paused, def.UpkeepPerMin, b.PauseSeq)
 		}
 		if b.House == nil {
@@ -388,6 +389,22 @@ func (p *propCase) checkInvariants(stage string) {
 		}
 	}
 	p.unlocked = UnlockedTiers(p.w, p.c)
+}
+
+// checkSettled asserts that the world after an Advance is a fixed point of
+// settle: settling again at the same time changes nothing, so an Advance
+// split at that time behaves like an unsplit one.
+func (p *propCase) checkSettled(stage string) {
+	p.t.Helper()
+	a, err := Encode(p.w, "p")
+	if err != nil {
+		p.fail("encode: %v", err)
+	}
+	cw := p.w.Clone()
+	settleWorld(cw, p.c, cw.LastEvaluatedAt.UnixMilli())
+	if b, _ := Encode(cw, "p"); !bytes.Equal(a, b) {
+		p.fail("%s: settle is not idempotent:\nbefore: %s\nafter:  %s", stage, a, b)
+	}
 }
 
 func (p *propCase) apply(cmd Command) {
@@ -421,10 +438,17 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 	p.t.Helper()
 	to := p.w.LastEvaluatedAt.Add(d)
 	var single *World
+	var splits []time.Time // boundary instants of the single advance
 	if compose {
 		single = p.w.Clone()
-		if _, err := Advance(single, p.c, to); err != nil {
+		bs, err := Advance(single, p.c, to)
+		if err != nil {
 			p.fail("single advance: %v", err)
+		}
+		for _, b := range bs {
+			if b.At.After(p.w.LastEvaluatedAt) && b.At.Before(to) {
+				splits = append(splits, b.At)
+			}
 		}
 	}
 	p.ops = append(p.ops, fmt.Sprintf("advance %s", d))
@@ -439,6 +463,20 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 				break
 			}
 			next = p.w.LastEvaluatedAt.Add(time.Duration(p.rng.Int64N(int64(span/time.Millisecond)+1)) * time.Millisecond)
+			// Half of the splits fall exactly on a boundary instant (or
+			// 1 ms after it), where discrete effects happen.
+			var later []time.Time
+			for _, at := range splits {
+				if at.After(p.w.LastEvaluatedAt) {
+					later = append(later, at)
+				}
+			}
+			if len(later) > 0 && p.rng.IntN(2) == 0 {
+				next = later[p.rng.IntN(len(later))].Add(time.Duration(p.rng.IntN(2)) * time.Millisecond)
+				if next.After(to) {
+					next = to
+				}
+			}
 		}
 		bs, err := AdvanceWithLedger(p.w, p.c, next, p.l)
 		if err != nil {
@@ -451,6 +489,7 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 		}
 		all = append(all, bs...)
 		p.checkInvariants(fmt.Sprintf("advance piece %d", i))
+		p.checkSettled(fmt.Sprintf("advance piece %d", i))
 	}
 	if !p.w.LastEvaluatedAt.Equal(to) {
 		bs, err := AdvanceWithLedger(p.w, p.c, to, p.l)
@@ -539,18 +578,102 @@ func TestPropertyTownComposition(t *testing.T) {
 	}
 }
 
-// TestPropertyTownCompositionNoReserve repeats the town composition check
-// with auto_resume_upkeep_minutes = 0, where a building could satisfy the
-// resume condition right after being paused.
-func TestPropertyTownCompositionNoReserve(t *testing.T) {
-	base := varietyCatalogue(t)
+// fishWeaverCatalogue is the shipped catalogue with no resume reserve and a
+// weaver that consumes fish: pausing the weaver frees fish for the houses,
+// raises taxes and can make it resumable right after its insolvency pause
+// (review round 1).
+func fishWeaverCatalogue(t *testing.T, base *content.Catalogue) *content.Catalogue {
 	c := *base
 	c.Region.Rules.AutoResumeMs = 0
+	weaver := *base.BuildingByID["weaver_wool"]
+	rec := *weaver.Recipe
+	rec.Inputs = []content.GoodAmount{{Good: "fish", Amount: 1000}}
+	weaver.Recipe = &rec
+	c.BuildingByID = maps.Clone(base.BuildingByID)
+	c.BuildingByID["weaver_wool"] = &weaver
+	return &c
+}
+
+// TestPropertyTownCompositionNoReserve repeats the town composition check
+// with auto_resume_upkeep_minutes = 0 and the fish-consuming weaver.
+func TestPropertyTownCompositionNoReserve(t *testing.T) {
+	c := fishWeaverCatalogue(t, varietyCatalogue(t))
 	for seed := range uint64(propertyCases / 2) {
-		p := newPropCase(t, &c, 50_000+seed)
+		p := newPropCase(t, c, 50_000+seed)
 		p.w = p.townWorld()
 		p.checkInvariants("initial")
 		p.run(true)
+	}
+}
+
+// TestPropertyPauseResumeInterplay targets insolvency pauses that change
+// taxes at once: houses share a fisher's fish with two fish-consuming
+// weavers, gold is nearly zero and there is no resume reserve. Pausing a
+// weaver frees fish and raises taxes, resuming it lowers them again; before
+// review round 1 this flapped every millisecond until the iteration cap.
+// Advances are split at random times and exactly at boundary instants
+// (including pauses); every piece must leave a settled world, the split
+// result must equal a single Advance and coarse mode is never reached.
+func TestPropertyPauseResumeInterplay(t *testing.T) {
+	c := fishWeaverCatalogue(t, catalogue(t))
+	pauses, resumes := 0, 0
+	for seed := range uint64(propertyCases) {
+		p := newPropCase(t, c, 60_000+seed)
+		p.l = NewLedger()
+		w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
+		w.Islands = []*Island{islandFromRows("main", townRows()...)}
+		p.w = w
+		free := func(typ string, x, y, rot int) {
+			if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: typ, X: x, Y: y, Rotation: rot}, p.l); err != nil {
+				p.fail("%s: %v", typ, err)
+			}
+		}
+		free("warehouse", 1, 1, 0)
+		road := []Pos{{6, 3}}
+		for x := 2; x <= 28; x++ {
+			road = append(road, Pos{x, 4})
+		}
+		if err := ApplyWithLedger(w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: road}, p.l); err != nil {
+			p.fail("road: %v", err)
+		}
+		free("fisher", 6, 1, 0)
+		free("market_small", 17, 1, 0)
+		free("weaver_wool", 21, 2, 0)
+		free("weaver_wool", 24, 2, 0)
+		for i, x := range []int{9, 11, 13, 15, 9, 11, 13, 15}[:6+p.rng.IntN(3)] {
+			if i < 4 {
+				free("house_settlers", x, 2, 0)
+			} else {
+				free("house_settlers", x, 5, 180)
+			}
+		}
+		for _, b := range w.Islands[0].Buildings {
+			if b.House != nil {
+				b.House.Residents = Qty(6+p.rng.IntN(3)) * 1000
+			}
+		}
+		if err := AddStock(w, c, "main", "wool_garments", 100_000, p.l); err != nil {
+			p.fail("stock: %v", err)
+		}
+		if err := AddStock(w, c, "main", "fish", Qty(p.rng.IntN(5))*1000, p.l); err != nil {
+			p.fail("stock: %v", err)
+		}
+		w.Gold = Qty(p.rng.IntN(20_000))
+		p.checkInvariants("initial")
+		for range 3 {
+			for _, b := range p.advance(p.randomDuration(), true) {
+				switch {
+				case b.Kind == BoundaryAutoPause:
+					pauses++
+				case b.Kind == BoundaryAutoResume && b.BuildingID != 0:
+					resumes++
+				}
+			}
+		}
+	}
+	t.Logf("auto pauses %d, auto resumes %d", pauses, resumes)
+	if pauses == 0 || resumes == 0 {
+		t.Error("cases did not exercise pauses and resumes")
 	}
 }
 

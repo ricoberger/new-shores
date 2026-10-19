@@ -226,13 +226,11 @@ func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (in
 	}
 	// The threshold boundary carries no building; the resume itself is
 	// reported by settle with island and building. If the conditions already
-	// hold (only for a building paused during this very settle), the resume
+	// hold (only for a building paused at this very millisecond), the resume
 	// happens at the next millisecond, which is a boundary as well.
-	if _, b := resumeCandidate(w); b != nil && wr.balance > 0 {
-		upkeep := c.BuildingByID[b.Type].UpkeepPerMin
-		if thr := resumeThreshold(c, upkeep); wr.balance-upkeep >= 0 {
-			consider(now+ceilDiv(max(thr-gold, 0), wr.balance), Boundary{Kind: BoundaryAutoResume})
-		}
+	if b := wr.resumable; b != nil && wr.balance > 0 {
+		thr := resumeThreshold(c, c.BuildingByID[b.Type].UpkeepPerMin)
+		consider(now+ceilDiv(max(thr-gold, 0), wr.balance), Boundary{Kind: BoundaryAutoResume})
 	}
 	return best, list
 }

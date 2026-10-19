@@ -458,3 +458,58 @@ func TestPropertyVarietyMonotonic(t *testing.T) {
 		}
 	}
 }
+
+// TestDeferredResumeComposition (review round 1): with no resume reserve,
+// pausing a fish-consuming weaver lets fish leave the starved regime, so the
+// weaver is resumable right away (even with all rates recomputed). It is
+// never resumed at the millisecond of its pause (PausedAtMs) but 1 ms later,
+// and splitting the Advance exactly at the pause gives the same world.
+func TestDeferredResumeComposition(t *testing.T) {
+	c := catalogue(t)
+	c.Region.Rules.AutoResumeMs = 0
+	weaver := *c.BuildingByID["weaver_wool"]
+	rec := *weaver.Recipe
+	rec.Inputs = []content.GoodAmount{{Good: "fish", Amount: 1000}}
+	weaver.Recipe = &rec
+	c.BuildingByID = maps.Clone(c.BuildingByID)
+	c.BuildingByID["weaver_wool"] = &weaver
+
+	w := newTown(t, c, 1)
+	hs := placeHouses(t, w, c, 8)
+	for _, id := range hs {
+		house(w, id).Residents = 8_000
+	}
+	placeFree(t, w, c, "market_small", 17, 1, 0)
+	wv := placeFree(t, w, c, "weaver_wool", 21, 2, 0)
+	addStock(t, w, c, "wool_garments", 100)
+	now := w.LastEvaluatedAt.UnixMilli()
+	w.Islands[0].Building(hs[0]).Transit = []TransitSegment{{Good: "fish", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, 640)}}
+	wr, _ := settleWorld(w, c, now)
+	if wr.balance >= 0 {
+		t.Fatalf("balance = %d, want negative", wr.balance)
+	}
+	pauseAt := time.Duration(w.goldFine()/-wr.balance) * time.Millisecond
+
+	single, split := w.Clone(), w.Clone()
+	bs := mustAdvance(t, single, c, pauseAt+2*time.Millisecond)
+	mustAdvance(t, split, c, pauseAt)
+	if b := split.Islands[0].Building(wv); !b.Paused || b.PausedAtMs != split.LastEvaluatedAt.UnixMilli() {
+		t.Fatalf("at the pause: %+v", b)
+	}
+	mustAdvance(t, split, c, 2*time.Millisecond)
+	if !bytes.Equal(encode(t, single), encode(t, split)) {
+		t.Error("composition violated when splitting at the pause")
+	}
+	var pause, resume time.Time
+	for _, b := range bs {
+		switch {
+		case b.Kind == BoundaryAutoPause && b.BuildingID == wv:
+			pause = b.At
+		case b.Kind == BoundaryAutoResume && b.BuildingID == wv:
+			resume = b.At
+		}
+	}
+	if pause.IsZero() || !resume.Equal(pause.Add(time.Millisecond)) {
+		t.Errorf("pause %s resume %s: %+v", pause, resume, bs)
+	}
+}

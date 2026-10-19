@@ -149,6 +149,10 @@ type Building struct {
 	// PauseSeq is the world pause sequence number of an insolvency pause
 	// (0 unless PausedReason is unpaid).
 	PauseSeq int64 `json:"pause_seq,omitempty"`
+	// PausedAtMs is the time (Unix ms) of an insolvency pause; the building
+	// can be auto-resumed only after that millisecond, which keeps settle
+	// idempotent at the pause instant.
+	PausedAtMs int64 `json:"paused_at_ms,omitempty"`
 	// Efficiency in per-mille from the work area (1000 without work area).
 	Efficiency int64 `json:"efficiency"`
 	// Level of a warehouse (1-based); 0 for other buildings.

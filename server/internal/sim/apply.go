@@ -475,12 +475,12 @@ func setPaused(w *World, c *content.Catalogue, cmd SetPaused) error {
 	case cmd.Paused && !pausable:
 		return fmt.Errorf("%w: %s", ErrNotPausable, b.Type)
 	case cmd.Paused:
-		b.Paused, b.PausedReason, b.PauseSeq = true, PausedReasonPlayer, 0
+		b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = true, PausedReasonPlayer, 0, 0
 	case b.Paused:
 		// Resuming is allowed for any paused building, player or unpaid
 		// (MECHANICS §14). An unpaid building resumed while the balance is
 		// still negative is paused again at the next settle.
-		b.Paused, b.PausedReason, b.PauseSeq = false, "", 0
+		b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = false, "", 0, 0
 	case !pausable:
 		return fmt.Errorf("%w: %s", ErrNotPausable, b.Type)
 	}
