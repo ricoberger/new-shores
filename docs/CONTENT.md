@@ -265,14 +265,57 @@ and house facade variants per tier.
 ## 11. Content data format
 
 Content lives in `content/<region>/*.json`, one file per entity type
-(`tiers.json`, `goods.json`, `buildings.json`, `needs.json`, `ships.json`,
-`quests.json`, `islands.json`, `decorations.json`), with a JSON Schema under
+(`region.json`, `tiers.json`, `goods.json`, `buildings.json`, `needs.json`;
+later `ships.json`, `quests.json`, `islands.json`, `decorations.json`), with
+JSON Schemas (draft 2020-12, unknown fields rejected) under
 `content/schema/`. The server validates on startup and fails fast on broken
-references; the client gets generated TypeScript types for display only.
+references, duplicate IDs, need weights not summing to 1 and out-of-range
+values, naming file, entity and field; the client gets generated TypeScript
+types for display only. Decimals have at most 3 places (weights 6), no
+exponent notation; they are converted to fixed point at load time.
+
+### region.json — region-wide rule constants only
+
+```json
+{
+  "id": "old_coast",
+  "name": "The Old Coast",
+  "version": "old_coast-0.1.0",
+  "rules": {
+    "transfer_base_seconds": 10,
+    "unconnected_buffer_units": 5,
+    "iteration_cap": 10000,
+    "coarse_step_seconds": 60
+  }
+}
+```
+
+`version` is the `content_version` embedded in every saved world.
+
+### buildings.json — capability blocks instead of a type enum
+
+Every building has `id`, `name`, `region` (must equal the region id),
+`tier`, `footprint: [width, height]` (rotation 0), `requires_road`, `cost`
+(`{ "gold": n, "<good>": n }`; the key `gold` is reserved, so no good may be
+called `gold`; zero-cost is `{ "gold": 0 }`), `upkeep_per_min` and
+`pause_category`. What a building *does* is defined by the optional blocks
+it carries:
+
+| Block | Fields | Used by |
+|---|---|---|
+| `recipe` (later `recipes[]`, D-041) | `inputs[] {good, amount}` (may be empty), `outputs[] {good, amount}` (non-empty), `cycle_seconds` | producers |
+| `house` | `tier` | residences |
+| `warehouse` | `levels[] {capacity, throughput_per_min}` | warehouse |
+| `road` | `seconds_per_tile` (building must be 1×1) | roads |
+| `service` | `radius` | public buildings |
+| `work_area` | `radius`, `terrain[]`, `required_tiles` | farms, lumberjack, gatherers |
+| `workforce` | `tier`, `amount` | producers (D-035; next slice) |
+| `slot` | deposit/harbour slot type | mines, quarries, coastal (D-036; M4) |
 
 ```json
 {
   "id": "smelter",
+  "name": "Smelter",
   "region": "old_coast",
   "tier": "citizens",
   "footprint": [3, 3],
@@ -289,8 +332,32 @@ references; the client gets generated TypeScript types for display only.
 }
 ```
 
+`pause_category` ∈ `need_goods`, `public`, `intermediate`, `food_basic`,
+`never` drives the insolvency order (MECHANICS §7). Buildings accepting
+`charcoal` will list `"accepts": ["charcoal", "coal"]` on the input (tier 3).
+
+### tiers.json and goods.json
+
+`tiers.json`: array in progression order of `{ id, name, residents: {floor,
+max}, tax_per_resident_per_min, house, unlock: { population: {tier: n},
+buildings: [], goods_delivered: [] } }`. `goods.json`: `{ id, name, type }`
+with `type` ∈ raw, intermediate, construction, food, drink, clothing,
+comfort, luxury.
+
+### needs.json
+
+Implemented tier-1 shape (one good per need): `{ id, tier, weight,
+category: basic|luxury }` plus either `good` + `per_resident_per_min` or
+`building` + `radius`.
+
+**Pending change for the next simulation task (D-031, D-040):** the field
+`category` is renamed to `kind: required|optional` (MECHANICS §6.2) and
+`category` becomes the need group (`food`, `drink`, …) with a list of
+acceptable goods:
+
 ```json
 {
+  "id": "citizens_drink",
   "tier": "citizens",
   "category": "drink",
   "weight": 0.2,
@@ -303,10 +370,6 @@ references; the client gets generated TypeScript types for display only.
   "kind": "required"
 }
 ```
-
-`pause_category` ∈ `need_goods`, `public`, `intermediate`, `food_basic`,
-`never` drives the insolvency order (MECHANICS §7). Buildings accepting
-`charcoal` list `"accepts": ["charcoal", "coal"]` on the input.
 
 ## 12. Balancing checklist
 

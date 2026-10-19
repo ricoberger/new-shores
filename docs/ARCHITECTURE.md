@@ -89,13 +89,22 @@ new-shores/
 - `type World struct` — islands, buildings, inventories, houses, ships, routes,
   gold, rng state, `LastEvaluatedAt`. Serialises to the JSONB column via a
   versioned envelope `{schema_version, content_version, world}`.
-- `func Advance(w *World, c *content.Catalogue, to time.Time) []Boundary` —
-  pure; returns the boundary list for debugging/UI.
+- `func Advance(w *World, c *content.Catalogue, to time.Time) ([]Boundary, error)`
+  — pure; returns the boundary list for debugging/UI; `to` before
+  `LastEvaluatedAt` is `ErrTimeBackwards`. `AdvanceWithLedger` additionally
+  records flows (produced/consumed/lost) for reports and tests.
 - `func Apply(w *World, c *content.Catalogue, cmd Command) error` — placement,
   demolish, pause, route edit, upgrade, order ship, etc. Each command
-  validates fully before mutating.
-- `func Display(w *World, c *content.Catalogue, now time.Time) DisplayState` —
-  state + rates + cycle timers + ship legs + `NextChangeAt`.
+  validates fully before mutating; on error the world is byte-identical.
+  Errors are typed sentinels (`ErrNotEnoughGold`, `ErrSurplusLoss`, …).
+- `func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error)`
+  — state + rates + cycle timers + ship legs + `NextChangeAt` (RFC 3339 UTC
+  with milliseconds; `null` when nothing changes without a command).
+- The scenario runner (`internal/sim/scenario`) loads JSON scenarios (ASCII
+  island, free seed step, Apply/Advance steps) and produces reports with
+  totals, bottlenecks and snapshots; golden reports live in
+  `server/testdata/scenarios` and are the shared fixtures for client display
+  tests.
 - Fixed-point integers; no `time.Now()`, no `math/rand` without the stored
   seed.
 - Migrations between `schema_version`s live here and are tested against stored

@@ -16,17 +16,38 @@ values that live in content data and will be tuned.
 - `advance` is a **piecewise-constant-rate** simulation:
   1. compute all current rates (production, consumption, transfer, taxes,
      upkeep, growth) from the current state;
-  2. find the earliest **boundary** — a buffer becomes empty/full, a house
-     reaches a growth threshold, gold would cross zero, a cycle completes, or
-     `toTime`;
+  2. find the earliest **boundary** — a buffer becomes empty/full, a stock
+     runs empty or reaches capacity, a transfer stream starts or ends, a
+     house reaches a growth threshold, gold would cross zero, or `toTime`;
   3. advance all quantities linearly to that boundary; apply the boundary's
      discrete effect; repeat.
-- Iteration cap: if more than N boundaries (provisional 10 000) occur in one
-  advancement, the simulation switches to a coarse step (1 min) for the rest.
-  This bounds pathological cases such as 90-day gaps; warehouse caps make it
-  rare.
-- All quantities are stored as fixed-point integers (milli-units) to keep
-  determinism across platforms.
+- **Cycle completions are not boundaries** (fluid model): a producer's cycle
+  only drives the displayed progress bar; goods flow continuously at the
+  cycle's average rate.
+- **Regimes instead of stop/resume flapping.** A good is in the *full*
+  regime when `stock + in_transit` can no longer absorb one millisecond of
+  net growth; its producers are then limited to the good's consumption rate
+  (zero without consumers). A good is in the *starved* regime when its stock
+  can no longer cover one millisecond of net drain; its consumers then share
+  the arrival rate in proportion to demand. Regimes are explicit state that
+  changes only at boundaries (or is cleared by a command), which is what
+  makes `advance` exactly composable. Rounding limited rates down lets the
+  committed stock drift a few milli-units below capacity, never above.
+- Iteration cap: if more than `iteration_cap` boundaries (content, provisional
+  10 000) occur in one advancement, the rest runs in coarse steps
+  (`coarse_step_seconds`, provisional 60 s) with rates recomputed per step;
+  consumption is scaled to what is available and arrivals above capacity
+  are clamped and counted as `lost`. Composition is not guaranteed in coarse
+  mode. Warehouse caps make this path rare (a 12 h gap of a full economy is
+  a handful of boundaries).
+- **Units.** Stored quantities are fixed-point integers: goods in
+  milli-units, gold in milli-gold, durations in milliseconds, timestamps in
+  UTC truncated to milliseconds. Internally goods are accounted in
+  sub-milli units (`SubPerMilli = 360 000 000`, chosen so every cycle that
+  divides 360 s and every warehouse throughput is an exact integer flow per
+  millisecond); conservation holds exactly at that scale. Display rounds
+  half-up to milli-units; rates are shown per minute (floor). Content
+  decimals allow at most 3 places (weights 6) and no exponent notation.
 
 ### 1.2 Determinism
 
@@ -66,18 +87,37 @@ transaction.
 - **Harbour area**: coast tiles are a finite slot resource; coastal buildings
   (warehouse, fisher, shipyard, salt pans, oyster beds, harbourmaster) compete
   for them (D-036).
-- Buildings have a rectangular footprint, a rotation, and an **entrance tile**
-  that must touch a road (except roads, decorations, and farm fields).
-- Coastal buildings (warehouse, fisher, shipyard, harbourmaster) need a
-  footprint edge on coast tiles.
-- Farms and lumberjacks have a **work area** (radius) that must contain enough
-  fertile/forest tiles; their rate scales with the fraction available
-  (0–100 %), computed on placement and when neighbouring tiles change.
+- Buildings have a rectangular footprint `[width, height]` at rotation 0, a
+  rotation (0/90/180/270; 90/270 swap width and height), and an **entrance
+  tile** that must touch a road (except roads, decorations, and farm
+  fields). Placement anchor `(X, Y)` is the top-left tile of the rotated
+  footprint. The entrance is the middle tile of the front edge; the front
+  faces south (+y) at 0°, west at 90°, north at 180°, east at 270° ("middle"
+  rounds down at 0°/90° and up at 180°/270°). A road *touches* the entrance
+  when it lies on one of the four tiles 4-adjacent to it.
+- Buildable terrain: `coast`, `grass`, `forest`; `water` and `mountain`
+  never (roads follow the same rule; slots sit on mountain tiles, D-036).
+- Coastal buildings (warehouse, fisher, shipyard, harbourmaster) need at
+  least one footprint tile on `coast`.
+- Farms and lumberjacks have a **work area**: a Euclidean disc of radius `r`
+  around the footprint centre (tile centres inside count). A tile matches
+  when its terrain is in the building's `work_area.terrain` list and carries
+  neither a building nor a road; overlapping work areas share tiles (no
+  exclusivity). `efficiency = min(1, matching / required_tiles)`,
+  recomputed for every work-area building after each placement, demolition
+  or road change; it may drop to 0 for an existing building (status
+  `low_efficiency`, rate 0). Placement with efficiency 0 is rejected.
 - Placement validity is computed in the simulation, never from mesh collision.
-- Demolition refunds 50 % of materials, no gold (D-019). Demolishing a
-  warehouse re-assigns its producers to the next nearest connected warehouse;
-  if the island inventory exceeds the new capacity, the surplus is lost after
-  a confirmation dialog.
+  A failed command leaves the world byte-identical.
+- Demolition refunds 50 % of each material **rounded down to whole units**
+  and no gold (D-019), into the island where the building stood, clamped to
+  free capacity (the clamped part is `lost`). Goods the building had in
+  transit are delivered immediately; an unconnected producer's buffer is
+  lost. Demolishing a warehouse re-assigns its producers to the next nearest
+  connected warehouse; if `stock + in_transit` of any good would exceed the
+  remaining capacity, the command fails with `ErrSurplusLoss` unless the
+  player explicitly accepts the loss (confirmation dialog), in which case
+  stock is clamped and the excess counted as `lost`.
 
 ## 3. Roads and connection (D-014)
 
@@ -85,13 +125,24 @@ transaction.
   warehouse entrance on the same island. Roads are tiles; dirt roads (tier 1)
   and paved roads (tier 2, +speed) are the two types.
 - Each connected producer is **assigned** to the nearest warehouse by road
-  distance `d` (tiles). Assignment is recomputed when roads or warehouses
-  change.
-- **Transfer delay** per delivery: `base + d × per_tile` (provisional 10 s +
-  1 s/tile on dirt, 0.6 s/tile on paved). The delay is a latency: output
-  produced at `t` arrives in the island inventory at `t + delay`.
-- Unconnected producers run until their internal output buffer (provisional 5
-  units) is full, then stop, and are flagged.
+  distance `d`: the number of road tiles on the shortest 4-connected road
+  path from a tile touching the producer's entrance to a tile touching the
+  warehouse's entrance, both ends included. Equal lengths prefer the lower
+  summed per-tile time; equal warehouses prefer the lowest ID. Assignment is
+  recomputed when roads or warehouses change. Only buildings with a recipe
+  are assigned; warehouses need no road themselves.
+- **Transfer delay** per delivery: `transfer_base_seconds + Σ seconds_per_tile`
+  over the path (content; provisional 10 s + 1 s/tile dirt, 0.6 s/tile
+  paved), minimum 1 ms. The delay is a latency: output produced during
+  `[t, t+dt)` arrives during `[t+delay, t+dt+delay)` at the same rate
+  (stored as transit segments per building; segments keep arriving if the
+  producer is paused or disconnected meanwhile).
+- Unconnected producers **without inputs** fill a per-output buffer of
+  `unconnected_buffer_units` (content, provisional 5), then stop and are
+  flagged. Unconnected producers **with inputs** do not run at all (they
+  cannot fetch inputs). When a buffered producer gets connected, the buffer
+  leaves first through its normal output stream (subject to throughput, full
+  and starvation rules) and is never lost.
 
 ## 4. Production
 
@@ -108,10 +159,19 @@ cycle:   seconds               at 100 % efficiency
   `throughput_factor` from the assigned warehouse (section 5) and
   `workforce_factor` from the island's workforce pool (below).
 - Inputs are drawn from the island inventory continuously at the same rate
-  (fluid model). If any input stock is zero and its net rate is ≤ 0, the
-  building is **input-starved** and its rate is zero.
+  (fluid model). When an input is in the *starved* regime (§1.1) the
+  building is **input-starved**: its rate is capped at its share of the
+  input's arrival rate (zero if nothing arrives). Consumption and production
+  of a building always use the same progress rate, so recipe ratios hold
+  exactly.
 - Output is blocked when the good is at **capacity** in the island inventory
-  (D-008); the building shows "warehouse full".
+  (D-008); the building shows "warehouse full". Blocking propagates
+  upstream: a producer whose output is full and has no *running* consumer is
+  blocked, so a full plank store also blocks the lumberjack feeding the idle
+  sawmill.
+- Rate pipeline per producer: base (nominal × efficiency × workforce; 0 if
+  paused, buffer full, or unconnected with inputs) → throughput factor →
+  starvation cap → full cap.
 - **Workforce** (D-035): each production building declares
   `workforce: {tier, amount}`. On each island, the residents of a tier form a
   pool; buildings draw from it in placement order. If the pool is short, every
@@ -140,9 +200,14 @@ cycle:   seconds               at 100 % efficiency
   (provisional: level 1 = 300, level 2 = 500, … per good — capacity is per
   good, not total, to keep the puzzle about rates rather than micro-sorting).
 - Each warehouse has a **throughput** `T` (units/min; provisional level 1 =
-  60). If the sum of output rates of its assigned producers `R > T`, every
-  assigned producer gets `throughput_factor = T / R`; else 1. The UI shows
-  warehouse load as `R / T`.
+  60). `R` is the sum of base output rates of its assigned producers that
+  are **running** (connected, not paused, not fully starved, not blocked).
+  If `R > T`, every running assigned producer gets
+  `throughput_factor = T / R`; else 1. The UI shows warehouse load as
+  `R / T`.
+- A good counts as **full** when `stock + in_transit` reaches capacity
+  (committed capacity), so goods already on the road never overflow on
+  arrival.
 - Warehouses are **upgraded in place** (gold + materials) rather than
   demolished; an upgrade raises capacity and throughput. Additional
   warehouses can also be built (coastal only).
@@ -332,10 +397,14 @@ permanent (no regression).
 
 ## 14. UI feedback rules derived from mechanics
 
-Each building state maps to one icon and one sentence with a fix:
+Each building state maps to one icon and one sentence with a fix. A building
+has exactly one primary status; precedence when several apply:
+`paused` > `not_connected` > `warehouse_full` > `input_starved` >
+`throttled` > `short_of_workers` > `low_efficiency` > `ok`.
 
 | State | Message | Suggested fix |
 |---|---|---|
+| paused (player) | "Paused by you" | resume |
 | not connected | "No road to a warehouse" | build road |
 | input starved | "Missing: iron ore (0/min)" | build producer / import |
 | warehouse full | "Planks at capacity (400/400)" | upgrade warehouse / consume |
