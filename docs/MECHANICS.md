@@ -220,17 +220,28 @@ cycle:   seconds               at 100 % efficiency
 
 - A house belongs to a tier and has `residents` in `[floor, max]`
   (provisional Settlers 2–8, Citizens 5–15, Merchants 9–25, Patricians
-  14–40). `floor` is the minimum that never leaves (D-009).
+  14–40). `floor` is the minimum that never leaves (D-009). Residents are
+  **whole numbers**; growth accumulates in a signed per-house accumulator
+  that steps residents by ±1 when it reaches a full resident (each step is
+  a boundary, since it changes consumption, taxes and workforce). The
+  accumulator resets only at those steps and on upgrade, so splitting an
+  advancement never changes it.
 - **Growth rate** = `growth_per_min × satisfaction × variety_multiplier` when
-  `satisfaction ≥ 0.5`;
-  **decline rate** = `decline_per_min × (0.5 − satisfaction)` down to `floor`
-  when below. Provisional: +1 resident/min at full satisfaction, −0.5/min at
-  zero.
+  `satisfaction ≥ growth_satisfaction_threshold` (content, provisional 0.5);
+  **decline rate** = `decline_per_min × (threshold − satisfaction)` down to
+  `floor` when below. Provisional constants (region.json): `growth_per_min`
+  1, `decline_per_min` 0.5 — i.e. +1 resident/min at full satisfaction and
+  −0.25/min at zero satisfaction. The rate is 0 at `max` while growing and
+  at `floor` while declining.
 - **Upgrade** to the next tier is a player action on a house at `max`
-  residents with all needs of the *current* tier satisfied; it costs the next
-  tier's house materials. The upgraded house starts at its new tier's `floor`.
-  Upgrading is the only way inhabitants of a higher tier appear (so the player
-  controls the tier mix).
+  residents with all required needs of the *current* tier satisfied (as
+  evaluated on the settled world at that instant); it costs the next
+  tier's house materials and requires the next tier to be unlocked (§12).
+  The upgraded house keeps its ID and position and starts at its new tier's
+  `floor`. Upgrading is the only way inhabitants of a higher tier appear (so
+  the player controls the tier mix). A tier may be *declared* in content
+  without a house (residents, tax, unlock conditions only); upgrading into
+  it fails with a typed error until its house exists.
 
 ### 6.2 Needs
 
@@ -238,47 +249,65 @@ Each tier has a list of needs, each either:
 
 - **Goods need (category, D-031):**
   `{category, weight, goods: [{good, per_resident_per_min}], variety_bonus,
-  max_extra_goods}`. The island's houses of that tier consume each listed
-  good that is in stock at `residents × per_resident_per_min`, drawing from
-  the goods in list order until the category's demand is met (so a house
-  supplied with two goods does not eat double). Fulfilment =
-  `min(1, Σ_goods supply_rate / demand_rate)`. **Variety** = number of the
-  category's goods with positive supply, minus one, capped at
-  `max_extra_goods`. Lower-tier goods are not accepted by higher tiers'
-  categories (D-033). Tier 1 categories have exactly one good (D-032).
-- **Building need:** `{building_type, radius, weight}`. Fulfilled (1) if a
-  connected public building of that type is within `radius` tiles of the house
-  entrance; else 0.
+  max_extra_goods}`. A good is *supplied* when it is not in the starved
+  regime, or is starved but still has arrivals. The island's houses of that
+  tier share the category's demand **equally among the supplied goods**:
+  with `m` supplied goods each is consumed at
+  `residents × per_resident_per_min / m` (so a house supplied with two goods
+  does not eat double). If a supplied good runs short, the shortfall is
+  drawn from the other goods **in list order** from whatever slack they
+  have (unlimited for non-starved goods, up to the unused arrivals for
+  starved ones). Fulfilment is 1 if any supplied good is non-starved,
+  otherwise `min(1, Σ consumed / demand)`. **Variety** = `min(m − 1,
+  max_extra_goods)`. Adding a supplied good never lowers fulfilment, tax or
+  growth (invariant, §13). Lower-tier goods are not accepted by higher
+  tiers' categories (D-033). Tier 1 categories have exactly one good
+  (D-032). Houses count as running consumers for warehouse throughput and
+  upstream blocking (§4, §5).
+- **Building need:** `{building, radius, weight}`. Fulfilled (1) if a
+  public building of that type is within `radius` of the house entrance
+  tile — Euclidean distance between tile centres from the entrance to the
+  **nearest footprint tile** of the public building — and that building is
+  road-connected to a warehouse and not paused; else 0. The UI reason is,
+  in precedence, `not_connected`, `paused`, `out_of_range`.
 - Every need carries a flag `required` (counts toward satisfaction, so it
   gates growth and base tax) or `optional` (bonus only; D-012 guardrail).
   The flag is independent of the category name: the Patricians' `luxury`
   category is a `required` category like any other; `optional` needs are
   the mechanism for adding bonus needs to an existing tier after launch.
 
-**Satisfaction** of a house = weighted mean of its required needs' fulfilment.
+**Satisfaction** of a house = weighted mean of its required needs'
+fulfilment (1 if the tier has no required needs; required weights sum to 1).
 **Variety multiplier** of a house = `1 + Σ_categories variety × variety_bonus`
 (provisional bonus 0.10 per extra good, max 2 extras per category); it
-multiplies both tax and growth rate. Optional needs add up to +25 % tax.
+multiplies both tax and growth rate. Optional needs add up to
+`optional_tax_bonus` (content, provisional 0.25 = +25 %) tax, scaled by the
+weighted fulfilment of the optional needs.
 
 ### 6.3 Taxes
 
-- `tax_rate[tier]` gold per resident per minute (provisional Settlers 0.05,
-  Citizens 0.12, Merchants 0.3, Patricians 0.7), multiplied by
-  `satisfaction`, by the `variety_multiplier` (§6.2) and by
-  `(1 + 0.25 × optional_fulfilment)`.
+- `tax_rate[tier]` gold per resident per minute (content, CONTENT §2;
+  currently Settlers 0.20, Citizens 0.48, Merchants 1.20, Patricians 2.80),
+  multiplied by `satisfaction`, by the `variety_multiplier` (§6.2) and by
+  `(1 + optional_tax_bonus × optional_fulfilment)`; each factor rounds
+  down.
 - Taxes only accrue from houses; nothing else creates gold (D-018).
 
 ## 7. Gold, upkeep and insolvency (D-017)
 
 - `balance_rate` = Σ taxes − Σ upkeep of non-paused buildings and ships.
-- Gold can never go below zero. When the advancement reaches a boundary where
-  gold would cross zero with a negative rate, the simulation **auto-pauses one
-  building** according to the order below, recomputes rates, and continues.
-  Repeat until the rate is ≥ 0 or nothing pausable remains (then gold simply
-  stays at zero and taxes accrue as they come).
+  Gold is linear between boundaries; only its zero crossing and the resume
+  reserve (below) are boundaries.
+- Gold can never go below zero. When the advancement reaches the boundary
+  where gold would cross zero with a negative rate, the simulation runs the
+  **auto-pause cascade** at that instant: pause one candidate according to
+  the order below, recompute all rates, and repeat until `balance_rate ≥ 0`
+  or no candidate remains (then gold is held at zero and taxes accrue as
+  they come). Candidates are buildings that are not paused, have upkeep
+  > 0 and `pause_category ≠ never`.
 
-Auto-pause order (first paused first; within a step, lowest upkeep first so
-the fewest buildings stop):
+Auto-pause order (first paused first; within a step, highest tier first,
+then lowest upkeep first so the fewest buildings stop, then lowest ID):
 
 1. Production buildings whose outputs are **goods needs of the highest tier**,
    highest tier first.
@@ -292,11 +321,27 @@ the fewest buildings stop):
 Never auto-paused: houses, warehouses, roads, shipyard, harbourmaster,
 decorations.
 
-- **Auto-resume**: when gold ≥ 5 min of the paused building's upkeep *and*
-  `balance_rate` after resuming would be ≥ 0, resume in reverse order, one at
-  a time (hysteresis).
+- **Auto-resume**: the candidate is the most recently auto-paused
+  building. It resumes when both hold: (a) gold ≥
+  `auto_resume_upkeep_minutes` (content, provisional 5; **strictly
+  positive** — it is the hysteresis that prevents pause/resume flapping, so
+  0 is rejected as invalid content) of its upkeep, and (b) the **full**
+  `balance_rate` with that building running and *all* rates recomputed
+  (production, workforce, throughput, starvation and full caps, house
+  consumption, taxes, upkeep) is ≥ 0. (b) is evaluated from the current
+  regimes and arrival rates, never from an instantaneous stock level, so it
+  only changes at boundaries and commands; gold reaching the reserve of an
+  eligible candidate is a scheduled boundary. Candidates are checked in
+  reverse pause order at the same instant until the first one fails. A
+  building is never resumed at the millisecond it was paused. Visible
+  effect: a building that looks affordable by "balance − its upkeep" can
+  stay paused; the UI shows the balance rate with the reason.
+- A paused public building fulfils no building need; paused buildings
+  have no upkeep and need no workforce.
 - Buildings paused for insolvency are flagged `paused_reason = unpaid` and
-  shown distinctly from `paused_reason = player`.
+  shown distinctly from `paused_reason = player`. Players may resume any
+  paused building manually; manual pause is only available for buildings
+  with `pause_category ≠ never`.
 
 ## 8. Construction
 
@@ -378,8 +423,13 @@ all of the tier's `unlock` conditions in content hold:
 { "population": { "settlers": 120 }, "buildings": ["market_small"], "goods_delivered": [] }
 ```
 
-Conditions are evaluated against the player's whole archipelago. Unlocks are
-permanent (no regression).
+Conditions are evaluated against the player's whole archipelago at the end
+of every advancement and after every successful command; `population`
+keys must be earlier tiers. The first tier is always unlocked. Unlocks are
+permanent (no regression) and have no rate effect; the unlock moment is
+reported as a `tier_unlocked` boundary. Placing a building (or road) of a
+locked tier fails with `ErrTierLocked`. A non-empty `goods_delivered` list
+cannot be satisfied until trade routes exist (M4).
 
 ## 13. Invariants (tested)
 
@@ -391,6 +441,7 @@ permanent (no regression).
 - `0 ≤ workforce_factor ≤ 1`; a building never occupies more than one slot.
 - Variety never reduces fulfilment: adding a good to a category is
   monotonic non-decreasing for tax and growth.
+- Unlocked tiers never shrink.
 - `advance(advance(s, t1), t2) == advance(s, t2)` for `t1 ≤ t2`.
 - Applying an event at `due_at` then advancing equals the recorded behaviour
   regardless of processing delay.
@@ -409,7 +460,7 @@ has exactly one primary status; precedence when several apply:
 | input starved | "Missing: iron ore (0/min)" | build producer / import |
 | warehouse full | "Planks at capacity (400/400)" | upgrade warehouse / consume |
 | throttled | "Warehouse overloaded (140 %)" | second warehouse / upgrade |
-| unpaid | "Paused: insufficient gold" | demolish / grow / resume manually |
+| unpaid | "Paused: insufficient gold (balance −3.2/min)" | demolish / grow / resume manually |
 | low efficiency | "Only 60 % fertile land in range" | move / clear |
 | short of workers | "Needs 12 Citizens on this island (8 available)" | build/upgrade houses here |
 | no slot | "No free iron slot on this island" | other island / trade |

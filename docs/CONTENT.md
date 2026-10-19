@@ -269,8 +269,9 @@ and house facade variants per tier.
 ## 11. Content data format
 
 Content lives in `content/<region>/*.json`, one file per entity type
-(`region.json`, `tiers.json`, `goods.json`, `buildings.json`, `needs.json`;
-later `ships.json`, `quests.json`, `islands.json`, `decorations.json`), with
+(`region.json`, `start.json`, `tiers.json`, `goods.json`, `buildings.json`,
+`needs.json`; later `ships.json`, `quests.json`, `islands.json`,
+`decorations.json`), with
 JSON Schemas (draft 2020-12, unknown fields rejected) under
 `content/schema/`. The server validates on startup and fails fast on broken
 references, duplicate IDs, need weights not summing to 1 and out-of-range
@@ -284,17 +285,40 @@ exponent notation; they are converted to fixed point at load time.
 {
   "id": "old_coast",
   "name": "The Old Coast",
-  "version": "old_coast-0.1.0",
+  "version": "old_coast-0.2.0",
   "rules": {
     "transfer_base_seconds": 10,
     "unconnected_buffer_units": 5,
     "iteration_cap": 10000,
-    "coarse_step_seconds": 60
+    "coarse_step_seconds": 60,
+    "growth_per_min": 1,
+    "decline_per_min": 0.5,
+    "growth_satisfaction_threshold": 0.5,
+    "optional_tax_bonus": 0.25,
+    "auto_resume_upkeep_minutes": 5
   }
 }
 ```
 
+| Constant | Meaning | Reference |
+|---|---|---|
+| `transfer_base_seconds` | fixed part of the producer → warehouse delay | MECHANICS §3 |
+| `unconnected_buffer_units` | output buffer of an unconnected producer | §3 |
+| `iteration_cap`, `coarse_step_seconds` | boundary cap and coarse fallback | §1.1 |
+| `growth_per_min`, `decline_per_min`, `growth_satisfaction_threshold` | house growth and decline | §6.1 |
+| `optional_tax_bonus` | tax bonus at full optional-need fulfilment | §6.2 |
+| `auto_resume_upkeep_minutes` | gold reserve before an auto-paused building resumes; **strictly > 0** (0 is rejected: it removes the pause/resume hysteresis) | §7 |
+
 `version` is the `content_version` embedded in every saved world.
+
+### start.json — starting stock
+
+```json
+{ "gold": 500, "goods": { "planks": 130, "sails": 10 } }
+```
+
+Granted once, after the first (free) warehouse is placed from the ship
+(MECHANICS §8). Goods must exist in `goods.json`.
 
 ### buildings.json — capability blocks instead of a type enum
 
@@ -313,7 +337,7 @@ it carries:
 | `road` | `seconds_per_tile` (building must be 1×1) | roads |
 | `service` | `radius` | public buildings |
 | `work_area` | `radius`, `terrain[]`, `required_tiles` | farms, lumberjack, gatherers |
-| `workforce` | `tier`, `amount` | producers (D-035; next slice) |
+| `workforce` | `tier`, `amount` | producers only (D-035) |
 | `slot` | deposit/harbour slot type | mines, quarries, coastal (D-036; M4) |
 
 ```json
@@ -343,21 +367,22 @@ it carries:
 ### tiers.json and goods.json
 
 `tiers.json`: array in progression order of `{ id, name, residents: {floor,
-max}, tax_per_resident_per_min, house, unlock: { population: {tier: n},
-buildings: [], goods_delivered: [] } }`. `goods.json`: `{ id, name, type }`
+max}, tax_per_resident_per_min, house?, unlock: { population: {tier: n},
+buildings: [], goods_delivered: [] } }`. `house` is optional: a tier
+without it is *declared only* (no needs, no house building may reference
+it; upgrading into it fails cleanly) — this is how Citizens exist in the
+first playable before its content is authored. `unlock.population` keys
+must be earlier tiers. `goods.json`: `{ id, name, type }`
 with `type` ∈ raw, intermediate, construction, food, drink, clothing,
 comfort, luxury.
 
 ### needs.json
 
-Implemented tier-1 shape (one good per need): `{ id, tier, weight,
-category: basic|luxury }` plus either `good` + `per_resident_per_min` or
-`building` + `radius`.
-
-**Pending change for the next simulation task (D-031, D-040):** the field
-`category` is renamed to `kind: required|optional` (MECHANICS §6.2) and
-`category` becomes the need group (`food`, `drink`, …) with a list of
-acceptable goods:
+One entry per need: `{ id, tier, kind: required|optional, weight }` plus
+either a goods category — `category`, `goods[] {good,
+per_resident_per_min}`, `variety_bonus`, `max_extra_goods` — or a building
+need — `building`, `radius`. Required weights of a tier sum to exactly 1.
+See MECHANICS §6.2 for the semantics.
 
 ```json
 {
@@ -396,7 +421,8 @@ acceptable goods:
   balanced chain set with ≥ 20 % margin.
 - Charcoal demand of a balanced Merchant economy must exceed one island's
   forest capacity so coal or a second forest island becomes relevant.
-- Starting stock (500 gold, 130 planks, 10 sails) must allow: warehouse +
-  8 settler houses + fisher + lumberjack + sawmill + ~40 road tiles + 15 min
-  upkeep.
+- Starting stock (`start.json`: 500 gold, 130 planks, 10 sails), granted
+  after the free first warehouse, must allow: 8 settler houses + fisher +
+  lumberjack + sawmill + market + ~40 road tiles, and cover the early
+  deficit for ≥ 15 min of upkeep (currently ≈ 16 min).
 - Verify with headless scenarios before touching any client code.
