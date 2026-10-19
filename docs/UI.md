@@ -61,6 +61,13 @@ world-map button in the HUD opens the 2D screen as an overlay.
   "building" animation regardless).
 - Demolish mode with confirmation for anything costing > 100 gold; refund
   shown.
+- **Move** (D-042): "Move" in the info panel (or drag a selected building)
+  lifts it into a ghost that follows the pointer with the same validity
+  colours; click/tap places it, Esc cancels and the building stays. Free;
+  no confirmation. Roads cannot be moved.
+- Buildings may be placed without a road; the ghost shows yellow ("not
+  connected") rather than red, and the warnings tray lists the building
+  until a road reaches it.
 
 ## 4. Info panel content
 
@@ -70,7 +77,7 @@ world-map button in the HUD opens the 2D screen as an overlay.
 - Inputs: per good, `stock on island`, `consumption/min`, `net/min`.
 - Output: `production/min`, efficiency %, assigned warehouse (click to
   highlight) and transfer delay, throughput factor.
-- Buttons: pause/resume, demolish, (move — later).
+- Buttons: pause/resume, move, demolish.
 
 **House**
 

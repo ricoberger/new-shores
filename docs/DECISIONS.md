@@ -412,3 +412,27 @@ additive.
   building types cost one content entry, selectable recipes cost sim + UI
   work and a decision about switching costs/buffers.
 - *Refines:* D-034.
+
+## D-042 Placement without roads, edge connection, free move
+
+**Decision:** Buildings can be placed without a road (they are simply
+`not_connected` until one reaches them); a building is road-adjacent when
+*any* road tile touches *any* footprint tile — there is no entrance tile and
+rotation is visual only; any building except roads can be **moved** for free
+to another valid position on the same island, keeping its ID and full state
+while goods in transit keep arriving (MECHANICS §2, §3; UI.md §3).
+
+- *Rationale:* playtesting the first visible island (PR #4) showed the
+  entrance rule as the main source of confusing placement errors ("no road
+  at entrance (9,5)") and forced a road-first build order. Anno 1404 uses
+  edge adjacency; Anno 1800 allows free moving — both are the clearer,
+  friendlier behaviour and fit touch input (D-024).
+- *Consequences:* road distance is measured from the nearest adjacent road
+  tile; building-need radius is footprint-to-footprint; the `MoveBuilding`
+  command is added to the API; the client's placement ghost turns yellow,
+  not red, without a road.
+- *Rejected:* keeping an entrance tile (layout puzzle not worth the
+  friction); move as demolish + place (loses state and refunds); a gold fee
+  for moving (nothing to exploit, since transit is preserved).
+- *Supersedes* the entrance wording of D-014 and MECHANICS §2 as
+  implemented in PR #2/#4.

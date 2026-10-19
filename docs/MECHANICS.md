@@ -87,14 +87,15 @@ transaction.
 - **Harbour area**: coast tiles are a finite slot resource; coastal buildings
   (warehouse, fisher, shipyard, salt pans, oyster beds, harbourmaster) compete
   for them (D-036).
-- Buildings have a rectangular footprint `[width, height]` at rotation 0, a
-  rotation (0/90/180/270; 90/270 swap width and height), and an **entrance
-  tile** that must touch a road (except roads, decorations, and farm
-  fields). Placement anchor `(X, Y)` is the top-left tile of the rotated
-  footprint. The entrance is the middle tile of the front edge; the front
-  faces south (+y) at 0°, west at 90°, north at 180°, east at 270° ("middle"
-  rounds down at 0°/90° and up at 180°/270°). A road *touches* the entrance
-  when it lies on one of the four tiles 4-adjacent to it.
+- Buildings have a rectangular footprint `[width, height]` at rotation 0 and
+  a rotation (0/90/180/270; 90/270 swap width and height). Placement anchor
+  `(X, Y)` is the top-left tile of the rotated footprint. There is **no
+  entrance tile** (D-042): a building is *road-adjacent* when any road tile
+  is 4-adjacent to any of its footprint tiles. Rotation is visual only.
+- **Placement never requires a road** (D-042). A building placed without a
+  road is simply unconnected (status `not_connected`, §3) until a road
+  reaches it; houses without a road keep their floor residents but receive
+  no goods and no public-building fulfilment.
 - Buildable terrain: `coast`, `grass`, `forest`; `water` and `mountain`
   never (roads follow the same rule; slots sit on mountain tiles, D-036).
 - Coastal buildings (warehouse, fisher, shipyard, harbourmaster) need at
@@ -109,6 +110,15 @@ transaction.
   `low_efficiency`, rate 0). Placement with efficiency 0 is rejected.
 - Placement validity is computed in the simulation, never from mesh collision.
   A failed command leaves the world byte-identical.
+- **Move** (D-042): any building except roads can be moved to another valid
+  position on the same island, free of charge. The building keeps its ID
+  and all state (residents, growth accumulator, cycle progress, pause state
+  and reason, buffer); goods in transit keep arriving at the island
+  inventory; work-area efficiency, warehouse assignment, transfer delay and
+  building-need coverage are recomputed as after any placement. A warehouse
+  may be moved only to a position where it stays coastal. Moving is one
+  command and is atomic (the old footprint is free for the new one, so a
+  one-tile shift is valid).
 - Demolition refunds 50 % of each material **rounded down to whole units**
   and no gold (D-019), into the island where the building stood, clamped to
   free capacity (the clamped part is `lost`). Goods the building had in
@@ -121,16 +131,17 @@ transaction.
 
 ## 3. Roads and connection (D-014)
 
-- A producer is **connected** if there is a road path from its entrance to a
-  warehouse entrance on the same island. Roads are tiles; dirt roads (tier 1)
+- A producer is **connected** if there is a road path from a road tile
+  adjacent to its footprint to a road tile adjacent to a warehouse's
+  footprint on the same island (D-042). Roads are tiles; dirt roads (tier 1)
   and paved roads (tier 2, +speed) are the two types.
 - Each connected producer is **assigned** to the nearest warehouse by road
   distance `d`: the number of road tiles on the shortest 4-connected road
-  path from a tile touching the producer's entrance to a tile touching the
-  warehouse's entrance, both ends included. Equal lengths prefer the lower
-  summed per-tile time; equal warehouses prefer the lowest ID. Assignment is
-  recomputed when roads or warehouses change. Only buildings with a recipe
-  are assigned; warehouses need no road themselves.
+  path between any road tile adjacent to the producer and any road tile
+  adjacent to the warehouse, both ends included. Equal lengths prefer the
+  lower summed per-tile time; equal warehouses prefer the lowest ID.
+  Assignment is recomputed when roads, buildings or warehouses change. Only
+  buildings with a recipe are assigned; warehouses need no road themselves.
 - **Transfer delay** per delivery: `transfer_base_seconds + Σ seconds_per_tile`
   over the path (content; provisional 10 s + 1 s/tile dirt, 0.6 s/tile
   paved), minimum 1 ms. The delay is a latency: output produced during
@@ -265,11 +276,12 @@ Each tier has a list of needs, each either:
   (D-032). Houses count as running consumers for warehouse throughput and
   upstream blocking (§4, §5).
 - **Building need:** `{building, radius, weight}`. Fulfilled (1) if a
-  public building of that type is within `radius` of the house entrance
-  tile — Euclidean distance between tile centres from the entrance to the
-  **nearest footprint tile** of the public building — and that building is
-  road-connected to a warehouse and not paused; else 0. The UI reason is,
-  in precedence, `not_connected`, `paused`, `out_of_range`.
+  public building of that type is within `radius` of the house — Euclidean
+  distance between tile centres from the **nearest footprint tile of the
+  house** to the **nearest footprint tile** of the public building (D-042)
+  — and that building is road-connected to a warehouse and not paused; the
+  house itself must be road-adjacent; else 0. The UI reason is, in
+  precedence, `not_connected`, `paused`, `out_of_range`.
 - Every need carries a flag `required` (counts toward satisfaction, so it
   gates growth and base tax) or `optional` (bonus only; D-012 guardrail).
   The flag is independent of the category name: the Patricians' `luxury`

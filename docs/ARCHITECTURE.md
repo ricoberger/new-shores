@@ -173,12 +173,29 @@ CREATE INDEX ON scheduled_events (due_at) WHERE status = 'pending';
 
 ### 4.4 API
 
-- REST-ish JSON, versioned under `/api/v1`. OpenAPI spec is the contract;
-  `openapi-typescript` generates client types.
-- Core endpoints: `POST /auth/*`, `GET /world` (display state), `POST
-  /world/commands` (single command; returns display state + `version`),
-  `GET /world/islands/{id}`, `GET /map/*`, `POST /offers`, …, `GET /shop`,
+- REST-ish JSON, versioned under `/api/v1`. The hand-written OpenAPI file
+  `server/api/openapi.yaml` is the contract (every object forbids unknown
+  properties; every numeric field states its unit and scale);
+  `openapi-typescript` generates the client types and CI fails on drift; a
+  Go test validates handler responses and all golden payloads against it.
+- Implemented (M1b): `GET /world` → `{version, display}`;
+  `POST /world/commands` → `{version?, command: {type, …}}` with `type` ∈
+  `place_building`, `place_road`, `demolish`, `demolish_road`, `set_paused`,
+  `upgrade_house` (`move_building` per D-042), returning `{version,
+  display}`; `GET /world/islands/{id}` → `{id, width, height, revision,
+  terrain[]}` (row-major, index `y*width+x`; fertilities and slots will be
+  sibling arrays); `GET /content` → catalogue in the same fixed-point units
+  as the display payload; `GET /healthz`.
+- Errors: `{error: {code, message}}`; `code` is a stable snake_case
+  enumeration listed in the OpenAPI file (one per sim sentinel error plus
+  `bad_request`, `not_found`, `method_not_allowed`, `internal`); malformed
+  input 400, unknown entity 404, state conflicts 409, internal-only sim
+  errors 500.
+- Planned: `POST /auth/*`, `GET /map/*`, `POST /offers`, …, `GET /shop`,
   `POST /payments/stripe/webhook`.
+- The `--dev` mode serves one in-memory world behind the same handlers
+  (`internal/store.Store` interface, memory implementation); only the API
+  layer reads the wall clock (`--time-scale` scales it for tests).
 - Commands carry the client's last seen `version`; a mismatch is not an
   error (server state wins) but is logged for diagnostics.
 - Validation: content-aware in Go; never trust client types. Rate limits per
