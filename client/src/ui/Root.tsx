@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { NetworkError, type Player } from "../api/client";
 import { authErrorText, currentPlayer, parseMailLink, verifyEmail } from "../api/auth";
+import { FixtureSync, fixtureFromSearch } from "../dev/fixture";
 import { App } from "./App";
 import appStyles from "./App.module.css";
 import styles from "./account.module.css";
@@ -20,12 +21,33 @@ function takeMailLink() {
 
 const RETRY_MS = 2000;
 
+/** Dev/E2E builds only: the constant folds to false in production builds, which drops the fixture module. */
+const DEV_HOOKS = import.meta.env.DEV || import.meta.env.VITE_E2E === "1";
+
+const FIXTURE_PLAYER: Player = { id: "fixture", display_name: "Fixture", guest: true, email_verified: false };
+
+/**
+ * Entry: the synthetic archipelago fixture when the URL names it (dev and
+ * E2E builds only, no server), else the session gate.
+ */
+export function Root() {
+  const [fixture] = useState(() => (DEV_HOOKS ? fixtureFromSearch(globalThis.location?.search ?? "") : null));
+  if (DEV_HOOKS && fixture) return <FixtureApp />;
+  return <SessionRoot />;
+}
+
+function FixtureApp() {
+  const [sync] = useState(() => new FixtureSync());
+  const noop = useCallback(() => undefined, []);
+  return <App player={FIXTURE_PLAYER} onPlayerChange={noop} onSessionEnded={noop} onLoggedOut={noop} sync={sync} initialView={{ kind: "archipelago" }} />;
+}
+
 /**
  * Session gate: GET /auth/me decides between the game and the start
  * screen; a 401 during the game (session ended) returns to the start
  * screen. The dev server answers with a fixed logged-in player.
  */
-export function Root() {
+function SessionRoot() {
   const [state, setState] = useState<State>({ kind: "loading", unreachable: false });
   const [mailLink] = useState(takeMailLink);
   const [notice, setNotice] = useState<string | undefined>(undefined);
