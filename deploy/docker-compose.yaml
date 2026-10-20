@@ -1,0 +1,115 @@
+# Local stack: PostgreSQL, Redis, one-shot migrations, two game servers and
+# Caddy (client + reverse proxy) on http://localhost:8000.
+#
+#   make up      build, start and wait until healthy
+#   make logs    follow the logs
+#   make down    stop (make down VOLUMES=1 also deletes the database)
+#
+# The credentials below are LOCAL-ONLY defaults for this Compose stack;
+# override them in deploy/.env (gitignored), never commit real secrets.
+name: new-shores
+
+x-server-env: &server-env
+  DATABASE_URL: postgres://${POSTGRES_USER:-newshores}:${POSTGRES_PASSWORD:-newshores-local-only}@postgres:5432/${POSTGRES_DB:-newshores}?sslmode=disable
+  REDIS_URL: redis://redis:6379/0
+  PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8000}
+  ALLOWED_ORIGINS: ${PUBLIC_URL:-http://localhost:8000}
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  FRESHNESS_INTERVAL: ${FRESHNESS_INTERVAL:-24h}
+  SESSION_TTL: ${SESSION_TTL:-720h}
+  SMTP_URL: ${SMTP_URL:-}
+  MAIL_FROM: ${MAIL_FROM:-}
+  # Caddy's address range: its X-Forwarded-For is trusted.
+  TRUSTED_PROXIES: 172.28.0.0/16
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+
+x-server: &server
+  # Built once by the migrate service (below).
+  image: new-shores-server:local
+  pull_policy: never
+  restart: unless-stopped
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    redis:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-newshores}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-newshores-local-only}
+      POSTGRES_DB: ${POSTGRES_DB:-newshores}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    <<: *server
+    pull_policy: build
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.server
+      args:
+        VERSION: ${VERSION:-local}
+    command: ["migrate"]
+    restart: "no"
+    environment: *server-env
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  server-1:
+    <<: *server
+    environment:
+      <<: *server-env
+      INSTANCE_ID: server-1
+    ports:
+      - "127.0.0.1:9090:9090" # /metrics (not proxied by Caddy)
+
+  server-2:
+    <<: *server
+    environment:
+      <<: *server-env
+      INSTANCE_ID: server-2
+    ports:
+      - "127.0.0.1:9091:9090"
+
+  caddy:
+    image: new-shores-client:local
+    pull_policy: build
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.client
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-8000}:8000"
+    depends_on:
+      server-1:
+        condition: service_healthy
+      server-2:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
