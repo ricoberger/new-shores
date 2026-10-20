@@ -3,6 +3,10 @@ import {
   E2E_TIME_SCALE,
   ISLAND,
   ISLAND2,
+  ISLAND2_FISHER,
+  ISLAND2_HOUSES,
+  ISLAND2_ROAD_FROM,
+  ISLAND2_ROAD_TO,
   ISLAND2_WAREHOUSE,
   SHIP_ROAD_FROM,
   SHIP_ROAD_SPUR_FROM,
@@ -16,7 +20,11 @@ import {
 // time scale 10: build a connected shipyard, order a sloop, wait for
 // ship_built, ship planks to island 2, found the settlement there and see
 // its warehouse. Runs after the smoke test on the same in-memory world, so
-// it never assumes version numbers.
+// it never assumes version numbers. The second test continues on island 2:
+// houses and a fisher, a route edited in the Routes panel, and fish carried
+// home to the start island.
+
+test.describe.configure({ mode: "serial" });
 
 /** Sloop build time (2 min) and a leg with handling (20 s + 2 min), in wall ms at the E2E time scale, plus margin. */
 const BUILD_WALL_MS = 120_000 / E2E_TIME_SCALE + 15_000;
@@ -61,6 +69,14 @@ interface ServerShip {
 
 async function ships(page: Page): Promise<ServerShip[]> {
   return page.evaluate(() => window.__newShores!.getServer()!.display.ships as ServerShip[]);
+}
+
+/** Stock of a good on an island in the last payload (milli-units). */
+async function stockOf(page: Page, island: string, good: string): Promise<number> {
+  return page.evaluate(
+    ([id, g]) => window.__newShores!.getServer()!.display.islands.find((x) => x.id === id)!.inventory[g!]?.stock ?? 0,
+    [island, good],
+  );
 }
 
 async function island2(page: Page): Promise<{ settled: boolean; types: string[] }> {
@@ -144,4 +160,59 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
     ISLAND2,
   );
   expect(planks).toBe((SHIPMENT_PLANKS - 30) * 1000);
+});
+
+test("build on island 2 and bring fish home on a route", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("hud-ship-count")).toHaveText("1");
+  await page.getByTestId(`island-tab-${ISLAND2}`).click();
+  await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toHaveAttribute("aria-selected", "true");
+  await zoomOut(page);
+  await expect.poll(async () => (await screen(page, ISLAND2, ISLAND2_ROAD_FROM)).x).not.toBeNaN();
+
+  // Road, two settler houses (the fisher's workers) and a fisher.
+  await page.getByTestId("build-tab-roads").click();
+  await page.getByTestId("build-road_dirt").click();
+  await drag(page, ISLAND2, ISLAND2_ROAD_FROM, ISLAND2_ROAD_TO);
+  await page.getByTestId("build-tab-houses").click();
+  await page.getByTestId("build-house_settlers").click();
+  for (const h of ISLAND2_HOUSES) await clickTile(page, ISLAND2, h);
+  await page.getByTestId("build-tab-production").click();
+  await page.getByTestId("build-fisher").click();
+  await clickTile(page, ISLAND2, ISLAND2_FISHER);
+  await expect.poll(() => island2(page)).toEqual({ settled: true, types: ["warehouse", "house_settlers", "house_settlers", "fisher"] });
+  await page.keyboard.press("Escape");
+
+  // Wait for the first fish on island 2 (40 s cycle plus delivery).
+  await expect.poll(() => stockOf(page, ISLAND2, "fish"), { timeout: 120_000 / E2E_TIME_SCALE + 10_000 }).toBeGreaterThanOrEqual(1000);
+
+  // Route in the Routes panel: island 2 loads fish (up to 50), start unloads it.
+  await page.getByTestId("hud-routes").click();
+  await page.getByTestId("route-new").click();
+  await page.getByTestId("route-name").fill("Fish home");
+  await page.getByTestId("route-stop-island-0").selectOption(ISLAND2);
+  await page.getByTestId("route-stop-island-1").selectOption(ISLAND);
+  await page.getByTestId("route-load-add-0").click();
+  await page.getByTestId("route-load-good-0-0").selectOption("fish");
+  await page.getByTestId("route-load-max-0-0").fill("50");
+  await page.getByTestId("route-unload-1-fish").check();
+  await page.getByTestId("route-save").click();
+  const route = page.getByTestId("route-1");
+  await expect(route).toContainText("Fish home");
+  await expect(route).toContainText("loop time");
+  await expect(page.getByTestId("route-delete-1")).toBeEnabled();
+
+  // Assign the idle ship at island 2: it loads the fish and sails home.
+  await page.getByTestId("hud-ships").click();
+  const [ship] = await ships(page);
+  await page.getByTestId(`ship-route-${ship!.id}`).selectOption("1");
+  await page.getByTestId(`ship-assign-${ship!.id}`).click();
+  await expect(page.getByTestId(`ship-state-${ship!.id}`)).toHaveText("On route");
+  await expect(page.getByTestId(`ship-cargo-${ship!.id}`)).toContainText("Fish");
+  await expect(page.getByTestId(`ship-eta-${ship!.id}`)).toContainText(/departs in|arrives in/);
+  await page.getByTestId("hud-routes").click();
+  await expect(page.getByTestId("route-delete-1")).toBeDisabled();
+
+  // Fish arrives at the start island without a reload.
+  await expect.poll(() => stockOf(page, ISLAND, "fish"), { timeout: LEG_WALL_MS }).toBeGreaterThan(0);
 });

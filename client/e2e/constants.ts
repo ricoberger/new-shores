@@ -42,3 +42,11 @@ export const ISLAND2 = "island2";
 export const ISLAND2_WAREHOUSE = { x: 2, y: 1 };
 /** Planks shipped to island 2: the warehouse's 30 plus 40. */
 export const SHIPMENT_PLANKS = 70;
+/** Island 2 layout after founding: road y = 4, two houses and a fisher on it. */
+export const ISLAND2_ROAD_FROM = { x: 2, y: 4 };
+export const ISLAND2_ROAD_TO = { x: 20, y: 4 };
+export const ISLAND2_HOUSES = [
+  { x: 8, y: 5 },
+  { x: 10, y: 5 },
+];
+export const ISLAND2_FISHER = { x: 12, y: 2 };

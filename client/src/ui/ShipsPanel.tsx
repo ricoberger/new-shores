@@ -77,7 +77,9 @@ interface EntryProps {
 }
 
 function ShipEntry({ ship: s, model, content, nowMs, islandName, goodName, onShipment, onAssign, onUnassign, onScrap, onFound }: EntryProps) {
-  const [route, setRoute] = useState<number>(model.routes[0]?.id ?? 0);
+  const [picked, setRoute] = useState<number>(0);
+  // The picked route, or the first one (routes may appear after mounting).
+  const route = model.routes.some((r) => r.id === picked) ? picked : (model.routes[0]?.id ?? 0);
   const name = content.ships.find((t) => t.id === s.type)?.name ?? s.type;
   const cargo = cargoTotals(s.cargo);
   const timing = s.leg ? legTiming(s.leg, nowMs) : null;
