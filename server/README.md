@@ -6,10 +6,16 @@ Go module `github.com/ricoberger/new-shores/server`. See
 
 | Package | Contents |
 |---|---|
-| `cmd/server` | server binary; `--dev` serves one in-memory world, otherwise it prints its version |
+| `cmd/server` | server binary: `--dev` serves one in-memory world; default mode runs on PostgreSQL + Redis (API, events worker, WebSocket push, `/metrics`); `server migrate` applies migrations |
 | `api` | `openapi.yaml`: the HTTP API contract (hand-written; validated by `internal/api` tests) |
-| `internal/api` | `/api/v1` handlers, command/error mapping, content payload, CORS, request logging, clock |
-| `internal/store` | `Store` interface (M2: PostgreSQL) and the one-world in-memory store of the dev server |
+| `internal/api` | `/api/v1` handlers, sessions, CSRF, auth endpoints, command/error mapping, content payload, CORS, request logging and tracing |
+| `internal/auth` | accounts: guests and device tokens, argon2id passwords, sessions, email verification, password reset, mailer, Redis rate limiter |
+| `internal/events` | scheduled-events worker, handler registry, `advance_to` (and `test_credit` with `-tags testevents`) |
+| `internal/ws` | WebSocket hub and Redis pub/sub fan-out of `world_changed` |
+| `internal/store` | `Store` interface and the one-world in-memory store of the dev server |
+| `internal/store/postgres` | PostgreSQL store (row-locked `Update`, DB clock, pending-event cap), account/event queries, embedded migrations |
+| `internal/telemetry` | Prometheus metrics and OpenTelemetry tracing setup |
+| `internal/testenv` | PostgreSQL/Redis for integration tests (tag `integration`; testcontainers fallback) |
 | `internal/devworld` | embedded dev island (scenario document without steps) built with the scenario runner |
 | `internal/content` | loads and validates `content/<region>` against `content/schema` |
 | `internal/sim` | pure, deterministic simulation: `Apply`, `Advance`, `Display`, envelope |
@@ -35,6 +41,21 @@ cd server && gofmt -l . && go vet ./... && golangci-lint run && go test ./...
 
 `golangci-lint` (v2.15.0, pinned in CI) picks up the repository-root
 `.golangci.yaml` (`golangci-lint config path`).
+
+## Integration tests
+
+Store, events, auth and multi-instance tests need PostgreSQL and Redis and
+carry the build tags `integration` (and `testevents` for the test-only
+event kind):
+
+```sh
+make server-integration   # go test -tags 'integration testevents' ./...
+```
+
+They use `TEST_DATABASE_URL` (a server where the test may create and drop
+databases) and `TEST_REDIS_URL`; when unset they start containers with
+testcontainers if Docker is available and skip otherwise — in CI (`CI` set)
+a skip is a failure.
 
 ## Golden scenarios
 
