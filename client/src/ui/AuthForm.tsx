@@ -9,10 +9,12 @@ interface Props {
   mode: AuthMode;
   onDone: (player: Player) => void;
   onCancel: () => void;
+  /** Shows "Forgot password?" in the login form. */
+  onForgot?: () => void;
 }
 
 /** Email/password form of "Log in" and "Register" (errors from API codes). */
-export function AuthForm({ mode, onDone, onCancel }: Props) {
+export function AuthForm({ mode, onDone, onCancel, onForgot }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -63,6 +65,11 @@ export function AuthForm({ mode, onDone, onCancel }: Props) {
       <button type="submit" className={styles.primary} disabled={busy} data-testid="auth-submit">
         {mode === "login" ? "Log in" : "Register"}
       </button>
+      {mode === "login" && onForgot && (
+        <button type="button" className={styles.secondary} onClick={onForgot} disabled={busy} data-testid="show-forgot">
+          Forgot password?
+        </button>
+      )}
       <button type="button" className={styles.secondary} onClick={onCancel} disabled={busy}>
         Back
       </button>

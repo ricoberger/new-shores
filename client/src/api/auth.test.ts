@@ -67,3 +67,13 @@ describe("account flows", () => {
     expect(store.data.has(DEVICE_TOKEN_KEY)).toBe(false);
   });
 });
+
+describe("parseMailLink", () => {
+  it("recognises verification and reset links", async () => {
+    const { parseMailLink } = await import("./auth");
+    expect(parseMailLink("?verify_email=1&token=abc")).toEqual({ kind: "verify_email", token: "abc" });
+    expect(parseMailLink("?password_reset=1&token=x_y-z")).toEqual({ kind: "password_reset", token: "x_y-z" });
+    expect(parseMailLink("?token=abc")).toBeNull();
+    expect(parseMailLink("")).toBeNull();
+  });
+});

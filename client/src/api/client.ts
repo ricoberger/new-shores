@@ -148,3 +148,23 @@ export function postLogin(body: LoginRequest): Promise<AuthResponse> {
 export async function postLogout(): Promise<void> {
   await send("/api/v1/auth/logout", { method: "POST" });
 }
+
+export async function postVerifyEmail(token: string): Promise<void> {
+  await send("/api/v1/auth/verify-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }) });
+}
+
+export async function postPasswordResetRequest(email: string): Promise<void> {
+  await send("/api/v1/auth/password-reset/request", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function postPasswordResetConfirm(token: string, password: string): Promise<void> {
+  await send("/api/v1/auth/password-reset/confirm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, password }),
+  });
+}

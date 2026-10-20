@@ -2,7 +2,19 @@
 // an HttpOnly cookie set by the server (never readable here); the guest's
 // device token is kept in localStorage so that "Play as guest" returns to
 // the same guest.
-import { ApiError, type ErrorCode, getMe, type Player, postGuest, postLogin, postLogout, postRegister } from "./client";
+import {
+  ApiError,
+  type ErrorCode,
+  getMe,
+  type Player,
+  postGuest,
+  postLogin,
+  postLogout,
+  postPasswordResetConfirm,
+  postPasswordResetRequest,
+  postRegister,
+  postVerifyEmail,
+} from "./client";
 
 export const DEVICE_TOKEN_KEY = "newShores.deviceToken";
 
@@ -75,6 +87,22 @@ export async function logout(): Promise<void> {
   }
 }
 
+export const verifyEmail = postVerifyEmail;
+export const requestPasswordReset = postPasswordResetRequest;
+export const confirmPasswordReset = postPasswordResetConfirm;
+
+/** An account link of a mail: ?verify_email=1&token=… or ?password_reset=1&token=… */
+export type MailLink = { kind: "verify_email" | "password_reset"; token: string } | null;
+
+export function parseMailLink(search: string): MailLink {
+  const q = new URLSearchParams(search);
+  const token = q.get("token");
+  if (!token) return null;
+  if (q.get("verify_email") === "1") return { kind: "verify_email", token };
+  if (q.get("password_reset") === "1") return { kind: "password_reset", token };
+  return null;
+}
+
 const MESSAGES: Partial<Record<ErrorCode, string>> = {
   invalid_credentials: "Wrong email or password.",
   email_taken: "This email address is already registered.",
@@ -85,6 +113,7 @@ const MESSAGES: Partial<Record<ErrorCode, string>> = {
   unauthorized: "Your session has ended. Please log in again.",
   service_unavailable: "The server is unavailable. Please try again shortly.",
   bad_request: "Please check your input.",
+  invalid_token: "This link is invalid or has expired.",
   not_found: "Accounts are not available on this server.",
 };
 
