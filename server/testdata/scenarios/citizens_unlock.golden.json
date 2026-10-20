@@ -1,7 +1,7 @@
 {
   "name": "citizens_unlock",
-  "content_version": "old_coast-0.3.0",
-  "boundary_count": 98,
+  "content_version": "old_coast-0.4.0",
+  "boundary_count": 96,
   "totals": {
     "main": {
       "fish": {
@@ -19,12 +19,12 @@
         "granted": 210000
       },
       "wool": {
-        "produced": 726000,
-        "consumed": 674025,
+        "produced": 484000,
+        "consumed": 483611,
         "lost": 0
       },
       "wool_garments": {
-        "produced": 674025,
+        "produced": 483611,
         "consumed": 434025,
         "lost": 0,
         "granted": 60000
@@ -38,13 +38,6 @@
       "type": "fisher",
       "status": "warehouse_full",
       "reason": "fish at capacity (300/300)"
-    },
-    {
-      "island_id": "main",
-      "building_id": 5,
-      "type": "weaver_wool",
-      "status": "warehouse_full",
-      "reason": "wool_garments at capacity (300/300)"
     }
   ],
   "pause_events": [],
@@ -65,19 +58,19 @@
           },
           "wool": {
             "stock": 0,
-            "in_transit": 583
+            "in_transit": 389
           },
           "wool_garments": {
-            "stock": 62383,
-            "in_transit": 533
+            "stock": 61089,
+            "in_transit": 356
           }
         }
       },
       "statuses": {
         "ok": 3
       },
-      "gold": 1255000,
-      "balance_rate_per_min": 6000,
+      "gold": 1465000,
+      "balance_rate_per_min": 8000,
       "population": {
         "settlers": 105000
       },
@@ -101,19 +94,19 @@
           },
           "wool": {
             "stock": 0,
-            "in_transit": 583
+            "in_transit": 389
           },
           "wool_garments": {
-            "stock": 62858,
-            "in_transit": 533
+            "stock": 61231,
+            "in_transit": 356
           }
         }
       },
       "statuses": {
         "ok": 3
       },
-      "gold": 1260999,
-      "balance_rate_per_min": 6000,
+      "gold": 1472999,
+      "balance_rate_per_min": 8000,
       "population": {
         "settlers": 105000
       },
@@ -137,19 +130,19 @@
           },
           "wool": {
             "stock": 0,
-            "in_transit": 583
+            "in_transit": 389
           },
           "wool_garments": {
-            "stock": 62858,
-            "in_transit": 533
+            "stock": 61231,
+            "in_transit": 356
           }
         }
       },
       "statuses": {
         "ok": 3
       },
-      "gold": 1261000,
-      "balance_rate_per_min": 9000,
+      "gold": 1473000,
+      "balance_rate_per_min": 11000,
       "population": {
         "settlers": 120000
       },
@@ -161,7 +154,7 @@
     {
       "step": 26,
       "at": "2026-01-01T12:06:00.000Z",
-      "boundaries": 4,
+      "boundaries": 2,
       "inventory": {
         "main": {
           "fish": {
@@ -173,21 +166,21 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 51392,
-            "in_transit": 583
+            "stock": 0,
+            "in_transit": 389
           },
           "wool_garments": {
-            "stock": 299680,
-            "in_transit": 320
+            "stock": 109231,
+            "in_transit": 356
           }
         }
       },
       "statuses": {
-        "ok": 1,
-        "warehouse_full": 2
+        "ok": 2,
+        "warehouse_full": 1
       },
-      "gold": 9901000,
-      "balance_rate_per_min": 12000,
+      "gold": 11553000,
+      "balance_rate_per_min": 14000,
       "population": {
         "settlers": 120000
       },
@@ -199,11 +192,11 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T12:06:00.000Z",
-    "next_change_at": "2026-01-01T22:26:03.750Z",
-    "gold": 9901000,
-    "balance_rate_per_min": 12000,
+    "next_change_at": "2026-01-03T11:42:12.500Z",
+    "gold": 11553000,
+    "balance_rate_per_min": 14000,
     "tax_rate_per_min": 24000,
-    "upkeep_rate_per_min": 12000,
+    "upkeep_rate_per_min": 10000,
     "tiers": [
       {
         "id": "settlers",
@@ -240,10 +233,64 @@
         "width": 40,
         "height": 14,
         "inventory": {
+          "apples": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "bread": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "charcoal": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "cider": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 299720,
             "capacity": 300000,
             "in_transit": 280,
+            "rate_per_min": 0
+          },
+          "flour": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "hemp": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "iron": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "iron_ore": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "linen_garments": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
             "rate_per_min": 0
           },
           "planks": {
@@ -258,6 +305,24 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "stone": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "tools": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wheat": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "wood": {
             "stock": 0,
             "capacity": 300000,
@@ -265,16 +330,16 @@
             "rate_per_min": 0
           },
           "wool": {
-            "stock": 51392,
+            "stock": 0,
             "capacity": 300000,
-            "in_transit": 583,
-            "rate_per_min": 400
+            "in_transit": 389,
+            "rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 299680,
+            "stock": 109231,
             "capacity": 300000,
-            "in_transit": 320,
-            "rate_per_min": 0
+            "in_transit": 356,
+            "rate_per_min": 66
           }
         },
         "roads": [
@@ -478,8 +543,8 @@
             "throughput_factor_permille": 1000,
             "level": 1,
             "capacity": 300000,
-            "throughput_per_min": 60000,
-            "load_permille": 58
+            "throughput_per_min": 30000,
+            "load_permille": 94
           },
           {
             "id": 2,
@@ -533,26 +598,23 @@
             "rotation": 180,
             "paused": false,
             "paused_reason": "",
-            "status": "warehouse_full",
+            "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "status_goods": [
-              "wool_garments"
-            ],
             "rates": {
               "inputs": {
-                "wool": 600
+                "wool": 666
               },
               "outputs": {
-                "wool_garments": 600
+                "wool_garments": 666
               }
             },
-            "cycle_seconds": 60,
-            "cycle_progress_permille": 25,
+            "cycle_seconds": 90,
+            "cycle_progress_permille": 611,
             "transfer_delay_ms": 32000,
             "assigned_warehouse_id": 1,
             "road_distance": 22,
-            "cycle_rate_permille_per_min": 600,
+            "cycle_rate_permille_per_min": 666,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -573,15 +635,15 @@
             "rates": {
               "inputs": {},
               "outputs": {
-                "wool": 1000
+                "wool": 666
               }
             },
-            "cycle_seconds": 60,
+            "cycle_seconds": 90,
             "cycle_progress_permille": 0,
             "transfer_delay_ms": 35000,
             "assigned_warehouse_id": 1,
             "road_distance": 25,
-            "cycle_rate_permille_per_min": 1000,
+            "cycle_rate_permille_per_min": 666,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",

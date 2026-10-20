@@ -144,7 +144,7 @@ paths:
       description: |
         Commands (`command.type`): `place_building`, `place_road`,
         `demolish`, `demolish_road`, `set_paused`, `upgrade_house`,
-        `move_building`, and the ship and route commands `order_ship`,
+        `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
         `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
         `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`
         and `found_island` (MECHANICS §8, §9).
@@ -191,12 +191,11 @@ paths:
   /api/v1/world/islands/{island_id}:
     get:
       operationId: getIsland
-      summary: Static data of an island (terrain).
+      summary: Static data of an island (terrain, fertilities, deposits).
       description: |
         Static per island; clients cache it by `revision` and fetch it once
-        per island. Unsettled islands are served as well. Further static
-        data (fertilities, deposit slots) will be added as sibling arrays of
-        `terrain`.
+        per island. Unsettled islands are served as well. `fertilities` and
+        `deposits` are siblings of `terrain`.
       security:
         - cookieAuth: []
         - bearerAuth: []
@@ -677,9 +676,13 @@ components:
           `route_not_found`;
         - 405: `method_not_allowed`;
         - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
-          `insufficient_gold`, `insufficient_materials`, `surplus_loss`,
-          `not_pausable`, `no_road`, `tier_locked`, `not_a_house`,
-          `upgrade_unavailable`, `house_not_full`, `needs_unmet`,
+          `no_fertility` (the island lacks the work area's fertility tag),
+          `no_deposit` (a deposit building's footprint covers no deposit
+          of its kind), `insufficient_gold`, `insufficient_materials`,
+          `surplus_loss`, `not_pausable`, `no_road`, `tier_locked`,
+          `not_a_house`, `upgrade_unavailable` (also: warehouse at its last
+          level), `house_not_full`, `needs_unmet`, `upgrade_only` (a house
+          of a later tier is only reached by `upgrade_house`),
           `shipyard_busy` (one order at a time), `not_a_shipyard`,
           `unknown_ship_type` (the shipyard cannot build it),
           `no_ship_order`, `ship_not_idle` (the command needs an idle
@@ -699,7 +702,7 @@ components:
         `move_building` can fail with 400 `bad_request`, `invalid_command`
         (also for a road or an invalid rotation), `out_of_bounds`; 404
         `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-        `not_coastal`, `no_work_area`. Moving is free: it never fails for
+        `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`. Moving is free: it never fails for
         gold, materials or tier. Placement never requires a road (D-042).
 
         **Internal-only codes** (HTTP 500, never caused by a client command;
@@ -723,6 +726,8 @@ components:
         - terrain
         - not_coastal
         - no_work_area
+        - no_fertility
+        - no_deposit
         - insufficient_gold
         - insufficient_materials
         - surplus_loss
@@ -733,6 +738,7 @@ components:
         - upgrade_unavailable
         - house_not_full
         - needs_unmet
+        - upgrade_only
         - route_invalid
         - ship_not_found
         - route_not_found
@@ -896,6 +902,7 @@ components:
         - $ref: "#/components/schemas/DemolishRoadCommand"
         - $ref: "#/components/schemas/SetPausedCommand"
         - $ref: "#/components/schemas/UpgradeHouseCommand"
+        - $ref: "#/components/schemas/UpgradeWarehouseCommand"
         - $ref: "#/components/schemas/MoveBuildingCommand"
         - $ref: "#/components/schemas/OrderShipCommand"
         - $ref: "#/components/schemas/CancelShipOrderCommand"
@@ -916,6 +923,7 @@ components:
           demolish_road: "#/components/schemas/DemolishRoadCommand"
           set_paused: "#/components/schemas/SetPausedCommand"
           upgrade_house: "#/components/schemas/UpgradeHouseCommand"
+          upgrade_warehouse: "#/components/schemas/UpgradeWarehouseCommand"
           move_building: "#/components/schemas/MoveBuildingCommand"
           order_ship: "#/components/schemas/OrderShipCommand"
           cancel_ship_order: "#/components/schemas/CancelShipOrderCommand"
@@ -1035,6 +1043,26 @@ components:
         type:
           type: string
           enum: [upgrade_house]
+        island_id:
+          type: string
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
+    UpgradeWarehouseCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Raise a warehouse to its next level (MECHANICS §5): the next level's
+        `cost` (content `warehouse.levels[i].cost`) is charged like a
+        placement (gold from the world, materials from the island);
+        capacity and throughput change at once. `upgrade_unavailable` for
+        other buildings and at the last level.
+      required: [type, island_id, building_id]
+      properties:
+        type:
+          type: string
+          enum: [upgrade_warehouse]
         island_id:
           type: string
         building_id:
@@ -1325,7 +1353,7 @@ components:
     Island:
       type: object
       additionalProperties: false
-      required: [id, width, height, revision, terrain]
+      required: [id, width, height, revision, terrain, fertilities, deposits]
       properties:
         id:
           type: string
@@ -1347,6 +1375,35 @@ components:
           items:
             type: string
             enum: [water, coast, grass, forest, mountain]
+        fertilities:
+          type: array
+          description: |
+            Island-wide fertility tags (MECHANICS §2); a building whose
+            `work_area.fertility` is missing here cannot be placed
+            (`no_fertility`).
+          items:
+            type: string
+        deposits:
+          type: array
+          description: |
+            Tiles carrying a deposit (infinite), sorted by tile index
+            (y × width + x). A building with `requires_deposit` must cover
+            at least one tile of its kind (`no_deposit`) and may stand on
+            mountain tiles.
+          items:
+            type: object
+            additionalProperties: false
+            required: [x, y, kind]
+            properties:
+              x:
+                type: integer
+                description: Column (tiles).
+              y:
+                type: integer
+                description: Row (tiles).
+              kind:
+                type: string
+                description: Deposit kind, e.g. stone or iron.
     # ------------------------------------------------------------------
     # Display payload (sim.DisplayState)
     # ------------------------------------------------------------------
@@ -2213,6 +2270,26 @@ components:
                     type: integer
                     format: int64
                     description: Throughput (milli-units per minute).
+                  cost:
+                    type: object
+                    additionalProperties: false
+                    required: [gold, materials]
+                    description: |
+                      Upgrade cost into this level (`upgrade_warehouse`);
+                      absent on the first level, which the building cost
+                      places.
+                    properties:
+                      gold:
+                        type: integer
+                        format: int64
+                        description: Gold cost (milli-gold).
+                      materials:
+                        type: object
+                        description: Material cost per good (milli-units).
+                        additionalProperties:
+                          type: integer
+                          format: int64
+                          description: Amount (milli-units).
         road:
           type: object
           additionalProperties: false
@@ -2245,6 +2322,9 @@ components:
             required_tiles:
               type: integer
               description: Matching tiles for full efficiency (count).
+            fertility:
+              type: string
+              description: Island fertility tag the building needs (absent for none).
         workforce:
           type: object
           additionalProperties: false
@@ -2267,6 +2347,11 @@ components:
               items:
                 type: string
                 description: Content ship ID.
+        requires_deposit:
+          type: string
+          description: |
+            Deposit kind the footprint must cover (absent for none); such a
+            building may also stand on mountain tiles.
     ContentNeed:
       type: object
       additionalProperties: false

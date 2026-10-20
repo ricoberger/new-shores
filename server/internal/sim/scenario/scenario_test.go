@@ -169,20 +169,24 @@ func TestChainPlanksPlausibility(t *testing.T) {
 
 func TestThrottledWarehouse(t *testing.T) {
 	rep := runScenario(t, "throttled_warehouse")
+	// R = 32 lumberjacks x 2 wood/min = 64/min over the level-1
+	// throughput T: factor T/R, load R/T (per-mille, rounded down).
+	const r = 64_000
+	tp := loadCatalogue(t).BuildingByID["warehouse"].Warehouse.Levels[0].ThroughputPerMin
 	n := 0
 	for _, b := range rep.Final.Islands[0].Buildings {
 		switch b.Type {
 		case "lumberjack":
 			n++
-			if b.Status != sim.StatusThrottled || b.ThroughputFactorPermille != 937 || b.EfficiencyPermille != 1000 {
+			if b.Status != sim.StatusThrottled || b.ThroughputFactorPermille != tp*1000/r || b.EfficiencyPermille != 1000 {
 				t.Errorf("lumberjack %d: status %s factor %d eff %d", b.ID, b.Status, b.ThroughputFactorPermille, b.EfficiencyPermille)
 			}
-			if got := b.Rates.Outputs["wood"]; got != 1875 { // 2/min * 60/64
+			if got := b.Rates.Outputs["wood"]; got != 2000*tp/r {
 				t.Errorf("lumberjack %d rate = %d", b.ID, got)
 			}
 		case "warehouse":
-			if *b.LoadPermille != 1066 {
-				t.Errorf("warehouse load = %d, want 1066", *b.LoadPermille)
+			if *b.LoadPermille != r*1000/tp {
+				t.Errorf("warehouse load = %d, want %d", *b.LoadPermille, r*1000/tp)
 			}
 		}
 	}
@@ -481,7 +485,9 @@ func TestInsolvency(t *testing.T) {
 			resumes = append(resumes, e.Type)
 		}
 	}
-	want := []string{"weaver_wool", "lumberjack", "sawmill", "sheep_farm", "fisher"}
+	// Need goods first, then intermediates by upkeep (lumberjack and sheep
+	// farm 1 gold/min by ID, sawmill 2), then tier-1 food.
+	want := []string{"weaver_wool", "lumberjack", "sheep_farm", "sawmill", "fisher"}
 	if strings.Join(pauses, ",") != strings.Join(want, ",") {
 		t.Errorf("pauses = %v, want %v", pauses, want)
 	}

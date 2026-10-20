@@ -70,6 +70,16 @@ func builtSloop(t testing.TB, w *World, c *content.Catalogue) *Ship {
 	return w.Ships[len(w.Ships)-1]
 }
 
+// material returns the amount of good in a cost (milli-units).
+func material(cost content.Cost, good string) Qty {
+	for _, m := range cost.Materials {
+		if m.Good == good {
+			return m.Amount
+		}
+	}
+	return 0
+}
+
 func expectErr(t *testing.T, w *World, c *content.Catalogue, cmd Command, want error) {
 	t.Helper()
 	before := encode(t, w)
@@ -133,12 +143,14 @@ func TestOrderShipAndBuilt(t *testing.T) {
 	expectErr(t, w, c, OrderShip{IslandID: "a", BuildingID: 1, ShipType: "sloop"}, ErrNotAShipyard)
 	expectErr(t, w, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "galleon"}, ErrUnknownShipType)
 	expectErr(t, w, c, OrderShip{IslandID: "a", BuildingID: 99, ShipType: "sloop"}, ErrBuildingNotFound)
+	sloop := c.ShipByID["sloop"]
 	poor := w.Clone()
-	poor.Gold = 299_999
+	poor.Gold = sloop.Cost.Gold - 1
 	expectErr(t, poor, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "sloop"}, ErrInsufficientGold)
 
 	mustApply(t, w, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "sloop"})
-	if w.Gold != gold-300_000 || w.Islands[0].Inventory.Stock["planks"] != planks-30_000 || w.Islands[0].Inventory.Stock["sails"] != sails-10_000 {
+	if w.Gold != gold-sloop.Cost.Gold || w.Islands[0].Inventory.Stock["planks"] != planks-material(sloop.Cost, "planks") ||
+		w.Islands[0].Inventory.Stock["sails"] != sails-material(sloop.Cost, "sails") {
 		t.Errorf("cost not charged: gold %d planks %d sails %d", w.Gold, w.Islands[0].Inventory.Stock["planks"], w.Islands[0].Inventory.Stock["sails"])
 	}
 	expectErr(t, w, c, OrderShip{IslandID: "a", BuildingID: 2, ShipType: "sloop"}, ErrShipyardBusy)
@@ -172,11 +184,11 @@ func TestOrderShipAndBuilt(t *testing.T) {
 		t.Fatalf("ship = %+v", s)
 	}
 	ds = display(t, w, c)
-	if len(ds.Ships) != 1 || ds.Ships[0].Slots != 2 || ds.Ships[0].SlotSize != 50_000 || ds.Ships[0].UpkeepPerMin != 2_000 || ds.Ships[0].Leg != nil {
+	if len(ds.Ships) != 1 || ds.Ships[0].Slots != 2 || ds.Ships[0].SlotSize != 50_000 || ds.Ships[0].UpkeepPerMin != sloop.UpkeepPerMin || ds.Ships[0].Leg != nil {
 		t.Errorf("ships display = %+v", ds.Ships)
 	}
-	// Upkeep counts from the build: warehouse 4 + shipyard 5 + sloop 2.
-	if ds.UpkeepRatePerMin != 11_000 {
+	// Upkeep counts from the build: warehouse + shipyard + sloop.
+	if ds.UpkeepRatePerMin != c.BuildingByID["warehouse"].UpkeepPerMin+c.BuildingByID["shipyard"].UpkeepPerMin+sloop.UpkeepPerMin {
 		t.Errorf("upkeep = %d", ds.UpkeepRatePerMin)
 	}
 }
@@ -203,7 +215,9 @@ func TestCancelShipOrderAndDemolishRefund(t *testing.T) {
 	gold, planks, sails := w.Gold, w.Islands[0].Inventory.Stock["planks"], w.Islands[0].Inventory.Stock["sails"]
 	cw := w.Clone()
 	mustApply(t, w, c, CancelShipOrder{IslandID: "a", BuildingID: 2})
-	if w.Gold != gold || w.Islands[0].Inventory.Stock["planks"] != planks+15_000 || w.Islands[0].Inventory.Stock["sails"] != sails+5_000 || len(DueEvents(w)) != 0 {
+	sloop := c.ShipByID["sloop"].Cost
+	if w.Gold != gold || w.Islands[0].Inventory.Stock["planks"] != planks+refundAmount(material(sloop, "planks")) ||
+		w.Islands[0].Inventory.Stock["sails"] != sails+refundAmount(material(sloop, "sails")) || len(DueEvents(w)) != 0 {
 		t.Errorf("cancel: gold %d planks %d sails %d", w.Gold, w.Islands[0].Inventory.Stock["planks"], w.Islands[0].Inventory.Stock["sails"])
 	}
 	mustAdvance(t, w, c, 3*time.Minute)
@@ -212,7 +226,8 @@ func TestCancelShipOrderAndDemolishRefund(t *testing.T) {
 	}
 	// Demolishing the busy shipyard refunds the building and the order.
 	mustApply(t, cw, c, Demolish{IslandID: "a", BuildingID: 2})
-	if cw.Islands[0].Inventory.Stock["planks"] != planks+20_000+15_000 || cw.Islands[0].Inventory.Stock["sails"] != sails+5_000 || len(DueEvents(cw)) != 0 {
+	if cw.Islands[0].Inventory.Stock["planks"] != planks+refundAmount(material(c.BuildingByID["shipyard"].Cost, "planks"))+refundAmount(material(sloop, "planks")) ||
+		cw.Islands[0].Inventory.Stock["sails"] != sails+refundAmount(material(sloop, "sails")) || len(DueEvents(cw)) != 0 {
 		t.Errorf("demolish: planks %d sails %d", cw.Islands[0].Inventory.Stock["planks"], cw.Islands[0].Inventory.Stock["sails"])
 	}
 }
@@ -263,8 +278,9 @@ func TestManualShipmentAndFounding(t *testing.T) {
 	poor := w.Clone()
 	poor.Gold = 0
 	expectErr(t, poor, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 1}, ErrInsufficientGold)
+	whCost := c.BuildingByID["warehouse"].Cost
 	low := w.Clone()
-	setCargo(low.Ship(1), 50_000, map[string]Qty{"planks": 29_000})
+	setCargo(low.Ship(1), 50_000, map[string]Qty{"planks": material(whCost, "planks") - 1_000})
 	if err := Apply(low, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 1}); !errors.Is(err, ErrCargoInsufficient) || !strings.Contains(err.Error(), "planks") {
 		t.Errorf("err = %v", err)
 	}
@@ -274,10 +290,10 @@ func TestManualShipmentAndFounding(t *testing.T) {
 		t.Fatal(err)
 	}
 	b := w.Island("b")
-	if w.Gold != gold-200_000 || !settled(b, c) || b.Inventory.Stock["planks"] != 20_000 || b.Inventory.Stock["wood"] != 1_500 || len(s.Cargo) != 0 || s.State != ShipIdle {
+	if w.Gold != gold-whCost.Gold || !settled(b, c) || b.Inventory.Stock["planks"] != 50_000-material(whCost, "planks") || b.Inventory.Stock["wood"] != 1_500 || len(s.Cargo) != 0 || s.State != ShipIdle {
 		t.Errorf("founded: gold %d stock %v cargo %v", w.Gold, b.Inventory.Stock, s.Cargo)
 	}
-	if f := l.Flow("b", "planks"); f.Spent != 30_000*SubPerMilli || f.Unloaded != 50_000*SubPerMilli {
+	if f := l.Flow("b", "planks"); f.Spent != material(whCost, "planks")*SubPerMilli || f.Unloaded != 50_000*SubPerMilli {
 		t.Errorf("ledger %+v", f)
 	}
 	expectErr(t, w, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "warehouse", X: 5, Y: 1}, ErrIslandAlreadySettled)
@@ -451,7 +467,8 @@ func TestAssignAwayFromRoute(t *testing.T) {
 func TestScrapShip(t *testing.T) {
 	c := catalogue(t)
 	w, s := routeWorld(t, c)
-	if err := AddStock(w, c, "b", "planks", 290_000, nil); err != nil {
+	// Fill island b up to 10 planks below its capacity.
+	if err := AddStock(w, c, "b", "planks", 290_000-w.Island("b").Inventory.Stock["planks"], nil); err != nil {
 		t.Fatal(err)
 	}
 	setCargo(s, 50_000, map[string]Qty{"planks": 20_000})
@@ -459,11 +476,13 @@ func TestScrapShip(t *testing.T) {
 	if err := ApplyWithLedger(w, c, ScrapShip{ShipID: s.ID}, l); err != nil {
 		t.Fatal(err)
 	}
-	// 10 planks fit, 10 are lost; the refund (15 planks, 5 sails) has no
-	// planks room left; sails fit.
+	// 10 planks fit, 10 are lost; the refund (half the sloop's planks and
+	// sails) has no planks room left; sails fit.
+	sloop := c.ShipByID["sloop"].Cost
+	rp, rs := refundAmount(material(sloop, "planks")), refundAmount(material(sloop, "sails"))
 	f := l.Flow("b", "planks")
-	if len(w.Ships) != 0 || w.Island("b").Inventory.Stock["planks"] != 300_000 || w.Island("b").Inventory.Stock["sails"] != 5_000 ||
-		f.Unloaded != 20_000*SubPerMilli || f.Lost != 25_000*SubPerMilli || f.Refunded != 15_000*SubPerMilli {
+	if len(w.Ships) != 0 || w.Island("b").Inventory.Stock["planks"] != 300_000 || w.Island("b").Inventory.Stock["sails"] != rs ||
+		f.Unloaded != 20_000*SubPerMilli || f.Lost != (10_000+rp)*SubPerMilli || f.Refunded != rp*SubPerMilli {
 		t.Errorf("scrap: ships %d stock %v flow %+v", len(w.Ships), w.Island("b").Inventory.Stock, f)
 	}
 	expectErr(t, w, c, ScrapShip{ShipID: s.ID}, ErrShipNotFound)

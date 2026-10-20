@@ -91,6 +91,11 @@ func shippingWorld(t *testing.T, created time.Time) *sim.World {
 	if err := sim.AddStock(w, cat, "start", "sails", 10_000, nil); err != nil {
 		t.Fatal(err)
 	}
+	// The dev world has no bonus since the balancing pass: planks for two
+	// shipyards, two sloops and a cargo.
+	if err := sim.AddStock(w, cat, "start", "planks", 100_000, nil); err != nil {
+		t.Fatal(err)
+	}
 	for _, cmd := range []sim.Command{
 		sim.PlaceRoad{IslandID: "start", Type: "road_dirt", Tiles: tiles},
 		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 5, Y: 34},

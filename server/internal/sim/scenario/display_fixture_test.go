@@ -51,7 +51,11 @@ func runToEnd(t *testing.T, name string) (*content.Catalogue, *sim.World) {
 	}
 	r := &runner{s: s, c: c, w: w, l: l, report: &Report{Name: s.Name}}
 	for i, st := range s.Steps {
-		if err := r.step(i, st); err != nil {
+		run := r.step
+		if st.ExpectError != "" {
+			run = r.expectError
+		}
+		if err := run(i, st); err != nil {
 			t.Fatalf("%s: step %d: %v", name, i, err)
 		}
 	}

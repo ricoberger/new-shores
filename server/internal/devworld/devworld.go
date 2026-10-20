@@ -31,8 +31,9 @@ func New(c *content.Catalogue, start time.Time) (*sim.World, error) {
 }
 
 // NewDev builds the --dev server's world: like New plus the document's
-// dev-only bonus of gold and goods, which lets a developer play the first
-// settlement flow without the M4 balancing pass.
+// optional dev-only bonus of gold and goods. Since the tier 1-2 balancing
+// pass the document carries no bonus (the starting stock covers the first
+// settlement flow), so NewDev equals New.
 func NewDev(c *content.Catalogue, start time.Time) (*sim.World, error) {
 	return build(c, start, true)
 }

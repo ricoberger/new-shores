@@ -395,7 +395,7 @@ func TestDemolishWarehouseSurplus(t *testing.T) {
 		t.Errorf("stock %v after losing the only warehouse (roads %d)", is.Inventory.Stock, len(is.Roads))
 	}
 	// Planks: stock lost plus the whole refund (no capacity left).
-	if f := l.Flow("main", "planks"); f.Lost != planks+15_000*SubPerMilli {
+	if f := l.Flow("main", "planks"); f.Lost != planks+refundAmount(material(c.BuildingByID["warehouse"].Cost, "planks"))*SubPerMilli {
 		t.Errorf("planks flow = %+v", f)
 	}
 	if f := l.Flow("main", "fish"); f.Lost != fish {

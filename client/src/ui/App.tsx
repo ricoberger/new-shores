@@ -70,12 +70,14 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
   const [chosenIsland, setChosenIsland] = useState<string | null>(null);
   const [panel, setPanel] = useState<"none" | "ships" | "routes">("none");
   const [shipment, setShipment] = useState<ShipDisplay | null>(null);
+  const [ghostHint, setGhostHint] = useState<string | null>(null);
   const rendererRef = useRef<GameRenderer | null>(null);
   const toastId = useRef(0);
 
   // The island shown (D-027: the client only chooses what to look at).
   const island = model?.islands.find((is) => is.id === chosenIsland) ?? model?.islands[0];
   const islandId = island?.id ?? "";
+  const staticIsland = snap.islands.get(islandId);
   const defs = new Map((content?.buildings ?? []).map((b) => [b.id, b]));
   const selectedBuilding = island?.buildings.find((b) => b.id === selected);
   const warehouseType = content?.buildings.find((b) => b.warehouse)?.id ?? "";
@@ -212,6 +214,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
       }
     },
     cancelTool: () => setTool(NO_TOOL),
+    ghostHint: (text: string | null) => setGhostHint(text),
   };
 
   const selectBuildItem = (b: ContentBuilding) => {
@@ -338,6 +341,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
                 })
               }
               onUpgrade={() => void send({ type: "upgrade_house", island_id: islandId, building_id: selectedBuilding.id })}
+              onUpgradeWarehouse={() => void send({ type: "upgrade_warehouse", island_id: islandId, building_id: selectedBuilding.id })}
               onSelectBuilding={focus}
               nowMs={snap.nowMs}
               onOrderShip={(shipType) =>
@@ -365,6 +369,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
               content={content}
               model={model}
               islandId={islandId}
+              fertilities={staticIsland?.fertilities}
               tool={tool}
               onSelect={selectBuildItem}
               onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
@@ -379,6 +384,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
           {tool.kind === "found" && `Click to place the warehouse from ship #${tool.shipId} (${tool.rotation}°) · R rotate · Esc cancel`}
           {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
           {tool.kind === "demolish" && "Click a building or road to demolish · Esc / right click cancel"}
+          {ghostHint && (tool.kind === "build" || tool.kind === "move") && (
+            <div className={styles.hintReason} data-testid="tool-hint-reason">
+              {ghostHint}
+            </div>
+          )}
         </div>
       )}
       {snap.unreachable && (

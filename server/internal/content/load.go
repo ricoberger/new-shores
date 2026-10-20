@@ -271,8 +271,9 @@ type rawBuilding struct {
 	House     *House `json:"house"`
 	Warehouse *struct {
 		Levels []struct {
-			Capacity   json.Number `json:"capacity"`
-			Throughput json.Number `json:"throughput_per_min"`
+			Capacity   json.Number            `json:"capacity"`
+			Throughput json.Number            `json:"throughput_per_min"`
+			Cost       map[string]json.Number `json:"cost"`
 		} `json:"levels"`
 	} `json:"warehouse"`
 	Road *struct {
@@ -285,6 +286,7 @@ type rawBuilding struct {
 		Radius        int      `json:"radius"`
 		Terrain       []string `json:"terrain"`
 		RequiredTiles int      `json:"required_tiles"`
+		Fertility     string   `json:"fertility"`
 	} `json:"work_area"`
 	Workforce *struct {
 		Tier   string `json:"tier"`
@@ -293,6 +295,7 @@ type rawBuilding struct {
 	Shipyard *struct {
 		Ships []string `json:"ships"`
 	} `json:"shipyard"`
+	RequiresDeposit string `json:"requires_deposit"`
 }
 
 type rawShip struct {
@@ -536,6 +539,8 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		UpkeepPerMin:  col.fixed(file, ent, "upkeep_per_min", rb.Upkeep, 3),
 		PauseCategory: rb.PauseCategory,
 		House:         rb.House,
+
+		RequiresDeposit: rb.RequiresDeposit,
 	}
 	if len(rb.Footprint) == 2 {
 		b.Width, b.Height = rb.Footprint[0], rb.Footprint[1]
@@ -575,10 +580,15 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 	if w := rb.Warehouse; w != nil {
 		wh := &Warehouse{}
 		for i, l := range w.Levels {
-			wh.Levels = append(wh.Levels, WarehouseLevel{
+			lvl := WarehouseLevel{
 				Capacity:         col.fixed(file, ent, fmt.Sprintf("warehouse.levels[%d].capacity", i), l.Capacity, 3),
 				ThroughputPerMin: col.fixed(file, ent, fmt.Sprintf("warehouse.levels[%d].throughput_per_min", i), l.Throughput, 3),
-			})
+			}
+			if l.Cost != nil {
+				cost := decodeCost(col, file, ent, l.Cost, goods)
+				lvl.Cost = &cost
+			}
+			wh.Levels = append(wh.Levels, lvl)
 		}
 		if len(wh.Levels) == 0 {
 			col.add(file, ent, "warehouse.levels", "must not be empty")
@@ -598,7 +608,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		b.Shipyard = &Shipyard{Ships: append([]string(nil), sy.Ships...)}
 	}
 	if wa := rb.WorkArea; wa != nil {
-		b.WorkArea = &WorkArea{Radius: wa.Radius, Terrain: wa.Terrain, RequiredTiles: wa.RequiredTiles}
+		b.WorkArea = &WorkArea{Radius: wa.Radius, Terrain: wa.Terrain, RequiredTiles: wa.RequiredTiles, Fertility: wa.Fertility}
 		if wa.RequiredTiles < 1 {
 			col.add(file, ent, "work_area.required_tiles", "must be >= 1")
 		}

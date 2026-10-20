@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect } from "react";
 import type { Content, DisplayState } from "../api/client";
 import { perMin, units } from "../display/format";
+import { populationTotals } from "../display/tiers";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -25,12 +26,7 @@ export function TopBar({ model, content, islandId, onSelectIsland, onShips, onRo
   }, [ready]);
 
   const balance = model?.balance_rate_per_min ?? 0;
-  const population = new Map<string, number>();
-  for (const is of model?.islands ?? []) {
-    for (const [tier, n] of Object.entries(is.population)) {
-      population.set(tier, (population.get(tier) ?? 0) + n);
-    }
-  }
+  const population = populationTotals(model);
   return (
     <div className={styles.topBar}>
       <div className={styles.stat} title="Gold">

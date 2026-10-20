@@ -78,3 +78,9 @@
   pointer-events: none;
   font-size: 13px;
 }
+
+.hintReason {
+  margin-top: 2px;
+  color: #ffb3a7;
+  font-weight: 600;
+}

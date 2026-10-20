@@ -3,6 +3,8 @@ package sim
 import (
 	"fmt"
 	"math"
+	"slices"
+	"strings"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
@@ -58,6 +60,14 @@ type UpgradeHouse struct {
 	BuildingID int64
 }
 
+// UpgradeWarehouse raises a warehouse to its next level (MECHANICS §5):
+// the next level's cost is charged like a placement (gold from the world,
+// materials from the island); capacity and throughput change at once.
+type UpgradeWarehouse struct {
+	IslandID   string
+	BuildingID int64
+}
+
 // MoveBuilding moves a building to another position and rotation on the
 // same island, free of charge (MECHANICS §2, D-042). X, Y is the top-left
 // tile of the rotated footprint. The building keeps its ID and all state;
@@ -69,13 +79,14 @@ type MoveBuilding struct {
 	Rotation   int
 }
 
-func (PlaceBuilding) isCommand() {}
-func (MoveBuilding) isCommand()  {}
-func (PlaceRoad) isCommand()     {}
-func (Demolish) isCommand()      {}
-func (DemolishRoad) isCommand()  {}
-func (SetPaused) isCommand()     {}
-func (UpgradeHouse) isCommand()  {}
+func (PlaceBuilding) isCommand()    {}
+func (MoveBuilding) isCommand()     {}
+func (PlaceRoad) isCommand()        {}
+func (Demolish) isCommand()         {}
+func (DemolishRoad) isCommand()     {}
+func (SetPaused) isCommand()        {}
+func (UpgradeHouse) isCommand()     {}
+func (UpgradeWarehouse) isCommand() {}
 
 // Apply validates and executes a command at w.LastEvaluatedAt (the caller
 // advances the world first). Every command validates completely before it
@@ -103,6 +114,8 @@ func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) err
 		err = setPaused(w, c, cmd)
 	case UpgradeHouse:
 		err = upgradeHouse(w, c, cmd, l)
+	case UpgradeWarehouse:
+		err = upgradeWarehouse(w, c, cmd, l)
 	case OrderShip:
 		err = orderShip(w, c, cmd, l)
 	case CancelShipOrder:
@@ -210,8 +223,9 @@ func lookupIsland(w *World, id string) (*Island, error) {
 }
 
 // checkTiles validates that every tile is on the island, has buildable
-// terrain and carries neither a building nor a road.
-func checkTiles(is *Island, occ []int64, tiles []Pos) error {
+// terrain (mountain too with allowMountain, for deposit buildings) and
+// carries neither a building nor a road.
+func checkTiles(is *Island, occ []int64, tiles []Pos, allowMountain bool) error {
 	for _, p := range tiles {
 		if !is.InBounds(p.X, p.Y) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, p.X, p.Y)
@@ -219,7 +233,7 @@ func checkTiles(is *Island, occ []int64, tiles []Pos) error {
 	}
 	for _, p := range tiles {
 		i := is.index(p.X, p.Y)
-		if !buildableTerrain(is.Tiles[i].Terrain) {
+		if t := is.Tiles[i].Terrain; !buildableTerrain(t) && (!allowMountain || t != content.TerrainMountain) {
 			return fmt.Errorf("%w: (%d,%d) is %s", ErrTerrain, p.X, p.Y, is.Tiles[i].Terrain)
 		}
 		if occ[i] != 0 || is.Roads[i] != "" {
@@ -260,6 +274,10 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	def := c.BuildingByID[cmd.Type]
 	if def == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownBuilding, cmd.Type)
+	}
+	// Houses of a later tier only appear by upgrading (MECHANICS §6.1).
+	if charge && def.House != nil && def.House.Tier != c.Tiers[0].ID {
+		return fmt.Errorf("%w: %s (upgrade a full house of the previous tier)", ErrUpgradeOnly, def.ID)
 	}
 	if charge && !TierUnlocked(w, c, def.Tier) {
 		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
@@ -310,10 +328,13 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	return nil
 }
 
-// checkSite validates a building site: the footprint is on the island, on
-// buildable terrain and free (per occ and roads), a coastal building touches
-// the coast and, with workArea set, a work-area building has efficiency > 0.
-// A road is never required (D-042).
+// checkSite validates a building site, in this order: the footprint is on
+// the island, on buildable terrain (a deposit building may also cover
+// mountain tiles) and free (per occ and roads); a coastal building touches
+// the coast; a deposit building covers at least one tile with a deposit of
+// its kind; the island has the fertility of a work-area building; and,
+// with workArea set, a work-area building has efficiency > 0. A road is
+// never required (D-042).
 func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Building, x, y, rotation int, workArea bool) error {
 	fw, fh := footprint(def, rotation)
 	// Overflow-safe bounds check of the whole footprint before any tile
@@ -327,7 +348,7 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 			tiles = append(tiles, Pos{tx, ty})
 		}
 	}
-	if err := checkTiles(is, occ, tiles); err != nil {
+	if err := checkTiles(is, occ, tiles, def.RequiresDeposit != ""); err != nil {
 		return err
 	}
 	if def.Coastal {
@@ -341,6 +362,25 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 		if !coastal {
 			return fmt.Errorf("%w: %s at (%d,%d)", ErrNotCoastal, def.ID, x, y)
 		}
+	}
+	if kind := def.RequiresDeposit; kind != "" {
+		found := false
+		for _, p := range tiles {
+			if d := is.Tile(p.X, p.Y).Deposit; d != nil && d.Kind == kind {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return fmt.Errorf("%w: %s at (%d,%d) must cover a %s deposit", ErrNoDeposit, def.ID, x, y, kind)
+		}
+	}
+	if wa := def.WorkArea; wa != nil && wa.Fertility != "" && !slices.Contains(is.Fertilities, wa.Fertility) {
+		have := "none"
+		if len(is.Fertilities) > 0 {
+			have = strings.Join(is.Fertilities, ", ")
+		}
+		return fmt.Errorf("%w: %s needs %s (island %q has %s)", ErrNoFertility, def.ID, wa.Fertility, is.ID, have)
 	}
 	if workArea && def.WorkArea != nil && workAreaEfficiency(is, occ, def, x, y, rotation) == 0 {
 		return fmt.Errorf("%w: %s at (%d,%d)", ErrNoWorkArea, def.ID, x, y)
@@ -420,7 +460,7 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 		}
 		seen[p] = true
 	}
-	if err := checkTiles(is, is.occupancy(c), cmd.Tiles); err != nil {
+	if err := checkTiles(is, is.occupancy(c), cmd.Tiles, false); err != nil {
 		return err
 	}
 	n := int64(len(cmd.Tiles))
@@ -532,6 +572,14 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 		}
 	}
 	refund(is, c, def.Cost, 1, l, now)
+	// An upgraded warehouse also refunds the paid levels (D-019).
+	if def.Warehouse != nil {
+		for i := 1; i < b.Level && i < len(def.Warehouse.Levels); i++ {
+			if lc := def.Warehouse.Levels[i].Cost; lc != nil {
+				refund(is, c, *lc, 1, l, now)
+			}
+		}
+	}
 	if b.Order != nil {
 		refundOrder(is, c, b.Order, l, now)
 	}
@@ -651,6 +699,39 @@ func upgradeHouse(w *World, c *content.Catalogue, cmd UpgradeHouse, l *Ledger) e
 	b.Type = nextDef.ID
 	b.House = &HouseState{Residents: next.ResidentsFloor}
 	afterChange(is, c)
+	return nil
+}
+
+func upgradeWarehouse(w *World, c *content.Catalogue, cmd UpgradeWarehouse, l *Ledger) error {
+	is, err := lookupIsland(w, cmd.IslandID)
+	if err != nil {
+		return err
+	}
+	b := is.Building(cmd.BuildingID)
+	if b == nil {
+		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
+	}
+	def := c.BuildingByID[b.Type]
+	if def == nil || def.Warehouse == nil {
+		return fmt.Errorf("%w: %s is not a warehouse", ErrUpgradeUnavailable, b.Type)
+	}
+	level := max(b.Level, 1)
+	if level >= len(def.Warehouse.Levels) {
+		return fmt.Errorf("%w: %s is at its last level %d", ErrUpgradeUnavailable, def.ID, level)
+	}
+	cost := def.Warehouse.Levels[level].Cost
+	if cost == nil {
+		return fmt.Errorf("%w: level %d of %s has no cost", ErrUpgradeUnavailable, level+1, def.ID)
+	}
+	if err := checkCost(w, is, *cost, 1); err != nil {
+		return err
+	}
+
+	// Validation complete: mutate. Capacity and throughput are derived from
+	// the level; the next settle recomputes all rates.
+	chargeCost(w, is, *cost, 1, l)
+	b.Level = level + 1
+	clearRegimes(is)
 	return nil
 }
 

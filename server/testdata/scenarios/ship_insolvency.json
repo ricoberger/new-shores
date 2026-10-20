@@ -1,6 +1,6 @@
 {
   "name": "ship_insolvency",
-  "description": "(r) A sloop waits idle at the unsettled island 2 with 50 planks and 50 wood aboard (nothing can unload there). Upkeep exceeds taxes: the cascade pauses the weaver (need goods), the intermediate chain (lumberjack, sawmill, sheep farm), then the ship (step 4, anchored_unpaid, cargo aboard), then the fisher (tier-1 food). Growing houses and demolished upkeep resume them in reverse order; the ship is idle again with identical cargo.",
+  "description": "(r) A sloop waits idle at the unsettled island 2 with 50 planks and 50 wood aboard (nothing can unload there). Upkeep exceeds taxes: the cascade pauses the weaver (need goods), the intermediate chain (lumberjack, sheep farm, sawmill), then the ship (step 4, anchored_unpaid, cargo aboard), then the fisher (tier-1 food). Growing houses and demolished upkeep resume them in reverse order; the ship is idle again with identical cargo.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {
@@ -48,7 +48,7 @@
       "y": 2,
       "rotation": 0
     },
-    "gold": 1440,
+    "gold": 815,
     "stock": {
       "planks": 270,
       "sails": 10,

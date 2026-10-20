@@ -1,0 +1,388 @@
+{
+  "name": "tools_route",
+  "description": "Tool chain on island 2 (golden v, free seed): fifteen settler houses on seeded fish and wool garments unlock Citizens and staff the chain; a shipyard's sloop founds the start island, then the iron mine (on iron deposits), charcoal burner, smelter and toolmaker run on Settler workforce and a looping route carries the tools to the start island.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 0,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccccccccccccccccc~",
+        "~..........................................~",
+        "~..........................................~",
+        "~..........................................~",
+        "~.............................ffffffffffff.~",
+        "~.............................ffffffffffff.~",
+        "~.........mmIImm..............ffffffffffff.~",
+        "~.........mIIIIm..............ffffffffffff.~",
+        "~.........mmmmmm..............ffffffffffff.~",
+        "~..........................................~",
+        "~..........................................~",
+        "~..........................................~",
+        "~..........................................~",
+        "~..........................................~",
+        "~..........................................~",
+        "~cccccccccccccccccccccccccccccccccccccccccc~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 72,
+      "y": 96,
+      "rows": [
+        "~~~~~~~~~~~~~~",
+        "~cccccccccccc~",
+        "~............~",
+        "~............~",
+        "~............~",
+        "~............~",
+        "~............~",
+        "~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": "10000",
+    "stock": {
+      "planks": 290,
+      "stone": 60,
+      "sails": 10,
+      "fish": 200,
+      "wool_garments": 100
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          4
+        ],
+        "to": [
+          42,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          2,
+          10
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          10
+        ],
+        "to": [
+          31,
+          10
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          20,
+          11
+        ],
+        "to": [
+          20,
+          12
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 5,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "chapel",
+        "x": 17,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 6,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 16,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 18,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 20,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 22,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 24,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 26,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 28,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 30,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 32,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 34,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "stock": {
+        "good": "planks",
+        "amount": "150"
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 20,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 20,
+        "y": 13,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "start",
+        "cargo": {
+          "planks": 40
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "start",
+        "x": 1,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 32,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "charcoal_burner",
+        "x": 16,
+        "y": 11,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "iron_mine",
+        "x": 11,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "smelter",
+        "x": 26,
+        "y": 11,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "toolmaker",
+        "x": 29,
+        "y": 11,
+        "rotation": 0
+      }
+    },
+    {
+      "create_route": {
+        "name": "Tools home",
+        "stops": [
+          {
+            "island": "island2",
+            "load": {
+              "tools": 50
+            }
+          },
+          {
+            "island": "start",
+            "unload": [
+              "tools"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "assign_ship": {
+        "ship": 1,
+        "route": 1
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    }
+  ]
+}

@@ -14,6 +14,8 @@ var (
 	ErrTerrain               = errors.New("terrain not buildable")
 	ErrNotCoastal            = errors.New("building must touch the coast")
 	ErrNoWorkArea            = errors.New("no usable tiles in work area")
+	ErrNoFertility           = errors.New("island lacks fertility")
+	ErrNoDeposit             = errors.New("no deposit under the footprint")
 	ErrInsufficientGold      = errors.New("insufficient gold")
 	ErrInsufficientMaterials = errors.New("insufficient materials")
 	ErrSurplusLoss           = errors.New("demolition would exceed capacity")
@@ -32,6 +34,7 @@ var (
 	ErrUpgradeUnavailable = errors.New("upgrade unavailable")
 	ErrHouseNotFull       = errors.New("house not at maximum residents")
 	ErrNeedsUnmet         = errors.New("needs of the current tier not met")
+	ErrUpgradeOnly        = errors.New("house can only be reached by upgrade")
 )
 
 // Sentinel errors of ships, routes and settling (MECHANICS §8, §9).

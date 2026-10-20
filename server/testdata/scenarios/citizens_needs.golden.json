@@ -1,0 +1,2014 @@
+{
+  "name": "citizens_needs",
+  "content_version": "old_coast-0.4.0",
+  "boundary_count": 119,
+  "totals": {
+    "main": {
+      "apples": {
+        "produced": 3333,
+        "consumed": 2956,
+        "lost": 0
+      },
+      "bread": {
+        "produced": 4136,
+        "consumed": 1120,
+        "lost": 0,
+        "granted": 40000
+      },
+      "cider": {
+        "produced": 2956,
+        "consumed": 840,
+        "lost": 0,
+        "granted": 40000
+      },
+      "fish": {
+        "produced": 0,
+        "consumed": 12620,
+        "lost": 0,
+        "granted": 200000
+      },
+      "flour": {
+        "produced": 4600,
+        "consumed": 4136,
+        "lost": 0
+      },
+      "hemp": {
+        "produced": 5000,
+        "consumed": 4250,
+        "lost": 0
+      },
+      "linen_garments": {
+        "produced": 4250,
+        "consumed": 700,
+        "lost": 0,
+        "granted": 40000
+      },
+      "planks": {
+        "produced": 0,
+        "consumed": 0,
+        "lost": 0,
+        "spent": 400000,
+        "granted": 450000
+      },
+      "stone": {
+        "produced": 0,
+        "consumed": 0,
+        "lost": 0,
+        "spent": 136000,
+        "granted": 180000
+      },
+      "wheat": {
+        "produced": 5000,
+        "consumed": 4600,
+        "lost": 0
+      },
+      "wool_garments": {
+        "produced": 0,
+        "consumed": 6310,
+        "lost": 0,
+        "granted": 100000
+      }
+    }
+  },
+  "bottlenecks": [
+    {
+      "island_id": "main",
+      "building_id": 21,
+      "type": "mill",
+      "status": "input_starved",
+      "reason": "Missing: wheat (1/min)"
+    },
+    {
+      "island_id": "main",
+      "building_id": 24,
+      "type": "cidery",
+      "status": "input_starved",
+      "reason": "Missing: apples (0.666/min)"
+    },
+    {
+      "island_id": "main",
+      "building_id": 26,
+      "type": "weaver_linen",
+      "status": "input_starved",
+      "reason": "Missing: hemp (1/min)"
+    }
+  ],
+  "pause_events": [],
+  "snapshots": [
+    {
+      "step": 20,
+      "at": "2026-01-01T00:10:00.000Z",
+      "boundaries": 91,
+      "inventory": {
+        "main": {
+          "bread": {
+            "stock": 40000,
+            "in_transit": 0
+          },
+          "cider": {
+            "stock": 40000,
+            "in_transit": 0
+          },
+          "fish": {
+            "stock": 191780,
+            "in_transit": 0
+          },
+          "linen_garments": {
+            "stock": 40000,
+            "in_transit": 0
+          },
+          "planks": {
+            "stock": 70000,
+            "in_transit": 0
+          },
+          "stone": {
+            "stock": 80000,
+            "in_transit": 0
+          },
+          "wool_garments": {
+            "stock": 95890,
+            "in_transit": 0
+          }
+        }
+      },
+      "statuses": {},
+      "gold": 9693399,
+      "balance_rate_per_min": 10640,
+      "population": {
+        "settlers": 120000
+      },
+      "unlocked_tiers": [
+        "settlers",
+        "citizens"
+      ]
+    },
+    {
+      "step": 37,
+      "at": "2026-01-01T00:11:00.000Z",
+      "boundaries": 8,
+      "inventory": {
+        "main": {
+          "apples": {
+            "stock": 0,
+            "in_transit": 378
+          },
+          "bread": {
+            "stock": 39840,
+            "in_transit": 136
+          },
+          "cider": {
+            "stock": 39880,
+            "in_transit": 289
+          },
+          "fish": {
+            "stock": 190900,
+            "in_transit": 0
+          },
+          "flour": {
+            "stock": 14,
+            "in_transit": 450
+          },
+          "hemp": {
+            "stock": 0,
+            "in_transit": 750
+          },
+          "linen_garments": {
+            "stock": 39900,
+            "in_transit": 250
+          },
+          "planks": {
+            "stock": 50000,
+            "in_transit": 0
+          },
+          "stone": {
+            "stock": 44000,
+            "in_transit": 0
+          },
+          "wheat": {
+            "stock": 0,
+            "in_transit": 400
+          },
+          "wool_garments": {
+            "stock": 95450,
+            "in_transit": 0
+          }
+        }
+      },
+      "statuses": {
+        "input_starved": 3,
+        "ok": 4
+      },
+      "gold": 6397239,
+      "balance_rate_per_min": -14240,
+      "population": {
+        "citizens": 24000,
+        "settlers": 88000
+      },
+      "unlocked_tiers": [
+        "settlers",
+        "citizens"
+      ]
+    },
+    {
+      "step": 38,
+      "at": "2026-01-01T00:15:00.000Z",
+      "boundaries": 20,
+      "inventory": {
+        "main": {
+          "apples": {
+            "stock": 0,
+            "in_transit": 378
+          },
+          "bread": {
+            "stock": 42533,
+            "in_transit": 483
+          },
+          "cider": {
+            "stock": 41771,
+            "in_transit": 344
+          },
+          "fish": {
+            "stock": 187380,
+            "in_transit": 0
+          },
+          "flour": {
+            "stock": 14,
+            "in_transit": 450
+          },
+          "hemp": {
+            "stock": 0,
+            "in_transit": 750
+          },
+          "linen_garments": {
+            "stock": 43000,
+            "in_transit": 550
+          },
+          "planks": {
+            "stock": 50000,
+            "in_transit": 0
+          },
+          "stone": {
+            "stock": 44000,
+            "in_transit": 0
+          },
+          "wheat": {
+            "stock": 0,
+            "in_transit": 400
+          },
+          "wool_garments": {
+            "stock": 93690,
+            "in_transit": 0
+          }
+        }
+      },
+      "statuses": {
+        "input_starved": 3,
+        "ok": 4
+      },
+      "gold": 6351799,
+      "balance_rate_per_min": -6560,
+      "population": {
+        "citizens": 40000,
+        "settlers": 88000
+      },
+      "unlocked_tiers": [
+        "settlers",
+        "citizens"
+      ]
+    }
+  ],
+  "final": {
+    "evaluated_at": "2026-01-01T00:15:00.000Z",
+    "next_change_at": "2026-01-01T00:16:00.000Z",
+    "gold": 6351799,
+    "balance_rate_per_min": -6560,
+    "tax_rate_per_min": 33440,
+    "upkeep_rate_per_min": 40000,
+    "tiers": [
+      {
+        "id": "settlers",
+        "unlocked": true,
+        "population": {},
+        "buildings": {},
+        "goods_delivered": {}
+      },
+      {
+        "id": "citizens",
+        "unlocked": true,
+        "population": {
+          "settlers": {
+            "have": 88000,
+            "need": 120000
+          }
+        },
+        "buildings": {
+          "chapel": true,
+          "market_small": true
+        },
+        "goods_delivered": {}
+      }
+    ],
+    "islands": [
+      {
+        "id": "main",
+        "name": "",
+        "settled": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "width": 40,
+        "height": 24,
+        "inventory": {
+          "apples": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 378,
+            "rate_per_min": 0
+          },
+          "bread": {
+            "stock": 42533,
+            "capacity": 500000,
+            "in_transit": 483,
+            "rate_per_min": 680
+          },
+          "charcoal": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "cider": {
+            "stock": 41771,
+            "capacity": 500000,
+            "in_transit": 344,
+            "rate_per_min": 426
+          },
+          "fish": {
+            "stock": 187380,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": -880
+          },
+          "flour": {
+            "stock": 14,
+            "capacity": 500000,
+            "in_transit": 450,
+            "rate_per_min": 0
+          },
+          "hemp": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 750,
+            "rate_per_min": 0
+          },
+          "iron": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "iron_ore": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "linen_garments": {
+            "stock": 43000,
+            "capacity": 500000,
+            "in_transit": 550,
+            "rate_per_min": 800
+          },
+          "planks": {
+            "stock": 50000,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "sails": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "stone": {
+            "stock": 44000,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "tools": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wheat": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 400,
+            "rate_per_min": 0
+          },
+          "wood": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wool": {
+            "stock": 0,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wool_garments": {
+            "stock": 93690,
+            "capacity": 500000,
+            "in_transit": 0,
+            "rate_per_min": -440
+          }
+        },
+        "roads": [
+          {
+            "x": 1,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 3,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 4,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 5,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 6,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 7,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 8,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 9,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 10,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 11,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 12,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 13,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 14,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 15,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 16,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 17,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 18,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 19,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 20,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 21,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 22,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 23,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 24,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 25,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 26,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 27,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 28,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 29,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 30,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 31,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 32,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 33,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 34,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 35,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 36,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 37,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 38,
+            "y": 4,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 5,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 6,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 7,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 8,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 9,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 10,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 11,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 12,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 13,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 14,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 15,
+            "type": "road_dirt"
+          },
+          {
+            "x": 2,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 3,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 4,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 5,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 6,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 7,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 8,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 9,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 10,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 11,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 12,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 13,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 14,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 15,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 16,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 17,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 18,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 19,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 20,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 21,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 22,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 23,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 24,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 25,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 26,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 27,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 28,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 29,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 30,
+            "y": 16,
+            "type": "road_dirt"
+          },
+          {
+            "x": 31,
+            "y": 16,
+            "type": "road_paved"
+          },
+          {
+            "x": 32,
+            "y": 16,
+            "type": "road_paved"
+          },
+          {
+            "x": 33,
+            "y": 16,
+            "type": "road_paved"
+          },
+          {
+            "x": 34,
+            "y": 16,
+            "type": "road_paved"
+          },
+          {
+            "x": 35,
+            "y": 16,
+            "type": "road_paved"
+          },
+          {
+            "x": 36,
+            "y": 16,
+            "type": "road_paved"
+          }
+        ],
+        "buildings": [
+          {
+            "id": 1,
+            "type": "warehouse",
+            "x": 1,
+            "y": 1,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "level": 2,
+            "capacity": 500000,
+            "throughput_per_min": 55000,
+            "load_permille": 151
+          },
+          {
+            "id": 2,
+            "type": "market_small",
+            "x": 8,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000
+          },
+          {
+            "id": 3,
+            "type": "chapel",
+            "x": 11,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000
+          },
+          {
+            "id": 4,
+            "type": "house_citizens",
+            "x": 6,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 10000,
+            "residents_floor": 5000,
+            "residents_max": 15000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 1000,
+            "satisfaction_permille": 1000,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 4800,
+            "needs": [
+              {
+                "id": "citizens_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "bread": 320
+                }
+              },
+              {
+                "id": "citizens_drink",
+                "kind": "required",
+                "category": "drink",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "cider": 240
+                }
+              },
+              {
+                "id": "citizens_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "linen_garments": 200
+                }
+              },
+              {
+                "id": "citizens_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "citizens_chapel",
+                "kind": "required",
+                "building": "chapel",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "citizens_tavern",
+                "kind": "required",
+                "building": "tavern",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ]
+          },
+          {
+            "id": 5,
+            "type": "house_citizens",
+            "x": 8,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 10000,
+            "residents_floor": 5000,
+            "residents_max": 15000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 1000,
+            "satisfaction_permille": 1000,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 4800,
+            "needs": [
+              {
+                "id": "citizens_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "bread": 320
+                }
+              },
+              {
+                "id": "citizens_drink",
+                "kind": "required",
+                "category": "drink",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "cider": 240
+                }
+              },
+              {
+                "id": "citizens_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "linen_garments": 200
+                }
+              },
+              {
+                "id": "citizens_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "citizens_chapel",
+                "kind": "required",
+                "building": "chapel",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "citizens_tavern",
+                "kind": "required",
+                "building": "tavern",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ]
+          },
+          {
+            "id": 6,
+            "type": "house_citizens",
+            "x": 10,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 10000,
+            "residents_floor": 5000,
+            "residents_max": 15000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 1000,
+            "satisfaction_permille": 1000,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 4800,
+            "needs": [
+              {
+                "id": "citizens_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "bread": 320
+                }
+              },
+              {
+                "id": "citizens_drink",
+                "kind": "required",
+                "category": "drink",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "cider": 240
+                }
+              },
+              {
+                "id": "citizens_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "linen_garments": 200
+                }
+              },
+              {
+                "id": "citizens_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "citizens_chapel",
+                "kind": "required",
+                "building": "chapel",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "citizens_tavern",
+                "kind": "required",
+                "building": "tavern",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ]
+          },
+          {
+            "id": 7,
+            "type": "house_citizens",
+            "x": 12,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 10000,
+            "residents_floor": 5000,
+            "residents_max": 15000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 1000,
+            "satisfaction_permille": 1000,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 4800,
+            "needs": [
+              {
+                "id": "citizens_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "bread": 320
+                }
+              },
+              {
+                "id": "citizens_drink",
+                "kind": "required",
+                "category": "drink",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "cider": 240
+                }
+              },
+              {
+                "id": "citizens_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "linen_garments": 200
+                }
+              },
+              {
+                "id": "citizens_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "citizens_chapel",
+                "kind": "required",
+                "building": "chapel",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              },
+              {
+                "id": "citizens_tavern",
+                "kind": "required",
+                "building": "tavern",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ]
+          },
+          {
+            "id": 8,
+            "type": "house_settlers",
+            "x": 14,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 1000,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1600,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ]
+          },
+          {
+            "id": 9,
+            "type": "house_settlers",
+            "x": 16,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 1000,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1600,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ]
+          },
+          {
+            "id": 10,
+            "type": "house_settlers",
+            "x": 18,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 1000,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1600,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ]
+          },
+          {
+            "id": 11,
+            "type": "house_settlers",
+            "x": 20,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 1000,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1600,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 1000,
+                "reason": "ok"
+              }
+            ]
+          },
+          {
+            "id": 12,
+            "type": "house_settlers",
+            "x": 22,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 700,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1120,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
+              }
+            ]
+          },
+          {
+            "id": 13,
+            "type": "house_settlers",
+            "x": 24,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 700,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1120,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
+              }
+            ]
+          },
+          {
+            "id": 14,
+            "type": "house_settlers",
+            "x": 26,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 700,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1120,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
+              }
+            ]
+          },
+          {
+            "id": 15,
+            "type": "house_settlers",
+            "x": 28,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 700,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1120,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
+              }
+            ]
+          },
+          {
+            "id": 16,
+            "type": "house_settlers",
+            "x": 30,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 700,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1120,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
+              }
+            ]
+          },
+          {
+            "id": 17,
+            "type": "house_settlers",
+            "x": 32,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 700,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1120,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
+              }
+            ]
+          },
+          {
+            "id": 18,
+            "type": "house_settlers",
+            "x": 34,
+            "y": 2,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "residents": 8000,
+            "residents_floor": 2000,
+            "residents_max": 8000,
+            "growth_progress_permille": 0,
+            "growth_rate_per_min": 0,
+            "satisfaction_permille": 700,
+            "variety_multiplier_permille": 1000,
+            "tax_rate_per_min": 1120,
+            "needs": [
+              {
+                "id": "settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "fish": 880
+                }
+              },
+              {
+                "id": "settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "variety": 0,
+                "goods": {
+                  "wool_garments": 440
+                }
+              },
+              {
+                "id": "settlers_market_small",
+                "kind": "required",
+                "building": "market_small",
+                "fulfilment_permille": 0,
+                "reason": "out_of_range"
+              }
+            ]
+          },
+          {
+            "id": 19,
+            "type": "tavern",
+            "x": 13,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000
+          },
+          {
+            "id": 20,
+            "type": "wheat_farm",
+            "x": 3,
+            "y": 17,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "rates": {
+              "inputs": {},
+              "outputs": {
+                "wheat": 1000
+              }
+            },
+            "cycle_seconds": 60,
+            "cycle_progress_permille": 0,
+            "transfer_delay_ms": 24000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 14,
+            "cycle_rate_permille_per_min": 1000,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 6000
+            }
+          },
+          {
+            "id": 21,
+            "type": "mill",
+            "x": 6,
+            "y": 14,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "input_starved",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "status_goods": [
+              "wheat"
+            ],
+            "rates": {
+              "inputs": {
+                "wheat": 1000
+              },
+              "outputs": {
+                "flour": 1000
+              }
+            },
+            "cycle_seconds": 30,
+            "cycle_progress_permille": 600,
+            "transfer_delay_ms": 27000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 17,
+            "cycle_rate_permille_per_min": 1000,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "citizens",
+              "required": 4000
+            }
+          },
+          {
+            "id": 22,
+            "type": "bakery",
+            "x": 8,
+            "y": 14,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "rates": {
+              "inputs": {
+                "flour": 1000
+              },
+              "outputs": {
+                "bread": 1000
+              }
+            },
+            "cycle_seconds": 60,
+            "cycle_progress_permille": 136,
+            "transfer_delay_ms": 29000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 19,
+            "cycle_rate_permille_per_min": 1000,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "citizens",
+              "required": 6000
+            }
+          },
+          {
+            "id": 23,
+            "type": "orchard",
+            "x": 13,
+            "y": 17,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "rates": {
+              "inputs": {},
+              "outputs": {
+                "apples": 666
+              }
+            },
+            "cycle_seconds": 90,
+            "cycle_progress_permille": 333,
+            "transfer_delay_ms": 34000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 24,
+            "cycle_rate_permille_per_min": 666,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 6000
+            }
+          },
+          {
+            "id": 24,
+            "type": "cidery",
+            "x": 10,
+            "y": 14,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "input_starved",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "status_goods": [
+              "apples"
+            ],
+            "rates": {
+              "inputs": {
+                "apples": 666
+              },
+              "outputs": {
+                "cider": 666
+              }
+            },
+            "cycle_seconds": 45,
+            "cycle_progress_permille": 955,
+            "transfer_delay_ms": 31000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 21,
+            "cycle_rate_permille_per_min": 666,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "citizens",
+              "required": 6000
+            }
+          },
+          {
+            "id": 25,
+            "type": "hemp_farm",
+            "x": 24,
+            "y": 17,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "rates": {
+              "inputs": {},
+              "outputs": {
+                "hemp": 1000
+              }
+            },
+            "cycle_seconds": 60,
+            "cycle_progress_permille": 0,
+            "transfer_delay_ms": 45000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 35,
+            "cycle_rate_permille_per_min": 1000,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "settlers",
+              "required": 6000
+            }
+          },
+          {
+            "id": 26,
+            "type": "weaver_linen",
+            "x": 12,
+            "y": 14,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "input_starved",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "status_goods": [
+              "hemp"
+            ],
+            "rates": {
+              "inputs": {
+                "hemp": 1000
+              },
+              "outputs": {
+                "linen_garments": 1000
+              }
+            },
+            "cycle_seconds": 45,
+            "cycle_progress_permille": 250,
+            "transfer_delay_ms": 33000,
+            "assigned_warehouse_id": 1,
+            "road_distance": 23,
+            "cycle_rate_permille_per_min": 1000,
+            "workforce_factor_permille": 1000,
+            "workforce": {
+              "tier": "citizens",
+              "required": 6000
+            }
+          }
+        ],
+        "workforce": {
+          "citizens": {
+            "available": 40000,
+            "required": 22000,
+            "factor_permille": 1000
+          },
+          "settlers": {
+            "available": 88000,
+            "required": 18000,
+            "factor_permille": 1000
+          }
+        },
+        "population": {
+          "citizens": 40000,
+          "settlers": 88000
+        }
+      }
+    ],
+    "ships": [],
+    "routes": []
+  }
+}

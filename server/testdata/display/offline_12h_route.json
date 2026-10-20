@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T12:04:20.000Z",
     "next_change_at": "2026-01-01T12:05:20.000Z",
-    "gold": 5442253,
-    "balance_rate_per_min": -18400,
+    "gold": 9661920,
+    "balance_rate_per_min": -13400,
     "tax_rate_per_min": 1600,
-    "upkeep_rate_per_min": 20000,
+    "upkeep_rate_per_min": 15000,
     "tiers": [
       {
         "id": "settlers",
@@ -43,8 +43,62 @@
         "width": 30,
         "height": 14,
         "inventory": {
+          "apples": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "bread": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "charcoal": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "cider": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 300000,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "flour": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "hemp": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "iron": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "iron_ore": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "linen_garments": {
+            "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -56,6 +110,24 @@
             "rate_per_min": 0
           },
           "sails": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "stone": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "tools": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wheat": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
@@ -236,7 +308,7 @@
             "throughput_factor_permille": 1000,
             "level": 1,
             "capacity": 300000,
-            "throughput_per_min": 60000,
+            "throughput_per_min": 30000,
             "load_permille": 0
           },
           {
@@ -368,10 +440,64 @@
         "width": 18,
         "height": 8,
         "inventory": {
+          "apples": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "bread": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "charcoal": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "cider": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 299965,
             "capacity": 300000,
             "in_transit": 35,
+            "rate_per_min": 0
+          },
+          "flour": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "hemp": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "iron": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "iron_ore": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "linen_garments": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
             "rate_per_min": 0
           },
           "planks": {
@@ -381,6 +507,24 @@
             "rate_per_min": 0
           },
           "sails": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "stone": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "tools": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wheat": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
@@ -501,8 +645,8 @@
             "throughput_factor_permille": 1000,
             "level": 1,
             "capacity": 300000,
-            "throughput_per_min": 60000,
-            "load_permille": 25
+            "throughput_per_min": 30000,
+            "load_permille": 50
           },
           {
             "id": 7,
@@ -677,7 +821,7 @@
         ],
         "slots": 2,
         "slot_size": 50000,
-        "upkeep_per_min": 2000,
+        "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": ""
       }
@@ -725,10 +869,10 @@
       "display": {
         "evaluated_at": "2026-01-01T12:04:20.250Z",
         "next_change_at": "2026-01-01T12:05:20.000Z",
-        "gold": 5442176,
-        "balance_rate_per_min": -18400,
+        "gold": 9661864,
+        "balance_rate_per_min": -13400,
         "tax_rate_per_min": 1600,
-        "upkeep_rate_per_min": 20000,
+        "upkeep_rate_per_min": 15000,
         "tiers": [
           {
             "id": "settlers",
@@ -765,8 +909,62 @@
             "width": 30,
             "height": 14,
             "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 300000,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -778,6 +976,24 @@
                 "rate_per_min": 0
               },
               "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "stone": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "tools": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "wheat": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -958,7 +1174,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
+                "throughput_per_min": 30000,
                 "load_permille": 0
               },
               {
@@ -1090,10 +1306,64 @@
             "width": 18,
             "height": 8,
             "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 299965,
                 "capacity": 300000,
                 "in_transit": 35,
+                "rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
                 "rate_per_min": 0
               },
               "planks": {
@@ -1103,6 +1373,24 @@
                 "rate_per_min": 0
               },
               "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "stone": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "tools": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "wheat": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -1223,8 +1511,8 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
-                "load_permille": 25
+                "throughput_per_min": 30000,
+                "load_permille": 50
               },
               {
                 "id": 7,
@@ -1399,7 +1687,7 @@
             ],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }
@@ -1447,10 +1735,10 @@
       "display": {
         "evaluated_at": "2026-01-01T12:04:21.000Z",
         "next_change_at": "2026-01-01T12:05:20.000Z",
-        "gold": 5441946,
-        "balance_rate_per_min": -18400,
+        "gold": 9661696,
+        "balance_rate_per_min": -13400,
         "tax_rate_per_min": 1600,
-        "upkeep_rate_per_min": 20000,
+        "upkeep_rate_per_min": 15000,
         "tiers": [
           {
             "id": "settlers",
@@ -1487,8 +1775,62 @@
             "width": 30,
             "height": 14,
             "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 300000,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -1500,6 +1842,24 @@
                 "rate_per_min": 0
               },
               "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "stone": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "tools": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "wheat": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -1680,7 +2040,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
+                "throughput_per_min": 30000,
                 "load_permille": 0
               },
               {
@@ -1812,10 +2172,64 @@
             "width": 18,
             "height": 8,
             "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 299965,
                 "capacity": 300000,
                 "in_transit": 35,
+                "rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
                 "rate_per_min": 0
               },
               "planks": {
@@ -1825,6 +2239,24 @@
                 "rate_per_min": 0
               },
               "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "stone": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "tools": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "wheat": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -1945,8 +2377,8 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
-                "load_permille": 25
+                "throughput_per_min": 30000,
+                "load_permille": 50
               },
               {
                 "id": 7,
@@ -2121,7 +2553,7 @@
             ],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }
@@ -2169,10 +2601,10 @@
       "display": {
         "evaluated_at": "2026-01-01T12:04:25.000Z",
         "next_change_at": "2026-01-01T12:05:20.000Z",
-        "gold": 5440720,
-        "balance_rate_per_min": -18400,
+        "gold": 9660803,
+        "balance_rate_per_min": -13400,
         "tax_rate_per_min": 1600,
-        "upkeep_rate_per_min": 20000,
+        "upkeep_rate_per_min": 15000,
         "tiers": [
           {
             "id": "settlers",
@@ -2209,8 +2641,62 @@
             "width": 30,
             "height": 14,
             "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 300000,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2222,6 +2708,24 @@
                 "rate_per_min": 0
               },
               "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "stone": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "tools": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "wheat": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -2402,7 +2906,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
+                "throughput_per_min": 30000,
                 "load_permille": 0
               },
               {
@@ -2534,10 +3038,64 @@
             "width": 18,
             "height": 8,
             "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 299965,
                 "capacity": 300000,
                 "in_transit": 35,
+                "rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
                 "rate_per_min": 0
               },
               "planks": {
@@ -2547,6 +3105,24 @@
                 "rate_per_min": 0
               },
               "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "stone": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "tools": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "wheat": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -2667,8 +3243,8 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
-                "load_permille": 25
+                "throughput_per_min": 30000,
+                "load_permille": 50
               },
               {
                 "id": 7,
@@ -2843,7 +3419,7 @@
             ],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }
@@ -2891,10 +3467,10 @@
       "display": {
         "evaluated_at": "2026-01-01T12:04:50.000Z",
         "next_change_at": "2026-01-01T12:05:20.000Z",
-        "gold": 5433053,
-        "balance_rate_per_min": -18400,
+        "gold": 9655220,
+        "balance_rate_per_min": -13400,
         "tax_rate_per_min": 1600,
-        "upkeep_rate_per_min": 20000,
+        "upkeep_rate_per_min": 15000,
         "tiers": [
           {
             "id": "settlers",
@@ -2931,8 +3507,62 @@
             "width": 30,
             "height": 14,
             "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 300000,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2944,6 +3574,24 @@
                 "rate_per_min": 0
               },
               "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "stone": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "tools": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "wheat": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -3124,7 +3772,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
+                "throughput_per_min": 30000,
                 "load_permille": 0
               },
               {
@@ -3256,10 +3904,64 @@
             "width": 18,
             "height": 8,
             "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 299965,
                 "capacity": 300000,
                 "in_transit": 35,
+                "rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
                 "rate_per_min": 0
               },
               "planks": {
@@ -3269,6 +3971,24 @@
                 "rate_per_min": 0
               },
               "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "stone": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "tools": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "wheat": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -3389,8 +4109,8 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
-                "load_permille": 25
+                "throughput_per_min": 30000,
+                "load_permille": 50
               },
               {
                 "id": 7,
@@ -3565,7 +4285,7 @@
             ],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }

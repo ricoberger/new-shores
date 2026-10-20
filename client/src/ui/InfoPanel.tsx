@@ -14,6 +14,8 @@ interface Props {
   /** Lifts the building into a move ghost (D-042). */
   onMove: () => void;
   onUpgrade: () => void;
+  /** Raises a warehouse to its next level (upgrade_warehouse). */
+  onUpgradeWarehouse: () => void;
   onSelectBuilding: (id: number) => void;
   /** Server time the model was extrapolated to (ms since the epoch). */
   nowMs: number;
@@ -48,6 +50,55 @@ export function StatusIcon({ building }: { building: BuildingDisplay }) {
   );
 }
 
+/**
+ * Next warehouse level from content (capacity, throughput, cost with the
+ * island's have/need per material); hidden at the last level. The server
+ * decides whether the upgrade is affordable.
+ */
+function WarehouseUpgrade({
+  building: b,
+  island,
+  model,
+  content,
+  onUpgrade,
+}: {
+  building: BuildingDisplay;
+  island: IslandDisplay;
+  model: DisplayState;
+  content: Content;
+  onUpgrade: () => void;
+}) {
+  const levels = content.buildings.find((d) => d.id === b.type)?.warehouse?.levels ?? [];
+  const next = b.level !== undefined ? levels[b.level] : undefined;
+  if (!next) return null;
+  const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
+  const cost = next.cost ?? { gold: 0, materials: {} };
+  return (
+    <div className={styles.section} data-testid="warehouse-upgrade">
+      <button type="button" className={styles.button} onClick={onUpgrade} data-testid="warehouse-upgrade-button">
+        ⇧ Upgrade to level {(b.level ?? 0) + 1}
+      </button>
+      <div className={styles.small}>
+        Capacity {units(next.capacity)} per good · throughput {perMin(next.throughput_per_min)}/min
+      </div>
+      <div className={styles.small} data-testid="warehouse-upgrade-cost">
+        <span className={cost.gold > model.gold ? styles.warn : undefined}>
+          {units(model.gold)}/{units(cost.gold)} gold
+        </span>
+        {Object.entries(cost.materials).map(([g, n]) => {
+          const have = island.inventory[g]?.stock ?? 0;
+          return (
+            <span key={g} className={have < n ? styles.warn : undefined}>
+              {" "}
+              · {goodName(g)} {units(have)}/{units(n)}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function InfoPanel({
   building: b,
   island,
@@ -57,6 +108,7 @@ export function InfoPanel({
   onDemolish,
   onMove,
   onUpgrade,
+  onUpgradeWarehouse,
   onSelectBuilding,
   nowMs,
   onOrderShip,
@@ -255,13 +307,16 @@ export function InfoPanel({
 
       {b.level !== undefined && (
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>Warehouse level {b.level}</div>
+          <div className={styles.sectionTitle} data-testid="warehouse-level">
+            Warehouse level {b.level} of {def?.warehouse?.levels.length ?? b.level}
+          </div>
           <div className={styles.small}>
             Capacity {units(b.capacity ?? 0)} per good · throughput {perMin(b.throughput_per_min ?? 0)}/min ·{" "}
             {island.buildings.filter((p) => p.assigned_warehouse_id === b.id).length} producers
           </div>
           <div className={styles.small}>Load {percent(b.load_permille ?? 0)}</div>
           <Bar permille={b.load_permille ?? 0} />
+          <WarehouseUpgrade building={b} island={island} model={model} content={content} onUpgrade={onUpgradeWarehouse} />
           <table className={`${styles.table} ${styles.section}`}>
             <thead>
               <tr>

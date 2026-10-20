@@ -79,9 +79,9 @@ make dev              # dev server on :8080 + Vite on :5173; Ctrl-C stops both
 Open <http://localhost:5173> (or <http://127.0.0.1:5173>, the address Vite
 prints on some systems; both are allowed). The server (`go run ./cmd/server --dev` in
 `server/`) holds **one in-memory world**: the start island with its
-warehouse and starting stock plus the unsettled island 2, and a dev-only
-bonus of 1 500 gold and 150 planks for the first settlement flow;
-restarting it resets the world. Ship builds and arrivals are applied by an
+warehouse and starting stock plus the unsettled island 2 (no dev-only
+bonus: since the tier 1–2 balancing pass the starting stock covers the
+first settlement flow); restarting it resets the world. Ship builds and arrivals are applied by an
 in-process scheduler at their due time (scaled by `--time-scale`). There are no accounts: the client is logged
 in as the fixed player "Developer". The API is at
 <http://localhost:8080/api/v1> (`/healthz` for readiness).

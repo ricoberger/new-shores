@@ -1,6 +1,6 @@
 {
   "name": "throttled_warehouse",
-  "content_version": "old_coast-0.3.0",
+  "content_version": "old_coast-0.4.0",
   "boundary_count": 32,
   "totals": {
     "main": {
@@ -12,7 +12,7 @@
         "granted": 160000
       },
       "wood": {
-        "produced": 120000,
+        "produced": 60000,
         "consumed": 0,
         "lost": 0
       }
@@ -24,224 +24,224 @@
       "building_id": 2,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 3,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 4,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 5,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 6,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 7,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 8,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 9,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 10,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 11,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 12,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 13,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 14,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 15,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 16,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 17,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 18,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 19,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 20,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 21,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 22,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 23,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 24,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 25,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 26,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 27,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 28,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 29,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 30,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 31,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 32,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     },
     {
       "island_id": "main",
       "building_id": 33,
       "type": "lumberjack",
       "status": "throttled",
-      "reason": "Warehouse overloaded (throughput factor 937 ‰)"
+      "reason": "Warehouse overloaded (throughput factor 468 ‰)"
     }
   ],
   "pause_events": [],
@@ -253,8 +253,8 @@
       "inventory": {
         "main": {
           "wood": {
-            "stock": 73000,
-            "in_transit": 47000
+            "stock": 36500,
+            "in_transit": 23500
           }
         }
       },
@@ -312,7 +312,61 @@
         "width": 78,
         "height": 10,
         "inventory": {
+          "apples": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "bread": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "charcoal": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "cider": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "flour": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "hemp": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "iron": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "iron_ore": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "linen_garments": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
@@ -330,11 +384,29 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
-          "wood": {
-            "stock": 73000,
+          "stone": {
+            "stock": 0,
             "capacity": 300000,
-            "in_transit": 47000,
-            "rate_per_min": 60000
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "tools": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wheat": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "wood": {
+            "stock": 36500,
+            "capacity": 300000,
+            "in_transit": 23500,
+            "rate_per_min": 30000
           },
           "wool": {
             "stock": 0,
@@ -740,8 +812,8 @@
             "throughput_factor_permille": 1000,
             "level": 1,
             "capacity": 300000,
-            "throughput_per_min": 60000,
-            "load_permille": 1066
+            "throughput_per_min": 30000,
+            "load_permille": 2133
           },
           {
             "id": 2,
@@ -753,19 +825,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 16000,
             "assigned_warehouse_id": 1,
             "road_distance": 6,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -782,19 +854,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 18000,
             "assigned_warehouse_id": 1,
             "road_distance": 8,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -811,19 +883,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 20000,
             "assigned_warehouse_id": 1,
             "road_distance": 10,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -840,19 +912,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 22000,
             "assigned_warehouse_id": 1,
             "road_distance": 12,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -869,19 +941,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 24000,
             "assigned_warehouse_id": 1,
             "road_distance": 14,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -898,19 +970,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 26000,
             "assigned_warehouse_id": 1,
             "road_distance": 16,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -927,19 +999,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 28000,
             "assigned_warehouse_id": 1,
             "road_distance": 18,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -956,19 +1028,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -985,19 +1057,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 32000,
             "assigned_warehouse_id": 1,
             "road_distance": 22,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1014,19 +1086,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 34000,
             "assigned_warehouse_id": 1,
             "road_distance": 24,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1043,19 +1115,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 36000,
             "assigned_warehouse_id": 1,
             "road_distance": 26,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1072,19 +1144,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 38000,
             "assigned_warehouse_id": 1,
             "road_distance": 28,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1101,19 +1173,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 40000,
             "assigned_warehouse_id": 1,
             "road_distance": 30,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1130,19 +1202,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 42000,
             "assigned_warehouse_id": 1,
             "road_distance": 32,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1159,19 +1231,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 44000,
             "assigned_warehouse_id": 1,
             "road_distance": 34,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1188,19 +1260,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 46000,
             "assigned_warehouse_id": 1,
             "road_distance": 36,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1217,19 +1289,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 48000,
             "assigned_warehouse_id": 1,
             "road_distance": 38,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1246,19 +1318,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 50000,
             "assigned_warehouse_id": 1,
             "road_distance": 40,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1275,19 +1347,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 52000,
             "assigned_warehouse_id": 1,
             "road_distance": 42,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1304,19 +1376,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 54000,
             "assigned_warehouse_id": 1,
             "road_distance": 44,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1333,19 +1405,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 56000,
             "assigned_warehouse_id": 1,
             "road_distance": 46,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1362,19 +1434,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 58000,
             "assigned_warehouse_id": 1,
             "road_distance": 48,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1391,19 +1463,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 60000,
             "assigned_warehouse_id": 1,
             "road_distance": 50,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1420,19 +1492,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 62000,
             "assigned_warehouse_id": 1,
             "road_distance": 52,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1449,19 +1521,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 64000,
             "assigned_warehouse_id": 1,
             "road_distance": 54,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1478,19 +1550,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 66000,
             "assigned_warehouse_id": 1,
             "road_distance": 56,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1507,19 +1579,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 68000,
             "assigned_warehouse_id": 1,
             "road_distance": 58,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1536,19 +1608,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 70000,
             "assigned_warehouse_id": 1,
             "road_distance": 60,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1565,19 +1637,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 72000,
             "assigned_warehouse_id": 1,
             "road_distance": 62,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1594,19 +1666,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 74000,
             "assigned_warehouse_id": 1,
             "road_distance": 64,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1623,19 +1695,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 76000,
             "assigned_warehouse_id": 1,
             "road_distance": 66,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
@@ -1652,19 +1724,19 @@
             "paused_reason": "",
             "status": "throttled",
             "efficiency_permille": 1000,
-            "throughput_factor_permille": 937,
+            "throughput_factor_permille": 468,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wood": 1875
+                "wood": 937
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 750,
+            "cycle_progress_permille": 875,
             "transfer_delay_ms": 78000,
             "assigned_warehouse_id": 1,
             "road_distance": 68,
-            "cycle_rate_permille_per_min": 1875,
+            "cycle_rate_permille_per_min": 937,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",

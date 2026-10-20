@@ -1,6 +1,6 @@
 {
   "name": "found_island",
-  "description": "(q) A sloop carries 100 planks to the unsettled island 2 and founds it (warehouse from the cargo, 70 planks unloaded); two settler houses and a fisher on a road to the new warehouse make the fisher connected and staffed; fish arrives in island 2's inventory.",
+  "description": "(q) A sloop carries 100 planks to the unsettled island 2 and founds it (warehouse from the cargo, 80 planks unloaded); two settler houses and a fisher on a road to the new warehouse make the fisher connected and staffed; fish arrives in island 2's inventory.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

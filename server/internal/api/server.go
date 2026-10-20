@@ -434,14 +434,23 @@ const islandPathPrefix = "/api/v1/world/islands/"
 // islandResponse is the static data of an island: its terrain, row-major
 // (index y*width + x), as terrain IDs. Revision identifies the data for
 // client caching; it is the content version until island generation (M4)
-// gives islands their own identity. Fertilities and deposit slots will be
-// added as sibling arrays.
+// gives islands their own identity. Fertilities are the island-wide
+// fertility tags; Deposits the tiles with a deposit, sorted by tile index.
 type islandResponse struct {
-	ID       string   `json:"id"`
-	Width    int      `json:"width"`
-	Height   int      `json:"height"`
-	Revision string   `json:"revision"`
-	Terrain  []string `json:"terrain"`
+	ID          string           `json:"id"`
+	Width       int              `json:"width"`
+	Height      int              `json:"height"`
+	Revision    string           `json:"revision"`
+	Terrain     []string         `json:"terrain"`
+	Fertilities []string         `json:"fertilities"`
+	Deposits    []depositOutJSON `json:"deposits"`
+}
+
+// depositOutJSON is a tile with a deposit (infinite, D-036).
+type depositOutJSON struct {
+	X    int    `json:"x"`
+	Y    int    `json:"y"`
+	Kind string `json:"kind"`
 }
 
 // getIsland serves the static data of an island. Like every world request it
@@ -466,9 +475,13 @@ func (s *Server) getIsland(w http.ResponseWriter, r *http.Request) {
 		resp = islandResponse{
 			ID: is.ID, Width: is.Width, Height: is.Height,
 			Revision: s.cfg.Catalogue.Region.Version, Terrain: make([]string, len(is.Tiles)),
+			Fertilities: append([]string{}, is.Fertilities...), Deposits: []depositOutJSON{},
 		}
 		for i, t := range is.Tiles {
 			resp.Terrain[i] = t.Terrain
+			if t.Deposit != nil {
+				resp.Deposits = append(resp.Deposits, depositOutJSON{X: i % is.Width, Y: i / is.Width, Kind: t.Deposit.Kind})
+			}
 		}
 		return false, nil
 	})

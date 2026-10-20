@@ -112,6 +112,10 @@ type Island struct {
 	// Buildings sorted by ascending ID.
 	Buildings []*Building `json:"buildings,omitempty"`
 	Inventory Inventory   `json:"inventory"`
+	// Fertilities are the island-wide fertility tags (MECHANICS §2), sorted
+	// as seeded; a building whose work area needs a fertility can only be
+	// placed on an island that has it.
+	Fertilities []string `json:"fertilities,omitempty"`
 	// WorkforceGrant holds phantom workers per tier (milli-residents)
 	// granted at seed time by GrantWorkforce. They count only towards the
 	// island's workforce pool, never as population.
@@ -121,9 +125,8 @@ type Island struct {
 // Tile is one map tile.
 type Tile struct {
 	// Terrain is one of the content.Terrain* constants.
-	Terrain   string   `json:"terrain"`
-	Fertility []string `json:"fertility,omitempty"`
-	Deposit   *Deposit `json:"deposit,omitempty"`
+	Terrain string   `json:"terrain"`
+	Deposit *Deposit `json:"deposit,omitempty"`
 }
 
 // Deposit is a resource deposit on a tile.
@@ -395,13 +398,13 @@ func (is *Island) clone() *Island {
 	c.Tiles = make([]Tile, len(is.Tiles))
 	for i, t := range is.Tiles {
 		c.Tiles[i] = t
-		if t.Fertility != nil {
-			c.Tiles[i].Fertility = append([]string(nil), t.Fertility...)
-		}
 		if t.Deposit != nil {
 			d := *t.Deposit
 			c.Tiles[i].Deposit = &d
 		}
+	}
+	if is.Fertilities != nil {
+		c.Fertilities = append([]string(nil), is.Fertilities...)
 	}
 	c.Roads = maps.Clone(is.Roads)
 	c.WorkforceGrant = maps.Clone(is.WorkforceGrant)

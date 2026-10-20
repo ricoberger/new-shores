@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/ricoberger/new-shores/content/schema/buildings.schema.json",
   "title": "Buildings",
-  "description": "Buildings of a region (CONTENT §5, §9). Behaviour is attached through optional capability blocks: recipe, house, warehouse, road, service, shipyard, work_area, workforce.",
+  "description": "Buildings of a region (CONTENT §5, §9). Behaviour is attached through optional capability blocks: recipe, house, warehouse, road, service, shipyard, work_area, workforce; requires_deposit ties a producer to a deposit tile.",
   "type": "array",
   "items": {
     "type": "object",
@@ -36,16 +36,10 @@
       },
       "coastal": { "type": "boolean" },
       "requires_road": { "type": "boolean" },
-      "cost": {
-        "description": "Construction cost: 'gold' plus materials by good ID (units).",
-        "type": "object",
-        "properties": {
-          "gold": { "type": "number", "minimum": 0 }
-        },
-        "patternProperties": {
-          "^[a-z][a-z0-9_]*$": { "type": "number", "minimum": 0 }
-        },
-        "additionalProperties": false
+      "cost": { "$ref": "#/$defs/cost" },
+      "requires_deposit": {
+        "description": "Deposit kind one footprint tile must carry; the building may also stand on mountain tiles (MECHANICS §2, D-036 interim rule).",
+        "$ref": "#/$defs/id"
       },
       "upkeep_per_min": { "type": "number", "minimum": 0 },
       "pause_category": {
@@ -79,16 +73,18 @@
         "required": ["levels"],
         "properties": {
           "levels": {
+            "description": "Levels in order. The first level is placed with the building cost and has no cost; every later level is reached by an upgrade and requires its cost.",
             "type": "array",
             "minItems": 1,
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["capacity", "throughput_per_min"],
-              "properties": {
-                "capacity": { "type": "number", "exclusiveMinimum": 0 },
-                "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 }
+            "prefixItems": [
+              {
+                "$ref": "#/$defs/warehouse_level",
+                "not": { "required": ["cost"] }
               }
+            ],
+            "items": {
+              "$ref": "#/$defs/warehouse_level",
+              "required": ["cost"]
             }
           }
         }
@@ -145,13 +141,41 @@
             "uniqueItems": true,
             "items": { "enum": ["water", "coast", "grass", "forest", "mountain"] }
           },
-          "required_tiles": { "type": "integer", "minimum": 1 }
+          "required_tiles": { "type": "integer", "minimum": 1 },
+          "fertility": {
+            "description": "Island-wide fertility tag the building needs (MECHANICS §2).",
+            "$ref": "#/$defs/id"
+          }
         }
       }
     }
   },
   "$defs": {
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "warehouse_level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capacity", "throughput_per_min"],
+      "properties": {
+        "capacity": { "type": "number", "exclusiveMinimum": 0 },
+        "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 },
+        "cost": {
+          "description": "Upgrade cost into this level (gold from the world, materials from the island).",
+          "$ref": "#/$defs/cost"
+        }
+      }
+    },
+    "cost": {
+      "description": "Construction cost: 'gold' plus materials by good ID (units).",
+      "type": "object",
+      "properties": {
+        "gold": { "type": "number", "minimum": 0 }
+      },
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
     "good_amount": {
       "type": "object",
       "additionalProperties": false,

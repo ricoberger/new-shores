@@ -31,8 +31,8 @@ func TestShipBuilt(t *testing.T) {
 	if at.At != "2026-01-01T00:02:00.000Z" || at.Boundaries != 1 || len(at.Ships) != 1 || at.Ships[0].State != sim.ShipIdle || at.Ships[0].IslandID != "start" {
 		t.Errorf("at due time: %+v", at)
 	}
-	// Upkeep of the ship (2 gold/min) counts from the build.
-	if before.BalanceRatePerMin-at.BalanceRatePerMin != 2000 {
+	// Upkeep of the ship counts from the build.
+	if before.BalanceRatePerMin-at.BalanceRatePerMin != loadCatalogue(t).ShipByID["sloop"].UpkeepPerMin {
 		t.Errorf("balance %d -> %d", before.BalanceRatePerMin, at.BalanceRatePerMin)
 	}
 	if g := rep.Totals["start"]["sails"]; g.Spent != 10_000 {
@@ -135,7 +135,16 @@ func TestFoundIsland(t *testing.T) {
 	if !i2.Settled || i2.Name != "Island 2" || i2.Inventory["fish"].Stock <= 0 {
 		t.Errorf("island 2: %+v", i2)
 	}
-	if f := r.l.Flow("island2", "planks"); f.Spent != (30+20+6)*1000*sim.SubPerMilli {
+	planks := func(id string) int64 {
+		for _, m := range r.c.BuildingByID[id].Cost.Materials {
+			if m.Good == "planks" {
+				return m.Amount
+			}
+		}
+		return 0
+	}
+	// Warehouse from the cargo, two houses and the fisher.
+	if f := r.l.Flow("island2", "planks"); f.Spent != (planks("warehouse")+2*planks("house_settlers")+planks("fisher"))*sim.SubPerMilli {
 		t.Errorf("planks spent %d", f.Spent)
 	}
 }
@@ -151,7 +160,7 @@ func TestShipInsolvencyScenario(t *testing.T) {
 			pauses = append(pauses, e.Type)
 		}
 	}
-	if want := "weaver_wool,lumberjack,sawmill,sheep_farm,sloop,fisher"; strings.Join(pauses, ",") != want {
+	if want := "weaver_wool,lumberjack,sheep_farm,sawmill,sloop,fisher"; strings.Join(pauses, ",") != want {
 		t.Fatalf("pauses %v, want %s", pauses, want)
 	}
 	var paused *ShipSnapshot

@@ -31,4 +31,10 @@ export const CART = Color3.FromHexString("#F2E8CF");
 export const GHOST = Color3.FromHexString("#DDDDDD");
 /** Ghost of a building without an adjacent road: "not connected", never red. */
 export const GHOST_NO_ROAD = Color3.FromHexString("#F0C808");
+/**
+ * Ghost of a building the server would reject for a missing fertility or
+ * deposit (a lookup of the island's static data; the click still goes to
+ * the server, which validates).
+ */
+export const GHOST_INVALID = Color3.FromHexString("#D7263D");
 export const SELECTION = Color3.FromHexString("#FFD23F");

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"maps"
 	"math/rand/v2"
+	"strings"
 	"testing"
 	"time"
 
@@ -176,7 +177,9 @@ func (p *propCase) townWorld() *World {
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
 	w.Islands = []*Island{islandFromRows("main", rows...)}
 	free := func(typ string, x, y, rot int) {
-		if p.c.BuildingByID[typ] == nil {
+		// Only first-tier buildings: the town is a Settler town (the
+		// shipped content's tier-2 bakery needs flour and Citizens).
+		if def := p.c.BuildingByID[typ]; def == nil || def.Tier != p.c.Tiers[0].ID {
 			return
 		}
 		if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: typ, X: x, Y: y, Rotation: rot}, p.l); err != nil {
@@ -273,6 +276,23 @@ func (p *propCase) randomCommand() Command {
 		return SetPaused{IslandID: "main", BuildingID: b.ID, Paused: p.rng.IntN(2) == 0}
 	case r < 85:
 		return p.randomMove()
+	case r < 88:
+		// Warehouse upgrades charge gold and materials like a placement
+		// (conservation via the ledger's Spent); most fail for lack of
+		// stone or at the last level.
+		var whs []*Building
+		for _, b := range is.Buildings {
+			if def := p.c.BuildingByID[b.Type]; def != nil && def.Warehouse != nil {
+				whs = append(whs, b)
+			}
+		}
+		if len(whs) == 0 {
+			return nil
+		}
+		if p.c.GoodByID["stone"] != nil && p.rng.IntN(2) == 0 {
+			return addStockOp{good: "stone", qty: 20_000}
+		}
+		return UpgradeWarehouse{IslandID: "main", BuildingID: whs[p.rng.IntN(len(whs))].ID}
 	default:
 		if len(is.Buildings) < 2 {
 			return nil
@@ -690,11 +710,23 @@ func (p *propCase) run(compose bool) ([]byte, []Boundary) {
 func TestPropertyConservationAndBounds(t *testing.T) {
 	for name, c := range propertyCatalogues(t) {
 		t.Run(name, func(t *testing.T) {
+			upgrades := 0
 			for seed := range uint64(propertyCases) {
 				p := newPropCase(t, c, seed)
 				p.checkInvariants("initial")
 				p.run(false)
+				for _, op := range p.ops {
+					if strings.HasPrefix(op, "sim.UpgradeWarehouse") {
+						upgrades++
+					}
+				}
 			}
+			// Content with a second warehouse level must exercise the
+			// upgrade's material charges (conservation via Spent).
+			if wh := c.BuildingByID["warehouse"]; len(wh.Warehouse.Levels) > 1 && upgrades == 0 {
+				t.Error("no successful warehouse upgrade")
+			}
+			t.Logf("successful warehouse upgrades: %d", upgrades)
 		})
 	}
 }
@@ -762,7 +794,9 @@ func (p *propCase) recoveryWorld() *World {
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
 	w.Islands = []*Island{islandFromRows("main", townRows()...)}
 	free := func(typ string, x, y, rot int) {
-		if p.c.BuildingByID[typ] == nil {
+		// Only first-tier buildings: the town is a Settler town (the
+		// shipped content's tier-2 bakery needs flour and Citizens).
+		if def := p.c.BuildingByID[typ]; def == nil || def.Tier != p.c.Tiers[0].ID {
 			return
 		}
 		if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: typ, X: x, Y: y, Rotation: rot}, p.l); err != nil {

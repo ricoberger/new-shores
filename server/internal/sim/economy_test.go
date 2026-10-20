@@ -12,6 +12,24 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
+// orderCatalogue is the shipped catalogue with the wool chain at the
+// upkeep (2 gold/min each) and cycle (60 s) these insolvency-order tests
+// were written for: the expected cascades rank buildings by upkeep and the
+// resume decisions depend on the weaver's consumption, which the balancing
+// pass changes freely.
+func orderCatalogue(t *testing.T) *content.Catalogue {
+	t.Helper()
+	c := withUpkeep(catalogue(t), map[string]Qty{"sheep_farm": 2_000, "weaver_wool": 2_000})
+	for _, id := range []string{"sheep_farm", "weaver_wool"} {
+		b := *c.BuildingByID[id]
+		rec := *b.Recipe
+		rec.CycleMs = 60_000
+		b.Recipe = &rec
+		c.BuildingByID[id] = &b
+	}
+	return c
+}
+
 // pauseEvents returns the building IDs of the auto_pause or auto_resume
 // events (boundaries with a building) of kind in order.
 func pauseEvents(bs []Boundary, kind string) []int64 {
@@ -51,7 +69,7 @@ func insolventTown(t *testing.T, c *content.Catalogue) (w *World, fisher, weaver
 // goods, then intermediates lowest upkeep first, then food); with nothing
 // left to pause gold is held at zero.
 func TestAutoPauseCascadeAndHeldGold(t *testing.T) {
-	c := catalogue(t)
+	c := orderCatalogue(t)
 	w, fisher, weaver, sawmill, sheep, lumberjack := insolventTown(t, c)
 	// 1 gold = 60 000 000 sub-units at 12 000 sub-units/ms: 5 s.
 	bs := mustAdvance(t, w, c, time.Minute)
@@ -93,7 +111,7 @@ func TestAutoPauseCascadeAndHeldGold(t *testing.T) {
 // order, each once gold reaches 5 minutes of its upkeep and the balance stays
 // >= 0 without it.
 func TestAutoResumeOrderAndHysteresis(t *testing.T) {
-	c := catalogue(t)
+	c := orderCatalogue(t)
 	// After the cascade of TestAutoPauseCascadeAndHeldGold: eight houses
 	// with goods and a market, taxes 8 x R x 0.2 gold/min with R growing
 	// 2 -> 8 by one resident per minute.
@@ -237,8 +255,16 @@ func TestUpgradeHouse(t *testing.T) {
 		}
 	}
 
-	t.Run("shipped content has no Citizens house", func(t *testing.T) {
-		c := catalogue(t)
+	t.Run("declared-only tier has no house", func(t *testing.T) {
+		base := catalogue(t)
+		cit := *base.TierByID["citizens"]
+		cit.House = ""
+		cc := *base
+		cc.TierByID = maps.Clone(base.TierByID)
+		cc.TierByID["citizens"] = &cit
+		cc.Tiers = slices.Clone(base.Tiers)
+		cc.Tiers[1] = &cit
+		c := &cc
 		w := newTown(t, c, 1_000)
 		h := placeHouses(t, w, c, 1)[0]
 		house(w, h).Residents = 8_000
@@ -312,7 +338,6 @@ func TestTierGating(t *testing.T) {
 	w := newTown(t, &cc, 10_000)
 	for _, cmd := range []Command{
 		PlaceBuilding{IslandID: "main", Type: "tavern", X: 17, Y: 1},
-		PlaceBuilding{IslandID: "main", Type: "house_citizens", X: 9, Y: 2},
 		PlaceRoad{IslandID: "main", Type: "road_paved", Tiles: []Pos{{5, 7}}},
 		PlaceBuilding{IslandID: "main", Type: "road_paved", X: 5, Y: 7},
 	} {
@@ -326,9 +351,21 @@ func TestTierGating(t *testing.T) {
 	}
 	placeFree(t, w, &cc, "tavern", 17, 1, 0)
 
+	// A house of a later tier is upgrade-only, locked or not (R-12).
+	before := encode(t, w)
+	if err := Apply(w, &cc, PlaceBuilding{IslandID: "main", Type: "house_citizens", X: 9, Y: 2}); !errors.Is(err, ErrUpgradeOnly) {
+		t.Errorf("place house_citizens = %v", err)
+	}
+	if !bytes.Equal(before, encode(t, w)) {
+		t.Error("world changed on error")
+	}
+
 	w.UnlockedTiers = []string{"citizens"}
 	mustApply(t, w, &cc, PlaceRoad{IslandID: "main", Type: "road_paved", Tiles: []Pos{{5, 7}}})
 	mustApply(t, w, &cc, PlaceBuilding{IslandID: "main", Type: "tavern", X: 21, Y: 1})
+	if err := Apply(w, &cc, PlaceBuilding{IslandID: "main", Type: "house_citizens", X: 9, Y: 2}); !errors.Is(err, ErrUpgradeOnly) {
+		t.Errorf("place house_citizens after the unlock = %v", err)
+	}
 }
 
 // TestDisplayPopulationFields checks the presence of the R25-R27 display
@@ -465,7 +502,7 @@ func TestPropertyVarietyMonotonic(t *testing.T) {
 // minute with an empty stock.
 func fishWeaverTown(t *testing.T, fishPerMin Qty) (*content.Catalogue, *World, int64) {
 	t.Helper()
-	c := catalogue(t)
+	c := orderCatalogue(t)
 	weaver := *c.BuildingByID["weaver_wool"]
 	rec := *weaver.Recipe
 	rec.Inputs = []content.GoodAmount{{Good: "fish", Amount: 1000}}

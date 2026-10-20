@@ -1,6 +1,7 @@
 package sim
 
 import (
+	"maps"
 	"math"
 	"math/bits"
 
@@ -87,6 +88,23 @@ func (p *producer) capExcept(skipIn, skipOut int) int64 {
 	}
 	for i, c := range p.fullCap {
 		if i != skipOut && c >= 0 {
+			r = min(r, c)
+		}
+	}
+	return r
+}
+
+// capWithout is capExcept(-1, -1) without the starvation caps of the
+// inputs whose good is in skip.
+func (p *producer) capWithout(skip map[string]bool) int64 {
+	r := p.tp
+	for i, c := range p.starveCap {
+		if c >= 0 && !skip[p.def.Recipe.Inputs[i].Good] {
+			r = min(r, c)
+		}
+	}
+	for _, c := range p.fullCap {
+		if c >= 0 {
 			r = min(r, c)
 		}
 	}
@@ -444,23 +462,33 @@ func settleRegimes(is *Island, c *content.Catalogue, now int64, entries bool) *r
 func updateRegimes(is *Island, c *content.Catalogue, r *rates, now int64, entries bool) bool {
 	inv := &is.Inventory
 	changed := false
+	// Starved goods leave the regime one at a time in good order: a
+	// consumer's demand for a good is capped by its other inputs only while
+	// those stay starved. Otherwise two starved inputs of one recipe (e.g.
+	// iron ore and charcoal of a smelter, both without arrivals) would each
+	// leave because the other caps the consumer at zero, and re-enter at the
+	// next millisecond.
+	exited := map[string]bool{}
 	for _, good := range sortedKeys(inv.Starved) {
 		// Houses count with the demand they would have if the good were
 		// supplied, so that an unsupplied good does not leave the regime
 		// only because nobody draws from it.
 		demand := r.houseExit[good]
+		skip := maps.Clone(exited)
+		skip[good] = true
 		for _, p := range r.producers {
 			if !p.connected {
 				continue
 			}
-			for i, in := range p.def.Recipe.Inputs {
+			for _, in := range p.def.Recipe.Inputs {
 				if in.Good == good {
-					demand += p.capExcept(i, -1) * in.Amount
+					demand += p.capWithout(skip) * in.Amount
 				}
 			}
 		}
 		if demand <= r.inflow[good] {
 			delete(inv.Starved, good)
+			exited[good] = true
 			changed = true
 		}
 	}

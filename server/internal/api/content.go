@@ -112,6 +112,8 @@ type houseJSON struct {
 type warehouseLevelJSON struct {
 	Capacity         int64 `json:"capacity"`
 	ThroughputPerMin int64 `json:"throughput_per_min"`
+	// Cost is the upgrade cost into the level (absent on the first level).
+	Cost *costJSON `json:"cost,omitempty"`
 }
 
 type warehouseJSON struct {
@@ -130,6 +132,7 @@ type workAreaJSON struct {
 	Radius        int      `json:"radius"`
 	Terrain       []string `json:"terrain"`
 	RequiredTiles int      `json:"required_tiles"`
+	Fertility     string   `json:"fertility,omitempty"`
 }
 
 type workforceJSON struct {
@@ -157,6 +160,8 @@ type buildingJSON struct {
 	WorkArea      *workAreaJSON    `json:"work_area,omitempty"`
 	Workforce     *workforceJSON   `json:"workforce,omitempty"`
 	Shipyard      *shipyardJSONOut `json:"shipyard,omitempty"`
+	// RequiresDeposit is the deposit kind the footprint must cover.
+	RequiresDeposit string `json:"requires_deposit,omitempty"`
 }
 
 type needGoodJSON struct {
@@ -266,11 +271,8 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 	bj := buildingJSON{
 		ID: b.ID, Name: b.Name, Tier: b.Tier, Category: buildingCategory(b),
 		Width: b.Width, Height: b.Height, Coastal: b.Coastal, RequiresRoad: b.RequiresRoad,
-		Cost:         costJSON{Gold: b.Cost.Gold, Materials: map[string]int64{}},
-		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory,
-	}
-	for _, m := range b.Cost.Materials {
-		bj.Cost.Materials[m.Good] = m.Amount
+		Cost:         newCostJSON(b.Cost),
+		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit,
 	}
 	if r := b.Recipe; r != nil {
 		bj.Recipe = &recipeJSON{Inputs: goodAmounts(r.Inputs), Outputs: goodAmounts(r.Outputs), CycleMs: r.CycleMs}
@@ -281,7 +283,12 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 	if wh := b.Warehouse; wh != nil {
 		bj.Warehouse = &warehouseJSON{Levels: []warehouseLevelJSON{}}
 		for _, l := range wh.Levels {
-			bj.Warehouse.Levels = append(bj.Warehouse.Levels, warehouseLevelJSON{Capacity: l.Capacity, ThroughputPerMin: l.ThroughputPerMin})
+			lj := warehouseLevelJSON{Capacity: l.Capacity, ThroughputPerMin: l.ThroughputPerMin}
+			if l.Cost != nil {
+				cost := newCostJSON(*l.Cost)
+				lj.Cost = &cost
+			}
+			bj.Warehouse.Levels = append(bj.Warehouse.Levels, lj)
 		}
 	}
 	if rd := b.Road; rd != nil {
@@ -291,7 +298,7 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		bj.Service = &serviceJSON{Radius: s.Radius}
 	}
 	if wa := b.WorkArea; wa != nil {
-		bj.WorkArea = &workAreaJSON{Radius: wa.Radius, Terrain: append([]string{}, wa.Terrain...), RequiredTiles: wa.RequiredTiles}
+		bj.WorkArea = &workAreaJSON{Radius: wa.Radius, Terrain: append([]string{}, wa.Terrain...), RequiredTiles: wa.RequiredTiles, Fertility: wa.Fertility}
 	}
 	if wf := b.Workforce; wf != nil {
 		bj.Workforce = &workforceJSON{Tier: wf.Tier, Amount: wf.Amount}
@@ -300,6 +307,14 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		bj.Shipyard = &shipyardJSONOut{Ships: append([]string{}, sy.Ships...)}
 	}
 	return bj
+}
+
+func newCostJSON(c content.Cost) costJSON {
+	out := costJSON{Gold: c.Gold, Materials: map[string]int64{}}
+	for _, m := range c.Materials {
+		out.Materials[m.Good] = m.Amount
+	}
+	return out
 }
 
 func newNeedJSON(n *content.Need) needJSON {

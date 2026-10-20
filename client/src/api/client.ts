@@ -118,13 +118,22 @@ export function getContent(): Promise<Content> {
 }
 
 /**
- * Static data of an island. Only the fields the client knows are read, so
- * sibling arrays added later (fertilities, slots) are ignored until the
- * regenerated types and the renderer use them.
+ * Static data of an island: terrain, fertility tags and deposit tiles. Only
+ * the fields the client knows are read, so sibling arrays added later are
+ * ignored until the regenerated types use them; missing arrays (an older
+ * server) read as empty.
  */
 export async function getIsland(id: string): Promise<Island> {
   const raw = await request<Island>(`/api/v1/world/islands/${encodeURIComponent(id)}`);
-  return { id: raw.id, width: raw.width, height: raw.height, revision: raw.revision, terrain: raw.terrain };
+  return {
+    id: raw.id,
+    width: raw.width,
+    height: raw.height,
+    revision: raw.revision,
+    terrain: raw.terrain,
+    fertilities: raw.fertilities ?? [],
+    deposits: raw.deposits ?? [],
+  };
 }
 
 export function sendCommand(command: Command, version?: number): Promise<WorldResponse> {

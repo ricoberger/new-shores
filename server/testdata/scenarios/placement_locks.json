@@ -1,0 +1,377 @@
+{
+  "name": "placement_locks",
+  "description": "Placement locks of tier-2 content (golden w, free seed): after the Citizens unlock, placing a Citizen house directly fails (upgrade_only), an iron mine on the start island's stone deposits and a quarry on mountain without a deposit fail (no_deposit), a sawmill stays off mountains (terrain), a wheat farm on island 2 (hemp only) fails (no_fertility); a quarry on the stone deposits, a wheat farm on the start island and a hemp farm on island 2 succeed. Every failed step leaves the world byte-identical.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "fertilities": [
+        "wheat",
+        "apple"
+      ],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~...............mmmmmmm................~",
+        "~...............mmmmmmm................~",
+        "~...............mSSmSSm................~",
+        "~......................................~",
+        "~......................................~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 72,
+      "y": 96,
+      "fertilities": [
+        "hemp"
+      ],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccc~",
+        "~..................~",
+        "~..................~",
+        "~.......mmIImm.....~",
+        "~.......mIIIIm.....~",
+        "~.......mmmmmm.....~",
+        "~..................~",
+        "~..................~",
+        "~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": "10000",
+    "stock": {
+      "planks": 290,
+      "stone": 40,
+      "sails": 10,
+      "fish": 200,
+      "wool_garments": 100
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          4
+        ],
+        "to": [
+          38,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          2,
+          10
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          10
+        ],
+        "to": [
+          29,
+          10
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 8,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "chapel",
+        "x": 11,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 6,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 16,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 18,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 20,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 22,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 24,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 26,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 28,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 30,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 32,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 34,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "stock": {
+        "good": "planks",
+        "amount": "100"
+      }
+    },
+    {
+      "place": {
+        "type": "house_citizens",
+        "x": 6,
+        "y": 5,
+        "rotation": 0
+      },
+      "expect_error": "upgrade_only"
+    },
+    {
+      "place": {
+        "type": "iron_mine",
+        "x": 17,
+        "y": 7,
+        "rotation": 0
+      },
+      "expect_error": "no_deposit"
+    },
+    {
+      "place": {
+        "type": "quarry",
+        "x": 19,
+        "y": 6,
+        "rotation": 0
+      },
+      "expect_error": "no_deposit"
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 17,
+        "y": 8,
+        "rotation": 0
+      },
+      "expect_error": "terrain"
+    },
+    {
+      "place": {
+        "type": "quarry",
+        "x": 16,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "wheat_farm",
+        "x": 24,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 30,
+        "y": 9,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 30,
+        "y": 9,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 50,
+          "stone": 10
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "island2",
+        "x": 1,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "wheat_farm",
+        "x": 14,
+        "y": 1,
+        "rotation": 0
+      },
+      "expect_error": "no_fertility"
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "hemp_farm",
+        "x": 15,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}
