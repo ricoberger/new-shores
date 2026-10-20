@@ -84,7 +84,7 @@ func (s *Store) SaveWorld(ctx context.Context, tx pgx.Tx, lw *LockedWorld) error
 		return fmt.Errorf("encode world: %w", err)
 	}
 	err = tx.QueryRow(ctx, `UPDATE worlds
-SET state = $2, schema_version = $3, version = version + 1, last_evaluated_at = $4, updated_at = now()
+SET state = $2, schema_version = $3, version = version + 1, last_evaluated_at = $4, updated_at = statement_timestamp()
 WHERE id = $1
 RETURNING version`, string(lw.ID), state, sim.SchemaVersion, lw.World.LastEvaluatedAt).Scan(&lw.Version)
 	if err != nil {

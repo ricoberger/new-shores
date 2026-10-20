@@ -210,6 +210,16 @@ var errDeferred = errors.New("an earlier event of the same world is pending")
 
 // process applies one event. Failures are recorded on the event (backoff,
 // failed after MaxAttempts) and never affect other events.
+//
+// Clock rule (same as the store's): the world is advanced to the event's
+// due_at; the only "now" read inside the processing transaction (lag
+// metric, the event's updated_at) is read after every world lock is held
+// (postgres.LockedNow). The other database times the worker uses — the
+// claim lease, the defer delay and the retry backoff (next_attempt_at,
+// updated_at) — are single autocommit statements on scheduled_events rows
+// that hold no world lock; they schedule the next attempt and are never
+// compared with world time, so reading them before any world lock is
+// harmless.
 func (w *Worker) process(ctx context.Context, id int64) {
 	begin := time.Now()
 	ctx, span := telemetry.Tracer().Start(ctx, "event")
@@ -233,12 +243,9 @@ func (w *Worker) process(ctx context.Context, id int64) {
 		} else if earlier {
 			return errDeferred
 		}
-		now, err := postgres.DBNow(ctx, tx)
-		if err != nil {
-			return err
-		}
+		var now time.Time
+		changed, now, err = w.apply(ctx, tx, ev)
 		lag = now.Sub(ev.DueAt)
-		changed, err = w.apply(ctx, tx, ev)
 		return err
 	})
 	switch {
@@ -305,11 +312,14 @@ func hasEarlierPending(ctx context.Context, tx pgx.Tx, ev *Event) (bool, error) 
 
 // apply locks the event's worlds in ascending ID order, advances each to
 // due_at, runs the handler, saves the worlds, inserts follow-ups and marks
-// the event done.
-func (w *Worker) apply(ctx context.Context, tx pgx.Tx, ev *Event) ([]store.WorldID, error) {
+// the event done. It returns the database clock read once after all world
+// locks are held (the processing time used for the lag metric and the
+// event's updated_at); world time itself is the event's due_at.
+func (w *Worker) apply(ctx context.Context, tx pgx.Tx, ev *Event) ([]store.WorldID, time.Time, error) {
+	var now time.Time
 	h, ok := w.Registry.Handler(ev.Kind)
 	if !ok {
-		return nil, fmt.Errorf("unregistered event kind %q", ev.Kind)
+		return nil, now, fmt.Errorf("unregistered event kind %q", ev.Kind)
 	}
 	ids := slices.Clone(ev.WorldIDs)
 	slices.Sort(ids)
@@ -319,35 +329,39 @@ func (w *Worker) apply(ctx context.Context, tx pgx.Tx, ev *Event) ([]store.World
 	for _, id := range ids {
 		lw, err := w.Store.LockWorld(ctx, tx, id)
 		if err != nil {
-			return nil, err
+			return nil, now, err
 		}
 		if lw.World.LastEvaluatedAt.After(ev.DueAt) {
-			return nil, fmt.Errorf("world %s was evaluated at %s, past the event's due_at %s", id,
+			return nil, now, fmt.Errorf("world %s was evaluated at %s, past the event's due_at %s", id,
 				lw.World.LastEvaluatedAt.Format(time.RFC3339Nano), ev.DueAt.Format(time.RFC3339Nano))
 		}
 		if _, err := sim.Advance(lw.World, w.Catalogue, ev.DueAt); err != nil {
-			return nil, fmt.Errorf("advance world %s to due_at: %w", id, err)
+			return nil, now, fmt.Errorf("advance world %s to due_at: %w", id, err)
 		}
 		locked = append(locked, lw)
 		hc.Worlds[id] = lw.World
 	}
+	now, err := postgres.LockedNow(ctx, tx)
+	if err != nil {
+		return nil, now, err
+	}
 	if err := h(ctx, hc); err != nil {
-		return nil, fmt.Errorf("%s handler: %w", ev.Kind, err)
+		return nil, now, fmt.Errorf("%s handler: %w", ev.Kind, err)
 	}
 	for _, lw := range locked {
 		if err := w.Store.SaveWorld(ctx, tx, lw); err != nil {
-			return nil, err
+			return nil, now, err
 		}
 	}
 	for _, f := range hc.followUps {
 		if _, err := postgres.InsertEvent(ctx, tx, postgres.NewEvent(f)); err != nil {
-			return nil, err
+			return nil, now, err
 		}
 	}
-	if _, err := tx.Exec(ctx, "UPDATE scheduled_events SET status = 'done', updated_at = now() WHERE id = $1", ev.ID); err != nil {
-		return nil, fmt.Errorf("mark event done: %w", err)
+	if _, err := tx.Exec(ctx, "UPDATE scheduled_events SET status = 'done', updated_at = $2 WHERE id = $1", ev.ID, now); err != nil {
+		return nil, now, fmt.Errorf("mark event done: %w", err)
 	}
-	return ids, nil
+	return ids, now, nil
 }
 
 // deferEvent makes an event claimable again shortly without counting an

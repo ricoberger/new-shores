@@ -435,3 +435,43 @@ func TestPendingGaugeWhileDraining(t *testing.T) {
 		t.Fatal("events_pending stayed 0 while the worker drained a backlog")
 	}
 }
+
+// TestProcessingTimeReadAfterWorldLocks: the processing time of an event
+// (lag metric, updated_at) is read after the world locks are held, so a
+// wait for a world lock is part of it (now() would be the earlier
+// transaction start).
+func TestProcessingTimeReadAfterWorldLocks(t *testing.T) {
+	st := setup(t)
+	_, id := testenv.NewWorld(t, st, time.Hour)
+	evID := testenv.InsertEvent(t, st, createdAt(t, st, id).Add(time.Minute), events.KindAdvanceTo, []store.WorldID{id}, map[string]any{})
+	ctx := context.Background()
+	holder, err := st.Pool().Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.LockWorld(ctx, holder, id); err != nil {
+		t.Fatal(err)
+	}
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		_, _ = worker(t, st, time.Hour, nil, nil).RunOnce(ctx)
+	}()
+	time.Sleep(500 * time.Millisecond) // the worker waits for the world lock
+	var released time.Time
+	if err := holder.QueryRow(ctx, "SELECT clock_timestamp()").Scan(&released); err != nil {
+		t.Fatal(err)
+	}
+	if err := holder.Commit(ctx); err != nil {
+		t.Fatal(err)
+	}
+	<-done
+	var status string
+	var updated time.Time
+	if err := st.Pool().QueryRow(ctx, "SELECT status, updated_at FROM scheduled_events WHERE id = $1", evID).Scan(&status, &updated); err != nil {
+		t.Fatal(err)
+	}
+	if status != "done" || updated.Before(released.Truncate(time.Millisecond)) {
+		t.Fatalf("status %s, processing time %s before the world lock was released at %s", status, updated, released)
+	}
+}
