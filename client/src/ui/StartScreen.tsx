@@ -22,9 +22,13 @@ interface Props {
 }
 
 /** Shown without a session: play as guest, log in or register. */
-export function StartScreen({ onPlayer, notice: initialNotice, resetToken }: Props) {
+export function StartScreen({ onPlayer, notice: incomingNotice, resetToken }: Props) {
   const [mode, setMode] = useState<Mode>(resetToken ? "reset" : null);
-  const [notice, setNotice] = useState(initialNotice);
+  // A notice of this screen's own flows (reset mail sent, password
+  // changed) wins; otherwise the incoming one is rendered as it changes
+  // (e.g. the result of a verification link that arrives after /auth/me).
+  const [localNotice, setLocalNotice] = useState<string | undefined>(undefined);
+  const notice = localNotice ?? incomingNotice;
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -40,7 +44,7 @@ export function StartScreen({ onPlayer, notice: initialNotice, resetToken }: Pro
     }
   };
   const done = (text: string) => {
-    setNotice(text);
+    setLocalNotice(text);
     setMode(null);
   };
 

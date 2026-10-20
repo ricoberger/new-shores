@@ -85,3 +85,16 @@ test("wrong password shows the API error", async ({ page }) => {
   await page.getByTestId("auth-submit").click();
   await expect(page.getByTestId("auth-error")).toHaveText("Wrong email or password.");
 });
+
+test("a verification result that arrives after the start screen is shown", async ({ page }) => {
+  // Delay the verification request so that /auth/me (401) renders the
+  // start screen first; the late result must still appear.
+  await page.route("**/api/v1/auth/verify-email", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await route.continue();
+  });
+  await page.goto("/?verify_email=1&token=not-a-real-token");
+  await expect(page.getByTestId("start-screen")).toBeVisible();
+  await expect(page.getByTestId("start-notice")).toHaveText("This link is invalid or has expired.");
+  expect(new URL(page.url()).search).toBe("");
+});

@@ -41,7 +41,7 @@ export function AuthForm({ mode, onDone, onCancel, onForgot }: Props) {
         <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} data-testid="auth-email" />
       </label>
       <label className={styles.field}>
-        Password {mode === "register" && "(8–128 characters)"}
+        Password {mode === "register" && "(8–128 bytes)"}
         <input
           type="password"
           autoComplete={mode === "login" ? "current-password" : "new-password"}

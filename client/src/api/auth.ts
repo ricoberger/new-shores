@@ -107,7 +107,7 @@ const MESSAGES: Partial<Record<ErrorCode, string>> = {
   invalid_credentials: "Wrong email or password.",
   email_taken: "This email address is already registered.",
   already_registered: "This account is already registered.",
-  weak_password: "The password must be 8 to 128 characters long.",
+  weak_password: "The password must be 8 to 128 bytes long (UTF-8; non-ASCII characters count as several bytes).",
   rate_limited: "Too many attempts. Please wait a moment and try again.",
   csrf_rejected: "The request was blocked (unexpected origin). Reload the page.",
   unauthorized: "Your session has ended. Please log in again.",

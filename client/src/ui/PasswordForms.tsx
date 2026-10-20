@@ -63,7 +63,7 @@ export function ResetPasswordForm({ token, onDone, onCancel }: Props & { token: 
   return (
     <form className={styles.stack} onSubmit={(e) => void submit(e)}>
       <label className={styles.field}>
-        New password (8–128 characters)
+        New password (8–128 bytes)
         <input type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
       </label>
       {error && <p className={styles.error}>{error}</p>}
