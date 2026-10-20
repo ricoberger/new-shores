@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
-import { clickIsland, expectView, islandPoint, shipPoint, toArchipelago, view } from "./archipelago";
+import { expect, type Page, test } from "@playwright/test";
+import { clickIsland, expectView, islandPoint, type Point, shipPoint, toArchipelago, view } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 import { E2E_TIME_SCALE, ISLAND, ISLAND_INLAND, ISLAND2, ISLAND2_INLAND, WAREHOUSE_TILE } from "./constants";
 
@@ -201,4 +201,83 @@ test("the 8-island / 20-ship fixture stays within the draw-call budget", async (
   expect(stats.drawCalls).toBeGreaterThan(0);
   expect(stats.drawCalls).toBeLessThanOrEqual(8 + 1 + 1 + 1 + 3 + 1);
   expect(await page.evaluate(() => window.__newShores!.engineCount())).toBe(1);
+});
+
+/** Clicks a control and returns the projection of an archipelago point before and in the first transition frame. */
+async function transitionStart(page: Page, testId: string, at: Point): Promise<{ before: Point; first: Point } | null> {
+  return page.evaluate(
+    async ([id, x, y]) => {
+      const h = window.__newShores!;
+      const before = h.archToScreen(x as number, y as number);
+      (document.querySelector(`[data-testid="${id as string}"]`) as HTMLElement).click();
+      for (let i = 0; i < 60; i++) {
+        await new Promise((r) => requestAnimationFrame(r));
+        if (h.view() === "transition") return { before, first: h.archToScreen(x as number, y as number) };
+      }
+      return null;
+    },
+    [testId, at.x, at.y] as const,
+  );
+}
+
+test("fixture: continuous transitions, Esc cancels a ship drag, selecting a ship suspends the editor", async ({ page }) => {
+  await page.goto("/?fixture=archipelago-8x20");
+  await expectView(page, "archipelago");
+
+  // Esc during a drag of an idle ship: the ship returns, the held pointer
+  // neither drags nor pans, the release opens nothing.
+  const idle = 4; // idle at isle2 in the fixture
+  const p0 = await shipPoint(page, idle);
+  const island0 = await islandPoint(page, "isle2");
+  await page.mouse.move(p0.x, p0.y);
+  await page.mouse.down();
+  await page.mouse.move(p0.x + 80, p0.y + 40, { steps: 8 });
+  await expect(page.getByTestId("arch-hint")).toContainText("Drop ship");
+  const dragged = await shipPoint(page, idle);
+  expect(Math.hypot(dragged.x - p0.x, dragged.y - p0.y)).toBeGreaterThan(40);
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("arch-hint")).not.toContainText("Drop ship");
+  await page.mouse.move(p0.x + 160, p0.y + 120, { steps: 8 });
+  const back = await shipPoint(page, idle);
+  expect(Math.hypot(back.x - p0.x, back.y - p0.y)).toBeLessThan(2);
+  await page.mouse.up();
+  await page.waitForTimeout(200);
+  await expect(page.getByTestId("shipment-dialog")).toHaveCount(0);
+  const island1 = await islandPoint(page, "isle2");
+  expect(Math.hypot(island1.x - island0.x, island1.y - island0.y)).toBeLessThan(1);
+
+  // Selecting a ship while the route editor is open shows its panel (list
+  // and scene); the editor is suspended and comes back.
+  await page.getByTestId("hud-routes").click();
+  await page.getByTestId("route-edit-1").click();
+  await expect(page.getByTestId("route-editor")).toBeVisible();
+  await page.getByTestId("hud-ships").click();
+  await page.getByTestId(`ship-${idle}`).click();
+  await expect(page.getByTestId("ship-panel-name")).toContainText(`#${idle}`);
+  await expect(page.getByTestId("route-editor")).toHaveCount(0);
+  await page.getByTestId("route-editor-resume").click();
+  await expect(page.getByTestId("route-editor")).toBeVisible();
+  const sp = await shipPoint(page, idle);
+  await page.mouse.click(sp.x, sp.y);
+  await expect(page.getByTestId("ship-panel-name")).toContainText(`#${idle}`);
+  await page.getByTestId("ship-panel-close").click();
+  await expect(page.getByTestId("route-editor")).toBeVisible();
+  await page.getByTestId("route-editor-close").click();
+
+  // Entering an island starts the camera exactly where it was (no snap in
+  // the first transition frame), from the archipelago and between islands.
+  await clickIsland(page, "isle2", { x: 8, y: 8 });
+  const fixed = { x: 100, y: 60 };
+  const enter = await transitionStart(page, "island-card-enter", fixed);
+  expect(enter).not.toBeNull();
+  expect(Math.hypot(enter!.first.x - enter!.before.x, enter!.first.y - enter!.before.y)).toBeLessThan(12);
+  await expectView(page, "isle2");
+  const across = await transitionStart(page, "island-tab-isle6", fixed);
+  expect(across).not.toBeNull();
+  expect(Math.hypot(across!.first.x - across!.before.x, across!.first.y - across!.before.y)).toBeLessThan(12);
+  await expectView(page, "isle6");
+  const out = await transitionStart(page, "to-archipelago", fixed);
+  expect(out).not.toBeNull();
+  expect(Math.hypot(out!.first.x - out!.before.x, out!.first.y - out!.before.y)).toBeLessThan(12);
+  await expectView(page, "archipelago");
 });
