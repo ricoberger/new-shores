@@ -38,7 +38,9 @@ func (s *DevScheduler) Run(ctx context.Context) error {
 		var wake <-chan time.Time
 		var timer *time.Timer
 		if next, ok := s.Store.NextDue(); ok {
-			timer = time.NewTimer(max(s.WallUntil(next), 0))
+			// At least 1 ms: an event that is due by wall-clock rounding but
+			// not yet by world time is retried shortly, never in a hot loop.
+			timer = time.NewTimer(max(s.WallUntil(next), time.Millisecond))
 			wake = timer.C
 		}
 		select {
