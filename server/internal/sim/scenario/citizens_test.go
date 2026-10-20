@@ -150,19 +150,30 @@ func TestWarehouseLoadTargets(t *testing.T) {
 		{"citizens_island_load", "main", 2},
 	} {
 		rep := runScenario(t, tc.scenario)
+		// The measurement must exist: the island and exactly one warehouse
+		// on it (the checklist is about one warehouse per island).
+		islands, warehouses := 0, 0
 		for _, is := range rep.Final.Islands {
 			if is.ID != tc.island {
 				continue
 			}
+			islands++
 			for _, b := range is.Buildings {
 				if b.Type != "warehouse" {
 					continue
+				}
+				warehouses++
+				if b.Level == nil || b.LoadPermille == nil || b.ThroughputPerMin == nil {
+					t.Fatalf("%s/%s: warehouse %d without level/load/throughput", tc.scenario, is.ID, b.ID)
 				}
 				t.Logf("%s/%s: warehouse level %d load %d ‰ (throughput %d)", tc.scenario, is.ID, *b.Level, *b.LoadPermille, *b.ThroughputPerMin)
 				if *b.Level != tc.level || *b.LoadPermille < 600 || *b.LoadPermille > 1000 {
 					t.Errorf("%s: level %d load %d ‰, want level %d at 600-1000 ‰", tc.scenario, *b.Level, *b.LoadPermille, tc.level)
 				}
 			}
+		}
+		if islands != 1 || warehouses != 1 {
+			t.Fatalf("%s: found %d islands %q with %d warehouses, want exactly one island with one warehouse", tc.scenario, islands, tc.island, warehouses)
 		}
 		for _, bn := range rep.Bottlenecks {
 			if bn.Status == sim.StatusThrottled {
