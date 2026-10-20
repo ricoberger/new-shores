@@ -85,6 +85,9 @@ type Session struct {
 	PlayerID string
 	// WorldID is the player's world in the server's region.
 	WorldID store.WorldID
+	// Refreshed: the sliding expiry was extended by this request (the
+	// cookie is re-issued so that its Max-Age slides too).
+	Refreshed bool
 }
 
 // Player is the public account view returned to its owner.
@@ -128,12 +131,14 @@ func (s *Service) Authenticate(ctx context.Context, token string) (*Session, err
 	if err != nil {
 		return nil, err
 	}
+	refreshed := false
 	if time.Since(rs.LastSeenAt) > sessionRefresh {
 		if err := postgres.RefreshSession(ctx, s.cfg.Store.Pool(), rs.ID, s.cfg.SessionTTL); err != nil {
 			return nil, err
 		}
+		refreshed = true
 	}
-	return &Session{ID: rs.ID, PlayerID: rs.PlayerID, WorldID: store.WorldID(rs.WorldID)}, nil
+	return &Session{ID: rs.ID, PlayerID: rs.PlayerID, WorldID: store.WorldID(rs.WorldID), Refreshed: refreshed}, nil
 }
 
 // startSession creates a session and returns its token.

@@ -301,7 +301,7 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if s.cfg.Accounts != nil && rt.access != public {
-		sess, fromCookie, err := s.authenticate(r)
+		sess, fromCookie, err := s.authenticate(w, r)
 		ri.session, ri.cookie = sess, fromCookie
 		if err != nil && (rt.access == requireSession || !errors.Is(err, errUnauthorized)) {
 			s.writeError(w, r, err)

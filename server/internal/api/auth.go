@@ -28,8 +28,9 @@ const (
 
 // authenticate resolves the session of a request from the Authorization
 // header (bearer) or the session cookie. A request without either has no
-// session (auth.ErrUnauthorized). fromCookie reports a cookie session.
-func (s *Server) authenticate(r *http.Request) (sess *auth.Session, fromCookie bool, err error) {
+// session (errUnauthorized). fromCookie reports a cookie session; when its
+// expiry slid, the cookie is re-issued so that its Max-Age slides too.
+func (s *Server) authenticate(w http.ResponseWriter, r *http.Request) (sess *auth.Session, fromCookie bool, err error) {
 	token := ""
 	if h := r.Header.Get("Authorization"); h != "" {
 		scheme, t, ok := strings.Cut(h, " ")
@@ -49,6 +50,9 @@ func (s *Server) authenticate(r *http.Request) (sess *auth.Session, fromCookie b
 	}
 	if err != nil {
 		return nil, fromCookie, err
+	}
+	if fromCookie && sess.Refreshed {
+		s.setCookie(w, token)
 	}
 	return sess, fromCookie, nil
 }

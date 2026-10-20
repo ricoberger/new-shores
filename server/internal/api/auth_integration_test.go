@@ -374,7 +374,11 @@ func TestSessionExpiry(t *testing.T) {
 	if _, err := env.st.Pool().Exec(context.Background(), "UPDATE sessions SET last_seen_at = now() - interval '2 hours', expires_at = now() + interval '1 day'"); err != nil {
 		t.Fatal(err)
 	}
-	c.must(http.MethodGet, "/api/v1/auth/me", "", 200)
+	before := c.cookie
+	rec, _ = c.do(http.MethodGet, "/api/v1/auth/me", "")
+	if rec.Code != 200 || !strings.Contains(rec.Header().Get("Set-Cookie"), "Max-Age=2592000") || c.cookie != before {
+		t.Fatalf("refreshed session: %d, cookie not re-issued: %v", rec.Code, rec.Header())
+	}
 	var days float64
 	_ = env.st.Pool().QueryRow(context.Background(), "SELECT max(extract(epoch FROM expires_at - now()) / 86400) FROM sessions").Scan(&days)
 	if days < 29.9 {
