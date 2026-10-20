@@ -2,14 +2,53 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net"
 	"net/smtp"
+	"net/textproto"
 	"net/url"
 	"regexp"
 	"strings"
 )
+
+// MailError is a mail delivery failure reduced to a category that is safe
+// to log: SMTP replies (e.g. "550 <player@example.org>: unknown user") and
+// wrapped errors can contain the recipient address, so the original error
+// is not kept.
+type MailError struct {
+	// Category is e.g. "smtp reply 550" or "smtp connection failed".
+	Category string
+}
+
+func (e *MailError) Error() string { return "mail delivery failed: " + e.Category }
+
+// MailFailure returns a loggable description of a Mailer error that never
+// contains the recipient address or the server's reply text.
+func MailFailure(err error) string {
+	var me *MailError
+	if errors.As(err, &me) {
+		return me.Category
+	}
+	return "mail delivery failed"
+}
+
+// classifySMTP reduces an SMTP error to a MailError.
+func classifySMTP(err error) *MailError {
+	var (
+		tp *textproto.Error
+		ne net.Error
+	)
+	switch {
+	case errors.As(err, &tp):
+		return &MailError{Category: fmt.Sprintf("smtp reply %d", tp.Code)}
+	case errors.As(err, &ne):
+		return &MailError{Category: "smtp connection failed"}
+	default:
+		return &MailError{Category: "smtp delivery failed"}
+	}
+}
 
 // Mailer sends account emails (verification, password reset).
 type Mailer interface {
@@ -69,12 +108,12 @@ func NewSMTPMailer(rawURL, from string) (*SMTPMailer, error) {
 // Send implements Mailer.
 func (m *SMTPMailer) Send(_ context.Context, to, subject, body string) error {
 	if strings.ContainsAny(to+subject, "\r\n") {
-		return fmt.Errorf("invalid mail header")
+		return &MailError{Category: "invalid mail header"}
 	}
 	msg := "From: " + m.from + "\r\nTo: " + to + "\r\nSubject: " + subject +
 		"\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n" + body
 	if err := smtp.SendMail(m.addr, m.auth, m.from, []string{to}, []byte(msg)); err != nil {
-		return fmt.Errorf("smtp: %w", err)
+		return classifySMTP(err)
 	}
 	return nil
 }
