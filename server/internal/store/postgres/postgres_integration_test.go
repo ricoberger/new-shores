@@ -289,3 +289,35 @@ func TestPendingEventCapsWorldTime(t *testing.T) {
 		t.Fatalf("next_attempt_at %s, want the default due_at %s", next, due)
 	}
 }
+
+// TestConcurrentAdvancesNeverGoBackwards: concurrent updates that advance
+// the world to the delivered time never see a time before the previous
+// holder's evaluation (the clock is read after the row lock is held).
+func TestConcurrentAdvancesNeverGoBackwards(t *testing.T) {
+	st, _ := newStore(t)
+	_, id := newWorld(t, st, 0)
+	ctx := context.Background()
+	const n = 40
+	var wg sync.WaitGroup
+	errs := make(chan error, n)
+	for range n {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, err := st.Update(ctx, id, func(w *sim.World, _ int64, now time.Time) (bool, error) {
+				if _, err := sim.Advance(w, catalogue(t), now); err != nil {
+					return false, err
+				}
+				return true, nil
+			})
+			errs <- err
+		}()
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatalf("concurrent advance: %v", err)
+		}
+	}
+}

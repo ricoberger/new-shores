@@ -3,9 +3,10 @@
 // (docs/ARCHITECTURE.md §4.2/§4.3). Queries are hand-written pgx/v5 calls;
 // migrations are embedded SQL files applied by Migrate.
 //
-// World time is the database clock: the transaction timestamp now()
-// truncated to milliseconds, so every read inside one transaction sees the
-// same instant and all instances share one clock.
+// World time is the database clock, truncated to milliseconds and read
+// once per update after the world's row lock is held (see WorldNow), so
+// all instances share one clock and every read inside one update sees the
+// same instant.
 package postgres
 
 import (

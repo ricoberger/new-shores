@@ -5,6 +5,7 @@ package auth
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log/slog"
 	"strings"
 	"testing"
@@ -18,7 +19,7 @@ import (
 func TestRedisTokenBucket(t *testing.T) {
 	client := testenv.Redis(t)
 	now := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	l := &RedisLimiter{Client: client, Prefix: "test:" + t.Name() + ":" + now.String(), Burst: 10, Rate: 10, Per: time.Minute,
+	l := &RedisLimiter{Client: client, Prefix: fmt.Sprintf("test:%s:%d:", t.Name(), time.Now().UnixNano()), Burst: 10, Rate: 10, Per: time.Minute,
 		Logger: slog.New(slog.NewTextHandler(&bytes.Buffer{}, nil)), Now: func() time.Time { return now }}
 	ctx := context.Background()
 	for i := range 10 {

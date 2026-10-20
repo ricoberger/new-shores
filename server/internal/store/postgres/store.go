@@ -94,17 +94,27 @@ RETURNING version`, string(lw.ID), state, sim.SchemaVersion, lw.World.LastEvalua
 }
 
 // WorldNow returns the world time of an update of the world: the database
-// transaction timestamp (milliseconds, UTC), capped at the earliest due_at
-// of a pending scheduled event that lists the world. The world is
-// therefore never advanced past a due event by the API path; only the
-// worker applies events, at their due time. Call it while holding the
-// world's row lock (events are only inserted under that lock).
+// clock (milliseconds, UTC), read once per update right after the row lock
+// was acquired, capped at the earliest due_at of a pending scheduled event
+// that lists the world. The world is therefore never advanced past a due
+// event by the API path; only the worker applies events, at their due
+// time. Call it while holding the world's row lock (events are only
+// inserted under that lock).
+//
+// The clock is statement_timestamp() of this statement, not now(): now()
+// is the transaction start, which precedes the wait for the row lock, so a
+// transaction that started earlier but got the lock later would see a
+// time before the previous holder's evaluation (sim.ErrTimeBackwards under
+// concurrent requests). The statement runs after the lock is held, so its
+// timestamp is after the previous holder's commit; it is read once and
+// delivered to the callback, so every read of one update sees the same
+// instant.
 func WorldNow(ctx context.Context, q Querier, id store.WorldID) (time.Time, error) {
 	var (
 		now time.Time
 		due *time.Time
 	)
-	err := q.QueryRow(ctx, `SELECT date_trunc('milliseconds', now()),
+	err := q.QueryRow(ctx, `SELECT date_trunc('milliseconds', statement_timestamp()),
   (SELECT min(due_at) FROM scheduled_events WHERE status = 'pending' AND world_ids @> ARRAY[$1::uuid])`, string(id)).Scan(&now, &due)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("world time: %w", err)
