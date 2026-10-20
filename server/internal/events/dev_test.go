@@ -26,15 +26,23 @@ func devCatalogue(t *testing.T) *content.Catalogue {
 	return c
 }
 
+// countingPublisher counts publishes and signals each one on published, so
+// that tests wait for the push instead of polling the world.
 type countingPublisher struct {
-	mu sync.Mutex
-	n  int
+	mu        sync.Mutex
+	n         int
+	published chan struct{}
+}
+
+func newCountingPublisher() *countingPublisher {
+	return &countingPublisher{published: make(chan struct{}, 16)}
 }
 
 func (p *countingPublisher) Publish(context.Context, store.WorldID) {
 	p.mu.Lock()
 	p.n++
 	p.mu.Unlock()
+	p.published <- struct{}{}
 }
 
 func (p *countingPublisher) count() int {
@@ -96,7 +104,7 @@ func TestDevSchedulerRearms(t *testing.T) {
 	if p := mem.Pending(); len(p) != 1 || !p[0].DueAt.Equal(worldStart.Add(time.Hour)) {
 		t.Fatalf("pending = %+v", p)
 	}
-	pub := &countingPublisher{}
+	pub := newCountingPublisher()
 	sched := &DevScheduler{
 		Store: mem, Registry: DefaultRegistry(time.Hour), Catalogue: c, Publisher: pub,
 		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)), WorldNow: worldNow,
@@ -126,21 +134,22 @@ func TestDevSchedulerRearms(t *testing.T) {
 	if p := mem.Pending(); len(p) != 2 {
 		t.Fatalf("pending after the order = %+v", p)
 	}
-	deadline := time.Now().Add(2 * time.Second)
-	var ships int
-	for time.Now().Before(deadline) {
-		_, _ = mem.Update(ctx, "dev", func(w *sim.World, _ int64, _ time.Time) (bool, error) {
-			ships = len(w.Ships)
-			return false, nil
-		})
-		if ships > 0 {
-			break
-		}
-		time.Sleep(5 * time.Millisecond)
+	// The scheduler publishes after it committed the event, so once the
+	// push is observed the world state is final: wait for the push first,
+	// then assert on the world (no polling of the world state).
+	select {
+	case <-pub.published:
+	case <-time.After(2 * time.Second):
+		t.Fatalf("no push %s after the order (scheduler did not re-arm)", time.Since(ordered))
 	}
 	took := time.Since(ordered)
+	var ships int
+	_, _ = mem.Update(ctx, "dev", func(w *sim.World, _ int64, _ time.Time) (bool, error) {
+		ships = len(w.Ships)
+		return false, nil
+	})
 	if ships != 1 || pub.count() != 1 {
-		t.Fatalf("after %s: ships %d, publishes %d (scheduler did not re-arm)", took, ships, pub.count())
+		t.Fatalf("after %s: ships %d, publishes %d", took, ships, pub.count())
 	}
 	if took >= 3*time.Second {
 		t.Errorf("the earlier event waited for the later one: %s", took)
