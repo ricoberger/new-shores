@@ -25,8 +25,10 @@ import (
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/ricoberger/new-shores/server/internal/auth"
@@ -224,7 +226,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if s.cfg.Instance != "" {
 		rec.Header().Set("X-Instance", s.cfg.Instance)
 	}
-	ctx, span := telemetry.Tracer().Start(r.Context(), "HTTP "+r.Method, trace.WithSpanKind(trace.SpanKindServer))
+	ctx := otel.GetTextMapPropagator().Extract(r.Context(), propagation.HeaderCarrier(r.Header))
+	ctx, span := telemetry.Tracer().Start(ctx, "HTTP "+r.Method, trace.WithSpanKind(trace.SpanKindServer))
 	s.serve(rec, r.WithContext(context.WithValue(ctx, infoKey{}, ri)))
 	elapsed := s.cfg.Clock.Now().Sub(begin)
 	span.SetName("HTTP " + r.Method + " " + ri.route)
