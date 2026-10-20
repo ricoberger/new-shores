@@ -13,14 +13,14 @@ import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, WorldResponse } from "../api/client";
 import type { GameSync, SyncSnapshot } from "../api/sync";
-import { buildingAt, lPath, rotatedFootprint, type TilePos } from "../display/geometry";
+import { buildingAt, lPath, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import type { Tool } from "../ui/tools";
 import { BuildingLayer } from "./buildings";
 import { CameraRig } from "./camera";
 import { CartLayer } from "./carts";
 import { footprintBox, tileCenter, worldToTile } from "./coords";
 import { IconLayer } from "./icons";
-import { GHOST } from "./palette";
+import { GHOST, GHOST_NO_ROAD } from "./palette";
 import { type Point, PointerInput } from "./picking";
 import { RoadLayer } from "./roads";
 import { buildTerrain } from "./terrain";
@@ -28,6 +28,7 @@ import { buildTerrain } from "./terrain";
 export interface RendererEvents {
   select(buildingId: number | null): void;
   place(x: number, y: number): void;
+  move(x: number, y: number): void;
   road(from: TilePos, to: TilePos): void;
   demolish(x: number, y: number): void;
   cancelTool(): void;
@@ -42,6 +43,9 @@ export class GameRenderer {
   private readonly carts: CartLayer;
   private readonly icons: IconLayer;
   private readonly ghost: Mesh;
+  private readonly ghostMaterial: StandardMaterial;
+  /** Server road tiles (tileKey) for the ghost's road hint. */
+  private roadTiles = new Set<string>();
   private readonly input: PointerInput;
   private readonly unsubscribe: () => void;
   private terrain: Mesh[] = [];
@@ -74,10 +78,10 @@ export class GameRenderer {
     this.icons = new IconLayer(this.scene);
 
     this.ghost = CreateBox("ghost", { size: 1 }, this.scene);
-    const gm = new StandardMaterial("ghost", this.scene);
-    gm.diffuseColor = GHOST;
-    gm.alpha = 0.45;
-    this.ghost.material = gm;
+    this.ghostMaterial = new StandardMaterial("ghost", this.scene);
+    this.ghostMaterial.diffuseColor = GHOST;
+    this.ghostMaterial.alpha = 0.45;
+    this.ghost.material = this.ghostMaterial;
     this.ghost.isPickable = false;
     this.ghost.setEnabled(false);
 
@@ -152,7 +156,8 @@ export class GameRenderer {
       const is = snap.server.display.islands[0];
       this.buildings.update(is?.buildings ?? [], this.defs);
       this.roads.update(is?.roads ?? []);
-      this.carts.update(is);
+      this.roadTiles = new Set((is?.roads ?? []).map(tileKey));
+      this.carts.update(is, this.defs);
       this.icons.update(is?.buildings ?? [], this.defs);
       this.setSelected(this.selected);
     }
@@ -200,6 +205,9 @@ export class GameRenderer {
       case "build":
         this.events.place(t.x, t.y);
         return;
+      case "move":
+        this.events.move(t.x, t.y);
+        return;
       case "road":
         this.events.road(t, t);
         return;
@@ -241,17 +249,24 @@ export class GameRenderer {
     }
   }
 
+  /**
+   * Placement/move ghost under the pointer. It turns yellow when the
+   * building requires a road and none of the server's road tiles touches the
+   * footprint (a "not connected" hint, never red; the server validates).
+   */
   private updateGhost(): void {
     const tool = this.tool();
-    const def = tool.kind === "build" ? this.defs.get(tool.buildingType) : undefined;
+    const def = tool.kind === "build" || tool.kind === "move" ? this.defs.get(tool.buildingType) : undefined;
     const t = this.hover && def ? this.tileAt(this.hover) : null;
-    if (tool.kind !== "build" || !def || !t) {
+    if ((tool.kind !== "build" && tool.kind !== "move") || !def || !t) {
       this.ghost.setEnabled(false);
       return;
     }
     const [w, h] = rotatedFootprint(def.width, def.height, tool.rotation);
     this.ghost.scaling.set(w, 0.6, h);
     this.ghost.position.set(t.x + w / 2, 0.3, -(t.y + h / 2));
+    const color = missingRoadHint(def, this.roadTiles, t.x, t.y, tool.rotation) ? GHOST_NO_ROAD : GHOST;
+    if (this.ghostMaterial.diffuseColor !== color) this.ghostMaterial.diffuseColor = color;
     this.ghost.setEnabled(true);
   }
 }

@@ -1,6 +1,7 @@
 // Buildings: one procedural low-poly template mesh per content ID, drawn
-// with thin instances sized to the rotated footprint, a door marker at the
-// server's entrance tile and a selection frame.
+// with thin instances sized to the rotated footprint, a door marker in the
+// middle of the front edge (purely visual; rotation has no gameplay effect,
+// D-042) and a selection frame.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
@@ -102,10 +103,10 @@ export class BuildingLayer {
       let arr = byType.get(b.type);
       if (!arr) byType.set(b.type, (arr = []));
       for (const v of m.asArray()) arr.push(v);
-      // Door: on the entrance tile, at the front edge of the footprint.
+      // Door: in the middle of the front edge of the footprint.
       const [dx, dz, rot] = frontOffset(b.rotation);
-      const ex = b.entrance.x + 0.5 + dx * 0.45;
-      const ez = -(b.entrance.y + 0.5) + dz * 0.45;
+      const ex = cx + dx * (w / 2 - 0.05);
+      const ez = cz + dz * (h / 2 - 0.05);
       const dm = Matrix.RotationY(rot).multiply(Matrix.Translation(ex, 0.15, ez));
       for (const v of dm.asArray()) doors.push(v);
     }

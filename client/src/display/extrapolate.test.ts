@@ -147,7 +147,6 @@ describe("extrapolate", () => {
             x: 0,
             y: 0,
             rotation: 0,
-            entrance: { x: 0, y: 0 },
             paused: false,
             paused_reason: "",
             status: "ok",

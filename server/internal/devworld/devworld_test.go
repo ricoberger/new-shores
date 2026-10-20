@@ -153,33 +153,73 @@ func TestIslandIsPlayable(t *testing.T) {
 	}
 }
 
-// Smoke test coordinates (client/e2e/smoke.spec.ts): a dirt road from the
-// tile next to the warehouse entrance to the forest edge, a settler house,
-// a lumberjack and a sawmill on that road produce planks.
+// Smoke test coordinates (client/e2e/smoke.spec.ts): a lumberjack placed
+// before any road is not connected (D-042); a dirt road from below the
+// warehouse to the forest edge connects it; a settler house and a sawmill
+// on that road produce planks; then the house and the sawmill are moved
+// along the road, keeping their IDs, the house its residents and the island
+// its planks, and the sawmill produces again.
 func TestSmokeLayoutProducesPlanks(t *testing.T) {
 	c, w := newWorld(t)
-	road(t, w, c, 3, 4, 36, 4)
-	place(t, w, c, "house_settlers", 8, 5, 180)
 	lj := place(t, w, c, "lumberjack", 35, 5, 180)
+	if lj.AssignedWarehouseID != 0 {
+		t.Fatal("lumberjack connected without a road")
+	}
+	road(t, w, c, 3, 4, 36, 4)
+	if lj.AssignedWarehouseID == 0 {
+		t.Fatal("lumberjack not connected by the road")
+	}
+	house := place(t, w, c, "house_settlers", 8, 5, 180)
 	sm := place(t, w, c, "sawmill", 20, 5, 180)
 	if lj.Efficiency == 0 {
 		t.Fatal("lumberjack has no usable forest")
 	}
-	at := w.LastEvaluatedAt.Add(90 * time.Second)
-	if _, err := sim.Advance(w, c, at); err != nil {
-		t.Fatal(err)
-	}
-	ds, err := sim.Display(w, c, at)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, b := range ds.Islands[0].Buildings {
-		if b.ID == sm.ID {
-			if b.Rates.Outputs["planks"] <= 0 {
-				t.Fatalf("sawmill planks rate %d after 90 s, status %s", b.Rates.Outputs["planks"], b.Status)
-			}
-			return
+	advance := func(d time.Duration) sim.DisplayState {
+		t.Helper()
+		at := w.LastEvaluatedAt.Add(d)
+		if _, err := sim.Advance(w, c, at); err != nil {
+			t.Fatal(err)
 		}
+		ds, err := sim.Display(w, c, at)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return ds
 	}
-	t.Fatal("sawmill not in display")
+	planksRate := func(ds sim.DisplayState) int64 {
+		t.Helper()
+		for _, b := range ds.Islands[0].Buildings {
+			if b.ID == sm.ID {
+				return b.Rates.Outputs["planks"]
+			}
+		}
+		t.Fatal("sawmill not in display")
+		return 0
+	}
+	if ds := advance(90 * time.Second); planksRate(ds) <= 0 {
+		t.Fatalf("sawmill planks rate %d after 90 s", planksRate(ds))
+	}
+
+	residents, count := house.House.Residents, len(w.Islands[0].Buildings)
+	if err := sim.Apply(w, c, sim.MoveBuilding{IslandID: "start", BuildingID: house.ID, X: 11, Y: 5, Rotation: 180}); err != nil {
+		t.Fatal(err)
+	}
+	if b := w.Islands[0].BuildingAt(c, 11, 5); b != house || b.House.Residents != residents || len(w.Islands[0].Buildings) != count {
+		t.Fatalf("moved house = %+v", b)
+	}
+	ds := advance(time.Second)
+	planks := ds.Islands[0].Inventory["planks"]
+	if err := sim.Apply(w, c, sim.MoveBuilding{IslandID: "start", BuildingID: sm.ID, X: 24, Y: 5, Rotation: 180}); err != nil {
+		t.Fatal(err)
+	}
+	if b := w.Islands[0].BuildingAt(c, 24, 5); b != sm || b.AssignedWarehouseID == 0 {
+		t.Fatalf("moved sawmill = %+v", b)
+	}
+	ds = advance(0)
+	if got := ds.Islands[0].Inventory["planks"]; got.Stock+got.InTransit < planks.Stock+planks.InTransit {
+		t.Errorf("planks %+v after the move, before %+v", got, planks)
+	}
+	if ds := advance(90 * time.Second); planksRate(ds) <= 0 {
+		t.Errorf("moved sawmill planks rate %d after 90 s", planksRate(ds))
+	}
 }

@@ -10,6 +10,8 @@ interface Props {
   content: Content;
   onSetPaused: (paused: boolean) => void;
   onDemolish: () => void;
+  /** Lifts the building into a move ghost (D-042). */
+  onMove: () => void;
   onUpgrade: () => void;
   onSelectBuilding: (id: number) => void;
 }
@@ -41,7 +43,7 @@ export function StatusIcon({ building }: { building: BuildingDisplay }) {
   );
 }
 
-export function InfoPanel({ building: b, island, model, content, onSetPaused, onDemolish, onUpgrade, onSelectBuilding }: Props) {
+export function InfoPanel({ building: b, island, model, content, onSetPaused, onDemolish, onMove, onUpgrade, onSelectBuilding }: Props) {
   const def = content.buildings.find((d) => d.id === b.type);
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
   const tierName = (id: string) => content.tiers.find((t) => t.id === id)?.name ?? id;
@@ -228,6 +230,9 @@ export function InfoPanel({ building: b, island, model, content, onSetPaused, on
             ⇧ Upgrade
           </button>
         )}
+        <button type="button" className={styles.button} onClick={onMove} data-testid="info-move">
+          ✥ Move
+        </button>
         <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onDemolish} data-testid="info-demolish">
           ⚒ Demolish
         </button>

@@ -31,6 +31,7 @@ export function GameCanvas({ sync, tool, events, onRenderer }: Props) {
     const renderer = new GameRenderer(canvas, sync, () => toolRef.current(), {
       select: (id) => eventsRef.current.select(id),
       place: (x, y) => eventsRef.current.place(x, y),
+      move: (x, y) => eventsRef.current.move(x, y),
       road: (a, b) => eventsRef.current.road(a, b),
       demolish: (x, y) => eventsRef.current.demolish(x, y),
       cancelTool: () => eventsRef.current.cancelTool(),

@@ -29,4 +29,6 @@ export const ROAD = Color3.FromHexString("#8B6B4A");
 export const DOOR = Color3.FromHexString("#3A2A1A");
 export const CART = Color3.FromHexString("#F2E8CF");
 export const GHOST = Color3.FromHexString("#DDDDDD");
+/** Ghost of a building without an adjacent road: "not connected", never red. */
+export const GHOST_NO_ROAD = Color3.FromHexString("#F0C808");
 export const SELECTION = Color3.FromHexString("#FFD23F");

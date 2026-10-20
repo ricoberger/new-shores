@@ -50,7 +50,11 @@ export interface paths {
         put?: never;
         /**
          * Advance the world to now and apply one command.
-         * @description On success the version is incremented and the new display state is
+         * @description Commands (`command.type`): `place_building`, `place_road`,
+         *     `demolish`, `demolish_road`, `set_paused`, `upgrade_house` and
+         *     `move_building`.
+         *
+         *     On success the version is incremented and the new display state is
          *     returned. On error the world and its version are unchanged. A
          *     `version` that differs from the current one is not an error (the
          *     server state wins); it is only logged.
@@ -130,12 +134,17 @@ export interface components {
          *     - 404: `not_found` (unknown endpoint), `unknown_island`,
          *       `building_not_found`;
          *     - 405: `method_not_allowed`;
-         *     - 409: `occupied`, `terrain`, `not_coastal`, `no_road_at_entrance`,
-         *       `no_work_area`, `insufficient_gold`, `insufficient_materials`,
-         *       `surplus_loss`, `not_pausable`, `no_road`, `tier_locked`,
-         *       `not_a_house`, `upgrade_unavailable`, `house_not_full`,
-         *       `needs_unmet`;
+         *     - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
+         *       `insufficient_gold`, `insufficient_materials`, `surplus_loss`,
+         *       `not_pausable`, `no_road`, `tier_locked`, `not_a_house`,
+         *       `upgrade_unavailable`, `house_not_full`, `needs_unmet`;
          *     - 500: `internal`.
+         *
+         *     `move_building` can fail with 400 `bad_request`, `invalid_command`
+         *     (also for a road or an invalid rotation), `out_of_bounds`; 404
+         *     `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
+         *     `not_coastal`, `no_work_area`. Moving is free: it never fails for
+         *     gold, materials or tier. Placement never requires a road (D-042).
          *
          *     **Internal-only codes** (HTTP 500, never caused by a client command;
          *     clients should treat them like `internal` and not handle them
@@ -143,7 +152,7 @@ export interface components {
          *     `display_time`.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_road_at_entrance" | "no_work_area" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "over_capacity" | "time_backwards" | "schema_version" | "display_time";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "over_capacity" | "time_backwards" | "schema_version" | "display_time";
         CommandRequest: {
             /**
              * Format: int64
@@ -152,7 +161,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["MoveBuildingCommand"];
         Tile: {
             /** @description Column (tiles). */
             x: number;
@@ -244,6 +253,35 @@ export interface components {
              * @description Building ID (unscaled integer identifier, from BuildingDisplay.id).
              */
             building_id: number;
+        };
+        /**
+         * @description Move a building (not a road) to another valid position on the same
+         *     island, free of charge (D-042). The building keeps its ID and state;
+         *     goods in transit keep arriving. Its own current footprint counts as
+         *     free, so a one-tile shift is valid; the identical position is a
+         *     valid no-op.
+         */
+        MoveBuildingCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "move_building";
+            island_id: string;
+            /**
+             * Format: int64
+             * @description Building ID (unscaled integer identifier, from BuildingDisplay.id).
+             */
+            building_id: number;
+            /** @description Left column of the rotated footprint at the target (tiles). */
+            x: number;
+            /** @description Top row of the rotated footprint at the target (tiles). */
+            y: number;
+            /**
+             * @description Degrees; 90 and 270 swap width and height. Visual only.
+             * @enum {integer}
+             */
+            rotation: 0 | 90 | 180 | 270;
         };
         Island: {
             id: string;
@@ -390,12 +428,6 @@ export interface components {
             /** @description Content building ID of the road type. */
             type: string;
         };
-        Pos: {
-            /** @description Column (tiles). */
-            x: number;
-            /** @description Row (tiles). */
-            y: number;
-        };
         RatesDisplay: {
             /** @description Consumption per input good (milli-units per minute). */
             inputs: {
@@ -468,7 +500,6 @@ export interface components {
              * @enum {integer}
              */
             rotation: 0 | 90 | 180 | 270;
-            entrance: components["schemas"]["Pos"];
             paused: boolean;
             /**
              * @description Empty when not paused.

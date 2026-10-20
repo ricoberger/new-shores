@@ -40,6 +40,21 @@ describe("statusText", () => {
     }
   });
 
+  it("suggests a road next to an unconnected building", () => {
+    for (const d of bases) {
+      for (const is of d.islands) {
+        for (const b of is.buildings) {
+          if (b.status !== "not_connected") continue;
+          const s = statusText(b, is, d, content);
+          expect(s.sentence).toBe("No road to a warehouse");
+          expect(s.fix).toBe("Build a road next to it that leads to a warehouse.");
+          return;
+        }
+      }
+    }
+    throw new Error("no not_connected building in the fixtures");
+  });
+
   it("names the starved inputs with their island rate", () => {
     for (const d of bases) {
       for (const is of d.islands) {

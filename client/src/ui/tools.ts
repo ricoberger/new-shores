@@ -5,6 +5,8 @@ export type Tool =
   | { kind: "none" }
   | { kind: "build"; buildingType: string; rotation: Rotation }
   | { kind: "road"; roadType: string }
+  /** Moving a placed building (D-042); the ghost uses its footprint. */
+  | { kind: "move"; buildingId: number; buildingType: string; rotation: Rotation }
   | { kind: "demolish" };
 
 export const NO_TOOL: Tool = { kind: "none" };
