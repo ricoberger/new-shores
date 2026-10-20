@@ -177,10 +177,6 @@
             "x": 1,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 2,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -197,10 +193,6 @@
             "x": 10,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 10,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "not_connected",

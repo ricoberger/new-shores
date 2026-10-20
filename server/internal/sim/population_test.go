@@ -168,8 +168,8 @@ func TestResidentsStepAndClamp(t *testing.T) {
 }
 
 // TestBuildingNeedRadiusConnectionPaused: the market fulfils the need when
-// its nearest footprint tile is within the radius of the house entrance, it
-// is connected to a warehouse and not paused.
+// its nearest footprint tile is within the radius of the nearest footprint
+// tile of the house (D-042), it is connected to a warehouse and not paused.
 func TestBuildingNeedRadiusConnectionPaused(t *testing.T) {
 	c := withPauseCategory(catalogue(t), "market_small", "public")
 	reason := func(w *World, h int64) string {
@@ -183,17 +183,17 @@ func TestBuildingNeedRadiusConnectionPaused(t *testing.T) {
 		return ""
 	}
 
-	// House entrance (9,3); market footprint x 22..24: nearest tile (22,3)
-	// at distance 13 > 12.
+	// House footprint x 9..10, y 2..3; market footprint x 23..25, y 1..3:
+	// nearest tiles (10,y) and (23,y) at distance 13 > 12.
 	w := newTown(t, c, 1_000)
 	h := placeHouses(t, w, c, 1)[0]
-	m := placeFree(t, w, c, "market_small", 22, 1, 0)
+	m := placeFree(t, w, c, "market_small", 23, 1, 0)
 	if got := reason(w, h); got != NeedOutOfRange {
 		t.Errorf("distance 13: %s", got)
 	}
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: m})
-	// Footprint x 21..23: nearest tile (21,3) at distance exactly 12.
-	m = placeFree(t, w, c, "market_small", 21, 1, 0)
+	// Footprint x 22..24: nearest tile (22,y) at distance exactly 12.
+	m = placeFree(t, w, c, "market_small", 22, 1, 0)
 	if got := reason(w, h); got != NeedOK {
 		t.Errorf("distance 12: %s", got)
 	}
@@ -472,5 +472,108 @@ func TestShortfallDrawsSlackOfStarvedGood(t *testing.T) {
 	gs = wr.islands[0].goodsNeeds["settlers"][0]
 	if is.Inventory.Starved["bread"] || gs.fulfilment != ppm || gs.cons[1] != needRate(1000, 72) {
 		t.Errorf("bread %v fulfilment %d consumption %v", is.Inventory.Starved, gs.fulfilment, gs.cons)
+	}
+}
+
+// checkUnconnectedHouse asserts the effects of a house without a road path
+// to a warehouse: status not_connected, every need at 0 with reason
+// not_connected, no attributed consumption, satisfaction and tax 0, while
+// its residents count for population and workforce.
+func checkUnconnectedHouse(t *testing.T, w *World, c *content.Catalogue, h int64) {
+	t.Helper()
+	ds := display(t, w, c)
+	b := buildingDisplay(t, ds, h)
+	if b.Status != StatusNotConnected || *b.SatisfactionPermille != 0 || *b.TaxRatePerMin != 0 {
+		t.Errorf("house = %s satisfaction %d tax %d", b.Status, *b.SatisfactionPermille, *b.TaxRatePerMin)
+	}
+	if len(b.Needs) == 0 {
+		t.Fatal("no needs displayed")
+	}
+	for _, n := range b.Needs {
+		if n.FulfilmentPermille != 0 || n.Reason != NeedNotConnected {
+			t.Errorf("need %s = %d %s", n.ID, n.FulfilmentPermille, n.Reason)
+		}
+		for g, rate := range n.Goods {
+			if rate != 0 {
+				t.Errorf("need %s attributes %d/min of %s", n.ID, rate, g)
+			}
+		}
+	}
+	is := ds.Islands[0]
+	if is.Inventory["fish"].RatePerMin != 0 {
+		t.Errorf("fish consumed at %d/min", is.Inventory["fish"].RatePerMin)
+	}
+	res := *b.Residents
+	if is.Population["settlers"] != res || is.Workforce["settlers"].Available != res {
+		t.Errorf("population %d workforce %d, want %d", is.Population["settlers"], is.Workforce["settlers"].Available, res)
+	}
+}
+
+// TestHouseWithoutRoad: a house placed without a road keeps its floor
+// residents but receives no goods and no building needs.
+func TestHouseWithoutRoad(t *testing.T) {
+	c := catalogue(t)
+	w := newTown(t, c, 100_000)
+	h := w.NextBuildingID
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "house_settlers", X: 9, Y: 7})
+	placeFree(t, w, c, "market_small", 17, 1, 0)
+	addStock(t, w, c, "fish", 100)
+	addStock(t, w, c, "wool_garments", 100)
+	checkUnconnectedHouse(t, w, c, h)
+	mustAdvance(t, w, c, 12*time.Hour)
+	if hs := house(w, h); hs.Residents != 2000 || hs.Growth != 0 {
+		t.Errorf("house after 12 h = %+v", hs)
+	}
+	if got := w.Islands[0].Inventory.Stock["fish"]; got != 100_000 {
+		t.Errorf("fish = %d, want untouched", got)
+	}
+	checkUnconnectedHouse(t, w, c, h)
+}
+
+// TestHouseOnIsolatedRoadStub: a house next to a road that does not lead to
+// a warehouse is not connected; linking the stub connects it (goods and
+// building needs evaluated normally), demolishing the link disconnects it
+// again and it declines to the floor.
+func TestHouseOnIsolatedRoadStub(t *testing.T) {
+	c := catalogue(t)
+	w := newTown(t, c, 100_000)
+	// House x 9..10, y 7..8; stub (11,7) on its east edge; link (11,5..6)
+	// to the main road at (11,4).
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{11, 7}}})
+	h := placeFree(t, w, c, "house_settlers", 9, 7, 0)
+	placeFree(t, w, c, "market_small", 17, 1, 0)
+	addStock(t, w, c, "fish", 100)
+	addStock(t, w, c, "wool_garments", 100)
+	checkUnconnectedHouse(t, w, c, h)
+
+	link := []Pos{{11, 5}, {11, 6}}
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: link})
+	ds := display(t, w, c)
+	b := buildingDisplay(t, ds, h)
+	if b.Status == StatusNotConnected || *b.SatisfactionPermille != 1000 || *b.TaxRatePerMin == 0 {
+		t.Errorf("linked house = %s satisfaction %d tax %d", b.Status, *b.SatisfactionPermille, *b.TaxRatePerMin)
+	}
+	for _, n := range b.Needs {
+		if n.Reason != NeedOK {
+			t.Errorf("need %s reason %s", n.ID, n.Reason)
+		}
+	}
+	if ds.Islands[0].Inventory["fish"].RatePerMin >= 0 {
+		t.Errorf("fish not consumed: %d/min", ds.Islands[0].Inventory["fish"].RatePerMin)
+	}
+	mustAdvance(t, w, c, 10*time.Minute)
+	grown := house(w, h).Residents
+	if grown <= 2000 {
+		t.Fatalf("linked house did not grow: %d", grown)
+	}
+
+	mustApply(t, w, c, DemolishRoad{IslandID: "main", Tiles: []Pos{{11, 5}}})
+	checkUnconnectedHouse(t, w, c, h)
+	if got := *buildingDisplay(t, display(t, w, c), h).GrowthRatePerMin; got >= 0 {
+		t.Errorf("unconnected house growth rate %d, want decline", got)
+	}
+	mustAdvance(t, w, c, 12*time.Hour)
+	if hs := house(w, h); hs.Residents != 2000 || hs.Growth != 0 {
+		t.Errorf("after decline = %+v, want floor", hs)
 	}
 }

@@ -92,6 +92,18 @@ type At struct {
 	AcceptSurplusLoss bool `json:"accept_surplus_loss,omitempty"`
 }
 
+// MoveStep moves the building covering tile (X, Y) so that the top-left
+// tile of its rotated footprint is (ToX, ToY) with the given rotation
+// (sim.MoveBuilding). Like the other At steps it addresses the building by a
+// covered tile, since building IDs are not written in scenarios.
+type MoveStep struct {
+	X        int `json:"x"`
+	Y        int `json:"y"`
+	ToX      int `json:"to_x"`
+	ToY      int `json:"to_y"`
+	Rotation int `json:"rotation"`
+}
+
 // StockGrant adds Amount units of Good to the island (fails above capacity).
 type StockGrant struct {
 	Good   string      `json:"good"`
@@ -103,7 +115,9 @@ type AdvanceStep struct {
 	Duration string `json:"duration"`
 }
 
-// Step is one scenario step; exactly one field must be set.
+// Step is one scenario step; exactly one field must be set. Move moves the
+// building covering a tile for free, keeping its ID and state (MoveStep,
+// D-042).
 type Step struct {
 	Place      *Placement   `json:"place,omitempty"`
 	PlaceGrid  *Grid        `json:"place_grid,omitempty"`
@@ -113,6 +127,7 @@ type Step struct {
 	Pause      *At          `json:"pause,omitempty"`
 	Resume     *At          `json:"resume,omitempty"`
 	Upgrade    *At          `json:"upgrade,omitempty"`
+	Move       *MoveStep    `json:"move,omitempty"`
 	Stock      *StockGrant  `json:"stock,omitempty"`
 	Advance    *AdvanceStep `json:"advance,omitempty"`
 }
@@ -122,7 +137,7 @@ func (s Step) kind() (string, error) {
 	for name, set := range map[string]bool{
 		"place": s.Place != nil, "place_grid": s.PlaceGrid != nil, "road": s.Road != nil,
 		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "pause": s.Pause != nil,
-		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
+		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "move": s.Move != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 	} {
 		if set {
 			kinds = append(kinds, name)
@@ -394,6 +409,13 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		return r.apply(sim.UpgradeHouse{IslandID: id, BuildingID: b.ID})
+	case st.Move != nil:
+		m := st.Move
+		b, err := r.buildingAt(&At{X: m.X, Y: m.Y})
+		if err != nil {
+			return err
+		}
+		return r.apply(sim.MoveBuilding{IslandID: id, BuildingID: b.ID, X: m.ToX, Y: m.ToY, Rotation: m.Rotation})
 	case st.Stock != nil:
 		qty, err := content.ParseFixed(st.Stock.Amount, 3)
 		if err != nil {

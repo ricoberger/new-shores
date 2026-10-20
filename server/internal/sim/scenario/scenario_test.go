@@ -8,6 +8,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"maps"
 	"math"
 	"os"
 	"path/filepath"
@@ -135,7 +136,7 @@ func TestChainPlanksPlausibility(t *testing.T) {
 	rep := runScenario(t, "chain_planks")
 	lj, sm := building(t, rep, "lumberjack"), building(t, rep, "sawmill")
 	dLJ, dSM := int64(*lj.RoadDistance), int64(*sm.RoadDistance)
-	if dLJ != 7 || dSM != 13 || *lj.TransferDelayMs != 17_000 || *sm.TransferDelayMs != 23_000 {
+	if dLJ != 5 || dSM != 11 || *lj.TransferDelayMs != 15_000 || *sm.TransferDelayMs != 21_000 {
 		t.Fatalf("distances lj=%d sm=%d delays %d/%d", dLJ, dSM, *lj.TransferDelayMs, *sm.TransferDelayMs)
 	}
 	inv := rep.Final.Islands[0].Inventory
@@ -152,17 +153,17 @@ func TestChainPlanksPlausibility(t *testing.T) {
 	if got, want := inv["wood"].InTransit, roundDiv((10+dLJ)*1000, 30); got != want {
 		t.Errorf("wood in transit = %d, want %d", got, want)
 	}
-	// Snapshots: wood arrives only after 10 + d_lj seconds (17 s), planks
-	// after a further 10 + d_sm seconds (40 s).
+	// Snapshots: wood arrives only after 10 + d_lj seconds (15 s), planks
+	// after a further 10 + d_sm seconds (36 s).
 	snap := func(i int) map[string]GoodAmount { return rep.Snapshots[i].Inventory["main"] }
-	if snap(0)["planks"].Stock != 0 || snap(0)["wood"].InTransit == 0 { // t = 16 s
-		t.Errorf("t=16s: %+v", snap(0))
+	if snap(0)["planks"].Stock != 0 || snap(0)["wood"].InTransit == 0 { // t = 14 s
+		t.Errorf("t=14s: %+v", snap(0))
 	}
-	if snap(2)["planks"].Stock != 0 || snap(2)["planks"].InTransit == 0 { // t = 40 s
-		t.Errorf("t=40s: %+v", snap(2))
+	if snap(2)["planks"].Stock != 0 || snap(2)["planks"].InTransit == 0 { // t = 36 s
+		t.Errorf("t=36s: %+v", snap(2))
 	}
-	if snap(3)["planks"].Stock == 0 { // t = 41 s
-		t.Errorf("t=41s: %+v", snap(3))
+	if snap(3)["planks"].Stock == 0 { // t = 37 s
+		t.Errorf("t=37s: %+v", snap(3))
 	}
 }
 
@@ -743,5 +744,120 @@ func TestSeedWorkforceBounds(t *testing.T) {
 	}
 	if w, err := build("0"); err != nil || len(w.Islands[0].WorkforceGrant) != 0 {
 		t.Errorf("zero grant: %v %v", err, w.Islands[0].WorkforceGrant)
+	}
+}
+
+// stepRunner returns a runner for a scenario before its first step, so
+// that tests can inspect the world between steps.
+func stepRunner(t *testing.T, name string) *runner {
+	t.Helper()
+	s := loadScenario(t, name)
+	c, err := s.LoadContent(repoRoot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	l := sim.NewLedger()
+	w, err := BuildWorld(s, c, l)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &runner{s: s, c: c, w: w, l: l, report: &Report{Name: s.Name}}
+}
+
+// runSteps executes the steps [from, to) of the runner's scenario.
+func (r *runner) runSteps(t *testing.T, from, to int) {
+	t.Helper()
+	for i := from; i < to; i++ {
+		if err := r.step(i, r.s.Steps[i]); err != nil {
+			t.Fatalf("step %d: %v", i, err)
+		}
+	}
+}
+
+func (r *runner) mustDisplay(t *testing.T) sim.DisplayState {
+	t.Helper()
+	ds, err := r.display()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return ds
+}
+
+// TestPlaceThenRoad checks scenario (l): a producer placed without a road
+// is not connected and buffers its output; once a road reaches its
+// footprint edge it is assigned, the buffer drains and nothing is lost.
+func TestPlaceThenRoad(t *testing.T) {
+	r := stepRunner(t, "place_then_road")
+	r.runSteps(t, 0, 2) // place without road, advance 2 min
+	lj := r.island().Building(2)
+	if lj == nil || lj.Type != "lumberjack" || lj.AssignedWarehouseID != 0 || lj.Buffer["wood"] <= 0 {
+		t.Fatalf("before the road: %+v", lj)
+	}
+	if b := r.mustDisplay(t).Islands[0].Buildings[1]; b.Status != sim.StatusNotConnected || *b.AssignedWarehouseID != 0 {
+		t.Errorf("before the road: status %s assigned %d", b.Status, *b.AssignedWarehouseID)
+	}
+	r.runSteps(t, 2, 3) // road to the west edge of the footprint
+	if lj.AssignedWarehouseID != 1 || lj.RoadDistance != 7 {
+		t.Fatalf("after the road: assigned %d distance %d", lj.AssignedWarehouseID, lj.RoadDistance)
+	}
+	r.runSteps(t, 3, len(r.s.Steps))
+	if lj.Buffer != nil || lj.BufferSub != nil {
+		t.Errorf("buffer not drained: %v %v", lj.Buffer, lj.BufferSub)
+	}
+	f := r.l.Flow("main", "wood")
+	if f.Lost != 0 {
+		t.Errorf("lost %d", f.Lost)
+	}
+	// Produced (sub-milli) = island stock + in transit: compare via the
+	// rounded display, which rounds each part to the nearest milli-unit.
+	rep := runScenario(t, "place_then_road")
+	wood := rep.Final.Islands[0].Inventory["wood"]
+	if got, want := wood.Stock+wood.InTransit, rep.Totals["main"]["wood"].Produced; got < want-1 || got > want+1 || want == 0 {
+		t.Errorf("stock %d + in transit %d, produced %d", wood.Stock, wood.InTransit, want)
+	}
+}
+
+// TestMoveWithTransit checks scenario (m): moving a connected producer
+// keeps its ID, cycle progress, buffer and goods in transit, which still
+// arrive in full; the producer is connected at the new position with the
+// new road distance and delay.
+func TestMoveWithTransit(t *testing.T) {
+	r := stepRunner(t, "move_with_transit")
+	r.runSteps(t, 0, 3) // road, place, advance 30 s
+	lj := r.island().Building(2)
+	if lj == nil || lj.Type != "lumberjack" || lj.RoadDistance != 5 || lj.TransferDelayMs != 15_000 {
+		t.Fatalf("before the move: %+v", lj)
+	}
+	progress, transit := lj.Progress, slices.Clone(lj.Transit)
+	buffer := maps.Clone(lj.Buffer)
+	before := r.mustDisplay(t).Islands[0].Inventory["wood"]
+	if before.InTransit == 0 {
+		t.Fatal("nothing in transit before the move")
+	}
+	gold := r.w.Gold
+
+	r.runSteps(t, 3, 4) // move
+	moved := r.island().Building(2)
+	if moved != lj || lj.X != 9 || lj.Y != 5 || lj.Rotation != 90 || lj.Progress != progress ||
+		!reflect.DeepEqual(lj.Transit, transit) || !maps.Equal(lj.Buffer, buffer) || len(r.island().Buildings) != 2 {
+		t.Fatalf("after the move: %+v", lj)
+	}
+	if after := r.mustDisplay(t).Islands[0].Inventory["wood"]; after != before || r.w.Gold != gold {
+		t.Errorf("move changed wood %+v -> %+v or gold %d -> %d", before, after, gold, r.w.Gold)
+	}
+	if lj.AssignedWarehouseID != 1 || lj.RoadDistance != 6 || lj.TransferDelayMs != 16_000 {
+		t.Errorf("connection after the move: %d d %d delay %d", lj.AssignedWarehouseID, lj.RoadDistance, lj.TransferDelayMs)
+	}
+
+	r.runSteps(t, 4, len(r.s.Steps))
+	final := r.mustDisplay(t)
+	if got := final.Islands[0].Inventory["wood"].Stock - before.Stock; got < before.InTransit {
+		t.Errorf("stock increased by %d, want >= %d in transit at the move", got, before.InTransit)
+	}
+	if b := final.Islands[0].Buildings[1]; b.Status == sim.StatusNotConnected || *b.AssignedWarehouseID != 1 {
+		t.Errorf("final lumberjack: %s assigned %d", b.Status, *b.AssignedWarehouseID)
+	}
+	if f := r.l.Flow("main", "wood"); f.Lost != 0 {
+		t.Errorf("lost %d", f.Lost)
 	}
 }

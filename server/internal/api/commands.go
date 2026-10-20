@@ -21,6 +21,7 @@ const (
 	cmdDemolishRoad  = "demolish_road"
 	cmdSetPaused     = "set_paused"
 	cmdUpgradeHouse  = "upgrade_house"
+	cmdMoveBuilding  = "move_building"
 )
 
 // commandRequest is the body of POST /api/v1/world/commands.
@@ -78,6 +79,15 @@ type upgradeHouseJSON struct {
 	BuildingID *int64  `json:"building_id"`
 }
 
+type moveBuildingJSON struct {
+	Type       string  `json:"type"`
+	IslandID   *string `json:"island_id"`
+	BuildingID *int64  `json:"building_id"`
+	X          *int    `json:"x"`
+	Y          *int    `json:"y"`
+	Rotation   *int    `json:"rotation"`
+}
+
 // decodeStrict decodes exactly one JSON value into v, rejecting unknown
 // fields and trailing data.
 func decodeStrict(data []byte, v any) error {
@@ -125,6 +135,8 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeSetPaused(raw)
 	case cmdUpgradeHouse:
 		cmd, err = decodeUpgradeHouse(raw)
+	case cmdMoveBuilding:
+		cmd, err = decodeMoveBuilding(raw)
 	case "":
 		return "", nil, missing("type")
 	default:
@@ -242,6 +254,26 @@ func decodeUpgradeHouse(raw json.RawMessage) (sim.Command, error) {
 		return nil, missing("building_id")
 	}
 	return sim.UpgradeHouse{IslandID: *c.IslandID, BuildingID: *c.BuildingID}, nil
+}
+
+func decodeMoveBuilding(raw json.RawMessage) (sim.Command, error) {
+	var c moveBuildingJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	switch {
+	case c.IslandID == nil:
+		return nil, missing("island_id")
+	case c.BuildingID == nil:
+		return nil, missing("building_id")
+	case c.X == nil:
+		return nil, missing("x")
+	case c.Y == nil:
+		return nil, missing("y")
+	case c.Rotation == nil:
+		return nil, missing("rotation")
+	}
+	return sim.MoveBuilding{IslandID: *c.IslandID, BuildingID: *c.BuildingID, X: *c.X, Y: *c.Y, Rotation: *c.Rotation}, nil
 }
 
 // checkTileCount rejects tile lists longer than the island area. Unknown

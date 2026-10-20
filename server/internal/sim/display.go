@@ -146,7 +146,6 @@ type BuildingDisplay struct {
 	X                        int    `json:"x"`
 	Y                        int    `json:"y"`
 	Rotation                 int    `json:"rotation"`
-	Entrance                 Pos    `json:"entrance"`
 	Paused                   bool   `json:"paused"`
 	PausedReason             string `json:"paused_reason"`
 	Status                   string `json:"status"`
@@ -272,8 +271,7 @@ func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) Island
 		}
 		bd := BuildingDisplay{
 			ID: b.ID, Type: b.Type, X: b.X, Y: b.Y, Rotation: b.Rotation,
-			Entrance: entrance(def, b.X, b.Y, b.Rotation),
-			Paused:   b.Paused, PausedReason: b.PausedReason,
+			Paused: b.Paused, PausedReason: b.PausedReason,
 			Status: StatusOK, EfficiencyPermille: b.Efficiency, ThroughputFactorPermille: 1000,
 		}
 		switch {
@@ -281,7 +279,7 @@ func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) Island
 			displayProducer(&bd, is, c, prods[b.ID])
 		case b.Paused:
 			bd.Status = StatusPaused
-		case def.Service != nil && b.AssignedWarehouseID == 0:
+		case (def.Service != nil || houses[b.ID] != nil) && b.AssignedWarehouseID == 0:
 			bd.Status = StatusNotConnected
 		}
 		if def.Warehouse != nil {

@@ -1,0 +1,76 @@
+{
+  "name": "move_with_transit",
+  "description": "A connected lumberjack (road distance 5) runs for 30 s, so that wood is in transit, and is then moved for free to the other side of the road and rotated (road distance 6, D-042): it keeps its ID, cycle progress and the goods in transit, which still arrive in full.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~",
+      "~ccccffffffff......~",
+      "~....ffffffff......~",
+      "~....ffffffff......~",
+      "~..................~",
+      "~....ffffffff......~",
+      "~....ffffffff......~",
+      "~..................~",
+      "~..................~",
+      "~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": 1000,
+    "workforce": {
+      "settlers": 1000
+    },
+    "stock": {
+      "planks": 5
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          17,
+          4
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "30s"
+      }
+    },
+    {
+      "move": {
+        "x": 8,
+        "y": 2,
+        "to_x": 9,
+        "to_y": 5,
+        "rotation": 90
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    }
+  ]
+}

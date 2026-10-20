@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -301,6 +302,98 @@ func TestCommandsOfEveryType(t *testing.T) {
 	}
 }
 
+// TestMoveBuilding: move_building keeps the building ID, changes its
+// position, increments the version and answers with the documented error
+// codes; every response validates against openapi.yaml.
+func TestMoveBuilding(t *testing.T) {
+	ts := newTestServer(t, 1)
+	for _, cmd := range []string{cmdRoad, cmdSawmill} {
+		if res := ts.command(cmd, nil); res.status != http.StatusOK {
+			t.Fatalf("setup: %d %s", res.status, res.body)
+		}
+	}
+	w := ts.getWorld()
+	id := buildingIDs(t, w.Display, "sawmill")[0]
+	move := func(x, y, rot int) string {
+		return fmt.Sprintf(`{"type":"move_building","island_id":"start","building_id":%d,"x":%d,"y":%d,"rotation":%d}`, id, x, y, rot)
+	}
+
+	res := ts.command(move(12, 5, 0), &w.Version)
+	if res.status != http.StatusOK {
+		t.Fatalf("move_building: %d %s", res.status, res.body)
+	}
+	var moved worldJSON
+	if err := json.Unmarshal(res.body, &moved); err != nil {
+		t.Fatal(err)
+	}
+	if moved.Version != w.Version+1 {
+		t.Errorf("version %d, want %d", moved.Version, w.Version+1)
+	}
+	var d struct {
+		Islands []struct {
+			Buildings []struct {
+				ID       int64 `json:"id"`
+				X        int   `json:"x"`
+				Y        int   `json:"y"`
+				Rotation int   `json:"rotation"`
+			} `json:"buildings"`
+		} `json:"islands"`
+	}
+	if err := json.Unmarshal(moved.Display, &d); err != nil {
+		t.Fatal(err)
+	}
+	if ids := buildingIDs(t, moved.Display, "sawmill"); len(ids) != 1 || ids[0] != id || len(d.Islands[0].Buildings) != 2 {
+		t.Fatalf("sawmills %v, buildings %d", ids, len(d.Islands[0].Buildings))
+	}
+	for _, b := range d.Islands[0].Buildings {
+		if b.ID == id && (b.X != 12 || b.Y != 5 || b.Rotation != 0) {
+			t.Errorf("sawmill at (%d,%d) rotation %d", b.X, b.Y, b.Rotation)
+		}
+	}
+
+	errs := []struct {
+		name, cmd string
+		validate  bool // the request itself is valid per openapi.yaml
+		status    int
+		code      string
+	}{
+		{"missing rotation", fmt.Sprintf(`{"type":"move_building","island_id":"start","building_id":%d,"x":12,"y":5}`, id), false, 400, "invalid_command"},
+		{"unknown field", fmt.Sprintf(`{"type":"move_building","island_id":"start","building_id":%d,"x":12,"y":5,"rotation":0,"cost":0}`, id), false, 400, CodeBadRequest},
+		{"unknown building", `{"type":"move_building","island_id":"start","building_id":999,"x":12,"y":5,"rotation":0}`, true, 404, "building_not_found"},
+		{"occupied by road", move(5, 3, 0), true, 409, "occupied"},
+		{"max x", move(math.MaxInt64, 5, 0), true, 400, "out_of_bounds"},
+		{"max y", move(12, math.MaxInt64, 0), true, 400, "out_of_bounds"},
+		{"min x", move(math.MinInt64, 5, 90), true, 400, "out_of_bounds"},
+		{"min y", move(12, math.MinInt64, 270), true, 400, "out_of_bounds"},
+	}
+	for _, e := range errs {
+		t.Run(e.name, func(t *testing.T) {
+			res := ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":`+e.cmd+`}`, e.validate)
+			if res.status != e.status || errorCode(t, res) != e.code {
+				t.Fatalf("%d %s, want %d %s", res.status, res.body, e.status, e.code)
+			}
+			ts.spec.validateSchema(t, "ErrorResponse", res.body)
+		})
+	}
+	if got := ts.getWorld().Version; got != moved.Version {
+		t.Errorf("version after failed moves = %d, want %d", got, moved.Version)
+	}
+	if err := json.Unmarshal(ts.getWorld().Display, &d); err != nil {
+		t.Fatal(err)
+	}
+	for _, b := range d.Islands[0].Buildings {
+		if b.ID == id && (b.X != 12 || b.Y != 5 || b.Rotation != 0) {
+			t.Errorf("sawmill moved by a failed command to (%d,%d) rotation %d", b.X, b.Y, b.Rotation)
+		}
+	}
+	// Placement never requires a road (D-042): no road-at-placement code.
+	for _, code := range ErrorCodes() {
+		if strings.HasPrefix(code, "no_road_at") {
+			t.Errorf("error code %s still exists", code)
+		}
+	}
+}
+
 func TestStaleVersionIsLoggedNotRejected(t *testing.T) {
 	ts := newTestServer(t, 1)
 	v := int64(41)
@@ -330,6 +423,10 @@ func TestErrorResponses(t *testing.T) {
 		{"unknown island", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"nope","building_type":"sawmill","x":10,"y":10,"rotation":0}}`, true, 404, "unknown_island"},
 		{"building not found", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"demolish","island_id":"start","building_id":999}}`, true, 404, "building_not_found"},
 		{"terrain", http.MethodPost, "/api/v1/world/commands", `{"command":` + cmdOnWater + `}`, true, 409, "terrain"},
+		{"max x", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":9223372036854775807,"y":5,"rotation":0}}`, true, 400, "out_of_bounds"},
+		{"max y", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":10,"y":9223372036854775807,"rotation":0}}`, true, 400, "out_of_bounds"},
+		{"min x", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":-9223372036854775808,"y":5,"rotation":0}}`, true, 400, "out_of_bounds"},
+		{"min y", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":10,"y":-9223372036854775808,"rotation":0}}`, true, 400, "out_of_bounds"},
 		{"unknown island data", http.MethodGet, "/api/v1/world/islands/nope", "", true, 404, "unknown_island"},
 		{"method", http.MethodDelete, "/api/v1/world", "", false, 405, CodeMethodNotAllowed},
 		{"unknown endpoint", http.MethodGet, "/api/v1/nope", "", false, 404, CodeNotFound},

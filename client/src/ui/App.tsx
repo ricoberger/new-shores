@@ -56,19 +56,22 @@ export function App() {
     setTimeout(() => setToasts((ts) => ts.filter((t) => t.id !== id)), TOAST_MS);
   }, []);
 
-  const send = async (cmd: Command): Promise<ApiError | null> => {
+  /** Sends a command; errors are toasts. Resolves to ok and the API error. */
+  const sendCommand = async (cmd: Command): Promise<{ ok: boolean; error: ApiError | null }> => {
     try {
       await sync.send(cmd);
-      return null;
+      return { ok: true, error: null };
     } catch (err) {
       if (err instanceof ApiError) {
         toast(err.message);
-        return err;
+        return { ok: false, error: err };
       }
       toast(err instanceof NetworkError ? "Server unreachable" : String(err));
-      return null;
+      return { ok: false, error: null };
     }
   };
+
+  const send = async (cmd: Command): Promise<ApiError | null> => (await sendCommand(cmd)).error;
 
   const demolish = async (b: BuildingDisplay, acceptSurplusLoss: boolean) => {
     const err = await send({ type: "demolish", island_id: islandId, building_id: b.id, accept_surplus_loss: acceptSurplusLoss });
@@ -106,6 +109,22 @@ export function App() {
     place: (x: number, y: number) => {
       if (tool.kind !== "build") return;
       void send({ type: "place_building", island_id: islandId, building_type: tool.buildingType, x, y, rotation: tool.rotation });
+    },
+    move: (x: number, y: number) => {
+      if (tool.kind !== "move") return;
+      const moving = tool;
+      void sendCommand({
+        type: "move_building",
+        island_id: islandId,
+        building_id: moving.buildingId,
+        x,
+        y,
+        rotation: moving.rotation,
+      }).then(({ ok }) => {
+        // On success the building stays selected at its new position; on an
+        // error the move tool stays active so the player can retry.
+        if (ok) setTool((t) => (t === moving ? NO_TOOL : t));
+      });
     },
     road: (from: TilePos, to: TilePos) => {
       if (tool.kind !== "road" || !island) return;
@@ -151,7 +170,7 @@ export function App() {
         setTool(NO_TOOL);
         setConfirm(null);
       } else if (e.key === "r" || e.key === "R") {
-        setTool((t) => (t.kind === "build" ? { ...t, rotation: nextRotation(t.rotation) } : t));
+        setTool((t) => (t.kind === "build" || t.kind === "move" ? { ...t, rotation: nextRotation(t.rotation) } : t));
       }
     };
     window.addEventListener("keydown", onKey);
@@ -191,6 +210,14 @@ export function App() {
               content={content}
               onSetPaused={(paused) => void send({ type: "set_paused", island_id: islandId, building_id: selectedBuilding.id, paused })}
               onDemolish={() => requestDemolish(selectedBuilding)}
+              onMove={() =>
+                setTool({
+                  kind: "move",
+                  buildingId: selectedBuilding.id,
+                  buildingType: selectedBuilding.type,
+                  rotation: selectedBuilding.rotation,
+                })
+              }
               onUpgrade={() => void send({ type: "upgrade_house", island_id: islandId, building_id: selectedBuilding.id })}
               onSelectBuilding={focus}
             />
@@ -209,6 +236,7 @@ export function App() {
       {tool.kind !== "none" && (
         <div className={styles.hint} data-testid="tool-hint">
           {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
+          {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
           {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
           {tool.kind === "demolish" && "Click a building or road to demolish · Esc / right click cancel"}
         </div>

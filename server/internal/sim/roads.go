@@ -4,22 +4,23 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// Road connectivity (refining MECHANICS §3):
+// Road connectivity (refining MECHANICS §3, D-042):
 //
-//   - The road distance d between a producer and a warehouse is the number of
-//     road tiles on the shortest 4-connected road path that starts on a road
-//     tile adjacent to the producer's entrance and ends on a road tile
-//     adjacent to the warehouse's entrance, counting both end tiles. When one
-//     road tile touches both entrances, d = 1.
+//   - The road distance d between a building and a warehouse is the number
+//     of road tiles on the shortest 4-connected road path that starts on a
+//     road tile adjacent to the building's footprint and ends on a road tile
+//     adjacent to the warehouse's footprint, counting both end tiles. When
+//     one road tile touches both footprints, d = 1.
 //   - Among paths of equal length the one with the lowest summed per-tile
 //     transfer time is used (relevant once several road types exist).
-//   - The producer is assigned to the warehouse with the smallest d; ties go
+//   - The building is assigned to the warehouse with the smallest d; ties go
 //     to the lowest warehouse ID.
 //   - transfer delay = transfer_base + sum of seconds_per_tile of every road
 //     tile on the path.
-//   - Public buildings (service block) are connected by the same rule; they
-//     get AssignedWarehouseID (connection only, no transfers), which building
-//     needs require (MECHANICS §6.2).
+//   - Public buildings (service block) and houses are connected by the same
+//     rule; they get AssignedWarehouseID (connection only, no transfers).
+//     Building needs require connected public buildings and houses
+//     (MECHANICS §6.2); unconnected houses receive no goods (MECHANICS §2).
 
 const unreachable = -1
 
@@ -36,7 +37,7 @@ func roadMs(c *content.Catalogue, roadType string) int64 {
 }
 
 // warehouseField runs a breadth-first search over road tiles starting from
-// the road tiles adjacent to the warehouse entrance.
+// the road tiles adjacent to the warehouse footprint.
 func warehouseField(is *Island, c *content.Catalogue, start []Pos) roadField {
 	n := is.Width * is.Height
 	f := roadField{dist: make([]int, n), delay: make([]int64, n)}
@@ -79,9 +80,9 @@ func warehouseField(is *Island, c *content.Catalogue, start []Pos) roadField {
 	return f
 }
 
-// recomputeConnectivity assigns every producer and public building to its
-// nearest connected warehouse and updates road distance and transfer delay. The buffer of a
-// producer that becomes connected is not touched here: it leaves with the
+// recomputeConnectivity assigns every producer, public building and house to
+// its nearest connected warehouse and updates the road distance and transfer
+// delay of producers. The buffer of a producer that becomes connected is not touched here: it leaves with the
 // producer's output stream during Advance (see step), so it is subject to
 // throughput and the warehouse-full rule and is never lost.
 func recomputeConnectivity(is *Island, c *content.Catalogue) {
@@ -95,17 +96,17 @@ func recomputeConnectivity(is *Island, c *content.Catalogue) {
 		if def == nil || def.Warehouse == nil {
 			continue
 		}
-		start := is.roadsAt(entrance(def, b.X, b.Y, b.Rotation))
+		start := is.buildingRoads(def, b)
 		whs = append(whs, wh{id: b.ID, field: warehouseField(is, c, start)})
 	}
 
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
-		if def == nil || (def.Recipe == nil && def.Service == nil) {
+		if def == nil || (def.Recipe == nil && def.Service == nil && def.House == nil) {
 			continue
 		}
 		b.AssignedWarehouseID, b.RoadDistance, b.TransferDelayMs = 0, 0, 0
-		adj := is.roadsAt(entrance(def, b.X, b.Y, b.Rotation))
+		adj := is.buildingRoads(def, b)
 		bestDist := unreachable
 		var bestDelay int64
 		for _, w := range whs { // ascending ID: strict < keeps the lowest ID on ties

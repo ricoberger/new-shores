@@ -36,8 +36,8 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 299600,
-            "in_transit": 400
+            "stock": 299650,
+            "in_transit": 350
           }
         }
       },
@@ -187,10 +187,6 @@
             "x": 1,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 2,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -207,10 +203,6 @@
             "x": 6,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 6,
-              "y": 2
-            },
             "paused": false,
             "paused_reason": "",
             "status": "warehouse_full",
@@ -227,9 +219,9 @@
             },
             "cycle_seconds": 40,
             "cycle_progress_permille": 0,
-            "transfer_delay_ms": 16000,
+            "transfer_delay_ms": 14000,
             "assigned_warehouse_id": 1,
-            "road_distance": 6,
+            "road_distance": 4,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",

@@ -38,7 +38,6 @@ var simErrors = []simError{
 	{sim.ErrOccupied, "occupied", http.StatusConflict},
 	{sim.ErrTerrain, "terrain", http.StatusConflict},
 	{sim.ErrNotCoastal, "not_coastal", http.StatusConflict},
-	{sim.ErrNoRoadAtEntrance, "no_road_at_entrance", http.StatusConflict},
 	{sim.ErrNoWorkArea, "no_work_area", http.StatusConflict},
 	{sim.ErrInsufficientGold, "insufficient_gold", http.StatusConflict},
 	{sim.ErrInsufficientMaterials, "insufficient_materials", http.StatusConflict},

@@ -158,8 +158,9 @@ type Building struct {
 	// Level of a warehouse (1-based); 0 for other buildings.
 	Level int `json:"level,omitempty"`
 
-	// AssignedWarehouseID is the warehouse a producer delivers to; 0 when
-	// the producer is not connected.
+	// AssignedWarehouseID is the warehouse a producer delivers to (public
+	// buildings and houses: the warehouse their road connection leads to);
+	// 0 when the building is not connected.
 	AssignedWarehouseID int64 `json:"assigned_warehouse_id,omitempty"`
 	// RoadDistance is the road distance in tiles to the assigned warehouse.
 	RoadDistance int `json:"road_distance,omitempty"`

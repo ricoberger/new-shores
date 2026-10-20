@@ -13,7 +13,6 @@ var (
 	ErrOccupied              = errors.New("tile occupied")
 	ErrTerrain               = errors.New("terrain not buildable")
 	ErrNotCoastal            = errors.New("building must touch the coast")
-	ErrNoRoadAtEntrance      = errors.New("no road at entrance")
 	ErrNoWorkArea            = errors.New("no usable tiles in work area")
 	ErrInsufficientGold      = errors.New("insufficient gold")
 	ErrInsufficientMaterials = errors.New("insufficient materials")

@@ -1,17 +1,17 @@
 // Carts: purely visual. One small unlit instance per connected producer
-// with an output rate > 0 travels from the producer's entrance to the
-// entrance of its assigned warehouse (server's assigned_warehouse_id) and
-// back within transfer_delay_ms. The road path is found by BFS over the
-// road tiles for drawing only; no gameplay number is derived from it and
-// without a path no cart is drawn.
+// with an output rate > 0 travels from a road tile next to the producer's
+// footprint to a road tile next to the footprint of its assigned warehouse
+// (server's assigned_warehouse_id) and back within transfer_delay_ms. The
+// road path is found by BFS over the road tiles for drawing only; no
+// gameplay number is derived from it and without a path no cart is drawn.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { Scene } from "@babylonjs/core/scene";
-import type { IslandDisplay } from "../api/client";
-import type { TilePos } from "../display/geometry";
+import type { BuildingDisplay, IslandDisplay } from "../api/client";
+import { adjacentRoads, type FootprintDef, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import { setInstances } from "./instances";
 import { CART } from "./palette";
 
@@ -28,28 +28,34 @@ const NEIGHBOURS: readonly TilePos[] = [
   { x: -1, y: 0 },
 ];
 
-/** Shortest road path (BFS) from a road tile next to `from` to one next to `to`. */
-export function roadPath(roads: ReadonlySet<string>, from: TilePos, to: TilePos): TilePos[] | null {
-  const key = (p: TilePos) => `${p.x},${p.y}`;
+/** Road tiles next to a building's rotated footprint. */
+function footprintRoads(roads: ReadonlySet<string>, b: BuildingDisplay, def: FootprintDef): TilePos[] {
+  const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
+  return adjacentRoads(roads, b.x, b.y, w, h);
+}
+
+/** Shortest road path (BFS) from one of the road tiles `from` to one of `to`. */
+export function roadPath(roads: ReadonlySet<string>, from: readonly TilePos[], to: readonly TilePos[]): TilePos[] | null {
   const adjacent = (p: TilePos) =>
-    NEIGHBOURS.map((d) => ({ x: p.x + d.x, y: p.y + d.y })).filter((q) => roads.has(key(q)));
-  const goals = new Set(adjacent(to).map(key));
+    NEIGHBOURS.map((d) => ({ x: p.x + d.x, y: p.y + d.y })).filter((q) => roads.has(tileKey(q)));
+  const goals = new Set(to.map(tileKey));
   const prev = new Map<string, TilePos | null>();
   const queue: TilePos[] = [];
-  for (const s of adjacent(from)) {
-    prev.set(key(s), null);
+  for (const s of from) {
+    if (prev.has(tileKey(s))) continue;
+    prev.set(tileKey(s), null);
     queue.push(s);
   }
   for (let i = 0; i < queue.length; i++) {
     const cur = queue[i] as TilePos;
-    if (goals.has(key(cur))) {
+    if (goals.has(tileKey(cur))) {
       const path: TilePos[] = [];
-      for (let p: TilePos | null | undefined = cur; p; p = prev.get(key(p))) path.push(p);
+      for (let p: TilePos | null | undefined = cur; p; p = prev.get(tileKey(p))) path.push(p);
       return path.reverse();
     }
     for (const n of adjacent(cur)) {
-      if (!prev.has(key(n))) {
-        prev.set(key(n), cur);
+      if (!prev.has(tileKey(n))) {
+        prev.set(tileKey(n), cur);
         queue.push(n);
       }
     }
@@ -72,18 +78,20 @@ export class CartLayer {
     setInstances(this.mesh, null);
   }
 
-  update(island: IslandDisplay | undefined): void {
+  update(island: IslandDisplay | undefined, defs: ReadonlyMap<string, FootprintDef>): void {
     this.carts = [];
     if (!island) return;
-    const roads = new Set(island.roads.map((r) => `${r.x},${r.y}`));
+    const roads = new Set(island.roads.map(tileKey));
     const byId = new Map(island.buildings.map((b) => [b.id, b]));
     for (const b of island.buildings) {
       const outputs = b.rates?.outputs ?? {};
       if (!b.assigned_warehouse_id || !Object.values(outputs).some((r) => r > 0)) continue;
       const wh = byId.get(b.assigned_warehouse_id);
+      const def = defs.get(b.type);
+      const whDef = wh && defs.get(wh.type);
       const period = b.transfer_delay_ms ?? 0;
-      if (!wh || period <= 0) continue;
-      const path = roadPath(roads, b.entrance, wh.entrance);
+      if (!wh || !def || !whDef || period <= 0) continue;
+      const path = roadPath(roads, footprintRoads(roads, b, def), footprintRoads(roads, wh, whDef));
       if (path && path.length > 0) this.carts.push({ path, periodMs: period, phaseMs: (b.id * 7919) % period });
     }
     this.buffer = new Float32Array(this.carts.length * 16);

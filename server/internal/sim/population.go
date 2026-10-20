@@ -13,10 +13,18 @@ import (
 // taxes, workforce, unlock population) uses R, which only changes at
 // "residents" boundaries, so all rates stay piecewise constant.
 //
+// A house is connected when a road path leads from a road tile adjacent to
+// its footprint to a road tile adjacent to a warehouse's footprint (the
+// producer rule of roads.go; AssignedWarehouseID != 0). An unconnected house
+// keeps its residents (population, workforce, unlocks) but receives no
+// supply: it is excluded from the goods demand, all its needs have
+// fulfilment 0 with reason not_connected, so its satisfaction and tax are 0
+// and it declines towards the floor (MECHANICS §2, D-042).
+//
 // Goods needs are evaluated per island and tier. For a category with goods
-// g1..gn (file order) and N residents of the tier on the island, a good is
-// supplied when it is not starved, or starved with a positive arrival rate;
-// m is the number of supplied goods. Every supplied good has the nominal
+// g1..gn (file order) and N residents of the tier's connected houses on the
+// island, a good is supplied when it is not starved, or starved with a
+// positive arrival rate; m is the number of supplied goods. Every supplied good has the nominal
 // demand N x rate_i / m. A starved good gets its proportional share of the
 // arrivals when its consumers demand more than arrives; otherwise it gets
 // its demand and the excess arrivals are its slack. The shortfall of each
@@ -32,9 +40,10 @@ import (
 // plus its producer demand does not exceed its arrivals, so regime entry and
 // exit agree with the allocation and nothing alternates within a settle.
 //
-// Building needs are per house: fulfilled when a non-paused, road-connected
-// building of the type has a footprint tile within Euclidean distance radius
-// of the house entrance (tile centres).
+// Building needs are per house: fulfilled when the house is connected and a
+// non-paused, road-connected building of the type has a footprint tile
+// within Euclidean distance radius of the nearest footprint tile of the
+// house (tile centres, D-042).
 
 // Goods need reasons and building need reasons (display).
 const (
@@ -66,6 +75,26 @@ func islandPopulation(is *Island, c *content.Catalogue) map[string]Qty {
 	for _, b := range is.Buildings {
 		if t := houseTier(b, c); t != nil {
 			pop[t.ID] += b.House.Residents
+		}
+	}
+	return pop
+}
+
+// houseConnected reports whether a house has a road path to a warehouse.
+func houseConnected(b *Building) bool { return b.AssignedWarehouseID != 0 }
+
+// connectedPopulation returns the residents (milli) per tier of the
+// connected houses on the island. Every tier with a house on the island has
+// an entry, possibly 0.
+func connectedPopulation(is *Island, c *content.Catalogue) map[string]Qty {
+	pop := map[string]Qty{}
+	for _, b := range is.Buildings {
+		if t := houseTier(b, c); t != nil {
+			n := pop[t.ID]
+			if houseConnected(b) {
+				n += b.House.Residents
+			}
+			pop[t.ID] = n
 		}
 	}
 	return pop
@@ -138,9 +167,9 @@ func needRate(residents, perResidentPerMin Qty) int64 {
 }
 
 // prepareHouseDemand computes the supplied goods and nominal demand of every
-// goods need on the island.
+// goods need on the island. Only connected houses demand goods.
 func (r *rates) prepareHouseDemand(is *Island, c *content.Catalogue) {
-	pop := islandPopulation(is, c)
+	pop := connectedPopulation(is, c)
 	inv := &is.Inventory
 	for _, t := range c.Tiers {
 		n, ok := pop[t.ID]
@@ -295,6 +324,8 @@ type houseCalc struct {
 	// growth is the accumulator rate in ResidentSub units per ms (signed).
 	growth int64
 	needs  []needResult
+	// connected is false for a house without a road path to a warehouse.
+	connected bool
 }
 
 // computeHouses derives satisfaction, taxes and growth of every house and
@@ -310,12 +341,20 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 		if tier == nil {
 			continue
 		}
-		h := &houseCalc{b: b, tier: tier, variety: ppm}
+		h := &houseCalc{b: b, tier: tier, variety: ppm, connected: houseConnected(b)}
 		var required, optional, optWeight int64
 		gi := 0
 		for _, need := range c.NeedsByTier[tier.ID] {
 			res := needResult{need: need}
-			if need.IsGoods() {
+			if !h.connected {
+				// No supply reaches an unconnected house (fulfilment 0); no
+				// goods consumption is attributed to it.
+				res.reason = NeedNotConnected
+				if need.IsGoods() {
+					gi++
+					res.goods = &goodsNeedState{need: need, cons: make([]int64, len(need.Goods))}
+				}
+			} else if need.IsGoods() {
 				gs := r.goodsNeeds[tier.ID][gi]
 				gi++
 				res.goods, res.fulfilment = gs, gs.fulfilment
@@ -345,7 +384,9 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 		// Required weights sum to 1 (content validation), so the weighted
 		// mean is the weighted sum; without required needs it is 1.
 		h.satisfaction = ppm
-		if hasRequired(h.needs) {
+		if !h.connected {
+			h.satisfaction = 0
+		} else if hasRequired(h.needs) {
 			h.satisfaction = required / ppm
 		}
 		if optWeight > 0 {
@@ -394,19 +435,19 @@ func growthRate(rules content.Rules, satisfaction, variety int64) int64 {
 	return -mulDivAny(rules.DeclinePerMin*unitsPerMilliPerMin, rules.GrowthThreshold-satisfaction, ppm)
 }
 
-// buildingNeed evaluates a building need for one house and returns its
-// reason (NeedOK when fulfilled). Among buildings of the type within range,
-// a usable one wins; otherwise an unconnected one reports not_connected and
-// a paused one paused.
+// buildingNeed evaluates a building need for one connected house and
+// returns its reason (NeedOK when fulfilled). Among buildings of the type
+// within range, a usable one wins; otherwise an unconnected one reports
+// not_connected and a paused one paused.
 func buildingNeed(is *Island, c *content.Catalogue, houseDef *content.Building, house *Building, need *content.Need) string {
-	e := entrance(houseDef, house.X, house.Y, house.Rotation)
+	hw, hh := footprint(houseDef, house.Rotation)
 	reason := NeedOutOfRange
 	for _, b := range is.Buildings {
 		if b.Type != need.Building {
 			continue
 		}
 		def := c.BuildingByID[b.Type]
-		if def == nil || !withinRadius(def, b, e, need.Radius) {
+		if def == nil || !withinRadius(def, b, house.X, house.Y, hw, hh, need.Radius) {
 			continue
 		}
 		switch {
@@ -423,12 +464,13 @@ func buildingNeed(is *Island, c *content.Catalogue, houseDef *content.Building, 
 	return reason
 }
 
-// withinRadius reports whether the footprint tile of b nearest to p lies
-// within the Euclidean distance radius of p (tile centres, exact integers).
-func withinRadius(def *content.Building, b *Building, p Pos, radius int) bool {
+// withinRadius reports whether the footprint of b and the footprint
+// [hx, hx+hw) x [hy, hy+hh) have a pair of nearest tiles within the
+// Euclidean distance radius (tile centres, exact integers).
+func withinRadius(def *content.Building, b *Building, hx, hy, hw, hh, radius int) bool {
 	w, h := footprint(def, b.Rotation)
-	dx := max(b.X-p.X, 0, p.X-(b.X+w-1))
-	dy := max(b.Y-p.Y, 0, p.Y-(b.Y+h-1))
+	dx := max(b.X-(hx+hw-1), 0, hx-(b.X+w-1))
+	dy := max(b.Y-(hy+hh-1), 0, hy-(b.Y+h-1))
 	return dx*dx+dy*dy <= radius*radius
 }
 
