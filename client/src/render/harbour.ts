@@ -123,4 +123,3 @@ export class HarbourLayer {
     return this.drawn.entries();
   }
 }
-

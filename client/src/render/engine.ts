@@ -179,6 +179,7 @@ export class GameRenderer {
       dragStart: (p, button) => this.onDragStart(p, button),
       dragMove: (prev, cur, button) => this.onDragMove(prev, cur, button),
       dragEnd: (p, button) => this.onDragEnd(p, button),
+      cancel: () => this.onPointerCancel(),
       hover: (p) => this.onHover(p),
       wheel: (p, dy) => this.onWheel(p, dy),
     });
@@ -341,6 +342,9 @@ export class GameRenderer {
     const now = performance.now();
     this.roadStart = null;
     this.roads.setPreview([]);
+    if (this.draggingShip !== null) {
+      this.input.cancel(); // emits dropShip(null)
+    }
     if (view.kind === "archipelago") {
       // A camera in the middle of a transition is not remembered.
       if (!this.archMode && !this.rig.animating()) this.islandCams.set(this.shownIslandId, this.rig.state());
@@ -359,14 +363,17 @@ export class GameRenderer {
       else this.islandCams.set(this.shownIslandId, this.rig.state());
     }
     this.archMode = false;
+    // Re-base and start the animation before anything rebuilds: nothing may
+    // clamp the camera into the destination's bounds before the first frame
+    // (the transition starts exactly where the camera is).
     if (view.id !== this.shownIslandId) this.rebase(view.id);
+    const target = this.islandCams.get(view.id) ?? this.islandCentre(view.id);
+    this.rig.animateTo(target, TRANSITION_MS, now, () => this.applyMode());
     this.islandId = view.id;
     this.lastServer = null;
     this.onSnapshot(this.sync.getSnapshot());
     this.islandRoot.setEnabled(true);
     this.arch.setMode(true, view.id);
-    const target = this.islandCams.get(view.id) ?? this.islandCentre(view.id);
-    this.rig.animateTo(target, TRANSITION_MS, now, () => this.applyMode());
   }
 
   /** A view transition (camera animation) is running. */
@@ -542,6 +549,11 @@ export class GameRenderer {
     return { x: r.left + p.x / k, y: r.top + p.y / k };
   }
 
+  /** Viewport position of an archipelago point in any view, also during transitions (tests). */
+  archToClient(p: ArchPoint): { x: number; y: number } {
+    return this.worldToClient(this.arch.toWorld(p, 0));
+  }
+
   /** Canvas-relative CSS pixel position of an archipelago point (HTML overlays). */
   archToCanvas(p: ArchPoint, y = LABEL_Y): { x: number; y: number } {
     const s = this.rig.project(this.arch.toWorld(p, y));
@@ -710,6 +722,33 @@ export class GameRenderer {
       return;
     }
     if (this.pans(button)) this.rig.pan(prev, cur);
+  }
+
+  /** The pointer's press or drag was cancelled: drop any ship drag or road preview. */
+  private onPointerCancel(): void {
+    this.roadStart = null;
+    this.roads.setPreview([]);
+    if (this.draggingShip !== null) {
+      this.draggingShip = null;
+      this.arch.setDragged(null);
+      this.events.dropShip(null);
+    }
+  }
+
+  /**
+   * Cancels a ship drag from outside (Esc, a view switch): the ship returns
+   * to its place and the held pointer neither drags nor pans any more.
+   */
+  cancelShipDrag(): void {
+    if (this.draggingShip === null) return;
+    this.input.cancel();
+    this.draggingShip = null;
+    this.arch.setDragged(null);
+  }
+
+  /** A ship is being dragged. */
+  draggingShipId(): number | null {
+    return this.draggingShip;
   }
 
   private onDragEnd(p: Point, button: number): void {

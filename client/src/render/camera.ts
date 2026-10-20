@@ -105,7 +105,12 @@ export class CameraRig {
     this.update();
   }
 
-  /** Moves the camera (and a running animation) by a ground offset without a visible change of the scene when the scene moves too. */
+  /**
+   * Moves the camera (and a running animation) by a ground offset, for a
+   * scene that moves by the same offset: nothing visibly changes. The target
+   * is not clamped (the bounds belong to the old coordinates); the caller
+   * sets new limits or starts a transition next.
+   */
   shift(dx: number, dz: number): void {
     this.target.x += dx;
     this.target.z += dz;
@@ -113,7 +118,7 @@ export class CameraRig {
       this.anim.from = { ...this.anim.from, x: this.anim.from.x + dx, z: this.anim.from.z + dz };
       this.anim.to = { ...this.anim.to, x: this.anim.to.x + dx, z: this.anim.to.z + dz };
     }
-    this.update();
+    this.update(false);
   }
 
   /**
@@ -161,8 +166,9 @@ export class CameraRig {
     return this.halfHeight >= this.maxHalf - 1e-6;
   }
 
-  update(): void {
-    if (!this.anim) {
+  /** Applies target and zoom to the camera; the target is clamped to the bounds unless animating or `clamp` is false. */
+  update(clamp = true): void {
+    if (clamp && !this.anim) {
       const b = this.bounds;
       this.target.x = Math.min(b.maxX, Math.max(b.minX, this.target.x));
       this.target.z = Math.min(b.maxZ, Math.max(b.minZ, this.target.z));

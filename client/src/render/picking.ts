@@ -14,6 +14,8 @@ export interface PointerHandlers {
   dragStart(start: Point, button: number): void;
   dragMove(prev: Point, cur: Point, button: number): void;
   dragEnd(cur: Point, button: number): void;
+  /** A press or drag ended without a release (pointercancel or cancel()). */
+  cancel(): void;
   /** Pointer moved (also while dragging). */
   hover(p: Point | null): void;
   wheel(p: Point, deltaY: number): void;
@@ -85,8 +87,21 @@ export class PointerInput {
   };
 
   private readonly onCancel = (e: PointerEvent): void => {
-    if (this.down?.id === e.pointerId) this.down = null;
+    if (this.down?.id === e.pointerId) this.cancel();
   };
+
+  /**
+   * Ends the current press or drag without a tap or dragEnd (e.g. Esc
+   * cancels a ship drag): later moves of the still-held pointer are plain
+   * hovers until the next press.
+   */
+  cancel(): void {
+    const d = this.down;
+    if (!d) return;
+    this.down = null;
+    if (this.canvas.hasPointerCapture(d.id)) this.canvas.releasePointerCapture(d.id);
+    this.h.cancel();
+  }
 
   private readonly onLeave = (): void => {
     if (!this.down) this.h.hover(null);
