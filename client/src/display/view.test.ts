@@ -94,14 +94,62 @@ describe("route editor", () => {
 
   it("save failure keeps the draft with the error; success keeps the editor on the saved route", () => {
     let s = run(arch(), { type: "openEditor", routeId: null, draft }, { type: "appendStop", island: "a" });
-    s = run(s, { type: "saveFailed", error: "route_invalid: stops 0 and 1 are both at a" });
+    const session = s.editor.kind === "open" ? s.editor.session : -1;
+    s = run(s, { type: "saveFailed", session, error: "route_invalid: stops 0 and 1 are both at a" });
     expect(s.editor).toMatchObject({ kind: "open", routeId: null, error: "route_invalid: stops 0 and 1 are both at a" });
     expect(s.editor.kind === "open" && s.editor.draft.stops.length).toBe(1);
-    s = run(s, { type: "saved", routeId: 4 });
+    s = run(s, { type: "saved", session, routeId: 4 });
     expect(s.editor).toMatchObject({ kind: "open", routeId: 4, error: null });
     s = run(s, { type: "setDraft", draft: { name: "Fish", stops: [] } });
     expect(s.editor.kind === "open" && s.editor.draft.name).toBe("Fish");
     expect(run(s, { type: "closeEditor" }).editor.kind).toBe("closed");
+  });
+
+  it("a delayed save response of another editor session changes nothing", () => {
+    const routeA = { name: "A", stops: [{ island: "a", load: [], unload: [] }] };
+    const routeB = { name: "B", stops: [{ island: "b", load: [], unload: [] }] };
+    // Save route A (pending), then open route B before A's response arrives.
+    let s = run(arch(), { type: "openEditor", routeId: 1, draft: routeA, pickingShip: 7 });
+    const sessionA = s.editor.kind === "open" ? s.editor.session : -1;
+    s = run(s, { type: "openEditor", routeId: 2, draft: routeB });
+    const sessionB = s.editor.kind === "open" ? s.editor.session : -1;
+    expect(sessionB).not.toBe(sessionA);
+    const late = run(
+      s,
+      { type: "saved", session: sessionA, routeId: 1 },
+      { type: "saveFailed", session: sessionA, error: "late" },
+      { type: "clearPickingShip", session: sessionA },
+    );
+    expect(late).toBe(s);
+    expect(late.editor).toMatchObject({ kind: "open", session: sessionB, routeId: 2, draft: routeB, error: null });
+    // A new unsaved route is not given A's ID either.
+    const fresh = run(arch(), { type: "openEditor", routeId: null, draft }, { type: "closeEditor" }, { type: "openEditor", routeId: null, draft });
+    expect(run(fresh, { type: "saved", session: 1, routeId: 9 }).editor).toMatchObject({ routeId: null });
+    // The session's own response applies.
+    expect(run(s, { type: "saved", session: sessionB, routeId: 2 }).editor).toMatchObject({ routeId: 2 });
+  });
+
+  it("selecting a ship (scene or list) or an island suspends the editor; clearing the selection resumes it", () => {
+    const editing = run(arch(), { type: "openEditor", routeId: 3, draft }, { type: "appendStop", island: "a" });
+    for (const pick of [{ type: "tapShip", id: 5 } as const, { type: "selectShip", id: 5 } as const]) {
+      const s = run(editing, pick);
+      expect(s.selection).toEqual({ kind: "ship", id: 5 });
+      expect(s.editor).toMatchObject({ kind: "open", active: false, routeId: 3 });
+      // While suspended, island taps select islands instead of adding stops.
+      const t = run(s, { type: "tapIsland", id: "b" });
+      expect(t.selection).toEqual({ kind: "island", id: "b" });
+      expect(t.editor.kind === "open" && t.editor.draft.stops.map((x) => x.island)).toEqual(["a"]);
+      // Closing the panel (clear selection), Esc or a sea tap resumes the editor with its draft.
+      for (const back of [{ type: "clearSelection" } as const, { type: "escape" } as const, { type: "tapSea" } as const]) {
+        const r = run(t, back);
+        expect(r.selection).toEqual({ kind: "none" });
+        expect(r.editor).toMatchObject({ kind: "open", active: true });
+      }
+      expect(run(s, { type: "resumeEditor" }).editor).toMatchObject({ active: true });
+    }
+    // "Assign to route…" opens the editor active with the ship still selected.
+    const assign = run(arch(), { type: "selectShip", id: 5 }, { type: "openEditor", routeId: null, draft, pickingShip: 5 });
+    expect(assign.editor).toMatchObject({ kind: "open", active: true, pickingShip: 5 });
   });
 });
 

@@ -27,6 +27,18 @@ export type Editor =
   | { kind: "closed" }
   | {
       kind: "open";
+      /**
+       * Identity of this editor session (a new one per openEditor): save
+       * responses and follow-up assignments apply only to the session that
+       * issued them.
+       */
+      session: number;
+      /**
+       * The editor owns the panel and island clicks append stops. Selecting
+       * a ship or an island suspends it (their panel shows, clicks select);
+       * clearing that selection or resumeEditor makes it active again.
+       */
+      active: boolean;
       /** The saved route being edited, null for a new (unsaved) route. */
       routeId: number | null;
       draft: Draft;
@@ -52,6 +64,8 @@ export interface ViewState {
   dialog: { shipId: number; to: string | null } | null;
   /** Zoom-out accumulated at the island view's maximum extent (wheel delta units). */
   zoomOut: { amount: number; atMs: number };
+  /** Last editor session number handed out. */
+  editorSessions: number;
 }
 
 /**
@@ -83,9 +97,11 @@ export type ViewAction =
   | { type: "appendStop"; island: string }
   | { type: "removeStop"; index: number }
   | { type: "moveStop"; index: number; delta: -1 | 1 }
-  | { type: "saveFailed"; error: string }
-  | { type: "saved"; routeId: number }
-  | { type: "clearPickingShip" }
+  /** Save results and the pending ship's assignment, for the editor session that saved. */
+  | { type: "saveFailed"; session: number; error: string }
+  | { type: "saved"; session: number; routeId: number }
+  | { type: "clearPickingShip"; session: number }
+  | { type: "resumeEditor" }
   | { type: "closeEditor" }
   | { type: "dragShip"; shipId: number; from: string }
   /** The dragged ship was dropped on an island (null: the sea). */
@@ -105,6 +121,7 @@ export function initialViewState(view: View = { kind: "island", id: "" }): ViewS
     shipment: { kind: "none" },
     dialog: null,
     zoomOut: { amount: 0, atMs: 0 },
+    editorSessions: 0,
   };
 }
 
@@ -132,6 +149,17 @@ function enter(s: ViewState, id: string): ViewState {
 function toArchipelago(s: ViewState): ViewState {
   if (s.view.kind === "archipelago") return s;
   return switchView(s, { kind: "archipelago" });
+}
+
+/** A selection made while the editor is open suspends it; clearing the selection resumes it. */
+function select(s: ViewState, selection: Selection): ViewState {
+  const editor = s.editor.kind === "open" ? { ...s.editor, active: selection.kind === "none" } : s.editor;
+  return { ...s, selection, editor };
+}
+
+/** The editor session that issued a save, if it is still the open one. */
+function sessionEditor(s: ViewState, session: number) {
+  return s.editor.kind === "open" && s.editor.session === session ? s.editor : null;
 }
 
 function withStops(s: ViewState, f: (stops: DraftStop[]) => DraftStop[]): ViewState {
@@ -166,35 +194,39 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
         const dialog = a.id === sh.from ? null : { shipId: sh.shipId, to: a.id };
         return { ...s, shipment: { kind: "none" }, dialog };
       }
-      if (s.editor.kind === "open") {
+      if (s.editor.kind === "open" && s.editor.active) {
         return withStops(s, (stops) => [...stops, blankStop(a.id)]);
       }
       if (s.selection.kind === "island" && s.selection.id === a.id) return enter(s, a.id);
-      return { ...s, selection: { kind: "island", id: a.id } };
+      return select(s, { kind: "island", id: a.id });
     }
     case "tapShip":
       if (s.shipment.kind !== "none") return { ...s, shipment: { kind: "none" } };
-      return { ...s, selection: { kind: "ship", id: a.id } };
+      return select(s, { kind: "ship", id: a.id });
     case "tapSea":
       if (s.shipment.kind !== "none") return { ...s, shipment: { kind: "none" } };
-      if (s.editor.kind === "open") return s;
-      return s.selection.kind === "none" ? s : { ...s, selection: { kind: "none" } };
+      if (s.editor.kind === "open" && s.editor.active) return s;
+      return s.selection.kind === "none" ? s : select(s, { kind: "none" });
     case "selectBuilding":
-      return { ...s, selection: a.id === null ? { kind: "none" } : { kind: "building", id: a.id } };
+      return select(s, a.id === null ? { kind: "none" } : { kind: "building", id: a.id });
     case "selectShip":
-      return { ...s, selection: { kind: "ship", id: a.id } };
+      return select(s, { kind: "ship", id: a.id });
     case "selectIsland":
-      return { ...s, selection: { kind: "island", id: a.id } };
+      return select(s, { kind: "island", id: a.id });
     case "clearSelection":
-      return { ...s, selection: { kind: "none" } };
+      return select(s, { kind: "none" });
     case "openEditor": {
       const t = toArchipelago(s);
+      const session = s.editorSessions + 1;
       return {
         ...t,
         shipment: { kind: "none" },
-        editor: { kind: "open", routeId: a.routeId, draft: a.draft, pickingShip: a.pickingShip ?? null, error: null },
+        editorSessions: session,
+        editor: { kind: "open", session, active: true, routeId: a.routeId, draft: a.draft, pickingShip: a.pickingShip ?? null, error: null },
       };
     }
+    case "resumeEditor":
+      return s.editor.kind === "open" ? { ...s, editor: { ...s.editor, active: true } } : s;
     case "setDraft":
       return s.editor.kind === "open" ? { ...s, editor: { ...s.editor, draft: a.draft } } : s;
     case "appendStop":
@@ -209,12 +241,18 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
         [out[a.index], out[j]] = [out[j] as DraftStop, out[a.index] as DraftStop];
         return out;
       });
-    case "saveFailed":
-      return s.editor.kind === "open" ? { ...s, editor: { ...s.editor, error: a.error } } : s;
-    case "saved":
-      return s.editor.kind === "open" ? { ...s, editor: { ...s.editor, routeId: a.routeId, error: null } } : s;
-    case "clearPickingShip":
-      return s.editor.kind === "open" ? { ...s, editor: { ...s.editor, pickingShip: null } } : s;
+    case "saveFailed": {
+      const ed = sessionEditor(s, a.session);
+      return ed ? { ...s, editor: { ...ed, error: a.error } } : s;
+    }
+    case "saved": {
+      const ed = sessionEditor(s, a.session);
+      return ed ? { ...s, editor: { ...ed, routeId: a.routeId, error: null } } : s;
+    }
+    case "clearPickingShip": {
+      const ed = sessionEditor(s, a.session);
+      return ed ? { ...s, editor: { ...ed, pickingShip: null } } : s;
+    }
     case "closeEditor":
       return s.editor.kind === "closed" ? s : { ...s, editor: { kind: "closed" } };
     case "dragShip":
@@ -234,13 +272,14 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
     case "escape":
       // One step per press: the shipment interaction, then the editor's
       // pick mode (a pending ship pick first, then the editor itself),
-      // then the selection.
+      // then the selection. A suspended editor comes back when the
+      // selection that suspended it is cleared.
       if (s.shipment.kind !== "none") return { ...s, shipment: { kind: "none" } };
-      if (s.editor.kind === "open") {
+      if (s.editor.kind === "open" && s.editor.active) {
         if (s.editor.pickingShip !== null) return { ...s, editor: { ...s.editor, pickingShip: null } };
         return { ...s, editor: { kind: "closed" } };
       }
-      return s.selection.kind === "none" ? s : { ...s, selection: { kind: "none" } };
+      return s.selection.kind === "none" ? s : select(s, { kind: "none" });
     case "keyEnter":
       if (s.view.kind === "archipelago" && s.selection.kind === "island") return enter(s, s.selection.id);
       return s;

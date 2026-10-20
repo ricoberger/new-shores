@@ -55,6 +55,8 @@ export interface TestHook {
   islandToScreen(id: string, x?: number, y?: number): { x: number; y: number };
   /** Viewport position of a ship (archipelago view, or at the harbour in the island view). */
   shipToScreen(id: number): { x: number; y: number };
+  /** Viewport position of an archipelago point (tiles) in any view, also during a transition. */
+  archToScreen(x: number, y: number): { x: number; y: number };
   /** Draw calls of the last frame. */
   drawCalls(): number;
   /** Frame times over the last windowMs (default 5 s). */
@@ -213,10 +215,14 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const assign = async (shipId: number, routeId: number) => {
     const { ok } = await sendCommand({ type: "assign_ship", ship_id: shipId, route_id: routeId });
-    if (ok && vs.editor.kind === "open" && vs.editor.pickingShip === shipId) dispatch({ type: "clearPickingShip" });
+    if (ok && vs.editor.kind === "open" && vs.editor.pickingShip === shipId) dispatch({ type: "clearPickingShip", session: vs.editor.session });
   };
 
-  /** Saves the editor's draft; the editor stays open on the saved route. */
+  /**
+   * Saves the editor's draft; the editor stays open on the saved route. The
+   * response applies to the editor session that saved only (another route
+   * may be open in the editor by the time it arrives).
+   */
   const saveEditor = async () => {
     if (vs.editor.kind !== "open") return;
     const ed = vs.editor;
@@ -228,15 +234,15 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         : { type: "update_route", route_id: ed.routeId, name: ed.draft.name, stops };
     const r = await sendCommand(cmd);
     if (!r.ok || !r.res) {
-      dispatch({ type: "saveFailed", error: r.error?.message ?? "The route could not be saved." });
+      dispatch({ type: "saveFailed", session: ed.session, error: r.error?.message ?? "The route could not be saved." });
       return;
     }
     const id = ed.routeId ?? createdRouteId(before, r.res.display.routes);
     if (id === null) return;
-    dispatch({ type: "saved", routeId: id });
+    dispatch({ type: "saved", session: ed.session, routeId: id });
     if (ed.pickingShip !== null) {
       const a = await sendCommand({ type: "assign_ship", ship_id: ed.pickingShip, route_id: id });
-      if (a.ok) dispatch({ type: "clearPickingShip" });
+      if (a.ok) dispatch({ type: "clearPickingShip", session: ed.session });
     }
   };
 
@@ -340,10 +346,18 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   useEffect(() => renderer?.setSelected(selected), [renderer, selected, snap.server]);
 
+  // A ship drag ends in the renderer too when the view state ends it (Esc,
+  // a view switch): the ship returns to its place and stops following the pointer.
+  const shipmentKind = vs.shipment.kind;
+  useEffect(() => {
+    if (shipmentKind !== "dragging") renderer?.cancelShipDrag();
+  }, [renderer, shipmentKind]);
+
   // Archipelago selection ring, highlighted route and the editor's live draft.
   const archSel = vs.selection.kind === "ship" || vs.selection.kind === "island" ? vs.selection : ({ kind: "none" } as const);
-  const highlight = vs.editor.kind === "open" ? vs.editor.routeId : selectedShip?.route_id || null;
-  const draftStops = vs.editor.kind === "open" ? vs.editor.draft.stops.map((s) => s.island) : null;
+  const editing = vs.editor.kind === "open" && vs.editor.active ? vs.editor : null;
+  const highlight = editing ? editing.routeId : selectedShip?.route_id || null;
+  const draftStops = editing ? editing.draft.stops.map((s) => s.island) : null;
   useEffect(() => renderer?.setArchState(archSel, highlight, draftStops));
 
   // Keyboard: Esc steps back one thing per press, Enter enters the selected
@@ -394,6 +408,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         },
         islandToScreen: (id, x, y) => rendererRef.current?.islandToScreen(id, x, y) ?? nan,
         shipToScreen: (id) => rendererRef.current?.shipToScreen(id) ?? nan,
+        archToScreen: (x, y) => rendererRef.current?.archToClient({ x, y }) ?? nan,
         drawCalls: () => rendererRef.current?.lastDrawCalls() ?? 0,
         frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 },
       };
@@ -460,7 +475,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onClose={() => setPanel("none")}
         />
       );
-    } else if (editor && archView) {
+    } else if (editor?.active && archView) {
       right = (
         <RouteEditor
           model={model}
@@ -477,7 +492,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onClose={() => dispatch({ type: "closeEditor" })}
           onAssign={(shipId, routeId) => void assign(shipId, routeId)}
           onUnassign={(shipId) => void send({ type: "unassign_ship", ship_id: shipId })}
-          onCancelPick={() => dispatch({ type: "clearPickingShip" })}
+          onCancelPick={() => dispatch({ type: "clearPickingShip", session: editor.session })}
         />
       );
     } else if (selectedShip) {
@@ -552,7 +567,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     const sh = vs.shipment;
     if (sh.kind === "awaitingTarget") archHint = `Click the destination island for ship #${sh.shipId} · Esc cancels`;
     else if (sh.kind === "dragging") archHint = `Drop ship #${sh.shipId} on an island to send it · the sea cancels`;
-    else if (editor) archHint = "Click islands to add stops · Esc closes the editor";
+    else if (editor?.active) archHint = "Click islands to add stops · Esc closes the editor";
     else archHint = "Click an island to select it, again to enter · drag an idle ship onto an island to send it";
   }
 
@@ -581,7 +596,17 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             <WarningsTray model={model} content={content} onFocus={focus} open={warningsOpen} onOpenChange={setWarningsOpen} />
           )}
         </div>
-        <div className={styles.right}>{right}</div>
+        <div className={styles.right}>
+          {editor && !editor.active && archView && (
+            <div className={`${hud.panel} ${hud.resumeBar}`}>
+              <span className={hud.small}>Route editor paused ({editor.routeId === null ? "new route" : `route #${editor.routeId}`})</span>
+              <button type="button" className={hud.button} onClick={() => dispatch({ type: "resumeEditor" })} data-testid="route-editor-resume">
+                Back to route editor
+              </button>
+            </div>
+          )}
+          {right}
+        </div>
         <div className={styles.bottom}>
           {archView ? null : island && !island.settled ? (
             <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid="unsettled-panel">
@@ -651,4 +676,3 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     </div>
   );
 }
-
