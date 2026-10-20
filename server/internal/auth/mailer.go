@@ -1,0 +1,80 @@
+package auth
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"net"
+	"net/smtp"
+	"net/url"
+	"regexp"
+	"strings"
+)
+
+// Mailer sends account emails (verification, password reset).
+type Mailer interface {
+	Send(ctx context.Context, to, subject, body string) error
+}
+
+// LogMailer is the development mailer: it logs the subject and the SHA-256
+// of the token contained in the mail (never the token, the address or the
+// body).
+type LogMailer struct {
+	Logger *slog.Logger
+}
+
+// tokenParam finds the token in the link of an account mail.
+var tokenParam = regexp.MustCompile(`token=([A-Za-z0-9_-]+)`)
+
+// Send implements Mailer.
+func (m LogMailer) Send(_ context.Context, _, subject, body string) error {
+	attrs := []any{"subject", subject}
+	if t := tokenParam.FindStringSubmatch(body); t != nil {
+		attrs = append(attrs, "token_sha256", TokenFingerprint(t[1]))
+	}
+	m.Logger.Info("mail not sent (no SMTP_URL; log mailer)", attrs...)
+	return nil
+}
+
+// SMTPMailer sends mail through an SMTP server (STARTTLS when offered).
+type SMTPMailer struct {
+	addr string
+	host string
+	auth smtp.Auth
+	from string
+}
+
+// NewSMTPMailer parses SMTP_URL (smtp://[user:password@]host[:port]) and
+// the From address.
+func NewSMTPMailer(rawURL, from string) (*SMTPMailer, error) {
+	u, err := url.Parse(rawURL)
+	if err != nil || u.Scheme != "smtp" || u.Hostname() == "" {
+		return nil, fmt.Errorf("SMTP_URL must look like smtp://user:password@host:587")
+	}
+	if from == "" || strings.ContainsAny(from, "\r\n") {
+		return nil, fmt.Errorf("MAIL_FROM is required with SMTP_URL")
+	}
+	port := u.Port()
+	if port == "" {
+		port = "587"
+	}
+	m := &SMTPMailer{addr: net.JoinHostPort(u.Hostname(), port), host: u.Hostname(), from: from}
+	if u.User != nil {
+		pw, _ := u.User.Password()
+		m.auth = smtp.PlainAuth("", u.User.Username(), pw, u.Hostname())
+	}
+	return m, nil
+}
+
+// Send implements Mailer.
+func (m *SMTPMailer) Send(_ context.Context, to, subject, body string) error {
+	if strings.ContainsAny(to+subject, "\r\n") {
+		return fmt.Errorf("invalid mail header")
+	}
+	msg := "From: " + m.from + "\r\nTo: " + to + "\r\nSubject: " + subject +
+		"\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n" + body
+	if err := smtp.SendMail(m.addr, m.auth, m.from, []string{to}, []byte(msg)); err != nil {
+		return fmt.Errorf("smtp: %w", err)
+	}
+	return nil
+}
