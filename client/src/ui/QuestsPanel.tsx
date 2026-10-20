@@ -33,6 +33,7 @@ export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
               <strong>{questTitle(content, id)}</strong>
               <span className={styles.ok}>✓ completed</span>
             </div>
+            {q && <p className={styles.small}>{q.text}</p>}
             {q && <div className={styles.small}>Reward: {rewardText(q, content)}</div>}
             {choosing === id ? (
               <ClaimIsland

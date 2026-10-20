@@ -71,11 +71,13 @@ export function AwayDialog({ summary, content, islandName, onDismiss }: Props) {
         {v.shipsArrived > 0 && (
           <div className={styles.section} data-testid="away-ships">
             Ships arrived: {v.shipsArrived}
-            {v.arrivals.map((a) => (
-              <div key={a} className={styles.small}>
-                {a}
-              </div>
-            ))}
+            <div className={styles.arrivals}>
+              {v.arrivals.map((a, i) => (
+                <div key={i} className={styles.small}>
+                  {a}
+                </div>
+              ))}
+            </div>
           </div>
         )}
         {v.quests.length > 0 && <div className={styles.section}>Quests completed: {v.quests.join(", ")}</div>}

@@ -50,6 +50,9 @@ describe("HUD components", () => {
     expect(html).toContain('data-testid="quest-active-intro_fish"');
     expect(text(html)).toContain("Fisher connected to a warehouse");
     expect(text(html)).toContain("Reward: 45 Planks");
+    // Advisor prose also on quests that completed before they were shown
+    // as active.
+    expect(text(html)).toContain("Lay a road.");
   });
 
   it("renders the away dialog with the interval and capacity marks", () => {
