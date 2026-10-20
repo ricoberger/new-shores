@@ -38,10 +38,10 @@
     "pause_category": "never",
     "warehouse": {
       "levels": [
-        { "capacity": 300, "throughput_per_min": 60 },
+        { "capacity": 300, "throughput_per_min": 30 },
         {
           "capacity": 500,
-          "throughput_per_min": 90,
+          "throughput_per_min": 55,
           "cost": { "gold": 300, "planks": 20, "stone": 10 }
         }
       ]
@@ -136,14 +136,14 @@
     "footprint": [3, 3],
     "coastal": false,
     "requires_road": true,
-    "cost": { "gold": 100, "planks": 10 },
-    "upkeep_per_min": 2,
+    "cost": { "gold": 50, "planks": 10 },
+    "upkeep_per_min": 1,
     "pause_category": "intermediate",
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
       "outputs": [{ "good": "wool", "amount": 1 }],
-      "cycle_seconds": 60
+      "cycle_seconds": 90
     },
     "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24 }
   },
@@ -155,14 +155,14 @@
     "footprint": [2, 2],
     "coastal": false,
     "requires_road": true,
-    "cost": { "gold": 120, "planks": 10 },
-    "upkeep_per_min": 2,
+    "cost": { "gold": 70, "planks": 10 },
+    "upkeep_per_min": 1,
     "pause_category": "need_goods",
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "wool", "amount": 1 }],
       "outputs": [{ "good": "wool_garments", "amount": 1 }],
-      "cycle_seconds": 60
+      "cycle_seconds": 90
     }
   },
   {

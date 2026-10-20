@@ -32,7 +32,7 @@ func TestCitizensNeeds(t *testing.T) {
 				t.Errorf("house %d needs %v, want %v", b.ID, kinds, want)
 			}
 		case "warehouse":
-			if *b.Level != 2 || *b.Capacity != 500_000 || *b.ThroughputPerMin != 90_000 || *b.LoadPermille <= 0 {
+			if *b.Level != 2 || *b.Capacity != 500_000 || *b.ThroughputPerMin != loadCatalogue(t).BuildingByID["warehouse"].Warehouse.Levels[1].ThroughputPerMin || *b.LoadPermille <= 0 {
 				t.Errorf("warehouse level %d capacity %d throughput %d load %d", *b.Level, *b.Capacity, *b.ThroughputPerMin, *b.LoadPermille)
 			}
 		}
@@ -132,5 +132,42 @@ func TestPlacementLocks(t *testing.T) {
 	}
 	if have["start:house_citizens"] || have["start:iron_mine"] || have["island2:wheat_farm"] {
 		t.Errorf("a failed placement exists: %v", have)
+	}
+}
+
+// TestWarehouseLoadTargets (CONTENT §12, R-21): one warehouse runs at
+// roughly 80 % load (60-100 %) on a representative island of each level:
+// level 1 on the reference game's start island with its full Settler
+// economy (golden t, end), level 2 on a Citizens island with the balanced
+// Citizens set for 400 Citizens plus that Settler support set (golden
+// citizens_island_load).
+func TestWarehouseLoadTargets(t *testing.T) {
+	for _, tc := range []struct {
+		scenario, island string
+		level            int
+	}{
+		{"bootstrap_citizens", "start", 1},
+		{"citizens_island_load", "main", 2},
+	} {
+		rep := runScenario(t, tc.scenario)
+		for _, is := range rep.Final.Islands {
+			if is.ID != tc.island {
+				continue
+			}
+			for _, b := range is.Buildings {
+				if b.Type != "warehouse" {
+					continue
+				}
+				t.Logf("%s/%s: warehouse level %d load %d ‰ (throughput %d)", tc.scenario, is.ID, *b.Level, *b.LoadPermille, *b.ThroughputPerMin)
+				if *b.Level != tc.level || *b.LoadPermille < 600 || *b.LoadPermille > 1000 {
+					t.Errorf("%s: level %d load %d ‰, want level %d at 600-1000 ‰", tc.scenario, *b.Level, *b.LoadPermille, tc.level)
+				}
+			}
+		}
+		for _, bn := range rep.Bottlenecks {
+			if bn.Status == sim.StatusThrottled {
+				t.Errorf("%s: %s %d throttled", tc.scenario, bn.Type, bn.BuildingID)
+			}
+		}
 	}
 }

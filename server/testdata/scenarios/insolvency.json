@@ -1,6 +1,6 @@
 {
   "name": "insolvency",
-  "description": "Upkeep exceeds taxes with little gold: buildings are auto-paused in MECHANICS §7 order (weaver, lumberjack, sawmill, sheep farm, fisher). Growing houses and demolished upkeep let them auto-resume in reverse order, each once gold covers 5 minutes of its upkeep.",
+  "description": "Upkeep exceeds taxes with little gold: buildings are auto-paused in MECHANICS §7 order (weaver; lumberjack and sheep farm at the lowest upkeep, then sawmill; fisher). Growing houses and demolished upkeep let them auto-resume in reverse order, each once gold covers 5 minutes of its upkeep.",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
@@ -27,7 +27,7 @@
       "y": 1,
       "rotation": 0
     },
-    "gold": 580,
+    "gold": 475,
     "stock": {
       "planks": 140,
       "fish": 120,

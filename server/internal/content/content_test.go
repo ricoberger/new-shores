@@ -85,7 +85,7 @@ func TestLoadOldCoast(t *testing.T) {
 	for _, id := range []string{"warehouse", "fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "market_small", "chapel"} {
 		upkeep += c.BuildingByID[id].UpkeepPerMin
 	}
-	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 18_000 || tax*10 < upkeep*12 {
+	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 16_000 || tax*10 < upkeep*12 {
 		t.Errorf("tax %d vs upkeep %d milli-gold/min: margin below 20 %%", tax, upkeep)
 	}
 
@@ -111,8 +111,8 @@ func TestLoadOldCoast(t *testing.T) {
 		"lumberjack":     {50_000, 5_000, 1_000, 2, 2, "intermediate"},
 		"sawmill":        {80_000, 8_000, 2_000, 2, 2, "intermediate"},
 		"fisher":         {60_000, 6_000, 1_000, 2, 2, "food_basic"},
-		"sheep_farm":     {100_000, 10_000, 2_000, 3, 3, "intermediate"},
-		"weaver_wool":    {120_000, 10_000, 2_000, 2, 2, "need_goods"},
+		"sheep_farm":     {50_000, 10_000, 1_000, 3, 3, "intermediate"},
+		"weaver_wool":    {70_000, 10_000, 1_000, 2, 2, "need_goods"},
 	}
 	for id, w := range want {
 		b := c.BuildingByID[id]
@@ -162,7 +162,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Error("fisher recipe/coastal mismatch")
 	}
 	wh := c.BuildingByID["warehouse"].Warehouse
-	if wh == nil || wh.Levels[0] != (WarehouseLevel{Capacity: 300_000, ThroughputPerMin: 60_000}) {
+	if wh == nil || wh.Levels[0] != (WarehouseLevel{Capacity: 300_000, ThroughputPerMin: 30_000}) {
 		t.Errorf("warehouse = %+v", wh)
 	}
 	if c.BuildingByID["road_dirt"].Road.MsPerTile != 1000 {

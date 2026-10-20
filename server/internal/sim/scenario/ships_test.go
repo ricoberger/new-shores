@@ -160,7 +160,7 @@ func TestShipInsolvencyScenario(t *testing.T) {
 			pauses = append(pauses, e.Type)
 		}
 	}
-	if want := "weaver_wool,lumberjack,sawmill,sheep_farm,sloop,fisher"; strings.Join(pauses, ",") != want {
+	if want := "weaver_wool,lumberjack,sheep_farm,sawmill,sloop,fisher"; strings.Join(pauses, ",") != want {
 		t.Fatalf("pauses %v, want %s", pauses, want)
 	}
 	var paused *ShipSnapshot

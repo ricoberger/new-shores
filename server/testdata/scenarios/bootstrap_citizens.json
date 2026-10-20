@@ -734,6 +734,19 @@
     },
     {
       "place": {
+        "type": "sheep_farm",
+        "x": 14,
+        "y": 21,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
         "type": "house_settlers",
         "x": 19,
         "y": 10,
@@ -755,20 +768,20 @@
     },
     {
       "advance": {
-        "duration": "2m"
+        "duration": "1m"
       }
     },
     {
       "place": {
-        "type": "sheep_farm",
-        "x": 14,
-        "y": 21,
+        "type": "weaver_wool",
+        "x": 26,
+        "y": 18,
         "rotation": 0
       }
     },
     {
       "advance": {
-        "duration": "1m"
+        "duration": "4m"
       }
     },
     {
@@ -820,20 +833,20 @@
     },
     {
       "advance": {
-        "duration": "2m"
+        "duration": "1m"
       }
     },
     {
       "place": {
-        "type": "weaver_wool",
-        "x": 26,
-        "y": 18,
+        "type": "chapel",
+        "x": 19,
+        "y": 5,
         "rotation": 0
       }
     },
     {
       "advance": {
-        "duration": "4m"
+        "duration": "1m"
       }
     },
     {
@@ -859,40 +872,6 @@
     },
     {
       "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "type": "chapel",
-        "x": 19,
-        "y": 5,
-        "rotation": 0
-      }
-    },
-    {
-      "place": {
-        "type": "house_settlers",
-        "x": 12,
-        "y": 12,
-        "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "2m"
-      }
-    },
-    {
-      "place": {
-        "type": "house_settlers",
-        "x": 14,
-        "y": 12,
-        "rotation": 0
-      }
-    },
-    {
-      "advance": {
         "duration": "3m"
       }
     },
@@ -901,19 +880,6 @@
         "type": "quarry",
         "x": 16,
         "y": 30,
-        "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "2m"
-      }
-    },
-    {
-      "place": {
-        "type": "house_settlers",
-        "x": 19,
-        "y": 12,
         "rotation": 0
       }
     },
@@ -937,9 +903,9 @@
     },
     {
       "place": {
-        "type": "house_settlers",
-        "x": 21,
-        "y": 12,
+        "type": "weaver_wool",
+        "x": 28,
+        "y": 18,
         "rotation": 0
       }
     },
@@ -950,9 +916,48 @@
     },
     {
       "place": {
-        "type": "weaver_wool",
+        "type": "sheep_farm",
         "x": 28,
+        "y": 21,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 24,
         "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 14,
+        "y": 35,
         "rotation": 0
       }
     },
@@ -964,7 +969,7 @@
     {
       "place": {
         "type": "house_settlers",
-        "x": 23,
+        "x": 14,
         "y": 12,
         "rotation": 0
       }
@@ -982,7 +987,7 @@
     },
     {
       "advance": {
-        "duration": "3m"
+        "duration": "4m"
       }
     },
     {
@@ -990,32 +995,6 @@
         "type": "quarry",
         "x": 19,
         "y": 30,
-        "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "type": "house_settlers",
-        "x": 25,
-        "y": 12,
-        "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "type": "fisher",
-        "x": 14,
-        "y": 35,
         "rotation": 0
       }
     },
@@ -1067,8 +1046,29 @@
       }
     },
     {
+      "place": {
+        "type": "house_settlers",
+        "x": 19,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
       "advance": {
-        "duration": "2m"
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 21,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1184,6 +1184,32 @@
     {
       "place": {
         "type": "house_settlers",
+        "x": 23,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 25,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
         "x": 27,
         "y": 12,
         "rotation": 0
@@ -1204,7 +1230,7 @@
     },
     {
       "advance": {
-        "duration": "8m"
+        "duration": "9m"
       }
     },
     {
@@ -1214,11 +1240,6 @@
         "x": 12,
         "y": 12,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "3m"
       }
     },
     {
@@ -1232,7 +1253,7 @@
     },
     {
       "advance": {
-        "duration": "7m"
+        "duration": "4m"
       }
     },
     {
@@ -1246,7 +1267,7 @@
     },
     {
       "advance": {
-        "duration": "6m"
+        "duration": "7m"
       }
     },
     {

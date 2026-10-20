@@ -104,7 +104,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 79965,
+            "stock": 97137,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -140,7 +140,7 @@
             "rate_per_min": 0
           },
           "wool": {
-            "stock": 188,
+            "stock": 125,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -308,7 +308,7 @@
             "throughput_factor_permille": 1000,
             "level": 1,
             "capacity": 300000,
-            "throughput_per_min": 60000,
+            "throughput_per_min": 30000,
             "load_permille": 0
           },
           {
@@ -364,8 +364,8 @@
                 "wool_garments": 0
               }
             },
-            "cycle_seconds": 60,
-            "cycle_progress_permille": 669,
+            "cycle_seconds": 90,
+            "cycle_progress_permille": 613,
             "transfer_delay_ms": 28000,
             "assigned_warehouse_id": 1,
             "road_distance": 18,
@@ -393,7 +393,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 204,
+            "cycle_progress_permille": 376,
             "transfer_delay_ms": 34000,
             "assigned_warehouse_id": 1,
             "road_distance": 24,
@@ -423,7 +423,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 965,
+            "cycle_progress_permille": 136,
             "transfer_delay_ms": 31000,
             "assigned_warehouse_id": 1,
             "road_distance": 21,
@@ -450,8 +450,8 @@
                 "wool": 0
               }
             },
-            "cycle_seconds": 60,
-            "cycle_progress_permille": 857,
+            "cycle_seconds": 90,
+            "cycle_progress_permille": 738,
             "transfer_delay_ms": 31000,
             "assigned_warehouse_id": 1,
             "road_distance": 21,
@@ -992,7 +992,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 79965,
+                "stock": 97137,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -1028,7 +1028,7 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 188,
+                "stock": 125,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -1196,7 +1196,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
+                "throughput_per_min": 30000,
                 "load_permille": 0
               },
               {
@@ -1252,8 +1252,8 @@
                     "wool_garments": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 669,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 613,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -1281,7 +1281,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 204,
+                "cycle_progress_permille": 376,
                 "transfer_delay_ms": 34000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 24,
@@ -1311,7 +1311,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 965,
+                "cycle_progress_permille": 136,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
@@ -1338,8 +1338,8 @@
                     "wool": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 857,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 738,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
@@ -1880,7 +1880,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 79965,
+                "stock": 97137,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -1916,7 +1916,7 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 188,
+                "stock": 125,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2084,7 +2084,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
+                "throughput_per_min": 30000,
                 "load_permille": 0
               },
               {
@@ -2140,8 +2140,8 @@
                     "wool_garments": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 669,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 613,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -2169,7 +2169,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 204,
+                "cycle_progress_permille": 376,
                 "transfer_delay_ms": 34000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 24,
@@ -2199,7 +2199,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 965,
+                "cycle_progress_permille": 136,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
@@ -2226,8 +2226,8 @@
                     "wool": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 857,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 738,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
@@ -2768,7 +2768,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 79965,
+                "stock": 97137,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2804,7 +2804,7 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 188,
+                "stock": 125,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2972,7 +2972,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
+                "throughput_per_min": 30000,
                 "load_permille": 0
               },
               {
@@ -3028,8 +3028,8 @@
                     "wool_garments": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 669,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 613,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -3057,7 +3057,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 204,
+                "cycle_progress_permille": 376,
                 "transfer_delay_ms": 34000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 24,
@@ -3087,7 +3087,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 965,
+                "cycle_progress_permille": 136,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
@@ -3114,8 +3114,8 @@
                     "wool": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 857,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 738,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
@@ -3656,7 +3656,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 79965,
+                "stock": 97137,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -3692,7 +3692,7 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 188,
+                "stock": 125,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -3860,7 +3860,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
+                "throughput_per_min": 30000,
                 "load_permille": 0
               },
               {
@@ -3916,8 +3916,8 @@
                     "wool_garments": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 669,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 613,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -3945,7 +3945,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 204,
+                "cycle_progress_permille": 376,
                 "transfer_delay_ms": 34000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 24,
@@ -3975,7 +3975,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 965,
+                "cycle_progress_permille": 136,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
@@ -4002,8 +4002,8 @@
                     "wool": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 857,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 738,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
@@ -4544,7 +4544,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 79965,
+                "stock": 97137,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -4580,7 +4580,7 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 188,
+                "stock": 125,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -4748,7 +4748,7 @@
                 "throughput_factor_permille": 1000,
                 "level": 1,
                 "capacity": 300000,
-                "throughput_per_min": 60000,
+                "throughput_per_min": 30000,
                 "load_permille": 0
               },
               {
@@ -4804,8 +4804,8 @@
                     "wool_garments": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 669,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 613,
                 "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 18,
@@ -4833,7 +4833,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 204,
+                "cycle_progress_permille": 376,
                 "transfer_delay_ms": 34000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 24,
@@ -4863,7 +4863,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 965,
+                "cycle_progress_permille": 136,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,
@@ -4890,8 +4890,8 @@
                     "wool": 0
                   }
                 },
-                "cycle_seconds": 60,
-                "cycle_progress_permille": 857,
+                "cycle_seconds": 90,
+                "cycle_progress_permille": 738,
                 "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 21,

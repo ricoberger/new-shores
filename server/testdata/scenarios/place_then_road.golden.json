@@ -282,8 +282,8 @@
             "throughput_factor_permille": 1000,
             "level": 1,
             "capacity": 300000,
-            "throughput_per_min": 60000,
-            "load_permille": 31
+            "throughput_per_min": 30000,
+            "load_permille": 63
           },
           {
             "id": 2,

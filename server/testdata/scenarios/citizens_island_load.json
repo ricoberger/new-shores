@@ -1,0 +1,643 @@
+{
+  "name": "citizens_island_load",
+  "description": "Warehouse level-2 load of a representative Citizens island (balancing evidence, free seed): fifteen settler houses unlock Citizens, the warehouse is upgraded to level 2, then the balanced Citizens chain set for 400 Citizens (4 wheat farms, 2 mills, 4 bakeries, 4 orchards, 2 cideries, 2 hemp farms, 2 linen weavers) and the Settler support set of the reference game's start island (3 plank chains, 3 fishers, 3 wool chains, 2 quarries) run on seeded workforce; the warehouse load is measured once every chain delivers.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "fertilities": [
+      "wheat",
+      "apple",
+      "hemp"
+    ],
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~..............................................................~",
+      "~...mmmmmmmm...................................................~",
+      "~...mmmmmmmm...................................................~",
+      "~...mSSmmSSm...................................................~",
+      "~..............................................................~",
+      "~.......................................ffffffffffffffffffffff.~",
+      "~.......................................ffffffffffffffffffffff.~",
+      "~.......................................ffffffffffffffffffffff.~",
+      "~.......................................ffffffffffffffffffffff.~",
+      "~.......................................ffffffffffffffffffffff.~",
+      "~.......................................ffffffffffffffffffffff.~",
+      "~.......................................ffffffffffffffffffffff.~",
+      "~.......................................ffffffffffffffffffffff.~",
+      "~..............................................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": "20000",
+    "stock": {
+      "planks": 300,
+      "stone": 200,
+      "fish": 200,
+      "wool_garments": 100
+    },
+    "workforce": {
+      "settlers": 120,
+      "citizens": 60
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          4
+        ],
+        "to": [
+          62,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          2,
+          36
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          12
+        ],
+        "to": [
+          62,
+          12
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          20
+        ],
+        "to": [
+          62,
+          20
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          29
+        ],
+        "to": [
+          62,
+          29
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 8,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "chapel",
+        "x": 11,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 6,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 16,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 18,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 20,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 22,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 24,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 26,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 28,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 30,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 32,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 34,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "x": 1,
+        "y": 1
+      }
+    },
+    {
+      "stock": {
+        "good": "planks",
+        "amount": "400"
+      }
+    },
+    {
+      "place": {
+        "type": "wheat_farm",
+        "x": 4,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "wheat_farm",
+        "x": 10,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "wheat_farm",
+        "x": 16,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "wheat_farm",
+        "x": 22,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "orchard",
+        "x": 28,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "orchard",
+        "x": 34,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "orchard",
+        "x": 40,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "orchard",
+        "x": 46,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "hemp_farm",
+        "x": 52,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "hemp_farm",
+        "x": 58,
+        "y": 13,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "mill",
+        "x": 4,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "mill",
+        "x": 7,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "bakery",
+        "x": 10,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "bakery",
+        "x": 13,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "bakery",
+        "x": 16,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "bakery",
+        "x": 19,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "cidery",
+        "x": 22,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "cidery",
+        "x": 25,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_linen",
+        "x": 28,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_linen",
+        "x": 31,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 42,
+        "y": 30,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 40,
+        "y": 27,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 48,
+        "y": 30,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 43,
+        "y": 27,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 54,
+        "y": 30,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 46,
+        "y": 27,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          40,
+          3
+        ],
+        "to": [
+          40,
+          3
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 40,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          43,
+          3
+        ],
+        "to": [
+          43,
+          3
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 43,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          46,
+          3
+        ],
+        "to": [
+          46,
+          3
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 46,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 34,
+        "y": 21,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 50,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 42,
+        "y": 21,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 53,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 50,
+        "y": 21,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 56,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "quarry",
+        "x": 4,
+        "y": 26,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "quarry",
+        "x": 8,
+        "y": 26,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    }
+  ]
+}

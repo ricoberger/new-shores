@@ -112,7 +112,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	}
 
 	wh := c.BuildingByID["warehouse"].Warehouse
-	if len(wh.Levels) != 2 || wh.Levels[0].Cost != nil || wh.Levels[1].Capacity != 500_000 || wh.Levels[1].ThroughputPerMin != 90_000 || wh.Levels[1].Cost == nil {
+	if len(wh.Levels) != 2 || wh.Levels[0].Cost != nil || wh.Levels[1].Capacity != 500_000 || wh.Levels[1].ThroughputPerMin != 55_000 || wh.Levels[1].Cost == nil {
 		t.Fatalf("warehouse levels = %+v", wh.Levels)
 	}
 	if lc := wh.Levels[1].Cost; lc.Gold <= 0 || len(lc.Materials) == 0 {
@@ -131,13 +131,13 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 	}{
 		{
 			"cost on the first level",
-			[]string{`{ "capacity": 300, "throughput_per_min": 60 }`, `{ "capacity": 300, "throughput_per_min": 60, "cost": { "gold": 1 } }`},
+			[]string{`{ "capacity": 300, "throughput_per_min": 30 }`, `{ "capacity": 300, "throughput_per_min": 30, "cost": { "gold": 1 } }`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[0]", "schema violation", "'not' failed"},
 		},
 		{
 			"missing cost on a later level",
-			[]string{`"throughput_per_min": 90,
-          "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"throughput_per_min": 90`},
+			[]string{`"throughput_per_min": 55,
+          "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"throughput_per_min": 55`},
 			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[1]", "schema violation", "missing property 'cost'"},
 		},
 		{
@@ -387,5 +387,88 @@ func TestBootstrapRule(t *testing.T) {
 	c.Start.Goods = nil
 	if p := bootstrapProblems(c); !strings.Contains(strings.Join(p, "\n"), "first-tier house material planks") {
 		t.Errorf("no starting planks: %v", p)
+	}
+}
+
+// chainCapacity returns, for a good needed at demand (milli-units per
+// minute), the output capacity of the balanced chain set: every stage gets
+// ceil(stage demand / stage rate) buildings of the good's first producer,
+// and the chain delivers the smallest stage capacity scaled back to the
+// final good. It also returns the buildings by ID.
+func chainCapacity(c *Catalogue, good string, demand int64, counts map[string]int64) int64 {
+	var producer *Building
+	for _, b := range c.Buildings {
+		if b.Recipe != nil && len(b.Recipe.Outputs) == 1 && b.Recipe.Outputs[0].Good == good {
+			producer = b
+			break
+		}
+	}
+	if producer == nil {
+		return 0
+	}
+	out := producer.Recipe.Outputs[0].Amount
+	rate := out * 60_000 / producer.Recipe.CycleMs // milli-units per minute
+	n := (demand + rate - 1) / rate
+	counts[producer.ID] += n
+	capacity := n * rate
+	for _, in := range producer.Recipe.Inputs {
+		inDemand := demand * in.Amount / out
+		inCap := chainCapacity(c, in.Good, inDemand, counts)
+		capacity = min(capacity, inCap*out/in.Amount)
+	}
+	return capacity
+}
+
+// TestBalanceChecklist (CONTENT §12, R-21): at each tier's unlock
+// population (Settlers 120 from content, Citizens 400 from the CONTENT §2
+// Merchants row) one good per category supports the population with at
+// most 25 % surplus, taxes cover the upkeep of the balanced chain set with
+// a 20 % margin, and the set's workforce leaves 20 % slack.
+func TestBalanceChecklist(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		tier       string
+		population int64
+		public     []string
+	}{
+		{"settlers", 120, []string{"warehouse", "market_small", "chapel"}},
+		{"citizens", 400, []string{"warehouse", "market_small", "chapel", "tavern"}},
+	} {
+		tier := c.TierByID[tc.tier]
+		counts := map[string]int64{}
+		for _, n := range c.NeedsByTier[tc.tier] {
+			if !n.IsGoods() {
+				continue
+			}
+			demand := tc.population * n.Goods[0].PerResidentPerMin
+			capacity := chainCapacity(c, n.Goods[0].Good, demand, counts)
+			surplus := capacity*1000/demand - 1000
+			t.Logf("%s @%d: %s demand %d, capacity %d milli/min: surplus %d ‰", tc.tier, tc.population, n.Goods[0].Good, demand, capacity, surplus)
+			if surplus < 0 || surplus > 250 {
+				t.Errorf("%s: %s surplus %d ‰, want 0..250", tc.tier, n.Goods[0].Good, surplus)
+			}
+		}
+		var upkeep, workforce int64
+		for id, k := range counts {
+			b := c.BuildingByID[id]
+			upkeep += k * b.UpkeepPerMin
+			if b.Workforce != nil && b.Workforce.Tier == tc.tier {
+				workforce += k * b.Workforce.Amount
+			}
+		}
+		for _, id := range tc.public {
+			upkeep += c.BuildingByID[id].UpkeepPerMin
+		}
+		tax := tc.population * tier.TaxPerResidentPerMin
+		t.Logf("%s @%d: set %v, tax %d vs upkeep %d milli-gold/min, %s workforce %d of %d", tc.tier, tc.population, counts, tax, upkeep, tc.tier, workforce/MilliPerUnit, tc.population)
+		if tax*10 < upkeep*12 {
+			t.Errorf("%s: tax %d below 1.2 x upkeep %d", tc.tier, tax, upkeep)
+		}
+		if workforce*12 > tc.population*MilliPerUnit*10 {
+			t.Errorf("%s: workforce %d leaves less than 20 %% slack of %d", tc.tier, workforce, tc.population)
+		}
 	}
 }

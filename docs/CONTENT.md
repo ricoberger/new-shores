@@ -199,14 +199,14 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 |---|---|---|---|---|---|---|
 | `house_settlers` | 1 | 2×2 | 0 / 10 | 0 | — | R |
 | `road_dirt` | 1 | 1×1 | 0 | 0 | — | |
-| `warehouse` | 1 | 4×3 harbour slot | 100 / 20 | 4 | — | lvl 1: cap 300/good, T 60/min |
+| `warehouse` | 1 | 4×3 harbour slot | 100 / 20 | 4 | — | lvl 1: cap 300/good, T 30/min |
 | `market_small` | 1 | 3×3 | 150 / 15 | 3 | — | R, radius 12 |
 | `chapel` | 1 | 2×2 | 200 / 15 | 3 | — | R, radius 16 |
 | `lumberjack` | 1 | 2×2 | 50 / 5 | 1 | 4 S | R, work radius 4 forest, 24 tiles |
 | `sawmill` | 1 | 2×2 | 80 / 8 | 2 | 4 S | R |
 | `fisher` | 1 | 2×2 harbour slot | 60 / 6 | 1 | 4 S | R |
-| `sheep_farm` | 1 | 3×3 + fields | 100 / 10 | 2 | 4 S | R, work radius 4 grass, 24 tiles |
-| `weaver_wool` | 1 | 2×2 | 120 / 10 | 2 | 6 S | R |
+| `sheep_farm` | 1 | 3×3 + fields | 50 / 10 | 1 | 4 S | R, work radius 4 grass, 24 tiles, cycle 90 s |
+| `weaver_wool` | 1 | 2×2 | 70 / 10 | 1 | 6 S | R, cycle 90 s |
 | `shipyard` | 1 | 5×4 harbour slot | 200 / 25 | 1 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
 | `house_citizens` | 2 | 2×2 | 150 / 15 / 10 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | 5 / – / 1 | 0 | — | |
@@ -234,7 +234,7 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 Tier 3–4 buildings: see the chain tables in §5 for inputs, outputs, cycles
 and workforce; costs and upkeep to be authored (cost ramp in §3).
 
-Warehouse levels (provisional): lvl 1 cap 300 / T 60; lvl 2 cap 500 / T 90
+Warehouse levels (provisional): lvl 1 cap 300 / T 30; lvl 2 cap 500 / T 55
 (upgrade 300 gold / 20 planks / 10 stone);
 lvl 3 cap 800 / T 130; lvl 4 cap 1 200 / T 180.
 
@@ -428,8 +428,8 @@ See MECHANICS §6.2 for the semantics.
   Patricians. Checked by a generic content test over every tier with a
   house and by the goldens `bootstrap_settlers` and `bootstrap_citizens`
   (the tier 1–2 reference game from the starting stock: island 2 settled
-  at 60 min, Citizens unlocked by 83 min, the first Citizen house at
-  100 min, tools from island 2 on the start island by 140 min).
+  at 60 min, Citizens unlocked by 80 min, the first Citizen house at
+  100 min, tools from island 2 on the start island by 139 min).
 - Warehouse throughput at each level must cover a "typical" island at that
   tier with one warehouse ≈ 80 % load.
 - Tax income at each tier's unlock population must cover upkeep of the

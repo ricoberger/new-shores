@@ -255,8 +255,11 @@ func TestUpgradeWarehouseThroughput(t *testing.T) {
 		}
 		return -1
 	}
-	// load = R / T: the same running output over 90 instead of 60 per min.
-	if lb, la := load(before), load(after); lb <= 0 || la >= lb || la < lb*60/90-1 || la > lb*60/90+1 {
+	// load = R / T: the same running output over the level-2 instead of
+	// the level-1 throughput.
+	levels := c.BuildingByID["warehouse"].Warehouse.Levels
+	t1, t2 := levels[0].ThroughputPerMin, levels[1].ThroughputPerMin
+	if lb, la := load(before), load(after); lb <= 0 || la >= lb || la < lb*t1/t2-1 || la > lb*t1/t2+1 {
 		t.Errorf("load before %d after %d", lb, la)
 	}
 }
@@ -265,7 +268,7 @@ func TestUpgradeWarehouseThroughput(t *testing.T) {
 // insolvency cascade pauses tier-2 buildings of a category before the
 // tier-1 ones (MECHANICS §7: within a step, highest tier first).
 func TestAutoPauseTierTwoFirst(t *testing.T) {
-	c := catalogue(t)
+	c := orderCatalogue(t)
 	w, fisher, weaver, sawmill, sheep, lumberjack := insolventTown(t, c)
 	bakery := placeFree(t, w, c, "bakery", 9, 5, 0)
 	charcoal := placeFree(t, w, c, "charcoal_burner", 11, 5, 0)
