@@ -2,11 +2,11 @@
   "scenario": "away_summary_12h",
   "base": {
     "evaluated_at": "2026-01-01T12:30:00.000Z",
-    "next_change_at": "2026-01-04T01:22:50.243Z",
-    "gold": 16510825,
-    "balance_rate_per_min": -4520,
+    "next_change_at": null,
+    "gold": 264337,
+    "balance_rate_per_min": 480,
     "tax_rate_per_min": 480,
-    "upkeep_rate_per_min": 5000,
+    "upkeep_rate_per_min": 0,
     "tiers": [
       {
         "id": "settlers",
@@ -134,7 +134,7 @@
             "rate_per_min": 0
           },
           "wood": {
-            "stock": 300000,
+            "stock": 280244,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -330,14 +330,11 @@
             "x": 23,
             "y": 6,
             "rotation": 180,
-            "paused": false,
-            "paused_reason": "",
-            "status": "warehouse_full",
+            "paused": true,
+            "paused_reason": "unpaid",
+            "status": "paused",
             "efficiency_permille": 750,
             "throughput_factor_permille": 1000,
-            "status_goods": [
-              "wood"
-            ],
             "rates": {
               "inputs": {},
               "outputs": {
@@ -345,7 +342,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 800,
+            "cycle_progress_permille": 946,
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
@@ -361,14 +358,11 @@
             "x": 20,
             "y": 6,
             "rotation": 180,
-            "paused": false,
-            "paused_reason": "",
-            "status": "warehouse_full",
+            "paused": true,
+            "paused_reason": "unpaid",
+            "status": "paused",
             "efficiency_permille": 500,
             "throughput_factor_permille": 1000,
-            "status_goods": [
-              "wood"
-            ],
             "rates": {
               "inputs": {},
               "outputs": {
@@ -376,7 +370,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 200,
+            "cycle_progress_permille": 297,
             "transfer_delay_ms": 27000,
             "assigned_warehouse_id": 1,
             "road_distance": 17,
@@ -392,14 +386,11 @@
             "x": 16,
             "y": 6,
             "rotation": 180,
-            "paused": false,
-            "paused_reason": "",
-            "status": "warehouse_full",
+            "paused": true,
+            "paused_reason": "unpaid",
+            "status": "paused",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "status_goods": [
-              "planks"
-            ],
             "rates": {
               "inputs": {
                 "wood": 0
@@ -639,7 +630,7 @@
         "workforce": {
           "settlers": {
             "available": 108000,
-            "required": 12000,
+            "required": 0,
             "factor_permille": 1000
           }
         },
@@ -777,7 +768,7 @@
       {
         "id": 1,
         "type": "sloop",
-        "state": "idle",
+        "state": "anchored_unpaid",
         "island_id": "island2",
         "route_id": 0,
         "stop_index": 0,
@@ -790,16 +781,16 @@
         ],
         "slots": 2,
         "slot_size": 50000,
-        "upkeep_per_min": 1000,
-        "paused": false,
-        "paused_reason": ""
+        "upkeep_per_min": 0,
+        "paused": true,
+        "paused_reason": "unpaid"
       }
     ],
     "routes": [],
     "insolvency": {
-      "unpaid_buildings": 0,
-      "unpaid_ships": 0,
-      "unpaid_upkeep_per_min": 0,
+      "unpaid_buildings": 3,
+      "unpaid_ships": 1,
+      "unpaid_upkeep_per_min": 5000,
       "balance_if_resumed_per_min": -4520
     },
     "quests": {
@@ -840,7 +831,87 @@
         }
       ]
     },
-    "away_summary": null,
+    "away_summary": {
+      "id": 1767270600000,
+      "from": "2026-01-01T00:30:00.000Z",
+      "to": "2026-01-01T12:30:00.000Z",
+      "gold_before": 258800,
+      "gold_after": 264337,
+      "population": {
+        "settlers": {
+          "before": 32000,
+          "after": 8000
+        }
+      },
+      "islands": [
+        {
+          "id": "start",
+          "goods": {
+            "fish": {
+              "produced": 0,
+              "consumed": 31450,
+              "lost": 0,
+              "stock_after": 0,
+              "capacity": 300000,
+              "at_capacity": false
+            },
+            "planks": {
+              "produced": 158950,
+              "consumed": 0,
+              "lost": 0,
+              "stock_after": 300000,
+              "capacity": 300000,
+              "at_capacity": true
+            },
+            "wood": {
+              "produced": 423244,
+              "consumed": 158950,
+              "lost": 0,
+              "stock_after": 280244,
+              "capacity": 300000,
+              "at_capacity": false
+            }
+          }
+        },
+        {
+          "id": "island2",
+          "goods": {}
+        }
+      ],
+      "auto_paused": 4,
+      "auto_resumed": 0,
+      "still_unpaid": [
+        {
+          "island_id": "start",
+          "building_id": 3,
+          "type": "lumberjack"
+        },
+        {
+          "island_id": "start",
+          "building_id": 4,
+          "type": "lumberjack"
+        },
+        {
+          "island_id": "start",
+          "building_id": 5,
+          "type": "sawmill"
+        },
+        {
+          "island_id": "island2",
+          "ship_id": 1,
+          "type": "sloop"
+        }
+      ],
+      "ships_arrived": 1,
+      "arrivals": [
+        {
+          "ship_id": 1,
+          "island_id": "island2",
+          "at": "2026-01-01T00:32:20.000Z"
+        }
+      ],
+      "quests_completed": []
+    },
     "last_seen_at": "2026-01-01T00:30:00.000Z"
   },
   "samples": [
@@ -848,11 +919,11 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T12:30:00.250Z",
-        "next_change_at": "2026-01-04T01:22:50.243Z",
-        "gold": 16510806,
-        "balance_rate_per_min": -4520,
+        "next_change_at": null,
+        "gold": 264339,
+        "balance_rate_per_min": 480,
         "tax_rate_per_min": 480,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",
@@ -980,7 +1051,7 @@
                 "rate_per_min": 0
               },
               "wood": {
-                "stock": 300000,
+                "stock": 280244,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -1176,14 +1247,11 @@
                 "x": 23,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -1191,7 +1259,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 800,
+                "cycle_progress_permille": 946,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -1207,14 +1275,11 @@
                 "x": 20,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 500,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -1222,7 +1287,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 200,
+                "cycle_progress_permille": 297,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -1238,14 +1303,11 @@
                 "x": 16,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "planks"
-                ],
                 "rates": {
                   "inputs": {
                     "wood": 0
@@ -1485,7 +1547,7 @@
             "workforce": {
               "settlers": {
                 "available": 108000,
-                "required": 12000,
+                "required": 0,
                 "factor_permille": 1000
               }
             },
@@ -1623,7 +1685,7 @@
           {
             "id": 1,
             "type": "sloop",
-            "state": "idle",
+            "state": "anchored_unpaid",
             "island_id": "island2",
             "route_id": 0,
             "stop_index": 0,
@@ -1636,16 +1698,16 @@
             ],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 1000,
-            "paused": false,
-            "paused_reason": ""
+            "upkeep_per_min": 0,
+            "paused": true,
+            "paused_reason": "unpaid"
           }
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
-          "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 0,
+          "unpaid_buildings": 3,
+          "unpaid_ships": 1,
+          "unpaid_upkeep_per_min": 5000,
           "balance_if_resumed_per_min": -4520
         },
         "quests": {
@@ -1686,7 +1748,87 @@
             }
           ]
         },
-        "away_summary": null,
+        "away_summary": {
+          "id": 1767270600000,
+          "from": "2026-01-01T00:30:00.000Z",
+          "to": "2026-01-01T12:30:00.000Z",
+          "gold_before": 258800,
+          "gold_after": 264337,
+          "population": {
+            "settlers": {
+              "before": 32000,
+              "after": 8000
+            }
+          },
+          "islands": [
+            {
+              "id": "start",
+              "goods": {
+                "fish": {
+                  "produced": 0,
+                  "consumed": 31450,
+                  "lost": 0,
+                  "stock_after": 0,
+                  "capacity": 300000,
+                  "at_capacity": false
+                },
+                "planks": {
+                  "produced": 158950,
+                  "consumed": 0,
+                  "lost": 0,
+                  "stock_after": 300000,
+                  "capacity": 300000,
+                  "at_capacity": true
+                },
+                "wood": {
+                  "produced": 423244,
+                  "consumed": 158950,
+                  "lost": 0,
+                  "stock_after": 280244,
+                  "capacity": 300000,
+                  "at_capacity": false
+                }
+              }
+            },
+            {
+              "id": "island2",
+              "goods": {}
+            }
+          ],
+          "auto_paused": 4,
+          "auto_resumed": 0,
+          "still_unpaid": [
+            {
+              "island_id": "start",
+              "building_id": 3,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 4,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 5,
+              "type": "sawmill"
+            },
+            {
+              "island_id": "island2",
+              "ship_id": 1,
+              "type": "sloop"
+            }
+          ],
+          "ships_arrived": 1,
+          "arrivals": [
+            {
+              "ship_id": 1,
+              "island_id": "island2",
+              "at": "2026-01-01T00:32:20.000Z"
+            }
+          ],
+          "quests_completed": []
+        },
         "last_seen_at": "2026-01-01T00:30:00.000Z"
       }
     },
@@ -1694,11 +1836,11 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T12:30:01.000Z",
-        "next_change_at": "2026-01-04T01:22:50.243Z",
-        "gold": 16510749,
-        "balance_rate_per_min": -4520,
+        "next_change_at": null,
+        "gold": 264345,
+        "balance_rate_per_min": 480,
         "tax_rate_per_min": 480,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",
@@ -1826,7 +1968,7 @@
                 "rate_per_min": 0
               },
               "wood": {
-                "stock": 300000,
+                "stock": 280244,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2022,14 +2164,11 @@
                 "x": 23,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -2037,7 +2176,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 800,
+                "cycle_progress_permille": 946,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -2053,14 +2192,11 @@
                 "x": 20,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 500,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -2068,7 +2204,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 200,
+                "cycle_progress_permille": 297,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -2084,14 +2220,11 @@
                 "x": 16,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "planks"
-                ],
                 "rates": {
                   "inputs": {
                     "wood": 0
@@ -2331,7 +2464,7 @@
             "workforce": {
               "settlers": {
                 "available": 108000,
-                "required": 12000,
+                "required": 0,
                 "factor_permille": 1000
               }
             },
@@ -2469,7 +2602,7 @@
           {
             "id": 1,
             "type": "sloop",
-            "state": "idle",
+            "state": "anchored_unpaid",
             "island_id": "island2",
             "route_id": 0,
             "stop_index": 0,
@@ -2482,16 +2615,16 @@
             ],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 1000,
-            "paused": false,
-            "paused_reason": ""
+            "upkeep_per_min": 0,
+            "paused": true,
+            "paused_reason": "unpaid"
           }
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
-          "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 0,
+          "unpaid_buildings": 3,
+          "unpaid_ships": 1,
+          "unpaid_upkeep_per_min": 5000,
           "balance_if_resumed_per_min": -4520
         },
         "quests": {
@@ -2532,7 +2665,87 @@
             }
           ]
         },
-        "away_summary": null,
+        "away_summary": {
+          "id": 1767270600000,
+          "from": "2026-01-01T00:30:00.000Z",
+          "to": "2026-01-01T12:30:00.000Z",
+          "gold_before": 258800,
+          "gold_after": 264337,
+          "population": {
+            "settlers": {
+              "before": 32000,
+              "after": 8000
+            }
+          },
+          "islands": [
+            {
+              "id": "start",
+              "goods": {
+                "fish": {
+                  "produced": 0,
+                  "consumed": 31450,
+                  "lost": 0,
+                  "stock_after": 0,
+                  "capacity": 300000,
+                  "at_capacity": false
+                },
+                "planks": {
+                  "produced": 158950,
+                  "consumed": 0,
+                  "lost": 0,
+                  "stock_after": 300000,
+                  "capacity": 300000,
+                  "at_capacity": true
+                },
+                "wood": {
+                  "produced": 423244,
+                  "consumed": 158950,
+                  "lost": 0,
+                  "stock_after": 280244,
+                  "capacity": 300000,
+                  "at_capacity": false
+                }
+              }
+            },
+            {
+              "id": "island2",
+              "goods": {}
+            }
+          ],
+          "auto_paused": 4,
+          "auto_resumed": 0,
+          "still_unpaid": [
+            {
+              "island_id": "start",
+              "building_id": 3,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 4,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 5,
+              "type": "sawmill"
+            },
+            {
+              "island_id": "island2",
+              "ship_id": 1,
+              "type": "sloop"
+            }
+          ],
+          "ships_arrived": 1,
+          "arrivals": [
+            {
+              "ship_id": 1,
+              "island_id": "island2",
+              "at": "2026-01-01T00:32:20.000Z"
+            }
+          ],
+          "quests_completed": []
+        },
         "last_seen_at": "2026-01-01T00:30:00.000Z"
       }
     },
@@ -2540,11 +2753,11 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T12:30:05.000Z",
-        "next_change_at": "2026-01-04T01:22:50.243Z",
-        "gold": 16510448,
-        "balance_rate_per_min": -4520,
+        "next_change_at": null,
+        "gold": 264377,
+        "balance_rate_per_min": 480,
         "tax_rate_per_min": 480,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",
@@ -2672,7 +2885,7 @@
                 "rate_per_min": 0
               },
               "wood": {
-                "stock": 300000,
+                "stock": 280244,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2868,14 +3081,11 @@
                 "x": 23,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -2883,7 +3093,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 800,
+                "cycle_progress_permille": 946,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -2899,14 +3109,11 @@
                 "x": 20,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 500,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -2914,7 +3121,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 200,
+                "cycle_progress_permille": 297,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -2930,14 +3137,11 @@
                 "x": 16,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "planks"
-                ],
                 "rates": {
                   "inputs": {
                     "wood": 0
@@ -3177,7 +3381,7 @@
             "workforce": {
               "settlers": {
                 "available": 108000,
-                "required": 12000,
+                "required": 0,
                 "factor_permille": 1000
               }
             },
@@ -3315,7 +3519,7 @@
           {
             "id": 1,
             "type": "sloop",
-            "state": "idle",
+            "state": "anchored_unpaid",
             "island_id": "island2",
             "route_id": 0,
             "stop_index": 0,
@@ -3328,16 +3532,16 @@
             ],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 1000,
-            "paused": false,
-            "paused_reason": ""
+            "upkeep_per_min": 0,
+            "paused": true,
+            "paused_reason": "unpaid"
           }
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
-          "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 0,
+          "unpaid_buildings": 3,
+          "unpaid_ships": 1,
+          "unpaid_upkeep_per_min": 5000,
           "balance_if_resumed_per_min": -4520
         },
         "quests": {
@@ -3378,7 +3582,87 @@
             }
           ]
         },
-        "away_summary": null,
+        "away_summary": {
+          "id": 1767270600000,
+          "from": "2026-01-01T00:30:00.000Z",
+          "to": "2026-01-01T12:30:00.000Z",
+          "gold_before": 258800,
+          "gold_after": 264337,
+          "population": {
+            "settlers": {
+              "before": 32000,
+              "after": 8000
+            }
+          },
+          "islands": [
+            {
+              "id": "start",
+              "goods": {
+                "fish": {
+                  "produced": 0,
+                  "consumed": 31450,
+                  "lost": 0,
+                  "stock_after": 0,
+                  "capacity": 300000,
+                  "at_capacity": false
+                },
+                "planks": {
+                  "produced": 158950,
+                  "consumed": 0,
+                  "lost": 0,
+                  "stock_after": 300000,
+                  "capacity": 300000,
+                  "at_capacity": true
+                },
+                "wood": {
+                  "produced": 423244,
+                  "consumed": 158950,
+                  "lost": 0,
+                  "stock_after": 280244,
+                  "capacity": 300000,
+                  "at_capacity": false
+                }
+              }
+            },
+            {
+              "id": "island2",
+              "goods": {}
+            }
+          ],
+          "auto_paused": 4,
+          "auto_resumed": 0,
+          "still_unpaid": [
+            {
+              "island_id": "start",
+              "building_id": 3,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 4,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 5,
+              "type": "sawmill"
+            },
+            {
+              "island_id": "island2",
+              "ship_id": 1,
+              "type": "sloop"
+            }
+          ],
+          "ships_arrived": 1,
+          "arrivals": [
+            {
+              "ship_id": 1,
+              "island_id": "island2",
+              "at": "2026-01-01T00:32:20.000Z"
+            }
+          ],
+          "quests_completed": []
+        },
         "last_seen_at": "2026-01-01T00:30:00.000Z"
       }
     },
@@ -3386,11 +3670,11 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T12:30:30.000Z",
-        "next_change_at": "2026-01-04T01:22:50.243Z",
-        "gold": 16508565,
-        "balance_rate_per_min": -4520,
+        "next_change_at": null,
+        "gold": 264577,
+        "balance_rate_per_min": 480,
         "tax_rate_per_min": 480,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",
@@ -3518,7 +3802,7 @@
                 "rate_per_min": 0
               },
               "wood": {
-                "stock": 300000,
+                "stock": 280244,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -3714,14 +3998,11 @@
                 "x": 23,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -3729,7 +4010,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 800,
+                "cycle_progress_permille": 946,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -3745,14 +4026,11 @@
                 "x": 20,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 500,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -3760,7 +4038,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 200,
+                "cycle_progress_permille": 297,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -3776,14 +4054,11 @@
                 "x": 16,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "planks"
-                ],
                 "rates": {
                   "inputs": {
                     "wood": 0
@@ -4023,7 +4298,7 @@
             "workforce": {
               "settlers": {
                 "available": 108000,
-                "required": 12000,
+                "required": 0,
                 "factor_permille": 1000
               }
             },
@@ -4161,7 +4436,7 @@
           {
             "id": 1,
             "type": "sloop",
-            "state": "idle",
+            "state": "anchored_unpaid",
             "island_id": "island2",
             "route_id": 0,
             "stop_index": 0,
@@ -4174,16 +4449,16 @@
             ],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 1000,
-            "paused": false,
-            "paused_reason": ""
+            "upkeep_per_min": 0,
+            "paused": true,
+            "paused_reason": "unpaid"
           }
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
-          "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 0,
+          "unpaid_buildings": 3,
+          "unpaid_ships": 1,
+          "unpaid_upkeep_per_min": 5000,
           "balance_if_resumed_per_min": -4520
         },
         "quests": {
@@ -4224,7 +4499,87 @@
             }
           ]
         },
-        "away_summary": null,
+        "away_summary": {
+          "id": 1767270600000,
+          "from": "2026-01-01T00:30:00.000Z",
+          "to": "2026-01-01T12:30:00.000Z",
+          "gold_before": 258800,
+          "gold_after": 264337,
+          "population": {
+            "settlers": {
+              "before": 32000,
+              "after": 8000
+            }
+          },
+          "islands": [
+            {
+              "id": "start",
+              "goods": {
+                "fish": {
+                  "produced": 0,
+                  "consumed": 31450,
+                  "lost": 0,
+                  "stock_after": 0,
+                  "capacity": 300000,
+                  "at_capacity": false
+                },
+                "planks": {
+                  "produced": 158950,
+                  "consumed": 0,
+                  "lost": 0,
+                  "stock_after": 300000,
+                  "capacity": 300000,
+                  "at_capacity": true
+                },
+                "wood": {
+                  "produced": 423244,
+                  "consumed": 158950,
+                  "lost": 0,
+                  "stock_after": 280244,
+                  "capacity": 300000,
+                  "at_capacity": false
+                }
+              }
+            },
+            {
+              "id": "island2",
+              "goods": {}
+            }
+          ],
+          "auto_paused": 4,
+          "auto_resumed": 0,
+          "still_unpaid": [
+            {
+              "island_id": "start",
+              "building_id": 3,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 4,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 5,
+              "type": "sawmill"
+            },
+            {
+              "island_id": "island2",
+              "ship_id": 1,
+              "type": "sloop"
+            }
+          ],
+          "ships_arrived": 1,
+          "arrivals": [
+            {
+              "ship_id": 1,
+              "island_id": "island2",
+              "at": "2026-01-01T00:32:20.000Z"
+            }
+          ],
+          "quests_completed": []
+        },
         "last_seen_at": "2026-01-01T00:30:00.000Z"
       }
     },
@@ -4232,11 +4587,11 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T12:35:00.000Z",
-        "next_change_at": "2026-01-04T01:22:50.243Z",
-        "gold": 16488225,
-        "balance_rate_per_min": -4520,
+        "next_change_at": null,
+        "gold": 266737,
+        "balance_rate_per_min": 480,
         "tax_rate_per_min": 480,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",
@@ -4364,7 +4719,7 @@
                 "rate_per_min": 0
               },
               "wood": {
-                "stock": 300000,
+                "stock": 280244,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -4560,14 +4915,11 @@
                 "x": 23,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 750,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -4575,7 +4927,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 800,
+                "cycle_progress_permille": 946,
                 "transfer_delay_ms": 30000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 20,
@@ -4591,14 +4943,11 @@
                 "x": 20,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 500,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "wood"
-                ],
                 "rates": {
                   "inputs": {},
                   "outputs": {
@@ -4606,7 +4955,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 200,
+                "cycle_progress_permille": 297,
                 "transfer_delay_ms": 27000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 17,
@@ -4622,14 +4971,11 @@
                 "x": 16,
                 "y": 6,
                 "rotation": 180,
-                "paused": false,
-                "paused_reason": "",
-                "status": "warehouse_full",
+                "paused": true,
+                "paused_reason": "unpaid",
+                "status": "paused",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
-                "status_goods": [
-                  "planks"
-                ],
                 "rates": {
                   "inputs": {
                     "wood": 0
@@ -4869,7 +5215,7 @@
             "workforce": {
               "settlers": {
                 "available": 108000,
-                "required": 12000,
+                "required": 0,
                 "factor_permille": 1000
               }
             },
@@ -5007,7 +5353,7 @@
           {
             "id": 1,
             "type": "sloop",
-            "state": "idle",
+            "state": "anchored_unpaid",
             "island_id": "island2",
             "route_id": 0,
             "stop_index": 0,
@@ -5020,16 +5366,16 @@
             ],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 1000,
-            "paused": false,
-            "paused_reason": ""
+            "upkeep_per_min": 0,
+            "paused": true,
+            "paused_reason": "unpaid"
           }
         ],
         "routes": [],
         "insolvency": {
-          "unpaid_buildings": 0,
-          "unpaid_ships": 0,
-          "unpaid_upkeep_per_min": 0,
+          "unpaid_buildings": 3,
+          "unpaid_ships": 1,
+          "unpaid_upkeep_per_min": 5000,
           "balance_if_resumed_per_min": -4520
         },
         "quests": {
@@ -5070,7 +5416,87 @@
             }
           ]
         },
-        "away_summary": null,
+        "away_summary": {
+          "id": 1767270600000,
+          "from": "2026-01-01T00:30:00.000Z",
+          "to": "2026-01-01T12:30:00.000Z",
+          "gold_before": 258800,
+          "gold_after": 264337,
+          "population": {
+            "settlers": {
+              "before": 32000,
+              "after": 8000
+            }
+          },
+          "islands": [
+            {
+              "id": "start",
+              "goods": {
+                "fish": {
+                  "produced": 0,
+                  "consumed": 31450,
+                  "lost": 0,
+                  "stock_after": 0,
+                  "capacity": 300000,
+                  "at_capacity": false
+                },
+                "planks": {
+                  "produced": 158950,
+                  "consumed": 0,
+                  "lost": 0,
+                  "stock_after": 300000,
+                  "capacity": 300000,
+                  "at_capacity": true
+                },
+                "wood": {
+                  "produced": 423244,
+                  "consumed": 158950,
+                  "lost": 0,
+                  "stock_after": 280244,
+                  "capacity": 300000,
+                  "at_capacity": false
+                }
+              }
+            },
+            {
+              "id": "island2",
+              "goods": {}
+            }
+          ],
+          "auto_paused": 4,
+          "auto_resumed": 0,
+          "still_unpaid": [
+            {
+              "island_id": "start",
+              "building_id": 3,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 4,
+              "type": "lumberjack"
+            },
+            {
+              "island_id": "start",
+              "building_id": 5,
+              "type": "sawmill"
+            },
+            {
+              "island_id": "island2",
+              "ship_id": 1,
+              "type": "sloop"
+            }
+          ],
+          "ships_arrived": 1,
+          "arrivals": [
+            {
+              "ship_id": 1,
+              "island_id": "island2",
+              "at": "2026-01-01T00:32:20.000Z"
+            }
+          ],
+          "quests_completed": []
+        },
         "last_seen_at": "2026-01-01T00:30:00.000Z"
       }
     }

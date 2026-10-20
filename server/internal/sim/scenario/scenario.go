@@ -223,8 +223,9 @@ type Step struct {
 	ScrapShip       *ShipStep      `json:"scrap_ship,omitempty"`
 	ClaimQuest      *ClaimStep     `json:"claim_quest,omitempty"`
 	// AwaySummary (true) produces the "while you were away" summary over
-	// the time since the last command step and writes it into the report.
-	// Advance steps never produce one.
+	// the time since the last command step, stores it as the world's
+	// pending summary and writes it into the report. Advance steps never
+	// produce one.
 	AwaySummary bool `json:"away_summary,omitempty"`
 
 	Place      *Placement   `json:"place,omitempty"`
@@ -740,7 +741,11 @@ func (r *runner) step(i int, st Step) error {
 		r.report.claimedAt(cq.Quest, r.w.LastEvaluatedAt)
 		return nil
 	case st.AwaySummary:
-		r.report.AwaySummaries = append(r.report.AwaySummaries, *sim.ProduceSummary(r.w, r.c))
+		// Like a request after the gap: the summary becomes the world's
+		// pending summary (shown by Display) and is reported.
+		sum := sim.ProduceSummary(r.w, r.c)
+		r.w.PendingSummary = sum
+		r.report.AwaySummaries = append(r.report.AwaySummaries, *sum)
 		return nil
 	case st.Advance != nil:
 		d, err := time.ParseDuration(st.Advance.Duration)
