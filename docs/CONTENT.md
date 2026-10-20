@@ -277,7 +277,7 @@ and house facade variants per tier.
 
 Content lives in `content/<region>/*.json`, one file per entity type
 (`region.json`, `start.json`, `tiers.json`, `goods.json`, `buildings.json`,
-`needs.json`, `ships.json`; later `quests.json`, `islands.json`,
+`needs.json`, `ships.json`, `quests.json`; later `islands.json`,
 `decorations.json`), with
 JSON Schemas (draft 2020-12, unknown fields rejected) under
 `content/schema/`. The server validates on startup and fails fast on broken
@@ -292,7 +292,7 @@ exponent notation; they are converted to fixed point at load time.
 {
   "id": "old_coast",
   "name": "The Old Coast",
-  "version": "old_coast-0.4.0",
+  "version": "old_coast-0.5.0",
   "rules": {
     "transfer_base_seconds": 10,
     "unconnected_buffer_units": 5,
@@ -304,7 +304,9 @@ exponent notation; they are converted to fixed point at load time.
     "optional_tax_bonus": 0.25,
     "auto_resume_upkeep_minutes": 5,
     "ship_speed_tiles_per_min": 60,
-    "ship_handling_seconds": 20
+    "ship_handling_seconds": 20,
+    "away_summary_minutes": 15,
+    "trial_resume_upkeep_minutes": 30
   }
 }
 ```
@@ -319,6 +321,8 @@ exponent notation; they are converted to fixed point at load time.
 | `auto_resume_upkeep_minutes` | gold reserve before an auto-paused building resumes; **strictly > 0** (0 is rejected: it removes the pause/resume hysteresis) | §7 |
 | `ship_speed_tiles_per_min` | archipelago tiles per minute at ship speed 1.0 (provisional 60) | §9.1 |
 | `ship_handling_seconds` | load/unload time per stop (provisional 20) | §9.2 |
+| `away_summary_minutes` | minimum absence before a "while you were away" summary is produced (15) | §12b |
+| `trial_resume_upkeep_minutes` | gold reserve for a trial resume of an unpaid building; must be > `auto_resume_upkeep_minutes` (30) | §7 |
 
 `version` is the `content_version` embedded in every saved world.
 
@@ -388,6 +392,18 @@ first playable before its content is authored. `unlock.population` keys
 must be earlier tiers. `goods.json`: `{ id, name, type }`
 with `type` ∈ raw, intermediate, construction, food, drink, clothing,
 comfort, luxury.
+
+### quests.json
+
+Ordered list of `{ id, title, text, objectives[], rewards: { gold?, goods?,
+decorations: [] }, prerequisites[] }`; objectives are `oneOf` the predicate
+kinds in MECHANICS §12a (`building_count`, `population`, `stock`,
+`connected`, `route_exists`, `island_settled`, `tier_unlocked`,
+`ship_count`, `satisfaction`). The intro chain is 12 linear quests
+(`intro_first_road` … `intro_citizen_house`) with rewards of 25–100 gold or
+30–45 planks; never stone, tools or sails (those are taught, not given).
+Quests that reward goods must mention that excess beyond capacity is lost
+(content test).
 
 ### needs.json
 

@@ -512,3 +512,41 @@ handler-only.
   the same handlers at due time.
 - *Rejected:* handler-only application (overdue ships after offline
   resumes or missed events).
+
+## D-046 Never-pausable buildings carry no upkeep
+
+**Decision:** Buildings that the insolvency cascade never pauses (houses,
+warehouses, roads, shipyard, harbourmaster, decorations, tier-1 market and
+chapel) have zero upkeep; their running cost is folded into their
+construction price. Pausable public buildings (tavern and up) keep upkeep.
+
+- *Rationale:* D-009 promises "stall, don't ruin". With unpausable upkeep a
+  fully stalled city could sit at gold 0 with a negative balance forever
+  and never accumulate the reserve needed to resume anything; with this
+  rule the floor-level taxes always leave `balance_rate ≥ 0` once
+  everything pausable is paused.
+- *Consequences:* prices of warehouse, market, chapel and shipyard rose
+  (200 / 225 / 275 / 225 gold); the reference-game timings still hold.
+- *Rejected:* a flat subsidy income (hides the economy); lowering unpausable
+  upkeep without removing it (only moves the threshold).
+
+## D-047 Trial resume of unpaid buildings
+
+**Decision:** An auto-paused building whose recomputed balance would still
+be negative is nevertheless resumed once gold reaches
+`trial_resume_upkeep_minutes` (30) of its upkeep. If the balance stays
+negative the gold-zero cascade pauses it again and the next trial needs
+the reserve to refill. Trials are independent per building; at most one
+resume of any kind per millisecond.
+
+- *Rationale:* the resume check (MECHANICS §7 b) counts taxes but cannot
+  know the goods a paused producer would make; with no food in stock or in
+  transit the check can never pass, so the only recovery was manual. The
+  trial is general (works for any tier and layout), bounded (one attempt
+  per window of at least the trial reserve's burn time) and keeps the
+  normal rule as the fast path. Measured: stalled tier-1 city restarts in
+  ≈ 54 min; 24 h alone → 4 trials.
+- *Rejected:* making the fisher unpausable (special case; recurs at tier
+  2 with bread); counting the candidate's own output in the resume check
+  (changes every decision, flapping risk); serialising trials (slower
+  recovery for no safety gain, since each trial already paid its reserve).

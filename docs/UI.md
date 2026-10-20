@@ -43,9 +43,18 @@ world-map button in the HUD opens the 2D screen as an overlay.
   object — see §4.
 - **Warnings tray:** collapsible list of bottleneck messages from
   MECHANICS §14, each clickable to focus the building.
-- **"While you were away" dialog** on login after > 15 min absence: goods
-  accumulated, warehouses full, buildings paused, ships/trades/expeditions
-  completed.
+- **"While you were away" dialog** after ≥ 15 min absence: gold and
+  population before/after, per-island goods produced/consumed/lost and
+  "at capacity" flags, buildings paused/resumed and still unpaid, ship
+  arrivals, quests completed. Shown once per summary id; closing it
+  acknowledges on the server so no other device shows it again.
+- **Quests button** with a badge for claimable rewards; the quests panel
+  lists active quests with objective progress, claimable rewards (island
+  choice for goods, with the "excess is lost" note) and completed quests.
+- **Insolvency banner** whenever anything is `unpaid`: "Your city cannot
+  afford its upkeep: −x gold/min (balance if everything resumed). Paused:
+  n buildings, m ships. Demolish, resume manually, or grow your tax base."
+  — links to the warnings tray.
 
 ## 3. Placement
 

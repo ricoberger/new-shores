@@ -132,9 +132,15 @@ login, GLB assets, sound.
   not more starting gold.** Open: a city left idle before building can
   pause itself into a state that only manual demolish/resume recovers;
   add a recovery scenario and check the UI explains it.
-- **Part 2b:** 3D archipelago view and graphical route editor; "while you
-  were away"; intro quests (incl. the headroom rewards); recovery
-  scenario; rebalance warehouse levels 3–4 with tier 3.
+- **Part 2b-i — done (PR #9):** 12 intro quests (claimable rewards; with
+  them island 2 at 42 min and the first Citizen house at 72 — without
+  them unchanged), the "while you were away" summary, the insolvency
+  banner, and automatic stall recovery: never-pausable buildings carry no
+  upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
+  reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
+  the stall. Schema version 2 with the first real envelope migration.
+- **Part 2b-ii:** 3D archipelago view and graphical route editor;
+  rebalance warehouse levels 3–4 with tier 3.
 - Acceptance: see §3.
 
 Ordering rationale: M1 carries the design risk and needs no UI (the scenario

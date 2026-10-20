@@ -126,16 +126,22 @@ generous refunds (D-019).
   growth and reduce happiness but never empty a house below its floor (D-009).
 - Ships complete their current leg and keep looping routes; trades and
   expeditions resolve at their due time.
-- On return, a **"while you were away"** summary lists what accumulated,
-  what stopped (full warehouse, missing input, paused for upkeep) and what
-  arrived.
+- On return after ≥ 15 min, a **"while you were away"** summary lists what
+  accumulated, what stopped (full warehouse, missing input, paused for
+  upkeep) and what arrived; it is shown once per absence on whichever
+  device dismisses it first (MECHANICS §12b).
+- A city that runs out of gold never dies: never-pausable buildings have no
+  upkeep (D-046), so gold keeps trickling in, and paused producers are
+  retried from a larger reserve (D-047) — a fully stalled tier-1 city
+  restarts on its own within about an hour, faster if the player steps in.
 
 ## Guidance and goals (D-022, D-023)
 
-- **Advisor quests:** a data-driven chain; the first ~10 double as the tutorial
-  ("build a lumberjack and connect it", "reach 25 Settlers"). Optional and
-  skippable after the first three. Rewards: gold, materials, occasionally a
-  free decoration.
+- **Advisor quests:** a data-driven chain; the first 12 are the intro
+  ("connect a lumberjack and a sawmill", "reach 120 Settlers", "settle a
+  second island"). Optional: nothing requires them, but their rewards
+  (small gold and plank grants) give the early game ≈ 15–28 min of
+  headroom. Rewards are claimed by the player; later: decorations.
 - **Achievements:** population, chains completed, islands settled, routes,
   trades, expeditions.
 - **Contracts:** periodic Harbourmaster requests ("deliver 200 bread this week")

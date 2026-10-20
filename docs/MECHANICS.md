@@ -18,7 +18,9 @@ values that live in content data and will be tuned.
      upkeep, growth) from the current state;
   2. find the earliest **boundary** — a buffer becomes empty/full, a stock
      runs empty or reaches capacity, a transfer stream starts or ends, a
-     house reaches a growth threshold, gold would cross zero, or `toTime`;
+     house reaches a growth threshold, gold would cross zero or reach a
+     resume reserve, a ship is built or arrives (§1.3), a quest's stock
+     objective is first met, or `toTime`;
   3. advance all quantities linearly to that boundary; apply the boundary's
      discrete effect; repeat.
 - **Cycle completions are not boundaries** (fluid model): a producer's cycle
@@ -364,7 +366,11 @@ then lowest upkeep first so the fewest buildings stop, then lowest ID):
 5. **Tier-1 food** production.
 
 Never auto-paused: houses, warehouses, roads, shipyard, harbourmaster,
-decorations.
+decorations, and the tier-1 market and chapel. **Never-pausable buildings
+carry no upkeep** (D-046): their running cost is folded into their
+construction price, so a fully stalled city always has `balance_rate ≥ 0`
+from floor-level taxes and gold keeps accumulating. Pausable public
+buildings (tavern and up) keep upkeep.
 
 - **Auto-resume**: the candidate is the most recently auto-paused
   building. It resumes when both hold: (a) gold ≥
@@ -381,8 +387,25 @@ decorations.
   building is never resumed at the millisecond it was paused. Visible
   effect: a building that looks affordable by "balance − its upkeep" can
   stay paused; the UI shows the balance rate with the reason.
+- **Trial resume** (D-047): when (b) fails but gold ≥
+  `trial_resume_upkeep_minutes` × the candidate's upkeep (content,
+  provisional 30; must be > `auto_resume_upkeep_minutes`), the candidate is
+  resumed anyway. (b) cannot see the goods a paused producer would make,
+  so without a trial a city whose food ran out would stay paused forever;
+  the trial lets production lift satisfaction and taxes. A trial-resumed
+  building runs normally; if the balance stays negative the gold-zero
+  cascade pauses it again and the next trial needs the reserve to refill,
+  so attempts are at least one trial window apart. Gold reaching a trial
+  reserve is a scheduled boundary (`gold_trial_reserve`). Trials are
+  independent per building (several can start 1 ms apart when gold covers
+  each reserve); at most one resume of any kind happens per millisecond.
+  Measured: a fully stalled tier-1 city with nothing in stock or in
+  transit restarts on its own ≈ 54 min after the stall; 24 h alone makes
+  4 trials.
 - A paused public building fulfils no building need; paused buildings
-  have no upkeep and need no workforce.
+  have no upkeep and need no workforce. The display carries an
+  `insolvency` block (unpaid counts, unpaid upkeep, `balance_if_resumed`)
+  for the UI banner.
 - Buildings paused for insolvency are flagged `paused_reason = unpaid` and
   shown distinctly from `paused_reason = player`. Players may resume any
   paused building manually; manual pause is only available for buildings
@@ -517,6 +540,45 @@ reported as a `tier_unlocked` boundary. Placing a building (or road) of a
 locked tier fails with `ErrTierLocked`. A non-empty `goods_delivered` list
 cannot be satisfied until trade routes exist (M4).
 
+## 12a. Quests (D-022)
+
+- Quests are content (`quests.json`): an ordered DAG of `{id, title, text,
+  objectives[], rewards, prerequisites}`. Objectives are a closed set of
+  generic predicates over world state — `building_count {type, min,
+  island?}` (road types count tiles), `population {tier, min}`, `stock
+  {good, min, island?}`, `connected {type}`, `route_exists` (a route with
+  an assigned ship), `island_settled {count}`, `tier_unlocked {tier}`,
+  `ship_count {min}`, `satisfaction {tier, min}` (resident-weighted mean).
+  No quest ID appears in code.
+- A quest is active when its prerequisites are completed; completion is
+  evaluated at every advancement boundary and after every command, happens
+  once and is permanent (`quest_completed` boundary). The first moment a
+  stock objective is met is a scheduled boundary so completion times are
+  exact.
+- Rewards are **claimed** by the player (`claim_quest {quest, island?}`):
+  gold to the balance; goods to the chosen settled island up to free
+  capacity, the excess is lost (the quest text says so). Quests are
+  optional: the tier 1–2 reference game meets every target without them
+  and gains ≈ 15–28 min of headroom with them.
+
+## 12b. "While you were away" summary
+
+- `last_seen_at` is world state set by every successful player command
+  (never by reads, failed commands, the worker or scheduled events).
+  Every advancement, whoever triggers it, adds to an additive accumulator
+  (goods flows per island, gold change, residents per tier, pauses/resumes,
+  ship arrivals), so worker events never consume the player's gap.
+- On a request, if `now − last_seen_at ≥ away_summary_minutes` (content,
+  15) and no summary is pending (or the pending one is older than another
+  threshold), a pure function produces the summary over
+  `[last_seen_at, now]`: gold before/after, population per tier
+  before/after, per-island goods produced/consumed/lost with stock,
+  capacity and `at_capacity`, auto-paused/resumed counts, still-unpaid
+  list, ship arrivals, quests completed. A read that produces one commits
+  it (version bump, push) so every device sees it until one acknowledges.
+- `ack_summary {id}` clears the pending summary when the id matches; it
+  counts as a command for `last_seen_at` and never produces a new summary.
+
 ## 13. Invariants (tested)
 
 - Conservation: goods are only created by recipes and only destroyed by
@@ -530,7 +592,9 @@ cannot be satisfied until trade routes exist (M4).
   after `advance(w, t)` every due moment of `w` is strictly after `t`.
 - Variety never reduces fulfilment: adding a good to a category is
   monotonic non-decreasing for tax and growth.
-- Unlocked tiers never shrink.
+- Unlocked tiers never shrink; quest completion is monotonic and each
+  reward is credited at most once; summaries are deterministic for
+  identical catch-ups.
 - `advance(advance(s, t1), t2) == advance(s, t2)` for `t1 ≤ t2`.
 - Applying an event at `due_at` then advancing equals the recorded behaviour
   regardless of processing delay.
