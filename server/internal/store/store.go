@@ -30,10 +30,14 @@ type WorldID string
 //
 // Time: the store delivers the world time to fn. fn advances the world to
 // it with sim.Advance before it reads or applies anything. The PostgreSQL
-// store reads the database's transaction timestamp (now(), truncated to
-// milliseconds) inside the transaction, capped at the earliest due_at of a
+// store reads the database clock once per Update, in a statement issued
+// after the world's row lock is held (statement_timestamp(), truncated to
+// milliseconds; see postgres.WorldNow), capped at the earliest due_at of a
 // pending scheduled event of the world (events are applied only by the
-// worker, at their due time); the dev store derives it from the scaled wall
+// worker, at their due time). It does not use now(): the transaction
+// timestamp is taken before the lock wait, so a request that started
+// earlier but got the lock later would see a time before the previous
+// holder's evaluation. The dev store derives the time from the scaled wall
 // clock and clamps it to the world's LastEvaluatedAt when the wall clock
 // steps backwards. Advancing to a time before LastEvaluatedAt remains
 // sim.ErrTimeBackwards in the simulation and is not papered over there.

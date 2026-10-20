@@ -52,11 +52,28 @@ func InTx(ctx context.Context, pool *pgxpool.Pool, fn func(tx pgx.Tx) error) err
 	return pgx.BeginFunc(ctx, pool, fn)
 }
 
-// DBNow returns the transaction timestamp of the database, truncated to
-// milliseconds, in UTC.
+// DBNow returns the transaction timestamp (now()) of the database,
+// truncated to milliseconds, in UTC. It is only for times that do not have
+// to be ordered after another transaction's world update, e.g. the
+// creation time of a new world (no other transaction can see that world
+// before this one commits). Times taken while holding world row locks use
+// LockedNow.
 func DBNow(ctx context.Context, q Querier) (time.Time, error) {
 	var now time.Time
 	if err := q.QueryRow(ctx, "SELECT date_trunc('milliseconds', now())").Scan(&now); err != nil {
+		return time.Time{}, err
+	}
+	return now.UTC(), nil
+}
+
+// LockedNow returns the database clock of this statement
+// (statement_timestamp(), truncated to milliseconds, UTC). Call it after
+// the row locks of the worlds involved are held: the time is then after
+// the commit of every earlier holder of those locks, unlike now(), which
+// is fixed at transaction start, before the lock wait.
+func LockedNow(ctx context.Context, q Querier) (time.Time, error) {
+	var now time.Time
+	if err := q.QueryRow(ctx, "SELECT date_trunc('milliseconds', statement_timestamp())").Scan(&now); err != nil {
 		return time.Time{}, err
 	}
 	return now.UTC(), nil
