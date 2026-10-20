@@ -8,7 +8,6 @@ import (
 	"net"
 	"net/http"
 	"net/netip"
-	"net/url"
 	"slices"
 	"strconv"
 	"strings"
@@ -75,8 +74,8 @@ var errCSRF = &apiError{code: CodeCSRFRejected, status: http.StatusForbidden, me
 
 // checkOrigin is the CSRF rule of cookie sessions: an Origin header must be
 // one of the allowed origins; without Origin, Sec-Fetch-Site must be
-// same-origin or same-site; without both, the Referer's origin must be
-// allowed. A request that carries none of them is rejected.
+// same-origin or same-site. A request that carries neither is rejected
+// (Referer is not consulted).
 func (s *Server) checkOrigin(r *http.Request) error {
 	if o := r.Header.Get("Origin"); o != "" {
 		if slices.Contains(s.cfg.CORSOrigins, o) {
@@ -87,15 +86,6 @@ func (s *Server) checkOrigin(r *http.Request) error {
 	switch r.Header.Get("Sec-Fetch-Site") {
 	case "same-origin", "same-site":
 		return nil
-	case "":
-	default:
-		return errCSRF
-	}
-	if ref := r.Header.Get("Referer"); ref != "" {
-		if u, err := url.Parse(ref); err == nil && u.Scheme != "" && u.Host != "" &&
-			slices.Contains(s.cfg.CORSOrigins, u.Scheme+"://"+u.Host) {
-			return nil
-		}
 	}
 	return errCSRF
 }

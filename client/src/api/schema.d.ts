@@ -164,6 +164,9 @@ export interface paths {
          *     only credential). With a valid `device_token`: starts a new session
          *     for that guest. An unknown or revoked device token (revoked when the
          *     guest registers) is 401 `invalid_credentials`. Rate limited per IP.
+         *     With `transport: "cookie"` (default) the request must pass the CSRF
+         *     origin rule (allowed `Origin`, or `Sec-Fetch-Site: same-origin` /
+         *     `same-site` without `Origin`; else 403 `csrf_rejected`).
          */
         post: operations["postGuest"];
         delete?: never;
@@ -192,7 +195,10 @@ export interface paths {
          *     `already_registered`; an email in use (case-insensitive) is 409
          *     `email_taken`; a password outside 8–128 bytes is 400
          *     `weak_password`; a malformed email or display name is 400
-         *     `bad_request`. Rate limited per IP.
+         *     `bad_request`. Rate limited per IP. A cookie request (or one without
+         *     a session using `transport: "cookie"`) must pass the CSRF origin
+         *     rule (allowed `Origin`, or `Sec-Fetch-Site: same-origin` /
+         *     `same-site` without `Origin`; else 403 `csrf_rejected`).
          */
         post: operations["postRegister"];
         delete?: never;
@@ -215,7 +221,10 @@ export interface paths {
          * Log in with email and password.
          * @description Starts a session (replacing the current one, if any) and updates
          *     the last login time. Unknown email and wrong password are the same
-         *     401 `invalid_credentials`. Rate limited per IP and per email.
+         *     401 `invalid_credentials`. Rate limited per IP and per email. With
+         *     `transport: "cookie"` (default) the request must pass the CSRF
+         *     origin rule (allowed `Origin`, or `Sec-Fetch-Site: same-origin` /
+         *     `same-site` without `Origin`; else 403 `csrf_rejected`).
          */
         post: operations["postLogin"];
         delete?: never;
@@ -236,7 +245,10 @@ export interface paths {
         put?: never;
         /**
          * End the current session.
-         * @description Deletes the session and clears the session cookie.
+         * @description Deletes the session and clears the session cookie. A cookie request
+         *     must pass the CSRF origin rule (allowed `Origin`, or
+         *     `Sec-Fetch-Site: same-origin` / `same-site` without `Origin`; else
+         *     403 `csrf_rejected`); bearer requests are exempt.
          */
         post: operations["postLogout"];
         delete?: never;
@@ -362,7 +374,8 @@ export interface components {
          *       expired), `weak_password` (password outside 8–128 bytes);
          *     - 401: `unauthorized` (no valid session), `invalid_credentials`
          *       (wrong email or password, unknown or revoked device token);
-         *     - 403: `csrf_rejected` (cookie request from a disallowed origin);
+         *     - 403: `csrf_rejected` (cookie request without an allowed `Origin`
+         *       or a same-origin/same-site `Sec-Fetch-Site`);
          *     - 404: `not_found` (unknown endpoint, no world),
          *       `unknown_island`, `building_not_found`;
          *     - 405: `method_not_allowed`;

@@ -257,7 +257,8 @@ func TestCSRF(t *testing.T) {
 		{"allowed origin", map[string]string{"Cookie": cookie, "Origin": testOrigin}, true},
 		{"same-origin fetch", map[string]string{"Cookie": cookie, "Sec-Fetch-Site": "same-origin"}, true},
 		{"same-site fetch", map[string]string{"Cookie": cookie, "Sec-Fetch-Site": "same-site"}, true},
-		{"allowed referer", map[string]string{"Cookie": cookie, "Referer": testOrigin + "/game"}, true},
+		{"referer only (user note 1: Origin or Sec-Fetch-Site required)", map[string]string{"Cookie": cookie, "Referer": testOrigin + "/game"}, false},
+		{"none-site fetch", map[string]string{"Cookie": cookie, "Sec-Fetch-Site": "none"}, false},
 		{"bearer is exempt", map[string]string{"Authorization": "Bearer bearer-token"}, true},
 		{"bearer with a cookie is exempt", map[string]string{"Authorization": "Bearer bearer-token", "Cookie": cookie, "Origin": "http://evil.example"}, true},
 	}
@@ -281,6 +282,12 @@ func TestCSRF(t *testing.T) {
 	login := `{"email":"a@b.org","password":"12345678"}`
 	if rec := serveReq(srv, http.MethodPost, "/api/v1/auth/login", login, nil); rec.Code != 403 {
 		t.Errorf("cookie login without origin: %d", rec.Code)
+	}
+	if rec := serveReq(srv, http.MethodPost, "/api/v1/auth/login", login, map[string]string{"Referer": testOrigin + "/"}); rec.Code != 403 {
+		t.Errorf("cookie login with a Referer only: %d", rec.Code)
+	}
+	if rec := serveReq(srv, http.MethodPost, "/api/v1/auth/guest", `{}`, map[string]string{"Sec-Fetch-Site": "same-origin"}); rec.Code != 200 {
+		t.Errorf("cookie guest with Sec-Fetch-Site same-origin: %d", rec.Code)
 	}
 	if rec := serveReq(srv, http.MethodPost, "/api/v1/auth/login", login, map[string]string{"Origin": testOrigin}); rec.Code != 200 ||
 		!strings.Contains(rec.Header().Get("Set-Cookie"), "ns_session=new-token") || strings.Contains(rec.Body.String(), "new-token") {
