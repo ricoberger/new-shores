@@ -14,6 +14,7 @@ import {
   SHIP_ROAD_TO,
   SHIPMENT_PLANKS,
   SHIPYARD,
+  WAREHOUSE_PLANKS,
 } from "./constants";
 
 // The shipping flow (R-69) through the UI only, against the dev server at
@@ -159,7 +160,7 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
     (id) => window.__newShores!.getServer()!.display.islands.find((x) => x.id === id)!.inventory.planks?.stock ?? 0,
     ISLAND2,
   );
-  expect(planks).toBe((SHIPMENT_PLANKS - 30) * 1000);
+  expect(planks).toBe((SHIPMENT_PLANKS - WAREHOUSE_PLANKS) * 1000);
 });
 
 test("build on island 2 and bring fish home on a route", async ({ page }) => {

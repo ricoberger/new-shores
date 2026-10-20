@@ -3,7 +3,7 @@
   "base": {
     "evaluated_at": "2026-01-01T12:06:00.000Z",
     "next_change_at": "2026-01-01T22:26:03.750Z",
-    "gold": 9901000,
+    "gold": 10001000,
     "balance_rate_per_min": 12000,
     "tax_rate_per_min": 24000,
     "upkeep_rate_per_min": 12000,
@@ -1250,7 +1250,7 @@
       "display": {
         "evaluated_at": "2026-01-01T12:06:00.250Z",
         "next_change_at": "2026-01-01T22:26:03.750Z",
-        "gold": 9901050,
+        "gold": 10001050,
         "balance_rate_per_min": 12000,
         "tax_rate_per_min": 24000,
         "upkeep_rate_per_min": 12000,
@@ -2497,7 +2497,7 @@
       "display": {
         "evaluated_at": "2026-01-01T12:06:01.000Z",
         "next_change_at": "2026-01-01T22:26:03.750Z",
-        "gold": 9901200,
+        "gold": 10001200,
         "balance_rate_per_min": 12000,
         "tax_rate_per_min": 24000,
         "upkeep_rate_per_min": 12000,
@@ -3744,7 +3744,7 @@
       "display": {
         "evaluated_at": "2026-01-01T12:06:05.000Z",
         "next_change_at": "2026-01-01T22:26:03.750Z",
-        "gold": 9902000,
+        "gold": 10002000,
         "balance_rate_per_min": 12000,
         "tax_rate_per_min": 24000,
         "upkeep_rate_per_min": 12000,
@@ -4991,7 +4991,7 @@
       "display": {
         "evaluated_at": "2026-01-01T12:06:30.000Z",
         "next_change_at": "2026-01-01T22:26:03.750Z",
-        "gold": 9907000,
+        "gold": 10007000,
         "balance_rate_per_min": 12000,
         "tax_rate_per_min": 24000,
         "upkeep_rate_per_min": 12000,
@@ -6238,7 +6238,7 @@
       "display": {
         "evaluated_at": "2026-01-01T12:11:00.000Z",
         "next_change_at": "2026-01-01T22:26:03.750Z",
-        "gold": 9961000,
+        "gold": 10061000,
         "balance_rate_per_min": 12000,
         "tax_rate_per_min": 24000,
         "upkeep_rate_per_min": 12000,

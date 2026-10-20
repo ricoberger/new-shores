@@ -8,7 +8,7 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 70000,
+        "spent": 45000,
         "granted": 100000
       },
       "sails": {
@@ -31,14 +31,14 @@
         "island2": {},
         "start": {
           "planks": {
-            "stock": 30000,
+            "stock": 55000,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 182000,
-      "balance_rate_per_min": -9000,
+      "gold": 690000,
+      "balance_rate_per_min": -5000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -52,14 +52,14 @@
         "island2": {},
         "start": {
           "planks": {
-            "stock": 30000,
+            "stock": 55000,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 182000,
-      "balance_rate_per_min": -11000,
+      "gold": 690000,
+      "balance_rate_per_min": -6000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -80,14 +80,14 @@
         "island2": {},
         "start": {
           "planks": {
-            "stock": 30000,
+            "stock": 55000,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 171000,
-      "balance_rate_per_min": -11000,
+      "gold": 684000,
+      "balance_rate_per_min": -6000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -103,11 +103,11 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:03:00.000Z",
-    "next_change_at": "2026-01-01T00:18:32.727Z",
-    "gold": 171000,
-    "balance_rate_per_min": -11000,
+    "next_change_at": "2026-01-01T01:57:00.000Z",
+    "gold": 684000,
+    "balance_rate_per_min": -6000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 11000,
+    "upkeep_rate_per_min": 6000,
     "tiers": [
       {
         "id": "settlers",
@@ -205,7 +205,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 30000,
+            "stock": 55000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -567,7 +567,7 @@
         "cargo": [],
         "slots": 2,
         "slot_size": 50000,
-        "upkeep_per_min": 2000,
+        "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": ""
       }

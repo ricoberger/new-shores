@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T00:45:00.000Z",
     "next_change_at": "2026-01-01T00:45:20.000Z",
-    "gold": 6583199,
-    "balance_rate_per_min": -20840,
+    "gold": 8266199,
+    "balance_rate_per_min": -8840,
     "tax_rate_per_min": 20160,
-    "upkeep_rate_per_min": 41000,
+    "upkeep_rate_per_min": 29000,
     "tiers": [
       {
         "id": "settlers",
@@ -104,7 +104,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 75000,
+            "stock": 100000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -1604,7 +1604,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 10000,
+            "stock": 20000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -1692,7 +1692,7 @@
         "cargo": [],
         "slots": 2,
         "slot_size": 50000,
-        "upkeep_per_min": 2000,
+        "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": ""
       }
@@ -1733,10 +1733,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:45:00.250Z",
         "next_change_at": "2026-01-01T00:45:20.000Z",
-        "gold": 6583112,
-        "balance_rate_per_min": -20840,
+        "gold": 8266162,
+        "balance_rate_per_min": -8840,
         "tax_rate_per_min": 20160,
-        "upkeep_rate_per_min": 41000,
+        "upkeep_rate_per_min": 29000,
         "tiers": [
           {
             "id": "settlers",
@@ -1834,7 +1834,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 75000,
+                "stock": 100000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -3334,7 +3334,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 10000,
+                "stock": 20000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -3422,7 +3422,7 @@
             "cargo": [],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }
@@ -3463,10 +3463,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:45:01.000Z",
         "next_change_at": "2026-01-01T00:45:20.000Z",
-        "gold": 6582852,
-        "balance_rate_per_min": -20840,
+        "gold": 8266052,
+        "balance_rate_per_min": -8840,
         "tax_rate_per_min": 20160,
-        "upkeep_rate_per_min": 41000,
+        "upkeep_rate_per_min": 29000,
         "tiers": [
           {
             "id": "settlers",
@@ -3564,7 +3564,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 75000,
+                "stock": 100000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -5064,7 +5064,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 10000,
+                "stock": 20000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -5152,7 +5152,7 @@
             "cargo": [],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }
@@ -5193,10 +5193,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:45:05.000Z",
         "next_change_at": "2026-01-01T00:45:20.000Z",
-        "gold": 6581463,
-        "balance_rate_per_min": -20840,
+        "gold": 8265463,
+        "balance_rate_per_min": -8840,
         "tax_rate_per_min": 20160,
-        "upkeep_rate_per_min": 41000,
+        "upkeep_rate_per_min": 29000,
         "tiers": [
           {
             "id": "settlers",
@@ -5294,7 +5294,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 75000,
+                "stock": 100000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -6794,7 +6794,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 10000,
+                "stock": 20000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -6882,7 +6882,7 @@
             "cargo": [],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }

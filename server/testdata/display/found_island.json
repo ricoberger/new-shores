@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T00:08:20.000Z",
     "next_change_at": "2026-01-01T00:09:33.000Z",
-    "gold": 329960,
-    "balance_rate_per_min": -15200,
+    "gold": 969626,
+    "balance_rate_per_min": -10200,
     "tax_rate_per_min": 800,
-    "upkeep_rate_per_min": 16000,
+    "upkeep_rate_per_min": 11000,
     "tiers": [
       {
         "id": "settlers",
@@ -104,7 +104,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 30000,
+            "stock": 55000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -400,7 +400,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 44000,
+            "stock": 54000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -703,7 +703,7 @@
         "cargo": [],
         "slots": 2,
         "slot_size": 50000,
-        "upkeep_per_min": 2000,
+        "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": ""
       }
@@ -716,10 +716,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:08:20.250Z",
         "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 329896,
-        "balance_rate_per_min": -15200,
+        "gold": 969584,
+        "balance_rate_per_min": -10200,
         "tax_rate_per_min": 800,
-        "upkeep_rate_per_min": 16000,
+        "upkeep_rate_per_min": 11000,
         "tiers": [
           {
             "id": "settlers",
@@ -817,7 +817,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 30000,
+                "stock": 55000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -1113,7 +1113,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 44000,
+                "stock": 54000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -1416,7 +1416,7 @@
             "cargo": [],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }
@@ -1429,10 +1429,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:08:21.000Z",
         "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 329706,
-        "balance_rate_per_min": -15200,
+        "gold": 969456,
+        "balance_rate_per_min": -10200,
         "tax_rate_per_min": 800,
-        "upkeep_rate_per_min": 16000,
+        "upkeep_rate_per_min": 11000,
         "tiers": [
           {
             "id": "settlers",
@@ -1530,7 +1530,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 30000,
+                "stock": 55000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -1826,7 +1826,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 44000,
+                "stock": 54000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2129,7 +2129,7 @@
             "cargo": [],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }
@@ -2142,10 +2142,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:08:25.000Z",
         "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 328693,
-        "balance_rate_per_min": -15200,
+        "gold": 968776,
+        "balance_rate_per_min": -10200,
         "tax_rate_per_min": 800,
-        "upkeep_rate_per_min": 16000,
+        "upkeep_rate_per_min": 11000,
         "tiers": [
           {
             "id": "settlers",
@@ -2243,7 +2243,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 30000,
+                "stock": 55000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2539,7 +2539,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 44000,
+                "stock": 54000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -2842,7 +2842,7 @@
             "cargo": [],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }
@@ -2855,10 +2855,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:08:50.000Z",
         "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 322360,
-        "balance_rate_per_min": -15200,
+        "gold": 964526,
+        "balance_rate_per_min": -10200,
         "tax_rate_per_min": 800,
-        "upkeep_rate_per_min": 16000,
+        "upkeep_rate_per_min": 11000,
         "tiers": [
           {
             "id": "settlers",
@@ -2956,7 +2956,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 30000,
+                "stock": 55000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -3252,7 +3252,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 44000,
+                "stock": 54000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -3555,7 +3555,7 @@
             "cargo": [],
             "slots": 2,
             "slot_size": 50000,
-            "upkeep_per_min": 2000,
+            "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": ""
           }

@@ -1,0 +1,1258 @@
+{
+  "name": "bootstrap_citizens",
+  "description": "Tier-1/2 reference game (balancing pass, golden t) on the dev archipelago from the content starting stock only: a settler town grown house by house from three plank chains, a shipyard and a sloop settling island 2, wool and a chapel for the Citizens unlock, a quarry on the start island's stone deposits for the first Citizen house, and the Settler-staffed tool chain on island 2 (iron deposits) supplied by a route that brings stone and planks out and tools home. The player builds in plan order as soon as gold and materials allow (waiting in whole minutes), keeps planks for the next planned building, and fills the remaining planks with settler houses; no pauses, demolitions or micro-timing.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "fertilities": [
+        "wheat",
+        "apple"
+      ],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~ccccccccccccccccccccccc~~~~~~~~ccccccccccccccccccccccc~",
+        "~c......................cccccccc......................c~",
+        "~c....................................................c~",
+        "~c....................................................c~",
+        "~c................................ffffffffffffffffffffc~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~~cffffffff.......................fffffffffffffffffffc~~",
+        "~~cffffffff.......................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+        "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+        "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+        "~c..............mmmmmmm...............................c~",
+        "~c..............mmmmmmm...............................c~",
+        "~c..............mSSmSSm...............................c~",
+        "~c....................................................c~",
+        "~c....................................................c~",
+        "~c....................................................c~",
+        "~c............ccccccc..............ccccccc............c~",
+        "~ccccccccccccc~~~~~~~cccccccccccccc~~~~~~~ccccccccccccc~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 72,
+      "y": 96,
+      "fertilities": [
+        "hemp"
+      ],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~ccccccccccccccccccccc~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~c....................................c~",
+        "~c....................................c~",
+        "~c.......................ffffffffffff.c~",
+        "~c.......................ffffffffffff.c~",
+        "~c.......................ffffffffffff.c~",
+        "~c.......................ffffffffffff.c~",
+        "~c.......................ffffffffffff.c~",
+        "~c.......................ffffffffffff.c~",
+        "~c....................................c~",
+        "~c.........mmIImm.....................c~",
+        "~c.........mIIIIm.....................c~",
+        "~c.........mmmmmm.....................c~",
+        "~c....................................c~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 2,
+      "y": 1,
+      "rotation": 0
+    },
+    "start": true
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          45,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          45,
+          5
+        ],
+        "to": [
+          45,
+          22
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          6,
+          3
+        ],
+        "to": [
+          6,
+          3
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          22,
+          3
+        ],
+        "to": [
+          22,
+          3
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          2,
+          33
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          9
+        ],
+        "to": [
+          32,
+          9
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          14
+        ],
+        "to": [
+          32,
+          14
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          20
+        ],
+        "to": [
+          30,
+          20
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          33
+        ],
+        "to": [
+          21,
+          33
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          14,
+          34
+        ],
+        "to": [
+          14,
+          34
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 43,
+        "y": 10,
+        "rotation": 270
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 31,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 16,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 29,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 46,
+        "y": 15,
+        "rotation": 90
+      }
+    },
+    {
+      "advance": {
+        "duration": "4m"
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 31,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 43,
+        "y": 20,
+        "rotation": 270
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 16,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 18,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 20,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 24,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 26,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 28,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 21,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 23,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 25,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 27,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 22,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "9m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 20,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 22,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 5,
+        "y": 34,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "9m"
+      }
+    },
+    {
+      "order_ship": {
+        "x": 5,
+        "y": 34,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 24,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 60
+        }
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 26,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 28,
+        "y": 7,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "island2",
+        "x": 2,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 19,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 21,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 14,
+        "y": 21,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 23,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 25,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 27,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 29,
+        "y": 10,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 26,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "4m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "chapel",
+        "x": 19,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m"
+      }
+    },
+    {
+      "place": {
+        "type": "quarry",
+        "x": 16,
+        "y": 30,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 19,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 22,
+        "y": 21,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 21,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 28,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "4m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 23,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "upgrade": {
+        "x": 8,
+        "y": 2
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m"
+      }
+    },
+    {
+      "place": {
+        "type": "quarry",
+        "x": 19,
+        "y": 30,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 25,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 14,
+        "y": 35,
+        "rotation": 0
+      }
+    },
+    {
+      "create_route": {
+        "name": "Stone out, tools home",
+        "stops": [
+          {
+            "island": "start",
+            "load": {
+              "planks": 50,
+              "stone": 50
+            },
+            "unload": [
+              "tools"
+            ]
+          },
+          {
+            "island": "island2",
+            "load": {
+              "tools": 50
+            },
+            "unload": [
+              "stone",
+              "planks"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "assign_ship": {
+        "ship": 1,
+        "route": 1
+      }
+    },
+    {
+      "road": {
+        "island": "island2",
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          30,
+          4
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "fisher",
+        "x": 6,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "house_settlers",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "house_settlers",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m"
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "house_settlers",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "house_settlers",
+        "x": 16,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "lumberjack",
+        "x": 29,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "island": "island2",
+        "type": "road_dirt",
+        "from": [
+          10,
+          5
+        ],
+        "to": [
+          10,
+          11
+        ]
+      }
+    },
+    {
+      "road": {
+        "island": "island2",
+        "type": "road_dirt",
+        "from": [
+          11,
+          11
+        ],
+        "to": [
+          14,
+          11
+        ]
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "charcoal_burner",
+        "x": 18,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 27,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 29,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "8m"
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "iron_mine",
+        "x": 12,
+        "y": 12,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "3m"
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "smelter",
+        "x": 20,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "7m"
+      }
+    },
+    {
+      "place": {
+        "island": "island2",
+        "type": "toolmaker",
+        "x": 23,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "6m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    }
+  ]
+}

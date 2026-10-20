@@ -107,20 +107,22 @@ func TestNewSeedsTheStartIsland(t *testing.T) {
 	}
 }
 
-// TestNewDevAppliesBonus: only the --dev world gets the dev bonus, and it
-// stays within the start island's capacity.
-func TestNewDevAppliesBonus(t *testing.T) {
+// TestNewDevHasNoBonus (R-29): the balancing pass removed the dev bonus;
+// the --dev world is the player world.
+func TestNewDevHasNoBonus(t *testing.T) {
 	c, w := newWorld(t)
 	dev, err := NewDev(c, start)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if dev.Gold != w.Gold+1_500_000 {
-		t.Errorf("dev gold = %d, player gold %d", dev.Gold, w.Gold)
+	a, _ := sim.Encode(w, c.Region.Version)
+	b, _ := sim.Encode(dev, c.Region.Version)
+	if string(a) != string(b) {
+		t.Error("dev world differs from the player world")
 	}
-	planks := dev.Islands[0].Inventory.Stock["planks"]
-	if planks != w.Islands[0].Inventory.Stock["planks"]+150_000 || planks > 300_000 {
-		t.Errorf("dev planks = %d", planks)
+	s, err := scenario.Parse(IslandJSON())
+	if err != nil || s.DevBonus != nil {
+		t.Errorf("dev bonus %+v (%v)", s.DevBonus, err)
 	}
 }
 
@@ -288,16 +290,22 @@ func TestSmokeLayoutProducesPlanks(t *testing.T) {
 
 // Shipping layout (client/e2e/voyage.spec.ts): a road from below the
 // warehouse along the west coast to the south coast connects a shipyard;
-// a sloop founds island 2 with 70 planks (warehouse + 40), two houses and
+// a sloop founds island 2 with 60 planks (warehouse + 40), two houses and
 // a fisher stand on island 2, and a route brings fish to the start island.
-// The dev bonus covers the whole flow; the starting stock alone does not
-// (balance finding for the M4 balancing pass).
+// Since the balancing pass the starting stock alone covers the whole flow
+// together with the smoke test's plank chain (no dev bonus).
 func TestShippingLayoutFoundsIsland2(t *testing.T) {
 	c := catalogue(t)
 	w, err := NewDev(c, start)
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The smoke test runs first on the same world: a lumberjack, a sawmill
+	// and a house.
+	road(t, w, c, 3, 4, 36, 4)
+	place(t, w, c, "lumberjack", 35, 5, 180)
+	place(t, w, c, "house_settlers", 8, 5, 180)
+	place(t, w, c, "sawmill", 20, 5, 180)
 	road(t, w, c, 2, 4, 2, 34)
 	road(t, w, c, 3, 34, 4, 34)
 	yard := place(t, w, c, "shipyard", 5, 34, 0)
@@ -321,7 +329,7 @@ func TestShippingLayoutFoundsIsland2(t *testing.T) {
 	if len(w.Ships) != 1 || w.Ships[0].State != sim.ShipIdle {
 		t.Fatalf("ships = %+v", w.Ships)
 	}
-	apply(sim.ManualShipment{ShipID: 1, ToIslandID: "island2", Cargo: []sim.CargoAmount{{Good: "planks", Amount: 70_000}}})
+	apply(sim.ManualShipment{ShipID: 1, ToIslandID: "island2", Cargo: []sim.CargoAmount{{Good: "planks", Amount: 60_000}}})
 	advance(2*time.Minute + 20*time.Second)
 	apply(sim.FoundIsland{ShipID: 1, IslandID: "island2", BuildingType: "warehouse", X: 2, Y: 1})
 	var tiles []sim.Pos
@@ -346,9 +354,19 @@ func TestShippingLayoutFoundsIsland2(t *testing.T) {
 		t.Errorf("gold %d", w.Gold)
 	}
 
-	// Balance finding: the flow's construction costs against the start.
+	// No unit was auto-paused on the way: the starting stock carries the
+	// flow (R-29).
+	for _, is := range w.Islands {
+		for _, b := range is.Buildings {
+			if b.Paused {
+				t.Errorf("%s %d paused (%s)", b.Type, b.ID, b.PausedReason)
+			}
+		}
+	}
+
+	// Balance: the flow's construction costs against the starting stock.
 	var gold, planks int64
-	for _, id := range []string{"shipyard", "warehouse", "house_settlers", "house_settlers", "fisher"} {
+	for _, id := range []string{"lumberjack", "sawmill", "house_settlers", "shipyard", "warehouse", "house_settlers", "house_settlers", "fisher"} {
 		gold += c.BuildingByID[id].Cost.Gold
 		for _, m := range c.BuildingByID[id].Cost.Materials {
 			if m.Good == "planks" {
@@ -358,9 +376,9 @@ func TestShippingLayoutFoundsIsland2(t *testing.T) {
 	}
 	gold += c.ShipByID["sloop"].Cost.Gold
 	planks += c.ShipByID["sloop"].Cost.Materials[0].Amount + 40_000
-	t.Logf("first settlement flow: %d gold, %d planks (start: %d gold, %d planks)", gold/1000, planks/1000, c.Start.Gold/1000, c.Start.Goods[0].Amount/1000)
-	if gold <= c.Start.Gold || planks <= c.Start.Goods[0].Amount {
-		t.Errorf("the starting stock covers the flow; update the balance finding")
+	t.Logf("smoke + first settlement flow: %d gold, %d planks (start: %d gold, %d planks)", gold/1000, planks/1000, c.Start.Gold/1000, c.Start.Goods[0].Amount/1000)
+	if gold > c.Start.Gold {
+		t.Errorf("the starting gold does not cover the flow")
 	}
 }
 

@@ -22,9 +22,9 @@ export const HOUSE_MOVED = { x: 11, y: 5 };
 export const SAWMILL_MOVED = { x: 24, y: 5 };
 /** A water tile (invalid placement). */
 export const WATER = { x: 0, y: 0 };
-/** Gold of the dev world: start.json (500) plus the dev-only bonus (1 500). */
-export const START_GOLD = 2000;
-export const CONTENT_VERSION = "old_coast-0.3.0";
+/** Gold of the dev world: start.json (no dev-only bonus since the tier 1–2 balancing pass). */
+export const START_GOLD = 800;
+export const CONTENT_VERSION = "old_coast-0.4.0";
 
 // Shipping (voyage.spec.ts; the Go test TestShippingLayoutFoundsIsland2
 // checks the same layout): a road from below the warehouse down the west
@@ -40,8 +40,10 @@ export const SHIPYARD = { x: 5, y: 34, rotation: 0 };
 /** The unsettled island 2 and its coastal warehouse site (x 2..5, y 1..3). */
 export const ISLAND2 = "island2";
 export const ISLAND2_WAREHOUSE = { x: 2, y: 1 };
-/** Planks shipped to island 2: the warehouse's 30 plus 40. */
-export const SHIPMENT_PLANKS = 70;
+/** Planks shipped to island 2: the warehouse's 20 plus 40. */
+export const SHIPMENT_PLANKS = 60;
+/** Planks the warehouse founded on island 2 takes from the cargo. */
+export const WAREHOUSE_PLANKS = 20;
 /** Island 2 layout after founding: road y = 4, two houses and a fisher on it. */
 export const ISLAND2_ROAD_FROM = { x: 2, y: 4 };
 export const ISLAND2_ROAD_TO = { x: 20, y: 4 };

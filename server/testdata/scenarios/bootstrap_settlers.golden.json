@@ -84,7 +84,7 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 116634,
+      "gold": 416634,
       "balance_rate_per_min": -760,
       "population": {
         "settlers": 64000
@@ -120,7 +120,7 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 101434,
+      "gold": 401434,
       "balance_rate_per_min": -760,
       "population": {
         "settlers": 64000
@@ -156,7 +156,7 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 150434,
+      "gold": 450434,
       "balance_rate_per_min": 3080,
       "population": {
         "settlers": 88000
@@ -192,7 +192,7 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 379634,
+      "gold": 679634,
       "balance_rate_per_min": 8200,
       "population": {
         "settlers": 120000
@@ -228,7 +228,7 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 235634,
+      "gold": 635634,
       "balance_rate_per_min": 5200,
       "population": {
         "settlers": 120000
@@ -275,7 +275,7 @@
         "low_efficiency": 1,
         "ok": 3
       },
-      "gold": 370834,
+      "gold": 770834,
       "balance_rate_per_min": 6000,
       "population": {
         "settlers": 120000
@@ -289,7 +289,7 @@
   "final": {
     "evaluated_at": "2026-01-01T02:50:00.000Z",
     "next_change_at": "2026-01-01T03:15:10.000Z",
-    "gold": 370834,
+    "gold": 770834,
     "balance_rate_per_min": 6000,
     "tax_rate_per_min": 24000,
     "upkeep_rate_per_min": 18000,

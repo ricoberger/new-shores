@@ -8,7 +8,7 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 45000,
+        "spent": 35000,
         "unloaded": 50000
       },
       "stone": {
@@ -30,7 +30,7 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 285000,
+        "spent": 260000,
         "granted": 390000,
         "loaded": 50000
       },
@@ -130,7 +130,7 @@
         }
       },
       "statuses": {},
-      "gold": 9593399,
+      "gold": 9693399,
       "balance_rate_per_min": 10640,
       "population": {
         "settlers": 120000
@@ -152,7 +152,7 @@
             "in_transit": 0
           },
           "planks": {
-            "stock": 105000,
+            "stock": 130000,
             "in_transit": 0
           },
           "stone": {
@@ -172,8 +172,8 @@
       "statuses": {
         "ok": 2
       },
-      "gold": 8290679,
-      "balance_rate_per_min": -3360,
+      "gold": 9102679,
+      "balance_rate_per_min": 3640,
       "population": {
         "settlers": 120000
       },
@@ -201,7 +201,7 @@
             "in_transit": 0
           },
           "planks": {
-            "stock": 55000,
+            "stock": 80000,
             "in_transit": 0
           },
           "stone": {
@@ -221,8 +221,8 @@
       "statuses": {
         "ok": 2
       },
-      "gold": 8280599,
-      "balance_rate_per_min": -3360,
+      "gold": 9113599,
+      "balance_rate_per_min": 3640,
       "population": {
         "settlers": 120000
       },
@@ -249,7 +249,7 @@
       "inventory": {
         "island2": {
           "planks": {
-            "stock": 5000,
+            "stock": 15000,
             "in_transit": 0
           },
           "stone": {
@@ -263,7 +263,7 @@
             "in_transit": 0
           },
           "planks": {
-            "stock": 55000,
+            "stock": 80000,
             "in_transit": 0
           },
           "stone": {
@@ -284,8 +284,8 @@
         "not_connected": 1,
         "ok": 2
       },
-      "gold": 7870239,
-      "balance_rate_per_min": -10360,
+      "gold": 8810239,
+      "balance_rate_per_min": -3360,
       "population": {
         "settlers": 120000
       },
@@ -305,10 +305,10 @@
   "final": {
     "evaluated_at": "2026-01-01T00:16:00.000Z",
     "next_change_at": "2026-01-01T02:49:49.000Z",
-    "gold": 7870239,
-    "balance_rate_per_min": -10360,
+    "gold": 8810239,
+    "balance_rate_per_min": -3360,
     "tax_rate_per_min": 20640,
-    "upkeep_rate_per_min": 31000,
+    "upkeep_rate_per_min": 24000,
     "tiers": [
       {
         "id": "settlers",
@@ -406,7 +406,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 55000,
+            "stock": 80000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -1772,7 +1772,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 5000,
+            "stock": 15000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -1895,7 +1895,7 @@
         "cargo": [],
         "slots": 2,
         "slot_size": 50000,
-        "upkeep_per_min": 2000,
+        "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": ""
       }

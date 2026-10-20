@@ -8,7 +8,7 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 100000,
+        "spent": 65000,
         "granted": 200000,
         "loaded": 50000
       },
@@ -32,7 +32,7 @@
         "island2": {},
         "start": {
           "planks": {
-            "stock": 130000,
+            "stock": 155000,
             "in_transit": 0
           },
           "sails": {
@@ -42,8 +42,8 @@
         }
       },
       "statuses": {},
-      "gold": 682000,
-      "balance_rate_per_min": -11000,
+      "gold": 1190000,
+      "balance_rate_per_min": -6000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -64,14 +64,14 @@
         "island2": {},
         "start": {
           "planks": {
-            "stock": 50000,
+            "stock": 85000,
             "in_transit": 0
           }
         }
       },
       "statuses": {},
-      "gold": 376500,
-      "balance_rate_per_min": -11000,
+      "gold": 1087000,
+      "balance_rate_per_min": -6000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -90,10 +90,10 @@
   "final": {
     "evaluated_at": "2026-01-01T00:02:30.000Z",
     "next_change_at": "2026-01-01T00:03:20.000Z",
-    "gold": 376500,
-    "balance_rate_per_min": -11000,
+    "gold": 1087000,
+    "balance_rate_per_min": -6000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 11000,
+    "upkeep_rate_per_min": 6000,
     "tiers": [
       {
         "id": "settlers",
@@ -191,7 +191,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 50000,
+            "stock": 85000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -567,7 +567,7 @@
         ],
         "slots": 2,
         "slot_size": 50000,
-        "upkeep_per_min": 2000,
+        "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": ""
       }

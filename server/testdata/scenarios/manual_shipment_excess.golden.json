@@ -8,9 +8,9 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 30000,
+        "spent": 20000,
         "granted": 260000,
-        "unloaded": 70000
+        "unloaded": 60000
       },
       "wood": {
         "produced": 0,
@@ -26,7 +26,7 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 70000,
+        "spent": 45000,
         "granted": 200000,
         "loaded": 100000
       },
@@ -58,7 +58,7 @@
         "island2": {},
         "start": {
           "planks": {
-            "stock": 130000,
+            "stock": 155000,
             "in_transit": 0
           },
           "wood": {
@@ -68,8 +68,8 @@
         }
       },
       "statuses": {},
-      "gold": 382000,
-      "balance_rate_per_min": -11000,
+      "gold": 890000,
+      "balance_rate_per_min": -6000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -90,7 +90,7 @@
         "island2": {},
         "start": {
           "planks": {
-            "stock": 80000,
+            "stock": 105000,
             "in_transit": 0
           },
           "wood": {
@@ -100,8 +100,8 @@
         }
       },
       "statuses": {},
-      "gold": 367333,
-      "balance_rate_per_min": -11000,
+      "gold": 882000,
+      "balance_rate_per_min": -6000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -124,7 +124,7 @@
       "inventory": {
         "island2": {
           "planks": {
-            "stock": 20000,
+            "stock": 30000,
             "in_transit": 0
           },
           "wood": {
@@ -134,7 +134,7 @@
         },
         "start": {
           "planks": {
-            "stock": 80000,
+            "stock": 105000,
             "in_transit": 0
           },
           "wood": {
@@ -144,8 +144,8 @@
         }
       },
       "statuses": {},
-      "gold": 147333,
-      "balance_rate_per_min": -15000,
+      "gold": 768666,
+      "balance_rate_per_min": -10000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -165,7 +165,7 @@
       "inventory": {
         "island2": {
           "planks": {
-            "stock": 280000,
+            "stock": 290000,
             "in_transit": 0
           },
           "wood": {
@@ -175,7 +175,7 @@
         },
         "start": {
           "planks": {
-            "stock": 30000,
+            "stock": 55000,
             "in_transit": 0
           },
           "wood": {
@@ -185,8 +185,8 @@
         }
       },
       "statuses": {},
-      "gold": 127333,
-      "balance_rate_per_min": -15000,
+      "gold": 755333,
+      "balance_rate_per_min": -10000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -219,7 +219,7 @@
         },
         "start": {
           "planks": {
-            "stock": 30000,
+            "stock": 55000,
             "in_transit": 0
           },
           "wood": {
@@ -229,8 +229,8 @@
         }
       },
       "statuses": {},
-      "gold": 127333,
-      "balance_rate_per_min": -15000,
+      "gold": 755333,
+      "balance_rate_per_min": -10000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -241,7 +241,7 @@
           "state": "idle",
           "island_id": "island2",
           "cargo": {
-            "planks": 30000,
+            "planks": 40000,
             "wood": 20000
           }
         }
@@ -250,11 +250,11 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:06:00.000Z",
-    "next_change_at": "2026-01-01T00:14:29.333Z",
-    "gold": 127333,
-    "balance_rate_per_min": -15000,
+    "next_change_at": "2026-01-01T01:21:32.000Z",
+    "gold": 755333,
+    "balance_rate_per_min": -10000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 15000,
+    "upkeep_rate_per_min": 10000,
     "tiers": [
       {
         "id": "settlers",
@@ -352,7 +352,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 30000,
+            "stock": 55000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -731,7 +731,7 @@
         "cargo": [
           {
             "good": "planks",
-            "amount": 30000
+            "amount": 40000
           },
           {
             "good": "wood",
@@ -740,7 +740,7 @@
         ],
         "slots": 2,
         "slot_size": 50000,
-        "upkeep_per_min": 2000,
+        "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": ""
       }

@@ -21,7 +21,7 @@ Content IDs are stable snake_case strings and never reused.
 | # | ID | Name | Residents (floor–max) | Tax/res/min | House cost | Workforce role |
 |---|---|---|---|---|---|---|
 | 1 | `settlers` | Settlers | 2–8 | 0.20 | 10 planks | farms, fishers, lumber, gatherers |
-| 2 | `citizens` | Citizens | 5–15 | 0.48 | 15 planks, 10 stone, 200 gold | mines, kilns, mills, basic workshops |
+| 2 | `citizens` | Citizens | 5–15 | 0.48 | 15 planks, 10 stone, 150 gold | mines, kilns, mills, basic workshops |
 | 3 | `merchants` | Merchants | 9–25 | 1.20 | 20 planks, 20 stone, 10 bricks, 1 500 gold | refined workshops, printing, brewing |
 | 4 | `patricians` | Patricians | 14–40 | 2.80 | 20 stone, 20 bricks, 10 glass, 8 000 gold | fine crafts, studios, opticians (small numbers) |
 
@@ -199,22 +199,22 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 |---|---|---|---|---|---|---|
 | `house_settlers` | 1 | 2×2 | 0 / 10 | 0 | — | R |
 | `road_dirt` | 1 | 1×1 | 0 | 0 | — | |
-| `warehouse` | 1 | 4×3 harbour slot | 200 / 30 | 4 | — | lvl 1: cap 300/good, T 60/min |
+| `warehouse` | 1 | 4×3 harbour slot | 100 / 20 | 4 | — | lvl 1: cap 300/good, T 60/min |
 | `market_small` | 1 | 3×3 | 150 / 15 | 3 | — | R, radius 12 |
-| `chapel` | 1 | 2×2 | 300 / 15 | 3 | — | R, radius 16 |
+| `chapel` | 1 | 2×2 | 200 / 15 | 3 | — | R, radius 16 |
 | `lumberjack` | 1 | 2×2 | 50 / 5 | 1 | 4 S | R, work radius 4 forest, 24 tiles |
 | `sawmill` | 1 | 2×2 | 80 / 8 | 2 | 4 S | R |
 | `fisher` | 1 | 2×2 harbour slot | 60 / 6 | 1 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + fields | 100 / 10 | 2 | 4 S | R, work radius 4 grass, 24 tiles |
 | `weaver_wool` | 1 | 2×2 | 120 / 10 | 2 | 6 S | R |
-| `shipyard` | 1 | 5×4 harbour slot | 500 / 40 | 5 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
-| `house_citizens` | 2 | 2×2 | 200 / 15 / 10 | 0 | — | upgrade only |
+| `shipyard` | 1 | 5×4 harbour slot | 200 / 25 | 1 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
+| `house_citizens` | 2 | 2×2 | 150 / 15 / 10 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | 5 / – / 1 | 0 | — | |
-| `quarry` | 2 | 3×3 stone slot | 300 / 20 | 4 | 8 S | R |
-| `iron_mine` | 2 | 3×3 iron slot | 400 / 25 / 10 | 5 | 10 S | R |
+| `quarry` | 2 | 3×3 stone slot | 100 / 20 | 2 | 8 S | R |
+| `iron_mine` | 2 | 3×3 iron slot | 200 / 25 / 10 | 3 | 10 S | R |
 | `charcoal_burner` | 2 | 2×2 | 150 / 10 | 3 | 4 S | R |
-| `smelter` | 2 | 3×3 | 400 / 20 / 20 | 6 | 8 S | R |
-| `toolmaker` | 2 | 2×2 | 400 / 15 / 15 | 5 | 8 S | R |
+| `smelter` | 2 | 3×3 | 200 / 20 / 20 | 3 | 8 S | R |
+| `toolmaker` | 2 | 2×2 | 200 / 15 / 15 | 3 | 8 S | R |
 | `wheat_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, wheat fertility |
 | `mill` | 2 | 2×2 | 250 / 20 / 10 | 3 | 4 C | R |
 | `bakery` | 2 | 2×2 | 300 / 15 / 15 | 4 | 6 C | R |
@@ -234,14 +234,15 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 Tier 3–4 buildings: see the chain tables in §5 for inputs, outputs, cycles
 and workforce; costs and upkeep to be authored (cost ramp in §3).
 
-Warehouse levels (provisional): lvl 1 cap 300 / T 60; lvl 2 cap 500 / T 90;
+Warehouse levels (provisional): lvl 1 cap 300 / T 60; lvl 2 cap 500 / T 90
+(upgrade 300 gold / 20 planks / 10 stone);
 lvl 3 cap 800 / T 130; lvl 4 cap 1 200 / T 180.
 
 ## 8. Ships
 
 | ID | Tier | Slots × size | Speed | Build | Cost | Upkeep |
 |---|---|---|---|---|---|---|
-| `sloop` | 1 | 2 × 50 | 1.0 | 2 min | 300 gold, 30 planks, 10 sails* | 2 |
+| `sloop` | 1 | 2 × 50 | 1.0 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
 | `brig` | 2 | 4 × 50 | 1.2 | 5 min | 1 500 gold, 60 planks, 20 sails, 10 tools | 4 |
 | `galleon` | 3 | 6 × 60 | 1.0 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
 
@@ -424,15 +425,20 @@ See MECHANICS §6.2 for the semantics.
   tier being unlocked). Run in the scenario runner for every content change.
   Current staffing satisfies it: stone and tools [S] for Citizens, bricks
   [C] for Merchants, glass (quartz_quarry, glass_smelter) [C] for
-  Patricians.
+  Patricians. Checked by a generic content test over every tier with a
+  house and by the goldens `bootstrap_settlers` and `bootstrap_citizens`
+  (the tier 1–2 reference game from the starting stock: island 2 settled
+  at 60 min, Citizens unlocked by 83 min, the first Citizen house at
+  100 min, tools from island 2 on the start island by 140 min).
 - Warehouse throughput at each level must cover a "typical" island at that
   tier with one warehouse ≈ 80 % load.
 - Tax income at each tier's unlock population must cover upkeep of the
   balanced chain set with ≥ 20 % margin.
 - Charcoal demand of a balanced Merchant economy must exceed one island's
   forest capacity so coal or a second forest island becomes relevant.
-- Starting stock (`start.json`: 500 gold, 130 planks, 10 sails), granted
+- Starting stock (`start.json`: 800 gold, 130 planks, 10 sails), granted
   after the free first warehouse, must allow: 8 settler houses + fisher +
   lumberjack + sawmill + market + ~40 road tiles, and cover the early
-  deficit for ≥ 15 min of upkeep (currently ≈ 16 min).
+  deficit for ≥ 15 min of upkeep (currently ≈ 42 min: 460 gold left at
+  11 gold/min of upkeep).
 - Verify with headless scenarios before touching any client code.

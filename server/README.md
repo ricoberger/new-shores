@@ -16,7 +16,7 @@ Go module `github.com/ricoberger/new-shores/server`. See
 | `internal/store/postgres` | PostgreSQL store (row-locked `Update`, DB clock, pending-event cap), account/event queries, embedded migrations |
 | `internal/telemetry` | Prometheus metrics and OpenTelemetry tracing setup |
 | `internal/testenv` | PostgreSQL/Redis for integration tests (tag `integration`; testcontainers fallback) |
-| `internal/devworld` | embedded archipelago (start island + island 2; scenario document without steps) built with the scenario runner for the dev world (`NewDev`, with the dev bonus) and new player worlds (`New`) |
+| `internal/devworld` | embedded archipelago (start island + island 2; scenario document without steps) built with the scenario runner for the dev world (`NewDev`, no bonus since the tier 1–2 balancing pass) and new player worlds (`New`) |
 | `internal/content` | loads and validates `content/<region>` against `content/schema` |
 | `internal/sim` | pure, deterministic simulation: `Apply`, `Advance`, `Display`, envelope |
 | `internal/sim/scenario` | headless scenario runner used by golden tests and balancing |
@@ -134,4 +134,5 @@ and routes by their sequential IDs:
 ```
 
 `dev_bonus` (`{"gold": …, "goods": {…}}`) is only applied by
-`devworld.NewDev`.
+`devworld.NewDev`; the dev archipelago has none since the tier 1–2
+balancing pass.

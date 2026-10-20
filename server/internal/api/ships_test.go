@@ -13,10 +13,11 @@ import (
 
 	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/events"
+	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 )
 
-// shipServer is a test server on the --dev world (with the dev bonus) and
+// shipServer is a test server on the --dev world (no bonus) and
 // a dev scheduler that the test drives explicitly.
 type shipServer struct {
 	*testServer
@@ -29,6 +30,11 @@ func newShipServer(t *testing.T) *shipServer {
 	c := catalogue(t)
 	w, err := devworld.NewDev(c, testStart)
 	if err != nil {
+		t.Fatal(err)
+	}
+	// Extra planks (formerly the dev bonus) so that a cargo larger than the
+	// sloop's slots is in stock and fails for the slots, not the stock.
+	if err := sim.AddStock(w, c, "start", "planks", 100_000, nil); err != nil {
 		t.Fatal(err)
 	}
 	now := func() time.Time { return TimeScale{Start: testStart, Scale: 1}.At(ts.clock.Now()) }

@@ -132,7 +132,7 @@
         }
       },
       "statuses": {},
-      "gold": 9593399,
+      "gold": 9693399,
       "balance_rate_per_min": 10640,
       "population": {
         "settlers": 120000
@@ -198,7 +198,7 @@
         "input_starved": 3,
         "ok": 4
       },
-      "gold": 6097239,
+      "gold": 6397239,
       "balance_rate_per_min": -14240,
       "population": {
         "citizens": 24000,
@@ -265,7 +265,7 @@
         "input_starved": 3,
         "ok": 4
       },
-      "gold": 6051799,
+      "gold": 6351799,
       "balance_rate_per_min": -6560,
       "population": {
         "citizens": 40000,
@@ -280,7 +280,7 @@
   "final": {
     "evaluated_at": "2026-01-01T00:15:00.000Z",
     "next_change_at": "2026-01-01T00:16:00.000Z",
-    "gold": 6051799,
+    "gold": 6351799,
     "balance_rate_per_min": -6560,
     "tax_rate_per_min": 33440,
     "upkeep_rate_per_min": 40000,
