@@ -15,6 +15,7 @@ import (
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/devworld"
+	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
 )
@@ -87,6 +88,33 @@ func InsertEvent(t testing.TB, st *postgres.Store, due time.Time, kind string, w
 		}
 		var err error
 		id, err = postgres.InsertEvent(ctx, tx, postgres.NewEvent{DueAt: due, Kind: kind, WorldIDs: worlds, Payload: raw})
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return id
+}
+
+// StoreWorld creates a player owning the given world and inserts the
+// pending events of its due moments (postgres.ReconcileDueEvents) in the
+// same transaction. It returns the world ID.
+func StoreWorld(t testing.TB, st *postgres.Store, w *sim.World) store.WorldID {
+	t.Helper()
+	ctx := context.Background()
+	var id store.WorldID
+	err := postgres.InTx(ctx, st.Pool(), func(tx pgx.Tx) error {
+		p, err := postgres.CreatePlayer(ctx, tx, "Tester")
+		if err != nil {
+			return err
+		}
+		if id, err = st.CreateWorld(ctx, tx, p.ID, Catalogue(t).Region.ID, w); err != nil {
+			return err
+		}
+		if _, err := st.LockWorld(ctx, tx, id); err != nil {
+			return err
+		}
+		_, err = postgres.ReconcileDueEvents(ctx, tx, id, w, 0)
 		return err
 	})
 	if err != nil {

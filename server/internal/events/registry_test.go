@@ -7,10 +7,11 @@ import (
 )
 
 // TestDefaultRegistry: production builds (without the testevents tag)
-// contain advance_to only; test_credit is compiled in only with the tag.
+// contain advance_to and the ship kinds; test_credit is compiled in only
+// with the tag.
 func TestDefaultRegistry(t *testing.T) {
 	kinds := DefaultRegistry(time.Hour).Kinds()
-	want := []string{KindAdvanceTo}
+	want := []string{KindAdvanceTo, KindShipArrived, KindShipBuilt}
 	if TestKindsCompiled {
 		want = append(want, "test_credit")
 	}

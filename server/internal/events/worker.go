@@ -319,13 +319,16 @@ func (w *Worker) apply(ctx context.Context, tx pgx.Tx, ev *Event) ([]store.World
 	var now time.Time
 	h, ok := w.Registry.Handler(ev.Kind)
 	if !ok {
-		return nil, now, fmt.Errorf("unregistered event kind %q", ev.Kind)
+		return nil, now, errUnregistered(ev.Kind)
 	}
 	ids := slices.Clone(ev.WorldIDs)
 	slices.Sort(ids)
 	ids = slices.Compact(ids)
 	locked := make([]*postgres.LockedWorld, 0, len(ids))
-	hc := &HandlerContext{Event: *ev, Worlds: map[store.WorldID]*sim.World{}, Catalogue: w.Catalogue, Logger: w.Logger}
+	hc := &HandlerContext{
+		Event: *ev, Worlds: map[store.WorldID]*sim.World{}, Catalogue: w.Catalogue, Logger: w.Logger,
+		Boundaries: map[store.WorldID][]sim.Boundary{}, pending: map[store.WorldID]map[string]bool{},
+	}
 	for _, id := range ids {
 		lw, err := w.Store.LockWorld(ctx, tx, id)
 		if err != nil {
@@ -335,11 +338,16 @@ func (w *Worker) apply(ctx context.Context, tx pgx.Tx, ev *Event) ([]store.World
 			return nil, now, fmt.Errorf("world %s was evaluated at %s, past the event's due_at %s", id,
 				lw.World.LastEvaluatedAt.Format(time.RFC3339Nano), ev.DueAt.Format(time.RFC3339Nano))
 		}
-		if _, err := sim.Advance(lw.World, w.Catalogue, ev.DueAt); err != nil {
+		bs, err := sim.Advance(lw.World, w.Catalogue, ev.DueAt)
+		if err != nil {
 			return nil, now, fmt.Errorf("advance world %s to due_at: %w", id, err)
 		}
 		locked = append(locked, lw)
 		hc.Worlds[id] = lw.World
+		hc.Boundaries[id] = bs
+		if hc.pending[id], err = postgres.PendingDueKeys(ctx, tx, id, ev.ID); err != nil {
+			return nil, now, err
+		}
 	}
 	now, err := postgres.LockedNow(ctx, tx)
 	if err != nil {
@@ -347,6 +355,11 @@ func (w *Worker) apply(ctx context.Context, tx pgx.Tx, ev *Event) ([]store.World
 	}
 	if err := h(ctx, hc); err != nil {
 		return nil, now, fmt.Errorf("%s handler: %w", ev.Kind, err)
+	}
+	// Every processed event, whatever its kind, leaves one pending event
+	// per due moment of its worlds (R-49).
+	if err := hc.ReconcileDueEvents(); err != nil {
+		return nil, now, fmt.Errorf("%s: reconcile due events: %w", ev.Kind, err)
 	}
 	for _, lw := range locked {
 		if err := w.Store.SaveWorld(ctx, tx, lw); err != nil {
@@ -423,3 +436,5 @@ func ScheduleAdvanceTo(ctx context.Context, tx pgx.Tx, id store.WorldID, due tim
 	_, err := postgres.InsertEvent(ctx, tx, postgres.NewEvent{DueAt: due, Kind: KindAdvanceTo, WorldIDs: []store.WorldID{id}, Payload: json.RawMessage(`{}`)})
 	return err
 }
+
+func errUnregistered(kind string) error { return fmt.Errorf("unregistered event kind %q", kind) }

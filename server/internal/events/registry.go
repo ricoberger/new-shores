@@ -47,7 +47,39 @@ type HandlerContext struct {
 	Worlds    map[store.WorldID]*sim.World
 	Catalogue *content.Catalogue
 	Logger    *slog.Logger
-	followUps []FollowUp
+	// Boundaries are the boundaries of the advance of each world to the
+	// event's due_at (empty when the world was already evaluated there).
+	Boundaries map[store.WorldID][]sim.Boundary
+	followUps  []FollowUp
+	// pending are the identities (store.DueKey) of the pending due-moment
+	// events of each world, excluding the current event, plus the
+	// follow-ups scheduled so far.
+	pending map[store.WorldID]map[string]bool
+}
+
+// ReconcileDueEvents schedules, through Schedule, an event for every due
+// moment of the event's worlds that has no pending event yet (R-49). The
+// worker calls it after every handler; ship handlers call it themselves.
+func (hc *HandlerContext) ReconcileDueEvents() error {
+	ids := make([]store.WorldID, 0, len(hc.Worlds))
+	for id := range hc.Worlds {
+		ids = append(ids, id)
+	}
+	slices.Sort(ids)
+	for _, id := range ids {
+		if hc.pending == nil {
+			hc.pending = map[store.WorldID]map[string]bool{}
+		}
+		if hc.pending[id] == nil {
+			hc.pending[id] = map[string]bool{}
+		}
+		for _, ev := range store.MissingDueEvents(hc.Worlds[id], hc.pending[id]) {
+			if err := hc.Schedule(FollowUp{DueAt: ev.At, Kind: ev.Kind, WorldIDs: []store.WorldID{id}, Payload: store.DuePayload(ev)}); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // Schedule adds a follow-up event, inserted in the same transaction. It
@@ -66,6 +98,15 @@ func (hc *HandlerContext) Schedule(f FollowUp) error {
 		return fmt.Errorf("follow-up %s: due %s before the current event's due_at %s", f.Kind, f.DueAt, hc.Event.DueAt)
 	}
 	hc.followUps = append(hc.followUps, f)
+	if k, ok := store.DueKey(f.Kind, f.Payload, f.DueAt); ok && len(f.WorldIDs) == 1 {
+		if hc.pending == nil {
+			hc.pending = map[store.WorldID]map[string]bool{}
+		}
+		if hc.pending[f.WorldIDs[0]] == nil {
+			hc.pending[f.WorldIDs[0]] = map[string]bool{}
+		}
+		hc.pending[f.WorldIDs[0]][k] = true
+	}
 	return nil
 }
 
@@ -111,14 +152,22 @@ const (
 	// interval later, so that every world has exactly one pending
 	// advance_to at all times.
 	KindAdvanceTo = "advance_to"
+	// KindShipBuilt and KindShipArrived mirror the due moments of the
+	// simulation (sim.DueEvents): a shipyard order completes, a ship
+	// arrives. Single-world; payloads store.ShipBuiltPayload and
+	// store.ShipArrivedPayload.
+	KindShipBuilt   = sim.DueShipBuilt
+	KindShipArrived = sim.DueShipArrived
 )
 
 // DefaultRegistry returns the production registry: advance_to (with the
-// given freshness interval) plus, in builds with the testevents tag only,
-// the test kinds.
+// given freshness interval), the ship kinds (ship_built, ship_arrived)
+// plus, in builds with the testevents tag only, the test kinds.
 func DefaultRegistry(freshness time.Duration) *Registry {
 	r := NewRegistry()
 	r.Register(KindAdvanceTo, advanceTo(freshness))
+	r.Register(KindShipBuilt, shipEvent)
+	r.Register(KindShipArrived, shipEvent)
 	registerTestKinds(r)
 	return r
 }
