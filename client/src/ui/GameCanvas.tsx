@@ -1,14 +1,15 @@
 import { useEffect, useRef } from "react";
-import type { GameSync } from "../api/sync";
-import { GameRenderer, type RendererEvents } from "../render/engine";
+import { GameRenderer, type RendererEvents, type RenderSource, type RenderView } from "../render/engine";
 import type { Tool } from "./tools";
 import styles from "./App.module.css";
 
 interface Props {
-  sync: GameSync;
+  sync: RenderSource;
   tool: () => Tool;
   events: RendererEvents;
   onRenderer: (r: GameRenderer | null) => void;
+  /** View of a newly created renderer (later changes go through setView). */
+  initialView?: RenderView;
 }
 
 /**
@@ -16,10 +17,11 @@ interface Props {
  * cleanup disposes it, so React Strict Mode's double-invoked effects never
  * leave a second engine or canvas listeners behind.
  */
-export function GameCanvas({ sync, tool, events, onRenderer }: Props) {
+export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const toolRef = useRef(tool);
   const eventsRef = useRef(events);
+  const viewRef = useRef(initialView);
   useEffect(() => {
     toolRef.current = tool;
     eventsRef.current = events;
@@ -28,16 +30,30 @@ export function GameCanvas({ sync, tool, events, onRenderer }: Props) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const renderer = new GameRenderer(canvas, sync, () => toolRef.current(), {
-      select: (id) => eventsRef.current.select(id),
-      place: (x, y) => eventsRef.current.place(x, y),
-      move: (x, y) => eventsRef.current.move(x, y),
-      found: (x, y) => eventsRef.current.found(x, y),
-      road: (a, b) => eventsRef.current.road(a, b),
-      demolish: (x, y) => eventsRef.current.demolish(x, y),
-      cancelTool: () => eventsRef.current.cancelTool(),
-      ghostHint: (text) => eventsRef.current.ghostHint(text),
-    });
+    const ev = () => eventsRef.current;
+    const renderer = new GameRenderer(
+      canvas,
+      sync,
+      () => toolRef.current(),
+      {
+        select: (id) => ev().select(id),
+        place: (x, y) => ev().place(x, y),
+        move: (x, y) => ev().move(x, y),
+        found: (x, y) => ev().found(x, y),
+        road: (a, b) => ev().road(a, b),
+        demolish: (x, y) => ev().demolish(x, y),
+        cancelTool: () => ev().cancelTool(),
+        ghostHint: (text) => ev().ghostHint(text),
+        zoomOutAtMax: (amount) => ev().zoomOutAtMax(amount),
+        zoomReset: () => ev().zoomReset(),
+        tapIsland: (id) => ev().tapIsland(id),
+        tapShip: (id) => ev().tapShip(id),
+        tapSea: () => ev().tapSea(),
+        dragShip: (id, from) => ev().dragShip(id, from),
+        dropShip: (island) => ev().dropShip(island),
+      },
+      viewRef.current,
+    );
     onRenderer(renderer);
     return () => {
       onRenderer(null);

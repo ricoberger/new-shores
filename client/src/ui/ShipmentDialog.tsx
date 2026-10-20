@@ -6,6 +6,8 @@ import styles from "./hud.module.css";
 
 interface Props {
   ship: ShipDisplay;
+  /** Preset destination (still changeable), e.g. from a drop on an island. */
+  initialTo?: string | null;
   model: DisplayState;
   content: Content;
   onSend: (toIslandId: string, cargo: CargoDisplay[]) => void;
@@ -17,10 +19,10 @@ interface Props {
  * ship's island inventory. The slot count is a display bound only; the
  * server validates stock and slots.
  */
-export function ShipmentDialog({ ship, model, content, onSend, onClose }: Props) {
+export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClose }: Props) {
   const here = model.islands.find((i) => i.id === ship.island_id);
   const destinations = model.islands.filter((i) => i.id !== ship.island_id);
-  const [to, setTo] = useState(destinations[0]?.id ?? "");
+  const [to, setTo] = useState(destinations.find((i) => i.id === initialTo)?.id ?? destinations[0]?.id ?? "");
   const [amounts, setAmounts] = useState<Record<string, number>>({});
   const goods = content.goods.filter((g) => (here?.inventory[g.id]?.stock ?? 0) >= 1000);
   const aboard = cargoTotals(ship.cargo);

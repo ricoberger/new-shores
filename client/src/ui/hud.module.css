@@ -401,3 +401,56 @@
   max-height: 120px;
   overflow-y: auto;
 }
+
+/* Archipelago overlay: passive HTML positioned from the camera projection. */
+.archOverlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.archOverlay * {
+  pointer-events: none;
+}
+
+.islandLabel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgb(250 247 240 / 85%);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.etaBadge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: #3d2b1f;
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.tooltip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  min-width: 140px;
+  font-size: 13px;
+}
+
+.backControl {
+  font-weight: 600;
+}

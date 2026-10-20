@@ -8,9 +8,13 @@ import styles from "./hud.module.css";
 interface Props {
   model: DisplayState | null;
   content: Content | null;
-  /** The island shown. */
+  /** The island shown ("" in the archipelago view). */
   islandId: string;
+  /** The archipelago view is shown. */
+  archipelago: boolean;
   onSelectIsland: (id: string) => void;
+  /** Back from the island view to the archipelago. */
+  onToArchipelago: () => void;
   /** Opens or closes the Ships / Routes panels. */
   onShips: () => void;
   onRoutes: () => void;
@@ -20,7 +24,7 @@ interface Props {
   account?: ReactNode;
 }
 
-export function TopBar({ model, content, islandId, onSelectIsland, onShips, onRoutes, onQuests, account }: Props) {
+export function TopBar({ model, content, islandId, archipelago, onSelectIsland, onToArchipelago, onShips, onRoutes, onQuests, account }: Props) {
   const ready = model !== null;
   useEffect(() => {
     if (ready && performance.getEntriesByName("ns-hud-gold").length === 0) {
@@ -53,14 +57,25 @@ export function TopBar({ model, content, islandId, onSelectIsland, onShips, onRo
           </span>
         </div>
       ))}
+      <button
+        type="button"
+        className={`${styles.hudButton} ${styles.backControl} ${archipelago ? styles.tabActive : ""}`}
+        onClick={onToArchipelago}
+        disabled={archipelago}
+        aria-current={archipelago ? "page" : undefined}
+        title="Archipelago view (Backspace)"
+        data-testid="to-archipelago"
+      >
+        {archipelago ? "◰ Archipelago" : "◰ To archipelago"}
+      </button>
       <div className={styles.islandTabs} role="tablist" aria-label="Islands">
         {(model?.islands ?? []).map((is) => (
           <button
             key={is.id}
             type="button"
             role="tab"
-            aria-selected={is.id === islandId}
-            className={`${styles.islandTab} ${is.id === islandId ? styles.tabActive : ""}`}
+            aria-selected={!archipelago && is.id === islandId}
+            className={`${styles.islandTab} ${!archipelago && is.id === islandId ? styles.tabActive : ""}`}
             onClick={() => onSelectIsland(is.id)}
             data-testid={`island-tab-${is.id}`}
           >
