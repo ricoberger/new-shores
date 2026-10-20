@@ -373,9 +373,11 @@ func TestMoveBuilding(t *testing.T) {
 	if got := ts.getWorld().Version; got != moved.Version {
 		t.Errorf("version after failed moves = %d, want %d", got, moved.Version)
 	}
-	// Placement never requires a road (D-042): the entrance code is gone.
-	if slices.Contains(ErrorCodes(), "no_road_at_entrance") {
-		t.Error("no_road_at_entrance is still an error code")
+	// Placement never requires a road (D-042): no road-at-placement code.
+	for _, code := range ErrorCodes() {
+		if strings.HasPrefix(code, "no_road_at") {
+			t.Errorf("error code %s still exists", code)
+		}
 	}
 }
 

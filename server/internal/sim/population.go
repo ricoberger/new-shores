@@ -23,9 +23,8 @@ import (
 //
 // Goods needs are evaluated per island and tier. For a category with goods
 // g1..gn (file order) and N residents of the tier's connected houses on the
-// island, a good is
-// supplied when it is not starved, or starved with a positive arrival rate;
-// m is the number of supplied goods. Every supplied good has the nominal
+// island, a good is supplied when it is not starved, or starved with a
+// positive arrival rate; m is the number of supplied goods. Every supplied good has the nominal
 // demand N x rate_i / m. A starved good gets its proportional share of the
 // arrivals when its consumers demand more than arrives; otherwise it gets
 // its demand and the excess arrivals are its slack. The shortfall of each

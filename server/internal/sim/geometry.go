@@ -10,9 +10,9 @@ import (
 //     [X, X+W) x [Y, Y+H), where (W, H) is the content footprint for r = 0 or
 //     180 and the swapped footprint for r = 90 or 270. Rotation has no other
 //     effect.
-//   - There is no entrance tile: a building is road-adjacent when a road
-//     lies on any tile 4-adjacent to any footprint tile (footprint tiles
-//     never carry a road).
+//   - A building is road-adjacent when a road lies on any tile 4-adjacent
+//     to any footprint tile (footprint tiles never carry a road); no
+//     particular tile or side of the footprint is special.
 
 // footprint returns the rotated footprint size.
 func footprint(def *content.Building, rotation int) (int, int) {
