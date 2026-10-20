@@ -438,3 +438,51 @@ while goods in transit keep arriving (MECHANICS §2, §3; UI.md §3).
   for moving (nothing to exploit, since transit is preserved).
 - *Supersedes* the entrance wording of D-014 and MECHANICS §2 as
   implemented in PR #2/#4.
+
+## D-043 Database clock after the row lock; pending events bound requests
+
+**Decision:** In persistent mode the time a world is advanced to is read
+from PostgreSQL once per Update, **after** the world row lock is held
+(`statement_timestamp()` truncated to milliseconds). A request advances a
+world only up to the `due_at` of its earliest pending scheduled event and
+leaves the event to the worker; `failed` events do not hold a world back.
+Worlds are unique per `(player_id, region)`.
+
+- *Rationale:* one clock for all instances avoids false `ErrTimeBackwards`
+  between replicas; `now()` is frozen at transaction start — before the
+  lock wait — so the second of two concurrent commands could observe a
+  time earlier than the first one committed (reproduced by a test).
+  Bounding requests by the next due event keeps "events apply exactly at
+  `due_at`" (D-026) without processing events inside request transactions
+  (which would need cross-world locks on the request path).
+- *Consequences:* a world can appear frozen for up to about a second around
+  a due time; the events worker reads any "now" it needs after its locks
+  as well. Region-scoped uniqueness keeps D-010 (regions first-class)
+  migration-free.
+- *Rejected:* server clocks per request (skew between instances);
+  transaction `now()` (the race above); processing due events inline on
+  requests (lock-order complexity).
+
+## D-044 Accounts: guest device tokens, cookie/bearer sessions, Origin-based CSRF
+
+**Decision:** Guest play creates a player + world and returns a session plus
+a device token; registering upgrades the guest in place (device token
+revoked) or, without a session, creates a new player. Passwords use
+argon2id (t = 2, m = 19 MiB, p = 1, PHC format; raised by re-hashing on
+login). Sessions live in PostgreSQL with hashed tokens and a 30-day sliding
+expiry; the `transport` field selects an HttpOnly SameSite cookie (browser)
+or a bearer token (apps). Cookie requests are CSRF-protected by the
+`Origin` header (must be in `ALLOWED_ORIGINS`), with `Sec-Fetch-Site`
+same-origin/same-site accepted when `Origin` is absent and rejection
+otherwise; `Referer` is never consulted. Auth endpoints are rate-limited
+per IP and per email via Redis and **fail open** when Redis is down.
+Metrics are served on a separate listener that is never proxied.
+
+- *Rationale:* lets players start without an account (GAME_DESIGN) while
+  keeping one session model for web and Capacitor; Postgres-backed
+  sessions keep Redis ephemeral (D-025); Origin/Sec-Fetch-Site is the
+  modern CSRF check and avoids Referer leakage; failing open on the rate
+  limiter degrades gracefully instead of taking login down with Redis.
+- *Rejected:* cookie-only sessions (blocks the apps); Referer fallback;
+  returning 503 when Redis is unavailable; stateless JWT sessions (no
+  revocation).

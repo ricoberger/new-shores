@@ -138,7 +138,9 @@ before loot is computed. Nothing in the current model prevents this.
 
 | Table | Key fields |
 |---|---|
-| `players` | id, display_name, coat_of_arms, created_at, last_login_at, archived_at |
+| `players` | id, display_name, coat_of_arms, email, email_verified_at, password_hash (PHC), created_at, last_login_at, archived_at |
+| `sessions` | id, player_id, token_hash, created_at, expires_at, last_seen_at |
+| `auth_tokens` | id, player_id, kind (device, verify_email, password_reset), token_hash, created_at, expires_at, used_at |
 | `worlds` | id, player_id, region, state (JSONB), version, last_evaluated_at |
 | `map_positions` | player_id, x, y |
 | `neighbours` | player_id, neighbour_id, hidden, discovered_at |
@@ -148,4 +150,4 @@ before loot is computed. Nothing in the current model prevents this.
 | `contracts` | id, player_id, good, amount, reward, expires_at, status |
 | `achievements` | player_id, achievement_id, unlocked_at |
 | `transfer_log` | id, from_player, to_player, goods, kind, at |
-| `scheduled_events` | id, due_at, kind, world_ids, payload, status |
+| `scheduled_events` | id, due_at, kind, world_ids, payload, status, attempts, next_attempt_at, last_error, created_at, updated_at |

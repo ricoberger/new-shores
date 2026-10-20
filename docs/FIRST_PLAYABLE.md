@@ -82,28 +82,37 @@ login, GLB assets, sound.
 - Acceptance: place the tier-1 chains on the start island in the browser and
   watch production flow; restarting the server resets the world (expected).
 
-### M2 — Server (persistence, API, events)
+### M2 — Server (persistence, accounts, events, push) — done (PR #6)
 
-- Store with row locking; `GET /world`, `POST /world/commands`; events worker
-  with `ship_built`/`ship_arrived`; routes and manual shipments in sim; Redis
-  publish + WebSocket hub; auth.
-- Acceptance: two instances process a shared event queue with no duplicates
-  (integration test); cross-user access denied; a command issued to instance
-  A is visible from instance B immediately; event lag metric exported.
+- PostgreSQL store behind the existing `Store` interface (row lock per
+  Update, database clock read after the lock, JSONB envelope, embedded
+  migrations); guest + email/password accounts with cookie/bearer sessions
+  and CSRF; scheduled-events worker proven with the generic `advance_to`
+  kind; Redis pub/sub → WebSocket `world_changed`; Compose stack with two
+  instances behind Caddy; start screen and account menu in the client.
+- Scope change: `ship_built`/`ship_arrived`, routes and manual shipments
+  moved to M4 — they are sim/content work, not infrastructure.
+- Acceptance met: two workers process a shared queue with no duplicates;
+  cross-player access is not addressable; a command on instance A is
+  pushed to a socket on instance B in ≈ 9 ms; event lag p95 0.79 s under
+  a 1 000-event burst; command p50 1.4 ms / p95 1.7 ms against Postgres.
 
 ### M3 — Client (complete HUD, panels, touch)
 
-- Builds on M1b against the real M2 API: auth screens, ship from timers,
+- Builds on M1b against the real M2 API: ships from timers,
   React HUD complete, build menu with lock reasons, info panels, warnings
-  tray, touch gestures, WebSocket-driven refresh.
+  tray, touch gestures, WebSocket-driven refresh (auth screens exist since
+  M2).
 - Acceptance: Playwright scripts place a chain and see production; touch
   emulation pans/zooms/places without gesture conflicts; extrapolated numbers
   match server fixtures within rounding at sampled times.
 
 ### M4 — Slice complete and measured
 
-- Island 2 settlement flow; route editor; Citizens unlock; "while you were
-  away"; intro steps; balancing pass on CONTENT numbers for tiers 1–2.
+- Ships (`sloop`, shipyard build event `ship_built`), routes and manual
+  shipments with `ship_arrived` events; island 2 settlement flow; route
+  editor; Citizens unlock; "while you were away"; intro steps; balancing
+  pass on CONTENT numbers for tiers 1–2.
 - Acceptance: see §3.
 
 Ordering rationale: M1 carries the design risk and needs no UI (the scenario

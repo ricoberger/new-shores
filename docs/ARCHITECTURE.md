@@ -139,10 +139,32 @@ return Display(w, now)
 ```
 
 - Multi-world handlers lock in ascending world ID to avoid deadlocks.
+- **World clock (D-043):** the time a world is advanced to is read from the
+  database **once per Update, after the row lock is held**
+  (`statement_timestamp()` truncated to milliseconds, UTC). `now()` would
+  be frozen at transaction start, i.e. before the lock wait, so the second
+  of two concurrent commands could see a time earlier than the first one
+  committed. One database clock for all instances means no false
+  `ErrTimeBackwards`.
+- **Pending events bound the request path (D-043):** a request advances a
+  world only up to the `due_at` of its earliest *pending* scheduled event
+  and leaves the event to the worker, so events apply exactly at `due_at`.
+  The world may appear frozen for up to about a second around a due time;
+  `failed` events do not hold a world back.
+- Worlds are unique per `(player_id, region)`; world IDs never come from
+  the client — the session resolves the player and the region picks the
+  world. The world row is stored as the sim envelope `{schema_version,
+  content_version, world}`; decoding runs the sim's pure migration hook
+  and fails with `ErrSchemaVersion` (HTTP 500, own code) when no migration
+  is registered for an older version — never a silent reset.
+- Migrations are versioned SQL files embedded in the binary and applied by
+  `server migrate` (or `MIGRATE_ON_START`) under an advisory lock, with
+  `schema_migrations` bookkeeping; expand/contract only.
 - Read-only queries (own world view, visits) advance in memory without
   writing; a write happens at most every N seconds per world to keep
   `last_evaluated_at` fresh (optional optimisation).
-- JSONB size budget: measure; expect 50–300 KB per mature archipelago.
+- JSONB size budget: measure; expect 50–300 KB per mature archipelago
+  (the two-island dev world is ≈ 50 KB of JSON text, ≈ 2 KB compressed).
   Compress (zstd) in a `bytea` column if it grows past ~1 MB.
 
 ### 4.3 Scheduled events worker
@@ -154,22 +176,44 @@ CREATE TABLE scheduled_events (
   kind       text NOT NULL,
   world_ids  uuid[] NOT NULL,
   payload    jsonb NOT NULL,
-  status     text NOT NULL DEFAULT 'pending',  -- pending|done|failed
+  status     text NOT NULL DEFAULT 'pending',  -- pending|done|failed (CHECK)
   attempts   int NOT NULL DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now()
+  next_attempt_at timestamptz NOT NULL,         -- defaults to due_at (trigger); lease + backoff
+  last_error text,                              -- truncated to 1000 bytes
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX ON scheduled_events (due_at) WHERE status = 'pending';
+CREATE INDEX ON scheduled_events (next_attempt_at) WHERE status = 'pending';
+CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
+-- AFTER INSERT trigger: pg_notify('scheduled_events')
 ```
 
-- Every replica runs the loop: `SELECT … WHERE due_at <= now() AND status =
-  'pending' ORDER BY due_at LIMIT 10 FOR UPDATE SKIP LOCKED`, then per event:
-  lock worlds, `Advance(w, due_at)`, run handler, schedule follow-ups, set
-  `done`, commit, publish.
-- Failures: increment `attempts`, exponential backoff; after 5 attempts mark
-  `failed` and alert. Handlers are idempotent because status flips in the same
-  transaction.
-- Poll interval 1 s with `LISTEN/NOTIFY` wake-up on insert; no leader election.
-- Metrics: queue depth, lag (`now − due_at` at processing), handler duration.
+- Every replica runs the loop: claim due events with `FOR UPDATE SKIP
+  LOCKED` (ordered by `due_at`, limit 10) and set a 30 s lease on
+  `next_attempt_at`; then per event, in its own transaction: re-lock the
+  event and re-check its status, lock its worlds in ascending ID,
+  `Advance(w, due_at)`, run the handler, schedule follow-ups, set `done`,
+  increment the version of every touched world, commit, publish. Exactly-
+  once relies on the re-lock + status check, not on the lease; a crashed
+  worker's events become claimable when the lease expires.
+- Per-world due order: an event is deferred (no attempt counted) while an
+  earlier pending event shares one of its worlds, so a retried earlier
+  event never finds its world already past its `due_at`.
+- Follow-up events may only reference the event's (locked) worlds and may
+  not be due before the event itself.
+- Failures: increment `attempts`, exponential backoff via
+  `next_attempt_at`, `last_error` recorded; after 5 attempts mark `failed`
+  and alert.
+- Poll interval 1 s with `LISTEN/NOTIFY` wake-up (an insert trigger calls
+  `pg_notify`); no leader election.
+- Event kinds today: `advance_to` (no-op apart from scheduling the next
+  one; every world keeps exactly one pending `advance_to` chained
+  `FRESHNESS_INTERVAL` — default 24 h — after its `due_at`, so idle worlds
+  stay fresh and the pipeline is exercised) and the test-only `test_credit`
+  (build tag `testevents`). Ship, trade and expedition kinds arrive with
+  their features.
+- Metrics: queue depth (sampled during drains), lag (`now − due_at` at
+  processing), handler duration, failures.
 
 ### 4.4 API
 
@@ -191,33 +235,67 @@ CREATE INDEX ON scheduled_events (due_at) WHERE status = 'pending';
   `bad_request`, `not_found`, `method_not_allowed`, `internal`); malformed
   input 400, unknown entity 404, state conflicts 409, internal-only sim
   errors 500.
-- Planned: `POST /auth/*`, `GET /map/*`, `POST /offers`, …, `GET /shop`,
+- Implemented (M2): `POST /auth/guest`, `/auth/register`, `/auth/login`,
+  `/auth/logout`, `GET /auth/me`, `POST /auth/verify-email`,
+  `/auth/password-reset/request`, `/auth/password-reset/confirm`;
+  `GET /ws` (101). `/healthz` reports `version`, `instance`, `postgres`,
+  `redis`. Security schemes `cookieAuth` (`ns_session`) and `bearerAuth`.
+- Planned: `GET /map/*`, `POST /offers`, …, `GET /shop`,
   `POST /payments/stripe/webhook`.
-- The `--dev` mode serves one in-memory world behind the same handlers
-  (`internal/store.Store` interface, memory implementation); only the API
-  layer reads the wall clock (`--time-scale` scales it for tests).
+- Modes: `--dev` serves one in-memory world behind the same handlers with
+  a fixed dev player (`/auth/me`, `/auth/guest` succeed, other auth
+  endpoints 404, in-process push hub, no metrics listener); default mode
+  requires `DATABASE_URL` and `REDIS_URL`. Only the API layer reads the
+  wall clock (`--time-scale` scales it in dev for tests).
 - Commands carry the client's last seen `version`; a mismatch is not an
   error (server state wins) but is logged for diagnostics.
-- Validation: content-aware in Go; never trust client types. Rate limits per
-  player (Redis token bucket).
+- Validation: content-aware in Go; never trust client types; strict JSON
+  (unknown fields rejected), bodies ≤ 64 KiB. Rate limits on auth
+  endpoints per client IP and per email (Redis token bucket, `Retry-After`
+  on 429); client IP from the TCP peer or the right-most untrusted
+  `X-Forwarded-For` entry when the peer is in `TRUSTED_PROXIES`.
 
 ### 4.5 WebSocket push
 
-- `/ws` authenticated; the hub subscribes to Redis channels for the player's
-  world(s) and sends `{type: "world_changed", world_id}` plus small
-  notifications (`trade_accepted`, `expedition_done`). Payloads carry no game
-  state; the client re-fetches.
+- `/api/v1/ws` authenticated (cookie or bearer); after every committed
+  Update and every processed event the server publishes `world:<id>` on
+  Redis; the hub forwards `{type: "world_changed", world_id}` to that
+  player's sockets (later also small notifications such as
+  `trade_accepted`, `expedition_done`). Payloads carry no game state; the
+  client re-fetches `GET /world`.
 - Missing a push only costs freshness: the client also re-fetches at
-  `next_change_at` and on focus/visibility change.
+  `next_change_at`, on focus/visibility change and on socket reconnect
+  (backoff). The "unreachable" banner shows after an HTTP network error or
+  > 3 s without a socket and clears on any success.
+- Redis is ephemeral: if it is down, pushes stop (error log + metric, the
+  request still succeeds), rate limiting **fails open** (logged and
+  counted), `/healthz` reports `redis: unavailable` but stays 200. Sessions,
+  tokens and game state never depend on Redis.
 
-### 4.6 Auth and accounts
+### 4.6 Auth and accounts (D-044)
 
-- Email + password (argon2id), verification and reset via SMTP; session
-  cookie (HttpOnly, SameSite) for web; bearer token for Capacitor.
+- **Guest play:** `POST /auth/guest` creates a player and its world and
+  returns a session plus a **device token** the client stores to come back;
+  `register` upgrades the guest (same world; device token revoked) or, without
+  a session, creates a new player and world. Email + password with argon2id
+  (t = 2, m = 19 MiB, p = 1, PHC format; parameters are raised by
+  re-hashing on next login); verification and password reset behind a
+  `Mailer` interface (log sender in dev; links point at `PUBLIC_URL`).
+- **Sessions** live in PostgreSQL (hashed tokens, 30-day sliding expiry).
+  The request field `transport: "cookie" | "bearer"` selects an HttpOnly
+  SameSite cookie (browser) or a bearer token in the body (Capacitor);
+  bearer requests are exempt from CSRF.
+- **CSRF** for cookie requests (every non-safe method, the WebSocket
+  upgrade, and `guest`/`register`/`login` with cookie transport): `Origin`
+  present → must be in `ALLOWED_ORIGINS`; absent → `Sec-Fetch-Site`
+  `same-origin`/`same-site` is accepted; otherwise rejected
+  (`csrf_rejected`). `Referer` is never consulted.
+- Enumeration resistance: unknown-email logins verify a dummy hash;
+  password-reset requests always return 204 and send in the background.
+- Ownership: every `/world` and `/ws` request resolves the player from the
+  session; another player's world is simply not addressable (404).
 - Optional later: Sign in with Apple / Google (required by App Store if any
   third-party login exists).
-- Guest play: a world can be created under an anonymous player with a device
-  token and claimed by registering (no separate offline mode).
 
 ### 4.7 Payments
 
@@ -252,9 +330,16 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
 
 ## 7. Deployment
 
-- **Phase 1:** single VPS, Docker Compose: `server` (×2 to exercise
-  multi-instance), `postgres`, `redis`, `caddy` (TLS). Client on a static
-  host/CDN. Nightly `pg_dump` + WAL archiving to object storage; restore tested.
+- **Phase 1 (implemented in `deploy/`):** Docker Compose with `postgres`,
+  `redis`, a `migrate` step that must complete before the servers,
+  `server-1`/`server-2` (health-checked, Alpine runtime image) and `caddy`
+  serving the built client and proxying `/api` round-robin to both
+  instances on `http://localhost:8000`; `make up` / `make down`. Metrics
+  listeners (`METRICS_ADDR`, default `:9090`) are published on
+  `127.0.0.1` only and never proxied. `TRUSTED_PROXIES` is the Compose
+  subnet so rate limits see client IPs behind Caddy. Production additions
+  still to do: TLS on a real host, nightly `pg_dump` + WAL archiving to
+  object storage, restore rehearsal.
 - **Phase 2:** Kubernetes (Helm chart in `deploy/`), managed Postgres or
   CloudNativePG, Redis, HPA on the server. Server replicas are stateless.
 - Config via environment variables; secrets via the platform's secret store;
