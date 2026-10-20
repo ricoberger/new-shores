@@ -60,3 +60,20 @@ export const ISLAND2_HOUSES = [
   { x: 10, y: 5 },
 ];
 export const ISLAND2_FISHER = { x: 12, y: 2 };
+
+/**
+ * Wheel ticks (deltaY 300 each) that zoom the island view out to its
+ * maximum extent: two ticks reach it from the default zoom, the third is
+ * the first one at the maximum and stays below the archipelago threshold
+ * (600, client/src/display/view.ts). More ticks switch to the archipelago.
+ */
+export const ISLAND_ZOOM_OUT_TICKS = 3;
+
+// Archipelago view (archipelago.spec.ts, voyage.spec.ts): tiles to click
+// on the islands, away from their anchor (label and berths).
+/** A grass tile of the start island. */
+export const ISLAND_INLAND = { x: 10, y: 10 };
+/** A grass tile of island 2. */
+export const ISLAND2_INLAND = { x: 8, y: 8 };
+/** Open sea between the islands, in start-island tile coordinates. */
+export const SEA_BETWEEN = { x: 62, y: 66 };

@@ -4,6 +4,7 @@ import {
   E2E_TIME_SCALE,
   HOUSE,
   HOUSE_MOVED,
+  ISLAND_ZOOM_OUT_TICKS,
   ISLAND,
   LUMBERJACK,
   ROAD_FROM,
@@ -126,7 +127,7 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   const canvas = page.getByTestId("game-canvas");
   const box = (await canvas.boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  for (let i = 0; i < 6; i++) await page.mouse.wheel(0, 300);
+  for (let i = 0; i < ISLAND_ZOOM_OUT_TICKS; i++) await page.mouse.wheel(0, 300);
   await page.waitForTimeout(200);
 
   // Tier 2 (R-30): a Citizens building is listed locked with the server's
@@ -276,7 +277,7 @@ test("complete and claim the first three quests", async ({ page }) => {
   const canvas = page.getByTestId("game-canvas");
   const box = (await canvas.boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  for (let i = 0; i < 6; i++) await page.mouse.wheel(0, 300);
+  for (let i = 0; i < ISLAND_ZOOM_OUT_TICKS; i++) await page.mouse.wheel(0, 300);
   await page.waitForTimeout(200);
 
   // The road and the connected lumberjack and sawmill of the first test
