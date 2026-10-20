@@ -1260,6 +1260,23 @@ export interface components {
              * @description Duration of one loop at reference speed 1.0 (ms) — the handling time of every stop plus the travel time of every leg.
              */
             loop_ms: number;
+            /** @description Estimated net effect of the route per island and good (display only; stock availability ignored). Per good, the stops are walked twice from stop 0 with an empty virtual hold H (the smallest slots × slot_size among the assigned ships, else among the catalogue's ship types); a stop first unloads the good aboard, then tops it up to min(max_amount, H). The sums of the second pass are per_loop. Sorted by the first stop of the island, then by good; pairs with per_loop 0 are omitted; [] when the route moves nothing. */
+            effects: components["schemas"]["RouteEffectDisplay"][];
+        };
+        RouteEffectDisplay: {
+            island_id: string;
+            /** @description Content good ID. */
+            good: string;
+            /**
+             * Format: int64
+             * @description Signed net change per loop (milli-units); positive when the island gains the good.
+             */
+            per_loop: number;
+            /**
+             * Format: int64
+             * @description Signed net change per minute (milli-units) with all assigned ships — per_loop × assigned ships × 60000 / loop_ms, truncated toward zero; 0 when no ship is assigned or loop_ms is 0.
+             */
+            per_min: number;
         };
         RouteStopDisplay: {
             island_id: string;

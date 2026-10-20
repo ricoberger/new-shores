@@ -2,6 +2,7 @@ package sim
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"unicode/utf8"
 
@@ -228,4 +229,108 @@ func routeLoopMs(w *World, c *content.Catalogue, r *Route) int64 {
 		}
 	}
 	return total
+}
+
+// routeHold is the virtual hold of the route-effect estimate: the smallest
+// slots × slot size among the ships assigned to the route or, when none is
+// assigned, among the catalogue's ship types (0 when there are none).
+func routeHold(w *World, c *content.Catalogue, r *Route) (hold Qty, assigned int64) {
+	hold = -1
+	for _, s := range w.Ships {
+		if s.RouteID != r.ID {
+			continue
+		}
+		assigned++
+		if def := c.ShipByID[s.Type]; def != nil {
+			if h := Qty(def.Slots) * def.SlotSize; hold < 0 || h < hold {
+				hold = h
+			}
+		}
+	}
+	if hold < 0 {
+		for _, def := range c.Ships {
+			if h := Qty(def.Slots) * def.SlotSize; hold < 0 || h < hold {
+				hold = h
+			}
+		}
+	}
+	return max(hold, 0), assigned
+}
+
+// routeEffect is the estimated net change of one good on one island per
+// loop of a route (signed milli-units, positive when the island gains).
+type routeEffect struct {
+	IslandID string
+	Good     string
+	PerLoop  Qty
+}
+
+// routeEffects estimates the per-island, per-good net effect of one loop
+// (display only, stock availability ignored): for each loaded good the
+// stops are walked twice from stop 0 with an empty hold; a stop first
+// unloads the good aboard, then tops it up to min(max, hold). The sums of
+// the second pass are the per-loop effects. Entries are ordered by the
+// first stop of their island, then by good; zero entries are omitted.
+func routeEffects(r *Route, hold Qty) []routeEffect {
+	goods := map[string]bool{}
+	for _, st := range r.Stops {
+		for _, lr := range st.Load {
+			goods[lr.Good] = true
+		}
+	}
+	sorted := make([]string, 0, len(goods))
+	for g := range goods {
+		sorted = append(sorted, g)
+	}
+	slices.Sort(sorted)
+	var islands []string
+	for _, st := range r.Stops {
+		if !slices.Contains(islands, st.IslandID) {
+			islands = append(islands, st.IslandID)
+		}
+	}
+	sums := map[string]map[string]Qty{}
+	for _, g := range sorted {
+		var aboard Qty
+		for pass := range 2 {
+			for _, st := range r.Stops {
+				var delta Qty
+				if slices.Contains(st.Unload, g) {
+					delta, aboard = aboard, 0
+				}
+				for _, lr := range st.Load {
+					if lr.Good == g {
+						load := max(0, min(lr.MaxAmount, hold)-aboard)
+						delta -= load
+						aboard += load
+					}
+				}
+				if pass == 1 && delta != 0 {
+					if sums[st.IslandID] == nil {
+						sums[st.IslandID] = map[string]Qty{}
+					}
+					sums[st.IslandID][g] += delta
+				}
+			}
+		}
+	}
+	var out []routeEffect
+	for _, id := range islands {
+		for _, g := range sorted {
+			if q := sums[id][g]; q != 0 {
+				out = append(out, routeEffect{IslandID: id, Good: g, PerLoop: q})
+			}
+		}
+	}
+	return out
+}
+
+// routePerMin converts a per-loop effect to milli-units per minute for the
+// given number of assigned ships (truncated toward zero; 0 without ships
+// or loop time).
+func routePerMin(perLoop Qty, ships, loopMs int64) Qty {
+	if ships == 0 || loopMs <= 0 {
+		return 0
+	}
+	return perLoop * ships * 60_000 / loopMs
 }

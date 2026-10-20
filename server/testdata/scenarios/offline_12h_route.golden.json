@@ -1080,7 +1080,33 @@
         "ship_ids": [
           1
         ],
-        "loop_ms": 280000
+        "loop_ms": 280000,
+        "effects": [
+          {
+            "island_id": "start",
+            "good": "fish",
+            "per_loop": 50000,
+            "per_min": 10714
+          },
+          {
+            "island_id": "start",
+            "good": "planks",
+            "per_loop": -50000,
+            "per_min": -10714
+          },
+          {
+            "island_id": "island2",
+            "good": "fish",
+            "per_loop": -50000,
+            "per_min": -10714
+          },
+          {
+            "island_id": "island2",
+            "good": "planks",
+            "per_loop": 50000,
+            "per_min": 10714
+          }
+        ]
       }
     ],
     "insolvency": {
