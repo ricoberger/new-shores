@@ -457,7 +457,26 @@ func TestProcessingTimeReadAfterWorldLocks(t *testing.T) {
 		defer close(done)
 		_, _ = worker(t, st, time.Hour, nil, nil).RunOnce(ctx)
 	}()
-	time.Sleep(500 * time.Millisecond) // the worker waits for the world lock
+	// Wait until the worker is observably blocked on the world lock (not a
+	// fixed sleep: a late-scheduled worker must not pass by luck).
+	deadline := time.Now().Add(10 * time.Second)
+	for {
+		var waiting int
+		if err := st.Pool().QueryRow(ctx, `SELECT count(*) FROM pg_stat_activity
+WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%FROM worlds WHERE id = $1 FOR UPDATE%'`).Scan(&waiting); err != nil {
+			t.Fatal(err)
+		}
+		if waiting > 0 {
+			break
+		}
+		if time.Now().After(deadline) {
+			_ = holder.Rollback(ctx)
+			<-done
+			t.Fatal("the worker never waited for the world lock")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	time.Sleep(200 * time.Millisecond) // make the lock wait measurable
 	var released time.Time
 	if err := holder.QueryRow(ctx, "SELECT clock_timestamp()").Scan(&released); err != nil {
 		t.Fatal(err)

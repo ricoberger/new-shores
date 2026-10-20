@@ -208,7 +208,7 @@ func processed(t *testing.T, in *instance) int {
 func TestMultiInstance(t *testing.T) {
 	dbURL, pool := testenv.Database(t)
 	redisURL := testenv.RedisURL(t)
-	testenv.Redis(t) // skip when Redis is unreachable
+	rdb := testenv.Redis(t) // skips (or fails in CI) when Redis is unreachable
 
 	bin := filepath.Join(t.TempDir(), "server")
 	build := exec.CommandContext(context.Background(), "go", "build", "-tags", "testevents", "-o", bin, ".") // #nosec G204 -- fixed arguments.
@@ -220,7 +220,7 @@ func TestMultiInstance(t *testing.T) {
 	b := startInstance(t, bin, "b", dbURL, redisURL)
 
 	// A guest created on A; its WebSocket is on B.
-	token, _ := newGuest(t, a)
+	token, playerID := newGuest(t, a)
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	conn, resp, err := websocket.Dial(ctx, "ws://"+b.addr+"/api/v1/ws", &websocket.DialOptions{
@@ -233,8 +233,22 @@ func TestMultiInstance(t *testing.T) {
 		_ = resp.Body.Close()
 	}
 	defer func() { _ = conn.CloseNow() }()
-	// Give B's hub a moment to confirm its Redis subscription.
-	time.Sleep(300 * time.Millisecond)
+	// Wait until B's hub has subscribed to the world's channel in Redis
+	// (observable, not a fixed sleep).
+	worldID, err := postgres.WorldOfPlayer(ctx, pool, playerID, "old_coast")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for deadline := time.Now().Add(10 * time.Second); ; {
+		n, err := rdb.PubSubNumSub(ctx, "world:"+string(worldID)).Result()
+		if err == nil && n["world:"+string(worldID)] > 0 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("B never subscribed to world:%s (%v)", worldID, err)
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
 
 	cmd := `{"command":{"type":"place_road","island_id":"start","road_type":"road_dirt","tiles":[{"x":3,"y":4},{"x":4,"y":4}]}}`
 	sent := time.Now()

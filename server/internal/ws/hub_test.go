@@ -69,7 +69,13 @@ func TestReconnectDuringUnsubscribeKeepsTheSubscription(t *testing.T) {
 		h.add(w, replacement)
 		close(added)
 	}()
-	time.Sleep(50 * time.Millisecond) // let the replacement join meanwhile
+	// Wait until the replacement has joined (it then waits to reconcile).
+	for deadline := time.Now().Add(5 * time.Second); h.Connections() != 1; {
+		if time.Now().After(deadline) {
+			t.Fatal("replacement socket never joined")
+		}
+		time.Sleep(time.Millisecond)
+	}
 	close(sub.unsubResume)
 	<-removed
 	<-added
