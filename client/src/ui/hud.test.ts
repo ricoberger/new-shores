@@ -34,7 +34,7 @@ describe("HUD components", () => {
     const html = renderToStaticMarkup(createElement(InsolvencyBanner, { model: fixture("away_summary_12h"), onOpenWarnings: () => {} }));
     expect(html).toContain('data-testid="insolvency-banner"');
     expect(text(html)).toContain(
-      "Your city cannot afford its upkeep: −4.5 gold/min. Paused: 3 buildings, 1 ships. Demolish, resume manually, or grow your tax base.",
+      "Your city cannot afford its upkeep: −4.5 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
     );
   });
 

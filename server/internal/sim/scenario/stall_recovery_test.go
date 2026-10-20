@@ -256,3 +256,142 @@ func TestStallRecoveryManual(t *testing.T) {
 	}
 	checkGoldNonNegative(t, rep)
 }
+
+// trialResumes counts the trial resumes of a report.
+func trialResumes(rep *Report) int {
+	n := 0
+	for _, e := range rep.PauseEvents {
+		if e.Action == "auto_resume" && e.Trial {
+			n++
+		}
+	}
+	return n
+}
+
+// checkRecovered: nothing unpaid at the end, balance >= 0 and gold
+// strictly increasing over the snapshots after the recovery minute.
+func checkRecovered(t *testing.T, s *Scenario, rep *Report, recovered float64) {
+	t.Helper()
+	if ins := rep.Final.Insolvency; ins.UnpaidBuildings != 0 || ins.UnpaidShips != 0 || rep.Final.BalanceRatePerMin < 0 {
+		t.Errorf("final insolvency %+v balance %d", ins, rep.Final.BalanceRatePerMin)
+	}
+	var last int64 = -1
+	for _, snap := range rep.Snapshots {
+		if stallMinutes(t, s, snap.At) <= recovered {
+			continue
+		}
+		if snap.Gold <= last {
+			t.Errorf("gold not increasing at %s: %d after %d", snap.At, snap.Gold, last)
+		}
+		last = snap.Gold
+	}
+	checkGoldNonNegative(t, rep)
+}
+
+// TestStallRecoveryNoTransit is the reviewer's case (R25, R25a): the
+// houses come after the gold ran out, so at the full stall nothing is in
+// stock or in transit and rule (b) can never hold (floor taxes 0.6 gold/min
+// against the fisher's 1 gold/min). The trial reserve restarts the fisher,
+// the town recovers fully within 60 minutes of the cascade, with no command
+// after the houses.
+func TestStallRecoveryNoTransit(t *testing.T) {
+	const name = "stall_recovery_no_transit"
+	s := loadScenario(t, name)
+	checkStallRestrictions(t, s)
+	end := stallOpeningEnd(t, s)
+	for i, st := range s.Steps[end:] {
+		if st.Advance == nil {
+			t.Fatalf("step %d after the houses is a command", end+i)
+		}
+	}
+	rep := runScenario(t, name)
+	cascade, firstResume, recovered := stallTimeline(t, s, rep)
+	houses := minutesAt(t, s, end-1)
+	t.Logf("cascade at minute %.2f, houses at %.2f, first (trial) resume at %.2f, full recovery at %.2f; %d trial resumes",
+		cascade, houses, firstResume, recovered, trialResumes(rep))
+	if cascade < 0 || cascade >= houses {
+		t.Fatalf("cascade at %.2f, want before the houses at %.2f", cascade, houses)
+	}
+	// Before the houses nothing could be produced: no stock, no transit.
+	for _, snap := range rep.Snapshots {
+		if stallMinutes(t, s, snap.At) <= houses {
+			for good, g := range snap.Inventory["start"] {
+				if good != "planks" && good != "sails" && (g.Stock != 0 || g.InTransit != 0) {
+					t.Errorf("%s: %s %+v before the houses", snap.At, good, g)
+				}
+			}
+		}
+	}
+	first := rep.PauseEvents[0]
+	for _, e := range rep.PauseEvents {
+		if e.Action == "auto_resume" {
+			first = e
+			break
+		}
+	}
+	if !first.Trial || first.Type != "fisher" {
+		t.Errorf("first resume %+v, want a trial resume of the fisher", first)
+	}
+	if recovered < 0 || recovered-cascade > 60 {
+		t.Fatalf("full recovery at %.2f, cascade at %.2f", recovered, cascade)
+	}
+	checkRecovered(t, s, rep, recovered)
+}
+
+// TestStallRecoveryOffline24h: the no-transit stall advanced by one
+// 24-hour step (an absent player). The trial resumes are bounded by
+// ceil(24 h / trial window), the window being the time gold needs from 0
+// to the trial reserve of the candidate at the stalled tax rate; the world
+// ends recovered with gold >= 0 and nothing destroyed.
+func TestStallRecoveryOffline24h(t *testing.T) {
+	const name = "stall_recovery_offline_24h"
+	s := loadScenario(t, name)
+	checkStallRestrictions(t, s)
+	c := loadCatalogue(t)
+	rep := runScenario(t, name)
+	if len(rep.Snapshots) < 3 {
+		t.Fatalf("%d snapshots", len(rep.Snapshots))
+	}
+	stalled := rep.Snapshots[1] // one minute after the houses
+	var candidate string
+	for _, e := range rep.PauseEvents {
+		if e.Action == "auto_pause" {
+			candidate = e.Type // the last pause is the first candidate
+		}
+	}
+	upkeep := c.BuildingByID[candidate].UpkeepPerMin
+	if stalled.BalanceRatePerMin <= 0 || upkeep <= 0 {
+		t.Fatalf("stalled rate %d, candidate %s upkeep %d", stalled.BalanceRatePerMin, candidate, upkeep)
+	}
+	// reserve (milli-gold) = trial ms x upkeep / 60 000; window (minutes)
+	// = reserve / rate.
+	window := time.Duration(c.Region.Rules.TrialResumeMs * upkeep / stalled.BalanceRatePerMin * int64(time.Millisecond))
+	bound := int((24*time.Hour + window - 1) / window)
+	trials := trialResumes(rep)
+	_, _, recovered := stallTimeline(t, s, rep)
+	t.Logf("24 h offline: %d trial resumes (bound %d, window %s), full recovery at minute %.2f", trials, bound, window, recovered)
+	if trials < 1 || trials > bound {
+		t.Errorf("trial resumes %d, bound %d", trials, bound)
+	}
+	// Nothing destroyed: every placed building (and the seeded warehouse)
+	// still stands.
+	buildings, placed := 0, 1
+	for _, is := range rep.Final.Islands {
+		buildings += len(is.Buildings)
+	}
+	for _, st := range s.Steps {
+		if st.Place != nil {
+			placed++
+		}
+	}
+	if buildings != placed || rep.Final.Gold < 0 {
+		t.Errorf("buildings %d of %d, gold %d", buildings, placed, rep.Final.Gold)
+	}
+	if recovered < 0 {
+		t.Fatal("not recovered within 24 hours")
+	}
+	if ins := rep.Final.Insolvency; ins.UnpaidBuildings != 0 || rep.Final.BalanceRatePerMin < 0 {
+		t.Errorf("final insolvency %+v balance %d", ins, rep.Final.BalanceRatePerMin)
+	}
+	checkGoldNonNegative(t, rep)
+}

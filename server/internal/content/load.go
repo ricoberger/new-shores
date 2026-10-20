@@ -226,6 +226,7 @@ type rawRegion struct {
 		ShipHandlingSeconds    json.Number `json:"ship_handling_seconds"`
 		ShipSpeedTilesPerMin   json.Number `json:"ship_speed_tiles_per_min"`
 		AwaySummaryMinutes     int64       `json:"away_summary_minutes"`
+		TrialResumeMinutes     json.Number `json:"trial_resume_upkeep_minutes"`
 	} `json:"rules"`
 }
 
@@ -452,6 +453,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			OptionalTaxBonus: col.fixed(FileRegion, ent, "rules.optional_tax_bonus", region.Rules.OptionalTaxBonus, 3) * 1000,
 			// Minutes with 3 decimal places are milli-minutes; x60 gives ms.
 			AutoResumeMs:   col.fixed(FileRegion, ent, "rules.auto_resume_upkeep_minutes", region.Rules.AutoResumeMinutes, 3) * 60,
+			TrialResumeMs:  col.fixed(FileRegion, ent, "rules.trial_resume_upkeep_minutes", region.Rules.TrialResumeMinutes, 3) * 60,
 			ShipHandlingMs: col.fixed(FileRegion, ent, "rules.ship_handling_seconds", region.Rules.ShipHandlingSeconds, 3),
 			// Tiles per minute with 3 decimal places are milli-tiles per minute.
 			ShipSpeedMilliTilesPerMin: col.fixed(FileRegion, ent, "rules.ship_speed_tiles_per_min", region.Rules.ShipSpeedTilesPerMin, 3),

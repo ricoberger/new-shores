@@ -1,7 +1,7 @@
 {
   "name": "offline_12h_stalled",
   "content_version": "old_coast-0.5.0",
-  "boundary_count": 15,
+  "boundary_count": 27,
   "totals": {
     "main": {
       "fish": {
@@ -105,13 +105,58 @@
       "island_id": "main",
       "building_id": 2,
       "type": "fisher"
+    },
+    {
+      "at": "2026-01-01T06:02:03.360Z",
+      "action": "auto_resume",
+      "island_id": "main",
+      "building_id": 2,
+      "type": "fisher",
+      "trial": true
+    },
+    {
+      "at": "2026-01-01T07:25:23.361Z",
+      "action": "auto_pause",
+      "island_id": "main",
+      "building_id": 2,
+      "type": "fisher"
+    },
+    {
+      "at": "2026-01-01T08:12:15.861Z",
+      "action": "auto_resume",
+      "island_id": "main",
+      "building_id": 2,
+      "type": "fisher",
+      "trial": true
+    },
+    {
+      "at": "2026-01-01T09:35:35.861Z",
+      "action": "auto_pause",
+      "island_id": "main",
+      "building_id": 2,
+      "type": "fisher"
+    },
+    {
+      "at": "2026-01-01T10:22:28.361Z",
+      "action": "auto_resume",
+      "island_id": "main",
+      "building_id": 2,
+      "type": "fisher",
+      "trial": true
+    },
+    {
+      "at": "2026-01-01T11:45:48.361Z",
+      "action": "auto_pause",
+      "island_id": "main",
+      "building_id": 2,
+      "type": "fisher"
     }
   ],
   "snapshots": [
     {
       "step": 15,
       "at": "2026-01-01T12:00:00.000Z",
-      "boundaries": 15,
+      "boundaries": 27,
       "inventory": {
         "main": {
           "planks": {
@@ -135,7 +180,7 @@
       "statuses": {
         "paused": 5
       },
-      "gold": 259084,
+      "gold": 9084,
       "balance_rate_per_min": 640,
       "population": {
         "settlers": 16000
@@ -161,8 +206,8 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T12:00:00.000Z",
-    "next_change_at": "2026-01-01T15:54:09.257Z",
-    "gold": 259084,
+    "next_change_at": "2026-01-01T12:32:40.861Z",
+    "gold": 9084,
     "balance_rate_per_min": 640,
     "tax_rate_per_min": 640,
     "upkeep_rate_per_min": 0,

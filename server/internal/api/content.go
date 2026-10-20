@@ -94,6 +94,7 @@ type rulesJSON struct {
 	ShipHandlingMs             int64 `json:"ship_handling_ms"`
 	ShipSpeedMilliTilesPerMin  int64 `json:"ship_speed_milli_tiles_per_min"`
 	AwaySummaryMs              int64 `json:"away_summary_ms"`
+	TrialResumeUpkeepMs        int64 `json:"trial_resume_upkeep_ms"`
 }
 
 type tierJSON struct {
@@ -250,7 +251,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 				GrowthThresholdPpm: r.GrowthThreshold, OptionalTaxBonusPpm: r.OptionalTaxBonus,
 				AutoResumeUpkeepDurationMs: r.AutoResumeMs,
 				ShipHandlingMs:             r.ShipHandlingMs, ShipSpeedMilliTilesPerMin: r.ShipSpeedMilliTilesPerMin,
-				AwaySummaryMs: r.AwaySummaryMs,
+				AwaySummaryMs: r.AwaySummaryMs, TrialResumeUpkeepMs: r.TrialResumeMs,
 			},
 		},
 		Tiers: []tierJSON{}, Goods: []goodJSON{}, Buildings: []buildingJSON{}, Needs: []needJSON{}, Ships: []shipJSONOut{},

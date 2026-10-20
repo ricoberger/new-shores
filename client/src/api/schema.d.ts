@@ -1725,6 +1725,11 @@ export interface components {
              * @description Minimum world time since the last command before a request produces a "while you were away" summary (ms).
              */
             away_summary_ms: number;
+            /**
+             * Format: int64
+             * @description Trial reserve as a duration of an unpaid building's or ship's upkeep (ms); gold reaching it resumes the candidate although the recomputed balance is negative.
+             */
+            trial_resume_upkeep_ms: number;
         };
         ContentTier: {
             id: string;

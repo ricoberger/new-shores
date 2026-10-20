@@ -2,7 +2,7 @@
   "scenario": "ship_insolvency",
   "base": {
     "evaluated_at": "2026-01-01T01:16:20.000Z",
-    "next_change_at": "2026-01-01T12:37:05.001Z",
+    "next_change_at": "2026-01-01T01:45:58.480Z",
     "gold": 22886,
     "balance_rate_per_min": 240,
     "tax_rate_per_min": 2240,
@@ -728,7 +728,7 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T01:16:20.250Z",
-        "next_change_at": "2026-01-01T12:37:05.001Z",
+        "next_change_at": "2026-01-01T01:45:58.480Z",
         "gold": 22887,
         "balance_rate_per_min": 240,
         "tax_rate_per_min": 2240,
@@ -1454,7 +1454,7 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T01:16:21.000Z",
-        "next_change_at": "2026-01-01T12:37:05.001Z",
+        "next_change_at": "2026-01-01T01:45:58.480Z",
         "gold": 22890,
         "balance_rate_per_min": 240,
         "tax_rate_per_min": 2240,
@@ -2180,7 +2180,7 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T01:16:25.000Z",
-        "next_change_at": "2026-01-01T12:37:05.001Z",
+        "next_change_at": "2026-01-01T01:45:58.480Z",
         "gold": 22906,
         "balance_rate_per_min": 240,
         "tax_rate_per_min": 2240,
@@ -2906,7 +2906,7 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T01:16:50.000Z",
-        "next_change_at": "2026-01-01T12:37:05.001Z",
+        "next_change_at": "2026-01-01T01:45:58.480Z",
         "gold": 23006,
         "balance_rate_per_min": 240,
         "tax_rate_per_min": 2240,
@@ -3632,7 +3632,7 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T01:21:20.000Z",
-        "next_change_at": "2026-01-01T12:37:05.001Z",
+        "next_change_at": "2026-01-01T01:45:58.480Z",
         "gold": 24086,
         "balance_rate_per_min": 240,
         "tax_rate_per_min": 2240,

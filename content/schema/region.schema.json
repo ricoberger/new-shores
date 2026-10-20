@@ -29,7 +29,8 @@
         "auto_resume_upkeep_minutes",
         "ship_handling_seconds",
         "ship_speed_tiles_per_min",
-        "away_summary_minutes"
+        "away_summary_minutes",
+        "trial_resume_upkeep_minutes"
       ],
       "properties": {
         "transfer_base_seconds": { "type": "number", "minimum": 0 },
@@ -64,6 +65,11 @@
         },
         "ship_speed_tiles_per_min": {
           "description": "Archipelago tiles a ship of speed 1.0 covers per minute; travel time = distance / (speed x this), rounded up to whole milliseconds.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "trial_resume_upkeep_minutes": {
+          "description": "Gold reserve, in minutes of an unpaid building's upkeep, after which it is trial-resumed even though the recomputed balance with it running is negative; it is paused again by the normal cascade if the balance stays negative. Strictly greater than auto_resume_upkeep_minutes.",
           "type": "number",
           "exclusiveMinimum": 0
         },

@@ -51,6 +51,12 @@ func checkReferences(c *Catalogue) error {
 	if rules.AutoResumeMs <= 0 {
 		col.add(FileRegion, rent, "rules.auto_resume_upkeep_minutes", "must be > 0")
 	}
+	// The trial reserve lets an unpaid building run although the balance
+	// stays negative; it must be strictly above the normal reserve so that
+	// a trial only happens after the normal resume had its chance.
+	if rules.TrialResumeMs <= rules.AutoResumeMs {
+		col.add(FileRegion, rent, "rules.trial_resume_upkeep_minutes", "must be greater than auto_resume_upkeep_minutes")
+	}
 	if rules.ShipHandlingMs < 0 {
 		col.add(FileRegion, rent, "rules.ship_handling_seconds", "must be >= 0")
 	}

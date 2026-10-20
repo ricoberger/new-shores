@@ -36,7 +36,7 @@ func TestLoadOldCoast(t *testing.T) {
 	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.GrowthThreshold != 500_000 || rules.OptionalTaxBonus != 250_000 || rules.AutoResumeMs != 300_000 {
 		t.Errorf("rules = %+v", rules)
 	}
-	if rules.ShipHandlingMs != 20_000 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 || c.Region.Version != "old_coast-0.5.0" {
+	if rules.ShipHandlingMs != 20_000 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 || rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.5.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 
@@ -495,6 +495,22 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			"quest satisfaction decimals", FileQuests,
 			[]string{`{ "kind": "route_exists" }`, `{ "kind": "satisfaction", "tier": "settlers", "min": 0.8125 }`},
 			[]string{FileQuests, `quest "intro_tools"`, "objectives[0].min", "more than 3 decimal places"},
+		},
+		{
+			"trial reserve equal to the reserve", FileRegion,
+			[]string{`"trial_resume_upkeep_minutes": 30`, `"trial_resume_upkeep_minutes": 5`},
+			[]string{FileRegion, `region "old_coast"`, "rules.trial_resume_upkeep_minutes", "must be greater than auto_resume_upkeep_minutes"},
+		},
+		{
+			"trial reserve below the reserve", FileRegion,
+			[]string{`"trial_resume_upkeep_minutes": 30`, `"trial_resume_upkeep_minutes": 4.5`},
+			[]string{FileRegion, "rules.trial_resume_upkeep_minutes", "must be greater than auto_resume_upkeep_minutes"},
+		},
+		{
+			"region missing trial reserve", FileRegion,
+			[]string{`,
+    "trial_resume_upkeep_minutes": 30`, ""},
+			[]string{FileRegion, "schema violation"},
 		},
 		{
 			"region zero away summary", FileRegion,

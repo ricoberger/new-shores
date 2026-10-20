@@ -29,6 +29,16 @@ import (
 //     an eligible candidate is a gold_reserve boundary.
 //     A building is never resumed at the millisecond it was paused
 //     (Building.PausedAtMs), so settling twice at one time changes nothing.
+//   - trial resume (rule (c), future D-047): when (b) fails for the
+//     candidate, it is resumed anyway once gold >= trial_resume_upkeep_minutes
+//     x its upkeep (an auto_resume boundary with Trial set). After a trial
+//     resume no further candidate is resumed at that instant. If the balance
+//     stays negative, the gold_zero cascade pauses it again and the next
+//     trial needs the trial reserve again. Gold reaching the trial reserve
+//     is a gold_trial_reserve boundary. Without this rule a fully stalled
+//     town with nothing in stock or in transit never restarts: the cascade
+//     stops at balance >= 0, so the floor taxes stay below the upkeep of
+//     the last-paused building, which is the first candidate.
 //   - tier unlocks are evaluated after every settle and successful Apply;
 //     they are permanent and have no rate effect.
 //
@@ -68,6 +78,10 @@ type worldRates struct {
 	// running and all rates recomputed is >= 0; it resumes once gold reaches
 	// its reserve (a gold_reserve boundary).
 	resumable pauseTarget
+	// trial is the next unpaid building or ship if that balance is
+	// negative; it is trial-resumed once gold reaches its trial reserve (a
+	// gold_trial_reserve boundary).
+	trial pauseTarget
 }
 
 // pauseTarget is an insolvency pause candidate: a building (is, b) or a
@@ -222,16 +236,33 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 				wr.goldRate = 0
 			}
 		} else if p := resumeCandidate(w); p.valid() {
+			// After a trial resume no further candidate is resumed at this
+			// instant; the candidate is still evaluated so that its reserve
+			// boundary is scheduled (at the next millisecond if gold already
+			// covers it).
+			ready := now > p.pausedAtMs() && now > w.LastTrialMs
+			resume := func(trial bool) {
+				if p.s != nil {
+					resumeShip(w, c, p.s, now, l)
+				} else {
+					p.b.Paused, p.b.PausedReason, p.b.PauseSeq, p.b.PausedAtMs = false, "", 0, 0
+				}
+				b := p.boundary(BoundaryAutoResume, at)
+				b.Trial = trial
+				events = append(events, b)
+				w.Away.AutoResumed++
+			}
 			if balanceAfterResume(w, c, now, p) >= 0 {
 				wr.resumable = p
-				if gold >= resumeThreshold(c, p.upkeep(c)) && now > p.pausedAtMs() {
-					if p.s != nil {
-						resumeShip(w, c, p.s, now, l)
-					} else {
-						p.b.Paused, p.b.PausedReason, p.b.PauseSeq, p.b.PausedAtMs = false, "", 0, 0
-					}
-					events = append(events, p.boundary(BoundaryAutoResume, at))
-					w.Away.AutoResumed++
+				if ready && gold >= resumeThreshold(c, p.upkeep(c)) {
+					resume(false)
+					continue
+				}
+			} else {
+				wr.trial = p
+				if ready && gold >= trialThreshold(c, p.upkeep(c)) {
+					resume(true)
+					w.LastTrialMs = now
 					continue
 				}
 			}
@@ -259,6 +290,12 @@ func countBuildings(w *World) int {
 // building with the given upkeep (milli-gold per minute = sub-units per ms).
 func resumeThreshold(c *content.Catalogue, upkeep Qty) int64 {
 	return c.Region.Rules.AutoResumeMs * upkeep
+}
+
+// trialThreshold is the gold (sub-units) required to trial-resume a
+// building whose recomputed balance is negative (rule (c), future D-047).
+func trialThreshold(c *content.Catalogue, upkeep Qty) int64 {
+	return c.Region.Rules.TrialResumeMs * upkeep
 }
 
 // pauseCandidate returns the next building or ship to pause for

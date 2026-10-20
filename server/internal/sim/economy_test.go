@@ -37,6 +37,10 @@ func withoutQuests(base *content.Catalogue) *content.Catalogue {
 	return &c
 }
 
+// noTrialMs is a trial reserve (100 000 minutes of upkeep) that no test
+// reaches, for tests of the reserve rule (a) + (b) alone.
+const noTrialMs = 100_000 * 60_000
+
 // orderCatalogue is the shipped catalogue with the wool chain at the
 // upkeep (2 gold/min each) and cycle (60 s) these insolvency-order tests
 // were written for: the expected cascades rank buildings by upkeep and the
@@ -45,6 +49,9 @@ func withoutQuests(base *content.Catalogue) *content.Catalogue {
 func orderCatalogue(t *testing.T) *content.Catalogue {
 	t.Helper()
 	c := withUpkeep(legacyUpkeep(withoutQuests(catalogue(t))), map[string]Qty{"sheep_farm": 2_000, "weaver_wool": 2_000})
+	// These tests check the reserve rule (a) + (b); the trial reserve (c)
+	// is moved out of reach (TestTrialResume covers it).
+	c.Region.Rules.TrialResumeMs = noTrialMs
 	for _, id := range []string{"sheep_farm", "weaver_wool"} {
 		b := *c.BuildingByID[id]
 		rec := *b.Recipe

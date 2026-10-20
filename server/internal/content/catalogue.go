@@ -164,6 +164,11 @@ type Rules struct {
 	// ShipSpeedMilliTilesPerMin is the archipelago distance a ship of speed
 	// 1.0 covers per minute, in milli-tiles.
 	ShipSpeedMilliTilesPerMin int64
+	// TrialResumeMs is the gold reserve, in milliseconds of a building's
+	// upkeep, after which an unpaid building is trial-resumed although the
+	// recomputed balance with it running is negative (future D-047);
+	// strictly greater than AutoResumeMs.
+	TrialResumeMs int64
 	// AwaySummaryMs is the minimum time since the player's last command
 	// after which a request produces a "while you were away" summary.
 	AwaySummaryMs int64

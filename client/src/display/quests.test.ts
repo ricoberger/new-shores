@@ -88,14 +88,14 @@ describe("away summary", () => {
     const v = summaryView(s!, content, islandName);
     expect(v.from).toBe("2026-01-01T00:30:00.000Z");
     expect(v.duration).toBe("12 h 0 min");
-    expect(v.gold).toEqual({ before: "258", after: "264", change: "+5" });
+    expect(v.gold).toEqual({ before: "258", after: "26", change: "−232" });
     expect(v.population).toEqual([{ tier: "settlers", name: "Settlers", text: "32 → 8" }]);
     expect(v.islands.map((is) => is.name)).toEqual(["Start"]);
     const planks = v.islands[0]!.goods.find((g) => g.good === "planks")!;
     expect(planks).toMatchObject({ name: "Planks", produced: "158", stock: "300/300", atCapacity: true });
     expect(v.islands[0]!.goods.find((g) => g.good === "fish")).toMatchObject({ consumed: "31", stock: "0/300", atCapacity: false });
-    expect(v.paused).toBe(4);
-    expect(v.stillPaused).toEqual(["Lumberjack #3 (Start)", "Lumberjack #4 (Start)", "Sawmill #5 (Start)", "Sloop #1 (island2)"]);
+    expect(v.paused).toBe(8);
+    expect(v.stillPaused).toEqual(["Lumberjack #3 (Start)", "Lumberjack #4 (Start)", "Sawmill #5 (Start)"]);
     expect(v.shipsArrived).toBe(1);
     expect(v.arrivals).toEqual(["Ship #1 at island2, 00:32 UTC"]);
     expect(v.quests).toEqual([]);
@@ -111,11 +111,19 @@ describe("away summary", () => {
 });
 
 describe("insolvency banner", () => {
-  it("renders the sentence from a fixture with unpaid buildings and ships", () => {
+  it("renders the sentence from a fixture with unpaid buildings", () => {
     const model = fixture("away_summary_12h");
     expect(model.insolvency.unpaid_buildings).toBe(3);
     expect(insolvencyBanner(model)).toBe(
-      "Your city cannot afford its upkeep: −4.5 gold/min. Paused: 3 buildings, 1 ships. Demolish, resume manually, or grow your tax base.",
+      "Your city cannot afford its upkeep: −4.5 gold/min. Paused: 3 buildings. Demolish, resume manually, or grow your tax base.",
+    );
+  });
+
+  it("adds unpaid ships to the sentence", () => {
+    const model = fixture("away_summary_12h");
+    const withShip = { ...model, insolvency: { ...model.insolvency, unpaid_ships: 1, balance_if_resumed_per_min: -5_520 } };
+    expect(insolvencyBanner(withShip)).toBe(
+      "Your city cannot afford its upkeep: −5.5 gold/min. Paused: 3 buildings, 1 ships. Demolish, resume manually, or grow your tax base.",
     );
   });
 

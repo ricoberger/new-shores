@@ -1,7 +1,7 @@
 {
   "name": "away_summary_12h",
   "content_version": "old_coast-0.5.0",
-  "boundary_count": 64,
+  "boundary_count": 82,
   "totals": {
     "start": {
       "fish": {
@@ -89,6 +89,83 @@
       "building_id": 0,
       "ship_id": 1,
       "type": "sloop"
+    },
+    {
+      "at": "2026-01-01T04:21:47.844Z",
+      "action": "auto_resume",
+      "island_id": "island2",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "sloop",
+      "trial": true
+    },
+    {
+      "at": "2026-01-01T05:19:29.382Z",
+      "action": "auto_pause",
+      "island_id": "island2",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "sloop"
+    },
+    {
+      "at": "2026-01-01T06:21:59.382Z",
+      "action": "auto_resume",
+      "island_id": "island2",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "sloop",
+      "trial": true
+    },
+    {
+      "at": "2026-01-01T07:19:40.921Z",
+      "action": "auto_pause",
+      "island_id": "island2",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "sloop"
+    },
+    {
+      "at": "2026-01-01T08:22:10.921Z",
+      "action": "auto_resume",
+      "island_id": "island2",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "sloop",
+      "trial": true
+    },
+    {
+      "at": "2026-01-01T09:19:52.459Z",
+      "action": "auto_pause",
+      "island_id": "island2",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "sloop"
+    },
+    {
+      "at": "2026-01-01T10:22:22.459Z",
+      "action": "auto_resume",
+      "island_id": "island2",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "sloop",
+      "trial": true
+    },
+    {
+      "at": "2026-01-01T11:20:03.998Z",
+      "action": "auto_pause",
+      "island_id": "island2",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "sloop"
+    },
+    {
+      "at": "2026-01-01T12:22:33.998Z",
+      "action": "auto_resume",
+      "island_id": "island2",
+      "building_id": 0,
+      "ship_id": 1,
+      "type": "sloop",
+      "trial": true
     }
   ],
   "snapshots": [
@@ -136,7 +213,7 @@
     {
       "step": 13,
       "at": "2026-01-01T12:30:00.000Z",
-      "boundaries": 35,
+      "boundaries": 53,
       "inventory": {
         "island2": {},
         "start": {
@@ -153,8 +230,8 @@
       "statuses": {
         "paused": 3
       },
-      "gold": 264337,
-      "balance_rate_per_min": 480,
+      "gold": 26134,
+      "balance_rate_per_min": -520,
       "population": {
         "settlers": 8000
       },
@@ -164,12 +241,11 @@
       "ships": [
         {
           "id": 1,
-          "state": "anchored_unpaid",
+          "state": "idle",
           "island_id": "island2",
           "cargo": {
             "planks": 50000
-          },
-          "paused": true
+          }
         }
       ]
     }
@@ -194,7 +270,7 @@
       "from": "2026-01-01T00:30:00.000Z",
       "to": "2026-01-01T12:30:00.000Z",
       "gold_before": 258800,
-      "gold_after": 264337,
+      "gold_after": 26134,
       "population": {
         "settlers": {
           "before": 32000,
@@ -236,8 +312,8 @@
           "goods": {}
         }
       ],
-      "auto_paused": 4,
-      "auto_resumed": 0,
+      "auto_paused": 8,
+      "auto_resumed": 5,
       "still_unpaid": [
         {
           "island_id": "start",
@@ -253,11 +329,6 @@
           "island_id": "start",
           "building_id": 5,
           "type": "sawmill"
-        },
-        {
-          "island_id": "island2",
-          "ship_id": 1,
-          "type": "sloop"
         }
       ],
       "ships_arrived": 1,
@@ -273,11 +344,11 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T12:30:00.000Z",
-    "next_change_at": null,
-    "gold": 264337,
-    "balance_rate_per_min": 480,
+    "next_change_at": "2026-01-01T13:20:15.536Z",
+    "gold": 26134,
+    "balance_rate_per_min": -520,
     "tax_rate_per_min": 480,
-    "upkeep_rate_per_min": 0,
+    "upkeep_rate_per_min": 1000,
     "tiers": [
       {
         "id": "settlers",
@@ -1039,7 +1110,7 @@
       {
         "id": 1,
         "type": "sloop",
-        "state": "anchored_unpaid",
+        "state": "idle",
         "island_id": "island2",
         "route_id": 0,
         "stop_index": 0,
@@ -1052,16 +1123,16 @@
         ],
         "slots": 2,
         "slot_size": 50000,
-        "upkeep_per_min": 0,
-        "paused": true,
-        "paused_reason": "unpaid"
+        "upkeep_per_min": 1000,
+        "paused": false,
+        "paused_reason": ""
       }
     ],
     "routes": [],
     "insolvency": {
       "unpaid_buildings": 3,
-      "unpaid_ships": 1,
-      "unpaid_upkeep_per_min": 5000,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 4000,
       "balance_if_resumed_per_min": -4520
     },
     "quests": {
@@ -1107,7 +1178,7 @@
       "from": "2026-01-01T00:30:00.000Z",
       "to": "2026-01-01T12:30:00.000Z",
       "gold_before": 258800,
-      "gold_after": 264337,
+      "gold_after": 26134,
       "population": {
         "settlers": {
           "before": 32000,
@@ -1149,8 +1220,8 @@
           "goods": {}
         }
       ],
-      "auto_paused": 4,
-      "auto_resumed": 0,
+      "auto_paused": 8,
+      "auto_resumed": 5,
       "still_unpaid": [
         {
           "island_id": "start",
@@ -1166,11 +1237,6 @@
           "island_id": "start",
           "building_id": 5,
           "type": "sawmill"
-        },
-        {
-          "island_id": "island2",
-          "ship_id": 1,
-          "type": "sloop"
         }
       ],
       "ships_arrived": 1,

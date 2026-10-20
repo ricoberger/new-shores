@@ -580,9 +580,13 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 		}
 		start := p.w.LastEvaluatedAt
 		for i, b := range bs {
+			kind := b.Kind
+			if b.Kind == BoundaryAutoResume && b.Trial {
+				kind = "trial_resume"
+			}
 			for _, at := range []time.Time{b.At, b.At.Add(time.Millisecond)} {
 				if at.After(start) && at.Before(to) {
-					splits = append(splits, split{at, b.Kind})
+					splits = append(splits, split{at, kind})
 				}
 			}
 			// Inside the handling time after an arrival (before the
@@ -634,6 +638,7 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 					later = append(later, sp)
 					switch sp.kind {
 					case BoundaryGoldZero, BoundaryGoldReserve, BoundaryAutoPause, BoundaryAutoResume, "between",
+						BoundaryGoldTrialReserve, "trial_resume",
 						BoundaryShipArrived, BoundaryShipBuilt, "handling":
 						byKind[sp.kind] = append(byKind[sp.kind], sp)
 					}

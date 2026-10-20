@@ -90,6 +90,8 @@ type PauseEvent struct {
 	BuildingID int64  `json:"building_id"`
 	ShipID     int64  `json:"ship_id,omitempty"`
 	Type       string `json:"type"`
+	// Trial marks an auto_resume by the trial reserve (rule (c)).
+	Trial bool `json:"trial,omitempty"`
 }
 
 // ExpectedError is a step that failed with the expected sentinel and left
@@ -261,6 +263,7 @@ func (r *runner) recordPauseEvents(bs []sim.Boundary) {
 		}
 		r.report.PauseEvents = append(r.report.PauseEvents, PauseEvent{
 			At: b.At.Format(timeLayout), Action: action, IslandID: b.IslandID, BuildingID: b.BuildingID, ShipID: b.ShipID, Type: typ,
+			Trial: b.Trial,
 		})
 	}
 }

@@ -40,6 +40,11 @@ const (
 	// unpaid building (island and building of the candidate set); settle
 	// re-evaluates the resume.
 	BoundaryGoldReserve = "gold_reserve"
+	// BoundaryGoldTrialReserve: gold reaches the trial reserve of the next
+	// unpaid building or ship whose recomputed balance is negative (island
+	// and building or ship of the candidate set); settle trial-resumes it
+	// (an auto_resume boundary with Trial set).
+	BoundaryGoldTrialReserve = "gold_trial_reserve"
 	// BoundaryTierUnlocked: a tier's unlock conditions hold.
 	BoundaryTierUnlocked = "tier_unlocked"
 	// BoundaryStockThreshold: the stock of a good reaches the threshold of
@@ -65,6 +70,9 @@ type Boundary struct {
 	Good       string    `json:"good,omitempty"`
 	Tier       string    `json:"tier,omitempty"`
 	Quest      string    `json:"quest,omitempty"`
+	// Trial marks an auto_resume by the trial reserve (rule (c)): the
+	// resumed building runs although the recomputed balance is negative.
+	Trial bool `json:"trial,omitempty"`
 }
 
 // Advance moves the world forward to time to (truncated to milliseconds)
@@ -271,6 +279,14 @@ func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (in
 		consider(now+ceilDiv(max(thr-gold, 0), wr.balance), p.boundary(BoundaryGoldReserve, time.Time{}))
 	} else if p.valid() && gold >= resumeThreshold(c, p.upkeep(c)) {
 		consider(now+1, p.boundary(BoundaryGoldReserve, time.Time{}))
+	}
+	// Gold reaches the trial reserve of a candidate whose recomputed
+	// balance is negative (rule (c)); same scheduling as the reserve.
+	if p := wr.trial; p.valid() && wr.balance > 0 {
+		thr := trialThreshold(c, p.upkeep(c))
+		consider(now+ceilDiv(max(thr-gold, 0), wr.balance), p.boundary(BoundaryGoldTrialReserve, time.Time{}))
+	} else if p.valid() && gold >= trialThreshold(c, p.upkeep(c)) {
+		consider(now+1, p.boundary(BoundaryGoldTrialReserve, time.Time{}))
 	}
 
 	// Due moments: shipyard orders complete and ships arrive.

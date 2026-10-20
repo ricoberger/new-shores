@@ -90,6 +90,10 @@ type World struct {
 	// Routes sorted by ascending ID (sequential, NextRouteID).
 	Routes      []*Route `json:"routes,omitempty"`
 	NextRouteID int64    `json:"next_route_id,omitempty"`
+	// LastTrialMs is the time (Unix ms) of the last trial resume (rule
+	// (c), economy.go): no further building is resumed at that
+	// millisecond, which keeps settle idempotent at the trial instant.
+	LastTrialMs int64 `json:"last_trial_ms,omitempty"`
 	// Quests holds the completed quests by ID (quests.go).
 	Quests map[string]QuestState `json:"quests,omitempty"`
 	// LastSeenAt is the world time of the player's last successful command
