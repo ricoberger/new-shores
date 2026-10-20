@@ -486,3 +486,29 @@ Metrics are served on a separate listener that is never proxied.
 - *Rejected:* cookie-only sessions (blocks the apps); Referer fallback;
   returning 503 when Redis is unavailable; stateless JWT sessions (no
   revocation).
+
+## D-045 Single-world due moments are simulation boundaries
+
+**Decision:** Effects that concern one world and are known in advance by
+the simulation — a ship finishing at the shipyard, a ship arriving at a
+stop — are applied by `advance` itself as boundaries at exactly their due
+millisecond. Scheduled events for these moments still exist: they make an
+offline player's world advance on time, trigger the push and schedule
+follow-ups, but their handlers are no-ops when the effect has already
+happened. The store reconciles pending events against the simulation's
+due moments inside every transaction, so each due moment has exactly one
+pending event. Cross-world effects (trades, gifts, raids) remain
+handler-only.
+
+- *Rationale:* a world that is advanced for any reason (a request, a
+  resume from insolvency during catch-up, a missed or late event) must
+  never leave a ship overdue; the piecewise model already treats "a timer
+  fires" as a boundary, so this is the natural place. It also removes the
+  need for tests to imitate the worker.
+- *Consequences:* a request capped at a pending ship event (D-043) applies
+  the effect and the worker only reconciles follow-ups; ship departures
+  are not boundaries (no rate changes) but are included in
+  `next_change_at`; the dev server needs an in-process scheduler that runs
+  the same handlers at due time.
+- *Rejected:* handler-only application (overdue ships after offline
+  resumes or missed events).

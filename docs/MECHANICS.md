@@ -75,6 +75,19 @@ An event handler locks all involved worlds (ascending ID), advances each to
 `due_at`, applies, schedules follow-ups and marks the event done in the same
 transaction.
 
+**Due moments are boundaries (D-045).** For effects that belong to a
+single world (ship built, ship arrived), the simulation itself knows the
+due moment and applies the effect as a boundary of `advance` at exactly
+that millisecond. The scheduled event exists to make the world advance on
+time while its player is offline, to push, and to schedule follow-ups; its
+handler is a no-op when the effect has already been applied. A request
+capped at a pending event's `due_at` (D-043) therefore applies the effect
+itself and the worker only reconciles follow-ups. Invariant: after every
+committed update or processed event, each due moment the simulation
+reports has exactly one pending event (reconciled inside the same
+transaction). Cross-world effects (trades, gifts, raids) are applied by
+handlers only.
+
 ## 2. Map and placement
 
 - Islands are flat tile grids (provisional 64×64 to 128×128). Tiles have a
@@ -370,7 +383,13 @@ decorations.
   population reached anywhere), so a new island can immediately use all
   unlocked buildings.
 - Settling a new island requires a ship carrying the warehouse cost (planks,
-  tools, gold); the first warehouse is placed from the ship.
+  tools, gold); the first warehouse is placed from the ship
+  (`found_island`): materials come from the ship's cargo only, gold from
+  the balance; the rest of the cargo is unloaded into the new warehouse.
+  An island is **settled** while it has at least one warehouse; nothing
+  else can be placed on an unsettled island (`island_not_settled`), and the
+  last warehouse can only be demolished when it is the island's only
+  building (roads may remain; `last_warehouse`).
 
 ## 9. Ships and routes (D-007, D-015)
 
@@ -378,27 +397,62 @@ decorations.
 
 - Types (provisional): *Sloop* (2 slots × 50, speed 1.0, build 2 min, tier 1),
   *Brig* (4 × 50, 1.2, 5 min, tier 2), *Galleon* (6 × 60, 1.0, 10 min, tier 3).
-  Later: war ships (D-005).
-- Shipyard build = scheduled event `ship_built`; one ship at a time per
-  shipyard; costs deducted at order time; cancel refunds 50 % materials.
-- Ships have upkeep (gold/min) and a `state`: `idle@island`, `on_route`,
-  `manual_leg`, `on_world_map`, `anchored_unpaid`.
+  Later: war ships (D-005). Defined in `ships.json`; a shipyard's
+  `shipyard.ships` lists what it can build.
+- Shipyard build: one order at a time per shipyard (`shipyard_busy`);
+  costs deducted at order time; cancel refunds 50 % materials; completion
+  is a due moment (`ship_built`, §1.3) after the type's build time; the
+  ship appears `idle` at the shipyard's island. Demolishing a shipyard
+  with a pending order refunds the order like a cancel.
+- Ships have upkeep (gold/min; counts in `balance_rate`) and a `state`:
+  `idle@island`, `on_route`, `manual_leg`, `on_world_map` (reserved),
+  `anchored_unpaid`. Insolvency step 4 (§7) applies to **every** ship with
+  upkeep, idle ones included: a ship on a leg finishes it, then anchors
+  without unloading; it resumes at its arrival stop.
+- **Cargo** is stored canonically per good (full slots, then one partial
+  slot); loading tops up partially filled slots first. `scrap_ship`
+  unloads the cargo (capacity permitting; excess lost) and refunds 50 % of
+  the ship's materials.
+- **Travel time** is one integer-only function:
+  `distance_milli = ceil(1000 × √(dx² + dy²))` (integer square root over
+  archipelago tile coordinates), `travel_ms = max(1, ceil(distance_milli ×
+  60 000 × 1000 / (speed_permille × ship_speed_milli_tiles_per_min)))`.
+  Constants in `region.json`: `ship_speed_tiles_per_min` (provisional 60)
+  and `ship_handling_seconds` (provisional 20). The dev archipelago's two
+  islands are 120 tiles apart → 2 min per sloop leg.
+- A ship is never in two places: its `island_id` is cleared at departure
+  (not a boundary — no rate changes — but included in `next_change_at` so
+  the client never shows a ship at an island it has left) and set at
+  arrival.
 
 ### 9.2 Routes
 
 ```
-route: { stops: [{island, load: [{good, max_amount}], unload: [{good}]}], ships: [...] }
+route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}], ships: [...] }
 ```
 
+- A route has 2–8 stops; consecutive stops are on different islands
+  (`route_invalid`).
 - At a stop: unload listed goods (respecting capacity; remainder stays
-  aboard), then load listed goods up to `max_amount` per slot availability.
-  Loading takes `handling_time` (provisional 20 s) + 0 s per unit (abstract).
-- Travel time between islands = `distance / speed` where distance is the
-  straight-line archipelago distance in tiles over a fixed speed constant
-  (provisional: 1–5 min typical).
+  aboard), then load listed goods **topping up to** `max_amount` per good
+  within slot availability. Handling takes `ship_handling_seconds`
+  regardless of quantity.
 - A ship is `{routeId, stopIndex, legDepartAt, legArriveAt, cargo}`; its
-  visual position is interpolated from the leg timers.
-- Manual shipment = a one-off route of two stops that ends in `idle`.
+  visual position is interpolated from the leg timers; arrival is a due
+  moment (`ship_arrived`, §1.3) that applies unload/load and schedules the
+  next leg.
+- `update_route` is always allowed: assigned ships finish their current
+  leg, then continue at the first stop (searched cyclically from their
+  current index) on their arrival island, otherwise sail a positioning leg
+  to stop 0. `delete_route` requires no assigned ships (`route_in_use`).
+  `assign_ship` requires an idle ship and starts at the first stop on its
+  island, else positions to stop 0.
+- Loop time shown in the UI is computed at reference speed 1.0.
+- Manual shipment = a one-off two-stop leg from the ship's island to a
+  target island with an explicit cargo list taken from the island
+  inventory (or already aboard); on arrival everything is unloaded as far
+  as capacity allows and the ship goes `idle` there. Goods delivered by
+  ship bypass warehouse throughput but respect capacity (§5).
 
 ## 10. Islands, archipelago and settling (D-016)
 
@@ -455,6 +509,9 @@ cannot be satisfied until trade routes exist (M4).
 - `gold ≥ 0` always.
 - `floor ≤ residents ≤ max` for every house.
 - `0 ≤ workforce_factor ≤ 1`; a building never occupies more than one slot.
+- Goods are conserved across island inventories, goods in transit and ship
+  cargo; a ship is never at two islands; unloading never exceeds capacity;
+  after `advance(w, t)` every due moment of `w` is strictly after `t`.
 - Variety never reduces fulfilment: adding a good to a category is
   monotonic non-decreasing for tax and growth.
 - Unlocked tiers never shrink.

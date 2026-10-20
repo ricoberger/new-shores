@@ -207,7 +207,7 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 | `fisher` | 1 | 2×2 harbour slot | 60 / 6 | 1 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + fields | 100 / 10 | 2 | 4 S | R, work radius 4 grass, 24 tiles |
 | `weaver_wool` | 1 | 2×2 | 120 / 10 | 2 | 6 S | R |
-| `shipyard` | 1 | 5×4 harbour slot | 500 / 40 | 5 | — | R |
+| `shipyard` | 1 | 5×4 harbour slot | 500 / 40 | 5 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
 | `house_citizens` | 2 | 2×2 | 200 / 15 / 10 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | 5 / – / 1 | 0 | — | |
 | `quarry` | 2 | 3×3 stone slot | 300 / 20 | 4 | 8 S | R |
@@ -247,6 +247,11 @@ lvl 3 cap 800 / T 130; lvl 4 cap 1 200 / T 180.
 
 \*Starting stock includes sails for one sloop.
 
+Ships live in `ships.json` (`{ id, name, tier, slots, slot_size, speed,
+build_seconds, cost, upkeep_per_min }`, schema under `content/schema/`);
+only `sloop` is authored so far. Ship positions and legs follow MECHANICS
+§9; the archipelago seed stores island positions in tile coordinates.
+
 ## 9. Islands (D-036, D-039)
 
 | Property | Range |
@@ -270,7 +275,7 @@ and house facade variants per tier.
 
 Content lives in `content/<region>/*.json`, one file per entity type
 (`region.json`, `start.json`, `tiers.json`, `goods.json`, `buildings.json`,
-`needs.json`; later `ships.json`, `quests.json`, `islands.json`,
+`needs.json`, `ships.json`; later `quests.json`, `islands.json`,
 `decorations.json`), with
 JSON Schemas (draft 2020-12, unknown fields rejected) under
 `content/schema/`. The server validates on startup and fails fast on broken
@@ -285,7 +290,7 @@ exponent notation; they are converted to fixed point at load time.
 {
   "id": "old_coast",
   "name": "The Old Coast",
-  "version": "old_coast-0.2.0",
+  "version": "old_coast-0.3.0",
   "rules": {
     "transfer_base_seconds": 10,
     "unconnected_buffer_units": 5,
@@ -295,7 +300,9 @@ exponent notation; they are converted to fixed point at load time.
     "decline_per_min": 0.5,
     "growth_satisfaction_threshold": 0.5,
     "optional_tax_bonus": 0.25,
-    "auto_resume_upkeep_minutes": 5
+    "auto_resume_upkeep_minutes": 5,
+    "ship_speed_tiles_per_min": 60,
+    "ship_handling_seconds": 20
   }
 }
 ```
@@ -308,6 +315,8 @@ exponent notation; they are converted to fixed point at load time.
 | `growth_per_min`, `decline_per_min`, `growth_satisfaction_threshold` | house growth and decline | §6.1 |
 | `optional_tax_bonus` | tax bonus at full optional-need fulfilment | §6.2 |
 | `auto_resume_upkeep_minutes` | gold reserve before an auto-paused building resumes; **strictly > 0** (0 is rejected: it removes the pause/resume hysteresis) | §7 |
+| `ship_speed_tiles_per_min` | archipelago tiles per minute at ship speed 1.0 (provisional 60) | §9.1 |
+| `ship_handling_seconds` | load/unload time per stop (provisional 20) | §9.2 |
 
 `version` is the `content_version` embedded in every saved world.
 
@@ -339,6 +348,7 @@ it carries:
 | `work_area` | `radius`, `terrain[]`, `required_tiles` | farms, lumberjack, gatherers |
 | `workforce` | `tier`, `amount` | producers only (D-035) |
 | `slot` | deposit/harbour slot type | mines, quarries, coastal (D-036; M4) |
+| `shipyard` | `ships[]` (ship IDs it can build) | shipyard |
 
 ```json
 {

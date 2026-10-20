@@ -109,10 +109,20 @@ login, GLB assets, sound.
 
 ### M4 — Slice complete and measured
 
-- Ships (`sloop`, shipyard build event `ship_built`), routes and manual
-  shipments with `ship_arrived` events; island 2 settlement flow; route
-  editor; Citizens unlock; "while you were away"; intro steps; balancing
-  pass on CONTENT numbers for tiers 1–2.
+- **Part 1 — done (PR #7):** `sloop` and shipyard, `ship_built` /
+  `ship_arrived` as due moments, looping routes, manual shipments,
+  founding island 2 from a ship, two-island dev archipelago (120 tiles
+  apart → 2 min legs), island switcher plus Ships/Routes panels (HTML).
+  Measured: 12 h offline with a running route ≈ 3 ms of Advance (328
+  boundaries). **Balance finding:** the first settlement flow costs
+  ≈ 1 060 gold and 166 planks against a start of 500 gold / 130 planks;
+  the dev world bridges this with a dev-only bonus (1 500 gold, 150
+  planks), player worlds cannot settle island 2 from the starting stock.
+  To be resolved in the balancing pass (cheaper shipyard/sloop, larger
+  start, or a quest reward — decide then).
+- **Part 2:** 3D archipelago view and graphical route editor; Citizens
+  unlock in play; "while you were away"; intro steps; balancing pass on
+  CONTENT numbers for tiers 1–2 including the finding above.
 - Acceptance: see §3.
 
 Ordering rationale: M1 carries the design risk and needs no UI (the scenario

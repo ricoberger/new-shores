@@ -209,9 +209,21 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
 - Event kinds today: `advance_to` (no-op apart from scheduling the next
   one; every world keeps exactly one pending `advance_to` chained
   `FRESHNESS_INTERVAL` — default 24 h — after its `due_at`, so idle worlds
-  stay fresh and the pipeline is exercised) and the test-only `test_credit`
-  (build tag `testevents`). Ship, trade and expedition kinds arrive with
-  their features.
+  stay fresh and the pipeline is exercised), `ship_built` and
+  `ship_arrived` (single-world; the sim applies the effect as a boundary at
+  `due_at`, the handler is a no-op if it already happened and only
+  reconciles follow-ups — D-045), and the test-only `test_credit` (build
+  tag `testevents`). Trade and expedition kinds arrive with their features.
+- **Due-moment reconciliation (D-045):** the sim exposes `DueEvents(w)`;
+  every `Store.Update` (read-only included) and every processed event
+  reconciles the world's pending events against it inside the same
+  transaction, so each due moment has exactly one pending event and a
+  world with a due moment and no event can never be committed.
+- **Dev mode:** the in-memory store keeps pending events and a
+  `DevScheduler` sleeps until the earliest due time (scaled by
+  `--time-scale`), re-arms on every change, processes the event with the
+  same handlers and publishes on the in-process hub. It never wakes
+  without a pending event (no tick loop).
 - Metrics: queue depth (sampled during drains), lag (`now − due_at` at
   processing), handler duration, failures.
 
@@ -225,16 +237,23 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
 - Implemented (M1b): `GET /world` → `{version, display}`;
   `POST /world/commands` → `{version?, command: {type, …}}` with `type` ∈
   `place_building`, `place_road`, `demolish`, `demolish_road`, `set_paused`,
-  `upgrade_house` (`move_building` per D-042), returning `{version,
-  display}`; `GET /world/islands/{id}` → `{id, width, height, revision,
+  `upgrade_house`, `move_building`, and since M4 part 1 `order_ship`,
+  `cancel_ship_order`, `found_island`, `manual_shipment`, `assign_ship`,
+  `unassign_ship`, `scrap_ship`, `create_route`, `update_route`,
+  `delete_route` (list bounds: ≤ 8 stops, ≤ 32 load/unload entries per
+  stop, ≤ 16 cargo entries), returning `{version, display}`; the display
+  payload includes `ships`, `routes`, shipyard `ship_order` and per-island
+  `name`, `settled`, `position`; `GET /world/islands/{id}` → `{id, width, height, revision,
   terrain[]}` (row-major, index `y*width+x`; fertilities and slots will be
   sibling arrays); `GET /content` → catalogue in the same fixed-point units
   as the display payload; `GET /healthz`.
 - Errors: `{error: {code, message}}`; `code` is a stable snake_case
   enumeration listed in the OpenAPI file (one per sim sentinel error plus
   `bad_request`, `not_found`, `method_not_allowed`, `internal`); malformed
-  input 400, unknown entity 404, state conflicts 409, internal-only sim
-  errors 500.
+  input 400 (also `route_invalid`), unknown entity 404 (also
+  `ship_not_found`, `route_not_found`), state conflicts 409 (e.g.
+  `shipyard_busy`, `ship_not_idle`, `route_in_use`, `island_not_settled`,
+  `cargo_insufficient`, `last_warehouse`), internal-only sim errors 500.
 - Implemented (M2): `POST /auth/guest`, `/auth/register`, `/auth/login`,
   `/auth/logout`, `GET /auth/me`, `POST /auth/verify-email`,
   `/auth/password-reset/request`, `/auth/password-reset/confirm`;
