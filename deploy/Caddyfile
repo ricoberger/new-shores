@@ -1,0 +1,24 @@
+# Local Compose stack: http://localhost:8000 serves the client and proxies
+# /api/ (including the WebSocket /api/v1/ws) round-robin to both servers.
+# /metrics stays on the servers' separate metrics port and is not proxied.
+{
+	admin off
+}
+
+:8000 {
+	encode gzip
+
+	handle /api/* {
+		reverse_proxy server-1:8080 server-2:8080 {
+			lb_policy round_robin
+			health_uri /healthz
+			health_interval 5s
+		}
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

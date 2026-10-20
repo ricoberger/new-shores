@@ -1,0 +1,2 @@
+# Local overrides of the Compose stack (credentials); never commit.
+deploy/.env

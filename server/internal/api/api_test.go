@@ -92,10 +92,9 @@ func newTestServer(t *testing.T, scale float64) *testServer {
 	clock := &fakeClock{now: testStart}
 	logs := &bytes.Buffer{}
 	srv, err := New(Config{
-		Store:        store.NewMemory(testWorld, w),
+		Store:        store.NewMemory(testWorld, w, func() time.Time { return TimeScale{Start: testStart, Scale: scale}.At(clock.Now()) }),
 		Catalogue:    c,
 		Clock:        clock,
-		TimeScale:    TimeScale{Start: testStart, Scale: scale},
 		ResolveWorld: func(*http.Request) (store.WorldID, error) { return testWorld, nil },
 		CORSOrigins:  []string{testOrigin, testOriginLoopback},
 		Logger:       slog.New(slog.NewTextHandler(&syncWriter{w: logs}, nil)),

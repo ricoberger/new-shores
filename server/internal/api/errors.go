@@ -2,8 +2,12 @@ package api
 
 import (
 	"errors"
+	"net"
 	"net/http"
 
+	"github.com/jackc/pgx/v5/pgconn"
+
+	"github.com/ricoberger/new-shores/server/internal/auth"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
 
@@ -14,6 +18,63 @@ const (
 	CodeMethodNotAllowed = "method_not_allowed"
 	CodeInternal         = "internal"
 )
+
+// Error codes of accounts, sessions and infrastructure (M2).
+const (
+	CodeUnauthorized       = "unauthorized"
+	CodeInvalidCredentials = "invalid_credentials" // #nosec G101 -- an error code, not a credential.
+	CodeCSRFRejected       = "csrf_rejected"
+	CodeRateLimited        = "rate_limited"
+	CodeEmailTaken         = "email_taken"
+	CodeAlreadyRegistered  = "already_registered"
+	CodeInvalidToken       = "invalid_token"
+	CodeWeakPassword       = "weak_password"
+	CodeServiceUnavailable = "service_unavailable"
+)
+
+// accountCodes are the M2 codes in the order of ErrorCodes.
+var accountCodes = []string{
+	CodeUnauthorized, CodeInvalidCredentials, CodeCSRFRejected, CodeRateLimited, CodeEmailTaken,
+	CodeAlreadyRegistered, CodeInvalidToken, CodeWeakPassword, CodeServiceUnavailable,
+}
+
+var errUnauthorized = &apiError{code: CodeUnauthorized, status: http.StatusUnauthorized, message: "no valid session"}
+
+// authErrors maps account errors to codes. ErrInvalidEmail and
+// ErrInvalidDisplayName are malformed input (bad_request).
+var authErrors = []struct {
+	err    error
+	code   string
+	status int
+}{
+	{auth.ErrUnauthorized, CodeUnauthorized, http.StatusUnauthorized},
+	{auth.ErrInvalidCredentials, CodeInvalidCredentials, http.StatusUnauthorized},
+	{auth.ErrEmailTaken, CodeEmailTaken, http.StatusConflict},
+	{auth.ErrAlreadyRegistered, CodeAlreadyRegistered, http.StatusConflict},
+	{auth.ErrInvalidToken, CodeInvalidToken, http.StatusBadRequest},
+	{auth.ErrWeakPassword, CodeWeakPassword, http.StatusBadRequest},
+	{auth.ErrInvalidEmail, CodeBadRequest, http.StatusBadRequest},
+	{auth.ErrInvalidDisplayName, CodeBadRequest, http.StatusBadRequest},
+}
+
+// authCode returns the API error of an account error, or nil.
+func authCode(err error) *apiError {
+	for _, e := range authErrors {
+		if errors.Is(err, e.err) {
+			return &apiError{code: e.code, status: e.status, message: e.err.Error()}
+		}
+	}
+	return nil
+}
+
+// unavailable reports errors of an unreachable database (503).
+func unavailable(err error) bool {
+	var (
+		ce  *pgconn.ConnectError
+		ope *net.OpError
+	)
+	return errors.As(err, &ce) || errors.As(err, &ope)
+}
 
 // simError maps a simulation sentinel to its public error code and HTTP
 // status. Codes are a stable public contract (enumerated in
@@ -74,7 +135,7 @@ func ErrorCodes() []string {
 	for _, e := range simErrors {
 		codes = append(codes, e.code)
 	}
-	return codes
+	return append(codes, accountCodes...)
 }
 
 // apiError is a client error detected by the handlers before the

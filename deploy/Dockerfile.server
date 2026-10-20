@@ -1,0 +1,26 @@
+# syntax=docker/dockerfile:1
+# New Shores game server: static Go binary (migrations embedded) plus the
+# region content. Build context: repository root.
+
+FROM golang:1.27-alpine AS build
+WORKDIR /src/server
+COPY server/go.mod server/go.sum ./
+RUN go mod download
+COPY server/ ./
+ARG VERSION=dev
+RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o /out/server ./cmd/server
+
+# Alpine (not distroless) so that the Compose health check can use wget.
+FROM alpine:3.22
+RUN addgroup -S app && adduser -S -G app -H -s /sbin/nologin app
+COPY --from=build /out/server /usr/local/bin/server
+COPY content/ /content/
+ENV CONTENT_DIR=/content/old_coast \
+    LISTEN_ADDR=:8080 \
+    METRICS_ADDR=:9090 \
+    LOG_FORMAT=json
+EXPOSE 8080 9090
+USER app:app
+HEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=12 \
+  CMD wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1
+ENTRYPOINT ["/usr/local/bin/server"]

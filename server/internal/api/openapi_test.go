@@ -58,7 +58,10 @@ func (s *specValidator) validate(t *testing.T, method, path, body string, res re
 	if err != nil {
 		t.Fatalf("%s %s: no route in openapi.yaml: %v", method, path, err)
 	}
-	in := &openapi3filter.RequestValidationInput{Request: req, PathParams: params, Route: route}
+	// Security requirements are documented, not enforced by the validator
+	// (the handler tests cover authentication).
+	in := &openapi3filter.RequestValidationInput{Request: req, PathParams: params, Route: route,
+		Options: &openapi3filter.Options{AuthenticationFunc: openapi3filter.NoopAuthenticationFunc}}
 	if err := openapi3filter.ValidateRequest(ctx, in); err != nil {
 		t.Fatalf("%s %s: request does not match openapi.yaml: %v", method, path, err)
 	}

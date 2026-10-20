@@ -1,0 +1,10 @@
+# Build context of deploy/Dockerfile.* is the repository root.
+.git
+.ai-team
+deploy/.env
+**/node_modules
+client/dist
+client/dist-pg
+client/playwright-report*
+client/test-results*
+docs

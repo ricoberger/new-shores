@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { DisplayState, WorldResponse } from "./client";
-import { GameSync, type SyncError } from "./sync";
+import type { Command, DisplayState, WorldResponse } from "./client";
+import { GameSync, type SyncError, SyncStoppedError } from "./sync";
 
 function world(version: number, evaluatedAt: string, nextChangeAt: string | null, islands: string[] = []): WorldResponse {
   const display: DisplayState = {
@@ -230,5 +230,222 @@ describe("GameSync", () => {
     await vi.advanceTimersByTimeAsync(1_000);
     expect(sync.getSnapshot().model?.gold).toBeCloseTo(59_900, 5);
     stop();
+  });
+});
+
+describe("GameSync session and push", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+    vi.stubGlobal("document", Object.assign(new EventTarget(), { visibilityState: "visible" }));
+    vi.stubGlobal("window", new EventTarget());
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("stops and reports a 401 without retrying", async () => {
+    let worldGets = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const path = new URL(url).pathname;
+        if (path === "/api/v1/content") return json(CONTENT);
+        worldGets++;
+        return json({ error: { code: "unauthorized", message: "no valid session" } }, 401);
+      }),
+    );
+    const sync = new GameSync(() => null);
+    let ended = 0;
+    sync.subscribeUnauthorized(() => ended++);
+    const errors: SyncError[] = [];
+    sync.subscribeErrors((e) => errors.push(e));
+    sync.start();
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(ended).toBe(1);
+    expect(worldGets).toBe(1);
+    expect(errors).toEqual([]);
+  });
+
+  it("re-fetches on world_changed and on (re)connect; the socket drives the banner", async () => {
+    let worldGets = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const path = new URL(url).pathname;
+        if (path === "/api/v1/content") return json(CONTENT);
+        worldGets++;
+        return json(world(worldGets, "2026-01-01T00:00:00.000Z", null));
+      }),
+    );
+    let handlers: import("./ws").WorldSocketHandlers | undefined;
+    let stopped = false;
+    const sync = new GameSync((h) => {
+      handlers = h;
+      return { start: () => undefined, stop: () => (stopped = true) };
+    });
+    const stop = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(worldGets).toBe(1);
+    handlers!.changed("w");
+    await vi.advanceTimersByTimeAsync(0);
+    expect(worldGets).toBe(2);
+    handlers!.down();
+    expect(sync.getSnapshot().unreachable).toBe(true);
+    handlers!.open();
+    expect(sync.getSnapshot().unreachable).toBe(false);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(worldGets).toBe(3);
+    stop();
+    expect(stopped).toBe(true);
+  });
+});
+
+describe("GameSync queued commands after the session ends", () => {
+  const ROAD: Command = { type: "place_road", island_id: "start", road_type: "road_dirt", tiles: [{ x: 1, y: 1 }] };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+    vi.stubGlobal("document", Object.assign(new EventTarget(), { visibilityState: "visible" }));
+    vi.stubGlobal("window", new EventTarget());
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  /** fetch stub: commands wait for release(); records the account of each command. */
+  function setup(commandStatus: () => number) {
+    let account = "A";
+    const commands: string[] = [];
+    const waiting: (() => void)[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const path = new URL(url).pathname;
+        if (path === "/api/v1/content") return json(CONTENT);
+        if (path === "/api/v1/world/commands") {
+          commands.push(account);
+          await new Promise<void>((resolve) => waiting.push(resolve));
+          const status = commandStatus();
+          return status === 200 ? json(world(1, "2026-01-01T00:00:00.000Z", null)) : json({ error: { code: "unauthorized", message: "no valid session" } }, status);
+        }
+        return json(world(0, "2026-01-01T00:00:00.000Z", null));
+      }),
+    );
+    return {
+      commands,
+      switchAccount: (a: string) => (account = a),
+      release: async () => {
+        await vi.advanceTimersByTimeAsync(0);
+        waiting.shift()?.();
+        await vi.advanceTimersByTimeAsync(0);
+      },
+    };
+  }
+
+  it("drops queued commands on logout (stop) so they never run under another session", async () => {
+    const f = setup(() => 200);
+    const sync = new GameSync(() => null);
+    const stop = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const first = sync.send(ROAD);
+    const second = sync.send(ROAD);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(f.commands).toEqual(["A"]); // the first is in flight
+    stop(); // logout / unmount
+    f.switchAccount("B"); // another account logs in in the same browser
+    const restartStop = sync.start(); // e.g. React Strict Mode re-running the effect
+    await f.release();
+    await expect(first).rejects.toBeInstanceOf(SyncStoppedError);
+    await expect(second).rejects.toBeInstanceOf(SyncStoppedError);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(f.commands).toEqual(["A"]);
+    restartStop();
+  });
+
+  it("drops queued commands after a 401", async () => {
+    const f = setup(() => 401);
+    const sync = new GameSync(() => null);
+    let ended = 0;
+    sync.subscribeUnauthorized(() => ended++);
+    sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const first = sync.send(ROAD);
+    const second = sync.send(ROAD);
+    first.catch(() => undefined);
+    await f.release();
+    await expect(first).rejects.toMatchObject({ status: 401 });
+    await expect(second).rejects.toBeInstanceOf(SyncStoppedError);
+    f.switchAccount("B");
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(f.commands).toEqual(["A"]);
+    expect(ended).toBe(1);
+  });
+});
+
+describe("GameSync restart (React Strict Mode: start -> stop -> start)", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+    vi.stubGlobal("document", Object.assign(new EventTarget(), { visibilityState: "visible" }));
+    vi.stubGlobal("window", new EventTarget());
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  function stubServer(worldDelayMs = 0) {
+    const counts = { world: 0, content: 0, island: 0 };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const path = new URL(url).pathname;
+        if (path === "/api/v1/content") {
+          counts.content++;
+          return json(CONTENT);
+        }
+        if (path.startsWith("/api/v1/world/islands/")) {
+          counts.island++;
+          return json(ISLAND);
+        }
+        counts.world++;
+        if (worldDelayMs > 0) await new Promise((resolve) => setTimeout(resolve, worldDelayMs));
+        return json(world(counts.world, "2026-01-01T00:00:00.000Z", null, ["start"]));
+      }),
+    );
+    return counts;
+  }
+
+  it("loads the world, content and islands over HTTP after an immediate restart without push", async () => {
+    const counts = stubServer();
+    const sync = new GameSync(() => null); // no WebSocket: no open() refresh
+    const stop1 = sync.start();
+    stop1();
+    const stop2 = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const snap = sync.getSnapshot();
+    expect(counts.world).toBeGreaterThanOrEqual(1);
+    expect(snap.server).not.toBeNull();
+    expect(snap.content).not.toBeNull();
+    expect(snap.islands.has("start")).toBe(true);
+    stop2();
+  });
+
+  it("loads the world when restarted while the first generation's GET is in flight", async () => {
+    const counts = stubServer(100);
+    const sync = new GameSync(() => null);
+    const stop1 = sync.start();
+    await vi.advanceTimersByTimeAsync(10); // first GET in flight
+    stop1();
+    const stop2 = sync.start();
+    await vi.advanceTimersByTimeAsync(500);
+    expect(counts.world).toBe(2); // the restarted generation fetched its own world
+    expect(sync.getSnapshot().server?.version).toBe(2); // the stale response was ignored
+    expect(sync.getSnapshot().islands.has("start")).toBe(true);
+    stop2();
   });
 });

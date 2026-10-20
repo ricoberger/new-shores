@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import type { Content, DisplayState } from "../api/client";
 import { perMin, units } from "../display/format";
 import styles from "./hud.module.css";
@@ -6,9 +6,11 @@ import styles from "./hud.module.css";
 interface Props {
   model: DisplayState | null;
   content: Content | null;
+  /** The account menu. */
+  account?: ReactNode;
 }
 
-export function TopBar({ model, content }: Props) {
+export function TopBar({ model, content, account }: Props) {
   const ready = model !== null;
   useEffect(() => {
     if (ready && performance.getEntriesByName("ns-hud-gold").length === 0) {
@@ -49,6 +51,7 @@ export function TopBar({ model, content }: Props) {
       <span className={styles.version} data-testid="hud-content-version">
         {content?.region.version ?? ""}
       </span>
+      {account}
     </div>
   );
 }

@@ -8,58 +8,143 @@
 package api
 
 import (
+	"bufio"
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
+	"net/netip"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
+
+	"github.com/ricoberger/new-shores/server/internal/auth"
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
+	"github.com/ricoberger/new-shores/server/internal/telemetry"
+	"github.com/ricoberger/new-shores/server/internal/ws"
 )
 
-// WorldResolver returns the world a request acts on. The dev server
-// resolves every request to its single world; M2 resolves the world of the
-// session's player.
+// WorldResolver returns the world a request acts on in dev mode (no
+// accounts): the dev server resolves every request to its single world.
 type WorldResolver func(r *http.Request) (store.WorldID, error)
+
+// Accounts are the account operations of default mode (auth.Service).
+type Accounts interface {
+	Authenticate(ctx context.Context, token string) (*auth.Session, error)
+	Guest(ctx context.Context, deviceToken string) (*auth.Issued, error)
+	Register(ctx context.Context, cur *auth.Session, email, password string, displayName *string) (*auth.Issued, error)
+	Login(ctx context.Context, cur *auth.Session, email, password string) (*auth.Issued, error)
+	Logout(ctx context.Context, cur *auth.Session) error
+	Me(ctx context.Context, cur *auth.Session) (auth.Player, error)
+	VerifyEmail(ctx context.Context, token string) error
+	RequestPasswordReset(ctx context.Context, email string) error
+	ConfirmPasswordReset(ctx context.Context, token, password string) error
+}
+
+// Publisher announces a committed world change (Redis pub/sub in default
+// mode, the in-process hub in dev mode). It logs and counts its own
+// errors: a failed publish never fails a request.
+type Publisher interface {
+	Publish(ctx context.Context, id store.WorldID)
+}
+
+// HealthReport is the readiness state of default mode.
+type HealthReport struct {
+	// Postgres is false when the database does not answer (503).
+	Postgres bool
+	// Redis is "ok" or "unavailable" (reported, not fatal).
+	Redis string
+}
 
 // Config configures the API handler.
 type Config struct {
 	Store     store.Store
 	Catalogue *content.Catalogue
-	// Clock is the wall clock (WallClock in production).
+	// Clock is the wall clock (WallClock in production). It is only used
+	// for request durations; world time comes from the store.
 	Clock Clock
-	// TimeScale maps wall-clock time to world time.
-	TimeScale    TimeScale
+	// ResolveWorld resolves the world in dev mode (Accounts == nil).
 	ResolveWorld WorldResolver
+	// Accounts enables sessions and the auth endpoints (default mode).
+	// Nil is dev mode: /world* need no session and /auth/* is the dev
+	// facade (a fixed logged-in player).
+	Accounts Accounts
+	// Limiter rate-limits the auth endpoints (default mode; nil disables).
+	Limiter auth.Limiter
+	// Publisher announces committed world changes (may be nil).
+	Publisher Publisher
+	// Hub serves /api/v1/ws (nil: the endpoint answers 404).
+	Hub *ws.Hub
+	// Health reports the dependencies for /healthz (default mode).
+	Health func(ctx context.Context) HealthReport
 	// CORSOrigins are the browser origins allowed to call /api/ (exact
 	// match, e.g. "http://localhost:5173"). A request whose Origin header is
 	// in the list gets it echoed in Access-Control-Allow-Origin; other
-	// origins get no CORS headers. Empty disables CORS.
+	// origins get no CORS headers. Empty disables CORS. The same list is
+	// the CSRF and WebSocket origin allowlist.
 	CORSOrigins []string
-	Logger      *slog.Logger
+	// CookieSecure sets the Secure attribute of the session cookie.
+	CookieSecure bool
+	// SessionTTL is the Max-Age of the session cookie.
+	SessionTTL time.Duration
+	// TrustedProxies are the peers whose X-Forwarded-For is trusted.
+	TrustedProxies []netip.Prefix
+	// Version and Instance identify the server in /healthz and the
+	// X-Instance header (optional).
+	Version  string
+	Instance string
+	Logger   *slog.Logger
 }
 
 // Server is the API handler.
 type Server struct {
 	cfg     Config
 	content []byte
-	routes  map[string]map[string]http.HandlerFunc
+	routes  map[string]map[string]route
+}
+
+// access is the session requirement of a route.
+type access int
+
+const (
+	// public routes need no session.
+	public access = iota
+	// optionalSession routes use a valid session when there is one.
+	optionalSession
+	// requireSession routes answer 401 without a valid session.
+	requireSession
+)
+
+type route struct {
+	handler http.HandlerFunc
+	access  access
 }
 
 // New returns the API handler.
 func New(cfg Config) (*Server, error) {
-	if cfg.Store == nil || cfg.Catalogue == nil || cfg.Clock == nil || cfg.ResolveWorld == nil {
-		return nil, errors.New("api: store, catalogue, clock and world resolver are required")
+	if cfg.Store == nil || cfg.Catalogue == nil || cfg.Clock == nil {
+		return nil, errors.New("api: store, catalogue and clock are required")
 	}
-	if cfg.TimeScale.Scale <= 0 {
-		return nil, errors.New("api: time scale must be > 0")
+	if cfg.Accounts == nil && cfg.ResolveWorld == nil {
+		return nil, errors.New("api: a world resolver is required without accounts (dev mode)")
+	}
+	if cfg.SessionTTL <= 0 {
+		cfg.SessionTTL = 30 * 24 * time.Hour
 	}
 	if cfg.Logger == nil {
 		cfg.Logger = slog.New(slog.NewTextHandler(io.Discard, nil))
@@ -69,12 +154,21 @@ func New(cfg Config) (*Server, error) {
 		return nil, fmt.Errorf("api: encode content: %w", err)
 	}
 	s := &Server{cfg: cfg, content: append(body, '\n')}
-	s.routes = map[string]map[string]http.HandlerFunc{
-		"/api/v1/world":                  {http.MethodGet: s.getWorld},
-		"/api/v1/world/commands":         {http.MethodPost: s.postCommand},
-		"/api/v1/content":                {http.MethodGet: s.getContent},
-		islandPathPrefix + "{island_id}": {http.MethodGet: s.getIsland},
-		"/healthz":                       {http.MethodGet: s.getHealth},
+	s.routes = map[string]map[string]route{
+		"/api/v1/world":                       {http.MethodGet: {s.getWorld, requireSession}},
+		"/api/v1/world/commands":              {http.MethodPost: {s.postCommand, requireSession}},
+		"/api/v1/content":                     {http.MethodGet: {s.getContent, public}},
+		islandPathPrefix + "{island_id}":      {http.MethodGet: {s.getIsland, requireSession}},
+		"/api/v1/ws":                          {http.MethodGet: {s.getWS, requireSession}},
+		"/api/v1/auth/guest":                  {http.MethodPost: {s.postGuest, optionalSession}},
+		"/api/v1/auth/register":               {http.MethodPost: {s.postRegister, optionalSession}},
+		"/api/v1/auth/login":                  {http.MethodPost: {s.postLogin, optionalSession}},
+		"/api/v1/auth/logout":                 {http.MethodPost: {s.postLogout, requireSession}},
+		"/api/v1/auth/me":                     {http.MethodGet: {s.getMe, requireSession}},
+		"/api/v1/auth/verify-email":           {http.MethodPost: {s.postVerifyEmail, public}},
+		"/api/v1/auth/password-reset/request": {http.MethodPost: {s.postResetRequest, public}},
+		"/api/v1/auth/password-reset/confirm": {http.MethodPost: {s.postResetConfirm, public}},
+		"/healthz":                            {http.MethodGet: {s.getHealth, public}},
 	}
 	return s, nil
 }
@@ -83,6 +177,10 @@ func New(cfg Config) (*Server, error) {
 type requestInfo struct {
 	command   string
 	errorCode string
+	route     string
+	session   *auth.Session
+	// cookie: the session came from the cookie (CSRF applies).
+	cookie bool
 }
 
 type infoKey struct{}
@@ -104,15 +202,44 @@ func (r *statusRecorder) WriteHeader(status int) {
 	r.ResponseWriter.WriteHeader(status)
 }
 
-// ServeHTTP logs the request, applies CORS and dispatches to the routes.
+// Unwrap lets http.ResponseController reach the underlying writer.
+func (r *statusRecorder) Unwrap() http.ResponseWriter { return r.ResponseWriter }
+
+// Hijack supports the WebSocket upgrade.
+func (r *statusRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	h, ok := r.ResponseWriter.(http.Hijacker)
+	if !ok {
+		return nil, nil, errors.New("hijacking not supported")
+	}
+	r.status = http.StatusSwitchingProtocols
+	return h.Hijack()
+}
+
+// ServeHTTP logs, traces and measures the request, applies CORS and
+// dispatches to the routes.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	begin := s.cfg.Clock.Now()
-	ri := &requestInfo{}
+	ri := &requestInfo{route: "other"}
 	rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
-	s.serve(rec, r.WithContext(context.WithValue(r.Context(), infoKey{}, ri)))
+	reqID := newRequestID()
+	rec.Header().Set("X-Request-ID", reqID)
+	if s.cfg.Instance != "" {
+		rec.Header().Set("X-Instance", s.cfg.Instance)
+	}
+	ctx := otel.GetTextMapPropagator().Extract(r.Context(), propagation.HeaderCarrier(r.Header))
+	ctx, span := telemetry.Tracer().Start(ctx, "HTTP "+r.Method, trace.WithSpanKind(trace.SpanKindServer))
+	s.serve(rec, r.WithContext(context.WithValue(ctx, infoKey{}, ri)))
+	elapsed := s.cfg.Clock.Now().Sub(begin)
+	span.SetName("HTTP " + r.Method + " " + ri.route)
+	span.SetAttributes(attribute.String("http.request.method", r.Method), attribute.String("http.route", ri.route),
+		attribute.Int("http.response.status_code", rec.status))
 	attrs := []any{
-		"method", r.Method, "path", r.URL.Path, "status", rec.status,
-		"duration_ms", float64(s.cfg.Clock.Now().Sub(begin).Microseconds()) / 1000,
+		"request_id", reqID, "method", r.Method, "path", r.URL.Path, "status", rec.status,
+		"duration_ms", float64(elapsed.Microseconds()) / 1000,
+	}
+	if ri.session != nil {
+		attrs = append(attrs, "player_id", ri.session.PlayerID)
+		span.SetAttributes(attribute.String("player.id", ri.session.PlayerID), attribute.String("world.id", string(ri.session.WorldID)))
 	}
 	if ri.command != "" {
 		attrs = append(attrs, "command", ri.command)
@@ -120,7 +247,18 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if ri.errorCode != "" {
 		attrs = append(attrs, "error_code", ri.errorCode)
 	}
+	if rec.status >= http.StatusInternalServerError {
+		span.SetStatus(codes.Error, ri.errorCode)
+	}
+	span.End()
+	telemetry.HTTPRequestDuration.WithLabelValues(r.Method, ri.route, strconv.Itoa(rec.status)).Observe(elapsed.Seconds())
 	s.cfg.Logger.Info("request", attrs...)
+}
+
+func newRequestID() string {
+	b := make([]byte, 8)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
 }
 
 func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
@@ -129,10 +267,15 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 		h.Add("Vary", "Origin")
 		if origin := r.Header.Get("Origin"); origin != "" && slices.Contains(s.cfg.CORSOrigins, origin) {
 			h.Set("Access-Control-Allow-Origin", origin)
+			h.Set("Access-Control-Allow-Credentials", "true")
 		}
 		if r.Method == http.MethodOptions {
 			h.Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-			h.Set("Access-Control-Allow-Headers", "Content-Type")
+			allow := "Content-Type"
+			if s.cfg.Accounts != nil {
+				allow = "Content-Type, Authorization"
+			}
+			h.Set("Access-Control-Allow-Headers", allow)
 			h.Set("Access-Control-Max-Age", "600")
 			w.WriteHeader(http.StatusNoContent)
 			return
@@ -147,7 +290,9 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, r, &apiError{code: CodeNotFound, status: http.StatusNotFound, message: "no such endpoint: " + r.URL.Path})
 		return
 	}
-	h, ok := methods[r.Method]
+	ri := info(r.Context())
+	ri.route = path
+	rt, ok := methods[r.Method]
 	if !ok {
 		for m := range methods {
 			w.Header().Set("Allow", m)
@@ -155,7 +300,48 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, r, &apiError{code: CodeMethodNotAllowed, status: http.StatusMethodNotAllowed, message: "method " + r.Method + " not allowed"})
 		return
 	}
-	h(w, r)
+	if s.cfg.Accounts != nil && rt.access != public {
+		sess, fromCookie, err := s.authenticate(w, r)
+		ri.session, ri.cookie = sess, fromCookie
+		if err != nil && (rt.access == requireSession || !errors.Is(err, errUnauthorized)) {
+			s.writeError(w, r, err)
+			return
+		}
+	}
+	// CSRF: state-changing requests that carry the session cookie (and no
+	// bearer token) must come from an allowed origin. The WebSocket
+	// upgrade applies the same check for cookie sessions.
+	if s.cfg.Accounts != nil && carriesSessionCookie(r) && (!isSafeMethod(r.Method) || path == "/api/v1/ws") {
+		if err := s.checkOrigin(r); err != nil {
+			s.writeError(w, r, err)
+			return
+		}
+	}
+	rt.handler(w, r)
+}
+
+// worldID returns the world of the request: the session's world in
+// default mode, the dev world otherwise. World IDs never come from the
+// client.
+func (s *Server) worldID(r *http.Request) (store.WorldID, error) {
+	if s.cfg.Accounts == nil {
+		return s.cfg.ResolveWorld(r)
+	}
+	sess := info(r.Context()).session
+	if sess == nil {
+		return "", errUnauthorized
+	}
+	if sess.WorldID == "" {
+		return "", store.ErrWorldNotFound
+	}
+	return sess.WorldID, nil
+}
+
+// published announces a committed world change after commit.
+func (s *Server) published(r *http.Request, id store.WorldID) {
+	if s.cfg.Publisher != nil {
+		s.cfg.Publisher.Publish(r.Context(), id)
+	}
 }
 
 // worldResponse is the envelope of world responses.
@@ -164,32 +350,26 @@ type worldResponse struct {
 	Display sim.DisplayState `json:"display"`
 }
 
-// advance moves the world to the current world time and returns it. A wall
-// clock that stepped backwards is clamped to the last evaluation (dev
-// convenience; the simulation itself rejects backwards time).
-func (s *Server) advance(w *sim.World) (time.Time, error) {
-	now := s.cfg.TimeScale.At(s.cfg.Clock.Now())
-	if now.Before(w.LastEvaluatedAt) {
-		now = w.LastEvaluatedAt
-	}
-	if _, err := sim.Advance(w, s.cfg.Catalogue, now); err != nil {
-		return now, err
-	}
-	return now, nil
+// advance moves the world to the world time delivered by the store. A time
+// before the last evaluation is sim.ErrTimeBackwards (500 time_backwards);
+// only the dev store clamps a wall clock that stepped backwards.
+func (s *Server) advance(w *sim.World, now time.Time) error {
+	_, err := sim.Advance(w, s.cfg.Catalogue, now)
+	return err
 }
 
 func (s *Server) getWorld(w http.ResponseWriter, r *http.Request) {
-	id, err := s.cfg.ResolveWorld(r)
+	id, err := s.worldID(r)
 	if err != nil {
 		s.writeError(w, r, err)
 		return
 	}
 	var ds sim.DisplayState
-	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64) (bool, error) {
-		now, err := s.advance(world)
-		if err != nil {
+	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64, now time.Time) (bool, error) {
+		if err := s.advance(world, now); err != nil {
 			return false, err
 		}
+		var err error
 		ds, err = sim.Display(world, s.cfg.Catalogue, now)
 		return false, err
 	})
@@ -217,18 +397,17 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, r, err)
 		return
 	}
-	id, err := s.cfg.ResolveWorld(r)
+	id, err := s.worldID(r)
 	if err != nil {
 		s.writeError(w, r, err)
 		return
 	}
 	var ds sim.DisplayState
-	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, version int64) (bool, error) {
+	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, version int64, now time.Time) (bool, error) {
 		if req.Version != nil && *req.Version != version {
 			s.cfg.Logger.Info("stale client version", "command", typ, "client_version", *req.Version, "version", version)
 		}
-		now, err := s.advance(world)
-		if err != nil {
+		if err := s.advance(world, now); err != nil {
 			return false, err
 		}
 		if err := checkTileCount(world, cmd); err != nil {
@@ -237,6 +416,7 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		if err := sim.Apply(world, s.cfg.Catalogue, cmd); err != nil {
 			return false, err
 		}
+		var err error
 		ds, err = sim.Display(world, s.cfg.Catalogue, now)
 		return err == nil, err
 	})
@@ -244,6 +424,7 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, r, err)
 		return
 	}
+	s.published(r, id)
 	s.writeJSON(w, http.StatusOK, worldResponse{Version: version, Display: ds})
 }
 
@@ -267,15 +448,15 @@ type islandResponse struct {
 // advances the world to the current world time first.
 func (s *Server) getIsland(w http.ResponseWriter, r *http.Request) {
 	islandID := strings.TrimPrefix(r.URL.Path, islandPathPrefix)
-	id, err := s.cfg.ResolveWorld(r)
+	id, err := s.worldID(r)
 	if err != nil {
 		s.writeError(w, r, err)
 		return
 	}
 	var resp islandResponse
-	_, err = s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64) (bool, error) {
+	_, err = s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64, now time.Time) (bool, error) {
 		// Every world request advances first (read-only: no new version).
-		if _, err := s.advance(world); err != nil {
+		if err := s.advance(world, now); err != nil {
 			return false, err
 		}
 		is := world.Island(islandID)
@@ -304,8 +485,45 @@ func (s *Server) getContent(w http.ResponseWriter, _ *http.Request) {
 	_, _ = w.Write(s.content)
 }
 
-func (s *Server) getHealth(w http.ResponseWriter, _ *http.Request) {
-	s.writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+// healthResponse is the body of /healthz. Version and instance identify the
+// server (multi-instance tests); postgres and redis are reported in
+// default mode.
+type healthResponse struct {
+	Status   string `json:"status"`
+	Version  string `json:"version,omitempty"`
+	Instance string `json:"instance,omitempty"`
+	Postgres string `json:"postgres,omitempty"`
+	Redis    string `json:"redis,omitempty"`
+}
+
+// getHealth is the readiness probe. In default mode it pings Postgres
+// (503 service_unavailable when down); Redis is reported but does not fail
+// readiness.
+func (s *Server) getHealth(w http.ResponseWriter, r *http.Request) {
+	resp := healthResponse{Status: "ok", Version: s.cfg.Version, Instance: s.cfg.Instance}
+	if s.cfg.Health != nil {
+		h := s.cfg.Health(r.Context())
+		if !h.Postgres {
+			s.writeError(w, r, &apiError{code: CodeServiceUnavailable, status: http.StatusServiceUnavailable, message: "database unavailable"})
+			return
+		}
+		resp.Postgres, resp.Redis = "ok", h.Redis
+	}
+	s.writeJSON(w, http.StatusOK, resp)
+}
+
+// getWS upgrades to the WebSocket push of the session's world.
+func (s *Server) getWS(w http.ResponseWriter, r *http.Request) {
+	id, err := s.worldID(r)
+	if err != nil {
+		s.writeError(w, r, err)
+		return
+	}
+	if s.cfg.Hub == nil {
+		s.writeError(w, r, &apiError{code: CodeNotFound, status: http.StatusNotFound, message: "push is not available"})
+		return
+	}
+	s.cfg.Hub.Serve(w, r, id)
 }
 
 func setJSONHeaders(w http.ResponseWriter) {
@@ -337,7 +555,12 @@ func (s *Server) writeError(w http.ResponseWriter, r *http.Request, err error) {
 	case errors.As(err, &ae):
 		code, status, msg = ae.code, ae.status, ae.message
 	case errors.Is(err, store.ErrWorldNotFound):
-		code, status, msg = CodeNotFound, http.StatusNotFound, err.Error()
+		code, status, msg = CodeNotFound, http.StatusNotFound, "world not found"
+	case authCode(err) != nil:
+		e := authCode(err)
+		code, status, msg = e.code, e.status, e.message
+	case unavailable(err):
+		code, status, msg = CodeServiceUnavailable, http.StatusServiceUnavailable, "service unavailable"
 	default:
 		code, status = classify(err)
 		msg = err.Error()
@@ -345,9 +568,17 @@ func (s *Server) writeError(w http.ResponseWriter, r *http.Request, err error) {
 			msg = "internal error"
 		}
 	}
+	ri := info(r.Context())
 	if status >= http.StatusInternalServerError {
-		s.cfg.Logger.Error("request failed", "method", r.Method, "path", r.URL.Path, "error_code", code, "error", err)
+		attrs := []any{"method", r.Method, "path", r.URL.Path, "error_code", code, "error", err}
+		if ri.session != nil {
+			attrs = append(attrs, "player_id", ri.session.PlayerID, "world_id", string(ri.session.WorldID))
+		}
+		s.cfg.Logger.Error("request failed", attrs...)
 	}
-	info(r.Context()).errorCode = code
+	if status == http.StatusUnauthorized && ri.cookie {
+		s.clearCookie(w)
+	}
+	ri.errorCode = code
 	s.writeJSON(w, status, errorBody{Error: errorDetail{Code: code, Message: msg}})
 }

@@ -1,9 +1,18 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ApiError, type BuildingDisplay, type Command, type ContentBuilding, NetworkError, type WorldResponse } from "../api/client";
-import { GameSync } from "../api/sync";
+import {
+  ApiError,
+  type BuildingDisplay,
+  type Command,
+  type ContentBuilding,
+  NetworkError,
+  type Player,
+  type WorldResponse,
+} from "../api/client";
+import { GameSync, SyncStoppedError } from "../api/sync";
 import { units } from "../display/format";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { GameRenderer } from "../render/engine";
+import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
 import { BuildMenu } from "./BuildMenu";
 import { type ConfirmRequest, ConfirmDialog } from "./Dialogs";
@@ -32,9 +41,19 @@ declare global {
   }
 }
 
-export function App() {
+interface AppProps {
+  player: Player;
+  /** The player changed (a guest registered; same world). */
+  onPlayerChange: (player: Player) => void;
+  /** A request answered 401: back to the start screen. */
+  onSessionEnded: () => void;
+  onLoggedOut: () => void;
+}
+
+export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: AppProps) {
   const [sync] = useState(() => new GameSync());
   useEffect(() => sync.start(), [sync]);
+  useEffect(() => sync.subscribeUnauthorized(onSessionEnded), [sync, onSessionEnded]);
   const snap = useSyncExternalStore(sync.subscribe, sync.getSnapshot);
   const { model, content } = snap;
 
@@ -62,6 +81,7 @@ export function App() {
       await sync.send(cmd);
       return { ok: true, error: null };
     } catch (err) {
+      if (err instanceof SyncStoppedError) return { ok: false, error: null }; // logged out meanwhile
       if (err instanceof ApiError) {
         toast(err.message);
         return { ok: false, error: err };
@@ -198,7 +218,11 @@ export function App() {
       <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} />
       <div className={styles.overlay}>
         <div className={styles.top}>
-          <TopBar model={model} content={content} />
+          <TopBar
+            model={model}
+            content={content}
+            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
+          />
         </div>
         <div className={styles.left}>{model && content && <WarningsTray model={model} content={content} onFocus={focus} />}</div>
         <div className={styles.right}>
