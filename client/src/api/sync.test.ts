@@ -26,6 +26,7 @@ function world(version: number, evaluatedAt: string, nextChangeAt: string | null
     })),
     ships: [],
     routes: [],
+    insolvency: { unpaid_buildings: 0, unpaid_ships: 0, unpaid_upkeep_per_min: 0, balance_if_resumed_per_min: 0 },
   };
   return { version, display };
 }

@@ -52,6 +52,26 @@ type DisplayState struct {
 	Ships []ShipDisplay `json:"ships"`
 	// Routes sorted by ID.
 	Routes []RouteDisplay `json:"routes"`
+	// Insolvency summarises the buildings and ships paused for
+	// insolvency (MECHANICS §7) for the HUD banner.
+	Insolvency InsolvencyDisplay `json:"insolvency"`
+}
+
+// InsolvencyDisplay is the insolvency state of the world (MECHANICS §7).
+// Gold rates are milli-gold per minute.
+type InsolvencyDisplay struct {
+	// UnpaidBuildings and UnpaidShips count the buildings and ships paused
+	// for insolvency (paused_reason unpaid).
+	UnpaidBuildings int `json:"unpaid_buildings"`
+	UnpaidShips     int `json:"unpaid_ships"`
+	// UnpaidUpkeepPerMin is the summed upkeep of everything paused for
+	// insolvency.
+	UnpaidUpkeepPerMin Qty `json:"unpaid_upkeep_per_min"`
+	// BalanceIfResumedPerMin is the full balance (signed) with every
+	// unpaid building and ship running and all rates recomputed as for an
+	// auto-resume (MECHANICS §7 (b)); the current balance when nothing is
+	// unpaid.
+	BalanceIfResumedPerMin Qty `json:"balance_if_resumed_per_min"`
 }
 
 // ShipDisplay is the display state of a ship. The client interpolates its
@@ -359,7 +379,32 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 	for _, r := range cw.Routes {
 		ds.Routes = append(ds.Routes, displayRoute(cw, c, r))
 	}
+	ds.Insolvency = displayInsolvency(cw, c, wr, nowMs)
 	return ds, nil
+}
+
+// displayInsolvency counts the unpaid buildings and ships of a settled
+// world and computes the balance with all of them running.
+func displayInsolvency(w *World, c *content.Catalogue, wr *worldRates, now int64) InsolvencyDisplay {
+	d := InsolvencyDisplay{BalanceIfResumedPerMin: wr.balance}
+	for _, is := range w.Islands {
+		for _, b := range is.Buildings {
+			if b.Paused && b.PausedReason == PausedReasonUnpaid {
+				d.UnpaidBuildings++
+				d.UnpaidUpkeepPerMin += pauseTarget{is: is, b: b}.upkeep(c)
+			}
+		}
+	}
+	for _, s := range w.Ships {
+		if s.Paused && s.PausedReason == PausedReasonUnpaid {
+			d.UnpaidShips++
+			d.UnpaidUpkeepPerMin += pauseTarget{s: s}.upkeep(c)
+		}
+	}
+	if d.UnpaidBuildings+d.UnpaidShips > 0 {
+		d.BalanceIfResumedPerMin = balanceAllResumed(w, c, now)
+	}
+	return d
 }
 
 func formatMs(ms int64) string { return time.UnixMilli(ms).UTC().Format(timeLayout) }

@@ -926,6 +926,31 @@ export interface components {
             ships: components["schemas"]["ShipDisplay"][];
             /** @description Routes by ascending ID. */
             routes: components["schemas"]["RouteDisplay"][];
+            insolvency: components["schemas"]["InsolvencyDisplay"];
+        };
+        /**
+         * @description Buildings and ships paused for insolvency (MECHANICS §7) and the
+         *     balance with all of them running, for the HUD banner. The client
+         *     shows the banner when `unpaid_buildings + unpaid_ships > 0`.
+         */
+        InsolvencyDisplay: {
+            /** @description Number of buildings paused for insolvency (count). */
+            unpaid_buildings: number;
+            /** @description Number of ships paused for insolvency (count). */
+            unpaid_ships: number;
+            /**
+             * Format: int64
+             * @description Summed upkeep of everything paused for insolvency (milli-gold per minute).
+             */
+            unpaid_upkeep_per_min: number;
+            /**
+             * Format: int64
+             * @description Full balance with every unpaid building and ship running and
+             *     all rates recomputed as for an auto-resume, MECHANICS §7 (b)
+             *     (milli-gold per minute, signed); the current balance when
+             *     nothing is unpaid.
+             */
+            balance_if_resumed_per_min: number;
         };
         /**
          * @description A ship. `state`: `idle` (at `island_id`), `on_route`, `manual_leg`

@@ -545,6 +545,12 @@ func TestShipInsolvency(t *testing.T) {
 	if ds.Ships[0].UpkeepPerMin != 0 || ds.Ships[0].State != ShipAnchoredUnpaid || !ds.Ships[0].Paused || ds.UpkeepRatePerMin != 0 {
 		t.Errorf("ship display %+v upkeep %d", ds.Ships[0], ds.UpkeepRatePerMin)
 	}
+	// Insolvency banner data: sawmill (2) and fisher (1) and the sloop (1)
+	// are unpaid; with all of them running there are no taxes yet.
+	if ins := ds.Insolvency; ins.UnpaidBuildings != 2 || ins.UnpaidShips != 1 || ins.UnpaidUpkeepPerMin != 4_000 ||
+		ins.BalanceIfResumedPerMin != -4_000 || ds.BalanceRatePerMin != 0 {
+		t.Errorf("insolvency %+v balance %d", ins, ds.BalanceRatePerMin)
+	}
 	// Taxes: ten connected houses with fish and garments.
 	for x := 1; x <= 19; x += 2 {
 		if err := PlaceFree(w, c, PlaceBuilding{IslandID: "a", Type: "house_settlers", X: x, Y: 6}, nil); err != nil {

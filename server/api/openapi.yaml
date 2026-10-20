@@ -1414,7 +1414,7 @@ components:
         Authoritative state at `evaluated_at` plus the rates the client
         extrapolates linearly until `next_change_at` (D-027).
       required:
-        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, islands, ships, routes]
+        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, islands, ships, routes, insolvency]
       properties:
         evaluated_at:
           type: string
@@ -1459,6 +1459,38 @@ components:
           description: Routes by ascending ID.
           items:
             $ref: "#/components/schemas/RouteDisplay"
+        insolvency:
+          $ref: "#/components/schemas/InsolvencyDisplay"
+    InsolvencyDisplay:
+      type: object
+      additionalProperties: false
+      description: |
+        Buildings and ships paused for insolvency (MECHANICS §7) and the
+        balance with all of them running, for the HUD banner. The client
+        shows the banner when `unpaid_buildings + unpaid_ships > 0`.
+      required: [unpaid_buildings, unpaid_ships, unpaid_upkeep_per_min, balance_if_resumed_per_min]
+      properties:
+        unpaid_buildings:
+          type: integer
+          minimum: 0
+          description: Number of buildings paused for insolvency (count).
+        unpaid_ships:
+          type: integer
+          minimum: 0
+          description: Number of ships paused for insolvency (count).
+        unpaid_upkeep_per_min:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Summed upkeep of everything paused for insolvency (milli-gold per minute).
+        balance_if_resumed_per_min:
+          type: integer
+          format: int64
+          description: |
+            Full balance with every unpaid building and ship running and
+            all rates recomputed as for an auto-resume, MECHANICS §7 (b)
+            (milli-gold per minute, signed); the current balance when
+            nothing is unpaid.
     ShipDisplay:
       type: object
       additionalProperties: false

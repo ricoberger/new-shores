@@ -681,7 +681,13 @@
         "paused_reason": ""
       }
     ],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 2,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 2000,
+      "balance_if_resumed_per_min": -1760
+    }
   },
   "samples": [
     {
@@ -1367,7 +1373,13 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 2,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 2000,
+          "balance_if_resumed_per_min": -1760
+        }
       }
     },
     {
@@ -2053,7 +2065,13 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 2,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 2000,
+          "balance_if_resumed_per_min": -1760
+        }
       }
     },
     {
@@ -2739,7 +2757,13 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 2,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 2000,
+          "balance_if_resumed_per_min": -1760
+        }
       }
     },
     {
@@ -3425,7 +3449,13 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 2,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 2000,
+          "balance_if_resumed_per_min": -1760
+        }
       }
     },
     {
@@ -4111,7 +4141,13 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 2,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 2000,
+          "balance_if_resumed_per_min": -1760
+        }
       }
     }
   ]

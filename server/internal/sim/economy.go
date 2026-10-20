@@ -140,6 +140,30 @@ func balanceAfterResume(w *World, c *content.Catalogue, now int64, p pauseTarget
 	return balance
 }
 
+// balanceAllResumed returns the world balance (gold sub-units per ms) with
+// every building and ship paused for insolvency running and all rates
+// recomputed like balanceAfterResume, without changing w. It is display
+// information (the insolvency banner), never a resume condition.
+func balanceAllResumed(w *World, c *content.Catalogue, now int64) int64 {
+	var balance int64
+	for _, s := range w.Ships {
+		if def := c.ShipByID[s.Type]; def != nil && (!s.Paused || s.PausedReason == PausedReasonUnpaid) {
+			balance -= def.UpkeepPerMin
+		}
+	}
+	for _, ois := range w.Islands {
+		cis := ois.clone()
+		for _, b := range cis.Buildings {
+			if b.Paused && b.PausedReason == PausedReasonUnpaid {
+				b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = false, "", 0, 0
+			}
+		}
+		r := settleRegimes(cis, c, now, false)
+		balance += r.tax - r.upkeep
+	}
+	return balance
+}
+
 // settleWorld settles every island (house steps, regimes), applies
 // insolvency pauses and auto-resumes and evaluates tier unlocks at time now.
 // It returns the settled rates and the discrete events it applied.
