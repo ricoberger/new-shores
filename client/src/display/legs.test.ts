@@ -34,10 +34,13 @@ describe("ship placement against the server fixtures", () => {
     const arrive = serverTimeMs(leg.arrive_at);
     const a = islandAnchor(pl.get(leg.from_island_id)!);
     const b = islandAnchor(pl.get(leg.to_island_id)!);
-    // Handling: at the origin's anchor plus the berth offset of its slot.
-    const o0 = spreadOffset(0);
-    expect(shipPlacement(ship, pl, depart - 5_000)).toMatchObject({ point: { x: a.x + o0.x, y: a.y + o0.y }, atSea: false });
+    // Handling: exactly at the origin's anchor (R-13), whatever its slot,
+    // also immediately before departure; at depart_at the lerp starts there.
+    expect(shipPlacement(ship, pl, depart - 5_000)).toMatchObject({ point: a, atSea: false });
+    expect(shipPlacement(ship, pl, depart - 1, 3)).toMatchObject({ point: a, atSea: false });
     expect(shipPlacement(ship, pl, depart)!.point).toEqual(a);
+    const justAfter = shipPlacement(ship, pl, depart + 1)!.point;
+    expect(Math.hypot(justAfter.x - a.x, justAfter.y - a.y)).toBeLessThan(0.01);
     const mid = shipPlacement(ship, pl, (depart + arrive) / 2)!;
     expect(mid.atSea).toBe(true);
     expect(mid.point.x).toBeCloseTo((a.x + b.x) / 2, 6);
@@ -60,9 +63,7 @@ describe("ship placement against the server fixtures", () => {
     const pl = placements(d);
     const now = serverTimeMs(d.evaluated_at);
     expect(now).toBeLessThan(serverTimeMs(ship.leg!.depart_at));
-    const a = islandAnchor(pl.get(ship.leg!.from_island_id)!);
-    const o = spreadOffset(0);
-    expect(shipPlacement(ship, pl, now)!.point).toEqual({ x: a.x + o.x, y: a.y + o.y });
+    expect(shipPlacement(ship, pl, now)!.point).toEqual(islandAnchor(pl.get(ship.leg!.from_island_id)!));
   });
 
   it("idle and anchored_unpaid ships are at their island's anchor plus a deterministic spread", () => {
@@ -83,7 +84,7 @@ describe("ship placement against the server fixtures", () => {
     expect(o).not.toEqual(o0);
   });
 
-  it("spread slots are per island by ascending ID; ships at sea get none", () => {
+  it("spread slots are per island by ascending ID; ships with a leg get none", () => {
     const leg = { from_island_id: "a", to_island_id: "b", depart_at: "2026-01-01T00:00:10.000Z", arrive_at: "2026-01-01T00:01:00.000Z" };
     const ships = [
       { id: 5, island_id: "a", leg: null },
@@ -91,15 +92,12 @@ describe("ship placement against the server fixtures", () => {
       { id: 9, island_id: "", leg },
       { id: 7, island_id: "b", leg: null },
     ];
-    const before = anchorSlots(ships, serverTimeMs("2026-01-01T00:00:00.000Z"));
-    expect([...before.entries()].sort()).toEqual([
+    const slots = anchorSlots(ships);
+    expect([...slots.entries()].sort()).toEqual([
       [2, 0],
       [5, 1],
       [7, 0],
-      [9, 2],
     ]);
-    const after = anchorSlots(ships, serverTimeMs("2026-01-01T00:00:30.000Z"));
-    expect(after.has(9)).toBe(false);
     // Distinct offsets for the first ships of a ring.
     const offs = [0, 1, 2, 3, 7].map((i) => spreadOffset(i));
     expect(new Set(offs.map((o) => `${o.x.toFixed(3)},${o.y.toFixed(3)}`)).size).toBe(offs.length);

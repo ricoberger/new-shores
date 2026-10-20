@@ -432,7 +432,7 @@ export class ArchipelagoLayer {
     this.seaTexture.uOffset = off % 1;
     this.seaTexture.vOffset = (off * 0.6) % 1;
     if (!this.archMode) return;
-    const slots = anchorSlots(this.shipList, nowMs);
+    const slots = anchorSlots(this.shipList);
     const byType = new Map<string, ShipDisplay[]>();
     for (const s of this.shipList) {
       let list = byType.get(s.type);

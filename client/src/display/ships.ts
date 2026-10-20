@@ -121,12 +121,11 @@ export function spreadOffset(i: number): ArchPoint {
 /**
  * Archipelago position of a ship at server time nowMs (D-027: a lerp of
  * the server's leg timestamps, no rule). On a leg it is at the origin's
- * anchor while handling (now < depart_at; plus the spread offset of `slot`
- * like a ship at anchor), on the straight line between the anchors while
- * travelling (fraction clamped to [0, 1]) and at the destination's anchor
- * after arrive_at (until the next payload). Without a leg (idle,
- * anchored_unpaid) it is at its island's anchor plus the spread offset of
- * `slot`. Null when an island is unknown.
+ * anchor while handling (now < depart_at), on the straight line between the
+ * anchors while travelling (fraction clamped to [0, 1]) and at the
+ * destination's anchor after arrive_at (until the next payload). Without a
+ * leg (idle, anchored_unpaid) it is at its island's anchor plus the spread
+ * offset of `slot`. Null when an island is unknown.
  */
 export function shipPlacement(
   ship: Pick<ShipDisplay, "island_id" | "leg">,
@@ -144,10 +143,7 @@ export function shipPlacement(
     const heading = Math.atan2(b.y - a.y, b.x - a.x);
     const depart = serverTimeMs(leg.depart_at);
     const arrive = serverTimeMs(leg.arrive_at);
-    if (nowMs < depart) {
-      const o = spreadOffset(slot);
-      return { point: { x: a.x + o.x, y: a.y + o.y }, heading, atSea: false };
-    }
+    if (nowMs < depart) return { point: a, heading, atSea: false };
     const f = Math.min(1, Math.max(0, (nowMs - depart) / Math.max(1, arrive - depart)));
     return { point: { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }, heading, atSea: f < 1 };
   }
@@ -159,15 +155,14 @@ export function shipPlacement(
 }
 
 /**
- * Spread slot of every ship that is at an island (no leg, or handling
- * before departure): its index among the ships at the same island by
- * ascending ID. Ships at sea get slot 0.
+ * Spread slot of every ship without a leg (idle, anchored_unpaid): its
+ * index among those ships at the same island by ascending ID. Ships with a
+ * leg get none (they are at the origin anchor while handling).
  */
-export function anchorSlots(ships: readonly Pick<ShipDisplay, "id" | "island_id" | "leg">[], nowMs: number): Map<number, number> {
+export function anchorSlots(ships: readonly Pick<ShipDisplay, "id" | "island_id" | "leg">[]): Map<number, number> {
   const byIsland = new Map<string, number[]>();
   for (const s of ships) {
-    let at = s.leg ? s.leg.from_island_id : s.island_id;
-    if (s.leg && nowMs >= serverTimeMs(s.leg.depart_at)) at = "";
+    const at = s.leg ? "" : s.island_id;
     if (!at) continue;
     let list = byIsland.get(at);
     if (!list) byIsland.set(at, (list = []));
