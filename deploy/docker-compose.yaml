@@ -12,10 +12,11 @@ name: new-shores
 x-server-env: &server-env
   DATABASE_URL: postgres://${POSTGRES_USER:-newshores}:${POSTGRES_PASSWORD:-newshores-local-only}@postgres:5432/${POSTGRES_DB:-newshores}?sslmode=disable
   REDIS_URL: redis://redis:6379/0
-  PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8000}
+  PUBLIC_URL: ${PUBLIC_URL:-http://localhost:${HTTP_PORT:-8000}}
   # The browser origins of the stack (CSRF and WebSocket origin check);
-  # add yours when you change HTTP_PORT or PUBLIC_URL.
-  ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8000,http://127.0.0.1:8000}
+  # the defaults follow HTTP_PORT; add your origin when you serve the stack
+  # under another host name (PUBLIC_URL).
+  ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:${HTTP_PORT:-8000},http://127.0.0.1:${HTTP_PORT:-8000}}
   COOKIE_SECURE: ${COOKIE_SECURE:-false}
   FRESHNESS_INTERVAL: ${FRESHNESS_INTERVAL:-24h}
   SESSION_TTL: ${SESSION_TTL:-720h}

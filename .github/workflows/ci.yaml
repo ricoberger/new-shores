@@ -57,6 +57,10 @@ jobs:
       - name: go test
         run: go test ./...
 
+      - name: Makefile dry-run checks (make up/down)
+        working-directory: .
+        run: make makefile-test
+
   client:
     name: client
     runs-on: ubuntu-latest

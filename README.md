@@ -47,9 +47,10 @@ Prerequisites: Go 1.27, Node 22 (LTS) with npm, and `golangci-lint` for
 ### Full stack (PostgreSQL, Redis, two servers)
 
 ```sh
-make up      # build and start; waits until http://localhost:8000 answers
+make up      # build and start; waits until the stack answers through Caddy
 make logs    # follow the logs
-make down    # stop; `make down VOLUMES=1` also deletes the database
+make down    # stop and keep the database
+make down VOLUMES=1   # stop and delete the database volume (only 1 deletes)
 ```
 
 Open <http://localhost:8000>: play as guest (the island persists across
@@ -62,7 +63,10 @@ servers' separate metrics port, published as <http://127.0.0.1:9090/metrics>
 (server-1) and <http://127.0.0.1:9091/metrics> (server-2), not through
 Caddy. The Compose file sets local-only default credentials; override them
 (and `HTTP_PORT`, `PUBLIC_URL`, `SMTP_URL`, …) in `deploy/.env`
-(gitignored). Without `SMTP_URL` verification and reset mails are only
+(gitignored). `HTTP_PORT` (default 8000; also `make up HTTP_PORT=8123`)
+moves the stack's port, and the default `ALLOWED_ORIGINS` and `PUBLIC_URL`
+follow it; `make up` waits on and prints the port Compose actually
+published. Without `SMTP_URL` verification and reset mails are only
 logged (subject and token hash).
 
 ### Dev server (in-memory, no database)
