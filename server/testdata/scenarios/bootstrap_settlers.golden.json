@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_settlers",
-  "content_version": "old_coast-0.4.0",
+  "content_version": "old_coast-0.5.0",
   "boundary_count": 95,
   "totals": {
     "main": {
@@ -84,8 +84,8 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 416634,
-      "balance_rate_per_min": -760,
+      "gold": 411634,
+      "balance_rate_per_min": 6240,
       "population": {
         "settlers": 64000
       },
@@ -120,8 +120,8 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 401434,
-      "balance_rate_per_min": -760,
+      "gold": 536434,
+      "balance_rate_per_min": 6240,
       "population": {
         "settlers": 64000
       },
@@ -156,8 +156,8 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 450434,
-      "balance_rate_per_min": 3080,
+      "gold": 725434,
+      "balance_rate_per_min": 10080,
       "population": {
         "settlers": 88000
       },
@@ -192,8 +192,8 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 679634,
-      "balance_rate_per_min": 8200,
+      "gold": 1164634,
+      "balance_rate_per_min": 15200,
       "population": {
         "settlers": 120000
       },
@@ -228,8 +228,8 @@
       "statuses": {
         "ok": 3
       },
-      "gold": 635634,
-      "balance_rate_per_min": 5200,
+      "gold": 1345634,
+      "balance_rate_per_min": 15200,
       "population": {
         "settlers": 120000
       },
@@ -275,8 +275,8 @@
         "low_efficiency": 1,
         "ok": 3
       },
-      "gold": 956319,
-      "balance_rate_per_min": 7415,
+      "gold": 2266319,
+      "balance_rate_per_min": 17415,
       "population": {
         "settlers": 120000
       },
@@ -286,13 +286,47 @@
       ]
     }
   ],
+  "quests": [
+    {
+      "id": "intro_first_road",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_planks",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_houses",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_fish",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_market",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_wool",
+      "completed_at": "2026-01-01T01:50:00.000Z"
+    },
+    {
+      "id": "intro_chapel",
+      "completed_at": "2026-01-01T01:50:00.000Z"
+    },
+    {
+      "id": "intro_settlers_120",
+      "completed_at": "2026-01-01T01:50:00.000Z"
+    }
+  ],
   "final": {
     "evaluated_at": "2026-01-01T02:50:00.000Z",
     "next_change_at": "2026-01-01T03:15:10.000Z",
-    "gold": 956319,
-    "balance_rate_per_min": 7415,
+    "gold": 2266319,
+    "balance_rate_per_min": 17415,
     "tax_rate_per_min": 23415,
-    "upkeep_rate_per_min": 16000,
+    "upkeep_rate_per_min": 6000,
     "tiers": [
       {
         "id": "settlers",
@@ -1602,6 +1636,88 @@
       }
     ],
     "ships": [],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": 17415
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_shipyard",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "shipyard",
+              "current": 0,
+              "target": 1,
+              "met": false
+            },
+            {
+              "kind": "ship_count",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road",
+        "intro_planks",
+        "intro_houses",
+        "intro_fish",
+        "intro_market",
+        "intro_wool",
+        "intro_chapel",
+        "intro_settlers_120"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_houses",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_fish",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_market",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_wool",
+          "completed_at": "2026-01-01T01:50:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_chapel",
+          "completed_at": "2026-01-01T01:50:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_settlers_120",
+          "completed_at": "2026-01-01T01:50:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T01:50:00.000Z"
   }
 }

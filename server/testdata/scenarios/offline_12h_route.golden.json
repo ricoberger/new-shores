@@ -1,6 +1,6 @@
 {
   "name": "offline_12h_route",
-  "content_version": "old_coast-0.4.0",
+  "content_version": "old_coast-0.5.0",
   "boundary_count": 334,
   "totals": {
     "island2": {
@@ -105,8 +105,8 @@
         "low_efficiency": 2,
         "ok": 1
       },
-      "gold": 19502000,
-      "balance_rate_per_min": -10000,
+      "gold": 19487000,
+      "balance_rate_per_min": -5000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -140,8 +140,8 @@
         "low_efficiency": 2,
         "ok": 1
       },
-      "gold": 19478666,
-      "balance_rate_per_min": -10000,
+      "gold": 19475333,
+      "balance_rate_per_min": -5000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -190,8 +190,8 @@
       "statuses": {
         "warehouse_full": 4
       },
-      "gold": 9661920,
-      "balance_rate_per_min": -13400,
+      "gold": 16038586,
+      "balance_rate_per_min": -4400,
       "population": {
         "settlers": 16000
       },
@@ -211,13 +211,23 @@
       ]
     }
   ],
+  "quests": [
+    {
+      "id": "intro_first_road",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_planks",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    }
+  ],
   "final": {
     "evaluated_at": "2026-01-01T12:04:20.000Z",
     "next_change_at": "2026-01-01T12:05:20.000Z",
-    "gold": 9661920,
-    "balance_rate_per_min": -13400,
+    "gold": 16038586,
+    "balance_rate_per_min": -4400,
     "tax_rate_per_min": 1600,
-    "upkeep_rate_per_min": 15000,
+    "upkeep_rate_per_min": 6000,
     "tiers": [
       {
         "id": "settlers",
@@ -1072,6 +1082,46 @@
         ],
         "loop_ms": 280000
       }
-    ]
+    ],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": -4400
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_houses",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "house_settlers",
+              "current": 2,
+              "target": 4,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road",
+        "intro_planks"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:04:20.000Z"
   }
 }

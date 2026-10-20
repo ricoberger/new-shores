@@ -52,6 +52,71 @@ type DisplayState struct {
 	Ships []ShipDisplay `json:"ships"`
 	// Routes sorted by ID.
 	Routes []RouteDisplay `json:"routes"`
+	// Insolvency summarises the buildings and ships paused for
+	// insolvency (MECHANICS §7) for the HUD banner.
+	Insolvency InsolvencyDisplay `json:"insolvency"`
+	// Quests is the state of the content quests.
+	Quests QuestsDisplay `json:"quests"`
+	// AwaySummary is the pending "while you were away" summary or nil.
+	AwaySummary *AwaySummary `json:"away_summary"`
+	// LastSeenAt is the world time of the player's last successful command.
+	LastSeenAt string `json:"last_seen_at"`
+}
+
+// QuestsDisplay is the quest state: the active quests with their
+// objectives, the claimable quest IDs (content order) and every completed
+// quest (by completion time, then content order).
+type QuestsDisplay struct {
+	Active    []ActiveQuestDisplay    `json:"active"`
+	Claimable []string                `json:"claimable"`
+	Completed []CompletedQuestDisplay `json:"completed"`
+}
+
+// ActiveQuestDisplay is an active quest with the progress of its
+// objectives (content order).
+type ActiveQuestDisplay struct {
+	ID         string             `json:"id"`
+	Objectives []ObjectiveDisplay `json:"objectives"`
+}
+
+// ObjectiveDisplay is the progress of one objective. Current and Target
+// are in the predicate's natural unit: counts for building_count,
+// island_settled and ship_count, 0/1 for connected, route_exists and
+// tier_unlocked, milli-residents for population, milli-units for stock and
+// per-mille for satisfaction (current -1 without a house of the tier).
+type ObjectiveDisplay struct {
+	Kind    string `json:"kind"`
+	Type    string `json:"type,omitempty"`
+	Good    string `json:"good,omitempty"`
+	Tier    string `json:"tier,omitempty"`
+	Island  string `json:"island,omitempty"`
+	Current int64  `json:"current"`
+	Target  int64  `json:"target"`
+	Met     bool   `json:"met"`
+}
+
+// CompletedQuestDisplay is a completed quest (RFC 3339 with ms).
+type CompletedQuestDisplay struct {
+	ID          string `json:"id"`
+	CompletedAt string `json:"completed_at"`
+	Claimed     bool   `json:"claimed"`
+}
+
+// InsolvencyDisplay is the insolvency state of the world (MECHANICS §7).
+// Gold rates are milli-gold per minute.
+type InsolvencyDisplay struct {
+	// UnpaidBuildings and UnpaidShips count the buildings and ships paused
+	// for insolvency (paused_reason unpaid).
+	UnpaidBuildings int `json:"unpaid_buildings"`
+	UnpaidShips     int `json:"unpaid_ships"`
+	// UnpaidUpkeepPerMin is the summed upkeep of everything paused for
+	// insolvency.
+	UnpaidUpkeepPerMin Qty `json:"unpaid_upkeep_per_min"`
+	// BalanceIfResumedPerMin is the full balance (signed) with every
+	// unpaid building and ship running and all rates recomputed as for an
+	// auto-resume (MECHANICS §7 (b)); the current balance when nothing is
+	// unpaid.
+	BalanceIfResumedPerMin Qty `json:"balance_if_resumed_per_min"`
 }
 
 // ShipDisplay is the display state of a ship. The client interpolates its
@@ -359,7 +424,64 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 	for _, r := range cw.Routes {
 		ds.Routes = append(ds.Routes, displayRoute(cw, c, r))
 	}
+	ds.Insolvency = displayInsolvency(cw, c, wr, nowMs)
+	ds.Quests = displayQuests(cw, c, wr, nowMs)
+	ds.AwaySummary = cw.PendingSummary
+	ds.LastSeenAt = cw.LastSeenAt.UTC().Format(timeLayout)
 	return ds, nil
+}
+
+// displayQuests derives the quest block of a settled world.
+func displayQuests(w *World, c *content.Catalogue, wr *worldRates, now int64) QuestsDisplay {
+	d := QuestsDisplay{Active: []ActiveQuestDisplay{}, Claimable: claimableQuests(w, c), Completed: []CompletedQuestDisplay{}}
+	env := &questEnv{w: w, c: c, now: now, wr: wr}
+	for _, q := range c.Quests {
+		if !questActive(w, q) {
+			continue
+		}
+		aq := ActiveQuestDisplay{ID: q.ID, Objectives: []ObjectiveDisplay{}}
+		for _, o := range q.Objectives {
+			cur, _ := env.objectiveValue(o)
+			if o.Kind == content.ObjectiveSatisfaction && cur > 0 {
+				cur /= 1000 // ppm -> per-mille (-1 without a house stays -1)
+			}
+			target := ObjectiveTarget(o)
+			aq.Objectives = append(aq.Objectives, ObjectiveDisplay{
+				Kind: o.Kind, Type: o.Building, Good: o.Good, Tier: o.Tier, Island: o.Island,
+				Current: cur, Target: target, Met: env.met(o),
+			})
+		}
+		d.Active = append(d.Active, aq)
+	}
+	for _, id := range sortedCompletions(w, c) {
+		st := w.Quests[id]
+		d.Completed = append(d.Completed, CompletedQuestDisplay{ID: id, CompletedAt: formatMs(st.CompletedAtMs), Claimed: st.Claimed})
+	}
+	return d
+}
+
+// displayInsolvency counts the unpaid buildings and ships of a settled
+// world and computes the balance with all of them running.
+func displayInsolvency(w *World, c *content.Catalogue, wr *worldRates, now int64) InsolvencyDisplay {
+	d := InsolvencyDisplay{BalanceIfResumedPerMin: wr.balance}
+	for _, is := range w.Islands {
+		for _, b := range is.Buildings {
+			if b.Paused && b.PausedReason == PausedReasonUnpaid {
+				d.UnpaidBuildings++
+				d.UnpaidUpkeepPerMin += pauseTarget{is: is, b: b}.upkeep(c)
+			}
+		}
+	}
+	for _, s := range w.Ships {
+		if s.Paused && s.PausedReason == PausedReasonUnpaid {
+			d.UnpaidShips++
+			d.UnpaidUpkeepPerMin += pauseTarget{s: s}.upkeep(c)
+		}
+	}
+	if d.UnpaidBuildings+d.UnpaidShips > 0 {
+		d.BalanceIfResumedPerMin = balanceAllResumed(w, c, now)
+	}
+	return d
 }
 
 func formatMs(ms int64) string { return time.UnixMilli(ms).UTC().Format(timeLayout) }

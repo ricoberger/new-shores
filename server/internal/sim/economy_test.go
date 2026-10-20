@@ -12,6 +12,35 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
+// legacyUpkeep returns base with the upkeep the never-pausable buildings
+// had before it was folded into their price (warehouse 4, market 3, chapel
+// 3, shipyard 1 gold/min). Shipped content can no longer hold gold at zero
+// (a fully stalled town has no running cost), but the MECHANICS §7 rules
+// for that state still exist; the insolvency tests written against these
+// numbers keep exercising them through this code-built catalogue.
+func legacyUpkeep(base *content.Catalogue) *content.Catalogue {
+	up := map[string]Qty{}
+	for id, v := range map[string]Qty{"warehouse": 4_000, "market_small": 3_000, "chapel": 3_000, "shipyard": 1_000} {
+		if base.BuildingByID[id] != nil {
+			up[id] = v
+		}
+	}
+	return withUpkeep(base, up)
+}
+
+// withoutQuests returns base without quests, for tests that compare exact
+// boundary lists or worlds where a (permanent) quest completion is not the
+// subject.
+func withoutQuests(base *content.Catalogue) *content.Catalogue {
+	c := *base
+	c.Quests, c.QuestByID = nil, map[string]*content.Quest{}
+	return &c
+}
+
+// noTrialMs is a trial reserve (100 000 minutes of upkeep) that no test
+// reaches, for tests of the reserve rule (a) + (b) alone.
+const noTrialMs = 100_000 * 60_000
+
 // orderCatalogue is the shipped catalogue with the wool chain at the
 // upkeep (2 gold/min each) and cycle (60 s) these insolvency-order tests
 // were written for: the expected cascades rank buildings by upkeep and the
@@ -19,7 +48,10 @@ import (
 // pass changes freely.
 func orderCatalogue(t *testing.T) *content.Catalogue {
 	t.Helper()
-	c := withUpkeep(catalogue(t), map[string]Qty{"sheep_farm": 2_000, "weaver_wool": 2_000})
+	c := withUpkeep(legacyUpkeep(withoutQuests(catalogue(t))), map[string]Qty{"sheep_farm": 2_000, "weaver_wool": 2_000})
+	// These tests check the reserve rule (a) + (b); the trial reserve (c)
+	// is moved out of reach (TestTrialResume covers it).
+	c.Region.Rules.TrialResumeMs = noTrialMs
 	for _, id := range []string{"sheep_farm", "weaver_wool"} {
 		b := *c.BuildingByID[id]
 		rec := *b.Recipe
@@ -175,7 +207,7 @@ func TestAutoResumeOrderAndHysteresis(t *testing.T) {
 // the resume condition (gold >= 5 min of upkeep and balance - upkeep >= 0)
 // must not let it oscillate with the auto-pause.
 func TestPublicBuildingPauseHysteresis(t *testing.T) {
-	c := withPauseCategory(catalogue(t), "market_small", "public")
+	c := withPauseCategory(legacyUpkeep(catalogue(t)), "market_small", "public")
 	w := newTown(t, c, 0)
 	houses := placeHouses(t, w, c, 8)
 	market := placeFree(t, w, c, "market_small", 17, 1, 0)
@@ -371,7 +403,7 @@ func TestTierGating(t *testing.T) {
 // TestDisplayPopulationFields checks the presence of the R25-R27 display
 // fields and next_change_at for residents and auto_resume boundaries.
 func TestDisplayPopulationFields(t *testing.T) {
-	c := catalogue(t)
+	c := legacyUpkeep(catalogue(t))
 	w := newTown(t, c, 1_000)
 	h := placeHouses(t, w, c, 2)[0]
 	placeFree(t, w, c, "market_small", 17, 1, 0)

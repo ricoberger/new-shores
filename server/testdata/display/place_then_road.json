@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T00:12:00.000Z",
     "next_change_at": "2026-01-01T02:38:34.572Z",
-    "gold": 890000,
-    "balance_rate_per_min": -5000,
+    "gold": 938000,
+    "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 5000,
+    "upkeep_rate_per_min": 1000,
     "tiers": [
       {
         "id": "settlers",
@@ -257,7 +257,33 @@
       }
     ],
     "ships": [],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": -1000
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_first_road",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "road_dirt",
+              "current": 9,
+              "target": 10,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [],
+      "completed": []
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:02:00.000Z"
   },
   "samples": [
     {
@@ -265,10 +291,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:12:00.250Z",
         "next_change_at": "2026-01-01T02:38:34.572Z",
-        "gold": 889979,
-        "balance_rate_per_min": -5000,
+        "gold": 937995,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -519,7 +545,33 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 9,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:02:00.000Z"
       }
     },
     {
@@ -527,10 +579,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:12:01.000Z",
         "next_change_at": "2026-01-01T02:38:34.572Z",
-        "gold": 889916,
-        "balance_rate_per_min": -5000,
+        "gold": 937983,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -781,7 +833,33 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 9,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:02:00.000Z"
       }
     },
     {
@@ -789,10 +867,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:12:05.000Z",
         "next_change_at": "2026-01-01T02:38:34.572Z",
-        "gold": 889583,
-        "balance_rate_per_min": -5000,
+        "gold": 937916,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -1043,7 +1121,33 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 9,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:02:00.000Z"
       }
     },
     {
@@ -1051,10 +1155,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:12:30.000Z",
         "next_change_at": "2026-01-01T02:38:34.572Z",
-        "gold": 887500,
-        "balance_rate_per_min": -5000,
+        "gold": 937500,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -1305,7 +1409,33 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 9,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:02:00.000Z"
       }
     },
     {
@@ -1313,10 +1443,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:17:00.000Z",
         "next_change_at": "2026-01-01T02:38:34.572Z",
-        "gold": 865000,
-        "balance_rate_per_min": -5000,
+        "gold": 933000,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 5000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -1567,7 +1697,33 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 9,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:02:00.000Z"
       }
     }
   ]

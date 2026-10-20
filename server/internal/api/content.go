@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/ricoberger/new-shores/server/internal/content"
+	"github.com/ricoberger/new-shores/server/internal/sim"
 )
 
 // Build-menu categories derived from the capability blocks (no content
@@ -27,6 +28,34 @@ type contentPayload struct {
 	Buildings []buildingJSON `json:"buildings"`
 	Needs     []needJSON     `json:"needs"`
 	Ships     []shipJSONOut  `json:"ships"`
+	Quests    []questJSON    `json:"quests"`
+}
+
+// questJSON is a quest of quests.json in content order. Objective targets
+// use the units of the display (Display.quests): counts, 1 for yes/no
+// predicates, milli-residents, milli-units or per-mille.
+type questJSON struct {
+	ID            string          `json:"id"`
+	Title         string          `json:"title"`
+	Text          string          `json:"text"`
+	Objectives    []objectiveJSON `json:"objectives"`
+	Rewards       rewardsJSON     `json:"rewards"`
+	Prerequisites []string        `json:"prerequisites"`
+}
+
+type objectiveJSON struct {
+	Kind   string `json:"kind"`
+	Type   string `json:"type,omitempty"`
+	Good   string `json:"good,omitempty"`
+	Tier   string `json:"tier,omitempty"`
+	Island string `json:"island,omitempty"`
+	Target int64  `json:"target"`
+}
+
+// rewardsJSON: gold in milli-gold, goods in milli-units.
+type rewardsJSON struct {
+	Gold  int64            `json:"gold"`
+	Goods map[string]int64 `json:"goods"`
 }
 
 type shipJSONOut struct {
@@ -64,6 +93,8 @@ type rulesJSON struct {
 	AutoResumeUpkeepDurationMs int64 `json:"auto_resume_upkeep_ms"`
 	ShipHandlingMs             int64 `json:"ship_handling_ms"`
 	ShipSpeedMilliTilesPerMin  int64 `json:"ship_speed_milli_tiles_per_min"`
+	AwaySummaryMs              int64 `json:"away_summary_ms"`
+	TrialResumeUpkeepMs        int64 `json:"trial_resume_upkeep_ms"`
 }
 
 type tierJSON struct {
@@ -220,9 +251,27 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 				GrowthThresholdPpm: r.GrowthThreshold, OptionalTaxBonusPpm: r.OptionalTaxBonus,
 				AutoResumeUpkeepDurationMs: r.AutoResumeMs,
 				ShipHandlingMs:             r.ShipHandlingMs, ShipSpeedMilliTilesPerMin: r.ShipSpeedMilliTilesPerMin,
+				AwaySummaryMs: r.AwaySummaryMs, TrialResumeUpkeepMs: r.TrialResumeMs,
 			},
 		},
 		Tiers: []tierJSON{}, Goods: []goodJSON{}, Buildings: []buildingJSON{}, Needs: []needJSON{}, Ships: []shipJSONOut{},
+		Quests: []questJSON{},
+	}
+	for _, q := range c.Quests {
+		qj := questJSON{
+			ID: q.ID, Title: q.Title, Text: q.Text, Objectives: []objectiveJSON{},
+			Rewards:       rewardsJSON{Gold: q.Rewards.Gold, Goods: map[string]int64{}},
+			Prerequisites: append([]string{}, q.Prerequisites...),
+		}
+		for _, o := range q.Objectives {
+			qj.Objectives = append(qj.Objectives, objectiveJSON{
+				Kind: o.Kind, Type: o.Building, Good: o.Good, Tier: o.Tier, Island: o.Island, Target: sim.ObjectiveTarget(o),
+			})
+		}
+		for _, g := range q.Rewards.Goods {
+			qj.Rewards.Goods[g.Good] = g.Amount
+		}
+		p.Quests = append(p.Quests, qj)
 	}
 	for _, sh := range c.Ships {
 		sj := shipJSONOut{

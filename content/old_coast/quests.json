@@ -1,0 +1,126 @@
+[
+  {
+    "id": "intro_first_road",
+    "title": "Roads from the warehouse",
+    "text": "Welcome to the Old Coast, governor. Nothing reaches the warehouse without a road: lay ten tiles of dirt road leading away from it. Roads cost nothing, and every building they connect delivers to the warehouse.",
+    "objectives": [
+      { "kind": "building_count", "type": "road_dirt", "min": 10 }
+    ],
+    "rewards": { "gold": 25 },
+    "prerequisites": []
+  },
+  {
+    "id": "intro_planks",
+    "title": "Timber for the colony",
+    "text": "Every house and workshop needs planks. Build a lumberjack in the forest and a sawmill, and connect both to the warehouse by road. The company sends planks to get you started. Goods beyond the warehouse capacity of the island you choose are lost.",
+    "objectives": [
+      { "kind": "connected", "type": "lumberjack" },
+      { "kind": "connected", "type": "sawmill" }
+    ],
+    "rewards": { "goods": { "planks": 45 } },
+    "prerequisites": ["intro_first_road"]
+  },
+  {
+    "id": "intro_houses",
+    "title": "Room for settlers",
+    "text": "Settlers pay taxes, and they are the workers of your workshops. Build four settler houses along the road.",
+    "objectives": [
+      { "kind": "building_count", "type": "house_settlers", "min": 4 }
+    ],
+    "rewards": { "gold": 25 },
+    "prerequisites": ["intro_planks"]
+  },
+  {
+    "id": "intro_fish",
+    "title": "Fish for the table",
+    "text": "Hungry settlers neither grow nor pay their full taxes. Build a fisher on the coast and connect it to the warehouse. Here are more planks for houses. Goods beyond the warehouse capacity of the island you choose are lost.",
+    "objectives": [
+      { "kind": "connected", "type": "fisher" }
+    ],
+    "rewards": { "goods": { "planks": 45 } },
+    "prerequisites": ["intro_houses"]
+  },
+  {
+    "id": "intro_market",
+    "title": "A market square",
+    "text": "Settlers want a market within reach of their houses. Build a small market and connect it to the road.",
+    "objectives": [
+      { "kind": "connected", "type": "market_small" }
+    ],
+    "rewards": { "gold": 25 },
+    "prerequisites": ["intro_fish"]
+  },
+  {
+    "id": "intro_wool",
+    "title": "Warm clothes",
+    "text": "Well-dressed settlers are content, and content settlers become citizens one day. Build a sheep farm and a wool weaver and connect both to the warehouse.",
+    "objectives": [
+      { "kind": "connected", "type": "sheep_farm" },
+      { "kind": "connected", "type": "weaver_wool" }
+    ],
+    "rewards": { "gold": 50 },
+    "prerequisites": ["intro_market"]
+  },
+  {
+    "id": "intro_chapel",
+    "title": "A place of worship",
+    "text": "Citizens will only settle in a town with a chapel. Build one and connect it to the road.",
+    "objectives": [
+      { "kind": "connected", "type": "chapel" }
+    ],
+    "rewards": { "gold": 50 },
+    "prerequisites": ["intro_wool"]
+  },
+  {
+    "id": "intro_settlers_120",
+    "title": "A growing town",
+    "text": "Fed and housed settlers move in on their own. Grow the archipelago to 120 settlers: with a market and a chapel, citizens may then arrive. These planks are for more houses. Goods beyond the warehouse capacity of the island you choose are lost.",
+    "objectives": [
+      { "kind": "population", "tier": "settlers", "min": 120 }
+    ],
+    "rewards": { "goods": { "planks": 30 } },
+    "prerequisites": ["intro_chapel"]
+  },
+  {
+    "id": "intro_shipyard",
+    "title": "A ship of our own",
+    "text": "Beyond the bay lies a second island with iron in its hills. Build a shipyard on the coast and order a sloop.",
+    "objectives": [
+      { "kind": "building_count", "type": "shipyard", "min": 1 },
+      { "kind": "ship_count", "min": 1 }
+    ],
+    "rewards": { "gold": 50 },
+    "prerequisites": ["intro_settlers_120"]
+  },
+  {
+    "id": "intro_island2",
+    "title": "A second settlement",
+    "text": "Load the sloop with planks for a warehouse and sail to the second island to found a settlement there. Here are planks for its first buildings. Goods beyond the warehouse capacity of the island you choose are lost.",
+    "objectives": [
+      { "kind": "island_settled", "count": 2 }
+    ],
+    "rewards": { "goods": { "planks": 30 } },
+    "prerequisites": ["intro_shipyard"]
+  },
+  {
+    "id": "intro_tools",
+    "title": "Tools from the second island",
+    "text": "Citizens' workshops need tools. Mine iron, smelt it and make tools on the second island, and let a sloop on a route bring them home: store ten tools in the start island's warehouse.",
+    "objectives": [
+      { "kind": "route_exists" },
+      { "kind": "stock", "good": "tools", "min": 10, "island": "start" }
+    ],
+    "rewards": { "gold": 100 },
+    "prerequisites": ["intro_island2"]
+  },
+  {
+    "id": "intro_citizen_house",
+    "title": "The first citizens",
+    "text": "Upgrade a full settler house whose needs are all met into a citizen house. Its walls need stone: quarry it on the start island's stone deposits.",
+    "objectives": [
+      { "kind": "building_count", "type": "house_citizens", "min": 1 }
+    ],
+    "rewards": { "gold": 100 },
+    "prerequisites": ["intro_tools"]
+  }
+]

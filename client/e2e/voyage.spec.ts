@@ -16,6 +16,7 @@ import {
   SHIPYARD,
   WAREHOUSE_PLANKS,
 } from "./constants";
+import { dismissAwayDialog } from "./away";
 
 // The shipping flow (R-69) through the UI only, against the dev server at
 // time scale 10: build a connected shipyard, order a sloop, wait for
@@ -89,6 +90,7 @@ async function island2(page: Page): Promise<{ settled: boolean; types: string[] 
 
 test("build a sloop, ship planks to island 2 and found a settlement", async ({ page }) => {
   await page.goto("/");
+  await dismissAwayDialog(page);
   await expect(page.getByTestId("hud-gold")).toBeVisible();
   await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toContainText("unsettled");
   await zoomOut(page);
@@ -165,6 +167,7 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
 
 test("build on island 2 and bring fish home on a route", async ({ page }) => {
   await page.goto("/");
+  await dismissAwayDialog(page);
   await expect(page.getByTestId("hud-ship-count")).toHaveText("1");
   await page.getByTestId(`island-tab-${ISLAND2}`).click();
   await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toHaveAttribute("aria-selected", "true");

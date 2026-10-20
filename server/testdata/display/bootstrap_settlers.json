@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T02:50:00.000Z",
     "next_change_at": "2026-01-01T03:15:10.000Z",
-    "gold": 956319,
-    "balance_rate_per_min": 7415,
+    "gold": 2266319,
+    "balance_rate_per_min": 17415,
     "tax_rate_per_min": 23415,
-    "upkeep_rate_per_min": 16000,
+    "upkeep_rate_per_min": 6000,
     "tiers": [
       {
         "id": "settlers",
@@ -1316,7 +1316,89 @@
       }
     ],
     "ships": [],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": 17415
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_shipyard",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "shipyard",
+              "current": 0,
+              "target": 1,
+              "met": false
+            },
+            {
+              "kind": "ship_count",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road",
+        "intro_planks",
+        "intro_houses",
+        "intro_fish",
+        "intro_market",
+        "intro_wool",
+        "intro_chapel",
+        "intro_settlers_120"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_houses",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_fish",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_market",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_wool",
+          "completed_at": "2026-01-01T01:50:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_chapel",
+          "completed_at": "2026-01-01T01:50:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_settlers_120",
+          "completed_at": "2026-01-01T01:50:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T01:50:00.000Z"
   },
   "samples": [
     {
@@ -1324,10 +1406,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:50:00.250Z",
         "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 956350,
-        "balance_rate_per_min": 7415,
+        "gold": 2266392,
+        "balance_rate_per_min": 17415,
         "tax_rate_per_min": 23415,
-        "upkeep_rate_per_min": 16000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -2637,7 +2719,89 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": 17415
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_shipyard",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "shipyard",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "ship_count",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses",
+            "intro_fish",
+            "intro_market",
+            "intro_wool",
+            "intro_chapel",
+            "intro_settlers_120"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_fish",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_market",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_wool",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_chapel",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_settlers_120",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T01:50:00.000Z"
       }
     },
     {
@@ -2645,10 +2809,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:50:01.000Z",
         "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 956443,
-        "balance_rate_per_min": 7415,
+        "gold": 2266609,
+        "balance_rate_per_min": 17415,
         "tax_rate_per_min": 23415,
-        "upkeep_rate_per_min": 16000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -3958,7 +4122,89 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": 17415
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_shipyard",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "shipyard",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "ship_count",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses",
+            "intro_fish",
+            "intro_market",
+            "intro_wool",
+            "intro_chapel",
+            "intro_settlers_120"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_fish",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_market",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_wool",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_chapel",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_settlers_120",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T01:50:00.000Z"
       }
     },
     {
@@ -3966,10 +4212,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:50:05.000Z",
         "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 956937,
-        "balance_rate_per_min": 7415,
+        "gold": 2267770,
+        "balance_rate_per_min": 17415,
         "tax_rate_per_min": 23415,
-        "upkeep_rate_per_min": 16000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -5279,7 +5525,89 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": 17415
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_shipyard",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "shipyard",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "ship_count",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses",
+            "intro_fish",
+            "intro_market",
+            "intro_wool",
+            "intro_chapel",
+            "intro_settlers_120"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_fish",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_market",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_wool",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_chapel",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_settlers_120",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T01:50:00.000Z"
       }
     },
     {
@@ -5287,10 +5615,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:50:30.000Z",
         "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 960027,
-        "balance_rate_per_min": 7415,
+        "gold": 2275027,
+        "balance_rate_per_min": 17415,
         "tax_rate_per_min": 23415,
-        "upkeep_rate_per_min": 16000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -6600,7 +6928,89 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": 17415
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_shipyard",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "shipyard",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "ship_count",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses",
+            "intro_fish",
+            "intro_market",
+            "intro_wool",
+            "intro_chapel",
+            "intro_settlers_120"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_fish",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_market",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_wool",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_chapel",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_settlers_120",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T01:50:00.000Z"
       }
     },
     {
@@ -6608,10 +7018,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:55:00.000Z",
         "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 993394,
-        "balance_rate_per_min": 7415,
+        "gold": 2353394,
+        "balance_rate_per_min": 17415,
         "tax_rate_per_min": 23415,
-        "upkeep_rate_per_min": 16000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -7921,7 +8331,89 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": 17415
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_shipyard",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "shipyard",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "ship_count",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses",
+            "intro_fish",
+            "intro_market",
+            "intro_wool",
+            "intro_chapel",
+            "intro_settlers_120"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_fish",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_market",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_wool",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_chapel",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_settlers_120",
+              "completed_at": "2026-01-01T01:50:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T01:50:00.000Z"
       }
     }
   ]

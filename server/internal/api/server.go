@@ -364,18 +364,28 @@ func (s *Server) getWorld(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, r, err)
 		return
 	}
-	var ds sim.DisplayState
+	var (
+		ds       sim.DisplayState
+		produced bool
+	)
 	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64, now time.Time) (bool, error) {
 		if err := s.advance(world, now); err != nil {
 			return false, err
 		}
+		// A read commits only when it produces a "while you were away"
+		// summary, so that the summary survives reloads and reaches the
+		// player's other devices.
+		produced = sim.MaybeProduceSummary(world, s.cfg.Catalogue)
 		var err error
 		ds, err = sim.Display(world, s.cfg.Catalogue, now)
-		return false, err
+		return produced && err == nil, err
 	})
 	if err != nil {
 		s.writeError(w, r, err)
 		return
+	}
+	if produced {
+		s.published(r, id)
 	}
 	s.writeJSON(w, http.StatusOK, worldResponse{Version: version, Display: ds})
 }
@@ -413,9 +423,20 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		if err := checkTileCount(world, cmd); err != nil {
 			return false, err
 		}
+		if err := checkClaimIsland(s.cfg.Catalogue, cmd); err != nil {
+			return false, err
+		}
 		if err := sim.Apply(world, s.cfg.Catalogue, cmd); err != nil {
 			return false, err
 		}
+		// The summary over the gap before this command (rule of GET); an
+		// acknowledgement never produces one, it would re-open the summary
+		// it just closed. Every successful command then marks the player
+		// as seen.
+		if _, ack := cmd.(sim.AckSummary); !ack {
+			sim.MaybeProduceSummary(world, s.cfg.Catalogue)
+		}
+		sim.MarkSeen(world)
 		var err error
 		ds, err = sim.Display(world, s.cfg.Catalogue, now)
 		return err == nil, err

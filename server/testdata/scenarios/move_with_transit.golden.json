@@ -1,6 +1,6 @@
 {
   "name": "move_with_transit",
-  "content_version": "old_coast-0.4.0",
+  "content_version": "old_coast-0.5.0",
   "boundary_count": 3,
   "totals": {
     "main": {
@@ -44,8 +44,8 @@
       "statuses": {
         "ok": 1
       },
-      "gold": 947500,
-      "balance_rate_per_min": -5000,
+      "gold": 949500,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -66,21 +66,27 @@
       "statuses": {
         "low_efficiency": 1
       },
-      "gold": 897500,
-      "balance_rate_per_min": -5000,
+      "gold": 939500,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
       ]
     }
   ],
+  "quests": [
+    {
+      "id": "intro_first_road",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    }
+  ],
   "final": {
     "evaluated_at": "2026-01-01T00:10:30.000Z",
     "next_change_at": "2026-01-01T02:59:58.307Z",
-    "gold": 897500,
-    "balance_rate_per_min": -5000,
+    "gold": 939500,
+    "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 5000,
+    "upkeep_rate_per_min": 1000,
     "tiers": [
       {
         "id": "settlers",
@@ -366,6 +372,47 @@
       }
     ],
     "ships": [],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": -1000
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_planks",
+          "objectives": [
+            {
+              "kind": "connected",
+              "type": "lumberjack",
+              "current": 1,
+              "target": 1,
+              "met": true
+            },
+            {
+              "kind": "connected",
+              "type": "sawmill",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:00:30.000Z"
   }
 }

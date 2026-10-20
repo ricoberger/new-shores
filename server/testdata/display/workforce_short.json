@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T00:15:00.000Z",
     "next_change_at": "2026-01-01T02:40:34.000Z",
-    "gold": 1700000,
-    "balance_rate_per_min": -8000,
+    "gold": 1760000,
+    "balance_rate_per_min": -4000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 8000,
+    "upkeep_rate_per_min": 4000,
     "tiers": [
       {
         "id": "settlers",
@@ -718,7 +718,53 @@
       }
     ],
     "ships": [],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": -4000
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_fish",
+          "objectives": [
+            {
+              "kind": "connected",
+              "type": "fisher",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road",
+        "intro_planks",
+        "intro_houses"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_houses",
+          "completed_at": "2026-01-01T00:05:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:10:00.000Z"
   },
   "samples": [
     {
@@ -726,10 +772,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:15:00.250Z",
         "next_change_at": "2026-01-01T02:40:34.000Z",
-        "gold": 1699966,
-        "balance_rate_per_min": -8000,
+        "gold": 1759983,
+        "balance_rate_per_min": -4000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 8000,
+        "upkeep_rate_per_min": 4000,
         "tiers": [
           {
             "id": "settlers",
@@ -1441,7 +1487,53 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -4000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_fish",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "fisher",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:05:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:10:00.000Z"
       }
     },
     {
@@ -1449,10 +1541,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:15:01.000Z",
         "next_change_at": "2026-01-01T02:40:34.000Z",
-        "gold": 1699866,
-        "balance_rate_per_min": -8000,
+        "gold": 1759933,
+        "balance_rate_per_min": -4000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 8000,
+        "upkeep_rate_per_min": 4000,
         "tiers": [
           {
             "id": "settlers",
@@ -2164,7 +2256,53 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -4000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_fish",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "fisher",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:05:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:10:00.000Z"
       }
     },
     {
@@ -2172,10 +2310,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:15:05.000Z",
         "next_change_at": "2026-01-01T02:40:34.000Z",
-        "gold": 1699333,
-        "balance_rate_per_min": -8000,
+        "gold": 1759666,
+        "balance_rate_per_min": -4000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 8000,
+        "upkeep_rate_per_min": 4000,
         "tiers": [
           {
             "id": "settlers",
@@ -2887,7 +3025,53 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -4000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_fish",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "fisher",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:05:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:10:00.000Z"
       }
     },
     {
@@ -2895,10 +3079,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:15:30.000Z",
         "next_change_at": "2026-01-01T02:40:34.000Z",
-        "gold": 1696000,
-        "balance_rate_per_min": -8000,
+        "gold": 1758000,
+        "balance_rate_per_min": -4000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 8000,
+        "upkeep_rate_per_min": 4000,
         "tiers": [
           {
             "id": "settlers",
@@ -3610,7 +3794,53 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -4000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_fish",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "fisher",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:05:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:10:00.000Z"
       }
     },
     {
@@ -3618,10 +3848,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:20:00.000Z",
         "next_change_at": "2026-01-01T02:40:34.000Z",
-        "gold": 1660000,
-        "balance_rate_per_min": -8000,
+        "gold": 1740000,
+        "balance_rate_per_min": -4000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 8000,
+        "upkeep_rate_per_min": 4000,
         "tiers": [
           {
             "id": "settlers",
@@ -4333,7 +4563,53 @@
           }
         ],
         "ships": [],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -4000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_fish",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "fisher",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:05:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:10:00.000Z"
       }
     }
   ]

@@ -66,6 +66,26 @@ func (l *Ledger) flow(island, good string) *Flow {
 	return f
 }
 
+// merge adds every flow of o to l (no-op for a nil l).
+func (l *Ledger) merge(o *Ledger) {
+	if l == nil {
+		return
+	}
+	for island, goods := range o.Islands {
+		for good, f := range goods {
+			t := l.flow(island, good)
+			t.Produced += f.Produced
+			t.Consumed += f.Consumed
+			t.Lost += f.Lost
+			t.Spent += f.Spent
+			t.Refunded += f.Refunded
+			t.Granted += f.Granted
+			t.Loaded += f.Loaded
+			t.Unloaded += f.Unloaded
+		}
+	}
+}
+
 // Flow returns the accumulated flow for a good on an island (zero if none).
 func (l *Ledger) Flow(island, good string) Flow {
 	if l == nil || l.Islands[island] == nil || l.Islands[island][good] == nil {

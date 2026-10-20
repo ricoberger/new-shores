@@ -380,3 +380,24 @@
 .ok {
   color: #2e6b30;
 }
+
+.insolvencyBanner {
+  display: block;
+  margin: 8px auto 0;
+  max-width: 640px;
+  text-align: left;
+  border: 1px solid #d55e00;
+  color: #7a2e00;
+  cursor: pointer;
+}
+
+.awayDialog {
+  width: 460px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.arrivals {
+  max-height: 120px;
+  overflow-y: auto;
+}

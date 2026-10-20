@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"maps"
 	"math"
 	"path/filepath"
@@ -173,13 +174,13 @@ func TestEnvelopeRoundTrip(t *testing.T) {
 	if !bytes.Equal(first, second) {
 		t.Errorf("round trip not byte-identical:\n%s\n%s", first, second)
 	}
-	if !strings.Contains(string(first), `"schema_version":1`) || !strings.Contains(string(first), `"last_evaluated_at":"2026-01-01T00:00:37.123Z"`) {
+	if !strings.Contains(string(first), fmt.Sprintf(`"schema_version":%d`, SchemaVersion)) || !strings.Contains(string(first), `"last_evaluated_at":"2026-01-01T00:00:37.123Z"`) {
 		t.Errorf("unexpected envelope: %s", first[:200])
 	}
 }
 
 func TestDecodeRejectsSchemaVersion(t *testing.T) {
-	for _, v := range []int{0, 2} {
+	for _, v := range []int{0, SchemaVersion + 1} {
 		data, _ := json.Marshal(map[string]any{"schema_version": v, "content_version": "x", "world": map[string]any{}})
 		if _, _, err := Decode(data); !errors.Is(err, ErrSchemaVersion) {
 			t.Errorf("version %d: err = %v, want ErrSchemaVersion", v, err)
@@ -617,8 +618,9 @@ func TestAdvanceTimeRules(t *testing.T) {
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 2})
 	gold := w.Gold
 	mustAdvance(t, w, c, 2*time.Hour)
-	// Upkeep of warehouse (4/min) and fisher (1/min), no houses, no taxes.
-	if want := gold - 120*5_000; w.Gold != want || w.GoldSub != 0 {
+	// Upkeep of the fisher (1/min; the warehouse has none), no houses, no
+	// taxes.
+	if want := gold - 120*1_000; w.Gold != want || w.GoldSub != 0 {
 		t.Errorf("gold after 2h = %d (sub %d), want %d", w.Gold, w.GoldSub, want)
 	}
 	if _, err := Display(w, c, w.LastEvaluatedAt.Add(time.Second)); !errors.Is(err, ErrDisplayTime) {
@@ -714,19 +716,31 @@ func TestDisplayFieldsAndNextChange(t *testing.T) {
 		t.Errorf("first boundary %s != next_change_at %s", got, *ds.NextChangeAt)
 	}
 
-	// An idle world only changes when the warehouse upkeep (4 gold/min)
-	// has used up the 10 000 gold: gold_zero after 2500 minutes. The
-	// warehouse cannot be paused, so gold is then held at zero and nothing
-	// changes any more.
+	// An idle world with only a warehouse never changes: the warehouse
+	// cannot be paused and therefore has no upkeep.
 	idle := testWorld(t, c)
-	if ds := display(t, idle, c); ds.NextChangeAt == nil || *ds.NextChangeAt != "2026-01-02T17:40:00.000Z" {
-		t.Errorf("idle next_change_at = %v", ds.NextChangeAt)
+	gold := idle.Gold
+	if ds := display(t, idle, c); ds.NextChangeAt != nil || ds.BalanceRatePerMin != 0 {
+		t.Errorf("idle next_change_at = %v balance %d", ds.NextChangeAt, ds.BalanceRatePerMin)
 	}
 	bs = mustAdvance(t, idle, c, 2500*time.Minute)
-	if len(bs) != 1 || bs[0].Kind != BoundaryGoldZero || idle.Gold != 0 || idle.GoldSub != 0 {
+	if len(bs) != 0 || idle.Gold != gold || idle.GoldSub != 0 {
 		t.Errorf("idle boundaries %+v gold %d", bs, idle.Gold)
 	}
-	if ds := display(t, idle, c); ds.NextChangeAt != nil || ds.BalanceRatePerMin != -4_000 {
+	// With the upkeep the warehouse had before it was folded into its
+	// price (4 gold/min), the 10 000 gold run out after 2500 minutes; the
+	// warehouse cannot be paused, so gold is then held at zero and nothing
+	// changes any more (MECHANICS §7).
+	lc := legacyUpkeep(c)
+	held := testWorld(t, lc)
+	if ds := display(t, held, lc); ds.NextChangeAt == nil || *ds.NextChangeAt != "2026-01-02T17:40:00.000Z" {
+		t.Errorf("legacy idle next_change_at = %v", ds.NextChangeAt)
+	}
+	bs = mustAdvance(t, held, lc, 2500*time.Minute)
+	if len(bs) != 1 || bs[0].Kind != BoundaryGoldZero || held.Gold != 0 || held.GoldSub != 0 {
+		t.Errorf("legacy idle boundaries %+v gold %d", bs, held.Gold)
+	}
+	if ds := display(t, held, lc); ds.NextChangeAt != nil || ds.BalanceRatePerMin != -4_000 {
 		t.Errorf("held idle world: next %v balance %d", ds.NextChangeAt, ds.BalanceRatePerMin)
 	}
 }

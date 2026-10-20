@@ -1,0 +1,177 @@
+{
+  "name": "away_summary_12h",
+  "description": "(z) \"While you were away\" over a 12-hour gap after the last command: a plank chain fills the start island's planks to capacity, four settler houses grown on the seeded fish starve once it is eaten and decline, the shrinking taxes no longer cover the upkeep so the producers and the sloop are paused for insolvency, and the sloop sent with planks to (unsettled) island 2 by the last command arrives inside the gap. The away_summary step stores the summary as the pending one and reports it.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccc~",
+        "~cccccccccccccccccccccccccccc~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 72,
+      "y": 96,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccc~",
+        "~cccccccccccccccc~",
+        "~................~",
+        "~................~",
+        "~................~",
+        "~...........mIIm.~",
+        "~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 2,
+      "rotation": 0
+    },
+    "gold": 1000,
+    "stock": {
+      "planks": 250,
+      "sails": 10,
+      "fish": 40
+    },
+    "workforce": {
+      "settlers": 100
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          5
+        ],
+        "to": [
+          28,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 6,
+        "y": 1,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 23,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 20,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 16,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 2,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 4,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 6,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 50
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "12h"
+      }
+    },
+    {
+      "away_summary": true
+    }
+  ]
+}

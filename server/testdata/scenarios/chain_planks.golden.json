@@ -1,6 +1,6 @@
 {
   "name": "chain_planks",
-  "content_version": "old_coast-0.4.0",
+  "content_version": "old_coast-0.5.0",
   "boundary_count": 2,
   "totals": {
     "main": {
@@ -37,8 +37,8 @@
         "input_starved": 1,
         "ok": 1
       },
-      "gold": 69366,
-      "balance_rate_per_min": -7000,
+      "gold": 70300,
+      "balance_rate_per_min": -3000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -63,8 +63,8 @@
       "statuses": {
         "ok": 2
       },
-      "gold": 69133,
-      "balance_rate_per_min": -7000,
+      "gold": 70200,
+      "balance_rate_per_min": -3000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -89,8 +89,8 @@
       "statuses": {
         "ok": 2
       },
-      "gold": 66800,
-      "balance_rate_per_min": -7000,
+      "gold": 69200,
+      "balance_rate_per_min": -3000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -115,8 +115,8 @@
       "statuses": {
         "ok": 2
       },
-      "gold": 66683,
-      "balance_rate_per_min": -7000,
+      "gold": 69150,
+      "balance_rate_per_min": -3000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -141,21 +141,31 @@
       "statuses": {
         "ok": 2
       },
-      "gold": 1000,
-      "balance_rate_per_min": -7000,
+      "gold": 41000,
+      "balance_rate_per_min": -3000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
       ]
     }
   ],
+  "quests": [
+    {
+      "id": "intro_first_road",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_planks",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    }
+  ],
   "final": {
     "evaluated_at": "2026-01-01T00:10:00.000Z",
-    "next_change_at": "2026-01-01T00:10:08.571Z",
-    "gold": 1000,
-    "balance_rate_per_min": -7000,
+    "next_change_at": "2026-01-01T00:23:40.000Z",
+    "gold": 41000,
+    "balance_rate_per_min": -3000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 7000,
+    "upkeep_rate_per_min": 3000,
     "tiers": [
       {
         "id": "settlers",
@@ -472,6 +482,46 @@
       }
     ],
     "ships": [],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": -3000
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_houses",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "house_settlers",
+              "current": 0,
+              "target": 4,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road",
+        "intro_planks"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:00:00.000Z"
   }
 }

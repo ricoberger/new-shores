@@ -2,11 +2,11 @@
   "scenario": "ship_built",
   "base": {
     "evaluated_at": "2026-01-01T00:03:00.000Z",
-    "next_change_at": "2026-01-01T01:57:00.000Z",
-    "gold": 684000,
-    "balance_rate_per_min": -6000,
+    "next_change_at": "2026-01-01T11:17:00.000Z",
+    "gold": 674000,
+    "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 6000,
+    "upkeep_rate_per_min": 1000,
     "tiers": [
       {
         "id": "settlers",
@@ -471,18 +471,59 @@
         "paused_reason": ""
       }
     ],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": -1000
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_planks",
+          "objectives": [
+            {
+              "kind": "connected",
+              "type": "lumberjack",
+              "current": 0,
+              "target": 1,
+              "met": false
+            },
+            {
+              "kind": "connected",
+              "type": "sawmill",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:00:00.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T00:03:00.250Z",
-        "next_change_at": "2026-01-01T01:57:00.000Z",
-        "gold": 683975,
-        "balance_rate_per_min": -6000,
+        "next_change_at": "2026-01-01T11:17:00.000Z",
+        "gold": 673995,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -947,18 +988,59 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_planks",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "lumberjack",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "connected",
+                  "type": "sawmill",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T00:03:01.000Z",
-        "next_change_at": "2026-01-01T01:57:00.000Z",
-        "gold": 683900,
-        "balance_rate_per_min": -6000,
+        "next_change_at": "2026-01-01T11:17:00.000Z",
+        "gold": 673983,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -1423,18 +1505,59 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_planks",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "lumberjack",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "connected",
+                  "type": "sawmill",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T00:03:05.000Z",
-        "next_change_at": "2026-01-01T01:57:00.000Z",
-        "gold": 683500,
-        "balance_rate_per_min": -6000,
+        "next_change_at": "2026-01-01T11:17:00.000Z",
+        "gold": 673916,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -1899,18 +2022,59 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_planks",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "lumberjack",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "connected",
+                  "type": "sawmill",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T00:03:30.000Z",
-        "next_change_at": "2026-01-01T01:57:00.000Z",
-        "gold": 681000,
-        "balance_rate_per_min": -6000,
+        "next_change_at": "2026-01-01T11:17:00.000Z",
+        "gold": 673500,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -2375,18 +2539,59 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_planks",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "lumberjack",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "connected",
+                  "type": "sawmill",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T00:08:00.000Z",
-        "next_change_at": "2026-01-01T01:57:00.000Z",
-        "gold": 654000,
-        "balance_rate_per_min": -6000,
+        "next_change_at": "2026-01-01T11:17:00.000Z",
+        "gold": 669000,
+        "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 1000,
         "tiers": [
           {
             "id": "settlers",
@@ -2851,7 +3056,48 @@
             "paused_reason": ""
           }
         ],
-        "routes": []
+        "routes": [],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -1000
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_planks",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "lumberjack",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                },
+                {
+                  "kind": "connected",
+                  "type": "sawmill",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     }
   ]

@@ -8,11 +8,19 @@ interface Props {
   model: DisplayState;
   content: Content;
   onFocus: (buildingId: number) => void;
+  /** Open state when controlled by the parent (the insolvency banner opens it). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 /** Every building whose status is not ok, with its sentence (MECHANICS §14). */
-export function WarningsTray({ model, content, onFocus }: Props) {
-  const [open, setOpen] = useState(false);
+export function WarningsTray({ model, content, onFocus, open: controlled, onOpenChange }: Props) {
+  const [own, setOwn] = useState(false);
+  const open = controlled ?? own;
+  const setOpen = (v: boolean) => {
+    setOwn(v);
+    onOpenChange?.(v);
+  };
   const entries = model.islands.flatMap((is) =>
     is.buildings.filter((b) => b.status !== "ok").map((b) => ({ b, is, text: statusText(b, is, model, content) })),
   );

@@ -1,0 +1,296 @@
+{
+  "name": "stall_recovery_auto",
+  "description": "Stall recovery (golden x, automatic): the tier-1 opening of the reference game from the starting stock on the dev start island. At minute 0 the player builds the market, a shipyard, the wood chain, the wool chain and a fisher on the far east coast (760 of 800 gold); the five settler houses (the remaining planks) follow at minute 6 with 4 gold left. Upkeep 6 gold/min against 0.6 gold/min of floor taxes (market only, no food yet) empties the treasury at 6:44, before the fisher's first catch (60 s on the road) lands: the cascade pauses every pausable building. Nothing that still runs has upkeep, so gold grows again; the landed fish lifts satisfaction to 0.8, the houses grow and the auto-resume chain restarts on its own. No command after the opening.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "fertilities": [
+        "wheat",
+        "apple"
+      ],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~ccccccccccccccccccccccc~~~~~~~~ccccccccccccccccccccccc~",
+        "~c......................cccccccc......................c~",
+        "~c....................................................c~",
+        "~c....................................................c~",
+        "~c................................ffffffffffffffffffffc~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~~cffffffff.......................fffffffffffffffffffc~~",
+        "~~cffffffff.......................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+        "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+        "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+        "~c..............mmmmmmm...............................c~",
+        "~c..............mmmmmmm...............................c~",
+        "~c..............mSSmSSm...............................c~",
+        "~c....................................................c~",
+        "~c....................................................c~",
+        "~c....................................................c~",
+        "~c............ccccccc..............ccccccc............c~",
+        "~ccccccccccccc~~~~~~~cccccccccccccc~~~~~~~ccccccccccccc~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 2,
+      "y": 1,
+      "rotation": 0
+    },
+    "start": true
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          51,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          51,
+          3
+        ],
+        "to": [
+          51,
+          3
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          45,
+          5
+        ],
+        "to": [
+          45,
+          12
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          2,
+          33
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          33
+        ],
+        "to": [
+          5,
+          33
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          20
+        ],
+        "to": [
+          30,
+          20
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 16,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 5,
+        "y": 34,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 43,
+        "y": 10,
+        "rotation": 270
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 31,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 50,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 14,
+        "y": 21,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 26,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "6m"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    }
+  ]
+}

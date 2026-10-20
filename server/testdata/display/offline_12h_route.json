@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T12:04:20.000Z",
     "next_change_at": "2026-01-01T12:05:20.000Z",
-    "gold": 9661920,
-    "balance_rate_per_min": -13400,
+    "gold": 16038586,
+    "balance_rate_per_min": -4400,
     "tax_rate_per_min": 1600,
-    "upkeep_rate_per_min": 15000,
+    "upkeep_rate_per_min": 6000,
     "tiers": [
       {
         "id": "settlers",
@@ -861,7 +861,47 @@
         ],
         "loop_ms": 280000
       }
-    ]
+    ],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": -4400
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_houses",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "house_settlers",
+              "current": 2,
+              "target": 4,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road",
+        "intro_planks"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:04:20.000Z"
   },
   "samples": [
     {
@@ -869,10 +909,10 @@
       "display": {
         "evaluated_at": "2026-01-01T12:04:20.250Z",
         "next_change_at": "2026-01-01T12:05:20.000Z",
-        "gold": 9661864,
-        "balance_rate_per_min": -13400,
+        "gold": 16038568,
+        "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
-        "upkeep_rate_per_min": 15000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -1727,7 +1767,47 @@
             ],
             "loop_ms": 280000
           }
-        ]
+        ],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -4400
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_houses",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "house_settlers",
+                  "current": 2,
+                  "target": 4,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:04:20.000Z"
       }
     },
     {
@@ -1735,10 +1815,10 @@
       "display": {
         "evaluated_at": "2026-01-01T12:04:21.000Z",
         "next_change_at": "2026-01-01T12:05:20.000Z",
-        "gold": 9661696,
-        "balance_rate_per_min": -13400,
+        "gold": 16038513,
+        "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
-        "upkeep_rate_per_min": 15000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -2593,7 +2673,47 @@
             ],
             "loop_ms": 280000
           }
-        ]
+        ],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -4400
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_houses",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "house_settlers",
+                  "current": 2,
+                  "target": 4,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:04:20.000Z"
       }
     },
     {
@@ -2601,10 +2721,10 @@
       "display": {
         "evaluated_at": "2026-01-01T12:04:25.000Z",
         "next_change_at": "2026-01-01T12:05:20.000Z",
-        "gold": 9660803,
-        "balance_rate_per_min": -13400,
+        "gold": 16038220,
+        "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
-        "upkeep_rate_per_min": 15000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -3459,7 +3579,47 @@
             ],
             "loop_ms": 280000
           }
-        ]
+        ],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -4400
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_houses",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "house_settlers",
+                  "current": 2,
+                  "target": 4,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:04:20.000Z"
       }
     },
     {
@@ -3467,10 +3627,10 @@
       "display": {
         "evaluated_at": "2026-01-01T12:04:50.000Z",
         "next_change_at": "2026-01-01T12:05:20.000Z",
-        "gold": 9655220,
-        "balance_rate_per_min": -13400,
+        "gold": 16036386,
+        "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
-        "upkeep_rate_per_min": 15000,
+        "upkeep_rate_per_min": 6000,
         "tiers": [
           {
             "id": "settlers",
@@ -4325,7 +4485,47 @@
             ],
             "loop_ms": 280000
           }
-        ]
+        ],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": -4400
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_houses",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "house_settlers",
+                  "current": 2,
+                  "target": 4,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:04:20.000Z"
       }
     }
   ]

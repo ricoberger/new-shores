@@ -648,7 +648,7 @@ func TestHealthAndContent(t *testing.T) {
 	if err := json.Unmarshal(res.body, &c); err != nil {
 		t.Fatal(err)
 	}
-	if c.Region.Version != "old_coast-0.4.0" || len(c.Buildings) != 27 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
+	if c.Region.Version != "old_coast-0.5.0" || len(c.Buildings) != 27 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
 		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d ships %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs), len(c.Ships))
 	}
 	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 2 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != catalogue(t).ShipByID["sloop"].Cost.Gold || sh.Cost.Materials["sails"] != 10_000 {
@@ -704,7 +704,7 @@ func TestIslandData(t *testing.T) {
 	if err := json.Unmarshal(res.body, &is); err != nil {
 		t.Fatal(err)
 	}
-	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.4.0" {
+	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.5.0" {
 		t.Fatalf("island %s %dx%d terrain %d revision %s", is.ID, is.Width, is.Height, len(is.Terrain), is.Revision)
 	}
 	// Row 1 of the dev island starts with water then coast.

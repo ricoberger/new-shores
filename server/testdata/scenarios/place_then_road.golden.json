@@ -1,6 +1,6 @@
 {
   "name": "place_then_road",
-  "content_version": "old_coast-0.4.0",
+  "content_version": "old_coast-0.5.0",
   "boundary_count": 1,
   "totals": {
     "main": {
@@ -39,8 +39,8 @@
       "statuses": {
         "not_connected": 1
       },
-      "gold": 940000,
-      "balance_rate_per_min": -5000,
+      "gold": 948000,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -61,8 +61,8 @@
       "statuses": {
         "low_efficiency": 1
       },
-      "gold": 890000,
-      "balance_rate_per_min": -5000,
+      "gold": 938000,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -72,10 +72,10 @@
   "final": {
     "evaluated_at": "2026-01-01T00:12:00.000Z",
     "next_change_at": "2026-01-01T02:38:34.572Z",
-    "gold": 890000,
-    "balance_rate_per_min": -5000,
+    "gold": 938000,
+    "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 5000,
+    "upkeep_rate_per_min": 1000,
     "tiers": [
       {
         "id": "settlers",
@@ -326,6 +326,32 @@
       }
     ],
     "ships": [],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": -1000
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_first_road",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "road_dirt",
+              "current": 9,
+              "target": 10,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [],
+      "completed": []
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:02:00.000Z"
   }
 }

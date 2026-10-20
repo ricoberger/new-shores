@@ -476,8 +476,10 @@ func withinRadius(def *content.Building, b *Building, hx, hy, hw, hh, radius int
 
 // normalizeHouses applies the discrete effect of residents boundaries: an
 // accumulator at +1 resident adds a resident, at -1 removes one; at a
-// residents bound the accumulator stops at 0.
-func normalizeHouses(is *Island, c *content.Catalogue) {
+// residents bound the accumulator stops at 0. It returns the residents
+// change per tier (milli-residents; nil without change).
+func normalizeHouses(is *Island, c *content.Catalogue) map[string]Qty {
+	var delta map[string]Qty
 	for _, b := range is.Buildings {
 		tier := houseTier(b, c)
 		if tier == nil {
@@ -488,11 +490,19 @@ func normalizeHouses(is *Island, c *content.Catalogue) {
 		case h.Growth >= ResidentSub:
 			if h.Residents < tier.ResidentsMax {
 				h.Residents += content.MilliPerUnit
+				if delta == nil {
+					delta = map[string]Qty{}
+				}
+				delta[tier.ID] += content.MilliPerUnit
 			}
 			h.Growth = 0
 		case h.Growth <= -ResidentSub:
 			if h.Residents > tier.ResidentsFloor {
 				h.Residents -= content.MilliPerUnit
+				if delta == nil {
+					delta = map[string]Qty{}
+				}
+				delta[tier.ID] -= content.MilliPerUnit
 			}
 			h.Growth = 0
 		}
@@ -500,4 +510,5 @@ func normalizeHouses(is *Island, c *content.Catalogue) {
 			h.Growth = 0
 		}
 	}
+	return delta
 }

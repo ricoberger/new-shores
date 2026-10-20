@@ -20,13 +20,19 @@ export const SAWMILL = { x: 20, y: 5, rotation: 180 };
 /** Move targets below the road (D-042): footprints still touch the road. */
 export const HOUSE_MOVED = { x: 11, y: 5 };
 export const SAWMILL_MOVED = { x: 24, y: 5 };
+/** Three more settler houses below the road for the houses quest (four houses in all). */
+export const QUEST_HOUSES = [
+  { x: 14, y: 5 },
+  { x: 16, y: 5 },
+  { x: 18, y: 5 },
+];
 /** A tile of the seeded warehouse (x 2..5, y 1..3). */
 export const WAREHOUSE_TILE = { x: 3, y: 2 };
 /** A water tile (invalid placement). */
 export const WATER = { x: 0, y: 0 };
 /** Gold of the dev world: start.json (no dev-only bonus since the tier 1–2 balancing pass). */
 export const START_GOLD = 800;
-export const CONTENT_VERSION = "old_coast-0.4.0";
+export const CONTENT_VERSION = "old_coast-0.5.0";
 
 // Shipping (voyage.spec.ts; the Go test TestShippingLayoutFoundsIsland2
 // checks the same layout): a road from below the warehouse down the west

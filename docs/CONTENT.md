@@ -199,15 +199,15 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 |---|---|---|---|---|---|---|
 | `house_settlers` | 1 | 2×2 | 0 / 10 | 0 | — | R |
 | `road_dirt` | 1 | 1×1 | 0 | 0 | — | |
-| `warehouse` | 1 | 4×3 harbour slot | 100 / 20 | 4 | — | lvl 1: cap 300/good, T 30/min |
-| `market_small` | 1 | 3×3 | 150 / 15 | 3 | — | R, radius 12 |
-| `chapel` | 1 | 2×2 | 200 / 15 | 3 | — | R, radius 16 |
+| `warehouse` | 1 | 4×3 harbour slot | 200 / 20 | 0 | — | lvl 1: cap 300/good, T 30/min |
+| `market_small` | 1 | 3×3 | 225 / 15 | 0 | — | R, radius 12 |
+| `chapel` | 1 | 2×2 | 275 / 15 | 0 | — | R, radius 16 |
 | `lumberjack` | 1 | 2×2 | 50 / 5 | 1 | 4 S | R, work radius 4 forest, 24 tiles |
 | `sawmill` | 1 | 2×2 | 80 / 8 | 2 | 4 S | R |
 | `fisher` | 1 | 2×2 harbour slot | 60 / 6 | 1 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + fields | 50 / 10 | 1 | 4 S | R, work radius 4 grass, 24 tiles, cycle 90 s |
 | `weaver_wool` | 1 | 2×2 | 70 / 10 | 1 | 6 S | R, cycle 90 s |
-| `shipyard` | 1 | 5×4 harbour slot | 200 / 25 | 1 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
+| `shipyard` | 1 | 5×4 harbour slot | 225 / 25 | 0 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
 | `house_citizens` | 2 | 2×2 | 150 / 15 / 10 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | 5 / – / 1 | 0 | — | |
 | `quarry` | 2 | 3×3 stone slot | 100 / 20 | 2 | 8 S | R |
@@ -441,6 +441,6 @@ See MECHANICS §6.2 for the semantics.
 - Starting stock (`start.json`: 800 gold, 130 planks, 10 sails), granted
   after the free first warehouse, must allow: 8 settler houses + fisher +
   lumberjack + sawmill + market + ~40 road tiles, and cover the early
-  deficit for ≥ 15 min of upkeep (currently ≈ 42 min: 460 gold left at
-  11 gold/min of upkeep).
+  deficit for ≥ 15 min of upkeep (currently ≈ 96 min: 385 gold left at
+  4 gold/min of upkeep).
 - Verify with headless scenarios before touching any client code.

@@ -8,6 +8,7 @@ import (
 	"io"
 	"unicode/utf8"
 
+	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
 
@@ -36,6 +37,9 @@ const (
 	cmdUnassignShip    = "unassign_ship"
 	cmdManualShipment  = "manual_shipment"
 	cmdFoundIsland     = "found_island"
+
+	cmdClaimQuest = "claim_quest"
+	cmdAckSummary = "ack_summary"
 )
 
 // Body limits of the ship and route commands (API level, invalid_command).
@@ -165,6 +169,17 @@ type manualShipmentJSON struct {
 	Cargo      []cargoJSON `json:"cargo"`
 }
 
+type claimQuestJSON struct {
+	Type     string  `json:"type"`
+	QuestID  *string `json:"quest_id"`
+	IslandID *string `json:"island_id"`
+}
+
+type ackSummaryJSON struct {
+	Type      string `json:"type"`
+	SummaryID *int64 `json:"summary_id"`
+}
+
 type foundIslandJSON struct {
 	Type         string  `json:"type"`
 	ShipID       *int64  `json:"ship_id"`
@@ -240,12 +255,56 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeManualShipment(raw)
 	case cmdFoundIsland:
 		cmd, err = decodeFoundIsland(raw)
+	case cmdClaimQuest:
+		cmd, err = decodeClaimQuest(raw)
+	case cmdAckSummary:
+		cmd, err = decodeAckSummary(raw)
 	case "":
 		return "", nil, missing("type")
 	default:
 		return "", nil, fmt.Errorf("%w: unknown command type %q", sim.ErrInvalidCommand, head.Type)
 	}
 	return head.Type, cmd, err
+}
+
+func decodeClaimQuest(raw json.RawMessage) (sim.Command, error) {
+	var c claimQuestJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	if c.QuestID == nil {
+		return nil, missing("quest_id")
+	}
+	cmd := sim.ClaimQuest{QuestID: *c.QuestID}
+	if c.IslandID != nil {
+		cmd.IslandID = *c.IslandID
+	}
+	return cmd, nil
+}
+
+func decodeAckSummary(raw json.RawMessage) (sim.Command, error) {
+	var c ackSummaryJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	if c.SummaryID == nil {
+		return nil, missing("summary_id")
+	}
+	return sim.AckSummary{SummaryID: *c.SummaryID}, nil
+}
+
+// checkClaimIsland rejects a claim_quest of a quest that rewards goods
+// without an island_id (400 bad_request): the request is incomplete for
+// that quest. Unknown quests are left to the simulation (quest_not_found).
+func checkClaimIsland(c *content.Catalogue, cmd sim.Command) error {
+	cq, ok := cmd.(sim.ClaimQuest)
+	if !ok || cq.IslandID != "" {
+		return nil
+	}
+	if q := c.QuestByID[cq.QuestID]; q != nil && len(q.Rewards.Goods) > 0 {
+		return badRequest(fmt.Sprintf("quest %q rewards goods: island_id is required", cq.QuestID))
+	}
+	return nil
 }
 
 func decodePlaceBuilding(raw json.RawMessage) (sim.Command, error) {

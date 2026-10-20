@@ -13,6 +13,7 @@ import {
 import { GameSync, SyncStoppedError } from "../api/sync";
 import { units } from "../display/format";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
+import { shouldShowSummary } from "../display/summary";
 import { GameRenderer } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
@@ -26,6 +27,9 @@ import { ShipmentDialog } from "./ShipmentDialog";
 import { ShipsPanel } from "./ShipsPanel";
 import { type Toast, Toasts } from "./Toasts";
 import { NO_TOOL, type Tool } from "./tools";
+import { AwayDialog } from "./AwayDialog";
+import { InsolvencyBanner } from "./InsolvencyBanner";
+import { QuestsPanel } from "./QuestsPanel";
 import { TopBar } from "./TopBar";
 import { WarningsTray } from "./WarningsTray";
 
@@ -68,7 +72,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
   const [chosenIsland, setChosenIsland] = useState<string | null>(null);
-  const [panel, setPanel] = useState<"none" | "ships" | "routes">("none");
+  const [panel, setPanel] = useState<"none" | "ships" | "routes" | "quests">("none");
+  const [warningsOpen, setWarningsOpen] = useState(false);
+  // Summaries the player closed in this session: a re-fetch with the same
+  // id does not re-open the dialog, a new id does.
+  const [closedSummaries, setClosedSummaries] = useState<ReadonlySet<number>>(() => new Set());
   const [shipment, setShipment] = useState<ShipDisplay | null>(null);
   const [ghostHint, setGhostHint] = useState<string | null>(null);
   const rendererRef = useRef<GameRenderer | null>(null);
@@ -277,6 +285,12 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
   };
 
   const idleShipsHere = model?.ships.filter((s) => s.state === "idle" && s.island_id === islandId) ?? [];
+  const islandName = (id: string) => model?.islands.find((is) => is.id === id)?.name || id;
+  const awaySummary = model?.away_summary;
+  const dismissSummary = (id: number) => {
+    setClosedSummaries((s) => new Set(s).add(id));
+    void send({ type: "ack_summary", summary_id: id });
+  };
 
   return (
     <div className={styles.root}>
@@ -290,10 +304,16 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
             onSelectIsland={selectIsland}
             onShips={() => setPanel((p) => (p === "ships" ? "none" : "ships"))}
             onRoutes={() => setPanel((p) => (p === "routes" ? "none" : "routes"))}
+            onQuests={() => setPanel((p) => (p === "quests" ? "none" : "quests"))}
             account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
           />
+          <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} />
         </div>
-        <div className={styles.left}>{model && content && <WarningsTray model={model} content={content} onFocus={focus} />}</div>
+        <div className={styles.left}>
+          {model && content && (
+            <WarningsTray model={model} content={content} onFocus={focus} open={warningsOpen} onOpenChange={setWarningsOpen} />
+          )}
+        </div>
         <div className={styles.right}>
           {panel === "ships" && model && content && (
             <ShipsPanel
@@ -312,6 +332,16 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
                 })
               }
               onFound={startFounding}
+              onClose={() => setPanel("none")}
+            />
+          )}
+          {panel === "quests" && model && content && (
+            <QuestsPanel
+              model={model}
+              content={content}
+              onClaim={(questId, island) =>
+                void send(island ? { type: "claim_quest", quest_id: questId, island_id: island } : { type: "claim_quest", quest_id: questId })
+              }
               onClose={() => setPanel("none")}
             />
           )}
@@ -398,6 +428,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
       )}
       <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((t) => t.id !== id))} />
       {confirm && <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />}
+      {awaySummary && content && shouldShowSummary(awaySummary, closedSummaries) && (
+        <AwayDialog summary={awaySummary} content={content} islandName={islandName} onDismiss={() => dismissSummary(awaySummary.id)} />
+      )}
       {shipment && model && content && (
         <ShipmentDialog
           ship={shipment}

@@ -1,6 +1,6 @@
 {
   "name": "manual_shipment_excess",
-  "content_version": "old_coast-0.4.0",
+  "content_version": "old_coast-0.5.0",
   "boundary_count": 4,
   "totals": {
     "island2": {
@@ -68,8 +68,8 @@
         }
       },
       "statuses": {},
-      "gold": 890000,
-      "balance_rate_per_min": -6000,
+      "gold": 875000,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -100,8 +100,8 @@
         }
       },
       "statuses": {},
-      "gold": 882000,
-      "balance_rate_per_min": -6000,
+      "gold": 873666,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -144,8 +144,8 @@
         }
       },
       "statuses": {},
-      "gold": 768666,
-      "balance_rate_per_min": -10000,
+      "gold": 672333,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -185,8 +185,8 @@
         }
       },
       "statuses": {},
-      "gold": 755333,
-      "balance_rate_per_min": -10000,
+      "gold": 671000,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -229,8 +229,8 @@
         }
       },
       "statuses": {},
-      "gold": 755333,
-      "balance_rate_per_min": -10000,
+      "gold": 671000,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -248,13 +248,19 @@
       ]
     }
   ],
+  "quests": [
+    {
+      "id": "intro_first_road",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    }
+  ],
   "final": {
     "evaluated_at": "2026-01-01T00:06:00.000Z",
-    "next_change_at": "2026-01-01T01:21:32.000Z",
-    "gold": 755333,
-    "balance_rate_per_min": -10000,
+    "next_change_at": "2026-01-01T11:17:00.000Z",
+    "gold": 671000,
+    "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 10000,
+    "upkeep_rate_per_min": 1000,
     "tiers": [
       {
         "id": "settlers",
@@ -745,6 +751,47 @@
         "paused_reason": ""
       }
     ],
-    "routes": []
+    "routes": [],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": -1000
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_planks",
+          "objectives": [
+            {
+              "kind": "connected",
+              "type": "lumberjack",
+              "current": 0,
+              "target": 1,
+              "met": false
+            },
+            {
+              "kind": "connected",
+              "type": "sawmill",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:04:40.000Z"
   }
 }

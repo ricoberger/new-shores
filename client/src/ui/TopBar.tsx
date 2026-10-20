@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect } from "react";
 import type { Content, DisplayState } from "../api/client";
 import { perMin, units } from "../display/format";
+import { claimableCount } from "../display/quests";
 import { populationTotals } from "../display/tiers";
 import styles from "./hud.module.css";
 
@@ -13,11 +14,13 @@ interface Props {
   /** Opens or closes the Ships / Routes panels. */
   onShips: () => void;
   onRoutes: () => void;
+  /** Opens or closes the quests panel. */
+  onQuests: () => void;
   /** The account menu. */
   account?: ReactNode;
 }
 
-export function TopBar({ model, content, islandId, onSelectIsland, onShips, onRoutes, account }: Props) {
+export function TopBar({ model, content, islandId, onSelectIsland, onShips, onRoutes, onQuests, account }: Props) {
   const ready = model !== null;
   useEffect(() => {
     if (ready && performance.getEntriesByName("ns-hud-gold").length === 0) {
@@ -27,6 +30,7 @@ export function TopBar({ model, content, islandId, onSelectIsland, onShips, onRo
 
   const balance = model?.balance_rate_per_min ?? 0;
   const population = populationTotals(model);
+  const claimable = claimableCount(model);
   return (
     <div className={styles.topBar}>
       <div className={styles.stat} title="Gold">
@@ -72,6 +76,14 @@ export function TopBar({ model, content, islandId, onSelectIsland, onShips, onRo
         ⇄ Routes {model?.routes.length ?? 0}
       </button>
       <div className={styles.spacer} />
+      <button type="button" className={styles.hudButton} onClick={onQuests} data-testid="hud-quests">
+        ✦ Quests
+        {claimable > 0 && (
+          <span className={styles.badge} data-testid="hud-quests-badge">
+            {claimable}
+          </span>
+        )}
+      </button>
       <span className={styles.version} data-testid="hud-content-version">
         {content?.region.version ?? ""}
       </span>

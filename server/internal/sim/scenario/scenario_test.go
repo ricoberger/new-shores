@@ -500,10 +500,12 @@ func TestInsolvency(t *testing.T) {
 			t.Errorf("cascade not at one instant: %v", rep.PauseEvents[:5])
 		}
 	}
-	// At 3 minutes all five are paused for insolvency and gold is zero.
+	// At 3 minutes all five are paused for insolvency; nothing that still
+	// runs has upkeep, so the balance is not negative and gold grows again
+	// from the floor taxes.
 	s := rep.Snapshots[1]
-	if s.StatusesCount[sim.StatusPaused] != 5 || s.Gold != 0 {
-		t.Errorf("snapshot %s: %+v gold %d", s.At, s.StatusesCount, s.Gold)
+	if s.StatusesCount[sim.StatusPaused] != 5 || s.Gold <= 0 || s.BalanceRatePerMin < 0 {
+		t.Errorf("snapshot %s: %+v gold %d balance %d", s.At, s.StatusesCount, s.Gold, s.BalanceRatePerMin)
 	}
 	checkGoldNonNegative(t, rep)
 	for _, b := range rep.Final.Islands[0].Buildings {

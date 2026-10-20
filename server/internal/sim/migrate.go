@@ -22,12 +22,47 @@ type Migration func(RawEnvelope) (RawEnvelope, error)
 // Migrations maps a schema version N to the migration from N to N+1.
 type Migrations map[int]Migration
 
-// SchemaMigrations returns the registered schema migrations. Add an entry
-// here (and a test against a stored fixture of the old version) whenever
-// SchemaVersion is incremented (docs/ARCHITECTURE.md §4.1). No migration
-// exists yet: SchemaVersion is still 1.
+// SchemaMigrations returns the registered schema migrations.
+//
+// Adding the next migration (docs/ARCHITECTURE.md §4.1):
+//
+//  1. Before changing the world format, commit an envelope encoded by the
+//     current binary as testdata/schema<N>_<what>.json (a real world, e.g.
+//     the end state of a scenario).
+//  2. Increment SchemaVersion, write migrateNtoN1 (pure, JSON in, JSON out)
+//     and register it here under N.
+//  3. Add a case to the table of TestMigrations (migrate_test.go) that
+//     decodes the fixture, asserts the migrated fields and checks the
+//     re-encode/round-trip/Advance/Display template.
 func SchemaMigrations() Migrations {
-	return Migrations{}
+	return Migrations{1: migrate1to2}
+}
+
+// migrate1to2 adds the state of quests and the "while you were away"
+// summary (schema 2): no completed quests, last_seen_at =
+// last_evaluated_at, an empty summary accumulator and no pending summary.
+// Only last_seen_at has to be written; the other fields are omitted when
+// empty.
+func migrate1to2(e RawEnvelope) (RawEnvelope, error) {
+	var world map[string]json.RawMessage
+	if err := json.Unmarshal(e.World, &world); err != nil {
+		return e, err
+	}
+	last, ok := world["last_evaluated_at"]
+	if !ok {
+		return e, fmt.Errorf("world has no last_evaluated_at")
+	}
+	for _, field := range []string{"quests", "last_seen_at", "away", "pending_summary"} {
+		if _, ok := world[field]; ok {
+			return e, fmt.Errorf("schema 1 world already has %q", field)
+		}
+	}
+	world["last_seen_at"] = last
+	out, err := json.Marshal(world)
+	if err != nil {
+		return e, err
+	}
+	return RawEnvelope{ContentVersion: e.ContentVersion, World: out}, nil
 }
 
 // DecodeWith is Decode with an explicit migration registry. An envelope

@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/quests.schema.json",
+  "title": "Quests",
+  "description": "Guidance quests of a region in content order. A quest is active when all its prerequisites are completed; it completes once (permanently) when all its objectives hold, and its rewards are claimed by the player. Objectives use a closed vocabulary of generic predicates over the world state.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "title", "text", "objectives", "rewards", "prerequisites"],
+    "properties": {
+      "id": { "$ref": "#/$defs/id" },
+      "title": { "type": "string", "minLength": 1 },
+      "text": {
+        "description": "Advisor prose shown to the player.",
+        "type": "string",
+        "minLength": 1
+      },
+      "objectives": {
+        "description": "Predicates that must all hold.",
+        "type": "array",
+        "minItems": 1,
+        "items": { "$ref": "#/$defs/objective" }
+      },
+      "rewards": { "$ref": "#/$defs/rewards" },
+      "prerequisites": {
+        "description": "IDs of earlier quests that must be completed (not necessarily claimed) before this quest is active.",
+        "type": "array",
+        "items": { "$ref": "#/$defs/id" },
+        "uniqueItems": true
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "island": {
+      "description": "Island ID; absent = summed over the whole archipelago.",
+      "type": "string",
+      "minLength": 1
+    },
+    "count": { "type": "integer", "minimum": 1 },
+    "rewards": {
+      "description": "Gold in whole gold and goods in whole units; at least one of the two is non-empty. Decorations are reserved and must be empty.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "gold": { "type": "integer", "minimum": 1 },
+        "goods": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-z][a-z0-9_]*$": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "decorations": { "type": "array", "maxItems": 0 }
+      },
+      "anyOf": [{ "required": ["gold"] }, { "required": ["goods"] }]
+    },
+    "objective": {
+      "oneOf": [
+        {
+          "description": "Buildings of a content type (paused ones included) >= min; for a road type the number of road tiles.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "type", "min"],
+          "properties": {
+            "kind": { "const": "building_count" },
+            "type": { "$ref": "#/$defs/id" },
+            "min": { "$ref": "#/$defs/count" },
+            "island": { "$ref": "#/$defs/island" }
+          }
+        },
+        {
+          "description": "At least one building of the type is road-connected to a warehouse (warehouses count as connected).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "type"],
+          "properties": {
+            "kind": { "const": "connected" },
+            "type": { "$ref": "#/$defs/id" },
+            "island": { "$ref": "#/$defs/island" }
+          }
+        },
+        {
+          "description": "Residents of the tier over the archipelago >= min (whole residents).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "tier", "min"],
+          "properties": {
+            "kind": { "const": "population" },
+            "tier": { "$ref": "#/$defs/id" },
+            "min": { "$ref": "#/$defs/count" }
+          }
+        },
+        {
+          "description": "Inventory stock (not in transit, not aboard) of the good >= min units on the island, or summed over all islands.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "good", "min"],
+          "properties": {
+            "kind": { "const": "stock" },
+            "good": { "$ref": "#/$defs/id" },
+            "min": { "$ref": "#/$defs/count" },
+            "island": { "$ref": "#/$defs/island" }
+          }
+        },
+        {
+          "description": "At least one route has at least one assigned ship.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": { "const": "route_exists" }
+          }
+        },
+        {
+          "description": "Number of settled islands (with at least one warehouse) >= count.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "count"],
+          "properties": {
+            "kind": { "const": "island_settled" },
+            "count": { "$ref": "#/$defs/count" }
+          }
+        },
+        {
+          "description": "The tier is unlocked.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "tier"],
+          "properties": {
+            "kind": { "const": "tier_unlocked" },
+            "tier": { "$ref": "#/$defs/id" }
+          }
+        },
+        {
+          "description": "Number of ships owned (any state) >= min.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "min"],
+          "properties": {
+            "kind": { "const": "ship_count" },
+            "min": { "$ref": "#/$defs/count" }
+          }
+        },
+        {
+          "description": "There is a house of the tier and the resident-weighted mean satisfaction of all its houses >= min (fraction, at most 3 decimals).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "tier", "min"],
+          "properties": {
+            "kind": { "const": "satisfaction" },
+            "tier": { "$ref": "#/$defs/id" },
+            "min": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    }
+  }
+}

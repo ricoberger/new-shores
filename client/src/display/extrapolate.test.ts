@@ -130,6 +130,10 @@ describe("extrapolate", () => {
     tiers: [],
     ships: [],
     routes: [],
+    insolvency: { unpaid_buildings: 0, unpaid_ships: 0, unpaid_upkeep_per_min: 0, balance_if_resumed_per_min: -600 },
+    quests: { active: [], claimable: [], completed: [] },
+    away_summary: null,
+    last_seen_at: "2026-01-01T00:00:00.000Z",
     islands: [
       {
         id: "a",

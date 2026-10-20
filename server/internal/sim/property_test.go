@@ -580,9 +580,13 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 		}
 		start := p.w.LastEvaluatedAt
 		for i, b := range bs {
+			kind := b.Kind
+			if b.Kind == BoundaryAutoResume && b.Trial {
+				kind = "trial_resume"
+			}
 			for _, at := range []time.Time{b.At, b.At.Add(time.Millisecond)} {
 				if at.After(start) && at.Before(to) {
-					splits = append(splits, split{at, b.Kind})
+					splits = append(splits, split{at, kind})
 				}
 			}
 			// Inside the handling time after an arrival (before the
@@ -634,6 +638,7 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 					later = append(later, sp)
 					switch sp.kind {
 					case BoundaryGoldZero, BoundaryGoldReserve, BoundaryAutoPause, BoundaryAutoResume, "between",
+						BoundaryGoldTrialReserve, "trial_resume",
 						BoundaryShipArrived, BoundaryShipBuilt, "handling":
 						byKind[sp.kind] = append(byKind[sp.kind], sp)
 					}
@@ -743,6 +748,11 @@ func TestPropertyComposition(t *testing.T) {
 	// fish supply and taxes at once (default 5-minute reserve).
 	cats["fish_weaver"] = fishWeaverCatalogue(catalogue(t), catalogue(t).Region.Rules.AutoResumeMs)
 	for name, c := range cats {
+		// The recovery cases need towns that fall into insolvency again
+		// and again; they keep the never-pausable upkeep of the content
+		// before it was folded into the prices (legacyUpkeep), the random
+		// command cases run on the content as shipped.
+		rc := legacyUpkeep(c)
 		t.Run(name, func(t *testing.T) {
 			for seed := range uint64(propertyCases) {
 				p := newPropCase(t, c, 10_000+seed)
@@ -753,7 +763,7 @@ func TestPropertyComposition(t *testing.T) {
 			kinds, splitKinds := map[string]int{}, map[string]int{}
 			recovered := 0
 			for seed := range uint64(propertyCases) {
-				p := newPropCase(t, c, 70_000+seed)
+				p := newPropCase(t, rc, 70_000+seed)
 				p.maxPieces = 8
 				p.w = p.recoveryWorld()
 				p.checkInvariants("initial")
@@ -935,7 +945,7 @@ func TestPropertyTownCompositionMinimalReserve(t *testing.T) {
 // (including pauses); every piece must leave a settled world, the split
 // result must equal a single Advance and coarse mode is never reached.
 func TestPropertyPauseResumeInterplay(t *testing.T) {
-	c := fishWeaverCatalogue(catalogue(t), minimalReserveMs)
+	c := fishWeaverCatalogue(legacyUpkeep(catalogue(t)), minimalReserveMs)
 	pauses, resumes := 0, 0
 	for seed := range uint64(propertyCases) {
 		p := newPropCase(t, c, 60_000+seed)
@@ -1189,9 +1199,12 @@ func TestPropertyMovePreservesState(t *testing.T) {
 
 // TestPropertyMoveEqualsPlacement: placing a building at A and moving it to
 // B at the same instant yields a world byte-identical to placing it at B
-// directly. No field is excluded.
+// directly. No field is excluded; the catalogues have no quests, because a
+// quest completed by the placement at A stays completed (completion is
+// permanent by design).
 func TestPropertyMoveEqualsPlacement(t *testing.T) {
 	for name, c := range propertyCatalogues(t) {
+		c := withoutQuests(c)
 		t.Run(name, func(t *testing.T) {
 			compared := 0
 			for seed := range uint64(propertyCases) {

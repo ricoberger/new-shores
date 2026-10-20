@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T02:49:00.000Z",
     "next_change_at": "2026-01-01T02:49:20.000Z",
-    "gold": 956145,
-    "balance_rate_per_min": 25720,
+    "gold": 2696145,
+    "balance_rate_per_min": 40720,
     "tax_rate_per_min": 77720,
-    "upkeep_rate_per_min": 52000,
+    "upkeep_rate_per_min": 37000,
     "tiers": [
       {
         "id": "settlers",
@@ -5017,7 +5017,94 @@
         ],
         "loop_ms": 280000
       }
-    ]
+    ],
+    "insolvency": {
+      "unpaid_buildings": 0,
+      "unpaid_ships": 0,
+      "unpaid_upkeep_per_min": 0,
+      "balance_if_resumed_per_min": 40720
+    },
+    "quests": {
+      "active": [],
+      "claimable": [
+        "intro_first_road",
+        "intro_planks",
+        "intro_houses",
+        "intro_fish",
+        "intro_market",
+        "intro_wool",
+        "intro_chapel",
+        "intro_settlers_120",
+        "intro_shipyard",
+        "intro_island2",
+        "intro_tools",
+        "intro_citizen_house"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_houses",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_fish",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_market",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_wool",
+          "completed_at": "2026-01-01T01:09:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_chapel",
+          "completed_at": "2026-01-01T01:19:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_settlers_120",
+          "completed_at": "2026-01-01T01:19:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_shipyard",
+          "completed_at": "2026-01-01T01:19:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_island2",
+          "completed_at": "2026-01-01T01:19:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_tools",
+          "completed_at": "2026-01-01T02:28:20.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_citizen_house",
+          "completed_at": "2026-01-01T02:28:20.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T02:12:00.000Z"
   },
   "samples": [
     {
@@ -5025,10 +5112,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:49:00.250Z",
         "next_change_at": "2026-01-01T02:49:20.000Z",
-        "gold": 956252,
-        "balance_rate_per_min": 25720,
+        "gold": 2696315,
+        "balance_rate_per_min": 40720,
         "tax_rate_per_min": 77720,
-        "upkeep_rate_per_min": 52000,
+        "upkeep_rate_per_min": 37000,
         "tiers": [
           {
             "id": "settlers",
@@ -10039,7 +10126,94 @@
             ],
             "loop_ms": 280000
           }
-        ]
+        ],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": 40720
+        },
+        "quests": {
+          "active": [],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses",
+            "intro_fish",
+            "intro_market",
+            "intro_wool",
+            "intro_chapel",
+            "intro_settlers_120",
+            "intro_shipyard",
+            "intro_island2",
+            "intro_tools",
+            "intro_citizen_house"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_fish",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_market",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_wool",
+              "completed_at": "2026-01-01T01:09:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_chapel",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_settlers_120",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_shipyard",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_island2",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_tools",
+              "completed_at": "2026-01-01T02:28:20.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_citizen_house",
+              "completed_at": "2026-01-01T02:28:20.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T02:12:00.000Z"
       }
     },
     {
@@ -10047,10 +10221,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:49:01.000Z",
         "next_change_at": "2026-01-01T02:49:20.000Z",
-        "gold": 956574,
-        "balance_rate_per_min": 25720,
+        "gold": 2696824,
+        "balance_rate_per_min": 40720,
         "tax_rate_per_min": 77720,
-        "upkeep_rate_per_min": 52000,
+        "upkeep_rate_per_min": 37000,
         "tiers": [
           {
             "id": "settlers",
@@ -15061,7 +15235,94 @@
             ],
             "loop_ms": 280000
           }
-        ]
+        ],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": 40720
+        },
+        "quests": {
+          "active": [],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses",
+            "intro_fish",
+            "intro_market",
+            "intro_wool",
+            "intro_chapel",
+            "intro_settlers_120",
+            "intro_shipyard",
+            "intro_island2",
+            "intro_tools",
+            "intro_citizen_house"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_fish",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_market",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_wool",
+              "completed_at": "2026-01-01T01:09:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_chapel",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_settlers_120",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_shipyard",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_island2",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_tools",
+              "completed_at": "2026-01-01T02:28:20.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_citizen_house",
+              "completed_at": "2026-01-01T02:28:20.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T02:12:00.000Z"
       }
     },
     {
@@ -15069,10 +15330,10 @@
       "display": {
         "evaluated_at": "2026-01-01T02:49:05.000Z",
         "next_change_at": "2026-01-01T02:49:20.000Z",
-        "gold": 958288,
-        "balance_rate_per_min": 25720,
+        "gold": 2699538,
+        "balance_rate_per_min": 40720,
         "tax_rate_per_min": 77720,
-        "upkeep_rate_per_min": 52000,
+        "upkeep_rate_per_min": 37000,
         "tiers": [
           {
             "id": "settlers",
@@ -20083,7 +20344,94 @@
             ],
             "loop_ms": 280000
           }
-        ]
+        ],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": 40720
+        },
+        "quests": {
+          "active": [],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks",
+            "intro_houses",
+            "intro_fish",
+            "intro_market",
+            "intro_wool",
+            "intro_chapel",
+            "intro_settlers_120",
+            "intro_shipyard",
+            "intro_island2",
+            "intro_tools",
+            "intro_citizen_house"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_houses",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_fish",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_market",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_wool",
+              "completed_at": "2026-01-01T01:09:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_chapel",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_settlers_120",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_shipyard",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_island2",
+              "completed_at": "2026-01-01T01:19:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_tools",
+              "completed_at": "2026-01-01T02:28:20.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_citizen_house",
+              "completed_at": "2026-01-01T02:28:20.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T02:12:00.000Z"
       }
     }
   ]

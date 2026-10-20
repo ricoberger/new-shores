@@ -13,7 +13,9 @@ import {
   START_GOLD,
   WAREHOUSE_TILE,
   WATER,
+  QUEST_HOUSES,
 } from "./constants";
+import { dismissAwayDialog } from "./away";
 
 /** The planks must flow within this much simulated time after placing the sawmill. */
 const PLANKS_WITHIN_SIM_MS = 90_000;
@@ -104,15 +106,19 @@ async function evaluatedAt(page: Page): Promise<number> {
   return page.evaluate(() => Date.parse(window.__newShores!.getServer()!.display.evaluated_at));
 }
 
+// The tests share the dev server's in-memory world and run in order: the
+// quest test continues on the plank chain of the first one.
+test.describe.configure({ mode: "serial" });
+
 test("place a plank chain and see planks produced", async ({ page }) => {
   await page.goto("/");
+  await dismissAwayDialog(page);
 
-  // HUD: gold visible and equal to the start gold minus at most the
-  // warehouse upkeep elapsed since the server started (4 gold/min).
+  // HUD: gold visible and equal to the start gold (the warehouse, never
+  // paused, has no upkeep, so nothing has been spent since the start).
   const gold = page.getByTestId("hud-gold");
   await expect(gold).toBeVisible();
-  await expect.poll(async () => Number(await gold.textContent())).toBeGreaterThan(START_GOLD - 5);
-  expect(Number(await gold.textContent())).toBeLessThanOrEqual(START_GOLD);
+  await expect.poll(async () => Number(await gold.textContent())).toBe(START_GOLD);
   expect(await page.evaluate(() => window.__newShores!.engineCount())).toBe(1);
   await expect(page.getByTestId("hud-content-version")).toHaveText(CONTENT_VERSION);
 
@@ -146,11 +152,12 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await expect(page.getByTestId("info-panel")).toBeHidden();
 
   // D-042: the lumberjack is placed before any road exists; it is simply
-  // not connected until the road reaches its footprint.
-  await expectVersion(page, 0);
+  // not connected until the road reaches its footprint. Versions are
+  // relative: a summary produced on the first load commits a version.
+  const v0 = await version(page);
   await pick(page, "production", "lumberjack", LUMBERJACK.rotation);
   await clickTile(page, LUMBERJACK);
-  await expectVersion(page, 1);
+  await expectVersion(page, v0 + 1);
   const unconnected = await serverBuilding(page, "lumberjack");
   expect(unconnected.status).toBe("not_connected");
   expect(unconnected.assigned_warehouse_id).toBe(0);
@@ -164,7 +171,7 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await page.mouse.down();
   await page.mouse.move(b.x, b.y, { steps: 12 });
   await page.mouse.up();
-  await expectVersion(page, 2);
+  await expectVersion(page, v0 + 2);
   const roads = await page.evaluate(() => window.__newShores!.getServer()!.display.islands[0]!.roads.length);
   expect(roads).toBe(ROAD_TO.x - ROAD_FROM.x + 1);
   expect((await serverBuilding(page, "lumberjack")).assigned_warehouse_id).not.toBe(0);
@@ -173,14 +180,14 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await pick(page, "houses", "house_settlers", 180);
   await page.getByTestId("build-menu").click({ position: { x: 600, y: 60 } });
   await page.waitForTimeout(300);
-  expect(await version(page)).toBe(2);
+  expect(await version(page)).toBe(v0 + 2);
 
   // A settler house provides the workers (D-035), then the sawmill.
   await clickTile(page, HOUSE);
-  await expectVersion(page, 3);
+  await expectVersion(page, v0 + 3);
   await pick(page, "production", "sawmill", SAWMILL.rotation);
   await clickTile(page, SAWMILL);
-  await expectVersion(page, 4);
+  await expectVersion(page, v0 + 4);
   // World time of the sawmill placement (the command response's state).
   const placedAt = await evaluatedAt(page);
   await page.keyboard.press("Escape");
@@ -244,4 +251,69 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   const movedAt = await evaluatedAt(page);
   const againAt = await firstPlanksRateAt(page);
   expect(againAt - movedAt).toBeLessThanOrEqual(PLANKS_WITHIN_SIM_MS);
+});
+
+interface QuestState {
+  active: string[];
+  claimable: string[];
+  claimed: string[];
+}
+
+async function quests(page: Page): Promise<QuestState> {
+  return page.evaluate(() => {
+    const q = window.__newShores!.getServer()!.display.quests;
+    return {
+      active: q.active.map((a) => a.id),
+      claimable: q.claimable,
+      claimed: q.completed.filter((c) => c.claimed).map((c) => c.id),
+    };
+  });
+}
+
+test("complete and claim the first three quests", async ({ page }) => {
+  await page.goto("/");
+  await dismissAwayDialog(page);
+  const canvas = page.getByTestId("game-canvas");
+  const box = (await canvas.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  for (let i = 0; i < 6; i++) await page.mouse.wheel(0, 300);
+  await page.waitForTimeout(200);
+
+  // The road and the connected lumberjack and sawmill of the first test
+  // completed the road and planks quests; the houses quest needs four
+  // settler houses.
+  await expect.poll(async () => (await quests(page)).claimable).toEqual(["intro_first_road", "intro_planks"]);
+  expect((await quests(page)).active).toEqual(["intro_houses"]);
+  await expect(page.getByTestId("hud-quests-badge")).toHaveText("2");
+  await page.getByTestId("hud-quests").click();
+  await expect(page.getByTestId("quest-active-intro_houses")).toContainText("1/4");
+  await page.getByTestId("hud-quests").click();
+  for (const h of QUEST_HOUSES) {
+    await pick(page, "houses", "house_settlers", 180);
+    await clickTile(page, h);
+  }
+  await page.keyboard.press("Escape");
+  await expect.poll(async () => (await quests(page)).claimable).toEqual(["intro_first_road", "intro_planks", "intro_houses"]);
+  await expect(page.getByTestId("hud-quests-badge")).toHaveText("3");
+
+  // Claim through the panel: gold directly, goods after choosing an island.
+  await page.getByTestId("hud-quests").click();
+  await expect(page.getByTestId("quests-panel")).toBeVisible();
+  await page.getByTestId("quest-claim-intro_first_road").click();
+  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_first_road"]);
+
+  await page.getByTestId("quest-claim-intro_planks").click();
+  await expect(page.getByTestId("quest-claim-island")).toContainText("Goods beyond the warehouse capacity are lost.");
+  await expect(page.getByTestId("quest-claim-stock-planks")).toContainText("in stock");
+  await page.getByTestId("quest-claim-island-select").selectOption(ISLAND);
+  const planks = await committed(page, "planks");
+  await page.getByTestId("quest-claim-confirm").click();
+  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_first_road", "intro_planks"]);
+  expect(await committed(page, "planks")).toBeGreaterThanOrEqual(planks + 45_000);
+
+  await page.getByTestId("quest-claim-intro_houses").click();
+  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_first_road", "intro_planks", "intro_houses"]);
+  await expect(page.getByTestId("hud-quests-badge")).toHaveCount(0);
+  await expect(page.getByTestId("quest-completed-intro_houses")).toContainText("claimed");
+  await expect(page.getByTestId("quest-active-intro_fish")).toBeVisible();
 });

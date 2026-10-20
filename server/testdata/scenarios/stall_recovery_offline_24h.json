@@ -1,0 +1,256 @@
+{
+  "name": "stall_recovery_offline_24h",
+  "description": "Stall recovery, 24-hour offline variant (golden x): the world of stall_recovery_no_transit (houses after the gold ran out, nothing in stock or in transit), one minute to observe the stalled tax rate, then a single 24-hour advance as for a player who is away. The number of trial resumes is bounded by ceil(24 h / trial window); the town recovers without commands.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "fertilities": [
+        "wheat",
+        "apple"
+      ],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~ccccccccccccccccccccccc~~~~~~~~ccccccccccccccccccccccc~",
+        "~c......................cccccccc......................c~",
+        "~c....................................................c~",
+        "~c....................................................c~",
+        "~c................................ffffffffffffffffffffc~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c................................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~c.ffffffff.......................ffffffffffffffffffffc~",
+        "~~cffffffff.......................fffffffffffffffffffc~~",
+        "~~cffffffff.......................fffffffffffffffffffc~~",
+        "~~c...............................fffffffffffffffffffc~~",
+        "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+        "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+        "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
+        "~c..............mmmmmmm...............................c~",
+        "~c..............mmmmmmm...............................c~",
+        "~c..............mSSmSSm...............................c~",
+        "~c....................................................c~",
+        "~c....................................................c~",
+        "~c....................................................c~",
+        "~c............ccccccc..............ccccccc............c~",
+        "~ccccccccccccc~~~~~~~cccccccccccccc~~~~~~~ccccccccccccc~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 2,
+      "y": 1,
+      "rotation": 0
+    },
+    "start": true
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          51,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          51,
+          3
+        ],
+        "to": [
+          51,
+          3
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          45,
+          5
+        ],
+        "to": [
+          45,
+          12
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          2,
+          33
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          33
+        ],
+        "to": [
+          5,
+          33
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          20
+        ],
+        "to": [
+          30,
+          20
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 16,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 5,
+        "y": 34,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 43,
+        "y": 10,
+        "rotation": 270
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 31,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 50,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 14,
+        "y": 21,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 26,
+        "y": 18,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "6m50s"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "24h"
+      }
+    }
+  ]
+}
