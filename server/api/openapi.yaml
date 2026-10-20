@@ -1365,7 +1365,7 @@ components:
         next_change_at:
           type: string
           nullable: true
-          description: Earliest time the rates change without a command, including ship arrivals and completed ship orders (RFC 3339, UTC, ms); null if never.
+          description: Earliest time the state changes without a command — rates, ship arrivals, departures and completed ship orders (RFC 3339, UTC, ms); null if never.
         gold:
           type: integer
           format: int64

@@ -241,7 +241,12 @@ func TestManualShipmentAndFounding(t *testing.T) {
 		w.Islands[0].Inventory.Stock["planks"] != planks-50_000 {
 		t.Fatalf("ship %+v leg %+v", s, s.Leg)
 	}
-	// Composition at the departure: the ship has left its island.
+	// The display re-fetch point is the departure (the ship's location
+	// changes), then the arrival.
+	if ds := display(t, w, c); *ds.NextChangeAt != formatMs(start+20_000) || ds.Ships[0].IslandID != "a" {
+		t.Errorf("next change %s, ship at %q", *ds.NextChangeAt, ds.Ships[0].IslandID)
+	}
+	// At the departure the ship has left its island.
 	mustAdvance(t, w, c, 20*time.Second)
 	if s.IslandID != "" {
 		t.Errorf("travelling ship at %q", s.IslandID)

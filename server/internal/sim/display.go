@@ -36,8 +36,9 @@ const timeLayout = "2006-01-02T15:04:05.000Z07:00"
 // nearest milli-unit), all rates milli-units per minute.
 type DisplayState struct {
 	EvaluatedAt string `json:"evaluated_at"`
-	// NextChangeAt is the earliest boundary after EvaluatedAt or nil when the
-	// rates never change without a command.
+	// NextChangeAt is the earliest boundary (including ship arrivals and
+	// completed orders) or ship departure after EvaluatedAt, or nil when
+	// nothing changes without a command.
 	NextChangeAt *string `json:"next_change_at"`
 	// Gold in milli-gold; rates in milli-gold per minute (signed balance).
 	Gold              Qty `json:"gold"`
@@ -325,7 +326,15 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		BalanceRatePerMin: wr.balance, TaxRatePerMin: wr.tax, UpkeepRatePerMin: wr.upkeep,
 		Tiers: []TierDisplay{}, Islands: []IslandDisplay{}, Ships: []ShipDisplay{}, Routes: []RouteDisplay{},
 	}
-	if at, _ := nextBoundary(cw, c, wr, nowMs); at != math.MaxInt64 {
+	at, _ := nextBoundary(cw, c, wr, nowMs)
+	// A departure changes no rate but the ship's displayed location, so the
+	// client re-fetches then as well.
+	for _, s := range cw.Ships {
+		if s.Leg != nil && s.Leg.DepartAtMs > nowMs {
+			at = min(at, s.Leg.DepartAtMs)
+		}
+	}
+	if at != math.MaxInt64 {
 		s := time.UnixMilli(at).UTC().Format(timeLayout)
 		ds.NextChangeAt = &s
 	}

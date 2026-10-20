@@ -854,7 +854,7 @@ export interface components {
         DisplayState: {
             /** @description World time of this state (RFC 3339, UTC, ms). */
             evaluated_at: string;
-            /** @description Earliest time the rates change without a command, including ship arrivals and completed ship orders (RFC 3339, UTC, ms); null if never. */
+            /** @description Earliest time the state changes without a command — rates, ship arrivals, departures and completed ship orders (RFC 3339, UTC, ms); null if never. */
             next_change_at: string | null;
             /**
              * Format: int64
