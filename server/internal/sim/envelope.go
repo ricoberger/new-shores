@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 )
 
-// SchemaVersion is the current world schema version.
-const SchemaVersion = 1
+// SchemaVersion is the current world schema version. Version 2 added the
+// quest state and the "while you were away" summary (migrate1to2).
+const SchemaVersion = 2
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

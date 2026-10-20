@@ -387,7 +387,7 @@ export interface components {
          *       or a same-origin/same-site `Sec-Fetch-Site`);
          *     - 404: `not_found` (unknown endpoint, no world),
          *       `unknown_island`, `building_not_found`, `ship_not_found`,
-         *       `route_not_found`;
+         *       `route_not_found`, `quest_not_found`;
          *     - 405: `method_not_allowed`;
          *     - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
          *       `no_fertility` (the island lacks the work area's fertility tag),
@@ -408,7 +408,8 @@ export interface components {
          *       materials), `cargo_exceeds_slots`, `last_warehouse` (the last
          *       warehouse of an island with other buildings), `not_connected`
          *       (a shipyard without a road to a warehouse cannot order),
-         *       `email_taken`, `already_registered`;
+         *       `quest_not_completed`, `quest_already_claimed` (rewards are
+         *       credited once), `email_taken`, `already_registered`;
          *     - 429: `rate_limited` (with `Retry-After` in seconds);
          *     - 500: `internal`;
          *     - 503: `service_unavailable` (the database does not answer).
@@ -419,6 +420,12 @@ export interface components {
          *     `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`. Moving is free: it never fails for
          *     gold, materials or tier. Placement never requires a road (D-042).
          *
+         *     `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
+         *     or no `island_id` for a quest that rewards goods), 404
+         *     `quest_not_found`, `unknown_island`; 409 `quest_not_completed`,
+         *     `quest_already_claimed`, `island_not_settled`. `ack_summary` never
+         *     fails for a well-formed body.
+         *
          *     **Internal-only codes** (HTTP 500, never caused by a client command;
          *     clients should treat them like `internal` and not handle them
          *     specifically): `over_capacity`, `time_backwards`, `schema_version`,
@@ -428,7 +435,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_warehouse" | "not_connected" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_warehouse" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -497,7 +504,40 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["FoundIslandCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"];
+        /**
+         * @description Credit the rewards of a completed quest once: gold to the world,
+         *     goods to the island `island_id`, clamped to its free capacity
+         *     (capacity − stock − in transit); the excess is lost.
+         */
+        ClaimQuestCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "claim_quest";
+            /** @description Content quest ID. */
+            quest_id: string;
+            /** @description Settled island that receives reward goods; required when the quest rewards goods, optional (validated when set) otherwise. */
+            island_id?: string;
+        };
+        /**
+         * @description Acknowledge the pending "while you were away" summary. Clears it
+         *     when `summary_id` matches its `id`; otherwise nothing changes.
+         *     Like every command it marks the player as seen (`last_seen_at`).
+         */
+        AckSummaryCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "ack_summary";
+            /**
+             * Format: int64
+             * @description The `id` of the summary (its end time in Unix milliseconds).
+             */
+            summary_id: number;
+        };
         Tile: {
             /** @description Column (tiles). */
             x: number;
@@ -927,6 +967,192 @@ export interface components {
             /** @description Routes by ascending ID. */
             routes: components["schemas"]["RouteDisplay"][];
             insolvency: components["schemas"]["InsolvencyDisplay"];
+            quests: components["schemas"]["QuestsDisplay"];
+            /** @description The pending "while you were away" summary, null when none. The client shows it once per `id` and acknowledges it with `ack_summary`. */
+            away_summary: components["schemas"]["AwaySummary"] | null;
+            /** @description World time of the player's last successful command (RFC 3339, UTC, ms); initially the world's creation. Reads and scheduled events do not change it. */
+            last_seen_at: string;
+        };
+        /** @description Quest state derived from the world (content order unless stated). */
+        QuestsDisplay: {
+            /** @description Active quests (prerequisites completed, not completed themselves). */
+            active: components["schemas"]["ActiveQuestDisplay"][];
+            /** @description IDs of completed quests whose rewards were not claimed yet. */
+            claimable: string[];
+            /** @description Every completed quest, by completion time, then content order. */
+            completed: components["schemas"]["CompletedQuestDisplay"][];
+        };
+        ActiveQuestDisplay: {
+            /** @description Content quest ID. */
+            id: string;
+            /** @description Progress of the quest's objectives in content order. */
+            objectives: components["schemas"]["ObjectiveDisplay"][];
+        };
+        /**
+         * @description Progress of one objective. `current` and `target` are in the
+         *     predicate's unit: counts for `building_count` (road tiles for a road
+         *     type), `island_settled` and `ship_count`; 0/1 for `connected`,
+         *     `route_exists` and `tier_unlocked`; milli-residents for
+         *     `population`; milli-units of stock for `stock`; per-mille for
+         *     `satisfaction` (current −1 while the tier has no house).
+         */
+        ObjectiveDisplay: {
+            /** @enum {string} */
+            kind: "building_count" | "connected" | "population" | "stock" | "route_exists" | "island_settled" | "tier_unlocked" | "ship_count" | "satisfaction";
+            /** @description Content building ID (building_count, connected). */
+            type?: string;
+            /** @description Good ID (stock). */
+            good?: string;
+            /** @description Tier ID (population, tier_unlocked, satisfaction). */
+            tier?: string;
+            /** @description Island the objective is restricted to (absent = archipelago). */
+            island?: string;
+            /**
+             * Format: int64
+             * @description Current value in the objective's unit (see the schema description).
+             */
+            current: number;
+            /**
+             * Format: int64
+             * @description Target value in the objective's unit (see the schema description).
+             */
+            target: number;
+            met: boolean;
+        };
+        CompletedQuestDisplay: {
+            /** @description Content quest ID. */
+            id: string;
+            /** @description Completion time (RFC 3339, UTC, ms). */
+            completed_at: string;
+            /** @description Whether the rewards were claimed. */
+            claimed: boolean;
+        };
+        /**
+         * @description "While you were away" summary over [`from`, `to`]: from the player's
+         *     last command to the request that produced it. Produced on `GET
+         *     /world` or a command when at least `away_summary_ms` passed since
+         *     `last_seen_at` and no summary is pending (or the pending one ended
+         *     at least that long ago; the new one replaces it). Goods in
+         *     milli-units, gold in milli-gold, residents in milli-residents.
+         */
+        AwaySummary: {
+            /**
+             * Format: int64
+             * @description Summary ID (its `to` in Unix milliseconds); acknowledge with `ack_summary`.
+             */
+            id: number;
+            /** @description Start of the interval, the last command (RFC 3339, UTC, ms). */
+            from: string;
+            /** @description End of the interval (RFC 3339, UTC, ms). */
+            to: string;
+            /**
+             * Format: int64
+             * @description Gold at `from` (milli-gold).
+             */
+            gold_before: number;
+            /**
+             * Format: int64
+             * @description Gold at `to` (milli-gold).
+             */
+            gold_after: number;
+            /** @description Residents per tier over the archipelago at `from` and `to`. */
+            population: {
+                [key: string]: components["schemas"]["AwayPopulation"];
+            };
+            /** @description Islands in world order. */
+            islands: components["schemas"]["AwayIsland"][];
+            /** @description Buildings and ships paused for insolvency during the interval (count of pauses). */
+            auto_paused: number;
+            /** @description Buildings and ships resumed automatically during the interval (count of resumes). */
+            auto_resumed: number;
+            /** @description Buildings and ships still paused for insolvency at `to`. */
+            still_unpaid: components["schemas"]["AwayUnpaid"][];
+            /** @description Ship arrivals during the interval (count). */
+            ships_arrived: number;
+            /** @description The first ship arrivals (at most 50; `ships_arrived` is exact). */
+            arrivals: components["schemas"]["AwayArrival"][];
+            /** @description Quests completed during the interval, by completion time. */
+            quests_completed: components["schemas"]["AwayQuest"][];
+        };
+        AwayPopulation: {
+            /**
+             * Format: int64
+             * @description Residents at `from` (milli-residents).
+             */
+            before: number;
+            /**
+             * Format: int64
+             * @description Residents at `to` (milli-residents).
+             */
+            after: number;
+        };
+        AwayIsland: {
+            id: string;
+            /** @description Every good with a flow during the interval or stock at `to`. */
+            goods: {
+                [key: string]: components["schemas"]["AwayGood"];
+            };
+        };
+        AwayGood: {
+            /**
+             * Format: int64
+             * @description Produced during the interval (milli-units).
+             */
+            produced: number;
+            /**
+             * Format: int64
+             * @description Consumed during the interval (milli-units).
+             */
+            consumed: number;
+            /**
+             * Format: int64
+             * @description Lost to capacity clamping during the interval (milli-units).
+             */
+            lost: number;
+            /**
+             * Format: int64
+             * @description Stock at `to` (milli-units).
+             */
+            stock_after: number;
+            /**
+             * Format: int64
+             * @description Capacity of the good on the island at `to` (milli-units).
+             */
+            capacity: number;
+            /** @description The good is full at `to` (full regime, or stock plus in-transit equals the capacity). */
+            at_capacity: boolean;
+        };
+        AwayUnpaid: {
+            /** @description Island of the building or ship (empty for a ship at sea). */
+            island_id: string;
+            /**
+             * Format: int64
+             * @description Building ID (absent for a ship).
+             */
+            building_id?: number;
+            /**
+             * Format: int64
+             * @description Ship ID (absent for a building).
+             */
+            ship_id?: number;
+            /** @description Content building or ship type. */
+            type: string;
+        };
+        AwayArrival: {
+            /**
+             * Format: int64
+             * @description Ship ID.
+             */
+            ship_id: number;
+            island_id: string;
+            /** @description Arrival time (RFC 3339, UTC, ms). */
+            at: string;
+        };
+        AwayQuest: {
+            /** @description Content quest ID. */
+            id: string;
+            /** @description Completion time (RFC 3339, UTC, ms). */
+            completed_at: string;
         };
         /**
          * @description Buildings and ships paused for insolvency (MECHANICS §7) and the
@@ -1344,6 +1570,8 @@ export interface components {
         };
         Content: {
             region: components["schemas"]["ContentRegion"];
+            /** @description Quests in content order (a quest is active when its prerequisites are completed). */
+            quests: components["schemas"]["ContentQuest"][];
             /** @description Tiers in progression order. */
             tiers: components["schemas"]["ContentTier"][];
             goods: components["schemas"]["ContentGood"][];
@@ -1352,6 +1580,45 @@ export interface components {
             needs: components["schemas"]["ContentNeed"][];
             /** @description Ship types (ordered at buildings with a shipyard block). */
             ships: components["schemas"]["ContentShip"][];
+        };
+        ContentQuest: {
+            id: string;
+            title: string;
+            /** @description Advisor prose shown to the player. */
+            text: string;
+            objectives: components["schemas"]["ContentObjective"][];
+            rewards: components["schemas"]["ContentRewards"];
+            /** @description IDs of earlier quests that must be completed first. */
+            prerequisites: string[];
+        };
+        /** @description An objective; `target` in the unit of `ObjectiveDisplay`. */
+        ContentObjective: {
+            /** @enum {string} */
+            kind: "building_count" | "connected" | "population" | "stock" | "route_exists" | "island_settled" | "tier_unlocked" | "ship_count" | "satisfaction";
+            /** @description Content building ID (building_count, connected). */
+            type?: string;
+            /** @description Good ID (stock). */
+            good?: string;
+            /** @description Tier ID (population, tier_unlocked, satisfaction). */
+            tier?: string;
+            /** @description Island the objective is restricted to (absent = archipelago). */
+            island?: string;
+            /**
+             * Format: int64
+             * @description Target value (count, 1 for yes/no predicates, milli-residents, milli-units or per-mille; see ObjectiveDisplay).
+             */
+            target: number;
+        };
+        ContentRewards: {
+            /**
+             * Format: int64
+             * @description Reward gold (milli-gold).
+             */
+            gold: number;
+            /** @description Reward goods by good ID (milli-units), credited to the chosen island up to its free capacity. */
+            goods: {
+                [key: string]: number;
+            };
         };
         ContentShip: {
             id: string;
@@ -1451,6 +1718,11 @@ export interface components {
              * @description Archipelago distance a ship of speed 1.0 covers per minute (milli-tiles per minute).
              */
             ship_speed_milli_tiles_per_min: number;
+            /**
+             * Format: int64
+             * @description Minimum world time since the last command before a request produces a "while you were away" summary (ms).
+             */
+            away_summary_ms: number;
         };
         ContentTier: {
             id: string;

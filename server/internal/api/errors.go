@@ -98,6 +98,7 @@ var simErrors = []simError{
 	{sim.ErrBuildingNotFound, "building_not_found", http.StatusNotFound},
 	{sim.ErrShipNotFound, "ship_not_found", http.StatusNotFound},
 	{sim.ErrRouteNotFound, "route_not_found", http.StatusNotFound},
+	{sim.ErrQuestNotFound, "quest_not_found", http.StatusNotFound},
 	// 409: the command conflicts with the current state.
 	{sim.ErrOccupied, "occupied", http.StatusConflict},
 	{sim.ErrTerrain, "terrain", http.StatusConflict},
@@ -129,6 +130,8 @@ var simErrors = []simError{
 	{sim.ErrCargoExceedsSlots, "cargo_exceeds_slots", http.StatusConflict},
 	{sim.ErrLastWarehouse, "last_warehouse", http.StatusConflict},
 	{sim.ErrNotConnected, "not_connected", http.StatusConflict},
+	{sim.ErrQuestNotCompleted, "quest_not_completed", http.StatusConflict},
+	{sim.ErrQuestAlreadyClaimed, "quest_already_claimed", http.StatusConflict},
 	// 500: never caused by a command (seeding, persistence and time
 	// errors); a response with one of these codes is a server bug.
 	{sim.ErrOverCapacity, "over_capacity", http.StatusInternalServerError},

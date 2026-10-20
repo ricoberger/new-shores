@@ -179,7 +179,7 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 	applyDue(w, c, now, l)
 	normalizeShips(w, now)
 	for _, is := range w.Islands {
-		normalizeHouses(is, c)
+		w.Away.addPopulation(normalizeHouses(is, c))
 	}
 	// insolvent is set once gold cannot cover the balance: from then on the
 	// cascade pauses until the balance is >= 0 (MECHANICS §7), even if the
@@ -215,6 +215,7 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 					p.b.Paused, p.b.PausedReason, p.b.PauseSeq, p.b.PausedAtMs = true, PausedReasonUnpaid, w.PauseSeq, now
 				}
 				events = append(events, p.boundary(BoundaryAutoPause, at))
+				w.Away.AutoPaused++
 				continue
 			}
 			if -wr.balance > gold {
@@ -230,6 +231,7 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 						p.b.Paused, p.b.PausedReason, p.b.PauseSeq, p.b.PausedAtMs = false, "", 0, 0
 					}
 					events = append(events, p.boundary(BoundaryAutoResume, at))
+					w.Away.AutoResumed++
 					continue
 				}
 			}
@@ -238,6 +240,9 @@ func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*w
 	}
 	for _, id := range evaluateUnlocks(w, c) {
 		events = append(events, Boundary{At: at, Kind: BoundaryTierUnlocked, Tier: id})
+	}
+	for _, id := range evaluateQuests(w, c, now, wr) {
+		events = append(events, Boundary{At: at, Kind: BoundaryQuestCompleted, Quest: id})
 	}
 	return wr, events
 }
@@ -440,11 +445,13 @@ func stepWorld(w *World, wr *worldRates, dt int64) {
 			h.b.House.Growth += h.growth * dt
 		}
 	}
-	gold := w.goldFine() + wr.goldRate*dt
+	old := w.goldFine()
+	gold := old + wr.goldRate*dt
 	if gold < 0 {
 		// Not reachable in exact mode (gold_zero boundary); coarse steps
 		// clamp at zero.
 		gold = 0
 	}
 	w.setGoldFine(gold)
+	w.Away.GoldDeltaSub += gold - old
 }

@@ -57,6 +57,9 @@ func checkReferences(c *Catalogue) error {
 	if rules.ShipSpeedMilliTilesPerMin <= 0 {
 		col.add(FileRegion, rent, "rules.ship_speed_tiles_per_min", "must be > 0")
 	}
+	if rules.AwaySummaryMs <= 0 {
+		col.add(FileRegion, rent, "rules.away_summary_minutes", "must be >= 1")
+	}
 
 	for _, t := range c.Tiers {
 		ent := fmt.Sprintf("tier %q", t.ID)
@@ -211,6 +214,45 @@ func checkReferences(c *Catalogue) error {
 		}
 		if s.Cost.Gold < 0 {
 			col.add(FileShips, ent, "cost.gold", "must be >= 0")
+		}
+	}
+
+	for _, q := range c.Quests {
+		ent := fmt.Sprintf("quest %q", q.ID)
+		for i, o := range q.Objectives {
+			field := fmt.Sprintf("objectives[%d]", i)
+			switch o.Kind {
+			case ObjectiveBuildingCount, ObjectiveConnected:
+				building(FileQuests, ent, field+".type", o.Building)
+			case ObjectiveStock:
+				good(FileQuests, ent, field+".good", o.Good)
+			case ObjectivePopulation, ObjectiveTierUnlocked, ObjectiveSatisfaction:
+				tier(FileQuests, ent, field+".tier", o.Tier)
+			case ObjectiveRouteExists, ObjectiveIslandSettled, ObjectiveShipCount:
+			default:
+				col.add(FileQuests, ent, field+".kind", "unknown kind %q", o.Kind)
+			}
+			if o.Kind == ObjectiveSatisfaction && (o.Min <= 0 || o.Min > WeightScale) {
+				col.add(FileQuests, ent, field+".min", "must be in (0, 1]")
+			}
+		}
+		if len(q.Objectives) == 0 {
+			col.add(FileQuests, ent, "objectives", "must not be empty")
+		}
+		for i, id := range q.Prerequisites {
+			field := fmt.Sprintf("prerequisites[%d]", i)
+			switch p, ok := c.QuestByID[id]; {
+			case !ok:
+				col.add(FileQuests, ent, field, "unknown quest %q", id)
+			case p.Index >= q.Index:
+				col.add(FileQuests, ent, field, "quest %q does not precede %q", id, q.ID)
+			}
+		}
+		for _, g := range q.Rewards.Goods {
+			good(FileQuests, ent, "rewards.goods."+g.Good, g.Good)
+		}
+		if q.Rewards.Gold <= 0 && len(q.Rewards.Goods) == 0 {
+			col.add(FileQuests, ent, "rewards", "must reward gold or goods")
 		}
 	}
 

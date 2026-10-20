@@ -24,9 +24,10 @@ const (
 	FileNeeds     = "needs.json"
 	FileStart     = "start.json"
 	FileShips     = "ships.json"
+	FileQuests    = "quests.json"
 )
 
-var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeeds, FileStart, FileShips}
+var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeeds, FileStart, FileShips, FileQuests}
 
 // Error describes one content problem. It names the file, the offending
 // entity (if any) and the field.
@@ -182,6 +183,8 @@ func entityKind(file string) string {
 		return "start"
 	case FileShips:
 		return "ship"
+	case FileQuests:
+		return "quest"
 	}
 	return "entity"
 }
@@ -222,6 +225,7 @@ type rawRegion struct {
 		AutoResumeMinutes      json.Number `json:"auto_resume_upkeep_minutes"`
 		ShipHandlingSeconds    json.Number `json:"ship_handling_seconds"`
 		ShipSpeedTilesPerMin   json.Number `json:"ship_speed_tiles_per_min"`
+		AwaySummaryMinutes     int64       `json:"away_summary_minutes"`
 	} `json:"rules"`
 }
 
@@ -327,6 +331,27 @@ type rawNeed struct {
 	Radius        int         `json:"radius"`
 }
 
+type rawQuest struct {
+	ID         string `json:"id"`
+	Title      string `json:"title"`
+	Text       string `json:"text"`
+	Objectives []struct {
+		Kind   string      `json:"kind"`
+		Type   string      `json:"type"`
+		Good   string      `json:"good"`
+		Tier   string      `json:"tier"`
+		Island string      `json:"island"`
+		Min    json.Number `json:"min"`
+		Count  int64       `json:"count"`
+	} `json:"objectives"`
+	Rewards struct {
+		Gold        int64            `json:"gold"`
+		Goods       map[string]int64 `json:"goods"`
+		Decorations []string         `json:"decorations"`
+	} `json:"rewards"`
+	Prerequisites []string `json:"prerequisites"`
+}
+
 type rawStart struct {
 	Gold  json.Number            `json:"gold"`
 	Goods map[string]json.Number `json:"goods"`
@@ -357,6 +382,22 @@ func (c *collector) fixed(file, entity, field string, n json.Number, places int)
 	return v
 }
 
+// maxWhole bounds whole-number content values that are scaled to fixed
+// point (quest thresholds and rewards, the away-summary minutes): even a
+// stock threshold in sub-milli units (x 1000 x SubPerMilli) stays far from
+// int64 overflow.
+const maxWhole = 1_000_000
+
+// whole checks that v is a whole number in [1, maxWhole] and returns it
+// (0 after an error).
+func (c *collector) whole(file, entity, field string, v int64) int64 {
+	if v < 1 || v > maxWhole {
+		c.add(file, entity, field, "must be in [1, %d]", maxWhole)
+		return 0
+	}
+	return v
+}
+
 func (c *collector) err() error {
 	if len(c.errs) == 0 {
 		return nil
@@ -373,10 +414,11 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		needs     []rawNeed
 		start     rawStart
 		ships     []rawShip
+		quests    []rawQuest
 	)
 	for name, v := range map[string]any{
 		FileRegion: &region, FileTiers: &tiers, FileGoods: &goods, FileBuildings: &buildings, FileNeeds: &needs, FileStart: &start,
-		FileShips: &ships,
+		FileShips: &ships, FileQuests: &quests,
 	} {
 		if err := unmarshal(raw[name], v); err != nil {
 			return nil, &Error{File: name, Msg: fmt.Sprintf("decode: %v", err)}
@@ -390,6 +432,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		BuildingByID: map[string]*Building{},
 		NeedsByTier:  map[string][]*Need{},
 		ShipByID:     map[string]*Ship{},
+		QuestByID:    map[string]*Quest{},
 	}
 
 	ent := fmt.Sprintf("region %q", region.ID)
@@ -412,6 +455,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			ShipHandlingMs: col.fixed(FileRegion, ent, "rules.ship_handling_seconds", region.Rules.ShipHandlingSeconds, 3),
 			// Tiles per minute with 3 decimal places are milli-tiles per minute.
 			ShipSpeedMilliTilesPerMin: col.fixed(FileRegion, ent, "rules.ship_speed_tiles_per_min", region.Rules.ShipSpeedTilesPerMin, 3),
+			AwaySummaryMs:             col.whole(FileRegion, ent, "rules.away_summary_minutes", region.Rules.AwaySummaryMinutes) * 60_000,
 		},
 	}
 
@@ -507,6 +551,40 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		}
 		cat.Ships = append(cat.Ships, sh)
 		cat.ShipByID[sh.ID] = sh
+	}
+
+	for i, rq := range quests {
+		ent := fmt.Sprintf("quest %q", rq.ID)
+		if _, dup := cat.QuestByID[rq.ID]; dup {
+			col.add(FileQuests, ent, "id", "duplicate ID")
+			continue
+		}
+		q := &Quest{ID: rq.ID, Title: rq.Title, Text: rq.Text, Index: i, Prerequisites: append([]string{}, rq.Prerequisites...)}
+		for j, ro := range rq.Objectives {
+			o := Objective{Kind: ro.Kind, Building: ro.Type, Good: ro.Good, Tier: ro.Tier, Island: ro.Island}
+			field := fmt.Sprintf("objectives[%d].min", j)
+			switch ro.Kind {
+			case ObjectiveIslandSettled:
+				o.Min = col.whole(FileQuests, ent, fmt.Sprintf("objectives[%d].count", j), ro.Count)
+			case ObjectivePopulation, ObjectiveStock:
+				o.Min = col.whole(FileQuests, ent, field, col.fixed(FileQuests, ent, field, ro.Min, 0)) * MilliPerUnit
+			case ObjectiveSatisfaction:
+				// A fraction with at most 3 decimals, kept in ppm.
+				o.Min = col.fixed(FileQuests, ent, field, ro.Min, 3) * 1000
+			case ObjectiveBuildingCount, ObjectiveShipCount:
+				o.Min = col.whole(FileQuests, ent, field, col.fixed(FileQuests, ent, field, ro.Min, 0))
+			}
+			q.Objectives = append(q.Objectives, o)
+		}
+		if rq.Rewards.Gold != 0 {
+			q.Rewards.Gold = col.whole(FileQuests, ent, "rewards.gold", rq.Rewards.Gold) * MilliPerUnit
+		}
+		for _, good := range slices.Sorted(maps.Keys(rq.Rewards.Goods)) {
+			v := col.whole(FileQuests, ent, "rewards.goods."+good, rq.Rewards.Goods[good])
+			q.Rewards.Goods = append(q.Rewards.Goods, GoodAmount{Good: good, Amount: v * MilliPerUnit})
+		}
+		cat.Quests = append(cat.Quests, q)
+		cat.QuestByID[q.ID] = q
 	}
 
 	cat.Start.Gold = col.fixed(FileStart, "", "gold", start.Gold, 3)

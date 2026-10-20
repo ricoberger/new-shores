@@ -90,6 +90,16 @@ type World struct {
 	// Routes sorted by ascending ID (sequential, NextRouteID).
 	Routes      []*Route `json:"routes,omitempty"`
 	NextRouteID int64    `json:"next_route_id,omitempty"`
+	// Quests holds the completed quests by ID (summary.go, quests.go).
+	Quests map[string]QuestState `json:"quests,omitempty"`
+	// LastSeenAt is the world time of the player's last successful command
+	// (initially the creation time); see MarkSeen.
+	LastSeenAt time.Time `json:"last_seen_at"`
+	// Away accumulates the next "while you were away" summary since
+	// LastSeenAt.
+	Away AwayLog `json:"away,omitzero"`
+	// PendingSummary is the produced, not yet acknowledged summary.
+	PendingSummary *AwaySummary `json:"pending_summary,omitempty"`
 }
 
 // Island is a tile grid with its buildings, roads and shared inventory.
@@ -269,9 +279,10 @@ func NewIsland(id string, width, height int, tiles []Tile) *Island {
 	return &Island{ID: id, Width: width, Height: height, Tiles: tiles}
 }
 
-// NewWorld creates an empty world evaluated at the given time.
+// NewWorld creates an empty world evaluated and last seen at the given
+// time.
 func NewWorld(at time.Time) *World {
-	return &World{LastEvaluatedAt: truncMs(at), NextBuildingID: 1}
+	return &World{LastEvaluatedAt: truncMs(at), LastSeenAt: truncMs(at), NextBuildingID: 1}
 }
 
 func truncMs(t time.Time) time.Time { return t.UTC().Truncate(time.Millisecond) }
@@ -390,6 +401,9 @@ func (w *World) Clone() *World {
 			c.Routes[i] = r.clone()
 		}
 	}
+	c.Quests = maps.Clone(w.Quests)
+	c.Away = w.Away.clone()
+	c.PendingSummary = w.PendingSummary.clone()
 	return &c
 }
 

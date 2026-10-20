@@ -114,6 +114,40 @@ func TestNoBuildingIDLiterals(t *testing.T) {
 	}
 }
 
+// TestNoQuestIDsInCode enforces that no Go code of the server (tests
+// excluded) contains a quest ID of the shipped content: quests are data
+// evaluated by generic predicates.
+func TestNoQuestIDsInCode(t *testing.T) {
+	c := catalogue(t)
+	if len(c.Quests) == 0 {
+		t.Fatal("no quests in the shipped content")
+	}
+	root := filepath.Join(repoRoot(t), "server")
+	err := filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+		if err != nil || !d.IsDir() {
+			return err
+		}
+		for file, f := range parseNonTest(t, path) {
+			ast.Inspect(f, func(n ast.Node) bool {
+				lit, ok := n.(*ast.BasicLit)
+				if !ok || lit.Kind != token.STRING {
+					return true
+				}
+				for _, q := range c.Quests {
+					if strings.Contains(lit.Value, q.ID) {
+						t.Errorf("%s contains quest ID %q", file, q.ID)
+					}
+				}
+				return true
+			})
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 // TestWorkforceGrantIsNotACommand (R28a): workforce can only be granted by
 // GrantWorkforce (seeding), never through a Command passed to Apply.
 func TestWorkforceGrantIsNotACommand(t *testing.T) {

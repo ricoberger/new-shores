@@ -55,6 +55,51 @@ type DisplayState struct {
 	// Insolvency summarises the buildings and ships paused for
 	// insolvency (MECHANICS §7) for the HUD banner.
 	Insolvency InsolvencyDisplay `json:"insolvency"`
+	// Quests is the state of the content quests.
+	Quests QuestsDisplay `json:"quests"`
+	// AwaySummary is the pending "while you were away" summary or nil.
+	AwaySummary *AwaySummary `json:"away_summary"`
+	// LastSeenAt is the world time of the player's last successful command.
+	LastSeenAt string `json:"last_seen_at"`
+}
+
+// QuestsDisplay is the quest state: the active quests with their
+// objectives, the claimable quest IDs (content order) and every completed
+// quest (by completion time, then content order).
+type QuestsDisplay struct {
+	Active    []ActiveQuestDisplay    `json:"active"`
+	Claimable []string                `json:"claimable"`
+	Completed []CompletedQuestDisplay `json:"completed"`
+}
+
+// ActiveQuestDisplay is an active quest with the progress of its
+// objectives (content order).
+type ActiveQuestDisplay struct {
+	ID         string             `json:"id"`
+	Objectives []ObjectiveDisplay `json:"objectives"`
+}
+
+// ObjectiveDisplay is the progress of one objective. Current and Target
+// are in the predicate's natural unit: counts for building_count,
+// island_settled and ship_count, 0/1 for connected, route_exists and
+// tier_unlocked, milli-residents for population, milli-units for stock and
+// per-mille for satisfaction (current -1 without a house of the tier).
+type ObjectiveDisplay struct {
+	Kind    string `json:"kind"`
+	Type    string `json:"type,omitempty"`
+	Good    string `json:"good,omitempty"`
+	Tier    string `json:"tier,omitempty"`
+	Island  string `json:"island,omitempty"`
+	Current int64  `json:"current"`
+	Target  int64  `json:"target"`
+	Met     bool   `json:"met"`
+}
+
+// CompletedQuestDisplay is a completed quest (RFC 3339 with ms).
+type CompletedQuestDisplay struct {
+	ID          string `json:"id"`
+	CompletedAt string `json:"completed_at"`
+	Claimed     bool   `json:"claimed"`
 }
 
 // InsolvencyDisplay is the insolvency state of the world (MECHANICS §7).
@@ -380,7 +425,39 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		ds.Routes = append(ds.Routes, displayRoute(cw, c, r))
 	}
 	ds.Insolvency = displayInsolvency(cw, c, wr, nowMs)
+	ds.Quests = displayQuests(cw, c, wr, nowMs)
+	ds.AwaySummary = cw.PendingSummary
+	ds.LastSeenAt = cw.LastSeenAt.UTC().Format(timeLayout)
 	return ds, nil
+}
+
+// displayQuests derives the quest block of a settled world.
+func displayQuests(w *World, c *content.Catalogue, wr *worldRates, now int64) QuestsDisplay {
+	d := QuestsDisplay{Active: []ActiveQuestDisplay{}, Claimable: claimableQuests(w, c), Completed: []CompletedQuestDisplay{}}
+	env := &questEnv{w: w, c: c, now: now, wr: wr}
+	for _, q := range c.Quests {
+		if !questActive(w, q) {
+			continue
+		}
+		aq := ActiveQuestDisplay{ID: q.ID, Objectives: []ObjectiveDisplay{}}
+		for _, o := range q.Objectives {
+			cur, _ := env.objectiveValue(o)
+			if o.Kind == content.ObjectiveSatisfaction && cur > 0 {
+				cur /= 1000 // ppm -> per-mille (-1 without a house stays -1)
+			}
+			target := ObjectiveTarget(o)
+			aq.Objectives = append(aq.Objectives, ObjectiveDisplay{
+				Kind: o.Kind, Type: o.Building, Good: o.Good, Tier: o.Tier, Island: o.Island,
+				Current: cur, Target: target, Met: env.met(o),
+			})
+		}
+		d.Active = append(d.Active, aq)
+	}
+	for _, id := range sortedCompletions(w, c) {
+		st := w.Quests[id]
+		d.Completed = append(d.Completed, CompletedQuestDisplay{ID: id, CompletedAt: formatMs(st.CompletedAtMs), Claimed: st.Claimed})
+	}
+	return d
 }
 
 // displayInsolvency counts the unpaid buildings and ships of a settled

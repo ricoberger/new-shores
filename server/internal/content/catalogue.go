@@ -55,8 +55,64 @@ type Catalogue struct {
 	// Ships are the ship types in file order (ships.json).
 	Ships    []*Ship
 	ShipByID map[string]*Ship
+	// Quests in content order (quests.json); prerequisites always refer to
+	// earlier quests.
+	Quests    []*Quest
+	QuestByID map[string]*Quest
 	// Start is the starting stock granted after the first warehouse.
 	Start Start
+}
+
+// Objective kinds (quests.json): a closed vocabulary of generic predicates
+// over the world state, evaluated by the simulation.
+const (
+	ObjectiveBuildingCount = "building_count"
+	ObjectiveConnected     = "connected"
+	ObjectivePopulation    = "population"
+	ObjectiveStock         = "stock"
+	ObjectiveRouteExists   = "route_exists"
+	ObjectiveIslandSettled = "island_settled"
+	ObjectiveTierUnlocked  = "tier_unlocked"
+	ObjectiveShipCount     = "ship_count"
+	ObjectiveSatisfaction  = "satisfaction"
+)
+
+// Quest is a guidance quest (quests.json).
+type Quest struct {
+	ID    string
+	Title string
+	// Text is advisor prose shown to the player.
+	Text string
+	// Index is the position in content order.
+	Index      int
+	Objectives []Objective
+	Rewards    Rewards
+	// Prerequisites are IDs of earlier quests that must be completed.
+	Prerequisites []string
+}
+
+// Objective is one quest predicate. Which fields are set depends on Kind;
+// Min is in the predicate's natural unit: a count for building_count,
+// island_settled and ship_count, milli-residents for population,
+// milli-units for stock, parts per million for satisfaction.
+type Objective struct {
+	Kind string
+	// Building is the content building type (building_count, connected).
+	Building string
+	// Good (stock) and Tier (population, tier_unlocked, satisfaction).
+	Good string
+	Tier string
+	// Island restricts the predicate to one island ("" = archipelago).
+	Island string
+	Min    int64
+}
+
+// Rewards are credited once when the player claims a completed quest.
+type Rewards struct {
+	// Gold in milli-gold.
+	Gold Qty
+	// Goods sorted by good ID, in milli-units.
+	Goods []GoodAmount
 }
 
 // Start is the starting stock of a new world (start.json): granted after the
@@ -108,6 +164,9 @@ type Rules struct {
 	// ShipSpeedMilliTilesPerMin is the archipelago distance a ship of speed
 	// 1.0 covers per minute, in milli-tiles.
 	ShipSpeedMilliTilesPerMin int64
+	// AwaySummaryMs is the minimum time since the player's last command
+	// after which a request produces a "while you were away" summary.
+	AwaySummaryMs int64
 }
 
 // Tier is a population tier.

@@ -1194,9 +1194,12 @@ func TestPropertyMovePreservesState(t *testing.T) {
 
 // TestPropertyMoveEqualsPlacement: placing a building at A and moving it to
 // B at the same instant yields a world byte-identical to placing it at B
-// directly. No field is excluded.
+// directly. No field is excluded; the catalogues have no quests, because a
+// quest completed by the placement at A stays completed (completion is
+// permanent by design).
 func TestPropertyMoveEqualsPlacement(t *testing.T) {
 	for name, c := range propertyCatalogues(t) {
+		c := withoutQuests(c)
 		t.Run(name, func(t *testing.T) {
 			compared := 0
 			for seed := range uint64(propertyCases) {

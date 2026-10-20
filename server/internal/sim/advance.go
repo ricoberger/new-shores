@@ -42,6 +42,12 @@ const (
 	BoundaryGoldReserve = "gold_reserve"
 	// BoundaryTierUnlocked: a tier's unlock conditions hold.
 	BoundaryTierUnlocked = "tier_unlocked"
+	// BoundaryStockThreshold: the stock of a good reaches the threshold of
+	// an active quest's stock objective (quest, good and island, if the
+	// objective names one, set); settle re-evaluates the quests.
+	BoundaryStockThreshold = "stock_threshold"
+	// BoundaryQuestCompleted: a quest's objectives hold (quest set).
+	BoundaryQuestCompleted = "quest_completed"
 )
 
 // maxStepMs bounds the length of a single linear step so that rate*duration
@@ -58,6 +64,7 @@ type Boundary struct {
 	ShipID     int64     `json:"ship_id,omitempty"`
 	Good       string    `json:"good,omitempty"`
 	Tier       string    `json:"tier,omitempty"`
+	Quest      string    `json:"quest,omitempty"`
 }
 
 // Advance moves the world forward to time to (truncated to milliseconds)
@@ -74,6 +81,16 @@ func Advance(w *World, c *content.Catalogue, to time.Time) ([]Boundary, error) {
 // AdvanceWithLedger is Advance that records goods movements in l (may be nil).
 func AdvanceWithLedger(w *World, c *content.Catalogue, to time.Time, l *Ledger) ([]Boundary, error) {
 	to = truncMs(to)
+	if to.After(w.LastEvaluatedAt) {
+		// Every advancement feeds the away summary accumulator, whoever
+		// triggers it; the caller's ledger receives the same records.
+		outer, inner := l, NewLedger()
+		defer func() {
+			w.Away.addLedger(inner)
+			outer.merge(inner)
+		}()
+		l = inner
+	}
 	if to.Before(w.LastEvaluatedAt) {
 		return nil, fmt.Errorf("%w: %s < %s", ErrTimeBackwards, to.Format(time.RFC3339Nano), w.LastEvaluatedAt.Format(time.RFC3339Nano))
 	}
@@ -156,7 +173,7 @@ func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (in
 			fallthrough
 		case t == best:
 			for _, x := range list {
-				if x.Kind == b.Kind && x.IslandID == b.IslandID && x.BuildingID == b.BuildingID && x.ShipID == b.ShipID && x.Good == b.Good {
+				if x.Kind == b.Kind && x.IslandID == b.IslandID && x.BuildingID == b.BuildingID && x.ShipID == b.ShipID && x.Good == b.Good && x.Quest == b.Quest {
 					return
 				}
 			}
@@ -262,6 +279,8 @@ func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (in
 			consider(e.atMs, Boundary{Kind: e.Kind, IslandID: e.IslandID, BuildingID: e.BuildingID, ShipID: e.ShipID})
 		}
 	}
+	// Quest stock thresholds.
+	questStockBoundary(w, c, wr, now, consider)
 	return best, list
 }
 

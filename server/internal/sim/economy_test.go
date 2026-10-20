@@ -28,6 +28,15 @@ func legacyUpkeep(base *content.Catalogue) *content.Catalogue {
 	return withUpkeep(base, up)
 }
 
+// withoutQuests returns base without quests, for tests that compare exact
+// boundary lists or worlds where a (permanent) quest completion is not the
+// subject.
+func withoutQuests(base *content.Catalogue) *content.Catalogue {
+	c := *base
+	c.Quests, c.QuestByID = nil, map[string]*content.Quest{}
+	return &c
+}
+
 // orderCatalogue is the shipped catalogue with the wool chain at the
 // upkeep (2 gold/min each) and cycle (60 s) these insolvency-order tests
 // were written for: the expected cascades rank buildings by upkeep and the
@@ -35,7 +44,7 @@ func legacyUpkeep(base *content.Catalogue) *content.Catalogue {
 // pass changes freely.
 func orderCatalogue(t *testing.T) *content.Catalogue {
 	t.Helper()
-	c := withUpkeep(legacyUpkeep(catalogue(t)), map[string]Qty{"sheep_farm": 2_000, "weaver_wool": 2_000})
+	c := withUpkeep(legacyUpkeep(withoutQuests(catalogue(t))), map[string]Qty{"sheep_farm": 2_000, "weaver_wool": 2_000})
 	for _, id := range []string{"sheep_farm", "weaver_wool"} {
 		b := *c.BuildingByID[id]
 		rec := *b.Recipe

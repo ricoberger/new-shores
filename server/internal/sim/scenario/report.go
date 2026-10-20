@@ -32,11 +32,31 @@ type Report struct {
 	ExpectedErrors []ExpectedError `json:"expected_errors,omitempty"`
 	// Snapshots after every advance step.
 	Snapshots []Snapshot `json:"snapshots"`
+	// Quests lists every completed quest by completion time with the time
+	// its rewards were claimed (empty if not claimed); omitted when none.
+	Quests []QuestRecord `json:"quests,omitempty"`
+	// AwaySummaries are the summaries produced by away_summary steps.
+	AwaySummaries []sim.AwaySummary `json:"away_summaries,omitempty"`
 	// Final is the Display payload at the end of the run.
 	Final sim.DisplayState `json:"final"`
 
 	advanceDuration time.Duration
 	ledger          *sim.Ledger
+	claims          map[string]string
+}
+
+// QuestRecord is a completed quest of a run (RFC 3339 with ms).
+type QuestRecord struct {
+	ID          string `json:"id"`
+	CompletedAt string `json:"completed_at"`
+	ClaimedAt   string `json:"claimed_at,omitempty"`
+}
+
+func (r *Report) claimedAt(id string, at time.Time) {
+	if r.claims == nil {
+		r.claims = map[string]string{}
+	}
+	r.claims[id] = at.Format(timeLayout)
 }
 
 // Totals are the accumulated goods movements of one good (milli-units).
@@ -195,6 +215,9 @@ func (r *runner) finish() error {
 			}
 		}
 		rep.Totals[island] = t
+	}
+	for _, q := range ds.Quests.Completed {
+		rep.Quests = append(rep.Quests, QuestRecord{ID: q.ID, CompletedAt: q.CompletedAt, ClaimedAt: rep.claims[q.ID]})
 	}
 	rep.Bottlenecks = []Bottleneck{}
 	if rep.PauseEvents == nil {

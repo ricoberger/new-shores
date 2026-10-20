@@ -333,7 +333,41 @@
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
       "balance_if_resumed_per_min": -3000
-    }
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_houses",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "house_settlers",
+              "current": 0,
+              "target": 4,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road",
+        "intro_planks"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:00:00.000Z"
   },
   "samples": [
     {
@@ -671,7 +705,41 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -3000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_houses",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "house_settlers",
+                  "current": 0,
+                  "target": 4,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
@@ -1009,7 +1077,41 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -3000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_houses",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "house_settlers",
+                  "current": 0,
+                  "target": 4,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
@@ -1347,7 +1449,41 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -3000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_houses",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "house_settlers",
+                  "current": 0,
+                  "target": 4,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
@@ -1685,7 +1821,41 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -3000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_houses",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "house_settlers",
+                  "current": 0,
+                  "target": 4,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
@@ -2023,7 +2193,41 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -3000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_houses",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "house_settlers",
+                  "current": 0,
+                  "target": 4,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_first_road",
+            "intro_planks"
+          ],
+          "completed": [
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_planks",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     }
   ]

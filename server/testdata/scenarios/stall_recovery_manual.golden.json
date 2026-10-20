@@ -1,6 +1,6 @@
 {
   "name": "stall_recovery_manual",
-  "content_version": "old_coast-0.4.0",
+  "content_version": "old_coast-0.5.0",
   "boundary_count": 54,
   "totals": {
     "start": {
@@ -532,6 +532,32 @@
       "unlocked_tiers": [
         "settlers"
       ]
+    }
+  ],
+  "quests": [
+    {
+      "id": "intro_first_road",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_planks",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "intro_houses",
+      "completed_at": "2026-01-01T00:06:00.000Z"
+    },
+    {
+      "id": "intro_fish",
+      "completed_at": "2026-01-01T00:06:00.000Z"
+    },
+    {
+      "id": "intro_market",
+      "completed_at": "2026-01-01T00:06:00.000Z"
+    },
+    {
+      "id": "intro_wool",
+      "completed_at": "2026-01-01T00:06:00.000Z"
     }
   ],
   "final": {
@@ -1718,6 +1744,64 @@
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
       "balance_if_resumed_per_min": 1400
-    }
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_chapel",
+          "objectives": [
+            {
+              "kind": "connected",
+              "type": "chapel",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [
+        "intro_first_road",
+        "intro_planks",
+        "intro_houses",
+        "intro_fish",
+        "intro_market",
+        "intro_wool"
+      ],
+      "completed": [
+        {
+          "id": "intro_first_road",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_planks",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_houses",
+          "completed_at": "2026-01-01T00:06:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_fish",
+          "completed_at": "2026-01-01T00:06:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_market",
+          "completed_at": "2026-01-01T00:06:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "intro_wool",
+          "completed_at": "2026-01-01T00:06:00.000Z",
+          "claimed": false
+        }
+      ]
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:07:00.000Z"
   }
 }

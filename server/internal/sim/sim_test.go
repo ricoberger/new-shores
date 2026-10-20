@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"maps"
 	"math"
 	"path/filepath"
@@ -173,13 +174,13 @@ func TestEnvelopeRoundTrip(t *testing.T) {
 	if !bytes.Equal(first, second) {
 		t.Errorf("round trip not byte-identical:\n%s\n%s", first, second)
 	}
-	if !strings.Contains(string(first), `"schema_version":1`) || !strings.Contains(string(first), `"last_evaluated_at":"2026-01-01T00:00:37.123Z"`) {
+	if !strings.Contains(string(first), fmt.Sprintf(`"schema_version":%d`, SchemaVersion)) || !strings.Contains(string(first), `"last_evaluated_at":"2026-01-01T00:00:37.123Z"`) {
 		t.Errorf("unexpected envelope: %s", first[:200])
 	}
 }
 
 func TestDecodeRejectsSchemaVersion(t *testing.T) {
-	for _, v := range []int{0, 2} {
+	for _, v := range []int{0, SchemaVersion + 1} {
 		data, _ := json.Marshal(map[string]any{"schema_version": v, "content_version": "x", "world": map[string]any{}})
 		if _, _, err := Decode(data); !errors.Is(err, ErrSchemaVersion) {
 			t.Errorf("version %d: err = %v, want ErrSchemaVersion", v, err)

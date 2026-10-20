@@ -36,7 +36,7 @@ func TestLoadOldCoast(t *testing.T) {
 	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.GrowthThreshold != 500_000 || rules.OptionalTaxBonus != 250_000 || rules.AutoResumeMs != 300_000 {
 		t.Errorf("rules = %+v", rules)
 	}
-	if rules.ShipHandlingMs != 20_000 || rules.ShipSpeedMilliTilesPerMin != 60_000 || c.Region.Version != "old_coast-0.4.0" {
+	if rules.ShipHandlingMs != 20_000 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 || c.Region.Version != "old_coast-0.5.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 
@@ -87,6 +87,28 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 6_000 || tax*10 < upkeep*12 {
 		t.Errorf("tax %d vs upkeep %d milli-gold/min: margin below 20 %%", tax, upkeep)
+	}
+
+	// Intro quests (quests.json): a linear chain, rewards in fixed point.
+	if len(c.Quests) < 10 || c.Quests[0].ID != "intro_first_road" || len(c.Quests[0].Prerequisites) != 0 {
+		t.Fatalf("quests = %+v", c.Quests)
+	}
+	for i, q := range c.Quests[1:] {
+		if len(q.Prerequisites) != 1 || q.Prerequisites[0] != c.Quests[i].ID || c.QuestByID[q.ID] != q || q.Index != i+1 {
+			t.Errorf("quest %s: prerequisites %v, index %d", q.ID, q.Prerequisites, q.Index)
+		}
+		if len(q.Rewards.Goods) > 0 && !strings.Contains(q.Text, "capacity") {
+			t.Errorf("quest %s rewards goods but does not mention the capacity", q.ID)
+		}
+	}
+	if q := c.QuestByID["intro_planks"]; q.Rewards.Gold != 0 || len(q.Rewards.Goods) != 1 || q.Rewards.Goods[0] != (GoodAmount{"planks", 45_000}) {
+		t.Errorf("intro_planks rewards %+v", q.Rewards)
+	}
+	if q := c.QuestByID["intro_tools"]; q.Objectives[1] != (Objective{Kind: ObjectiveStock, Good: "tools", Island: "start", Min: 10_000}) {
+		t.Errorf("intro_tools objectives %+v", q.Objectives)
+	}
+	if q := c.QuestByID["intro_settlers_120"]; q.Objectives[0] != (Objective{Kind: ObjectivePopulation, Tier: "settlers", Min: 120_000}) {
+		t.Errorf("intro_settlers_120 objectives %+v", q.Objectives)
 	}
 
 	if c.Start.Gold != 800_000 || len(c.Start.Goods) != 2 || c.Start.Goods[0] != (GoodAmount{"planks", 130_000}) || c.Start.Goods[1] != (GoodAmount{"sails", 10_000}) {
@@ -404,6 +426,80 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
     "upkeep_per_min": 0,`, `"cost": { "gold": 225, "planks": 15 },
     "upkeep_per_min": 3,`},
 			[]string{FileBuildings, `building "market_small"`, "upkeep_per_min", "must be 0 for pause_category never"},
+		},
+		{
+			"quest unknown building", FileQuests,
+			[]string{`{ "kind": "connected", "type": "lumberjack" }`, `{ "kind": "connected", "type": "lumber_camp" }`},
+			[]string{FileQuests, `quest "intro_planks"`, "objectives[0].type", `unknown building "lumber_camp"`},
+		},
+		{
+			"quest unknown good", FileQuests,
+			[]string{`"good": "tools", "min": 10`, `"good": "spades", "min": 10`},
+			[]string{FileQuests, `quest "intro_tools"`, "objectives[1].good", `unknown good "spades"`},
+		},
+		{
+			"quest unknown tier", FileQuests,
+			[]string{`"tier": "settlers", "min": 120`, `"tier": "peasants", "min": 120`},
+			[]string{FileQuests, `quest "intro_settlers_120"`, "objectives[0].tier", `unknown tier "peasants"`},
+		},
+		{
+			"quest unknown reward good", FileQuests,
+			[]string{`"rewards": { "goods": { "planks": 45 } }`, `"rewards": { "goods": { "timber": 45 } }`},
+			[]string{FileQuests, `quest "intro_planks"`, "rewards.goods.timber", `unknown good "timber"`},
+		},
+		{
+			"quest duplicate ID", FileQuests,
+			[]string{`"id": "intro_houses"`, `"id": "intro_planks"`},
+			[]string{FileQuests, `quest "intro_planks"`, "duplicate ID"},
+		},
+		{
+			"quest forward prerequisite", FileQuests,
+			[]string{`"prerequisites": ["intro_first_road"]`, `"prerequisites": ["intro_houses"]`},
+			[]string{FileQuests, `quest "intro_planks"`, "prerequisites[0]", `quest "intro_houses" does not precede "intro_planks"`},
+		},
+		{
+			"quest self prerequisite", FileQuests,
+			[]string{`"prerequisites": ["intro_first_road"]`, `"prerequisites": ["intro_planks"]`},
+			[]string{FileQuests, `quest "intro_planks"`, "prerequisites[0]", "does not precede"},
+		},
+		{
+			"quest unknown prerequisite", FileQuests,
+			[]string{`"prerequisites": ["intro_first_road"]`, `"prerequisites": ["intro_nowhere"]`},
+			[]string{FileQuests, `quest "intro_planks"`, "prerequisites[0]", `unknown quest "intro_nowhere"`},
+		},
+		{
+			"quest zero minimum", FileQuests,
+			[]string{`"type": "road_dirt", "min": 10`, `"type": "road_dirt", "min": 0`},
+			[]string{FileQuests, `quest "intro_first_road"`, "schema violation"},
+		},
+		{
+			"quest unknown objective kind", FileQuests,
+			[]string{`{ "kind": "route_exists" }`, `{ "kind": "trade_done" }`},
+			[]string{FileQuests, `quest "intro_tools"`, "schema violation"},
+		},
+		{
+			"quest without rewards", FileQuests,
+			[]string{`"rewards": { "gold": 25 },
+    "prerequisites": []`, `"rewards": {},
+    "prerequisites": []`},
+			[]string{FileQuests, `quest "intro_first_road"`, "schema violation"},
+		},
+		{
+			"quest decoration reward", FileQuests,
+			[]string{`"rewards": { "gold": 25 },
+    "prerequisites": []`, `"rewards": { "gold": 25, "decorations": ["statue"] },
+    "prerequisites": []`},
+			[]string{FileQuests, `quest "intro_first_road"`, "schema violation"},
+		},
+		{
+			"quest satisfaction decimals", FileQuests,
+			[]string{`{ "kind": "route_exists" }`, `{ "kind": "satisfaction", "tier": "settlers", "min": 0.8125 }`},
+			[]string{FileQuests, `quest "intro_tools"`, "objectives[0].min", "more than 3 decimal places"},
+		},
+		{
+			"region zero away summary", FileRegion,
+			[]string{`"away_summary_minutes": 15`, `"away_summary_minutes": 0`},
+			[]string{FileRegion, "schema violation"},
 		},
 		{
 			"region decimals", FileRegion,

@@ -193,6 +193,13 @@ type AdvanceStep struct {
 	Duration string `json:"duration"`
 }
 
+// ClaimStep claims the rewards of a completed quest; Island receives
+// reward goods (required for quests that reward goods).
+type ClaimStep struct {
+	Quest  string `json:"quest"`
+	Island string `json:"island,omitempty"`
+}
+
 // Step is one scenario step; exactly one operation must be set. Move moves
 // the building covering a tile for free, keeping its ID and state
 // (MoveStep, D-042). Ships and routes are addressed by their sequential
@@ -214,6 +221,11 @@ type Step struct {
 	ManualShipment  *ShipmentStep  `json:"manual_shipment,omitempty"`
 	FoundIsland     *FoundStep     `json:"found_island,omitempty"`
 	ScrapShip       *ShipStep      `json:"scrap_ship,omitempty"`
+	ClaimQuest      *ClaimStep     `json:"claim_quest,omitempty"`
+	// AwaySummary (true) produces the "while you were away" summary over
+	// the time since the last command step and writes it into the report.
+	// Advance steps never produce one.
+	AwaySummary bool `json:"away_summary,omitempty"`
 
 	Place      *Placement   `json:"place,omitempty"`
 	PlaceGrid  *Grid        `json:"place_grid,omitempty"`
@@ -238,6 +250,7 @@ func (s Step) kind() (string, error) {
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
 		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "found_island": s.FoundIsland != nil,
 		"scrap_ship": s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil,
+		"claim_quest": s.ClaimQuest != nil, "away_summary": s.AwaySummary,
 	} {
 		if set {
 			kinds = append(kinds, name)
@@ -566,8 +579,14 @@ func (r *runner) buildingAt(at *At) (string, *sim.Building, error) {
 	return id, b, nil
 }
 
+// apply applies a player command; like a real command it sets the
+// world's last seen time when it succeeds.
 func (r *runner) apply(cmd sim.Command) error {
-	return sim.ApplyWithLedger(r.w, r.c, cmd, r.l)
+	if err := sim.ApplyWithLedger(r.w, r.c, cmd, r.l); err != nil {
+		return err
+	}
+	sim.MarkSeen(r.w)
+	return nil
 }
 
 // parseUnits converts unit amounts of a scenario to milli-units.
@@ -713,6 +732,16 @@ func (r *runner) step(i int, st Step) error {
 			typ = firstWarehouseType(r.c)
 		}
 		return r.apply(sim.FoundIsland{ShipID: f.Ship, IslandID: f.Island, BuildingType: typ, X: f.X, Y: f.Y, Rotation: f.Rotation})
+	case st.ClaimQuest != nil:
+		cq := st.ClaimQuest
+		if err := r.apply(sim.ClaimQuest{QuestID: cq.Quest, IslandID: cq.Island}); err != nil {
+			return err
+		}
+		r.report.claimedAt(cq.Quest, r.w.LastEvaluatedAt)
+		return nil
+	case st.AwaySummary:
+		r.report.AwaySummaries = append(r.report.AwaySummaries, *sim.ProduceSummary(r.w, r.c))
+		return nil
 	case st.Advance != nil:
 		d, err := time.ParseDuration(st.Advance.Duration)
 		if err != nil {
@@ -789,6 +818,8 @@ func Sentinels() map[string]error {
 		"island_already_settled": sim.ErrIslandAlreadySettled, "island_not_settled": sim.ErrIslandNotSettled,
 		"cargo_insufficient": sim.ErrCargoInsufficient, "cargo_exceeds_slots": sim.ErrCargoExceedsSlots,
 		"last_warehouse": sim.ErrLastWarehouse, "not_connected": sim.ErrNotConnected,
+		"quest_not_found": sim.ErrQuestNotFound, "quest_not_completed": sim.ErrQuestNotCompleted,
+		"quest_already_claimed": sim.ErrQuestAlreadyClaimed,
 	}
 }
 

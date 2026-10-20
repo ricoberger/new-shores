@@ -253,7 +253,27 @@
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
       "balance_if_resumed_per_min": -1000
-    }
+    },
+    "quests": {
+      "active": [
+        {
+          "id": "intro_first_road",
+          "objectives": [
+            {
+              "kind": "building_count",
+              "type": "road_dirt",
+              "current": 6,
+              "target": 10,
+              "met": false
+            }
+          ]
+        }
+      ],
+      "claimable": [],
+      "completed": []
+    },
+    "away_summary": null,
+    "last_seen_at": "2026-01-01T00:00:00.000Z"
   },
   "samples": [
     {
@@ -511,7 +531,27 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -1000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 6,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
@@ -769,7 +809,27 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -1000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 6,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
@@ -1027,7 +1087,27 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -1000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 6,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
@@ -1285,7 +1365,27 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -1000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 6,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     },
     {
@@ -1543,7 +1643,27 @@
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
           "balance_if_resumed_per_min": -1000
-        }
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_first_road",
+              "objectives": [
+                {
+                  "kind": "building_count",
+                  "type": "road_dirt",
+                  "current": 6,
+                  "target": 10,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [],
+          "completed": []
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:00:00.000Z"
       }
     }
   ]

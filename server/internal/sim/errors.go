@@ -56,3 +56,10 @@ var (
 	ErrLastWarehouse        = errors.New("last warehouse of an island with buildings")
 	ErrNotConnected         = errors.New("building has no road to a warehouse")
 )
+
+// Sentinel errors of quests and the away summary.
+var (
+	ErrQuestNotFound       = errors.New("quest not found")
+	ErrQuestNotCompleted   = errors.New("quest not completed")
+	ErrQuestAlreadyClaimed = errors.New("quest already claimed")
+)

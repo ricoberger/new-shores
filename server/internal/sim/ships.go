@@ -470,6 +470,7 @@ func ApplyDueEvent(w *World, c *content.Catalogue, ev DueEvent) (bool, error) {
 	if ok {
 		normalizeShips(w, now)
 		evaluateUnlocks(w, c)
+		evaluateQuests(w, c, now, nil)
 	}
 	return ok, nil
 }
@@ -490,6 +491,7 @@ func applyShipBuilt(w *World, is *Island, b *Building) {
 // applyShipArrival ends the ship's leg at its destination (R-22 – R-24).
 func applyShipArrival(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
 	dest := s.Leg.ToIsland
+	w.Away.addArrival(s, dest, now)
 	s.Leg = nil
 	s.IslandID = dest
 	var r *Route

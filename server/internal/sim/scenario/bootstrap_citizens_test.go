@@ -125,8 +125,23 @@ func TestBootstrapCitizens(t *testing.T) {
 		t.Error("toolmaker on island 2 not running when tools arrived")
 	}
 
-	// No permanent insolvency: every auto-pause is resumed, nothing is
-	// unpaid at the end, the balance is not negative, gold never was.
+	// Quests are optional: the intro chain completes along the plan, but
+	// nothing is claimed.
+	if len(rep.Quests) == 0 {
+		t.Error("no quest completed")
+	}
+	for _, q := range rep.Quests {
+		if q.ClaimedAt != "" {
+			t.Errorf("quest %s claimed in the reference game without claims", q.ID)
+		}
+	}
+	checkNoPermanentInsolvency(t, rep)
+}
+
+// checkNoPermanentInsolvency: every auto-pause is resumed, nothing is
+// unpaid at the end, the balance is not negative, gold never was.
+func checkNoPermanentInsolvency(t *testing.T, rep *Report) {
+	t.Helper()
 	open := map[[2]int64]int{}
 	for _, e := range rep.PauseEvents {
 		k := [2]int64{e.BuildingID, e.ShipID}

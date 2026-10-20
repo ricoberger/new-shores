@@ -673,7 +673,7 @@ components:
           or a same-origin/same-site `Sec-Fetch-Site`);
         - 404: `not_found` (unknown endpoint, no world),
           `unknown_island`, `building_not_found`, `ship_not_found`,
-          `route_not_found`;
+          `route_not_found`, `quest_not_found`;
         - 405: `method_not_allowed`;
         - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
           `no_fertility` (the island lacks the work area's fertility tag),
@@ -694,7 +694,8 @@ components:
           materials), `cargo_exceeds_slots`, `last_warehouse` (the last
           warehouse of an island with other buildings), `not_connected`
           (a shipyard without a road to a warehouse cannot order),
-          `email_taken`, `already_registered`;
+          `quest_not_completed`, `quest_already_claimed` (rewards are
+          credited once), `email_taken`, `already_registered`;
         - 429: `rate_limited` (with `Retry-After` in seconds);
         - 500: `internal`;
         - 503: `service_unavailable` (the database does not answer).
@@ -704,6 +705,12 @@ components:
         `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
         `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`. Moving is free: it never fails for
         gold, materials or tier. Placement never requires a road (D-042).
+
+        `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
+        or no `island_id` for a quest that rewards goods), 404
+        `quest_not_found`, `unknown_island`; 409 `quest_not_completed`,
+        `quest_already_claimed`, `island_not_settled`. `ack_summary` never
+        fails for a well-formed body.
 
         **Internal-only codes** (HTTP 500, never caused by a client command;
         clients should treat them like `internal` and not handle them
@@ -755,6 +762,9 @@ components:
         - cargo_exceeds_slots
         - last_warehouse
         - not_connected
+        - quest_not_found
+        - quest_not_completed
+        - quest_already_claimed
         - over_capacity
         - time_backwards
         - schema_version
@@ -914,6 +924,8 @@ components:
         - $ref: "#/components/schemas/UnassignShipCommand"
         - $ref: "#/components/schemas/ManualShipmentCommand"
         - $ref: "#/components/schemas/FoundIslandCommand"
+        - $ref: "#/components/schemas/ClaimQuestCommand"
+        - $ref: "#/components/schemas/AckSummaryCommand"
       discriminator:
         propertyName: type
         mapping:
@@ -935,6 +947,42 @@ components:
           unassign_ship: "#/components/schemas/UnassignShipCommand"
           manual_shipment: "#/components/schemas/ManualShipmentCommand"
           found_island: "#/components/schemas/FoundIslandCommand"
+          claim_quest: "#/components/schemas/ClaimQuestCommand"
+          ack_summary: "#/components/schemas/AckSummaryCommand"
+    ClaimQuestCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Credit the rewards of a completed quest once: gold to the world,
+        goods to the island `island_id`, clamped to its free capacity
+        (capacity − stock − in transit); the excess is lost.
+      required: [type, quest_id]
+      properties:
+        type:
+          type: string
+          enum: [claim_quest]
+        quest_id:
+          type: string
+          description: Content quest ID.
+        island_id:
+          type: string
+          description: Settled island that receives reward goods; required when the quest rewards goods, optional (validated when set) otherwise.
+    AckSummaryCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Acknowledge the pending "while you were away" summary. Clears it
+        when `summary_id` matches its `id`; otherwise nothing changes.
+        Like every command it marks the player as seen (`last_seen_at`).
+      required: [type, summary_id]
+      properties:
+        type:
+          type: string
+          enum: [ack_summary]
+        summary_id:
+          type: integer
+          format: int64
+          description: The `id` of the summary (its end time in Unix milliseconds).
     Tile:
       type: object
       additionalProperties: false
@@ -1414,7 +1462,7 @@ components:
         Authoritative state at `evaluated_at` plus the rates the client
         extrapolates linearly until `next_change_at` (D-027).
       required:
-        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, islands, ships, routes, insolvency]
+        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, islands, ships, routes, insolvency, quests, away_summary, last_seen_at]
       properties:
         evaluated_at:
           type: string
@@ -1461,6 +1509,267 @@ components:
             $ref: "#/components/schemas/RouteDisplay"
         insolvency:
           $ref: "#/components/schemas/InsolvencyDisplay"
+        quests:
+          $ref: "#/components/schemas/QuestsDisplay"
+        away_summary:
+          description: The pending "while you were away" summary, null when none. The client shows it once per `id` and acknowledges it with `ack_summary`.
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/AwaySummary"
+        last_seen_at:
+          type: string
+          description: World time of the player's last successful command (RFC 3339, UTC, ms); initially the world's creation. Reads and scheduled events do not change it.
+    QuestsDisplay:
+      type: object
+      additionalProperties: false
+      description: Quest state derived from the world (content order unless stated).
+      required: [active, claimable, completed]
+      properties:
+        active:
+          type: array
+          description: Active quests (prerequisites completed, not completed themselves).
+          items:
+            $ref: "#/components/schemas/ActiveQuestDisplay"
+        claimable:
+          type: array
+          description: IDs of completed quests whose rewards were not claimed yet.
+          items:
+            type: string
+        completed:
+          type: array
+          description: Every completed quest, by completion time, then content order.
+          items:
+            $ref: "#/components/schemas/CompletedQuestDisplay"
+    ActiveQuestDisplay:
+      type: object
+      additionalProperties: false
+      required: [id, objectives]
+      properties:
+        id:
+          type: string
+          description: Content quest ID.
+        objectives:
+          type: array
+          description: Progress of the quest's objectives in content order.
+          items:
+            $ref: "#/components/schemas/ObjectiveDisplay"
+    ObjectiveDisplay:
+      type: object
+      additionalProperties: false
+      description: |
+        Progress of one objective. `current` and `target` are in the
+        predicate's unit: counts for `building_count` (road tiles for a road
+        type), `island_settled` and `ship_count`; 0/1 for `connected`,
+        `route_exists` and `tier_unlocked`; milli-residents for
+        `population`; milli-units of stock for `stock`; per-mille for
+        `satisfaction` (current −1 while the tier has no house).
+      required: [kind, current, target, met]
+      properties:
+        kind:
+          type: string
+          enum: [building_count, connected, population, stock, route_exists, island_settled, tier_unlocked, ship_count, satisfaction]
+        type:
+          type: string
+          description: Content building ID (building_count, connected).
+        good:
+          type: string
+          description: Good ID (stock).
+        tier:
+          type: string
+          description: Tier ID (population, tier_unlocked, satisfaction).
+        island:
+          type: string
+          description: Island the objective is restricted to (absent = archipelago).
+        current:
+          type: integer
+          format: int64
+          description: Current value in the objective's unit (see the schema description).
+        target:
+          type: integer
+          format: int64
+          description: Target value in the objective's unit (see the schema description).
+        met:
+          type: boolean
+    CompletedQuestDisplay:
+      type: object
+      additionalProperties: false
+      required: [id, completed_at, claimed]
+      properties:
+        id:
+          type: string
+          description: Content quest ID.
+        completed_at:
+          type: string
+          description: Completion time (RFC 3339, UTC, ms).
+        claimed:
+          type: boolean
+          description: Whether the rewards were claimed.
+    AwaySummary:
+      type: object
+      additionalProperties: false
+      description: |
+        "While you were away" summary over [`from`, `to`]: from the player's
+        last command to the request that produced it. Produced on `GET
+        /world` or a command when at least `away_summary_ms` passed since
+        `last_seen_at` and no summary is pending (or the pending one ended
+        at least that long ago; the new one replaces it). Goods in
+        milli-units, gold in milli-gold, residents in milli-residents.
+      required: [id, from, to, gold_before, gold_after, population, islands, auto_paused, auto_resumed, still_unpaid, ships_arrived, arrivals, quests_completed]
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Summary ID (its `to` in Unix milliseconds); acknowledge with `ack_summary`.
+        from:
+          type: string
+          description: Start of the interval, the last command (RFC 3339, UTC, ms).
+        to:
+          type: string
+          description: End of the interval (RFC 3339, UTC, ms).
+        gold_before:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Gold at `from` (milli-gold).
+        gold_after:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Gold at `to` (milli-gold).
+        population:
+          type: object
+          description: Residents per tier over the archipelago at `from` and `to`.
+          additionalProperties:
+            $ref: "#/components/schemas/AwayPopulation"
+        islands:
+          type: array
+          description: Islands in world order.
+          items:
+            $ref: "#/components/schemas/AwayIsland"
+        auto_paused:
+          type: integer
+          minimum: 0
+          description: Buildings and ships paused for insolvency during the interval (count of pauses).
+        auto_resumed:
+          type: integer
+          minimum: 0
+          description: Buildings and ships resumed automatically during the interval (count of resumes).
+        still_unpaid:
+          type: array
+          description: Buildings and ships still paused for insolvency at `to`.
+          items:
+            $ref: "#/components/schemas/AwayUnpaid"
+        ships_arrived:
+          type: integer
+          minimum: 0
+          description: Ship arrivals during the interval (count).
+        arrivals:
+          type: array
+          description: The first ship arrivals (at most 50; `ships_arrived` is exact).
+          items:
+            $ref: "#/components/schemas/AwayArrival"
+        quests_completed:
+          type: array
+          description: Quests completed during the interval, by completion time.
+          items:
+            $ref: "#/components/schemas/AwayQuest"
+    AwayPopulation:
+      type: object
+      additionalProperties: false
+      required: [before, after]
+      properties:
+        before:
+          type: integer
+          format: int64
+          description: Residents at `from` (milli-residents).
+        after:
+          type: integer
+          format: int64
+          description: Residents at `to` (milli-residents).
+    AwayIsland:
+      type: object
+      additionalProperties: false
+      required: [id, goods]
+      properties:
+        id:
+          type: string
+        goods:
+          type: object
+          description: Every good with a flow during the interval or stock at `to`.
+          additionalProperties:
+            $ref: "#/components/schemas/AwayGood"
+    AwayGood:
+      type: object
+      additionalProperties: false
+      required: [produced, consumed, lost, stock_after, capacity, at_capacity]
+      properties:
+        produced:
+          type: integer
+          format: int64
+          description: Produced during the interval (milli-units).
+        consumed:
+          type: integer
+          format: int64
+          description: Consumed during the interval (milli-units).
+        lost:
+          type: integer
+          format: int64
+          description: Lost to capacity clamping during the interval (milli-units).
+        stock_after:
+          type: integer
+          format: int64
+          description: Stock at `to` (milli-units).
+        capacity:
+          type: integer
+          format: int64
+          description: Capacity of the good on the island at `to` (milli-units).
+        at_capacity:
+          type: boolean
+          description: The good is full at `to` (full regime, or stock plus in-transit equals the capacity).
+    AwayUnpaid:
+      type: object
+      additionalProperties: false
+      required: [island_id, type]
+      properties:
+        island_id:
+          type: string
+          description: Island of the building or ship (empty for a ship at sea).
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID (absent for a ship).
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID (absent for a building).
+        type:
+          type: string
+          description: Content building or ship type.
+    AwayArrival:
+      type: object
+      additionalProperties: false
+      required: [ship_id, island_id, at]
+      properties:
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID.
+        island_id:
+          type: string
+        at:
+          type: string
+          description: Arrival time (RFC 3339, UTC, ms).
+    AwayQuest:
+      type: object
+      additionalProperties: false
+      required: [id, completed_at]
+      properties:
+        id:
+          type: string
+          description: Content quest ID.
+        completed_at:
+          type: string
+          description: Completion time (RFC 3339, UTC, ms).
     InsolvencyDisplay:
       type: object
       additionalProperties: false
@@ -1998,10 +2307,15 @@ components:
     Content:
       type: object
       additionalProperties: false
-      required: [region, tiers, goods, buildings, needs, ships]
+      required: [region, tiers, goods, buildings, needs, ships, quests]
       properties:
         region:
           $ref: "#/components/schemas/ContentRegion"
+        quests:
+          type: array
+          description: Quests in content order (a quest is active when its prerequisites are completed).
+          items:
+            $ref: "#/components/schemas/ContentQuest"
         tiers:
           type: array
           description: Tiers in progression order.
@@ -2025,6 +2339,71 @@ components:
           description: Ship types (ordered at buildings with a shipyard block).
           items:
             $ref: "#/components/schemas/ContentShip"
+    ContentQuest:
+      type: object
+      additionalProperties: false
+      required: [id, title, text, objectives, rewards, prerequisites]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        text:
+          type: string
+          description: Advisor prose shown to the player.
+        objectives:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContentObjective"
+        rewards:
+          $ref: "#/components/schemas/ContentRewards"
+        prerequisites:
+          type: array
+          description: IDs of earlier quests that must be completed first.
+          items:
+            type: string
+    ContentObjective:
+      type: object
+      additionalProperties: false
+      description: An objective; `target` in the unit of `ObjectiveDisplay`.
+      required: [kind, target]
+      properties:
+        kind:
+          type: string
+          enum: [building_count, connected, population, stock, route_exists, island_settled, tier_unlocked, ship_count, satisfaction]
+        type:
+          type: string
+          description: Content building ID (building_count, connected).
+        good:
+          type: string
+          description: Good ID (stock).
+        tier:
+          type: string
+          description: Tier ID (population, tier_unlocked, satisfaction).
+        island:
+          type: string
+          description: Island the objective is restricted to (absent = archipelago).
+        target:
+          type: integer
+          format: int64
+          description: Target value (count, 1 for yes/no predicates, milli-residents, milli-units or per-mille; see ObjectiveDisplay).
+    ContentRewards:
+      type: object
+      additionalProperties: false
+      required: [gold, goods]
+      properties:
+        gold:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Reward gold (milli-gold).
+        goods:
+          type: object
+          description: Reward goods by good ID (milli-units), credited to the chosen island up to its free capacity.
+          additionalProperties:
+            type: integer
+            format: int64
+            description: Amount (milli-units).
     ContentShip:
       type: object
       additionalProperties: false
@@ -2089,7 +2468,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, optional_tax_bonus, auto_resume_upkeep_ms, ship_handling_ms, ship_speed_milli_tiles_per_min]
+        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, optional_tax_bonus, auto_resume_upkeep_ms, ship_handling_ms, ship_speed_milli_tiles_per_min, away_summary_ms]
       properties:
         transfer_base_ms:
           type: integer
@@ -2134,6 +2513,10 @@ components:
           type: integer
           format: int64
           description: Archipelago distance a ship of speed 1.0 covers per minute (milli-tiles per minute).
+        away_summary_ms:
+          type: integer
+          format: int64
+          description: Minimum world time since the last command before a request produces a "while you were away" summary (ms).
     ContentTier:
       type: object
       additionalProperties: false

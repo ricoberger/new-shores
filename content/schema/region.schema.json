@@ -28,7 +28,8 @@
         "optional_tax_bonus",
         "auto_resume_upkeep_minutes",
         "ship_handling_seconds",
-        "ship_speed_tiles_per_min"
+        "ship_speed_tiles_per_min",
+        "away_summary_minutes"
       ],
       "properties": {
         "transfer_base_seconds": { "type": "number", "minimum": 0 },
@@ -65,6 +66,11 @@
           "description": "Archipelago tiles a ship of speed 1.0 covers per minute; travel time = distance / (speed x this), rounded up to whole milliseconds.",
           "type": "number",
           "exclusiveMinimum": 0
+        },
+        "away_summary_minutes": {
+          "description": "Minimum world time between the player's last command and a request for the server to produce a 'while you were away' summary.",
+          "type": "integer",
+          "minimum": 1
         }
       }
     }
