@@ -20,9 +20,28 @@ export type Command = Schemas["Command"];
 export type CommandRequest = Schemas["CommandRequest"];
 export type ErrorCode = Schemas["ErrorCode"];
 export type ErrorResponse = Schemas["ErrorResponse"];
+export type Player = Schemas["Player"];
+export type AuthResponse = Schemas["AuthResponse"];
+export type RegisterRequest = Schemas["RegisterRequest"];
+export type LoginRequest = Schemas["LoginRequest"];
+export type GuestRequest = Schemas["GuestRequest"];
+export type WorldChangedMessage = Schemas["WorldChangedMessage"];
 
+/**
+ * Base URL of the game server. Empty means same origin (the Compose stack
+ * serves client and API from one origin through Caddy).
+ */
 export const API_BASE: string =
   (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://localhost:8080";
+
+/**
+ * WebSocket URL of /api/v1/ws: API_BASE with http(s) replaced by ws(s); an
+ * empty base resolves against the page's origin.
+ */
+export function wsUrl(base: string = API_BASE, pageOrigin: string = globalThis.location?.origin ?? ""): string {
+  const origin = base === "" ? pageOrigin : base;
+  return origin.replace(/^http(s?):\/\//, "ws$1://").replace(/\/$/, "") + "/api/v1/ws";
+}
 
 /** A non-2xx response with the server's error envelope. */
 export class ApiError extends Error {
@@ -45,10 +64,16 @@ export class NetworkError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+/** The session is missing or expired (HTTP 401 unauthorized). */
+export function isUnauthorized(err: unknown): boolean {
+  return err instanceof ApiError && err.status === 401 && err.code === "unauthorized";
+}
+
+async function send(path: string, init?: RequestInit): Promise<Response> {
   let res: Response;
   try {
-    res = await fetch(API_BASE + path, init);
+    // The session is an HttpOnly cookie: send it cross-origin too (dev).
+    res = await fetch(API_BASE + path, { ...init, credentials: "include" });
   } catch (err) {
     throw new NetworkError(err instanceof Error ? err.message : String(err));
   }
@@ -64,7 +89,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
     throw new ApiError(code, message, res.status);
   }
+  return res;
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await send(path, init);
   return (await res.json()) as T;
+}
+
+function post<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 }
 
 export function getWorld(): Promise<WorldResponse> {
@@ -92,4 +126,25 @@ export function sendCommand(command: Command, version?: number): Promise<WorldRe
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+}
+
+/** The player of the current session (401 without one). */
+export function getMe(): Promise<AuthResponse> {
+  return request<AuthResponse>("/api/v1/auth/me");
+}
+
+export function postGuest(body: GuestRequest): Promise<AuthResponse> {
+  return post<AuthResponse>("/api/v1/auth/guest", body);
+}
+
+export function postRegister(body: RegisterRequest): Promise<AuthResponse> {
+  return post<AuthResponse>("/api/v1/auth/register", body);
+}
+
+export function postLogin(body: LoginRequest): Promise<AuthResponse> {
+  return post<AuthResponse>("/api/v1/auth/login", body);
+}
+
+export async function postLogout(): Promise<void> {
+  await send("/api/v1/auth/logout", { method: "POST" });
 }

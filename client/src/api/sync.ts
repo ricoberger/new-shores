@@ -1,7 +1,10 @@
 // Client-side synchronisation with the server (refresh policy of the M1b
 // spec, E.24): the server payload is replaced by every response, the display
 // model is recomputed at 4 Hz, the world is re-fetched at next_change_at,
-// on focus/visibility and never by polling otherwise.
+// on focus/visibility, on a world_changed push of the WebSocket (and once
+// on every (re)connect of it) and never by polling otherwise. A 401 from
+// any request ends the session: syncing stops and the unauthorized
+// listeners (the start screen) take over.
 //
 // World requests (GET /world and commands) go through one queue: at most one
 // is in flight and commands reach the server in invocation order. A refresh
@@ -20,10 +23,13 @@ import {
   getIsland,
   getWorld,
   type Island,
+  isUnauthorized,
   NetworkError,
   sendCommand,
   type WorldResponse,
+  wsUrl,
 } from "./client";
+import { WorldSocket, type WorldSocketHandlers } from "./ws";
 
 const MODEL_INTERVAL_MS = 250;
 const NEXT_CHANGE_MARGIN_MS = 50;
@@ -62,6 +68,12 @@ export interface SyncError {
 
 type ErrorListener = (e: SyncError) => void;
 
+/** Creates the push socket (null: no push, e.g. in unit tests). */
+export type SocketFactory = (handlers: WorldSocketHandlers) => { start(): void; stop(): void } | null;
+
+const defaultSocketFactory: SocketFactory = (handlers) =>
+  typeof WebSocket === "undefined" ? null : new WorldSocket(wsUrl(), handlers);
+
 export class GameSync {
   private snapshot: SyncSnapshot = { server: null, model: null, content: null, islands: new Map(), unreachable: false };
   private offsetMs = 0;
@@ -80,6 +92,10 @@ export class GameSync {
   private islandRequests = new Set<string>();
   private contentRequest = false;
   private stopped = true;
+  private unauthorizedListeners = new Set<() => void>();
+  private socket: { start(): void; stop(): void } | null = null;
+
+  constructor(private readonly socketFactory: SocketFactory = defaultSocketFactory) {}
 
   private readonly onVisible = (): void => {
     if (document.visibilityState === "visible") void this.refresh();
@@ -94,11 +110,24 @@ export class GameSync {
     window.addEventListener("focus", this.onFocus);
     void this.loadContent();
     void this.refresh();
+    this.socket = this.socketFactory({
+      changed: () => void this.refresh(),
+      open: () => {
+        if (this.snapshot.unreachable) this.set({ unreachable: false });
+        void this.refresh();
+      },
+      down: () => {
+        if (!this.snapshot.unreachable) this.set({ unreachable: true });
+      },
+    });
+    this.socket?.start();
     return () => this.stop();
   }
 
   private stop(): void {
     this.stopped = true;
+    this.socket?.stop();
+    this.socket = null;
     clearInterval(this.modelTimer);
     clearTimeout(this.nextChangeTimer);
     for (const r of this.retries.values()) clearTimeout(r.timer);
@@ -119,6 +148,19 @@ export class GameSync {
   }
 
   getSnapshot = (): SyncSnapshot => this.snapshot;
+
+  /** Called once when a request answers 401 (the session ended). */
+  subscribeUnauthorized(l: () => void): () => void {
+    this.unauthorizedListeners.add(l);
+    return () => this.unauthorizedListeners.delete(l);
+  }
+
+  /** Stops syncing and notifies the unauthorized listeners. */
+  private unauthorized(): void {
+    if (this.stopped) return;
+    this.stop();
+    for (const l of this.unauthorizedListeners) l();
+  }
 
   /**
    * Server time now (ms since epoch): Date.now() + offset, where offset =
@@ -191,6 +233,7 @@ export class GameSync {
         return res;
       } catch (err) {
         if (err instanceof NetworkError) this.failed("world", err, () => void this.refresh(), false);
+        if (isUnauthorized(err)) this.unauthorized();
         throw err;
       }
     });
@@ -245,6 +288,10 @@ export class GameSync {
    */
   private failed(key: string, err: unknown, retry: () => void, report = true): void {
     if (this.stopped) return;
+    if (isUnauthorized(err)) {
+      this.unauthorized();
+      return;
+    }
     if (err instanceof NetworkError) {
       if (!this.snapshot.unreachable) this.set({ unreachable: true });
     } else if (err instanceof ApiError) {

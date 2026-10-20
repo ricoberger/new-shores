@@ -232,3 +232,72 @@ describe("GameSync", () => {
     stop();
   });
 });
+
+describe("GameSync session and push", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+    vi.stubGlobal("document", Object.assign(new EventTarget(), { visibilityState: "visible" }));
+    vi.stubGlobal("window", new EventTarget());
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("stops and reports a 401 without retrying", async () => {
+    let worldGets = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const path = new URL(url).pathname;
+        if (path === "/api/v1/content") return json(CONTENT);
+        worldGets++;
+        return json({ error: { code: "unauthorized", message: "no valid session" } }, 401);
+      }),
+    );
+    const sync = new GameSync(() => null);
+    let ended = 0;
+    sync.subscribeUnauthorized(() => ended++);
+    const errors: SyncError[] = [];
+    sync.subscribeErrors((e) => errors.push(e));
+    sync.start();
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(ended).toBe(1);
+    expect(worldGets).toBe(1);
+    expect(errors).toEqual([]);
+  });
+
+  it("re-fetches on world_changed and on (re)connect; the socket drives the banner", async () => {
+    let worldGets = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const path = new URL(url).pathname;
+        if (path === "/api/v1/content") return json(CONTENT);
+        worldGets++;
+        return json(world(worldGets, "2026-01-01T00:00:00.000Z", null));
+      }),
+    );
+    let handlers: import("./ws").WorldSocketHandlers | undefined;
+    let stopped = false;
+    const sync = new GameSync((h) => {
+      handlers = h;
+      return { start: () => undefined, stop: () => (stopped = true) };
+    });
+    const stop = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(worldGets).toBe(1);
+    handlers!.changed("w");
+    await vi.advanceTimersByTimeAsync(0);
+    expect(worldGets).toBe(2);
+    handlers!.down();
+    expect(sync.getSnapshot().unreachable).toBe(true);
+    handlers!.open();
+    expect(sync.getSnapshot().unreachable).toBe(false);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(worldGets).toBe(3);
+    stop();
+    expect(stopped).toBe(true);
+  });
+});
