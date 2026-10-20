@@ -56,12 +56,20 @@ type Hub struct {
 	sub    Subscriber
 	closed bool
 	wg     sync.WaitGroup
+
+	// subMu serialises subscription changes; subscribed (guarded by subMu)
+	// is the subscription state per world as last requested from the
+	// subscriber. reconcile brings it in line with the current membership,
+	// so concurrent last-leave and first-join cannot end unsubscribed with
+	// a socket open.
+	subMu      sync.Mutex
+	subscribed map[store.WorldID]bool
 }
 
 // NewHub returns a hub. SetSubscriber connects it to Redis; without a
 // subscriber it is fed by Notify only (dev mode).
 func NewHub(logger *slog.Logger) *Hub {
-	return &Hub{logger: logger, conns: map[store.WorldID]map[*conn]struct{}{}}
+	return &Hub{logger: logger, conns: map[store.WorldID]map[*conn]struct{}{}, subscribed: map[store.WorldID]bool{}}
 }
 
 // SetSubscriber sets the subscription manager (before serving sockets).
@@ -95,49 +103,66 @@ func (h *Hub) Connections() int {
 	return n
 }
 
-func (h *Hub) add(ctx context.Context, id store.WorldID, c *conn) bool {
+func (h *Hub) add(id store.WorldID, c *conn) bool {
 	h.mu.Lock()
 	if h.closed {
 		h.mu.Unlock()
 		return false
 	}
-	first := len(h.conns[id]) == 0
-	if first {
+	if h.conns[id] == nil {
 		h.conns[id] = map[*conn]struct{}{}
 	}
 	h.conns[id][c] = struct{}{}
 	h.wg.Add(1)
-	sub := h.sub
 	h.mu.Unlock()
 	telemetry.WSConnections.Inc()
-	if first && sub != nil {
-		if err := sub.Subscribe(ctx, id); err != nil {
-			// Degradation: the socket stays open without pushes; the
-			// client still re-fetches at next_change_at and on focus.
-			h.logger.Error("ws: subscribing to world changes failed", "world_id", string(id), "error", err)
-		}
-	}
+	h.reconcile(id)
 	return true
 }
 
 func (h *Hub) remove(id store.WorldID, c *conn) {
 	h.mu.Lock()
 	delete(h.conns[id], c)
-	last := len(h.conns[id]) == 0
-	if last {
+	if len(h.conns[id]) == 0 {
 		delete(h.conns, id)
 	}
-	sub := h.sub
 	h.mu.Unlock()
 	telemetry.WSConnections.Dec()
-	if last && sub != nil {
-		ctx, cancel := context.WithTimeout(context.Background(), writeTimeout)
-		defer cancel()
-		if err := sub.Unsubscribe(ctx, id); err != nil {
-			h.logger.Warn("ws: unsubscribing failed", "world_id", string(id), "error", err)
-		}
-	}
+	h.reconcile(id)
 	h.wg.Done()
+}
+
+// reconcile subscribes to or unsubscribes from a world's channel so that
+// the subscription matches whether the world has sockets now. It runs
+// under subMu and re-reads the membership, so the last call always leaves
+// the correct state regardless of how adds and removes interleave.
+func (h *Hub) reconcile(id store.WorldID) {
+	h.subMu.Lock()
+	defer h.subMu.Unlock()
+	h.mu.Lock()
+	want := len(h.conns[id]) > 0
+	sub := h.sub
+	h.mu.Unlock()
+	if sub == nil || want == h.subscribed[id] {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), writeTimeout)
+	defer cancel()
+	if want {
+		// Recorded as subscribed even on error: the Redis client keeps the
+		// channel and resubscribes after reconnecting. Meanwhile the socket
+		// stays open without pushes; the client still re-fetches at
+		// next_change_at and on focus.
+		h.subscribed[id] = true
+		if err := sub.Subscribe(ctx, id); err != nil {
+			h.logger.Error("ws: subscribing to world changes failed", "world_id", string(id), "error", err)
+		}
+		return
+	}
+	delete(h.subscribed, id)
+	if err := sub.Unsubscribe(ctx, id); err != nil {
+		h.logger.Warn("ws: unsubscribing failed", "world_id", string(id), "error", err)
+	}
 }
 
 // Serve upgrades the request (already authenticated and origin-checked by
@@ -158,7 +183,7 @@ func (h *Hub) Serve(w http.ResponseWriter, r *http.Request, id store.WorldID) {
 	ctx, cancel := context.WithCancel(context.WithoutCancel(r.Context()))
 	defer cancel()
 	c := &conn{send: make(chan []byte, sendBuffer), cancel: cancel}
-	if !h.add(ctx, id, c) {
+	if !h.add(id, c) {
 		_ = ws.Close(websocket.StatusGoingAway, "server shutting down")
 		return
 	}
