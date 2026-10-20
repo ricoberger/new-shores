@@ -265,12 +265,14 @@ func (p *propCase) randomCommand() Command {
 	case r < 72:
 		x, y := p.randomPos()
 		return DemolishRoad{IslandID: "main", Tiles: []Pos{{x, y}}}
-	case r < 85:
+	case r < 81:
 		if len(is.Buildings) == 0 {
 			return nil
 		}
 		b := is.Buildings[p.rng.IntN(len(is.Buildings))]
 		return SetPaused{IslandID: "main", BuildingID: b.ID, Paused: p.rng.IntN(2) == 0}
+	case r < 85:
+		return p.randomMove()
 	default:
 		if len(is.Buildings) < 2 {
 			return nil
@@ -284,8 +286,10 @@ func (p *propCase) randomCommand() Command {
 	}
 }
 
-// placeAtRoad returns a random placement whose entrance touches a road tile,
-// preferring (up to 20 attempts) one that is valid.
+// placeAtRoad returns a random placement whose footprint touches a road
+// tile, preferring (up to 20 attempts) one that is valid. Random placements
+// without a road come from randomCommand (placement never requires a road,
+// D-042), so unconnected buildings and houses occur as well.
 func (p *propCase) placeAtRoad() Command {
 	var cmd Command
 	for range 20 {
@@ -307,11 +311,45 @@ func (p *propCase) placeAtRoadOnce() Command {
 	var road Pos
 	fmt.Sscanf(i, "%d,%d", &road.X, &road.Y)
 	d := neighbours()[p.rng.IntN(4)]
-	e := Pos{road.X + d.X, road.Y + d.Y}
+	e := Pos{road.X + d.X, road.Y + d.Y}       // a footprint tile next to the road
 	typ := p.types[p.rng.IntN(len(p.types)-1)] // no warehouse
 	rot := 90 * p.rng.IntN(4)
-	off := entrance(p.c.BuildingByID[typ], 0, 0, rot)
-	return PlaceBuilding{IslandID: "main", Type: typ, X: e.X - off.X, Y: e.Y - off.Y, Rotation: rot}
+	w, h := footprint(p.c.BuildingByID[typ], rot)
+	return PlaceBuilding{IslandID: "main", Type: typ, X: e.X - p.rng.IntN(w), Y: e.Y - p.rng.IntN(h), Rotation: rot}
+}
+
+// randomMove returns a move of a random building to a random target,
+// preferring (up to 20 attempts) a valid one; nil without buildings.
+func (p *propCase) randomMove() Command {
+	is := p.w.Islands[0]
+	if len(is.Buildings) == 0 {
+		return nil
+	}
+	b := is.Buildings[p.rng.IntN(len(is.Buildings))]
+	var cmd Command
+	for range 20 {
+		cmd = p.moveTarget(b)
+		if Apply(p.w.Clone(), p.c, cmd) == nil {
+			return cmd
+		}
+	}
+	return cmd
+}
+
+// moveTarget returns a move of b to a random position (next to a road in
+// half of the cases, possibly overlapping its own footprint).
+func (p *propCase) moveTarget(b *Building) MoveBuilding {
+	rot := 90 * p.rng.IntN(4)
+	x, y := p.randomPos()
+	switch p.rng.IntN(3) {
+	case 0:
+		if place, ok := p.placeAtRoadOnce().(PlaceBuilding); ok {
+			x, y = place.X, place.Y
+		}
+	case 1:
+		x, y = b.X+p.rng.IntN(5)-2, b.Y+p.rng.IntN(5)-2
+	}
+	return MoveBuilding{IslandID: "main", BuildingID: b.ID, X: x, Y: y, Rotation: rot}
 }
 
 func roadKeys(is *Island) map[string]bool {
@@ -955,6 +993,187 @@ func TestPropertyDeterminism(t *testing.T) {
 				if !bytes.Equal(a, b) || fmt.Sprint(abs) != fmt.Sprint(bbs) {
 					t.Fatalf("seed %d: runs differ", seed)
 				}
+			}
+		})
+	}
+}
+
+// moveWorld runs a random case (alternating random worlds and towns, so that
+// houses are moved too) and returns it.
+func moveWorld(t *testing.T, c *content.Catalogue, seed uint64) *propCase {
+	p := newPropCase(t, c, seed)
+	if seed%2 == 1 {
+		p.w = p.townWorld()
+	}
+	p.run(false)
+	return p
+}
+
+// validMove returns a valid random move of a random building (false when
+// none was found).
+func (p *propCase) validMove() (MoveBuilding, bool) {
+	is := p.w.Islands[0]
+	if len(is.Buildings) == 0 {
+		return MoveBuilding{}, false
+	}
+	for range 50 {
+		b := is.Buildings[p.rng.IntN(len(is.Buildings))]
+		cmd := p.moveTarget(b)
+		if Apply(p.w.Clone(), p.c, cmd) == nil {
+			return cmd, true
+		}
+	}
+	return MoveBuilding{}, false
+}
+
+// TestPropertyMovePreservesState: a valid move keeps the building's ID,
+// type, level, pause state, progress, buffer, remaining transit per good and
+// house state, the island inventory, gold and NextBuildingID (D-042).
+func TestPropertyMovePreservesState(t *testing.T) {
+	for name, c := range propertyCatalogues(t) {
+		t.Run(name, func(t *testing.T) {
+			moved, houses := 0, 0
+			for seed := range uint64(propertyCases) {
+				p := moveWorld(t, c, 90_000+seed)
+				cmd, ok := p.validMove()
+				if !ok {
+					continue
+				}
+				is := p.w.Islands[0]
+				old := is.Building(cmd.BuildingID).clone()
+				now := p.w.LastEvaluatedAt.UnixMilli()
+				transit := map[string]int64{}
+				for _, g := range transitGoods(old) {
+					transit[g] = old.transitFine(g, now)
+				}
+				gold, goldSub, next := p.w.Gold, p.w.GoldSub, p.w.NextBuildingID
+				stock, stockSub := maps.Clone(is.Inventory.Stock), maps.Clone(is.Inventory.StockSub)
+				p.apply(cmd)
+
+				b := is.Building(cmd.BuildingID)
+				if b == nil || b.X != cmd.X || b.Y != cmd.Y || b.Rotation != cmd.Rotation {
+					p.fail("seed %d: move %+v not applied: %+v", seed, cmd, b)
+				}
+				if b.ID != old.ID || b.Type != old.Type || b.Level != old.Level || b.Paused != old.Paused ||
+					b.PausedReason != old.PausedReason || b.PauseSeq != old.PauseSeq || b.PausedAtMs != old.PausedAtMs ||
+					b.Progress != old.Progress || !maps.Equal(b.Buffer, old.Buffer) || !maps.Equal(b.BufferSub, old.BufferSub) {
+					p.fail("seed %d: state changed by move:\nbefore %+v\nafter  %+v", seed, old, b)
+				}
+				for _, g := range sortedKeys(transit) {
+					if got := b.transitFine(g, now); got != transit[g] {
+						p.fail("seed %d: transit of %s %d -> %d", seed, g, transit[g], got)
+					}
+				}
+				if (old.House == nil) != (b.House == nil) || (old.House != nil && *old.House != *b.House) {
+					p.fail("seed %d: house %+v -> %+v", seed, old.House, b.House)
+				}
+				if old.House != nil {
+					houses++
+				}
+				if p.w.Gold != gold || p.w.GoldSub != goldSub || p.w.NextBuildingID != next ||
+					!maps.Equal(is.Inventory.Stock, stock) || !maps.Equal(is.Inventory.StockSub, stockSub) {
+					p.fail("seed %d: move changed gold, inventory or NextBuildingID", seed)
+				}
+				moved++
+			}
+			t.Logf("%d moves, %d of them houses", moved, houses)
+			if moved < propertyCases/2 || houses < propertyCases/20 {
+				t.Errorf("only %d moves (%d houses) in %d cases", moved, houses, propertyCases)
+			}
+		})
+	}
+}
+
+// TestPropertyMoveEqualsPlacement: placing a building at A and moving it to
+// B at the same instant yields a world byte-identical to placing it at B
+// directly. No field is excluded.
+func TestPropertyMoveEqualsPlacement(t *testing.T) {
+	for name, c := range propertyCatalogues(t) {
+		t.Run(name, func(t *testing.T) {
+			compared := 0
+			for seed := range uint64(propertyCases) {
+				p := moveWorld(t, c, 110_000+seed)
+				var places []PlaceBuilding
+				var typ string
+				for i := range 400 {
+					if len(places) == 2 {
+						break
+					}
+					if i%40 == 0 && len(places) == 0 {
+						// A new type unless one valid position was found.
+						typ = p.types[p.rng.IntN(len(p.types))]
+					}
+					x, y := p.randomPos()
+					if p.rng.IntN(2) == 0 {
+						if pl, ok := p.placeAtRoadOnce().(PlaceBuilding); ok {
+							x, y = pl.X, pl.Y
+						}
+					}
+					cmd := PlaceBuilding{IslandID: "main", Type: typ, X: x, Y: y, Rotation: 90 * p.rng.IntN(4)}
+					if Apply(p.w.Clone(), p.c, cmd) == nil {
+						places = append(places, cmd)
+					}
+				}
+				if len(places) < 2 {
+					continue
+				}
+				a, bpl := places[0], places[1]
+				viaMove := p.w.Clone()
+				id := viaMove.NextBuildingID
+				if err := Apply(viaMove, p.c, a); err != nil {
+					p.fail("seed %d: place A: %v", seed, err)
+				}
+				if err := Apply(viaMove, p.c, MoveBuilding{IslandID: "main", BuildingID: id, X: bpl.X, Y: bpl.Y, Rotation: bpl.Rotation}); err != nil {
+					p.fail("seed %d: move %+v -> %+v: %v", seed, a, bpl, err)
+				}
+				direct := p.w.Clone()
+				if err := Apply(direct, p.c, bpl); err != nil {
+					p.fail("seed %d: place B: %v", seed, err)
+				}
+				if x, y := encode(t, viaMove), encode(t, direct); !bytes.Equal(x, y) {
+					p.fail("seed %d: place %+v + move differs from place %+v:\nmove:   %s\ndirect: %s", seed, a, bpl, x, y)
+				}
+				compared++
+			}
+			t.Logf("%d comparisons", compared)
+			if compared < propertyCases/2 {
+				t.Errorf("only %d comparisons in %d cases", compared, propertyCases)
+			}
+		})
+	}
+}
+
+// TestPropertyMoveRoundTrip: moving a building to B and back to A at the
+// same instant restores the world byte-identically except the regimes
+// (Inventory.Starved/Full), which every command clears.
+func TestPropertyMoveRoundTrip(t *testing.T) {
+	for name, c := range propertyCatalogues(t) {
+		t.Run(name, func(t *testing.T) {
+			moved := 0
+			for seed := range uint64(propertyCases) {
+				p := moveWorld(t, c, 130_000+seed)
+				cmd, ok := p.validMove()
+				if !ok {
+					continue
+				}
+				before := p.w.Clone()
+				b := p.w.Islands[0].Building(cmd.BuildingID)
+				back := MoveBuilding{IslandID: "main", BuildingID: b.ID, X: b.X, Y: b.Y, Rotation: b.Rotation}
+				p.apply(cmd)
+				if err := ApplyWithLedger(p.w, p.c, back, p.l); err != nil {
+					p.fail("seed %d: move back %+v: %v", seed, back, err)
+				}
+				p.checkInvariants("after move back")
+				clearRegimes(before.Islands[0])
+				clearRegimes(p.w.Islands[0])
+				if x, y := encode(t, before), encode(t, p.w); !bytes.Equal(x, y) {
+					p.fail("seed %d: round trip %+v differs:\nbefore: %s\nafter:  %s", seed, cmd, x, y)
+				}
+				moved++
+			}
+			t.Logf("%d round trips", moved)
+			if moved < propertyCases/2 {
+				t.Errorf("only %d moves in %d cases", moved, propertyCases)
 			}
 		})
 	}

@@ -70,6 +70,10 @@ paths:
       operationId: postCommand
       summary: Advance the world to now and apply one command.
       description: |
+        Commands (`command.type`): `place_building`, `place_road`,
+        `demolish`, `demolish_road`, `set_paused`, `upgrade_house` and
+        `move_building`.
+
         On success the version is incremented and the new display state is
         returned. On error the world and its version are unchanged. A
         `version` that differs from the current one is not an error (the
@@ -200,12 +204,17 @@ components:
         - 404: `not_found` (unknown endpoint), `unknown_island`,
           `building_not_found`;
         - 405: `method_not_allowed`;
-        - 409: `occupied`, `terrain`, `not_coastal`, `no_road_at_entrance`,
-          `no_work_area`, `insufficient_gold`, `insufficient_materials`,
-          `surplus_loss`, `not_pausable`, `no_road`, `tier_locked`,
-          `not_a_house`, `upgrade_unavailable`, `house_not_full`,
-          `needs_unmet`;
+        - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
+          `insufficient_gold`, `insufficient_materials`, `surplus_loss`,
+          `not_pausable`, `no_road`, `tier_locked`, `not_a_house`,
+          `upgrade_unavailable`, `house_not_full`, `needs_unmet`;
         - 500: `internal`.
+
+        `move_building` can fail with 400 `bad_request`, `invalid_command`
+        (also for a road or an invalid rotation), `out_of_bounds`; 404
+        `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
+        `not_coastal`, `no_work_area`. Moving is free: it never fails for
+        gold, materials or tier. Placement never requires a road (D-042).
 
         **Internal-only codes** (HTTP 500, never caused by a client command;
         clients should treat them like `internal` and not handle them
@@ -224,7 +233,6 @@ components:
         - occupied
         - terrain
         - not_coastal
-        - no_road_at_entrance
         - no_work_area
         - insufficient_gold
         - insufficient_materials
@@ -262,6 +270,7 @@ components:
         - $ref: "#/components/schemas/DemolishRoadCommand"
         - $ref: "#/components/schemas/SetPausedCommand"
         - $ref: "#/components/schemas/UpgradeHouseCommand"
+        - $ref: "#/components/schemas/MoveBuildingCommand"
       discriminator:
         propertyName: type
         mapping:
@@ -271,6 +280,7 @@ components:
           demolish_road: "#/components/schemas/DemolishRoadCommand"
           set_paused: "#/components/schemas/SetPausedCommand"
           upgrade_house: "#/components/schemas/UpgradeHouseCommand"
+          move_building: "#/components/schemas/MoveBuildingCommand"
     Tile:
       type: object
       additionalProperties: false
@@ -385,6 +395,36 @@ components:
           type: integer
           format: int64
           description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
+    MoveBuildingCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Move a building (not a road) to another valid position on the same
+        island, free of charge (D-042). The building keeps its ID and state;
+        goods in transit keep arriving. Its own current footprint counts as
+        free, so a one-tile shift is valid; the identical position is a
+        valid no-op.
+      required: [type, island_id, building_id, x, y, rotation]
+      properties:
+        type:
+          type: string
+          enum: [move_building]
+        island_id:
+          type: string
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
+        x:
+          type: integer
+          description: Left column of the rotated footprint at the target (tiles).
+        y:
+          type: integer
+          description: Top row of the rotated footprint at the target (tiles).
+        rotation:
+          type: integer
+          enum: [0, 90, 180, 270]
+          description: Degrees; 90 and 270 swap width and height. Visual only.
     # ------------------------------------------------------------------
     # Island (static data)
     # ------------------------------------------------------------------
@@ -586,17 +626,6 @@ components:
         type:
           type: string
           description: Content building ID of the road type.
-    Pos:
-      type: object
-      additionalProperties: false
-      required: [x, y]
-      properties:
-        x:
-          type: integer
-          description: Column (tiles).
-        y:
-          type: integer
-          description: Row (tiles).
     RatesDisplay:
       type: object
       additionalProperties: false
@@ -683,7 +712,7 @@ components:
         A building. Producer fields are present for buildings with a
         recipe, warehouse fields for warehouses, house fields for houses.
       required:
-        [id, type, x, y, rotation, entrance, paused, paused_reason, status, efficiency_permille, throughput_factor_permille]
+        [id, type, x, y, rotation, paused, paused_reason, status, efficiency_permille, throughput_factor_permille]
       properties:
         id:
           type: integer
@@ -702,8 +731,6 @@ components:
           type: integer
           enum: [0, 90, 180, 270]
           description: Degrees.
-        entrance:
-          $ref: "#/components/schemas/Pos"
         paused:
           type: boolean
         paused_reason:

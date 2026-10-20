@@ -2,7 +2,7 @@
   "scenario": "insolvency",
   "base": {
     "evaluated_at": "2026-01-01T01:13:00.000Z",
-    "next_change_at": "2026-01-01T02:15:16.789Z",
+    "next_change_at": "2026-01-01T02:15:20.966Z",
     "gold": 73122,
     "balance_rate_per_min": 800,
     "tax_rate_per_min": 12800,
@@ -38,9 +38,9 @@
         "height": 14,
         "inventory": {
           "fish": {
-            "stock": 178357,
+            "stock": 178407,
             "capacity": 300000,
-            "in_transit": 400,
+            "in_transit": 350,
             "rate_per_min": 860
           },
           "planks": {
@@ -62,15 +62,15 @@
             "rate_per_min": 0
           },
           "wool": {
-            "stock": 13016,
+            "stock": 13031,
             "capacity": 300000,
-            "in_transit": 448,
+            "in_transit": 409,
             "rate_per_min": -209
           },
           "wool_garments": {
-            "stock": 67462,
+            "stock": 67520,
             "capacity": 300000,
-            "in_transit": 500,
+            "in_transit": 467,
             "rate_per_min": 680
           }
         },
@@ -223,10 +223,6 @@
             "x": 1,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 2,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -243,10 +239,6 @@
             "x": 17,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 18,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -259,10 +251,6 @@
             "x": 6,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 6,
-              "y": 2
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -276,9 +264,9 @@
             },
             "cycle_seconds": 40,
             "cycle_progress_permille": 796,
-            "transfer_delay_ms": 16000,
+            "transfer_delay_ms": 14000,
             "assigned_warehouse_id": 1,
-            "road_distance": 6,
+            "road_distance": 4,
             "cycle_rate_permille_per_min": 1500,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -292,10 +280,6 @@
             "x": 21,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 21,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -310,10 +294,10 @@
               }
             },
             "cycle_seconds": 60,
-            "cycle_progress_permille": 482,
-            "transfer_delay_ms": 30000,
+            "cycle_progress_permille": 507,
+            "transfer_delay_ms": 28000,
             "assigned_warehouse_id": 1,
-            "road_distance": 20,
+            "road_distance": 18,
             "cycle_rate_permille_per_min": 1000,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -327,10 +311,6 @@
             "x": 24,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 25,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "low_efficiency",
@@ -344,9 +324,9 @@
             },
             "cycle_seconds": 60,
             "cycle_progress_permille": 946,
-            "transfer_delay_ms": 34000,
+            "transfer_delay_ms": 31000,
             "assigned_warehouse_id": 1,
-            "road_distance": 24,
+            "road_distance": 21,
             "cycle_rate_permille_per_min": 791,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -360,10 +340,6 @@
             "x": 9,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 9,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -415,10 +391,6 @@
             "x": 11,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 11,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -470,10 +442,6 @@
             "x": 13,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 13,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -525,10 +493,6 @@
             "x": 15,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 15,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -580,10 +544,6 @@
             "x": 9,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 10,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -635,10 +595,6 @@
             "x": 11,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 12,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -690,10 +646,6 @@
             "x": 13,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 14,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -745,10 +697,6 @@
             "x": 15,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 16,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -813,7 +761,7 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T01:13:00.250Z",
-        "next_change_at": "2026-01-01T02:15:16.789Z",
+        "next_change_at": "2026-01-01T02:15:20.966Z",
         "gold": 73125,
         "balance_rate_per_min": 800,
         "tax_rate_per_min": 12800,
@@ -849,9 +797,9 @@
             "height": 14,
             "inventory": {
               "fish": {
-                "stock": 178360,
+                "stock": 178410,
                 "capacity": 300000,
-                "in_transit": 400,
+                "in_transit": 350,
                 "rate_per_min": 860
               },
               "planks": {
@@ -873,15 +821,15 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 13016,
+                "stock": 13030,
                 "capacity": 300000,
-                "in_transit": 448,
+                "in_transit": 409,
                 "rate_per_min": -209
               },
               "wool_garments": {
-                "stock": 67465,
+                "stock": 67523,
                 "capacity": 300000,
-                "in_transit": 500,
+                "in_transit": 467,
                 "rate_per_min": 680
               }
             },
@@ -1034,10 +982,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1054,10 +998,6 @@
                 "x": 17,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 18,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1070,10 +1010,6 @@
                 "x": 6,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 6,
-                  "y": 2
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1087,9 +1023,9 @@
                 },
                 "cycle_seconds": 40,
                 "cycle_progress_permille": 802,
-                "transfer_delay_ms": 16000,
+                "transfer_delay_ms": 14000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 6,
+                "road_distance": 4,
                 "cycle_rate_permille_per_min": 1500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -1103,10 +1039,6 @@
                 "x": 21,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 21,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1121,10 +1053,10 @@
                   }
                 },
                 "cycle_seconds": 60,
-                "cycle_progress_permille": 486,
-                "transfer_delay_ms": 30000,
+                "cycle_progress_permille": 511,
+                "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 20,
+                "road_distance": 18,
                 "cycle_rate_permille_per_min": 1000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -1138,10 +1070,6 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 25,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "low_efficiency",
@@ -1155,9 +1083,9 @@
                 },
                 "cycle_seconds": 60,
                 "cycle_progress_permille": 950,
-                "transfer_delay_ms": 34000,
+                "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 24,
+                "road_distance": 21,
                 "cycle_rate_permille_per_min": 791,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -1171,10 +1099,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1226,10 +1150,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1281,10 +1201,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1336,10 +1252,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1391,10 +1303,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1446,10 +1354,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1501,10 +1405,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1556,10 +1456,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1624,7 +1520,7 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T01:13:01.000Z",
-        "next_change_at": "2026-01-01T02:15:16.789Z",
+        "next_change_at": "2026-01-01T02:15:20.966Z",
         "gold": 73135,
         "balance_rate_per_min": 800,
         "tax_rate_per_min": 12800,
@@ -1660,9 +1556,9 @@
             "height": 14,
             "inventory": {
               "fish": {
-                "stock": 178371,
+                "stock": 178421,
                 "capacity": 300000,
-                "in_transit": 400,
+                "in_transit": 350,
                 "rate_per_min": 860
               },
               "planks": {
@@ -1684,15 +1580,15 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 13013,
+                "stock": 13028,
                 "capacity": 300000,
-                "in_transit": 448,
+                "in_transit": 409,
                 "rate_per_min": -209
               },
               "wool_garments": {
-                "stock": 67473,
+                "stock": 67532,
                 "capacity": 300000,
-                "in_transit": 500,
+                "in_transit": 467,
                 "rate_per_min": 680
               }
             },
@@ -1845,10 +1741,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1865,10 +1757,6 @@
                 "x": 17,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 18,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1881,10 +1769,6 @@
                 "x": 6,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 6,
-                  "y": 2
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1898,9 +1782,9 @@
                 },
                 "cycle_seconds": 40,
                 "cycle_progress_permille": 821,
-                "transfer_delay_ms": 16000,
+                "transfer_delay_ms": 14000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 6,
+                "road_distance": 4,
                 "cycle_rate_permille_per_min": 1500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -1914,10 +1798,6 @@
                 "x": 21,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 21,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1932,10 +1812,10 @@
                   }
                 },
                 "cycle_seconds": 60,
-                "cycle_progress_permille": 498,
-                "transfer_delay_ms": 30000,
+                "cycle_progress_permille": 523,
+                "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 20,
+                "road_distance": 18,
                 "cycle_rate_permille_per_min": 1000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -1949,10 +1829,6 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 25,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "low_efficiency",
@@ -1966,9 +1842,9 @@
                 },
                 "cycle_seconds": 60,
                 "cycle_progress_permille": 960,
-                "transfer_delay_ms": 34000,
+                "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 24,
+                "road_distance": 21,
                 "cycle_rate_permille_per_min": 791,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -1982,10 +1858,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2037,10 +1909,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2092,10 +1960,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2147,10 +2011,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2202,10 +2062,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2257,10 +2113,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2312,10 +2164,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2367,10 +2215,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2435,7 +2279,7 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T01:13:05.000Z",
-        "next_change_at": "2026-01-01T02:15:16.789Z",
+        "next_change_at": "2026-01-01T02:15:20.966Z",
         "gold": 73188,
         "balance_rate_per_min": 800,
         "tax_rate_per_min": 12800,
@@ -2471,9 +2315,9 @@
             "height": 14,
             "inventory": {
               "fish": {
-                "stock": 178428,
+                "stock": 178478,
                 "capacity": 300000,
-                "in_transit": 400,
+                "in_transit": 350,
                 "rate_per_min": 860
               },
               "planks": {
@@ -2495,15 +2339,15 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 12999,
+                "stock": 13014,
                 "capacity": 300000,
-                "in_transit": 448,
+                "in_transit": 409,
                 "rate_per_min": -209
               },
               "wool_garments": {
-                "stock": 67519,
+                "stock": 67577,
                 "capacity": 300000,
-                "in_transit": 500,
+                "in_transit": 467,
                 "rate_per_min": 680
               }
             },
@@ -2656,10 +2500,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2676,10 +2516,6 @@
                 "x": 17,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 18,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2692,10 +2528,6 @@
                 "x": 6,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 6,
-                  "y": 2
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2709,9 +2541,9 @@
                 },
                 "cycle_seconds": 40,
                 "cycle_progress_permille": 921,
-                "transfer_delay_ms": 16000,
+                "transfer_delay_ms": 14000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 6,
+                "road_distance": 4,
                 "cycle_rate_permille_per_min": 1500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -2725,10 +2557,6 @@
                 "x": 21,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 21,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2743,10 +2571,10 @@
                   }
                 },
                 "cycle_seconds": 60,
-                "cycle_progress_permille": 565,
-                "transfer_delay_ms": 30000,
+                "cycle_progress_permille": 590,
+                "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 20,
+                "road_distance": 18,
                 "cycle_rate_permille_per_min": 1000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -2760,10 +2588,6 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 25,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "low_efficiency",
@@ -2777,9 +2601,9 @@
                 },
                 "cycle_seconds": 60,
                 "cycle_progress_permille": 12,
-                "transfer_delay_ms": 34000,
+                "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 24,
+                "road_distance": 21,
                 "cycle_rate_permille_per_min": 791,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -2793,10 +2617,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2848,10 +2668,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2903,10 +2719,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2958,10 +2770,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3013,10 +2821,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3068,10 +2872,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3123,10 +2923,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3178,10 +2974,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3246,7 +3038,7 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T01:13:30.000Z",
-        "next_change_at": "2026-01-01T02:15:16.789Z",
+        "next_change_at": "2026-01-01T02:15:20.966Z",
         "gold": 73522,
         "balance_rate_per_min": 800,
         "tax_rate_per_min": 12800,
@@ -3282,9 +3074,9 @@
             "height": 14,
             "inventory": {
               "fish": {
-                "stock": 178787,
+                "stock": 178837,
                 "capacity": 300000,
-                "in_transit": 400,
+                "in_transit": 350,
                 "rate_per_min": 860
               },
               "planks": {
@@ -3306,15 +3098,15 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 12912,
+                "stock": 12927,
                 "capacity": 300000,
-                "in_transit": 448,
+                "in_transit": 409,
                 "rate_per_min": -209
               },
               "wool_garments": {
-                "stock": 67802,
+                "stock": 67860,
                 "capacity": 300000,
-                "in_transit": 500,
+                "in_transit": 467,
                 "rate_per_min": 680
               }
             },
@@ -3467,10 +3259,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3487,10 +3275,6 @@
                 "x": 17,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 18,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3503,10 +3287,6 @@
                 "x": 6,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 6,
-                  "y": 2
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3520,9 +3300,9 @@
                 },
                 "cycle_seconds": 40,
                 "cycle_progress_permille": 546,
-                "transfer_delay_ms": 16000,
+                "transfer_delay_ms": 14000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 6,
+                "road_distance": 4,
                 "cycle_rate_permille_per_min": 1500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -3536,10 +3316,6 @@
                 "x": 21,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 21,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3554,10 +3330,10 @@
                   }
                 },
                 "cycle_seconds": 60,
-                "cycle_progress_permille": 982,
-                "transfer_delay_ms": 30000,
+                "cycle_progress_permille": 7,
+                "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 20,
+                "road_distance": 18,
                 "cycle_rate_permille_per_min": 1000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -3571,10 +3347,6 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 25,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "low_efficiency",
@@ -3588,9 +3360,9 @@
                 },
                 "cycle_seconds": 60,
                 "cycle_progress_permille": 342,
-                "transfer_delay_ms": 34000,
+                "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 24,
+                "road_distance": 21,
                 "cycle_rate_permille_per_min": 791,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -3604,10 +3376,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3659,10 +3427,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3714,10 +3478,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3769,10 +3529,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3824,10 +3580,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3879,10 +3631,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3934,10 +3682,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3989,10 +3733,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4057,7 +3797,7 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T01:18:00.000Z",
-        "next_change_at": "2026-01-01T02:15:16.789Z",
+        "next_change_at": "2026-01-01T02:15:20.966Z",
         "gold": 77122,
         "balance_rate_per_min": 800,
         "tax_rate_per_min": 12800,
@@ -4093,9 +3833,9 @@
             "height": 14,
             "inventory": {
               "fish": {
-                "stock": 182657,
+                "stock": 182707,
                 "capacity": 300000,
-                "in_transit": 400,
+                "in_transit": 350,
                 "rate_per_min": 860
               },
               "planks": {
@@ -4117,15 +3857,15 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 11971,
+                "stock": 11986,
                 "capacity": 300000,
-                "in_transit": 448,
+                "in_transit": 409,
                 "rate_per_min": -209
               },
               "wool_garments": {
-                "stock": 70862,
+                "stock": 70920,
                 "capacity": 300000,
-                "in_transit": 500,
+                "in_transit": 467,
                 "rate_per_min": 680
               }
             },
@@ -4278,10 +4018,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4298,10 +4034,6 @@
                 "x": 17,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 18,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4314,10 +4046,6 @@
                 "x": 6,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 6,
-                  "y": 2
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4331,9 +4059,9 @@
                 },
                 "cycle_seconds": 40,
                 "cycle_progress_permille": 296,
-                "transfer_delay_ms": 16000,
+                "transfer_delay_ms": 14000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 6,
+                "road_distance": 4,
                 "cycle_rate_permille_per_min": 1500,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -4347,10 +4075,6 @@
                 "x": 21,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 21,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4365,10 +4089,10 @@
                   }
                 },
                 "cycle_seconds": 60,
-                "cycle_progress_permille": 482,
-                "transfer_delay_ms": 30000,
+                "cycle_progress_permille": 507,
+                "transfer_delay_ms": 28000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 20,
+                "road_distance": 18,
                 "cycle_rate_permille_per_min": 1000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -4382,10 +4106,6 @@
                 "x": 24,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 25,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "low_efficiency",
@@ -4399,9 +4119,9 @@
                 },
                 "cycle_seconds": 60,
                 "cycle_progress_permille": 901,
-                "transfer_delay_ms": 34000,
+                "transfer_delay_ms": 31000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 24,
+                "road_distance": 21,
                 "cycle_rate_permille_per_min": 791,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -4415,10 +4135,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4470,10 +4186,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4525,10 +4237,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4580,10 +4288,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4635,10 +4339,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4690,10 +4390,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4745,10 +4441,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4800,10 +4492,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",

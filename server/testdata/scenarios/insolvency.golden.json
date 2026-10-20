@@ -25,11 +25,11 @@
       },
       "wool": {
         "produced": 43947,
-        "consumed": 30482,
+        "consumed": 30507,
         "lost": 0
       },
       "wool_garments": {
-        "produced": 30482,
+        "produced": 30507,
         "consumed": 22520,
         "lost": 0,
         "granted": 60000
@@ -121,28 +121,28 @@
     {
       "step": 16,
       "at": "2026-01-01T00:01:00.000Z",
-      "boundaries": 11,
+      "boundaries": 12,
       "inventory": {
         "main": {
           "fish": {
-            "stock": 120640,
-            "in_transit": 291
+            "stock": 120676,
+            "in_transit": 255
           },
           "planks": {
             "stock": 6000,
-            "in_transit": 162
+            "in_transit": 183
           },
           "wood": {
             "stock": 0,
-            "in_transit": 261
+            "in_transit": 240
           },
           "wool": {
             "stock": 0,
-            "in_transit": 206
+            "in_transit": 188
           },
           "wool_garments": {
-            "stock": 59920,
-            "in_transit": 158
+            "stock": 59926,
+            "in_transit": 170
           }
         }
       },
@@ -163,7 +163,7 @@
     {
       "step": 17,
       "at": "2026-01-01T00:03:00.000Z",
-      "boundaries": 36,
+      "boundaries": 35,
       "inventory": {
         "main": {
           "fish": {
@@ -171,19 +171,19 @@
             "in_transit": 0
           },
           "planks": {
-            "stock": 6532,
+            "stock": 6561,
             "in_transit": 0
           },
           "wood": {
-            "stock": 359,
+            "stock": 330,
             "in_transit": 0
           },
           "wool": {
-            "stock": 283,
+            "stock": 258,
             "in_transit": 0
           },
           "wool_garments": {
-            "stock": 60122,
+            "stock": 60147,
             "in_transit": 0
           }
         }
@@ -207,8 +207,8 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 143957,
-            "in_transit": 400
+            "stock": 144007,
+            "in_transit": 350
           },
           "planks": {
             "stock": 6891,
@@ -216,10 +216,10 @@
           },
           "wool": {
             "stock": 13201,
-            "in_transit": 283
+            "in_transit": 258
           },
           "wool_garments": {
-            "stock": 50762,
+            "stock": 50787,
             "in_transit": 0
           }
         }
@@ -246,23 +246,23 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 152557,
-            "in_transit": 400
+            "stock": 152607,
+            "in_transit": 350
           },
           "planks": {
             "stock": 10891,
             "in_transit": 0
           },
           "wood": {
-            "stock": 5461,
-            "in_transit": 359
+            "stock": 5490,
+            "in_transit": 330
           },
           "wool": {
-            "stock": 19381,
-            "in_transit": 354
+            "stock": 19387,
+            "in_transit": 323
           },
           "wool_garments": {
-            "stock": 47562,
+            "stock": 47587,
             "in_transit": 0
           }
         }
@@ -288,8 +288,8 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 178357,
-            "in_transit": 400
+            "stock": 178407,
+            "in_transit": 350
           },
           "planks": {
             "stock": 12891,
@@ -300,12 +300,12 @@
             "in_transit": 0
           },
           "wool": {
-            "stock": 13016,
-            "in_transit": 448
+            "stock": 13031,
+            "in_transit": 409
           },
           "wool_garments": {
-            "stock": 67462,
-            "in_transit": 500
+            "stock": 67520,
+            "in_transit": 467
           }
         }
       },
@@ -325,7 +325,7 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T01:13:00.000Z",
-    "next_change_at": "2026-01-01T02:15:16.789Z",
+    "next_change_at": "2026-01-01T02:15:20.966Z",
     "gold": 73122,
     "balance_rate_per_min": 800,
     "tax_rate_per_min": 12800,
@@ -361,9 +361,9 @@
         "height": 14,
         "inventory": {
           "fish": {
-            "stock": 178357,
+            "stock": 178407,
             "capacity": 300000,
-            "in_transit": 400,
+            "in_transit": 350,
             "rate_per_min": 860
           },
           "planks": {
@@ -385,15 +385,15 @@
             "rate_per_min": 0
           },
           "wool": {
-            "stock": 13016,
+            "stock": 13031,
             "capacity": 300000,
-            "in_transit": 448,
+            "in_transit": 409,
             "rate_per_min": -209
           },
           "wool_garments": {
-            "stock": 67462,
+            "stock": 67520,
             "capacity": 300000,
-            "in_transit": 500,
+            "in_transit": 467,
             "rate_per_min": 680
           }
         },
@@ -546,10 +546,6 @@
             "x": 1,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 2,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -566,10 +562,6 @@
             "x": 17,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 18,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -582,10 +574,6 @@
             "x": 6,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 6,
-              "y": 2
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -599,9 +587,9 @@
             },
             "cycle_seconds": 40,
             "cycle_progress_permille": 796,
-            "transfer_delay_ms": 16000,
+            "transfer_delay_ms": 14000,
             "assigned_warehouse_id": 1,
-            "road_distance": 6,
+            "road_distance": 4,
             "cycle_rate_permille_per_min": 1500,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -615,10 +603,6 @@
             "x": 21,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 21,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -633,10 +617,10 @@
               }
             },
             "cycle_seconds": 60,
-            "cycle_progress_permille": 482,
-            "transfer_delay_ms": 30000,
+            "cycle_progress_permille": 507,
+            "transfer_delay_ms": 28000,
             "assigned_warehouse_id": 1,
-            "road_distance": 20,
+            "road_distance": 18,
             "cycle_rate_permille_per_min": 1000,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -650,10 +634,6 @@
             "x": 24,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 25,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "low_efficiency",
@@ -667,9 +647,9 @@
             },
             "cycle_seconds": 60,
             "cycle_progress_permille": 946,
-            "transfer_delay_ms": 34000,
+            "transfer_delay_ms": 31000,
             "assigned_warehouse_id": 1,
-            "road_distance": 24,
+            "road_distance": 21,
             "cycle_rate_permille_per_min": 791,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -683,10 +663,6 @@
             "x": 9,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 9,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -738,10 +714,6 @@
             "x": 11,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 11,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -793,10 +765,6 @@
             "x": 13,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 13,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -848,10 +816,6 @@
             "x": 15,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 15,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -903,10 +867,6 @@
             "x": 9,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 10,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -958,10 +918,6 @@
             "x": 11,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 12,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1013,10 +969,6 @@
             "x": 13,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 14,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1068,10 +1020,6 @@
             "x": 15,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 16,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",

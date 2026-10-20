@@ -56,8 +56,8 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 104100,
-            "in_transit": 400
+            "stock": 104150,
+            "in_transit": 350
           },
           "planks": {
             "stock": 4000,
@@ -65,11 +65,11 @@
           },
           "wool": {
             "stock": 0,
-            "in_transit": 633
+            "in_transit": 583
           },
           "wool_garments": {
-            "stock": 62283,
-            "in_transit": 583
+            "stock": 62383,
+            "in_transit": 533
           }
         }
       },
@@ -92,8 +92,8 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 104550,
-            "in_transit": 400
+            "stock": 104600,
+            "in_transit": 350
           },
           "planks": {
             "stock": 4000,
@@ -101,11 +101,11 @@
           },
           "wool": {
             "stock": 0,
-            "in_transit": 633
+            "in_transit": 583
           },
           "wool_garments": {
-            "stock": 62758,
-            "in_transit": 583
+            "stock": 62858,
+            "in_transit": 533
           }
         }
       },
@@ -128,8 +128,8 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 104550,
-            "in_transit": 400
+            "stock": 104600,
+            "in_transit": 350
           },
           "planks": {
             "stock": 4000,
@@ -137,11 +137,11 @@
           },
           "wool": {
             "stock": 0,
-            "in_transit": 633
+            "in_transit": 583
           },
           "wool_garments": {
-            "stock": 62758,
-            "in_transit": 583
+            "stock": 62858,
+            "in_transit": 533
           }
         }
       },
@@ -165,20 +165,20 @@
       "inventory": {
         "main": {
           "fish": {
-            "stock": 299680,
-            "in_transit": 320
+            "stock": 299720,
+            "in_transit": 280
           },
           "planks": {
             "stock": 11000,
             "in_transit": 0
           },
           "wool": {
-            "stock": 51342,
-            "in_transit": 633
+            "stock": 51392,
+            "in_transit": 583
           },
           "wool_garments": {
-            "stock": 299650,
-            "in_transit": 350
+            "stock": 299680,
+            "in_transit": 320
           }
         }
       },
@@ -235,9 +235,9 @@
         "height": 14,
         "inventory": {
           "fish": {
-            "stock": 299680,
+            "stock": 299720,
             "capacity": 300000,
-            "in_transit": 320,
+            "in_transit": 280,
             "rate_per_min": 0
           },
           "planks": {
@@ -259,15 +259,15 @@
             "rate_per_min": 0
           },
           "wool": {
-            "stock": 51342,
+            "stock": 51392,
             "capacity": 300000,
-            "in_transit": 633,
+            "in_transit": 583,
             "rate_per_min": 400
           },
           "wool_garments": {
-            "stock": 299650,
+            "stock": 299680,
             "capacity": 300000,
-            "in_transit": 350,
+            "in_transit": 320,
             "rate_per_min": 0
           }
         },
@@ -465,10 +465,6 @@
             "x": 1,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 2,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -485,10 +481,6 @@
             "x": 6,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 6,
-              "y": 2
-            },
             "paused": false,
             "paused_reason": "",
             "status": "warehouse_full",
@@ -505,9 +497,9 @@
             },
             "cycle_seconds": 40,
             "cycle_progress_permille": 50,
-            "transfer_delay_ms": 16000,
+            "transfer_delay_ms": 14000,
             "assigned_warehouse_id": 1,
-            "road_distance": 6,
+            "road_distance": 4,
             "cycle_rate_permille_per_min": 1200,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -521,10 +513,6 @@
             "x": 17,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 18,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -537,10 +525,6 @@
             "x": 25,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 26,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "warehouse_full",
@@ -559,9 +543,9 @@
             },
             "cycle_seconds": 60,
             "cycle_progress_permille": 25,
-            "transfer_delay_ms": 35000,
+            "transfer_delay_ms": 32000,
             "assigned_warehouse_id": 1,
-            "road_distance": 25,
+            "road_distance": 22,
             "cycle_rate_permille_per_min": 600,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -575,10 +559,6 @@
             "x": 28,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 29,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -592,9 +572,9 @@
             },
             "cycle_seconds": 60,
             "cycle_progress_permille": 0,
-            "transfer_delay_ms": 38000,
+            "transfer_delay_ms": 35000,
             "assigned_warehouse_id": 1,
-            "road_distance": 28,
+            "road_distance": 25,
             "cycle_rate_permille_per_min": 1000,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -608,10 +588,6 @@
             "x": 9,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 9,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -663,10 +639,6 @@
             "x": 11,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 11,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -718,10 +690,6 @@
             "x": 13,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 13,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -773,10 +741,6 @@
             "x": 15,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 15,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -828,10 +792,6 @@
             "x": 21,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 21,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -883,10 +843,6 @@
             "x": 23,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 23,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -938,10 +894,6 @@
             "x": 25,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 25,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -993,10 +945,6 @@
             "x": 27,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 27,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1048,10 +996,6 @@
             "x": 9,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 10,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1103,10 +1047,6 @@
             "x": 11,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 12,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1158,10 +1098,6 @@
             "x": 13,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 14,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1213,10 +1149,6 @@
             "x": 15,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 16,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1268,10 +1200,6 @@
             "x": 17,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 18,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1323,10 +1251,6 @@
             "x": 19,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 20,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1378,10 +1302,6 @@
             "x": 21,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 22,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",

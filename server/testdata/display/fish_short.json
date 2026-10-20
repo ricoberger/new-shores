@@ -293,10 +293,6 @@
             "x": 1,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 2,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -313,10 +309,6 @@
             "x": 9,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 9,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -368,10 +360,6 @@
             "x": 11,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 11,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -423,10 +411,6 @@
             "x": 13,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 13,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -478,10 +462,6 @@
             "x": 15,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 15,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -533,10 +513,6 @@
             "x": 17,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 17,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -588,10 +564,6 @@
             "x": 22,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 22,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -643,10 +615,6 @@
             "x": 24,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 24,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -698,10 +666,6 @@
             "x": 26,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 26,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -753,10 +717,6 @@
             "x": 28,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 28,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -808,10 +768,6 @@
             "x": 30,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 30,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -863,10 +819,6 @@
             "x": 35,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 35,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -918,10 +870,6 @@
             "x": 37,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 37,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -973,10 +921,6 @@
             "x": 9,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 10,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1028,10 +972,6 @@
             "x": 11,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 12,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1083,10 +1023,6 @@
             "x": 13,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 14,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1138,10 +1074,6 @@
             "x": 15,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 16,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1193,10 +1125,6 @@
             "x": 17,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 18,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1248,10 +1176,6 @@
             "x": 19,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 20,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1303,10 +1227,6 @@
             "x": 21,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 22,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1358,10 +1278,6 @@
             "x": 23,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 24,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1413,10 +1329,6 @@
             "x": 25,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 26,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1468,10 +1380,6 @@
             "x": 27,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 28,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1523,10 +1431,6 @@
             "x": 29,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 30,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1578,10 +1482,6 @@
             "x": 31,
             "y": 5,
             "rotation": 180,
-            "entrance": {
-              "x": 32,
-              "y": 5
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -1937,10 +1837,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1957,10 +1853,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2012,10 +1904,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2067,10 +1955,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2122,10 +2006,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2177,10 +2057,6 @@
                 "x": 17,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 17,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2232,10 +2108,6 @@
                 "x": 22,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 22,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2287,10 +2159,6 @@
                 "x": 24,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 24,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2342,10 +2210,6 @@
                 "x": 26,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 26,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2397,10 +2261,6 @@
                 "x": 28,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 28,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2452,10 +2312,6 @@
                 "x": 30,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 30,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2507,10 +2363,6 @@
                 "x": 35,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 35,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2562,10 +2414,6 @@
                 "x": 37,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 37,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2617,10 +2465,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2672,10 +2516,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2727,10 +2567,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2782,10 +2618,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2837,10 +2669,6 @@
                 "x": 17,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 18,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2892,10 +2720,6 @@
                 "x": 19,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 20,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -2947,10 +2771,6 @@
                 "x": 21,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 22,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3002,10 +2822,6 @@
                 "x": 23,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 24,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3057,10 +2873,6 @@
                 "x": 25,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 26,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3112,10 +2924,6 @@
                 "x": 27,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 28,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3167,10 +2975,6 @@
                 "x": 29,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 30,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3222,10 +3026,6 @@
                 "x": 31,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 32,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3581,10 +3381,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3601,10 +3397,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3656,10 +3448,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3711,10 +3499,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3766,10 +3550,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3821,10 +3601,6 @@
                 "x": 17,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 17,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3876,10 +3652,6 @@
                 "x": 22,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 22,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3931,10 +3703,6 @@
                 "x": 24,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 24,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -3986,10 +3754,6 @@
                 "x": 26,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 26,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4041,10 +3805,6 @@
                 "x": 28,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 28,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4096,10 +3856,6 @@
                 "x": 30,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 30,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4151,10 +3907,6 @@
                 "x": 35,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 35,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4206,10 +3958,6 @@
                 "x": 37,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 37,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4261,10 +4009,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4316,10 +4060,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4371,10 +4111,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4426,10 +4162,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4481,10 +4213,6 @@
                 "x": 17,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 18,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4536,10 +4264,6 @@
                 "x": 19,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 20,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4591,10 +4315,6 @@
                 "x": 21,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 22,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4646,10 +4366,6 @@
                 "x": 23,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 24,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4701,10 +4417,6 @@
                 "x": 25,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 26,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4756,10 +4468,6 @@
                 "x": 27,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 28,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4811,10 +4519,6 @@
                 "x": 29,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 30,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -4866,10 +4570,6 @@
                 "x": 31,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 32,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5225,10 +4925,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5245,10 +4941,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5300,10 +4992,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5355,10 +5043,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5410,10 +5094,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5465,10 +5145,6 @@
                 "x": 17,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 17,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5520,10 +5196,6 @@
                 "x": 22,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 22,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5575,10 +5247,6 @@
                 "x": 24,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 24,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5630,10 +5298,6 @@
                 "x": 26,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 26,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5685,10 +5349,6 @@
                 "x": 28,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 28,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5740,10 +5400,6 @@
                 "x": 30,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 30,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5795,10 +5451,6 @@
                 "x": 35,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 35,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5850,10 +5502,6 @@
                 "x": 37,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 37,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5905,10 +5553,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -5960,10 +5604,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6015,10 +5655,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6070,10 +5706,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6125,10 +5757,6 @@
                 "x": 17,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 18,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6180,10 +5808,6 @@
                 "x": 19,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 20,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6235,10 +5859,6 @@
                 "x": 21,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 22,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6290,10 +5910,6 @@
                 "x": 23,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 24,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6345,10 +5961,6 @@
                 "x": 25,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 26,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6400,10 +6012,6 @@
                 "x": 27,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 28,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6455,10 +6063,6 @@
                 "x": 29,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 30,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6510,10 +6114,6 @@
                 "x": 31,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 32,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6869,10 +6469,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6889,10 +6485,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6944,10 +6536,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -6999,10 +6587,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7054,10 +6638,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7109,10 +6689,6 @@
                 "x": 17,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 17,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7164,10 +6740,6 @@
                 "x": 22,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 22,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7219,10 +6791,6 @@
                 "x": 24,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 24,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7274,10 +6842,6 @@
                 "x": 26,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 26,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7329,10 +6893,6 @@
                 "x": 28,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 28,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7384,10 +6944,6 @@
                 "x": 30,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 30,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7439,10 +6995,6 @@
                 "x": 35,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 35,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7494,10 +7046,6 @@
                 "x": 37,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 37,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7549,10 +7097,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7604,10 +7148,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7659,10 +7199,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7714,10 +7250,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7769,10 +7301,6 @@
                 "x": 17,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 18,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7824,10 +7352,6 @@
                 "x": 19,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 20,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7879,10 +7403,6 @@
                 "x": 21,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 22,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7934,10 +7454,6 @@
                 "x": 23,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 24,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -7989,10 +7505,6 @@
                 "x": 25,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 26,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8044,10 +7556,6 @@
                 "x": 27,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 28,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8099,10 +7607,6 @@
                 "x": 29,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 30,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8154,10 +7658,6 @@
                 "x": 31,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 32,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8513,10 +8013,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8533,10 +8029,6 @@
                 "x": 9,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 9,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8588,10 +8080,6 @@
                 "x": 11,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 11,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8643,10 +8131,6 @@
                 "x": 13,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 13,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8698,10 +8182,6 @@
                 "x": 15,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 15,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8753,10 +8233,6 @@
                 "x": 17,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 17,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8808,10 +8284,6 @@
                 "x": 22,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 22,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8863,10 +8335,6 @@
                 "x": 24,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 24,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8918,10 +8386,6 @@
                 "x": 26,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 26,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -8973,10 +8437,6 @@
                 "x": 28,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 28,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9028,10 +8488,6 @@
                 "x": 30,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 30,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9083,10 +8539,6 @@
                 "x": 35,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 35,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9138,10 +8590,6 @@
                 "x": 37,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 37,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9193,10 +8641,6 @@
                 "x": 9,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 10,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9248,10 +8692,6 @@
                 "x": 11,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 12,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9303,10 +8743,6 @@
                 "x": 13,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 14,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9358,10 +8794,6 @@
                 "x": 15,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 16,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9413,10 +8845,6 @@
                 "x": 17,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 18,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9468,10 +8896,6 @@
                 "x": 19,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 20,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9523,10 +8947,6 @@
                 "x": 21,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 22,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9578,10 +8998,6 @@
                 "x": 23,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 24,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9633,10 +9049,6 @@
                 "x": 25,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 26,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9688,10 +9100,6 @@
                 "x": 27,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 28,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9743,10 +9151,6 @@
                 "x": 29,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 30,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -9798,10 +9202,6 @@
                 "x": 31,
                 "y": 5,
                 "rotation": 180,
-                "entrance": {
-                  "x": 32,
-                  "y": 5
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",

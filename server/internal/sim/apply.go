@@ -11,7 +11,8 @@ import (
 type Command interface{ isCommand() }
 
 // PlaceBuilding places a building. A building type with a road block is
-// placed as a single road tile (see PlaceRoad).
+// placed as a single road tile (see PlaceRoad). Placement never requires a
+// road (D-042): a building without an adjacent road is not connected.
 type PlaceBuilding struct {
 	IslandID string
 	Type     string
@@ -57,7 +58,19 @@ type UpgradeHouse struct {
 	BuildingID int64
 }
 
+// MoveBuilding moves a building to another position and rotation on the
+// same island, free of charge (MECHANICS §2, D-042). X, Y is the top-left
+// tile of the rotated footprint. The building keeps its ID and all state;
+// goods in transit keep arriving. Roads cannot be moved.
+type MoveBuilding struct {
+	IslandID   string
+	BuildingID int64
+	X, Y       int
+	Rotation   int
+}
+
 func (PlaceBuilding) isCommand() {}
+func (MoveBuilding) isCommand()  {}
 func (PlaceRoad) isCommand()     {}
 func (Demolish) isCommand()      {}
 func (DemolishRoad) isCommand()  {}
@@ -78,6 +91,8 @@ func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) err
 	switch cmd := cmd.(type) {
 	case PlaceBuilding:
 		err = placeBuilding(w, c, cmd, true, l)
+	case MoveBuilding:
+		err = moveBuilding(w, c, cmd)
 	case PlaceRoad:
 		err = placeRoad(w, c, cmd, l)
 	case Demolish:
@@ -238,35 +253,8 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, cmd.Rotation)
 	}
 
-	fw, fh := footprint(def, cmd.Rotation)
-	tiles := make([]Pos, 0, fw*fh)
-	for y := cmd.Y; y < cmd.Y+fh; y++ {
-		for x := cmd.X; x < cmd.X+fw; x++ {
-			tiles = append(tiles, Pos{x, y})
-		}
-	}
-	occ := is.occupancy(c)
-	if err := checkTiles(is, occ, tiles); err != nil {
+	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
 		return err
-	}
-	if def.Coastal {
-		coastal := false
-		for _, p := range tiles {
-			if is.Tile(p.X, p.Y).Terrain == content.TerrainCoast {
-				coastal = true
-				break
-			}
-		}
-		if !coastal {
-			return fmt.Errorf("%w: %s at (%d,%d)", ErrNotCoastal, def.ID, cmd.X, cmd.Y)
-		}
-	}
-	if def.RequiresRoad && len(is.roadsAt(entrance(def, cmd.X, cmd.Y, cmd.Rotation))) == 0 {
-		e := entrance(def, cmd.X, cmd.Y, cmd.Rotation)
-		return fmt.Errorf("%w: entrance (%d,%d)", ErrNoRoadAtEntrance, e.X, e.Y)
-	}
-	if def.WorkArea != nil && workAreaEfficiency(is, occ, def, cmd.X, cmd.Y, cmd.Rotation) == 0 {
-		return fmt.Errorf("%w: %s at (%d,%d)", ErrNoWorkArea, def.ID, cmd.X, cmd.Y)
 	}
 	if charge {
 		if err := checkCost(w, is, def.Cost, 1); err != nil {
@@ -292,6 +280,77 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		}
 	}
 	is.Buildings = append(is.Buildings, b)
+	afterChange(is, c)
+	return nil
+}
+
+// checkSite validates a building site: the footprint is on the island, on
+// buildable terrain and free (per occ and roads), a coastal building touches
+// the coast and a work-area building has efficiency > 0. A road is never
+// required (D-042).
+func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Building, x, y, rotation int) error {
+	fw, fh := footprint(def, rotation)
+	tiles := make([]Pos, 0, fw*fh)
+	for ty := y; ty < y+fh; ty++ {
+		for tx := x; tx < x+fw; tx++ {
+			tiles = append(tiles, Pos{tx, ty})
+		}
+	}
+	if err := checkTiles(is, occ, tiles); err != nil {
+		return err
+	}
+	if def.Coastal {
+		coastal := false
+		for _, p := range tiles {
+			if is.Tile(p.X, p.Y).Terrain == content.TerrainCoast {
+				coastal = true
+				break
+			}
+		}
+		if !coastal {
+			return fmt.Errorf("%w: %s at (%d,%d)", ErrNotCoastal, def.ID, x, y)
+		}
+	}
+	if def.WorkArea != nil && workAreaEfficiency(is, occ, def, x, y, rotation) == 0 {
+		return fmt.Errorf("%w: %s at (%d,%d)", ErrNoWorkArea, def.ID, x, y)
+	}
+	return nil
+}
+
+// moveBuilding moves a building. The building's own current footprint
+// counts as free land for the target (so a one-tile shift is valid, and the
+// identical position is a valid no-op). Nothing is charged or refunded.
+func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
+	is, err := lookupIsland(w, cmd.IslandID)
+	if err != nil {
+		return err
+	}
+	b := is.Building(cmd.BuildingID)
+	if b == nil {
+		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
+	}
+	if !validRotation(cmd.Rotation) {
+		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, cmd.Rotation)
+	}
+	def := c.BuildingByID[b.Type]
+	if def == nil {
+		return fmt.Errorf("%w: %q", ErrUnknownBuilding, b.Type)
+	}
+	if def.Road != nil {
+		return fmt.Errorf("%w: roads cannot be moved", ErrInvalidCommand)
+	}
+	occ := is.occupancy(c)
+	for i, id := range occ {
+		if id == b.ID {
+			occ[i] = 0
+		}
+	}
+	if err := checkSite(is, c, occ, def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
+		return err
+	}
+
+	// Validation complete: mutate.
+	b.X, b.Y, b.Rotation = cmd.X, cmd.Y, cmd.Rotation
 	afterChange(is, c)
 	return nil
 }

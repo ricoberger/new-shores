@@ -1,6 +1,6 @@
 {
   "name": "chain_planks",
-  "description": "Warehouse, lumberjack (road distance 7) and sawmill (road distance 13) on one dirt road, advanced 10 minutes in steps.",
+  "description": "Warehouse, lumberjack (road distance 5) and sawmill (road distance 11) on one dirt road, advanced 10 minutes in steps.",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
@@ -63,7 +63,7 @@
     },
     {
       "advance": {
-        "duration": "16s"
+        "duration": "14s"
       }
     },
     {
@@ -73,7 +73,7 @@
     },
     {
       "advance": {
-        "duration": "22s"
+        "duration": "20s"
       }
     },
     {
@@ -83,7 +83,7 @@
     },
     {
       "advance": {
-        "duration": "559s"
+        "duration": "563s"
       }
     }
   ]

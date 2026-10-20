@@ -4,18 +4,15 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// Geometry rules (refining MECHANICS §2):
+// Geometry rules (refining MECHANICS §2, D-042):
 //
 //   - A building at (X, Y) with rotation r occupies the rectangle
 //     [X, X+W) x [Y, Y+H), where (W, H) is the content footprint for r = 0 or
-//     180 and the swapped footprint for r = 90 or 270.
-//   - The entrance tile is the middle tile of the front edge; the front faces
-//     south (+y) at 0, west (-x) at 90, north (-y) at 180 and east (+x) at
-//     270. "Middle" rounds towards the lower coordinate at 0/90 and towards
-//     the higher coordinate at 180/270, so that rotating by 180 degrees
-//     mirrors the entrance.
-//   - A road "touches" the entrance when it is on one of the four tiles
-//     4-adjacent to the entrance tile (necessarily outside the footprint).
+//     180 and the swapped footprint for r = 90 or 270. Rotation has no other
+//     effect.
+//   - There is no entrance tile: a building is road-adjacent when a road
+//     lies on any tile 4-adjacent to any footprint tile (footprint tiles
+//     never carry a road).
 
 // footprint returns the rotated footprint size.
 func footprint(def *content.Building, rotation int) (int, int) {
@@ -27,34 +24,35 @@ func footprint(def *content.Building, rotation int) (int, int) {
 
 func validRotation(r int) bool { return r == 0 || r == 90 || r == 180 || r == 270 }
 
-// entrance returns the entrance tile of a building placed at (x, y).
-func entrance(def *content.Building, x, y, rotation int) Pos {
-	w, h := footprint(def, rotation)
-	switch rotation {
-	case 90:
-		return Pos{X: x, Y: y + (h-1)/2}
-	case 180:
-		return Pos{X: x + w - 1 - (w-1)/2, Y: y}
-	case 270:
-		return Pos{X: x + w - 1, Y: y + h - 1 - (h-1)/2}
-	default:
-		return Pos{X: x + (w-1)/2, Y: y + h - 1}
-	}
-}
-
 // neighbours returns the offsets of the four 4-adjacent tiles.
 func neighbours() [4]Pos { return [4]Pos{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} }
 
-// roadsAt returns the in-bounds road tiles 4-adjacent to p.
-func (is *Island) roadsAt(p Pos) []Pos {
+// adjacentRoads returns the in-bounds road tiles 4-adjacent to the
+// footprint [x, x+w) x [y, y+h), in row-major order without duplicates.
+func (is *Island) adjacentRoads(x, y, w, h int) []Pos {
 	var out []Pos
-	for _, d := range neighbours() {
-		q := Pos{p.X + d.X, p.Y + d.Y}
-		if is.RoadAt(q.X, q.Y) != "" {
-			out = append(out, q)
+	add := func(px, py int) {
+		if is.RoadAt(px, py) != "" {
+			out = append(out, Pos{px, py})
 		}
 	}
+	for tx := x; tx < x+w; tx++ {
+		add(tx, y-1)
+	}
+	for ty := y; ty < y+h; ty++ {
+		add(x-1, ty)
+		add(x+w, ty)
+	}
+	for tx := x; tx < x+w; tx++ {
+		add(tx, y+h)
+	}
 	return out
+}
+
+// buildingRoads returns the road tiles adjacent to a building's footprint.
+func (is *Island) buildingRoads(def *content.Building, b *Building) []Pos {
+	w, h := footprint(def, b.Rotation)
+	return is.adjacentRoads(b.X, b.Y, w, h)
 }
 
 // occupancy maps each tile index to the ID of the building covering it.

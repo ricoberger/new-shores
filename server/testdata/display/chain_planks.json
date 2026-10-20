@@ -44,9 +44,9 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 18667,
+            "stock": 18800,
             "capacity": 300000,
-            "in_transit": 767,
+            "in_transit": 700,
             "rate_per_min": 2000
           },
           "sails": {
@@ -58,7 +58,7 @@
           "wood": {
             "stock": 0,
             "capacity": 300000,
-            "in_transit": 567,
+            "in_transit": 500,
             "rate_per_min": 0
           },
           "wool": {
@@ -163,10 +163,6 @@
             "x": 1,
             "y": 1,
             "rotation": 0,
-            "entrance": {
-              "x": 2,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -183,10 +179,6 @@
             "x": 8,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 8,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -200,9 +192,9 @@
             },
             "cycle_seconds": 30,
             "cycle_progress_permille": 0,
-            "transfer_delay_ms": 17000,
+            "transfer_delay_ms": 15000,
             "assigned_warehouse_id": 1,
-            "road_distance": 7,
+            "road_distance": 5,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -216,10 +208,6 @@
             "x": 14,
             "y": 2,
             "rotation": 0,
-            "entrance": {
-              "x": 14,
-              "y": 3
-            },
             "paused": false,
             "paused_reason": "",
             "status": "ok",
@@ -234,10 +222,10 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 433,
-            "transfer_delay_ms": 23000,
+            "cycle_progress_permille": 500,
+            "transfer_delay_ms": 21000,
             "assigned_warehouse_id": 1,
-            "road_distance": 13,
+            "road_distance": 11,
             "cycle_rate_permille_per_min": 2000,
             "workforce_factor_permille": 1000,
             "workforce": {
@@ -304,9 +292,9 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 18675,
+                "stock": 18808,
                 "capacity": 300000,
-                "in_transit": 767,
+                "in_transit": 700,
                 "rate_per_min": 2000
               },
               "sails": {
@@ -318,7 +306,7 @@
               "wood": {
                 "stock": 0,
                 "capacity": 300000,
-                "in_transit": 567,
+                "in_transit": 500,
                 "rate_per_min": 0
               },
               "wool": {
@@ -423,10 +411,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -443,10 +427,6 @@
                 "x": 8,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 8,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -460,9 +440,9 @@
                 },
                 "cycle_seconds": 30,
                 "cycle_progress_permille": 8,
-                "transfer_delay_ms": 17000,
+                "transfer_delay_ms": 15000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 7,
+                "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -476,10 +456,6 @@
                 "x": 14,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 14,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -494,10 +470,10 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 441,
-                "transfer_delay_ms": 23000,
+                "cycle_progress_permille": 508,
+                "transfer_delay_ms": 21000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 13,
+                "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -564,9 +540,9 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 18700,
+                "stock": 18833,
                 "capacity": 300000,
-                "in_transit": 767,
+                "in_transit": 700,
                 "rate_per_min": 2000
               },
               "sails": {
@@ -578,7 +554,7 @@
               "wood": {
                 "stock": 0,
                 "capacity": 300000,
-                "in_transit": 567,
+                "in_transit": 500,
                 "rate_per_min": 0
               },
               "wool": {
@@ -683,10 +659,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -703,10 +675,6 @@
                 "x": 8,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 8,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -720,9 +688,9 @@
                 },
                 "cycle_seconds": 30,
                 "cycle_progress_permille": 33,
-                "transfer_delay_ms": 17000,
+                "transfer_delay_ms": 15000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 7,
+                "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -736,10 +704,6 @@
                 "x": 14,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 14,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -754,10 +718,10 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 466,
-                "transfer_delay_ms": 23000,
+                "cycle_progress_permille": 533,
+                "transfer_delay_ms": 21000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 13,
+                "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -824,9 +788,9 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 18833,
+                "stock": 18967,
                 "capacity": 300000,
-                "in_transit": 767,
+                "in_transit": 700,
                 "rate_per_min": 2000
               },
               "sails": {
@@ -838,7 +802,7 @@
               "wood": {
                 "stock": 0,
                 "capacity": 300000,
-                "in_transit": 567,
+                "in_transit": 500,
                 "rate_per_min": 0
               },
               "wool": {
@@ -943,10 +907,6 @@
                 "x": 1,
                 "y": 1,
                 "rotation": 0,
-                "entrance": {
-                  "x": 2,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -963,10 +923,6 @@
                 "x": 8,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 8,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -980,9 +936,9 @@
                 },
                 "cycle_seconds": 30,
                 "cycle_progress_permille": 166,
-                "transfer_delay_ms": 17000,
+                "transfer_delay_ms": 15000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 7,
+                "road_distance": 5,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {
@@ -996,10 +952,6 @@
                 "x": 14,
                 "y": 2,
                 "rotation": 0,
-                "entrance": {
-                  "x": 14,
-                  "y": 3
-                },
                 "paused": false,
                 "paused_reason": "",
                 "status": "ok",
@@ -1014,10 +966,10 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 600,
-                "transfer_delay_ms": 23000,
+                "cycle_progress_permille": 666,
+                "transfer_delay_ms": 21000,
                 "assigned_warehouse_id": 1,
-                "road_distance": 13,
+                "road_distance": 11,
                 "cycle_rate_permille_per_min": 2000,
                 "workforce_factor_permille": 1000,
                 "workforce": {

@@ -8,6 +8,7 @@ import (
 	"math"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -63,8 +64,8 @@ func islandFromRows(id string, rows ...string) *Island {
 }
 
 // testWorld is a 20x10 island with a seeded warehouse at (1,1) whose
-// entrance (2,3) touches a road row y=4 from x=2 to x=17, plenty of gold and
-// planks.
+// footprint (x 1..4, y 1..3) touches a road row y=4 from x=2 to x=17,
+// plenty of gold and planks.
 func testWorld(t testing.TB, c *content.Catalogue) *World {
 	t.Helper()
 	w := NewWorld(t0)
@@ -202,7 +203,6 @@ func TestApplyLeavesWorldUnchangedOnError(t *testing.T) {
 		{"occupied by building", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 3, Y: 2}, ErrOccupied},
 		{"occupied by road", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 3}, ErrOccupied},
 		{"not coastal", PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 5}, ErrNotCoastal},
-		{"no road at entrance", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 6}, ErrNoRoadAtEntrance},
 		{"no work area", PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 16, Y: 2}, ErrNoWorkArea},
 		{"bad rotation", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2, Rotation: 45}, ErrInvalidCommand},
 		{"road on road", PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{1, 7}, {2, 4}}}, ErrOccupied},
@@ -269,8 +269,10 @@ func TestPlaceChargesWorldGoldAndIslandMaterials(t *testing.T) {
 	if got := w.Islands[0].Inventory.Stock["planks"]; got != 200_000-8_000 {
 		t.Errorf("planks = %d", got)
 	}
+	// Road tiles (4,4) next to the warehouse to (14,4) next to the sawmill:
+	// d = 11, delay 10 s + 11 x 1 s.
 	b := w.Islands[0].Building(2)
-	if b == nil || b.ID != 2 || w.NextBuildingID != 3 || b.AssignedWarehouseID != 1 || b.RoadDistance != 13 || b.TransferDelayMs != 23_000 {
+	if b == nil || b.ID != 2 || w.NextBuildingID != 3 || b.AssignedWarehouseID != 1 || b.RoadDistance != 11 || b.TransferDelayMs != 21_000 {
 		t.Errorf("building = %+v next %d", b, w.NextBuildingID)
 	}
 }
@@ -390,8 +392,8 @@ func TestPauseAndResume(t *testing.T) {
 		t.Errorf("resumed = %+v", b)
 	}
 	mustAdvance(t, w, c, 10*time.Minute)
-	// 1.5 fish/min for 10 min minus the 23 s transfer delay.
-	if got := display(t, w, c).Islands[0].Inventory["fish"].Stock; got != (600-23)*1000/40 {
+	// 1.5 fish/min for 10 min minus the 21 s transfer delay.
+	if got := display(t, w, c).Islands[0].Inventory["fish"].Stock; got != (600-21)*1000/40 {
 		t.Errorf("fish = %d", got)
 	}
 
@@ -478,12 +480,13 @@ func TestEfficiencyRecomputedWhenNeighboursChange(t *testing.T) {
 	}
 }
 
-// unconnectedLumberjack places a lumberjack on its own road piece below the
-// main road of testWorld, runs it until its buffer is full and returns it.
+// unconnectedLumberjack places a lumberjack (x 9..10, y 6..7) on its own
+// road piece below the main road of testWorld, runs it until its buffer is
+// full and returns it.
 func unconnectedLumberjack(t *testing.T, w *World, c *content.Catalogue) *Building {
 	t.Helper()
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{9, 7}, {10, 7}}})
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 9, Y: 5, Rotation: 0})
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{9, 8}, {10, 8}}})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 9, Y: 6, Rotation: 0})
 	b := w.Islands[0].Building(2)
 	if b.AssignedWarehouseID != 0 {
 		t.Fatal("unexpectedly connected")
@@ -496,7 +499,7 @@ func unconnectedLumberjack(t *testing.T, w *World, c *content.Catalogue) *Buildi
 }
 
 // connectRoad links the lumberjack's road to the main road at (8,4).
-var connectRoad = PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{8, 5}, {8, 6}, {8, 7}}}
+var connectRoad = PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{8, 5}, {8, 6}, {8, 7}, {8, 8}}}
 
 func woodTotal(w *World) int64 {
 	return total(w.Islands[0], "wood", w.LastEvaluatedAt.UnixMilli())
@@ -651,7 +654,7 @@ func TestDisplayFieldsAndNextChange(t *testing.T) {
 	island := doc["islands"].([]any)[0].(map[string]any)
 	requireKeys(t, "island", island, "id", "width", "height", "inventory", "roads", "buildings")
 	requireKeys(t, "inventory", island["inventory"].(map[string]any)["wood"].(map[string]any), "stock", "capacity", "in_transit", "rate_per_min")
-	common := []string{"id", "type", "x", "y", "rotation", "entrance", "paused", "paused_reason", "status", "efficiency_permille", "throughput_factor_permille"}
+	common := []string{"id", "type", "x", "y", "rotation", "paused", "paused_reason", "status", "efficiency_permille", "throughput_factor_permille"}
 	for _, b := range island["buildings"].([]any) {
 		b := b.(map[string]any)
 		requireKeys(t, b["type"].(string), b, common...)
@@ -669,8 +672,8 @@ func TestDisplayFieldsAndNextChange(t *testing.T) {
 	}
 
 	// next_change_at is the first boundary of the next Advance: wood starts
-	// arriving at 10 s + 7 tiles = 17 s.
-	if ds.NextChangeAt == nil || *ds.NextChangeAt != "2026-01-01T00:00:17.000Z" {
+	// arriving at 10 s + 5 tiles (4,4)..(8,4) = 15 s.
+	if ds.NextChangeAt == nil || *ds.NextChangeAt != "2026-01-01T00:00:15.000Z" {
 		t.Fatalf("next_change_at = %v", ds.NextChangeAt)
 	}
 	bs := mustAdvance(t, w, c, time.Hour)
@@ -704,28 +707,301 @@ func requireKeys(t *testing.T, what string, m map[string]any, keys ...string) {
 	}
 }
 
-func TestEntranceRule(t *testing.T) {
-	def := &content.Building{Width: 3, Height: 2}
-	tests := []struct {
-		rot  int
-		want Pos
-	}{
-		{0, Pos{11, 21}},  // 3x2: bottom edge, middle
-		{90, Pos{10, 21}}, // 2x3: west edge, middle
-		{180, Pos{11, 20}},
-		{270, Pos{11, 21}},
-	}
-	for _, tt := range tests {
-		if got := entrance(def, 10, 20, tt.rot); got != tt.want {
-			t.Errorf("rotation %d: entrance = %v, want %v", tt.rot, got, tt.want)
+// withFootprint returns a catalogue copy in which building id has the given
+// footprint at rotation 0.
+func withFootprint(base *content.Catalogue, id string, w, h int) *content.Catalogue {
+	c := *base
+	c.BuildingByID = maps.Clone(base.BuildingByID)
+	def := *base.BuildingByID[id]
+	def.Width, def.Height = w, h
+	c.BuildingByID[id] = &def
+	return &c
+}
+
+// TestRoadAdjacencyEveryEdge: a building is connected through a road on
+// any tile 4-adjacent to any footprint tile, for every side and rotation; a
+// road only diagonally next to a corner does not connect (D-042).
+func TestRoadAdjacencyEveryEdge(t *testing.T) {
+	c := withFootprint(catalogue(t), "sawmill", 3, 2)
+	rows := make([]string, 20)
+	for y := range rows {
+		switch y {
+		case 0, 19:
+			rows[y] = strings.Repeat("~", 24)
+		case 1:
+			rows[y] = "~" + strings.Repeat("c", 22) + "~"
+		default:
+			rows[y] = "~" + strings.Repeat(".", 22) + "~"
 		}
 	}
-	def = &content.Building{Width: 2, Height: 2}
-	if got := entrance(def, 0, 0, 0); got != (Pos{0, 1}) {
-		t.Errorf("2x2 rot 0 = %v", got)
+	for _, rot := range []int{0, 90, 180, 270} {
+		w := NewWorld(t0)
+		w.Islands = []*Island{islandFromRows("main", rows...)}
+		if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+			t.Fatal(err)
+		}
+		const bx, by = 10, 9
+		fw, fh := footprint(c.BuildingByID["sawmill"], rot)
+		// A ring of road two tiles around the footprint, linked to the
+		// warehouse: it touches no footprint tile.
+		var road []Pos
+		for x := 2; x <= bx-2; x++ {
+			road = append(road, Pos{x, 4})
+		}
+		for y := 5; y < by-2; y++ {
+			road = append(road, Pos{bx - 2, y})
+		}
+		for x := bx - 2; x <= bx+fw+1; x++ {
+			road = append(road, Pos{x, by - 2}, Pos{x, by + fh + 1})
+		}
+		for y := by - 1; y <= by+fh; y++ {
+			road = append(road, Pos{bx - 2, y}, Pos{bx + fw + 1, y})
+		}
+		mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: road})
+		if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: bx, Y: by, Rotation: rot}, nil); err != nil {
+			t.Fatal(err)
+		}
+		if b := w.Islands[0].Building(2); b.AssignedWarehouseID != 0 {
+			t.Fatalf("rotation %d: connected without an adjacent road", rot)
+		}
+		// Every tile of the one-tile frame around the footprint touches the
+		// ring; the non-corner ones also touch the footprint.
+		for y := by - 1; y <= by+fh; y++ {
+			for x := bx - 1; x <= bx+fw; x++ {
+				if x >= bx && x < bx+fw && y >= by && y < by+fh {
+					continue
+				}
+				corner := (x == bx-1 || x == bx+fw) && (y == by-1 || y == by+fh)
+				cw := w.Clone()
+				mustApply(t, cw, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{x, y}}})
+				b := cw.Islands[0].Building(2)
+				if connected := b.AssignedWarehouseID == 1; connected == corner {
+					t.Errorf("rotation %d road (%d,%d): connected %v, corner %v", rot, x, y, connected, corner)
+				}
+				if !corner {
+					if st := buildingDisplay(t, display(t, cw, c), 2).Status; st == StatusNotConnected {
+						t.Errorf("rotation %d road (%d,%d): status %s", rot, x, y, st)
+					}
+				}
+			}
+		}
 	}
-	if got := entrance(def, 0, 0, 180); got != (Pos{1, 0}) {
-		t.Errorf("2x2 rot 180 = %v", got)
+}
+
+// TestRoadDistanceOneSharedTile: one road tile touching the warehouse and
+// the producer footprint gives d = 1 and a delay of 10 s + 1 s.
+func TestRoadDistanceOneSharedTile(t *testing.T) {
+	c := catalogue(t)
+	w := NewWorld(t0)
+	w.Islands = []*Island{islandFromRows("main",
+		"~~~~~~~~~~~~",
+		"~cccc......~",
+		"~..........~",
+		"~..........~",
+		"~..........~",
+		"~~~~~~~~~~~~",
+	)}
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+		t.Fatal(err)
+	}
+	// (5,3) touches the warehouse (x 1..4, y 1..3) and the sawmill
+	// (x 6..7, y 2..3).
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{5, 3}}})
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 6, Y: 2}, nil); err != nil {
+		t.Fatal(err)
+	}
+	if b := w.Islands[0].Building(2); b.AssignedWarehouseID != 1 || b.RoadDistance != 1 || b.TransferDelayMs != 11_000 {
+		t.Errorf("sawmill = %+v", b)
+	}
+}
+
+// TestPlaceWithoutRoad: placement never requires a road; the building is
+// not_connected until a road reaches any footprint edge.
+func TestPlaceWithoutRoad(t *testing.T) {
+	c := catalogue(t)
+	w := testWorld(t, c)
+	gold := w.Gold
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 6})
+	if w.Gold != gold-80_000 {
+		t.Errorf("gold = %d, want charged", w.Gold)
+	}
+	b := buildingDisplay(t, display(t, w, c), 2)
+	if b.Status != StatusNotConnected || *b.AssignedWarehouseID != 0 {
+		t.Fatalf("sawmill = %s assigned %d", b.Status, *b.AssignedWarehouseID)
+	}
+	// (16,6) touches the east edge of the footprint (x 14..15, y 6..7).
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{16, 5}, {16, 6}}})
+	if b := buildingDisplay(t, display(t, w, c), 2); b.Status == StatusNotConnected || *b.AssignedWarehouseID != 1 {
+		t.Errorf("after road: %s assigned %d", b.Status, *b.AssignedWarehouseID)
+	}
+}
+
+func TestMoveBuildingErrorsLeaveWorldUnchanged(t *testing.T) {
+	c := catalogue(t)
+	setup := func(t *testing.T) *World {
+		w := testWorld(t, c)
+		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2}) // ID 2
+		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2})   // ID 3
+		return w
+	}
+	tests := []struct {
+		name string
+		cmd  MoveBuilding
+		want error
+	}{
+		{"unknown island", MoveBuilding{IslandID: "x", BuildingID: 3, X: 14, Y: 5}, ErrUnknownIsland},
+		{"missing building", MoveBuilding{IslandID: "main", BuildingID: 99, X: 14, Y: 5}, ErrBuildingNotFound},
+		{"bad rotation", MoveBuilding{IslandID: "main", BuildingID: 3, X: 14, Y: 5, Rotation: 45}, ErrInvalidCommand},
+		{"out of bounds", MoveBuilding{IslandID: "main", BuildingID: 3, X: 19, Y: 5}, ErrOutOfBounds},
+		{"terrain", MoveBuilding{IslandID: "main", BuildingID: 3, X: 17, Y: 2}, ErrTerrain},
+		{"occupied by building", MoveBuilding{IslandID: "main", BuildingID: 3, X: 9, Y: 2}, ErrOccupied},
+		{"occupied by road", MoveBuilding{IslandID: "main", BuildingID: 3, X: 14, Y: 3}, ErrOccupied},
+		{"warehouse not coastal", MoveBuilding{IslandID: "main", BuildingID: 1, X: 1, Y: 5}, ErrNotCoastal},
+		{"no work area", MoveBuilding{IslandID: "main", BuildingID: 2, X: 16, Y: 2}, ErrNoWorkArea},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := setup(t)
+			before := encode(t, w)
+			if err := Apply(w, c, tt.cmd); !errors.Is(err, tt.want) {
+				t.Fatalf("err = %v, want %v", err, tt.want)
+			}
+			if !bytes.Equal(before, encode(t, w)) {
+				t.Error("world changed on error")
+			}
+		})
+	}
+	t.Run("road definition", func(t *testing.T) {
+		// Roads are tiles without an ID; a building record with a road type
+		// is rejected defensively.
+		w := setup(t)
+		w.Islands[0].Buildings = append(w.Islands[0].Buildings, &Building{ID: 50, Type: "road_dirt", X: 1, Y: 7, Efficiency: 1000})
+		before := encode(t, w)
+		if err := Apply(w, c, MoveBuilding{IslandID: "main", BuildingID: 50, X: 2, Y: 7}); !errors.Is(err, ErrInvalidCommand) {
+			t.Fatalf("err = %v", err)
+		}
+		if !bytes.Equal(before, encode(t, w)) {
+			t.Error("world changed on error")
+		}
+	})
+}
+
+// TestMoveBuildingKeepsState: a one-tile shift overlapping the old footprint
+// is valid; ID, progress and transit are kept, nothing is charged, and the
+// road distance is recomputed. Goods in transit still arrive.
+func TestMoveBuildingKeepsState(t *testing.T) {
+	c := catalogue(t)
+	w := testWorld(t, c)
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
+	mustAdvance(t, w, c, 37*time.Second+500*time.Millisecond)
+	is := w.Islands[0]
+	b := is.Building(2)
+	progress, transit := b.Progress, append([]TransitSegment(nil), b.Transit...)
+	now := w.LastEvaluatedAt.UnixMilli()
+	inTransit := transitFine(is, "wood", now)
+	gold, goldSub, stock, next := w.Gold, w.GoldSub, maps.Clone(is.Inventory.Stock), w.NextBuildingID
+	if progress == 0 || inTransit == 0 || b.RoadDistance != 5 {
+		t.Fatalf("setup: progress %d transit %d distance %d", progress, inTransit, b.RoadDistance)
+	}
+
+	l := NewLedger()
+	if err := ApplyWithLedger(w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 9, Y: 2, Rotation: 90}, l); err != nil {
+		t.Fatal(err)
+	}
+	if is.Building(2) != b || b.X != 9 || b.Y != 2 || b.Rotation != 90 || b.Progress != progress || !slices.Equal(b.Transit, transit) {
+		t.Errorf("moved = %+v", b)
+	}
+	if w.Gold != gold || w.GoldSub != goldSub || !maps.Equal(is.Inventory.Stock, stock) || w.NextBuildingID != next {
+		t.Errorf("move charged or changed stock: gold %d stock %v next %d", w.Gold, is.Inventory.Stock, w.NextBuildingID)
+	}
+	if len(l.Islands) != 0 {
+		t.Errorf("ledger = %+v", l.Islands)
+	}
+	// Footprint x 9..10: road (9,4) is 6 tiles from (4,4).
+	if b.AssignedWarehouseID != 1 || b.RoadDistance != 6 || b.TransferDelayMs != 16_000 {
+		t.Errorf("connection = %d d %d delay %d", b.AssignedWarehouseID, b.RoadDistance, b.TransferDelayMs)
+	}
+	stockBefore := is.Inventory.fine("wood")
+	mustAdvance(t, w, c, 30*time.Second)
+	if got := is.Inventory.fine("wood"); got < stockBefore+inTransit {
+		t.Errorf("wood stock %d, want >= %d + %d in transit", got, stockBefore, inTransit)
+	}
+
+	// Moving to the identical position and rotation is a valid no-op.
+	before := encode(t, w)
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 9, Y: 2, Rotation: 90})
+	cw, _, err := Decode(before)
+	if err != nil {
+		t.Fatal(err)
+	}
+	clearRegimes(cw.Islands[0])
+	if !bytes.Equal(encode(t, cw), encode(t, w)) {
+		t.Error("no-op move changed the world")
+	}
+}
+
+// TestMoveBuildingKeepsBuffer: an unconnected producer keeps its buffer
+// when moved; once a road reaches it the buffer leaves with its output.
+func TestMoveBuildingKeepsBuffer(t *testing.T) {
+	c := catalogue(t)
+	w := testWorld(t, c)
+	b := unconnectedLumberjack(t, w, c)
+	buf := maps.Clone(b.Buffer)
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: b.ID, X: 11, Y: 6})
+	if !maps.Equal(b.Buffer, buf) || b.AssignedWarehouseID != 0 {
+		t.Errorf("buffer %v assigned %d", b.Buffer, b.AssignedWarehouseID)
+	}
+	// Back next to the road stub at y=8, still unconnected.
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: b.ID, X: 9, Y: 6})
+	mustApply(t, w, c, connectRoad)
+	if b.AssignedWarehouseID != 1 || !maps.Equal(b.Buffer, buf) {
+		t.Errorf("after connect: assigned %d buffer %v", b.AssignedWarehouseID, b.Buffer)
+	}
+}
+
+// TestMoveWarehouseReassignsProducers: moving a warehouse closer to a
+// producer re-assigns it by the normal rule; capacity and stock are
+// unchanged.
+func TestMoveWarehouseReassignsProducers(t *testing.T) {
+	c := catalogue(t)
+	w := NewWorld(t0)
+	w.Islands = []*Island{islandFromRows("main",
+		"~~~~~~~~~~~~~~~~~~~~~~~~~~",
+		"~cccccccccccccccccccccccc~",
+		"~........................~",
+		"~........................~",
+		"~........................~",
+		"~........................~",
+		"~~~~~~~~~~~~~~~~~~~~~~~~~~",
+	)}
+	for _, x := range []int{1, 20} {
+		if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: x, Y: 1}, nil); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var road []Pos
+	for x := 1; x <= 24; x++ {
+		road = append(road, Pos{x, 4})
+	}
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: road})
+	if err := AddStock(w, c, "main", "planks", 100_000, nil); err != nil {
+		t.Fatal(err)
+	}
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 8, Y: 2}, nil); err != nil {
+		t.Fatal(err)
+	}
+	is := w.Islands[0]
+	sm := is.Building(3)
+	if sm.AssignedWarehouseID != 1 || sm.RoadDistance != 5 {
+		t.Fatalf("before: %+v", sm)
+	}
+	capBefore, stock := capacityFine(is, c), maps.Clone(is.Inventory.Stock)
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 10, Y: 1})
+	if sm.AssignedWarehouseID != 2 || sm.RoadDistance != 2 {
+		t.Errorf("after: assigned %d distance %d", sm.AssignedWarehouseID, sm.RoadDistance)
+	}
+	if capacityFine(is, c) != capBefore || !maps.Equal(is.Inventory.Stock, stock) {
+		t.Error("warehouse move changed capacity or stock")
 	}
 }
 
