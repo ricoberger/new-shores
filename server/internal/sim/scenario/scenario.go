@@ -53,14 +53,16 @@ type Bonus struct {
 
 // Island is an ASCII island: one string per row, one character per tile
 // ('~' water, 'c' coast, '.' grass, 'f' forest, 'm' mountain, 'I' mountain
-// with an infinite iron deposit). X, Y is the archipelago position in tiles
-// (ship travel times); Name the display name.
+// with an infinite iron deposit, 'S' mountain with an infinite stone
+// deposit). X, Y is the archipelago position in tiles (ship travel times);
+// Name the display name; Fertilities the island-wide fertility tags.
 type Island struct {
-	ID   string   `json:"id"`
-	Name string   `json:"name,omitempty"`
-	X    int      `json:"x,omitempty"`
-	Y    int      `json:"y,omitempty"`
-	Rows []string `json:"rows"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name,omitempty"`
+	X           int      `json:"x,omitempty"`
+	Y           int      `json:"y,omitempty"`
+	Fertilities []string `json:"fertilities,omitempty"`
+	Rows        []string `json:"rows"`
 }
 
 // maxPosition bounds archipelago positions (tiles).
@@ -191,10 +193,17 @@ type AdvanceStep struct {
 	Duration string `json:"duration"`
 }
 
-// Step is one scenario step; exactly one field must be set. Move moves the
-// building covering a tile for free, keeping its ID and state (MoveStep,
-// D-042). Ships and routes are addressed by their sequential IDs.
+// Step is one scenario step; exactly one operation must be set. Move moves
+// the building covering a tile for free, keeping its ID and state
+// (MoveStep, D-042). Ships and routes are addressed by their sequential
+// IDs. ExpectError (a sentinel's snake_case name, e.g. "no_deposit", the
+// API error code) turns the step into an expected failure: it must fail
+// with that sentinel and leave the world byte-identical.
 type Step struct {
+	ExpectError string `json:"expect_error,omitempty"`
+
+	UpgradeWarehouse *At `json:"upgrade_warehouse,omitempty"`
+
 	OrderShip       *OrderShipStep `json:"order_ship,omitempty"`
 	CancelShipOrder *At            `json:"cancel_ship_order,omitempty"`
 	CreateRoute     *RouteStep     `json:"create_route,omitempty"`
@@ -228,7 +237,7 @@ func (s Step) kind() (string, error) {
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
 		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "found_island": s.FoundIsland != nil,
-		"scrap_ship": s.ScrapShip != nil,
+		"scrap_ship": s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil,
 	} {
 		if set {
 			kinds = append(kinds, name)
@@ -364,6 +373,33 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 	return w, nil
 }
 
+// RunSteps builds the scenario's world and executes its first n steps
+// (advances included, expected failures checked) without a report. Tests
+// use it to continue a scenario's world elsewhere, e.g. over the API.
+func RunSteps(s *Scenario, c *content.Catalogue, n int) (*sim.World, error) {
+	if n < 0 || n > len(s.Steps) {
+		return nil, fmt.Errorf("run steps: %d of %d", n, len(s.Steps))
+	}
+	l := sim.NewLedger()
+	w, err := BuildWorld(s, c, l)
+	if err != nil {
+		return nil, err
+	}
+	r := &runner{s: s, c: c, w: w, l: l, report: &Report{Name: s.Name}}
+	for i, st := range s.Steps[:n] {
+		var err error
+		if st.ExpectError != "" {
+			err = r.expectError(i, st)
+		} else {
+			err = r.step(i, st)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("step %d: %w", i, err)
+		}
+	}
+	return w, nil
+}
+
 // ApplyBonus grants the dev bonus of a scenario (gold and goods on the first
 // island). Gold adds to the seeded gold.
 func ApplyBonus(s *Scenario, c *content.Catalogue, w *sim.World, l *sim.Ledger) error {
@@ -421,20 +457,26 @@ func parseIsland(spec Island) (*sim.Island, error) {
 				terrain = content.TerrainGrass
 			case 'f':
 				terrain = content.TerrainForest
-			case 'm', 'I':
+			case 'm', 'I', 'S':
 				terrain = content.TerrainMountain
 			default:
 				return nil, fmt.Errorf("island %q tile (%d,%d): unknown symbol %q", spec.ID, x, y, ch)
 			}
 			tile := sim.Tile{Terrain: terrain}
-			if ch == 'I' {
+			switch ch {
+			case 'I':
 				tile.Deposit = &sim.Deposit{Kind: "iron", Quantity: -1}
+			case 'S':
+				tile.Deposit = &sim.Deposit{Kind: "stone", Quantity: -1}
 			}
 			tiles = append(tiles, tile)
 		}
 	}
 	is := sim.NewIsland(spec.ID, width, len(spec.Rows), tiles)
 	is.Name, is.X, is.Y = spec.Name, spec.X, spec.Y
+	if len(spec.Fertilities) > 0 {
+		is.Fertilities = slices.Clone(spec.Fertilities)
+	}
 	return is, nil
 }
 
@@ -484,6 +526,12 @@ func Run(s *Scenario, c *content.Catalogue) (*Report, error) {
 		kind, err := st.kind()
 		if err != nil {
 			return nil, fmt.Errorf("step %d: %w", i, err)
+		}
+		if st.ExpectError != "" {
+			if err := r.expectError(i, st); err != nil {
+				return nil, fmt.Errorf("step %d (%s): %w", i, kind, err)
+			}
+			continue
 		}
 		if err := r.step(i, st); err != nil {
 			return nil, fmt.Errorf("step %d (%s): %w", i, kind, err)
@@ -588,6 +636,12 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		return r.apply(sim.SetPaused{IslandID: id, BuildingID: b.ID, Paused: paused})
+	case st.UpgradeWarehouse != nil:
+		id, b, err := r.buildingAt(st.UpgradeWarehouse)
+		if err != nil {
+			return err
+		}
+		return r.apply(sim.UpgradeWarehouse{IslandID: id, BuildingID: b.ID})
 	case st.Upgrade != nil:
 		id, b, err := r.buildingAt(st.Upgrade)
 		if err != nil {
@@ -677,6 +731,65 @@ func (r *runner) step(i int, st Step) error {
 		return nil
 	}
 	return errors.New("empty step")
+}
+
+// expectError runs a step that must fail with the sentinel named by
+// st.ExpectError and must leave the encoded world unchanged; the failure is
+// recorded in the report. Advance steps cannot be expected to fail.
+func (r *runner) expectError(i int, st Step) error {
+	want, ok := Sentinels()[st.ExpectError]
+	if !ok {
+		return fmt.Errorf("expect_error: unknown sentinel %q", st.ExpectError)
+	}
+	if st.Advance != nil {
+		return errors.New("expect_error: advance steps cannot fail")
+	}
+	before, err := sim.Encode(r.w, r.c.Region.Version)
+	if err != nil {
+		return err
+	}
+	err = r.step(i, st)
+	switch {
+	case err == nil:
+		return fmt.Errorf("expected %s, step succeeded", st.ExpectError)
+	case !errors.Is(err, want):
+		return fmt.Errorf("expected %s, got: %w", st.ExpectError, err)
+	}
+	after, encErr := sim.Encode(r.w, r.c.Region.Version)
+	if encErr != nil {
+		return encErr
+	}
+	if !bytes.Equal(before, after) {
+		return fmt.Errorf("failed with %s but changed the world", st.ExpectError)
+	}
+	r.report.ExpectedErrors = append(r.report.ExpectedErrors, ExpectedError{Step: i, Error: st.ExpectError, Message: err.Error()})
+	return nil
+}
+
+// Sentinels maps the snake_case name of every simulation sentinel (its
+// name without the Err prefix; the API error code) to the sentinel, for
+// expect_error steps.
+func Sentinels() map[string]error {
+	return map[string]error{
+		"unknown_island": sim.ErrUnknownIsland, "unknown_building": sim.ErrUnknownBuilding,
+		"building_not_found": sim.ErrBuildingNotFound, "invalid_command": sim.ErrInvalidCommand,
+		"out_of_bounds": sim.ErrOutOfBounds, "occupied": sim.ErrOccupied, "terrain": sim.ErrTerrain,
+		"not_coastal": sim.ErrNotCoastal, "no_work_area": sim.ErrNoWorkArea, "no_fertility": sim.ErrNoFertility,
+		"no_deposit": sim.ErrNoDeposit, "insufficient_gold": sim.ErrInsufficientGold,
+		"insufficient_materials": sim.ErrInsufficientMaterials, "surplus_loss": sim.ErrSurplusLoss,
+		"not_pausable": sim.ErrNotPausable, "no_road": sim.ErrNoRoad, "over_capacity": sim.ErrOverCapacity,
+		"time_backwards": sim.ErrTimeBackwards, "schema_version": sim.ErrSchemaVersion,
+		"display_time": sim.ErrDisplayTime, "tier_locked": sim.ErrTierLocked, "not_a_house": sim.ErrNotAHouse,
+		"upgrade_unavailable": sim.ErrUpgradeUnavailable, "house_not_full": sim.ErrHouseNotFull,
+		"needs_unmet": sim.ErrNeedsUnmet, "upgrade_only": sim.ErrUpgradeOnly, "shipyard_busy": sim.ErrShipyardBusy,
+		"not_a_shipyard": sim.ErrNotAShipyard, "unknown_ship_type": sim.ErrUnknownShipType,
+		"no_ship_order": sim.ErrNoShipOrder, "ship_not_found": sim.ErrShipNotFound, "ship_not_idle": sim.ErrShipNotIdle,
+		"ship_not_on_route": sim.ErrShipNotOnRoute, "route_not_found": sim.ErrRouteNotFound,
+		"route_invalid": sim.ErrRouteInvalid, "route_in_use": sim.ErrRouteInUse,
+		"island_already_settled": sim.ErrIslandAlreadySettled, "island_not_settled": sim.ErrIslandNotSettled,
+		"cargo_insufficient": sim.ErrCargoInsufficient, "cargo_exceeds_slots": sim.ErrCargoExceedsSlots,
+		"last_warehouse": sim.ErrLastWarehouse, "not_connected": sim.ErrNotConnected,
+	}
 }
 
 func sortedKeys[V any](m map[string]V) []string {

@@ -3,6 +3,7 @@ package devworld
 import (
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -360,5 +361,114 @@ func TestShippingLayoutFoundsIsland2(t *testing.T) {
 	t.Logf("first settlement flow: %d gold, %d planks (start: %d gold, %d planks)", gold/1000, planks/1000, c.Start.Gold/1000, c.Start.Goods[0].Amount/1000)
 	if gold <= c.Start.Gold || planks <= c.Start.Goods[0].Amount {
 		t.Errorf("the starting stock covers the flow; update the balance finding")
+	}
+}
+
+// TestSeedFertilitiesAndDeposits (R-29): the start island has wheat and
+// apple fertility and at least four stone deposit tiles (MECHANICS §10:
+// stone on the start island, iron and hemp on the second island only);
+// island 2 has hemp and iron. Deposits lie on mountain tiles only.
+func TestSeedFertilitiesAndDeposits(t *testing.T) {
+	_, w := newWorld(t)
+	want := map[string]struct {
+		fertilities string
+		deposit     string
+		min         int
+	}{
+		"start":   {"wheat,apple", "stone", 4},
+		"island2": {"hemp", "iron", 4},
+	}
+	for _, is := range w.Islands {
+		wt := want[is.ID]
+		if got := strings.Join(is.Fertilities, ","); got != wt.fertilities {
+			t.Errorf("%s fertilities = %s, want %s", is.ID, got, wt.fertilities)
+		}
+		n := 0
+		for i, tile := range is.Tiles {
+			if d := tile.Deposit; d != nil {
+				if tile.Terrain != content.TerrainMountain || d.Kind != wt.deposit || d.Quantity != -1 {
+					t.Errorf("%s tile %d: deposit %+v on %s", is.ID, i, d, tile.Terrain)
+				}
+				n++
+			}
+		}
+		if n < wt.min {
+			t.Errorf("%s has %d %s deposit tiles, want >= %d", is.ID, n, wt.deposit, wt.min)
+		}
+	}
+}
+
+// TestDepositBuildingsCanReachARoad: roads cannot be built on mountains, so
+// every footprint of a deposit building (every rotation and anchor) that
+// covers a deposit tile of its kind and stands on valid terrain must have a
+// 4-adjacent tile on which a road can be built; otherwise the mine could
+// never be connected (user note on R-11). Two quarries fit side by side on
+// the start island's stone deposits.
+func TestDepositBuildingsCanReachARoad(t *testing.T) {
+	c, w := newWorld(t)
+	buildable := func(terrain string) bool {
+		return terrain == content.TerrainCoast || terrain == content.TerrainGrass || terrain == content.TerrainForest
+	}
+	checked := 0
+	for _, is := range w.Islands {
+		for _, def := range c.Buildings {
+			if def.RequiresDeposit == "" {
+				continue
+			}
+			for _, size := range [][2]int{{def.Width, def.Height}, {def.Height, def.Width}} {
+				fw, fh := size[0], size[1]
+				for y := 0; y+fh <= is.Height; y++ {
+					for x := 0; x+fw <= is.Width; x++ {
+						covers, valid := false, true
+						for ty := y; ty < y+fh; ty++ {
+							for tx := x; tx < x+fw; tx++ {
+								tile := is.Tile(tx, ty)
+								if !buildable(tile.Terrain) && tile.Terrain != content.TerrainMountain {
+									valid = false
+								}
+								if d := tile.Deposit; d != nil && d.Kind == def.RequiresDeposit {
+									covers = true
+								}
+							}
+						}
+						if !valid || !covers {
+							continue
+						}
+						checked++
+						reach := false
+						for ty := y - 1; ty <= y+fh && !reach; ty++ {
+							for tx := x - 1; tx <= x+fw; tx++ {
+								inside := tx >= x && tx < x+fw && ty >= y && ty < y+fh
+								corner := (tx == x-1 || tx == x+fw) && (ty == y-1 || ty == y+fh)
+								if inside || corner || !is.InBounds(tx, ty) {
+									continue
+								}
+								if buildable(is.Tile(tx, ty).Terrain) {
+									reach = true
+									break
+								}
+							}
+						}
+						if !reach {
+							t.Errorf("%s: %s at (%d,%d) %dx%d has no buildable neighbour for a road", is.ID, def.ID, x, y, fw, fh)
+						}
+					}
+				}
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no deposit footprint checked")
+	}
+
+	// Two quarries side by side, each connected by a road below the block.
+	w.Gold = 1_000_000_000
+	w.UnlockedTiers = []string{"citizens"}
+	road(t, w, c, 3, 33, 22, 33)
+	road(t, w, c, 3, 4, 3, 33)
+	for _, x := range []int{16, 19} {
+		if b := place(t, w, c, "quarry", x, 30, 0); b.AssignedWarehouseID == 0 {
+			t.Errorf("quarry at x=%d not connected", x)
+		}
 	}
 }

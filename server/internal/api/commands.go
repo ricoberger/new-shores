@@ -24,6 +24,8 @@ const (
 	cmdUpgradeHouse  = "upgrade_house"
 	cmdMoveBuilding  = "move_building"
 
+	cmdUpgradeWarehouse = "upgrade_warehouse"
+
 	cmdOrderShip       = "order_ship"
 	cmdCancelShipOrder = "cancel_ship_order"
 	cmdScrapShip       = "scrap_ship"
@@ -93,7 +95,8 @@ type setPausedJSON struct {
 	Paused     *bool   `json:"paused"`
 }
 
-type upgradeHouseJSON struct {
+// upgradeJSON is the body of upgrade_house and upgrade_warehouse.
+type upgradeJSON struct {
 	Type       string  `json:"type"`
 	IslandID   *string `json:"island_id"`
 	BuildingID *int64  `json:"building_id"`
@@ -217,8 +220,8 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeDemolishRoad(raw)
 	case cmdSetPaused:
 		cmd, err = decodeSetPaused(raw)
-	case cmdUpgradeHouse:
-		cmd, err = decodeUpgradeHouse(raw)
+	case cmdUpgradeHouse, cmdUpgradeWarehouse:
+		cmd, err = decodeUpgrade(raw, head.Type)
 	case cmdMoveBuilding:
 		cmd, err = decodeMoveBuilding(raw)
 	case cmdOrderShip:
@@ -342,8 +345,10 @@ func decodeSetPaused(raw json.RawMessage) (sim.Command, error) {
 	return sim.SetPaused{IslandID: *c.IslandID, BuildingID: *c.BuildingID, Paused: *c.Paused}, nil
 }
 
-func decodeUpgradeHouse(raw json.RawMessage) (sim.Command, error) {
-	var c upgradeHouseJSON
+// decodeUpgrade decodes upgrade_house and upgrade_warehouse, which share
+// their body {type, island_id, building_id}.
+func decodeUpgrade(raw json.RawMessage, typ string) (sim.Command, error) {
+	var c upgradeJSON
 	if err := decodeStrict(raw, &c); err != nil {
 		return nil, err
 	}
@@ -352,6 +357,9 @@ func decodeUpgradeHouse(raw json.RawMessage) (sim.Command, error) {
 		return nil, missing("island_id")
 	case c.BuildingID == nil:
 		return nil, missing("building_id")
+	}
+	if typ == cmdUpgradeWarehouse {
+		return sim.UpgradeWarehouse{IslandID: *c.IslandID, BuildingID: *c.BuildingID}, nil
 	}
 	return sim.UpgradeHouse{IslandID: *c.IslandID, BuildingID: *c.BuildingID}, nil
 }

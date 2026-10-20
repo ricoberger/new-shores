@@ -139,6 +139,17 @@ func checkReferences(c *Catalogue) error {
 				if l.Capacity <= 0 || l.ThroughputPerMin <= 0 {
 					col.add(FileBuildings, ent, fmt.Sprintf("warehouse.levels[%d]", i), "capacity and throughput must be > 0")
 				}
+				// The first level is placed with the building cost; every
+				// later level is reached by an upgrade with its own cost.
+				field := fmt.Sprintf("warehouse.levels[%d].cost", i)
+				switch {
+				case i == 0 && l.Cost != nil:
+					col.add(FileBuildings, ent, field, "the first level has no cost (the building cost places it)")
+				case i > 0 && l.Cost == nil:
+					col.add(FileBuildings, ent, field, "an upgrade level needs a cost")
+				case l.Cost != nil && l.Cost.Gold < 0:
+					col.add(FileBuildings, ent, field+".gold", "must be >= 0")
+				}
 			}
 		}
 		if sy := b.Shipyard; sy != nil {
@@ -157,6 +168,11 @@ func checkReferences(c *Catalogue) error {
 				col.add(FileBuildings, ent, "shipyard.ships", "must not be empty")
 			}
 		}
+		if b.RequiresDeposit != "" && b.Recipe == nil {
+			col.add(FileBuildings, ent, "requires_deposit", "only buildings with a recipe can require a deposit")
+		}
+		// work_area.fertility can only occur inside a work_area block: the
+		// schema has no other place for it.
 		if b.Road != nil && (b.Width != 1 || b.Height != 1) {
 			col.add(FileBuildings, ent, "footprint", "road buildings must be 1x1")
 		}

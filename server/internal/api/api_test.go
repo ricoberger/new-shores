@@ -20,6 +20,7 @@ import (
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/devworld"
+	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 )
 
@@ -77,6 +78,7 @@ const (
 type testServer struct {
 	t     *testing.T
 	srv   *Server
+	mem   *store.Memory
 	clock *fakeClock
 	logs  *bytes.Buffer
 	spec  *specValidator
@@ -84,15 +86,23 @@ type testServer struct {
 
 func newTestServer(t *testing.T, scale float64) *testServer {
 	t.Helper()
-	c := catalogue(t)
-	w, err := devworld.New(c, testStart)
+	w, err := devworld.New(catalogue(t), testStart)
 	if err != nil {
 		t.Fatal(err)
 	}
-	clock := &fakeClock{now: testStart}
+	return newTestServerFor(t, w, testStart, scale)
+}
+
+// newTestServerFor serves world w from the in-memory store; the fake wall
+// clock starts at start, which is world time start (scaled by scale).
+func newTestServerFor(t *testing.T, w *sim.World, start time.Time, scale float64) *testServer {
+	t.Helper()
+	c := catalogue(t)
+	clock := &fakeClock{now: start}
 	logs := &bytes.Buffer{}
+	mem := store.NewMemory(testWorld, w, func() time.Time { return TimeScale{Start: start, Scale: scale}.At(clock.Now()) })
 	srv, err := New(Config{
-		Store:        store.NewMemory(testWorld, w, func() time.Time { return TimeScale{Start: testStart, Scale: scale}.At(clock.Now()) }),
+		Store:        mem,
 		Catalogue:    c,
 		Clock:        clock,
 		ResolveWorld: func(*http.Request) (store.WorldID, error) { return testWorld, nil },
@@ -102,7 +112,19 @@ func newTestServer(t *testing.T, scale float64) *testServer {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return &testServer{t: t, srv: srv, clock: clock, logs: logs, spec: loadSpec(t)}
+	return &testServer{t: t, srv: srv, mem: mem, clock: clock, logs: logs, spec: loadSpec(t)}
+}
+
+// mutateWorld changes the stored world directly (test seeding outside the
+// command API, like a scenario grant); it bumps the version.
+func (ts *testServer) mutateWorld(fn func(*sim.World)) {
+	ts.t.Helper()
+	if _, err := ts.mem.Update(context.Background(), testWorld, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
+		fn(w)
+		return true, nil
+	}); err != nil {
+		ts.t.Fatal(err)
+	}
 }
 
 type syncWriter struct {
@@ -236,7 +258,7 @@ func TestGetWorldInitialState(t *testing.T) {
 		t.Fatal(err)
 	}
 	inv := d.Islands[0].Inventory
-	if d.Gold != 500_000 || inv["planks"].Stock != 130_000 || inv["sails"].Stock != 10_000 {
+	if start := catalogue(t).Start; d.Gold != start.Gold || inv["planks"].Stock != 130_000 || inv["sails"].Stock != 10_000 {
 		t.Fatalf("gold %d planks %d sails %d", d.Gold, inv["planks"].Stock, inv["sails"].Stock)
 	}
 	if len(d.Islands[0].Buildings) != 1 || d.Islands[0].Buildings[0].Type != "warehouse" {
@@ -298,6 +320,47 @@ func TestCommandsOfEveryType(t *testing.T) {
 	}
 	if got := ts.getWorld().Version; got != w.Version {
 		t.Fatalf("version after failed upgrade = %d, want %d", got, w.Version)
+	}
+
+	// upgrade_warehouse: the seeded warehouse needs stone (none on the
+	// start island yet): 409 insufficient_*, world unchanged; a house is
+	// not a warehouse: upgrade_unavailable.
+	wh := buildingIDs(t, w.Display, "warehouse")[0]
+	res = ts.command(fmt.Sprintf(`{"type":"upgrade_warehouse","island_id":"start","building_id":%d}`, wh), nil)
+	if code := errorCode(t, res); res.status != http.StatusConflict || (code != "insufficient_materials" && code != "insufficient_gold") {
+		t.Fatalf("upgrade_warehouse without stone: %d %s", res.status, res.body)
+	}
+	res = ts.command(fmt.Sprintf(`{"type":"upgrade_warehouse","island_id":"start","building_id":%d}`, house), nil)
+	if code := errorCode(t, res); res.status != http.StatusConflict || code != "upgrade_unavailable" {
+		t.Fatalf("upgrade_warehouse of a house: %d %s", res.status, res.body)
+	}
+	if res := ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"upgrade_warehouse","island_id":"start"}}`, false); res.status != http.StatusBadRequest || errorCode(t, res) != "invalid_command" {
+		t.Fatalf("upgrade_warehouse without building_id: %d %s", res.status, res.body)
+	}
+	if got := ts.getWorld().Version; got != w.Version {
+		t.Fatalf("version after failed warehouse upgrades = %d, want %d", got, w.Version)
+	}
+	// With the materials (granted directly into the stored world) the
+	// upgrade succeeds and the warehouse is at level 2.
+	ts.mutateWorld(func(world *sim.World) {
+		world.Gold += 1_000_000
+		if err := sim.AddStock(world, catalogue(t), "start", "stone", 20_000, nil); err != nil {
+			t.Fatal(err)
+		}
+	})
+	res = ts.command(fmt.Sprintf(`{"type":"upgrade_warehouse","island_id":"start","building_id":%d}`, wh), nil)
+	if res.status != http.StatusOK {
+		t.Fatalf("upgrade_warehouse: %d %s", res.status, res.body)
+	}
+	_ = json.Unmarshal(res.body, &w)
+	var ds sim.DisplayState
+	if err := json.Unmarshal(w.Display, &ds); err != nil {
+		t.Fatal(err)
+	}
+	for _, b := range ds.Islands[0].Buildings {
+		if b.ID == wh && (b.Level == nil || *b.Level != 2 || *b.Capacity != 500_000) {
+			t.Errorf("warehouse after upgrade: level %v capacity %v", b.Level, b.Capacity)
+		}
 	}
 }
 
@@ -557,6 +620,19 @@ func TestHealthAndContent(t *testing.T) {
 			Shipyard *struct {
 				Ships []string `json:"ships"`
 			} `json:"shipyard"`
+			RequiresDeposit string `json:"requires_deposit"`
+			WorkArea        *struct {
+				Fertility string `json:"fertility"`
+			} `json:"work_area"`
+			Warehouse *struct {
+				Levels []struct {
+					Capacity int64 `json:"capacity"`
+					Cost     *struct {
+						Gold      int64            `json:"gold"`
+						Materials map[string]int64 `json:"materials"`
+					} `json:"cost"`
+				} `json:"levels"`
+			} `json:"warehouse"`
 		} `json:"buildings"`
 		Ships []struct {
 			ID       string `json:"id"`
@@ -572,10 +648,10 @@ func TestHealthAndContent(t *testing.T) {
 	if err := json.Unmarshal(res.body, &c); err != nil {
 		t.Fatal(err)
 	}
-	if c.Region.Version != "old_coast-0.3.0" || len(c.Buildings) != 11 || len(c.Goods) != 6 || len(c.Tiers) != 2 || len(c.Needs) != 3 || len(c.Ships) != 1 {
+	if c.Region.Version != "old_coast-0.4.0" || len(c.Buildings) != 27 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
 		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d ships %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs), len(c.Ships))
 	}
-	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 2 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != 300_000 || sh.Cost.Materials["sails"] != 10_000 {
+	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 2 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != catalogue(t).ShipByID["sloop"].Cost.Gold || sh.Cost.Materials["sails"] != 10_000 {
 		t.Errorf("sloop = %+v", sh)
 	}
 	if c.Region.Rules.ShipHandlingMs != 20_000 || c.Region.Rules.ShipSpeed != 60_000 {
@@ -584,16 +660,36 @@ func TestHealthAndContent(t *testing.T) {
 	want := map[string]string{
 		"house_settlers": "houses", "road_dirt": "roads", "warehouse": "harbour", "market_small": "public",
 		"chapel": "public", "lumberjack": "production", "sawmill": "production", "shipyard": "harbour",
+		"house_citizens": "houses", "road_paved": "roads", "tavern": "public", "quarry": "production", "wheat_farm": "production",
 	}
 	for _, b := range c.Buildings {
 		if w, ok := want[b.ID]; ok && b.Category != w {
 			t.Errorf("%s category %s, want %s", b.ID, b.Category, w)
 		}
-		if b.ID == "warehouse" && b.Cost.Gold != 200_000 {
+		if b.ID == "warehouse" && b.Cost.Gold != catalogue(t).BuildingByID["warehouse"].Cost.Gold {
 			t.Errorf("warehouse gold cost %d milli-gold", b.Cost.Gold)
 		}
 		if (b.ID == "shipyard") != (b.Shipyard != nil) || (b.Shipyard != nil && strings.Join(b.Shipyard.Ships, ",") != "sloop") {
 			t.Errorf("%s shipyard block %+v", b.ID, b.Shipyard)
+		}
+		// Format additions of R-5: deposit, fertility and level costs.
+		switch b.ID {
+		case "quarry", "iron_mine":
+			if b.RequiresDeposit != map[string]string{"quarry": "stone", "iron_mine": "iron"}[b.ID] {
+				t.Errorf("%s requires_deposit %q", b.ID, b.RequiresDeposit)
+			}
+		case "wheat_farm", "orchard", "hemp_farm":
+			if b.WorkArea == nil || b.WorkArea.Fertility != map[string]string{"wheat_farm": "wheat", "orchard": "apple", "hemp_farm": "hemp"}[b.ID] {
+				t.Errorf("%s work area %+v", b.ID, b.WorkArea)
+			}
+		case "warehouse":
+			if l := b.Warehouse.Levels; len(l) != 2 || l[0].Cost != nil || l[1].Cost == nil || l[1].Cost.Gold <= 0 || l[1].Cost.Materials["stone"] <= 0 {
+				t.Errorf("warehouse levels %+v", l)
+			}
+		default:
+			if b.RequiresDeposit != "" || (b.WorkArea != nil && b.WorkArea.Fertility != "") {
+				t.Errorf("%s: deposit %q work area %+v", b.ID, b.RequiresDeposit, b.WorkArea)
+			}
 		}
 	}
 }
@@ -608,18 +704,42 @@ func TestIslandData(t *testing.T) {
 	if err := json.Unmarshal(res.body, &is); err != nil {
 		t.Fatal(err)
 	}
-	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.3.0" {
+	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.4.0" {
 		t.Fatalf("island %s %dx%d terrain %d revision %s", is.ID, is.Width, is.Height, len(is.Terrain), is.Revision)
 	}
 	// Row 1 of the dev island starts with water then coast.
 	if is.Terrain[1*is.Width+0] != "water" || is.Terrain[1*is.Width+1] != "coast" {
 		t.Fatalf("terrain row 1: %v", is.Terrain[is.Width:is.Width+3])
 	}
+	// Fertilities and sparse deposits sorted by tile index (R-15).
+	checkDeposits := func(is islandResponse, kind string) {
+		t.Helper()
+		if len(is.Deposits) < 4 {
+			t.Errorf("%s deposits = %+v", is.ID, is.Deposits)
+		}
+		for i, d := range is.Deposits {
+			if d.Kind != kind || is.Terrain[d.Y*is.Width+d.X] != "mountain" {
+				t.Errorf("%s deposit %+v on %s", is.ID, d, is.Terrain[d.Y*is.Width+d.X])
+			}
+			if i > 0 && d.Y*is.Width+d.X <= is.Deposits[i-1].Y*is.Width+is.Deposits[i-1].X {
+				t.Errorf("%s deposits not sorted: %+v", is.ID, is.Deposits)
+			}
+		}
+	}
+	if strings.Join(is.Fertilities, ",") != "wheat,apple" {
+		t.Errorf("start fertilities = %v", is.Fertilities)
+	}
+	checkDeposits(is, "stone")
 	// The unsettled island 2 is served too (R-57).
 	res = ts.do(http.MethodGet, "/api/v1/world/islands/island2", "", true)
+	is = islandResponse{}
 	if err := json.Unmarshal(res.body, &is); err != nil || res.status != 200 || is.ID != "island2" || !slices.Contains(is.Terrain, "mountain") {
 		t.Fatalf("island2: %d %s", res.status, res.body)
 	}
+	if strings.Join(is.Fertilities, ",") != "hemp" {
+		t.Errorf("island2 fertilities = %v", is.Fertilities)
+	}
+	checkDeposits(is, "iron")
 }
 
 // TestIslandRequestAdvancesTheWorld: GET /world/islands/{id} advances the

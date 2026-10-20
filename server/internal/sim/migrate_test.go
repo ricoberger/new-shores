@@ -117,6 +117,14 @@ func TestSchema1FixtureWithoutShips(t *testing.T) {
 			t.Fatalf("fixture already contains %s", field)
 		}
 	}
+	// The removed per-tile Tile.Fertility was never written by any stored
+	// world (no reader or writer existed), and island fertility tags are an
+	// optional field added within schema 1 (R-10).
+	for _, field := range []string{`"fertility"`, `"fertilities"`} {
+		if bytes.Contains(data, []byte(field)) {
+			t.Fatalf("schema-1 fixture carries %s", field)
+		}
+	}
 	w, cv, err := Decode(data)
 	if err != nil || cv != "old_coast-0.2.0" || SchemaVersion != 1 {
 		t.Fatalf("decode: %v %s schema %d", err, cv, SchemaVersion)
@@ -165,5 +173,26 @@ func TestSchema1FixtureWithoutShips(t *testing.T) {
 	}
 	if err := json.Unmarshal(encode(t, w), &env); err != nil || env.SchemaVersion != 1 {
 		t.Errorf("re-encoded schema version %d (%v)", env.SchemaVersion, err)
+	}
+}
+
+// TestDecodeIgnoresTileFertility (R-10): a schema-1 envelope with the
+// removed per-tile "fertility" field still decodes; the field is ignored
+// (dropped on re-encode) and the island has no fertility tags.
+func TestDecodeIgnoresTileFertility(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("testdata", "schema1_dev_world.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	withTag := bytes.Replace(data, []byte(`{"terrain":"grass"}`), []byte(`{"terrain":"grass","fertility":["wheat"]}`), 1)
+	if bytes.Equal(withTag, data) {
+		t.Fatal("fixture has no grass tile to tag")
+	}
+	w, _, err := Decode(withTag)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(w.Islands[0].Fertilities) != 0 || bytes.Contains(encode(t, w), []byte(`"fertility"`)) {
+		t.Errorf("fertility survived decoding: %v", w.Islands[0].Fertilities)
 	}
 }

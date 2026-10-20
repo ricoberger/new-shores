@@ -63,7 +63,7 @@ export interface paths {
          * Advance the world to now and apply one command.
          * @description Commands (`command.type`): `place_building`, `place_road`,
          *     `demolish`, `demolish_road`, `set_paused`, `upgrade_house`,
-         *     `move_building`, and the ship and route commands `order_ship`,
+         *     `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
          *     `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`
          *     and `found_island` (MECHANICS §8, §9).
@@ -90,11 +90,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Static data of an island (terrain).
+         * Static data of an island (terrain, fertilities, deposits).
          * @description Static per island; clients cache it by `revision` and fetch it once
-         *     per island. Unsettled islands are served as well. Further static
-         *     data (fertilities, deposit slots) will be added as sibling arrays of
-         *     `terrain`.
+         *     per island. Unsettled islands are served as well. `fertilities` and
+         *     `deposits` are siblings of `terrain`.
          */
         get: operations["getIsland"];
         put?: never;
@@ -391,9 +390,13 @@ export interface components {
          *       `route_not_found`;
          *     - 405: `method_not_allowed`;
          *     - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
-         *       `insufficient_gold`, `insufficient_materials`, `surplus_loss`,
-         *       `not_pausable`, `no_road`, `tier_locked`, `not_a_house`,
-         *       `upgrade_unavailable`, `house_not_full`, `needs_unmet`,
+         *       `no_fertility` (the island lacks the work area's fertility tag),
+         *       `no_deposit` (a deposit building's footprint covers no deposit
+         *       of its kind), `insufficient_gold`, `insufficient_materials`,
+         *       `surplus_loss`, `not_pausable`, `no_road`, `tier_locked`,
+         *       `not_a_house`, `upgrade_unavailable` (also: warehouse at its last
+         *       level), `house_not_full`, `needs_unmet`, `upgrade_only` (a house
+         *       of a later tier is only reached by `upgrade_house`),
          *       `shipyard_busy` (one order at a time), `not_a_shipyard`,
          *       `unknown_ship_type` (the shipyard cannot build it),
          *       `no_ship_order`, `ship_not_idle` (the command needs an idle
@@ -413,7 +416,7 @@ export interface components {
          *     `move_building` can fail with 400 `bad_request`, `invalid_command`
          *     (also for a road or an invalid rotation), `out_of_bounds`; 404
          *     `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-         *     `not_coastal`, `no_work_area`. Moving is free: it never fails for
+         *     `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`. Moving is free: it never fails for
          *     gold, materials or tier. Placement never requires a road (D-042).
          *
          *     **Internal-only codes** (HTTP 500, never caused by a client command;
@@ -425,7 +428,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_warehouse" | "not_connected" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_warehouse" | "not_connected" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -494,7 +497,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["FoundIslandCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["FoundIslandCommand"];
         Tile: {
             /** @description Column (tiles). */
             x: number;
@@ -580,6 +583,26 @@ export interface components {
              * @enum {string}
              */
             type: "upgrade_house";
+            island_id: string;
+            /**
+             * Format: int64
+             * @description Building ID (unscaled integer identifier, from BuildingDisplay.id).
+             */
+            building_id: number;
+        };
+        /**
+         * @description Raise a warehouse to its next level (MECHANICS §5): the next level's
+         *     `cost` (content `warehouse.levels[i].cost`) is charged like a
+         *     placement (gold from the world, materials from the island);
+         *     capacity and throughput change at once. `upgrade_unavailable` for
+         *     other buildings and at the last level.
+         */
+        UpgradeWarehouseCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "upgrade_warehouse";
             island_id: string;
             /**
              * Format: int64
@@ -846,6 +869,26 @@ export interface components {
             revision: string;
             /** @description Terrain ID per tile, row-major (index = y × width + x). */
             terrain: ("water" | "coast" | "grass" | "forest" | "mountain")[];
+            /**
+             * @description Island-wide fertility tags (MECHANICS §2); a building whose
+             *     `work_area.fertility` is missing here cannot be placed
+             *     (`no_fertility`).
+             */
+            fertilities: string[];
+            /**
+             * @description Tiles carrying a deposit (infinite), sorted by tile index
+             *     (y × width + x). A building with `requires_deposit` must cover
+             *     at least one tile of its kind (`no_deposit`) and may stand on
+             *     mountain tiles.
+             */
+            deposits: {
+                /** @description Column (tiles). */
+                x: number;
+                /** @description Row (tiles). */
+                y: number;
+                /** @description Deposit kind, e.g. stone or iron. */
+                kind: string;
+            }[];
         };
         /**
          * @description Authoritative state at `evaluated_at` plus the rates the client
@@ -1488,6 +1531,22 @@ export interface components {
                      * @description Throughput (milli-units per minute).
                      */
                     throughput_per_min: number;
+                    /**
+                     * @description Upgrade cost into this level (`upgrade_warehouse`);
+                     *     absent on the first level, which the building cost
+                     *     places.
+                     */
+                    cost?: {
+                        /**
+                         * Format: int64
+                         * @description Gold cost (milli-gold).
+                         */
+                        gold: number;
+                        /** @description Material cost per good (milli-units). */
+                        materials: {
+                            [key: string]: number;
+                        };
+                    };
                 }[];
             };
             road?: {
@@ -1507,6 +1566,8 @@ export interface components {
                 terrain: string[];
                 /** @description Matching tiles for full efficiency (count). */
                 required_tiles: number;
+                /** @description Island fertility tag the building needs (absent for none). */
+                fertility?: string;
             };
             workforce?: {
                 tier: string;
@@ -1520,6 +1581,11 @@ export interface components {
             shipyard?: {
                 ships: string[];
             };
+            /**
+             * @description Deposit kind the footprint must cover (absent for none); such a
+             *     building may also stand on mountain tiles.
+             */
+            requires_deposit?: string;
         };
         ContentNeed: {
             id: string;

@@ -1,6 +1,6 @@
 {
   "name": "dev_archipelago",
-  "description": "Hand-written archipelago of the --dev server and of new player worlds: the start island (seeded warehouse and the content starting stock, start.json) and the unsettled island 2 (coast, grass, forest, iron-deposit mountains; settled by a ship carrying the warehouse cost). Positions are archipelago tiles: 120 tiles apart, 2 min per sloop leg at the region's reference speed. dev_bonus is granted only to the --dev world (devworld.NewDev). The scenario runner builds the islands; the document has no steps.",
+  "description": "Hand-written archipelago of the --dev server and of new player worlds: the start island (seeded warehouse and the content starting stock, start.json; wheat and apple fertility, stone deposits on the edge of its mountains) and the unsettled island 2 (hemp fertility; coast, grass, forest, iron-deposit mountains; settled by a ship carrying the warehouse cost). Positions are archipelago tiles: 120 tiles apart, 2 min per sloop leg at the region's reference speed. dev_bonus is granted only to the --dev world (devworld.NewDev). The scenario runner builds the islands; the document has no steps.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {
@@ -8,6 +8,7 @@
       "name": "Start",
       "x": 0,
       "y": 0,
+      "fertilities": ["wheat", "apple"],
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         "~ccccccccccccccccccccccc~~~~~~~~ccccccccccccccccccccccc~",
@@ -41,7 +42,7 @@
         "~~c.............mmmmmmm...........fffffffffffffffffffc~~",
         "~c..............mmmmmmm...............................c~",
         "~c..............mmmmmmm...............................c~",
-        "~c..............mmmmmmm...............................c~",
+        "~c..............mSSmSSm...............................c~",
         "~c....................................................c~",
         "~c....................................................c~",
         "~c....................................................c~",
@@ -56,6 +57,7 @@
       "name": "Island 2",
       "x": 72,
       "y": 96,
+      "fertilities": ["hemp"],
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         "~ccccccccccccccccccccc~~~~~~~~~~~~~~~~~~",

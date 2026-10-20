@@ -237,8 +237,16 @@ func TestUpgradeHouse(t *testing.T) {
 		}
 	}
 
-	t.Run("shipped content has no Citizens house", func(t *testing.T) {
-		c := catalogue(t)
+	t.Run("declared-only tier has no house", func(t *testing.T) {
+		base := catalogue(t)
+		cit := *base.TierByID["citizens"]
+		cit.House = ""
+		cc := *base
+		cc.TierByID = maps.Clone(base.TierByID)
+		cc.TierByID["citizens"] = &cit
+		cc.Tiers = slices.Clone(base.Tiers)
+		cc.Tiers[1] = &cit
+		c := &cc
 		w := newTown(t, c, 1_000)
 		h := placeHouses(t, w, c, 1)[0]
 		house(w, h).Residents = 8_000
@@ -312,7 +320,6 @@ func TestTierGating(t *testing.T) {
 	w := newTown(t, &cc, 10_000)
 	for _, cmd := range []Command{
 		PlaceBuilding{IslandID: "main", Type: "tavern", X: 17, Y: 1},
-		PlaceBuilding{IslandID: "main", Type: "house_citizens", X: 9, Y: 2},
 		PlaceRoad{IslandID: "main", Type: "road_paved", Tiles: []Pos{{5, 7}}},
 		PlaceBuilding{IslandID: "main", Type: "road_paved", X: 5, Y: 7},
 	} {
@@ -326,9 +333,21 @@ func TestTierGating(t *testing.T) {
 	}
 	placeFree(t, w, &cc, "tavern", 17, 1, 0)
 
+	// A house of a later tier is upgrade-only, locked or not (R-12).
+	before := encode(t, w)
+	if err := Apply(w, &cc, PlaceBuilding{IslandID: "main", Type: "house_citizens", X: 9, Y: 2}); !errors.Is(err, ErrUpgradeOnly) {
+		t.Errorf("place house_citizens = %v", err)
+	}
+	if !bytes.Equal(before, encode(t, w)) {
+		t.Error("world changed on error")
+	}
+
 	w.UnlockedTiers = []string{"citizens"}
 	mustApply(t, w, &cc, PlaceRoad{IslandID: "main", Type: "road_paved", Tiles: []Pos{{5, 7}}})
 	mustApply(t, w, &cc, PlaceBuilding{IslandID: "main", Type: "tavern", X: 21, Y: 1})
+	if err := Apply(w, &cc, PlaceBuilding{IslandID: "main", Type: "house_citizens", X: 9, Y: 2}); !errors.Is(err, ErrUpgradeOnly) {
+		t.Errorf("place house_citizens after the unlock = %v", err)
+	}
 }
 
 // TestDisplayPopulationFields checks the presence of the R25-R27 display

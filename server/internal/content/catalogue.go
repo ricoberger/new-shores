@@ -173,6 +173,10 @@ type Building struct {
 	WorkArea  *WorkArea
 	Workforce *Workforce
 	Shipyard  *Shipyard
+
+	// RequiresDeposit is the deposit kind at least one footprint tile must
+	// carry ("" for none). Such a building may also stand on mountain tiles.
+	RequiresDeposit string
 }
 
 // Shipyard marks a building that orders ships (one at a time) of the listed
@@ -241,6 +245,9 @@ type WarehouseLevel struct {
 	Capacity Qty
 	// ThroughputPerMin in milli-units per minute.
 	ThroughputPerMin Qty
+	// Cost is the upgrade cost into this level; nil for the first level
+	// (placed with the building cost), set for every later level.
+	Cost *Cost
 }
 
 // Road marks a road type.
@@ -260,6 +267,9 @@ type WorkArea struct {
 	Radius        int
 	Terrain       []string
 	RequiredTiles int
+	// Fertility is the island-wide fertility tag the building needs ("" for
+	// none, MECHANICS §2).
+	Fertility string
 }
 
 // Need kinds (MECHANICS §6.2).

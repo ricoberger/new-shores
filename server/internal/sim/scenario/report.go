@@ -27,6 +27,9 @@ type Report struct {
 	// PauseEvents lists the insolvency pauses and resumes in occurrence
 	// order.
 	PauseEvents []PauseEvent `json:"pause_events"`
+	// ExpectedErrors lists the steps that failed as expected (expect_error)
+	// with the sentinel name and the error message; omitted when none.
+	ExpectedErrors []ExpectedError `json:"expected_errors,omitempty"`
 	// Snapshots after every advance step.
 	Snapshots []Snapshot `json:"snapshots"`
 	// Final is the Display payload at the end of the run.
@@ -67,6 +70,14 @@ type PauseEvent struct {
 	BuildingID int64  `json:"building_id"`
 	ShipID     int64  `json:"ship_id,omitempty"`
 	Type       string `json:"type"`
+}
+
+// ExpectedError is a step that failed with the expected sentinel and left
+// the world unchanged.
+type ExpectedError struct {
+	Step    int    `json:"step"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
 }
 
 // Snapshot is the state after an advance step.

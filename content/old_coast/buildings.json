@@ -37,7 +37,14 @@
     "upkeep_per_min": 4,
     "pause_category": "never",
     "warehouse": {
-      "levels": [{ "capacity": 300, "throughput_per_min": 60 }]
+      "levels": [
+        { "capacity": 300, "throughput_per_min": 60 },
+        {
+          "capacity": 500,
+          "throughput_per_min": 90,
+          "cost": { "gold": 300, "planks": 20, "stone": 10 }
+        }
+      ]
     }
   },
   {
@@ -170,5 +177,283 @@
     "upkeep_per_min": 5,
     "pause_category": "never",
     "shipyard": { "ships": ["sloop"] }
+  },
+  {
+    "id": "house_citizens",
+    "name": "Citizen house",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 200, "planks": 15, "stone": 10 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "house": { "tier": "citizens" }
+  },
+  {
+    "id": "road_paved",
+    "name": "Paved road",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 5, "stone": 1 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "road": { "seconds_per_tile": 0.6 }
+  },
+  {
+    "id": "tavern",
+    "name": "Tavern",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 600, "planks": 30, "stone": 20 },
+    "upkeep_per_min": 6,
+    "pause_category": "public",
+    "service": { "radius": 14 }
+  },
+  {
+    "id": "wheat_farm",
+    "name": "Wheat farm",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 200, "planks": 15, "stone": 5 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 6 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "wheat", "amount": 1 }],
+      "cycle_seconds": 60
+    },
+    "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24, "fertility": "wheat" }
+  },
+  {
+    "id": "mill",
+    "name": "Mill",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 250, "planks": 20, "stone": 10 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "citizens", "amount": 4 },
+    "recipe": {
+      "inputs": [{ "good": "wheat", "amount": 1 }],
+      "outputs": [{ "good": "flour", "amount": 1 }],
+      "cycle_seconds": 30
+    }
+  },
+  {
+    "id": "bakery",
+    "name": "Bakery",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 300, "planks": 15, "stone": 15 },
+    "upkeep_per_min": 4,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "flour", "amount": 1 }],
+      "outputs": [{ "good": "bread", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "orchard",
+    "name": "Orchard",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 200, "planks": 15, "stone": 5 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 6 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "apples", "amount": 1 }],
+      "cycle_seconds": 90
+    },
+    "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24, "fertility": "apple" }
+  },
+  {
+    "id": "cidery",
+    "name": "Cidery",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 300, "planks": 15, "stone": 10 },
+    "upkeep_per_min": 4,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "apples", "amount": 1 }],
+      "outputs": [{ "good": "cider", "amount": 1 }],
+      "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "hemp_farm",
+    "name": "Hemp farm",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 200, "planks": 15, "stone": 5 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 6 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "hemp", "amount": 1 }],
+      "cycle_seconds": 60
+    },
+    "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24, "fertility": "hemp" }
+  },
+  {
+    "id": "weaver_linen",
+    "name": "Linen weaver",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 300, "planks": 15, "stone": 10 },
+    "upkeep_per_min": 4,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "hemp", "amount": 1 }],
+      "outputs": [{ "good": "linen_garments", "amount": 1 }],
+      "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "sailmaker",
+    "name": "Sailmaker",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 300, "planks": 20, "stone": 5 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "hemp", "amount": 1 }],
+      "outputs": [{ "good": "sails", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "quarry",
+    "name": "Quarry",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 300, "planks": 20 },
+    "upkeep_per_min": 4,
+    "pause_category": "intermediate",
+    "requires_deposit": "stone",
+    "workforce": { "tier": "settlers", "amount": 8 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "stone", "amount": 1 }],
+      "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "iron_mine",
+    "name": "Iron mine",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 400, "planks": 25, "stone": 10 },
+    "upkeep_per_min": 5,
+    "pause_category": "intermediate",
+    "requires_deposit": "iron",
+    "workforce": { "tier": "settlers", "amount": 10 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "iron_ore", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "charcoal_burner",
+    "name": "Charcoal burner",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 150, "planks": 10 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 4 },
+    "recipe": {
+      "inputs": [{ "good": "wood", "amount": 1 }],
+      "outputs": [{ "good": "charcoal", "amount": 1 }],
+      "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "smelter",
+    "name": "Smelter",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 400, "planks": 20, "stone": 20 },
+    "upkeep_per_min": 6,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": "charcoal", "amount": 1 }],
+      "outputs": [{ "good": "iron", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "toolmaker",
+    "name": "Toolmaker",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [2, 2],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 400, "planks": 15, "stone": 15 },
+    "upkeep_per_min": 5,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "iron", "amount": 1 }],
+      "outputs": [{ "good": "tools", "amount": 1 }],
+      "cycle_seconds": 60
+    }
   }
 ]

@@ -1,0 +1,367 @@
+{
+  "name": "citizens_needs",
+  "description": "Citizens in play (golden u, free seed): fifteen settler houses grow on seeded fish and wool garments next to a market and a chapel until Citizens unlock; then a tavern, the bread, cider and linen chains (fertilities wheat, apple and hemp), a paved road segment and the warehouse upgrade to level 2 are built and four full houses next to the market are upgraded to Citizen houses. Seeded bread, cider and linen garments bridge the start of the chains: every Citizens need is met, the houses grow and pay Citizens tax.",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "fertilities": [
+      "wheat",
+      "apple",
+      "hemp"
+    ],
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~cccccccccccccccccccccccccccccccccccccc~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~......................................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 1,
+      "rotation": 0
+    },
+    "gold": "10000",
+    "stock": {
+      "planks": 250,
+      "stone": 80,
+      "fish": 200,
+      "wool_garments": 100,
+      "bread": 40,
+      "cider": 40,
+      "linen_garments": 40
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          4
+        ],
+        "to": [
+          38,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          2,
+          16
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          16
+        ],
+        "to": [
+          30,
+          16
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 8,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "chapel",
+        "x": 11,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 6,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 16,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 18,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 20,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 22,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 24,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 26,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 28,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 30,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 32,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 34,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "stock": {
+        "good": "planks",
+        "amount": "200"
+      }
+    },
+    {
+      "stock": {
+        "good": "stone",
+        "amount": "100"
+      }
+    },
+    {
+      "place": {
+        "type": "tavern",
+        "x": 13,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "type": "road_paved",
+        "from": [
+          31,
+          16
+        ],
+        "to": [
+          36,
+          16
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "wheat_farm",
+        "x": 3,
+        "y": 17,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "mill",
+        "x": 6,
+        "y": 14,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "bakery",
+        "x": 8,
+        "y": 14,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "orchard",
+        "x": 13,
+        "y": 17,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "cidery",
+        "x": 10,
+        "y": 14,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "hemp_farm",
+        "x": 24,
+        "y": 17,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_linen",
+        "x": 12,
+        "y": 14,
+        "rotation": 0
+      }
+    },
+    {
+      "upgrade_warehouse": {
+        "x": 1,
+        "y": 1
+      }
+    },
+    {
+      "upgrade": {
+        "x": 6,
+        "y": 2
+      }
+    },
+    {
+      "upgrade": {
+        "x": 8,
+        "y": 2
+      }
+    },
+    {
+      "upgrade": {
+        "x": 10,
+        "y": 2
+      }
+    },
+    {
+      "upgrade": {
+        "x": 12,
+        "y": 2
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "4m"
+      }
+    }
+  ]
+}

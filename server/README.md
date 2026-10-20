@@ -94,15 +94,22 @@ Scenario format (all quantities in units, durations in Go syntax):
     { "demolish": { "x": 8, "y": 2, "accept_surplus_loss": false } },
     { "demolish_road": { "from": [2, 4], "to": [3, 4] } },
     { "stock": { "good": "wood", "amount": 10 } },
+    { "upgrade_warehouse": { "x": 1, "y": 1 } },
+    { "place": { "type": "house_citizens", "x": 9, "y": 2 }, "expect_error": "upgrade_only" },
     { "advance": { "duration": "10m" } }
   ]
 }
 ```
 
 Island legend: `~` water, `c` coast, `.` grass, `f` forest, `m` mountain,
-`I` mountain with an infinite iron deposit.
+`I` mountain with an infinite iron deposit, `S` mountain with an infinite
+stone deposit. An island may list its fertility tags
+(`"fertilities": ["wheat", "apple"]`).
 The seed is granted free of charge; every step goes through `sim.Apply` or
-`sim.Advance`, and a failing step fails the run with its index.
+`sim.Advance`, and a failing step fails the run with its index. A step
+with `expect_error` (a sentinel's snake_case name, the API error code) must
+fail with that sentinel and leave the world byte-identical; the report
+lists these steps under `expected_errors`.
 
 Archipelagos use `islands` instead of `island` (exactly one of the two):
 `[{"id": "start", "name": "Start", "x": 0, "y": 0, "rows": [...]}, ...]`
