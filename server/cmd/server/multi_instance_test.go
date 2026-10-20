@@ -242,13 +242,18 @@ func TestMultiInstance(t *testing.T) {
 	if err != nil || res.status != 200 {
 		t.Fatalf("command on A: %v %d %s", err, res.status, res.body)
 	}
-	readCtx, readCancel := context.WithTimeout(ctx, time.Second)
+	// The 1 s budget starts when the command is sent, not when it returns.
+	readCtx, readCancel := context.WithDeadline(ctx, sent.Add(time.Second))
 	_, msg, err := conn.Read(readCtx)
 	readCancel()
+	elapsed := time.Since(sent)
 	if err != nil {
-		t.Fatalf("no push on B within 1 s of a command on A: %v", err)
+		t.Fatalf("no push on B within 1 s of sending a command to A (%s): %v", elapsed, err)
 	}
-	t.Logf("push latency A -> Redis -> B: %s", time.Since(sent))
+	if elapsed > time.Second {
+		t.Fatalf("push arrived %s after the command was sent, want <= 1 s", elapsed)
+	}
+	t.Logf("command sent on A -> push received on B: %s", elapsed)
 	var m struct {
 		Type    string `json:"type"`
 		WorldID string `json:"world_id"`
