@@ -90,7 +90,7 @@ type World struct {
 	// Routes sorted by ascending ID (sequential, NextRouteID).
 	Routes      []*Route `json:"routes,omitempty"`
 	NextRouteID int64    `json:"next_route_id,omitempty"`
-	// Quests holds the completed quests by ID (summary.go, quests.go).
+	// Quests holds the completed quests by ID (quests.go).
 	Quests map[string]QuestState `json:"quests,omitempty"`
 	// LastSeenAt is the world time of the player's last successful command
 	// (initially the creation time); see MarkSeen.
