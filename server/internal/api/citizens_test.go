@@ -50,7 +50,7 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	if res.status != http.StatusOK {
 		t.Fatalf("upgrade_house: %d %s", res.status, res.body)
 	}
-	check := func(body []byte, wantPopulation bool) {
+	check := func(body []byte, wantPopulation bool) sim.BuildingDisplay {
 		t.Helper()
 		var wj worldJSON
 		if err := json.Unmarshal(body, &wj); err != nil {
@@ -60,6 +60,7 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 		if err := json.Unmarshal(wj.Display, &ds); err != nil {
 			t.Fatal(err)
 		}
+		var found sim.BuildingDisplay
 		for _, is := range ds.Islands {
 			if is.ID != islandID {
 				continue
@@ -68,7 +69,8 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 				if b.ID != house.ID {
 					continue
 				}
-				if b.Type != "house_citizens" || b.Residents == nil || *b.Residents < 5_000 || b.GrowthRatePerMin == nil || b.TaxRatePerMin == nil {
+				if b.Type != "house_citizens" || b.Residents == nil || *b.Residents < 5_000 || b.GrowthRatePerMin == nil || b.TaxRatePerMin == nil ||
+					b.SatisfactionPermille == nil {
 					t.Fatalf("house = %+v", b)
 				}
 				var needs []string
@@ -81,6 +83,7 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 				if wantPopulation && *b.TaxRatePerMin <= 0 {
 					t.Errorf("tax rate %d", *b.TaxRatePerMin)
 				}
+				found = b
 			}
 			if wantPopulation && is.Population["citizens"] < 5_000 {
 				t.Errorf("citizens population %d", is.Population["citizens"])
@@ -89,6 +92,7 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 		if wantPopulation && (ds.TaxRatePerMin <= 0 || !ds.Tiers[1].Unlocked) {
 			t.Errorf("tax %d tiers %+v", ds.TaxRatePerMin, ds.Tiers)
 		}
+		return found
 	}
 	check(res.body, false)
 	ts.clock.Add(time.Minute)
@@ -96,5 +100,49 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	if res.status != http.StatusOK {
 		t.Fatalf("GET /world: %d %s", res.status, res.body)
 	}
-	check(res.body, true)
+	// Right after the upgrade only market and chapel are in reach: the
+	// house stays at its floor (satisfaction below the growth threshold)
+	// but pays Citizens tax.
+	floor := check(res.body, true)
+	if *floor.SatisfactionPermille != 250 || *floor.GrowthRatePerMin != 0 {
+		t.Errorf("floor house: satisfaction %d growth %d", *floor.SatisfactionPermille, *floor.GrowthRatePerMin)
+	}
+
+	// Supply every Citizens need: bread, cider and linen garments arrive
+	// (seeded into the stored world like a delivery), and a tavern is
+	// built over HTTP next to the house. After a clock advance the house
+	// is fully satisfied and grows.
+	ts.mutateWorld(func(world *sim.World) {
+		world.Gold += 1_000_000
+		for good, n := range map[string]sim.Qty{"bread": 50_000, "cider": 50_000, "linen_garments": 50_000, "stone": 20_000, "planks": 30_000} {
+			if err := sim.AddStock(world, c, islandID, good, n, nil); err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+	res = ts.command(fmt.Sprintf(`{"type":"place_building","island_id":%q,"building_type":"tavern","x":3,"y":5,"rotation":0}`, islandID), nil)
+	if res.status != http.StatusOK {
+		t.Fatalf("place tavern: %d %s", res.status, res.body)
+	}
+	ts.clock.Add(30 * time.Second)
+	res = ts.do(http.MethodGet, "/api/v1/world", "", true)
+	if res.status != http.StatusOK {
+		t.Fatalf("GET /world: %d %s", res.status, res.body)
+	}
+	supplied := check(res.body, true)
+	if *supplied.SatisfactionPermille != 1000 || *supplied.GrowthRatePerMin <= 0 || *supplied.TaxRatePerMin <= *floor.TaxRatePerMin {
+		t.Errorf("supplied house: satisfaction %d growth %d tax %d (floor tax %d)", *supplied.SatisfactionPermille,
+			*supplied.GrowthRatePerMin, *supplied.TaxRatePerMin, *floor.TaxRatePerMin)
+	}
+	for _, n := range supplied.Needs {
+		if n.FulfilmentPermille != 1000 {
+			t.Errorf("need %s fulfilment %d (%s)", n.ID, n.FulfilmentPermille, n.Reason)
+		}
+	}
+	// Two more minutes: the house has gained residents.
+	ts.clock.Add(2 * time.Minute)
+	res = ts.do(http.MethodGet, "/api/v1/world", "", true)
+	if grown := check(res.body, true); *grown.Residents <= *supplied.Residents {
+		t.Errorf("residents %d -> %d", *supplied.Residents, *grown.Residents)
+	}
 }
