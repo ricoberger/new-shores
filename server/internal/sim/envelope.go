@@ -2,7 +2,6 @@ package sim
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 // SchemaVersion is the current world schema version.
@@ -23,21 +22,9 @@ func Encode(w *World, contentVersion string) ([]byte, error) {
 }
 
 // Decode parses an envelope and returns the world and its content version.
-// Envelopes with another schema version are rejected with ErrSchemaVersion.
+// Older envelopes are upgraded with the registered schema migrations
+// (SchemaMigrations); a schema version without a migration path to
+// SchemaVersion, or a newer one, is rejected with ErrSchemaVersion.
 func Decode(data []byte) (*World, string, error) {
-	var head struct {
-		SchemaVersion int `json:"schema_version"`
-	}
-	if err := json.Unmarshal(data, &head); err != nil {
-		return nil, "", fmt.Errorf("decode envelope: %w", err)
-	}
-	if head.SchemaVersion != SchemaVersion {
-		return nil, "", fmt.Errorf("%w: %d (want %d)", ErrSchemaVersion, head.SchemaVersion, SchemaVersion)
-	}
-	var env Envelope
-	if err := json.Unmarshal(data, &env); err != nil {
-		return nil, "", fmt.Errorf("decode envelope: %w", err)
-	}
-	env.World.LastEvaluatedAt = env.World.LastEvaluatedAt.UTC()
-	return &env.World, env.ContentVersion, nil
+	return DecodeWith(data, SchemaMigrations())
 }
