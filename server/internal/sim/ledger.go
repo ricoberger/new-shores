@@ -10,6 +10,12 @@ import (
 // Flow accumulates the goods movements of one good on one island, in
 // sub-milli units (see SubPerMilli). It is diagnostic output, not world
 // state.
+//
+// Conservation per island: stock + in transit + buffers = Produced -
+// Consumed - Lost - Spent + Refunded + Granted - Loaded + Unloaded. Over the
+// whole world Loaded and Unloaded cancel against the cargo aboard ships:
+// sum(islands) + sum(cargo) = sum(Produced - Consumed - Lost - Spent +
+// Refunded + Granted).
 type Flow struct {
 	// Produced by recipes (into transit or an unconnected buffer). Buffered
 	// goods that later leave with a connected producer's output stream are
@@ -26,6 +32,12 @@ type Flow struct {
 	Refunded int64 `json:"refunded"`
 	// Granted from outside the simulation (seeding, AddStock).
 	Granted int64 `json:"granted"`
+	// Loaded from the island inventory onto a ship.
+	Loaded int64 `json:"loaded,omitempty"`
+	// Unloaded from a ship at this island: into the inventory, or spent
+	// (founding, recorded as Spent too) or lost above capacity (scrapping,
+	// recorded as Lost too).
+	Unloaded int64 `json:"unloaded,omitempty"`
 }
 
 // Ledger collects Flows per island and good. A nil *Ledger discards all
@@ -133,3 +145,13 @@ func sortedKeys[V any](ms ...map[string]V) []string {
 // FineToMilli converts a sub-milli amount (as recorded in a Flow) to
 // milli-units, rounding half up.
 func FineToMilli(f int64) Qty { return roundFine(f) }
+
+// FineStock returns stock plus in-transit plus producer buffers of a good
+// on an island in sub-milli units (the quantity the ledger accounts for).
+func FineStock(is *Island, good string, now int64) int64 {
+	t := is.Inventory.fine(good) + transitFine(is, good, now)
+	for _, b := range is.Buildings {
+		t += b.bufferFine(good)
+	}
+	return t
+}

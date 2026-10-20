@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/ricoberger/new-shores/content/schema/buildings.schema.json",
   "title": "Buildings",
-  "description": "Buildings of a region (CONTENT §5, §9). Behaviour is attached through optional capability blocks: recipe, house, warehouse, road, service, work_area, workforce.",
+  "description": "Buildings of a region (CONTENT §5, §9). Behaviour is attached through optional capability blocks: recipe, house, warehouse, road, service, shipyard, work_area, workforce.",
   "type": "array",
   "items": {
     "type": "object",
@@ -107,6 +107,20 @@
         "required": ["radius"],
         "properties": {
           "radius": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "shipyard": {
+        "description": "Orders ships of the listed types, one at a time (MECHANICS §9.1).",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ships"],
+        "properties": {
+          "ships": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/id" }
+          }
         }
       },
       "workforce": {

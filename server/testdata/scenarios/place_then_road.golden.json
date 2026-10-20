@@ -1,6 +1,6 @@
 {
   "name": "place_then_road",
-  "content_version": "old_coast-0.2.0",
+  "content_version": "old_coast-0.3.0",
   "boundary_count": 1,
   "totals": {
     "main": {
@@ -103,6 +103,12 @@
     "islands": [
       {
         "id": "main",
+        "name": "",
+        "settled": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
         "width": 16,
         "height": 8,
         "inventory": {
@@ -246,6 +252,8 @@
         },
         "population": {}
       }
-    ]
+    ],
+    "ships": [],
+    "routes": []
   }
 }

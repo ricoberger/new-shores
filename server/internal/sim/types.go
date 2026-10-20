@@ -83,13 +83,27 @@ type World struct {
 	// progression order. The first tier is always unlocked and not listed.
 	// Unlocks are permanent (MECHANICS §12).
 	UnlockedTiers []string `json:"unlocked_tiers,omitempty"`
+	// Ships sorted by ascending ID; IDs are sequential per world
+	// (NextShipID, like building IDs).
+	Ships      []*Ship `json:"ships,omitempty"`
+	NextShipID int64   `json:"next_ship_id,omitempty"`
+	// Routes sorted by ascending ID (sequential, NextRouteID).
+	Routes      []*Route `json:"routes,omitempty"`
+	NextRouteID int64    `json:"next_route_id,omitempty"`
 }
 
 // Island is a tile grid with its buildings, roads and shared inventory.
 type Island struct {
-	ID     string `json:"id"`
-	Width  int    `json:"width"`
-	Height int    `json:"height"`
+	ID string `json:"id"`
+	// Name is the display name of the island (optional).
+	Name string `json:"name,omitempty"`
+	// X, Y is the position of the island in the archipelago, in tiles; the
+	// straight-line distance between two islands gives the ship travel time
+	// (TravelMs).
+	X      int `json:"x,omitempty"`
+	Y      int `json:"y,omitempty"`
+	Width  int `json:"width"`
+	Height int `json:"height"`
 	// Tiles in row-major order (index = y*Width + x).
 	Tiles []Tile `json:"tiles"`
 	// Roads maps a tile index to the road type (content ID). Tiles without a
@@ -178,6 +192,8 @@ type Building struct {
 	Transit []TransitSegment `json:"transit,omitempty"`
 
 	House *HouseState `json:"house,omitempty"`
+	// Order is the pending ship order of a shipyard (nil when idle).
+	Order *ShipOrder `json:"order,omitempty"`
 }
 
 // TransitSegment is output produced at a constant rate that arrives in the
@@ -359,6 +375,18 @@ func (w *World) Clone() *World {
 	for i, is := range w.Islands {
 		c.Islands[i] = is.clone()
 	}
+	if w.Ships != nil {
+		c.Ships = make([]*Ship, len(w.Ships))
+		for i, s := range w.Ships {
+			c.Ships[i] = s.clone()
+		}
+	}
+	if w.Routes != nil {
+		c.Routes = make([]*Route, len(w.Routes))
+		for i, r := range w.Routes {
+			c.Routes[i] = r.clone()
+		}
+	}
 	return &c
 }
 
@@ -402,6 +430,10 @@ func (b *Building) clone() *Building {
 	if b.House != nil {
 		h := *b.House
 		c.House = &h
+	}
+	if b.Order != nil {
+		o := *b.Order
+		c.Order = &o
 	}
 	return &c
 }

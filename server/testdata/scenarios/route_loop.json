@@ -1,0 +1,180 @@
+{
+  "name": "route_loop",
+  "description": "(p) A route carries wood from the start island (lumberjack running) to island 2 and planks back; loop time 2 x 20 s handling + 2 x 60 s travel = 160 s; three loops; goods are conserved exactly across both islands and the cargo aboard.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccc~",
+        "~cccccccccccccccccccccccccccc~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 36,
+      "y": 48,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccc~",
+        "~cccccccccccccccc~",
+        "~................~",
+        "~................~",
+        "~................~",
+        "~...........mIIm.~",
+        "~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 2,
+      "rotation": 0
+    },
+    "gold": 1500,
+    "stock": {
+      "planks": 200,
+      "sails": 10,
+      "wood": 60
+    },
+    "workforce": {
+      "settlers": 100
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          5
+        ],
+        "to": [
+          28,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 6,
+        "y": 1,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 23,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 50
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m20s"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "island2",
+        "x": 1,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "stock": {
+        "island": "island2",
+        "good": "planks",
+        "amount": 100
+      }
+    },
+    {
+      "create_route": {
+        "name": "Wood out, planks back",
+        "stops": [
+          {
+            "island": "start",
+            "load": {
+              "wood": 100
+            },
+            "unload": [
+              "planks"
+            ]
+          },
+          {
+            "island": "island2",
+            "load": {
+              "planks": 40
+            },
+            "unload": [
+              "wood"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "assign_ship": {
+        "ship": 1,
+        "route": 1
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m40s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m40s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m40s"
+      }
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "name": "ship_built",
+  "description": "(n) A connected shipyard orders a sloop (cost deducted at once); the ship appears idle at the start island exactly at the order's due time (ship_built boundary, 2 min) and pays upkeep from then on.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccc~",
+        "~cccccccccccccccccccccccccccc~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 36,
+      "y": 48,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccc~",
+        "~cccccccccccccccc~",
+        "~................~",
+        "~................~",
+        "~................~",
+        "~...........mIIm.~",
+        "~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 2,
+      "rotation": 0
+    },
+    "gold": 1000,
+    "stock": {
+      "planks": 100,
+      "sails": 10
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          5
+        ],
+        "to": [
+          28,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 6,
+        "y": 1,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m59.999s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1ms"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

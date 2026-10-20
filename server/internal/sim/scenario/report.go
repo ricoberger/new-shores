@@ -44,6 +44,9 @@ type Totals struct {
 	Spent    int64 `json:"spent,omitempty"`
 	Refunded int64 `json:"refunded,omitempty"`
 	Granted  int64 `json:"granted,omitempty"`
+	// Loaded onto ships at the island and Unloaded from ships there.
+	Loaded   int64 `json:"loaded,omitempty"`
+	Unloaded int64 `json:"unloaded,omitempty"`
 }
 
 // Bottleneck is a building that is not running normally.
@@ -55,12 +58,14 @@ type Bottleneck struct {
 	Reason     string `json:"reason"`
 }
 
-// PauseEvent is an auto-pause or auto-resume of a building.
+// PauseEvent is an auto-pause or auto-resume of a building or a ship
+// (ShipID set, BuildingID 0).
 type PauseEvent struct {
 	At         string `json:"at"`
 	Action     string `json:"action"`
 	IslandID   string `json:"island_id"`
 	BuildingID int64  `json:"building_id"`
+	ShipID     int64  `json:"ship_id,omitempty"`
 	Type       string `json:"type"`
 }
 
@@ -77,6 +82,20 @@ type Snapshot struct {
 	// Population per tier over all islands (milli-residents).
 	Population    map[string]int64 `json:"population"`
 	UnlockedTiers []string         `json:"unlocked_tiers"`
+	// Ships after the step (omitted without ships).
+	Ships []ShipSnapshot `json:"ships,omitempty"`
+}
+
+// ShipSnapshot is the state of a ship in a snapshot; Cargo in milli-units
+// per good.
+type ShipSnapshot struct {
+	ID        int64            `json:"id"`
+	State     string           `json:"state"`
+	IslandID  string           `json:"island_id,omitempty"`
+	RouteID   int64            `json:"route_id,omitempty"`
+	StopIndex int              `json:"stop_index,omitempty"`
+	Cargo     map[string]int64 `json:"cargo,omitempty"`
+	Paused    bool             `json:"paused,omitempty"`
 }
 
 // GoodAmount is stock and in-transit of a good (milli-units).
@@ -127,6 +146,16 @@ func (r *runner) snapshot(step, boundaries int) Snapshot {
 			}
 		}
 	}
+	for _, sh := range ds.Ships {
+		ss := ShipSnapshot{ID: sh.ID, State: sh.State, IslandID: sh.IslandID, RouteID: sh.RouteID, StopIndex: sh.StopIndex, Paused: sh.Paused}
+		for _, sl := range sh.Cargo {
+			if ss.Cargo == nil {
+				ss.Cargo = map[string]int64{}
+			}
+			ss.Cargo[sl.Good] += sl.Amount
+		}
+		snap.Ships = append(snap.Ships, ss)
+	}
 	return snap
 }
 
@@ -150,6 +179,8 @@ func (r *runner) finish() error {
 				Spent:    sim.FineToMilli(f.Spent),
 				Refunded: sim.FineToMilli(f.Refunded),
 				Granted:  sim.FineToMilli(f.Granted),
+				Loaded:   sim.FineToMilli(f.Loaded),
+				Unloaded: sim.FineToMilli(f.Unloaded),
 			}
 		}
 		rep.Totals[island] = t
@@ -179,19 +210,23 @@ func (r *runner) recordPauseEvents(bs []sim.Boundary) {
 		switch {
 		case b.Kind == sim.BoundaryAutoPause:
 			action = "auto_pause"
-		case b.Kind == sim.BoundaryAutoResume && b.BuildingID != 0:
+		case b.Kind == sim.BoundaryAutoResume && (b.BuildingID != 0 || b.ShipID != 0):
 			action = "auto_resume"
 		default:
 			continue
 		}
 		typ := ""
-		if is := r.w.Island(b.IslandID); is != nil {
+		if b.ShipID != 0 {
+			if s := r.w.Ship(b.ShipID); s != nil {
+				typ = s.Type
+			}
+		} else if is := r.w.Island(b.IslandID); is != nil {
 			if bd := is.Building(b.BuildingID); bd != nil {
 				typ = bd.Type
 			}
 		}
 		r.report.PauseEvents = append(r.report.PauseEvents, PauseEvent{
-			At: b.At.Format(timeLayout), Action: action, IslandID: b.IslandID, BuildingID: b.BuildingID, Type: typ,
+			At: b.At.Format(timeLayout), Action: action, IslandID: b.IslandID, BuildingID: b.BuildingID, ShipID: b.ShipID, Type: typ,
 		})
 	}
 }

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/ships.schema.json",
+  "title": "Ships",
+  "description": "Ship types of a region (CONTENT §8, MECHANICS §9). Ships are ordered at buildings with a shipyard block that lists them.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "name", "region", "tier", "slots", "slot_size", "speed", "build_seconds", "cost", "upkeep_per_min"],
+    "properties": {
+      "id": { "$ref": "#/$defs/id" },
+      "name": { "type": "string", "minLength": 1 },
+      "region": { "$ref": "#/$defs/id" },
+      "tier": { "$ref": "#/$defs/id" },
+      "slots": {
+        "description": "Number of cargo slots; a slot holds one good.",
+        "type": "integer",
+        "minimum": 1
+      },
+      "slot_size": {
+        "description": "Capacity of one cargo slot in units.",
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "speed": {
+        "description": "Speed factor (1.0 = reference speed, region rule ship_speed_tiles_per_min).",
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "build_seconds": {
+        "description": "Shipyard build time (MECHANICS §9.1).",
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "cost": {
+        "description": "Order cost: 'gold' plus materials by good ID (units), deducted at order time.",
+        "type": "object",
+        "properties": {
+          "gold": { "type": "number", "minimum": 0 }
+        },
+        "patternProperties": {
+          "^[a-z][a-z0-9_]*$": { "type": "number", "minimum": 0 }
+        },
+        "additionalProperties": false
+      },
+      "upkeep_per_min": { "type": "number", "minimum": 0 }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+  }
+}

@@ -36,6 +36,9 @@ func TestLoadOldCoast(t *testing.T) {
 	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.GrowthThreshold != 500_000 || rules.OptionalTaxBonus != 250_000 || rules.AutoResumeMs != 300_000 {
 		t.Errorf("rules = %+v", rules)
 	}
+	if rules.ShipHandlingMs != 20_000 || rules.ShipSpeedMilliTilesPerMin != 60_000 || c.Region.Version != "old_coast-0.3.0" {
+		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
+	}
 
 	wantIDs := func(kind string, got []string, want ...string) {
 		t.Helper()
@@ -53,7 +56,7 @@ func TestLoadOldCoast(t *testing.T) {
 		ids = append(ids, b.ID)
 	}
 	wantIDs("buildings", ids, "house_settlers", "road_dirt", "warehouse", "market_small", "chapel",
-		"lumberjack", "sawmill", "fisher", "sheep_farm", "weaver_wool")
+		"lumberjack", "sawmill", "fisher", "sheep_farm", "weaver_wool", "shipyard")
 	ids = nil
 	for _, tr := range c.Tiers {
 		ids = append(ids, tr.ID)
@@ -122,6 +125,29 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 		if b.Cost.Gold != w.gold || planks != w.planks || b.UpkeepPerMin != w.upkeep || b.Width != w.w || b.Height != w.h || b.PauseCategory != w.pause {
 			t.Errorf("%s = gold %d planks %d upkeep %d %dx%d %s, want %+v", id, b.Cost.Gold, planks, b.UpkeepPerMin, b.Width, b.Height, b.PauseCategory, w)
+		}
+	}
+
+	// Ships (CONTENT §7, §8; R-1, R-3).
+	if len(c.Ships) != 1 {
+		t.Fatalf("ships = %+v", c.Ships)
+	}
+	sloop := c.ShipByID["sloop"]
+	wantCost := Cost{Gold: 300_000, Materials: []GoodAmount{{"planks", 30_000}, {"sails", 10_000}}}
+	if sloop == nil || sloop.Tier != "settlers" || sloop.Slots != 2 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1000 ||
+		sloop.BuildMs != 120_000 || sloop.UpkeepPerMin != 2_000 || sloop.Cost.Gold != wantCost.Gold ||
+		len(sloop.Cost.Materials) != 2 || sloop.Cost.Materials[0] != wantCost.Materials[0] || sloop.Cost.Materials[1] != wantCost.Materials[1] {
+		t.Errorf("sloop = %+v", sloop)
+	}
+	sy := c.BuildingByID["shipyard"]
+	if sy.Shipyard == nil || strings.Join(sy.Shipyard.Ships, ",") != "sloop" || sy.Width != 5 || sy.Height != 4 || !sy.Coastal || !sy.RequiresRoad ||
+		sy.Cost.Gold != 500_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 40_000}) ||
+		sy.UpkeepPerMin != 5_000 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
+		t.Errorf("shipyard = %+v", sy)
+	}
+	for _, b := range c.Buildings {
+		if b.Shipyard != nil && b.ID != "shipyard" {
+			t.Errorf("%s orders ships", b.ID)
 		}
 	}
 
@@ -317,6 +343,60 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			"negative resume reserve", FileRegion,
 			[]string{`"auto_resume_upkeep_minutes": 5`, `"auto_resume_upkeep_minutes": -1`},
 			[]string{FileRegion, `region "old_coast"`, "rules.auto_resume_upkeep_minutes", "schema violation"},
+		},
+		{
+			"ship unknown tier", FileShips,
+			[]string{`"tier": "settlers"`, `"tier": "nobles"`},
+			[]string{FileShips, `ship "sloop"`, "tier", `unknown tier "nobles"`},
+		},
+		{
+			"ship unknown cost good", FileShips,
+			[]string{`"sails": 10`, `"silk": 10`},
+			[]string{FileShips, `ship "sloop"`, "cost.silk", `unknown good "silk"`},
+		},
+		{
+			"ship wrong region", FileShips,
+			[]string{`"region": "old_coast"`, `"region": "new_world"`},
+			[]string{FileShips, `ship "sloop"`, "region", `must be "old_coast"`},
+		},
+		{
+			"ship zero slots", FileShips,
+			[]string{`"slots": 2`, `"slots": 0`},
+			[]string{FileShips, `ship "sloop"`, "schema violation"},
+		},
+		{
+			"ship unknown field", FileShips,
+			[]string{`"slots": 2`, `"slots": 2, "cannons": 4`},
+			[]string{FileShips, `ship "sloop"`, "schema violation"},
+		},
+		{
+			"ship duplicate", FileShips,
+			[]string{`[
+  {`, `[
+  { "id": "sloop", "name": "Sloop", "region": "old_coast", "tier": "settlers", "slots": 1, "slot_size": 1, "speed": 1, "build_seconds": 1, "cost": {}, "upkeep_per_min": 0 },
+  {`},
+			[]string{FileShips, `ship "sloop"`, "duplicate ID"},
+		},
+		{
+			"shipyard unknown ship", FileBuildings,
+			[]string{`"ships": ["sloop"]`, `"ships": ["galleon"]`},
+			[]string{FileBuildings, `building "shipyard"`, "shipyard.ships[0]", `unknown ship "galleon"`},
+		},
+		{
+			"shipyard without ships", FileBuildings,
+			[]string{`"ships": ["sloop"]`, `"ships": []`},
+			[]string{FileBuildings, `building "shipyard"`, "schema violation"},
+		},
+		{
+			"region missing ship speed", FileRegion,
+			[]string{`,
+    "ship_speed_tiles_per_min": 60`, ""},
+			[]string{FileRegion, "schema violation"},
+		},
+		{
+			"region zero ship speed", FileRegion,
+			[]string{`"ship_speed_tiles_per_min": 60`, `"ship_speed_tiles_per_min": 0`},
+			[]string{FileRegion, "schema violation"},
 		},
 		{
 			"region decimals", FileRegion,

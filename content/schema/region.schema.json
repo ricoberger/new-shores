@@ -26,7 +26,9 @@
         "decline_per_min",
         "growth_satisfaction_threshold",
         "optional_tax_bonus",
-        "auto_resume_upkeep_minutes"
+        "auto_resume_upkeep_minutes",
+        "ship_handling_seconds",
+        "ship_speed_tiles_per_min"
       ],
       "properties": {
         "transfer_base_seconds": { "type": "number", "minimum": 0 },
@@ -51,6 +53,16 @@
         },
         "auto_resume_upkeep_minutes": {
           "description": "Gold reserve, in minutes of a building's upkeep, required before an unpaid building is auto-resumed (MECHANICS §7). Strictly positive: the reserve is the hysteresis that prevents pause/resume flapping.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ship_handling_seconds": {
+          "description": "Time a ship spends at a route stop (unload, then load) before it departs (MECHANICS §9.2).",
+          "type": "number",
+          "minimum": 0
+        },
+        "ship_speed_tiles_per_min": {
+          "description": "Archipelago tiles a ship of speed 1.0 covers per minute; travel time = distance / (speed x this), rounded up to whole milliseconds.",
           "type": "number",
           "exclusiveMinimum": 0
         }

@@ -1,6 +1,6 @@
 {
   "name": "fish_short",
-  "content_version": "old_coast-0.2.0",
+  "content_version": "old_coast-0.3.0",
   "boundary_count": 341,
   "totals": {
     "main": {
@@ -191,6 +191,12 @@
     "islands": [
       {
         "id": "main",
+        "name": "",
+        "settled": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
         "width": 44,
         "height": 14,
         "inventory": {
@@ -1696,6 +1702,8 @@
           "settlers": 48000
         }
       }
-    ]
+    ],
+    "ships": [],
+    "routes": []
   }
 }

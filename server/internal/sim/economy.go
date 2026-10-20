@@ -10,15 +10,17 @@ import (
 
 // Economy rules (refining MECHANICS §7 and §12).
 //
-//   - balance = sum of house taxes - sum of upkeep of non-paused buildings,
-//     world-wide, in gold sub-units per ms. Gold accrues linearly.
+//   - balance = sum of house taxes - sum of upkeep of non-paused buildings
+//     and ships, world-wide, in gold sub-units per ms. Gold accrues
+//     linearly.
 //   - gold_zero: when gold cannot cover one more millisecond of a negative
 //     balance (-balance > gold), settle auto-pauses one candidate at a time
-//     (non-paused, upkeep > 0, pause_category != never) in the order
-//     need_goods < public < intermediate < food_basic, then building tier
-//     descending, upkeep ascending, ID ascending, until balance >= 0. With no
-//     candidate left, gold is held (rate 0) while the condition holds.
-//   - auto-resume (R21): the unpaid building with the highest pause
+//     (non-paused, upkeep > 0, pause_category != never; every non-paused
+//     ship with upkeep) in the order need_goods < public < intermediate <
+//     ships < food_basic, then building/ship tier descending, upkeep
+//     ascending, ID ascending, until balance >= 0. With no candidate left,
+//     gold is held (rate 0) while the condition holds.
+//   - auto-resume (R21): the unpaid building or ship with the highest pause
 //     sequence resumes when (a) gold >= auto_resume_upkeep_minutes x its
 //     upkeep and (b) the balance with it running and all rates recomputed
 //     (regimes and arrival rates, not stock levels; see balanceAfterResume)
@@ -35,8 +37,11 @@ import (
 // boundary, so settling at an arbitrary split time is a no-op and Advance
 // stays exactly composable.
 
+// shipPauseRank is the insolvency step of ships (MECHANICS §7 step 4).
+const shipPauseRank = 4
+
 // pauseRank orders pause categories for insolvency (MECHANICS §7); 0 means
-// never paused. Rank 4 (ships on routes) does not exist yet.
+// never paused. Rank 4 is ships (shipPauseRank).
 func pauseRank(category string) int {
 	switch category {
 	case "need_goods":
@@ -59,11 +64,48 @@ type worldRates struct {
 	// goldRate is the effective gold rate: the balance, or 0 while gold is
 	// held at zero with nothing left to pause.
 	goldRate int64
-	// resumable is the next unpaid building if the balance with it running
-	// and all rates recomputed is >= 0; it resumes once gold reaches its
-	// reserve (a gold_reserve boundary).
-	resumable       *Building
-	resumableIsland *Island
+	// resumable is the next unpaid building or ship if the balance with it
+	// running and all rates recomputed is >= 0; it resumes once gold reaches
+	// its reserve (a gold_reserve boundary).
+	resumable pauseTarget
+}
+
+// pauseTarget is an insolvency pause candidate: a building (is, b) or a
+// ship (s).
+type pauseTarget struct {
+	is *Island
+	b  *Building
+	s  *Ship
+}
+
+func (p pauseTarget) valid() bool { return p.b != nil || p.s != nil }
+
+func (p pauseTarget) upkeep(c *content.Catalogue) Qty {
+	if p.s != nil {
+		if def := c.ShipByID[p.s.Type]; def != nil {
+			return def.UpkeepPerMin
+		}
+		return 0
+	}
+	if def := c.BuildingByID[p.b.Type]; def != nil {
+		return def.UpkeepPerMin
+	}
+	return 0
+}
+
+func (p pauseTarget) pausedAtMs() int64 {
+	if p.s != nil {
+		return p.s.PausedAtMs
+	}
+	return p.b.PausedAtMs
+}
+
+// boundary returns a boundary of the given kind naming the target.
+func (p pauseTarget) boundary(kind string, at time.Time) Boundary {
+	if p.s != nil {
+		return Boundary{At: at, Kind: kind, IslandID: p.s.IslandID, ShipID: p.s.ID}
+	}
+	return Boundary{At: at, Kind: kind, IslandID: p.is.ID, BuildingID: p.b.ID}
 }
 
 // balanceAfterResume returns the world balance (gold sub-units per ms) with
@@ -79,12 +121,17 @@ type worldRates struct {
 // therefore only changes at boundaries and commands, which keeps Advance
 // composable. A resumed building that makes a good run out is paused again
 // through gold_zero after the gold reserve is used up.
-func balanceAfterResume(w *World, c *content.Catalogue, now int64, is *Island, b *Building) int64 {
-	var balance int64
+//
+// A resumed ship only adds its upkeep (ships do not change island rates).
+func balanceAfterResume(w *World, c *content.Catalogue, now int64, p pauseTarget) int64 {
+	balance := -shipUpkeep(w, c)
+	if p.s != nil {
+		balance -= p.upkeep(c)
+	}
 	for _, ois := range w.Islands {
 		cis := ois.clone()
-		if ois == is {
-			cb := cis.Building(b.ID)
+		if p.b != nil && ois == p.is {
+			cb := cis.Building(p.b.ID)
 			cb.Paused, cb.PausedReason, cb.PauseSeq, cb.PausedAtMs = false, "", 0, 0
 		}
 		r := settleRegimes(cis, c, now, false)
@@ -97,8 +144,16 @@ func balanceAfterResume(w *World, c *content.Catalogue, now int64, is *Island, b
 // insolvency pauses and auto-resumes and evaluates tier unlocks at time now.
 // It returns the settled rates and the discrete events it applied.
 func settleWorld(w *World, c *content.Catalogue, now int64) (*worldRates, []Boundary) {
+	return settleWorldLedger(w, c, now, nil)
+}
+
+// settleWorldLedger is settleWorld recording goods movements in l. It first
+// applies the due moments at now (ship_built, ship_arrived) and departures.
+func settleWorldLedger(w *World, c *content.Catalogue, now int64, l *Ledger) (*worldRates, []Boundary) {
 	at := time.UnixMilli(now).UTC()
 	var events []Boundary
+	applyDue(w, c, now, l)
+	normalizeShips(w, now)
 	for _, is := range w.Islands {
 		normalizeHouses(is, c)
 	}
@@ -110,7 +165,7 @@ func settleWorld(w *World, c *content.Catalogue, now int64) (*worldRates, []Boun
 	// Every iteration pauses or resumes one building; a building paused at
 	// this instant is not resumed at it, so the loop ends. The bound only
 	// guards against a broken invariant.
-	limit := 4 * (countBuildings(w) + 1)
+	limit := 4 * (countBuildings(w) + len(w.Ships) + 1)
 	for iter := 0; ; iter++ {
 		wr = &worldRates{islands: make([]*rates, len(w.Islands))}
 		for i, is := range w.Islands {
@@ -119,6 +174,7 @@ func settleWorld(w *World, c *content.Catalogue, now int64) (*worldRates, []Boun
 			wr.tax += r.tax
 			wr.upkeep += r.upkeep
 		}
+		wr.upkeep += shipUpkeep(w, c)
 		wr.balance = wr.tax - wr.upkeep
 		wr.goldRate = wr.balance
 		if iter >= limit {
@@ -127,22 +183,29 @@ func settleWorld(w *World, c *content.Catalogue, now int64) (*worldRates, []Boun
 		gold := w.goldFine()
 		if wr.balance < 0 && (insolvent || -wr.balance > gold) {
 			insolvent = true
-			if is, b := pauseCandidate(w, c); b != nil {
+			if p := pauseCandidate(w, c); p.valid() {
 				w.PauseSeq++
-				b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = true, PausedReasonUnpaid, w.PauseSeq, now
-				events = append(events, Boundary{At: at, Kind: BoundaryAutoPause, IslandID: is.ID, BuildingID: b.ID})
+				if p.s != nil {
+					pauseShip(p.s, w.PauseSeq, now)
+				} else {
+					p.b.Paused, p.b.PausedReason, p.b.PauseSeq, p.b.PausedAtMs = true, PausedReasonUnpaid, w.PauseSeq, now
+				}
+				events = append(events, p.boundary(BoundaryAutoPause, at))
 				continue
 			}
 			if -wr.balance > gold {
 				wr.goldRate = 0
 			}
-		} else if is, b := resumeCandidate(w); b != nil {
-			upkeep := c.BuildingByID[b.Type].UpkeepPerMin
-			if balanceAfterResume(w, c, now, is, b) >= 0 {
-				wr.resumable, wr.resumableIsland = b, is
-				if gold >= resumeThreshold(c, upkeep) && now > b.PausedAtMs {
-					b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = false, "", 0, 0
-					events = append(events, Boundary{At: at, Kind: BoundaryAutoResume, IslandID: is.ID, BuildingID: b.ID})
+		} else if p := resumeCandidate(w); p.valid() {
+			if balanceAfterResume(w, c, now, p) >= 0 {
+				wr.resumable = p
+				if gold >= resumeThreshold(c, p.upkeep(c)) && now > p.pausedAtMs() {
+					if p.s != nil {
+						resumeShip(w, c, p.s, now, l)
+					} else {
+						p.b.Paused, p.b.PausedReason, p.b.PauseSeq, p.b.PausedAtMs = false, "", 0, 0
+					}
+					events = append(events, p.boundary(BoundaryAutoResume, at))
 					continue
 				}
 			}
@@ -169,16 +232,33 @@ func resumeThreshold(c *content.Catalogue, upkeep Qty) int64 {
 	return c.Region.Rules.AutoResumeMs * upkeep
 }
 
-// pauseCandidate returns the next building to pause for insolvency or nil.
-func pauseCandidate(w *World, c *content.Catalogue) (*Island, *Building) {
+// pauseCandidate returns the next building or ship to pause for
+// insolvency (invalid target if none).
+func pauseCandidate(w *World, c *content.Catalogue) pauseTarget {
 	type cand struct {
-		is   *Island
-		b    *Building
+		p    pauseTarget
+		id   int64
 		rank int
 		tier int
 		up   Qty
 	}
 	var best *cand
+	consider := func(x *cand) {
+		if best == nil || cmp.Or(
+			cmp.Compare(x.rank, best.rank),
+			cmp.Compare(best.tier, x.tier), // higher tier first
+			cmp.Compare(x.up, best.up),
+			cmp.Compare(x.id, best.id),
+		) < 0 {
+			best = x
+		}
+	}
+	tierIndex := func(id string) int {
+		if t := c.TierByID[id]; t != nil {
+			return t.Index
+		}
+		return 0
+	}
 	for _, is := range w.Islands {
 		for _, b := range is.Buildings {
 			def := c.BuildingByID[b.Type]
@@ -189,40 +269,42 @@ func pauseCandidate(w *World, c *content.Catalogue) (*Island, *Building) {
 			if rank == 0 {
 				continue
 			}
-			tier := 0
-			if t := c.TierByID[def.Tier]; t != nil {
-				tier = t.Index
-			}
-			x := &cand{is: is, b: b, rank: rank, tier: tier, up: def.UpkeepPerMin}
-			if best == nil || cmp.Or(
-				cmp.Compare(x.rank, best.rank),
-				cmp.Compare(best.tier, x.tier), // higher tier first
-				cmp.Compare(x.up, best.up),
-				cmp.Compare(x.b.ID, best.b.ID),
-			) < 0 {
-				best = x
-			}
+			consider(&cand{p: pauseTarget{is: is, b: b}, id: b.ID, rank: rank, tier: tierIndex(def.Tier), up: def.UpkeepPerMin})
 		}
+	}
+	// Ranks are exclusive to buildings or ships, so IDs are only compared
+	// within one kind.
+	for _, s := range w.Ships {
+		def := c.ShipByID[s.Type]
+		if def == nil || s.Paused || def.UpkeepPerMin <= 0 {
+			continue
+		}
+		consider(&cand{p: pauseTarget{s: s}, id: s.ID, rank: shipPauseRank, tier: tierIndex(def.Tier), up: def.UpkeepPerMin})
 	}
 	if best == nil {
-		return nil, nil
+		return pauseTarget{}
 	}
-	return best.is, best.b
+	return best.p
 }
 
-// resumeCandidate returns the unpaid building with the highest pause
-// sequence number or nil.
-func resumeCandidate(w *World) (*Island, *Building) {
-	var bestIs *Island
-	var best *Building
+// resumeCandidate returns the unpaid building or ship with the highest
+// pause sequence number (invalid target if none).
+func resumeCandidate(w *World) pauseTarget {
+	var best pauseTarget
+	var seq int64
 	for _, is := range w.Islands {
 		for _, b := range is.Buildings {
-			if b.Paused && b.PausedReason == PausedReasonUnpaid && (best == nil || b.PauseSeq > best.PauseSeq) {
-				bestIs, best = is, b
+			if b.Paused && b.PausedReason == PausedReasonUnpaid && (!best.valid() || b.PauseSeq > seq) {
+				best, seq = pauseTarget{is: is, b: b}, b.PauseSeq
 			}
 		}
 	}
-	return bestIs, best
+	for _, s := range w.Ships {
+		if s.Paused && s.PausedReason == PausedReasonUnpaid && (!best.valid() || s.PauseSeq > seq) {
+			best, seq = pauseTarget{s: s}, s.PauseSeq
+		}
+	}
+	return best
 }
 
 // TierUnlocked reports whether a tier is unlocked: the first tier always,

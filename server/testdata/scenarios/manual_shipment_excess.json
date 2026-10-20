@@ -1,0 +1,164 @@
+{
+  "name": "manual_shipment_excess",
+  "description": "(o) A sloop founds island 2 (50 planks: 30 for the warehouse, 20 unloaded), returns with 10 wood, and ships 50 planks + 50 wood to island 2 where only 20 planks and 30 wood fit: the excess (30 planks, 20 wood) stays aboard and the ship ends idle there.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccc~",
+        "~cccccccccccccccccccccccccccc~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 36,
+      "y": 48,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccc~",
+        "~cccccccccccccccc~",
+        "~................~",
+        "~................~",
+        "~................~",
+        "~...........mIIm.~",
+        "~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 2,
+      "rotation": 0
+    },
+    "gold": 1200,
+    "stock": {
+      "planks": 200,
+      "sails": 10,
+      "wood": 100
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          5
+        ],
+        "to": [
+          28,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 6,
+        "y": 1,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 50
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m20s"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "island2",
+        "x": 1,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "stock": {
+        "island": "island2",
+        "good": "wood",
+        "amount": 280
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "start",
+        "cargo": {
+          "wood": 10
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m20s"
+      }
+    },
+    {
+      "stock": {
+        "island": "island2",
+        "good": "planks",
+        "amount": 260
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 50,
+          "wood": 50
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m19.999s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1ms"
+      }
+    }
+  ]
+}

@@ -34,6 +34,12 @@
     "islands": [
       {
         "id": "main",
+        "name": "",
+        "settled": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
         "width": 44,
         "height": 14,
         "inventory": {
@@ -1539,7 +1545,9 @@
           "settlers": 48000
         }
       }
-    ]
+    ],
+    "ships": [],
+    "routes": []
   },
   "samples": [
     {
@@ -1578,6 +1586,12 @@
         "islands": [
           {
             "id": "main",
+            "name": "",
+            "settled": true,
+            "position": {
+              "x": 0,
+              "y": 0
+            },
             "width": 44,
             "height": 14,
             "inventory": {
@@ -3083,7 +3097,9 @@
               "settlers": 48000
             }
           }
-        ]
+        ],
+        "ships": [],
+        "routes": []
       }
     },
     {
@@ -3122,6 +3138,12 @@
         "islands": [
           {
             "id": "main",
+            "name": "",
+            "settled": true,
+            "position": {
+              "x": 0,
+              "y": 0
+            },
             "width": 44,
             "height": 14,
             "inventory": {
@@ -4627,7 +4649,9 @@
               "settlers": 48000
             }
           }
-        ]
+        ],
+        "ships": [],
+        "routes": []
       }
     },
     {
@@ -4666,6 +4690,12 @@
         "islands": [
           {
             "id": "main",
+            "name": "",
+            "settled": true,
+            "position": {
+              "x": 0,
+              "y": 0
+            },
             "width": 44,
             "height": 14,
             "inventory": {
@@ -6171,7 +6201,9 @@
               "settlers": 48000
             }
           }
-        ]
+        ],
+        "ships": [],
+        "routes": []
       }
     },
     {
@@ -6210,6 +6242,12 @@
         "islands": [
           {
             "id": "main",
+            "name": "",
+            "settled": true,
+            "position": {
+              "x": 0,
+              "y": 0
+            },
             "width": 44,
             "height": 14,
             "inventory": {
@@ -7715,7 +7753,9 @@
               "settlers": 48000
             }
           }
-        ]
+        ],
+        "ships": [],
+        "routes": []
       }
     },
     {
@@ -7754,6 +7794,12 @@
         "islands": [
           {
             "id": "main",
+            "name": "",
+            "settled": true,
+            "position": {
+              "x": 0,
+              "y": 0
+            },
             "width": 44,
             "height": 14,
             "inventory": {
@@ -9259,7 +9305,9 @@
               "settlers": 48000
             }
           }
-        ]
+        ],
+        "ships": [],
+        "routes": []
       }
     }
   ]

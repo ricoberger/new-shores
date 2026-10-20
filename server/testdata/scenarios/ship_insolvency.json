@@ -1,0 +1,286 @@
+{
+  "name": "ship_insolvency",
+  "description": "(r) A sloop waits idle at the unsettled island 2 with 50 planks and 50 wood aboard (nothing can unload there). Upkeep exceeds taxes: the cascade pauses the weaver (need goods), the intermediate chain (lumberjack, sawmill, sheep farm), then the ship (step 4, anchored_unpaid, cargo aboard), then the fisher (tier-1 food). Growing houses and demolished upkeep resume them in reverse order; the ship is idle again with identical cargo.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccc~",
+        "~cccccccccccccccccccccccccccc~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 36,
+      "y": 48,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccc~",
+        "~cccccccccccccccc~",
+        "~................~",
+        "~................~",
+        "~................~",
+        "~...........mIIm.~",
+        "~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 2,
+      "rotation": 0
+    },
+    "gold": 1440,
+    "stock": {
+      "planks": 270,
+      "sails": 10,
+      "wood": 50,
+      "fish": 120,
+      "wool_garments": 60
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          5
+        ],
+        "to": [
+          28,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 6,
+        "y": 1,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 50,
+          "wood": 50
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m20s"
+      }
+    },
+    {
+      "demolish": {
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 9,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 13,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "weaver_wool",
+        "x": 21,
+        "y": 3,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 27,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 24,
+        "y": 3,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 24,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 3,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 5,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 7,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 9,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 11,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 13,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 15,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 17,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 19,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 21,
+        "y": 6,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "29m"
+      }
+    },
+    {
+      "demolish": {
+        "x": 24,
+        "y": 3
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "demolish": {
+        "x": 27,
+        "y": 6
+      }
+    },
+    {
+      "advance": {
+        "duration": "30m"
+      }
+    }
+  ]
+}

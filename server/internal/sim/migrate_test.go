@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -97,5 +98,72 @@ func TestMigrationHookIsCoveredByPurity(t *testing.T) {
 	files := parseNonTest(t, simDir(t))
 	if _, ok := files[filepath.Join(simDir(t), "migrate.go")]; !ok {
 		t.Fatal("migrate.go is not among the files checked by TestPurity")
+	}
+}
+
+// TestSchema1FixtureWithoutShips (R-10): a schema-1 world stored before
+// ships existed (the dev world of M3 with a small plank chain, no island
+// names or positions, no ships, routes or orders) decodes, advances
+// deterministically and composably, displays and accepts the new
+// commands; the schema version stays 1.
+func TestSchema1FixtureWithoutShips(t *testing.T) {
+	c := catalogue(t)
+	data, err := os.ReadFile(filepath.Join("testdata", "schema1_dev_world.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, field := range []string{`"ships"`, `"routes"`, `"order"`, `"name"`, `"next_ship_id"`} {
+		if bytes.Contains(data, []byte(field)) {
+			t.Fatalf("fixture already contains %s", field)
+		}
+	}
+	w, cv, err := Decode(data)
+	if err != nil || cv != "old_coast-0.2.0" || SchemaVersion != 1 {
+		t.Fatalf("decode: %v %s schema %d", err, cv, SchemaVersion)
+	}
+	if len(w.Islands) != 1 || len(w.Ships) != 0 || len(w.Routes) != 0 || len(DueEvents(w)) != 0 {
+		t.Fatalf("world: islands %d ships %d", len(w.Islands), len(w.Ships))
+	}
+	end := w.LastEvaluatedAt.Add(12 * time.Hour)
+	run := func(split time.Duration) []byte {
+		cw, _, err := Decode(data)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if split > 0 {
+			if _, err := Advance(cw, c, cw.LastEvaluatedAt.Add(split)); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if _, err := Advance(cw, c, end); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := Display(cw, c, end); err != nil {
+			t.Fatal(err)
+		}
+		return encode(t, cw)
+	}
+	a := run(0)
+	if !bytes.Equal(a, run(0)) || !bytes.Equal(a, run(37*time.Minute+123*time.Millisecond)) {
+		t.Fatal("advancing the schema-1 fixture is not deterministic or not composable")
+	}
+	ds, err := Display(w, c, w.LastEvaluatedAt)
+	if err != nil || len(ds.Ships) != 0 || len(ds.Routes) != 0 || !ds.Islands[0].Settled {
+		t.Fatalf("display: %v %+v", err, ds.Islands[0].Settled)
+	}
+	// The new commands work on an old world: a shipyard can be built and
+	// ordered from (sails come from the start stock).
+	w.Gold = 10_000_000
+	if err := AddStock(w, c, "start", "planks", 100_000, nil); err != nil {
+		t.Fatal(err)
+	}
+	if err := Apply(w, c, CreateRoute{Stops: []Stop{{IslandID: "start"}, {IslandID: "start"}}}); !errors.Is(err, ErrRouteInvalid) {
+		t.Errorf("route on a one-island world: %v", err)
+	}
+	var env struct {
+		SchemaVersion int `json:"schema_version"`
+	}
+	if err := json.Unmarshal(encode(t, w), &env); err != nil || env.SchemaVersion != 1 {
+		t.Errorf("re-encoded schema version %d (%v)", env.SchemaVersion, err)
 	}
 }
