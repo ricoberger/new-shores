@@ -11,7 +11,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Readiness probe. */
+        /**
+         * Readiness probe.
+         * @description Without `--dev` the server pings PostgreSQL: 503
+         *     `service_unavailable` when it does not answer. Redis is reported in
+         *     the body but does not fail readiness (push and rate limiting
+         *     degrade without it).
+         */
         get: operations["getHealth"];
         put?: never;
         post?: never;
@@ -28,7 +34,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Advance the world to now and return its display state. */
+        /**
+         * Advance the world to now and return its display state.
+         * @description "Now" is the database clock, capped at the earliest due time of a
+         *     pending scheduled event of the world (events are applied by the
+         *     worker at their due time).
+         */
         get: operations["getWorld"];
         put?: never;
         post?: never;
@@ -57,7 +68,8 @@ export interface paths {
          *     On success the version is incremented and the new display state is
          *     returned. On error the world and its version are unchanged. A
          *     `version` that differs from the current one is not an error (the
-         *     server state wins); it is only logged.
+         *     server state wins); it is only logged. After commit the server
+         *     pushes `world_changed` to the player's sockets (`/api/v1/ws`).
          */
         post: operations["postCommand"];
         delete?: never;
@@ -107,6 +119,220 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ws": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * WebSocket push of world changes.
+         * @description Upgrades to a WebSocket after authentication (cookie or bearer
+         *     header; cookie sessions must pass the CSRF origin rule). The server
+         *     sends text messages `WorldChangedMessage`
+         *     (`{"type":"world_changed","world_id":"…"}`) after every committed
+         *     change of the player's world — commands from any instance and
+         *     processed scheduled events. Messages carry no game state; clients
+         *     re-fetch `GET /api/v1/world`. The server pings every 25 s and closes
+         *     sockets whose pong does not arrive within 10 s. Without Redis the
+         *     socket stays open but receives no messages.
+         */
+        get: operations["getWebSocket"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/guest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Play as guest.
+         * @description Without `device_token`: creates a guest player (generated display
+         *     name, e.g. "Settler 4821") with its start world, starts a session
+         *     and returns the new `device_token` (store it; it is the guest's
+         *     only credential). With a valid `device_token`: starts a new session
+         *     for that guest. An unknown or revoked device token (revoked when the
+         *     guest registers) is 401 `invalid_credentials`. Rate limited per IP.
+         */
+        post: operations["postGuest"];
+        delete?: never;
+        /** CORS preflight. */
+        options: operations["preflightGuest"];
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register with email and password.
+         * @description With a guest session: sets email and password on the guest, keeps
+         *     its world, revokes its device token and sends a verification mail;
+         *     the session continues (no new session token). Without a session:
+         *     creates a player with a start world, registers it and starts a
+         *     session. A session of a registered player is 409
+         *     `already_registered`; an email in use (case-insensitive) is 409
+         *     `email_taken`; a password outside 8–128 bytes is 400
+         *     `weak_password`; a malformed email or display name is 400
+         *     `bad_request`. Rate limited per IP.
+         */
+        post: operations["postRegister"];
+        delete?: never;
+        /** CORS preflight. */
+        options: operations["preflightRegister"];
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Log in with email and password.
+         * @description Starts a session (replacing the current one, if any) and updates
+         *     the last login time. Unknown email and wrong password are the same
+         *     401 `invalid_credentials`. Rate limited per IP and per email.
+         */
+        post: operations["postLogin"];
+        delete?: never;
+        /** CORS preflight. */
+        options: operations["preflightLogin"];
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * End the current session.
+         * @description Deletes the session and clears the session cookie.
+         */
+        post: operations["postLogout"];
+        delete?: never;
+        /** CORS preflight. */
+        options: operations["preflightLogout"];
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The player of the current session. */
+        get: operations["getMe"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        /** CORS preflight. */
+        options: operations["preflightMe"];
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/verify-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm the email address with the token from the mail.
+         * @description Tokens are single-use and expire after 24 hours; an unknown, used or
+         *     expired token is 400 `invalid_token`. Rate limited per IP.
+         */
+        post: operations["postVerifyEmail"];
+        delete?: never;
+        /** CORS preflight. */
+        options: operations["preflightVerifyEmail"];
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/password-reset/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request a password reset mail.
+         * @description Always 204, whether or not the email is registered (no account
+         *     enumeration); a reset mail with a single-use token (1 hour) is sent
+         *     when it is. Rate limited per IP and per email.
+         */
+        post: operations["postPasswordResetRequest"];
+        delete?: never;
+        /** CORS preflight. */
+        options: operations["preflightPasswordResetRequest"];
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/password-reset/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set a new password with the token from the reset mail.
+         * @description Sets the new password, consumes the token and ends every session
+         *     of the player. An unknown, used or expired token is 400
+         *     `invalid_token`; a password outside 8–128 bytes is 400
+         *     `weak_password`.
+         */
+        post: operations["postPasswordResetConfirm"];
+        delete?: never;
+        /** CORS preflight. */
+        options: operations["preflightPasswordResetConfirm"];
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -129,16 +355,25 @@ export interface components {
         /**
          * @description Stable error code. HTTP status by class:
          *
-         *     - 400: `bad_request` (malformed JSON, unknown fields, body > 64 KiB),
-         *       `invalid_command`, `unknown_building`, `out_of_bounds`;
-         *     - 404: `not_found` (unknown endpoint), `unknown_island`,
-         *       `building_not_found`;
+         *     - 400: `bad_request` (malformed JSON, unknown fields, body > 64 KiB,
+         *       missing fields, malformed email or display name),
+         *       `invalid_command`, `unknown_building`, `out_of_bounds`,
+         *       `invalid_token` (verification or reset token unknown, used or
+         *       expired), `weak_password` (password outside 8–128 bytes);
+         *     - 401: `unauthorized` (no valid session), `invalid_credentials`
+         *       (wrong email or password, unknown or revoked device token);
+         *     - 403: `csrf_rejected` (cookie request from a disallowed origin);
+         *     - 404: `not_found` (unknown endpoint, no world),
+         *       `unknown_island`, `building_not_found`;
          *     - 405: `method_not_allowed`;
          *     - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
          *       `insufficient_gold`, `insufficient_materials`, `surplus_loss`,
          *       `not_pausable`, `no_road`, `tier_locked`, `not_a_house`,
-         *       `upgrade_unavailable`, `house_not_full`, `needs_unmet`;
-         *     - 500: `internal`.
+         *       `upgrade_unavailable`, `house_not_full`, `needs_unmet`,
+         *       `email_taken`, `already_registered`;
+         *     - 429: `rate_limited` (with `Retry-After` in seconds);
+         *     - 500: `internal`;
+         *     - 503: `service_unavailable` (the database does not answer).
          *
          *     `move_building` can fail with 400 `bad_request`, `invalid_command`
          *     (also for a road or an invalid rotation), `out_of_bounds`; 404
@@ -149,10 +384,73 @@ export interface components {
          *     **Internal-only codes** (HTTP 500, never caused by a client command;
          *     clients should treat them like `internal` and not handle them
          *     specifically): `over_capacity`, `time_backwards`, `schema_version`,
-         *     `display_time`.
+         *     `display_time`. `schema_version` means a stored world has a schema
+         *     version this server cannot read (no registered migration); the
+         *     world is never reset. `time_backwards` means the database clock is
+         *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "over_capacity" | "time_backwards" | "schema_version" | "display_time";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        /**
+         * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
+         *     the body) or `bearer` (token in `session_token`, sent as
+         *     `Authorization: Bearer`).
+         * @enum {string}
+         */
+        Transport: "cookie" | "bearer";
+        Player: {
+            /** @description Player ID (UUID; "dev" in dev mode). */
+            id: string;
+            display_name: string;
+            /** @description True until the player registers. */
+            guest: boolean;
+            /** @description Registered email (lower-cased); only ever returned to its owner. */
+            email?: string;
+            email_verified: boolean;
+        };
+        AuthResponse: {
+            player: components["schemas"]["Player"];
+            /** @description New guest's device token (only when a guest was created; store it). */
+            device_token?: string;
+            /** @description Session token (only with transport "bearer" when a session was started). */
+            session_token?: string;
+        };
+        GuestRequest: {
+            device_token?: string;
+            transport?: components["schemas"]["Transport"];
+        };
+        RegisterRequest: {
+            /** @description Trimmed and lower-cased; unique case-insensitively. */
+            email: string;
+            /** @description 8 to 128 bytes; no composition rules. */
+            password: string;
+            /** @description 1 to 32 printable characters (trimmed); default keeps the guest's or generates one. */
+            display_name?: string;
+            transport?: components["schemas"]["Transport"];
+        };
+        LoginRequest: {
+            email: string;
+            password: string;
+            transport?: components["schemas"]["Transport"];
+        };
+        TokenRequest: {
+            token: string;
+        };
+        EmailRequest: {
+            email: string;
+        };
+        PasswordResetConfirmRequest: {
+            token: string;
+            /** @description 8 to 128 bytes. */
+            password: string;
+        };
+        /** @description WebSocket message of /api/v1/ws (no game state; re-fetch the world). */
+        WorldChangedMessage: {
+            /** @enum {string} */
+            type: "world_changed";
+            /** @description ID of the changed world (UUID; "dev" in dev mode). */
+            world_id: string;
+        };
         CommandRequest: {
             /**
              * Format: int64
@@ -841,6 +1139,15 @@ export interface components {
         };
     };
     responses: {
+        /** @description The session's player (and new credentials). */
+        Auth: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["AuthResponse"];
+            };
+        };
         /** @description The world's version and display state. */
         World: {
             headers: {
@@ -885,10 +1192,25 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         status: "ok";
+                        /** @description Server build version. */
+                        version?: string;
+                        /** @description Instance ID (INSTANCE_ID or the host name); also sent as the X-Instance header. */
+                        instance?: string;
+                        /**
+                         * @description Database state (default mode only).
+                         * @enum {string}
+                         */
+                        postgres?: "ok";
+                        /**
+                         * @description Redis state (default mode only; not fatal).
+                         * @enum {string}
+                         */
+                        redis?: "ok" | "unavailable";
                     };
                 };
             };
             405: components["responses"]["Error"];
+            503: components["responses"]["Error"];
         };
     };
     getWorld: {
@@ -901,9 +1223,11 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: components["responses"]["World"];
+            401: components["responses"]["Error"];
             404: components["responses"]["Error"];
             405: components["responses"]["Error"];
             500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
         };
     };
     preflightWorld: {
@@ -939,10 +1263,13 @@ export interface operations {
         responses: {
             200: components["responses"]["World"];
             400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
             404: components["responses"]["Error"];
             405: components["responses"]["Error"];
             409: components["responses"]["Error"];
             500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
         };
     };
     preflightCommands: {
@@ -983,9 +1310,11 @@ export interface operations {
                     "application/json": components["schemas"]["Island"];
                 };
             };
+            401: components["responses"]["Error"];
             404: components["responses"]["Error"];
             405: components["responses"]["Error"];
             500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
         };
     };
     getContent: {
@@ -1010,6 +1339,408 @@ export interface operations {
         };
     };
     preflightContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Preflight accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getWebSocket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Switching protocols (WebSocket). */
+            101: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+            405: components["responses"]["Error"];
+        };
+    };
+    postGuest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["GuestRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["Auth"];
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            405: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    preflightGuest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Preflight accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postRegister: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["Auth"];
+            400: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            /** @description Dev mode only (no accounts). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            405: components["responses"]["Error"];
+            409: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    preflightRegister: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Preflight accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["Auth"];
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            /** @description Dev mode only (no accounts). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            405: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    preflightLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Preflight accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postLogout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Logged out. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            405: components["responses"]["Error"];
+            500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    preflightLogout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Preflight accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["Auth"];
+            401: components["responses"]["Error"];
+            405: components["responses"]["Error"];
+            500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    preflightMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Preflight accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postVerifyEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Email verified. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            /** @description Dev mode only (no accounts). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            405: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    preflightVerifyEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Preflight accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postPasswordResetRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            /** @description Dev mode only (no accounts). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            405: components["responses"]["Error"];
+            429: components["responses"]["Error"];
+            500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    preflightPasswordResetRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Preflight accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    postPasswordResetConfirm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordResetConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description Password changed; all sessions ended. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            /** @description Dev mode only (no accounts). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            405: components["responses"]["Error"];
+            500: components["responses"]["Error"];
+            503: components["responses"]["Error"];
+        };
+    };
+    preflightPasswordResetConfirm: {
         parameters: {
             query?: never;
             header?: never;
