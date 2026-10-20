@@ -34,7 +34,7 @@ type DevScheduler struct {
 // Run processes due events until ctx is cancelled.
 func (s *DevScheduler) Run(ctx context.Context) error {
 	for {
-		s.drain(ctx)
+		s.ProcessDue(ctx)
 		var wake <-chan time.Time
 		var timer *time.Timer
 		if next, ok := s.Store.NextDue(); ok {
@@ -56,8 +56,10 @@ func (s *DevScheduler) Run(ctx context.Context) error {
 	}
 }
 
-// drain processes every event due at the current world time.
-func (s *DevScheduler) drain(ctx context.Context) {
+// ProcessDue processes every event due at the current world time and
+// returns how many it took (Run calls it whenever it wakes).
+func (s *DevScheduler) ProcessDue(ctx context.Context) int {
+	n := 0
 	for ctx.Err() == nil {
 		begin := time.Now()
 		var kind string
@@ -66,8 +68,9 @@ func (s *DevScheduler) drain(ctx context.Context) {
 			return s.apply(ctx, me, w, pending)
 		})
 		if !took {
-			return
+			return n
 		}
+		n++
 		if err != nil {
 			s.Logger.Error("dev events: event failed and was dropped", "kind", kind, "error", err)
 			continue
@@ -77,6 +80,7 @@ func (s *DevScheduler) drain(ctx context.Context) {
 			s.Publisher.Publish(ctx, s.Store.ID())
 		}
 	}
+	return n
 }
 
 func (s *DevScheduler) apply(ctx context.Context, me store.MemEvent, w *sim.World, pending []store.MemEvent) ([]store.MemEvent, error) {

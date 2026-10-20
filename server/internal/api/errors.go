@@ -92,9 +92,12 @@ var simErrors = []simError{
 	{sim.ErrInvalidCommand, "invalid_command", http.StatusBadRequest},
 	{sim.ErrUnknownBuilding, "unknown_building", http.StatusBadRequest},
 	{sim.ErrOutOfBounds, "out_of_bounds", http.StatusBadRequest},
+	{sim.ErrRouteInvalid, "route_invalid", http.StatusBadRequest},
 	// 404: a referenced entity does not exist.
 	{sim.ErrUnknownIsland, "unknown_island", http.StatusNotFound},
 	{sim.ErrBuildingNotFound, "building_not_found", http.StatusNotFound},
+	{sim.ErrShipNotFound, "ship_not_found", http.StatusNotFound},
+	{sim.ErrRouteNotFound, "route_not_found", http.StatusNotFound},
 	// 409: the command conflicts with the current state.
 	{sim.ErrOccupied, "occupied", http.StatusConflict},
 	{sim.ErrTerrain, "terrain", http.StatusConflict},
@@ -110,6 +113,19 @@ var simErrors = []simError{
 	{sim.ErrUpgradeUnavailable, "upgrade_unavailable", http.StatusConflict},
 	{sim.ErrHouseNotFull, "house_not_full", http.StatusConflict},
 	{sim.ErrNeedsUnmet, "needs_unmet", http.StatusConflict},
+	{sim.ErrShipyardBusy, "shipyard_busy", http.StatusConflict},
+	{sim.ErrNotAShipyard, "not_a_shipyard", http.StatusConflict},
+	{sim.ErrUnknownShipType, "unknown_ship_type", http.StatusConflict},
+	{sim.ErrNoShipOrder, "no_ship_order", http.StatusConflict},
+	{sim.ErrShipNotIdle, "ship_not_idle", http.StatusConflict},
+	{sim.ErrShipNotOnRoute, "ship_not_on_route", http.StatusConflict},
+	{sim.ErrRouteInUse, "route_in_use", http.StatusConflict},
+	{sim.ErrIslandAlreadySettled, "island_already_settled", http.StatusConflict},
+	{sim.ErrIslandNotSettled, "island_not_settled", http.StatusConflict},
+	{sim.ErrCargoInsufficient, "cargo_insufficient", http.StatusConflict},
+	{sim.ErrCargoExceedsSlots, "cargo_exceeds_slots", http.StatusConflict},
+	{sim.ErrLastWarehouse, "last_warehouse", http.StatusConflict},
+	{sim.ErrNotConnected, "not_connected", http.StatusConflict},
 	// 500: never caused by a command (seeding, persistence and time
 	// errors); a response with one of these codes is a server bug.
 	{sim.ErrOverCapacity, "over_capacity", http.StatusInternalServerError},
