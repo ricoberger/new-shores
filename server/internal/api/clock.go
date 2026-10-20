@@ -27,3 +27,9 @@ func (s TimeScale) At(wall time.Time) time.Time {
 	d := time.Duration(float64(wall.Sub(s.Start)) * s.Scale)
 	return s.Start.Add(d).UTC().Truncate(time.Millisecond)
 }
+
+// WallAt returns the wall-clock time at which the world reaches the world
+// time t (the inverse of At, up to rounding).
+func (s TimeScale) WallAt(t time.Time) time.Time {
+	return s.Start.Add(time.Duration(float64(t.Sub(s.Start)) / s.Scale))
+}

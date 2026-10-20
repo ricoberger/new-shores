@@ -284,9 +284,19 @@ func TestPlaceChargesWorldGoldAndIslandMaterials(t *testing.T) {
 func TestPlaceZeroCostRoadWithEmptyInventoryAndNoGold(t *testing.T) {
 	c := catalogue(t)
 	w := NewWorld(t0)
-	w.Islands = []*Island{islandFromRows("main", "....", "....")}
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{0, 0}, {1, 0}}})
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "road_dirt", X: 2, Y: 0})
+	w.Islands = []*Island{islandFromRows("main", "cccc", "....", "....", "....", "....")}
+	// Unsettled island: even a zero-cost road is rejected (R-34).
+	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{0, 3}}}); !errors.Is(err, ErrIslandNotSettled) {
+		t.Fatalf("road on an unsettled island: %v", err)
+	}
+	if err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "road_dirt", X: 0, Y: 3}); !errors.Is(err, ErrIslandNotSettled) {
+		t.Fatalf("road building on an unsettled island: %v", err)
+	}
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 0, Y: 0}, nil); err != nil {
+		t.Fatal(err)
+	}
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{0, 3}, {1, 3}}})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "road_dirt", X: 2, Y: 3})
 	if w.Gold != 0 || len(w.Islands[0].Roads) != 3 || w.Islands[0].Inventory.Stock != nil {
 		t.Errorf("gold %d roads %v stock %v", w.Gold, w.Islands[0].Roads, w.Islands[0].Inventory.Stock)
 	}
@@ -350,20 +360,39 @@ func TestDemolishRefund(t *testing.T) {
 func TestDemolishWarehouseSurplus(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 2})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})
 	mustAdvance(t, w, c, time.Minute)
-	if err := Apply(w, c, Demolish{IslandID: "main", BuildingID: 1}); !errors.Is(err, ErrSurplusLoss) {
+	// The last warehouse cannot go while another building stands (R-35).
+	if err := Apply(w, c, Demolish{IslandID: "main", BuildingID: 1, AcceptSurplusLoss: true}); !errors.Is(err, ErrLastWarehouse) {
+		t.Fatalf("err = %v", err)
+	}
+	// With a second warehouse, demolishing the first one keeps the fisher
+	// connected (no surplus: one warehouse's capacity covers the stock).
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 12, Y: 1})
+	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: 1})
+	if b := w.Islands[0].Building(2); b.AssignedWarehouseID != 3 {
+		t.Errorf("fisher assigned to %d, want the second warehouse", b.AssignedWarehouseID)
+	}
+	mustAdvance(t, w, c, time.Minute)
+	// The fisher goes; its goods in transit are delivered.
+	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: 2})
+	// Only the warehouse is left: demolishing it unsettles the island, the
+	// stock above the new capacity 0 follows the surplus-loss rule.
+	if err := Apply(w, c, Demolish{IslandID: "main", BuildingID: 3}); !errors.Is(err, ErrSurplusLoss) {
 		t.Fatalf("err = %v", err)
 	}
 	l := NewLedger()
 	planks := w.Islands[0].Inventory.fine("planks")
 	fish := committedFine(w.Islands[0], "fish", w.LastEvaluatedAt.UnixMilli())
-	if err := ApplyWithLedger(w, c, Demolish{IslandID: "main", BuildingID: 1, AcceptSurplusLoss: true}, l); err != nil {
+	if fish == 0 {
+		t.Fatal("no fish to lose")
+	}
+	if err := ApplyWithLedger(w, c, Demolish{IslandID: "main", BuildingID: 3, AcceptSurplusLoss: true}, l); err != nil {
 		t.Fatal(err)
 	}
 	is := w.Islands[0]
-	if is.Inventory.Stock != nil || transitFine(is, "fish", w.LastEvaluatedAt.UnixMilli()) != 0 {
-		t.Errorf("stock %v after losing the only warehouse", is.Inventory.Stock)
+	if is.Inventory.Stock != nil || settled(is, c) || len(is.Roads) == 0 {
+		t.Errorf("stock %v after losing the only warehouse (roads %d)", is.Inventory.Stock, len(is.Roads))
 	}
 	// Planks: stock lost plus the whole refund (no capacity left).
 	if f := l.Flow("main", "planks"); f.Lost != planks+15_000*SubPerMilli {
@@ -372,8 +401,8 @@ func TestDemolishWarehouseSurplus(t *testing.T) {
 	if f := l.Flow("main", "fish"); f.Lost != fish {
 		t.Errorf("fish flow = %+v, want lost %d", f, fish)
 	}
-	if b := is.Building(2); b.AssignedWarehouseID != 0 {
-		t.Error("fisher still connected")
+	if err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 2}); !errors.Is(err, ErrIslandNotSettled) {
+		t.Errorf("placement on the unsettled island: %v", err)
 	}
 }
 

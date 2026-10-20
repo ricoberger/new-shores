@@ -34,6 +34,12 @@
     "islands": [
       {
         "id": "main",
+        "name": "",
+        "settled": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
         "width": 78,
         "height": 10,
         "inventory": {
@@ -1406,7 +1412,9 @@
         },
         "population": {}
       }
-    ]
+    ],
+    "ships": [],
+    "routes": []
   },
   "samples": [
     {
@@ -1445,6 +1453,12 @@
         "islands": [
           {
             "id": "main",
+            "name": "",
+            "settled": true,
+            "position": {
+              "x": 0,
+              "y": 0
+            },
             "width": 78,
             "height": 10,
             "inventory": {
@@ -2817,7 +2831,9 @@
             },
             "population": {}
           }
-        ]
+        ],
+        "ships": [],
+        "routes": []
       }
     },
     {
@@ -2856,6 +2872,12 @@
         "islands": [
           {
             "id": "main",
+            "name": "",
+            "settled": true,
+            "position": {
+              "x": 0,
+              "y": 0
+            },
             "width": 78,
             "height": 10,
             "inventory": {
@@ -4228,7 +4250,9 @@
             },
             "population": {}
           }
-        ]
+        ],
+        "ships": [],
+        "routes": []
       }
     }
   ]

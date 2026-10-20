@@ -11,6 +11,8 @@
     "decline_per_min": 0.5,
     "growth_satisfaction_threshold": 0.5,
     "optional_tax_bonus": 0.25,
-    "auto_resume_upkeep_minutes": 5
+    "auto_resume_upkeep_minutes": 5,
+    "ship_handling_seconds": 20,
+    "ship_speed_tiles_per_min": 60
   }
 }

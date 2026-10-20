@@ -1,5 +1,6 @@
-// Package scenario runs headless simulation scenarios: a hand-written island,
-// a free seed and a list of steps that go through sim.Apply and sim.Advance.
+// Package scenario runs headless simulation scenarios: hand-written islands
+// (one island, or an archipelago of islands with positions), a free seed
+// and a list of steps that go through sim.Apply and sim.Advance.
 // Scenarios are JSON documents (server/testdata/scenarios) so that golden
 // reports can be shared with client tests and balancing tools.
 package scenario
@@ -31,17 +32,39 @@ type Scenario struct {
 	// Content is the region directory relative to the repository root.
 	Content string    `json:"content,omitempty"`
 	Start   time.Time `json:"start"`
-	Island  Island    `json:"island"`
-	Seed    Seed      `json:"seed"`
-	Steps   []Step    `json:"steps"`
+	// Island is the single-island form; Islands the archipelago form.
+	// Exactly one of the two is set in a document; after Parse, Islands
+	// holds the islands of both forms (the first island is the default of
+	// every step and carries the seed).
+	Island  *Island  `json:"island,omitempty"`
+	Islands []Island `json:"islands,omitempty"`
+	Seed    Seed     `json:"seed"`
+	// DevBonus is extra gold and goods granted only to the dev server's
+	// world (devworld.NewDev); BuildWorld ignores it.
+	DevBonus *Bonus `json:"dev_bonus,omitempty"`
+	Steps    []Step `json:"steps"`
+}
+
+// Bonus is gold and goods (units) granted on top of the seed.
+type Bonus struct {
+	Gold  json.Number            `json:"gold,omitempty"`
+	Goods map[string]json.Number `json:"goods,omitempty"`
 }
 
 // Island is an ASCII island: one string per row, one character per tile
-// ('~' water, 'c' coast, '.' grass, 'f' forest, 'm' mountain).
+// ('~' water, 'c' coast, '.' grass, 'f' forest, 'm' mountain, 'I' mountain
+// with an infinite iron deposit). X, Y is the archipelago position in tiles
+// (ship travel times); Name the display name.
 type Island struct {
 	ID   string   `json:"id"`
+	Name string   `json:"name,omitempty"`
+	X    int      `json:"x,omitempty"`
+	Y    int      `json:"y,omitempty"`
 	Rows []string `json:"rows"`
 }
+
+// maxPosition bounds archipelago positions (tiles).
+const maxPosition = 1_000_000
 
 // Seed is the initial state granted free of charge.
 type Seed struct {
@@ -60,8 +83,9 @@ type Seed struct {
 	Workforce map[string]int64 `json:"workforce,omitempty"`
 }
 
-// Placement is a building position.
+// Placement is a building position. Island defaults to the first island.
 type Placement struct {
+	Island   string `json:"island,omitempty"`
 	Type     string `json:"type,omitempty"`
 	X        int    `json:"x"`
 	Y        int    `json:"y"`
@@ -80,16 +104,18 @@ type Grid struct {
 // vertical, both ends inclusive. Tiles that already carry a road are
 // skipped.
 type Road struct {
-	Type string `json:"type"`
-	From [2]int `json:"from"`
-	To   [2]int `json:"to"`
+	Island string `json:"island,omitempty"`
+	Type   string `json:"type"`
+	From   [2]int `json:"from"`
+	To     [2]int `json:"to"`
 }
 
 // At addresses the building covering a tile.
 type At struct {
-	X                 int  `json:"x"`
-	Y                 int  `json:"y"`
-	AcceptSurplusLoss bool `json:"accept_surplus_loss,omitempty"`
+	Island            string `json:"island,omitempty"`
+	X                 int    `json:"x"`
+	Y                 int    `json:"y"`
+	AcceptSurplusLoss bool   `json:"accept_surplus_loss,omitempty"`
 }
 
 // MoveStep moves the building covering tile (X, Y) so that the top-left
@@ -97,17 +123,67 @@ type At struct {
 // (sim.MoveBuilding). Like the other At steps it addresses the building by a
 // covered tile, since building IDs are not written in scenarios.
 type MoveStep struct {
-	X        int `json:"x"`
-	Y        int `json:"y"`
-	ToX      int `json:"to_x"`
-	ToY      int `json:"to_y"`
-	Rotation int `json:"rotation"`
+	Island   string `json:"island,omitempty"`
+	X        int    `json:"x"`
+	Y        int    `json:"y"`
+	ToX      int    `json:"to_x"`
+	ToY      int    `json:"to_y"`
+	Rotation int    `json:"rotation"`
 }
 
 // StockGrant adds Amount units of Good to the island (fails above capacity).
 type StockGrant struct {
+	Island string      `json:"island,omitempty"`
 	Good   string      `json:"good"`
 	Amount json.Number `json:"amount"`
+}
+
+// OrderShipStep orders a ship at the shipyard covering tile (X, Y).
+type OrderShipStep struct {
+	Island   string `json:"island,omitempty"`
+	X        int    `json:"x"`
+	Y        int    `json:"y"`
+	ShipType string `json:"ship_type"`
+}
+
+// RouteStep creates (Route 0), updates or deletes (Stops empty) a route.
+// Load maximums are in units.
+type RouteStep struct {
+	Route int64           `json:"route,omitempty"`
+	Name  string          `json:"name,omitempty"`
+	Stops []RouteStopSpec `json:"stops,omitempty"`
+}
+
+// RouteStopSpec is a route stop; Load maps goods to the maximum aboard in
+// units.
+type RouteStopSpec struct {
+	Island string                 `json:"island"`
+	Load   map[string]json.Number `json:"load,omitempty"`
+	Unload []string               `json:"unload,omitempty"`
+}
+
+// ShipStep addresses a ship (and a route for assign_ship) by sequential ID.
+type ShipStep struct {
+	Ship  int64 `json:"ship"`
+	Route int64 `json:"route,omitempty"`
+}
+
+// ShipmentStep sends a ship to island To with cargo in units.
+type ShipmentStep struct {
+	Ship  int64                  `json:"ship"`
+	To    string                 `json:"to"`
+	Cargo map[string]json.Number `json:"cargo,omitempty"`
+}
+
+// FoundStep founds Island with a warehouse (Type defaults to the first
+// warehouse building) from the cargo of Ship.
+type FoundStep struct {
+	Ship     int64  `json:"ship"`
+	Island   string `json:"island"`
+	Type     string `json:"type,omitempty"`
+	X        int    `json:"x"`
+	Y        int    `json:"y"`
+	Rotation int    `json:"rotation"`
 }
 
 // AdvanceStep advances the world by Duration (Go duration syntax).
@@ -117,8 +193,19 @@ type AdvanceStep struct {
 
 // Step is one scenario step; exactly one field must be set. Move moves the
 // building covering a tile for free, keeping its ID and state (MoveStep,
-// D-042).
+// D-042). Ships and routes are addressed by their sequential IDs.
 type Step struct {
+	OrderShip       *OrderShipStep `json:"order_ship,omitempty"`
+	CancelShipOrder *At            `json:"cancel_ship_order,omitempty"`
+	CreateRoute     *RouteStep     `json:"create_route,omitempty"`
+	UpdateRoute     *RouteStep     `json:"update_route,omitempty"`
+	DeleteRoute     *RouteStep     `json:"delete_route,omitempty"`
+	AssignShip      *ShipStep      `json:"assign_ship,omitempty"`
+	UnassignShip    *ShipStep      `json:"unassign_ship,omitempty"`
+	ManualShipment  *ShipmentStep  `json:"manual_shipment,omitempty"`
+	FoundIsland     *FoundStep     `json:"found_island,omitempty"`
+	ScrapShip       *ShipStep      `json:"scrap_ship,omitempty"`
+
 	Place      *Placement   `json:"place,omitempty"`
 	PlaceGrid  *Grid        `json:"place_grid,omitempty"`
 	Road       *Road        `json:"road,omitempty"`
@@ -138,6 +225,10 @@ func (s Step) kind() (string, error) {
 		"place": s.Place != nil, "place_grid": s.PlaceGrid != nil, "road": s.Road != nil,
 		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "pause": s.Pause != nil,
 		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "move": s.Move != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
+		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
+		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
+		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "found_island": s.FoundIsland != nil,
+		"scrap_ship": s.ScrapShip != nil,
 	} {
 		if set {
 			kinds = append(kinds, name)
@@ -171,8 +262,28 @@ func Parse(data []byte) (*Scenario, error) {
 	if s.Content == "" {
 		s.Content = DefaultContent
 	}
-	if s.Island.ID == "" {
-		s.Island.ID = "main"
+	switch {
+	case s.Island != nil && len(s.Islands) > 0:
+		return nil, errors.New("parse scenario: set either island or islands, not both")
+	case s.Island != nil:
+		if s.Island.ID == "" {
+			s.Island.ID = "main"
+		}
+		s.Islands = []Island{*s.Island}
+	case len(s.Islands) == 0:
+		return nil, errors.New("parse scenario: no island")
+	}
+	seen := map[string]bool{}
+	for i, is := range s.Islands {
+		switch {
+		case is.ID == "":
+			return nil, fmt.Errorf("parse scenario: island %d has no id", i)
+		case seen[is.ID]:
+			return nil, fmt.Errorf("parse scenario: duplicate island %q", is.ID)
+		case is.X < -maxPosition || is.X > maxPosition || is.Y < -maxPosition || is.Y > maxPosition:
+			return nil, fmt.Errorf("parse scenario: island %q position out of range", is.ID)
+		}
+		seen[is.ID] = true
 	}
 	return &s, nil
 }
@@ -191,12 +302,18 @@ func (s *Scenario) LoadContent(repoRoot string) (*content.Catalogue, error) {
 
 // BuildWorld creates the scenario's initial world (island and seed).
 func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, error) {
-	is, err := parseIsland(s.Island)
-	if err != nil {
-		return nil, err
+	if len(s.Islands) == 0 {
+		return nil, errors.New("scenario has no island (use Parse)")
 	}
 	w := sim.NewWorld(s.Start)
-	w.Islands = []*sim.Island{is}
+	for _, spec := range s.Islands {
+		is, err := parseIsland(spec)
+		if err != nil {
+			return nil, err
+		}
+		w.Islands = append(w.Islands, is)
+	}
+	is := w.Islands[0]
 	if wh := s.Seed.Warehouse; wh != nil {
 		typ := wh.Type
 		if typ == "" {
@@ -247,6 +364,32 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 	return w, nil
 }
 
+// ApplyBonus grants the dev bonus of a scenario (gold and goods on the first
+// island). Gold adds to the seeded gold.
+func ApplyBonus(s *Scenario, c *content.Catalogue, w *sim.World, l *sim.Ledger) error {
+	b := s.DevBonus
+	if b == nil {
+		return nil
+	}
+	if b.Gold != "" {
+		gold, err := content.ParseFixed(b.Gold, 3)
+		if err != nil || gold < 0 {
+			return fmt.Errorf("dev bonus gold: %v", err)
+		}
+		w.Gold += gold
+	}
+	for _, good := range sortedKeys(b.Goods) {
+		qty, err := content.ParseFixed(b.Goods[good], 3)
+		if err != nil {
+			return fmt.Errorf("dev bonus %s: %w", good, err)
+		}
+		if err := sim.AddStock(w, c, w.Islands[0].ID, good, qty, l); err != nil {
+			return fmt.Errorf("dev bonus: %w", err)
+		}
+	}
+	return nil
+}
+
 // firstWarehouseType returns the first building type with a warehouse block.
 func firstWarehouseType(c *content.Catalogue) string {
 	for _, b := range c.Buildings {
@@ -259,13 +402,13 @@ func firstWarehouseType(c *content.Catalogue) string {
 
 func parseIsland(spec Island) (*sim.Island, error) {
 	if len(spec.Rows) == 0 {
-		return nil, errors.New("island has no rows")
+		return nil, fmt.Errorf("island %q has no rows", spec.ID)
 	}
 	width := len(spec.Rows[0])
 	tiles := make([]sim.Tile, 0, width*len(spec.Rows))
 	for y, row := range spec.Rows {
 		if len(row) != width {
-			return nil, fmt.Errorf("island row %d has length %d, want %d", y, len(row), width)
+			return nil, fmt.Errorf("island %q row %d has length %d, want %d", spec.ID, y, len(row), width)
 		}
 		for x, ch := range row {
 			var terrain string
@@ -278,15 +421,21 @@ func parseIsland(spec Island) (*sim.Island, error) {
 				terrain = content.TerrainGrass
 			case 'f':
 				terrain = content.TerrainForest
-			case 'm':
+			case 'm', 'I':
 				terrain = content.TerrainMountain
 			default:
-				return nil, fmt.Errorf("island tile (%d,%d): unknown symbol %q", x, y, ch)
+				return nil, fmt.Errorf("island %q tile (%d,%d): unknown symbol %q", spec.ID, x, y, ch)
 			}
-			tiles = append(tiles, sim.Tile{Terrain: terrain})
+			tile := sim.Tile{Terrain: terrain}
+			if ch == 'I' {
+				tile.Deposit = &sim.Deposit{Kind: "iron", Quantity: -1}
+			}
+			tiles = append(tiles, tile)
 		}
 	}
-	return sim.NewIsland(spec.ID, width, len(spec.Rows), tiles), nil
+	is := sim.NewIsland(spec.ID, width, len(spec.Rows), tiles)
+	is.Name, is.X, is.Y = spec.Name, spec.X, spec.Y
+	return is, nil
 }
 
 func lPath(r *Road) []sim.Pos {
@@ -346,38 +495,74 @@ func Run(s *Scenario, c *content.Catalogue) (*Report, error) {
 	return r.report, nil
 }
 
-func (r *runner) island() *sim.Island { return r.w.Island(r.s.Island.ID) }
-
-func (r *runner) buildingAt(at *At) (*sim.Building, error) {
-	b := r.island().BuildingAt(r.c, at.X, at.Y)
-	if b == nil {
-		return nil, fmt.Errorf("no building at (%d,%d)", at.X, at.Y)
+// islandID resolves a step's island ("" = the first island).
+func (r *runner) islandID(id string) string {
+	if id == "" {
+		return r.s.Islands[0].ID
 	}
-	return b, nil
+	return id
+}
+
+func (r *runner) island() *sim.Island { return r.w.Island(r.s.Islands[0].ID) }
+
+func (r *runner) buildingAt(at *At) (string, *sim.Building, error) {
+	id := r.islandID(at.Island)
+	is := r.w.Island(id)
+	if is == nil {
+		return "", nil, fmt.Errorf("%w: %q", sim.ErrUnknownIsland, id)
+	}
+	b := is.BuildingAt(r.c, at.X, at.Y)
+	if b == nil {
+		return "", nil, fmt.Errorf("no building at (%d,%d) on %q", at.X, at.Y, id)
+	}
+	return id, b, nil
 }
 
 func (r *runner) apply(cmd sim.Command) error {
 	return sim.ApplyWithLedger(r.w, r.c, cmd, r.l)
 }
 
+// parseUnits converts unit amounts of a scenario to milli-units.
+func parseUnits(n json.Number) (int64, error) { return content.ParseFixed(n, 3) }
+
+func (r *runner) stops(specs []RouteStopSpec) ([]sim.Stop, error) {
+	var out []sim.Stop
+	for _, sp := range specs {
+		st := sim.Stop{IslandID: sp.Island, Unload: sp.Unload}
+		for _, g := range sortedKeys(sp.Load) {
+			v, err := parseUnits(sp.Load[g])
+			if err != nil {
+				return nil, fmt.Errorf("load %s: %w", g, err)
+			}
+			st.Load = append(st.Load, sim.LoadRule{Good: g, MaxAmount: v})
+		}
+		out = append(out, st)
+	}
+	return out, nil
+}
+
 func (r *runner) step(i int, st Step) error {
-	id := r.s.Island.ID
 	switch {
 	case st.Place != nil:
 		p := st.Place
-		return r.apply(sim.PlaceBuilding{IslandID: id, Type: p.Type, X: p.X, Y: p.Y, Rotation: p.Rotation})
+		return r.apply(sim.PlaceBuilding{IslandID: r.islandID(p.Island), Type: p.Type, X: p.X, Y: p.Y, Rotation: p.Rotation})
 	case st.PlaceGrid != nil:
 		g := st.PlaceGrid
 		for k := 0; k < g.Count; k++ {
-			if err := r.apply(sim.PlaceBuilding{IslandID: id, Type: g.Type, X: g.X + k*g.DX, Y: g.Y + k*g.DY, Rotation: g.Rotation}); err != nil {
+			if err := r.apply(sim.PlaceBuilding{IslandID: r.islandID(g.Island), Type: g.Type, X: g.X + k*g.DX, Y: g.Y + k*g.DY, Rotation: g.Rotation}); err != nil {
 				return fmt.Errorf("grid item %d: %w", k, err)
 			}
 		}
 		return nil
 	case st.Road != nil:
+		id := r.islandID(st.Road.Island)
+		is := r.w.Island(id)
+		if is == nil {
+			return fmt.Errorf("%w: %q", sim.ErrUnknownIsland, id)
+		}
 		var tiles []sim.Pos
 		for _, p := range lPath(st.Road) {
-			if r.island().RoadAt(p.X, p.Y) == "" {
+			if is.RoadAt(p.X, p.Y) == "" {
 				tiles = append(tiles, p)
 			}
 		}
@@ -386,9 +571,9 @@ func (r *runner) step(i int, st Step) error {
 		}
 		return r.apply(sim.PlaceRoad{IslandID: id, Type: st.Road.Type, Tiles: tiles})
 	case st.DemolishRd != nil:
-		return r.apply(sim.DemolishRoad{IslandID: id, Tiles: lPath(st.DemolishRd)})
+		return r.apply(sim.DemolishRoad{IslandID: r.islandID(st.DemolishRd.Island), Tiles: lPath(st.DemolishRd)})
 	case st.Demolish != nil:
-		b, err := r.buildingAt(st.Demolish)
+		id, b, err := r.buildingAt(st.Demolish)
 		if err != nil {
 			return err
 		}
@@ -398,30 +583,82 @@ func (r *runner) step(i int, st Step) error {
 		if at == nil {
 			at, paused = st.Resume, false
 		}
-		b, err := r.buildingAt(at)
+		id, b, err := r.buildingAt(at)
 		if err != nil {
 			return err
 		}
 		return r.apply(sim.SetPaused{IslandID: id, BuildingID: b.ID, Paused: paused})
 	case st.Upgrade != nil:
-		b, err := r.buildingAt(st.Upgrade)
+		id, b, err := r.buildingAt(st.Upgrade)
 		if err != nil {
 			return err
 		}
 		return r.apply(sim.UpgradeHouse{IslandID: id, BuildingID: b.ID})
 	case st.Move != nil:
 		m := st.Move
-		b, err := r.buildingAt(&At{X: m.X, Y: m.Y})
+		id, b, err := r.buildingAt(&At{Island: m.Island, X: m.X, Y: m.Y})
 		if err != nil {
 			return err
 		}
 		return r.apply(sim.MoveBuilding{IslandID: id, BuildingID: b.ID, X: m.ToX, Y: m.ToY, Rotation: m.Rotation})
 	case st.Stock != nil:
-		qty, err := content.ParseFixed(st.Stock.Amount, 3)
+		qty, err := parseUnits(st.Stock.Amount)
 		if err != nil {
 			return err
 		}
-		return sim.AddStock(r.w, r.c, id, st.Stock.Good, qty, r.l)
+		return sim.AddStock(r.w, r.c, r.islandID(st.Stock.Island), st.Stock.Good, qty, r.l)
+	case st.OrderShip != nil:
+		o := st.OrderShip
+		id, b, err := r.buildingAt(&At{Island: o.Island, X: o.X, Y: o.Y})
+		if err != nil {
+			return err
+		}
+		return r.apply(sim.OrderShip{IslandID: id, BuildingID: b.ID, ShipType: o.ShipType})
+	case st.CancelShipOrder != nil:
+		id, b, err := r.buildingAt(st.CancelShipOrder)
+		if err != nil {
+			return err
+		}
+		return r.apply(sim.CancelShipOrder{IslandID: id, BuildingID: b.ID})
+	case st.CreateRoute != nil, st.UpdateRoute != nil:
+		rs := st.CreateRoute
+		if rs == nil {
+			rs = st.UpdateRoute
+		}
+		stops, err := r.stops(rs.Stops)
+		if err != nil {
+			return err
+		}
+		if st.CreateRoute != nil {
+			return r.apply(sim.CreateRoute{Name: rs.Name, Stops: stops})
+		}
+		return r.apply(sim.UpdateRoute{RouteID: rs.Route, Name: rs.Name, Stops: stops})
+	case st.DeleteRoute != nil:
+		return r.apply(sim.DeleteRoute{RouteID: st.DeleteRoute.Route})
+	case st.AssignShip != nil:
+		return r.apply(sim.AssignShip{ShipID: st.AssignShip.Ship, RouteID: st.AssignShip.Route})
+	case st.UnassignShip != nil:
+		return r.apply(sim.UnassignShip{ShipID: st.UnassignShip.Ship})
+	case st.ScrapShip != nil:
+		return r.apply(sim.ScrapShip{ShipID: st.ScrapShip.Ship})
+	case st.ManualShipment != nil:
+		m := st.ManualShipment
+		var cargo []sim.CargoAmount
+		for _, g := range sortedKeys(m.Cargo) {
+			v, err := parseUnits(m.Cargo[g])
+			if err != nil {
+				return fmt.Errorf("cargo %s: %w", g, err)
+			}
+			cargo = append(cargo, sim.CargoAmount{Good: g, Amount: v})
+		}
+		return r.apply(sim.ManualShipment{ShipID: m.Ship, ToIslandID: m.To, Cargo: cargo})
+	case st.FoundIsland != nil:
+		f := st.FoundIsland
+		typ := f.Type
+		if typ == "" {
+			typ = firstWarehouseType(r.c)
+		}
+		return r.apply(sim.FoundIsland{ShipID: f.Ship, IslandID: f.Island, BuildingType: typ, X: f.X, Y: f.Y, Rotation: f.Rotation})
 	case st.Advance != nil:
 		d, err := time.ParseDuration(st.Advance.Duration)
 		if err != nil {

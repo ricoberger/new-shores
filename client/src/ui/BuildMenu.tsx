@@ -16,6 +16,8 @@ const CATEGORIES: { id: ContentBuilding["category"]; label: string }[] = [
 interface Props {
   content: Content | null;
   model: DisplayState | null;
+  /** The island shown (materials are shown from its inventory). */
+  islandId: string;
   tool: Tool;
   onSelect: (b: ContentBuilding) => void;
   onDemolishTool: () => void;
@@ -27,11 +29,11 @@ interface Props {
  * island stock next to the cost (have/need) for information only. Items of
  * a tier that is not unlocked show the lock reason.
  */
-export function BuildMenu({ content, model, tool, onSelect, onDemolishTool }: Props) {
+export function BuildMenu({ content, model, islandId, tool, onSelect, onDemolishTool }: Props) {
   const [category, setCategory] = useState<ContentBuilding["category"]>("houses");
   if (!content) return null;
   const present = CATEGORIES.filter((c) => content.buildings.some((b) => b.category === c.id));
-  const inventory = model?.islands[0]?.inventory ?? {};
+  const inventory = model?.islands.find((is) => is.id === islandId)?.inventory ?? {};
   const tierName = (id: string) => content.tiers.find((t) => t.id === id)?.name ?? id;
   const unlocked = (tier: string) => model?.tiers.find((t) => t.id === tier)?.unlocked ?? false;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;

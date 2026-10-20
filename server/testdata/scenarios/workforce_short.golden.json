@@ -1,6 +1,6 @@
 {
   "name": "workforce_short",
-  "content_version": "old_coast-0.2.0",
+  "content_version": "old_coast-0.3.0",
   "boundary_count": 9,
   "totals": {
     "main": {
@@ -186,6 +186,12 @@
     "islands": [
       {
         "id": "main",
+        "name": "",
+        "settled": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
         "width": 30,
         "height": 14,
         "inventory": {
@@ -790,6 +796,8 @@
           "settlers": 12000
         }
       }
-    ]
+    ],
+    "ships": [],
+    "routes": []
   }
 }

@@ -157,5 +157,18 @@
       "outputs": [{ "good": "wool_garments", "amount": 1 }],
       "cycle_seconds": 60
     }
+  },
+  {
+    "id": "shipyard",
+    "name": "Shipyard",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [5, 4],
+    "coastal": true,
+    "requires_road": true,
+    "cost": { "gold": 500, "planks": 40 },
+    "upkeep_per_min": 5,
+    "pause_category": "never",
+    "shipyard": { "ships": ["sloop"] }
   }
 ]

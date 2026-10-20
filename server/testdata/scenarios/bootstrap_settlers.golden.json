@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_settlers",
-  "content_version": "old_coast-0.2.0",
+  "content_version": "old_coast-0.3.0",
   "boundary_count": 95,
   "totals": {
     "main": {
@@ -320,6 +320,12 @@
     "islands": [
       {
         "id": "main",
+        "name": "",
+        "settled": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
         "width": 40,
         "height": 14,
         "inventory": {
@@ -1522,6 +1528,8 @@
           "settlers": 120000
         }
       }
-    ]
+    ],
+    "ships": [],
+    "routes": []
   }
 }

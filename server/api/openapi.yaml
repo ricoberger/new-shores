@@ -143,8 +143,11 @@ paths:
       summary: Advance the world to now and apply one command.
       description: |
         Commands (`command.type`): `place_building`, `place_road`,
-        `demolish`, `demolish_road`, `set_paused`, `upgrade_house` and
-        `move_building`.
+        `demolish`, `demolish_road`, `set_paused`, `upgrade_house`,
+        `move_building`, and the ship and route commands `order_ship`,
+        `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
+        `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`
+        and `found_island` (MECHANICS §8, §9).
 
         On success the version is incremented and the new display state is
         returned. On error the world and its version are unchanged. A
@@ -191,8 +194,9 @@ paths:
       summary: Static data of an island (terrain).
       description: |
         Static per island; clients cache it by `revision` and fetch it once
-        per island. Further static data (fertilities, deposit slots) will be
-        added as sibling arrays of `terrain`.
+        per island. Unsettled islands are served as well. Further static
+        data (fertilities, deposit slots) will be added as sibling arrays of
+        `terrain`.
       security:
         - cookieAuth: []
         - bearerAuth: []
@@ -655,7 +659,13 @@ components:
 
         - 400: `bad_request` (malformed JSON, unknown fields, body > 64 KiB,
           missing fields, malformed email or display name),
-          `invalid_command`, `unknown_building`, `out_of_bounds`,
+          `invalid_command` (also more than 8 route stops, 32 load or
+          unload entries per stop or 16 cargo entries),
+          `unknown_building`, `out_of_bounds`, `route_invalid` (route
+          rules: 2–8 stops at settled islands, consecutive stops differ,
+          known goods without duplicates, whole-unit maximums, name ≤ 40
+          characters; or a shipment to an unknown island or the ship's own
+          island),
           `invalid_token` (verification or reset token unknown, used or
           expired), `weak_password` (password outside 8–128 bytes);
         - 401: `unauthorized` (no valid session), `invalid_credentials`
@@ -663,12 +673,24 @@ components:
         - 403: `csrf_rejected` (cookie request without an allowed `Origin`
           or a same-origin/same-site `Sec-Fetch-Site`);
         - 404: `not_found` (unknown endpoint, no world),
-          `unknown_island`, `building_not_found`;
+          `unknown_island`, `building_not_found`, `ship_not_found`,
+          `route_not_found`;
         - 405: `method_not_allowed`;
         - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
           `insufficient_gold`, `insufficient_materials`, `surplus_loss`,
           `not_pausable`, `no_road`, `tier_locked`, `not_a_house`,
           `upgrade_unavailable`, `house_not_full`, `needs_unmet`,
+          `shipyard_busy` (one order at a time), `not_a_shipyard`,
+          `unknown_ship_type` (the shipyard cannot build it),
+          `no_ship_order`, `ship_not_idle` (the command needs an idle
+          ship; scrapping also accepts an anchored one), `ship_not_on_route`,
+          `route_in_use` (delete a route with assigned ships),
+          `island_already_settled`, `island_not_settled` (placement on an
+          island without warehouse; found it with a ship),
+          `cargo_insufficient` (founding: the cargo lacks the warehouse
+          materials), `cargo_exceeds_slots`, `last_warehouse` (the last
+          warehouse of an island with other buildings), `not_connected`
+          (a shipyard without a road to a warehouse cannot order),
           `email_taken`, `already_registered`;
         - 429: `rate_limited` (with `Retry-After` in seconds);
         - 500: `internal`;
@@ -711,6 +733,22 @@ components:
         - upgrade_unavailable
         - house_not_full
         - needs_unmet
+        - route_invalid
+        - ship_not_found
+        - route_not_found
+        - shipyard_busy
+        - not_a_shipyard
+        - unknown_ship_type
+        - no_ship_order
+        - ship_not_idle
+        - ship_not_on_route
+        - route_in_use
+        - island_already_settled
+        - island_not_settled
+        - cargo_insufficient
+        - cargo_exceeds_slots
+        - last_warehouse
+        - not_connected
         - over_capacity
         - time_backwards
         - schema_version
@@ -859,6 +897,16 @@ components:
         - $ref: "#/components/schemas/SetPausedCommand"
         - $ref: "#/components/schemas/UpgradeHouseCommand"
         - $ref: "#/components/schemas/MoveBuildingCommand"
+        - $ref: "#/components/schemas/OrderShipCommand"
+        - $ref: "#/components/schemas/CancelShipOrderCommand"
+        - $ref: "#/components/schemas/ScrapShipCommand"
+        - $ref: "#/components/schemas/CreateRouteCommand"
+        - $ref: "#/components/schemas/UpdateRouteCommand"
+        - $ref: "#/components/schemas/DeleteRouteCommand"
+        - $ref: "#/components/schemas/AssignShipCommand"
+        - $ref: "#/components/schemas/UnassignShipCommand"
+        - $ref: "#/components/schemas/ManualShipmentCommand"
+        - $ref: "#/components/schemas/FoundIslandCommand"
       discriminator:
         propertyName: type
         mapping:
@@ -869,6 +917,16 @@ components:
           set_paused: "#/components/schemas/SetPausedCommand"
           upgrade_house: "#/components/schemas/UpgradeHouseCommand"
           move_building: "#/components/schemas/MoveBuildingCommand"
+          order_ship: "#/components/schemas/OrderShipCommand"
+          cancel_ship_order: "#/components/schemas/CancelShipOrderCommand"
+          scrap_ship: "#/components/schemas/ScrapShipCommand"
+          create_route: "#/components/schemas/CreateRouteCommand"
+          update_route: "#/components/schemas/UpdateRouteCommand"
+          delete_route: "#/components/schemas/DeleteRouteCommand"
+          assign_ship: "#/components/schemas/AssignShipCommand"
+          unassign_ship: "#/components/schemas/UnassignShipCommand"
+          manual_shipment: "#/components/schemas/ManualShipmentCommand"
+          found_island: "#/components/schemas/FoundIslandCommand"
     Tile:
       type: object
       additionalProperties: false
@@ -1013,6 +1071,254 @@ components:
           type: integer
           enum: [0, 90, 180, 270]
           description: Degrees; 90 and 270 swap width and height. Visual only.
+    OrderShipCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Order a ship at a shipyard (a building with a `shipyard` block that
+        lists the ship type). The shipyard must be road-connected to a
+        warehouse and idle; the cost (gold from the world, materials from
+        the shipyard's island) is deducted at once. The ship appears idle at
+        the shipyard's island at the order's `due_at` (ship_built).
+      required: [type, island_id, building_id, ship_type]
+      properties:
+        type:
+          type: string
+          enum: [order_ship]
+        island_id:
+          type: string
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID of the shipyard (unscaled integer identifier, from BuildingDisplay.id).
+        ship_type:
+          type: string
+          description: Content ship ID (e.g. sloop).
+    CancelShipOrderCommand:
+      type: object
+      additionalProperties: false
+      description: Cancel a shipyard's pending order; 50 % of each material is refunded (whole units, clamped to capacity), no gold.
+      required: [type, island_id, building_id]
+      properties:
+        type:
+          type: string
+          enum: [cancel_ship_order]
+        island_id:
+          type: string
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID of the shipyard (unscaled integer identifier, from BuildingDisplay.id).
+    ScrapShipCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Scrap an idle or anchored ship: its cargo is unloaded into its
+        island (above capacity it is lost), 50 % of the ship's materials are
+        refunded (whole units, clamped), no gold.
+      required: [type, ship_id]
+      properties:
+        type:
+          type: string
+          enum: [scrap_ship]
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
+    RouteStop:
+      type: object
+      additionalProperties: false
+      description: |
+        A route stop. At the stop the ship first unloads the `unload` goods
+        (limited by free capacity; the rest stays aboard), then loads the
+        `load` goods.
+      required: [island_id, load, unload]
+      properties:
+        island_id:
+          type: string
+        load:
+          type: array
+          maxItems: 32
+          items:
+            $ref: "#/components/schemas/LoadRule"
+        unload:
+          type: array
+          maxItems: 32
+          description: Goods to unload (content good IDs).
+          items:
+            type: string
+    LoadRule:
+      type: object
+      additionalProperties: false
+      required: [good, max_amount]
+      properties:
+        good:
+          type: string
+        max_amount:
+          type: integer
+          format: int64
+          description: Load until this amount of the good is aboard (top up to), in milli-units; a whole number of units > 0.
+    CreateRouteCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Create a route: 2–8 stops at settled islands, consecutive stops
+        (including last → first) at different islands. An empty or missing
+        name becomes "Route <id>".
+      required: [type, stops]
+      properties:
+        type:
+          type: string
+          enum: [create_route]
+        name:
+          type: string
+          maxLength: 40
+        stops:
+          type: array
+          maxItems: 8
+          items:
+            $ref: "#/components/schemas/RouteStop"
+    UpdateRouteCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Replace a route's name and stops. Allowed while ships are assigned:
+        they finish their current leg and resolve their stop at arrival
+        (the stop they head to if it is at the arrival island, else the
+        first stop there, else they sail to stop 0).
+      required: [type, route_id, stops]
+      properties:
+        type:
+          type: string
+          enum: [update_route]
+        route_id:
+          type: integer
+          format: int64
+          description: Route ID (unscaled integer identifier, from RouteDisplay.id).
+        name:
+          type: string
+          maxLength: 40
+        stops:
+          type: array
+          maxItems: 8
+          items:
+            $ref: "#/components/schemas/RouteStop"
+    DeleteRouteCommand:
+      type: object
+      additionalProperties: false
+      description: Delete a route without assigned ships (`route_in_use` otherwise).
+      required: [type, route_id]
+      properties:
+        type:
+          type: string
+          enum: [delete_route]
+        route_id:
+          type: integer
+          format: int64
+          description: Route ID (unscaled integer identifier, from RouteDisplay.id).
+    AssignShipCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Assign an idle ship to a route. At a stop's island the ship handles
+        that stop (first occurrence) at once and departs after the handling
+        time; elsewhere it sails to stop 0 at once.
+      required: [type, ship_id, route_id]
+      properties:
+        type:
+          type: string
+          enum: [assign_ship]
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
+        route_id:
+          type: integer
+          format: int64
+          description: Route ID (unscaled integer identifier, from RouteDisplay.id).
+    UnassignShipCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Remove a ship from its route. A ship on a leg finishes it as a
+        manual leg (unloads everything at arrival and ends idle); an
+        anchored ship stays anchored.
+      required: [type, ship_id]
+      properties:
+        type:
+          type: string
+          enum: [unassign_ship]
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
+    CargoEntry:
+      type: object
+      additionalProperties: false
+      required: [good, amount]
+      properties:
+        good:
+          type: string
+        amount:
+          type: integer
+          format: int64
+          description: Amount to load (milli-units, > 0).
+    ManualShipmentCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Send an idle ship from its island to another island (settled or
+        not). The cargo leaves the island's stock now and, together with
+        what is already aboard, must fit the slots; the list may be empty
+        when cargo is aboard. The ship departs after the handling time; at
+        arrival it unloads everything that fits and ends idle.
+      required: [type, ship_id, to_island_id, cargo]
+      properties:
+        type:
+          type: string
+          enum: [manual_shipment]
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
+        to_island_id:
+          type: string
+        cargo:
+          type: array
+          maxItems: 16
+          items:
+            $ref: "#/components/schemas/CargoEntry"
+    FoundIslandCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Settle an unsettled island: an idle ship there pays the warehouse's
+        materials from its cargo (gold from the world) and the warehouse is
+        placed; the remaining cargo is unloaded (up to capacity).
+      required: [type, ship_id, island_id, building_type, x, y, rotation]
+      properties:
+        type:
+          type: string
+          enum: [found_island]
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
+        island_id:
+          type: string
+        building_type:
+          type: string
+          description: Content building ID with a warehouse block.
+        x:
+          type: integer
+          description: Left column of the rotated footprint (tiles).
+        y:
+          type: integer
+          description: Top row of the rotated footprint (tiles).
+        rotation:
+          type: integer
+          enum: [0, 90, 180, 270]
+          description: Degrees; 90 and 270 swap width and height.
     # ------------------------------------------------------------------
     # Island (static data)
     # ------------------------------------------------------------------
@@ -1051,7 +1357,7 @@ components:
         Authoritative state at `evaluated_at` plus the rates the client
         extrapolates linearly until `next_change_at` (D-027).
       required:
-        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, islands]
+        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, islands, ships, routes]
       properties:
         evaluated_at:
           type: string
@@ -1059,7 +1365,7 @@ components:
         next_change_at:
           type: string
           nullable: true
-          description: Earliest time the rates change without a command (RFC 3339, UTC, ms); null if never.
+          description: Earliest time the state changes without a command — rates, ship arrivals, departures and completed ship orders (RFC 3339, UTC, ms); null if never.
         gold:
           type: integer
           format: int64
@@ -1076,7 +1382,7 @@ components:
         upkeep_rate_per_min:
           type: integer
           format: int64
-          description: Upkeep of non-paused buildings (milli-gold per minute).
+          description: Upkeep of non-paused buildings and ships (milli-gold per minute).
         tiers:
           type: array
           description: Tiers in progression order.
@@ -1086,6 +1392,155 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/IslandDisplay"
+        ships:
+          type: array
+          description: Ships by ascending ID.
+          items:
+            $ref: "#/components/schemas/ShipDisplay"
+        routes:
+          type: array
+          description: Routes by ascending ID.
+          items:
+            $ref: "#/components/schemas/RouteDisplay"
+    ShipDisplay:
+      type: object
+      additionalProperties: false
+      description: |
+        A ship. `state`: `idle` (at `island_id`), `on_route`, `manual_leg`
+        (both with a `leg`), `anchored_unpaid` (paused for insolvency at
+        `island_id`; on a leg it anchors at arrival); `on_world_map` is
+        reserved. While handling cargo before `leg.depart_at` the ship is
+        at the leg's origin, afterwards `island_id` is empty.
+      required: [id, type, state, island_id, route_id, stop_index, leg, cargo, slots, slot_size, upkeep_per_min, paused, paused_reason]
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Ship ID (unscaled integer identifier, unique per world, assigned sequentially).
+        type:
+          type: string
+          description: Content ship ID.
+        state:
+          type: string
+          enum: [idle, on_route, manual_leg, anchored_unpaid, on_world_map]
+        island_id:
+          type: string
+          description: Island where the ship is; empty while travelling.
+        route_id:
+          type: integer
+          format: int64
+          description: Assigned route ID; 0 when none (unscaled identifier).
+        stop_index:
+          type: integer
+          description: Index of the route stop the ship heads to (0-based count).
+        leg:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/LegDisplay"
+        cargo:
+          type: array
+          description: Occupied cargo slots (a good may occupy several slots).
+          items:
+            $ref: "#/components/schemas/CargoDisplay"
+        slots:
+          type: integer
+          description: Cargo slots of the ship type (count).
+        slot_size:
+          type: integer
+          format: int64
+          description: Capacity of one slot (milli-units).
+        upkeep_per_min:
+          type: integer
+          format: int64
+          description: Current upkeep (milli-gold per minute; 0 while paused).
+        paused:
+          type: boolean
+        paused_reason:
+          type: string
+          enum: ["", unpaid]
+          description: Empty when not paused.
+    LegDisplay:
+      type: object
+      additionalProperties: false
+      description: The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between.
+      required: [from_island_id, to_island_id, depart_at, arrive_at]
+      properties:
+        from_island_id:
+          type: string
+        to_island_id:
+          type: string
+        depart_at:
+          type: string
+          description: Departure (RFC 3339, UTC, ms).
+        arrive_at:
+          type: string
+          description: Arrival, a scheduled ship_arrived (RFC 3339, UTC, ms).
+    CargoDisplay:
+      type: object
+      additionalProperties: false
+      required: [good, amount]
+      properties:
+        good:
+          type: string
+        amount:
+          type: integer
+          format: int64
+          description: Amount in the slot (milli-units).
+    RouteDisplay:
+      type: object
+      additionalProperties: false
+      required: [id, name, stops, ship_ids, loop_ms]
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Route ID (unscaled integer identifier, assigned sequentially).
+        name:
+          type: string
+        stops:
+          type: array
+          items:
+            $ref: "#/components/schemas/RouteStopDisplay"
+        ship_ids:
+          type: array
+          description: Assigned ships.
+          items:
+            type: integer
+            format: int64
+            description: Ship ID (unscaled integer identifier).
+        loop_ms:
+          type: integer
+          format: int64
+          description: Duration of one loop at reference speed 1.0 (ms) — the handling time of every stop plus the travel time of every leg.
+    RouteStopDisplay:
+      type: object
+      additionalProperties: false
+      required: [island_id, load, unload]
+      properties:
+        island_id:
+          type: string
+        load:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoadRule"
+        unload:
+          type: array
+          items:
+            type: string
+    ShipOrderDisplay:
+      type: object
+      additionalProperties: false
+      required: [type, ordered_at, due_at]
+      properties:
+        type:
+          type: string
+          description: Content ship ID.
+        ordered_at:
+          type: string
+          description: Order time (RFC 3339, UTC, ms).
+        due_at:
+          type: string
+          description: The ship is built at this time, a scheduled ship_built (RFC 3339, UTC, ms).
     TierDisplay:
       type: object
       additionalProperties: false
@@ -1126,10 +1581,28 @@ components:
     IslandDisplay:
       type: object
       additionalProperties: false
-      required: [id, width, height, inventory, roads, buildings, workforce, population]
+      required: [id, name, settled, position, width, height, inventory, roads, buildings, workforce, population]
       properties:
         id:
           type: string
+        name:
+          type: string
+          description: Display name (may be empty).
+        settled:
+          type: boolean
+          description: The island has a warehouse (capacity > 0); unsettled islands accept only found_island.
+        position:
+          type: object
+          additionalProperties: false
+          required: [x, y]
+          description: Archipelago position.
+          properties:
+            x:
+              type: integer
+              description: Column (archipelago tiles).
+            y:
+              type: integer
+              description: Row (archipelago tiles).
         width:
           type: integer
           description: Columns (tiles).
@@ -1425,13 +1898,18 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NeedDisplay"
+        ship_order:
+          nullable: true
+          description: Shipyards only (absent for other buildings) — the pending order, or null when the shipyard is idle.
+          allOf:
+            - $ref: "#/components/schemas/ShipOrderDisplay"
     # ------------------------------------------------------------------
     # Content payload
     # ------------------------------------------------------------------
     Content:
       type: object
       additionalProperties: false
-      required: [region, tiers, goods, buildings, needs]
+      required: [region, tiers, goods, buildings, needs, ships]
       properties:
         region:
           $ref: "#/components/schemas/ContentRegion"
@@ -1453,6 +1931,57 @@ components:
           description: Needs grouped by tier in progression order, file order within a tier.
           items:
             $ref: "#/components/schemas/ContentNeed"
+        ships:
+          type: array
+          description: Ship types (ordered at buildings with a shipyard block).
+          items:
+            $ref: "#/components/schemas/ContentShip"
+    ContentShip:
+      type: object
+      additionalProperties: false
+      required: [id, name, tier, slots, slot_size, speed_permille, build_ms, cost, upkeep_per_min]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        tier:
+          type: string
+        slots:
+          type: integer
+          description: Cargo slots (count).
+        slot_size:
+          type: integer
+          format: int64
+          description: Capacity of one slot (milli-units).
+        speed_permille:
+          type: integer
+          format: int64
+          description: Speed factor (permille; 1000 = reference speed).
+        build_ms:
+          type: integer
+          format: int64
+          description: Build time at the shipyard (ms).
+        cost:
+          type: object
+          additionalProperties: false
+          required: [gold, materials]
+          properties:
+            gold:
+              type: integer
+              format: int64
+              description: Gold cost (milli-gold).
+            materials:
+              type: object
+              description: Material cost per good (milli-units).
+              additionalProperties:
+                type: integer
+                format: int64
+                description: Amount (milli-units).
+        upkeep_per_min:
+          type: integer
+          format: int64
+          description: Upkeep (milli-gold per minute).
     ContentRegion:
       type: object
       additionalProperties: false
@@ -1464,14 +1993,14 @@ components:
           type: string
         version:
           type: string
-          description: Content version (e.g. old_coast-0.2.0).
+          description: Content version (e.g. old_coast-0.3.0).
         rules:
           $ref: "#/components/schemas/ContentRules"
     ContentRules:
       type: object
       additionalProperties: false
       required:
-        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, optional_tax_bonus, auto_resume_upkeep_ms]
+        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, optional_tax_bonus, auto_resume_upkeep_ms, ship_handling_ms, ship_speed_milli_tiles_per_min]
       properties:
         transfer_base_ms:
           type: integer
@@ -1507,7 +2036,15 @@ components:
         auto_resume_upkeep_ms:
           type: integer
           format: int64
-          description: Gold reserve for auto-resume, as a duration of the building's upkeep (ms).
+          description: Gold reserve for auto-resume, as a duration of the building's or ship's upkeep (ms).
+        ship_handling_ms:
+          type: integer
+          format: int64
+          description: Time a ship spends at a stop before departing (ms).
+        ship_speed_milli_tiles_per_min:
+          type: integer
+          format: int64
+          description: Archipelago distance a ship of speed 1.0 covers per minute (milli-tiles per minute).
     ContentTier:
       type: object
       additionalProperties: false
@@ -1598,7 +2135,8 @@ components:
           description: |
             Build-menu group derived by the server from the capability
             blocks: house → houses, recipe → production, service → public,
-            warehouse → harbour, road → roads; other for none of these.
+            warehouse or shipyard → harbour, road → roads; other for none
+            of these.
         width:
           type: integer
           description: Footprint width at rotation 0 (tiles).
@@ -1718,6 +2256,17 @@ components:
               type: integer
               format: int64
               description: Workers required (milli-residents).
+        shipyard:
+          type: object
+          additionalProperties: false
+          required: [ships]
+          description: Orders ships of the listed types, one at a time.
+          properties:
+            ships:
+              type: array
+              items:
+                type: string
+                description: Content ship ID.
     ContentNeed:
       type: object
       additionalProperties: false

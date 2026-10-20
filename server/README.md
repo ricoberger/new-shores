@@ -10,13 +10,13 @@ Go module `github.com/ricoberger/new-shores/server`. See
 | `api` | `openapi.yaml`: the HTTP API contract (hand-written; validated by `internal/api` tests) |
 | `internal/api` | `/api/v1` handlers, sessions, CSRF, auth endpoints, command/error mapping, content payload, CORS, request logging and tracing |
 | `internal/auth` | accounts: guests and device tokens, argon2id passwords, sessions, email verification, password reset, mailer, Redis rate limiter |
-| `internal/events` | scheduled-events worker, handler registry, `advance_to` (and `test_credit` with `-tags testevents`) |
+| `internal/events` | scheduled-events worker, handler registry, `advance_to`, `ship_built`, `ship_arrived` (and `test_credit` with `-tags testevents`), in-process scheduler of the dev server |
 | `internal/ws` | WebSocket hub and Redis pub/sub fan-out of `world_changed` |
-| `internal/store` | `Store` interface and the one-world in-memory store of the dev server |
+| `internal/store` | `Store` interface, the one-world in-memory store of the dev server (with its pending events) and the payloads of due-moment events |
 | `internal/store/postgres` | PostgreSQL store (row-locked `Update`, DB clock, pending-event cap), account/event queries, embedded migrations |
 | `internal/telemetry` | Prometheus metrics and OpenTelemetry tracing setup |
 | `internal/testenv` | PostgreSQL/Redis for integration tests (tag `integration`; testcontainers fallback) |
-| `internal/devworld` | embedded dev island (scenario document without steps) built with the scenario runner |
+| `internal/devworld` | embedded archipelago (start island + island 2; scenario document without steps) built with the scenario runner for the dev world (`NewDev`, with the dev bonus) and new player worlds (`New`) |
 | `internal/content` | loads and validates `content/<region>` against `content/schema` |
 | `internal/sim` | pure, deterministic simulation: `Apply`, `Advance`, `Display`, envelope |
 | `internal/sim/scenario` | headless scenario runner used by golden tests and balancing |
@@ -99,6 +99,32 @@ Scenario format (all quantities in units, durations in Go syntax):
 }
 ```
 
-Island legend: `~` water, `c` coast, `.` grass, `f` forest, `m` mountain.
+Island legend: `~` water, `c` coast, `.` grass, `f` forest, `m` mountain,
+`I` mountain with an infinite iron deposit.
 The seed is granted free of charge; every step goes through `sim.Apply` or
 `sim.Advance`, and a failing step fails the run with its index.
+
+Archipelagos use `islands` instead of `island` (exactly one of the two):
+`[{"id": "start", "name": "Start", "x": 0, "y": 0, "rows": [...]}, ...]`
+with archipelago positions in tiles (ship travel times); the seed applies
+to the first island and every island-addressing step takes an optional
+`"island"` (default: the first island). Ship and route steps address ships
+and routes by their sequential IDs:
+
+```json
+{ "order_ship": { "x": 6, "y": 1, "ship_type": "sloop" } },
+{ "cancel_ship_order": { "x": 6, "y": 1 } },
+{ "manual_shipment": { "ship": 1, "to": "island2", "cargo": { "planks": 50 } } },
+{ "found_island": { "ship": 1, "island": "island2", "x": 1, "y": 1, "rotation": 0 } },
+{ "create_route": { "name": "Wood out", "stops": [
+  { "island": "start", "load": { "wood": 100 }, "unload": ["planks"] },
+  { "island": "island2", "load": { "planks": 40 }, "unload": ["wood"] } ] } },
+{ "update_route": { "route": 1, "stops": [...] } },
+{ "delete_route": { "route": 1 } },
+{ "assign_ship": { "ship": 1, "route": 1 } },
+{ "unassign_ship": { "ship": 1 } },
+{ "scrap_ship": { "ship": 1 } }
+```
+
+`dev_bonus` (`{"gold": …, "goods": {…}}`) is only applied by
+`devworld.NewDev`.

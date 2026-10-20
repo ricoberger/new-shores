@@ -11,7 +11,9 @@
 //   - need weights, satisfaction-like ratios (growth threshold): parts per
 //     million,
 //   - variety and optional tax bonuses: parts per million,
-//   - growth and decline rates: milli-residents per minute.
+//   - growth and decline rates: milli-residents per minute,
+//   - ship speed: per-mille of the reference speed; the reference speed
+//     (region rule) in milli-tiles per minute.
 package content
 
 // Qty is a fixed-point quantity in milli-units (1 unit = 1000).
@@ -50,6 +52,9 @@ type Catalogue struct {
 	BuildingByID map[string]*Building
 	// NeedsByTier maps a tier ID to its needs in file order.
 	NeedsByTier map[string][]*Need
+	// Ships are the ship types in file order (ships.json).
+	Ships    []*Ship
+	ShipByID map[string]*Ship
 	// Start is the starting stock granted after the first warehouse.
 	Start Start
 }
@@ -97,6 +102,12 @@ type Rules struct {
 	// AutoResumeMs is the gold reserve, in milliseconds of a building's
 	// upkeep, required before an unpaid building is auto-resumed.
 	AutoResumeMs int64
+	// ShipHandlingMs is the time a ship spends at a stop (unload, load)
+	// before it departs (MECHANICS §9.2).
+	ShipHandlingMs int64
+	// ShipSpeedMilliTilesPerMin is the archipelago distance a ship of speed
+	// 1.0 covers per minute, in milli-tiles.
+	ShipSpeedMilliTilesPerMin int64
 }
 
 // Tier is a population tier.
@@ -161,6 +172,34 @@ type Building struct {
 	Service   *Service
 	WorkArea  *WorkArea
 	Workforce *Workforce
+	Shipyard  *Shipyard
+}
+
+// Shipyard marks a building that orders ships (one at a time) of the listed
+// types (MECHANICS §9.1).
+type Shipyard struct {
+	Ships []string
+}
+
+// Ship is a ship type (ships.json, CONTENT §8).
+type Ship struct {
+	ID     string
+	Name   string
+	Region string
+	Tier   string
+	// Slots is the number of cargo slots; a slot holds one good.
+	Slots int
+	// SlotSize is the capacity of one slot in milli-units.
+	SlotSize Qty
+	// SpeedPermille is the speed factor in per-mille (1000 = reference).
+	SpeedPermille int64
+	// BuildMs is the shipyard build time.
+	BuildMs int64
+	// Cost is deducted at order time (gold from the world, materials from
+	// the shipyard's island).
+	Cost Cost
+	// UpkeepPerMin is in milli-gold per minute.
+	UpkeepPerMin Qty
 }
 
 // Workforce is the number of residents of a tier a producer needs on its

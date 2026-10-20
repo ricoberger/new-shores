@@ -128,9 +128,14 @@ describe("extrapolate", () => {
     tax_rate_per_min: 0,
     upkeep_rate_per_min: 600,
     tiers: [],
+    ships: [],
+    routes: [],
     islands: [
       {
         id: "a",
+        name: "",
+        settled: true,
+        position: { x: 0, y: 0 },
         width: 1,
         height: 1,
         roads: [],

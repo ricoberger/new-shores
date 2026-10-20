@@ -1,0 +1,218 @@
+{
+  "name": "offline_12h_route",
+  "description": "(s) The dev-archipelago distance (120 tiles, 2 min per leg) with a running route: planks from the start island's chain out, fish from island 2's fisher back. One 12-hour Advance: stocks end at their caps, the ship keeps looping in a consistent state; boundary count and Advance time are recorded.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccccccccccccccc~",
+        "~cccccccccccccccccccccccccccc~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~............................~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~...................fffffffff~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "island2",
+      "name": "Island 2",
+      "x": 72,
+      "y": 96,
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~",
+        "~cccccccccccccccc~",
+        "~cccccccccccccccc~",
+        "~................~",
+        "~................~",
+        "~................~",
+        "~...........mIIm.~",
+        "~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "warehouse": {
+      "x": 1,
+      "y": 2,
+      "rotation": 0
+    },
+    "gold": 20000,
+    "stock": {
+      "planks": 250,
+      "sails": 10
+    },
+    "workforce": {
+      "settlers": 100
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          5
+        ],
+        "to": [
+          28,
+          5
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 6,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "order_ship": {
+        "x": 6,
+        "y": 1,
+        "ship_type": "sloop"
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 23,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "lumberjack",
+        "x": 20,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "sawmill",
+        "x": 16,
+        "y": 6,
+        "rotation": 180
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "ship": 1,
+        "to": "island2",
+        "cargo": {
+          "planks": 100
+        }
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m20s"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "island2",
+        "x": 1,
+        "y": 1,
+        "rotation": 0
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          4
+        ],
+        "to": [
+          16,
+          4
+        ],
+        "island": "island2"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 5,
+        "rotation": 0,
+        "island": "island2"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 5,
+        "rotation": 0,
+        "island": "island2"
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 6,
+        "y": 2,
+        "rotation": 0,
+        "island": "island2"
+      }
+    },
+    {
+      "create_route": {
+        "stops": [
+          {
+            "island": "start",
+            "load": {
+              "planks": 50
+            },
+            "unload": [
+              "fish"
+            ]
+          },
+          {
+            "island": "island2",
+            "load": {
+              "fish": 50
+            },
+            "unload": [
+              "planks"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "assign_ship": {
+        "ship": 1,
+        "route": 1
+      }
+    },
+    {
+      "advance": {
+        "duration": "12h"
+      }
+    }
+  ]
+}

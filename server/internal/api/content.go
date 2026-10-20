@@ -26,6 +26,23 @@ type contentPayload struct {
 	Goods     []goodJSON     `json:"goods"`
 	Buildings []buildingJSON `json:"buildings"`
 	Needs     []needJSON     `json:"needs"`
+	Ships     []shipJSONOut  `json:"ships"`
+}
+
+type shipJSONOut struct {
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Tier          string   `json:"tier"`
+	Slots         int      `json:"slots"`
+	SlotSize      int64    `json:"slot_size"`
+	SpeedPermille int64    `json:"speed_permille"`
+	BuildMs       int64    `json:"build_ms"`
+	Cost          costJSON `json:"cost"`
+	UpkeepPerMin  int64    `json:"upkeep_per_min"`
+}
+
+type shipyardJSONOut struct {
+	Ships []string `json:"ships"`
 }
 
 type regionJSON struct {
@@ -45,6 +62,8 @@ type rulesJSON struct {
 	GrowthThresholdPpm         int64 `json:"growth_satisfaction_threshold"`
 	OptionalTaxBonusPpm        int64 `json:"optional_tax_bonus"`
 	AutoResumeUpkeepDurationMs int64 `json:"auto_resume_upkeep_ms"`
+	ShipHandlingMs             int64 `json:"ship_handling_ms"`
+	ShipSpeedMilliTilesPerMin  int64 `json:"ship_speed_milli_tiles_per_min"`
 }
 
 type tierJSON struct {
@@ -119,24 +138,25 @@ type workforceJSON struct {
 }
 
 type buildingJSON struct {
-	ID            string         `json:"id"`
-	Name          string         `json:"name"`
-	Tier          string         `json:"tier"`
-	Category      string         `json:"category"`
-	Width         int            `json:"width"`
-	Height        int            `json:"height"`
-	Coastal       bool           `json:"coastal"`
-	RequiresRoad  bool           `json:"requires_road"`
-	Cost          costJSON       `json:"cost"`
-	UpkeepPerMin  int64          `json:"upkeep_per_min"`
-	PauseCategory string         `json:"pause_category"`
-	Recipe        *recipeJSON    `json:"recipe,omitempty"`
-	House         *houseJSON     `json:"house,omitempty"`
-	Warehouse     *warehouseJSON `json:"warehouse,omitempty"`
-	Road          *roadJSON      `json:"road,omitempty"`
-	Service       *serviceJSON   `json:"service,omitempty"`
-	WorkArea      *workAreaJSON  `json:"work_area,omitempty"`
-	Workforce     *workforceJSON `json:"workforce,omitempty"`
+	ID            string           `json:"id"`
+	Name          string           `json:"name"`
+	Tier          string           `json:"tier"`
+	Category      string           `json:"category"`
+	Width         int              `json:"width"`
+	Height        int              `json:"height"`
+	Coastal       bool             `json:"coastal"`
+	RequiresRoad  bool             `json:"requires_road"`
+	Cost          costJSON         `json:"cost"`
+	UpkeepPerMin  int64            `json:"upkeep_per_min"`
+	PauseCategory string           `json:"pause_category"`
+	Recipe        *recipeJSON      `json:"recipe,omitempty"`
+	House         *houseJSON       `json:"house,omitempty"`
+	Warehouse     *warehouseJSON   `json:"warehouse,omitempty"`
+	Road          *roadJSON        `json:"road,omitempty"`
+	Service       *serviceJSON     `json:"service,omitempty"`
+	WorkArea      *workAreaJSON    `json:"work_area,omitempty"`
+	Workforce     *workforceJSON   `json:"workforce,omitempty"`
+	Shipyard      *shipyardJSONOut `json:"shipyard,omitempty"`
 }
 
 type needGoodJSON struct {
@@ -167,7 +187,7 @@ func buildingCategory(b *content.Building) string {
 		return categoryProduction
 	case b.Service != nil:
 		return categoryPublic
-	case b.Warehouse != nil:
+	case b.Warehouse != nil, b.Shipyard != nil:
 		return categoryHarbour
 	case b.Road != nil:
 		return categoryRoads
@@ -194,9 +214,20 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 				GrowthPerMin: r.GrowthPerMin, DeclinePerMin: r.DeclinePerMin,
 				GrowthThresholdPpm: r.GrowthThreshold, OptionalTaxBonusPpm: r.OptionalTaxBonus,
 				AutoResumeUpkeepDurationMs: r.AutoResumeMs,
+				ShipHandlingMs:             r.ShipHandlingMs, ShipSpeedMilliTilesPerMin: r.ShipSpeedMilliTilesPerMin,
 			},
 		},
-		Tiers: []tierJSON{}, Goods: []goodJSON{}, Buildings: []buildingJSON{}, Needs: []needJSON{},
+		Tiers: []tierJSON{}, Goods: []goodJSON{}, Buildings: []buildingJSON{}, Needs: []needJSON{}, Ships: []shipJSONOut{},
+	}
+	for _, sh := range c.Ships {
+		sj := shipJSONOut{
+			ID: sh.ID, Name: sh.Name, Tier: sh.Tier, Slots: sh.Slots, SlotSize: sh.SlotSize, SpeedPermille: sh.SpeedPermille,
+			BuildMs: sh.BuildMs, Cost: costJSON{Gold: sh.Cost.Gold, Materials: map[string]int64{}}, UpkeepPerMin: sh.UpkeepPerMin,
+		}
+		for _, m := range sh.Cost.Materials {
+			sj.Cost.Materials[m.Good] = m.Amount
+		}
+		p.Ships = append(p.Ships, sj)
 	}
 	for _, t := range c.Tiers {
 		tj := tierJSON{
@@ -264,6 +295,9 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 	}
 	if wf := b.Workforce; wf != nil {
 		bj.Workforce = &workforceJSON{Tier: wf.Tier, Amount: wf.Amount}
+	}
+	if sy := b.Shipyard; sy != nil {
+		bj.Shipyard = &shipyardJSONOut{Ships: append([]string{}, sy.Ships...)}
 	}
 	return bj
 }

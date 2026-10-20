@@ -1,6 +1,7 @@
 package sim
 
 import (
+	"encoding/json"
 	"fmt"
 	"maps"
 	"math"
@@ -35,8 +36,9 @@ const timeLayout = "2006-01-02T15:04:05.000Z07:00"
 // nearest milli-unit), all rates milli-units per minute.
 type DisplayState struct {
 	EvaluatedAt string `json:"evaluated_at"`
-	// NextChangeAt is the earliest boundary after EvaluatedAt or nil when the
-	// rates never change without a command.
+	// NextChangeAt is the earliest boundary (including ship arrivals and
+	// completed orders) or ship departure after EvaluatedAt, or nil when
+	// nothing changes without a command.
 	NextChangeAt *string `json:"next_change_at"`
 	// Gold in milli-gold; rates in milli-gold per minute (signed balance).
 	Gold              Qty `json:"gold"`
@@ -46,6 +48,108 @@ type DisplayState struct {
 	// Tiers in progression order with their unlock progress.
 	Tiers   []TierDisplay   `json:"tiers"`
 	Islands []IslandDisplay `json:"islands"`
+	// Ships sorted by ID.
+	Ships []ShipDisplay `json:"ships"`
+	// Routes sorted by ID.
+	Routes []RouteDisplay `json:"routes"`
+}
+
+// ShipDisplay is the display state of a ship. The client interpolates its
+// position and countdowns from the leg timestamps.
+type ShipDisplay struct {
+	ID    int64  `json:"id"`
+	Type  string `json:"type"`
+	State string `json:"state"`
+	// IslandID is where the ship is; empty while travelling.
+	IslandID string `json:"island_id"`
+	// RouteID is the assigned route (0 when none); StopIndex the index of
+	// the stop the ship is heading to.
+	RouteID   int64       `json:"route_id"`
+	StopIndex int         `json:"stop_index"`
+	Leg       *LegDisplay `json:"leg"`
+	// Cargo lists the occupied slots (milli-units), at most Slots entries;
+	// a good may occupy several slots.
+	Cargo    []CargoDisplay `json:"cargo"`
+	Slots    int            `json:"slots"`
+	SlotSize Qty            `json:"slot_size"`
+	// UpkeepPerMin is the current upkeep in milli-gold per minute (0 while
+	// paused).
+	UpkeepPerMin Qty    `json:"upkeep_per_min"`
+	Paused       bool   `json:"paused"`
+	PausedReason string `json:"paused_reason"`
+}
+
+// LegDisplay is a ship's current voyage (RFC 3339 timestamps with ms): the
+// ship handles cargo at the origin until DepartAt and arrives at ArriveAt.
+type LegDisplay struct {
+	FromIslandID string `json:"from_island_id"`
+	ToIslandID   string `json:"to_island_id"`
+	DepartAt     string `json:"depart_at"`
+	ArriveAt     string `json:"arrive_at"`
+}
+
+// CargoDisplay is one occupied cargo slot (milli-units).
+type CargoDisplay struct {
+	Good   string `json:"good"`
+	Amount Qty    `json:"amount"`
+}
+
+// RouteDisplay is a route with its assigned ships.
+type RouteDisplay struct {
+	ID      int64              `json:"id"`
+	Name    string             `json:"name"`
+	Stops   []RouteStopDisplay `json:"stops"`
+	ShipIDs []int64            `json:"ship_ids"`
+	// LoopMs is the duration of one loop at reference speed 1.0: the
+	// handling time of every stop plus the travel time of every leg.
+	LoopMs int64 `json:"loop_ms"`
+}
+
+// RouteStopDisplay is one stop of a route.
+type RouteStopDisplay struct {
+	IslandID string            `json:"island_id"`
+	Load     []LoadRuleDisplay `json:"load"`
+	Unload   []string          `json:"unload"`
+}
+
+// LoadRuleDisplay loads a good until MaxAmount milli-units are aboard.
+type LoadRuleDisplay struct {
+	Good      string `json:"good"`
+	MaxAmount Qty    `json:"max_amount"`
+}
+
+// PositionDisplay is an archipelago position in tiles.
+type PositionDisplay struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
+// ShipOrderDisplay is the pending order of a shipyard (RFC 3339 with ms).
+type ShipOrderDisplay struct {
+	Type      string `json:"type"`
+	OrderedAt string `json:"ordered_at"`
+	DueAt     string `json:"due_at"`
+}
+
+// OptionalShipOrder is the ship_order field of a building: omitted for
+// buildings without a shipyard block, null for an idle shipyard.
+type OptionalShipOrder struct {
+	// Present is set for shipyards.
+	Present bool
+	Order   *ShipOrderDisplay
+}
+
+// IsZero omits the field for buildings that are not shipyards (omitzero).
+func (o OptionalShipOrder) IsZero() bool { return !o.Present }
+
+// MarshalJSON encodes the order or null.
+func (o OptionalShipOrder) MarshalJSON() ([]byte, error) { return json.Marshal(o.Order) }
+
+// UnmarshalJSON decodes the order or null; a present field marks a
+// shipyard.
+func (o *OptionalShipOrder) UnmarshalJSON(data []byte) error {
+	o.Present = true
+	return json.Unmarshal(data, &o.Order)
 }
 
 // TierDisplay is the unlock state of a tier (MECHANICS §12). Population
@@ -97,7 +201,14 @@ type BuildingWorkforce struct {
 
 // IslandDisplay is the display state of one island.
 type IslandDisplay struct {
-	ID        string                 `json:"id"`
+	ID string `json:"id"`
+	// Name is the display name (may be empty).
+	Name string `json:"name"`
+	// Settled is true when the island has a warehouse; unsettled islands
+	// have capacity 0 and accept only FoundIsland.
+	Settled bool `json:"settled"`
+	// Position in the archipelago (tiles).
+	Position  PositionDisplay        `json:"position"`
 	Width     int                    `json:"width"`
 	Height    int                    `json:"height"`
 	Inventory map[string]GoodDisplay `json:"inventory"`
@@ -191,6 +302,9 @@ type BuildingDisplay struct {
 	VarietyMultiplierPermille *int64        `json:"variety_multiplier_permille,omitempty"`
 	TaxRatePerMin             *Qty          `json:"tax_rate_per_min,omitempty"`
 	Needs                     []NeedDisplay `json:"needs,omitempty"`
+
+	// ShipOrder is set for shipyards: the pending order or null.
+	ShipOrder OptionalShipOrder `json:"ship_order,omitzero"`
 }
 
 // perMin converts a sub-milli rate per millisecond to milli-units per minute.
@@ -210,9 +324,17 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 	ds := DisplayState{
 		EvaluatedAt: cw.LastEvaluatedAt.Format(timeLayout), Gold: cw.Gold,
 		BalanceRatePerMin: wr.balance, TaxRatePerMin: wr.tax, UpkeepRatePerMin: wr.upkeep,
-		Tiers: []TierDisplay{}, Islands: []IslandDisplay{},
+		Tiers: []TierDisplay{}, Islands: []IslandDisplay{}, Ships: []ShipDisplay{}, Routes: []RouteDisplay{},
 	}
-	if at, _ := nextBoundary(cw, c, wr, nowMs); at != math.MaxInt64 {
+	at, _ := nextBoundary(cw, c, wr, nowMs)
+	// A departure changes no rate but the ship's displayed location, so the
+	// client re-fetches then as well.
+	for _, s := range cw.Ships {
+		if s.Leg != nil && s.Leg.DepartAtMs > nowMs {
+			at = min(at, s.Leg.DepartAtMs)
+		}
+	}
+	if at != math.MaxInt64 {
 		s := time.UnixMilli(at).UTC().Format(timeLayout)
 		ds.NextChangeAt = &s
 	}
@@ -231,12 +353,58 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 	for i, is := range cw.Islands {
 		ds.Islands = append(ds.Islands, displayIsland(is, c, wr.islands[i], nowMs))
 	}
+	for _, s := range cw.Ships {
+		ds.Ships = append(ds.Ships, displayShip(s, c))
+	}
+	for _, r := range cw.Routes {
+		ds.Routes = append(ds.Routes, displayRoute(cw, c, r))
+	}
 	return ds, nil
+}
+
+func formatMs(ms int64) string { return time.UnixMilli(ms).UTC().Format(timeLayout) }
+
+func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
+	d := ShipDisplay{
+		ID: s.ID, Type: s.Type, State: s.State, IslandID: s.IslandID, RouteID: s.RouteID, StopIndex: s.StopIndex,
+		Cargo: []CargoDisplay{}, Paused: s.Paused, PausedReason: s.PausedReason,
+	}
+	if def := c.ShipByID[s.Type]; def != nil {
+		d.Slots, d.SlotSize = def.Slots, def.SlotSize
+		if !s.Paused {
+			d.UpkeepPerMin = def.UpkeepPerMin
+		}
+	}
+	if l := s.Leg; l != nil {
+		d.Leg = &LegDisplay{FromIslandID: l.FromIsland, ToIslandID: l.ToIsland, DepartAt: formatMs(l.DepartAtMs), ArriveAt: formatMs(l.ArriveAtMs)}
+	}
+	for _, sl := range s.Cargo {
+		d.Cargo = append(d.Cargo, CargoDisplay(sl))
+	}
+	return d
+}
+
+func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
+	d := RouteDisplay{ID: r.ID, Name: r.Name, Stops: []RouteStopDisplay{}, ShipIDs: []int64{}, LoopMs: routeLoopMs(w, c, r)}
+	for _, st := range r.Stops {
+		sd := RouteStopDisplay{IslandID: st.IslandID, Load: []LoadRuleDisplay{}, Unload: append([]string{}, st.Unload...)}
+		for _, lr := range st.Load {
+			sd.Load = append(sd.Load, LoadRuleDisplay(lr))
+		}
+		d.Stops = append(d.Stops, sd)
+	}
+	for _, s := range w.Ships {
+		if s.RouteID == r.ID {
+			d.ShipIDs = append(d.ShipIDs, s.ID)
+		}
+	}
+	return d
 }
 
 func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) IslandDisplay {
 	d := IslandDisplay{
-		ID: is.ID, Width: is.Width, Height: is.Height,
+		ID: is.ID, Name: is.Name, Settled: settled(is, c), Position: PositionDisplay{X: is.X, Y: is.Y},
+		Width: is.Width, Height: is.Height,
 		Inventory: map[string]GoodDisplay{}, Roads: []RoadDisplay{}, Buildings: []BuildingDisplay{},
 		Workforce: map[string]WorkforceDisplay{}, Population: islandPopulation(is, c),
 	}
@@ -279,8 +447,14 @@ func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) Island
 			displayProducer(&bd, is, c, prods[b.ID])
 		case b.Paused:
 			bd.Status = StatusPaused
-		case (def.Service != nil || houses[b.ID] != nil) && b.AssignedWarehouseID == 0:
+		case (def.Service != nil || def.Shipyard != nil || houses[b.ID] != nil) && b.AssignedWarehouseID == 0:
 			bd.Status = StatusNotConnected
+		}
+		if def.Shipyard != nil {
+			bd.ShipOrder.Present = true
+			if o := b.Order; o != nil {
+				bd.ShipOrder.Order = &ShipOrderDisplay{Type: o.Type, OrderedAt: formatMs(o.OrderedAtMs), DueAt: formatMs(o.DueAtMs)}
+			}
 		}
 		if def.Warehouse != nil {
 			lvl := warehouseLevel(def, b)

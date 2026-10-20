@@ -17,8 +17,9 @@ import (
 //     to the lowest warehouse ID.
 //   - transfer delay = transfer_base + sum of seconds_per_tile of every road
 //     tile on the path.
-//   - Public buildings (service block) and houses are connected by the same
-//     rule; they get AssignedWarehouseID (connection only, no transfers).
+//   - Public buildings (service block), shipyards and houses are connected
+//     by the same rule; they get AssignedWarehouseID (connection only, no
+//     transfers). A shipyard orders ships only while connected.
 //     Building needs require connected public buildings and houses
 //     (MECHANICS §6.2); unconnected houses receive no goods (MECHANICS §2).
 
@@ -102,7 +103,7 @@ func recomputeConnectivity(is *Island, c *content.Catalogue) {
 
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
-		if def == nil || (def.Recipe == nil && def.Service == nil && def.House == nil) {
+		if def == nil || (def.Recipe == nil && def.Service == nil && def.House == nil && def.Shipyard == nil) {
 			continue
 		}
 		b.AssignedWarehouseID, b.RoadDistance, b.TransferDelayMs = 0, 0, 0

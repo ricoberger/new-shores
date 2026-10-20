@@ -1,5 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import {
+  CONTENT_VERSION,
   E2E_TIME_SCALE,
   HOUSE,
   HOUSE_MOVED,
@@ -112,7 +113,7 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await expect.poll(async () => Number(await gold.textContent())).toBeGreaterThan(START_GOLD - 5);
   expect(Number(await gold.textContent())).toBeLessThanOrEqual(START_GOLD);
   expect(await page.evaluate(() => window.__newShores!.engineCount())).toBe(1);
-  await expect(page.getByTestId("hud-content-version")).toHaveText("old_coast-0.2.0");
+  await expect(page.getByTestId("hud-content-version")).toHaveText(CONTENT_VERSION);
 
   // Zoom out so that the whole island is on screen.
   const canvas = page.getByTestId("game-canvas");

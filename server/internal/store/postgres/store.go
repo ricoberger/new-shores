@@ -128,7 +128,9 @@ func WorldNow(ctx context.Context, q Querier, id store.WorldID) (time.Time, erro
 	return now, nil
 }
 
-// Update implements store.Store.
+// Update implements store.Store. After fn, the due moments of the world
+// get their pending scheduled events in the same transaction
+// (ReconcileDueEvents); a failing insertion rolls the world back.
 func (s *Store) Update(ctx context.Context, id store.WorldID, fn store.UpdateFunc) (int64, error) {
 	var version int64
 	err := InTx(ctx, s.pool, func(tx pgx.Tx) error {
@@ -145,14 +147,17 @@ func (s *Store) Update(ctx context.Context, id store.WorldID, fn store.UpdateFun
 		if err != nil {
 			return err
 		}
-		if !mutated {
-			return nil
+		if mutated {
+			if err := s.SaveWorld(ctx, tx, lw); err != nil {
+				return err
+			}
+			version = lw.Version
 		}
-		if err := s.SaveWorld(ctx, tx, lw); err != nil {
-			return err
-		}
-		version = lw.Version
-		return nil
+		// Every due moment of the world (as committed, or as advanced in
+		// memory by a read-only request) has its pending event, inserted
+		// in this transaction under the row lock (R-49).
+		_, err = ReconcileDueEvents(ctx, tx, id, lw.World, 0)
+		return err
 	})
 	if err != nil && errors.Is(err, sim.ErrTimeBackwards) {
 		telemetry.TimeBackwards.Inc()

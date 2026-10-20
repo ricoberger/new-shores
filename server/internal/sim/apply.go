@@ -103,6 +103,26 @@ func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) err
 		err = setPaused(w, c, cmd)
 	case UpgradeHouse:
 		err = upgradeHouse(w, c, cmd, l)
+	case OrderShip:
+		err = orderShip(w, c, cmd, l)
+	case CancelShipOrder:
+		err = cancelShipOrder(w, c, cmd, l)
+	case FoundIsland:
+		err = foundIsland(w, c, cmd, l)
+	case AssignShip:
+		err = assignShip(w, c, cmd, l)
+	case UnassignShip:
+		err = unassignShip(w, cmd)
+	case ManualShipment:
+		err = manualShipment(w, c, cmd, l)
+	case ScrapShip:
+		err = scrapShip(w, c, cmd, l)
+	case CreateRoute:
+		err = createRoute(w, c, cmd)
+	case UpdateRoute:
+		err = updateRoute(w, c, cmd)
+	case DeleteRoute:
+		err = deleteRoute(w, cmd)
 	case nil:
 		return fmt.Errorf("%w: nil command", ErrInvalidCommand)
 	default:
@@ -111,6 +131,7 @@ func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) err
 	if err != nil {
 		return err
 	}
+	normalizeShips(w, w.LastEvaluatedAt.UnixMilli())
 	evaluateUnlocks(w, c)
 	return nil
 }
@@ -242,6 +263,11 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	}
 	if charge && !TierUnlocked(w, c, def.Tier) {
 		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
+	}
+	// Only FoundIsland (and seeding) places the first warehouse of an
+	// island (MECHANICS §8).
+	if charge && !settled(is, c) {
+		return fmt.Errorf("%w: %q", ErrIslandNotSettled, is.ID)
 	}
 	if def.Road != nil {
 		if !charge {
@@ -381,6 +407,9 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 	if !TierUnlocked(w, c, def.Tier) {
 		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
 	}
+	if !settled(is, c) {
+		return fmt.Errorf("%w: %q", ErrIslandNotSettled, is.ID)
+	}
 	if len(cmd.Tiles) == 0 {
 		return fmt.Errorf("%w: no tiles", ErrInvalidCommand)
 	}
@@ -448,6 +477,20 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	}
 	now := w.LastEvaluatedAt.UnixMilli()
 
+	// The last warehouse may only go when nothing but roads remains: it
+	// unsettles the island (R-35).
+	if def.Warehouse != nil && len(is.Buildings) > 1 {
+		warehouses := 0
+		for _, ob := range is.Buildings {
+			if odef := c.BuildingByID[ob.Type]; odef != nil && odef.Warehouse != nil {
+				warehouses++
+			}
+		}
+		if warehouses == 1 {
+			return fmt.Errorf("%w: %q has %d other buildings", ErrLastWarehouse, is.ID, len(is.Buildings)-1)
+		}
+	}
+
 	// Capacity after demolition. The demolished building's own in-transit
 	// goods are delivered, which leaves committed quantities unchanged.
 	newCap := capacityFine(is, c)
@@ -489,6 +532,9 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 		}
 	}
 	refund(is, c, def.Cost, 1, l, now)
+	if b.Order != nil {
+		refundOrder(is, c, b.Order, l, now)
+	}
 	afterChange(is, c)
 	return nil
 }

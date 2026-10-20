@@ -23,9 +23,10 @@ const (
 	FileBuildings = "buildings.json"
 	FileNeeds     = "needs.json"
 	FileStart     = "start.json"
+	FileShips     = "ships.json"
 )
 
-var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeeds, FileStart}
+var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeeds, FileStart, FileShips}
 
 // Error describes one content problem. It names the file, the offending
 // entity (if any) and the field.
@@ -179,6 +180,8 @@ func entityKind(file string) string {
 		return "need"
 	case FileStart:
 		return "start"
+	case FileShips:
+		return "ship"
 	}
 	return "entity"
 }
@@ -217,6 +220,8 @@ type rawRegion struct {
 		GrowthThreshold        json.Number `json:"growth_satisfaction_threshold"`
 		OptionalTaxBonus       json.Number `json:"optional_tax_bonus"`
 		AutoResumeMinutes      json.Number `json:"auto_resume_upkeep_minutes"`
+		ShipHandlingSeconds    json.Number `json:"ship_handling_seconds"`
+		ShipSpeedTilesPerMin   json.Number `json:"ship_speed_tiles_per_min"`
 	} `json:"rules"`
 }
 
@@ -285,6 +290,22 @@ type rawBuilding struct {
 		Tier   string `json:"tier"`
 		Amount int64  `json:"amount"`
 	} `json:"workforce"`
+	Shipyard *struct {
+		Ships []string `json:"ships"`
+	} `json:"shipyard"`
+}
+
+type rawShip struct {
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name"`
+	Region       string                 `json:"region"`
+	Tier         string                 `json:"tier"`
+	Slots        int                    `json:"slots"`
+	SlotSize     json.Number            `json:"slot_size"`
+	Speed        json.Number            `json:"speed"`
+	BuildSeconds json.Number            `json:"build_seconds"`
+	Cost         map[string]json.Number `json:"cost"`
+	Upkeep       json.Number            `json:"upkeep_per_min"`
 }
 
 type rawNeed struct {
@@ -348,9 +369,11 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		buildings []rawBuilding
 		needs     []rawNeed
 		start     rawStart
+		ships     []rawShip
 	)
 	for name, v := range map[string]any{
 		FileRegion: &region, FileTiers: &tiers, FileGoods: &goods, FileBuildings: &buildings, FileNeeds: &needs, FileStart: &start,
+		FileShips: &ships,
 	} {
 		if err := unmarshal(raw[name], v); err != nil {
 			return nil, &Error{File: name, Msg: fmt.Sprintf("decode: %v", err)}
@@ -363,6 +386,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		GoodByID:     map[string]*Good{},
 		BuildingByID: map[string]*Building{},
 		NeedsByTier:  map[string][]*Need{},
+		ShipByID:     map[string]*Ship{},
 	}
 
 	ent := fmt.Sprintf("region %q", region.ID)
@@ -381,7 +405,10 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			GrowthThreshold:  col.fixed(FileRegion, ent, "rules.growth_satisfaction_threshold", region.Rules.GrowthThreshold, 3) * 1000,
 			OptionalTaxBonus: col.fixed(FileRegion, ent, "rules.optional_tax_bonus", region.Rules.OptionalTaxBonus, 3) * 1000,
 			// Minutes with 3 decimal places are milli-minutes; x60 gives ms.
-			AutoResumeMs: col.fixed(FileRegion, ent, "rules.auto_resume_upkeep_minutes", region.Rules.AutoResumeMinutes, 3) * 60,
+			AutoResumeMs:   col.fixed(FileRegion, ent, "rules.auto_resume_upkeep_minutes", region.Rules.AutoResumeMinutes, 3) * 60,
+			ShipHandlingMs: col.fixed(FileRegion, ent, "rules.ship_handling_seconds", region.Rules.ShipHandlingSeconds, 3),
+			// Tiles per minute with 3 decimal places are milli-tiles per minute.
+			ShipSpeedMilliTilesPerMin: col.fixed(FileRegion, ent, "rules.ship_speed_tiles_per_min", region.Rules.ShipSpeedTilesPerMin, 3),
 		},
 	}
 
@@ -461,6 +488,24 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		cat.NeedsByTier[n.Tier] = append(cat.NeedsByTier[n.Tier], n)
 	}
 
+	for _, rs := range ships {
+		ent := fmt.Sprintf("ship %q", rs.ID)
+		if _, dup := cat.ShipByID[rs.ID]; dup {
+			col.add(FileShips, ent, "id", "duplicate ID")
+			continue
+		}
+		sh := &Ship{
+			ID: rs.ID, Name: rs.Name, Region: rs.Region, Tier: rs.Tier, Slots: rs.Slots,
+			SlotSize:      col.fixed(FileShips, ent, "slot_size", rs.SlotSize, 3),
+			SpeedPermille: col.fixed(FileShips, ent, "speed", rs.Speed, 3),
+			BuildMs:       col.fixed(FileShips, ent, "build_seconds", rs.BuildSeconds, 3),
+			UpkeepPerMin:  col.fixed(FileShips, ent, "upkeep_per_min", rs.Upkeep, 3),
+			Cost:          decodeCost(col, FileShips, ent, rs.Cost, cat.GoodByID),
+		}
+		cat.Ships = append(cat.Ships, sh)
+		cat.ShipByID[sh.ID] = sh
+	}
+
 	cat.Start.Gold = col.fixed(FileStart, "", "gold", start.Gold, 3)
 	for _, good := range slices.Sorted(maps.Keys(start.Goods)) {
 		v := col.fixed(FileStart, "", "goods."+good, start.Goods[good], 3)
@@ -499,27 +544,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		col.add(file, ent, "footprint", "must be at least 1x1")
 	}
 
-	keys := make([]string, 0, len(rb.Cost))
-	for k := range rb.Cost {
-		keys = append(keys, k)
-	}
-	slices.Sort(keys)
-	for _, k := range keys {
-		v := col.fixed(file, ent, "cost."+k, rb.Cost[k], 3)
-		if k == "gold" {
-			b.Cost.Gold = v
-			continue
-		}
-		// Every cost key is a good reference, including zero amounts, which
-		// are validated here because they are not kept in Materials.
-		if goods[k] == nil {
-			col.add(file, ent, "cost."+k, "unknown good %q", k)
-			continue
-		}
-		if v > 0 {
-			b.Cost.Materials = append(b.Cost.Materials, GoodAmount{Good: k, Amount: v})
-		}
-	}
+	b.Cost = decodeCost(col, file, ent, rb.Cost, goods)
 
 	if r := rb.Recipe; r != nil {
 		rec := &Recipe{CycleMs: col.fixed(file, ent, "recipe.cycle_seconds", r.CycleSeconds, 3)}
@@ -569,6 +594,9 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 	if wf := rb.Workforce; wf != nil {
 		b.Workforce = &Workforce{Tier: wf.Tier, Amount: wf.Amount * MilliPerUnit}
 	}
+	if sy := rb.Shipyard; sy != nil {
+		b.Shipyard = &Shipyard{Ships: append([]string(nil), sy.Ships...)}
+	}
 	if wa := rb.WorkArea; wa != nil {
 		b.WorkArea = &WorkArea{Radius: wa.Radius, Terrain: wa.Terrain, RequiredTiles: wa.RequiredTiles}
 		if wa.RequiredTiles < 1 {
@@ -576,4 +604,27 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		}
 	}
 	return b
+}
+
+// decodeCost converts a cost object ("gold" plus materials by good ID) of a
+// building or ship. Materials are sorted by good ID.
+func decodeCost(col *collector, file, ent string, raw map[string]json.Number, goods map[string]*Good) Cost {
+	var cost Cost
+	for _, k := range slices.Sorted(maps.Keys(raw)) {
+		v := col.fixed(file, ent, "cost."+k, raw[k], 3)
+		if k == "gold" {
+			cost.Gold = v
+			continue
+		}
+		// Every cost key is a good reference, including zero amounts, which
+		// are validated here because they are not kept in Materials.
+		if goods[k] == nil {
+			col.add(file, ent, "cost."+k, "unknown good %q", k)
+			continue
+		}
+		if v > 0 {
+			cost.Materials = append(cost.Materials, GoodAmount{Good: k, Amount: v})
+		}
+	}
+	return cost
 }

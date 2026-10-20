@@ -51,6 +51,12 @@ func checkReferences(c *Catalogue) error {
 	if rules.AutoResumeMs <= 0 {
 		col.add(FileRegion, rent, "rules.auto_resume_upkeep_minutes", "must be > 0")
 	}
+	if rules.ShipHandlingMs < 0 {
+		col.add(FileRegion, rent, "rules.ship_handling_seconds", "must be >= 0")
+	}
+	if rules.ShipSpeedMilliTilesPerMin <= 0 {
+		col.add(FileRegion, rent, "rules.ship_speed_tiles_per_min", "must be > 0")
+	}
 
 	for _, t := range c.Tiers {
 		ent := fmt.Sprintf("tier %q", t.ID)
@@ -135,11 +141,53 @@ func checkReferences(c *Catalogue) error {
 				}
 			}
 		}
+		if sy := b.Shipyard; sy != nil {
+			seen := map[string]bool{}
+			for i, id := range sy.Ships {
+				field := fmt.Sprintf("shipyard.ships[%d]", i)
+				if _, ok := c.ShipByID[id]; !ok {
+					col.add(FileBuildings, ent, field, "unknown ship %q", id)
+				}
+				if seen[id] {
+					col.add(FileBuildings, ent, field, "duplicate ship %q", id)
+				}
+				seen[id] = true
+			}
+			if len(sy.Ships) == 0 {
+				col.add(FileBuildings, ent, "shipyard.ships", "must not be empty")
+			}
+		}
 		if b.Road != nil && (b.Width != 1 || b.Height != 1) {
 			col.add(FileBuildings, ent, "footprint", "road buildings must be 1x1")
 		}
 		if b.Road != nil && b.Recipe != nil {
 			col.add(FileBuildings, ent, "road", "a road cannot have a recipe")
+		}
+	}
+
+	for _, s := range c.Ships {
+		ent := fmt.Sprintf("ship %q", s.ID)
+		if s.Region != c.Region.ID {
+			col.add(FileShips, ent, "region", "must be %q, got %q", c.Region.ID, s.Region)
+		}
+		tier(FileShips, ent, "tier", s.Tier)
+		if s.Slots < 1 {
+			col.add(FileShips, ent, "slots", "must be >= 1")
+		}
+		if s.SlotSize <= 0 {
+			col.add(FileShips, ent, "slot_size", "must be > 0")
+		}
+		if s.SpeedPermille <= 0 {
+			col.add(FileShips, ent, "speed", "must be > 0")
+		}
+		if s.BuildMs <= 0 {
+			col.add(FileShips, ent, "build_seconds", "must be > 0")
+		}
+		if s.UpkeepPerMin < 0 {
+			col.add(FileShips, ent, "upkeep_per_min", "must be >= 0")
+		}
+		if s.Cost.Gold < 0 {
+			col.add(FileShips, ent, "cost.gold", "must be >= 0")
 		}
 	}
 

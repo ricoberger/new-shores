@@ -540,6 +540,10 @@ func TestHealthAndContent(t *testing.T) {
 	var c struct {
 		Region struct {
 			Version string `json:"version"`
+			Rules   struct {
+				ShipHandlingMs int64 `json:"ship_handling_ms"`
+				ShipSpeed      int64 `json:"ship_speed_milli_tiles_per_min"`
+			} `json:"rules"`
 		} `json:"region"`
 		Tiers     []json.RawMessage `json:"tiers"`
 		Goods     []json.RawMessage `json:"goods"`
@@ -550,17 +554,36 @@ func TestHealthAndContent(t *testing.T) {
 			Cost     struct {
 				Gold int64 `json:"gold"`
 			} `json:"cost"`
+			Shipyard *struct {
+				Ships []string `json:"ships"`
+			} `json:"shipyard"`
 		} `json:"buildings"`
+		Ships []struct {
+			ID       string `json:"id"`
+			Slots    int    `json:"slots"`
+			SlotSize int64  `json:"slot_size"`
+			BuildMs  int64  `json:"build_ms"`
+			Cost     struct {
+				Gold      int64            `json:"gold"`
+				Materials map[string]int64 `json:"materials"`
+			} `json:"cost"`
+		} `json:"ships"`
 	}
 	if err := json.Unmarshal(res.body, &c); err != nil {
 		t.Fatal(err)
 	}
-	if c.Region.Version != "old_coast-0.2.0" || len(c.Buildings) != 10 || len(c.Goods) != 6 || len(c.Tiers) != 2 || len(c.Needs) != 3 {
-		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs))
+	if c.Region.Version != "old_coast-0.3.0" || len(c.Buildings) != 11 || len(c.Goods) != 6 || len(c.Tiers) != 2 || len(c.Needs) != 3 || len(c.Ships) != 1 {
+		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d ships %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs), len(c.Ships))
+	}
+	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 2 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != 300_000 || sh.Cost.Materials["sails"] != 10_000 {
+		t.Errorf("sloop = %+v", sh)
+	}
+	if c.Region.Rules.ShipHandlingMs != 20_000 || c.Region.Rules.ShipSpeed != 60_000 {
+		t.Errorf("rules = %+v", c.Region.Rules)
 	}
 	want := map[string]string{
 		"house_settlers": "houses", "road_dirt": "roads", "warehouse": "harbour", "market_small": "public",
-		"chapel": "public", "lumberjack": "production", "sawmill": "production",
+		"chapel": "public", "lumberjack": "production", "sawmill": "production", "shipyard": "harbour",
 	}
 	for _, b := range c.Buildings {
 		if w, ok := want[b.ID]; ok && b.Category != w {
@@ -568,6 +591,9 @@ func TestHealthAndContent(t *testing.T) {
 		}
 		if b.ID == "warehouse" && b.Cost.Gold != 200_000 {
 			t.Errorf("warehouse gold cost %d milli-gold", b.Cost.Gold)
+		}
+		if (b.ID == "shipyard") != (b.Shipyard != nil) || (b.Shipyard != nil && strings.Join(b.Shipyard.Ships, ",") != "sloop") {
+			t.Errorf("%s shipyard block %+v", b.ID, b.Shipyard)
 		}
 	}
 }
@@ -582,12 +608,17 @@ func TestIslandData(t *testing.T) {
 	if err := json.Unmarshal(res.body, &is); err != nil {
 		t.Fatal(err)
 	}
-	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.2.0" {
+	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.3.0" {
 		t.Fatalf("island %s %dx%d terrain %d revision %s", is.ID, is.Width, is.Height, len(is.Terrain), is.Revision)
 	}
 	// Row 1 of the dev island starts with water then coast.
 	if is.Terrain[1*is.Width+0] != "water" || is.Terrain[1*is.Width+1] != "coast" {
 		t.Fatalf("terrain row 1: %v", is.Terrain[is.Width:is.Width+3])
+	}
+	// The unsettled island 2 is served too (R-57).
+	res = ts.do(http.MethodGet, "/api/v1/world/islands/island2", "", true)
+	if err := json.Unmarshal(res.body, &is); err != nil || res.status != 200 || is.ID != "island2" || !slices.Contains(is.Terrain, "mountain") {
+		t.Fatalf("island2: %d %s", res.status, res.body)
 	}
 }
 

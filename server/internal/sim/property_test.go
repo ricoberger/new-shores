@@ -380,52 +380,111 @@ func total(is *Island, good string, now int64) int64 {
 	return t
 }
 
-// checkInvariants asserts conservation, capacity bounds, gold, residents,
-// growth accumulators, workforce factors, unpaid pauses and unlocks.
+// checkInvariants asserts conservation (per island and world-wide including
+// cargo aboard ships), capacity bounds, gold, residents, growth
+// accumulators, workforce factors, unpaid pauses, unlocks and the ship
+// invariants (a ship is in exactly one place, whole milli-units within its
+// slots, pending due moments after now).
 func (p *propCase) checkInvariants(stage string) {
 	p.t.Helper()
-	is := p.w.Islands[0]
 	now := p.w.LastEvaluatedAt.UnixMilli()
-	capFine := capacityFine(is, p.c)
+	cargo := map[string]int64{}
+	for _, s := range p.w.Ships {
+		def := p.c.ShipByID[s.Type]
+		for _, sl := range s.Cargo {
+			cargo[sl.Good] += sl.Amount * SubPerMilli
+			if sl.Amount <= 0 || sl.Amount > def.SlotSize {
+				p.fail("%s: ship %d slot %+v", stage, s.ID, sl)
+			}
+		}
+		if len(s.Cargo) > def.Slots || slotsUsed(cargoAmounts(s), def.SlotSize) != len(s.Cargo) {
+			p.fail("%s: ship %d cargo %+v exceeds %d slots or is not canonical", stage, s.ID, s.Cargo, def.Slots)
+		}
+		switch s.State {
+		case ShipIdle, ShipAnchoredUnpaid:
+			if s.Leg != nil || p.w.Island(s.IslandID) == nil {
+				p.fail("%s: ship %d %s at %q with leg %+v", stage, s.ID, s.State, s.IslandID, s.Leg)
+			}
+		case ShipOnRoute, ShipManualLeg:
+			l := s.Leg
+			switch {
+			case l == nil:
+				p.fail("%s: ship %d %s without leg", stage, s.ID, s.State)
+			case l.DepartAtMs > now && s.IslandID != l.FromIsland, l.DepartAtMs <= now && s.IslandID != "":
+				p.fail("%s: ship %d at %q with leg %+v at %d", stage, s.ID, s.IslandID, l, now)
+			case l.ArriveAtMs <= now || l.ArriveAtMs <= l.DepartAtMs || l.FromIsland == l.ToIsland:
+				p.fail("%s: ship %d leg %+v at %d", stage, s.ID, l, now)
+			}
+		default:
+			p.fail("%s: ship %d state %q", stage, s.ID, s.State)
+		}
+		if s.State != ShipAnchoredUnpaid && (s.State == ShipOnRoute) != (s.RouteID != 0) {
+			p.fail("%s: ship %d %s with route %d", stage, s.ID, s.State, s.RouteID)
+		}
+		if s.RouteID != 0 && p.w.Route(s.RouteID) == nil {
+			p.fail("%s: ship %d on missing route %d", stage, s.ID, s.RouteID)
+		}
+		if s.Paused != (s.PausedReason == PausedReasonUnpaid) || (s.State == ShipAnchoredUnpaid && !s.Paused) {
+			p.fail("%s: ship %d paused %v reason %q state %s", stage, s.ID, s.Paused, s.PausedReason, s.State)
+		}
+	}
+	for _, e := range DueEvents(p.w) {
+		if e.At.UnixMilli() <= now {
+			p.fail("%s: due moment %+v not after %d", stage, e, now)
+		}
+	}
 	for _, g := range p.c.Goods {
 		good := g.ID
-		s := is.Inventory.fine(good)
-		if s < 0 || s > capFine {
-			p.fail("%s: %s stock %d outside [0, %d]", stage, good, s, capFine)
+		var world, flows int64
+		for _, is := range p.w.Islands {
+			capFine := capacityFine(is, p.c)
+			s := is.Inventory.fine(good)
+			if s < 0 || s > capFine {
+				p.fail("%s: %s/%s stock %d outside [0, %d]", stage, is.ID, good, s, capFine)
+			}
+			if sub := is.Inventory.StockSub[good]; sub < 0 || sub >= SubPerMilli {
+				p.fail("%s: %s sub-milli remainder %d", stage, good, sub)
+			}
+			f := p.l.Flow(is.ID, good)
+			own := f.Produced - f.Consumed - f.Lost - f.Spent + f.Refunded + f.Granted
+			want := own - f.Loaded + f.Unloaded
+			got := total(is, good, now)
+			if got != want {
+				p.fail("%s: conservation of %s on %s: stock+transit+buffer = %d, ledger = %d (%+v)", stage, good, is.ID, got, want, f)
+			}
+			world += got
+			flows += own
 		}
-		if sub := is.Inventory.StockSub[good]; sub < 0 || sub >= SubPerMilli {
-			p.fail("%s: %s sub-milli remainder %d", stage, good, sub)
-		}
-		f := p.l.Flow("main", good)
-		want := f.Produced - f.Consumed - f.Lost - f.Spent + f.Refunded + f.Granted
-		if got := total(is, good, now); got != want {
-			p.fail("%s: conservation of %s: stock+transit+buffer = %d, ledger = %d (%+v)", stage, good, got, want, f)
+		if world+cargo[good] != flows {
+			p.fail("%s: world conservation of %s: islands %d + cargo %d != ledger %d", stage, good, world, cargo[good], flows)
 		}
 	}
 	if p.w.Gold < 0 || p.w.GoldSub < 0 || p.w.GoldSub >= GoldSubPerMilli {
 		p.fail("%s: gold %d sub %d", stage, p.w.Gold, p.w.GoldSub)
 	}
-	for _, b := range is.Buildings {
-		def := p.c.BuildingByID[b.Type]
-		if b.PausedReason == PausedReasonUnpaid && (!b.Paused || def.UpkeepPerMin <= 0 || b.PauseSeq <= 0 || b.PausedAtMs <= 0 || b.PausedAtMs > now) {
-			p.fail("%s: unpaid building %d (%s) paused %v upkeep %d seq %d", stage, b.ID, b.Type, b.Paused, def.UpkeepPerMin, b.PauseSeq)
+	for _, is := range p.w.Islands {
+		for _, b := range is.Buildings {
+			def := p.c.BuildingByID[b.Type]
+			if b.PausedReason == PausedReasonUnpaid && (!b.Paused || def.UpkeepPerMin <= 0 || b.PauseSeq <= 0 || b.PausedAtMs <= 0 || b.PausedAtMs > now) {
+				p.fail("%s: unpaid building %d (%s) paused %v upkeep %d seq %d", stage, b.ID, b.Type, b.Paused, def.UpkeepPerMin, b.PauseSeq)
+			}
+			if b.House == nil {
+				continue
+			}
+			tier := p.c.TierByID[def.House.Tier]
+			h := b.House
+			if h.Residents < tier.ResidentsFloor || h.Residents > tier.ResidentsMax || h.Residents%1000 != 0 {
+				p.fail("%s: residents %d outside [%d, %d] or not whole", stage, h.Residents, tier.ResidentsFloor, tier.ResidentsMax)
+			}
+			if h.Growth <= -ResidentSub || h.Growth >= ResidentSub {
+				p.fail("%s: growth accumulator %d outside (-1, +1) resident", stage, h.Growth)
+			}
 		}
-		if b.House == nil {
-			continue
-		}
-		tier := p.c.TierByID[def.House.Tier]
-		h := b.House
-		if h.Residents < tier.ResidentsFloor || h.Residents > tier.ResidentsMax || h.Residents%1000 != 0 {
-			p.fail("%s: residents %d outside [%d, %d] or not whole", stage, h.Residents, tier.ResidentsFloor, tier.ResidentsMax)
-		}
-		if h.Growth <= -ResidentSub || h.Growth >= ResidentSub {
-			p.fail("%s: growth accumulator %d outside (-1, +1) resident", stage, h.Growth)
-		}
-	}
-	r := computeRates(is.clone(), p.c, now)
-	for _, pr := range r.producers {
-		if pr.workforce < 0 || pr.workforce > 1000 {
-			p.fail("%s: workforce factor %d of building %d", stage, pr.workforce, pr.b.ID)
+		r := computeRates(is.clone(), p.c, now)
+		for _, pr := range r.producers {
+			if pr.workforce < 0 || pr.workforce > 1000 {
+				p.fail("%s: workforce factor %d of building %d", stage, pr.workforce, pr.b.ID)
+			}
 		}
 	}
 	for _, id := range p.unlocked {
@@ -506,6 +565,15 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 					splits = append(splits, split{at, b.Kind})
 				}
 			}
+			// Inside the handling time after an arrival (before the
+			// departure) and at the departure itself.
+			if h := p.c.Region.Rules.ShipHandlingMs; b.Kind == BoundaryShipArrived && h > 1 {
+				for _, at := range []time.Time{b.At.Add(time.Duration(1+p.rng.Int64N(h-1)) * time.Millisecond), b.At.Add(time.Duration(h) * time.Millisecond)} {
+					if at.After(start) && at.Before(to) {
+						splits = append(splits, split{at, "handling"})
+					}
+				}
+			}
 			if b.Kind != BoundaryGoldZero {
 				continue
 			}
@@ -545,7 +613,8 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 				if sp.at.After(p.w.LastEvaluatedAt) {
 					later = append(later, sp)
 					switch sp.kind {
-					case BoundaryGoldZero, BoundaryGoldReserve, BoundaryAutoPause, BoundaryAutoResume, "between":
+					case BoundaryGoldZero, BoundaryGoldReserve, BoundaryAutoPause, BoundaryAutoResume, "between",
+						BoundaryShipArrived, BoundaryShipBuilt, "handling":
 						byKind[sp.kind] = append(byKind[sp.kind], sp)
 					}
 				}

@@ -313,14 +313,16 @@ func runDev(o options, logger *slog.Logger) error {
 	}
 	clock := api.WallClock{}
 	start := clock.Now().Truncate(time.Millisecond)
-	w, err := devworld.New(cat, start)
+	w, err := devworld.NewDev(cat, start)
 	if err != nil {
 		return err
 	}
 	scale := api.TimeScale{Start: start, Scale: o.timeScale}
 	hub := ws.NewHub(logger)
+	worldNow := func() time.Time { return scale.At(clock.Now()) }
+	mem := store.NewMemory(devWorldID, w, worldNow)
 	handler, err := api.New(api.Config{
-		Store:        store.NewMemory(devWorldID, w, func() time.Time { return scale.At(clock.Now()) }),
+		Store:        mem,
 		Catalogue:    cat,
 		Clock:        clock,
 		ResolveWorld: func(*http.Request) (store.WorldID, error) { return devWorldID, nil },
@@ -337,6 +339,26 @@ func runDev(o options, logger *slog.Logger) error {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	// Scheduled events of the in-memory world (ship_built, ship_arrived):
+	// the scheduler sleeps until the next due moment and is cancelled on
+	// shutdown.
+	schedCtx, stopSched := context.WithCancel(context.Background())
+	defer stopSched()
+	sched := &events.DevScheduler{
+		Store: mem, Registry: events.DefaultRegistry(defaultFreshness), Catalogue: cat,
+		Publisher: ws.LocalPublisher{Hub: hub}, Logger: logger, WorldNow: worldNow,
+		WallUntil: func(t time.Time) time.Duration { return scale.WallAt(t).Sub(clock.Now()) },
+	}
+	var schedDone sync.WaitGroup
+	schedDone.Add(1)
+	go func() {
+		defer schedDone.Done()
+		if err := sched.Run(schedCtx); err != nil {
+			logger.Error("dev scheduler stopped", "error", err)
+		}
+	}()
+
 	errc := make(chan error, 1)
 	go func() { errc <- srv.ListenAndServe() }()
 	logger.Info("dev server listening", "addr", o.addr, "content_version", cat.Region.Version, "time_scale", o.timeScale, "cors_origins", o.corsOrigins, "version", version)
@@ -350,6 +372,8 @@ func runDev(o options, logger *slog.Logger) error {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 	err = srv.Shutdown(shutdownCtx)
+	stopSched()
+	schedDone.Wait()
 	hub.Close(shutdownCtx)
 	if err != nil {
 		return fmt.Errorf("shutdown: %w", err)

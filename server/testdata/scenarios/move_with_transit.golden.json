@@ -1,6 +1,6 @@
 {
   "name": "move_with_transit",
-  "content_version": "old_coast-0.2.0",
+  "content_version": "old_coast-0.3.0",
   "boundary_count": 3,
   "totals": {
     "main": {
@@ -108,6 +108,12 @@
     "islands": [
       {
         "id": "main",
+        "name": "",
+        "settled": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
         "width": 20,
         "height": 10,
         "inventory": {
@@ -286,6 +292,8 @@
         },
         "population": {}
       }
-    ]
+    ],
+    "ships": [],
+    "routes": []
   }
 }

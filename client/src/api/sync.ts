@@ -51,6 +51,8 @@ export interface SyncSnapshot {
   server: WorldResponse | null;
   /** Extrapolated display model (4 Hz). */
   model: DisplayState | null;
+  /** Server time (ms since the epoch) the model was extrapolated to. */
+  nowMs: number;
   content: Content | null;
   islands: ReadonlyMap<string, Island>;
   /** The server could not be reached; retrying. */
@@ -87,7 +89,7 @@ const defaultSocketFactory: SocketFactory = (handlers) =>
   typeof WebSocket === "undefined" ? null : new WorldSocket(wsUrl(), handlers);
 
 export class GameSync {
-  private snapshot: SyncSnapshot = { server: null, model: null, content: null, islands: new Map(), unreachable: false };
+  private snapshot: SyncSnapshot = { server: null, model: null, nowMs: 0, content: null, islands: new Map(), unreachable: false };
   private offsetMs = 0;
   private receivedAtMs = 0;
   private listeners = new Set<Listener>();
@@ -200,7 +202,10 @@ export class GameSync {
 
   private recompute(): void {
     const server = this.snapshot.server;
-    if (server) this.set({ model: extrapolate(server.display, this.serverNowMs()) });
+    if (server) {
+      const nowMs = this.serverNowMs();
+      this.set({ model: extrapolate(server.display, nowMs), nowMs });
+    }
   }
 
   /**
@@ -359,9 +364,11 @@ export class GameSync {
     this.accepted++;
     this.offsetMs = clockOffsetMs(res.display, receivedAtMs);
     this.receivedAtMs = receivedAtMs;
+    const nowMs = this.serverNowMs();
     this.set({
       server: res,
-      model: extrapolate(res.display, this.serverNowMs()),
+      model: extrapolate(res.display, nowMs),
+      nowMs,
       ...(reset ? { islands: new Map<string, Island>() } : {}),
     });
     if (reset || (!this.snapshot.content && !this.retries.has("content"))) void this.loadContent();

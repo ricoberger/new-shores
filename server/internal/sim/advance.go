@@ -55,6 +55,7 @@ type Boundary struct {
 	Kind       string    `json:"kind"`
 	IslandID   string    `json:"island_id,omitempty"`
 	BuildingID int64     `json:"building_id,omitempty"`
+	ShipID     int64     `json:"ship_id,omitempty"`
 	Good       string    `json:"good,omitempty"`
 	Tier       string    `json:"tier,omitempty"`
 }
@@ -62,9 +63,10 @@ type Boundary struct {
 // Advance moves the world forward to time to (truncated to milliseconds)
 // using the piecewise-constant-rate model of MECHANICS §1.1 and returns the
 // boundaries that were crossed, including the discrete events applied at
-// them (auto_pause, auto_resume, tier_unlocked). Gold accrues from taxes and
-// upkeep. Advancing to LastEvaluatedAt is a no-op; an earlier time is an
-// error.
+// them (auto_pause, auto_resume, tier_unlocked). Due moments (ship_built,
+// ship_arrived) are boundaries whose effect is applied at exactly their
+// millisecond, including at to. Gold accrues from taxes and upkeep.
+// Advancing to LastEvaluatedAt is a no-op; an earlier time is an error.
 func Advance(w *World, c *content.Catalogue, to time.Time) ([]Boundary, error) {
 	return AdvanceWithLedger(w, c, to, nil)
 }
@@ -88,10 +90,15 @@ func AdvanceWithLedger(w *World, c *content.Catalogue, to time.Time, l *Ledger) 
 			coarse = true
 			out = append(out, Boundary{At: time.UnixMilli(now).UTC(), Kind: BoundaryCoarseMode})
 		}
-		wr, events := settleWorld(w, c, now)
+		wr, events := settleWorldLedger(w, c, now, l)
 		out = append(out, events...)
 		if coarse {
+			// Coarse steps still stop at due moments so that their effects
+			// apply at exactly their millisecond.
 			dt := min(rules.CoarseStepMs, end-now)
+			if due := nextDue(w, now); due < now+dt {
+				dt = due - now
+			}
 			for i, is := range w.Islands {
 				step(is, c, wr.islands[i], now, dt, true, l)
 			}
@@ -112,10 +119,22 @@ func AdvanceWithLedger(w *World, c *content.Catalogue, to time.Time, l *Ledger) 
 		}
 		now = stepEnd
 	}
-	_, events := settleWorld(w, c, now)
+	_, events := settleWorldLedger(w, c, now, l)
 	out = append(out, events...)
 	w.LastEvaluatedAt = to
 	return out, nil
+}
+
+// nextDue returns the earliest due moment strictly after now
+// (math.MaxInt64 if none).
+func nextDue(w *World, now int64) int64 {
+	best := int64(math.MaxInt64)
+	for _, e := range dueList(w) {
+		if e.atMs > now {
+			best = min(best, e.atMs)
+		}
+	}
+	return best
 }
 
 // ceilDiv returns ceil(a/b) for a >= 0 and b > 0.
@@ -137,7 +156,7 @@ func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (in
 			fallthrough
 		case t == best:
 			for _, x := range list {
-				if x.Kind == b.Kind && x.IslandID == b.IslandID && x.BuildingID == b.BuildingID && x.Good == b.Good {
+				if x.Kind == b.Kind && x.IslandID == b.IslandID && x.BuildingID == b.BuildingID && x.ShipID == b.ShipID && x.Good == b.Good {
 					return
 				}
 			}
@@ -230,11 +249,18 @@ func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (in
 	// Gold reaches the reserve of the eligible resume candidate. If gold
 	// already covers it (only for a building paused at this very
 	// millisecond), the resume happens at the next millisecond.
-	if b := wr.resumable; b != nil && wr.balance > 0 {
-		thr := resumeThreshold(c, c.BuildingByID[b.Type].UpkeepPerMin)
-		consider(now+ceilDiv(max(thr-gold, 0), wr.balance), Boundary{Kind: BoundaryGoldReserve, IslandID: wr.resumableIsland.ID, BuildingID: b.ID})
-	} else if b != nil && gold >= resumeThreshold(c, c.BuildingByID[b.Type].UpkeepPerMin) {
-		consider(now+1, Boundary{Kind: BoundaryGoldReserve, IslandID: wr.resumableIsland.ID, BuildingID: b.ID})
+	if p := wr.resumable; p.valid() && wr.balance > 0 {
+		thr := resumeThreshold(c, p.upkeep(c))
+		consider(now+ceilDiv(max(thr-gold, 0), wr.balance), p.boundary(BoundaryGoldReserve, time.Time{}))
+	} else if p.valid() && gold >= resumeThreshold(c, p.upkeep(c)) {
+		consider(now+1, p.boundary(BoundaryGoldReserve, time.Time{}))
+	}
+
+	// Due moments: shipyard orders complete and ships arrive.
+	for _, e := range dueList(w) {
+		if e.atMs > now {
+			consider(e.atMs, Boundary{Kind: e.Kind, IslandID: e.IslandID, BuildingID: e.BuildingID, ShipID: e.ShipID})
+		}
 	}
 	return best, list
 }

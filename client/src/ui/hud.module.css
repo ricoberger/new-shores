@@ -299,3 +299,80 @@
 .dialog {
   width: 380px;
 }
+
+.islandTabs {
+  display: flex;
+  gap: 4px;
+}
+
+.islandTab {
+  border: 1px solid #b9ad94;
+  border-radius: 6px;
+  background: #ece5d6;
+  padding: 2px 10px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.badge {
+  font-size: 11px;
+  color: #fff;
+  background: #8c7f66;
+  border-radius: 8px;
+  padding: 0 6px;
+}
+
+.hudButton {
+  border: 1px solid #b9ad94;
+  border-radius: 6px;
+  background: #fffaf0;
+  padding: 2px 10px;
+}
+
+.shipsPanel {
+  width: 380px;
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+}
+
+.shipEntry {
+  border-top: 1px solid #ddd3bf;
+  padding: 6px 0;
+}
+
+.row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input {
+  border: 1px solid #b9ad94;
+  border-radius: 4px;
+  padding: 2px 4px;
+  background: #fff;
+  max-width: 140px;
+}
+
+.number {
+  width: 70px;
+}
+
+.warn {
+  color: #b34700;
+}
+
+.stop {
+  border: 1px solid #ddd3bf;
+  border-radius: 6px;
+  padding: 6px;
+  margin-top: 6px;
+}
+
+.unsettledPanel {
+  margin: 0 auto 8px;
+  max-width: 520px;
+  text-align: center;
+}
