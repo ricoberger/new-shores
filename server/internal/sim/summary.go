@@ -16,7 +16,10 @@ import (
 //     commands and scheduled events never set it.
 //   - Every Advance, whoever triggers it, accumulates the data of the
 //     summary in World.Away: goods flows per island, the gold and
-//     population change, auto-pause/resume and ship arrival counts. MarkSeen
+//     population change, auto-pause/resume counts and every ship arrival.
+//     Every successful command adds its gold and population change and its
+//     lost goods (ApplyWithLedger), so a summary produced right after the
+//     returning command still reports the values at LastSeenAt. MarkSeen
 //     resets the accumulator, so it always covers [LastSeenAt,
 //     LastEvaluatedAt].
 //   - MaybeProduceSummary stores a summary over [LastSeenAt, now] as the
@@ -26,11 +29,6 @@ import (
 //     AckSummary clears the pending summary with a matching ID.
 //   - The summary is a pure function of the accumulator and the world, so
 //     identical inputs give byte-identical summaries.
-
-// maxSummaryArrivals bounds the ship arrivals listed in a summary (the
-// count stays exact) so that a long absence with busy routes cannot grow
-// the world envelope without limit.
-const maxSummaryArrivals = 50
 
 // AwayLog accumulates the data of the next "while you were away" summary
 // since World.LastSeenAt. Every field is additive, so splitting an
@@ -47,8 +45,8 @@ type AwayLog struct {
 	// events of buildings and ships.
 	AutoPaused  int `json:"auto_paused,omitempty"`
 	AutoResumed int `json:"auto_resumed,omitempty"`
-	// ShipsArrived counts the ship arrivals; Arrivals lists the first
-	// maxSummaryArrivals of them.
+	// ShipsArrived counts the ship arrivals; Arrivals lists every one of
+	// them (about 60 bytes each; MarkSeen clears the list).
 	ShipsArrived int           `json:"ships_arrived,omitempty"`
 	Arrivals     []AwayArrival `json:"arrivals,omitempty"`
 }
@@ -149,9 +147,7 @@ func (a *AwayLog) addPopulation(delta map[string]Qty) {
 
 func (a *AwayLog) addArrival(s *Ship, island string, now int64) {
 	a.ShipsArrived++
-	if len(a.Arrivals) < maxSummaryArrivals {
-		a.Arrivals = append(a.Arrivals, AwayArrival{ShipID: s.ID, IslandID: island, AtMs: now})
-	}
+	a.Arrivals = append(a.Arrivals, AwayArrival{ShipID: s.ID, IslandID: island, AtMs: now})
 }
 
 // AckSummary acknowledges the pending summary with the given ID (a no-op
@@ -196,7 +192,7 @@ type AwaySummary struct {
 	AutoResumed  int          `json:"auto_resumed"`
 	StillUnpaid  []AwayUnpaid `json:"still_unpaid"`
 	ShipsArrived int          `json:"ships_arrived"`
-	// Arrivals lists the first arrivals (at most 50; ShipsArrived is exact).
+	// Arrivals lists every ship arrival of the interval in time order.
 	Arrivals []AwayArrivalDisplay `json:"arrivals"`
 	// QuestsCompleted during the interval, by completion time.
 	QuestsCompleted []AwayQuest `json:"quests_completed"`

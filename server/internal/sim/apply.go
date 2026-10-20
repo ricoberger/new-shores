@@ -97,7 +97,27 @@ func Apply(w *World, c *content.Catalogue, cmd Command) error {
 
 // ApplyWithLedger is Apply that records goods movements in l (may be nil).
 // Tier unlocks and quests are evaluated after every successful command.
+// The effects of a successful command on gold, population and lost goods
+// also go into the away summary accumulator (World.Away), so that a summary
+// produced right after a command still reports the state at LastSeenAt.
 func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) error {
+	gold, pop := w.goldFine(), worldPopulation(w, c)
+	inner := NewLedger()
+	if err := applyCommand(w, c, cmd, inner); err != nil {
+		return err
+	}
+	w.Away.GoldDeltaSub += w.goldFine() - gold
+	delta := worldPopulation(w, c)
+	for tier, n := range pop {
+		delta[tier] -= n
+	}
+	w.Away.addPopulation(delta)
+	w.Away.addLedger(inner)
+	l.merge(inner)
+	return nil
+}
+
+func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error {
 	var err error
 	switch cmd := cmd.(type) {
 	case PlaceBuilding:

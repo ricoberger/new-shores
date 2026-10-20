@@ -5,11 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
+	"slices"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/scenario"
 	"github.com/ricoberger/new-shores/server/internal/store"
 )
 
@@ -48,9 +52,22 @@ type questView struct {
 		} `json:"completed"`
 	} `json:"quests"`
 	AwaySummary *struct {
-		ID   int64  `json:"id"`
-		From string `json:"from"`
-		To   string `json:"to"`
+		ID         int64  `json:"id"`
+		From       string `json:"from"`
+		To         string `json:"to"`
+		GoldBefore int64  `json:"gold_before"`
+		GoldAfter  int64  `json:"gold_after"`
+		Population map[string]struct {
+			Before int64 `json:"before"`
+			After  int64 `json:"after"`
+		} `json:"population"`
+		Islands []struct {
+			ID    string `json:"id"`
+			Goods map[string]struct {
+				Lost       int64 `json:"lost"`
+				StockAfter int64 `json:"stock_after"`
+			} `json:"goods"`
+		} `json:"islands"`
 	} `json:"away_summary"`
 	LastSeenAt string `json:"last_seen_at"`
 	Islands    []struct {
@@ -267,5 +284,111 @@ func TestAwaySummaryCoversWorkerEvents(t *testing.T) {
 	v := questDisplay(t, ss.getWorld().Display)
 	if v.AwaySummary == nil || v.AwaySummary.From != cmdAt || v.LastSeenAt != cmdAt {
 		t.Fatalf("summary %+v last seen %s, want from %s", v.AwaySummary, v.LastSeenAt, cmdAt)
+	}
+}
+
+// TestAwaySummaryOfReturningCommand (R16-R18): when the returning command
+// produces the summary, the summary still reports gold and population at
+// the last command (the command's own effects belong to the interval) and
+// the goods the command lost.
+func TestAwaySummaryOfReturningCommand(t *testing.T) {
+	gap := time.Duration(catalogue(t).Region.Rules.AwaySummaryMs) * time.Millisecond
+	returning := func(t *testing.T, ts *testServer, cmd string) questView {
+		t.Helper()
+		ts.clock.Add(gap)
+		v := questDisplay(t, ts.mustCommand(cmd).Display)
+		if v.AwaySummary == nil {
+			t.Fatalf("%s produced no summary", cmd)
+		}
+		return v
+	}
+
+	t.Run("purchase", func(t *testing.T) {
+		ts := newTestServer(t, 1)
+		start := questDisplay(t, ts.mustCommand(cmdRoad).Display)
+		v := returning(t, ts, `{"type":"place_building","island_id":"start","building_type":"lumberjack","x":35,"y":5,"rotation":180}`)
+		cost := catalogue(t).BuildingByID["lumberjack"].Cost.Gold
+		if v.AwaySummary.GoldBefore != start.Gold || v.AwaySummary.GoldAfter != start.Gold-cost || v.Gold != start.Gold-cost {
+			t.Fatalf("gold %d -> %d (display %d), want %d -> %d", v.AwaySummary.GoldBefore, v.AwaySummary.GoldAfter, v.Gold, start.Gold, start.Gold-cost)
+		}
+	})
+
+	t.Run("house placement", func(t *testing.T) {
+		ts := newTestServer(t, 1)
+		ts.mustCommand(cmdRoad)
+		v := returning(t, ts, `{"type":"place_building","island_id":"start","building_type":"house_settlers","x":8,"y":5,"rotation":180}`)
+		if p := v.AwaySummary.Population["settlers"]; p.Before != 0 || p.After != 2_000 {
+			t.Fatalf("settlers %+v, want 0 -> 2000", p)
+		}
+	})
+
+	t.Run("goods-overflow claim", func(t *testing.T) {
+		ts := newTestServer(t, 1)
+		c := catalogue(t)
+		ts.mustCommand(`{"type":"place_road","island_id":"start","road_type":"road_dirt","tiles":[` + roadTiles(3, 36, 4) + `]}`)
+		ts.mustCommand(`{"type":"place_building","island_id":"start","building_type":"lumberjack","x":35,"y":5,"rotation":180}`)
+		w := questDisplay(t, ts.mustCommand(`{"type":"place_building","island_id":"start","building_type":"sawmill","x":20,"y":5,"rotation":180}`).Display)
+		planks := c.Quests[1]
+		if len(w.Quests.Claimable) != 2 || w.Quests.Claimable[1] != planks.ID {
+			t.Fatalf("claimable %v", w.Quests.Claimable)
+		}
+		// Fill the planks up to 10 below the capacity (a grant, not a
+		// command). Nothing produces planks during the gap: the sawmill
+		// has no workers.
+		ts.mutateWorld(func(w *sim.World) {
+			is := w.Island("start")
+			free := int64(300_000) - is.Inventory.Stock["planks"] - 10_000
+			if err := sim.AddStock(w, c, "start", "planks", free, nil); err != nil {
+				t.Fatal(err)
+			}
+		})
+		v := returning(t, ts, fmt.Sprintf(`{"type":"claim_quest","quest_id":%q,"island_id":"start"}`, planks.ID))
+		var lost, stock int64 = -1, -1
+		for _, is := range v.AwaySummary.Islands {
+			if is.ID == "start" {
+				lost, stock = is.Goods["planks"].Lost, is.Goods["planks"].StockAfter
+			}
+		}
+		if want := planks.Rewards.Goods[0].Amount - 10_000; lost != want || stock != 300_000 {
+			t.Fatalf("planks lost %d stock %d, want lost %d at capacity", lost, stock, want)
+		}
+	})
+}
+
+// TestAwaySummaryOfReturningUpgrade (R18): a house upgrade as the
+// returning command moves residents between tiers inside the interval; the
+// summary reports both tiers as they were at the last command.
+func TestAwaySummaryOfReturningUpgrade(t *testing.T) {
+	c := catalogue(t)
+	s, err := scenario.Load(os.DirFS(filepath.Join(repoRoot(t), "server", "testdata", "scenarios")), "bootstrap_citizens.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	upgrade := slices.IndexFunc(s.Steps, func(st scenario.Step) bool { return st.Upgrade != nil })
+	w, err := scenario.RunSteps(s, c, upgrade)
+	if err != nil {
+		t.Fatal(err)
+	}
+	house := w.Island("start").BuildingAt(c, s.Steps[upgrade].Upgrade.X, s.Steps[upgrade].Upgrade.Y)
+	sim.MarkSeen(w)
+	ds, err := sim.Display(w, c, w.LastEvaluatedAt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var settlers int64
+	for _, is := range ds.Islands {
+		settlers += is.Population["settlers"]
+	}
+	ts := newTestServerFor(t, w, w.LastEvaluatedAt, 1)
+	ts.clock.Add(time.Duration(c.Region.Rules.AwaySummaryMs) * time.Millisecond)
+	v := questDisplay(t, ts.mustCommand(fmt.Sprintf(`{"type":"upgrade_house","island_id":"start","building_id":%d}`, house.ID)).Display)
+	if v.AwaySummary == nil {
+		t.Fatal("no summary")
+	}
+	if p := v.AwaySummary.Population["citizens"]; p.Before != 0 || p.After != 5_000 {
+		t.Errorf("citizens %+v, want 0 -> 5000", p)
+	}
+	if p := v.AwaySummary.Population["settlers"]; p.Before != settlers || p.After >= p.Before {
+		t.Errorf("settlers %+v, want before %d and fewer after", p, settlers)
 	}
 }

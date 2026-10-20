@@ -1032,7 +1032,9 @@ export interface components {
          *     last command to the request that produced it. Produced on `GET
          *     /world` or a command when at least `away_summary_ms` passed since
          *     `last_seen_at` and no summary is pending (or the pending one ended
-         *     at least that long ago; the new one replaces it). Goods in
+         *     at least that long ago; the new one replaces it). The interval
+         *     includes the command that produced it: `gold_before` and
+         *     `population.*.before` are the values at `from`. Goods in
          *     milli-units, gold in milli-gold, residents in milli-residents.
          */
         AwaySummary: {
@@ -1069,7 +1071,7 @@ export interface components {
             still_unpaid: components["schemas"]["AwayUnpaid"][];
             /** @description Ship arrivals during the interval (count). */
             ships_arrived: number;
-            /** @description The first ship arrivals (at most 50; `ships_arrived` is exact). */
+            /** @description Every ship arrival of the interval in time order (`ships_arrived` entries). */
             arrivals: components["schemas"]["AwayArrival"][];
             /** @description Quests completed during the interval, by completion time. */
             quests_completed: components["schemas"]["AwayQuest"][];

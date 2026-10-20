@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 	"time"
+
+	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
 func summaryJSON(t *testing.T, s *AwaySummary) []byte {
@@ -161,7 +163,7 @@ func TestAwaySummaryEvents(t *testing.T) {
 	if sum.AutoPaused != countKind(bs, BoundaryAutoPause) || sum.AutoResumed != countKind(bs, BoundaryAutoResume) || sum.AutoPaused == 0 {
 		t.Errorf("pauses %d resumes %d, boundaries %d/%d", sum.AutoPaused, sum.AutoResumed, countKind(bs, BoundaryAutoPause), countKind(bs, BoundaryAutoResume))
 	}
-	if sum.ShipsArrived != countKind(bs, BoundaryShipArrived) || len(sum.Arrivals) != min(sum.ShipsArrived, maxSummaryArrivals) {
+	if sum.ShipsArrived != countKind(bs, BoundaryShipArrived) || len(sum.Arrivals) != sum.ShipsArrived {
 		t.Errorf("arrivals %d %v, boundaries %d", sum.ShipsArrived, sum.Arrivals, countKind(bs, BoundaryShipArrived))
 	}
 	unpaid := 0
@@ -185,5 +187,69 @@ func TestAwaySummaryEvents(t *testing.T) {
 		if at.Before(t0) || (i > 0 && q.CompletedAt < sum.QuestsCompleted[i-1].CompletedAt) {
 			t.Errorf("quest %+v", q)
 		}
+	}
+}
+
+// TestAwaySummaryListsEveryArrival (R18): a long gap with a busy route
+// lists every arrival with ship, island and time, in time order, exactly
+// as the ship_arrived boundaries of the advancement.
+func TestAwaySummaryListsEveryArrival(t *testing.T) {
+	c := catalogue(t)
+	w, s := routeWorld(t, c)
+	w.Gold = 1_000_000_000
+	mustApply(t, w, c, CreateRoute{Stops: []Stop{{IslandID: "a"}, {IslandID: "b"}}})
+	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
+	MarkSeen(w)
+	bs := mustAdvance(t, w, c, 12*time.Hour)
+	var want []AwayArrivalDisplay
+	for _, b := range bs {
+		if b.Kind == BoundaryShipArrived {
+			want = append(want, AwayArrivalDisplay{ShipID: b.ShipID, IslandID: "", At: b.At.Format(timeLayout)})
+		}
+	}
+	sum := ProduceSummary(w, c)
+	if len(want) <= 50 || sum.ShipsArrived != len(want) || len(sum.Arrivals) != len(want) {
+		t.Fatalf("arrivals: %d boundaries, count %d, list %d", len(want), sum.ShipsArrived, len(sum.Arrivals))
+	}
+	for i, a := range sum.Arrivals {
+		if a.ShipID != want[i].ShipID || a.At != want[i].At || (a.IslandID != "a" && a.IslandID != "b") {
+			t.Fatalf("arrival %d = %+v, boundary %+v", i, a, want[i])
+		}
+	}
+	// Survives the envelope.
+	again, _, err := Decode(encode(t, w))
+	if err != nil || len(ProduceSummary(again, c).Arrivals) != len(want) {
+		t.Fatalf("after decode: %v", err)
+	}
+}
+
+// TestAwaySummaryIncludesCommandEffects: commands after the last seen time
+// (before the summary is produced) are part of the interval: the summary
+// reports gold and population at the last seen time and the goods a
+// command lost.
+func TestAwaySummaryIncludesCommandEffects(t *testing.T) {
+	c := withoutQuests(catalogue(t))
+	w := newTown(t, c, 1_000)
+	MarkSeen(w)
+	gold0 := w.Gold
+	mustAdvance(t, w, c, 20*time.Minute)
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "house_settlers", X: 9, Y: 2})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 24, Y: 2})
+	sum := ProduceSummary(w, c)
+	if sum.GoldBefore != gold0 || sum.GoldAfter != w.Gold || w.Gold >= gold0 {
+		t.Errorf("gold %d -> %d, want %d -> %d", sum.GoldBefore, sum.GoldAfter, gold0, w.Gold)
+	}
+	if p := sum.Population["settlers"]; p.Before != 0 || p.After != 2_000 {
+		t.Errorf("settlers %+v", p)
+	}
+	// A claim credits goods up to the capacity; the excess is lost by the
+	// command.
+	qc := withQuests(c, quest("fish", content.Rewards{Goods: []content.GoodAmount{{Good: "fish", Amount: 400_000}}},
+		content.Objective{Kind: content.ObjectiveBuildingCount, Building: "house_settlers", Min: 1}))
+	mustAdvance(t, w, qc, time.Second)
+	MarkSeen(w)
+	mustApply(t, w, qc, ClaimQuest{QuestID: "fish", IslandID: "main"})
+	if g := ProduceSummary(w, qc).Islands[0].Goods["fish"]; g.Lost != 100_000 || g.StockAfter != 300_000 || !g.AtCapacity {
+		t.Errorf("fish %+v", g)
 	}
 }
