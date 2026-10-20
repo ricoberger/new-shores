@@ -313,7 +313,7 @@ func runDev(o options, logger *slog.Logger) error {
 	}
 	clock := api.WallClock{}
 	start := clock.Now().Truncate(time.Millisecond)
-	w, err := devworld.New(cat, start)
+	w, err := devworld.NewDev(cat, start)
 	if err != nil {
 		return err
 	}
