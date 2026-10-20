@@ -11,7 +11,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { Scene } from "@babylonjs/core/scene";
-import type { ContentBuilding, Island, WorldResponse } from "../api/client";
+import type { ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { GameSync, SyncSnapshot } from "../api/sync";
 import { buildingAt, lPath, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import type { Tool } from "../ui/tools";
@@ -29,6 +29,7 @@ export interface RendererEvents {
   select(buildingId: number | null): void;
   place(x: number, y: number): void;
   move(x: number, y: number): void;
+  found(x: number, y: number): void;
   road(from: TilePos, to: TilePos): void;
   demolish(x: number, y: number): void;
   cancelTool(): void;
@@ -56,6 +57,9 @@ export class GameRenderer {
   private hover: Point | null = null;
   private roadStart: TilePos | null = null;
   private selected: number | null = null;
+  /** Island shown (null: the first island of the payload). */
+  private islandId: string | null = null;
+  private shownIslandId = "";
   private firstFrameMarked = false;
 
   constructor(
@@ -132,10 +136,30 @@ export class GameRenderer {
     return this.engine.getRenderWidth() / Math.max(1, this.canvas.clientWidth);
   }
 
+  /** ID of the island shown: the selected one, else the first one. */
+  private currentIslandId(): string {
+    const islands = this.sync.getSnapshot().server?.display.islands ?? [];
+    if (this.islandId && islands.some((is) => is.id === this.islandId)) return this.islandId;
+    return islands[0]?.id ?? "";
+  }
+
+  /** Server display state of the island shown. */
+  private displayIsland(): IslandDisplay | undefined {
+    const id = this.currentIslandId();
+    return this.sync.getSnapshot().server?.display.islands.find((is) => is.id === id);
+  }
+
   private island(): Island | undefined {
-    const snap = this.sync.getSnapshot();
-    const id = snap.server?.display.islands[0]?.id;
-    return id ? snap.islands.get(id) : undefined;
+    const id = this.currentIslandId();
+    return id ? this.sync.getSnapshot().islands.get(id) : undefined;
+  }
+
+  /** Shows another island: terrain, roads and buildings are rebuilt. */
+  setIsland(id: string): void {
+    if (id === this.islandId) return;
+    this.islandId = id;
+    this.lastServer = null;
+    this.onSnapshot(this.sync.getSnapshot());
   }
 
   private onSnapshot(snap: SyncSnapshot): void {
@@ -151,9 +175,14 @@ export class GameRenderer {
       this.terrainRevision = island.revision + island.id;
       this.rig.setBounds(island.width, island.height, true);
     }
+    const shown = this.currentIslandId();
+    if (shown !== this.shownIslandId) {
+      this.shownIslandId = shown;
+      this.lastServer = null;
+    }
     if (snap.server !== this.lastServer && snap.server && this.defs.size > 0) {
       this.lastServer = snap.server;
-      const is = snap.server.display.islands[0];
+      const is = this.displayIsland();
       this.buildings.update(is?.buildings ?? [], this.defs);
       this.roads.update(is?.roads ?? []);
       this.roadTiles = new Set((is?.roads ?? []).map(tileKey));
@@ -165,22 +194,22 @@ export class GameRenderer {
 
   setSelected(id: number | null): void {
     this.selected = id;
-    const b = this.sync.getSnapshot().server?.display.islands[0]?.buildings.find((x) => x.id === id);
+    const b = this.displayIsland()?.buildings.find((x) => x.id === id);
     this.buildings.select(b, b ? this.defs.get(b.type) : undefined);
   }
 
   /** Centres the camera on a building. */
   focusBuilding(id: number): void {
-    const b = this.sync.getSnapshot().server?.display.islands[0]?.buildings.find((x) => x.id === id);
+    const b = this.displayIsland()?.buildings.find((x) => x.id === id);
     const def = b && this.defs.get(b.type);
     if (!b || !def) return;
     const { cx, cz } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
     this.rig.focus(new Vector3(cx, 0, cz));
   }
 
-  /** CSS-pixel viewport position of the centre of a tile. */
+  /** CSS-pixel viewport position of the centre of a tile of the island shown (NaN for another island). */
   tileToScreen(islandId: string, x: number, y: number): { x: number; y: number } {
-    void islandId; // one island per view in M1b
+    if (islandId !== this.currentIslandId()) return { x: NaN, y: NaN };
     const p = this.rig.project(tileCenter(x, y));
     const r = this.canvas.getBoundingClientRect();
     const k = this.ratio();
@@ -208,6 +237,9 @@ export class GameRenderer {
       case "move":
         this.events.move(t.x, t.y);
         return;
+      case "found":
+        this.events.found(t.x, t.y);
+        return;
       case "road":
         this.events.road(t, t);
         return;
@@ -215,7 +247,7 @@ export class GameRenderer {
         this.events.demolish(t.x, t.y);
         return;
       case "none": {
-        const is = this.sync.getSnapshot().server?.display.islands[0];
+        const is = this.displayIsland();
         const b = is ? buildingAt(is.buildings, this.defs, t.x, t.y) : undefined;
         this.events.select(b?.id ?? null);
       }
@@ -256,9 +288,10 @@ export class GameRenderer {
    */
   private updateGhost(): void {
     const tool = this.tool();
-    const def = tool.kind === "build" || tool.kind === "move" ? this.defs.get(tool.buildingType) : undefined;
+    const ghostTool = tool.kind === "build" || tool.kind === "move" || tool.kind === "found";
+    const def = ghostTool ? this.defs.get(tool.buildingType) : undefined;
     const t = this.hover && def ? this.tileAt(this.hover) : null;
-    if ((tool.kind !== "build" && tool.kind !== "move") || !def || !t) {
+    if (!ghostTool || !def || !t) {
       this.ghost.setEnabled(false);
       return;
     }

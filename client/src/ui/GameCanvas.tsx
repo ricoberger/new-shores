@@ -32,6 +32,7 @@ export function GameCanvas({ sync, tool, events, onRenderer }: Props) {
       select: (id) => eventsRef.current.select(id),
       place: (x, y) => eventsRef.current.place(x, y),
       move: (x, y) => eventsRef.current.move(x, y),
+      found: (x, y) => eventsRef.current.found(x, y),
       road: (a, b) => eventsRef.current.road(a, b),
       demolish: (x, y) => eventsRef.current.demolish(x, y),
       cancelTool: () => eventsRef.current.cancelTool(),

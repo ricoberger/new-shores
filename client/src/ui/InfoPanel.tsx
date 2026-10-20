@@ -1,5 +1,6 @@
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
 import { percent, perMin, seconds, units } from "../display/format";
+import { countdown, orderTiming } from "../display/ships";
 import { STATUS_STYLES, statusKey, statusText } from "../display/status";
 import styles from "./hud.module.css";
 
@@ -14,6 +15,10 @@ interface Props {
   onMove: () => void;
   onUpgrade: () => void;
   onSelectBuilding: (id: number) => void;
+  /** Server time the model was extrapolated to (ms since the epoch). */
+  nowMs: number;
+  onOrderShip: (shipType: string) => void;
+  onCancelShipOrder: () => void;
 }
 
 const NEED_REASONS: Record<string, string> = {
@@ -43,7 +48,20 @@ export function StatusIcon({ building }: { building: BuildingDisplay }) {
   );
 }
 
-export function InfoPanel({ building: b, island, model, content, onSetPaused, onDemolish, onMove, onUpgrade, onSelectBuilding }: Props) {
+export function InfoPanel({
+  building: b,
+  island,
+  model,
+  content,
+  onSetPaused,
+  onDemolish,
+  onMove,
+  onUpgrade,
+  onSelectBuilding,
+  nowMs,
+  onOrderShip,
+  onCancelShipOrder,
+}: Props) {
   const def = content.buildings.find((d) => d.id === b.type);
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
   const tierName = (id: string) => content.tiers.find((t) => t.id === id)?.name ?? id;
@@ -185,6 +203,54 @@ export function InfoPanel({ building: b, island, model, content, onSetPaused, on
             ))}
           </div>
         </>
+      )}
+
+      {def?.shipyard && (
+        <div className={styles.section} data-testid="shipyard">
+          <div className={styles.sectionTitle}>Shipyard</div>
+          {b.ship_order ? (
+            <>
+              <div className={styles.small} data-testid="shipyard-order">
+                Building a {content.ships.find((t) => t.id === b.ship_order?.type)?.name ?? b.ship_order.type} · ready in{" "}
+                {countdown(orderTiming(b.ship_order, nowMs).remainingMs)}
+              </div>
+              <Bar permille={orderTiming(b.ship_order, nowMs).progressPermille} testId="shipyard-progress" />
+              <div className={styles.buttons}>
+                <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onCancelShipOrder} data-testid="shipyard-cancel">
+                  Cancel order (50 % materials back)
+                </button>
+              </div>
+            </>
+          ) : (
+            def.shipyard.ships.map((id) => {
+              const t = content.ships.find((x) => x.id === id);
+              if (!t) return null;
+              const missing = [
+                ...(t.cost.gold > model.gold ? [`${units(t.cost.gold - model.gold)} gold`] : []),
+                ...Object.entries(t.cost.materials)
+                  .filter(([g, n]) => (island.inventory[g]?.stock ?? 0) < n)
+                  .map(([g, n]) => `${units(n - (island.inventory[g]?.stock ?? 0))} ${goodName(g)}`),
+              ];
+              return (
+                <div key={id} className={styles.shipEntry}>
+                  <div className={styles.row}>
+                    <button type="button" className={styles.button} onClick={() => onOrderShip(id)} data-testid={`shipyard-order-${id}`}>
+                      Order {t.name}
+                    </button>
+                    <span className={styles.small}>
+                      {t.slots}×{units(t.slot_size)} · {countdown(t.build_ms)} · upkeep {perMin(t.upkeep_per_min)}/min
+                    </span>
+                  </div>
+                  <div className={styles.small}>
+                    {units(t.cost.gold)} gold
+                    {Object.entries(t.cost.materials).map(([g, n]) => ` · ${goodName(g)} ${units(island.inventory[g]?.stock ?? 0)}/${units(n)}`)}
+                  </div>
+                  {missing.length > 0 && <div className={`${styles.small} ${styles.warn}`}>Missing: {missing.join(", ")}</div>}
+                </div>
+              );
+            })
+          )}
+        </div>
       )}
 
       {b.level !== undefined && (

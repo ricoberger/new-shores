@@ -67,8 +67,16 @@ export function statusText(b: BuildingDisplay, island: IslandDisplay, display: D
         sentence: `Paused: insufficient gold (balance ${perMin(display.balance_rate_per_min, true)}/min)`,
         fix: "Demolish buildings, grow houses or resume manually.",
       };
-    case "not_connected":
-      return { key, sentence: "No road to a warehouse", fix: "Build a road next to it that leads to a warehouse." };
+    case "not_connected": {
+      const shipyard = content.buildings.find((d) => d.id === b.type)?.shipyard !== undefined;
+      return {
+        key,
+        sentence: "No road to a warehouse",
+        fix: shipyard
+          ? "Build a road next to it that leads to a warehouse; a shipyard can only order ships when connected."
+          : "Build a road next to it that leads to a warehouse.",
+      };
+    }
     case "input_starved": {
       const goods = (b.status_goods ?? []).map(
         (g) => `${goodName(content, g)} (${perMin(island.inventory[g]?.rate_per_min ?? 0)}/min)`,

@@ -11,7 +11,21 @@ function world(version: number, evaluatedAt: string, nextChangeAt: string | null
     tax_rate_per_min: 0,
     upkeep_rate_per_min: 0,
     tiers: [],
-    islands: islands.map((id) => ({ id, width: 1, height: 1, inventory: {}, roads: [], buildings: [], workforce: {}, population: {} })),
+    islands: islands.map((id) => ({
+      id,
+      name: "",
+      settled: true,
+      position: { x: 0, y: 0 },
+      width: 1,
+      height: 1,
+      inventory: {},
+      roads: [],
+      buildings: [],
+      workforce: {},
+      population: {},
+    })),
+    ships: [],
+    routes: [],
   };
   return { version, display };
 }

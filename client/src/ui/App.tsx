@@ -6,6 +6,8 @@ import {
   type ContentBuilding,
   NetworkError,
   type Player,
+  type RouteStop,
+  type ShipDisplay,
   type WorldResponse,
 } from "../api/client";
 import { GameSync, SyncStoppedError } from "../api/sync";
@@ -14,10 +16,14 @@ import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geomet
 import { GameRenderer } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
+import hud from "./hud.module.css";
 import { BuildMenu } from "./BuildMenu";
 import { type ConfirmRequest, ConfirmDialog } from "./Dialogs";
 import { GameCanvas } from "./GameCanvas";
 import { InfoPanel } from "./InfoPanel";
+import { RoutesPanel } from "./RoutesPanel";
+import { ShipmentDialog } from "./ShipmentDialog";
+import { ShipsPanel } from "./ShipsPanel";
 import { type Toast, Toasts } from "./Toasts";
 import { NO_TOOL, type Tool } from "./tools";
 import { TopBar } from "./TopBar";
@@ -61,13 +67,18 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
   const [selected, setSelected] = useState<number | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
+  const [chosenIsland, setChosenIsland] = useState<string | null>(null);
+  const [panel, setPanel] = useState<"none" | "ships" | "routes">("none");
+  const [shipment, setShipment] = useState<ShipDisplay | null>(null);
   const rendererRef = useRef<GameRenderer | null>(null);
   const toastId = useRef(0);
 
-  const island = model?.islands[0];
+  // The island shown (D-027: the client only chooses what to look at).
+  const island = model?.islands.find((is) => is.id === chosenIsland) ?? model?.islands[0];
   const islandId = island?.id ?? "";
   const defs = new Map((content?.buildings ?? []).map((b) => [b.id, b]));
   const selectedBuilding = island?.buildings.find((b) => b.id === selected);
+  const warehouseType = content?.buildings.find((b) => b.warehouse)?.id ?? "";
 
   const toast = useCallback((text: string) => {
     const id = ++toastId.current;
@@ -124,6 +135,29 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
     void demolish(b, false);
   };
 
+  const selectIsland = (id: string) => {
+    if (id === islandId) return;
+    setChosenIsland(id);
+    setSelected(null);
+    setTool(NO_TOOL);
+    rendererRef.current?.setIsland(id);
+  };
+
+  /** Founding: show the ship's island and place the warehouse ghost there. */
+  const startFounding = (ship: ShipDisplay) => {
+    setChosenIsland(ship.island_id);
+    rendererRef.current?.setIsland(ship.island_id);
+    setSelected(null);
+    setPanel("none");
+    setTool({ kind: "found", shipId: ship.id, buildingType: warehouseType, rotation: 0 });
+  };
+
+  const saveRoute = async (id: number | null, name: string, stops: RouteStop[]): Promise<boolean> => {
+    const cmd: Command =
+      id === null ? { type: "create_route", name, stops } : { type: "update_route", route_id: id, name, stops };
+    return (await sendCommand(cmd)).ok;
+  };
+
   const events = {
     select: (id: number | null) => setSelected(id),
     place: (x: number, y: number) => {
@@ -144,6 +178,21 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
         // On success the building stays selected at its new position; on an
         // error the move tool stays active so the player can retry.
         if (ok) setTool((t) => (t === moving ? NO_TOOL : t));
+      });
+    },
+    found: (x: number, y: number) => {
+      if (tool.kind !== "found") return;
+      const founding = tool;
+      void sendCommand({
+        type: "found_island",
+        ship_id: founding.shipId,
+        island_id: islandId,
+        building_type: founding.buildingType,
+        x,
+        y,
+        rotation: founding.rotation,
+      }).then(({ ok }) => {
+        if (ok) setTool((t) => (t === founding ? NO_TOOL : t));
       });
     },
     road: (from: TilePos, to: TilePos) => {
@@ -181,6 +230,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
     rendererRef.current = r;
   }, []);
 
+  // The renderer shows the chosen island (also after it was re-created).
+  useEffect(() => {
+    if (islandId) rendererRef.current?.setIsland(islandId);
+  }, [islandId, snap.server]);
+
   useEffect(() => rendererRef.current?.setSelected(selected), [selected, snap.server]);
 
   useEffect(() => {
@@ -190,7 +244,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
         setTool(NO_TOOL);
         setConfirm(null);
       } else if (e.key === "r" || e.key === "R") {
-        setTool((t) => (t.kind === "build" || t.kind === "move" ? { ...t, rotation: nextRotation(t.rotation) } : t));
+        setTool((t) => (t.kind === "build" || t.kind === "move" || t.kind === "found" ? { ...t, rotation: nextRotation(t.rotation) } : t));
       }
     };
     window.addEventListener("keydown", onKey);
@@ -209,9 +263,17 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
   }, [sync]);
 
   const focus = (id: number) => {
+    const owner = model?.islands.find((is) => is.buildings.some((b) => b.id === id));
+    if (owner && owner.id !== islandId) {
+      setChosenIsland(owner.id);
+      setTool(NO_TOOL);
+      rendererRef.current?.setIsland(owner.id);
+    }
     setSelected(id);
     rendererRef.current?.focusBuilding(id);
   };
+
+  const idleShipsHere = model?.ships.filter((s) => s.state === "idle" && s.island_id === islandId) ?? [];
 
   return (
     <div className={styles.root}>
@@ -221,12 +283,45 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
           <TopBar
             model={model}
             content={content}
+            islandId={islandId}
+            onSelectIsland={selectIsland}
+            onShips={() => setPanel((p) => (p === "ships" ? "none" : "ships"))}
+            onRoutes={() => setPanel((p) => (p === "routes" ? "none" : "routes"))}
             account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
           />
         </div>
         <div className={styles.left}>{model && content && <WarningsTray model={model} content={content} onFocus={focus} />}</div>
         <div className={styles.right}>
-          {selectedBuilding && island && model && content && (
+          {panel === "ships" && model && content && (
+            <ShipsPanel
+              model={model}
+              content={content}
+              nowMs={snap.nowMs}
+              onShipment={setShipment}
+              onAssign={(shipId, routeId) => void send({ type: "assign_ship", ship_id: shipId, route_id: routeId })}
+              onUnassign={(shipId) => void send({ type: "unassign_ship", ship_id: shipId })}
+              onScrap={(ship) =>
+                setConfirm({
+                  title: `Scrap ship #${ship.id}?`,
+                  body: "Its cargo is unloaded where it lies (above capacity it is lost); half of its materials are refunded, no gold.",
+                  confirmLabel: "Scrap",
+                  onConfirm: () => void send({ type: "scrap_ship", ship_id: ship.id }),
+                })
+              }
+              onFound={startFounding}
+              onClose={() => setPanel("none")}
+            />
+          )}
+          {panel === "routes" && model && content && (
+            <RoutesPanel
+              model={model}
+              content={content}
+              onSave={saveRoute}
+              onDelete={(id) => void send({ type: "delete_route", route_id: id })}
+              onClose={() => setPanel("none")}
+            />
+          )}
+          {panel === "none" && selectedBuilding && island && model && content && (
             <InfoPanel
               building={selectedBuilding}
               island={island}
@@ -244,23 +339,44 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
               }
               onUpgrade={() => void send({ type: "upgrade_house", island_id: islandId, building_id: selectedBuilding.id })}
               onSelectBuilding={focus}
+              nowMs={snap.nowMs}
+              onOrderShip={(shipType) =>
+                void send({ type: "order_ship", island_id: islandId, building_id: selectedBuilding.id, ship_type: shipType })
+              }
+              onCancelShipOrder={() => void send({ type: "cancel_ship_order", island_id: islandId, building_id: selectedBuilding.id })}
             />
           )}
         </div>
         <div className={styles.bottom}>
-          <BuildMenu
-            content={content}
-            model={model}
-            tool={tool}
-            onSelect={selectBuildItem}
-            onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
-          />
+          {island && !island.settled ? (
+            <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid="unsettled-panel">
+              <div>
+                <strong>{island.name || island.id}</strong> is not settled. Send a ship with the warehouse materials
+                and found a settlement.
+              </div>
+              {idleShipsHere.map((s) => (
+                <button key={s.id} type="button" className={hud.button} onClick={() => startFounding(s)} data-testid={`found-settlement-${s.id}`}>
+                  Found settlement with ship #{s.id}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <BuildMenu
+              content={content}
+              model={model}
+              islandId={islandId}
+              tool={tool}
+              onSelect={selectBuildItem}
+              onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
+            />
+          )}
         </div>
       </div>
       {tool.kind !== "none" && (
         <div className={styles.hint} data-testid="tool-hint">
           {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
           {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
+          {tool.kind === "found" && `Click to place the warehouse from ship #${tool.shipId} (${tool.rotation}°) · R rotate · Esc cancel`}
           {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
           {tool.kind === "demolish" && "Click a building or road to demolish · Esc / right click cancel"}
         </div>
@@ -272,6 +388,15 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
       )}
       <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((t) => t.id !== id))} />
       {confirm && <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />}
+      {shipment && model && content && (
+        <ShipmentDialog
+          ship={shipment}
+          model={model}
+          content={content}
+          onClose={() => setShipment(null)}
+          onSend={(to, cargo) => void send({ type: "manual_shipment", ship_id: shipment.id, to_island_id: to, cargo })}
+        />
+      )}
     </div>
   );
 }
