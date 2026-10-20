@@ -141,6 +141,12 @@ export class GameSync {
   private stop(): void {
     this.stopped = true;
     this.generation++;
+    // Requests of the ended generation are cancelled or ignored; nothing of
+    // it may be shared with or block the next one (React Strict Mode runs
+    // start -> stop -> start on the same instance).
+    this.lastGet = null;
+    this.contentRequest = false;
+    this.islandRequests.clear();
     this.socket?.stop();
     this.socket = null;
     clearInterval(this.modelTimer);
@@ -277,33 +283,35 @@ export class GameSync {
 
   private async loadContent(): Promise<void> {
     if (this.contentRequest || this.stopped) return;
+    const generation = this.generation;
     this.contentRequest = true;
     try {
       const content = await getContent();
-      if (this.stopped) return;
+      if (generation !== this.generation) return;
       this.set({ content });
       this.succeeded("content");
     } catch (err) {
-      this.failed("content", err, () => void this.loadContent());
+      if (generation === this.generation) this.failed("content", err, () => void this.loadContent());
     } finally {
-      this.contentRequest = false;
+      if (generation === this.generation) this.contentRequest = false;
     }
   }
 
   private async loadIsland(id: string): Promise<void> {
     if (this.snapshot.islands.has(id) || this.islandRequests.has(id) || this.stopped) return;
+    const generation = this.generation;
     this.islandRequests.add(id);
     try {
       const island = await getIsland(id);
-      if (this.stopped) return;
+      if (generation !== this.generation) return;
       const islands = new Map(this.snapshot.islands);
       islands.set(id, island);
       this.set({ islands });
       this.succeeded(`island ${id}`);
     } catch (err) {
-      this.failed(`island ${id}`, err, () => void this.loadIsland(id));
+      if (generation === this.generation) this.failed(`island ${id}`, err, () => void this.loadIsland(id));
     } finally {
-      this.islandRequests.delete(id);
+      if (generation === this.generation) this.islandRequests.delete(id);
     }
   }
 

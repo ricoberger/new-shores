@@ -385,3 +385,67 @@ describe("GameSync queued commands after the session ends", () => {
     expect(ended).toBe(1);
   });
 });
+
+describe("GameSync restart (React Strict Mode: start -> stop -> start)", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+    vi.stubGlobal("document", Object.assign(new EventTarget(), { visibilityState: "visible" }));
+    vi.stubGlobal("window", new EventTarget());
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  function stubServer(worldDelayMs = 0) {
+    const counts = { world: 0, content: 0, island: 0 };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const path = new URL(url).pathname;
+        if (path === "/api/v1/content") {
+          counts.content++;
+          return json(CONTENT);
+        }
+        if (path.startsWith("/api/v1/world/islands/")) {
+          counts.island++;
+          return json(ISLAND);
+        }
+        counts.world++;
+        if (worldDelayMs > 0) await new Promise((resolve) => setTimeout(resolve, worldDelayMs));
+        return json(world(counts.world, "2026-01-01T00:00:00.000Z", null, ["start"]));
+      }),
+    );
+    return counts;
+  }
+
+  it("loads the world, content and islands over HTTP after an immediate restart without push", async () => {
+    const counts = stubServer();
+    const sync = new GameSync(() => null); // no WebSocket: no open() refresh
+    const stop1 = sync.start();
+    stop1();
+    const stop2 = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const snap = sync.getSnapshot();
+    expect(counts.world).toBeGreaterThanOrEqual(1);
+    expect(snap.server).not.toBeNull();
+    expect(snap.content).not.toBeNull();
+    expect(snap.islands.has("start")).toBe(true);
+    stop2();
+  });
+
+  it("loads the world when restarted while the first generation's GET is in flight", async () => {
+    const counts = stubServer(100);
+    const sync = new GameSync(() => null);
+    const stop1 = sync.start();
+    await vi.advanceTimersByTimeAsync(10); // first GET in flight
+    stop1();
+    const stop2 = sync.start();
+    await vi.advanceTimersByTimeAsync(500);
+    expect(counts.world).toBe(2); // the restarted generation fetched its own world
+    expect(sync.getSnapshot().server?.version).toBe(2); // the stale response was ignored
+    expect(sync.getSnapshot().islands.has("start")).toBe(true);
+    stop2();
+  });
+});
