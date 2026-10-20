@@ -107,12 +107,11 @@ async function evaluatedAt(page: Page): Promise<number> {
 test("place a plank chain and see planks produced", async ({ page }) => {
   await page.goto("/");
 
-  // HUD: gold visible and equal to the start gold minus at most the
-  // warehouse upkeep elapsed since the server started (4 gold/min).
+  // HUD: gold visible and equal to the start gold (the warehouse, never
+  // paused, has no upkeep, so nothing has been spent since the start).
   const gold = page.getByTestId("hud-gold");
   await expect(gold).toBeVisible();
-  await expect.poll(async () => Number(await gold.textContent())).toBeGreaterThan(START_GOLD - 5);
-  expect(Number(await gold.textContent())).toBeLessThanOrEqual(START_GOLD);
+  await expect.poll(async () => Number(await gold.textContent())).toBe(START_GOLD);
   expect(await page.evaluate(() => window.__newShores!.engineCount())).toBe(1);
   await expect(page.getByTestId("hud-content-version")).toHaveText(CONTENT_VERSION);
 

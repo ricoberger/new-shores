@@ -75,8 +75,8 @@
         "input_starved": 1,
         "short_of_workers": 2
       },
-      "gold": 1780000,
-      "balance_rate_per_min": -8000,
+      "gold": 1800000,
+      "balance_rate_per_min": -4000,
       "population": {
         "settlers": 4000
       },
@@ -108,8 +108,8 @@
         "input_starved": 1,
         "short_of_workers": 2
       },
-      "gold": 1740000,
-      "balance_rate_per_min": -8000,
+      "gold": 1780000,
+      "balance_rate_per_min": -4000,
       "population": {
         "settlers": 8000
       },
@@ -142,8 +142,8 @@
         "low_efficiency": 1,
         "ok": 1
       },
-      "gold": 1700000,
-      "balance_rate_per_min": -8000,
+      "gold": 1760000,
+      "balance_rate_per_min": -4000,
       "population": {
         "settlers": 12000
       },
@@ -155,10 +155,10 @@
   "final": {
     "evaluated_at": "2026-01-01T00:15:00.000Z",
     "next_change_at": "2026-01-01T02:40:34.000Z",
-    "gold": 1700000,
-    "balance_rate_per_min": -8000,
+    "gold": 1760000,
+    "balance_rate_per_min": -4000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 8000,
+    "upkeep_rate_per_min": 4000,
     "tiers": [
       {
         "id": "settlers",

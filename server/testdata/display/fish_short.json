@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-02T04:10:00.000Z",
     "next_change_at": null,
-    "gold": 0,
-    "balance_rate_per_min": -4000,
+    "gold": 4586265,
+    "balance_rate_per_min": 0,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 4000,
+    "upkeep_rate_per_min": 0,
     "tiers": [
       {
         "id": "settlers",
@@ -1627,10 +1627,10 @@
       "display": {
         "evaluated_at": "2026-01-02T04:10:00.250Z",
         "next_change_at": null,
-        "gold": 0,
-        "balance_rate_per_min": -4000,
+        "gold": 4586265,
+        "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 4000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",
@@ -3251,10 +3251,10 @@
       "display": {
         "evaluated_at": "2026-01-02T04:10:01.000Z",
         "next_change_at": null,
-        "gold": 0,
-        "balance_rate_per_min": -4000,
+        "gold": 4586265,
+        "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 4000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",
@@ -4875,10 +4875,10 @@
       "display": {
         "evaluated_at": "2026-01-02T04:10:05.000Z",
         "next_change_at": null,
-        "gold": 0,
-        "balance_rate_per_min": -4000,
+        "gold": 4586265,
+        "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 4000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",
@@ -6499,10 +6499,10 @@
       "display": {
         "evaluated_at": "2026-01-02T04:10:30.000Z",
         "next_change_at": null,
-        "gold": 0,
-        "balance_rate_per_min": -4000,
+        "gold": 4586265,
+        "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 4000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",
@@ -8123,10 +8123,10 @@
       "display": {
         "evaluated_at": "2026-01-02T04:15:00.000Z",
         "next_change_at": null,
-        "gold": 0,
-        "balance_rate_per_min": -4000,
+        "gold": 4586265,
+        "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
-        "upkeep_rate_per_min": 4000,
+        "upkeep_rate_per_min": 0,
         "tiers": [
           {
             "id": "settlers",

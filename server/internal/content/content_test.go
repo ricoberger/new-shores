@@ -85,7 +85,7 @@ func TestLoadOldCoast(t *testing.T) {
 	for _, id := range []string{"warehouse", "fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "market_small", "chapel"} {
 		upkeep += c.BuildingByID[id].UpkeepPerMin
 	}
-	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 16_000 || tax*10 < upkeep*12 {
+	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 6_000 || tax*10 < upkeep*12 {
 		t.Errorf("tax %d vs upkeep %d milli-gold/min: margin below 20 %%", tax, upkeep)
 	}
 
@@ -105,9 +105,9 @@ func TestLoadOldCoast(t *testing.T) {
 	want := map[string]costs{
 		"house_settlers": {0, 10_000, 0, 2, 2, "never"},
 		"road_dirt":      {0, 0, 0, 1, 1, "never"},
-		"warehouse":      {100_000, 20_000, 4_000, 4, 3, "never"},
-		"market_small":   {150_000, 15_000, 3_000, 3, 3, "never"},
-		"chapel":         {200_000, 15_000, 3_000, 2, 2, "never"},
+		"warehouse":      {200_000, 20_000, 0, 4, 3, "never"},
+		"market_small":   {225_000, 15_000, 0, 3, 3, "never"},
+		"chapel":         {275_000, 15_000, 0, 2, 2, "never"},
 		"lumberjack":     {50_000, 5_000, 1_000, 2, 2, "intermediate"},
 		"sawmill":        {80_000, 8_000, 2_000, 2, 2, "intermediate"},
 		"fisher":         {60_000, 6_000, 1_000, 2, 2, "food_basic"},
@@ -141,8 +141,8 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	sy := c.BuildingByID["shipyard"]
 	if sy.Shipyard == nil || strings.Join(sy.Shipyard.Ships, ",") != "sloop" || sy.Width != 5 || sy.Height != 4 || !sy.Coastal || !sy.RequiresRoad ||
-		sy.Cost.Gold != 200_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 25_000}) ||
-		sy.UpkeepPerMin != 1_000 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
+		sy.Cost.Gold != 225_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 25_000}) ||
+		sy.UpkeepPerMin != 0 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
 		t.Errorf("shipyard = %+v", sy)
 	}
 	for _, b := range c.Buildings {
@@ -397,6 +397,13 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			"region zero ship speed", FileRegion,
 			[]string{`"ship_speed_tiles_per_min": 60`, `"ship_speed_tiles_per_min": 0`},
 			[]string{FileRegion, "schema violation"},
+		},
+		{
+			"never-pausable building with upkeep", FileBuildings,
+			[]string{`"cost": { "gold": 225, "planks": 15 },
+    "upkeep_per_min": 0,`, `"cost": { "gold": 225, "planks": 15 },
+    "upkeep_per_min": 3,`},
+			[]string{FileBuildings, `building "market_small"`, "upkeep_per_min", "must be 0 for pause_category never"},
 		},
 		{
 			"region decimals", FileRegion,

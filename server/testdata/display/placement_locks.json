@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T00:16:00.000Z",
     "next_change_at": "2026-01-01T02:49:49.000Z",
-    "gold": 8810239,
-    "balance_rate_per_min": -3360,
+    "gold": 8705239,
+    "balance_rate_per_min": 11640,
     "tax_rate_per_min": 20640,
-    "upkeep_rate_per_min": 24000,
+    "upkeep_rate_per_min": 9000,
     "tiers": [
       {
         "id": "settlers",
@@ -1606,10 +1606,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:16:00.250Z",
         "next_change_at": "2026-01-01T02:49:49.000Z",
-        "gold": 8810225,
-        "balance_rate_per_min": -3360,
+        "gold": 8705288,
+        "balance_rate_per_min": 11640,
         "tax_rate_per_min": 20640,
-        "upkeep_rate_per_min": 24000,
+        "upkeep_rate_per_min": 9000,
         "tiers": [
           {
             "id": "settlers",
@@ -3209,10 +3209,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:16:01.000Z",
         "next_change_at": "2026-01-01T02:49:49.000Z",
-        "gold": 8810183,
-        "balance_rate_per_min": -3360,
+        "gold": 8705433,
+        "balance_rate_per_min": 11640,
         "tax_rate_per_min": 20640,
-        "upkeep_rate_per_min": 24000,
+        "upkeep_rate_per_min": 9000,
         "tiers": [
           {
             "id": "settlers",
@@ -4812,10 +4812,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:16:05.000Z",
         "next_change_at": "2026-01-01T02:49:49.000Z",
-        "gold": 8809959,
-        "balance_rate_per_min": -3360,
+        "gold": 8706209,
+        "balance_rate_per_min": 11640,
         "tax_rate_per_min": 20640,
-        "upkeep_rate_per_min": 24000,
+        "upkeep_rate_per_min": 9000,
         "tiers": [
           {
             "id": "settlers",
@@ -6415,10 +6415,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:16:30.000Z",
         "next_change_at": "2026-01-01T02:49:49.000Z",
-        "gold": 8808559,
-        "balance_rate_per_min": -3360,
+        "gold": 8711059,
+        "balance_rate_per_min": 11640,
         "tax_rate_per_min": 20640,
-        "upkeep_rate_per_min": 24000,
+        "upkeep_rate_per_min": 9000,
         "tiers": [
           {
             "id": "settlers",
@@ -8018,10 +8018,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:21:00.000Z",
         "next_change_at": "2026-01-01T02:49:49.000Z",
-        "gold": 8793439,
-        "balance_rate_per_min": -3360,
+        "gold": 8763439,
+        "balance_rate_per_min": 11640,
         "tax_rate_per_min": 20640,
-        "upkeep_rate_per_min": 24000,
+        "upkeep_rate_per_min": 9000,
         "tiers": [
           {
             "id": "settlers",

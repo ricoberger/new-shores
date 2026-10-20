@@ -57,8 +57,8 @@
         }
       },
       "statuses": {},
-      "gold": 1190000,
-      "balance_rate_per_min": -6000,
+      "gold": 1175000,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -85,8 +85,8 @@
         }
       },
       "statuses": {},
-      "gold": 1182000,
-      "balance_rate_per_min": -6000,
+      "gold": 1173666,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -127,8 +127,8 @@
       "statuses": {
         "ok": 1
       },
-      "gold": 969626,
-      "balance_rate_per_min": -10200,
+      "gold": 906293,
+      "balance_rate_per_min": -1200,
       "population": {
         "settlers": 8000
       },
@@ -147,10 +147,10 @@
   "final": {
     "evaluated_at": "2026-01-01T00:08:20.000Z",
     "next_change_at": "2026-01-01T00:09:33.000Z",
-    "gold": 969626,
-    "balance_rate_per_min": -10200,
+    "gold": 906293,
+    "balance_rate_per_min": -1200,
     "tax_rate_per_min": 800,
-    "upkeep_rate_per_min": 11000,
+    "upkeep_rate_per_min": 2000,
     "tiers": [
       {
         "id": "settlers",

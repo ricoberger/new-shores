@@ -3,10 +3,10 @@
   "base": {
     "evaluated_at": "2026-01-01T00:08:20.000Z",
     "next_change_at": "2026-01-01T00:09:33.000Z",
-    "gold": 969626,
-    "balance_rate_per_min": -10200,
+    "gold": 906293,
+    "balance_rate_per_min": -1200,
     "tax_rate_per_min": 800,
-    "upkeep_rate_per_min": 11000,
+    "upkeep_rate_per_min": 2000,
     "tiers": [
       {
         "id": "settlers",
@@ -716,10 +716,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:08:20.250Z",
         "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 969584,
-        "balance_rate_per_min": -10200,
+        "gold": 906288,
+        "balance_rate_per_min": -1200,
         "tax_rate_per_min": 800,
-        "upkeep_rate_per_min": 11000,
+        "upkeep_rate_per_min": 2000,
         "tiers": [
           {
             "id": "settlers",
@@ -1429,10 +1429,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:08:21.000Z",
         "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 969456,
-        "balance_rate_per_min": -10200,
+        "gold": 906273,
+        "balance_rate_per_min": -1200,
         "tax_rate_per_min": 800,
-        "upkeep_rate_per_min": 11000,
+        "upkeep_rate_per_min": 2000,
         "tiers": [
           {
             "id": "settlers",
@@ -2142,10 +2142,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:08:25.000Z",
         "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 968776,
-        "balance_rate_per_min": -10200,
+        "gold": 906193,
+        "balance_rate_per_min": -1200,
         "tax_rate_per_min": 800,
-        "upkeep_rate_per_min": 11000,
+        "upkeep_rate_per_min": 2000,
         "tiers": [
           {
             "id": "settlers",
@@ -2855,10 +2855,10 @@
       "display": {
         "evaluated_at": "2026-01-01T00:08:50.000Z",
         "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 964526,
-        "balance_rate_per_min": -10200,
+        "gold": 905693,
+        "balance_rate_per_min": -1200,
         "tax_rate_per_min": 800,
-        "upkeep_rate_per_min": 11000,
+        "upkeep_rate_per_min": 2000,
         "tiers": [
           {
             "id": "settlers",

@@ -39,8 +39,8 @@
       "statuses": {
         "not_connected": 1
       },
-      "gold": 940000,
-      "balance_rate_per_min": -5000,
+      "gold": 948000,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -61,8 +61,8 @@
       "statuses": {
         "low_efficiency": 1
       },
-      "gold": 890000,
-      "balance_rate_per_min": -5000,
+      "gold": 938000,
+      "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -72,10 +72,10 @@
   "final": {
     "evaluated_at": "2026-01-01T00:12:00.000Z",
     "next_change_at": "2026-01-01T02:38:34.572Z",
-    "gold": 890000,
-    "balance_rate_per_min": -5000,
+    "gold": 938000,
+    "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 5000,
+    "upkeep_rate_per_min": 1000,
     "tiers": [
       {
         "id": "settlers",

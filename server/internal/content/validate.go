@@ -103,6 +103,13 @@ func checkReferences(c *Catalogue) error {
 			col.add(FileBuildings, ent, "region", "must be %q, got %q", c.Region.ID, b.Region)
 		}
 		tier(FileBuildings, ent, "tier", b.Tier)
+		// A building that is never auto-paused carries no upkeep: its
+		// running cost is folded into its price, so a fully stalled city
+		// (everything pausable paused) never has a negative balance and
+		// recovers on its own (D-009).
+		if b.PauseCategory == "never" && b.UpkeepPerMin != 0 {
+			col.add(FileBuildings, ent, "upkeep_per_min", "must be 0 for pause_category never")
+		}
 		for _, m := range b.Cost.Materials {
 			good(FileBuildings, ent, "cost."+m.Good, m.Good)
 		}

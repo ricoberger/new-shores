@@ -55,8 +55,8 @@
       "statuses": {
         "warehouse_full": 2
       },
-      "gold": 1000,
-      "balance_rate_per_min": -7000,
+      "gold": 2881000,
+      "balance_rate_per_min": -3000,
       "population": {},
       "unlocked_tiers": [
         "settlers"
@@ -65,11 +65,11 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T12:00:00.000Z",
-    "next_change_at": "2026-01-01T12:00:08.571Z",
-    "gold": 1000,
-    "balance_rate_per_min": -7000,
+    "next_change_at": "2026-01-02T04:00:20.000Z",
+    "gold": 2881000,
+    "balance_rate_per_min": -3000,
     "tax_rate_per_min": 0,
-    "upkeep_rate_per_min": 7000,
+    "upkeep_rate_per_min": 3000,
     "tiers": [
       {
         "id": "settlers",

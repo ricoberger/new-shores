@@ -743,6 +743,11 @@ func TestPropertyComposition(t *testing.T) {
 	// fish supply and taxes at once (default 5-minute reserve).
 	cats["fish_weaver"] = fishWeaverCatalogue(catalogue(t), catalogue(t).Region.Rules.AutoResumeMs)
 	for name, c := range cats {
+		// The recovery cases need towns that fall into insolvency again
+		// and again; they keep the never-pausable upkeep of the content
+		// before it was folded into the prices (legacyUpkeep), the random
+		// command cases run on the content as shipped.
+		rc := legacyUpkeep(c)
 		t.Run(name, func(t *testing.T) {
 			for seed := range uint64(propertyCases) {
 				p := newPropCase(t, c, 10_000+seed)
@@ -753,7 +758,7 @@ func TestPropertyComposition(t *testing.T) {
 			kinds, splitKinds := map[string]int{}, map[string]int{}
 			recovered := 0
 			for seed := range uint64(propertyCases) {
-				p := newPropCase(t, c, 70_000+seed)
+				p := newPropCase(t, rc, 70_000+seed)
 				p.maxPieces = 8
 				p.w = p.recoveryWorld()
 				p.checkInvariants("initial")
@@ -935,7 +940,7 @@ func TestPropertyTownCompositionMinimalReserve(t *testing.T) {
 // (including pauses); every piece must leave a settled world, the split
 // result must equal a single Advance and coarse mode is never reached.
 func TestPropertyPauseResumeInterplay(t *testing.T) {
-	c := fishWeaverCatalogue(catalogue(t), minimalReserveMs)
+	c := fishWeaverCatalogue(legacyUpkeep(catalogue(t)), minimalReserveMs)
 	pauses, resumes := 0, 0
 	for seed := range uint64(propertyCases) {
 		p := newPropCase(t, c, 60_000+seed)
