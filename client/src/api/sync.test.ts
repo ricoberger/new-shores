@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { DisplayState, WorldResponse } from "./client";
-import { GameSync, type SyncError } from "./sync";
+import type { Command, DisplayState, WorldResponse } from "./client";
+import { GameSync, type SyncError, SyncStoppedError } from "./sync";
 
 function world(version: number, evaluatedAt: string, nextChangeAt: string | null, islands: string[] = []): WorldResponse {
   const display: DisplayState = {
@@ -299,5 +299,89 @@ describe("GameSync session and push", () => {
     expect(worldGets).toBe(3);
     stop();
     expect(stopped).toBe(true);
+  });
+});
+
+describe("GameSync queued commands after the session ends", () => {
+  const ROAD: Command = { type: "place_road", island_id: "start", road_type: "road_dirt", tiles: [{ x: 1, y: 1 }] };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+    vi.stubGlobal("document", Object.assign(new EventTarget(), { visibilityState: "visible" }));
+    vi.stubGlobal("window", new EventTarget());
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  /** fetch stub: commands wait for release(); records the account of each command. */
+  function setup(commandStatus: () => number) {
+    let account = "A";
+    const commands: string[] = [];
+    const waiting: (() => void)[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const path = new URL(url).pathname;
+        if (path === "/api/v1/content") return json(CONTENT);
+        if (path === "/api/v1/world/commands") {
+          commands.push(account);
+          await new Promise<void>((resolve) => waiting.push(resolve));
+          const status = commandStatus();
+          return status === 200 ? json(world(1, "2026-01-01T00:00:00.000Z", null)) : json({ error: { code: "unauthorized", message: "no valid session" } }, status);
+        }
+        return json(world(0, "2026-01-01T00:00:00.000Z", null));
+      }),
+    );
+    return {
+      commands,
+      switchAccount: (a: string) => (account = a),
+      release: async () => {
+        await vi.advanceTimersByTimeAsync(0);
+        waiting.shift()?.();
+        await vi.advanceTimersByTimeAsync(0);
+      },
+    };
+  }
+
+  it("drops queued commands on logout (stop) so they never run under another session", async () => {
+    const f = setup(() => 200);
+    const sync = new GameSync(() => null);
+    const stop = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const first = sync.send(ROAD);
+    const second = sync.send(ROAD);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(f.commands).toEqual(["A"]); // the first is in flight
+    stop(); // logout / unmount
+    f.switchAccount("B"); // another account logs in in the same browser
+    const restartStop = sync.start(); // e.g. React Strict Mode re-running the effect
+    await f.release();
+    await expect(first).rejects.toBeInstanceOf(SyncStoppedError);
+    await expect(second).rejects.toBeInstanceOf(SyncStoppedError);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(f.commands).toEqual(["A"]);
+    restartStop();
+  });
+
+  it("drops queued commands after a 401", async () => {
+    const f = setup(() => 401);
+    const sync = new GameSync(() => null);
+    let ended = 0;
+    sync.subscribeUnauthorized(() => ended++);
+    sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const first = sync.send(ROAD);
+    const second = sync.send(ROAD);
+    first.catch(() => undefined);
+    await f.release();
+    await expect(first).rejects.toMatchObject({ status: 401 });
+    await expect(second).rejects.toBeInstanceOf(SyncStoppedError);
+    f.switchAccount("B");
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(f.commands).toEqual(["A"]);
+    expect(ended).toBe(1);
   });
 });

@@ -71,6 +71,18 @@ type ErrorListener = (e: SyncError) => void;
 /** Creates the push socket (null: no push, e.g. in unit tests). */
 export type SocketFactory = (handlers: WorldSocketHandlers) => { start(): void; stop(): void } | null;
 
+/**
+ * A queued world request was dropped because syncing stopped (logout,
+ * 401, unmount) before it was sent: it must not run under whatever session
+ * the browser holds by then.
+ */
+export class SyncStoppedError extends Error {
+  constructor() {
+    super("sync stopped; request not sent");
+    this.name = "SyncStoppedError";
+  }
+}
+
 const defaultSocketFactory: SocketFactory = (handlers) =>
   typeof WebSocket === "undefined" ? null : new WorldSocket(wsUrl(), handlers);
 
@@ -92,6 +104,8 @@ export class GameSync {
   private islandRequests = new Set<string>();
   private contentRequest = false;
   private stopped = true;
+  /** Incremented by stop(): queued jobs of an earlier generation never run. */
+  private generation = 0;
   private unauthorizedListeners = new Set<() => void>();
   private socket: { start(): void; stop(): void } | null = null;
 
@@ -126,6 +140,7 @@ export class GameSync {
 
   private stop(): void {
     this.stopped = true;
+    this.generation++;
     this.socket?.stop();
     this.socket = null;
     clearInterval(this.modelTimer);
@@ -182,9 +197,21 @@ export class GameSync {
     if (server) this.set({ model: extrapolate(server.display, this.serverNowMs()) });
   }
 
-  /** Runs a world request after every earlier one (one in flight). */
-  private enqueue<T>(job: () => Promise<T>): Promise<T> {
-    const run = this.tail.then(job);
+  /**
+   * Runs a world request after every earlier one (one in flight). A job
+   * whose turn comes after syncing stopped (or restarted) is not run: it
+   * resolves with stoppedResult() when given, else rejects with
+   * SyncStoppedError.
+   */
+  private enqueue<T>(job: () => Promise<T>, stoppedResult?: () => T): Promise<T> {
+    const generation = this.generation;
+    const run = this.tail.then(() => {
+      if (this.stopped || generation !== this.generation) {
+        if (stoppedResult) return stoppedResult();
+        throw new SyncStoppedError();
+      }
+      return job();
+    });
     this.tail = run.then(
       () => undefined,
       () => undefined,
@@ -200,16 +227,21 @@ export class GameSync {
   refresh(): Promise<void> {
     if (this.lastGet) return this.lastGet;
     const seen = this.accepted;
-    const p = this.enqueue(async () => {
-      if (this.accepted > seen || this.stopped) return;
-      try {
-        const res = await getWorld();
-        this.accept(res, Date.now());
-        this.succeeded("world");
-      } catch (err) {
-        this.failed("world", err, () => void this.refresh());
-      }
-    });
+    const p = this.enqueue(
+      async () => {
+        if (this.accepted > seen) return;
+        const generation = this.generation;
+        try {
+          const res = await getWorld();
+          if (generation !== this.generation) return;
+          this.accept(res, Date.now());
+          this.succeeded("world");
+        } catch (err) {
+          if (generation === this.generation) this.failed("world", err, () => void this.refresh());
+        }
+      },
+      () => undefined,
+    );
     this.lastGet = p;
     const clear = () => {
       if (this.lastGet === p) this.lastGet = null;
@@ -226,14 +258,18 @@ export class GameSync {
   send(command: Command): Promise<WorldResponse> {
     this.lastGet = null; // a refresh after this command needs its own GET
     return this.enqueue(async () => {
+      const generation = this.generation;
       try {
         const res = await sendCommand(command, this.snapshot.server?.version);
+        if (generation !== this.generation) throw new SyncStoppedError();
         this.accept(res, Date.now());
         this.succeeded("world");
         return res;
       } catch (err) {
-        if (err instanceof NetworkError) this.failed("world", err, () => void this.refresh(), false);
-        if (isUnauthorized(err)) this.unauthorized();
+        if (generation === this.generation) {
+          if (err instanceof NetworkError) this.failed("world", err, () => void this.refresh(), false);
+          if (isUnauthorized(err)) this.unauthorized();
+        }
         throw err;
       }
     });

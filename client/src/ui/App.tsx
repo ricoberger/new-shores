@@ -8,7 +8,7 @@ import {
   type Player,
   type WorldResponse,
 } from "../api/client";
-import { GameSync } from "../api/sync";
+import { GameSync, SyncStoppedError } from "../api/sync";
 import { units } from "../display/format";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { GameRenderer } from "../render/engine";
@@ -81,6 +81,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut }: App
       await sync.send(cmd);
       return { ok: true, error: null };
     } catch (err) {
+      if (err instanceof SyncStoppedError) return { ok: false, error: null }; // logged out meanwhile
       if (err instanceof ApiError) {
         toast(err.message);
         return { ok: false, error: err };
