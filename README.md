@@ -136,6 +136,11 @@ service before the servers start.
   available; otherwise they are skipped (in CI a skip fails).
 - Persistence e2e against the default-mode server:
   `E2E_DATABASE_URL=… E2E_REDIS_URL=… make client-e2e-pg`.
+- **CI runs on demand only** (cost control for a private repository):
+  add the `ci` label to a pull request to run all jobs once; the workflow
+  removes the label when it finishes, so after pushing new commits add it
+  again. Nothing runs on push to `main`; `workflow_dispatch` is available
+  for manual runs. Run `make check` locally before asking for CI.
 
 ## Tech stack at a glance
 

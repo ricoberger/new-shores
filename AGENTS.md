@@ -77,7 +77,10 @@ cd client && npm run lint && npm run typecheck && npm test
 cd server && go test ./internal/content/...
 ```
 
-State clearly which checks ran, passed, failed or were skipped.
+State clearly which checks ran, passed, failed or were skipped. CI does not
+run automatically: it runs once when a pull request gets the `ci` label (the
+workflow removes the label afterwards). Do not add the label yourself; report
+that local checks passed and leave triggering CI to the user.
 
 ## 5. When unsure
 

@@ -1,17 +1,24 @@
 name: CI
 
+# Cost control: CI runs only when a pull request gets the `ci` label (or on
+# manual dispatch). Every run removes the label again, so re-running means
+# re-adding the label after pushing new commits. Nothing runs on push.
 on:
-  push:
-    branches:
-      - main
   pull_request:
+    types: [labeled]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   server:
     name: server
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'ci'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -63,6 +70,7 @@ jobs:
 
   client:
     name: client
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'ci'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -100,6 +108,7 @@ jobs:
 
   e2e:
     name: e2e
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'ci'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -142,6 +151,7 @@ jobs:
 
   integration:
     name: integration (PostgreSQL + Redis)
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'ci'
     runs-on: ubuntu-latest
     env:
       CI: "true"
@@ -216,3 +226,16 @@ jobs:
             client/playwright-report-pg
             client/test-results-pg
           retention-days: 7
+
+  unlabel:
+    name: remove ci label
+    if: always() && github.event_name == 'pull_request' && github.event.label.name == 'ci'
+    needs: [server, client, e2e, integration]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Remove the ci label so the next run needs a fresh approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr edit "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --remove-label ci
