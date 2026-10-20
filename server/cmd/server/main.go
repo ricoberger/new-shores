@@ -135,10 +135,9 @@ func runDev(o options, logger *slog.Logger) error {
 		return err
 	}
 	handler, err := api.New(api.Config{
-		Store:        store.NewMemory(devWorldID, w),
+		Store:        store.NewMemory(devWorldID, w, func() time.Time { return api.TimeScale{Start: start, Scale: o.timeScale}.At(clock.Now()) }),
 		Catalogue:    cat,
 		Clock:        clock,
-		TimeScale:    api.TimeScale{Start: start, Scale: o.timeScale},
 		ResolveWorld: func(*http.Request) (store.WorldID, error) { return devWorldID, nil },
 		CORSOrigins:  o.corsOrigins,
 		Logger:       logger,

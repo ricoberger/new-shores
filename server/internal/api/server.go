@@ -33,10 +33,9 @@ type WorldResolver func(r *http.Request) (store.WorldID, error)
 type Config struct {
 	Store     store.Store
 	Catalogue *content.Catalogue
-	// Clock is the wall clock (WallClock in production).
-	Clock Clock
-	// TimeScale maps wall-clock time to world time.
-	TimeScale    TimeScale
+	// Clock is the wall clock (WallClock in production). It is only used
+	// for request durations; world time comes from the store.
+	Clock        Clock
 	ResolveWorld WorldResolver
 	// CORSOrigins are the browser origins allowed to call /api/ (exact
 	// match, e.g. "http://localhost:5173"). A request whose Origin header is
@@ -57,9 +56,6 @@ type Server struct {
 func New(cfg Config) (*Server, error) {
 	if cfg.Store == nil || cfg.Catalogue == nil || cfg.Clock == nil || cfg.ResolveWorld == nil {
 		return nil, errors.New("api: store, catalogue, clock and world resolver are required")
-	}
-	if cfg.TimeScale.Scale <= 0 {
-		return nil, errors.New("api: time scale must be > 0")
 	}
 	if cfg.Logger == nil {
 		cfg.Logger = slog.New(slog.NewTextHandler(io.Discard, nil))
@@ -164,18 +160,12 @@ type worldResponse struct {
 	Display sim.DisplayState `json:"display"`
 }
 
-// advance moves the world to the current world time and returns it. A wall
-// clock that stepped backwards is clamped to the last evaluation (dev
-// convenience; the simulation itself rejects backwards time).
-func (s *Server) advance(w *sim.World) (time.Time, error) {
-	now := s.cfg.TimeScale.At(s.cfg.Clock.Now())
-	if now.Before(w.LastEvaluatedAt) {
-		now = w.LastEvaluatedAt
-	}
-	if _, err := sim.Advance(w, s.cfg.Catalogue, now); err != nil {
-		return now, err
-	}
-	return now, nil
+// advance moves the world to the world time delivered by the store. A time
+// before the last evaluation is sim.ErrTimeBackwards (500 time_backwards);
+// only the dev store clamps a wall clock that stepped backwards.
+func (s *Server) advance(w *sim.World, now time.Time) error {
+	_, err := sim.Advance(w, s.cfg.Catalogue, now)
+	return err
 }
 
 func (s *Server) getWorld(w http.ResponseWriter, r *http.Request) {
@@ -185,11 +175,11 @@ func (s *Server) getWorld(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var ds sim.DisplayState
-	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64) (bool, error) {
-		now, err := s.advance(world)
-		if err != nil {
+	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64, now time.Time) (bool, error) {
+		if err := s.advance(world, now); err != nil {
 			return false, err
 		}
+		var err error
 		ds, err = sim.Display(world, s.cfg.Catalogue, now)
 		return false, err
 	})
@@ -223,12 +213,11 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var ds sim.DisplayState
-	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, version int64) (bool, error) {
+	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, version int64, now time.Time) (bool, error) {
 		if req.Version != nil && *req.Version != version {
 			s.cfg.Logger.Info("stale client version", "command", typ, "client_version", *req.Version, "version", version)
 		}
-		now, err := s.advance(world)
-		if err != nil {
+		if err := s.advance(world, now); err != nil {
 			return false, err
 		}
 		if err := checkTileCount(world, cmd); err != nil {
@@ -237,6 +226,7 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		if err := sim.Apply(world, s.cfg.Catalogue, cmd); err != nil {
 			return false, err
 		}
+		var err error
 		ds, err = sim.Display(world, s.cfg.Catalogue, now)
 		return err == nil, err
 	})
@@ -273,9 +263,9 @@ func (s *Server) getIsland(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var resp islandResponse
-	_, err = s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64) (bool, error) {
+	_, err = s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64, now time.Time) (bool, error) {
 		// Every world request advances first (read-only: no new version).
-		if _, err := s.advance(world); err != nil {
+		if err := s.advance(world, now); err != nil {
 			return false, err
 		}
 		is := world.Island(islandID)

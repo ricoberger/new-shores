@@ -9,6 +9,7 @@ package store
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
@@ -27,18 +28,19 @@ type WorldID string
 // one with every committed mutation (a successful command). Clients send the
 // version they last saw; a mismatch is not an error (ARCHITECTURE §4.4).
 //
-// Time: callers advance the world inside Update with sim.Advance before they
-// read or apply anything. The time they advance to comes from the caller's
-// clock, not from the store. The dev server derives it from the wall clock
-// and clamps it to the world's LastEvaluatedAt when the wall clock steps
-// backwards. M2 must take "now" from the database's clock (or another
-// monotonic source shared by all instances) inside the transaction; advancing
-// to a time before LastEvaluatedAt remains sim.ErrTimeBackwards in the
-// simulation and must not be papered over there.
+// Time: the store delivers the world time to fn. fn advances the world to
+// it with sim.Advance before it reads or applies anything. The PostgreSQL
+// store reads the database's transaction timestamp (now(), truncated to
+// milliseconds) inside the transaction, capped at the earliest due_at of a
+// pending scheduled event of the world (events are applied only by the
+// worker, at their due time); the dev store derives it from the scaled wall
+// clock and clamps it to the world's LastEvaluatedAt when the wall clock
+// steps backwards. Advancing to a time before LastEvaluatedAt remains
+// sim.ErrTimeBackwards in the simulation and is not papered over there.
 type Store interface {
 	// Update runs fn with exclusive access to the world: no other Update of
-	// the same world runs concurrently. fn receives the world and its
-	// current version.
+	// the same world runs concurrently. fn receives the world, its current
+	// version and the world time "now" (UTC, millisecond precision).
 	//
 	//   - fn returns (true, nil): the world is committed and the version
 	//     incremented; Update returns the new version.
@@ -47,7 +49,10 @@ type Store interface {
 	//     discarded (Advance is composable, so both are equivalent).
 	//   - fn returns an error: nothing fn did is kept and Update returns
 	//     the error unchanged with the current version.
-	Update(ctx context.Context, id WorldID, fn func(w *sim.World, version int64) (mutated bool, err error)) (int64, error)
+	Update(ctx context.Context, id WorldID, fn UpdateFunc) (int64, error)
 	// Version returns the current version of the world.
 	Version(ctx context.Context, id WorldID) (int64, error)
 }
+
+// UpdateFunc is the callback of Store.Update.
+type UpdateFunc func(w *sim.World, version int64, now time.Time) (mutated bool, err error)
