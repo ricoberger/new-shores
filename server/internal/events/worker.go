@@ -82,6 +82,7 @@ func (w *Worker) Run(ctx context.Context) error {
 
 	ticker := time.NewTicker(w.PollInterval)
 	defer ticker.Stop()
+	var lastSample time.Time
 	for {
 		if ctx.Err() != nil {
 			return nil
@@ -90,10 +91,15 @@ func (w *Worker) Run(ctx context.Context) error {
 		if err != nil && ctx.Err() == nil {
 			w.Logger.Error("events: claim failed", "error", err)
 		}
+		// The queue depth is sampled once per poll interval, also while
+		// batches keep arriving (a long drain is when it matters).
+		if time.Since(lastSample) >= w.PollInterval {
+			w.samplePending(ctx)
+			lastSample = time.Now()
+		}
 		if n > 0 {
 			continue // drain without waiting
 		}
-		w.samplePending(ctx)
 		select {
 		case <-ctx.Done():
 			return nil

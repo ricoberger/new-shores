@@ -14,12 +14,14 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 
 	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/events"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
+	"github.com/ricoberger/new-shores/server/internal/telemetry"
 	"github.com/ricoberger/new-shores/server/internal/testenv"
 )
 
@@ -394,5 +396,42 @@ func TestWorldPastDueFails(t *testing.T) {
 	_ = st.Pool().QueryRow(context.Background(), "SELECT last_error FROM scheduled_events WHERE id = $1", evID).Scan(&last)
 	if !strings.Contains(last, "past the event's due_at") {
 		t.Fatalf("last_error %q", last)
+	}
+}
+
+// TestPendingGaugeWhileDraining: events_pending is sampled during a long
+// drain, not only when the worker becomes idle.
+func TestPendingGaugeWhileDraining(t *testing.T) {
+	st := setup(t)
+	ids := make([]store.WorldID, 10)
+	for i := range ids {
+		_, ids[i] = testenv.NewWorld(t, st, time.Hour)
+	}
+	base := createdAt(t, st, ids[0]).Add(time.Minute)
+	const total = 300
+	for i := range total {
+		id := ids[i%len(ids)]
+		testenv.InsertEvent(t, st, base.Add(time.Duration(i)*time.Millisecond), events.KindTestCredit, []store.WorldID{id},
+			events.TestCreditPayload{Credits: []events.TestCredit{credit(id, "wood", 1000)}})
+	}
+	telemetry.EventsPending.Set(0)
+	w := worker(t, st, time.Hour, nil, nil)
+	w.PollInterval = 20 * time.Millisecond
+	w.BatchSize = 5
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		_ = w.Run(ctx)
+	}()
+	observed := 0.0
+	for statusCounts(t, st)["pending"] > total/3 {
+		observed = max(observed, testutil.ToFloat64(telemetry.EventsPending))
+		time.Sleep(5 * time.Millisecond)
+	}
+	cancel()
+	<-done
+	if observed <= 0 {
+		t.Fatal("events_pending stayed 0 while the worker drained a backlog")
 	}
 }
