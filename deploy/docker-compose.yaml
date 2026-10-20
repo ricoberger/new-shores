@@ -110,6 +110,8 @@ services:
 volumes:
   pgdata:
 
+# Fixed subnet so that TRUSTED_PROXIES (above) matches Caddy's address.
+# If it collides with another Docker network on your machine, change both.
 networks:
   default:
     ipam:

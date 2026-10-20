@@ -44,6 +44,16 @@ jobs:
           version: v2.15.0
           working-directory: server
 
+      - name: golangci-lint (integration and test-only code)
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.15.0
+          working-directory: server
+          args: --build-tags integration,testevents
+
+      - name: go vet (integration and test-only code)
+        run: go vet -tags 'integration testevents' ./...
+
       - name: go test
         run: go test ./...
 
