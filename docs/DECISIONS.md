@@ -428,7 +428,9 @@ while goods in transit keep arriving (MECHANICS §2, §3; UI.md §3).
   edge adjacency; Anno 1800 allows free moving — both are the clearer,
   friendlier behaviour and fit touch input (D-024).
 - *Consequences:* road distance is measured from the nearest adjacent road
-  tile; building-need radius is footprint-to-footprint; the `MoveBuilding`
+  tile; building-need radius is footprint-to-footprint; one connectivity
+  rule for all buildings — a road path to a warehouse; houses on a detached
+  road stub are not connected; the `MoveBuilding`
   command is added to the API; the client's placement ghost turns yellow,
   not red, without a road.
 - *Rejected:* keeping an entrance tile (layout puzzle not worth the

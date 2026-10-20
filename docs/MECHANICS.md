@@ -94,8 +94,10 @@ transaction.
   is 4-adjacent to any of its footprint tiles. Rotation is visual only.
 - **Placement never requires a road** (D-042). A building placed without a
   road is simply unconnected (status `not_connected`, §3) until a road
-  reaches it; houses without a road keep their floor residents but receive
-  no goods and no public-building fulfilment.
+  path to a warehouse reaches it. An unconnected house keeps its residents
+  (they still count for population and the island's workforce pool) but
+  receives no goods and no public-building fulfilment, pays no tax and
+  declines to its floor (§6).
 - Buildable terrain: `coast`, `grass`, `forest`; `water` and `mountain`
   never (roads follow the same rule; slots sit on mountain tiles, D-036).
 - Coastal buildings (warehouse, fisher, shipyard, harbourmaster) need at
@@ -131,10 +133,12 @@ transaction.
 
 ## 3. Roads and connection (D-014)
 
-- A producer is **connected** if there is a road path from a road tile
+- A building is **connected** if there is a road path from a road tile
   adjacent to its footprint to a road tile adjacent to a warehouse's
-  footprint on the same island (D-042). Roads are tiles; dirt roads (tier 1)
-  and paved roads (tier 2, +speed) are the two types.
+  footprint on the same island (D-042). This is the single connectivity
+  rule for producers, public buildings and houses alike; a house on a road
+  stub that does not reach a warehouse is *not* connected. Roads are tiles;
+  dirt roads (tier 1) and paved roads (tier 2, +speed) are the two types.
 - Each connected producer is **assigned** to the nearest warehouse by road
   distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile
@@ -280,7 +284,7 @@ Each tier has a list of needs, each either:
   distance between tile centres from the **nearest footprint tile of the
   house** to the **nearest footprint tile** of the public building (D-042)
   — and that building is road-connected to a warehouse and not paused; the
-  house itself must be road-adjacent; else 0. The UI reason is, in
+  house itself must be connected (§3); else 0. The UI reason is, in
   precedence, `not_connected`, `paused`, `out_of_range`.
 - Every need carries a flag `required` (counts toward satisfaction, so it
   gates growth and base tax) or `optional` (bonus only; D-012 guardrail).
