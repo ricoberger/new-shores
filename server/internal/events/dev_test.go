@@ -105,10 +105,31 @@ func TestDevSchedulerRearms(t *testing.T) {
 		t.Fatalf("pending = %+v", p)
 	}
 	pub := newCountingPublisher()
+	// Readiness handshake: WallUntil is called right before the scheduler
+	// arms its timer, so a call with the far deadline proves it sleeps for
+	// the 1 h order before the earlier one is created. armedFor records
+	// every deadline the scheduler armed for.
+	far := worldStart.Add(time.Hour)
+	armed := make(chan struct{}, 1)
+	var (
+		mu       sync.Mutex
+		armedFor []time.Time
+	)
 	sched := &DevScheduler{
 		Store: mem, Registry: DefaultRegistry(time.Hour), Catalogue: c, Publisher: pub,
 		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)), WorldNow: worldNow,
-		WallUntil: func(t time.Time) time.Duration { return t.Sub(worldNow()) / scale },
+		WallUntil: func(t time.Time) time.Duration {
+			mu.Lock()
+			armedFor = append(armedFor, t)
+			mu.Unlock()
+			if t.Equal(far) {
+				select {
+				case armed <- struct{}{}:
+				default:
+				}
+			}
+			return t.Sub(worldNow()) / scale
+		},
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan struct{})
@@ -118,7 +139,11 @@ func TestDevSchedulerRearms(t *testing.T) {
 			t.Error(err)
 		}
 	}()
-	time.Sleep(50 * time.Millisecond) // armed for the 1 h order
+	select {
+	case <-armed:
+	case <-time.After(2 * time.Second):
+		t.Fatal("the scheduler never armed for the 1 h order")
+	}
 
 	// The second shipyard orders a sloop due in 2 min (120 ms wall).
 	ordered := time.Now()
@@ -150,6 +175,19 @@ func TestDevSchedulerRearms(t *testing.T) {
 	})
 	if ships != 1 || pub.count() != 1 {
 		t.Fatalf("after %s: ships %d, publishes %d", took, ships, pub.count())
+	}
+	// Re-armed from the far deadline to the earlier one: the first deadline
+	// was the 1 h order, a later one the new order (due 2 min after it was
+	// placed, before the 1 h order).
+	mu.Lock()
+	deadlines := append([]time.Time(nil), armedFor...)
+	mu.Unlock()
+	rearmed := false
+	for _, d := range deadlines[1:] {
+		rearmed = rearmed || d.Before(far)
+	}
+	if !deadlines[0].Equal(far) || !rearmed {
+		t.Fatalf("armed for %v, want the 1 h order first and an earlier deadline after it", deadlines)
 	}
 	if took >= 3*time.Second {
 		t.Errorf("the earlier event waited for the later one: %s", took)
