@@ -114,15 +114,27 @@ login, GLB assets, sound.
   founding island 2 from a ship, two-island dev archipelago (120 tiles
   apart → 2 min legs), island switcher plus Ships/Routes panels (HTML).
   Measured: 12 h offline with a running route ≈ 3 ms of Advance (328
-  boundaries). **Balance finding:** the first settlement flow costs
-  ≈ 1 060 gold and 166 planks against a start of 500 gold / 130 planks;
-  the dev world bridges this with a dev-only bonus (1 500 gold, 150
-  planks), player worlds cannot settle island 2 from the starting stock.
-  To be resolved in the balancing pass (cheaper shipyard/sloop, larger
-  start, or a quest reward — decide then).
-- **Part 2:** 3D archipelago view and graphical route editor; Citizens
-  unlock in play; "while you were away"; intro steps; balancing pass on
-  CONTENT numbers for tiers 1–2 including the finding above.
+  boundaries). The first settlement flow was unaffordable from the
+  starting stock (≈ 1 060 gold / 166 planks vs 500 / 130) — resolved in
+  part 2a.
+- **Part 2a — done (PR #8):** Citizens in play (house, needs, chains,
+  quarry and tool chain, fertility tags, deposit requirement, warehouse
+  level 2) and the tier 1–2 **balancing pass** with the scenario runner.
+  Reference game from the starting stock (golden `bootstrap_citizens`):
+  island 2 settled at 60 min (limit 60), Citizens unlocked at 79 (90),
+  first Citizen house at 100 (100), tools home at 139 (150); no
+  auto-pauses, ending at +23.7 gold/min. Levers used: early
+  infrastructure costs/upkeep cut, wool cycles 60 → 90 s, warehouse
+  throughput 60 → 30 / 90 → 55 per min (one warehouse ≈ 80 % load),
+  starting gold 500 → 800; tax rates and residents untouched; dev bonus
+  removed. The island-2 and first-upgrade targets sit exactly on their
+  limits — **headroom should come from tutorial-quest rewards (D-022),
+  not more starting gold.** Open: a city left idle before building can
+  pause itself into a state that only manual demolish/resume recovers;
+  add a recovery scenario and check the UI explains it.
+- **Part 2b:** 3D archipelago view and graphical route editor; "while you
+  were away"; intro quests (incl. the headroom rewards); recovery
+  scenario; rebalance warehouse levels 3–4 with tier 3.
 - Acceptance: see §3.
 
 Ordering rationale: M1 carries the design risk and needs no UI (the scenario

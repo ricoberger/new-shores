@@ -112,7 +112,16 @@ handlers only.
   receives no goods and no public-building fulfilment, pays no tax and
   declines to its floor (§6).
 - Buildable terrain: `coast`, `grass`, `forest`; `water` and `mountain`
-  never (roads follow the same rule; slots sit on mountain tiles, D-036).
+  never — except that a building with `requires_deposit` may cover
+  mountain tiles, since deposits sit on mountains (D-036). Its footprint
+  must cover at least one tile with that deposit (`no_deposit`). Roads
+  never go on mountains, so the generator places deposits such that every
+  possible mine footprint touches buildable ground (tested for the dev
+  archipelago); a mine with no buildable neighbour would be placeable but
+  never connectable.
+- **Fertility** is an island-wide tag list (`Island.Fertilities`). A farm
+  whose `work_area.fertility` is set can only be placed on an island
+  carrying that tag (`no_fertility`; the error lists the island's tags).
 - Coastal buildings (warehouse, fisher, shipyard, harbourmaster) need at
   least one footprint tile on `coast`.
 - Farms and lumberjacks have a **work area**: a Euclidean disc of radius `r`
@@ -191,7 +200,10 @@ cycle:   seconds               at 100 % efficiency
   building is **input-starved**: its rate is capped at its share of the
   input's arrival rate (zero if nothing arrives). Consumption and production
   of a building always use the same progress rate, so recipe ratios hold
-  exactly.
+  exactly. When several inputs of one recipe are starved, they leave the
+  regime **one at a time** (in good order) and a consumer's demand is
+  capped only by inputs that stay starved — otherwise two empty inputs
+  would release each other and re-enter every millisecond.
 - Output is blocked when the good is at **capacity** in the island inventory
   (D-008); the building shows "warehouse full". Blocking propagates
   upstream: a producer whose output is full and has no *running* consumer is
@@ -236,8 +248,10 @@ cycle:   seconds               at 100 % efficiency
 - A good counts as **full** when `stock + in_transit` reaches capacity
   (committed capacity), so goods already on the road never overflow on
   arrival.
-- Warehouses are **upgraded in place** (gold + materials) rather than
-  demolished; an upgrade raises capacity and throughput. Additional
+- Warehouses are **upgraded in place** (`upgrade_warehouse`: the next
+  level's gold + materials from the island) rather than demolished; an
+  upgrade raises capacity and throughput. Demolishing refunds 50 % of the
+  placement and of every paid level's materials, no gold. Additional
   warehouses can also be built (coastal only).
 - Goods bought via trade or delivered by ships bypass throughput (they arrive
   at the pier) but respect capacity; excess waits aboard the ship.
@@ -269,7 +283,9 @@ cycle:   seconds               at 100 % efficiency
   `floor`. Upgrading is the only way inhabitants of a higher tier appear (so
   the player controls the tier mix). A tier may be *declared* in content
   without a house (residents, tax, unlock conditions only); upgrading into
-  it fails with a typed error until its house exists.
+  it fails with a typed error until its house exists. Houses above the
+  first tier can never be *placed*, only upgraded into (`upgrade_only`,
+  checked before `tier_locked`).
 
 ### 6.2 Needs
 

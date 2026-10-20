@@ -95,7 +95,7 @@ provisional.
 |---|---|---|
 | planks | `lumberjack` (forest → wood, 30 s) [4 S], `sawmill` (wood → planks, 30 s) [4 S] | 1 : 1 |
 | fish | `fisher` (harbour slot → fish, 40 s) [4 S] | — |
-| wool_garments | `sheep_farm` (grass → wool, 60 s) [4 S], `weaver_wool` (wool → wool_garments, 60 s) [6 S] | 1 : 1 |
+| wool_garments | `sheep_farm` (grass → wool, 90 s) [4 S], `weaver_wool` (wool → wool_garments, 90 s) [6 S] | 1 : 1 |
 
 Infrastructure: `warehouse` lvl 1, `road_dirt`, `market_small`, `chapel`,
 `shipyard` (sloop), `house_settlers`.
@@ -235,7 +235,8 @@ Tier 3–4 buildings: see the chain tables in §5 for inputs, outputs, cycles
 and workforce; costs and upkeep to be authored (cost ramp in §3).
 
 Warehouse levels (provisional): lvl 1 cap 300 / T 30; lvl 2 cap 500 / T 55
-(upgrade 300 gold / 20 planks / 10 stone);
+(upgrade 300 gold / 20 planks / 10 stone); levels 3–4 below were authored
+for the old throughput scale and must be rebalanced with tier 3;
 lvl 3 cap 800 / T 130; lvl 4 cap 1 200 / T 180.
 
 ## 8. Ships
@@ -291,7 +292,7 @@ exponent notation; they are converted to fixed point at load time.
 {
   "id": "old_coast",
   "name": "The Old Coast",
-  "version": "old_coast-0.3.0",
+  "version": "old_coast-0.4.0",
   "rules": {
     "transfer_base_seconds": 10,
     "unconnected_buffer_units": 5,
@@ -324,7 +325,7 @@ exponent notation; they are converted to fixed point at load time.
 ### start.json — starting stock
 
 ```json
-{ "gold": 500, "goods": { "planks": 130, "sails": 10 } }
+{ "gold": 800, "goods": { "planks": 130, "sails": 10 } }
 ```
 
 Granted once, after the first (free) warehouse is placed from the ship
@@ -343,12 +344,13 @@ it carries:
 |---|---|---|
 | `recipe` (later `recipes[]`, D-041) | `inputs[] {good, amount}` (may be empty), `outputs[] {good, amount}` (non-empty), `cycle_seconds` | producers |
 | `house` | `tier` | residences |
-| `warehouse` | `levels[] {capacity, throughput_per_min}` | warehouse |
+| `warehouse` | `levels[] {capacity, throughput_per_min, cost?}` — level 1 has no cost (the building cost places it), every later level has one (`upgrade_warehouse`) | warehouse |
 | `road` | `seconds_per_tile` (building must be 1×1) | roads |
 | `service` | `radius` | public buildings |
-| `work_area` | `radius`, `terrain[]`, `required_tiles` | farms, lumberjack, gatherers |
+| `work_area` | `radius`, `terrain[]`, `required_tiles`, `fertility?` (island-wide tag the island must carry, else `no_fertility`) | farms, lumberjack, gatherers |
 | `workforce` | `tier`, `amount` | producers only (D-035) |
-| `slot` | deposit/harbour slot type | mines, quarries, coastal (D-036; M4) |
+| `requires_deposit` | deposit type; the footprint must cover ≥ 1 tile with that deposit (`no_deposit`) and may cover mountain tiles | mines, quarries |
+| `slot` | typed deposit/harbour slots (D-036) — not yet implemented; `requires_deposit` is the interim rule | — |
 | `shipyard` | `ships[]` (ship IDs it can build) | shipyard |
 
 ```json
