@@ -253,7 +253,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, cmd.Rotation)
 	}
 
-	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
+	if err := checkSite(is, c, is.occupancy(c), def, cmd.X, cmd.Y, cmd.Rotation, true); err != nil {
 		return err
 	}
 	if charge {
@@ -286,10 +286,15 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 
 // checkSite validates a building site: the footprint is on the island, on
 // buildable terrain and free (per occ and roads), a coastal building touches
-// the coast and a work-area building has efficiency > 0. A road is never
-// required (D-042).
-func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Building, x, y, rotation int) error {
+// the coast and, with workArea set, a work-area building has efficiency > 0.
+// A road is never required (D-042).
+func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Building, x, y, rotation int, workArea bool) error {
 	fw, fh := footprint(def, rotation)
+	// Overflow-safe bounds check of the whole footprint before any tile
+	// arithmetic: x+fw could wrap for extreme anchors.
+	if fw < 1 || fh < 1 || x < 0 || y < 0 || x > is.Width-fw || y > is.Height-fh {
+		return fmt.Errorf("%w: %s footprint at (%d,%d)", ErrOutOfBounds, def.ID, x, y)
+	}
 	tiles := make([]Pos, 0, fw*fh)
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
@@ -311,7 +316,7 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 			return fmt.Errorf("%w: %s at (%d,%d)", ErrNotCoastal, def.ID, x, y)
 		}
 	}
-	if def.WorkArea != nil && workAreaEfficiency(is, occ, def, x, y, rotation) == 0 {
+	if workArea && def.WorkArea != nil && workAreaEfficiency(is, occ, def, x, y, rotation) == 0 {
 		return fmt.Errorf("%w: %s at (%d,%d)", ErrNoWorkArea, def.ID, x, y)
 	}
 	return nil
@@ -319,7 +324,10 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 
 // moveBuilding moves a building. The building's own current footprint
 // counts as free land for the target (so a one-tile shift is valid, and the
-// identical position is a valid no-op). Nothing is charged or refunded.
+// identical position is a valid no-op). A target with the same footprint
+// rectangle as the current one skips the work-area check: it cannot change
+// the efficiency, and an existing building may legitimately have dropped to
+// 0. Nothing is charged or refunded.
 func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 	is, err := lookupIsland(w, cmd.IslandID)
 	if err != nil {
@@ -345,7 +353,10 @@ func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 			occ[i] = 0
 		}
 	}
-	if err := checkSite(is, c, occ, def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
+	w0, h0 := footprint(def, b.Rotation)
+	w1, h1 := footprint(def, cmd.Rotation)
+	sameRect := cmd.X == b.X && cmd.Y == b.Y && w0 == w1 && h0 == h1
+	if err := checkSite(is, c, occ, def, cmd.X, cmd.Y, cmd.Rotation, !sameRect); err != nil {
 		return err
 	}
 

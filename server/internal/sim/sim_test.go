@@ -198,6 +198,10 @@ func TestApplyLeavesWorldUnchangedOnError(t *testing.T) {
 		{"unknown type", PlaceBuilding{IslandID: "main", Type: "castle", X: 14, Y: 2}, ErrUnknownBuilding},
 		{"footprint out of bounds", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 19, Y: 2}, ErrOutOfBounds},
 		{"negative position", PlaceBuilding{IslandID: "main", Type: "sawmill", X: -1, Y: 2}, ErrOutOfBounds},
+		{"max x", PlaceBuilding{IslandID: "main", Type: "sawmill", X: math.MaxInt, Y: 2}, ErrOutOfBounds},
+		{"max y", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: math.MaxInt}, ErrOutOfBounds},
+		{"min x", PlaceBuilding{IslandID: "main", Type: "sawmill", X: math.MinInt, Y: 2}, ErrOutOfBounds},
+		{"min y", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: math.MinInt}, ErrOutOfBounds},
 		{"water", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 0}, ErrTerrain},
 		{"mountain", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 17, Y: 2}, ErrTerrain},
 		{"occupied by building", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 3, Y: 2}, ErrOccupied},
@@ -853,6 +857,11 @@ func TestMoveBuildingErrorsLeaveWorldUnchanged(t *testing.T) {
 		{"missing building", MoveBuilding{IslandID: "main", BuildingID: 99, X: 14, Y: 5}, ErrBuildingNotFound},
 		{"bad rotation", MoveBuilding{IslandID: "main", BuildingID: 3, X: 14, Y: 5, Rotation: 45}, ErrInvalidCommand},
 		{"out of bounds", MoveBuilding{IslandID: "main", BuildingID: 3, X: 19, Y: 5}, ErrOutOfBounds},
+		{"max x", MoveBuilding{IslandID: "main", BuildingID: 3, X: math.MaxInt, Y: 5}, ErrOutOfBounds},
+		{"max y", MoveBuilding{IslandID: "main", BuildingID: 3, X: 14, Y: math.MaxInt}, ErrOutOfBounds},
+		{"max x rotated", MoveBuilding{IslandID: "main", BuildingID: 3, X: math.MaxInt - 1, Y: 5, Rotation: 90}, ErrOutOfBounds},
+		{"min x", MoveBuilding{IslandID: "main", BuildingID: 3, X: math.MinInt, Y: 5}, ErrOutOfBounds},
+		{"min y", MoveBuilding{IslandID: "main", BuildingID: 3, X: 14, Y: math.MinInt}, ErrOutOfBounds},
 		{"terrain", MoveBuilding{IslandID: "main", BuildingID: 3, X: 17, Y: 2}, ErrTerrain},
 		{"occupied by building", MoveBuilding{IslandID: "main", BuildingID: 3, X: 9, Y: 2}, ErrOccupied},
 		{"occupied by road", MoveBuilding{IslandID: "main", BuildingID: 3, X: 14, Y: 3}, ErrOccupied},
@@ -937,6 +946,49 @@ func TestMoveBuildingKeepsState(t *testing.T) {
 	clearRegimes(cw.Islands[0])
 	if !bytes.Equal(encode(t, cw), encode(t, w)) {
 		t.Error("no-op move changed the world")
+	}
+}
+
+// TestMoveZeroEfficiencyInPlace: a work-area building whose efficiency has
+// dropped to 0 (its forest covered by roads) can still be "moved" to its
+// identical position and rotation (a no-op) and turned on the same
+// footprint; a different position is still checked.
+func TestMoveZeroEfficiencyInPlace(t *testing.T) {
+	c := catalogue(t)
+	w := testWorld(t, c)
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})
+	is := w.Islands[0]
+	occ := is.occupancy(c)
+	var road []Pos
+	for y := range is.Height {
+		for x := range is.Width {
+			i := is.index(x, y)
+			if is.Tiles[i].Terrain == content.TerrainForest && occ[i] == 0 && is.Roads[i] == "" {
+				road = append(road, Pos{x, y})
+			}
+		}
+	}
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: road})
+	b := is.Building(2)
+	if b.Efficiency != 0 {
+		t.Fatalf("efficiency = %d, want 0", b.Efficiency)
+	}
+	before := encode(t, w)
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 8, Y: 2})
+	if !bytes.Equal(before, encode(t, w)) {
+		t.Error("identical-position move changed the world")
+	}
+	// Same footprint rectangle, other rotation (2x2): allowed, still 0.
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 8, Y: 2, Rotation: 180})
+	if b.Rotation != 180 || b.Efficiency != 0 || b.X != 8 || b.Y != 2 {
+		t.Errorf("rotated in place = %+v", b)
+	}
+	before = encode(t, w)
+	if err := Apply(w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 15, Y: 6}); !errors.Is(err, ErrNoWorkArea) {
+		t.Fatalf("move elsewhere at zero efficiency: %v", err)
+	}
+	if !bytes.Equal(before, encode(t, w)) {
+		t.Error("world changed on error")
 	}
 }
 

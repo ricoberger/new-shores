@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -360,6 +361,10 @@ func TestMoveBuilding(t *testing.T) {
 		{"unknown field", fmt.Sprintf(`{"type":"move_building","island_id":"start","building_id":%d,"x":12,"y":5,"rotation":0,"cost":0}`, id), false, 400, CodeBadRequest},
 		{"unknown building", `{"type":"move_building","island_id":"start","building_id":999,"x":12,"y":5,"rotation":0}`, true, 404, "building_not_found"},
 		{"occupied by road", move(5, 3, 0), true, 409, "occupied"},
+		{"max x", move(math.MaxInt64, 5, 0), true, 400, "out_of_bounds"},
+		{"max y", move(12, math.MaxInt64, 0), true, 400, "out_of_bounds"},
+		{"min x", move(math.MinInt64, 5, 90), true, 400, "out_of_bounds"},
+		{"min y", move(12, math.MinInt64, 270), true, 400, "out_of_bounds"},
 	}
 	for _, e := range errs {
 		t.Run(e.name, func(t *testing.T) {
@@ -372,6 +377,14 @@ func TestMoveBuilding(t *testing.T) {
 	}
 	if got := ts.getWorld().Version; got != moved.Version {
 		t.Errorf("version after failed moves = %d, want %d", got, moved.Version)
+	}
+	if err := json.Unmarshal(ts.getWorld().Display, &d); err != nil {
+		t.Fatal(err)
+	}
+	for _, b := range d.Islands[0].Buildings {
+		if b.ID == id && (b.X != 12 || b.Y != 5 || b.Rotation != 0) {
+			t.Errorf("sawmill moved by a failed command to (%d,%d) rotation %d", b.X, b.Y, b.Rotation)
+		}
 	}
 	// Placement never requires a road (D-042): no road-at-placement code.
 	for _, code := range ErrorCodes() {
@@ -410,6 +423,10 @@ func TestErrorResponses(t *testing.T) {
 		{"unknown island", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"nope","building_type":"sawmill","x":10,"y":10,"rotation":0}}`, true, 404, "unknown_island"},
 		{"building not found", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"demolish","island_id":"start","building_id":999}}`, true, 404, "building_not_found"},
 		{"terrain", http.MethodPost, "/api/v1/world/commands", `{"command":` + cmdOnWater + `}`, true, 409, "terrain"},
+		{"max x", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":9223372036854775807,"y":5,"rotation":0}}`, true, 400, "out_of_bounds"},
+		{"max y", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":10,"y":9223372036854775807,"rotation":0}}`, true, 400, "out_of_bounds"},
+		{"min x", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":-9223372036854775808,"y":5,"rotation":0}}`, true, 400, "out_of_bounds"},
+		{"min y", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":10,"y":-9223372036854775808,"rotation":0}}`, true, 400, "out_of_bounds"},
 		{"unknown island data", http.MethodGet, "/api/v1/world/islands/nope", "", true, 404, "unknown_island"},
 		{"method", http.MethodDelete, "/api/v1/world", "", false, 405, CodeMethodNotAllowed},
 		{"unknown endpoint", http.MethodGet, "/api/v1/nope", "", false, 404, CodeNotFound},
