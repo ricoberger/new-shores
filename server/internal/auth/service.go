@@ -62,6 +62,9 @@ type Config struct {
 type Service struct {
 	cfg   Config
 	dummy string // hash verified for unknown emails (constant-time login)
+	// loginVerified is a test hook called after Login verified the
+	// password, inside its transaction.
+	loginVerified func()
 }
 
 // NewService returns the service.
@@ -340,39 +343,50 @@ func (s *Service) link(action, token string) string {
 	return strings.TrimRight(s.cfg.PublicURL, "/") + "/?" + action + "=1&token=" + token
 }
 
-// send delivers a mail; failures are logged without the address.
+// send delivers a mail. Failures are logged by category only: mail server
+// replies and wrapped errors can contain the recipient address.
 func (s *Service) send(ctx context.Context, to, subject, body string) {
 	if err := s.cfg.Mailer.Send(ctx, to, subject, body); err != nil {
-		s.cfg.Logger.Error("sending mail failed", "subject", subject, "error", err)
+		s.cfg.Logger.Error("sending mail failed", "subject", subject, "reason", MailFailure(err))
 	}
 }
 
 // Login verifies email and password and starts a session, replacing the
 // current one. Unknown email and wrong password are the same
 // ErrInvalidCredentials (and take the same time).
+//
+// Verification and session creation run in one transaction that holds the
+// player's row lock, which ConfirmPasswordReset takes too: a reset either
+// completes first (the old password no longer verifies) or waits until the
+// session exists (and then deletes it). A login can therefore never leave
+// a session authenticated by a replaced password, and a re-hash can never
+// overwrite a newer hash.
 func (s *Service) Login(ctx context.Context, cur *Session, email, password string) (*Issued, error) {
 	email, err := NormalizeEmail(email)
 	if err != nil || len(password) > MaxPasswordLen {
 		_, _, _ = VerifyPassword(password, s.dummy, s.cfg.Argon2)
 		return nil, ErrInvalidCredentials
 	}
-	p, err := postgres.PlayerByEmail(ctx, s.cfg.Store.Pool(), email)
-	if err != nil && !errors.Is(err, postgres.ErrNotFound) {
-		return nil, err
-	}
-	if p == nil || p.PasswordHash == nil {
-		_, _, _ = VerifyPassword(password, s.dummy, s.cfg.Argon2)
-		return nil, ErrInvalidCredentials
-	}
-	ok, rehash, err := VerifyPassword(password, *p.PasswordHash, s.cfg.Argon2)
-	if err != nil {
-		return nil, fmt.Errorf("player %s: %w", p.ID, err)
-	}
-	if !ok {
-		return nil, ErrInvalidCredentials
-	}
 	var out Issued
 	err = s.tx(ctx, func(tx pgx.Tx) error {
+		p, err := postgres.LockPlayerByEmail(ctx, tx, email)
+		if err != nil && !errors.Is(err, postgres.ErrNotFound) {
+			return err
+		}
+		if p == nil || p.PasswordHash == nil {
+			_, _, _ = VerifyPassword(password, s.dummy, s.cfg.Argon2)
+			return ErrInvalidCredentials
+		}
+		ok, rehash, err := VerifyPassword(password, *p.PasswordHash, s.cfg.Argon2)
+		if err != nil {
+			return fmt.Errorf("player %s: %w", p.ID, err)
+		}
+		if !ok {
+			return ErrInvalidCredentials
+		}
+		if s.loginVerified != nil {
+			s.loginVerified()
+		}
 		if rehash {
 			h, err := HashPassword(password, s.cfg.Argon2)
 			if err != nil {
@@ -487,6 +501,10 @@ func (s *Service) ConfirmPasswordReset(ctx context.Context, token, password stri
 			return ErrInvalidToken
 		}
 		if err != nil {
+			return err
+		}
+		// Serialise with Login (see there).
+		if _, err := postgres.LockPlayer(ctx, tx, id); err != nil {
 			return err
 		}
 		if err := postgres.SetPasswordHash(ctx, tx, id, hash); err != nil {

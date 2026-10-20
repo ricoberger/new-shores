@@ -62,6 +62,11 @@ func PlayerByEmail(ctx context.Context, q Querier, email string) (*Player, error
 	return scanPlayer(q.QueryRow(ctx, "SELECT "+playerColumns+" FROM players WHERE lower(email) = lower($1) AND archived_at IS NULL", email))
 }
 
+// LockPlayerByEmail locks the player registered with email (FOR UPDATE).
+func LockPlayerByEmail(ctx context.Context, tx pgx.Tx, email string) (*Player, error) {
+	return scanPlayer(tx.QueryRow(ctx, "SELECT "+playerColumns+" FROM players WHERE lower(email) = lower($1) AND archived_at IS NULL FOR UPDATE", email))
+}
+
 // LockPlayer locks a player row (FOR UPDATE) and returns it.
 func LockPlayer(ctx context.Context, tx pgx.Tx, id string) (*Player, error) {
 	if !validUUID(id) {
