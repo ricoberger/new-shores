@@ -132,13 +132,13 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 		{
 			"cost on the first level",
 			[]string{`{ "capacity": 300, "throughput_per_min": 60 }`, `{ "capacity": 300, "throughput_per_min": 60, "cost": { "gold": 1 } }`},
-			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[0].cost", "first level has no cost"},
+			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[0]", "schema violation", "'not' failed"},
 		},
 		{
 			"missing cost on a later level",
 			[]string{`"throughput_per_min": 90,
           "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"throughput_per_min": 90`},
-			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[1].cost", "upgrade level needs a cost"},
+			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[1]", "schema violation", "missing property 'cost'"},
 		},
 		{
 			"unknown good in a level cost",
@@ -176,6 +176,58 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestSchemaWarehouseLevelCosts validates buildings documents directly
+// against buildings.schema.json (no loader): the schema rejects a cost on
+// the first warehouse level and a missing cost on a later level, and
+// accepts the positional shape of the shipped content.
+func TestSchemaWarehouseLevelCosts(t *testing.T) {
+	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
+	doc := func(levels string) []byte {
+		return []byte(`[{"id": "warehouse", "name": "Warehouse", "region": "old_coast", "tier": "settlers", "footprint": [4, 3],
+			"coastal": true, "requires_road": false, "cost": {"gold": 100}, "upkeep_per_min": 4, "pause_category": "never",
+			"warehouse": {"levels": ` + levels + `}}]`)
+	}
+	lvl1 := `{"capacity": 300, "throughput_per_min": 30}`
+	lvl2 := `{"capacity": 500, "throughput_per_min": 50, "cost": {"gold": 300, "stone": 10}}`
+	for _, ok := range []string{"[" + lvl1 + "]", "[" + lvl1 + "," + lvl2 + "]", "[" + lvl1 + "," + lvl2 + "," + lvl2 + "]"} {
+		if err := validateSchema(schemaDir, FileBuildings, doc(ok)); err != nil {
+			t.Errorf("levels %s: %v", ok, err)
+		}
+	}
+	for _, tc := range []struct{ levels, want string }{
+		{`[{"capacity": 300, "throughput_per_min": 30, "cost": {"gold": 1}}]`, "'not' failed"},
+		{"[" + lvl1 + `, {"capacity": 500, "throughput_per_min": 50}]`, "missing property 'cost'"},
+		{"[" + lvl1 + "," + lvl2 + `, {"capacity": 800, "throughput_per_min": 80}]`, "missing property 'cost'"},
+		{"[]", "minItems"},
+	} {
+		err := validateSchema(schemaDir, FileBuildings, doc(tc.levels))
+		if err == nil || !strings.Contains(err.Error(), "schema violation") || !strings.Contains(err.Error(), tc.want) {
+			t.Errorf("levels %s: err = %v, want %q", tc.levels, err, tc.want)
+		}
+	}
+}
+
+// TestCheckWarehouseLevelCosts covers the loader check behind the schema
+// for catalogues built in code.
+func TestCheckWarehouseLevelCosts(t *testing.T) {
+	for _, tc := range []struct {
+		mutate func(levels []WarehouseLevel)
+		want   string
+	}{
+		{func(l []WarehouseLevel) { l[0].Cost = &Cost{Gold: 1} }, "warehouse.levels[0].cost: the first level has no cost"},
+		{func(l []WarehouseLevel) { l[1].Cost = nil }, "warehouse.levels[1].cost: an upgrade level needs a cost"},
+	} {
+		c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		tc.mutate(c.BuildingByID["warehouse"].Warehouse.Levels)
+		if err := checkReferences(c); err == nil || !strings.Contains(err.Error(), tc.want) {
+			t.Errorf("err = %v, want %q", err, tc.want)
+		}
 	}
 }
 

@@ -73,20 +73,18 @@
         "required": ["levels"],
         "properties": {
           "levels": {
+            "description": "Levels in order. The first level is placed with the building cost and has no cost; every later level is reached by an upgrade and requires its cost.",
             "type": "array",
             "minItems": 1,
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["capacity", "throughput_per_min"],
-              "properties": {
-                "capacity": { "type": "number", "exclusiveMinimum": 0 },
-                "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 },
-                "cost": {
-                  "description": "Upgrade cost into this level (gold from the world, materials from the island). Not allowed on the first level (the building cost places it); required on every later level.",
-                  "$ref": "#/$defs/cost"
-                }
+            "prefixItems": [
+              {
+                "$ref": "#/$defs/warehouse_level",
+                "not": { "required": ["cost"] }
               }
+            ],
+            "items": {
+              "$ref": "#/$defs/warehouse_level",
+              "required": ["cost"]
             }
           }
         }
@@ -154,6 +152,19 @@
   },
   "$defs": {
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "warehouse_level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capacity", "throughput_per_min"],
+      "properties": {
+        "capacity": { "type": "number", "exclusiveMinimum": 0 },
+        "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 },
+        "cost": {
+          "description": "Upgrade cost into this level (gold from the world, materials from the island).",
+          "$ref": "#/$defs/cost"
+        }
+      }
+    },
     "cost": {
       "description": "Construction cost: 'gold' plus materials by good ID (units).",
       "type": "object",
