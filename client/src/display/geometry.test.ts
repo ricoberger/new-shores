@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { adjacentRoads, covers, lPath, missingRoadHint, nextRotation, rotatedFootprint } from "./geometry";
+import { adjacentRoads, covers, lPath, missingDepositHint, missingRoadHint, nextRotation, rotatedFootprint } from "./geometry";
 
 describe("geometry", () => {
   it("swaps the footprint at 90 and 270 degrees", () => {
@@ -46,5 +46,20 @@ describe("geometry", () => {
     expect(missingRoadHint(sawmill, below, 10, 20, 0)).toBe(true);
     expect(missingRoadHint(sawmill, new Set(), 10, 20, 0)).toBe(true);
     expect(missingRoadHint(warehouse, new Set(), 10, 20, 0)).toBe(false);
+  });
+
+  it("hints red when a deposit building covers no deposit tile of its kind", () => {
+    const quarry = { width: 3, height: 2, requires_deposit: "stone" };
+    const deposits = new Map([
+      ["12,21", "stone"],
+      ["20,20", "iron"],
+    ]);
+    // x 10..12, y 20..21 covers (12,21).
+    expect(missingDepositHint(quarry, deposits, 10, 20, 0)).toBe(false);
+    // At 90 degrees the footprint is 2x3 (x 10..11, y 20..22): no stone.
+    expect(missingDepositHint(quarry, deposits, 10, 20, 90)).toBe(true);
+    // The wrong kind does not count; buildings without a deposit never hint.
+    expect(missingDepositHint(quarry, deposits, 19, 19, 0)).toBe(true);
+    expect(missingDepositHint({ width: 2, height: 2 }, new Map(), 0, 0, 0)).toBe(false);
   });
 });

@@ -11,6 +11,7 @@ import {
   SAWMILL,
   SAWMILL_MOVED,
   START_GOLD,
+  WAREHOUSE_TILE,
   WATER,
 } from "./constants";
 
@@ -121,6 +122,28 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   for (let i = 0; i < 6; i++) await page.mouse.wheel(0, 300);
   await page.waitForTimeout(200);
+
+  // Tier 2 (R-30): a Citizens building is listed locked with the server's
+  // unmet unlock conditions; the Citizen house is upgrade-only and not
+  // listed. The warehouse panel offers the level-2 upgrade with its cost.
+  await page.getByTestId("build-tab-production").click();
+  const quarryLock = page.getByTestId("build-lock-quarry");
+  await expect(quarryLock).toContainText("Needs Citizens — Settlers 0/120");
+  await expect(quarryLock).toContainText("Chapel");
+  await expect(page.getByTestId("build-quarry")).toBeDisabled();
+  await expect(page.getByTestId("build-deposit-quarry")).toContainText("stone deposit");
+  await page.getByTestId("build-tab-houses").click();
+  await expect(page.getByTestId("build-house_settlers")).toBeVisible();
+  await expect(page.getByTestId("build-house_citizens")).toHaveCount(0);
+  await clickTile(page, WAREHOUSE_TILE);
+  await expect(page.getByTestId("info-name")).toHaveText("Warehouse");
+  await expect(page.getByTestId("warehouse-level")).toContainText("level 1 of 2");
+  await expect(page.getByTestId("warehouse-upgrade-button")).toContainText("level 2");
+  await expect(page.getByTestId("warehouse-upgrade-cost")).toContainText("/300 gold");
+  await expect(page.getByTestId("warehouse-upgrade-cost")).toContainText("Stone 0/10");
+  await page.keyboard.press("Escape");
+  await clickTile(page, WATER);
+  await expect(page.getByTestId("info-panel")).toBeHidden();
 
   // D-042: the lumberjack is placed before any road exists; it is simply
   // not connected until the road reaches its footprint.

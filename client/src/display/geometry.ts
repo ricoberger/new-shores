@@ -1,8 +1,9 @@
 // The only client-side geometry (D-027): footprint rotation, the Manhattan
-// L-path of road drags and road adjacency of a footprint over the server's
+// L-path of road drags, road adjacency of a footprint over the server's
 // road tiles (a display hint for the placement ghost and the cart paths,
-// D-042). No placement, connectivity or work-area rule is evaluated here;
-// the server is the only validator.
+// D-042) and lookups of the island's fertility tags and deposit tiles for
+// the ghost hints. No placement, connectivity or work-area rule is
+// evaluated here; the server is the only validator.
 
 export interface TilePos {
   x: number;
@@ -95,4 +96,28 @@ export function missingRoadHint(
   if (!def.requires_road) return false;
   const [w, h] = rotatedFootprint(def.width, def.height, rotation);
   return adjacentRoads(roads, x, y, w, h).length === 0;
+}
+
+/**
+ * Placement ghost hint (UI.md §3): true when a building that requires a
+ * deposit covers no deposit tile of its kind with its rotated footprint
+ * (the server's island deposits, keyed by tileKey with the kind as value).
+ * A lookup for the ghost colour and hint text, never a validity decision.
+ */
+export function missingDepositHint(
+  def: FootprintDef & { requires_deposit?: string },
+  deposits: ReadonlyMap<string, string>,
+  x: number,
+  y: number,
+  rotation: number,
+): boolean {
+  const kind = def.requires_deposit;
+  if (!kind) return false;
+  const [w, h] = rotatedFootprint(def.width, def.height, rotation);
+  for (let ty = y; ty < y + h; ty++) {
+    for (let tx = x; tx < x + w; tx++) {
+      if (deposits.get(tileKey({ x: tx, y: ty })) === kind) return false;
+    }
+  }
+  return true;
 }

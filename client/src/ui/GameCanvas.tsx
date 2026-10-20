@@ -36,6 +36,7 @@ export function GameCanvas({ sync, tool, events, onRenderer }: Props) {
       road: (a, b) => eventsRef.current.road(a, b),
       demolish: (x, y) => eventsRef.current.demolish(x, y),
       cancelTool: () => eventsRef.current.cancelTool(),
+      ghostHint: (text) => eventsRef.current.ghostHint(text),
     });
     onRenderer(renderer);
     return () => {

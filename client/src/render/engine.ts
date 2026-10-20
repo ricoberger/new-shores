@@ -13,14 +13,15 @@ import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { GameSync, SyncSnapshot } from "../api/sync";
-import { buildingAt, lPath, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
+import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
+import { fertilityNeed, missingFertilityText } from "../display/tiers";
 import type { Tool } from "../ui/tools";
 import { BuildingLayer } from "./buildings";
 import { CameraRig } from "./camera";
 import { CartLayer } from "./carts";
 import { footprintBox, tileCenter, worldToTile } from "./coords";
 import { IconLayer } from "./icons";
-import { GHOST, GHOST_NO_ROAD } from "./palette";
+import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
 import { type Point, PointerInput } from "./picking";
 import { RoadLayer } from "./roads";
 import { buildTerrain } from "./terrain";
@@ -33,6 +34,11 @@ export interface RendererEvents {
   road(from: TilePos, to: TilePos): void;
   demolish(x: number, y: number): void;
   cancelTool(): void;
+  /**
+   * The placement ghost's hint changed: why the server would reject the
+   * placement under the pointer (missing fertility or deposit), or null.
+   */
+  ghostHint(text: string | null): void;
 }
 
 export class GameRenderer {
@@ -47,6 +53,10 @@ export class GameRenderer {
   private readonly ghostMaterial: StandardMaterial;
   /** Server road tiles (tileKey) for the ghost's road hint. */
   private roadTiles = new Set<string>();
+  /** Deposit kinds by tile (tileKey) of the island shown, for the ghost hint. */
+  private deposits = new Map<string, string>();
+  private fertilities: readonly string[] = [];
+  private lastGhostHint: string | null = null;
   private readonly input: PointerInput;
   private readonly unsubscribe: () => void;
   private terrain: Mesh[] = [];
@@ -174,6 +184,8 @@ export class GameRenderer {
       this.terrain = buildTerrain(this.scene, island);
       this.terrainRevision = island.revision + island.id;
       this.rig.setBounds(island.width, island.height, true);
+      this.deposits = new Map(island.deposits.map((d) => [tileKey(d), d.kind]));
+      this.fertilities = island.fertilities;
     }
     const shown = this.currentIslandId();
     if (shown !== this.shownIslandId) {
@@ -282,9 +294,12 @@ export class GameRenderer {
   }
 
   /**
-   * Placement/move ghost under the pointer. It turns yellow when the
-   * building requires a road and none of the server's road tiles touches the
-   * footprint (a "not connected" hint, never red; the server validates).
+   * Placement/move ghost under the pointer. It turns red when the island
+   * lacks the building's fertility or the footprint covers no deposit of
+   * the required kind (lookups of the island's static data, with the reason
+   * as hint text), and yellow when the building requires a road and none of
+   * the server's road tiles touches the footprint (a "not connected" hint).
+   * The click is never blocked; the server validates.
    */
   private updateGhost(): void {
     const tool = this.tool();
@@ -293,13 +308,28 @@ export class GameRenderer {
     const t = this.hover && def ? this.tileAt(this.hover) : null;
     if (!ghostTool || !def || !t) {
       this.ghost.setEnabled(false);
+      this.setGhostHint(null);
       return;
     }
     const [w, h] = rotatedFootprint(def.width, def.height, tool.rotation);
     this.ghost.scaling.set(w, 0.6, h);
     this.ghost.position.set(t.x + w / 2, 0.3, -(t.y + h / 2));
-    const color = missingRoadHint(def, this.roadTiles, t.x, t.y, tool.rotation) ? GHOST_NO_ROAD : GHOST;
+    const fertility = fertilityNeed(def, this.fertilities);
+    let hint: string | null = null;
+    if (fertility && !fertility.present) {
+      hint = missingFertilityText(fertility.fertility, this.fertilities);
+    } else if (missingDepositHint(def, this.deposits, t.x, t.y, tool.rotation)) {
+      hint = `Must cover a ${def.requires_deposit ?? ""} deposit`;
+    }
+    const color = hint ? GHOST_INVALID : missingRoadHint(def, this.roadTiles, t.x, t.y, tool.rotation) ? GHOST_NO_ROAD : GHOST;
     if (this.ghostMaterial.diffuseColor !== color) this.ghostMaterial.diffuseColor = color;
     this.ghost.setEnabled(true);
+    this.setGhostHint(hint);
+  }
+
+  private setGhostHint(hint: string | null): void {
+    if (hint === this.lastGhostHint) return;
+    this.lastGhostHint = hint;
+    this.events.ghostHint(hint);
   }
 }

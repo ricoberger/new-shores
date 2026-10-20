@@ -20,6 +20,8 @@ export const SAWMILL = { x: 20, y: 5, rotation: 180 };
 /** Move targets below the road (D-042): footprints still touch the road. */
 export const HOUSE_MOVED = { x: 11, y: 5 };
 export const SAWMILL_MOVED = { x: 24, y: 5 };
+/** A tile of the seeded warehouse (x 2..5, y 1..3). */
+export const WAREHOUSE_TILE = { x: 3, y: 2 };
 /** A water tile (invalid placement). */
 export const WATER = { x: 0, y: 0 };
 /** Gold of the dev world: start.json (no dev-only bonus since the tier 1–2 balancing pass). */
