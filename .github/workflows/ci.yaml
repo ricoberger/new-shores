@@ -133,10 +133,10 @@ jobs:
       - name: npm ci
         run: npm ci
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
 
-      - name: Playwright smoke test
+      - name: Playwright e2e (desktop, touch, PWA and perf projects)
         run: npm run test:e2e
 
       - name: Upload Playwright report
