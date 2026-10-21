@@ -8,8 +8,6 @@ interface Props {
   model: DisplayState;
   content: Content;
   nowMs: number;
-  /** The archipelago view is shown ("Send to…" picks the destination there). */
-  archipelago: boolean;
   onAssignToRoute: () => void;
   onUnassign: () => void;
   onSend: () => void;
@@ -24,7 +22,7 @@ interface Props {
  * live countdown, route and upkeep. Actions are offered only in the states
  * the server accepts them; the server validates.
  */
-export function ShipPanel({ ship: s, model, content, nowMs, archipelago, onAssignToRoute, onUnassign, onSend, onSendTo, onFound, onScrap, onClose }: Props) {
+export function ShipPanel({ ship: s, model, content, nowMs, onAssignToRoute, onUnassign, onSend, onSendTo, onFound, onScrap, onClose }: Props) {
   const islandName = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
   const type = content.ships.find((t) => t.id === s.type)?.name ?? s.type;
@@ -82,7 +80,7 @@ export function ShipPanel({ ship: s, model, content, nowMs, archipelago, onAssig
             Send…
           </button>
         )}
-        {idle && archipelago && (
+        {idle && (
           <button type="button" className={styles.button} onClick={onSendTo} data-testid="ship-panel-send-to">
             Send to… (pick island)
           </button>

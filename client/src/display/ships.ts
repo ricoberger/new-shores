@@ -85,9 +85,8 @@ export interface ArchPoint {
 }
 
 /**
- * Anchor of an island in the archipelago view: the centre of its
- * silhouette (position + size / 2). A visual convention only; the server
- * measures distances between positions.
+ * Centre of an island's rectangle (position + size / 2): the anchor of
+ * its name label, and of its legs while its harbour berths are unknown.
  */
 export function islandAnchor(is: IslandPlacement): ArchPoint {
   return { x: is.position.x + is.width / 2, y: is.position.y + is.height / 2 };
@@ -118,28 +117,45 @@ export function spreadOffset(i: number): ArchPoint {
   return { x: Math.cos(angle) * SPREAD_RADIUS * ring, y: Math.sin(angle) * SPREAD_RADIUS * ring };
 }
 
+/** Harbour berths of every island (archipelago tiles, nearest to the harbour first). */
+export type Berths = ReadonlyMap<string, readonly ArchPoint[]>;
+
+/**
+ * Anchor point of an island for legs and route ribbons: its first harbour
+ * berth, or the island centre while its berths are unknown (static data
+ * not loaded). A visual convention only; the server measures distances.
+ */
+export function berthAnchor(id: string, islands: ReadonlyMap<string, IslandPlacement>, berths?: Berths): ArchPoint | null {
+  const first = berths?.get(id)?.[0];
+  if (first) return first;
+  const is = islands.get(id);
+  return is ? islandAnchor(is) : null;
+}
+
 /**
  * Archipelago position of a ship at server time nowMs (D-027: a lerp of
  * the server's leg timestamps, no rule). On a leg it is at the origin's
- * anchor while handling (now < depart_at), on the straight line between the
- * anchors while travelling (fraction clamped to [0, 1]) and at the
- * destination's anchor after arrive_at (until the next payload). Without a
- * leg (idle, anchored_unpaid) it is at its island's anchor plus the spread
- * offset of `slot`. Null when an island is unknown.
+ * berth anchor while handling (now < depart_at), on the straight line
+ * between the two berth anchors while travelling (fraction clamped to
+ * [0, 1]; the line may cross land) and at the destination's anchor after
+ * arrive_at (until the next payload). Without a leg (idle,
+ * anchored_unpaid) it lies at harbour berth `slot + 1` of its island (the
+ * first berth is the anchor of the legs), or at the island centre plus
+ * the spread offset of `slot` when the berths are unknown. Null when an
+ * island is unknown.
  */
 export function shipPlacement(
   ship: Pick<ShipDisplay, "island_id" | "leg">,
   islands: ReadonlyMap<string, IslandPlacement>,
   nowMs: number,
   slot = 0,
+  berths?: Berths,
 ): ShipPlacement | null {
   const leg = ship.leg;
   if (leg) {
-    const from = islands.get(leg.from_island_id);
-    const to = islands.get(leg.to_island_id);
-    if (!from || !to) return null;
-    const a = islandAnchor(from);
-    const b = islandAnchor(to);
+    const a = berthAnchor(leg.from_island_id, islands, berths);
+    const b = berthAnchor(leg.to_island_id, islands, berths);
+    if (!a || !b) return null;
     const heading = Math.atan2(b.y - a.y, b.x - a.x);
     const depart = serverTimeMs(leg.depart_at);
     const arrive = serverTimeMs(leg.arrive_at);
@@ -149,6 +165,11 @@ export function shipPlacement(
   }
   const is = islands.get(ship.island_id);
   if (!is) return null;
+  const list = berths?.get(ship.island_id);
+  if (list && list.length > 0) {
+    const berth = list[Math.min(list.length - 1, slot + 1)] as ArchPoint;
+    return { point: berth, heading: 0, atSea: false };
+  }
   const a = islandAnchor(is);
   const o = spreadOffset(slot);
   return { point: { x: a.x + o.x, y: a.y + o.y }, heading: 0, atSea: false };

@@ -62,20 +62,21 @@ export const ISLAND2_HOUSES = [
 export const ISLAND2_FISHER = { x: 12, y: 2 };
 
 /**
- * Wheel ticks (deltaY 300 each) that zoom the island view out to its
- * maximum extent: two ticks reach it from the default zoom, the third is
- * the first one at the maximum and stays below the archipelago threshold
- * (600, client/src/display/view.ts). More ticks switch to the archipelago.
+ * Wheel ticks (deltaY 300 each) that zoom out from the near default (half
+ * extent 18) so that the whole start island is on a desktop screen while
+ * the camera stays at near LOD (buildings pickable): one tick is a factor
+ * exp(300 × 0.0015) ≈ 1.57, half extent 28.2 < NEAR_EXIT_HALF (30,
+ * client/src/display/lod.ts). Two more ticks reach mid and far LOD.
  */
-export const ISLAND_ZOOM_OUT_TICKS = 3;
+export const ISLAND_ZOOM_OUT_TICKS = 1;
 
-// Archipelago view (archipelago.spec.ts, voyage.spec.ts): tiles to click
-// on the islands, away from their anchor (label and berths).
+// Island taps (archipelago.spec.ts, voyage.spec.ts): tiles to click on the
+// islands, away from their centre (name label) and berths.
 /** A grass tile of the start island. */
 export const ISLAND_INLAND = { x: 10, y: 10 };
 /** A grass tile of island 2. */
 export const ISLAND2_INLAND = { x: 8, y: 8 };
-/** Open sea between the islands, in start-island tile coordinates. */
+/** Open sea between the islands, in start-island tile (= archipelago) coordinates. */
 export const SEA_BETWEEN = { x: 62, y: 66 };
 
 // Touch projects (touch.spec.ts) run after the away project on the same
@@ -111,3 +112,14 @@ export const PASTURE_RECT_OUTSIDE = 2;
 export const TOUCH_PASTURE_FROM = { x: 31, y: 5 };
 export const TOUCH_PASTURE_TO = { x: 33, y: 6 };
 export const TOUCH_PASTURE_VALID = 5;
+
+// Camera rotation (archipelago.spec.ts): one settler house (2 × 2, 10
+// planks) placed by a click in each of the four camera rotation steps,
+// with building rotation step × 90°, on free grass of the start island
+// (x 12..19, y 23..24) reserved for this test; no other spec builds there.
+export const ROTATION_HOUSES = [
+  { x: 12, y: 23 },
+  { x: 14, y: 23 },
+  { x: 16, y: 23 },
+  { x: 18, y: 23 },
+];

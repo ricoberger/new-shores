@@ -1,9 +1,10 @@
 // Status icons: a camera-facing quad above every building whose status is
 // not ok, with both a colour and a glyph (UI.md §7). Unpaid and player
-// pauses use distinct glyphs. One mesh per status with thin instances (one
-// draw call per status, not per building); the camera never rotates
-// (fixed azimuth and elevation), so the facing rotation is baked into the
-// instance matrices instead of a per-mesh billboard.
+// pauses use distinct glyphs. One mesh per status and island with thin
+// instances (one draw call per status, not per building); the camera turns
+// only in 90° steps, so the facing rotation of the current step is baked
+// into the instance matrices (re-baked on a rotation) instead of a
+// per-mesh billboard.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
@@ -14,7 +15,7 @@ import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { STATUS_STYLES, type StatusKey, statusKey } from "../display/status";
-import { AZIMUTH, ELEVATION } from "./camera";
+import { azimuthOf, ELEVATION } from "../display/camera";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
 
@@ -23,8 +24,10 @@ const ICON_Y = 1.6;
 
 export class IconLayer {
   private readonly templates = new Map<StatusKey, Mesh>();
-  /** Rotation that turns the quad towards the fixed camera. */
-  private readonly facing = Matrix.RotationYawPitchRoll(AZIMUTH, ELEVATION, 0);
+  /** Rotation that turns the quad towards the camera. */
+  private facing = Matrix.RotationYawPitchRoll(azimuthOf(0), ELEVATION, 0);
+  private rotation = 0;
+  private last: { buildings: BuildingDisplay[]; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
 
   constructor(
     private readonly scene: Scene,
@@ -67,7 +70,16 @@ export class IconLayer {
     return mesh;
   }
 
+  /** Camera rotation step: the icons are turned towards the camera again. */
+  setRotation(step: number): void {
+    if (step === this.rotation) return;
+    this.rotation = step;
+    this.facing = Matrix.RotationYawPitchRoll(azimuthOf(step), ELEVATION, 0);
+    if (this.last) this.update(this.last.buildings, this.last.defs);
+  }
+
   update(buildings: BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
+    this.last = { buildings, defs };
     const byKey = new Map<StatusKey, number[]>();
     for (const b of buildings) {
       if (b.status === "ok") continue;

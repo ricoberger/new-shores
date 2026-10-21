@@ -1,5 +1,7 @@
 // Terrain: flat tiles in chunks of CHUNK x CHUNK tiles, one mesh per chunk
-// with per-vertex colours.
+// with per-vertex colours. Chunks are large (a whole island of the current
+// content is one chunk): several islands can be in view at once, and draw
+// calls, not vertices, are the phone budget.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -9,7 +11,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { Island, Terrain } from "../api/client";
 import { TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 
-export const CHUNK = 16;
+export const CHUNK = 64;
 
 export function buildTerrain(scene: Scene, island: Island, parent: TransformNode | null = null): Mesh[] {
   const material = new StandardMaterial("terrain", scene);

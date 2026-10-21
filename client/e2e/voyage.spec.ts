@@ -20,18 +20,19 @@ import {
   SHIPYARD,
   WAREHOUSE_PLANKS,
 } from "./constants";
-import { clickIsland, dragShip, expectView, islandPoint, toArchipelago } from "./archipelago";
+import { clickIsland, dragShip, expectFocused, islandPoint, showArchipelago, wheelZoom, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 
 // The shipping flow (R-69) through the UI only, against the dev server at
 // time scale 10: build a connected shipyard, order a sloop, wait for
 // ship_built, ship planks to island 2, found the settlement there and see
 // its warehouse. Runs after the smoke test on the same in-memory world, so
-// it never assumes version numbers. The shipment is a drag and drop of the
-// sloop in the archipelago view; the founding starts from the island card
-// there. The second test continues on island 2: houses and a fisher, a
-// route built in the graphical route editor (stops by clicking islands),
-// and fish carried home to the start island.
+// it never assumes version numbers. One continuous world (D-048): the
+// shipment is a drag and drop of the sloop with the whole archipelago in
+// view (far LOD); the founding starts from the island card there and jumps
+// the camera to island 2. The second test continues on island 2: houses
+// and a fisher, a route built in the route editor (stops by clicking
+// islands), and fish carried home to the start island.
 
 test.describe.configure({ mode: "serial" });
 
@@ -63,11 +64,9 @@ async function drag(page: Page, island: string, from: Tile, to: Tile): Promise<v
   await page.mouse.up();
 }
 
-async function zoomOut(page: Page): Promise<void> {
-  const box = (await page.getByTestId("game-canvas").boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  for (let i = 0; i < ISLAND_ZOOM_OUT_TICKS; i++) await page.mouse.wheel(0, 300);
-  await page.waitForTimeout(200);
+async function zoomOut(page: Page, island: string): Promise<void> {
+  await worldReady(page, island);
+  await wheelZoom(page, ISLAND_ZOOM_OUT_TICKS);
 }
 
 interface ServerShip {
@@ -100,7 +99,7 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
   await dismissAwayDialog(page);
   await expect(page.getByTestId("hud-gold")).toBeVisible();
   await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toContainText("unsettled");
-  await zoomOut(page);
+  await zoomOut(page, ISLAND);
 
   // Road to the south coast and a connected shipyard.
   await page.getByTestId("build-tab-roads").click();
@@ -136,13 +135,13 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
   await expect(page.getByTestId("hud-ship-count")).toHaveText("1", { timeout: BUILD_WALL_MS });
   const [ship] = await ships(page);
   expect(ship).toMatchObject({ state: "idle", island_id: ISLAND });
-  // The hull marker is gone; the idle sloop is drawn at the harbour of the island view.
+  // The hull marker is gone; the idle sloop is drawn at a harbour berth.
   await expect.poll(() => page.evaluate(() => window.__newShores!.constructionMarkers().length)).toBe(0);
   await expect.poll(async () => (await page.evaluate((id) => window.__newShores!.shipToScreen(id), ship!.id)).x).not.toBeNaN();
 
-  // Manual shipment by drag and drop in the archipelago view: a drop on the
-  // sea cancels; a drop on island 2 opens the dialog with it preset.
-  await toArchipelago(page);
+  // Manual shipment by drag and drop with the whole archipelago in view: a
+  // drop on the sea cancels; a drop on island 2 opens the dialog with it preset.
+  await showArchipelago(page);
   await dragShip(page, ship!.id, await islandPoint(page, ISLAND, SEA_BETWEEN));
   await page.waitForTimeout(300);
   await expect(page.getByTestId("shipment-dialog")).toHaveCount(0);
@@ -171,14 +170,14 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
   await expect(page.getByTestId(`ship-cargo-${ship!.id}`)).toContainText(`${SHIPMENT_PLANKS} Planks`);
   await page.getByTestId("ships-close").click();
 
-  // Found the settlement from island 2's card: the view switches to island
-  // 2 with a warehouse ghost.
+  // Found the settlement from island 2's card: the camera jumps to island
+  // 2 (near zoom) with a warehouse ghost.
   await clickIsland(page, ISLAND2, ISLAND2_INLAND);
   await expect(page.getByTestId("island-card")).toBeVisible();
   await page.getByTestId(`island-card-found-${ship!.id}`).click();
   await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("tool-hint")).toContainText("warehouse");
-  await expectView(page, ISLAND2);
+  await expectFocused(page, ISLAND2);
   await expect.poll(async () => (await screen(page, ISLAND2, ISLAND2_WAREHOUSE)).x).not.toBeNaN();
   await clickTile(page, ISLAND2, ISLAND2_WAREHOUSE);
   await expect.poll(() => island2(page)).toEqual({ settled: true, types: ["warehouse"] });
@@ -204,7 +203,7 @@ test("build on island 2 and bring fish home on a route", async ({ page }) => {
   await expect(page.getByTestId("hud-ship-count")).toHaveText("1");
   await page.getByTestId(`island-tab-${ISLAND2}`).click();
   await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toHaveAttribute("aria-selected", "true");
-  await zoomOut(page);
+  await zoomOut(page, ISLAND2);
   await expect.poll(async () => (await screen(page, ISLAND2, ISLAND2_ROAD_FROM)).x).not.toBeNaN();
 
   // Road, two settler houses (the fisher's workers) and a fisher.
@@ -223,10 +222,10 @@ test("build on island 2 and bring fish home on a route", async ({ page }) => {
   // Wait for the first fish on island 2 (40 s cycle plus delivery).
   await expect.poll(() => stockOf(page, ISLAND2, "fish"), { timeout: 120_000 / E2E_TIME_SCALE + 10_000 }).toBeGreaterThanOrEqual(1000);
 
-  // Route in the graphical editor: stops by clicking island 2 and the
-  // start island in the archipelago view; island 2 loads fish (up to 50),
+  // Route in the editor: stops by clicking island 2 and the start island
+  // with the whole archipelago in view; island 2 loads fish (up to 50),
   // start unloads it.
-  await toArchipelago(page);
+  await showArchipelago(page);
   await page.getByTestId("hud-routes").click();
   await page.getByTestId("route-new").click();
   await expect(page.getByTestId("route-editor")).toBeVisible();

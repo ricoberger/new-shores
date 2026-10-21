@@ -121,3 +121,44 @@ export function missingDepositHint(
   }
   return true;
 }
+
+/** A run of road tiles drawn as one strip: from (x0, y0) to (x1, y1) inclusive, horizontal or vertical. */
+export interface Strip {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
+
+/**
+ * Road tiles merged into strips (drawing only): horizontal runs of two or
+ * more tiles first (by row, then column), the remaining tiles as vertical
+ * runs. Every tile is in exactly one strip.
+ */
+export function roadStrips(tiles: readonly TilePos[]): Strip[] {
+  const set = new Set(tiles.map(tileKey));
+  const sorted = [...new Set(tiles.map(tileKey))].map((k) => {
+    const [x, y] = k.split(",").map(Number) as [number, number];
+    return { x, y };
+  });
+  sorted.sort((a, b) => a.y - b.y || a.x - b.x);
+  const used = new Set<string>();
+  const out: Strip[] = [];
+  for (const t of sorted) {
+    if (used.has(tileKey(t))) continue;
+    let x1 = t.x;
+    while (set.has(tileKey({ x: x1 + 1, y: t.y })) && !used.has(tileKey({ x: x1 + 1, y: t.y }))) x1++;
+    if (x1 === t.x) continue;
+    for (let x = t.x; x <= x1; x++) used.add(tileKey({ x, y: t.y }));
+    out.push({ x0: t.x, y0: t.y, x1, y1: t.y });
+  }
+  const rest = sorted.filter((t) => !used.has(tileKey(t))).sort((a, b) => a.x - b.x || a.y - b.y);
+  for (const t of rest) {
+    if (used.has(tileKey(t))) continue;
+    let y1 = t.y;
+    while (set.has(tileKey({ x: t.x, y: y1 + 1 })) && !used.has(tileKey({ x: t.x, y: y1 + 1 }))) y1++;
+    for (let y = t.y; y <= y1; y++) used.add(tileKey({ x: t.x, y }));
+    out.push({ x0: t.x, y0: t.y, x1: t.x, y1 });
+  }
+  return out;
+}

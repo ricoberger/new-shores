@@ -4,11 +4,12 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { DisplayState, ShipDisplay } from "../api/client";
 import { serverTimeMs } from "./extrapolate";
-import { anchorSlots, islandAnchor, type IslandPlacement, shipPlacement, spreadOffset } from "./ships";
+import { anchorSlots, berthAnchor, type Berths, islandAnchor, type IslandPlacement, shipPlacement, spreadOffset } from "./ships";
 
-// Leg interpolation of the archipelago view against the server's display
+// Leg interpolation of the ships against the server's display
 // fixtures (TestDisplayFixtures): positions are lerps of the leg
-// timestamps between island anchors (silhouette centres).
+// timestamps between island anchors (their centres, or their first harbour
+// berths when known).
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
 
@@ -101,6 +102,36 @@ describe("ship placement against the server fixtures", () => {
     // Distinct offsets for the first ships of a ring.
     const offs = [0, 1, 2, 3, 7].map((i) => spreadOffset(i));
     expect(new Set(offs.map((o) => `${o.x.toFixed(3)},${o.y.toFixed(3)}`)).size).toBe(offs.length);
+  });
+
+  it("with harbour berths: legs run between the first berths, idle ships lie at the following berths", () => {
+    const d = fixture("ship_display");
+    const ship = d.ships[0]!;
+    const pl = placements(d);
+    const leg = ship.leg!;
+    const berths: Berths = new Map([
+      [leg.from_island_id, [{ x: 3.5, y: 14.5 }, { x: 5.5, y: 14.5 }, { x: 7.5, y: 14.5 }]],
+      [leg.to_island_id, [{ x: 40.5, y: 47.5 }]],
+    ]);
+    const a = berthAnchor(leg.from_island_id, pl, berths)!;
+    const b = berthAnchor(leg.to_island_id, pl, berths)!;
+    expect(a).toEqual({ x: 3.5, y: 14.5 });
+    expect(b).toEqual({ x: 40.5, y: 47.5 });
+    const depart = serverTimeMs(leg.depart_at);
+    const arrive = serverTimeMs(leg.arrive_at);
+    expect(shipPlacement(ship, pl, depart - 1, 0, berths)!.point).toEqual(a);
+    const mid = shipPlacement(ship, pl, (depart + arrive) / 2, 0, berths)!.point;
+    expect(mid.x).toBeCloseTo((a.x + b.x) / 2, 6);
+    expect(mid.y).toBeCloseTo((a.y + b.y) / 2, 6);
+    expect(shipPlacement(ship, pl, arrive + 1, 0, berths)!.point).toEqual(b);
+    // Idle ships: slot i at berth i + 1 (the first berth is the legs' anchor), the last berth when they run out.
+    const idle = { island_id: leg.from_island_id, leg: null };
+    expect(shipPlacement(idle, pl, 0, 0, berths)!.point).toEqual({ x: 5.5, y: 14.5 });
+    expect(shipPlacement(idle, pl, 0, 1, berths)!.point).toEqual({ x: 7.5, y: 14.5 });
+    expect(shipPlacement(idle, pl, 0, 5, berths)!.point).toEqual({ x: 7.5, y: 14.5 });
+    // Without berths (static data not loaded): the island centre and the spread.
+    expect(berthAnchor(leg.from_island_id, pl, new Map())).toEqual(islandAnchor(pl.get(leg.from_island_id)!));
+    expect(berthAnchor("nowhere", pl, berths)).toBeNull();
   });
 
   it("unknown islands give no placement", () => {

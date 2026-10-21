@@ -9,8 +9,10 @@ are away. Cosmetic-only monetisation.
 
 Status: **M4 part 2b done — tiers 1–2 playable end to end**: two islands,
 ships, routes and settling, Citizens with balanced tier 1–2 content, intro
-quests, "while you were away", automatic stall recovery, a 3D archipelago
-view with a graphical route editor, all persisted in PostgreSQL with
+quests, "while you were away", automatic stall recovery, one continuous
+3D world (every island at its archipelago position, free pan and zoom
+with level of detail, four camera rotation steps, a minimap) with a route
+editor panel (D-048), all persisted in PostgreSQL with
 accounts, a scheduled-events worker, WebSocket push and two stateless
 server instances (see [docs/FIRST_PLAYABLE.md](docs/FIRST_PLAYABLE.md)).
 M3 (touch input, mobile layout, PWA shell, mobile performance budget)
@@ -154,24 +156,27 @@ service before the servers start.
 
 - **Mobile:** the same client works by touch alone on phones and tablets
   (minimum 360 × 640, portrait and landscape): one-finger pan, pinch zoom
-  (pinching out at the island maximum opens the archipelago), tap to
-  select, long-press to inspect, tap + Confirm to place, a two-finger
-  twist or the Rotate button to rotate, one-finger road drawing, ship
-  drag-to-send. Phones get bottom sheets, a scrolling build bar and a
-  collapsed top bar; the mouse keeps click-to-place.
+  (from a single house to the whole archipelago), tap to select,
+  long-press to inspect, tap + Confirm to place, a two-finger twist or the
+  Rotate button to rotate the ghost (without a tool the twist turns the
+  camera), one-finger road drawing, ship drag-to-send. Phones get bottom
+  sheets, a scrolling build bar, a collapsible minimap and a collapsed top
+  bar; the mouse keeps click-to-place.
 - **Fixtures** (dev and E2E builds only, no server needed):
-  `?fixture=archipelago-8x20` (8 islands, 20 ships, archipelago view) and
-  `?fixture=dense-2x400` (two islands, ≈ 400 buildings, 63 carts, 2 ships
-  on legs; island view), e.g. <http://localhost:5173/?fixture=dense-2x400>
-  under `make dev`.
+  `?fixture=archipelago-8x20` (8 islands, 20 ships; whole archipelago in
+  view), `?fixture=dense-2x400` (two islands, ≈ 400 buildings, 63 carts,
+  2 ships on legs; near the dense island) and
+  `?fixture=dense-archipelago-8` (8 islands, two of them dense, ships on
+  legs and 2 routes; the far and mid LOD budget), e.g.
+  <http://localhost:5173/?fixture=dense-2x400> under `make dev`.
 - **Playwright projects** (`npm run test:e2e` runs all of them):
   `chromium`, `archipelago` and `away` (desktop, shared dev world), then
   `touch-chromium` (Pixel 5 profile at 412 × 915, incl. the PWA
   installability check) and `touch-webkit` (iPhone 12; needs
-  `npx playwright install webkit`), and `perf` (the dense fixture under
-  4× CPU throttling; logs fps, frame times, draw calls, JS heap, WebGL
-  renderer and bundle size and asserts an fps threshold: the
-  `PERF_MIN_FPS` environment variable, default 27 from
+  `npx playwright install webkit`), and `perf` (the dense fixtures at
+  near, mid and far LOD under 4× CPU throttling; logs fps, frame times,
+  draw calls, JS heap, WebGL renderer and bundle size and asserts an fps
+  threshold: the `PERF_MIN_FPS` environment variable, default 27 from
   `client/e2e/perf.spec.ts`). Single projects:
   `npx playwright test --project=perf` (add `--no-deps` to skip the
   desktop projects a touch project depends on). Headless Chromium renders
@@ -179,14 +184,14 @@ service before the servers start.
   hardware WebGL flags for comparison (its fps threshold is not asserted).
 - **Perf threshold on slower machines:** software WebGL is CPU-bound, so
   the default 27 fps (Apple M4 Pro) can be too high elsewhere. Do not
-  disable the check; read the `PERF 412x915@2.625 {"fps":…}` line of a
-  run and set `PERF_MIN_FPS` to that fps × 0.8, rounded down — locally
-  `PERF_MIN_FPS=20 npm run test:e2e`, in CI the `PERF_MIN_FPS` value of
+  disable the check; read the lowest `"fps"` of the `PERF … 412x915@2.625`
+  lines of a run and set `PERF_MIN_FPS` to that fps × 0.8, rounded down —
+  locally `PERF_MIN_FPS=20 npm run test:e2e`, in CI the `PERF_MIN_FPS` value of
   the e2e step in `.github/workflows/ci.yaml` (a one-line change).
 - **Opt-in measurements:** `MEASURE_TTFI=1 npx playwright test e2e/ttfi.spec.ts`
   (time to first interaction) and
   `MEASURE_LIGHTHOUSE=1 npx playwright test e2e/lighthouse.spec.ts`
-  (Lighthouse accessibility of the island view, desktop and 412 × 915,
+  (Lighthouse accessibility of the dense fixture, desktop and 412 × 915,
   with the project-local `lighthouse` devDependency).
 - **PWA:** production builds register a service worker that caches the
   app shell only (installable, starts fast); the game itself always needs

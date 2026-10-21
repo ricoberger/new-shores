@@ -21,6 +21,7 @@ import {
   PASTURE_RECT_VALID,
   SHEEP_FARM,
 } from "./constants";
+import { wheelZoom, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 
 /** The planks must flow within this much simulated time after placing the sawmill. */
@@ -131,11 +132,8 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await expect(page.getByTestId("hud-content-version")).toHaveText(CONTENT_VERSION);
 
   // Zoom out so that the whole island is on screen.
-  const canvas = page.getByTestId("game-canvas");
-  const box = (await canvas.boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  for (let i = 0; i < ISLAND_ZOOM_OUT_TICKS; i++) await page.mouse.wheel(0, 300);
-  await page.waitForTimeout(200);
+  await worldReady(page, ISLAND);
+  await wheelZoom(page, ISLAND_ZOOM_OUT_TICKS);
 
   // Tier 2 (R-30): a Citizens building is listed locked with the server's
   // unmet unlock conditions; the Citizen house is upgrade-only and not
@@ -281,11 +279,8 @@ async function quests(page: Page): Promise<QuestState> {
 test("complete and claim the first three quests", async ({ page }) => {
   await page.goto("/");
   await dismissAwayDialog(page);
-  const canvas = page.getByTestId("game-canvas");
-  const box = (await canvas.boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  for (let i = 0; i < ISLAND_ZOOM_OUT_TICKS; i++) await page.mouse.wheel(0, 300);
-  await page.waitForTimeout(200);
+  await worldReady(page, ISLAND);
+  await wheelZoom(page, ISLAND_ZOOM_OUT_TICKS);
 
   // The road and the connected lumberjack and sawmill of the first test
   // completed the road and planks quests; the houses quest needs four
@@ -335,11 +330,8 @@ interface FieldsServerBuilding extends ServerBuilding {
 test("a sheep farm with a dragged pasture rectangle produces wool", async ({ page }) => {
   await page.goto("/");
   await dismissAwayDialog(page);
-  const canvas = page.getByTestId("game-canvas");
-  const box = (await canvas.boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  for (let i = 0; i < ISLAND_ZOOM_OUT_TICKS; i++) await page.mouse.wheel(0, 300);
-  await page.waitForTimeout(200);
+  await worldReady(page, ISLAND);
+  await wheelZoom(page, ISLAND_ZOOM_OUT_TICKS);
 
   // The pasture is listed under Production right after the sheep farm.
   await page.getByTestId("build-tab-production").click();

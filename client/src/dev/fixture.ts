@@ -3,11 +3,17 @@
 // production builds tree-shake them away.
 //
 // ?fixture=archipelago-8x20: 8 islands and 20 ships (idle, on_route,
-// manual_leg, anchored_unpaid) on 3 routes (the archipelago view).
-// ?fixture=dense-2x400: two islands, ≈ 400 buildings on the shown one (plus
+// manual_leg, anchored_unpaid) on 3 routes; the camera starts with the
+// whole archipelago in view (far LOD).
+// ?fixture=dense-2x400: two islands, ≈ 400 buildings on the first one (plus
 // 40 on the other), a road grid, ≥ 60 producers that draw moving carts,
-// 16 fields of two types (D-049) and 2 ships on legs (the island view's
-// mobile budget, FIRST_PLAYABLE §3).
+// 16 fields of two types (D-049) and 2 ships on legs; the camera starts on
+// the dense island (near LOD, the mobile budget of FIRST_PLAYABLE §3).
+// ?fixture=dense-archipelago-8: 8 islands at archipelago positions like
+// archipelago-8x20, two of them dense (the dense-2x400 town each), four
+// silhouette-only and two with 30 buildings, ships on legs and 2 routes;
+// the camera starts on the first dense island (the far and mid LOD
+// budgets of the continuous world, D-048).
 import type {
   BuildingDisplay,
   Command,
@@ -20,14 +26,15 @@ import type {
   Terrain,
   WorldResponse,
 } from "../api/client";
-import type { View } from "../display/view";
+import type { InitialCamera } from "../render/engine";
 import { extrapolate } from "../display/extrapolate";
 import type { SyncSnapshot } from "../api/sync";
 import type { SyncLike } from "../ui/App";
 
 export const ARCHIPELAGO_FIXTURE = "archipelago-8x20";
 export const DENSE_FIXTURE = "dense-2x400";
-export type FixtureId = typeof ARCHIPELAGO_FIXTURE | typeof DENSE_FIXTURE;
+export const DENSE_ARCHIPELAGO_FIXTURE = "dense-archipelago-8";
+export type FixtureId = typeof ARCHIPELAGO_FIXTURE | typeof DENSE_FIXTURE | typeof DENSE_ARCHIPELAGO_FIXTURE;
 
 const GOODS = ["fish", "planks", "wood", "tools"];
 const MODEL_INTERVAL_MS = 250;
@@ -35,12 +42,12 @@ const MODEL_INTERVAL_MS = 250;
 /** The fixture named in a location.search string, or null. */
 export function fixtureFromSearch(search: string): FixtureId | null {
   const id = new URLSearchParams(search).get("fixture");
-  return id === ARCHIPELAGO_FIXTURE || id === DENSE_FIXTURE ? id : null;
+  return id === ARCHIPELAGO_FIXTURE || id === DENSE_FIXTURE || id === DENSE_ARCHIPELAGO_FIXTURE ? id : null;
 }
 
-/** The view a fixture opens in. */
-export function fixtureView(id: FixtureId): View {
-  return id === DENSE_FIXTURE ? { kind: "island", id: DENSE_ISLAND } : { kind: "archipelago" };
+/** Where a fixture's camera starts: the whole archipelago (far) or the first dense island (near). */
+export function fixtureCamera(id: FixtureId): InitialCamera {
+  return id === ARCHIPELAGO_FIXTURE ? { kind: "fit" } : { kind: "island", id: DENSE_ISLAND };
 }
 
 /** Deterministic pseudo-random numbers (LCG). */
@@ -212,7 +219,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
   return { server: { version: 1, display }, islands: statics, content };
 }
 
-/** The dense island shown by dense-2x400. */
+/** The (first) dense island of dense-2x400 and dense-archipelago-8. */
 export const DENSE_ISLAND = "dense1";
 const DENSE_GOODS = ["wood", "planks", "fish", "tools"];
 
@@ -437,6 +444,122 @@ export function buildDenseFixture(nowMs: number): Built {
   };
 }
 
+/** The second dense island of dense-archipelago-8. */
+export const DENSE_ISLAND_2 = "dense2";
+
+/**
+ * dense-archipelago-8: the dense islands lie along the step-0 camera's
+ * screen-up diagonal (+x −y), so that a phone viewport centred between
+ * them at the upper end of the mid band has both in its footprint.
+ */
+export function buildDenseArchipelagoFixture(nowMs: number): Built {
+  const dense1 = denseIsland(DENSE_ISLAND, "Dense", 64, 50, 400, 1);
+  const dense2 = denseIsland(DENSE_ISLAND_2, "Dense 2", 64, 50, 400, 1001);
+  dense1.display.position = { x: 10, y: 90 };
+  dense2.display.position = { x: 100, y: 10 };
+  const town5 = denseIsland("isle5", "Isle 5", 30, 34, 30, 2001);
+  const town7 = denseIsland("isle7", "Isle 7", 48, 32, 30, 3001);
+  town5.display.position = { x: 100, y: 90 };
+  town7.display.position = { x: 110, y: 150 };
+  const displays: IslandDisplay[] = [dense1.display, dense2.display, town5.display, town7.display];
+  const statics = new Map<string, Island>([dense1, dense2, town5, town7].map((x) => [x.statics.id, x.statics]));
+  // Four silhouette-only islands (no buildings), two of them unsettled.
+  const light = [
+    { id: "isle3", x: 0, y: 0, w: 40, h: 30, settled: false },
+    { id: "isle4", x: 185, y: 15, w: 36, h: 36, settled: true },
+    { id: "isle6", x: 170, y: 85, w: 40, h: 26, settled: true },
+    { id: "isle8", x: 185, y: 140, w: 34, h: 30, settled: false },
+  ];
+  light.forEach((sp, i) => {
+    const inventory: IslandDisplay["inventory"] = {};
+    for (const g of DENSE_GOODS) inventory[g] = { stock: sp.settled ? 20_000 : 0, capacity: sp.settled ? 100_000 : 0, in_transit: 0, rate_per_min: 0 };
+    displays.push({
+      id: sp.id,
+      name: `Isle ${sp.id.slice(4)}`,
+      settled: sp.settled,
+      position: { x: sp.x, y: sp.y },
+      width: sp.w,
+      height: sp.h,
+      inventory,
+      roads: [],
+      buildings: [],
+      workforce: {},
+      population: {},
+    } as IslandDisplay);
+    statics.set(sp.id, { id: sp.id, width: sp.w, height: sp.h, revision: "fixture", terrain: terrain(sp.w, sp.h, 31 + i), fertilities: ["wheat"], deposits: [] });
+  });
+  const ids = [DENSE_ISLAND, DENSE_ISLAND_2, "isle5", "isle7", "isle4", "isle6"];
+  const routes: RouteDisplay[] = [
+    [DENSE_ISLAND, DENSE_ISLAND_2],
+    [DENSE_ISLAND_2, "isle5", "isle7"],
+  ].map((stops, i) => ({
+    id: i + 1,
+    name: `Route ${i + 1}`,
+    stops: stops.map((s, j) => ({
+      island_id: s,
+      load: j === 0 ? [{ good: "planks", max_amount: 50_000 }] : [],
+      unload: j === 0 ? [] : ["planks"],
+    })),
+    ship_ids: [],
+    loop_ms: 900_000,
+    effects: [],
+  }));
+  const ships: ShipDisplay[] = [];
+  const r = rng(7);
+  for (let n = 0; n < 12; n++) {
+    const id = n + 1;
+    const base: ShipDisplay = {
+      id,
+      type: "sloop",
+      state: "idle",
+      island_id: "",
+      route_id: 0,
+      stop_index: 0,
+      leg: null,
+      cargo: [{ good: "planks", amount: 20_000 }],
+      slots: 2,
+      slot_size: 50_000,
+      upkeep_per_min: 1_000,
+      paused: false,
+      paused_reason: "",
+    };
+    if (n % 4 === 3) {
+      ships.push({ ...base, island_id: ids[n % ids.length] as string });
+      continue;
+    }
+    const route = routes[n % routes.length] as RouteDisplay;
+    const k = n % route.stops.length;
+    const from = route.stops[k]?.island_id as string;
+    const to = route.stops[(k + 1) % route.stops.length]?.island_id as string;
+    // Long legs with staggered starts keep ships moving during a measurement.
+    const depart = nowMs - r() * 60_000;
+    ships.push({
+      ...base,
+      state: "on_route",
+      route_id: route.id,
+      leg: { from_island_id: from, to_island_id: to, depart_at: ts(depart), arrive_at: ts(depart + 900_000 + r() * 300_000) },
+    });
+    route.ship_ids.push(id);
+  }
+  const display = {
+    evaluated_at: ts(nowMs),
+    next_change_at: null,
+    gold: 5_000_000,
+    balance_rate_per_min: 12_000,
+    tax_rate_per_min: 60_000,
+    upkeep_rate_per_min: 48_000,
+    tiers: [{ id: "settlers", unlocked: true, population: {}, buildings: {}, goods_delivered: {} }],
+    islands: displays,
+    ships,
+    routes,
+    insolvency: { unpaid_buildings: 0, unpaid_ships: 0, unpaid_upkeep_per_min: 0, balance_if_resumed_per_min: 12_000 },
+    quests: { active: [], claimable: [], completed: [] },
+    away_summary: null,
+    last_seen_at: ts(nowMs),
+  } as unknown as DisplayState;
+  return { server: { version: 1, display }, islands: statics, content: denseContent() };
+}
+
 /** A read-only data source with a fixture; commands are rejected. */
 export class FixtureSync implements SyncLike {
   private snapshot: SyncSnapshot;
@@ -444,7 +567,12 @@ export class FixtureSync implements SyncLike {
   private timer: ReturnType<typeof setInterval> | undefined;
 
   constructor(id: FixtureId = ARCHIPELAGO_FIXTURE) {
-    const built = id === DENSE_FIXTURE ? buildDenseFixture(Date.now()) : buildArchipelagoFixture(Date.now());
+    const built =
+      id === DENSE_FIXTURE
+        ? buildDenseFixture(Date.now())
+        : id === DENSE_ARCHIPELAGO_FIXTURE
+          ? buildDenseArchipelagoFixture(Date.now())
+          : buildArchipelagoFixture(Date.now());
     const nowMs = Date.now();
     this.snapshot = {
       server: built.server,

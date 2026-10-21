@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { expectView, islandPoint, shipPoint, view } from "./archipelago";
+import { camera, expectFocused, expectLod, freeCanvasPoint, islandPoint, islandTapPoint, type Lod, lod, shipPoint, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 import {
   ISLAND,
@@ -21,7 +21,8 @@ import { type Point, type Touch, touchFor } from "./touch";
 // iPhone 12 / WebKit): gestures on the fixtures (read-only) and the
 // touch flows that change the dev world (after the away project, on the
 // tiles reserved in constants.ts). WebKit has no multi-touch emulation:
-// it skips the pinch flow and runs the world flows on its own tile.
+// it skips the pinch and twist flows and runs the world flows on its own
+// tile. One continuous world (D-048): pinches pass the LODs, no mode.
 
 test.describe.configure({ mode: "serial" });
 
@@ -40,12 +41,6 @@ async function tile(page: Page, island: string, t: Point): Promise<Point> {
 
 async function version(page: Page): Promise<number> {
   return page.evaluate(() => window.__newShores!.getServer()?.version ?? -1);
-}
-
-/** A point inside the canvas that no HUD element covers. */
-async function freeCanvasPoint(page: Page): Promise<Point> {
-  const vp = page.viewportSize()!;
-  return { x: vp.width / 2, y: vp.height / 2 };
 }
 
 async function serverBuildingAt(page: Page, island: string, t: Point): Promise<{ id: number; type: string; x: number; y: number; paused: boolean } | null> {
@@ -69,7 +64,12 @@ async function denseBuilding(page: Page, type: string, yFrom = 0.3, yTo = 0.6): 
       for (const b of h.getServer()!.display.islands[0]!.buildings) {
         if (b.type !== t) continue;
         const at = h.tileToScreen("dense1", b.x + 1, b.y + 1);
-        if (at.x > w * 0.25 && at.x < w * 0.75 && at.y > hgt * (y0 as number) && at.y < hgt * (y1 as number)) return { id: b.id, at };
+        const underLabel = [...document.querySelectorAll<HTMLElement>('[data-testid^="island-label-"]')].some((el) => {
+          const r = el.getBoundingClientRect();
+          return el.style.visibility === "visible" && at.x >= r.left - 8 && at.x <= r.right + 8 && at.y >= r.top - 8 && at.y <= r.bottom + 8;
+        });
+        const bare = !underLabel && document.elementFromPoint(at.x, at.y) instanceof HTMLCanvasElement;
+        if (bare && at.x > w * 0.25 && at.x < w * 0.75 && at.y > hgt * (y0 as number) && at.y < hgt * (y1 as number)) return { id: b.id, at };
       }
       return null;
     },
@@ -81,14 +81,17 @@ async function denseBuilding(page: Page, type: string, yFrom = 0.3, yTo = 0.6): 
 
 /** One-finger pans (no tool active) until a tile of the start island is near the screen centre. */
 async function centreOn(page: Page, t: Point): Promise<void> {
-  const c = await freeCanvasPoint(page);
+  const vp = page.viewportSize()!;
+  const c = { x: vp.width / 2, y: vp.height / 2 };
   for (let i = 0; i < 8; i++) {
     const p = await tile(page, ISLAND, t);
     const dx = c.x - p.x;
     const dy = c.y - p.y;
     if (Math.hypot(dx, dy) < 20) return;
     const k = Math.min(1, 150 / Math.hypot(dx, dy));
-    await touch.drag(c, { x: c.x + dx * k, y: c.y + dy * k });
+    // The drag starts on bare canvas (not on a label or HUD element).
+    const a = await freeCanvasPoint(page);
+    await touch.drag(a, { x: a.x + dx * k, y: a.y + dy * k });
   }
 }
 
@@ -117,7 +120,7 @@ async function quietWorld(page: Page): Promise<void> {
 async function openWorld(page: Page): Promise<void> {
   await page.goto("/");
   await dismissAwayDialog(page);
-  await expectView(page, ISLAND);
+  await worldReady(page, ISLAND);
   await centreOn(page, TOUCH_FOCUS);
 }
 
@@ -127,9 +130,9 @@ test.beforeEach(async ({ page, browserName }) => {
   touch = await touchFor(page, browserName);
 });
 
-test("one-finger pan moves the island view by the drag", async ({ page }) => {
+test("one-finger pan moves the world by the drag", async ({ page }) => {
   await page.goto("/?fixture=dense-2x400");
-  await expectView(page, DENSE);
+  await worldReady(page, DENSE);
   const ref = { x: 30, y: 25 };
   const before = await tile(page, DENSE, ref);
   const a = await freeCanvasPoint(page);
@@ -157,7 +160,7 @@ test("gestures on a janky main thread: pan, tap and long-press keep their meanin
   test.skip(browserName !== "chromium", "real touch events through CDP");
   test.setTimeout(120_000);
   await page.goto("/?fixture=dense-2x400");
-  await expectView(page, DENSE);
+  await worldReady(page, DENSE);
   await page.getByTestId("build-tab-production").tap();
   await page.getByTestId("build-woodcutter").tap();
   const ref = { x: 30, y: 25 };
@@ -181,42 +184,133 @@ test("gestures on a janky main thread: pan, tap and long-press keep their meanin
   expect(Math.abs(after.y - before.y - -40)).toBeLessThan(4);
 });
 
-test("pinch zooms; pinching out at the maximum switches to the archipelago; tap back in", async ({ page }) => {
+test("pinch zooms through the LODs and back without a mode; tap an island at far LOD opens its card", async ({ page }) => {
   test.skip(!touch.multiTouch, "no multi-touch emulation in this browser");
   await page.goto("/?fixture=dense-2x400");
-  await expectView(page, DENSE);
+  await worldReady(page, DENSE);
+  await expectLod(page, "near");
   const c = await freeCanvasPoint(page);
   const span = async () => {
     const a = await tile(page, DENSE, { x: 20, y: 20 });
     const b = await tile(page, DENSE, { x: 40, y: 20 });
     return Math.hypot(b.x - a.x, b.y - a.y);
   };
-  // A small pinch zooms out a little and never switches.
+  // A small pinch zooms out a little.
   const s0 = await span();
   await touch.pinch(c, 200, 160);
   const s1 = await span();
   expect(s1).toBeLessThan(s0 * 0.9);
-  await page.waitForTimeout(300);
-  expect(await view(page)).toBe(DENSE);
-  // Pinching on: the island maximum, then the archipelago.
-  for (let i = 0; i < 6 && (await view(page)) === DENSE; i++) await touch.pinch(c, 320, 60);
-  await expectView(page, "archipelago");
-  // Pinching in inside the archipelago never switches back.
-  await touch.pinch(c, 100, 300);
-  await page.waitForTimeout(500);
-  expect(await view(page)).toBe("archipelago");
-  // Tap the island (card), tap again (enter).
-  const p = await islandPoint(page, DENSE, { x: 30, y: 25 });
-  await touch.tap(p);
+  // Pinching on: near → mid → far, never back.
+  const order: Lod[] = ["near", "mid", "far"];
+  const out: Lod[] = [await lod(page)];
+  for (let i = 0; i < 8 && out.at(-1) !== "far"; i++) {
+    await touch.pinch(await freeCanvasPoint(page), 300, 200);
+    out.push(await lod(page));
+  }
+  console.log(`pinch out: ${out.join(" ")}`);
+  expect(out.at(-1)).toBe("far");
+  expect(out).toContain("mid");
+  for (let i = 1; i < out.length; i++) expect(order.indexOf(out[i]!)).toBeGreaterThanOrEqual(order.indexOf(out[i - 1]!));
+  // Tap the island at far LOD (a land tile on bare canvas): its card opens as a sheet.
+  await islandPoint(page, DENSE);
+  const land = await page.evaluate(() => {
+    const h = window.__newShores!;
+    for (let y = 4; y < 46; y += 3) {
+      for (let x = 4; x < 60; x += 3) {
+        const p = h.tileToScreen("dense1", x, y);
+        const underLabel = [...document.querySelectorAll<HTMLElement>('[data-testid^="island-label-"]')].some((el) => {
+          const r = el.getBoundingClientRect();
+          return el.style.visibility === "visible" && p.x >= r.left - 8 && p.x <= r.right + 8 && p.y >= r.top - 8 && p.y <= r.bottom + 8;
+        });
+        if (!underLabel && document.elementFromPoint(p.x, p.y) instanceof HTMLCanvasElement) return p;
+      }
+    }
+    return null;
+  });
+  expect(land).not.toBeNull();
+  await touch.tap(land!);
   await expect(page.getByTestId("island-card")).toBeVisible();
   await expect(page.getByTestId("sheet")).toBeVisible();
-  await touch.tap(await islandPoint(page, DENSE, { x: 30, y: 25 }));
-  await expectView(page, DENSE);
+  await expect(page.getByTestId("island-card-name")).toHaveText("Dense");
+  await page.getByTestId("sheet-close").tap();
+  // Pinching in: far → mid → near.
+  const back: Lod[] = [await lod(page)];
+  for (let i = 0; i < 10 && back.at(-1) !== "near"; i++) {
+    await touch.pinch(await freeCanvasPoint(page), 150, 260);
+    back.push(await lod(page));
+  }
+  console.log(`pinch in: ${back.join(" ")}`);
+  expect(back.at(-1)).toBe("near");
+  for (let i = 1; i < back.length; i++) expect(order.indexOf(back[i]!)).toBeLessThanOrEqual(order.indexOf(back[i - 1]!));
+});
+
+test("a touch gesture begun during a jump stays ignored after it, also when a drag turns into a pinch", async ({ page }) => {
+  test.skip(!touch.multiTouch, "no multi-touch emulation in this browser");
+  await page.goto("/?fixture=dense-2x400");
+  await worldReady(page, DENSE);
+  const c = await freeCanvasPoint(page);
+  // Jump to the second island (a DOM click: no touch pointer), and during
+  // the 350 ms animation press one finger, drag it, and add a second
+  // finger (the recogniser promotes the drag to a pinch with a cancel).
+  await page.evaluate(() => (document.querySelector('[data-testid="island-tab-dense2"]') as HTMLElement).click());
+  await touch.raw(
+    { type: "start", fingers: [{ ...c, id: 1 }] },
+    { type: "move", fingers: [{ x: c.x + 40, y: c.y, id: 1 }] },
+    {
+      type: "start",
+      fingers: [
+        { x: c.x + 40, y: c.y, id: 1 },
+        { x: c.x + 100, y: c.y, id: 2 },
+      ],
+    },
+  );
+  // All three were handled while the camera still animated.
+  expect(Number.isFinite(await page.evaluate(() => window.__newShores!.tileToScreen("dense2", 0, 0).x))).toBe(false);
+  // The jump ends with both fingers down; widening and moving them does nothing.
+  await expectFocused(page, "dense2");
+  await worldReady(page, "dense2");
+  const settled = await camera(page);
+  expect(settled.half).toBeCloseTo(18, 3);
+  for (let i = 1; i <= 8; i++) {
+    await touch.raw({
+      type: "move",
+      fingers: [
+        { x: c.x + 40 - i * 12, y: c.y + i * 4, id: 1 },
+        { x: c.x + 100 + i * 12, y: c.y + i * 4, id: 2 },
+      ],
+    });
+    await page.waitForTimeout(16);
+  }
+  expect(await camera(page)).toEqual(settled);
+  await touch.raw({ type: "end", fingers: [] });
+  // A fresh gesture after all fingers are up acts again.
+  await touch.pinch(await freeCanvasPoint(page), 150, 300);
+  await expect.poll(async () => (await camera(page)).half).toBeLessThan(settled.half * 0.8);
+});
+
+test("two-finger twist turns the camera without a tool and the ghost with a ghost tool", async ({ page }) => {
+  test.skip(!touch.multiTouch, "no multi-touch emulation in this browser");
+  await page.goto("/?fixture=dense-2x400");
+  await worldReady(page, DENSE);
+  const before = await camera(page);
+  await touch.twist(await freeCanvasPoint(page), 180, Math.PI / 3);
+  await expect.poll(async () => (await camera(page)).rotation).not.toBe(before.rotation);
+  const after = await camera(page);
+  // One step (either way round), about the same target and zoom.
+  expect([(before.rotation + 1) % 4, (before.rotation + 3) % 4]).toContain(after.rotation);
+  expect(after.half).toBeCloseTo(before.half, 3);
+  // With a build tool the twist turns the ghost; the camera stays.
+  await page.getByTestId("build-tab-production").tap();
+  await page.getByTestId("build-woodcutter").tap();
+  await expect(page.getByTestId("placement-rotate")).toContainText(/(^|\D)0°/);
+  await touch.twist(await freeCanvasPoint(page), 180, Math.PI / 3);
+  await expect(page.getByTestId("placement-rotate")).toContainText(/(90|270)°/);
+  expect((await camera(page)).rotation).toBe(after.rotation);
 });
 
 test("tap and long-press select a building, a ship and an island", async ({ page }) => {
   await page.goto("/?fixture=dense-2x400");
-  await expectView(page, DENSE);
+  await worldReady(page, DENSE);
   const house = await denseBuilding(page, "house");
   await touch.tap(house.at);
   await expect(page.getByTestId("sheet")).toBeVisible();
@@ -232,20 +326,20 @@ test("tap and long-press select a building, a ship and an island", async ({ page
   await page.getByTestId("sheet-close").tap();
 
   await page.goto("/?fixture=archipelago-8x20");
-  await expectView(page, "archipelago");
+  await worldReady(page, "isle1");
   await touch.tap(await shipPoint(page, 4));
   await expect(page.getByTestId("ship-panel-name")).toContainText("#4");
   await page.getByTestId("sheet-close").tap();
-  await touch.tap(await islandPoint(page, "isle1", { x: 10, y: 10 }));
+  await touch.tap(await islandTapPoint(page, "isle1"));
   await expect(page.getByTestId("island-card-name")).toHaveText("Isle 1");
   await page.getByTestId("sheet-close").tap();
-  await touch.longPress(await islandPoint(page, "isle3", { x: 8, y: 10 }));
+  await touch.longPress(await islandTapPoint(page, "isle3"));
   await expect(page.getByTestId("island-card-name")).toHaveText("Isle 3");
 });
 
 test("long-press opens the info panel over an open list sheet and keeps the tool", async ({ page }) => {
   await page.goto("/?fixture=dense-2x400");
-  await expectView(page, DENSE);
+  await worldReady(page, DENSE);
   await page.getByTestId("build-tab-production").tap();
   await page.getByTestId("build-woodcutter").tap();
   await expect(page.getByTestId("placement-bar")).toBeVisible();
@@ -264,7 +358,7 @@ test("long-press opens the info panel over an open list sheet and keeps the tool
 test("a mouse or pen taking over drops the touch-pending tile; the ghost follows the pointer", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "mouse and touch in one context: Chromium project");
   await page.goto("/?fixture=dense-2x400");
-  await expectView(page, DENSE);
+  await worldReady(page, DENSE);
   await page.getByTestId("build-tab-production").tap();
   await page.getByTestId("build-woodcutter").tap();
   const ghost = () => page.evaluate(() => window.__newShores!.ghostTile());
@@ -303,7 +397,7 @@ test("a mouse or pen taking over drops the touch-pending tile; the ghost follows
 
 test("keyboard: a dialog opened from a sheet takes focus, keeps Tab and returns focus", async ({ page }) => {
   await page.goto("/?fixture=archipelago-8x20");
-  await expectView(page, "archipelago");
+  await worldReady(page, "isle1");
   await touch.tap(await shipPoint(page, 4));
   await expect(page.getByTestId("sheet")).toBeVisible();
   await page.getByTestId("ship-panel-scrap").focus();
@@ -339,7 +433,7 @@ test("keyboard: a dialog opened from a sheet takes focus, keeps Tab and returns 
 
 test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the camera", async ({ page }) => {
   await page.goto("/?fixture=dense-2x400");
-  await expectView(page, DENSE);
+  await worldReady(page, DENSE);
   const house = await denseBuilding(page, "house");
   await touch.tap(house.at);
   const sheet = page.getByTestId("sheet");
@@ -402,9 +496,9 @@ test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the c
 
 test("drag an idle ship onto another island, or Send to… and tap, opens the shipment dialog", async ({ page }) => {
   await page.goto("/?fixture=archipelago-8x20");
-  await expectView(page, "archipelago");
+  await worldReady(page, "isle1");
   const idle = 4; // idle at isle2
-  await touch.drag(await shipPoint(page, idle), await islandPoint(page, "isle1", { x: 10, y: 10 }), 16);
+  await touch.drag(await shipPoint(page, idle), await islandTapPoint(page, "isle1"), 16);
   await expect(page.getByTestId("shipment-dialog")).toBeVisible();
   await expect(page.getByTestId("shipment-dest")).toHaveValue("isle1");
   await page.keyboard.press("Escape");
@@ -412,7 +506,7 @@ test("drag an idle ship onto another island, or Send to… and tap, opens the sh
   await touch.tap(await shipPoint(page, idle));
   await page.getByTestId("ship-panel-send-to").tap();
   await expect(page.getByTestId("arch-hint")).toContainText("Tap the destination");
-  await touch.tap(await islandPoint(page, "isle3", { x: 8, y: 10 }));
+  await touch.tap(await islandTapPoint(page, "isle3"));
   await expect(page.getByTestId("shipment-dialog")).toBeVisible();
   await expect(page.getByTestId("shipment-dest")).toHaveValue("isle3");
 });
@@ -420,7 +514,7 @@ test("drag an idle ship onto another island, or Send to… and tap, opens the sh
 test("every HUD control is at least 44 × 44 px; no horizontal overflow at 360 × 640", async ({ page }) => {
   test.skip(page.viewportSize()!.width !== 412, "audit at 412 × 915 (Pixel 5 project)");
   await page.goto("/?fixture=dense-2x400");
-  await expectView(page, DENSE);
+  await worldReady(page, DENSE);
   // Open a sheet and the population chip so their controls are audited too.
   await touch.tap((await denseBuilding(page, "woodcutter").catch(() => denseBuilding(page, "sawmill"))).at);
   await expect(page.getByTestId("sheet")).toBeVisible();
@@ -449,6 +543,28 @@ test("every HUD control is at least 44 × 44 px; no horizontal overflow at 360 �
   expect(overflow.body).toBeLessThanOrEqual(0);
 });
 
+test("the minimap collapses on a phone and shows again on a larger layout", async ({ page }) => {
+  test.skip(page.viewportSize()!.width !== 412, "Chromium touch project (coarse pointer)");
+  await page.setViewportSize({ width: 360, height: 640 });
+  await page.goto("/?fixture=dense-2x400");
+  await worldReady(page, DENSE);
+  // Phone portrait: collapsed behind its toggle.
+  await expect(page.getByTestId("minimap")).toHaveCount(0);
+  await page.getByTestId("minimap-toggle").tap();
+  await expect(page.getByTestId("minimap")).toBeVisible();
+  await page.getByTestId("minimap-toggle").tap();
+  await expect(page.getByTestId("minimap")).toHaveCount(0);
+  // Collapsed, then a tablet layout without a toggle: the minimap shows.
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(page.locator('[data-layout="tablet"]')).toHaveCount(1);
+  await expect(page.getByTestId("minimap-toggle")).toHaveCount(0);
+  await expect(page.getByTestId("minimap")).toBeVisible();
+  // Back on the phone it keeps its collapsed state.
+  await page.setViewportSize({ width: 360, height: 640 });
+  await expect(page.getByTestId("minimap-toggle")).toBeVisible();
+  await expect(page.getByTestId("minimap")).toHaveCount(0);
+});
+
 test("tablet layouts: every HUD control is reachable and at least 44 × 44 px", async ({ page }) => {
   test.skip(page.viewportSize()!.width !== 412, "Chromium touch project (coarse pointer)");
   for (const vp of [
@@ -458,7 +574,7 @@ test("tablet layouts: every HUD control is reachable and at least 44 × 44 px", 
   ]) {
     await page.setViewportSize(vp);
     await page.goto("/?fixture=dense-2x400");
-    await expectView(page, DENSE);
+    await worldReady(page, DENSE);
     await expect(page.locator('[data-layout="tablet"]')).toHaveCount(1);
     // A side panel open too (tablets keep panels at the side).
     await touch.tap((await denseBuilding(page, "woodcutter").catch(() => denseBuilding(page, "sawmill"))).at);
@@ -546,7 +662,7 @@ test("place pastures by a one-finger drag and Confirm", async ({ page, browserNa
   test.skip(browserName !== "chromium", "world flow of the Pixel 5 project");
   await page.goto("/");
   await dismissAwayDialog(page);
-  await expectView(page, ISLAND);
+  await worldReady(page, ISLAND);
   // The sheep farm of the smoke test (x 28..30, y 5..7) and its free ring tiles.
   await centreOn(page, { x: 31, y: 6 });
   const v0 = await version(page);
@@ -636,9 +752,7 @@ test("move, pause and resume, quests and the route editor by touch", async ({ pa
   await expect(page.getByTestId("sheet")).toBeVisible();
   await page.getByTestId("sheet-close").tap();
 
-  // Open a saved route in the editor and save it.
-  await page.getByTestId("to-archipelago").tap();
-  await expectView(page, "archipelago");
+  // Open a saved route in the editor (any zoom) and save it.
   await page.getByTestId("hud-routes").tap();
   const edit = page.locator('[data-testid^="route-edit-"]').first();
   await edit.tap();

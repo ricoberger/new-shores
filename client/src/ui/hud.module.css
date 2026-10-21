@@ -413,7 +413,9 @@
   overflow-y: auto;
 }
 
-/* Archipelago overlay: passive HTML positioned from the camera projection. */
+/* World overlay: HTML positioned from the camera projection, passive to
+   the pointer. The island name labels are buttons for the keyboard; the
+   canvas resolves pointer taps on them after ships (render/engine.ts). */
 .archOverlay {
   position: absolute;
   z-index: 1;
@@ -433,13 +435,29 @@
   display: flex;
   gap: 6px;
   align-items: center;
+  justify-content: center;
   padding: 2px 8px;
+  border: 0;
   border-radius: 10px;
   background: rgb(250 247 240 / 85%);
+  color: inherit;
+  font: inherit;
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
   will-change: transform;
+}
+
+.islandLabel:focus-visible {
+  outline: 3px solid #e69f00;
+}
+
+/* Touch layouts: labels are 44 px tap targets. */
+[data-touch="true"] .islandLabel {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 2px 12px;
+  border-radius: 22px;
 }
 
 .etaBadge {
@@ -461,10 +479,6 @@
   top: 0;
   min-width: 140px;
   font-size: 13px;
-}
-
-.backControl {
-  font-weight: 600;
 }
 
 .resumeBar {
@@ -730,4 +744,33 @@
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* Minimap and camera rotation (D-048): a HUD corner below the top bar. */
+.minimap {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  width: fit-content;
+  padding: 4px;
+}
+
+.minimapCanvas {
+  display: block;
+  border-radius: 4px;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.cameraControls {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.cameraControls > button {
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 18px;
+  line-height: 1;
 }

@@ -64,8 +64,8 @@ export function nextSnap(s: SheetSnap): SheetSnap {
 export const LANDSCAPE_PANEL_MIN_PX = 240;
 /**
  * Heights (CSS px, measured at 851 × 393 including margins) of the
- * landscape chrome: the top bar, the one-row build bar (island view), the
- * insolvency banner (at most two lines, a 44 px target) and the hint bar.
+ * landscape chrome: the top bar, the one-row build bar (always shown in
+ * the continuous world), the insolvency banner (at most two lines, a 44 px target) and the hint bar.
  */
 export const LANDSCAPE_TOP_PX = 73;
 export const LANDSCAPE_BUILD_BAR_PX = 55;
@@ -80,8 +80,6 @@ export interface LandscapeChrome {
   panelOpen: boolean;
   /** Viewport height (CSS px). */
   height: number;
-  /** The build bar is shown (island view). */
-  buildBar: boolean;
   banner: boolean;
   hint: boolean;
 }
@@ -97,7 +95,7 @@ export function collapseLandscapeChrome(c: LandscapeChrome): boolean {
   const panel =
     c.height -
     LANDSCAPE_TOP_PX -
-    (c.buildBar ? LANDSCAPE_BUILD_BAR_PX : 0) -
+    LANDSCAPE_BUILD_BAR_PX -
     (c.banner ? LANDSCAPE_BANNER_PX : 0) -
     (c.hint ? LANDSCAPE_HINT_PX : 0);
   return panel < LANDSCAPE_PANEL_MIN_PX;

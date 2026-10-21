@@ -181,3 +181,18 @@
   padding: 6px 12px;
   border-radius: 6px;
 }
+
+/* Minimap and camera controls: top of the left column (the warnings tray
+   sits at its bottom), never under the side panel. */
+.mapCorner {
+  grid-area: left;
+  align-self: start;
+  justify-self: start;
+  min-width: 0;
+  margin: 8px;
+}
+
+.phone .mapCorner {
+  margin: 6px;
+  margin-left: max(6px, env(safe-area-inset-left));
+}

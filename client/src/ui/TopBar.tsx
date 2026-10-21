@@ -8,13 +8,10 @@ import styles from "./hud.module.css";
 interface Props {
   model: DisplayState | null;
   content: Content | null;
-  /** The island shown ("" in the archipelago view). */
+  /** The focused island (under the camera; its tab is selected). */
   islandId: string;
-  /** The archipelago view is shown. */
-  archipelago: boolean;
+  /** An island tab: the camera jumps there. */
   onSelectIsland: (id: string) => void;
-  /** Back from the island view to the archipelago. */
-  onToArchipelago: () => void;
   /** Opens or closes the Ships / Routes panels. */
   onShips: () => void;
   onRoutes: () => void;
@@ -34,9 +31,7 @@ export function TopBar({
   model,
   content,
   islandId,
-  archipelago,
   onSelectIsland,
-  onToArchipelago,
   onShips,
   onRoutes,
   onQuests,
@@ -89,25 +84,14 @@ export function TopBar({
   );
   const nav = (
     <>
-      <button
-        type="button"
-        className={`${styles.hudButton} ${styles.backControl} ${archipelago ? styles.tabActive : ""}`}
-        onClick={onToArchipelago}
-        disabled={archipelago}
-        aria-current={archipelago ? "page" : undefined}
-        title="Archipelago view (Backspace)"
-        data-testid="to-archipelago"
-      >
-        {archipelago ? "◰ Archipelago" : "◰ To archipelago"}
-      </button>
       <div className={styles.islandTabs} role="tablist" aria-label="Islands">
         {(model?.islands ?? []).map((is) => (
           <button
             key={is.id}
             type="button"
             role="tab"
-            aria-selected={!archipelago && is.id === islandId}
-            className={`${styles.islandTab} ${!archipelago && is.id === islandId ? styles.tabActive : ""}`}
+            aria-selected={is.id === islandId}
+            className={`${styles.islandTab} ${is.id === islandId ? styles.tabActive : ""}`}
             onClick={() => onSelectIsland(is.id)}
             data-testid={`island-tab-${is.id}`}
           >
