@@ -373,6 +373,7 @@ export class ArchipelagoLayer {
   show(lod: Lod, visible: ReadonlySet<string>): void {
     this.lod = lod;
     this.visible = visible;
+    this.sea.setLod(lod);
     this.applyVisibility();
   }
 

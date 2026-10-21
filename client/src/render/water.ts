@@ -17,6 +17,7 @@ import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
 import type { Rect } from "../display/camera";
 import { valueNoise } from "../display/noise";
+import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
 import { depthFactor, type DistanceField, type IslandLand, landDistance } from "../display/sea";
 import { LIGHT, TERRAIN, WATER } from "../theme/palette";
@@ -26,6 +27,8 @@ import { skyFill } from "./lighting";
 /** Ripple normal map size (texels) and how many tiles one repeat covers. */
 const RIPPLE_TEX = 64;
 const RIPPLE_TILES = 9;
+/** Ripple normal-map strength per LOD: calm from afar, the shallows and coast carry the separation. */
+const RIPPLE_LEVEL: Readonly<Record<Lod, number>> = { near: 0.2, mid: 0.1, far: 0.05 };
 /** Ripple drift (normal-map repeats per second): a repeat takes ≈ 40 s. */
 const RIPPLE_SPEED = 0.025;
 
@@ -143,7 +146,7 @@ export class Sea {
     this.material.specularPower = 40;
     const heights = rippleHeights();
     this.ripples = rippleTexture(scene, heights);
-    this.ripples.level = 0.3;
+    this.ripples.level = RIPPLE_LEVEL.near;
     this.glints = glintTexture(scene, heights);
     this.setQuality("low");
     this.mesh.material = this.material;
@@ -157,6 +160,11 @@ export class Sea {
     this.material.bumpTexture = high ? this.ripples : null;
     this.material.emissiveTexture = high ? null : this.glints;
     this.material.specularColor = high ? c3(LIGHT.sun).scale(0.35) : Color3.Black();
+  }
+
+  /** Level of detail: the ripples calm down with the distance. */
+  setLod(lod: Lod): void {
+    this.ripples.level = RIPPLE_LEVEL[lod];
   }
 
   /** Recomputes the shallows→deep gradient from the islands' land (call on payload changes). */
