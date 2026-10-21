@@ -100,8 +100,8 @@ export interface TestHook {
   quality(): Quality;
   /** The grid overlay was drawn in the last frame (only while a placement tool is active). */
   gridOverlayVisible(): boolean;
-  /** Which quality-dependent effects exist. */
-  effects(): { quality: Quality; shadowMap: boolean; grading: boolean; fxaa: boolean; vignette: boolean } | null;
+  /** Which quality-dependent effects exist (FXAA is skipped on software WebGL, see `software`). */
+  effects(): { quality: Quality; shadowMap: boolean; grading: boolean; fxaa: boolean; vignette: boolean; software: boolean } | null;
 }
 
 declare global {
@@ -543,7 +543,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
         effects: () => {
           const e = rendererRef.current?.effects();
-          return e ? { ...e, vignette: document.querySelector('[data-testid="vignette"]') !== null } : null;
+          return e
+            ? {
+                ...e,
+                grading: document.querySelector('[data-testid="grading"]') !== null,
+                vignette: document.querySelector('[data-testid="vignette"]') !== null,
+              }
+            : null;
         },
       };
     }

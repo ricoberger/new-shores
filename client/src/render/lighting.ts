@@ -4,16 +4,17 @@
 // ambient colour, taken by every lit material (skyFill), so the fill costs
 // no second per-pixel light — and the quality-dependent extras. "high"
 // (desktop layout): a low-resolution sun shadow map from buildings and
-// trees onto the ground, slight warm colour grading (the materials' image
-// processing) and FXAA; "low" (touch layouts): none of them is created.
-// The soft vignette of both is an HTML overlay above the canvas
-// (GameCanvas), composited for free instead of shaded per pixel. No bloom,
-// SSAO or depth of field.
+// trees onto the ground (drawn once per caster change) and FXAA (not on
+// software WebGL, where the pass costs more than a frame); "low" (touch
+// layouts): none of them is created. The slight warm grading ("high") and
+// the soft vignette (both) are HTML overlays above the canvas
+// (GameCanvas), composited instead of shaded per pixel. No bloom, SSAO or
+// depth of field.
 import type { Camera } from "@babylonjs/core/Cameras/camera";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator";
 import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent";
-import { ColorCurves } from "@babylonjs/core/Materials/colorCurves";
+import { RenderTargetTexture } from "@babylonjs/core/Materials/Textures/renderTargetTexture";
 import type { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
@@ -50,23 +51,13 @@ const SUN_INTENSITY = 1.05;
 /** Shadow map size (px): low resolution, soft filtering. */
 export const SHADOW_MAP_SIZE = 1024;
 
-/** Hue (degrees) of a hex colour. */
-function hue(hex: string): number {
-  const c = c3(hex);
-  const max = Math.max(c.r, c.g, c.b);
-  const min = Math.min(c.r, c.g, c.b);
-  if (max === min) return 0;
-  const d = max - min;
-  const h = max === c.r ? ((c.g - c.b) / d) % 6 : max === c.g ? (c.b - c.r) / d + 2 : (c.r - c.g) / d + 4;
-  return (h * 60 + 360) % 360;
-}
-
-/** Which quality-dependent effects exist (tests; the vignette is the canvas overlay's). */
+/** Which quality-dependent effects of the scene exist (tests; grading and vignette are the canvas overlays'). */
 export interface Effects {
   quality: Quality;
   shadowMap: boolean;
-  grading: boolean;
   fxaa: boolean;
+  /** The WebGL renderer is a software rasteriser (FXAA skipped). */
+  software: boolean;
 }
 
 /** A lit material takes the sky fill (the scene's ambient colour); unlit materials must not. */
@@ -83,9 +74,10 @@ export class SceneLighting {
   private casters: AbstractMesh[] = [];
 
   constructor(
-    private readonly scene: Scene,
+    scene: Scene,
     private readonly camera: Camera,
     quality: Quality,
+    private readonly software = false,
   ) {
     this.sun = new DirectionalLight("sun", SUN_DIRECTION.clone(), scene);
     this.sun.diffuse = c3(LIGHT.sun);
@@ -107,7 +99,6 @@ export class SceneLighting {
   setQuality(q: Quality): void {
     if (q === this.level) return;
     this.level = q;
-    const ip = this.scene.imageProcessingConfiguration;
     if (q === "high") {
       const sg = new ShadowGenerator(SHADOW_MAP_SIZE, this.sun);
       sg.usePercentageCloserFiltering = true;
@@ -115,45 +106,37 @@ export class SceneLighting {
       sg.bias = 0.004;
       sg.normalBias = 0.02;
       sg.setDarkness(0.35);
+      // Sun and casters are static: the map is drawn once per caster change (refreshShadows).
+      const map = sg.getShadowMap();
+      if (map) map.refreshRate = RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
       this.shadows = sg;
       for (const m of this.casters) sg.addShadowCaster(m, false);
-      const curves = new ColorCurves();
-      curves.globalHue = hue(LIGHT.grade);
-      curves.globalDensity = 18;
-      curves.globalSaturation = 8;
-      curves.shadowsHue = hue(LIGHT.sky);
-      curves.shadowsDensity = 8;
-      ip.colorCurves = curves;
-      ip.colorCurvesEnabled = true;
-      this.fxaa = new FxaaPostProcess("fxaa", 1, this.camera);
+      if (!this.software) this.fxaa = new FxaaPostProcess("fxaa", 1, this.camera);
     } else {
       this.shadows?.dispose();
       this.shadows = null;
       this.fxaa?.dispose(this.camera);
       this.fxaa = null;
-      ip.colorCurvesEnabled = false;
     }
   }
 
-  /** Meshes that cast into the shadow map (buildings and trees of the islands at near LOD). */
+  /**
+   * Meshes that cast into the shadow map (buildings and trees of the
+   * islands at near LOD); the map is redrawn once (call it again after the
+   * casters' instances changed).
+   */
   setCasters(meshes: readonly AbstractMesh[]): void {
     const same = meshes.length === this.casters.length && meshes.every((m, i) => m === this.casters[i]);
-    if (same) return;
-    this.casters = [...meshes];
-    const sg = this.shadows;
-    if (!sg) return;
-    const list = sg.getShadowMap()?.renderList;
-    if (list) list.length = 0;
-    for (const m of this.casters) sg.addShadowCaster(m, false);
+    if (!same) {
+      this.casters = [...meshes];
+      const list = this.shadows?.getShadowMap()?.renderList;
+      if (list) list.length = 0;
+      if (this.shadows) for (const m of this.casters) this.shadows.addShadowCaster(m, false);
+    }
+    this.shadows?.getShadowMap()?.resetRefreshCounter();
   }
 
   effects(): Effects {
-    const ip = this.scene.imageProcessingConfiguration;
-    return {
-      quality: this.quality(),
-      shadowMap: this.shadows !== null,
-      grading: ip.colorCurvesEnabled,
-      fxaa: this.fxaa !== null,
-    };
+    return { quality: this.quality(), shadowMap: this.shadows !== null, fxaa: this.fxaa !== null, software: this.software };
   }
 }

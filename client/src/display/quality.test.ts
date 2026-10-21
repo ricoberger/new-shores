@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { qualityFor, qualityOverride, resolveQuality } from "./quality";
+import { qualityFor, qualityOverride, resolveQuality, softwareRenderer } from "./quality";
 
 describe("render quality", () => {
   it("is high on the desktop layout and low on touch layouts", () => {
@@ -14,6 +14,13 @@ describe("render quality", () => {
     expect(qualityOverride("?fixture=dense-2x400&quality=low")).toBe("low");
     expect(qualityOverride("?quality=ultra")).toBeNull();
     expect(qualityOverride("")).toBeNull();
+  });
+
+  it("recognises software WebGL renderers", () => {
+    expect(softwareRenderer("ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)")).toBe(true);
+    expect(softwareRenderer("llvmpipe (LLVM 15.0.7, 256 bits)")).toBe(true);
+    expect(softwareRenderer("ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)")).toBe(false);
+    expect(softwareRenderer("ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0, D3D11)")).toBe(false);
   });
 
   it("the override wins over the layout", () => {

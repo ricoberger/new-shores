@@ -24,7 +24,7 @@ import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustu
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import { initialLod, type Lod, lodFor } from "../display/lod";
-import type { Quality } from "../display/quality";
+import { type Quality, softwareRenderer } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
@@ -198,13 +198,16 @@ export class GameRenderer {
     quality: Quality = "high",
   ) {
     // The canvas renders at most MAX_RENDER_DPR pixels per CSS pixel (HTML
-    // text and the HUD stay at the device resolution).
-    this.engine = new Engine(canvas, true, { stencil: false, preserveDrawingBuffer: false, limitDeviceRatio: MAX_RENDER_DPR }, true);
+    // text and the HUD stay at the device resolution). Edges: multisampling
+    // at "low"; "high" smooths them with FXAA instead (both together cost
+    // twice for no visible gain). The context keeps the choice of the
+    // quality it was created with.
+    this.engine = new Engine(canvas, quality === "low", { stencil: false, preserveDrawingBuffer: false, limitDeviceRatio: MAX_RENDER_DPR }, true);
     this.scene = new Scene(this.engine);
     this.scene.clearColor = new Color4(HAZE.r, HAZE.g, HAZE.b, 1);
     this.scene.skipPointerMovePicking = true;
     this.rig = new CameraRig(this.scene, this.engine);
-    this.lighting = new SceneLighting(this.scene, this.rig.camera, quality);
+    this.lighting = new SceneLighting(this.scene, this.rig.camera, quality, softwareRenderer(this.engine.getGlInfo().renderer));
     this.arch = new ArchipelagoLayer(this.scene);
     this.arch.setQuality(quality);
     this.fields = new FieldLayer(this.scene);
@@ -337,7 +340,7 @@ export class GameRenderer {
     return n;
   }
 
-  /** Render quality (high: shadow map, grading, FXAA; low: blob shadows and vignette only). */
+  /** Render quality (high: shadow map and FXAA here, grading as the canvas overlay; low: blob shadows and the vignette only). */
   setQuality(q: Quality): void {
     this.lighting.setQuality(q);
     this.arch.setQuality(q);

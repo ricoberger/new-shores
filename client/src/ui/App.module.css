@@ -58,6 +58,19 @@
   background: radial-gradient(ellipse at 50% 50%, transparent 58%, color-mix(in srgb, var(--ns-ui-ink) 34%, transparent) 100%);
 }
 
+/* Slight warm colour grading toward the palette ("high" quality): a light
+   multiply of the grading tint, composited like the vignette. */
+.grading,
+.overlay > .grading {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--ns-light-grade);
+  mix-blend-mode: multiply;
+  opacity: 0.16;
+}
+
 .canvas:focus {
   outline: none;
 }

@@ -18,6 +18,15 @@ export function qualityOverride(search: string): Quality | null {
   return q === "high" || q === "low" ? q : null;
 }
 
+/**
+ * Whether a WebGL renderer string names a software rasteriser
+ * (SwiftShader, llvmpipe, …): there a full-screen FXAA pass costs more
+ * than a whole frame, so "high" goes without it (edges stay aliased).
+ */
+export function softwareRenderer(renderer: string): boolean {
+  return /swiftshader|llvmpipe|softpipe|software/i.test(renderer);
+}
+
 /** The quality in force: the URL override, else the layout's. */
 export function resolveQuality(mode: LayoutMode, search: string): Quality {
   return qualityOverride(search) ?? qualityFor(mode);
