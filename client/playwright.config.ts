@@ -39,6 +39,16 @@ export default defineConfig({
     { name: "chromium", testMatch: /(smoke|ttfi|voyage)\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
     { name: "archipelago", testMatch: /archipelago\.spec\.ts$/, dependencies: ["chromium"], use: { ...devices["Desktop Chrome"] } },
     { name: "away", testMatch: /wait-away\.spec\.ts$/, dependencies: ["archipelago"], use: { ...devices["Desktop Chrome"] } },
+    // Touch alone on phone profiles, after the away project on the same
+    // world (reserved tiles); the Pixel 5 profile at 412 × 915. The PWA
+    // installability check runs in the Chromium touch project.
+    {
+      name: "touch-chromium",
+      testMatch: /(touch|pwa)\.spec\.ts$/,
+      dependencies: ["away"],
+      use: { ...devices["Pixel 5"], viewport: { width: 412, height: 915 } },
+    },
+    { name: "touch-webkit", testMatch: /touch\.spec\.ts$/, dependencies: ["touch-chromium"], use: { ...devices["iPhone 12"] } },
     // Mobile performance budget and the opt-in Lighthouse measurement on
     // the dense fixture (no server state).
     { name: "perf", testMatch: /(perf|lighthouse)\.spec\.ts$/, use: { ...devices["Desktop Chrome"], launchOptions: { args: gpuArgs } } },

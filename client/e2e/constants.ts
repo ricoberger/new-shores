@@ -77,3 +77,21 @@ export const ISLAND_INLAND = { x: 10, y: 10 };
 export const ISLAND2_INLAND = { x: 8, y: 8 };
 /** Open sea between the islands, in start-island tile coordinates. */
 export const SEA_BETWEEN = { x: 62, y: 66 };
+
+// Touch projects (touch.spec.ts) run after the away project on the same
+// world: free grass north-west of the forest of the start island, one
+// area per browser project, away from every earlier layout. The phone
+// view is centred on TOUCH_FOCUS first, which brings these tiles and the
+// sawmill on screen.
+export const TOUCH_FOCUS = { x: 20, y: 12 };
+/** Pixel 5 (Chromium): settler house placed by tap + Confirm (x 18..19, y 12..13). */
+export const TOUCH_HOUSE = { x: 18, y: 12 };
+/** Its move target (x 18..19, y 15..16). */
+export const TOUCH_HOUSE_MOVED = { x: 18, y: 15 };
+/** A road drawn with one finger (y = 19, x 12..20). */
+export const TOUCH_ROAD_FROM = { x: 12, y: 19 };
+export const TOUCH_ROAD_TO = { x: 20, y: 19 };
+/** iPhone 12 (WebKit): settler house placed by tap + Confirm (x 22..23, y 12..13). */
+export const TOUCH_HOUSE_WEBKIT = { x: 22, y: 12 };
+/** Grass with nothing on it (a tap there with a tool positions only). */
+export const TOUCH_EMPTY = { x: 16, y: 16 };
