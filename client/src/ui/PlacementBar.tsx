@@ -54,3 +54,15 @@ export function DemolishBar({ onDone }: { onDone: () => void }) {
     </div>
   );
 }
+
+/** The road tool on touch: drag to draw; Done leaves the tool (there is no right click). */
+export function RoadBar({ onDone }: { onDone: () => void }) {
+  return (
+    <div className={`${styles.panel} ${styles.toolBar}`} role="status" data-testid="road-bar">
+      <span className={styles.toolBarText}>Drag along the ground to draw a road</span>
+      <button type="button" className={styles.button} onClick={onDone} data-testid="road-done">
+        Done
+      </button>
+    </div>
+  );
+}

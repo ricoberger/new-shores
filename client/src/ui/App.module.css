@@ -38,6 +38,9 @@
 
 .top {
   grid-area: top;
+  /* Popovers of the top bar stay above sheets and side panels. */
+  position: relative;
+  z-index: 4;
 }
 
 .left {
@@ -86,4 +89,69 @@
   margin-top: 2px;
   color: #ffb3a7;
   font-weight: 600;
+}
+
+/* Phone layouts: panels in a bottom sheet over the area below the top bar
+   (never over the top bar and the touch tool bars). */
+.sheetHost {
+  grid-area: 2 / 1 / 4 / 3;
+  position: relative;
+  z-index: 3;
+  min-height: 0;
+}
+
+.overlay > .sheetHost {
+  pointer-events: none;
+}
+
+/* Landscape phones ≥ 640 px wide: a narrow side panel instead of a sheet. */
+.rightNarrow {
+  max-width: 300px;
+  align-self: stretch;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 6px;
+  margin-right: max(6px, env(safe-area-inset-right));
+}
+
+.rightNarrow > * {
+  width: 100%;
+  max-height: none;
+}
+
+.phone .left {
+  margin: 6px;
+  margin-left: max(6px, env(safe-area-inset-left));
+  max-width: calc(100vw - 12px);
+}
+
+.phone .left > * {
+  width: auto;
+  max-width: 100%;
+  max-height: 25vh;
+}
+
+/* Hints and banners of the phone layout stack below the top bar. */
+.hintInline {
+  margin: 6px auto 0;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+  background: rgb(0 0 0 / 70%);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.bannerInline {
+  margin: 6px auto 0;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+  background: #d55e00;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
 }

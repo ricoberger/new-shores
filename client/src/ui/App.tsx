@@ -15,6 +15,7 @@ import { units } from "../display/format";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
+import { isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
 import { blankStop, initialViewState, type View, viewReducer } from "../display/view";
 import { type FrameStats, GameRenderer, type RendererEvents, type RenderSource } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
@@ -32,7 +33,9 @@ import { ShipmentDialog } from "./ShipmentDialog";
 import { ShipPanel } from "./ShipPanel";
 import { ShipsPanel } from "./ShipsPanel";
 import { type Toast, Toasts } from "./Toasts";
-import { DemolishBar, PlacementBar } from "./PlacementBar";
+import { DemolishBar, PlacementBar, RoadBar } from "./PlacementBar";
+import { Sheet } from "./Sheet";
+import { useLayout } from "./useLayout";
 import { type GhostTool, isGhostTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
 import { AwayDialog } from "./AwayDialog";
 import { InsolvencyBanner } from "./InsolvencyBanner";
@@ -115,6 +118,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // The last pointer was a finger (pointerType per gesture, never the
   // device): touch gets the placement confirm step and the demolish bar.
   const [touchInput, setTouchInput] = useState(false);
+  const layout = useLayout();
+  const phone = isPhoneLayout(layout.mode);
+  const sheets = usesSheets(layout.mode, layout.width);
   useEffect(() => {
     // A mouse or pen switches back only on the canvas, so that clicking a
     // touch bar's button with the mouse does not remove it mid-click.
@@ -392,9 +398,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   // Keyboard: Esc steps back one thing per press, Enter enters the selected
   // island, Backspace returns to the archipelago, R rotates the ghost.
-  const latest = useRef({ tool, confirm, dialog: vs.dialog });
+  const latest = useRef({ tool, confirm, dialog: vs.dialog, panel, sheets });
   useEffect(() => {
-    latest.current = { tool, confirm, dialog: vs.dialog };
+    latest.current = { tool, confirm, dialog: vs.dialog, panel, sheets };
   });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -405,6 +411,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         if (cur.confirm) setConfirm(null);
         else if (cur.dialog) dispatch({ type: "closeShipment" });
         else if (cur.tool.kind !== "none") setTool(NO_TOOL);
+        // A list sheet (ships, routes, quests) closes with Esc on phones.
+        else if (cur.sheets && cur.panel !== "none") setPanel("none");
         else dispatch({ type: "escape" });
       } else if (e.key === "Enter") {
         if (t instanceof HTMLButtonElement || t instanceof HTMLAnchorElement) return;
@@ -484,10 +492,20 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const editor = vs.editor.kind === "open" ? vs.editor : null;
 
   let right: React.ReactNode = null;
+  /** Sheet identity (a new kind opens at half), title and close action of the panel slot. */
+  let rightKey = "";
+  let rightTitle = "";
+  let rightClose = () => {};
   if (model && content) {
     if (panel === "ships") {
+      rightKey = "ships";
+      rightTitle = "Ships";
+      rightClose = () => setPanel("none");
       right = <ShipsPanel model={model} content={content} nowMs={snap.nowMs} onSelect={selectShipFromList} onClose={() => setPanel("none")} />;
     } else if (panel === "quests") {
+      rightKey = "quests";
+      rightTitle = "Quests";
+      rightClose = () => setPanel("none");
       right = (
         <QuestsPanel
           model={model}
@@ -499,6 +517,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         />
       );
     } else if (panel === "routes") {
+      rightKey = "routes";
+      rightTitle = "Routes";
+      rightClose = () => setPanel("none");
       right = (
         <RoutesPanel
           model={model}
@@ -508,6 +529,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         />
       );
     } else if (editor?.active && archView) {
+      rightKey = "editor";
+      rightTitle = editor.routeId === null ? "New route" : `Route #${editor.routeId}`;
+      rightClose = () => dispatch({ type: "closeEditor" });
       right = (
         <RouteEditor
           model={model}
@@ -529,6 +553,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       );
     } else if (selectedShip) {
       const ship = selectedShip;
+      rightKey = "ship";
+      rightTitle = `Ship #${ship.id}`;
+      rightClose = () => dispatch({ type: "clearSelection" });
       right = (
         <ShipPanel
           ship={ship}
@@ -547,6 +574,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       );
     } else if (archView && vs.selection.kind === "island") {
       const id = vs.selection.id;
+      rightKey = "island";
+      rightTitle = model.islands.find((is) => is.id === id)?.name || id;
+      rightClose = () => dispatch({ type: "clearSelection" });
       right = (
         <IslandCard
           islandId={id}
@@ -565,6 +595,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         />
       );
     } else if (!archView && selectedBuilding && island) {
+      rightKey = "building";
+      rightTitle = defs.get(selectedBuilding.type)?.name ?? selectedBuilding.type;
+      rightClose = () => dispatch({ type: "clearSelection" });
       right = (
         <InfoPanel
           building={selectedBuilding}
@@ -595,9 +628,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   }
 
   // Touch affordances: shown for touch input (the last pointer was a finger).
-  const touchUI = touchInput;
+  const touchUI = touchInput || isTouchLayout(layout.mode);
   const placementBar = !archView && touchUI && isGhostTool(tool);
   const demolishBar = !archView && touchUI && tool.kind === "demolish";
+  const roadBar = !archView && touchUI && tool.kind === "road";
   const verb = touchUI ? "Tap" : "Click";
 
   let archHint = "";
@@ -609,8 +643,77 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     else archHint = `${verb} an island to select it, again to enter · drag an idle ship onto an island to send it`;
   }
 
+  const resumeBar = editor && !editor.active && archView && (
+    <div className={`${hud.panel} ${hud.resumeBar}`}>
+      <span className={hud.small}>Route editor paused ({editor.routeId === null ? "new route" : `route #${editor.routeId}`})</span>
+      <button
+        type="button"
+        className={hud.button}
+        onClick={() => {
+          // The editor becomes the only side panel again.
+          setPanel("none");
+          dispatch({ type: "resumeEditor" });
+        }}
+        data-testid="route-editor-resume"
+      >
+        Back to route editor
+      </button>
+    </div>
+  );
+  if (resumeBar && !right) {
+    rightKey = "editor-paused";
+    rightTitle = "Route editor paused";
+    rightClose = () => dispatch({ type: "closeEditor" });
+  }
+
+  let rightSlot: React.ReactNode;
+  if (sheets) {
+    rightSlot = (
+      <div className={styles.sheetHost}>
+        {(right || resumeBar) && (
+          <Sheet key={rightKey} title={rightTitle} onClose={rightClose}>
+            {resumeBar}
+            {right}
+          </Sheet>
+        )}
+      </div>
+    );
+  } else {
+    rightSlot = (
+      <div className={phone ? `${styles.right} ${styles.rightNarrow}` : styles.right}>
+        {resumeBar}
+        {right}
+      </div>
+    );
+  }
+
+  const toolHint = !archView && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && (
+    <div className={phone ? styles.hintInline : styles.hint} data-testid="tool-hint">
+      {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
+      {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
+      {tool.kind === "found" && `Click to place the warehouse from ship #${tool.shipId} (${tool.rotation}°) · R rotate · Esc cancel`}
+      {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
+      {tool.kind === "demolish" && "Click a building or road to demolish · Esc / right click cancel"}
+      {ghostHint && (tool.kind === "build" || tool.kind === "move") && (
+        <div className={styles.hintReason} data-testid="tool-hint-reason">
+          {ghostHint}
+        </div>
+      )}
+    </div>
+  );
+  const archHintEl = archView && (
+    <div className={phone ? styles.hintInline : styles.hint} data-testid="arch-hint">
+      {archHint}
+    </div>
+  );
+  const unreachable = snap.unreachable && (
+    <div className={phone ? styles.bannerInline : styles.banner} data-testid="unreachable-banner">
+      Server unreachable — retrying…
+    </div>
+  );
+
   return (
-    <div className={styles.root}>
+    <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
       <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialView={initialView} />
       {archView && model && <ArchipelagoOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} />}
       <div className={styles.overlay}>
@@ -625,35 +728,20 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             onShips={() => setPanel((p) => (p === "ships" ? "none" : "ships"))}
             onRoutes={() => setPanel((p) => (p === "routes" ? "none" : "routes"))}
             onQuests={() => setPanel((p) => (p === "quests" ? "none" : "quests"))}
-            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
+            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} compact={phone} />}
+            compact={phone ? (layout.mode === "phone-portrait" ? "portrait" : "landscape") : null}
           />
-          <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} />
+          <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} compact={phone} />
           {placementBar && isGhostTool(tool) && (
             <PlacementBar tool={tool} hint={ghostHint} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
           )}
           {demolishBar && <DemolishBar onDone={() => setTool(NO_TOOL)} />}
+          {roadBar && <RoadBar onDone={() => setTool(NO_TOOL)} />}
+          {phone && toolHint}
+          {phone && archHintEl}
+          {phone && unreachable}
         </div>
-        <div className={styles.left}>
-          {model && content && (
-            <WarningsTray model={model} content={content} onFocus={focus} open={warningsOpen} onOpenChange={setWarningsOpen} />
-          )}
-        </div>
-        <div className={styles.right}>
-          {editor && !editor.active && archView && (
-            <div className={`${hud.panel} ${hud.resumeBar}`}>
-              <span className={hud.small}>Route editor paused ({editor.routeId === null ? "new route" : `route #${editor.routeId}`})</span>
-              <button type="button" className={hud.button} onClick={() => {
-                  // The editor becomes the only side panel again.
-                  setPanel("none");
-                  dispatch({ type: "resumeEditor" });
-                }}
-                data-testid="route-editor-resume">
-                Back to route editor
-              </button>
-            </div>
-          )}
-          {right}
-        </div>
+        {rightSlot}
         <div className={styles.bottom}>
           {archView ? null : island && !island.settled ? (
             <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid="unsettled-panel">
@@ -676,35 +764,21 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
               tool={tool}
               onSelect={selectBuildItem}
               onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
+              compact={phone}
+              singleRow={layout.mode === "phone-landscape"}
             />
           )}
         </div>
-      </div>
-      {archView && (
-        <div className={styles.hint} data-testid="arch-hint">
-          {archHint}
-        </div>
-      )}
-      {!archView && tool.kind !== "none" && !placementBar && !demolishBar && (
-        <div className={styles.hint} data-testid="tool-hint">
-          {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
-          {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
-          {tool.kind === "found" && `Click to place the warehouse from ship #${tool.shipId} (${tool.rotation}°) · R rotate · Esc cancel`}
-          {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
-          {tool.kind === "demolish" && "Click a building or road to demolish · Esc / right click cancel"}
-          {ghostHint && (tool.kind === "build" || tool.kind === "move") && (
-            <div className={styles.hintReason} data-testid="tool-hint-reason">
-              {ghostHint}
-            </div>
+        <div className={styles.left}>
+          {model && content && (
+            <WarningsTray model={model} content={content} onFocus={focus} open={warningsOpen} onOpenChange={setWarningsOpen} />
           )}
         </div>
-      )}
-      {snap.unreachable && (
-        <div className={styles.banner} data-testid="unreachable-banner">
-          Server unreachable — retrying…
-        </div>
-      )}
-      <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((t) => t.id !== id))} />
+      </div>
+      {!phone && archHintEl}
+      {!phone && toolHint}
+      {!phone && unreachable}
+      <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((t) => t.id !== id))} phone={phone} />
       {confirm && <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />}
       {awaySummary && content && shouldShowSummary(awaySummary, closedSummaries) && (
         <AwayDialog summary={awaySummary} content={content} islandName={islandName} onDismiss={() => dismissSummary(awaySummary.id)} />

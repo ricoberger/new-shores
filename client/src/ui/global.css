@@ -29,3 +29,12 @@ select,
 label {
   touch-action: manipulation;
 }
+
+/* Touch layouts (phones, tablets): every control is at least 44 × 44 CSS px. */
+[data-touch="true"] button,
+[data-touch="true"] a,
+[data-touch="true"] input,
+[data-touch="true"] select {
+  min-height: 44px;
+  min-width: 44px;
+}
