@@ -197,6 +197,8 @@ func checkReferences(c *Catalogue) error {
 		}
 	}
 
+	checkFields(c, col)
+
 	for _, s := range c.Ships {
 		ent := fmt.Sprintf("ship %q", s.ID)
 		if s.Region != c.Region.ID {
@@ -304,4 +306,51 @@ func checkReferences(c *Catalogue) error {
 		}
 	}
 	return col.err()
+}
+
+// checkFields validates the fields of farms (D-049): every fields.type
+// names a field type declared by exactly one field building, every field
+// type is accepted by at least one farm, a farm has a work radius and a
+// field is a 1x1 building without a recipe. The schema enforces the other
+// shape rules of both blocks.
+func checkFields(c *Catalogue, col *collector) {
+	declared := map[string]string{}
+	accepted := map[string]bool{}
+	for _, b := range c.Buildings {
+		if b.Fields != nil {
+			accepted[b.Fields.Type] = true
+		}
+	}
+	for _, b := range c.Buildings {
+		ent := fmt.Sprintf("building %q", b.ID)
+		if f := b.Fields; f != nil {
+			if fb := c.FieldByType[f.Type]; fb == nil || fb.Field == nil || fb.Field.Type != f.Type {
+				col.add(FileBuildings, ent, "fields.type", "no building with a field block of type %q", f.Type)
+			}
+			if b.WorkArea == nil || b.WorkArea.Radius < 1 {
+				col.add(FileBuildings, ent, "work_area.radius", "a farm with fields needs a work radius")
+			}
+			if b.Field != nil {
+				col.add(FileBuildings, ent, "field", "a farm cannot be a field")
+			}
+		}
+		f := b.Field
+		if f == nil {
+			continue
+		}
+		if other, dup := declared[f.Type]; dup {
+			col.add(FileBuildings, ent, "field.type", "field type %q already declared by building %q", f.Type, other)
+		} else {
+			declared[f.Type] = b.ID
+		}
+		if !accepted[f.Type] {
+			col.add(FileBuildings, ent, "field.type", "field type %q is accepted by no farm", f.Type)
+		}
+		if b.Width != 1 || b.Height != 1 {
+			col.add(FileBuildings, ent, "footprint", "field buildings must be 1x1")
+		}
+		if b.Recipe != nil || b.WorkArea != nil {
+			col.add(FileBuildings, ent, "field", "a field cannot have a recipe or a work area")
+		}
+	}
 }

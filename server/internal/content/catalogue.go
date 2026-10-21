@@ -50,6 +50,9 @@ type Catalogue struct {
 	Buildings []*Building
 	// BuildingByID maps a building content ID to its definition.
 	BuildingByID map[string]*Building
+	// FieldByType maps a field type (Field.Type) to the field building that
+	// declares it (D-049); every field type has exactly one building.
+	FieldByType map[string]*Building
 	// NeedsByTier maps a tier ID to its needs in file order.
 	NeedsByTier map[string][]*Need
 	// Ships are the ship types in file order (ships.json).
@@ -213,7 +216,7 @@ type GoodAmount struct {
 
 // Building is a building definition. Behaviour is attached through the
 // optional capability blocks (Recipe, House, Warehouse, Road, Service,
-// WorkArea); the simulation never switches on building IDs.
+// WorkArea, Fields, Field); the simulation never switches on building IDs.
 type Building struct {
 	ID     string
 	Name   string
@@ -237,6 +240,12 @@ type Building struct {
 	WorkArea  *WorkArea
 	Workforce *Workforce
 	Shipyard  *Shipyard
+	// Fields marks a farm whose efficiency comes from explicit fields
+	// (D-049); such a farm has a WorkArea with Radius (and optionally
+	// Fertility) only.
+	Fields *FarmFields
+	// Field marks a 1x1 field placeable.
+	Field *Field
 
 	// RequiresDeposit is the deposit kind at least one footprint tile must
 	// carry ("" for none). Such a building may also stand on mountain tiles.
@@ -325,8 +334,38 @@ type Service struct {
 	Radius int
 }
 
+// FarmFields is the fields block of a farm (D-049): efficiency =
+// min(1, assigned fields of Type / Required).
+type FarmFields struct {
+	// Type is the field type (Field.Type) the farm accepts.
+	Type     string
+	Required int
+}
+
+// Field is the field block of a 1x1 field placeable (D-049).
+type Field struct {
+	// Type is the field type; farms accept fields by this type.
+	Type    string
+	Terrain []string
+	// Fertility is the island-wide fertility tag the field needs ("" for
+	// none).
+	Fertility string
+}
+
+// MatchesTerrain reports whether a field may stand on the terrain.
+func (f *Field) MatchesTerrain(terrain string) bool {
+	for _, t := range f.Terrain {
+		if t == terrain {
+			return true
+		}
+	}
+	return false
+}
+
 // WorkArea is the data-driven work-area rule (MECHANICS §2):
-// efficiency = min(1, matching tiles within Radius / RequiredTiles).
+// efficiency = min(1, matching tiles within Radius / RequiredTiles). For a
+// farm with a Fields block only Radius (the bound of its fields) and
+// Fertility are set.
 type WorkArea struct {
 	Radius        int
 	Terrain       []string

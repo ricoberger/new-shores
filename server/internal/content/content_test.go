@@ -595,8 +595,10 @@ func TestParseFixed(t *testing.T) {
 // simulation tests against the shipped schemas (R32).
 func TestLoadTestContent(t *testing.T) {
 	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
-	if _, err := LoadWithSchemas(filepath.Join(repoRoot(t), "server", "testdata", "content", "old_coast_variety"), schemaDir); err != nil {
-		t.Fatal(err)
+	for _, dir := range []string{"old_coast_variety", "old_coast_dairy"} {
+		if _, err := LoadWithSchemas(filepath.Join(repoRoot(t), "server", "testdata", "content", dir), schemaDir); err != nil {
+			t.Fatalf("%s: %v", dir, err)
+		}
 	}
 }
 

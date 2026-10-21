@@ -1,0 +1,84 @@
+[
+  {
+    "id": "settlers_food",
+    "tier": "settlers",
+    "kind": "required",
+    "weight": 0.5,
+    "category": "food",
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.010 }],
+    "variety_bonus": 0.10,
+    "max_extra_goods": 2
+  },
+  {
+    "id": "settlers_clothing",
+    "tier": "settlers",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "clothing",
+    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.005 }],
+    "variety_bonus": 0.10,
+    "max_extra_goods": 2
+  },
+  {
+    "id": "settlers_market_small",
+    "tier": "settlers",
+    "kind": "required",
+    "weight": 0.3,
+    "building": "market_small",
+    "radius": 12
+  },
+  {
+    "id": "citizens_food",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "food",
+    "goods": [{ "good": "bread", "per_resident_per_min": 0.008 }],
+    "variety_bonus": 0.10,
+    "max_extra_goods": 2
+  },
+  {
+    "id": "citizens_drink",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "drink",
+    "goods": [{ "good": "cider", "per_resident_per_min": 0.006 }],
+    "variety_bonus": 0.10,
+    "max_extra_goods": 2
+  },
+  {
+    "id": "citizens_clothing",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "clothing",
+    "goods": [{ "good": "linen_garments", "per_resident_per_min": 0.005 }],
+    "variety_bonus": 0.10,
+    "max_extra_goods": 2
+  },
+  {
+    "id": "citizens_market_small",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.1,
+    "building": "market_small",
+    "radius": 12
+  },
+  {
+    "id": "citizens_chapel",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.15,
+    "building": "chapel",
+    "radius": 16
+  },
+  {
+    "id": "citizens_tavern",
+    "tier": "citizens",
+    "kind": "required",
+    "weight": 0.15,
+    "building": "tavern",
+    "radius": 14
+  }
+]

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/ricoberger/new-shores/content/schema/buildings.schema.json",
   "title": "Buildings",
-  "description": "Buildings of a region (CONTENT §5, §9). Behaviour is attached through optional capability blocks: recipe, house, warehouse, road, service, shipyard, work_area, workforce; requires_deposit ties a producer to a deposit tile.",
+  "description": "Buildings of a region (CONTENT §5, §9). Behaviour is attached through optional capability blocks: recipe, house, warehouse, road, service, shipyard, work_area, workforce, fields (a farm that needs explicit fields, D-049) and field (a 1x1 field placeable); requires_deposit ties a producer to a deposit tile.",
   "type": "array",
   "items": {
     "type": "object",
@@ -129,17 +129,50 @@
           "amount": { "type": "integer", "minimum": 1 }
         }
       },
-      "work_area": {
+      "fields": {
+        "description": "A farm that needs explicit fields (D-049): its efficiency is min(1, assigned fields / required). Fields of the type are assigned to the nearest accepting farm whose work_area.radius contains them.",
         "type": "object",
         "additionalProperties": false,
-        "required": ["radius", "terrain", "required_tiles"],
+        "required": ["type", "required"],
+        "properties": {
+          "type": {
+            "description": "Field type (field.type of a field building) the farm accepts.",
+            "$ref": "#/$defs/id"
+          },
+          "required": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "field": {
+        "description": "A 1x1 field placeable of a field type (D-049): placed on matching terrain (and fertility) inside the work radius of a farm that accepts the type.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "terrain"],
+        "properties": {
+          "type": { "$ref": "#/$defs/id" },
+          "terrain": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/terrain" }
+          },
+          "fertility": {
+            "description": "Island-wide fertility tag the field needs.",
+            "$ref": "#/$defs/id"
+          }
+        }
+      },
+      "work_area": {
+        "description": "Work radius. Without a fields block terrain and required_tiles are required (implicit terrain rule, MECHANICS §2); with a fields block they are forbidden (the radius bounds the fields).",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["radius"],
         "properties": {
           "radius": { "type": "integer", "minimum": 1 },
           "terrain": {
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,
-            "items": { "enum": ["water", "coast", "grass", "forest", "mountain"] }
+            "items": { "$ref": "#/$defs/terrain" }
           },
           "required_tiles": { "type": "integer", "minimum": 1 },
           "fertility": {
@@ -148,10 +181,57 @@
           }
         }
       }
-    }
+    },
+    "allOf": [
+      {
+        "if": { "required": ["fields"] },
+        "then": {
+          "required": ["work_area"],
+          "properties": {
+            "work_area": {
+              "not": {
+                "anyOf": [{ "required": ["terrain"] }, { "required": ["required_tiles"] }]
+              }
+            }
+          }
+        },
+        "else": {
+          "properties": {
+            "work_area": { "required": ["terrain", "required_tiles"] }
+          }
+        }
+      },
+      {
+        "if": { "required": ["field"] },
+        "then": {
+          "properties": {
+            "footprint": { "const": [1, 1] },
+            "upkeep_per_min": { "const": 0 },
+            "pause_category": { "const": "never" },
+            "requires_road": { "const": false },
+            "coastal": { "const": false }
+          },
+          "not": {
+            "anyOf": [
+              { "required": ["recipe"] },
+              { "required": ["house"] },
+              { "required": ["warehouse"] },
+              { "required": ["road"] },
+              { "required": ["service"] },
+              { "required": ["shipyard"] },
+              { "required": ["workforce"] },
+              { "required": ["work_area"] },
+              { "required": ["requires_deposit"] },
+              { "required": ["fields"] }
+            ]
+          }
+        }
+      }
+    ]
   },
   "$defs": {
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "terrain": { "enum": ["water", "coast", "grass", "forest", "mountain"] },
     "warehouse_level": {
       "type": "object",
       "additionalProperties": false,
