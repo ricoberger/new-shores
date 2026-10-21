@@ -27,6 +27,13 @@ var (
 	ErrDisplayTime           = errors.New("display time differs from last evaluation")
 )
 
+// Sentinel errors of fields (D-049).
+var (
+	ErrNoFarmInRange     = errors.New("no farm accepting the field in range")
+	ErrFieldTypeMismatch = errors.New("building type is not a field")
+	ErrNotAField         = errors.New("building is not a field")
+)
+
 // Sentinel errors of the population and economy rules.
 var (
 	ErrTierLocked         = errors.New("tier locked")

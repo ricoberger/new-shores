@@ -182,3 +182,44 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 		})
 	}
 }
+
+// TestShippedFields: the shipped farms need 16 fields of their own type
+// (CONTENT §7); the shipped field types are pasture, wheat_field,
+// orchard_plot and hemp_field (free, grass, the farm's fertility); field
+// types and farms of later tiers are absent.
+func TestShippedFields(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string][3]string{
+		"sheep_farm": {"pasture", "settlers", ""}, "wheat_farm": {"wheat_field", "citizens", "wheat"},
+		"orchard": {"orchard_plot", "citizens", "apple"}, "hemp_farm": {"hemp_field", "citizens", "hemp"},
+	}
+	farms := 0
+	for _, b := range c.Buildings {
+		if b.Fields != nil {
+			farms++
+			w, ok := want[b.ID]
+			if !ok || b.Fields.Type != w[0] || b.Fields.Required != 16 || b.WorkArea.Radius != 4 || b.WorkArea.Fertility != w[2] {
+				t.Errorf("%s fields %+v work area %+v", b.ID, b.Fields, b.WorkArea)
+			}
+			f := c.FieldByType[b.Fields.Type]
+			if f == nil || f.ID != w[0] || f.Tier != w[1] || f.Field.Fertility != w[2] || strings.Join(f.Field.Terrain, ",") != "grass" ||
+				f.Cost.Gold != 0 || len(f.Cost.Materials) != 0 {
+				t.Errorf("%s field %+v", b.ID, f)
+			}
+		}
+	}
+	if farms != len(want) || len(c.FieldByType) != len(want) {
+		t.Errorf("%d farms with fields, %d field types", farms, len(c.FieldByType))
+	}
+	for _, id := range []string{"pig_pen", "meadow", "dairy_farm", "pig_farm", "apiary"} {
+		if c.BuildingByID[id] != nil {
+			t.Errorf("%s is shipped", id)
+		}
+	}
+	if lj := c.BuildingByID["lumberjack"]; lj.Fields != nil || lj.WorkArea.RequiredTiles != 24 {
+		t.Errorf("lumberjack %+v", lj.WorkArea)
+	}
+}

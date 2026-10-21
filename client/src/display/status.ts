@@ -12,6 +12,7 @@ export type StatusKey =
   | "throttled"
   | "short_of_workers"
   | "low_efficiency"
+  | "no_farm"
   | "ok";
 
 export interface StatusStyle {
@@ -31,6 +32,7 @@ export const STATUS_STYLES: Record<StatusKey, StatusStyle> = {
   throttled: { glyph: "»", color: "#0072B2", label: "Throttled" },
   short_of_workers: { glyph: "W", color: "#999999", label: "Short of workers" },
   low_efficiency: { glyph: "%", color: "#009E73", label: "Low efficiency" },
+  no_farm: { glyph: "∅", color: "#CC79A7", label: "No farm" },
   ok: { glyph: "✓", color: "#009E73", label: "Running" },
 };
 
@@ -49,6 +51,16 @@ export interface StatusText {
 
 function goodName(content: Content, id: string): string {
   return content.goods.find((g) => g.id === id)?.name ?? id;
+}
+
+/**
+ * The plural display name of the field type a farm accepts (content field
+ * building name, e.g. "Pasture" -> "pastures"); "fields" when unknown.
+ */
+export function fieldsPlural(content: Content, farmType: string): string {
+  const farm = content.buildings.find((d) => d.id === farmType);
+  const field = content.buildings.find((d) => d.field !== undefined && d.field.type === farm?.fields?.type);
+  return field ? `${field.name.toLowerCase()}s` : "fields";
 }
 
 function tierName(content: Content, id: string): string {
@@ -109,7 +121,16 @@ export function statusText(b: BuildingDisplay, island: IslandDisplay, display: D
       };
     }
     case "low_efficiency":
+      if (b.fields) {
+        return {
+          key,
+          sentence: `${b.fields.assigned} / ${b.fields.required} fields`,
+          fix: `Place more ${fieldsPlural(content, b.type)} inside the ring.`,
+        };
+      }
       return { key, sentence: `Only ${percent(b.efficiency_permille)} usable land in range`, fix: "Move it to more suitable land." };
+    case "no_farm":
+      return { key, sentence: "No accepting farm in range", fix: "Move it or build a farm nearby." };
     case "ok":
       return { key, sentence: "Running", fix: "" };
   }

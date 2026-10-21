@@ -163,7 +163,7 @@ func TestEnvelopeRoundTrip(t *testing.T) {
 	mustAdvance(t, w, c, 37*time.Second+123*time.Millisecond)
 
 	first := encode(t, w)
-	w2, cv, err := Decode(first)
+	w2, cv, _, err := Decode(first, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +182,7 @@ func TestEnvelopeRoundTrip(t *testing.T) {
 func TestDecodeRejectsSchemaVersion(t *testing.T) {
 	for _, v := range []int{0, SchemaVersion + 1} {
 		data, _ := json.Marshal(map[string]any{"schema_version": v, "content_version": "x", "world": map[string]any{}})
-		if _, _, err := Decode(data); !errors.Is(err, ErrSchemaVersion) {
+		if _, _, _, err := Decode(data, nil); !errors.Is(err, ErrSchemaVersion) {
 			t.Errorf("version %d: err = %v, want ErrSchemaVersion", v, err)
 		}
 	}
@@ -982,7 +982,7 @@ func TestMoveBuildingKeepsState(t *testing.T) {
 	// Moving to the identical position and rotation is a valid no-op.
 	before := encode(t, w)
 	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 9, Y: 2, Rotation: 90})
-	cw, _, err := Decode(before)
+	cw, _, _, err := Decode(before, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -622,8 +622,19 @@ func TestHealthAndContent(t *testing.T) {
 			} `json:"shipyard"`
 			RequiresDeposit string `json:"requires_deposit"`
 			WorkArea        *struct {
-				Fertility string `json:"fertility"`
+				Fertility     string   `json:"fertility"`
+				Terrain       []string `json:"terrain"`
+				RequiredTiles int      `json:"required_tiles"`
 			} `json:"work_area"`
+			Fields *struct {
+				Type     string `json:"type"`
+				Required int    `json:"required"`
+			} `json:"fields"`
+			Field *struct {
+				Type      string   `json:"type"`
+				Terrain   []string `json:"terrain"`
+				Fertility string   `json:"fertility"`
+			} `json:"field"`
 			Warehouse *struct {
 				Levels []struct {
 					Capacity int64 `json:"capacity"`
@@ -648,7 +659,7 @@ func TestHealthAndContent(t *testing.T) {
 	if err := json.Unmarshal(res.body, &c); err != nil {
 		t.Fatal(err)
 	}
-	if c.Region.Version != "old_coast-0.5.0" || len(c.Buildings) != 27 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
+	if c.Region.Version != "old_coast-0.6.0" || len(c.Buildings) != 31 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
 		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d ships %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs), len(c.Ships))
 	}
 	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 2 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != catalogue(t).ShipByID["sloop"].Cost.Gold || sh.Cost.Materials["sails"] != 10_000 {
@@ -661,6 +672,7 @@ func TestHealthAndContent(t *testing.T) {
 		"house_settlers": "houses", "road_dirt": "roads", "warehouse": "harbour", "market_small": "public",
 		"chapel": "public", "lumberjack": "production", "sawmill": "production", "shipyard": "harbour",
 		"house_citizens": "houses", "road_paved": "roads", "tavern": "public", "quarry": "production", "wheat_farm": "production",
+		"pasture": "production", "wheat_field": "production", "orchard_plot": "production", "hemp_field": "production",
 	}
 	for _, b := range c.Buildings {
 		if w, ok := want[b.ID]; ok && b.Category != w {
@@ -678,9 +690,21 @@ func TestHealthAndContent(t *testing.T) {
 			if b.RequiresDeposit != map[string]string{"quarry": "stone", "iron_mine": "iron"}[b.ID] {
 				t.Errorf("%s requires_deposit %q", b.ID, b.RequiresDeposit)
 			}
-		case "wheat_farm", "orchard", "hemp_farm":
-			if b.WorkArea == nil || b.WorkArea.Fertility != map[string]string{"wheat_farm": "wheat", "orchard": "apple", "hemp_farm": "hemp"}[b.ID] {
-				t.Errorf("%s work area %+v", b.ID, b.WorkArea)
+		case "wheat_farm", "orchard", "hemp_farm", "sheep_farm":
+			// Farms with fields (D-049): radius and fertility, no terrain rule.
+			field := map[string]string{"wheat_farm": "wheat_field", "orchard": "orchard_plot", "hemp_farm": "hemp_field", "sheep_farm": "pasture"}[b.ID]
+			if b.WorkArea == nil || b.WorkArea.Fertility != map[string]string{"wheat_farm": "wheat", "orchard": "apple", "hemp_farm": "hemp"}[b.ID] ||
+				b.WorkArea.Terrain != nil || b.WorkArea.RequiredTiles != 0 || b.Fields == nil || b.Fields.Type != field || b.Fields.Required != 16 {
+				t.Errorf("%s work area %+v fields %+v", b.ID, b.WorkArea, b.Fields)
+			}
+		case "wheat_field", "orchard_plot", "hemp_field", "pasture":
+			if b.Field == nil || b.Field.Type != b.ID || strings.Join(b.Field.Terrain, ",") != "grass" ||
+				b.Field.Fertility != map[string]string{"wheat_field": "wheat", "orchard_plot": "apple", "hemp_field": "hemp"}[b.ID] || b.WorkArea != nil {
+				t.Errorf("%s field %+v", b.ID, b.Field)
+			}
+		case "lumberjack":
+			if b.WorkArea == nil || strings.Join(b.WorkArea.Terrain, ",") != "forest" || b.WorkArea.RequiredTiles != 24 || b.Fields != nil {
+				t.Errorf("lumberjack work area %+v", b.WorkArea)
 			}
 		case "warehouse":
 			if l := b.Warehouse.Levels; len(l) != 2 || l[0].Cost != nil || l[1].Cost == nil || l[1].Cost.Gold <= 0 || l[1].Cost.Materials["stone"] <= 0 {
@@ -704,7 +728,7 @@ func TestIslandData(t *testing.T) {
 	if err := json.Unmarshal(res.body, &is); err != nil {
 		t.Fatal(err)
 	}
-	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.5.0" {
+	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.6.0" {
 		t.Fatalf("island %s %dx%d terrain %d revision %s", is.ID, is.Width, is.Height, len(is.Terrain), is.Revision)
 	}
 	// Row 1 of the dev island starts with water then coast.

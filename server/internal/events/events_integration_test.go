@@ -45,7 +45,7 @@ func (r *recorder) count() int {
 func setup(t *testing.T) *postgres.Store {
 	t.Helper()
 	_, pool := testenv.Database(t)
-	return postgres.New(pool, testenv.Catalogue(t).Region.Version, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	return postgres.New(pool, testenv.Catalogue(t), slog.New(slog.NewTextHandler(io.Discard, nil)))
 }
 
 func worker(t *testing.T, st *postgres.Store, freshness time.Duration, pub events.Publisher, logs io.Writer) *events.Worker {

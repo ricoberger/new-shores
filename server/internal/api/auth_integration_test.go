@@ -72,7 +72,7 @@ func newPGEnv(t *testing.T, limiter auth.Limiter) *pgEnv {
 	c := catalogue(t)
 	logs := &testenv.SyncBuffer{}
 	logger := slog.New(slog.NewTextHandler(logs, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	st := postgres.New(pool, c.Region.Version, logger)
+	st := postgres.New(pool, c, logger)
 	mail := &mailbox{}
 	// Tee: the log mailer writes to the captured logs, the mailbox keeps
 	// the tokens for the test.

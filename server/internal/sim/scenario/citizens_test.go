@@ -116,16 +116,21 @@ func TestPlacementLocks(t *testing.T) {
 	for _, e := range rep.ExpectedErrors {
 		got = append(got, e.Error)
 	}
-	if want := []string{"upgrade_only", "no_deposit", "no_deposit", "terrain", "no_fertility"}; !slices.Equal(got, want) {
+	if want := []string{"upgrade_only", "no_deposit", "no_deposit", "terrain", "no_farm_in_range", "terrain", "occupied",
+		"field_type_mismatch", "not_a_field", "no_fertility"}; !slices.Equal(got, want) {
 		t.Errorf("expected errors = %v, want %v", got, want)
 	}
 	have := map[string]bool{}
 	for _, is := range rep.Final.Islands {
 		for _, b := range is.Buildings {
 			have[is.ID+":"+b.Type] = true
+			// Both farms run at full efficiency on their 16 fields.
+			if b.Fields != nil && (b.Fields.Assigned != 16 || b.EfficiencyPermille != 1000) {
+				t.Errorf("%s %s fields %+v efficiency %d", is.ID, b.Type, b.Fields, b.EfficiencyPermille)
+			}
 		}
 	}
-	for _, want := range []string{"start:quarry", "start:wheat_farm", "island2:hemp_farm"} {
+	for _, want := range []string{"start:quarry", "start:wheat_farm", "start:wheat_field", "island2:hemp_farm", "island2:hemp_field"} {
 		if !have[want] {
 			t.Errorf("missing %s", want)
 		}

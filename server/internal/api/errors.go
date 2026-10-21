@@ -132,6 +132,9 @@ var simErrors = []simError{
 	{sim.ErrNotConnected, "not_connected", http.StatusConflict},
 	{sim.ErrQuestNotCompleted, "quest_not_completed", http.StatusConflict},
 	{sim.ErrQuestAlreadyClaimed, "quest_already_claimed", http.StatusConflict},
+	{sim.ErrNoFarmInRange, "no_farm_in_range", http.StatusConflict},
+	{sim.ErrFieldTypeMismatch, "field_type_mismatch", http.StatusConflict},
+	{sim.ErrNotAField, "not_a_field", http.StatusConflict},
 	// 500: never caused by a command (seeding, persistence and time
 	// errors); a response with one of these codes is a server bug.
 	{sim.ErrOverCapacity, "over_capacity", http.StatusInternalServerError},

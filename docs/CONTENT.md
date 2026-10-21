@@ -205,7 +205,8 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 | `lumberjack` | 1 | 2×2 | 50 / 5 | 1 | 4 S | R, work radius 4 forest, 24 tiles |
 | `sawmill` | 1 | 2×2 | 80 / 8 | 2 | 4 S | R |
 | `fisher` | 1 | 2×2 harbour slot | 60 / 6 | 1 | 4 S | R |
-| `sheep_farm` | 1 | 3×3 + fields | 50 / 10 | 1 | 4 S | R, work radius 4 grass, 24 tiles, cycle 90 s |
+| `sheep_farm` | 1 | 3×3 + fields | 50 / 10 | 1 | 4 S | R, work radius 4, 16 `pasture` fields, cycle 90 s |
+| `pasture` | 1 | 1×1 field | 0 | 0 | — | grass, inside an accepting farm's radius, never paused |
 | `weaver_wool` | 1 | 2×2 | 70 / 10 | 1 | 6 S | R, cycle 90 s |
 | `shipyard` | 1 | 5×4 harbour slot | 225 / 25 | 0 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
 | `house_citizens` | 2 | 2×2 | 150 / 15 / 10 | 0 | — | upgrade only |
@@ -215,16 +216,19 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 | `charcoal_burner` | 2 | 2×2 | 150 / 10 | 3 | 4 S | R |
 | `smelter` | 2 | 3×3 | 200 / 20 / 20 | 3 | 8 S | R |
 | `toolmaker` | 2 | 2×2 | 200 / 15 / 15 | 3 | 8 S | R |
-| `wheat_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, wheat fertility |
+| `wheat_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, wheat fertility, work radius 4, 16 `wheat_field` fields |
+| `wheat_field` | 2 | 1×1 field | 0 | 0 | — | grass, wheat fertility |
 | `mill` | 2 | 2×2 | 250 / 20 / 10 | 3 | 4 C | R |
 | `bakery` | 2 | 2×2 | 300 / 15 / 15 | 4 | 6 C | R |
 | `dairy_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass |
 | `cheese_dairy` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `orchard` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, apple fertility |
+| `orchard` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, apple fertility, work radius 4, 16 `orchard_plot` fields |
+| `orchard_plot` | 2 | 1×1 field | 0 | 0 | — | grass, apple fertility |
 | `cidery` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
 | `apiary` | 2 | 2×2 + fields | 200 / 15 / 5 | 3 | 4 S | R, meadow |
 | `meadery` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `hemp_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, hemp fertility |
+| `hemp_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, hemp fertility, work radius 4, 16 `hemp_field` fields |
+| `hemp_field` | 2 | 1×1 field | 0 | 0 | — | grass, hemp fertility |
 | `weaver_linen` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
 | `pig_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass |
 | `tannery` | 2 | 3×3 | 400 / 20 / 15 | 5 | 8 C | R |

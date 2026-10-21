@@ -102,6 +102,17 @@
       }
     },
     {
+      "fields": {
+        "type": "pasture",
+        "rect": [
+          26,
+          7,
+          32,
+          9
+        ]
+      }
+    },
+    {
       "place": {
         "type": "house_settlers",
         "x": 9,

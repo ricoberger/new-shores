@@ -34,7 +34,7 @@ func newWorld(t *testing.T, st *postgres.Store, age time.Duration) (string, stor
 func newStore(t *testing.T) (*postgres.Store, *pgxpool.Pool) {
 	t.Helper()
 	_, pool := testenv.Database(t)
-	return postgres.New(pool, catalogue(t).Region.Version, discard()), pool
+	return postgres.New(pool, catalogue(t), discard()), pool
 }
 
 func TestMigrateTwiceIsANoOp(t *testing.T) {
@@ -110,7 +110,7 @@ func TestEnvelopeRoundTripThroughJSONB(t *testing.T) {
 	if err := pool.QueryRow(ctx, "SELECT state, schema_version, last_evaluated_at FROM worlds WHERE id = $1", string(id)).Scan(&state, &schemaVersion, &lastEval); err != nil {
 		t.Fatal(err)
 	}
-	w, cv, err := sim.Decode(state)
+	w, cv, _, err := sim.Decode(state, catalogue(t))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,6 +1,6 @@
 {
   "name": "placement_locks",
-  "description": "Placement locks of tier-2 content (golden w, free seed): after the Citizens unlock, placing a Citizen house directly fails (upgrade_only), an iron mine on the start island's stone deposits and a quarry on mountain without a deposit fail (no_deposit), a sawmill stays off mountains (terrain), a wheat farm on island 2 (hemp only) fails (no_fertility); a quarry on the stone deposits, a wheat farm on the start island and a hemp farm on island 2 succeed. Every failed step leaves the world byte-identical.",
+  "description": "Placement locks of tier-2 content (golden w, free seed): after the Citizens unlock, placing a Citizen house directly fails (upgrade_only), an iron mine on the start island's stone deposits and a quarry on mountain without a deposit fail (no_deposit), a sawmill stays off mountains (terrain), a wheat farm on island 2 (hemp only) fails (no_fertility); a quarry on the stone deposits, a wheat farm with 16 wheat fields on the start island and a hemp farm with 16 hemp fields on island 2 succeed; wheat fields outside the farm's radius (no_farm_in_range), on mountain (terrain) or on a road (occupied), a farm type as field type (field_type_mismatch) and demolishing the farm as a field (not_a_field) fail. Every failed step leaves the world byte-identical.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {
@@ -306,6 +306,80 @@
       }
     },
     {
+      "fields": {
+        "type": "wheat_field",
+        "rect": [
+          23,
+          5,
+          27,
+          9
+        ]
+      }
+    },
+    {
+      "fields": {
+        "type": "wheat_field",
+        "tiles": [
+          [
+            36,
+            10
+          ]
+        ]
+      },
+      "expect_error": "no_farm_in_range"
+    },
+    {
+      "fields": {
+        "type": "wheat_field",
+        "tiles": [
+          [
+            28,
+            8
+          ],
+          [
+            22,
+            8
+          ]
+        ]
+      },
+      "expect_error": "terrain"
+    },
+    {
+      "fields": {
+        "type": "wheat_field",
+        "tiles": [
+          [
+            24,
+            4
+          ]
+        ]
+      },
+      "expect_error": "occupied"
+    },
+    {
+      "fields": {
+        "type": "wheat_farm",
+        "tiles": [
+          [
+            28,
+            9
+          ]
+        ]
+      },
+      "expect_error": "field_type_mismatch"
+    },
+    {
+      "demolish_fields": {
+        "tiles": [
+          [
+            25,
+            6
+          ]
+        ]
+      },
+      "expect_error": "not_a_field"
+    },
+    {
       "place": {
         "type": "shipyard",
         "x": 30,
@@ -366,6 +440,18 @@
         "x": 15,
         "y": 6,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "island": "island2",
+        "type": "hemp_field",
+        "rect": [
+          14,
+          4,
+          18,
+          8
+        ]
       }
     },
     {

@@ -433,7 +433,7 @@ func runDefault(o options, logger *slog.Logger) error {
 		logger.Error("redis unavailable at startup; push is off and rate limiting fails open until it is back", "error", err)
 	}
 
-	st := postgres.New(pool, cat.Region.Version, logger)
+	st := postgres.New(pool, cat, logger)
 	var mailer auth.Mailer = auth.LogMailer{Logger: logger}
 	if o.smtpURL != "" {
 		if mailer, err = auth.NewSMTPMailer(o.smtpURL, o.mailFrom); err != nil {

@@ -389,8 +389,16 @@ export interface components {
          *       `unknown_island`, `building_not_found`, `ship_not_found`,
          *       `route_not_found`, `quest_not_found`;
          *     - 405: `method_not_allowed`;
-         *     - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
-         *       `no_fertility` (the island lacks the work area's fertility tag),
+         *     - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`
+         *       (lumberjack only: no matching tile in its work area; farms with
+         *       fields are placed at 0 fields),
+         *       `no_fertility` (the island lacks the work area's or the field's
+         *       fertility tag),
+         *       `no_farm_in_range` (a field tile outside the work radius of every
+         *       farm on the island that accepts its type),
+         *       `field_type_mismatch` (`place_fields` with a type that is not a
+         *       field), `not_a_field` (`demolish_fields` on a tile whose building
+         *       is not a field),
          *       `no_deposit` (a deposit building's footprint covers no deposit
          *       of its kind), `insufficient_gold`, `insufficient_materials`,
          *       `surplus_loss`, `not_pausable`, `no_road`, `tier_locked`,
@@ -417,7 +425,9 @@ export interface components {
          *     `move_building` can fail with 400 `bad_request`, `invalid_command`
          *     (also for a road or an invalid rotation), `out_of_bounds`; 404
          *     `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-         *     `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`. Moving is free: it never fails for
+         *     `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`,
+         *     `no_farm_in_range` (a field moved outside every accepting farm's
+         *     radius). Moving is free: it never fails for
          *     gold, materials or tier. Placement never requires a road (D-042).
          *
          *     `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
@@ -435,7 +445,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_warehouse" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_warehouse" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "no_farm_in_range" | "field_type_mismatch" | "not_a_field" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -1452,7 +1462,9 @@ export interface components {
         };
         /**
          * @description A building. Producer fields are present for buildings with a
-         *     recipe, warehouse fields for warehouses, house fields for houses.
+         *     recipe, warehouse fields for warehouses, house fields for houses,
+         *     `fields` for farms with fields and `farm_id` for assigned fields
+         *     (D-049).
          */
         BuildingDisplay: {
             /**
@@ -1478,13 +1490,16 @@ export interface components {
              */
             paused_reason: "" | "player" | "unpaid";
             /**
-             * @description Primary status (MECHANICS §14).
+             * @description Primary status (MECHANICS §14). `no_farm`: a field outside the
+             *     work radius of every farm that accepts its type (fields are
+             *     otherwise `ok`).
              * @enum {string}
              */
-            status: "paused" | "not_connected" | "warehouse_full" | "input_starved" | "throttled" | "short_of_workers" | "low_efficiency" | "ok";
+            status: "paused" | "not_connected" | "warehouse_full" | "input_starved" | "throttled" | "short_of_workers" | "low_efficiency" | "no_farm" | "ok";
             /**
              * Format: int64
-             * @description Work-area efficiency (permille; 1000 without work area).
+             * @description Work-area efficiency (permille; 1000 without work area). For a
+             *     farm with fields min(1000, assigned × 1000 / required).
              */
             efficiency_permille: number;
             /**
@@ -1586,6 +1601,18 @@ export interface components {
             needs?: components["schemas"]["NeedDisplay"][];
             /** @description Shipyards only (absent for other buildings) — the pending order, or null when the shipyard is idle. */
             ship_order?: components["schemas"]["ShipOrderDisplay"] | null;
+            /** @description Farms with fields only — the fields assigned to the farm and the number for full efficiency. */
+            fields?: {
+                /** @description Fields assigned to this farm (count). */
+                assigned: number;
+                /** @description Fields for full efficiency (count). */
+                required: number;
+            };
+            /**
+             * Format: int64
+             * @description Fields only — building ID of the farm the field is assigned to; absent when unassigned (status `no_farm`).
+             */
+            farm_id?: number;
         };
         Content: {
             region: components["schemas"]["ContentRegion"];
@@ -1799,9 +1826,9 @@ export interface components {
             tier: string;
             /**
              * @description Build-menu group derived by the server from the capability
-             *     blocks: house → houses, recipe → production, service → public,
-             *     warehouse or shipyard → harbour, road → roads; other for none
-             *     of these.
+             *     blocks: house → houses, recipe or field → production, service →
+             *     public, warehouse or shipyard → harbour, road → roads; other for
+             *     none of these.
              * @enum {string}
              */
             category: "houses" | "production" | "public" | "harbour" | "roads" | "other";
@@ -1881,12 +1908,17 @@ export interface components {
                 /** @description Service radius (tiles). */
                 radius: number;
             };
+            /**
+             * @description Work radius. `terrain` and `required_tiles` are present for the
+             *     implicit terrain rule (lumberjack) and absent for a farm with
+             *     `fields`, whose radius bounds its fields.
+             */
             work_area?: {
                 /** @description Work-area radius (tiles). */
                 radius: number;
-                terrain: string[];
+                terrain?: string[];
                 /** @description Matching tiles for full efficiency (count). */
-                required_tiles: number;
+                required_tiles?: number;
                 /** @description Island fertility tag the building needs (absent for none). */
                 fertility?: string;
             };
@@ -1907,6 +1939,30 @@ export interface components {
              *     building may also stand on mountain tiles.
              */
             requires_deposit?: string;
+            /**
+             * @description A farm that needs explicit fields (D-049): efficiency =
+             *     min(1, assigned fields / required). Fields of `type` are
+             *     assigned to the nearest accepting farm whose `work_area.radius`
+             *     contains them (ties to the lower building ID).
+             */
+            fields?: {
+                /** @description Field type (`field.type` of a field building) the farm accepts. */
+                type: string;
+                /** @description Fields for full efficiency (count). */
+                required: number;
+            };
+            /**
+             * @description A 1×1 field placeable (D-049): placed on `terrain` (and the
+             *     island's `fertility`, when set) inside the work radius of a farm
+             *     whose `fields.type` is `type`.
+             */
+            field?: {
+                /** @description Field type. */
+                type: string;
+                terrain: string[];
+                /** @description Island fertility tag the field needs (absent for none). */
+                fertility?: string;
+            };
         };
         ContentNeed: {
             id: string;

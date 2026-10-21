@@ -184,8 +184,14 @@ type Building struct {
 	// can be auto-resumed only after that millisecond, which keeps settle
 	// idempotent at the pause instant.
 	PausedAtMs int64 `json:"paused_at_ms,omitempty"`
-	// Efficiency in per-mille from the work area (1000 without work area).
+	// Efficiency in per-mille from the work area or, for a farm with
+	// fields, from its assigned fields (1000 without either).
 	Efficiency int64 `json:"efficiency"`
+	// FarmID is the farm a field is assigned to (D-049, fields.go): the
+	// nearest accepting farm whose radius contains the field; 0 for an
+	// unassigned field and for every other building. Derived state,
+	// recomputed after every placement change of the island.
+	FarmID int64 `json:"farm_id,omitempty"`
 	// Level of a warehouse (1-based); 0 for other buildings.
 	Level int `json:"level,omitempty"`
 

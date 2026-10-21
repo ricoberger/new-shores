@@ -374,10 +374,19 @@ func TestStallRecoveryOffline24h(t *testing.T) {
 		t.Errorf("trial resumes %d, bound %d", trials, bound)
 	}
 	// Nothing destroyed: every placed building (and the seeded warehouse)
-	// still stands.
-	buildings, placed := 0, 1
+	// still stands, and so do the fields.
+	buildings, placed, fields := 0, 1, 0
 	for _, is := range rep.Final.Islands {
-		buildings += len(is.Buildings)
+		for _, b := range is.Buildings {
+			if c.BuildingByID[b.Type].Field != nil {
+				fields++
+				continue
+			}
+			buildings++
+		}
+	}
+	if fields != 16 {
+		t.Errorf("%d fields", fields)
 	}
 	for _, st := range s.Steps {
 		if st.Place != nil {

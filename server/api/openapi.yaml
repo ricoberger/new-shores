@@ -675,8 +675,16 @@ components:
           `unknown_island`, `building_not_found`, `ship_not_found`,
           `route_not_found`, `quest_not_found`;
         - 405: `method_not_allowed`;
-        - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`,
-          `no_fertility` (the island lacks the work area's fertility tag),
+        - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`
+          (lumberjack only: no matching tile in its work area; farms with
+          fields are placed at 0 fields),
+          `no_fertility` (the island lacks the work area's or the field's
+          fertility tag),
+          `no_farm_in_range` (a field tile outside the work radius of every
+          farm on the island that accepts its type),
+          `field_type_mismatch` (`place_fields` with a type that is not a
+          field), `not_a_field` (`demolish_fields` on a tile whose building
+          is not a field),
           `no_deposit` (a deposit building's footprint covers no deposit
           of its kind), `insufficient_gold`, `insufficient_materials`,
           `surplus_loss`, `not_pausable`, `no_road`, `tier_locked`,
@@ -703,7 +711,9 @@ components:
         `move_building` can fail with 400 `bad_request`, `invalid_command`
         (also for a road or an invalid rotation), `out_of_bounds`; 404
         `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-        `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`. Moving is free: it never fails for
+        `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`,
+        `no_farm_in_range` (a field moved outside every accepting farm's
+        radius). Moving is free: it never fails for
         gold, materials or tier. Placement never requires a road (D-042).
 
         `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
@@ -765,6 +775,9 @@ components:
         - quest_not_found
         - quest_not_completed
         - quest_already_claimed
+        - no_farm_in_range
+        - field_type_mismatch
+        - not_a_field
         - over_capacity
         - time_backwards
         - schema_version
@@ -2203,7 +2216,9 @@ components:
       additionalProperties: false
       description: |
         A building. Producer fields are present for buildings with a
-        recipe, warehouse fields for warehouses, house fields for houses.
+        recipe, warehouse fields for warehouses, house fields for houses,
+        `fields` for farms with fields and `farm_id` for assigned fields
+        (D-049).
       required:
         [id, type, x, y, rotation, paused, paused_reason, status, efficiency_permille, throughput_factor_permille]
       properties:
@@ -2232,12 +2247,17 @@ components:
           description: Empty when not paused.
         status:
           type: string
-          enum: [paused, not_connected, warehouse_full, input_starved, throttled, short_of_workers, low_efficiency, ok]
-          description: Primary status (MECHANICS §14).
+          enum: [paused, not_connected, warehouse_full, input_starved, throttled, short_of_workers, low_efficiency, no_farm, ok]
+          description: |
+            Primary status (MECHANICS §14). `no_farm`: a field outside the
+            work radius of every farm that accepts its type (fields are
+            otherwise `ok`).
         efficiency_permille:
           type: integer
           format: int64
-          description: Work-area efficiency (permille; 1000 without work area).
+          description: |
+            Work-area efficiency (permille; 1000 without work area). For a
+            farm with fields min(1000, assigned × 1000 / required).
         throughput_factor_permille:
           type: integer
           format: int64
@@ -2335,6 +2355,22 @@ components:
           description: Shipyards only (absent for other buildings) — the pending order, or null when the shipyard is idle.
           allOf:
             - $ref: "#/components/schemas/ShipOrderDisplay"
+        fields:
+          type: object
+          additionalProperties: false
+          required: [assigned, required]
+          description: Farms with fields only — the fields assigned to the farm and the number for full efficiency.
+          properties:
+            assigned:
+              type: integer
+              description: Fields assigned to this farm (count).
+            required:
+              type: integer
+              description: Fields for full efficiency (count).
+        farm_id:
+          type: integer
+          format: int64
+          description: Fields only — building ID of the farm the field is assigned to; absent when unassigned (status `no_farm`).
     # ------------------------------------------------------------------
     # Content payload
     # ------------------------------------------------------------------
@@ -2644,9 +2680,9 @@ components:
           enum: [houses, production, public, harbour, roads, other]
           description: |
             Build-menu group derived by the server from the capability
-            blocks: house → houses, recipe → production, service → public,
-            warehouse or shipyard → harbour, road → roads; other for none
-            of these.
+            blocks: house → houses, recipe or field → production, service →
+            public, warehouse or shipyard → harbour, road → roads; other for
+            none of these.
         width:
           type: integer
           description: Footprint width at rotation 0 (tiles).
@@ -2763,7 +2799,11 @@ components:
         work_area:
           type: object
           additionalProperties: false
-          required: [radius, terrain, required_tiles]
+          required: [radius]
+          description: |
+            Work radius. `terrain` and `required_tiles` are present for the
+            implicit terrain rule (lumberjack) and absent for a farm with
+            `fields`, whose radius bounds its fields.
           properties:
             radius:
               type: integer
@@ -2805,6 +2845,41 @@ components:
           description: |
             Deposit kind the footprint must cover (absent for none); such a
             building may also stand on mountain tiles.
+        fields:
+          type: object
+          additionalProperties: false
+          required: [type, required]
+          description: |
+            A farm that needs explicit fields (D-049): efficiency =
+            min(1, assigned fields / required). Fields of `type` are
+            assigned to the nearest accepting farm whose `work_area.radius`
+            contains them (ties to the lower building ID).
+          properties:
+            type:
+              type: string
+              description: Field type (`field.type` of a field building) the farm accepts.
+            required:
+              type: integer
+              description: Fields for full efficiency (count).
+        field:
+          type: object
+          additionalProperties: false
+          required: [type, terrain]
+          description: |
+            A 1×1 field placeable (D-049): placed on `terrain` (and the
+            island's `fertility`, when set) inside the work radius of a farm
+            whose `fields.type` is `type`.
+          properties:
+            type:
+              type: string
+              description: Field type.
+            terrain:
+              type: array
+              items:
+                type: string
+            fertility:
+              type: string
+              description: Island fertility tag the field needs (absent for none).
     ContentNeed:
       type: object
       additionalProperties: false

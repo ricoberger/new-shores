@@ -741,6 +741,17 @@
       }
     },
     {
+      "fields": {
+        "type": "pasture",
+        "rect": [
+          12,
+          23,
+          18,
+          25
+        ]
+      }
+    },
+    {
       "advance": {
         "duration": "2m"
       }
@@ -897,6 +908,17 @@
       }
     },
     {
+      "fields": {
+        "type": "pasture",
+        "rect": [
+          21,
+          21,
+          25,
+          25
+        ]
+      }
+    },
+    {
       "advance": {
         "duration": "1m"
       }
@@ -920,6 +942,17 @@
         "x": 28,
         "y": 21,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "type": "pasture",
+        "rect": [
+          27,
+          21,
+          31,
+          25
+        ]
       }
     },
     {

@@ -32,7 +32,7 @@ export const WAREHOUSE_TILE = { x: 3, y: 2 };
 export const WATER = { x: 0, y: 0 };
 /** Gold of the dev world: start.json (no dev-only bonus since the tier 1–2 balancing pass). */
 export const START_GOLD = 800;
-export const CONTENT_VERSION = "old_coast-0.5.0";
+export const CONTENT_VERSION = "old_coast-0.6.0";
 
 // Shipping (voyage.spec.ts; the Go test TestShippingLayoutFoundsIsland2
 // checks the same layout): a road from below the warehouse down the west
