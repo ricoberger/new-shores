@@ -242,6 +242,42 @@ test("a mouse or pen taking over drops the touch-pending tile; the ghost follows
   await expect.poll(ghost).toEqual(a);
 });
 
+test("keyboard: a dialog opened from a sheet takes focus, keeps Tab and returns focus", async ({ page }) => {
+  await page.goto("/?fixture=archipelago-8x20");
+  await expectView(page, "archipelago");
+  await touch.tap(await shipPoint(page, 4));
+  await expect(page.getByTestId("sheet")).toBeVisible();
+  await page.getByTestId("ship-panel-scrap").focus();
+  await page.keyboard.press("Enter");
+  const dialog = page.getByTestId("dialog");
+  await expect(dialog).toBeVisible();
+  const focusedInDialog = () =>
+    page.evaluate(() => {
+      const a = document.activeElement as HTMLElement | null;
+      return { inside: !!a?.closest('[data-testid="dialog"]'), id: a?.dataset.testid ?? "" };
+    });
+  expect((await focusedInDialog()).inside).toBe(true);
+  const reached = new Set<string>();
+  for (let i = 0; i < 6; i++) {
+    await page.keyboard.press("Tab");
+    const f = await focusedInDialog();
+    expect(f.inside).toBe(true);
+    reached.add(f.id);
+  }
+  expect(reached).toContain("dialog-confirm");
+  expect(reached).toContain("dialog-cancel");
+  await page.keyboard.press("Shift+Tab");
+  expect((await focusedInDialog()).inside).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByTestId("ship-panel-scrap")).toBeFocused();
+  // The sheet's own trap works again.
+  for (let i = 0; i < 4; i++) {
+    await page.keyboard.press("Tab");
+    expect(await page.evaluate(() => !!document.activeElement?.closest('[data-testid="sheet"]'))).toBe(true);
+  }
+});
+
 test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the camera", async ({ page }) => {
   await page.goto("/?fixture=dense-2x400");
   await expectView(page, DENSE);

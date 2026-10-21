@@ -1,5 +1,6 @@
 import { type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { nextSnap, SHEET_SNAPS, type SheetSnap, snapFor } from "../display/layout";
+import { modalOpen, trapTab } from "./DialogPanel";
 import styles from "./sheet.module.css";
 
 interface Props {
@@ -7,8 +8,6 @@ interface Props {
   onClose: () => void;
   children: ReactNode;
 }
-
-const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
  * Bottom sheet of the phone layout: everything of the desktop side panel
@@ -30,7 +29,7 @@ export function Sheet({ title, onClose, children }: Props) {
   // Focus moves into the sheet and back to the opener when it closes.
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    ref.current?.focus({ preventScroll: true });
+    if (!modalOpen()) ref.current?.focus({ preventScroll: true });
     return () => {
       if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
@@ -75,23 +74,10 @@ export function Sheet({ title, onClose, children }: Props) {
     setSnap(nextSnap);
   };
 
+  // A modal dialog opened from the sheet owns focus; the sheet's trap
+  // pauses until it closes (the dialog returns focus into the sheet).
   const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-    if (e.key !== "Tab" || !ref.current) return;
-    const items = [...ref.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => el.offsetParent !== null);
-    const first = items[0];
-    const last = items[items.length - 1];
-    if (!first || !last) {
-      e.preventDefault();
-      return;
-    }
-    const active = document.activeElement;
-    if (e.shiftKey && (active === first || active === ref.current)) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && active === last) {
-      e.preventDefault();
-      first.focus();
-    }
+    if (!modalOpen()) trapTab(ref.current, e);
   };
 
   const fraction = dragFraction ?? SHEET_SNAPS[snap];

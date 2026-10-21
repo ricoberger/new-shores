@@ -4,6 +4,7 @@ import { authErrorText, logout } from "../api/auth";
 import styles from "./account.module.css";
 import hud from "./hud.module.css";
 import { AuthForm } from "./AuthForm";
+import { DialogPanel } from "./DialogPanel";
 import { installPrompt } from "../pwa";
 import { useInstallAvailable } from "./PwaUi";
 
@@ -83,7 +84,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
       )}
       {registering && (
         <div className={styles.modal} onClick={() => setRegistering(false)}>
-          <div className={`${hud.panel} ${hud.dialog}`} role="dialog" aria-modal="true" aria-labelledby="register-dialog-title" onClick={(e) => e.stopPropagation()}>
+          <DialogPanel className={`${hud.panel} ${hud.dialog}`} labelledBy="register-dialog-title" onClick={(e) => e.stopPropagation()}>
             <h2 className={hud.title} id="register-dialog-title">
               Register
             </h2>
@@ -95,7 +96,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
               }}
               onCancel={() => setRegistering(false)}
             />
-          </div>
+          </DialogPanel>
         </div>
       )}
     </div>

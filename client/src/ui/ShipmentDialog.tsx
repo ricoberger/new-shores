@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CargoDisplay, Content, DisplayState, ShipDisplay } from "../api/client";
 import { units } from "../display/format";
 import { cargoTotals, slotsFor } from "../display/ships";
+import { DialogPanel } from "./DialogPanel";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -34,12 +35,10 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
     .map(([good, n]) => ({ good, amount: n * 1000 }));
   return (
     <div className={styles.backdrop} onClick={onClose}>
-      <div
+      <DialogPanel
         className={`${styles.panel} ${styles.dialog}`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="shipment-dialog-title"
-        data-testid="shipment-dialog"
+        labelledBy="shipment-dialog-title"
+        testId="shipment-dialog"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className={styles.title} id="shipment-dialog-title">
@@ -109,7 +108,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
             Cancel
           </button>
         </div>
-      </div>
+      </DialogPanel>
     </div>
   );
 }
