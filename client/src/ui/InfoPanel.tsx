@@ -93,7 +93,7 @@ function WarehouseUpgrade({
   return (
     <div className={styles.section} data-testid="warehouse-upgrade">
       <button type="button" className={styles.button} onClick={onUpgrade} data-testid="warehouse-upgrade-button">
-        ⇧ Upgrade to level {(b.level ?? 0) + 1}
+        <Icon path={toolIcon("upgrade")} /> Upgrade to level {(b.level ?? 0) + 1}
       </button>
       <div className={styles.small}>
         Capacity {units(next.capacity)} per good · throughput {perMin(next.throughput_per_min)}/min
@@ -338,12 +338,8 @@ export function InfoPanel({
             def.shipyard.ships.map((id) => {
               const t = content.ships.find((x) => x.id === id);
               if (!t) return null;
-              const missing = [
-                ...(t.cost.gold > model.gold ? [`${units(t.cost.gold - model.gold)} gold`] : []),
-                ...Object.entries(t.cost.materials)
-                  .filter(([g, n]) => (island.inventory[g]?.stock ?? 0) < n)
-                  .map(([g, n]) => `${units(n - (island.inventory[g]?.stock ?? 0))} ${goodName(g)}`),
-              ];
+              const missingGoods = Object.entries(t.cost.materials).filter(([g, n]) => (island.inventory[g]?.stock ?? 0) < n);
+              const missingGold = t.cost.gold > model.gold;
               return (
                 <div key={id} className={styles.shipEntry}>
                   <div className={styles.row}>
@@ -356,9 +352,25 @@ export function InfoPanel({
                   </div>
                   <div className={styles.small}>
                     {units(t.cost.gold)} gold
-                    {Object.entries(t.cost.materials).map(([g, n]) => ` · ${goodName(g)} ${units(island.inventory[g]?.stock ?? 0)}/${units(n)}`)}
+                    {Object.entries(t.cost.materials).map(([g, n]) => (
+                      <span key={g}>
+                        {" "}
+                        · <GoodName id={g} name={goodName(g)} /> {units(island.inventory[g]?.stock ?? 0)}/{units(n)}
+                      </span>
+                    ))}
                   </div>
-                  {missing.length > 0 && <div className={`${styles.small} ${styles.warn}`}>Missing: {missing.join(", ")}</div>}
+                  {(missingGold || missingGoods.length > 0) && (
+                    <div className={`${styles.small} ${styles.warn}`} data-testid={`shipyard-missing-${id}`}>
+                      Missing:{" "}
+                      {missingGold && `${units(t.cost.gold - model.gold)} gold${missingGoods.length > 0 ? ", " : ""}`}
+                      {missingGoods.map(([g, n], i) => (
+                        <span key={g}>
+                          {i > 0 && ", "}
+                          {units(n - (island.inventory[g]?.stock ?? 0))} <GoodName id={g} name={goodName(g)} />
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })
@@ -407,7 +419,9 @@ export function InfoPanel({
         {(canPause || b.paused) && (
           <button type="button" className={styles.button} onClick={() => onSetPaused(!b.paused)} data-testid="info-pause">
             {b.paused ? (
-              "▶ Resume"
+              <>
+                <Icon path={toolIcon("resume")} /> Resume
+              </>
             ) : (
               <>
                 <Icon path={statusIcon("paused_player")} /> Pause
@@ -417,7 +431,7 @@ export function InfoPanel({
         )}
         {b.residents !== undefined && (
           <button type="button" className={styles.button} onClick={onUpgrade} data-testid="info-upgrade">
-            ⇧ Upgrade
+            <Icon path={toolIcon("upgrade")} /> Upgrade
           </button>
         )}
         <button type="button" className={styles.button} onClick={onMove} data-testid="info-move">

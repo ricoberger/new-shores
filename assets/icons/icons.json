@@ -443,6 +443,13 @@
       "page": "https://game-icons.net/1x1/guard13007/play-button.html",
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/guard13007/play-button.svg",
       "sha256": "f3cc25dc35d60ce4341e1e72dc0bf582100a7750e767455835fad3fd78c96f7a"
+    },
+    "tool:upgrade": {
+      "file": "upgrade.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/upgrade.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/upgrade.svg",
+      "sha256": "2189e2b7041269bf323e673f523e2c76edc68ef8b9885b70c2e66d6d06aceec8"
     }
   }
 }
