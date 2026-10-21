@@ -188,6 +188,8 @@ export class GameRenderer {
   private lastFrameAt = 0;
   private drawCalls = 0;
   private firstFrameMarked = false;
+  /** Animation time pinned by a test (server ms; null: live). */
+  private frozenAt: number | null = null;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -250,7 +252,7 @@ export class GameRenderer {
       this.frameCount++;
     }
     this.lastFrameAt = t;
-    const now = this.sync.serverNowMs();
+    const now = this.frozenAt ?? this.sync.serverNowMs();
     this.rig.tick(t);
     this.updateView();
     for (const d of this.details.values()) d.frame(now);
@@ -338,6 +340,14 @@ export class GameRenderer {
     let n = 0;
     for (const d of this.details.values()) n += d.cartCount();
     return n;
+  }
+
+  /**
+   * Pins the animation time (sea ripples, foam, carts, ships) to a server
+   * time in ms, or releases it with null — deterministic screenshots.
+   */
+  freezeTime(ms: number | null): void {
+    this.frozenAt = ms;
   }
 
   /** Render quality (high: shadow map and FXAA here, grading as the canvas overlay; low: blob shadows and the vignette only). */

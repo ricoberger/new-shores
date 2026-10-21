@@ -180,9 +180,13 @@ service before the servers start.
   near, mid and far LOD under 4× CPU throttling; logs fps, frame times,
   draw calls, JS heap, WebGL renderer and bundle size and asserts an fps
   threshold: the `PERF_MIN_FPS` environment variable, default 27 from
-  `client/e2e/perf.spec.ts`). Single projects:
-  `npx playwright test --project=perf` (add `--no-deps` to skip the
-  desktop projects a touch project depends on). Headless Chromium renders
+  `client/e2e/perf.spec.ts`), and `visual` (screenshot baselines of the
+  fixtures on desktop and a Pixel 5, per platform: a missing baseline is
+  written and its test skipped with a notice; plus the grid overlay,
+  palette, render quality and credits rules). `perf` and `visual` run
+  last, after the shared-world projects. Single projects:
+  `npx playwright test --project=perf --no-deps` (`--no-deps` skips the
+  projects a project depends on). Headless Chromium renders
   with SwiftShader (software); `PERF_GPU=1` runs the perf project with
   hardware WebGL flags for comparison (its fps threshold is not asserted).
 - **Perf threshold on slower machines:** software WebGL is CPU-bound, so

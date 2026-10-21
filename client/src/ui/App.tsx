@@ -98,6 +98,8 @@ export interface TestHook {
   fieldPreview(): { from: { x: number; y: number }; to: { x: number; y: number } } | null;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
+  /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
+  freezeTime(ms: number | null): void;
   /** The grid overlay was drawn in the last frame (only while a placement tool is active). */
   gridOverlayVisible(): boolean;
   /** Which quality-dependent effects exist (FXAA is skipped on software WebGL, see `software`). */
@@ -541,6 +543,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
         gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
+        freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         effects: () => {
           const e = rendererRef.current?.effects();
           return e
