@@ -16,13 +16,14 @@ import { expectView } from "./archipelago";
 /**
  * Regression threshold (fps, 412 × 915 @ 2.625, 4× CPU throttling,
  * headless Chromium with SwiftShader): the measured average × 0.8,
- * rounded down. Measurements and the derivation are in the M3 notes.
+ * rounded down (median of three runs 34.1 fps on an Apple M4 Pro →
+ * 27). Measurements and the derivation are in the M3 notes.
  */
-export const PERF_MIN_FPS = 14;
+export const PERF_MIN_FPS = 27;
 /** JS heap ceiling (bytes): the < 400 MB mobile budget. */
 const MAX_HEAP_BYTES = 400 * 1024 * 1024;
-/** Draw-call ceiling of the dense island view. */
-const MAX_DRAW_CALLS = 80;
+/** Draw-call ceiling of the dense island view (27 measured; instancing regressions exceed it). */
+const MAX_DRAW_CALLS = 40;
 const CPU_THROTTLE = 4;
 const SETTLE_MS = 3_000;
 const SAMPLE_MS = 5_000;
