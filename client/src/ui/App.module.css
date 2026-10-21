@@ -10,8 +10,11 @@
   width: 100%;
   height: 100%;
   display: block;
-  outline: none;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* The overlay never takes pointer events itself; only its panels do, and

@@ -1,36 +1,46 @@
-// Pointer input on the canvas (pointer events only, so that touch can be
-// added in M3): taps, drags and wheel zoom in render pixels. Overlay
-// elements are siblings of the canvas, so their events never reach here.
+// Pointer input on the canvas: pointer events only (mouse, pen and touch
+// through one code path), fed to the pure gesture recogniser. Positions
+// reach the handlers in render pixels. Overlay elements are siblings of
+// the canvas, so their events never reach here.
+import { GestureRecognizer, type GestureEvent, type Point, type PointerKind } from "./gestures";
 
-export interface Point {
-  x: number;
-  y: number;
-}
+export type { Point, PointerKind } from "./gestures";
 
 export interface PointerHandlers {
+  /** A pointer went down on the canvas (any kind; before the gesture is known). */
+  pointerDown(kind: PointerKind): void;
   /** Pointer released without dragging. */
-  tap(p: Point, button: number): void;
-  /** A drag started; return true to receive dragMove/dragEnd for it. */
-  dragStart(start: Point, button: number): void;
+  tap(p: Point, button: number, kind: PointerKind): void;
+  /** A touch held still for the long-press time (no tap follows). */
+  longPress(p: Point): void;
+  dragStart(start: Point, button: number, kind: PointerKind): void;
   dragMove(prev: Point, cur: Point, button: number): void;
   dragEnd(cur: Point, button: number): void;
+  /** Two fingers moved: pan from `prev` to `centre` and zoom by `scale` (> 1: in) about `centre`. */
+  pinch(centre: Point, prev: Point, scale: number): void;
+  /** Two fingers twisted past one or more rotate steps (signed). */
+  rotate(steps: number): void;
   /** A press or drag ended without a release (pointercancel or cancel()). */
   cancel(): void;
-  /** Pointer moved (also while dragging). */
+  /** Mouse or pen moved (also while dragging); null when it left the canvas. */
   hover(p: Point | null): void;
   wheel(p: Point, deltaY: number): void;
 }
 
-const DRAG_THRESHOLD_PX = 5;
+function kindOf(pointerType: string): PointerKind {
+  return pointerType === "touch" ? "touch" : pointerType === "pen" ? "pen" : "mouse";
+}
 
 export class PointerInput {
-  private down: { start: Point; last: Point; button: number; dragging: boolean; id: number } | null = null;
+  private readonly gestures: GestureRecognizer;
+  private timer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly ratio: () => number,
     private readonly h: PointerHandlers,
   ) {
+    this.gestures = new GestureRecognizer((e) => this.dispatch(e));
     canvas.addEventListener("pointerdown", this.onDown);
     canvas.addEventListener("pointermove", this.onMove);
     canvas.addEventListener("pointerup", this.onUp);
@@ -41,6 +51,7 @@ export class PointerInput {
   }
 
   dispose(): void {
+    clearTimeout(this.timer);
     this.canvas.removeEventListener("pointerdown", this.onDown);
     this.canvas.removeEventListener("pointermove", this.onMove);
     this.canvas.removeEventListener("pointerup", this.onUp);
@@ -50,44 +61,102 @@ export class PointerInput {
     this.canvas.removeEventListener("contextmenu", this.onContextMenu);
   }
 
-  private point(e: PointerEvent | WheelEvent): Point {
+  /** Canvas-relative CSS pixels (the recogniser's thresholds are CSS pixels). */
+  private css(e: PointerEvent | WheelEvent): Point {
     const r = this.canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  private px(p: Point): Point {
     const k = this.ratio();
-    return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k };
+    return { x: p.x * k, y: p.y * k };
+  }
+
+  private dispatch(e: GestureEvent): void {
+    switch (e.type) {
+      case "tap":
+        this.h.tap(this.px(e.p), e.button, e.kind);
+        return;
+      case "longPress":
+        this.h.longPress(this.px(e.p));
+        return;
+      case "dragStart":
+        this.h.dragStart(this.px(e.start), e.button, e.kind);
+        return;
+      case "dragMove":
+        this.h.dragMove(this.px(e.prev), this.px(e.cur), e.button);
+        return;
+      case "dragEnd":
+        this.h.dragEnd(this.px(e.p), e.button);
+        return;
+      case "pinch":
+        this.h.pinch(this.px(e.centre), this.px({ x: e.centre.x - e.translation.x, y: e.centre.y - e.translation.y }), e.scale);
+        return;
+      case "rotate":
+        this.h.rotate(e.steps);
+        return;
+      case "cancel":
+        this.h.cancel();
+        return;
+      case "hover":
+        this.h.hover(e.p ? this.px(e.p) : null);
+        return;
+      case "wheel":
+        this.h.wheel(this.px(e.p), e.deltaY);
+    }
+  }
+
+  /** Runs the recogniser's long-press deadline. */
+  private schedule(): void {
+    clearTimeout(this.timer);
+    const at = this.gestures.deadline();
+    if (at === null) return;
+    this.timer = setTimeout(() => {
+      this.gestures.tick(performance.now());
+      this.schedule();
+    }, Math.max(0, at - performance.now()));
+  }
+
+  // Capture can fail for synthetic or already released pointers; input
+  // must keep working without it.
+  private capture(id: number): void {
+    try {
+      this.canvas.setPointerCapture(id);
+    } catch {
+      // not capturable
+    }
+  }
+
+  private release(id: number): void {
+    try {
+      if (this.canvas.hasPointerCapture(id)) this.canvas.releasePointerCapture(id);
+    } catch {
+      // already released
+    }
   }
 
   private readonly onDown = (e: PointerEvent): void => {
-    if (this.down) return;
-    const p = this.point(e);
-    this.down = { start: p, last: p, button: e.button, dragging: false, id: e.pointerId };
-    this.canvas.setPointerCapture(e.pointerId);
+    const kind = kindOf(e.pointerType);
+    this.h.pointerDown(kind);
+    if (this.gestures.down(e.pointerId, kind, e.button, this.css(e), performance.now())) this.capture(e.pointerId);
+    this.schedule();
   };
 
   private readonly onMove = (e: PointerEvent): void => {
-    const p = this.point(e);
-    this.h.hover(p);
-    const d = this.down;
-    if (!d || d.id !== e.pointerId) return;
-    if (!d.dragging && Math.hypot(p.x - d.start.x, p.y - d.start.y) > DRAG_THRESHOLD_PX * this.ratio()) {
-      d.dragging = true;
-      this.h.dragStart(d.start, d.button);
-    }
-    if (d.dragging) this.h.dragMove(d.last, p, d.button);
-    d.last = p;
+    this.gestures.move(e.pointerId, kindOf(e.pointerType), this.css(e));
+    this.schedule();
   };
 
   private readonly onUp = (e: PointerEvent): void => {
-    const d = this.down;
-    if (!d || d.id !== e.pointerId) return;
-    this.down = null;
-    if (this.canvas.hasPointerCapture(e.pointerId)) this.canvas.releasePointerCapture(e.pointerId);
-    const p = this.point(e);
-    if (d.dragging) this.h.dragEnd(p, d.button);
-    else this.h.tap(p, d.button);
+    this.release(e.pointerId);
+    this.gestures.up(e.pointerId, this.css(e));
+    this.schedule();
   };
 
   private readonly onCancel = (e: PointerEvent): void => {
-    if (this.down?.id === e.pointerId) this.cancel();
+    this.release(e.pointerId);
+    this.gestures.cancelPointer(e.pointerId);
+    this.schedule();
   };
 
   /**
@@ -96,20 +165,17 @@ export class PointerInput {
    * hovers until the next press.
    */
   cancel(): void {
-    const d = this.down;
-    if (!d) return;
-    this.down = null;
-    if (this.canvas.hasPointerCapture(d.id)) this.canvas.releasePointerCapture(d.id);
-    this.h.cancel();
+    for (const id of this.gestures.cancel()) this.release(id);
+    this.schedule();
   }
 
   private readonly onLeave = (): void => {
-    if (!this.down) this.h.hover(null);
+    this.gestures.leave();
   };
 
   private readonly onWheel = (e: WheelEvent): void => {
     e.preventDefault();
-    this.h.wheel(this.point(e), e.deltaY);
+    this.gestures.wheel(this.css(e), e.deltaY);
   };
 
   private readonly onContextMenu = (e: Event): void => e.preventDefault();

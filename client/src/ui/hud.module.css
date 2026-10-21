@@ -461,3 +461,57 @@
   align-items: center;
   margin-bottom: 6px;
 }
+
+/* Touch tool bars (placement confirm, demolish mode): below the top bar,
+   never covered by side panels, sheets or the build bar. */
+.toolBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin: 8px auto 0;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+}
+
+.toolBarText {
+  font-weight: 600;
+}
+
+.toolBarButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.toolBar .button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.primary {
+  background: #0072b2;
+  border-color: #005a8c;
+  color: #fff;
+}
+
+.primary:disabled {
+  background: #9bb7c9;
+  border-color: #9bb7c9;
+  cursor: not-allowed;
+}
+
+.demolishBar {
+  padding: 6px 8px 6px 14px;
+  border-radius: 8px;
+  border: 2px solid #7a2e00;
+  background: #b34700;
+  color: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 35%);
+}
+
+.demolishDone {
+  font-weight: 700;
+  color: #7a2e00;
+  background: #fff;
+}

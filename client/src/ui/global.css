@@ -8,6 +8,8 @@ body,
   font-size: 14px;
   color: #1d1d1f;
   background: #1f4569;
+  /* No pull-to-refresh or scroll chaining on the game screen. */
+  overscroll-behavior: none;
 }
 
 * {
@@ -17,4 +19,13 @@ body,
 button {
   font: inherit;
   cursor: pointer;
+}
+
+/* Controls: no double-tap zoom delay; inputs and sheets keep scrolling. */
+button,
+a,
+input,
+select,
+label {
+  touch-action: manipulation;
 }

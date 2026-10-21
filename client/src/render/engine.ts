@@ -20,7 +20,8 @@ import type { SyncSnapshot } from "../api/sync";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
-import type { Tool } from "../ui/tools";
+import { pinchZoomDelta, WHEEL_ZOOM_RATE } from "../display/view";
+import { isGhostTool, type Tool } from "../ui/tools";
 import { ArchipelagoLayer, type ArchSelection } from "./archipelago";
 import { BuildingLayer } from "./buildings";
 import { CameraRig, type CameraState, fitHalfHeight, ISLAND_DEFAULT_HALF_HEIGHT } from "./camera";
@@ -29,7 +30,7 @@ import { footprintBox, tileCenter, worldToTile } from "./coords";
 import { HarbourLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
-import { type Point, PointerInput } from "./picking";
+import { type Point, PointerInput, type PointerKind } from "./picking";
 import { RoadLayer } from "./roads";
 import type { ShipStyle } from "./shipmesh";
 import { buildTerrain } from "./terrain";
@@ -48,6 +49,10 @@ export type RenderView = { kind: "island"; id: string } | { kind: "archipelago" 
 export interface RendererEvents {
   select(buildingId: number | null): void;
   place(x: number, y: number): void;
+  /** Touch: a tap put the placement ghost on a tile; Confirm places it. */
+  pend(x: number, y: number): void;
+  /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed). */
+  rotateGhost(steps: number): void;
   move(x: number, y: number): void;
   found(x: number, y: number): void;
   road(from: TilePos, to: TilePos): void;
@@ -66,6 +71,9 @@ export interface RendererEvents {
   tapIsland(id: string): void;
   tapShip(id: number): void;
   tapSea(): void;
+  /** Long-press on a ship or island: select it and open its panel (no tool acts). */
+  inspectShip(id: number): void;
+  inspectIsland(id: string): void;
   /** An idle ship is dragged from its island; dropShip ends the drag (island null: the sea). */
   dragShip(shipId: number, from: string): void;
   dropShip(island: string | null): void;
@@ -176,10 +184,14 @@ export class GameRenderer {
     this.applyMode();
 
     this.input = new PointerInput(canvas, () => this.ratio(), {
-      tap: (p, button) => this.onTap(p, button),
+      pointerDown: (kind) => this.onPointerDown(kind),
+      tap: (p, button, kind) => this.onTap(p, button, kind),
+      longPress: (p) => this.onLongPress(p),
       dragStart: (p, button) => this.onDragStart(p, button),
       dragMove: (prev, cur, button) => this.onDragMove(prev, cur, button),
       dragEnd: (p, button) => this.onDragEnd(p, button),
+      pinch: (centre, prev, scale) => this.onPinch(centre, prev, scale),
+      rotate: (steps) => this.onRotate(steps),
       cancel: () => this.onPointerCancel(),
       hover: (p) => this.onHover(p),
       wheel: (p, dy) => this.onWheel(p, dy),
@@ -652,10 +664,57 @@ export class GameRenderer {
       if (dy > 0 && this.rig.atMaxZoom()) this.events.zoomOutAtMax(dy);
       else this.events.zoomReset();
     }
-    this.rig.zoom(Math.exp(dy * 0.0015), p);
+    this.rig.zoom(Math.exp(dy * WHEEL_ZOOM_RATE), p);
   }
 
-  private onTap(p: Point, button: number): void {
+  /** Touch has no hover: a stale mouse position must not place the ghost. */
+  private onPointerDown(kind: PointerKind): void {
+    if (kind === "touch" && this.hover) this.onHover(null);
+  }
+
+  /**
+   * Two-finger pan and pinch zoom (any tool). Zooming out at the island
+   * maximum feeds the same accumulator as the wheel, in wheel delta units.
+   */
+  private onPinch(centre: Point, prev: Point, scale: number): void {
+    if (this.rig.animating()) return;
+    this.rig.pan(prev, centre);
+    if (!this.archMode) {
+      const delta = pinchZoomDelta(scale);
+      if (delta > 0 && this.rig.atMaxZoom()) this.events.zoomOutAtMax(delta);
+      else if (delta < -1) this.events.zoomReset();
+    }
+    this.rig.zoom(1 / scale, centre);
+  }
+
+  private onRotate(steps: number): void {
+    if (!this.archMode && isGhostTool(this.tool())) this.events.rotateGhost(steps);
+  }
+
+  /**
+   * Long-press inspects: a building, ship or island under the finger is
+   * selected and its panel opens; the active tool stays and nothing is
+   * placed or demolished. Empty ground or sea does nothing.
+   */
+  private onLongPress(p: Point): void {
+    if (this.rig.animating()) return;
+    const ship = this.shipUnder(p);
+    if (ship !== null) {
+      this.events.inspectShip(ship);
+      return;
+    }
+    if (this.archMode) {
+      const id = this.islandUnder(p);
+      if (id) this.events.inspectIsland(id);
+      return;
+    }
+    const t = this.tileAt(p);
+    const is = this.displayIsland();
+    const b = t && is ? buildingAt(is.buildings, this.defs, t.x, t.y) : undefined;
+    if (b) this.events.select(b.id);
+  }
+
+  private onTap(p: Point, button: number, kind: PointerKind): void {
     if (this.rig.animating()) return;
     if (this.archMode) {
       if (button !== 0) return;
@@ -677,6 +736,11 @@ export class GameRenderer {
     if (button !== 0) return;
     const t = this.tileAt(p);
     if (!t) return;
+    // Touch has no hover: a tap only positions the ghost; Confirm places it.
+    if (kind === "touch" && isGhostTool(tool)) {
+      this.events.pend(t.x, t.y);
+      return;
+    }
     switch (tool.kind) {
       case "build":
         this.events.place(t.x, t.y);
@@ -794,9 +858,10 @@ export class GameRenderer {
    */
   private updateGhost(): void {
     const tool = this.tool();
-    const ghostTool = !this.archMode && (tool.kind === "build" || tool.kind === "move" || tool.kind === "found");
+    const ghostTool = !this.archMode && isGhostTool(tool);
     const def = ghostTool ? this.defs.get(tool.buildingType) : undefined;
-    const t = this.hover && def ? this.tileAt(this.hover) : null;
+    // The touch-pending tile wins over the mouse position.
+    const t = !ghostTool || !def ? null : (tool.pending ?? (this.hover ? this.tileAt(this.hover) : null));
     if (!ghostTool || !def || !t) {
       this.ghost.setEnabled(false);
       this.setGhostHint(null);

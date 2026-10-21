@@ -32,7 +32,8 @@ import { ShipmentDialog } from "./ShipmentDialog";
 import { ShipPanel } from "./ShipPanel";
 import { ShipsPanel } from "./ShipsPanel";
 import { type Toast, Toasts } from "./Toasts";
-import { NO_TOOL, type Tool } from "./tools";
+import { DemolishBar, PlacementBar } from "./PlacementBar";
+import { type GhostTool, isGhostTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
 import { AwayDialog } from "./AwayDialog";
 import { InsolvencyBanner } from "./InsolvencyBanner";
 import { QuestsPanel } from "./QuestsPanel";
@@ -111,6 +112,19 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // id does not re-open the dialog, a new id does.
   const [closedSummaries, setClosedSummaries] = useState<ReadonlySet<number>>(() => new Set());
   const [ghostHint, setGhostHint] = useState<string | null>(null);
+  // The last pointer was a finger (pointerType per gesture, never the
+  // device): touch gets the placement confirm step and the demolish bar.
+  const [touchInput, setTouchInput] = useState(false);
+  useEffect(() => {
+    // A mouse or pen switches back only on the canvas, so that clicking a
+    // touch bar's button with the mouse does not remove it mid-click.
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === "touch") setTouchInput(true);
+      else if (e.target instanceof HTMLCanvasElement) setTouchInput(false);
+    };
+    window.addEventListener("pointerdown", onDown, { capture: true, passive: true });
+    return () => window.removeEventListener("pointerdown", onDown, { capture: true });
+  }, []);
   const [renderer, setRenderer] = useState<GameRenderer | null>(null);
   const rendererRef = useRef<GameRenderer | null>(null);
   const toastId = useRef(0);
@@ -250,42 +264,46 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     }
   };
 
+  /**
+   * Places the ghost of a build, move or found tool at a tile (a mouse
+   * click, or Confirm of a touch-pending tile). Build stays active (without
+   * a pending tile) for the next building; move and found end on success.
+   * On an error the tool stays so the player can retry.
+   */
+  const placeGhost = (t: GhostTool, x: number, y: number) => {
+    const cmd: Command =
+      t.kind === "build"
+        ? { type: "place_building", island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation }
+        : t.kind === "move"
+          ? { type: "move_building", island_id: islandId, building_id: t.buildingId, x, y, rotation: t.rotation }
+          : { type: "found_island", ship_id: t.shipId, island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation };
+    void sendCommand(cmd).then(({ ok }) => {
+      if (!ok) return;
+      // On a move the building stays selected at its new position.
+      if (t.kind === "build") setTool((cur) => (cur === t && cur.kind === "build" && cur.pending ? { ...cur, pending: undefined } : cur));
+      else setTool((cur) => (cur === t ? NO_TOOL : cur));
+    });
+  };
+
+  const confirmPlacement = () => {
+    if (isGhostTool(tool) && tool.pending) placeGhost(tool, tool.pending.x, tool.pending.y);
+  };
+
+  const rotateTool = (steps: number) =>
+    setTool((t) => (isGhostTool(t) ? { ...t, rotation: rotateSteps(t.rotation, steps) } : t));
+
   const events: RendererEvents = {
     select: (id: number | null) => dispatch({ type: "selectBuilding", id }),
     place: (x: number, y: number) => {
-      if (tool.kind !== "build") return;
-      void send({ type: "place_building", island_id: islandId, building_type: tool.buildingType, x, y, rotation: tool.rotation });
+      if (tool.kind === "build") placeGhost(tool, x, y);
     },
+    pend: (x: number, y: number) => setTool((t) => (isGhostTool(t) ? { ...t, pending: { x, y } } : t)),
+    rotateGhost: rotateTool,
     move: (x: number, y: number) => {
-      if (tool.kind !== "move") return;
-      const moving = tool;
-      void sendCommand({
-        type: "move_building",
-        island_id: islandId,
-        building_id: moving.buildingId,
-        x,
-        y,
-        rotation: moving.rotation,
-      }).then(({ ok }) => {
-        // On success the building stays selected at its new position; on an
-        // error the move tool stays active so the player can retry.
-        if (ok) setTool((t) => (t === moving ? NO_TOOL : t));
-      });
+      if (tool.kind === "move") placeGhost(tool, x, y);
     },
     found: (x: number, y: number) => {
-      if (tool.kind !== "found") return;
-      const founding = tool;
-      void sendCommand({
-        type: "found_island",
-        ship_id: founding.shipId,
-        island_id: islandId,
-        building_type: founding.buildingType,
-        x,
-        y,
-        rotation: founding.rotation,
-      }).then(({ ok }) => {
-        if (ok) setTool((t) => (t === founding ? NO_TOOL : t));
-      });
+      if (tool.kind === "found") placeGhost(tool, x, y);
     },
     road: (from: TilePos, to: TilePos) => {
       if (tool.kind !== "road" || !island) return;
@@ -316,6 +334,14 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       dispatch({ type: "tapShip", id });
     },
     tapSea: () => dispatch({ type: "tapSea" }),
+    inspectShip: (id: number) => {
+      setPanel("none");
+      dispatch({ type: "selectShip", id });
+    },
+    inspectIsland: (id: string) => {
+      setPanel("none");
+      dispatch({ type: "selectIsland", id });
+    },
     dragShip: (shipId: number, from: string) => dispatch({ type: "dragShip", shipId, from }),
     dropShip: (to: string | null) => dispatch({ type: "dropShip", island: to }),
   };
@@ -388,7 +414,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         e.preventDefault();
         dispatch({ type: "keyBack" });
       } else if (e.key === "r" || e.key === "R") {
-        setTool((x) => (x.kind === "build" || x.kind === "move" || x.kind === "found" ? { ...x, rotation: nextRotation(x.rotation) } : x));
+        setTool((x) => (isGhostTool(x) ? { ...x, rotation: nextRotation(x.rotation) } : x));
       }
     };
     window.addEventListener("keydown", onKey);
@@ -568,13 +594,19 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     }
   }
 
+  // Touch affordances: shown for touch input (the last pointer was a finger).
+  const touchUI = touchInput;
+  const placementBar = !archView && touchUI && isGhostTool(tool);
+  const demolishBar = !archView && touchUI && tool.kind === "demolish";
+  const verb = touchUI ? "Tap" : "Click";
+
   let archHint = "";
   if (archView) {
     const sh = vs.shipment;
-    if (sh.kind === "awaitingTarget") archHint = `Click the destination island for ship #${sh.shipId} · Esc cancels`;
+    if (sh.kind === "awaitingTarget") archHint = `${verb} the destination island for ship #${sh.shipId} · Esc cancels`;
     else if (sh.kind === "dragging") archHint = `Drop ship #${sh.shipId} on an island to send it · the sea cancels`;
-    else if (editor?.active) archHint = "Click islands to add stops · Esc closes the editor";
-    else archHint = "Click an island to select it, again to enter · drag an idle ship onto an island to send it";
+    else if (editor?.active) archHint = `${verb} islands to add stops · Esc closes the editor`;
+    else archHint = `${verb} an island to select it, again to enter · drag an idle ship onto an island to send it`;
   }
 
   return (
@@ -596,6 +628,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
           />
           <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} />
+          {placementBar && isGhostTool(tool) && (
+            <PlacementBar tool={tool} hint={ghostHint} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
+          )}
+          {demolishBar && <DemolishBar onDone={() => setTool(NO_TOOL)} />}
         </div>
         <div className={styles.left}>
           {model && content && (
@@ -649,7 +685,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {archHint}
         </div>
       )}
-      {!archView && tool.kind !== "none" && (
+      {!archView && tool.kind !== "none" && !placementBar && !demolishBar && (
         <div className={styles.hint} data-testid="tool-hint">
           {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
           {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
