@@ -136,6 +136,48 @@ test("one-finger pan moves the island view by the drag", async ({ page }) => {
   expect(Math.abs(after.y - before.y - -40)).toBeLessThan(4);
 });
 
+/** Blocks the main thread for `ms` in every animation frame (a slow runner or phone). */
+async function jank(page: Page, ms: number): Promise<void> {
+  await page.evaluate((busy) => {
+    const loop = () => {
+      const end = performance.now() + busy;
+      while (performance.now() < end);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }, ms);
+}
+
+test("gestures on a janky main thread: pan, tap and long-press keep their meaning", async ({ page, browserName }) => {
+  // On the GitHub runner every frame took hundreds of ms: a drag became a
+  // long-press, and a held finger could be read as a tap. Event times decide.
+  test.skip(browserName !== "chromium", "real touch events through CDP");
+  test.setTimeout(120_000);
+  await page.goto("/?fixture=dense-2x400");
+  await expectView(page, DENSE);
+  await page.getByTestId("build-tab-production").tap();
+  await page.getByTestId("build-woodcutter").tap();
+  const ref = { x: 30, y: 25 };
+  const house = await denseBuilding(page, "house", 0.32, 0.6);
+  await jank(page, 500);
+  // With a build tool: a tap positions the ghost, a long-press only inspects.
+  await touch.tap(await tile(page, DENSE, { x: 30, y: 24 }));
+  await expect(page.getByTestId("placement-hint")).toContainText("30, 24");
+  await touch.longPress(house.at);
+  await expect(page.getByTestId("info-name")).toHaveText("House");
+  await expect(page.getByTestId("placement-hint")).toContainText("30, 24"); // the long-press placed nothing
+  await page.getByTestId("placement-cancel").tap();
+  await page.getByTestId("sheet-close").tap();
+  await expect(page.getByTestId("sheet")).toHaveCount(0);
+  // Without a tool: a one-finger drag pans by exactly the drag.
+  const before = await tile(page, DENSE, ref);
+  const a = await freeCanvasPoint(page);
+  await touch.drag(a, { x: a.x - 80, y: a.y - 40 });
+  const after = await tile(page, DENSE, ref);
+  expect(Math.abs(after.x - before.x - -80)).toBeLessThan(4);
+  expect(Math.abs(after.y - before.y - -40)).toBeLessThan(4);
+});
+
 test("pinch zooms; pinching out at the maximum switches to the archipelago; tap back in", async ({ page }) => {
   test.skip(!touch.multiTouch, "no multi-touch emulation in this browser");
   await page.goto("/?fixture=dense-2x400");
