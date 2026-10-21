@@ -169,12 +169,19 @@ service before the servers start.
   installability check) and `touch-webkit` (iPhone 12; needs
   `npx playwright install webkit`), and `perf` (the dense fixture under
   4× CPU throttling; logs fps, frame times, draw calls, JS heap, WebGL
-  renderer and bundle size and asserts `PERF_MIN_FPS` in
+  renderer and bundle size and asserts an fps threshold: the
+  `PERF_MIN_FPS` environment variable, default 27 from
   `client/e2e/perf.spec.ts`). Single projects:
   `npx playwright test --project=perf` (add `--no-deps` to skip the
   desktop projects a touch project depends on). Headless Chromium renders
   with SwiftShader (software); `PERF_GPU=1` runs the perf project with
   hardware WebGL flags for comparison (its fps threshold is not asserted).
+- **Perf threshold on slower machines:** software WebGL is CPU-bound, so
+  the default 27 fps (Apple M4 Pro) can be too high elsewhere. Do not
+  disable the check; read the `PERF 412x915@2.625 {"fps":…}` line of a
+  run and set `PERF_MIN_FPS` to that fps × 0.8, rounded down — locally
+  `PERF_MIN_FPS=20 npm run test:e2e`, in CI the `PERF_MIN_FPS` value of
+  the e2e step in `.github/workflows/ci.yaml` (a one-line change).
 - **Opt-in measurements:** `MEASURE_TTFI=1 npx playwright test e2e/ttfi.spec.ts`
   (time to first interaction) and
   `MEASURE_LIGHTHOUSE=1 npx playwright test e2e/lighthouse.spec.ts`
