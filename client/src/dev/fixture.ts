@@ -9,6 +9,10 @@
 // 40 on the other), a road grid, ≥ 60 producers that draw moving carts,
 // 16 fields of two types (D-049) and 2 ships on legs; the camera starts on
 // the dense island (near LOD, the mobile budget of FIRST_PLAYABLE §3).
+// Below the town lie a forest belt (woodcutters with a forest work area
+// thin it) and a rocky headland with two deposits meeting the water, and
+// the coast is ragged — the terrain and decoration layers of the art
+// direction are part of the budget.
 // ?fixture=dense-archipelago-8: 8 islands at archipelago positions like
 // archipelago-8x20, two of them dense (the dense-2x400 town each), four
 // silhouette-only and two with 30 buildings, ships on legs and 2 routes;
@@ -223,16 +227,48 @@ export function buildArchipelagoFixture(nowMs: number): Built {
 export const DENSE_ISLAND = "dense1";
 const DENSE_GOODS = ["wood", "planks", "fish", "tools"];
 
-/** A rectangular island: water border, a coast ring, grass inside. */
+/** The first row below the town's last road row (dense islands). */
+function belowTown(height: number): number {
+  let last = 4;
+  for (let y = 4; y <= height - 5; y += 5) last = y;
+  return last + 1;
+}
+
+/** Forest belt (x range) and rocky headland (x range) below the town of a dense island. */
+function denseZones(width: number) {
+  return { forest: [4, Math.floor(width * 0.62)] as const, rock: [Math.ceil(width * 0.69), width - 6] as const };
+}
+
+/**
+ * A dense island: water border, a ragged coast ring and grass inside; below
+ * the town a forest belt and a rocky headland down to the water.
+ */
 function blockTerrain(width: number, height: number): Terrain[] {
+  const below = belowTown(height);
+  const z = denseZones(width);
+  const r = rng(width * 131 + height);
   const out: Terrain[] = [];
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const edge = Math.min(x, y, width - 1 - x, height - 1 - y);
-      out.push(edge === 0 ? "water" : edge === 1 ? "coast" : (x * 5 + y * 3) % 23 === 0 ? "forest" : "grass");
+      const ragged = r() < 0.3;
+      let t: Terrain = edge === 0 ? "water" : edge === 1 ? (ragged && x !== 2 && x !== width - 3 ? "water" : "coast") : (x * 5 + y * 3) % 23 === 0 ? "forest" : "grass";
+      if (y >= below && y <= height - 3 && x >= z.forest[0] && x <= z.forest[1]) t = "forest";
+      if (y >= below && y <= height - 2 && x >= z.rock[0] && x <= z.rock[1]) t = "mountain";
+      out.push(t);
     }
   }
   return out;
+}
+
+/** Two deposits on the rocky headland of a dense island. */
+function denseDeposits(width: number, height: number): Island["deposits"] {
+  const z = denseZones(width);
+  const y = Math.min(height - 3, belowTown(height) + 1);
+  return [
+    { x: z.rock[0] + 1, y, kind: "stone" },
+    { x: Math.min(z.rock[1], z.rock[0] + 5), y, kind: "iron" },
+  ];
 }
 
 /** Synthetic building definitions (all 2 × 2) for the renderer and the HUD. */
@@ -258,7 +294,10 @@ function denseContent(): Content {
     goods: DENSE_GOODS.map((g) => ({ id: g, name: g[0]?.toUpperCase() + g.slice(1) })),
     buildings: [
       def("house", "House", "houses", { house: { tier: "settlers" } }),
-      def("woodcutter", "Woodcutter", "production", { recipe: { inputs: [], outputs: [{ good: "wood", amount: 1_000 }], cycle_ms: 20_000 } }),
+      def("woodcutter", "Woodcutter", "production", {
+        recipe: { inputs: [], outputs: [{ good: "wood", amount: 1_000 }], cycle_ms: 20_000 },
+        work_area: { radius: 4, terrain: ["forest"] },
+      }),
       def("sawmill", "Sawmill", "production", {
         recipe: { inputs: [{ good: "wood", amount: 1_000 }], outputs: [{ good: "planks", amount: 1_000 }], cycle_ms: 20_000 },
       }),
@@ -388,7 +427,7 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     workforce: {},
     population: { settlers: buildings.filter((b) => b.type === "house").length * 8_000 },
   } as IslandDisplay;
-  const statics: Island = { id, width, height, revision: "fixture", terrain: blockTerrain(width, height), fertilities: ["wheat"], deposits: [] };
+  const statics: Island = { id, width, height, revision: "fixture", terrain, fertilities: ["wheat"], deposits: denseDeposits(width, height) };
   return { display, statics };
 }
 
