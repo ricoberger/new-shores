@@ -10,6 +10,7 @@ export interface WorkerLike {
 }
 
 export interface RegistrationLike {
+  readonly active: WorkerLike | null;
   readonly waiting: WorkerLike | null;
   readonly installing: WorkerLike | null;
   addEventListener(type: "updatefound", listener: () => void): void;
@@ -33,19 +34,36 @@ export class UpdateFlow {
     private readonly reload: () => void,
   ) {}
 
-  /** Watches a registration for installed updates (also one already waiting). */
+  /**
+   * Watches a registration for installed updates (also one already
+   * waiting). The first worker of a registration (none active yet) is
+   * never an update, even if a browser reports it installed only after it
+   * took control (WebKit's event order).
+   */
   watch(reg: RegistrationLike): void {
-    if (reg.waiting) this.offer(reg.waiting);
+    let first: WorkerLike | null = null;
+    let firstPending = false;
+    if (!reg.active) {
+      first = reg.installing ?? reg.waiting;
+      firstPending = first === null;
+    } else if (reg.waiting) {
+      this.offer(reg.waiting);
+    }
     reg.addEventListener("updatefound", () => {
       const w = reg.installing;
-      if (!w) return;
+      if (!w || w === first) return;
+      if (firstPending) {
+        firstPending = false;
+        first = w;
+        return;
+      }
       w.addEventListener("statechange", () => {
         if (w.state === "installed") this.offer(w);
       });
     });
   }
 
-  /** A first install (no controller yet) is not an update. */
+  /** Without a controlling worker there is nothing to update. */
   private offer(w: WorkerLike): void {
     if (!this.container.controller) return;
     this.waiting = w;

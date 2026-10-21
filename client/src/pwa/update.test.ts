@@ -18,6 +18,7 @@ class FakeWorker implements WorkerLike {
 }
 
 class FakeRegistration implements RegistrationLike {
+  active: WorkerLike | null = null;
   waiting: WorkerLike | null = null;
   installing: WorkerLike | null = null;
   private readonly ls: (() => void)[] = [];
@@ -49,6 +50,7 @@ function setup(controlled: boolean) {
   let notified = 0;
   flow.subscribe(() => notified++);
   const reg = new FakeRegistration();
+  if (controlled) reg.active = new FakeWorker();
   return { container, flow, reg, reloads: () => reloads, notified: () => notified };
 }
 
@@ -72,6 +74,32 @@ describe("UpdateFlow", () => {
     t.reg.found(w);
     w.set("installed");
     expect(t.flow.available()).toBe(false);
+  });
+
+  it("never offers the first worker of a registration, even if it reports installed after taking control", () => {
+    // WebKit: the page is controlled (clients.claim) before the first
+    // worker's "installed" state change is delivered.
+    const t = setup(false);
+    t.flow.watch(t.reg);
+    const w = new FakeWorker();
+    t.reg.found(w);
+    t.container.controller = {};
+    w.set("installed");
+    expect(t.flow.available()).toBe(false);
+    // The first worker was already installing when the page started watching.
+    const u = setup(false);
+    const first = new FakeWorker();
+    u.reg.installing = first;
+    u.flow.watch(u.reg);
+    u.reg.found(first);
+    u.container.controller = {};
+    first.set("installed");
+    expect(u.flow.available()).toBe(false);
+    // A later worker is an update.
+    const next = new FakeWorker();
+    u.reg.found(next);
+    next.set("installed");
+    expect(u.flow.available()).toBe(true);
   });
 
   it("offers a worker that was already waiting at registration", () => {
