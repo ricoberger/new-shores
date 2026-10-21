@@ -434,9 +434,16 @@ export class GameRenderer {
     this.rig.animateTo({ x: to.x, y: to.y, half }, JUMP_MS, performance.now());
   }
 
-  /** Input is ignored: a camera jump runs or the press began during one. */
+  /** Pointer input is ignored: a camera jump runs or the current press began during one. */
   private blocked(): boolean {
     return this.gestureIgnored || this.rig.animating();
+  }
+
+  /** The current press ended (tap, drag end, cancel): whether it was ignored; the latch is released. */
+  private endPress(): boolean {
+    const blocked = this.blocked();
+    this.gestureIgnored = false;
+    return blocked;
   }
 
   /**
@@ -722,7 +729,8 @@ export class GameRenderer {
   // Input ------------------------------------------------------------------------
 
   private onWheel(p: Point, dy: number): void {
-    if (this.blocked()) return;
+    // The wheel is not part of a press: only a running jump ignores it.
+    if (this.rig.animating()) return;
     this.rig.zoom(Math.exp(dy * WHEEL_ZOOM_RATE), p);
   }
 
@@ -809,7 +817,7 @@ export class GameRenderer {
   }
 
   private onTap(p: Point, button: number, kind: PointerKind): void {
-    if (this.blocked()) return;
+    if (this.endPress()) return;
     const tool = this.tool();
     if (button === 2) {
       if (tool.kind !== "none") this.events.cancelTool();
@@ -923,6 +931,7 @@ export class GameRenderer {
 
   /** The pointer's press or drag was cancelled: drop any ship drag, road or field preview. */
   private onPointerCancel(): void {
+    this.gestureIgnored = false;
     this.roadStart = null;
     this.roadPreview.set([]);
     this.fieldStart = null;
@@ -951,7 +960,7 @@ export class GameRenderer {
   }
 
   private onDragEnd(p: Point, button: number): void {
-    if (this.blocked()) {
+    if (this.endPress()) {
       this.onPointerCancel();
       return;
     }
