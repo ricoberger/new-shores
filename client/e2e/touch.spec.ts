@@ -86,6 +86,27 @@ async function centreOn(page: Page, t: Point): Promise<void> {
   }
 }
 
+/**
+ * Unassigns every ship from its route by touch and waits until none sails:
+ * arrivals are server events that change the world version, so the
+ * "nothing was sent" checks below compare versions of a quiet world.
+ */
+async function quietWorld(page: Page): Promise<void> {
+  await page.goto("/");
+  await dismissAwayDialog(page);
+  const routed = await page.evaluate(() => window.__newShores!.getServer()!.display.ships.filter((s) => s.route_id !== 0).map((s) => s.id));
+  for (const id of routed) {
+    await page.getByTestId("hud-ships").tap();
+    await page.getByTestId(`ship-${id}`).tap();
+    await page.getByTestId("ship-panel-unassign").tap();
+    await expect(page.getByTestId("ship-panel-route")).toContainText("none");
+    await page.getByTestId("sheet-close").tap();
+  }
+  await expect
+    .poll(() => page.evaluate(() => window.__newShores!.getServer()!.display.ships.every((s) => s.leg === null)), { timeout: 60_000 })
+    .toBe(true);
+}
+
 /** The start island on the phone, centred on the touch tiles. */
 async function openWorld(page: Page): Promise<void> {
   await page.goto("/");
@@ -275,7 +296,9 @@ test("every HUD control is at least 44 Ã— 44 px; no horizontal overflow at 360 Ã
 // World flows (dev server, shared world; after the away project).
 
 test("place a building by tap + Confirm; a tap alone or a long-press never places", async ({ page, browserName }) => {
+  test.setTimeout(150_000);
   const target = browserName === "chromium" ? TOUCH_HOUSE : TOUCH_HOUSE_WEBKIT;
+  await quietWorld(page);
   await openWorld(page);
   const v0 = await version(page);
   await page.getByTestId("build-tab-houses").tap();
