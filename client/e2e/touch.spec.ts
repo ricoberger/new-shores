@@ -216,6 +216,32 @@ test("long-press opens the info panel over an open list sheet and keeps the tool
   await expect(page.getByTestId("placement-confirm")).toBeDisabled();
 });
 
+test("a mouse or pen taking over drops the touch-pending tile; the ghost follows the pointer", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "mouse and touch in one context: Chromium project");
+  await page.goto("/?fixture=dense-2x400");
+  await expectView(page, DENSE);
+  await page.getByTestId("build-tab-production").tap();
+  await page.getByTestId("build-woodcutter").tap();
+  const ghost = () => page.evaluate(() => window.__newShores!.ghostTile());
+  const a = { x: 30, y: 24 };
+  const b = { x: 26, y: 26 };
+  await touch.tap(await tile(page, DENSE, a));
+  await expect.poll(ghost).toEqual(a);
+  await expect(page.getByTestId("placement-confirm")).toBeEnabled();
+  // The mouse hovers another tile.
+  const pb = await tile(page, DENSE, b);
+  await page.mouse.move(pb.x, pb.y);
+  await expect.poll(ghost).toEqual(b);
+  await expect(page.getByTestId("placement-confirm")).toBeDisabled();
+  // The mouse click places where the ghost is (the read-only fixture rejects the command).
+  await page.mouse.click(pb.x, pb.y);
+  expect(await ghost()).toEqual(b);
+  await expect(page.getByTestId("toast").first()).toContainText("place_building");
+  // Touch again: a tap positions the ghost on the tapped tile.
+  await touch.tap(await tile(page, DENSE, a));
+  await expect.poll(ghost).toEqual(a);
+});
+
 test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the camera", async ({ page }) => {
   await page.goto("/?fixture=dense-2x400");
   await expectView(page, DENSE);

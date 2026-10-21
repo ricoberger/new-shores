@@ -57,6 +57,8 @@ export interface RendererEvents {
   place(x: number, y: number): void;
   /** Touch: a tap put the placement ghost on a tile; Confirm places it. */
   pend(x: number, y: number): void;
+  /** A mouse or pen took over: the touch-pending tile is dropped (the ghost follows the pointer). */
+  unpend(): void;
   /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed). */
   rotateGhost(steps: number): void;
   move(x: number, y: number): void;
@@ -121,6 +123,9 @@ export class GameRenderer {
   private deposits = new Map<string, string>();
   private fertilities: readonly string[] = [];
   private lastGhostHint: string | null = null;
+  /** The last pointer was a mouse or pen (the ghost follows it, not a touch-pending tile). */
+  private precise = false;
+  private ghostAt: TilePos | null = null;
   private readonly input: PointerInput;
   private readonly unsubscribe: () => void;
   private terrain: Mesh[] = [];
@@ -269,6 +274,7 @@ export class GameRenderer {
 
   private onHover(p: Point | null): void {
     this.hover = p;
+    if (p) this.takePrecisePointer();
     if (this.hoverListeners.size === 0) return;
     let id: string | null = null;
     let at: { x: number; y: number } | null = null;
@@ -681,9 +687,33 @@ export class GameRenderer {
     this.rig.zoom(Math.exp(dy * WHEEL_ZOOM_RATE), p);
   }
 
-  /** Touch has no hover: a stale mouse position must not place the ghost. */
+  /**
+   * Touch has no hover: a stale mouse position must not place the ghost.
+   * A mouse or pen press takes over from a pending touch tile.
+   */
   private onPointerDown(kind: PointerKind): void {
-    if (kind === "touch" && this.hover) this.onHover(null);
+    if (kind === "touch") {
+      this.precise = false;
+      if (this.hover) this.onHover(null);
+    } else {
+      this.takePrecisePointer();
+    }
+  }
+
+  /**
+   * A mouse or pen is in use: the ghost follows it at once (also before
+   * the UI state drops the pending tile), so a click places exactly what
+   * the preview shows.
+   */
+  private takePrecisePointer(): void {
+    this.precise = true;
+    const tool = this.tool();
+    if (isGhostTool(tool) && tool.pending) this.events.unpend();
+  }
+
+  /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
+  ghostTile(): TilePos | null {
+    return this.ghostAt;
   }
 
   /**
@@ -874,8 +904,10 @@ export class GameRenderer {
     const tool = this.tool();
     const ghostTool = !this.archMode && isGhostTool(tool);
     const def = ghostTool ? this.defs.get(tool.buildingType) : undefined;
-    // The touch-pending tile wins over the mouse position.
-    const t = !ghostTool || !def ? null : (tool.pending ?? (this.hover ? this.tileAt(this.hover) : null));
+    // Touch: the pending tile; mouse or pen: the tile under the pointer.
+    const hovered = this.hover ? this.tileAt(this.hover) : null;
+    const t = !ghostTool || !def ? null : this.precise ? hovered : (tool.pending ?? hovered);
+    this.ghostAt = t;
     if (!ghostTool || !def || !t) {
       this.ghost.setEnabled(false);
       this.setGhostHint(null);

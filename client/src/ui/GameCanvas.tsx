@@ -39,6 +39,7 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Prop
         select: (id) => ev().select(id),
         place: (x, y) => ev().place(x, y),
         pend: (x, y) => ev().pend(x, y),
+        unpend: () => ev().unpend(),
         rotateGhost: (steps) => ev().rotateGhost(steps),
         move: (x, y) => ev().move(x, y),
         found: (x, y) => ev().found(x, y),
