@@ -37,6 +37,12 @@ import { buildTerrain } from "./terrain";
 
 /** Duration of the island ↔ archipelago camera transition (≤ 400 ms). */
 export const TRANSITION_MS = 350;
+/**
+ * Render resolution cap (render pixels per CSS pixel). High-DPR phones
+ * (2.6–3) would otherwise shade 2–4× the pixels for little visible gain
+ * on flat low-poly meshes; measured in the M3 perf notes.
+ */
+export const MAX_RENDER_DPR = 1.5;
 /** Pick radius of ships (CSS pixels). */
 const SHIP_PICK_PX = 18;
 /** Margin (tiles) around the islands for the archipelago camera bounds. */
@@ -153,7 +159,9 @@ export class GameRenderer {
     private readonly events: RendererEvents,
     initialView: RenderView = { kind: "island", id: "" },
   ) {
-    this.engine = new Engine(canvas, true, { stencil: false, preserveDrawingBuffer: false }, true);
+    // The canvas renders at most MAX_RENDER_DPR pixels per CSS pixel (HTML
+    // text and the HUD stay at the device resolution).
+    this.engine = new Engine(canvas, true, { stencil: false, preserveDrawingBuffer: false, limitDeviceRatio: MAX_RENDER_DPR }, true);
     this.scene = new Scene(this.engine);
     this.scene.clearColor = new Color4(0.12, 0.27, 0.42, 1);
     this.scene.skipPointerMovePicking = true;
