@@ -50,6 +50,7 @@ export function buildTerrain(scene: Scene, island: Island, parent: TransformNode
       mesh.material = material;
       mesh.parent = parent;
       mesh.isPickable = false;
+      mesh.receiveShadows = true;
       mesh.freezeWorldMatrix();
       meshes.push(mesh);
     }

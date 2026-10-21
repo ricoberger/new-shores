@@ -23,6 +23,7 @@ import type { Rect } from "../display/camera";
 import type { Lod } from "../display/lod";
 import { anchorSlots, type ArchPoint, berthAnchor, type Berths, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
 import { footprintBox } from "./coords";
+import { BlobLayer, blobMatrix } from "./shadows";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { ARROW_BRIGHT, ARROW_DIM, DRAFT_COLOR, HAZE, ROUTE_COLORS, colorTuple, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { BUILDINGS, WATER } from "../theme/palette";
@@ -210,6 +211,9 @@ export class ArchipelagoLayer {
   private readonly landmarks: ColoredInstances;
   private readonly routeLines = new Map<string, RouteLine>();
   private readonly ring: Mesh;
+  /** Blob shadows of the ships at near and mid LOD (matrices rewritten every frame). */
+  private readonly shipBlobs: BlobLayer;
+  private shipBlobBuffer = new Float32Array(0);
   private placements = new Map<string, IslandPlacement>();
   private islandList: IslandDisplay[] = [];
   private defs: ReadonlyMap<string, ContentBuilding> = new Map();
@@ -265,6 +269,9 @@ export class ArchipelagoLayer {
     tower.isPickable = false;
     tower.alwaysSelectAsActiveMesh = true;
     this.landmarks = new ColoredInstances(tower);
+
+    this.shipBlobs = new BlobLayer(scene, "blob_ships", null, 0.45);
+    this.shipBlobs.mesh.alwaysSelectAsActiveMesh = true;
 
     this.ring = CreateTorus("arch_selection", { diameter: 1, thickness: 0.06, tessellation: 32 }, scene);
     const ringMat = new StandardMaterial("arch_selection", scene);
@@ -542,6 +549,13 @@ export class ArchipelagoLayer {
     this.shipStyles.clear();
     const scale = this.shipScale();
     const y = this.lod === "far" ? SHIP_Y_FAR : SHIP_Y;
+    const blobs = this.lod !== "far";
+    if (blobs && this.shipBlobBuffer.length !== this.shipList.length * 16) {
+      this.shipBlobBuffer = new Float32Array(this.shipList.length * 16);
+      this.shipBlobs.set(this.shipList.length ? this.shipBlobBuffer : null);
+    }
+    this.shipBlobs.setEnabled(blobs && this.shipList.length > 0);
+    let blob = 0;
     for (const [type, list] of byType) {
       const inst = this.shipInstances(type);
       inst.resize(list.length);
@@ -551,12 +565,14 @@ export class ArchipelagoLayer {
         if (this.dragged?.shipId === s.id) point = this.dragged.point;
         this.shipPoints.set(s.id, point);
         shipMatrix(inst.matrices, i, point.x, y, -point.y, p?.heading ?? 0, p ? scale : 0);
+        if (blobs) blobMatrix(this.shipBlobBuffer, blob++, point.x, -point.y, p ? 1.25 * scale : 0, p ? 0.5 * scale : 0, 0.5 * scale, p?.heading ?? 0);
         const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
         this.shipStyles.set(s.id, style);
         inst.setColor(i, shipColor(style));
       });
       inst.commit();
     }
+    if (blobs && blob > 0) this.shipBlobs.mesh.thinInstanceBufferUpdated("matrix");
     this.placeRing();
   }
 

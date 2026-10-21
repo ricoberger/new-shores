@@ -40,8 +40,10 @@ export const TERRAIN_COLORS: Record<Terrain, Color3> = {
 export const UNKNOWN_TERRAIN = Color3.FromHexString("#FF00FF");
 
 /** Wall and roof materials of the procedural placeholder buildings. */
-const WALLS = [BUILDINGS.plaster, BUILDINGS.ochre, BUILDINGS.stone, BUILDINGS.thatch];
-const ROOFS = [BUILDINGS.terracotta, BUILDINGS.slate, BUILDINGS.timber];
+const WALLS = [BUILDINGS.plaster, BUILDINGS.ochre, BUILDINGS.stone];
+const ROOFS = [BUILDINGS.terracotta, BUILDINGS.thatch, BUILDINGS.slate];
+/** Houses: the warm roofs of the tier language (thatch, terracotta). */
+const HOUSE_ROOFS = [BUILDINGS.terracotta, BUILDINGS.thatch];
 
 function hashId(id: string): number {
   let h = 0;
@@ -55,8 +57,9 @@ export function buildingColor(id: string): Color4 {
 }
 
 /** A stable roof colour per content ID (varies independently of the wall). */
-export function roofColor(id: string): Color4 {
-  return c4(ROOFS[Math.floor(hashId(id) / WALLS.length) % ROOFS.length] ?? BUILDINGS.terracotta);
+export function roofColor(id: string, category = ""): Color4 {
+  const roofs = category === "houses" ? HOUSE_ROOFS : ROOFS;
+  return c4(roofs[Math.floor(hashId(id) / WALLS.length) % roofs.length] ?? BUILDINGS.terracotta);
 }
 
 export const DOOR = c3(BUILDINGS.timber);

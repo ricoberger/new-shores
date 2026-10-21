@@ -3,15 +3,15 @@
 // cleanup). One continuous world (D-048): every island at its archipelago
 // position with sea between, one free camera (pan, continuous zoom, four
 // 90° rotation steps), zoom-based LOD and frustum culling per island.
-// Renders only what the payloads contain — no shadows, sky or
-// post-processing. Scene coordinates are archipelago coordinates: island
+// Fixed golden-hour light with blob shadows everywhere and, at "high"
+// quality (desktop layout), a sun shadow map, warm grading and FXAA
+// (render/lighting.ts). Scene coordinates are archipelago coordinates: island
 // tile (x, y) of an island at `position` is world
 // (position.x + x, 0, −(position.y + y)).
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { EngineStore } from "@babylonjs/core/Engines/engineStore";
-import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
+import { Color4 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -23,6 +23,7 @@ import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "..
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import { initialLod, type Lod, lodFor } from "../display/lod";
+import type { Quality } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
@@ -36,6 +37,7 @@ import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
+import { type Effects, SceneLighting } from "./lighting";
 import { RoadPreview } from "./roads";
 import type { ShipStyle } from "./shipmesh";
 
@@ -135,6 +137,7 @@ export class GameRenderer {
   private readonly engine: Engine;
   private readonly scene: Scene;
   private readonly rig: CameraRig;
+  private readonly lighting: SceneLighting;
   private readonly arch: ArchipelagoLayer;
   private readonly details = new Map<string, IslandDetail>();
   private readonly fields: FieldLayer;
@@ -187,6 +190,7 @@ export class GameRenderer {
     private readonly tool: () => Tool,
     private readonly events: RendererEvents,
     private readonly initialCamera: InitialCamera = { kind: "island" },
+    quality: Quality = "high",
   ) {
     // The canvas renders at most MAX_RENDER_DPR pixels per CSS pixel (HTML
     // text and the HUD stay at the device resolution).
@@ -194,10 +198,8 @@ export class GameRenderer {
     this.scene = new Scene(this.engine);
     this.scene.clearColor = new Color4(HAZE.r, HAZE.g, HAZE.b, 1);
     this.scene.skipPointerMovePicking = true;
-    const light = new HemisphericLight("light", new Vector3(0.3, 1, -0.5), this.scene);
-    light.intensity = 0.95;
-    light.groundColor = new Color3(0.45, 0.45, 0.5);
     this.rig = new CameraRig(this.scene, this.engine);
+    this.lighting = new SceneLighting(this.scene, this.rig.camera, quality);
     this.arch = new ArchipelagoLayer(this.scene);
     this.fields = new FieldLayer(this.scene);
     this.roadPreview = new RoadPreview(this.scene);
@@ -325,6 +327,28 @@ export class GameRenderer {
     let n = 0;
     for (const d of this.details.values()) n += d.cartCount();
     return n;
+  }
+
+  /** Render quality (high: shadow map, grading, FXAA; low: blob shadows and vignette only). */
+  setQuality(q: Quality): void {
+    this.lighting.setQuality(q);
+    this.refreshCasters();
+  }
+
+  quality(): Quality {
+    return this.lighting.quality();
+  }
+
+  /** Which quality-dependent effects exist (tests). */
+  effects(): Effects {
+    return this.lighting.effects();
+  }
+
+  /** Shadow-map casters: the islands shown at near LOD. */
+  private refreshCasters(): void {
+    const out = [];
+    for (const d of this.details.values()) out.push(...d.shadowCasters());
+    this.lighting.setCasters(out);
   }
 
   /** Draw calls of the last frame. */
@@ -484,6 +508,7 @@ export class GameRenderer {
       if (shown) d = this.ensureDetail(is, snap);
       d?.setShown(shown, this.lod);
     }
+    this.refreshCasters();
   }
 
   /** The detail of an island, created and brought up to date with its payload (null without content or statics). */

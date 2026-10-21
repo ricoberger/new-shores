@@ -22,7 +22,7 @@ function faces(c: Color4, n: number): Color4[] {
 /** Builds the unit-footprint template of a building (scaled per instance). */
 function template(scene: Scene, def: ContentBuilding): Mesh {
   const body = buildingColor(def.id);
-  const roofC = roofColor(def.id);
+  const roofC = roofColor(def.id, def.category);
   const parts: Mesh[] = [];
   const box = (w: number, h: number, d: number, y: number, c: Color4, x = 0, z = 0) => {
     const m = CreateBox(`${def.id}_part`, { width: w, height: h, depth: d, faceColors: faces(c, 6) }, scene);
@@ -42,7 +42,8 @@ function template(scene: Scene, def: ContentBuilding): Mesh {
   switch (def.category) {
     case "houses": {
       box(0.8, 0.45, 0.8, 0.225, body);
-      const roof = cyl(0, 0.95, 0.8, 4, 0.65, roofC);
+      // A hip roof covering the whole body (a 4-sided cone, base 0.8 × 0.8).
+      const roof = cyl(0, 0.8 * Math.SQRT2, 0.5, 4, 0.7, roofC);
       roof.rotation.y = Math.PI / 4;
       break;
     }
@@ -134,6 +135,11 @@ export class BuildingLayer {
       setInstances(mesh, new Float32Array(arr));
     }
     setInstances(this.doors, doors.length ? new Float32Array(doors) : null);
+  }
+
+  /** The building meshes drawn (shadow casters). */
+  meshes(): Mesh[] {
+    return [...this.templates.values()].filter((m) => m.isVisible);
   }
 
   select(b: BuildingDisplay | undefined, def: ContentBuilding | undefined): void {

@@ -5,6 +5,7 @@
 // island is first shown at near or mid LOD) and rebuilt on payload changes
 // while shown. The level of detail toggles layers: near shows everything,
 // mid shows terrain, roads and flat category blocks only.
+import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
@@ -16,8 +17,15 @@ import { CartLayer } from "./carts";
 import { FieldTiles } from "./fields";
 import { ConstructionLayer } from "./harbour";
 import { IconLayer } from "./icons";
+import { footprintBox } from "./coords";
 import { RoadLayer } from "./roads";
+import { BlobLayer, blobMatrix } from "./shadows";
 import { buildTerrain } from "./terrain";
+
+/** Blob shadow of a building: its rotated footprint plus this margin (tiles). */
+const BUILDING_BLOB_MARGIN = 0.35;
+/** Height (tiles) the blob shadows of buildings lean for. */
+const BUILDING_HEIGHT = 0.7;
 
 export class IslandDetail {
   readonly root: TransformNode;
@@ -30,6 +38,7 @@ export class IslandDetail {
   private readonly icons: IconLayer;
   private readonly construction: ConstructionLayer;
   private readonly blocks: BlockLayer;
+  private readonly buildingBlobs: BlobLayer;
   private terrain: Mesh[] = [];
   private terrainKey = "";
   /** The display payload and content the layers were built from (identity). */
@@ -55,6 +64,7 @@ export class IslandDetail {
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near);
     this.blocks = new BlockLayer(scene, this.mid);
+    this.buildingBlobs = new BlobLayer(scene, `blob_buildings_${id}`, this.root, 0.5);
     this.mid.setEnabled(false);
     this.root.setEnabled(false);
   }
@@ -91,6 +101,27 @@ export class IslandDetail {
     this.icons.update(display.buildings, defs);
     this.construction.update(display, defs);
     this.blocks.update(display.buildings, defs);
+    this.updateBlobs(display, defs);
+  }
+
+  /** Blob shadows under every building (near and mid LOD). */
+  private updateBlobs(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
+    const list = display.buildings.filter((b) => {
+      const def = defs.get(b.type);
+      return def && def.category !== "roads" && !def.field;
+    });
+    const out = new Float32Array(list.length * 16);
+    list.forEach((b, i) => {
+      const def = defs.get(b.type) as ContentBuilding;
+      const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
+      blobMatrix(out, i, cx, cz, w + BUILDING_BLOB_MARGIN, h + BUILDING_BLOB_MARGIN, BUILDING_HEIGHT);
+    });
+    this.buildingBlobs.set(list.length ? out : null);
+  }
+
+  /** Meshes casting into the sun shadow map: the buildings while shown at near LOD. */
+  shadowCasters(): AbstractMesh[] {
+    return this.shown && this.lod === "near" ? this.buildings.meshes() : [];
   }
 
   /** Shown (in view at near or mid LOD) or hidden, and the level of detail. */

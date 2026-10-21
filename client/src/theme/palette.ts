@@ -118,7 +118,7 @@ export const ROUTES = {
 export const LIGHT = {
   sun: "#FFF1D6",
   sky: "#9DB7D9",
-  ground: "#7A7363",
+  ground: "#A89878",
   grade: "#FFD9A0",
   shadow: "#2A2A35",
 } as const;
