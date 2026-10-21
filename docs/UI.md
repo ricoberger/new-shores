@@ -94,6 +94,16 @@ the HUD opens the 2D screen as an overlay (later).
   yellow (ok but not connected / low efficiency), red (invalid) with the
   reason as a tooltip.
 - Roads: drag to draw; auto-connect; cost preview.
+- **Fields** (D-049): the field tool (build menu under Production, or the
+  farm panel's "Place pastures n / 16") places one field per click/tap;
+  dragging a rectangle previews every valid free tile inside it (green =
+  will be placed; yellow = outside every accepting farm's radius, not
+  sent) and places them with one command on release (touch: via the
+  placement bar's Confirm). A server rejection shows the error and
+  refreshes — never a partial placement. The accepting farms' radius rings
+  show "n / required" while the tool is active; the farm panel shows the
+  assigned count and efficiency; demolish mode removes fields like
+  buildings.
 - Farms show their work radius and fertile-tile fraction while placing.
 - Public buildings show their radius; houses in range highlight.
 - Confirm on click/tap; the server validates and responds; the ghost becomes

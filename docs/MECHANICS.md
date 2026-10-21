@@ -126,14 +126,34 @@ handlers only.
   carrying that tag (`no_fertility`; the error lists the island's tags).
 - Coastal buildings (warehouse, fisher, shipyard, harbourmaster) need at
   least one footprint tile on `coast`.
-- Farms and lumberjacks have a **work area**: a Euclidean disc of radius `r`
-  around the footprint centre (tile centres inside count). A tile matches
-  when its terrain is in the building's `work_area.terrain` list and carries
-  neither a building nor a road; overlapping work areas share tiles (no
-  exclusivity). `efficiency = min(1, matching / required_tiles)`,
-  recomputed for every work-area building after each placement, demolition
-  or road change; it may drop to 0 for an existing building (status
-  `low_efficiency`, rate 0). Placement with efficiency 0 is rejected.
+- **Work area** = a Euclidean disc of radius `r` around the footprint
+  centre (tile centres inside count). Two rules use it:
+  - **Harvesters** (lumberjack; later trapper) keep the implicit rule: a
+    tile matches when its terrain is in `work_area.terrain` and carries
+    neither a building nor a road; `efficiency = min(1, matching /
+    required_tiles)`; placement with efficiency 0 is rejected
+    (`no_work_area`).
+  - **Farms** (D-049) have **fields**: 1×1 placeables of the farm's
+    `fields.type` (pasture, wheat_field, orchard_plot, hemp_field, …; one
+    type may serve several farm types). A field costs nothing, has no
+    upkeep, needs no road, is never auto-paused and is placed only on
+    matching terrain (and island fertility if the type needs one) inside
+    the radius of at least one farm that accepts the type
+    (`no_farm_in_range`). Each field is assigned to the **nearest accepting
+    farm whose radius contains it** (squared distance between footprint
+    centres, lowest farm ID on ties); a field outside every radius stays
+    unassigned (status `no_farm`). Farm `efficiency = min(1, assigned /
+    required)` (provisional 16 on a radius-4 disc); a farm may be placed
+    or moved with zero fields (status `low_efficiency`, "n / required
+    fields"). Fields occupy tiles, can be moved and demolished (refund per
+    D-019, i.e. nothing), and count as buildings for the last-warehouse
+    rule. `place_fields` / `demolish_fields` take up to 256 tiles and are
+    all-or-nothing; the exported pure tile-validity helper is what the
+    scenario runner and the client use to pick a rectangle's valid tiles,
+    the server remaining the authority.
+  - Assignment and efficiency are recomputed for every work-area building
+    after each placement, move, demolition or road change; they may drop
+    for an existing building.
 - Placement validity is computed in the simulation, never from mesh collision.
   A failed command leaves the world byte-identical.
 - **Move** (D-042): any building except roads can be moved to another valid
@@ -194,7 +214,8 @@ cycle:   seconds               at 100 % efficiency
 ```
 
 - **Rate** = `amount / cycle × efficiency × throughput_factor ×
-  workforce_factor`, where efficiency comes from the work area (farms),
+  workforce_factor`, where efficiency comes from the fields (farms) or the
+  work area (harvesters),
   `throughput_factor` from the assigned warehouse (section 5) and
   `workforce_factor` from the island's workforce pool (below).
 - Inputs are drawn from the island inventory continuously at the same rate

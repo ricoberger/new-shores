@@ -142,6 +142,11 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **Fields (D-049) — done (PR #12):** farms need 16 placed 1×1 fields of
+  their crop type inside the work radius (tap or rectangle drag);
+  efficiency = assigned / required; schema 3 migrates existing farms by
+  auto-placing their fields (both fixtures at 100 %); reference timings
+  unchanged (60/80/100/139 without quests, 42/63/72/120 with).
 - **Part 2b-ii — done (PR #10):** 3D archipelago view in the same scene
   (procedural island silhouettes, sea, ships on their legs from server
   timestamps, route lines), island card, ship info panel, graphical route

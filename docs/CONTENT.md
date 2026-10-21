@@ -296,7 +296,7 @@ exponent notation; they are converted to fixed point at load time.
 {
   "id": "old_coast",
   "name": "The Old Coast",
-  "version": "old_coast-0.5.0",
+  "version": "old_coast-0.6.0",
   "rules": {
     "transfer_base_seconds": 10,
     "unconnected_buffer_units": 5,
@@ -355,7 +355,9 @@ it carries:
 | `warehouse` | `levels[] {capacity, throughput_per_min, cost?}` — level 1 has no cost (the building cost places it), every later level has one (`upgrade_warehouse`) | warehouse |
 | `road` | `seconds_per_tile` (building must be 1×1) | roads |
 | `service` | `radius` | public buildings |
-| `work_area` | `radius`, `terrain[]`, `required_tiles`, `fertility?` (island-wide tag the island must carry, else `no_fertility`) | farms, lumberjack, gatherers |
+| `work_area` | `radius`, `fertility?` (island-wide tag the island must carry, else `no_fertility`); harvesters also `terrain[]`, `required_tiles` | farms (radius only), lumberjack, gatherers |
+| `fields` | `type` (a field building's `field.type`), `required` (16) | farms (D-049) |
+| `field` | `type`, `terrain[]`, `fertility?` — a 1×1 field placeable, cost `{gold: 0}`, no upkeep, `pause_category: never`, `requires_road: false`; validation requires at least one farm accepting the type | pasture, wheat_field, orchard_plot, hemp_field (pig_pen, meadow, hop/woad/vineyard rows with their tiers) |
 | `workforce` | `tier`, `amount` | producers only (D-035) |
 | `requires_deposit` | deposit type; the footprint must cover ≥ 1 tile with that deposit (`no_deposit`) and may cover mountain tiles | mines, quarries |
 | `slot` | typed deposit/harbour slots (D-036) — not yet implemented; `requires_deposit` is the interim rule | — |

@@ -156,7 +156,12 @@ return Display(w, now)
   world. The world row is stored as the sim envelope `{schema_version,
   content_version, world}`; decoding runs the sim's pure migration hook
   and fails with `ErrSchemaVersion` (HTTP 500, own code) when no migration
-  is registered for an older version — never a silent reset.
+  is registered for an older version — never a silent reset. Migrations
+  are pure functions over the raw envelope that may take the content
+  catalogue and return **notes** (e.g. the 2→3 fields migration reports
+  farms whose efficiency could not be preserved); the store logs the
+  notes, the sim never does. Current schema: 3 (1→2 quests/summary state,
+  2→3 explicit fields auto-placed for existing farms).
 - Migrations are versioned SQL files embedded in the binary and applied by
   `server migrate` (or `MIGRATE_ON_START`) under an advisory lock, with
   `schema_migrations` bookkeeping; expand/contract only.
@@ -241,7 +246,9 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `cancel_ship_order`, `found_island`, `manual_shipment`, `assign_ship`,
   `unassign_ship`, `scrap_ship`, `create_route`, `update_route`,
   `delete_route` (list bounds: ≤ 8 stops, ≤ 32 load/unload entries per
-  stop, ≤ 16 cargo entries), returning `{version, display}`; the display
+  stop, ≤ 16 cargo entries), `claim_quest`, `ack_summary`, `place_fields` /
+  `demolish_fields` (≤ 256 tiles, all-or-nothing), returning `{version,
+  display}`; the display
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,
   `settled`, `position`, `quests`, `away_summary`, `insolvency`; `GET /world/islands/{id}` → `{id, width, height, revision,
