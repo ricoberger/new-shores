@@ -1,0 +1,436 @@
+{
+  "description": "HUD icons from game-icons.net (CC BY 3.0), pinned at game-icons/icons commit 82d948812bfe3f269ef8f731dcdb07b08160edc4. Keys are kind:id (good, need, status, category, tool); the _fallback entries cover unknown content IDs. client/scripts/gen-hud-icons.mjs builds client/src/theme/icons.ts from these files (paths only, recoloured with currentColor).",
+  "license": "CC BY 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+  "site": "https://game-icons.net",
+  "commit": "82d948812bfe3f269ef8f731dcdb07b08160edc4",
+  "icons": {
+    "good:wood": {
+      "file": "wood-pile.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/wood-pile.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/wood-pile.svg",
+      "sha256": "e4aeaff5112e08792e606fd3d7159c65efbbf3132b09ec886ca75310c796ee64"
+    },
+    "good:planks": {
+      "file": "planks.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/planks.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/planks.svg",
+      "sha256": "71775258b72ea9d66562d2d710b5a9635952f493b71b9957ed71704f012719ed"
+    },
+    "good:fish": {
+      "file": "fish-bucket.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/fish-bucket.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/fish-bucket.svg",
+      "sha256": "e6c444e667f7f9bd951df14fa28e94af7b64f7aba068bc80618aa11549338fbf"
+    },
+    "good:wool": {
+      "file": "wool.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/wool.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/wool.svg",
+      "sha256": "79714c97002c49df882a59b66735f0bd30e1fa8d6001b4853765098d7e47b4bf"
+    },
+    "good:wool_garments": {
+      "file": "sleeveless-jacket.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/sleeveless-jacket.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/sleeveless-jacket.svg",
+      "sha256": "f8c313088e5e20fb65a812dd55d9f8fa238b7a8d681700fd3baaa6f07ca0409b"
+    },
+    "good:sails": {
+      "file": "sail.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/sail.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/sail.svg",
+      "sha256": "e40973543539eb9b394d0bab4c3b0dfbc44aa3558994db29b0ebd86cf7c3c23f"
+    },
+    "good:wheat": {
+      "file": "wheat.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/wheat.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/wheat.svg",
+      "sha256": "037e467964cc33e3e9b4819e37a94ddd17cedd26e08a1b9c85d81e72b2ac1a93"
+    },
+    "good:flour": {
+      "file": "flour.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/flour.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/flour.svg",
+      "sha256": "8cd80b7837f1845973650da3dbda0de14326a527975c25d8954c72cd10d063ca"
+    },
+    "good:bread": {
+      "file": "bread.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/bread.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/bread.svg",
+      "sha256": "924ad061fbb275b68e118ed7649f25b43d0fc63e15441c58ef483a7a9d84d4ae"
+    },
+    "good:apples": {
+      "file": "shiny-apple.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/shiny-apple.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/shiny-apple.svg",
+      "sha256": "b99b2fa18eb1146b9836852c2605f02a29be7f7a2a52b7ff3fcf4119c4b54b75"
+    },
+    "good:cider": {
+      "file": "jug.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/jug.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/jug.svg",
+      "sha256": "b3165cca8a46dcf1a93e1a187f65bd5a03ba3c9395f23c31389ac2200c94b0a3"
+    },
+    "good:hemp": {
+      "file": "hemp.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/hemp.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/hemp.svg",
+      "sha256": "08101bf9c2be7aa67c617cdcbb776a584e31a459169f74038f45e20dec6b5a1f"
+    },
+    "good:linen_garments": {
+      "file": "robe.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/robe.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/robe.svg",
+      "sha256": "dd9c731b1075c109c8df3c07d165c9e80bebcb5b77b4a7fbbbab1cb5d141ed1c"
+    },
+    "good:stone": {
+      "file": "stone-block.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/stone-block.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/stone-block.svg",
+      "sha256": "f08c6f33c8ea546305387087e4a75c57c12152a6270742c5a730ebeb2b4f0572"
+    },
+    "good:iron_ore": {
+      "file": "mining.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/mining.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/mining.svg",
+      "sha256": "4ec8c519d3783c590c9c76cac9f4dcf5ae9860001ec0261e24476069d8d9f05c"
+    },
+    "good:charcoal": {
+      "file": "coal-pile.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/coal-pile.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/coal-pile.svg",
+      "sha256": "92eef09303cb8c21eebef4368e4de17d3f1bc2965e3d16b43b7b4f9bcba73ae7"
+    },
+    "good:iron": {
+      "file": "metal-bar.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/metal-bar.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/metal-bar.svg",
+      "sha256": "1d691363c6a874e03f99a84f7e1b5bc5f229721c6e96adc28d5e5e0cd3618fe1"
+    },
+    "good:tools": {
+      "file": "hammer-nails.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/hammer-nails.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/hammer-nails.svg",
+      "sha256": "59af3882e563f5430c9c7e5de384b49841ce1f88a806315ae4ffbc8f8d701f5f"
+    },
+    "good:_fallback": {
+      "file": "wooden-crate.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/wooden-crate.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/wooden-crate.svg",
+      "sha256": "df0585b49fb3f2ac158ac065e146b60510f3a6dfba4bab310d5dd4389467cbc3"
+    },
+    "need:food": {
+      "file": "hot-meal.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/hot-meal.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/hot-meal.svg",
+      "sha256": "2f6e7e030fa9745b82feec6331b5e691d34b624c20a679e9f377ad490812c145"
+    },
+    "need:drink": {
+      "file": "water-flask.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/water-flask.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/water-flask.svg",
+      "sha256": "894e3f160a37fe9c1f4efa4c7ae9723192352fcf37bee0addad10b3d7fbfb87a"
+    },
+    "need:clothing": {
+      "file": "clothes.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/clothes.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/clothes.svg",
+      "sha256": "b7b9b5b29567aa2e18a6931a47d537ef3f14b68045d71d603a120e3bc9380505"
+    },
+    "need:market_small": {
+      "file": "shop.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/shop.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/shop.svg",
+      "sha256": "6cc8624153d0cdc29babb993d6f1de5d50f848cc77f61df3fd1bdc7123c0e69d"
+    },
+    "need:chapel": {
+      "file": "church.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/church.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/church.svg",
+      "sha256": "0e8bc2e027fdae6562b0d149aad30337e42777a54c5e8afa8ae9cc4d817fa773"
+    },
+    "need:tavern": {
+      "file": "beer-stein.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/beer-stein.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/beer-stein.svg",
+      "sha256": "5d1ede654d64d8d710faa89cb5b227df23e95313b06aa7486c36980946710e3c"
+    },
+    "need:_fallback": {
+      "file": "help.svg",
+      "author": "Sbed",
+      "page": "https://game-icons.net/1x1/sbed/help.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/sbed/help.svg",
+      "sha256": "cd104a20e411728b4ce4e4acfd7aace96ead8f2731925cb4af3992e25df85cbb"
+    },
+    "status:paused_player": {
+      "file": "pause-button.svg",
+      "author": "Guard13007",
+      "page": "https://game-icons.net/1x1/guard13007/pause-button.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/guard13007/pause-button.svg",
+      "sha256": "5feb2ee970adfcd618d9256b32cfe0344376c668bd105a0ac93aad643ce623cf"
+    },
+    "status:paused_unpaid": {
+      "file": "two-coins.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/two-coins.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/two-coins.svg",
+      "sha256": "6d43f41723a0c0776bba4489ecf9fc8f51062247efb3153718a9fe5b0ef3f0ed"
+    },
+    "status:not_connected": {
+      "file": "crossed-chains.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/crossed-chains.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/crossed-chains.svg",
+      "sha256": "cf302982ffed8c57ece348904ad3e12e42b093b66469b7c7613fcb98d18837ee"
+    },
+    "status:warehouse_full": {
+      "file": "cardboard-box-closed.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/cardboard-box-closed.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/cardboard-box-closed.svg",
+      "sha256": "86dc79d94782a7c72df3f9d211e578b0d6b79fe46c684f89240c30ba0c2c452f"
+    },
+    "status:input_starved": {
+      "file": "empty-wood-bucket.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/empty-wood-bucket.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/empty-wood-bucket.svg",
+      "sha256": "3d3dc80913930cf40a93eae2cbfd01eae13afb1db2c28f6e26941df994728a77"
+    },
+    "status:throttled": {
+      "file": "hourglass.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/hourglass.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/hourglass.svg",
+      "sha256": "38459facefd9e01b25f2ef5d490d6ac5ac49ae51441b15f7c140e389e7650959"
+    },
+    "status:short_of_workers": {
+      "file": "three-friends.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/three-friends.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/three-friends.svg",
+      "sha256": "f01a57f0999c2e1369be610e30a75efad8c4b84463adf046d50f3c04128fe167"
+    },
+    "status:low_efficiency": {
+      "file": "speedometer.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/speedometer.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/speedometer.svg",
+      "sha256": "9d38c9cb9bb3abd739f541e3d3f6246521b8ffa57de3f904ce69efb5a9313d95"
+    },
+    "status:no_farm": {
+      "file": "barn.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/barn.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/barn.svg",
+      "sha256": "55a0e0129fb68fdc5fca8486ab9d77e675c6b586894fffb6fed38b60ff34ceb1"
+    },
+    "status:ok": {
+      "file": "check-mark.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/check-mark.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/check-mark.svg",
+      "sha256": "ce5073c2fd9fec62ef11f6b3fd093e0a3bb6e28fd3dcf1fa2a4bfab282cb5e48"
+    },
+    "category:houses": {
+      "file": "house.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/house.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/house.svg",
+      "sha256": "ec5d8b43fbe66d9c85a1969547b52482cd647bb0c2f81426098f2ef202cb531e"
+    },
+    "category:production": {
+      "file": "anvil.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/anvil.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/anvil.svg",
+      "sha256": "8f1b9ce7c512d167719dcd77fc169c811eb69b25e30ed1ae5610d161ce9007a4"
+    },
+    "category:public": {
+      "file": "greek-temple.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/greek-temple.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/greek-temple.svg",
+      "sha256": "2ccae9be1d2637a6a603b3dedc84ee85132f1d5b6d6ec3e5840f3e3cd67c5035"
+    },
+    "category:harbour": {
+      "file": "anchor.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/anchor.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/anchor.svg",
+      "sha256": "134bba71f6b20c1983e821a0a36d6c83b813080951f1a5806c86a8136556f550"
+    },
+    "category:roads": {
+      "file": "stone-path.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/stone-path.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/stone-path.svg",
+      "sha256": "47199d6d7dc8d425dc59f2baf128298c11fcee41f63f7a8df38f57e963b5986c"
+    },
+    "category:other": {
+      "file": "flower-pot.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/flower-pot.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/flower-pot.svg",
+      "sha256": "f06bd6f3a078d9f928c6819e2a9739ad3beae4a0ee18f2319540370c91ad74c1"
+    },
+    "tool:demolish": {
+      "file": "hammer-drop.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/hammer-drop.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/hammer-drop.svg",
+      "sha256": "08547f5ed9166b71a9188f69f5f03a3c59e40c3c72bf67f0bbae932291d86242"
+    },
+    "tool:move": {
+      "file": "move.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/move.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/move.svg",
+      "sha256": "90f5994ee2d8e12da8964c20717b57e23e76dc66431ab60c08d7c3078c56b588"
+    },
+    "tool:rotate": {
+      "file": "clockwise-rotation.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/clockwise-rotation.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/clockwise-rotation.svg",
+      "sha256": "f23bb350d64fda0a93b802ea34b59a9ed0bc43a98ae3edfd65a5d4a536a632e5"
+    },
+    "tool:confirm": {
+      "file": "check-mark.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/check-mark.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/check-mark.svg",
+      "sha256": "ce5073c2fd9fec62ef11f6b3fd093e0a3bb6e28fd3dcf1fa2a4bfab282cb5e48"
+    },
+    "tool:cancel": {
+      "file": "cancel.svg",
+      "author": "Sbed",
+      "page": "https://game-icons.net/1x1/sbed/cancel.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/sbed/cancel.svg",
+      "sha256": "e8d3551075bea82946e201c20ac6958a6a150644a6e8010aeabecafdd86daa8a"
+    },
+    "tool:camera-left": {
+      "file": "anticlockwise-rotation.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/anticlockwise-rotation.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/anticlockwise-rotation.svg",
+      "sha256": "81bdef95c5974378ad186499b093331df5dc494b9ab314b622db093f7844b177"
+    },
+    "tool:camera-right": {
+      "file": "clockwise-rotation.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/clockwise-rotation.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/clockwise-rotation.svg",
+      "sha256": "f23bb350d64fda0a93b802ea34b59a9ed0bc43a98ae3edfd65a5d4a536a632e5"
+    },
+    "tool:quests": {
+      "file": "scroll-unfurled.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/scroll-unfurled.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/scroll-unfurled.svg",
+      "sha256": "bbbe367221e46a6d9ad8f1b0c47e8a0db223cd2b9fda67b885e906c6fe72d9c9"
+    },
+    "tool:ships": {
+      "file": "sailboat.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/sailboat.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/sailboat.svg",
+      "sha256": "04c4caf6a26b839b4cb4080c3d49b3c1379ef979ecdcc170a449d2e03a96b35f"
+    },
+    "tool:routes": {
+      "file": "path-distance.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/path-distance.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/path-distance.svg",
+      "sha256": "362560f11785e62983058a866f676e0d1a42a6bb4ba874b8efa78f6b307f26c4"
+    },
+    "tool:world-map": {
+      "file": "treasure-map.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/treasure-map.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/treasure-map.svg",
+      "sha256": "514ec6a9b97e74f10cbb212357819b44feaac26e0e2d461862d59b58f67ffa52"
+    },
+    "tool:account": {
+      "file": "person.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/person.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/person.svg",
+      "sha256": "30278f49cd97b7cd9c76bd3d2b37f219dabadc6d740438a47ce9b18e2a390d9c"
+    },
+    "tool:menu": {
+      "file": "hamburger-menu.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/hamburger-menu.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/hamburger-menu.svg",
+      "sha256": "ffaf1e86384fa89a4f54ac75b5f74c3f5122f0fd02ebb341193ea770135a738a"
+    },
+    "tool:minimap": {
+      "file": "compass.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/compass.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/compass.svg",
+      "sha256": "beb88d002e3f2e3759a41c626ff67f52b9d92d70605a24e8e8d3ea9915208f20"
+    },
+    "tool:close": {
+      "file": "cancel.svg",
+      "author": "Sbed",
+      "page": "https://game-icons.net/1x1/sbed/cancel.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/sbed/cancel.svg",
+      "sha256": "e8d3551075bea82946e201c20ac6958a6a150644a6e8010aeabecafdd86daa8a"
+    },
+    "tool:install": {
+      "file": "save-arrow.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/save-arrow.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/save-arrow.svg",
+      "sha256": "0d5bdb1d8611b54845afb51be9866435e7584cf3455831994bad2a24bfe69d06"
+    },
+    "tool:population": {
+      "file": "village.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/village.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/village.svg",
+      "sha256": "45805e2ba3ee12adcc1c67e8183e526831156a3fc9eba0595e687d79078c4048"
+    },
+    "tool:warnings": {
+      "file": "hazard-sign.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/hazard-sign.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/hazard-sign.svg",
+      "sha256": "859c60f9ecc0d99ed5c11213e4dfaae51870e7b9614beb6a8957d6b3d47f3acb"
+    },
+    "tool:credits": {
+      "file": "scroll-quill.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/scroll-quill.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/scroll-quill.svg",
+      "sha256": "152e01493acfbf39eb1ae708042f7310bdefc04620c2477093bf88bbb811fd3c"
+    }
+  }
+}

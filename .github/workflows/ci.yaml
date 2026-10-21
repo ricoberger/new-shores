@@ -99,6 +99,11 @@ jobs:
           npm run gen:palette
           git diff --exit-code -- src/theme/palette.ts src/theme/palette.css
 
+      - name: Generated HUD icons are up to date
+        run: |
+          npm run gen:hud-icons
+          git diff --exit-code -- src/theme/icons.ts
+
       - name: lint
         run: npm run lint
 
