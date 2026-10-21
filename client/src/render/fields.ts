@@ -1,6 +1,8 @@
 // Fields (D-049): flat tinted tiles with a simple procedural pattern per
-// field type (placeholders until the asset task), drawn with thin
-// instances — one mesh per field type and island (FieldTiles, near LOD) —,
+// field type, drawn with thin instances — one mesh per field type and
+// island (FieldTiles, near LOD) — and a per-type decoration on top
+// (FieldDecor: fence posts and tufts on pastures, rows on wheat and hemp,
+// small trees on orchards; one merged mesh per island, near LOD),
 // and in world coordinates the green/yellow preview of the field tool's
 // rectangle and the work-radius rings of farms with their "n / required"
 // labels (labels are HTML, see FieldRingLabels). Nothing here is pickable.
@@ -17,8 +19,9 @@ import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import type { TilePos } from "../display/geometry";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
-import { FIELDS, UI } from "../theme/palette";
-import { buildingColor, FIELD_OUT_OF_RANGE, FIELD_RING, FIELD_VALID } from "./palette";
+import { cone, prism, type Tri, TriBuilder } from "./meshdata";
+import { BUILDINGS, FIELDS, UI } from "../theme/palette";
+import { buildingColor, c3, FIELD_OUT_OF_RANGE, FIELD_RING, FIELD_VALID } from "./palette";
 import { skyFill } from "./lighting";
 
 const TEX = 64;
@@ -194,4 +197,99 @@ export function farmRing(b: BuildingDisplay, def: ContentBuilding | undefined, o
   if (!def?.fields || !def.work_area) return null;
   const { cx, cz } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
   return { farmId: b.id, cx: cx + origin.x, cz: cz - origin.y, radius: def.work_area.radius, assigned: b.fields?.assigned ?? 0, required: b.fields?.required ?? def.fields.required };
+}
+
+const POST = prism(4, 0.035, 0, 0.2, c3(BUILDINGS.timber), Math.PI / 4);
+const RAIL_COLOR = c3(BUILDINGS.timber).scale(1.15);
+
+/** A ridge along x (length 0.9) with a triangular cross-section (2 sloped faces). */
+function ridge(height: number, half: number, color: Color3): Tri[] {
+  const l = 0.45;
+  return [
+    { a: [-l, 0, -half], b: [l, 0, -half], c: [l, height, 0], color },
+    { a: [-l, 0, -half], b: [l, height, 0], c: [-l, height, 0], color },
+    { a: [-l, 0, half], b: [l, height, 0], c: [l, 0, half], color: color.scale(0.85) },
+    { a: [-l, 0, half], b: [-l, height, 0], c: [l, height, 0], color: color.scale(0.85) },
+  ];
+}
+
+/** Decoration of one field tile per type (island-local tile x, y). */
+function decorate(b: TriBuilder, type: string, x: number, y: number): void {
+  const cx = x + 0.5;
+  const cz = -(y + 0.5);
+  switch (type) {
+    case "pasture": {
+      for (const [dx, dz] of [
+        [0.08, -0.08],
+        [0.92, -0.08],
+        [0.08, -0.92],
+        [0.92, -0.92],
+      ] as const) {
+        for (const t of POST) b.add(t, x + dx, FIELD_Y, -y + dz, 1, 0);
+      }
+      // Two rails along the north and west edges (the neighbours draw the others).
+      for (const h of [0.09, 0.16]) {
+        b.raw([x + 0.08, FIELD_Y + h, -y - 0.08], [x + 0.92, FIELD_Y + h, -y - 0.08], [x + 0.92, FIELD_Y + h + 0.025, -y - 0.08], RAIL_COLOR, [1, 1, 1], [0, 0, 1]);
+        b.raw([x + 0.08, FIELD_Y + h, -y - 0.08], [x + 0.92, FIELD_Y + h + 0.025, -y - 0.08], [x + 0.08, FIELD_Y + h + 0.025, -y - 0.08], RAIL_COLOR, [1, 1, 1], [0, 0, 1]);
+      }
+      for (const [dx, dz, yaw] of [
+        [0.35, -0.4, 0.3],
+        [0.66, -0.65, 1.9],
+      ] as const) {
+        for (const t of PASTURE_TUFT) b.add(t, x + dx, FIELD_Y, -y + dz, 1, yaw);
+      }
+      return;
+    }
+    case "wheat_field":
+      for (let r = 0; r < 4; r++) for (const t of WHEAT_ROW) b.add(t, cx, FIELD_Y, cz - 0.375 + r * 0.25, 1, 0);
+      return;
+    case "hemp_field":
+      for (let r = 0; r < 3; r++) for (const t of HEMP_ROW) b.add(t, cx, FIELD_Y, cz - 0.3 + r * 0.3, 1, 0);
+      return;
+    case "orchard_plot":
+      for (const [dx, dz] of [
+        [0.28, -0.28],
+        [0.72, -0.28],
+        [0.28, -0.72],
+        [0.72, -0.72],
+      ] as const) {
+        for (const t of ORCHARD_TREE) b.add(t, x + dx, FIELD_Y, -y + dz, 1, 0);
+      }
+      return;
+    default:
+    // Unknown field types keep their stable-colour stripes only.
+  }
+}
+
+const PASTURE_TUFT: Tri[] = [
+  { a: [-0.05, 0, 0], b: [0.05, 0, 0], c: [-0.02, 0.14, 0.01], color: c3(FIELDS.pasture_mark).scale(0.8) },
+  { a: [0, 0, -0.05], b: [0, 0, 0.05], c: [0.04, 0.12, 0.02], color: c3(FIELDS.pasture_mark).scale(0.9) },
+];
+const WHEAT_ROW = ridge(0.1, 0.08, c3(FIELDS.wheat_mark).scale(1.15));
+const HEMP_ROW = ridge(0.17, 0.09, c3(FIELDS.hemp_mark).scale(1.1));
+const ORCHARD_TREE: Tri[] = [...prism(3, 0.03, 0, 0.12, c3(BUILDINGS.timber)), ...cone(5, 0.16, 0.1, 0.38, c3(FIELDS.orchard).scale(0.85), 0, 0.8)];
+
+/** Per-type decoration of the fields of one island (near LOD): one merged static mesh. */
+export class FieldDecor {
+  private readonly material: StandardMaterial;
+  private mesh: Mesh | null = null;
+
+  constructor(
+    private readonly scene: Scene,
+    private readonly parent: TransformNode | null = null,
+  ) {
+    this.material = skyFill(new StandardMaterial("field_decor", scene));
+    this.material.specularColor = Color3.Black();
+    this.material.backFaceCulling = false;
+  }
+
+  update(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
+    this.mesh?.dispose();
+    const b = new TriBuilder();
+    for (const f of buildings) {
+      const type = defs.get(f.type)?.field?.type;
+      if (type) decorate(b, type, f.x, f.y);
+    }
+    this.mesh = b.build("field_decor", this.scene, this.material, this.parent);
+  }
 }

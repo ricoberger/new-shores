@@ -3,9 +3,10 @@
 // under a node at the island's archipelago position, so local tile (x, y)
 // is world (position.x + x, 0, −(position.y + y)). Built lazily (when the
 // island is first shown at near or mid LOD) and rebuilt on payload changes
-// while shown. The level of detail toggles layers: near shows everything,
-// mid shows terrain (ground, beach, cliffs, outcrops), roads, blob shadows
-// and flat category blocks only.
+// while shown. The level of detail toggles layers: near shows everything
+// (with trees, ground scatter, field decoration and foam), mid shows
+// terrain (ground, beach, cliffs, outcrops), roads, contact shadows and
+// flat category blocks only.
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
@@ -13,11 +14,11 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
-import { islandSeed } from "../display/scatter";
+import { blockedTiles, islandSeed, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
 import { BlockLayer } from "./blocks";
 import { BuildingLayer } from "./buildings";
 import { CartLayer } from "./carts";
-import { FieldTiles } from "./fields";
+import { FieldDecor, FieldTiles } from "./fields";
 import { ConstructionLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
@@ -25,6 +26,7 @@ import { OutcropLayer } from "./outcrops";
 import { RoadLayer } from "./roads";
 import { FootprintShadows } from "./shadows";
 import { buildTerrain, FoamLine } from "./terrain";
+import { Decoration } from "./trees";
 
 /** Contact shadow of a building: a soft frame this wide (tiles) around its rotated footprint. */
 const BUILDING_SHADOW_RIM = 0.3;
@@ -37,6 +39,8 @@ export class IslandDetail {
   private readonly mid: TransformNode;
   private readonly buildings: BuildingLayer;
   private readonly fields: FieldTiles;
+  private readonly fieldDecor: FieldDecor;
+  private readonly decoration: Decoration;
   private readonly roads: RoadLayer;
   private readonly carts: CartLayer;
   private readonly icons: IconLayer;
@@ -49,6 +53,7 @@ export class IslandDetail {
   /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
   private loops: CoastLoop[] = [];
   private seed = 0;
+  private statics: Island | null = null;
   private terrainKey = "";
   /** The display payload and content the layers were built from (identity). */
   private builtFrom: { display: IslandDisplay; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
@@ -68,6 +73,8 @@ export class IslandDetail {
     this.mid.parent = this.root;
     this.buildings = new BuildingLayer(scene, this.near);
     this.fields = new FieldTiles(scene, this.near);
+    this.fieldDecor = new FieldDecor(scene, this.near);
+    this.decoration = new Decoration(scene, id, this.near);
     this.roads = new RoadLayer(scene, this.root);
     this.carts = new CartLayer(scene, this.near);
     this.icons = new IconLayer(scene, this.near);
@@ -99,6 +106,9 @@ export class IslandDetail {
     this.foam ??= new FoamLine(this.scene, this.near, this.seed);
     this.foam.update(this.loops);
     this.terrainKey = key;
+    this.statics = statics;
+    // The decoration depends on the terrain too: rebuild with the next update.
+    this.builtFrom = null;
   }
 
   /** Whether the layers reflect this payload and content. */
@@ -116,7 +126,17 @@ export class IslandDetail {
     this.icons.update(display.buildings, defs);
     this.construction.update(display, defs);
     this.blocks.update(display.buildings, defs);
+    this.fieldDecor.update(display.buildings, defs);
     this.updateBlobs(display, defs);
+    this.updateDecoration(display, defs);
+  }
+
+  /** Trees (thinned by forest harvesters) and ground scatter, kept off buildings, fields and roads. */
+  private updateDecoration(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
+    const st = this.statics;
+    if (!st) return;
+    const input = { width: st.width, height: st.height, terrain: st.terrain, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
+    this.decoration.update(scatterTrees(input, thinningAreas(display.buildings, defs)), scatterGround(input));
   }
 
   /** Contact shadows around every building (near and mid LOD). */
@@ -132,7 +152,7 @@ export class IslandDetail {
 
   /** Meshes casting into the sun shadow map: the buildings while shown at near LOD. */
   shadowCasters(): AbstractMesh[] {
-    return this.shown && this.lod === "near" ? this.buildings.meshes() : [];
+    return this.shown && this.lod === "near" ? [...this.buildings.meshes(), ...this.decoration.casters()] : [];
   }
 
   /** Shown (in view at near or mid LOD) or hidden, and the level of detail. */
@@ -164,6 +184,11 @@ export class IslandDetail {
     this.foam?.frame(nowMs);
     this.carts.frame(nowMs);
     this.construction.frame(nowMs);
+  }
+
+  /** Trees and ground scatter items built (near-LOD decoration). */
+  decorationCounts(): { trees: number; scatter: number } {
+    return this.decoration.counts();
   }
 
   /** Carts drawn (near LOD, shown). */

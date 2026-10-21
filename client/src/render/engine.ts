@@ -21,6 +21,7 @@ import type { SyncSnapshot } from "../api/sync";
 import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin } from "../display/camera";
 import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "../display/fields";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
+import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import { initialLod, type Lod, lodFor } from "../display/lod";
 import type { Quality } from "../display/quality";
@@ -33,6 +34,7 @@ import { CameraRig } from "./camera";
 import { footprintBox } from "./coords";
 import { farmRing, FieldLayer, type FieldRing } from "./fields";
 import { islandBerths } from "./harbour";
+import { GridOverlay } from "./grid";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type Point, PointerInput, type PointerKind } from "./picking";
@@ -142,6 +144,9 @@ export class GameRenderer {
   private readonly details = new Map<string, IslandDetail>();
   private readonly fields: FieldLayer;
   private readonly roadPreview: RoadPreview;
+  private readonly grid: GridOverlay;
+  /** Ground point of the last touch tap or drag (archipelago tiles): the grid's centre on touch. */
+  private lastTouch: ArchPoint | null = null;
   /** Start and current tile of a field-tool drag (island tiles), and whether a finger drags. */
   private fieldStart: IslandTile | null = null;
   private fieldEnd: TilePos | null = null;
@@ -204,6 +209,7 @@ export class GameRenderer {
     this.arch.setQuality(quality);
     this.fields = new FieldLayer(this.scene);
     this.roadPreview = new RoadPreview(this.scene);
+    this.grid = new GridOverlay(this.scene);
 
     this.ghost = CreateBox("ghost", { size: 1 }, this.scene);
     this.ghostMaterial = skyFill(new StandardMaterial("ghost", this.scene));
@@ -247,6 +253,7 @@ export class GameRenderer {
     for (const d of this.details.values()) d.frame(now);
     this.arch.frame(now);
     this.updateGhost();
+    this.updateGrid();
     this.updateFieldPreview();
     this.updateRings();
     this.engine._drawCalls.fetchNewFrame();
@@ -842,6 +849,7 @@ export class GameRenderer {
 
   private onTap(p: Point, button: number, kind: PointerKind): void {
     if (this.blocked()) return;
+    if (kind === "touch") this.lastTouch = this.groundPoint(p);
     const tool = this.tool();
     if (button === 2) {
       if (tool.kind !== "none") this.events.cancelTool();
@@ -912,6 +920,7 @@ export class GameRenderer {
 
   private onDragStart(p: Point, button: number, kind: PointerKind): void {
     if (this.blocked()) return;
+    if (kind === "touch") this.lastTouch = this.groundPoint(p);
     const tool = this.tool();
     if (button !== 0) return;
     if (tool.kind === "none") {
@@ -1161,6 +1170,47 @@ export class GameRenderer {
     if (this.ghostMaterial.diffuseColor !== color) this.ghostMaterial.diffuseColor = color;
     this.ghost.setEnabled(true);
     this.setGhostHint(hint);
+  }
+
+  /**
+   * The grid overlay while a placement tool is active: around the mouse,
+   * else the touch-pending tile or rectangle, the road or field drag, the
+   * last touch, else the camera target. Decoration only.
+   */
+  private updateGrid(): void {
+    const tool = this.tool();
+    if (!gridOverlayVisible(tool.kind)) {
+      if (this.grid.visible()) this.grid.set(null);
+      return;
+    }
+    const toArch = (island: string, t: TilePos): ArchPoint | null => {
+      const pl = this.arch.placement(island);
+      return pl ? { x: pl.position.x + t.x + 0.5, y: pl.position.y + t.y + 0.5 } : null;
+    };
+    let at: ArchPoint | null = null;
+    if (this.precise && this.hover) at = this.groundPoint(this.hover);
+    else if (isGhostTool(tool) && tool.pending) at = toArch(tool.pending.island, tool.pending);
+    else if (tool.kind === "field" && tool.pending) at = toArch(tool.pending.island, tool.pending.to);
+    else if (this.fieldStart && this.fieldEnd) at = toArch(this.fieldStart.island, this.fieldEnd);
+    else if (this.roadStart) at = toArch(this.roadStart.island, this.roadStart);
+    at ??= this.lastTouch ?? { x: this.rig.view().x, y: this.rig.view().y };
+    this.grid.set(at);
+  }
+
+  /** The grid overlay was drawn in the last frame. */
+  gridVisible(): boolean {
+    return this.grid.visible();
+  }
+
+  /** Trees and ground scatter items built on the islands with detail (near-LOD decoration). */
+  decorationCounts(): { trees: number; scatter: number } {
+    const n = { trees: 0, scatter: 0 };
+    for (const d of this.details.values()) {
+      const c = d.decorationCounts();
+      n.trees += c.trees;
+      n.scatter += c.scatter;
+    }
+    return n;
   }
 
   private setGhostHint(hint: string | null): void {

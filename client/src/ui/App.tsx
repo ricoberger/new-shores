@@ -98,6 +98,8 @@ export interface TestHook {
   fieldPreview(): { from: { x: number; y: number }; to: { x: number; y: number } } | null;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
+  /** The grid overlay was drawn in the last frame (only while a placement tool is active). */
+  gridOverlayVisible(): boolean;
   /** Which quality-dependent effects exist. */
   effects(): { quality: Quality; shadowMap: boolean; grading: boolean; fxaa: boolean; vignette: boolean } | null;
 }
@@ -538,6 +540,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
+        gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
         effects: () => {
           const e = rendererRef.current?.effects();
           return e ? { ...e, vignette: document.querySelector('[data-testid="vignette"]') !== null } : null;
