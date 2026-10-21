@@ -35,6 +35,7 @@ import { islandBerths } from "./harbour";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type Point, PointerInput, type PointerKind } from "./picking";
+import { JumpLatch } from "./latch";
 import { RoadPreview } from "./roads";
 import type { ShipStyle } from "./shipmesh";
 
@@ -164,8 +165,8 @@ export class GameRenderer {
   private selected: number | null = null;
   private placedInitially = false;
   private draggingShip: number | null = null;
-  /** The current press began during a camera jump: it is ignored until the next press. */
-  private gestureIgnored = false;
+  /** Presses that began during a camera jump are ignored until all their pointers are up. */
+  private readonly latch = new JumpLatch();
   private lod: Lod = "near";
   private visible = new Set<string>();
   private viewKey = "";
@@ -210,7 +211,8 @@ export class GameRenderer {
     this.ghost.setEnabled(false);
 
     this.input = new PointerInput(canvas, () => this.ratio(), {
-      pointerDown: (kind) => this.onPointerDown(kind),
+      pointerDown: (kind, first) => this.onPointerDown(kind, first),
+      released: () => this.latch.released(),
       tap: (p, button, kind) => this.onTap(p, button, kind),
       longPress: (p) => this.onLongPress(p),
       dragStart: (p, button, kind) => this.onDragStart(p, button, kind),
@@ -436,14 +438,7 @@ export class GameRenderer {
 
   /** Pointer input is ignored: a camera jump runs or the current press began during one. */
   private blocked(): boolean {
-    return this.gestureIgnored || this.rig.animating();
-  }
-
-  /** The current press ended (tap, drag end, cancel): whether it was ignored; the latch is released. */
-  private endPress(): boolean {
-    const blocked = this.blocked();
-    this.gestureIgnored = false;
-    return blocked;
+    return this.latch.blocks(this.rig.animating());
   }
 
   /**
@@ -737,10 +732,11 @@ export class GameRenderer {
   /**
    * Touch has no hover: a stale mouse position must not place the ghost.
    * A mouse or pen press takes over from a pending touch tile. A press
-   * that begins during a camera jump is ignored until the next press.
+   * that begins during a camera jump is ignored until all its pointers are
+   * up (JumpLatch), also when it turns into another gesture meanwhile.
    */
-  private onPointerDown(kind: PointerKind): void {
-    this.gestureIgnored = this.rig.animating();
+  private onPointerDown(kind: PointerKind, first: boolean): void {
+    this.latch.down(first, this.rig.animating());
     if (kind === "touch") {
       this.precise = false;
       if (this.hover) this.onHover(null);
@@ -784,8 +780,9 @@ export class GameRenderer {
    * (a clockwise twist turns the map clockwise on screen).
    */
   private onRotate(steps: number): void {
+    if (this.blocked()) return;
     if (isGhostTool(this.tool())) this.events.rotateGhost(steps);
-    else if (!this.blocked()) this.rig.rotate(-steps);
+    else this.rig.rotate(-steps);
   }
 
   /**
@@ -817,7 +814,7 @@ export class GameRenderer {
   }
 
   private onTap(p: Point, button: number, kind: PointerKind): void {
-    if (this.endPress()) return;
+    if (this.blocked()) return;
     const tool = this.tool();
     if (button === 2) {
       if (tool.kind !== "none") this.events.cancelTool();
@@ -931,7 +928,6 @@ export class GameRenderer {
 
   /** The pointer's press or drag was cancelled: drop any ship drag, road or field preview. */
   private onPointerCancel(): void {
-    this.gestureIgnored = false;
     this.roadStart = null;
     this.roadPreview.set([]);
     this.fieldStart = null;
@@ -960,7 +956,7 @@ export class GameRenderer {
   }
 
   private onDragEnd(p: Point, button: number): void {
-    if (this.endPress()) {
+    if (this.blocked()) {
       this.onPointerCancel();
       return;
     }

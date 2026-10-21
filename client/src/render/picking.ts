@@ -7,8 +7,13 @@ import { GestureRecognizer, type GestureEvent, type Point, type PointerKind } fr
 export type { Point, PointerKind } from "./gestures";
 
 export interface PointerHandlers {
-  /** A pointer went down on the canvas (any kind; before the gesture is known). */
-  pointerDown(kind: PointerKind): void;
+  /**
+   * A pointer went down on the canvas (any kind; before the gesture is
+   * known). `first`: no other pointer of the current press is down.
+   */
+  pointerDown(kind: PointerKind, first: boolean): void;
+  /** The last pointer of the press went up or was cancelled by the browser. */
+  released(): void;
   /** Pointer released without dragging. */
   tap(p: Point, button: number, kind: PointerKind): void;
   /** A touch held still for the long-press time (no tap follows). */
@@ -41,6 +46,8 @@ export class PointerInput {
   private readonly gestures: GestureRecognizer;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private frame = 0;
+  /** Pointers of the current press that are down on the canvas. */
+  private readonly down = new Set<number>();
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -153,7 +160,12 @@ export class PointerInput {
 
   private readonly onDown = (e: PointerEvent): void => {
     const kind = kindOf(e.pointerType);
-    this.h.pointerDown(kind);
+    // A primary pointer starts a new press (also if an earlier pointer's
+    // release never reached the canvas).
+    if (e.isPrimary) this.down.clear();
+    const first = this.down.size === 0;
+    this.down.add(e.pointerId);
+    this.h.pointerDown(kind, first);
     // Event times (PointerEvent.timeStamp, the performance.now() clock)
     // decide tap vs long-press, not the time the event was processed.
     if (this.gestures.down(e.pointerId, kind, e.button, this.css(e), eventTime(e))) this.capture(e.pointerId);
@@ -168,12 +180,19 @@ export class PointerInput {
   private readonly onUp = (e: PointerEvent): void => {
     this.release(e.pointerId);
     this.gestures.up(e.pointerId, this.css(e), eventTime(e));
+    this.ended(e.pointerId);
     this.schedule();
   };
+
+  /** A pointer of the press is gone; the press ends with its last one. */
+  private ended(id: number): void {
+    if (this.down.delete(id) && this.down.size === 0) this.h.released();
+  }
 
   private readonly onCancel = (e: PointerEvent): void => {
     this.release(e.pointerId);
     this.gestures.cancelPointer(e.pointerId);
+    this.ended(e.pointerId);
     this.schedule();
   };
 
