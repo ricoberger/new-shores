@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { initialViewState, type ViewAction, viewReducer, type ViewState, ZOOM_OUT_RESET_MS, ZOOM_OUT_THRESHOLD } from "./view";
+import {
+  initialViewState,
+  pinchZoomDelta,
+  type ViewAction,
+  viewReducer,
+  type ViewState,
+  WHEEL_ZOOM_RATE,
+  ZOOM_OUT_RESET_MS,
+  ZOOM_OUT_THRESHOLD,
+} from "./view";
 
 const run = (s: ViewState, ...actions: ViewAction[]) => actions.reduce(viewReducer, s);
 const island = (id = "start") => initialViewState({ kind: "island", id });
@@ -28,6 +37,24 @@ describe("view transitions", () => {
     ).toBe("island");
     // Zooming in the archipelago never switches back.
     expect(run(arch(), { type: "zoomOutAtMax", amount: 10_000, atMs: 0 }, { type: "zoomReset" }).view.kind).toBe("archipelago");
+  });
+
+  it("maps pinch scale to wheel delta units (same zoom factor as the wheel)", () => {
+    // Fingers closing to 1/f of their distance zoom out by f, like a wheel delta of ln f / rate.
+    expect(pinchZoomDelta(0.5)).toBeCloseTo(Math.log(2) / WHEEL_ZOOM_RATE, 6);
+    expect(Math.exp(pinchZoomDelta(0.8) * WHEEL_ZOOM_RATE)).toBeCloseTo(1.25, 6);
+    expect(pinchZoomDelta(2)).toBeLessThan(0); // zoom in
+    expect(pinchZoomDelta(1)).toBe(0);
+    expect(pinchZoomDelta(0)).toBe(0);
+    expect(pinchZoomDelta(Number.NaN)).toBe(0);
+    // A single small pinch (to half the distance) stays below the threshold;
+    // pinching on at the island maximum crosses it like further wheel ticks.
+    expect(pinchZoomDelta(0.5)).toBeLessThan(ZOOM_OUT_THRESHOLD);
+    let s = island();
+    for (const [i, k] of [0.8, 0.8, 0.8].entries()) s = run(s, { type: "zoomOutAtMax", amount: pinchZoomDelta(k), atMs: i * 50 });
+    expect(s.view.kind).toBe("island");
+    for (const [i, k] of [0.7, 0.7, 0.7].entries()) s = run(s, { type: "zoomOutAtMax", amount: pinchZoomDelta(k), atMs: 200 + i * 50 });
+    expect(s.view).toEqual({ kind: "archipelago" });
   });
 
   it("enters an island by a second tap, Enter or enterIsland and goes back", () => {
