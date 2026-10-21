@@ -3,7 +3,9 @@ import { units } from "../display/format";
 import { draftChanged, effectRows } from "../display/routes";
 import { countdown } from "../display/ships";
 import type { Draft, DraftStop } from "../display/view";
+import { toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
+import { Icon } from "./Icon";
 
 interface Props {
   model: DisplayState;
@@ -176,7 +178,7 @@ export function RouteEditor(p: Props) {
                 stock {stock(s.island, l.good)}
               </span>
               <button type="button" className={styles.link} onClick={() => setStop(i, { load: s.load.filter((_, k) => k !== j) })} aria-label="Remove load">
-                ×
+                <Icon path={toolIcon("close")} />
               </button>
             </div>
           ))}
@@ -208,7 +210,7 @@ export function RouteEditor(p: Props) {
                 stock {stock(s.island, g)}
               </span>
               <button type="button" className={styles.link} onClick={() => setStop(i, { unload: s.unload.filter((_, k) => k !== j) })} aria-label="Remove unload">
-                ×
+                <Icon path={toolIcon("close")} />
               </button>
             </div>
           ))}

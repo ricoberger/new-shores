@@ -1,6 +1,8 @@
 import { type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { nextSnap, SHEET_SNAPS, type SheetSnap, snapFor } from "../display/layout";
 import { modalOpen, trapTab } from "./DialogPanel";
+import { toolIcon } from "../theme/iconSet";
+import { Icon } from "./Icon";
 import styles from "./sheet.module.css";
 
 interface Props {
@@ -111,7 +113,7 @@ export function Sheet({ title, onClose, children }: Props) {
           {title}
         </span>
         <button type="button" className={styles.close} onClick={onClose} aria-label={`Close ${title}`} data-testid="sheet-close">
-          ✕
+          <Icon path={toolIcon("close")} />
         </button>
       </div>
       <div className={styles.body}>{children}</div>

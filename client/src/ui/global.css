@@ -4,7 +4,7 @@ body,
   margin: 0;
   height: 100%;
   overflow: hidden;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--ns-font-body);
   font-size: 14px;
   color: var(--ns-ui-ink);
   background: var(--ns-water-deep);
@@ -19,6 +19,15 @@ body,
 button {
   font: inherit;
   cursor: pointer;
+}
+
+/* Titles and panel headers in the display serif (ART_DIRECTION §6). */
+h1,
+h2,
+h3 {
+  font-family: var(--ns-font-display);
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 /* Controls: no double-tap zoom delay; inputs and sheets keep scrolling. */

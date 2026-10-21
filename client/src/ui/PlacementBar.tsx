@@ -1,4 +1,6 @@
+import { toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
+import { Icon } from "./Icon";
 import type { GhostTool, Tool } from "./tools";
 
 interface Props {
@@ -27,13 +29,13 @@ export function PlacementBar({ tool, hint, onConfirm, onRotate, onCancel }: Prop
       </span>
       <div className={styles.toolBarButtons}>
         <button type="button" className={`${styles.button} ${styles.primary}`} onClick={onConfirm} disabled={!tool.pending} data-testid="placement-confirm">
-          ✓ Confirm
+          <Icon path={toolIcon("confirm")} /> Confirm
         </button>
         <button type="button" className={styles.button} onClick={onRotate} aria-label={`Rotate (now ${tool.rotation}°)`} data-testid="placement-rotate">
-          ⟳ {tool.rotation}°
+          <Icon path={toolIcon("rotate")} /> {tool.rotation}°
         </button>
         <button type="button" className={styles.button} onClick={onCancel} data-testid="placement-cancel">
-          ✕ Cancel
+          <Icon path={toolIcon("cancel")} /> Cancel
         </button>
       </div>
     </div>
@@ -47,7 +49,9 @@ export function PlacementBar({ tool, hint, onConfirm, onRotate, onCancel }: Prop
 export function DemolishBar({ onDone }: { onDone: () => void }) {
   return (
     <div className={`${styles.toolBar} ${styles.demolishBar}`} role="status" data-testid="demolish-bar">
-      <span className={styles.toolBarText}>⚒ Demolish mode — tap a building, field or road</span>
+      <span className={styles.toolBarText}>
+        <Icon path={toolIcon("demolish")} /> Demolish mode — tap a building, field or road
+      </span>
       <button type="button" className={`${styles.button} ${styles.demolishDone}`} onClick={onDone} data-testid="demolish-done">
         Done
       </button>
@@ -95,10 +99,10 @@ export function FieldBar({
       </span>
       <div className={styles.toolBarButtons}>
         <button type="button" className={`${styles.button} ${styles.primary}`} onClick={onConfirm} disabled={!tool.pending} data-testid="field-confirm">
-          ✓ Confirm
+          <Icon path={toolIcon("confirm")} /> Confirm
         </button>
         <button type="button" className={styles.button} onClick={onCancel} data-testid="field-cancel">
-          ✕ Cancel
+          <Icon path={toolIcon("cancel")} /> Cancel
         </button>
       </div>
     </div>

@@ -1,4 +1,6 @@
+import { toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
+import { Icon } from "./Icon";
 
 interface Props {
   /** Turns the camera by 90° steps (positive: clockwise orbit, like E). */
@@ -17,7 +19,7 @@ export function CameraControls({ onRotate }: Props) {
         title="Turn the camera counter-clockwise (Q)"
         data-testid="camera-rotate-left"
       >
-        ⟲
+        <Icon path={toolIcon("camera-left")} />
       </button>
       <button
         type="button"
@@ -27,7 +29,7 @@ export function CameraControls({ onRotate }: Props) {
         title="Turn the camera clockwise (E)"
         data-testid="camera-rotate-right"
       >
-        ⟳
+        <Icon path={toolIcon("camera-right")} />
       </button>
     </div>
   );

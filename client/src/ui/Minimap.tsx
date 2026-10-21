@@ -3,7 +3,9 @@ import type { DisplayState, Island } from "../api/client";
 import type { Rect } from "../display/camera";
 import { fromMinimap, islandsBounds, minimapLandKey, minimapProjection, minimapSize, toMinimap } from "../display/minimap";
 import type { GameRenderer } from "../render/engine";
+import { toolIcon } from "../theme/iconSet";
 import { TERRAIN, UI, WATER } from "../theme/palette";
+import { Icon } from "./Icon";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -140,7 +142,7 @@ export function Minimap({ renderer, model, statics, viewport, collapsible, initi
           aria-label={collapsed ? "Show minimap" : "Hide minimap"}
           data-testid="minimap-toggle"
         >
-          {collapsed ? "▣" : "▢"}
+          <Icon path={toolIcon("minimap")} />
         </button>
       )}
       {!collapsed && (

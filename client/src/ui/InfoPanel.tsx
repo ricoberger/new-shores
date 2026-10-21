@@ -3,7 +3,9 @@ import { percent, perMin, seconds, units } from "../display/format";
 import { countdown, orderTiming } from "../display/ships";
 import { fieldBuildingOf } from "../display/fields";
 import { fieldsPlural, STATUS_STYLES, statusKey, statusText } from "../display/status";
+import { goodIcon, needIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
+import { Icon } from "./Icon";
 
 interface Props {
   building: BuildingDisplay;
@@ -44,11 +46,23 @@ function Bar({ permille, testId }: { permille: number; testId?: string }) {
   );
 }
 
-export function StatusIcon({ building }: { building: BuildingDisplay }) {
-  const s = STATUS_STYLES[statusKey(building)];
+/** A good's icon and name (the icon is decorative; the name is the text). */
+export function GoodName({ id, name }: { id: string; name: string }) {
   return (
-    <span className={styles.icon} style={{ background: s.color }} title={s.label} role="img" aria-label={s.label}>
-      {s.glyph}
+    <span className={styles.withIcon}>
+      <Icon path={goodIcon(id)} />
+      {name}
+    </span>
+  );
+}
+
+/** The status as a wax-seal badge: the status colour with its icon (never colour alone, UI.md §7). */
+export function StatusIcon({ building, seal = false }: { building: BuildingDisplay; seal?: boolean }) {
+  const key = statusKey(building);
+  const s = STATUS_STYLES[key];
+  return (
+    <span className={seal ? `${styles.icon} ${styles.seal}` : styles.icon} style={{ background: s.color }} title={s.label} role="img" aria-label={s.label}>
+      <Icon path={statusIcon(key)} />
     </span>
   );
 }
@@ -93,7 +107,7 @@ function WarehouseUpgrade({
           return (
             <span key={g} className={have < n ? styles.warn : undefined}>
               {" "}
-              · {goodName(g)} {units(have)}/{units(n)}
+              · <GoodName id={g} name={goodName(g)} /> {units(have)}/{units(n)}
             </span>
           );
         })}
@@ -133,7 +147,7 @@ export function InfoPanel({
       </h2>
       <div className={styles.small}>{def ? tierName(def.tier) : ""}</div>
       <div className={styles.statusRow}>
-        <StatusIcon building={b} />
+        <StatusIcon building={b} seal />
         <div>
           <div data-testid="info-status">{status.sentence}</div>
           {status.fix && <div className={styles.fix}>{status.fix}</div>}
@@ -193,7 +207,9 @@ export function InfoPanel({
                 <tbody>
                   {Object.entries(b.rates.inputs).map(([good, rate]) => (
                     <tr key={good}>
-                      <td>{goodName(good)}</td>
+                      <td>
+                        <GoodName id={good} name={goodName(good)} />
+                      </td>
                       <td>{units(island.inventory[good]?.stock ?? 0)}</td>
                       <td>{perMin(rate)}</td>
                       <td>{perMin(island.inventory[good]?.rate_per_min ?? 0, true)}</td>
@@ -209,7 +225,9 @@ export function InfoPanel({
               <tbody>
                 {Object.entries(b.rates.outputs).map(([good, rate]) => (
                   <tr key={good}>
-                    <td>{goodName(good)}</td>
+                    <td>
+                      <GoodName id={good} name={goodName(good)} />
+                    </td>
                     <td data-testid={`rate-output-${good}`}>{perMin(rate)}</td>
                     <td>/min</td>
                   </tr>
@@ -260,7 +278,9 @@ export function InfoPanel({
               {b.buffer &&
                 Object.entries(b.buffer.stock).map(([good, stock]) => (
                   <tr key={good}>
-                    <td>Buffer {goodName(good)}</td>
+                    <td>
+                      Buffer <GoodName id={good} name={goodName(good)} />
+                    </td>
                     <td>
                       {units(stock)}/{units(b.buffer?.capacity ?? 0)}
                     </td>
@@ -286,7 +306,8 @@ export function InfoPanel({
             <div className={styles.sectionTitle}>Needs</div>
             {(b.needs ?? []).map((n) => (
               <div key={n.id} style={{ marginBottom: 4 }}>
-                <div className={styles.small}>
+                <div className={`${styles.small} ${styles.withIcon}`}>
+                  <Icon path={needIcon(n)} />
                   {n.category ? n.category : n.building ? (content.buildings.find((d) => d.id === n.building)?.name ?? n.building) : n.id}{" "}
                   {percent(n.fulfilment_permille)} {NEED_REASONS[n.reason] ? `— ${NEED_REASONS[n.reason]}` : ""}
                 </div>
@@ -368,7 +389,9 @@ export function InfoPanel({
             <tbody>
               {Object.entries(island.inventory).map(([good, g]) => (
                 <tr key={good}>
-                  <td>{goodName(good)}</td>
+                  <td>
+                    <GoodName id={good} name={goodName(good)} />
+                  </td>
                   <td>
                     {units(g.stock)}/{units(g.capacity)}
                   </td>
@@ -383,7 +406,13 @@ export function InfoPanel({
       <div className={styles.buttons}>
         {(canPause || b.paused) && (
           <button type="button" className={styles.button} onClick={() => onSetPaused(!b.paused)} data-testid="info-pause">
-            {b.paused ? "▶ Resume" : "⏸ Pause"}
+            {b.paused ? (
+              "▶ Resume"
+            ) : (
+              <>
+                <Icon path={statusIcon("paused_player")} /> Pause
+              </>
+            )}
           </button>
         )}
         {b.residents !== undefined && (
@@ -392,10 +421,10 @@ export function InfoPanel({
           </button>
         )}
         <button type="button" className={styles.button} onClick={onMove} data-testid="info-move">
-          ✥ Move
+          <Icon path={toolIcon("move")} /> Move
         </button>
         <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onDemolish} data-testid="info-demolish">
-          ⚒ Demolish
+          <Icon path={toolIcon("demolish")} /> Demolish
         </button>
       </div>
     </div>

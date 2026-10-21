@@ -1,7 +1,9 @@
 import type { Content } from "../api/client";
 import { type AwaySummary, summaryView } from "../display/summary";
+import { goodIcon } from "../theme/iconSet";
 import { DialogPanel } from "./DialogPanel";
 import styles from "./hud.module.css";
+import { Icon } from "./Icon";
 
 interface Props {
   summary: AwaySummary;
@@ -11,12 +13,13 @@ interface Props {
   onDismiss: () => void;
 }
 
-/** "While you were away" (UI.md §2): what happened since the last command. */
+/** "While you were away" (UI.md §2): what happened since the last command, as a letter from the advisor (ART_DIRECTION §6). */
 export function AwayDialog({ summary, content, islandName, onDismiss }: Props) {
   const v = summaryView(summary, content, islandName);
   return (
     <div className={styles.backdrop}>
-      <DialogPanel className={`${styles.panel} ${styles.dialog} ${styles.awayDialog}`} labelledBy="away-dialog-title" testId="away-dialog">
+      <DialogPanel className={`${styles.panel} ${styles.dialog} ${styles.awayDialog} ${styles.letter}`} labelledBy="away-dialog-title" testId="away-dialog">
+        <div className={styles.letterFrom}>A letter from your advisor</div>
         <h2 className={styles.title} id="away-dialog-title">
           While you were away
         </h2>
@@ -51,7 +54,12 @@ export function AwayDialog({ summary, content, islandName, onDismiss }: Props) {
               <tbody>
                 {is.goods.map((g) => (
                   <tr key={g.good} data-testid={`away-good-${is.id}-${g.good}`}>
-                    <td>{g.name}</td>
+                    <td>
+                      <span className={styles.withIcon}>
+                        <Icon path={goodIcon(g.good)} />
+                        {g.name}
+                      </span>
+                    </td>
                     <td>{g.produced}</td>
                     <td>{g.consumed}</td>
                     <td className={g.lost !== "0" ? styles.warn : undefined}>{g.lost}</td>
@@ -85,7 +93,8 @@ export function AwayDialog({ summary, content, islandName, onDismiss }: Props) {
         )}
         {v.quests.length > 0 && <div className={styles.section}>Quests completed: {v.quests.join(", ")}</div>}
         <div className={styles.buttons}>
-          <button type="button" className={styles.button} onClick={onDismiss} data-testid="away-dismiss">
+          <span className={styles.letterSign}>Your humble advisor</span>
+          <button type="button" className={`${styles.button} ${styles.primary}`} onClick={onDismiss} data-testid="away-dismiss">
             Continue
           </button>
         </div>

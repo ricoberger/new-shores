@@ -3,7 +3,9 @@ import type { Content, ContentBuilding, DisplayState } from "../api/client";
 import { buildMenuOrder } from "../display/fields";
 import { perMin, units } from "../display/format";
 import { fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
+import { categoryIcon, goodIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
+import { Icon } from "./Icon";
 import type { Tool } from "./tools";
 
 const CATEGORIES: { id: ContentBuilding["category"]; label: string }[] = [
@@ -29,6 +31,13 @@ interface Props {
   compact?: boolean;
   /** Landscape phones: categories and items share one row. */
   singleRow?: boolean;
+}
+
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+
+/** Tier numeral (I, II, …) of a tier's position in the content tiers. */
+export function tierNumeral(index: number): string {
+  return ROMAN[index] ?? String(index + 1);
 }
 
 /**
@@ -68,7 +77,7 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
             onClick={() => setCategory(c.id)}
             data-testid={`build-tab-${c.id}`}
           >
-            {c.label}
+            <Icon path={categoryIcon(c.id)} /> {c.label}
           </button>
         ))}
         <button
@@ -78,7 +87,7 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
           aria-pressed={tool.kind === "demolish"}
           data-testid="tool-demolish"
         >
-          ⚒ Demolish
+          <Icon path={toolIcon("demolish")} /> Demolish
         </button>
       </div>
       <div className={styles.items}>
@@ -87,6 +96,8 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
           .map((b) => {
             const locked = !tierUnlocked(model, b.tier);
             const fertility = fertilityNeed(b, fertilities);
+            const tierIndex = content.tiers.findIndex((t) => t.id === b.tier);
+            const tierName = content.tiers[tierIndex]?.name ?? b.tier;
             return (
               <button
                 key={b.id}
@@ -97,12 +108,19 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
                 onClick={() => onSelect(b)}
                 data-testid={`build-${b.id}`}
               >
+                {tierIndex >= 0 && (
+                  <span className={styles.tierBadge} title={`${tierName} (tier ${tierIndex + 1})`}>
+                    <span aria-hidden="true">{tierNumeral(tierIndex)}</span>
+                    <span className={styles.srOnly}>, {tierName}</span>
+                  </span>
+                )}
                 <span className={styles.itemName}>{b.name}</span>
                 <span className={styles.small}>
                   {units(b.cost.gold)} gold · upkeep {perMin(b.upkeep_per_min)}/min
                 </span>
                 {Object.entries(b.cost.materials).map(([good, need]) => (
-                  <span key={good} className={styles.small}>
+                  <span key={good} className={`${styles.small} ${styles.withIcon}`}>
+                    <Icon path={goodIcon(good)} />
                     {goodName(good)}: {units(inventory[good]?.stock ?? 0)}/{units(need)}
                   </span>
                 ))}
