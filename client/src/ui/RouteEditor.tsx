@@ -28,11 +28,13 @@ interface Props {
 }
 
 /**
- * Graphical route editor (UI.md §4): stops come from clicks on islands in
- * the archipelago view (or the island chooser), each with its load ("top up
- * to") and unload lists and the island's stock of the listed goods from the
- * extrapolated display model. Loop time and the estimated effects are the
- * server's numbers of the saved route ("Save to compute" before).
+ * Route editor panel (UI.md §4, D-048): stops come from the island pickers
+ * (a "+ stop…" chooser and one picker per stop to change its island) or,
+ * as a shortcut, from clicks on islands in the world; each stop has its
+ * load ("top up to") and unload lists and the island's stock of the listed
+ * goods from the extrapolated display model. Loop time and the estimated
+ * effects are the server's numbers of the saved route ("Save to compute"
+ * before).
  */
 export function RouteEditor(p: Props) {
   const { model, content, routeId, draft, pickingShip, error } = p;
@@ -45,6 +47,13 @@ export function RouteEditor(p: Props) {
     return g ? `${units(g.stock)}/${units(g.capacity)}` : "—";
   };
   const firstGood = content.goods[0]?.id ?? "";
+  const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
+  /** Inline stock of a stop's goods (its load and unload lists, else the first good) at an island, for the island picker. */
+  const pickerStock = (island: string, s: DraftStop) => {
+    const goods = [...new Set([...s.load.map((l) => l.good), ...s.unload])];
+    if (goods.length === 0 && firstGood) goods.push(firstGood);
+    return goods.map((g) => `${goodName(g)} ${stock(island, g)}`).join(", ");
+  };
   const dirty = route ? draftChanged(draft, route) : true;
   const idleShips = model.ships.filter((s) => s.state === "idle");
   const picking = pickingShip === null ? undefined : model.ships.find((s) => s.id === pickingShip);
@@ -96,7 +105,7 @@ export function RouteEditor(p: Props) {
           data-testid="route-name"
         />
       </div>
-      <div className={styles.small}>Click islands in the map to add stops.</div>
+      <div className={styles.small}>Pick islands below or click them in the world to add stops.</div>
       {draft.stops.map((s, i) => (
         <div key={i} className={styles.stop} data-testid={`route-stop-${i}`}>
           <div className={styles.row}>
@@ -121,6 +130,20 @@ export function RouteEditor(p: Props) {
               remove
             </button>
           </div>
+          <select
+            className={styles.input}
+            value={s.island}
+            onChange={(e) => e.target.value && setStop(i, { island: e.target.value })}
+            aria-label={`Stop ${i + 1}: island`}
+            data-testid={`route-stop-island-${i}`}
+          >
+            {model.islands.map((is) => (
+              <option key={is.id} value={is.id}>
+                {is.name || is.id}
+                {is.settled ? "" : " (unsettled)"} · {pickerStock(is.id, s)}
+              </option>
+            ))}
+          </select>
           <div className={styles.small}>Load (top up to this many aboard)</div>
           {s.load.map((l, j) => (
             <div key={j} className={styles.row}>

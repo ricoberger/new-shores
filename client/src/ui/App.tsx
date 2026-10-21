@@ -18,17 +18,19 @@ import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/route
 import { shouldShowSummary } from "../display/summary";
 import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
 import { insolvencyBanner } from "../display/insolvency";
-import { blankStop, initialViewState, type View, viewReducer } from "../display/view";
-import { type FrameStats, GameRenderer, type RendererEvents, type RenderSource } from "../render/engine";
+import type { Lod } from "../display/lod";
+import { blankStop, initialViewState, viewReducer } from "../display/view";
+import { type CameraInfo, type FrameStats, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
 import hud from "./hud.module.css";
-import { ArchipelagoOverlay } from "./ArchipelagoOverlay";
 import { BuildMenu } from "./BuildMenu";
+import { CameraControls } from "./CameraControls";
 import { type ConfirmRequest, ConfirmDialog } from "./Dialogs";
 import { GameCanvas } from "./GameCanvas";
 import { InfoPanel } from "./InfoPanel";
 import { IslandCard } from "./IslandCard";
+import { Minimap } from "./Minimap";
 import { RouteEditor } from "./RouteEditor";
 import { RoutesPanel } from "./RoutesPanel";
 import { ShipmentDialog } from "./ShipmentDialog";
@@ -39,12 +41,13 @@ import { DemolishBar, FieldBar, PlacementBar, RoadBar } from "./PlacementBar";
 import { FieldRingLabels } from "./FieldRingLabels";
 import { Sheet } from "./Sheet";
 import { useLayout } from "./useLayout";
-import { type GhostTool, isGhostTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
+import { type GhostTool, type IslandTile, isGhostTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
 import { AwayDialog } from "./AwayDialog";
 import { InsolvencyBanner } from "./InsolvencyBanner";
 import { QuestsPanel } from "./QuestsPanel";
 import { TopBar } from "./TopBar";
 import { WarningsTray } from "./WarningsTray";
+import { WorldOverlay } from "./WorldOverlay";
 
 /** Demolishing anything that cost more than this (milli-gold) is confirmed. */
 const CONFIRM_DEMOLISH_GOLD = 100_000;
@@ -52,28 +55,42 @@ const TOAST_MS = 5000;
 
 /** Test hook (dev and E2E builds only; tree-shaken from production builds). */
 export interface TestHook {
+  /** Viewport position of the centre of an island tile, any island at any LOD (NaN for unknown islands and during a camera animation). */
   tileToScreen(islandId: string, x: number, y: number): { x: number; y: number };
   getDisplay(): unknown;
   getServer(): WorldResponse | null;
   engineCount(): number;
-  /** The view the renderer shows: "archipelago" or the island ID, "transition" while the camera moves between views. */
-  view(): string;
-  /** Viewport position of an island's anchor, or of one of its tiles (archipelago view; NaN otherwise). */
+  /** The level of detail of the last frame. */
+  lod(): Lod;
+  /**
+   * Camera target in world coordinates (x, z = −archipelago y; y is the
+   * archipelago y for convenience), ortho half extent and rotation step 0–3.
+   */
+  camera(): { x: number; z: number; y: number; half: number; rotation: number };
+  /** Sets parts of the camera (target x/z or y, half extent, rotation step), clamped like user input. */
+  setCamera(c: { x?: number; z?: number; y?: number; half?: number; rotation?: number }): void;
+  /** The focused island (under the camera target, else the nearest). */
+  focusedIsland(): string;
+  /** Islands in the camera's footprint (rendered), in payload order. */
+  visibleIslands(): string[];
+  /** Viewport position of an island's centre, or of one of its tiles (NaN for unknown islands and during a camera animation). */
   islandToScreen(id: string, x?: number, y?: number): { x: number; y: number };
-  /** Viewport position of a ship (archipelago view, or at the harbour in the island view). */
+  /** Viewport position of a ship drawn in the last frame (NaN during a camera animation). */
   shipToScreen(id: number): { x: number; y: number };
-  /** Viewport position of an archipelago point (tiles) in any view, also during a transition. */
+  /** Viewport position of an archipelago point (tiles), also during a camera animation. */
   archToScreen(x: number, y: number): { x: number; y: number };
   /** Draw calls of the last frame. */
   drawCalls(): number;
   /** Instance style a ship was drawn with in the last frame ("active" / "unpaid"), null if not drawn. */
   shipStyle(id: number): "active" | "unpaid" | null;
-  /** Shipyard construction hulls drawn in the last island-view frame. */
+  /** Shipyard construction hulls drawn in the last frame (near LOD). */
   constructionMarkers(): { buildingId: number; scale: number }[];
   /** Frame times over the last windowMs (default 5 s). */
   frameStats(windowMs?: number): FrameStats;
-  /** Carts drawn in the island view. */
+  /** Carts drawn (near LOD, islands in view). */
   carts(): number;
+  /** Far-LOD landmark markers drawn. */
+  landmarks(): number;
   /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
   ghostTile(): { x: number; y: number } | null;
   /** Rectangle the field tool's preview showed in the last frame (null: none). */
@@ -105,18 +122,18 @@ interface AppProps {
   onLoggedOut: () => void;
   /** Data source (default: a GameSync against the server). */
   sync?: SyncLike;
-  /** First view (default: the first island). */
-  initialView?: View;
+  /** Where the camera starts (default: the first island at the near zoom). */
+  initialCamera?: InitialCamera;
 }
 
-export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync: source, initialView }: AppProps) {
+export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync: source, initialCamera }: AppProps) {
   const [sync] = useState<SyncLike>(() => source ?? new GameSync());
   useEffect(() => sync.start(), [sync]);
   useEffect(() => sync.subscribeUnauthorized(onSessionEnded), [sync, onSessionEnded]);
   const snap = useSyncExternalStore(sync.subscribe, sync.getSnapshot);
   const { model, content } = snap;
 
-  const [vs, dispatch] = useReducer(viewReducer, initialView, (v: View | undefined) => initialViewState(v));
+  const [vs, dispatch] = useReducer(viewReducer, undefined, initialViewState);
   const [tool, setTool] = useState<Tool>(NO_TOOL);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
@@ -147,32 +164,22 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const [renderer, setRenderer] = useState<GameRenderer | null>(null);
   const rendererRef = useRef<GameRenderer | null>(null);
   const toastId = useRef(0);
-  /** A building to centre on once the renderer shows its island. */
-  const pendingFocus = useRef<number | null>(null);
+  // The camera's focused island, LOD and rotation (the renderer reports changes).
+  const [cam, setCam] = useState<CameraInfo>({ focus: "", lod: "near", rotation: 0 });
 
-  // The view (D-027: the client only chooses what to look at).
-  const archView = vs.view.kind === "archipelago";
-  const requestedIsland = vs.view.kind === "island" ? vs.view.id : "";
-  const island = archView ? undefined : (model?.islands.find((is) => is.id === requestedIsland) ?? model?.islands[0]);
-  const islandId = island?.id ?? "";
-  const staticIsland = snap.islands.get(islandId);
+  // The focused island (D-048, UI only): its tab is selected, the build
+  // menu shows its stock and an unsettled one shows the founding panel.
+  // Commands use the island of the tile or building acted on.
+  const focused = model?.islands.find((is) => is.id === cam.focus) ?? model?.islands[0];
+  const focusId = focused?.id ?? "";
+  const staticFocused = snap.islands.get(focusId);
   const defs = new Map((content?.buildings ?? []).map((b) => [b.id, b]));
   const selected = vs.selection.kind === "building" ? vs.selection.id : null;
-  const selectedBuilding = island?.buildings.find((b) => b.id === selected);
+  const selectedOwner = selected === null ? undefined : model?.islands.find((is) => is.buildings.some((b) => b.id === selected));
+  const selectedBuilding = selectedOwner?.buildings.find((b) => b.id === selected);
   const selectedShipId = vs.selection.kind === "ship" ? vs.selection.id : null;
   const selectedShip = selectedShipId === null ? undefined : model?.ships.find((s) => s.id === selectedShipId);
   const warehouseType = content?.buildings.find((b) => b.warehouse)?.id ?? "";
-
-  // Switching views clears any active tool (founding keeps its own).
-  const viewKey = archView ? "archipelago" : `island:${islandId}`;
-  const prevViewKey = useRef(viewKey);
-  const keepTool = useRef(false);
-  useEffect(() => {
-    if (prevViewKey.current === viewKey) return;
-    prevViewKey.current = viewKey;
-    if (keepTool.current) keepTool.current = false;
-    else setTool(NO_TOOL);
-  }, [viewKey]);
 
   const toast = useCallback((text: string) => {
     const id = ++toastId.current;
@@ -198,21 +205,21 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const send = async (cmd: Command): Promise<ApiError | null> => (await sendCommand(cmd)).error;
 
-  const demolish = async (b: BuildingDisplay, acceptSurplusLoss: boolean) => {
+  const demolish = async (islandId: string, b: BuildingDisplay, acceptSurplusLoss: boolean) => {
     const err = await send({ type: "demolish", island_id: islandId, building_id: b.id, accept_surplus_loss: acceptSurplusLoss });
     if (err?.code === "surplus_loss") {
       setConfirm({
         title: "Goods would be lost",
         body: `${err.message}. The remaining warehouses cannot hold all goods; the excess will be lost.`,
         confirmLabel: "Demolish and lose goods",
-        onConfirm: () => void demolish(b, true),
+        onConfirm: () => void demolish(islandId, b, true),
       });
     } else if (!err && selected === b.id) {
       dispatch({ type: "clearSelection" });
     }
   };
 
-  const requestDemolish = (b: BuildingDisplay) => {
+  const requestDemolish = (islandId: string, b: BuildingDisplay) => {
     const def = defs.get(b.type);
     if (def && def.cost.gold > CONFIRM_DEMOLISH_GOLD) {
       const materials = Object.entries(def.cost.materials)
@@ -222,19 +229,19 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         title: `Demolish ${def.name}?`,
         body: `It cost ${units(def.cost.gold)} gold${materials ? ` and ${materials}` : ""}.`,
         confirmLabel: "Demolish",
-        onConfirm: () => void demolish(b, false),
+        onConfirm: () => void demolish(islandId, b, false),
       });
       return;
     }
-    void demolish(b, false);
+    void demolish(islandId, b, false);
   };
 
-  const enterIsland = (id: string) => dispatch({ type: "enterIsland", id });
+  /** The camera jumps to an island (tabs, island card, Enter). */
+  const goTo = (id: string) => rendererRef.current?.jumpToIsland(id);
 
-  /** Founding: show the ship's island and place the warehouse ghost there. */
+  /** Founding: the camera jumps to the ship's island with the warehouse ghost. */
   const startFounding = (ship: ShipDisplay) => {
-    if (viewKey !== `island:${ship.island_id}`) keepTool.current = true;
-    enterIsland(ship.island_id);
+    goTo(ship.island_id);
     dispatch({ type: "clearSelection" });
     setPanel("none");
     setTool({ kind: "found", shipId: ship.id, buildingType: warehouseType, rotation: 0 });
@@ -289,7 +296,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
    * a pending tile) for the next building; move and found end on success.
    * On an error the tool stays so the player can retry.
    */
-  const placeGhost = (t: GhostTool, x: number, y: number) => {
+  const placeGhost = (t: GhostTool, at: IslandTile) => {
+    const { island: islandId, x, y } = at;
     const cmd: Command =
       t.kind === "build"
         ? { type: "place_building", island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation }
@@ -310,7 +318,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
    * rejection means the data was stale: the server's error is a toast
    * (sendCommand) and the world is re-fetched; nothing is retried.
    */
-  const placeFieldRect = (fieldType: string, from: TilePos, to: TilePos) => {
+  const placeFieldRect = (fieldType: string, islandId: string, from: TilePos, to: TilePos) => {
     const snapNow = sync.getSnapshot();
     const is = snapNow.server?.display.islands.find((x) => x.id === islandId);
     const statics = snapNow.islands.get(islandId);
@@ -325,77 +333,80 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   };
 
   /** A single field (mouse click or a one-tile touch rectangle) is a place_building. */
-  const placeField = (fieldType: string, x: number, y: number) => {
-    void sendCommand({ type: "place_building", island_id: islandId, building_type: fieldType, x, y, rotation: 0 }).then(({ ok, error }) => {
+  const placeField = (fieldType: string, at: IslandTile) => {
+    void sendCommand({ type: "place_building", island_id: at.island, building_type: fieldType, x: at.x, y: at.y, rotation: 0 }).then(({ ok, error }) => {
       if (!ok && error) void sync.refresh();
     });
   };
 
   const confirmFields = () => {
     if (tool.kind !== "field" || !tool.pending) return;
-    const { from, to } = tool.pending;
-    if (from.x === to.x && from.y === to.y) placeField(tool.fieldType, from.x, from.y);
-    else placeFieldRect(tool.fieldType, from, to);
+    const { island, from, to } = tool.pending;
+    if (from.x === to.x && from.y === to.y) placeField(tool.fieldType, { island, x: from.x, y: from.y });
+    else placeFieldRect(tool.fieldType, island, from, to);
     setTool((cur) => (cur === tool ? { kind: "field", fieldType: tool.fieldType } : cur));
   };
 
   const confirmPlacement = () => {
-    if (isGhostTool(tool) && tool.pending) placeGhost(tool, tool.pending.x, tool.pending.y);
+    if (isGhostTool(tool) && tool.pending) placeGhost(tool, tool.pending);
   };
 
   const rotateTool = (steps: number) =>
     setTool((t) => (isGhostTool(t) ? { ...t, rotation: rotateSteps(t.rotation, steps) } : t));
 
+  /** A tap on island land or its label: the reducer appends a stop, picks a destination, selects the island or (near LOD) a building. */
+  const tapIsland = (id: string, building?: number | null) => {
+    // Opening an island card closes a list panel (it would take precedence).
+    if (building === undefined && vs.editor.kind === "closed" && vs.shipment.kind === "none") setPanel("none");
+    dispatch({ type: "tapIsland", id, building });
+  };
+
   const events: RendererEvents = {
-    select: (id: number | null) => dispatch({ type: "selectBuilding", id }),
-    place: (x: number, y: number) => {
-      if (tool.kind === "build") placeGhost(tool, x, y);
-    },
-    pend: (x: number, y: number) => setTool((t) => (isGhostTool(t) ? { ...t, pending: { x, y } } : t)),
-    unpend: () => setTool((t) => ((isGhostTool(t) || t.kind === "field") && t.pending ? { ...t, pending: undefined } : t)),
-    rotateGhost: rotateTool,
-    move: (x: number, y: number) => {
-      if (tool.kind === "move") placeGhost(tool, x, y);
-    },
-    found: (x: number, y: number) => {
-      if (tool.kind === "found") placeGhost(tool, x, y);
-    },
-    road: (from: TilePos, to: TilePos) => {
-      if (tool.kind !== "road" || !island) return;
-      const existing = new Set(island.roads.map((r) => `${r.x},${r.y}`));
-      const tiles = lPath(from, to).filter((t) => !existing.has(`${t.x},${t.y}`));
-      if (tiles.length === 0) return;
-      void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles });
-    },
-    placeField: (x: number, y: number) => {
-      if (tool.kind === "field") placeField(tool.fieldType, x, y);
-    },
-    fieldRect: (from: TilePos, to: TilePos) => {
-      if (tool.kind === "field") placeFieldRect(tool.fieldType, from, to);
-    },
-    pendFields: (from: TilePos, to: TilePos) => setTool((t) => (t.kind === "field" ? { ...t, pending: { from, to } } : t)),
-    demolish: (x: number, y: number) => {
-      if (!island) return;
-      const b = buildingAt(island.buildings, defs, x, y);
-      if (b) {
-        requestDemolish(b);
-      } else if (island.roads.some((r) => r.x === x && r.y === y)) {
-        void send({ type: "demolish_road", island_id: islandId, tiles: [{ x, y }] });
-      }
-    },
-    cancelTool: () => setTool(NO_TOOL),
-    ghostHint: (text: string | null) => setGhostHint(text),
-    zoomOutAtMax: (amount: number) => dispatch({ type: "zoomOutAtMax", amount, atMs: performance.now() }),
-    zoomReset: () => dispatch({ type: "zoomReset" }),
-    tapIsland: (id: string) => {
-      if (vs.editor.kind === "closed" && vs.shipment.kind === "none") setPanel("none");
-      dispatch({ type: "tapIsland", id });
-    },
+    tapIsland,
     tapShip: (id: number) => {
       setPanel("none");
       dispatch({ type: "tapShip", id });
     },
     tapSea: () => dispatch({ type: "tapSea" }),
+    place: (at: IslandTile) => {
+      if (tool.kind === "build") placeGhost(tool, at);
+    },
+    pend: (at: IslandTile) => setTool((t) => (isGhostTool(t) ? { ...t, pending: at } : t)),
+    unpend: () => setTool((t) => ((isGhostTool(t) || t.kind === "field") && t.pending ? { ...t, pending: undefined } : t)),
+    rotateGhost: rotateTool,
+    move: (at: IslandTile) => {
+      if (tool.kind === "move") placeGhost(tool, at);
+    },
+    found: (at: IslandTile) => {
+      if (tool.kind === "found") placeGhost(tool, at);
+    },
+    road: (islandId: string, from: TilePos, to: TilePos) => {
+      const is = model?.islands.find((x) => x.id === islandId);
+      if (tool.kind !== "road" || !is) return;
+      const existing = new Set(is.roads.map((r) => `${r.x},${r.y}`));
+      const tiles = lPath(from, to).filter((t) => !existing.has(`${t.x},${t.y}`));
+      if (tiles.length === 0) return;
+      void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles });
+    },
+    placeField: (at: IslandTile) => {
+      if (tool.kind === "field") placeField(tool.fieldType, at);
+    },
+    fieldRect: (islandId: string, from: TilePos, to: TilePos) => {
+      if (tool.kind === "field") placeFieldRect(tool.fieldType, islandId, from, to);
+    },
+    pendFields: (island: string, from: TilePos, to: TilePos) => setTool((t) => (t.kind === "field" ? { ...t, pending: { island, from, to } } : t)),
+    demolish: (at: IslandTile) => {
+      const is = model?.islands.find((x) => x.id === at.island);
+      if (!is) return;
+      const b = buildingAt(is.buildings, defs, at.x, at.y);
+      if (b) {
+        requestDemolish(is.id, b);
+      } else if (is.roads.some((r) => r.x === at.x && r.y === at.y)) {
+        void send({ type: "demolish_road", island_id: is.id, tiles: [{ x: at.x, y: at.y }] });
+      }
+    },
+    cancelTool: () => setTool(NO_TOOL),
+    ghostHint: (text: string | null) => setGhostHint(text),
     // Inspecting closes a list panel (it would take precedence over the
     // info panel); the active tool stays and nothing is sent.
     inspectBuilding: (id: number) => {
@@ -412,6 +423,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     },
     dragShip: (shipId: number, from: string) => dispatch({ type: "dragShip", shipId, from }),
     dropShip: (to: string | null) => dispatch({ type: "dropShip", island: to }),
+    camera: (info: CameraInfo) => setCam(info),
   };
 
   const selectBuildItem = (b: ContentBuilding) => {
@@ -433,38 +445,27 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     setRenderer(r);
   }, []);
 
-  // The renderer shows the chosen view (also after it was re-created).
-  useEffect(() => {
-    if (!renderer) return;
-    if (archView) renderer.setView({ kind: "archipelago" });
-    else if (islandId) renderer.setView({ kind: "island", id: islandId });
-    if (!archView && islandId && pendingFocus.current !== null) {
-      renderer.focusBuilding(pendingFocus.current);
-      pendingFocus.current = null;
-    }
-  }, [renderer, archView, islandId, snap.server]);
-
   useEffect(() => renderer?.setSelected(selected), [renderer, selected, snap.server]);
 
-  // A ship drag ends in the renderer too when the view state ends it (Esc,
-  // a view switch): the ship returns to its place and stops following the pointer.
+  // A ship drag ends in the renderer too when the view state ends it (Esc):
+  // the ship returns to its place and stops following the pointer.
   const shipmentKind = vs.shipment.kind;
   useEffect(() => {
     if (shipmentKind !== "dragging") renderer?.cancelShipDrag();
   }, [renderer, shipmentKind]);
 
-  // Archipelago selection ring, highlighted route and the editor's live draft.
+  // Selection ring, highlighted route and the editor's live draft.
   const archSel = vs.selection.kind === "ship" || vs.selection.kind === "island" ? vs.selection : ({ kind: "none" } as const);
   const editing = vs.editor.kind === "open" && vs.editor.active ? vs.editor : null;
   const highlight = editing ? editing.routeId : selectedShip?.route_id || null;
   const draftStops = editing ? editing.draft.stops.map((s) => s.island) : null;
   useEffect(() => renderer?.setArchState(archSel, highlight, draftStops));
 
-  // Keyboard: Esc steps back one thing per press, Enter enters the selected
-  // island, Backspace returns to the archipelago, R rotates the ghost.
-  const latest = useRef({ tool, confirm, dialog: vs.dialog, panel, sheets });
+  // Keyboard: Esc steps back one thing per press, Enter jumps to the
+  // selected island, Q / E turn the camera, R rotates the ghost.
+  const latest = useRef({ tool, confirm, dialog: vs.dialog, panel, sheets, selection: vs.selection });
   useEffect(() => {
-    latest.current = { tool, confirm, dialog: vs.dialog, panel, sheets };
+    latest.current = { tool, confirm, dialog: vs.dialog, panel, sheets, selection: vs.selection };
   });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -480,11 +481,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         else dispatch({ type: "escape" });
       } else if (e.key === "Enter") {
         if (t instanceof HTMLButtonElement || t instanceof HTMLAnchorElement) return;
-        dispatch({ type: "keyEnter" });
-      } else if (e.key === "Backspace") {
-        if (cur.confirm || cur.dialog) return;
-        e.preventDefault();
-        dispatch({ type: "keyBack" });
+        if (cur.selection.kind === "island") rendererRef.current?.jumpToIsland(cur.selection.id);
+      } else if (e.key === "q" || e.key === "Q") {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        rendererRef.current?.rotateCamera(-1);
+      } else if (e.key === "e" || e.key === "E") {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        rendererRef.current?.rotateCamera(1);
       } else if (e.key === "r" || e.key === "R") {
         setTool((x) => (isGhostTool(x) ? { ...x, rotation: nextRotation(x.rotation) } : x));
       }
@@ -501,13 +504,22 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         getDisplay: () => sync.getSnapshot().model,
         getServer: () => sync.getSnapshot().server,
         engineCount: () => GameRenderer.engineCount(),
-        view: () => {
-          const r = rendererRef.current;
-          if (!r) return "";
-          if (r.transitioning()) return "transition";
-          const v = r.currentView();
-          return v.kind === "archipelago" ? "archipelago" : v.id;
+        lod: () => rendererRef.current?.currentLod() ?? "near",
+        camera: () => {
+          const v = rendererRef.current?.cameraView() ?? { x: NaN, y: NaN, half: NaN, rotation: 0 };
+          return { x: v.x, z: -v.y, y: v.y, half: v.half, rotation: v.rotation };
         },
+        setCamera: (c) => {
+          const y = c.y ?? (c.z === undefined ? undefined : -c.z);
+          rendererRef.current?.setCamera({
+            ...(c.x === undefined ? {} : { x: c.x }),
+            ...(y === undefined ? {} : { y }),
+            ...(c.half === undefined ? {} : { half: c.half }),
+            ...(c.rotation === undefined ? {} : { rotation: c.rotation }),
+          });
+        },
+        focusedIsland: () => rendererRef.current?.focusedIsland() ?? "",
+        visibleIslands: () => rendererRef.current?.visibleIslandIds() ?? [],
         islandToScreen: (id, x, y) => rendererRef.current?.islandToScreen(id, x, y) ?? nan,
         shipToScreen: (id) => rendererRef.current?.shipToScreen(id) ?? nan,
         archToScreen: (x, y) => rendererRef.current?.archToClient({ x, y }) ?? nan,
@@ -516,20 +528,16 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
         frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 },
         carts: () => rendererRef.current?.cartCount() ?? 0,
+        landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
       };
     }
   }, [sync]);
 
+  /** Warnings tray and info-panel links: the camera jumps to the building, which is selected. */
   const focus = (id: number) => {
-    const owner = model?.islands.find((is) => is.buildings.some((b) => b.id === id));
-    if (owner && (archView || owner.id !== islandId)) {
-      enterIsland(owner.id);
-      pendingFocus.current = id;
-    } else {
-      rendererRef.current?.focusBuilding(id);
-    }
+    rendererRef.current?.jumpToBuilding(id);
     dispatch({ type: "selectBuilding", id });
   };
 
@@ -543,12 +551,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const selectShipFromList = (ship: ShipDisplay) => {
     setPanel("none");
-    // A ship at sea is shown in the archipelago.
-    if (ship.leg && !archView && ship.island_id === "") dispatch({ type: "toArchipelago" });
     dispatch({ type: "selectShip", id: ship.id });
   };
 
-  const idleShipsHere = model?.ships.filter((s) => s.state === "idle" && s.island_id === islandId) ?? [];
+  const idleShipsHere = model?.ships.filter((s) => s.state === "idle" && s.island_id === focusId) ?? [];
   const islandName = (id: string) => model?.islands.find((is) => is.id === id)?.name || id;
   const awaySummary = model?.away_summary;
   const dismissSummary = (id: number) => {
@@ -595,7 +601,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onClose={() => setPanel("none")}
         />
       );
-    } else if (editor?.active && archView) {
+    } else if (editor?.active) {
       rightKey = "editor";
       rightTitle = editor.routeId === null ? "New route" : `Route #${editor.routeId}`;
       rightClose = () => dispatch({ type: "closeEditor" });
@@ -629,7 +635,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           model={model}
           content={content}
           nowMs={snap.nowMs}
-          archipelago={archView}
           onAssignToRoute={() => openEditor(null, ship.id)}
           onUnassign={() => void send({ type: "unassign_ship", ship_id: ship.id })}
           onSend={() => dispatch({ type: "openShipment", shipId: ship.id, to: null })}
@@ -639,7 +644,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onClose={() => dispatch({ type: "clearSelection" })}
         />
       );
-    } else if (archView && vs.selection.kind === "island") {
+    } else if (vs.selection.kind === "island") {
       const id = vs.selection.id;
       rightKey = "island";
       rightTitle = model.islands.find((is) => is.id === id)?.name || id;
@@ -651,7 +656,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           content={content}
           statics={snap.islands.get(id)}
           nowMs={snap.nowMs}
-          onEnter={() => enterIsland(id)}
+          onGoTo={() => goTo(id)}
           onFound={(shipId) => {
             const s = model.ships.find((x) => x.id === shipId);
             if (s) startFounding(s);
@@ -661,7 +666,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onClose={() => dispatch({ type: "clearSelection" })}
         />
       );
-    } else if (!archView && selectedBuilding && island) {
+    } else if (selectedBuilding && selectedOwner) {
+      const island = selectedOwner;
+      const islandId = island.id;
       rightKey = "building";
       rightTitle = defs.get(selectedBuilding.type)?.name ?? selectedBuilding.type;
       rightClose = () => dispatch({ type: "clearSelection" });
@@ -672,7 +679,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           model={model}
           content={content}
           onSetPaused={(paused) => void send({ type: "set_paused", island_id: islandId, building_id: selectedBuilding.id, paused })}
-          onDemolish={() => requestDemolish(selectedBuilding)}
+          onDemolish={() => requestDemolish(islandId, selectedBuilding)}
           onMove={() =>
             setTool({
               kind: "move",
@@ -697,22 +704,20 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   // Touch affordances: shown for touch input (the last pointer was a finger).
   const touchUI = touchInput || isTouchLayout(layout.mode);
-  const placementBar = !archView && touchUI && isGhostTool(tool);
-  const demolishBar = !archView && touchUI && tool.kind === "demolish";
-  const roadBar = !archView && touchUI && tool.kind === "road";
-  const fieldBar = !archView && touchUI && tool.kind === "field";
+  const placementBar = touchUI && isGhostTool(tool);
+  const demolishBar = touchUI && tool.kind === "demolish";
+  const roadBar = touchUI && tool.kind === "road";
+  const fieldBar = touchUI && tool.kind === "field";
   const verb = touchUI ? "Tap" : "Click";
 
+  // Interaction hints (shipment target, ship drag, editor picks).
   let archHint = "";
-  if (archView) {
-    const sh = vs.shipment;
-    if (sh.kind === "awaitingTarget") archHint = `${verb} the destination island for ship #${sh.shipId} · Esc cancels`;
-    else if (sh.kind === "dragging") archHint = `Drop ship #${sh.shipId} on an island to send it · the sea cancels`;
-    else if (editor?.active) archHint = `${verb} islands to add stops · Esc closes the editor`;
-    else archHint = `${verb} an island to select it, again to enter · drag an idle ship onto an island to send it`;
-  }
+  const sh = vs.shipment;
+  if (sh.kind === "awaitingTarget") archHint = `${verb} the destination island for ship #${sh.shipId} · Esc cancels`;
+  else if (sh.kind === "dragging") archHint = `Drop ship #${sh.shipId} on an island to send it · the sea cancels`;
+  else if (editor?.active) archHint = `${verb} islands to add stops · Esc closes the editor`;
 
-  const resumeBar = editor && !editor.active && archView && (
+  const resumeBar = editor && !editor.active && (
     <div className={`${hud.panel} ${hud.resumeBar}`}>
       <span className={hud.small}>Route editor paused ({editor.routeId === null ? "new route" : `route #${editor.routeId}`})</span>
       <button
@@ -758,18 +763,17 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   // Short landscape phones: the side panel keeps a usable height; the hint
   // bar is hidden and the insolvency banner keeps one line.
-  const hintShown = archView || (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && !fieldBar);
+  const hintShown = archHint !== "" || (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && !fieldBar);
   const tightLandscape = collapseLandscapeChrome({
     mode: layout.mode,
     sheets,
     panelOpen: right !== null || Boolean(resumeBar),
     height: layout.height,
-    buildBar: !archView,
     banner: insolvencyBanner(model) !== null,
     hint: hintShown,
   });
   const fieldPlural = tool.kind === "field" ? `${(defs.get(tool.fieldType)?.name ?? "field").toLowerCase()}s` : "";
-  const toolHint = !tightLandscape && !archView && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && !fieldBar && (
+  const toolHint = !tightLandscape && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && !fieldBar && (
     <div className={phone ? styles.hintInline : styles.hint} data-testid="tool-hint">
       {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
       {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
@@ -784,7 +788,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       )}
     </div>
   );
-  const archHintEl = !tightLandscape && archView && (
+  const archHintEl = !tightLandscape && archHint !== "" && (
     <div className={phone ? styles.hintInline : styles.hint} data-testid="arch-hint">
       {archHint}
     </div>
@@ -797,17 +801,17 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   return (
     <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
-      {!archView && <FieldRingLabels renderer={renderer} />}
-      {archView && model && <ArchipelagoOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} />}
+      <FieldRingLabels renderer={renderer} />
+      {model && (
+        <WorldOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} />
+      )}
       <div className={styles.overlay}>
         <div className={styles.top}>
           <TopBar
             model={model}
             content={content}
-            islandId={islandId}
-            archipelago={archView}
-            onSelectIsland={enterIsland}
-            onToArchipelago={() => dispatch({ type: "toArchipelago" })}
+            islandId={focusId}
+            onSelectIsland={goTo}
             onShips={() => setPanel((p) => (p === "ships" ? "none" : "ships"))}
             onRoutes={() => setPanel((p) => (p === "routes" ? "none" : "routes"))}
             onQuests={() => setPanel((p) => (p === "quests" ? "none" : "quests"))}
@@ -834,13 +838,26 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {phone && unreachable}
         </div>
         {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
-        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialView={initialView} />
+        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} />
+        {model && (
+          <div className={styles.mapCorner}>
+            <Minimap
+              renderer={renderer}
+              model={model}
+              statics={snap.islands}
+              viewport={{ width: layout.width, height: layout.height }}
+              collapsible={phone}
+              initiallyCollapsed={layout.mode === "phone-portrait"}
+            />
+            <CameraControls onRotate={(steps) => renderer?.rotateCamera(steps)} />
+          </div>
+        )}
         {rightSlot}
         <div className={styles.bottom}>
-          {archView ? null : island && !island.settled ? (
+          {focused && !focused.settled ? (
             <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid="unsettled-panel">
               <div>
-                <strong>{island.name || island.id}</strong> is not settled. Send a ship with the warehouse materials
+                <strong>{focused.name || focused.id}</strong> is not settled. Send a ship with the warehouse materials
                 and found a settlement.
               </div>
               {idleShipsHere.map((s) => (
@@ -853,8 +870,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             <BuildMenu
               content={content}
               model={model}
-              islandId={islandId}
-              fertilities={staticIsland?.fertilities}
+              islandId={focusId}
+              fertilities={staticFocused?.fertilities}
               tool={tool}
               onSelect={selectBuildItem}
               onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}

@@ -1,9 +1,9 @@
 // Fields (D-049): flat tinted tiles with a simple procedural pattern per
 // field type (placeholders until the asset task), drawn with thin
-// instances — one mesh per field type —, the green/yellow preview of the
-// field tool's rectangle and the work-radius rings of farms with their
-// "n / required" labels (labels are HTML, see FieldRingLabels). Nothing
-// here is pickable.
+// instances — one mesh per field type and island (FieldTiles, near LOD) —,
+// and in world coordinates the green/yellow preview of the field tool's
+// rectangle and the work-radius rings of farms with their "n / required"
+// labels (labels are HTML, see FieldRingLabels). Nothing here is pickable.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
@@ -91,7 +91,7 @@ function flat(scene: Scene, name: string, size: number, height: number, color: C
 /** A farm whose work radius is drawn as a ring. */
 export interface FieldRing {
   farmId: number;
-  /** Footprint centre in scene coordinates (x, z). */
+  /** Footprint centre in scene (world) coordinates (x, z). */
   cx: number;
   cz: number;
   radius: number;
@@ -100,20 +100,14 @@ export interface FieldRing {
   required: number;
 }
 
-export class FieldLayer {
+/** The fields of one island (under the island's node, local tiles). */
+export class FieldTiles {
   private readonly meshes = new Map<string, Mesh>();
-  private readonly valid: Mesh;
-  private readonly outOfRange: Mesh;
-  private readonly rings = new Map<number, Mesh>();
-  private ringList: FieldRing[] = [];
 
   constructor(
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
-  ) {
-    this.valid = flat(scene, "field_preview_valid", 0.9, 0.05, FIELD_VALID, 0.7, parent);
-    this.outOfRange = flat(scene, "field_preview_out", 0.9, 0.05, FIELD_OUT_OF_RANGE, 0.6, parent);
-  }
+  ) {}
 
   /** Draws the fields among the buildings (buildings with a field block). */
   update(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
@@ -139,6 +133,19 @@ export class FieldLayer {
       }
       setInstances(mesh, slabs(tiles, FIELD_Y));
     }
+  }
+}
+
+/** Field tool preview and farm rings, in world coordinates. */
+export class FieldLayer {
+  private readonly valid: Mesh;
+  private readonly outOfRange: Mesh;
+  private readonly rings = new Map<number, Mesh>();
+  private ringList: FieldRing[] = [];
+
+  constructor(private readonly scene: Scene) {
+    this.valid = flat(scene, "field_preview_valid", 0.9, 0.05, FIELD_VALID, 0.7, null);
+    this.outOfRange = flat(scene, "field_preview_out", 0.9, 0.05, FIELD_OUT_OF_RANGE, 0.6, null);
   }
 
   /** Field tool preview: green tiles are sent, yellow ones are outside every accepting farm's ring. */
@@ -166,7 +173,6 @@ export class FieldLayer {
         mat.disableLighting = true;
         mesh.material = mat;
         mesh.isPickable = false;
-        mesh.parent = this.parent;
         this.rings.set(radius, mesh);
       }
       setInstances(mesh, new Float32Array(arr));
@@ -179,9 +185,9 @@ export class FieldLayer {
   }
 }
 
-/** Ring of a farm with fields (null for any other building). */
-export function farmRing(b: BuildingDisplay, def: ContentBuilding | undefined): FieldRing | null {
+/** Ring of a farm with fields (null for any other building); `origin` is its island's position. */
+export function farmRing(b: BuildingDisplay, def: ContentBuilding | undefined, origin: { x: number; y: number } = { x: 0, y: 0 }): FieldRing | null {
   if (!def?.fields || !def.work_area) return null;
   const { cx, cz } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-  return { farmId: b.id, cx, cz, radius: def.work_area.radius, assigned: b.fields?.assigned ?? 0, required: b.fields?.required ?? def.fields.required };
+  return { farmId: b.id, cx: cx + origin.x, cz: cz - origin.y, radius: def.work_area.radius, assigned: b.fields?.assigned ?? 0, required: b.fields?.required ?? def.fields.required };
 }

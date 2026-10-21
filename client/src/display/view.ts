@@ -1,9 +1,8 @@
 // View state of the client (UI only, D-027: it chooses what to look at and
 // edits drafts; no game rule). Pure and framework-free: a reducer over the
-// view (one island or the archipelago), the selection, the route editor and
-// the manual-shipment interaction.
-
-export type View = { kind: "island"; id: string } | { kind: "archipelago" };
+// selection, the route editor and the manual-shipment interaction. There
+// is one continuous world (D-048): no view mode; where the camera looks
+// is the renderer's state.
 
 export type Selection =
   | { kind: "none" }
@@ -56,49 +55,26 @@ export type Shipment =
   | { kind: "awaitingTarget"; shipId: number; from: string };
 
 export interface ViewState {
-  view: View;
   selection: Selection;
   editor: Editor;
   shipment: Shipment;
   /** The shipment dialog (destination preset, still changeable), or null. */
   dialog: { shipId: number; to: string | null } | null;
-  /** Zoom-out accumulated at the island view's maximum extent (wheel delta units). */
-  zoomOut: { amount: number; atMs: number };
   /** Last editor session number handed out. */
   editorSessions: number;
 }
 
-/**
- * Wheel delta (CSS pixels of deltaY) that must accumulate while the island
- * view is already at its maximum extent before it switches to the
- * archipelago. One wheel tick is about 100 (line mode) to 300 (some mice);
- * the threshold needs at least two ticks of 300, or six of 100.
- */
-export const ZOOM_OUT_THRESHOLD = 600;
-/** The accumulated zoom-out is forgotten after this pause between gestures. */
-export const ZOOM_OUT_RESET_MS = 800;
 /** Wheel zoom: the camera's half extent changes by exp(deltaY × WHEEL_ZOOM_RATE). */
 export const WHEEL_ZOOM_RATE = 0.0015;
 
-/**
- * A pinch update (finger distance ratio, < 1: zoom out) in wheel delta
- * units: the deltaY that zooms the camera by the same factor. A pinch to
- * half the finger distance is ln 2 / 0.0015 ≈ 462 units, below the
- * archipelago threshold: a single small pinch never switches views.
- */
-export function pinchZoomDelta(scale: number): number {
-  if (!(scale > 0) || !Number.isFinite(scale)) return 0;
-  return Math.log(1 / scale) / WHEEL_ZOOM_RATE;
-}
-
 export type ViewAction =
-  /** A zoom-out gesture while the island view is at its maximum extent. */
-  | { type: "zoomOutAtMax"; amount: number; atMs: number }
-  /** Any other zoom (zoom in, or not at the maximum): resets the accumulator. */
-  | { type: "zoomReset" }
-  | { type: "enterIsland"; id: string }
-  | { type: "toArchipelago" }
-  | { type: "tapIsland"; id: string }
+  /**
+   * A tap on an island's land (or its name label). `building` is set (an
+   * ID or null for bare ground) for a tap at near LOD, where the land's
+   * buildings are pickable; without it (mid/far LOD, labels) the island
+   * itself is meant.
+   */
+  | { type: "tapIsland"; id: string; building?: number | null }
   | { type: "tapShip"; id: number }
   | { type: "tapSea" }
   | { type: "selectBuilding"; id: number | null }
@@ -122,46 +98,16 @@ export type ViewAction =
   | { type: "sendTo"; shipId: number; from: string }
   | { type: "openShipment"; shipId: number; to: string | null }
   | { type: "closeShipment" }
-  | { type: "escape" }
-  | { type: "keyEnter" }
-  | { type: "keyBack" };
+  | { type: "escape" };
 
-export function initialViewState(view: View = { kind: "island", id: "" }): ViewState {
+export function initialViewState(): ViewState {
   return {
-    view,
     selection: { kind: "none" },
     editor: { kind: "closed" },
     shipment: { kind: "none" },
     dialog: null,
-    zoomOut: { amount: 0, atMs: 0 },
     editorSessions: 0,
   };
-}
-
-const NO_ZOOM = { amount: 0, atMs: 0 };
-
-/** Switches the view: the building selection is cleared (the caller clears tools). */
-function switchView(s: ViewState, view: View): ViewState {
-  const selection = s.selection.kind === "building" || s.selection.kind === "island" ? ({ kind: "none" } as const) : s.selection;
-  return {
-    ...s,
-    view,
-    selection,
-    // The editor and a "Send to…" target pick live in the archipelago view only.
-    editor: view.kind === "island" ? { kind: "closed" } : s.editor,
-    shipment: view.kind === "island" ? { kind: "none" } : s.shipment,
-    zoomOut: NO_ZOOM,
-  };
-}
-
-function enter(s: ViewState, id: string): ViewState {
-  if (s.view.kind === "island" && s.view.id === id) return { ...s, zoomOut: NO_ZOOM };
-  return switchView(s, { kind: "island", id });
-}
-
-function toArchipelago(s: ViewState): ViewState {
-  if (s.view.kind === "archipelago") return s;
-  return switchView(s, { kind: "archipelago" });
 }
 
 /** A selection made while the editor is open suspends it; clearing the selection resumes it. */
@@ -187,21 +133,7 @@ export function blankStop(island: string): DraftStop {
 
 export function viewReducer(s: ViewState, a: ViewAction): ViewState {
   switch (a.type) {
-    case "zoomOutAtMax": {
-      if (s.view.kind !== "island") return s;
-      const prev = a.atMs - s.zoomOut.atMs > ZOOM_OUT_RESET_MS ? 0 : s.zoomOut.amount;
-      const amount = prev + Math.max(0, a.amount);
-      if (amount >= ZOOM_OUT_THRESHOLD) return toArchipelago(s);
-      return { ...s, zoomOut: { amount, atMs: a.atMs } };
-    }
-    case "zoomReset":
-      return s.zoomOut.amount === 0 ? s : { ...s, zoomOut: NO_ZOOM };
-    case "enterIsland":
-      return enter(s, a.id);
-    case "toArchipelago":
-      return toArchipelago(s);
     case "tapIsland": {
-      if (s.view.kind !== "archipelago") return s;
       const sh = s.shipment;
       if (sh.kind === "awaitingTarget") {
         const dialog = a.id === sh.from ? null : { shipId: sh.shipId, to: a.id };
@@ -210,7 +142,8 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
       if (s.editor.kind === "open" && s.editor.active) {
         return withStops(s, (stops) => [...stops, blankStop(a.id)]);
       }
-      if (s.selection.kind === "island" && s.selection.id === a.id) return enter(s, a.id);
+      // Near LOD: the building under the tap, or nothing (deselects).
+      if (a.building !== undefined) return select(s, a.building === null ? { kind: "none" } : { kind: "building", id: a.building });
       return select(s, { kind: "island", id: a.id });
     }
     case "tapShip":
@@ -229,10 +162,9 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
     case "clearSelection":
       return select(s, { kind: "none" });
     case "openEditor": {
-      const t = toArchipelago(s);
       const session = s.editorSessions + 1;
       return {
-        ...t,
+        ...s,
         shipment: { kind: "none" },
         editorSessions: session,
         editor: { kind: "open", session, active: true, routeId: a.routeId, draft: a.draft, pickingShip: a.pickingShip ?? null, error: null },
@@ -270,7 +202,7 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
     case "closeEditor":
       return s.editor.kind === "closed" ? s : { ...s, editor: { kind: "closed" } };
     case "dragShip":
-      return s.view.kind === "archipelago" ? { ...s, shipment: { kind: "dragging", shipId: a.shipId, from: a.from } } : s;
+      return { ...s, shipment: { kind: "dragging", shipId: a.shipId, from: a.from } };
     case "dropShip": {
       const sh = s.shipment;
       if (sh.kind !== "dragging") return s;
@@ -278,7 +210,7 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
       return { ...s, shipment: { kind: "none" }, dialog };
     }
     case "sendTo":
-      return s.view.kind === "archipelago" ? { ...s, shipment: { kind: "awaitingTarget", shipId: a.shipId, from: a.from } } : s;
+      return { ...s, shipment: { kind: "awaitingTarget", shipId: a.shipId, from: a.from } };
     case "openShipment":
       return { ...s, shipment: { kind: "none" }, dialog: { shipId: a.shipId, to: a.to } };
     case "closeShipment":
@@ -294,15 +226,5 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
         return { ...s, editor: { kind: "closed" } };
       }
       return s.selection.kind === "none" ? s : select(s, { kind: "none" });
-    case "keyEnter":
-      if (s.view.kind === "archipelago" && s.selection.kind === "island") return enter(s, s.selection.id);
-      return s;
-    case "keyBack":
-      return toArchipelago(s);
   }
-}
-
-/** The island shown in the island view, or null in the archipelago view. */
-export function viewIsland(s: ViewState): string | null {
-  return s.view.kind === "island" ? s.view.id : null;
 }

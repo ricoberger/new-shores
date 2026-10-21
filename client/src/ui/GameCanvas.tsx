@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { GameRenderer, type RendererEvents, type RenderSource, type RenderView } from "../render/engine";
+import { GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
 import type { Tool } from "./tools";
 import styles from "./App.module.css";
 
@@ -8,8 +8,8 @@ interface Props {
   tool: () => Tool;
   events: RendererEvents;
   onRenderer: (r: GameRenderer | null) => void;
-  /** View of a newly created renderer (later changes go through setView). */
-  initialView?: RenderView;
+  /** Where the camera of a newly created renderer starts (default: the first island). */
+  initialCamera?: InitialCamera;
 }
 
 /**
@@ -17,11 +17,11 @@ interface Props {
  * cleanup disposes it, so React Strict Mode's double-invoked effects never
  * leave a second engine or canvas listeners behind.
  */
-export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Props) {
+export function GameCanvas({ sync, tool, events, onRenderer, initialCamera }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const toolRef = useRef(tool);
   const eventsRef = useRef(events);
-  const viewRef = useRef(initialView);
+  const cameraRef = useRef(initialCamera);
   useEffect(() => {
     toolRef.current = tool;
     eventsRef.current = events;
@@ -36,32 +36,30 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Prop
       sync,
       () => toolRef.current(),
       {
-        select: (id) => ev().select(id),
-        place: (x, y) => ev().place(x, y),
-        pend: (x, y) => ev().pend(x, y),
-        unpend: () => ev().unpend(),
-        rotateGhost: (steps) => ev().rotateGhost(steps),
-        move: (x, y) => ev().move(x, y),
-        found: (x, y) => ev().found(x, y),
-        road: (a, b) => ev().road(a, b),
-        placeField: (x, y) => ev().placeField(x, y),
-        fieldRect: (a, b) => ev().fieldRect(a, b),
-        pendFields: (a, b) => ev().pendFields(a, b),
-        demolish: (x, y) => ev().demolish(x, y),
-        cancelTool: () => ev().cancelTool(),
-        ghostHint: (text) => ev().ghostHint(text),
-        zoomOutAtMax: (amount) => ev().zoomOutAtMax(amount),
-        zoomReset: () => ev().zoomReset(),
-        tapIsland: (id) => ev().tapIsland(id),
+        tapIsland: (id, building) => ev().tapIsland(id, building),
         tapShip: (id) => ev().tapShip(id),
         tapSea: () => ev().tapSea(),
+        place: (at) => ev().place(at),
+        pend: (at) => ev().pend(at),
+        unpend: () => ev().unpend(),
+        rotateGhost: (steps) => ev().rotateGhost(steps),
+        move: (at) => ev().move(at),
+        found: (at) => ev().found(at),
+        road: (island, a, b) => ev().road(island, a, b),
+        placeField: (at) => ev().placeField(at),
+        fieldRect: (island, a, b) => ev().fieldRect(island, a, b),
+        pendFields: (island, a, b) => ev().pendFields(island, a, b),
+        demolish: (at) => ev().demolish(at),
+        cancelTool: () => ev().cancelTool(),
+        ghostHint: (text) => ev().ghostHint(text),
         inspectBuilding: (id) => ev().inspectBuilding(id),
         inspectShip: (id) => ev().inspectShip(id),
         inspectIsland: (id) => ev().inspectIsland(id),
         dragShip: (id, from) => ev().dragShip(id, from),
         dropShip: (island) => ev().dropShip(island),
+        camera: (info) => ev().camera(info),
       },
-      viewRef.current,
+      cameraRef.current,
     );
     onRenderer(renderer);
     return () => {
@@ -76,7 +74,7 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Prop
       className={styles.canvas}
       tabIndex={0}
       role="application"
-      aria-label="Game view: drag to pan, pinch or wheel to zoom, tap to select"
+      aria-label="Game view: drag to pan, pinch or wheel to zoom, Q and E rotate, tap to select"
       data-testid="game-canvas"
     />
   );

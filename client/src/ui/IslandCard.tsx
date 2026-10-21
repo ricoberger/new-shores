@@ -10,7 +10,8 @@ interface Props {
   /** Static island data (fertilities, deposits); undefined while loading. */
   statics: Island | undefined;
   nowMs: number;
-  onEnter: () => void;
+  /** "Go to island": the camera jumps to it. */
+  onGoTo: () => void;
   onFound: (shipId: number) => void;
   onNewRoute: () => void;
   onSelectShip: (shipId: number) => void;
@@ -18,10 +19,10 @@ interface Props {
 }
 
 /**
- * Island card of the archipelago view (UI.md §1/§6): a summary of the
- * island from display numbers and static data, and its actions.
+ * Island card (UI.md §1/§6): a summary of the island from display numbers
+ * and static data, and its actions.
  */
-export function IslandCard({ islandId, model, content, statics, nowMs, onEnter, onFound, onNewRoute, onSelectShip, onClose }: Props) {
+export function IslandCard({ islandId, model, content, statics, nowMs, onGoTo, onFound, onNewRoute, onSelectShip, onClose }: Props) {
   const is = model.islands.find((i) => i.id === islandId);
   if (!is) return null;
   const sum = islandSummary(is);
@@ -83,8 +84,8 @@ export function IslandCard({ islandId, model, content, statics, nowMs, onEnter, 
         </div>
       </div>
       <div className={`${styles.row} ${styles.section}`}>
-        <button type="button" className={styles.button} onClick={onEnter} data-testid="island-card-enter">
-          Enter island
+        <button type="button" className={styles.button} onClick={onGoTo} data-testid="island-card-enter">
+          Go to island
         </button>
         {is.settled && (
           <button type="button" className={styles.button} onClick={onNewRoute} data-testid="island-card-new-route">

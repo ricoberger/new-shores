@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { wheelZoom, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 import { E2E_TIME_SCALE, ISLAND, ISLAND_ZOOM_OUT_TICKS, LUMBERJACK } from "./constants";
 
@@ -24,10 +25,8 @@ test("the away dialog shows once per summary", async ({ page }) => {
   test.setTimeout(GAP_WALL_MS + 60_000);
   await page.goto("/");
   await dismissAwayDialog(page);
-  const box = (await page.getByTestId("game-canvas").boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  for (let i = 0; i < ISLAND_ZOOM_OUT_TICKS; i++) await page.mouse.wheel(0, 300);
-  await page.waitForTimeout(200);
+  await worldReady(page, ISLAND);
+  await wheelZoom(page, ISLAND_ZOOM_OUT_TICKS);
 
   // A command: pause and resume the lumberjack in its info panel.
   const p = await page.evaluate(([id, x, y]) => window.__newShores!.tileToScreen(id as string, x as number, y as number), [

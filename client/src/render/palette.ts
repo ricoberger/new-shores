@@ -44,3 +44,5 @@ export const FIELD_VALID = Color3.FromHexString("#3BB273");
 export const FIELD_OUT_OF_RANGE = Color3.FromHexString("#F0C808");
 /** Work-radius ring of a farm with fields. */
 export const FIELD_RING = Color3.FromHexString("#FFF4D6");
+/** Haze the sea fades into toward the edges of the world (also the scene's clear colour). */
+export const HAZE = Color3.FromHexString("#A9C2D3");

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { NetworkError, type Player } from "../api/client";
 import { authErrorText, currentPlayer, parseMailLink, verifyEmail } from "../api/auth";
-import { type FixtureId, FixtureSync, fixtureFromSearch, fixtureView } from "../dev/fixture";
+import { type FixtureId, FixtureSync, fixtureCamera, fixtureFromSearch } from "../dev/fixture";
 import { App } from "./App";
 import appStyles from "./App.module.css";
 import styles from "./account.module.css";
@@ -43,9 +43,9 @@ export function Root() {
 
 function FixtureApp({ id }: { id: FixtureId }) {
   const [sync] = useState(() => new FixtureSync(id));
-  const [view] = useState(() => fixtureView(id));
+  const [camera] = useState(() => fixtureCamera(id));
   const noop = useCallback(() => undefined, []);
-  return <App player={FIXTURE_PLAYER} onPlayerChange={noop} onSessionEnded={noop} onLoggedOut={noop} sync={sync} initialView={view} />;
+  return <App player={FIXTURE_PLAYER} onPlayerChange={noop} onSessionEnded={noop} onLoggedOut={noop} sync={sync} initialCamera={camera} />;
 }
 
 /**

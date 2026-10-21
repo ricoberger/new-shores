@@ -2,7 +2,7 @@ import { chromium, test } from "@playwright/test";
 import lighthouse, { desktopConfig } from "lighthouse";
 import { WEB_PORT } from "./constants";
 
-// Lighthouse accessibility score of the island view (dense fixture, no
+// Lighthouse accessibility score of the dense fixture (near LOD, no
 // server state) for the desktop and the 412 × 915 mobile profile, with the
 // project-local lighthouse devDependency against the preview build. Only
 // runs with MEASURE_LIGHTHOUSE=1 (scores recorded in the M3 notes). The
@@ -25,7 +25,7 @@ const PROFILES = [
   },
 ];
 
-test("Lighthouse accessibility of the island view", async () => {
+test("Lighthouse accessibility of the dense fixture", async () => {
   test.setTimeout(240_000);
   const browser = await chromium.launch({ args: [`--remote-debugging-port=${DEBUG_PORT}`] });
   try {

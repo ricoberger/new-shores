@@ -23,6 +23,8 @@ export interface Touch {
   longPress(p: Point, ms?: number): Promise<void>;
   /** Two fingers around `centre` from `fromDist` to `toDist` apart (horizontal). */
   pinch(centre: Point, fromDist: number, toDist: number, steps?: number): Promise<void>;
+  /** Two fingers `dist` apart twisted about `centre` by `angle` radians (positive: clockwise on screen). */
+  twist(centre: Point, dist: number, angle: number, steps?: number): Promise<void>;
 }
 
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -89,6 +91,20 @@ class CdpTouch implements Touch {
     this.fire("touchEnd", []);
     await this.done();
   }
+
+  async twist(c: Point, dist: number, angle: number, steps = 12) {
+    const at = (a: number) => [
+      { x: c.x - (Math.cos(a) * dist) / 2, y: c.y - (Math.sin(a) * dist) / 2, id: 1 },
+      { x: c.x + (Math.cos(a) * dist) / 2, y: c.y + (Math.sin(a) * dist) / 2, id: 2 },
+    ];
+    this.fire("touchStart", at(0));
+    for (let i = 1; i <= steps; i++) {
+      await pause(16);
+      this.fire("touchMove", at((angle * i) / steps));
+    }
+    this.fire("touchEnd", []);
+    await this.done();
+  }
 }
 
 class SyntheticTouch implements Touch {
@@ -145,6 +161,10 @@ class SyntheticTouch implements Touch {
   }
 
   async pinch() {
+    throw new Error("multi-touch is not emulated on this browser");
+  }
+
+  async twist() {
     throw new Error("multi-touch is not emulated on this browser");
   }
 }

@@ -1,17 +1,15 @@
-// Island-view additions (UI.md §4): ships at the island drawn on the water
+// Harbours (UI.md §4): the berths where ships at an island lie — water
 // next to the coast nearest the harbour building (shipyard, else
-// warehouse), and a hull rising on every shipyard with an order. Visual
+// warehouse) — and a hull rising on every shipyard with an order. Visual
 // placement only; positions and progress come from the display payload.
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
-import type { ContentBuilding, Island, IslandDisplay, ShipDisplay } from "../api/client";
-import { shipsAt } from "../display/archipelago";
+import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
 import type { TilePos } from "../display/geometry";
 import { orderTiming } from "../display/ships";
 import { footprintBox } from "./coords";
-import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
+import { ColoredInstances, shipMatrix, shipTemplate } from "./shipmesh";
 
-const HARBOUR_SHIP_SCALE = 2;
 /** Minimum distance (tiles) between two harbour berths. */
 const BERTH_SPACING = 2;
 const MAX_BERTHS = 24;
@@ -41,75 +39,47 @@ export function harbourBerths(island: Pick<Island, "width" | "height" | "terrain
   return out;
 }
 
-export class HarbourLayer {
-  private readonly ships: ColoredInstances;
+/**
+ * Harbour berths of an island (local tiles): water tiles next to the coast
+ * nearest the harbour building (shipyard, else warehouse, else the island
+ * centre). Ships at the island lie there; the first berth anchors its legs
+ * and route ribbons.
+ */
+export function islandBerths(island: IslandDisplay, statics: Island, defs: ReadonlyMap<string, ContentBuilding>): TilePos[] {
+  const harbour = island.buildings.find((b) => defs.get(b.type)?.shipyard) ?? island.buildings.find((b) => defs.get(b.type)?.warehouse);
+  let near = { x: statics.width / 2, y: statics.height / 2 };
+  if (harbour) {
+    const def = defs.get(harbour.type);
+    if (def) {
+      const box = footprintBox(harbour.x, harbour.y, def.width, def.height, harbour.rotation);
+      near = { x: box.cx, y: -box.cz };
+    }
+  }
+  return harbourBerths(statics, near, MAX_BERTHS);
+}
+
+/** A hull rising on every shipyard with an order (near LOD, under the island's node). */
+export class ConstructionLayer {
   private readonly construction: ColoredInstances;
-  private berths: TilePos[] = [];
   private island: IslandDisplay | undefined;
-  private shipList: ShipDisplay[] = [];
   private defs: ReadonlyMap<string, ContentBuilding> = new Map();
-  private enabled = true;
-  /** Tile centres of the ships drawn in the last frame. */
-  private readonly drawn = new Map<number, { x: number; y: number; style: ShipStyle }>();
   /** Shipyards (building IDs) with a construction hull in the last frame, with its scale. */
   private readonly markers = new Map<number, number>();
 
   constructor(scene: Scene, parent: TransformNode | null = null) {
-    this.ships = new ColoredInstances(shipTemplate(scene, "harbour_ships"));
     this.construction = new ColoredInstances(shipTemplate(scene, "shipyard_construction"));
-    this.ships.mesh.parent = parent;
     this.construction.mesh.parent = parent;
   }
 
-  update(island: IslandDisplay | undefined, statics: Island | undefined, ships: readonly ShipDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
+  update(island: IslandDisplay | undefined, defs: ReadonlyMap<string, ContentBuilding>): void {
     this.island = island;
-    this.shipList = [...ships];
     this.defs = defs;
-    this.berths = [];
-    if (!island || !statics) return;
-    const harbour =
-      island.buildings.find((b) => defs.get(b.type)?.shipyard) ?? island.buildings.find((b) => defs.get(b.type)?.warehouse);
-    let near = { x: statics.width / 2, y: statics.height / 2 };
-    if (harbour) {
-      const def = defs.get(harbour.type);
-      if (def) {
-        const box = footprintBox(harbour.x, harbour.y, def.width, def.height, harbour.rotation);
-        near = { x: box.cx, y: -box.cz };
-      }
-    }
-    this.berths = harbourBerths(statics, near, MAX_BERTHS);
   }
 
-  setEnabled(on: boolean): void {
-    this.enabled = on;
-    this.ships.mesh.setEnabled(on);
-    this.construction.mesh.setEnabled(on);
-  }
-
-  /** Places ships and construction hulls at server time nowMs (every frame). */
+  /** Places the construction hulls at server time nowMs (every frame while shown). */
   frame(nowMs: number): void {
-    this.drawn.clear();
     this.markers.clear();
-    if (!this.enabled || !this.island) {
-      this.ships.resize(0);
-      this.construction.resize(0);
-      return;
-    }
-    const here = shipsAt(this.shipList, this.island.id, nowMs)
-      .slice()
-      .sort((a, b) => a.id - b.id)
-      .slice(0, this.berths.length);
-    this.ships.resize(here.length);
-    here.forEach((s, i) => {
-      const b = this.berths[i] as TilePos;
-      const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
-      this.drawn.set(s.id, { x: b.x + 0.5, y: b.y + 0.5, style });
-      shipMatrix(this.ships.matrices, i, b.x + 0.5, -0.05, -(b.y + 0.5), 0, HARBOUR_SHIP_SCALE);
-      this.ships.setColor(i, shipColor(style));
-    });
-    this.ships.commit();
-
-    const orders = this.island.buildings.filter((b) => b.ship_order);
+    const orders = this.island ? this.island.buildings.filter((b) => b.ship_order) : [];
     this.construction.resize(orders.length);
     orders.forEach((b, i) => {
       const def = this.defs.get(b.type);
@@ -122,11 +92,6 @@ export class HarbourLayer {
       this.construction.setColor(i, CONSTRUCTION);
     });
     this.construction.commit();
-  }
-
-  /** Ships drawn in the last frame with their tile-centre position and style. */
-  drawnShips(): IterableIterator<[number, { x: number; y: number; style: ShipStyle }]> {
-    return this.drawn.entries();
   }
 
   /** Construction hulls drawn in the last frame: shipyard building ID and hull scale. */

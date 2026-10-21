@@ -1,21 +1,27 @@
-// Active tool of the island view (UI state only).
+// Active tool (UI state only). Tools act on any island at any zoom
+// (D-048): pending tiles carry the island they lie on.
 import { nextRotation, type Rotation, type TilePos } from "../display/geometry";
+
+/** A tile of an island (local tile coordinates). */
+export interface IslandTile extends TilePos {
+  island: string;
+}
 
 export type Tool =
   | { kind: "none" }
   /** `pending`: the tile a touch tap put the ghost on, waiting for Confirm. */
-  | { kind: "build"; buildingType: string; rotation: Rotation; pending?: TilePos }
+  | { kind: "build"; buildingType: string; rotation: Rotation; pending?: IslandTile }
   | { kind: "road"; roadType: string }
   /** Moving a placed building (D-042); the ghost uses its footprint. */
-  | { kind: "move"; buildingId: number; buildingType: string; rotation: Rotation; pending?: TilePos }
+  | { kind: "move"; buildingId: number; buildingType: string; rotation: Rotation; pending?: IslandTile }
   /** Placing the first warehouse of an unsettled island from a ship's cargo. */
-  | { kind: "found"; shipId: number; buildingType: string; rotation: Rotation; pending?: TilePos }
+  | { kind: "found"; shipId: number; buildingType: string; rotation: Rotation; pending?: IslandTile }
   /**
    * Placing fields of a field building (D-049): a click places one, a drag
    * selects a rectangle. `pending`: the rectangle a touch drag (or tap)
    * selected, waiting for Confirm.
    */
-  | { kind: "field"; fieldType: string; pending?: { from: TilePos; to: TilePos } }
+  | { kind: "field"; fieldType: string; pending?: { island: string; from: TilePos; to: TilePos } }
   | { kind: "demolish" };
 
 export type GhostTool = Extract<Tool, { kind: "build" | "move" | "found" }>;
