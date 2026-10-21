@@ -9,7 +9,7 @@ import { shipsAt } from "../display/archipelago";
 import type { TilePos } from "../display/geometry";
 import { orderTiming } from "../display/ships";
 import { footprintBox } from "./coords";
-import { ColoredInstances, SHIP_ACTIVE, SHIP_UNPAID, shipMatrix, shipTemplate } from "./shipmesh";
+import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 
 const HARBOUR_SHIP_SCALE = 2;
 /** Minimum distance (tiles) between two harbour berths. */
@@ -50,7 +50,9 @@ export class HarbourLayer {
   private defs: ReadonlyMap<string, ContentBuilding> = new Map();
   private enabled = true;
   /** Tile centres of the ships drawn in the last frame. */
-  private readonly drawn = new Map<number, { x: number; y: number }>();
+  private readonly drawn = new Map<number, { x: number; y: number; style: ShipStyle }>();
+  /** Shipyards (building IDs) with a construction hull in the last frame, with its scale. */
+  private readonly markers = new Map<number, number>();
 
   constructor(scene: Scene, parent: TransformNode | null = null) {
     this.ships = new ColoredInstances(shipTemplate(scene, "harbour_ships"));
@@ -87,6 +89,7 @@ export class HarbourLayer {
   /** Places ships and construction hulls at server time nowMs (every frame). */
   frame(nowMs: number): void {
     this.drawn.clear();
+    this.markers.clear();
     if (!this.enabled || !this.island) {
       this.ships.resize(0);
       this.construction.resize(0);
@@ -99,9 +102,10 @@ export class HarbourLayer {
     this.ships.resize(here.length);
     here.forEach((s, i) => {
       const b = this.berths[i] as TilePos;
-      this.drawn.set(s.id, { x: b.x + 0.5, y: b.y + 0.5 });
+      const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
+      this.drawn.set(s.id, { x: b.x + 0.5, y: b.y + 0.5, style });
       shipMatrix(this.ships.matrices, i, b.x + 0.5, -0.05, -(b.y + 0.5), 0, HARBOUR_SHIP_SCALE);
-      this.ships.setColor(i, s.state === "anchored_unpaid" ? SHIP_UNPAID : SHIP_ACTIVE);
+      this.ships.setColor(i, shipColor(style));
     });
     this.ships.commit();
 
@@ -112,14 +116,21 @@ export class HarbourLayer {
       const box = def ? footprintBox(b.x, b.y, def.width, def.height, b.rotation) : { cx: b.x + 0.5, cz: -(b.y + 0.5) };
       const p = b.ship_order ? orderTiming(b.ship_order, nowMs).progressPermille / 1000 : 0;
       // The hull grows and rises out of the slipway as the order progresses.
-      shipMatrix(this.construction.matrices, i, box.cx, 0.55 + 0.45 * p, box.cz, 0, 1.2 + 1.8 * p);
+      const scale = 1.2 + 1.8 * p;
+      this.markers.set(b.id, scale);
+      shipMatrix(this.construction.matrices, i, box.cx, 0.55 + 0.45 * p, box.cz, 0, scale);
       this.construction.setColor(i, CONSTRUCTION);
     });
     this.construction.commit();
   }
 
-  /** Ships drawn in the last frame with their tile-centre position. */
-  drawnShips(): IterableIterator<[number, { x: number; y: number }]> {
+  /** Ships drawn in the last frame with their tile-centre position and style. */
+  drawnShips(): IterableIterator<[number, { x: number; y: number; style: ShipStyle }]> {
     return this.drawn.entries();
+  }
+
+  /** Construction hulls drawn in the last frame: shipyard building ID and hull scale. */
+  constructionMarkers(): { buildingId: number; scale: number }[] {
+    return [...this.markers.entries()].map(([buildingId, scale]) => ({ buildingId, scale }));
   }
 }

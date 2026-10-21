@@ -20,7 +20,7 @@ import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { Island, IslandDisplay, RouteDisplay, ShipDisplay, Terrain } from "../api/client";
 import { anchorSlots, type ArchPoint, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
-import { ColoredInstances, SHIP_ACTIVE, SHIP_UNPAID, shipMatrix, shipTemplate } from "./shipmesh";
+import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 
 const SILHOUETTE_TOP = 0.3;
@@ -164,6 +164,8 @@ export class ArchipelagoLayer {
   private shownIsland = "";
   /** Positions (archipelago tiles) of the ships in the last frame. */
   private readonly shipPoints = new Map<number, ArchPoint>();
+  /** Instance style of every ship drawn in the last frame. */
+  private readonly shipStyles = new Map<number, ShipStyle>();
   private dragged: { shipId: number; point: ArchPoint } | null = null;
   private seaKey = "";
 
@@ -441,6 +443,7 @@ export class ArchipelagoLayer {
     }
     for (const [type, inst] of this.ships) if (!byType.has(type)) inst.resize(0);
     this.shipPoints.clear();
+    this.shipStyles.clear();
     for (const [type, list] of byType) {
       const inst = this.shipInstances(type);
       inst.resize(list.length);
@@ -450,7 +453,9 @@ export class ArchipelagoLayer {
         if (this.dragged?.shipId === s.id) point = this.dragged.point;
         this.shipPoints.set(s.id, point);
         shipMatrix(inst.matrices, i, point.x, SHIP_Y, -point.y, p?.heading ?? 0, p ? SHIP_SCALE : 0);
-        inst.setColor(i, s.state === "anchored_unpaid" ? SHIP_UNPAID : SHIP_ACTIVE);
+        const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
+        this.shipStyles.set(s.id, style);
+        inst.setColor(i, shipColor(style));
       });
       inst.commit();
     }
@@ -483,6 +488,11 @@ export class ArchipelagoLayer {
   /** Archipelago position of a ship in the last frame. */
   shipPoint(id: number): ArchPoint | undefined {
     return this.shipPoints.get(id);
+  }
+
+  /** Instance style a ship was drawn with in the last frame. */
+  shipStyle(id: number): ShipStyle | undefined {
+    return this.shipStyles.get(id);
   }
 
   /** Ship IDs with their last-frame position. */

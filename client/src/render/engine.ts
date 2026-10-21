@@ -31,6 +31,7 @@ import { IconLayer } from "./icons";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
 import { type Point, PointerInput } from "./picking";
 import { RoadLayer } from "./roads";
+import type { ShipStyle } from "./shipmesh";
 import { buildTerrain } from "./terrain";
 
 /** Duration of the island ↔ archipelago camera transition (≤ 400 ms). */
@@ -590,6 +591,22 @@ export class GameRenderer {
       if (sid === id) return this.worldToClient(new Vector3(t.x, 0, -t.y));
     }
     return { x: NaN, y: NaN };
+  }
+
+  /**
+   * Instance style a ship was drawn with in the last frame ("unpaid" is the
+   * greyed anchored_unpaid style), in the archipelago or at the harbour;
+   * null when it was not drawn.
+   */
+  shipStyle(id: number): ShipStyle | null {
+    if (this.archMode) return this.arch.shipStyle(id) ?? null;
+    for (const [sid, d] of this.harbour.drawnShips()) if (sid === id) return d.style;
+    return null;
+  }
+
+  /** Shipyard construction hulls drawn in the last frame of the island view. */
+  constructionMarkers(): { buildingId: number; scale: number }[] {
+    return this.archMode ? [] : this.harbour.constructionMarkers();
   }
 
   /** Archipelago position of a ship in the last frame (archipelago view). */

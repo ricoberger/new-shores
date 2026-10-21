@@ -15,6 +15,14 @@ const HULL = new Color4(0.36, 0.32, 0.27, 1);
 const DECK = new Color4(0.53, 0.47, 0.4, 1);
 const SAIL = new Color4(0.97, 0.95, 0.88, 1);
 
+/** Drawing style of a ship instance (exposed to tests; not a pixel colour). */
+export type ShipStyle = "active" | "unpaid";
+
+/** Instance colour of a ship style. */
+export function shipColor(style: ShipStyle): readonly number[] {
+  return style === "unpaid" ? SHIP_UNPAID : SHIP_ACTIVE;
+}
+
 /** Instance colour of a ship that runs. */
 export const SHIP_ACTIVE: readonly [number, number, number, number] = [1, 1, 1, 1];
 /** Instance colour of an anchored_unpaid ship: multiplies the wood tones to grey (greyed out). */
