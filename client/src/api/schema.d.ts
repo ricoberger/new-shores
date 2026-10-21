@@ -62,7 +62,8 @@ export interface paths {
         /**
          * Advance the world to now and apply one command.
          * @description Commands (`command.type`): `place_building`, `place_road`,
-         *     `demolish`, `demolish_road`, `set_paused`, `upgrade_house`,
+         *     `demolish`, `demolish_road`, `place_fields`, `demolish_fields`,
+         *     `set_paused`, `upgrade_house`,
          *     `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
          *     `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`
@@ -430,6 +431,16 @@ export interface components {
          *     radius). Moving is free: it never fails for
          *     gold, materials or tier. Placement never requires a road (D-042).
          *
+         *     `place_fields` can fail with 400 `bad_request`, `invalid_command`
+         *     (missing field, no tile, more than 256 tiles, duplicate tiles),
+         *     `out_of_bounds`; 404 `unknown_island`; 409 `field_type_mismatch`,
+         *     `tier_locked`, `island_not_settled`, `terrain`, `occupied`,
+         *     `no_fertility`, `no_farm_in_range`, `insufficient_gold`,
+         *     `insufficient_materials`. `demolish_fields` can fail with 400
+         *     `bad_request`, `invalid_command`, `out_of_bounds`; 404
+         *     `unknown_island`, `building_not_found`; 409 `not_a_field`.
+         *     `demolish` and `move_building` accept field building IDs.
+         *
          *     `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
          *     or no `island_id` for a quest that rewards goods), 404
          *     `quest_not_found`, `unknown_island`; 409 `quest_not_completed`,
@@ -514,7 +525,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -612,6 +623,45 @@ export interface components {
             type: "demolish_road";
             island_id: string;
             tiles: components["schemas"]["TileList"];
+        };
+        /** @description 1 to 256 tiles without duplicates. */
+        FieldTileList: components["schemas"]["Tile"][];
+        /**
+         * @description Place one field of `field_type` on each tile, all or nothing
+         *     (D-049). Every tile must be on the island, on the field's terrain,
+         *     free of buildings and roads, on an island with the field's
+         *     fertility and inside the work radius of a farm that accepts the
+         *     field type; the cost is charged once per tile. Fields get
+         *     sequential building IDs in tile order. A failing tile fails the
+         *     whole command with the first failing tile's error; the client
+         *     sends only tiles its display data shows as valid and treats a
+         *     rejection as stale data.
+         */
+        PlaceFieldsCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "place_fields";
+            island_id: string;
+            /** @description Content building ID with a field block (otherwise `field_type_mismatch`). */
+            field_type: string;
+            tiles: components["schemas"]["FieldTileList"];
+        };
+        /**
+         * @description Remove the fields on the tiles, all or nothing, with the
+         *     demolition refund (50 % of materials rounded down, no gold). A
+         *     tile without a building fails with `building_not_found`, a tile
+         *     whose building is not a field with `not_a_field`.
+         */
+        DemolishFieldsCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "demolish_fields";
+            island_id: string;
+            tiles: components["schemas"]["FieldTileList"];
         };
         SetPausedCommand: {
             /**
