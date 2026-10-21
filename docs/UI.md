@@ -166,18 +166,50 @@ travel time, visit/offer buttons), **Offers** (board + my offers, filters by
 good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
 **Leaderboard**, **Achievements**. Pending arrivals show countdowns.
 
-## 6. Mobile
+## 6. Mobile (implemented in M3)
 
 - Minimum supported: 360 × 640 CSS px portrait and landscape.
-- Side panels become bottom sheets with a drag handle; build menu becomes a
-  horizontally scrollable bar; top bar collapses population into a single
-  tap-to-expand chip.
-- Gestures: one-finger drag pans, pinch zooms, tap selects, long-press opens
-  the context panel, two-finger rotate rotates a ghost. UI elements stop
-  propagation so panel interaction never pans the camera.
-- Placement on touch: tap to place the ghost, then confirm with a button
-  (avoids mis-taps).
-- Prefer bigger hit targets (≥ 44 px), no hover-only information.
+- **Layout modes** from a pure function of width, height and pointer
+  coarseness: `desktop`, `tablet` (desktop layout with touch gestures),
+  `phone-portrait`, `phone-landscape`. Portrait phones and landscape phones
+  narrower than 640 px use **bottom sheets** for every side panel (info,
+  ship, island card, route editor and its resume bar, lists, quests): one
+  sheet at a time, `role="dialog"`, drag handle with snap points at 20 /
+  50 / 90 % of the area below the top bar (opens at half; tap or Enter on
+  the handle cycles; dragging below the peek closes), focus moved in,
+  Tab trapped, focus returned to the opener on close. Wider landscape
+  phones get a narrow side panel; if it would be shorter than ≈ 240 px the
+  hint bar hides and the insolvency banner is limited to one line.
+- Compact top bar: gold, balance and a population chip (tap expands the
+  per-tier list), quests and account pinned; island tabs, Archipelago,
+  Ships and Routes in a horizontally scrolling row. Build menu: category
+  chips and ≥ 44 px item cards in one horizontal scroller (Demolish at the
+  end); landscape shares one row. Hints and banners stack below the top
+  bar; toasts below the top bar; warnings tray ≤ 25 vh.
+- **Gestures** (one pointer-event recogniser; input type decides per
+  gesture, pen = mouse): one-finger drag pans, draws a road with the road
+  tool, or drags an idle ship in the archipelago; pinch pans by its centre
+  and zooms about it with any tool, and pinch-out at the island's maximum
+  zoom feeds the same zoom-out counter as the wheel; two-finger rotate
+  steps a ghost by 45°; tap selects; long-press (450 ms, 10 px slop)
+  inspects a ship/island/building and never acts, even with a tool
+  active; a second finger cancels a one-finger press/drag and nothing is
+  recognised until all fingers are up. UI elements stop propagation so
+  panel interaction never pans the camera; browser defaults
+  (pull-to-refresh, double-tap zoom, text selection, callouts) are
+  suppressed on the game surface only.
+- **Placement on touch:** a tap sets the pending tile and the ghost moves
+  there; a **placement bar** (Confirm / Rotate / Cancel) commits; a tap
+  alone never places. Mouse keeps click-to-place. **Demolish mode** shows a
+  persistent tinted bar ("⚒ Demolish mode — tap a building", Done) and
+  keeps the > 100 gold confirmation; the road tool shows a road bar with
+  Done.
+- Hit targets ≥ 44 × 44 px for every control in touch layouts (audited by
+  an e2e test); no hover-only information; safe-area insets respected;
+  dialogs fit `100vw − 16 px` and scroll internally.
+- Accessibility baseline: focus order through HUD and sheets, visible
+  focus rings, aria labels on icon buttons; Lighthouse accessibility 100
+  on desktop and phone (island view).
 
 ## 7. Feedback and clarity rules
 
@@ -199,4 +231,7 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   timestamps`, refreshed at 4 Hz and interpolated per frame; re-fetch on
   WebSocket push or at `next_change_at`.
 - Target: 30 fps on a mid-range Android phone with a dense two-island scene
-  (first playable budget; see FIRST_PLAYABLE.md).
+  (first playable budget; see FIRST_PLAYABLE.md). Measures taken in M3:
+  render DPR capped at 1.5, status icons as thin instances (one draw call
+  per status), allocation-free cart updates; the dense fixture
+  (`?fixture=dense-2x400`, dev/e2e builds only) runs at 27 draw calls.

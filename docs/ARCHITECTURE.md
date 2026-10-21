@@ -333,9 +333,22 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   manifest `{content_id → mesh, footprint offset, animations}`.
 - **UI:** React, CSS Modules, small store (Zustand) for UI state; subscribes
   to display-model slices. Strict Mode-safe engine lifecycle.
-- **Input:** pointer events unified for mouse/touch; UI layer stops
-  propagation; gesture recogniser for pan/pinch/long-press/rotate.
-- **PWA:** installable, cached shell; the game itself requires connectivity.
+- **Input:** pointer events only (an eslint rule bans touch/mouse
+  listeners); a pure, clock-free gesture recogniser (`render/gestures.ts`)
+  emits tap, long-press, drag, pinch, rotate, hover and wheel; the DOM
+  adapter feeds it; the UI layer stops propagation.
+- **Layout:** a pure `layoutMode(width, height, coarsePointer)` picks
+  desktop / tablet / phone-portrait / phone-landscape (UI.md §6).
+- **PWA:** web manifest and placeholder icons; a hand-written service
+  worker caches the **app shell only** (never `/api/*`, never other
+  origins, GET only), shows an "update available" toast on a new deploy
+  and offers an install action; Caddy serves `sw.js` and the manifest with
+  `no-cache`. The game itself requires connectivity.
+- **Perf guard:** a Playwright `perf` project renders the dense fixture
+  under 4× CPU throttling at 412 × 915 and fails below `PERF_MIN_FPS`
+  (default 27 = 0.8 × the fps measured on the reference machine; the CI
+  runner, which rasterises in software, uses its own calibrated value),
+  above 400 MB JS heap or above 40 draw calls.
 
 ## 6. Content pipeline
 
@@ -397,7 +410,7 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
 | Store/API | `go test` with a real Postgres (testcontainers) | ownership denial, row-lock serialisation, event idempotency, retries, two-world locking |
 | Multi-instance | integration test running 2 server processes | same event never processed twice; commands from both instances serialise |
 | Client display | Vitest | extrapolation matches server fixtures at sampled times |
-| Client e2e | Playwright | placement, selection, pan/zoom, touch emulation, fixed-seed screenshots |
+| Client e2e | Playwright | desktop flows; touch projects (Pixel 5 Chromium, iPhone 12 WebKit — WebKit cannot emulate multi-touch, so pinch/rotate run on Chromium only); perf project; PWA checks; opt-in Lighthouse |
 | Devices | manual | mid-range Android + iPhone: fps, memory, resume, thermal |
 
 CI runs `gofmt`, `go vet`, `golangci-lint` (config in repo), `go test ./...`,

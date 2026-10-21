@@ -97,12 +97,15 @@ login, GLB assets, sound.
   pushed to a socket on instance B in ≈ 9 ms; event lag p95 0.79 s under
   a 1 000-event burst; command p50 1.4 ms / p95 1.7 ms against Postgres.
 
-### M3 — Client (complete HUD, panels, touch)
+### M3 — Client (touch, mobile layout, performance budget) — done (PR #11)
 
-- Builds on M1b against the real M2 API: ships from timers,
-  React HUD complete, build menu with lock reasons, info panels, warnings
-  tray, touch gestures, WebSocket-driven refresh (auth screens exist since
-  M2).
+- Pointer-event gesture recogniser (pan, pinch, tap, long-press, rotate,
+  road drawing, ship drag), tap-then-confirm placement with a placement
+  bar, demolish and road mode bars, phone layouts with bottom sheets and a
+  compact HUD, PWA shell (manifest, service worker, update toast,
+  install), accessibility baseline, dense-fixture perf guard. Numbers in
+  §3 (emulated). Open: real-phone verification by the user; initial camera
+  should centre on the warehouse on first load.
 - Acceptance: Playwright scripts place a chain and see production; touch
   emulation pans/zooms/places without gesture conflicts; extrapolated numbers
   match server fixtures within rounding at sampled times.
@@ -177,7 +180,11 @@ underneath an already visible game.
 - 12 h catch-up < 50 ms, 90-day catch-up < 500 ms (server, reference world).
 - Dense two-island scene (~400 buildings, 60 carts, 2 ships) ≥ 30 fps on a
   mid-range Android phone (e.g. Pixel 6a class) and ≥ 60 fps on a 2020+
-  laptop; memory < 400 MB in the browser tab.
+  laptop; memory < 400 MB in the browser tab. **M3 (emulated,
+  provisional):** 412 × 915 @ 4× CPU throttling with software WebGL
+  34 fps (17.5 before optimisation), 27 draw calls, ≈ 20 MB JS heap, TTFI
+  ≈ 0.55 s; hardware GL 60 fps (vsync); bundle 443 → 450 kB gzip;
+  Lighthouse accessibility 100. **Real-device measurement still open.**
 - Multi-instance integration test green; ownership and session tests green.
 - Backup + restore of Postgres rehearsed once.
 
