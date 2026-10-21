@@ -1,22 +1,30 @@
-// Status icons: a billboard above every building whose status is not ok,
-// with both a colour and a glyph (UI.md §7). Unpaid and player pauses use
-// distinct glyphs.
+// Status icons: a camera-facing quad above every building whose status is
+// not ok, with both a colour and a glyph (UI.md §7). Unpaid and player
+// pauses use distinct glyphs. One mesh per status with thin instances (one
+// draw call per status, not per building); the camera never rotates
+// (fixed azimuth and elevation), so the facing rotation is baked into the
+// instance matrices instead of a per-mesh billboard.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
-import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { STATUS_STYLES, type StatusKey, statusKey } from "../display/status";
+import { AZIMUTH, ELEVATION } from "./camera";
 import { footprintBox } from "./coords";
+import { setInstances } from "./instances";
 
 const SIZE = 128;
+const ICON_Y = 1.6;
 
 export class IconLayer {
   private readonly templates = new Map<StatusKey, Mesh>();
-  private icons: Mesh[] = [];
+  /** Rotation that turns the quad towards the fixed camera. */
+  private readonly facing = Matrix.RotationYawPitchRoll(AZIMUTH, ELEVATION, 0);
 
   constructor(
     private readonly scene: Scene,
@@ -52,25 +60,26 @@ export class IconLayer {
     mat.backFaceCulling = false;
     mesh = CreatePlane(`icon_${key}`, { size: 0.9 }, this.scene);
     mesh.material = mat;
-    mesh.billboardMode = Mesh.BILLBOARDMODE_ALL;
     mesh.isPickable = false;
-    mesh.setEnabled(false);
+    mesh.parent = this.parent;
+    setInstances(mesh, null);
     this.templates.set(key, mesh);
     return mesh;
   }
 
   update(buildings: BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
-    for (const m of this.icons) m.dispose(false, false);
-    this.icons = [];
+    const byKey = new Map<StatusKey, number[]>();
     for (const b of buildings) {
       if (b.status === "ok") continue;
       const def = defs.get(b.type);
       if (!def) continue;
       const { cx, cz } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-      const icon = this.template(statusKey(b)).clone(`icon_${b.id}`, this.parent);
-      icon.position.set(cx, 1.6, cz);
-      icon.setEnabled(true);
-      this.icons.push(icon);
+      const key = statusKey(b);
+      let arr = byKey.get(key);
+      if (!arr) byKey.set(key, (arr = []));
+      for (const v of this.facing.multiply(Matrix.Translation(cx, ICON_Y, cz)).asArray()) arr.push(v);
     }
+    for (const [key, mesh] of this.templates) if (!byKey.has(key)) setInstances(mesh, null);
+    for (const [key, arr] of byKey) setInstances(this.template(key), new Float32Array(arr));
   }
 }
