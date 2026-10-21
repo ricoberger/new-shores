@@ -102,6 +102,8 @@ export interface TestHook {
   freezeTime(ms: number | null): void;
   /** The grid overlay was drawn in the last frame (only while a placement tool is active). */
   gridOverlayVisible(): boolean;
+  /** Archipelago point the grid overlay was centred on in the last frame (null: hidden). */
+  gridAt(): { x: number; y: number } | null;
   /** Which quality-dependent effects exist (FXAA is skipped on software WebGL, see `software`). */
   effects(): { quality: Quality; shadowMap: boolean; grading: boolean; fxaa: boolean; vignette: boolean; software: boolean } | null;
 }
@@ -543,6 +545,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
         gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
+        gridAt: () => rendererRef.current?.gridAt() ?? null,
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         effects: () => {
           const e = rendererRef.current?.effects();

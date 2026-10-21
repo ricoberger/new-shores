@@ -145,8 +145,11 @@ export class GameRenderer {
   private readonly fields: FieldLayer;
   private readonly roadPreview: RoadPreview;
   private readonly grid: GridOverlay;
-  /** Ground point of the last touch tap or drag (archipelago tiles): the grid's centre on touch. */
+  /** Ground point of the last touch tap or drag position (archipelago tiles): the grid's centre on touch. */
   private lastTouch: ArchPoint | null = null;
+  private gridCentre: ArchPoint | null = null;
+  /** The current drag is a finger's (its moves update lastTouch). */
+  private touchDrag = false;
   /** Start and current tile of a field-tool drag (island tiles), and whether a finger drags. */
   private fieldStart: IslandTile | null = null;
   private fieldEnd: TilePos | null = null;
@@ -933,6 +936,7 @@ export class GameRenderer {
 
   private onDragStart(p: Point, button: number, kind: PointerKind): void {
     if (this.blocked()) return;
+    this.touchDrag = kind === "touch";
     if (kind === "touch") this.lastTouch = this.groundPoint(p);
     const tool = this.tool();
     if (button !== 0) return;
@@ -956,6 +960,7 @@ export class GameRenderer {
 
   private onDragMove(prev: Point, cur: Point, button: number): void {
     if (this.blocked()) return;
+    if (this.touchDrag) this.lastTouch = this.groundPoint(cur) ?? this.lastTouch;
     if (this.draggingShip !== null) {
       const g = this.groundPoint(cur);
       if (g) this.arch.setDragged({ shipId: this.draggingShip, point: g });
@@ -1186,9 +1191,10 @@ export class GameRenderer {
   }
 
   /**
-   * The grid overlay while a placement tool is active: around the mouse,
-   * else the touch-pending tile or rectangle, the road or field drag, the
-   * last touch, else the camera target. Decoration only.
+   * The grid overlay while a placement tool is active, centred on the
+   * active drag's end (field rectangle corner, the finger or mouse of a
+   * road drag), else the mouse, else the touch-pending tile or rectangle,
+   * else the last touch, else the camera target. Decoration only.
    */
   private updateGrid(): void {
     const tool = this.tool();
@@ -1200,14 +1206,21 @@ export class GameRenderer {
       const pl = this.arch.placement(island);
       return pl ? { x: pl.position.x + t.x + 0.5, y: pl.position.y + t.y + 0.5 } : null;
     };
+    const mouse = this.precise && this.hover ? this.groundPoint(this.hover) : null;
     let at: ArchPoint | null = null;
-    if (this.precise && this.hover) at = this.groundPoint(this.hover);
+    if (this.fieldStart && this.fieldEnd) at = toArch(this.fieldStart.island, this.fieldEnd);
+    else if (this.roadStart) at = mouse ?? (this.touchDrag ? this.lastTouch : null) ?? toArch(this.roadStart.island, this.roadStart);
+    else if (mouse) at = mouse;
     else if (isGhostTool(tool) && tool.pending) at = toArch(tool.pending.island, tool.pending);
     else if (tool.kind === "field" && tool.pending) at = toArch(tool.pending.island, tool.pending.to);
-    else if (this.fieldStart && this.fieldEnd) at = toArch(this.fieldStart.island, this.fieldEnd);
-    else if (this.roadStart) at = toArch(this.roadStart.island, this.roadStart);
     at ??= this.lastTouch ?? { x: this.rig.view().x, y: this.rig.view().y };
+    this.gridCentre = at;
     this.grid.set(at);
+  }
+
+  /** Archipelago point the grid overlay was centred on in the last frame (null: hidden). */
+  gridAt(): ArchPoint | null {
+    return this.grid.visible() ? this.gridCentre : null;
   }
 
   /** The grid overlay was drawn in the last frame. */

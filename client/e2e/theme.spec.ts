@@ -1,5 +1,6 @@
 import { devices, expect, type Page, test } from "@playwright/test";
-import { worldReady } from "./archipelago";
+import { setCamera, worldReady } from "./archipelago";
+import { touchFor } from "./touch";
 
 // Visual foundation rules on the fixtures (no server state): the grid
 // overlay shows only for placement tools, the palette custom properties,
@@ -67,6 +68,62 @@ test("the grid overlay shows for the found tool", async ({ page }) => {
   await expect.poll(() => gridVisible(page)).toBe(true);
   await page.keyboard.press("Escape");
   await expect.poll(() => gridVisible(page)).toBe(false);
+});
+
+test("on touch the grid follows the finger of a road drag and of a second field drag", async ({ browser, browserName }) => {
+  const context = await browser.newContext({ ...devices["Pixel 5"], viewport: { width: 412, height: 915 } });
+  const page = await context.newPage();
+  const touch = await touchFor(page, browserName);
+  await page.goto("/?fixture=dense-2x400");
+  await worldReady(page, "dense1");
+  await setCamera(page, { x: 32, y: 24, half: 24 });
+  await page.waitForTimeout(300);
+  const at = async (x: number, y: number) => {
+    const p = await page.evaluate(([tx, ty]) => window.__newShores!.tileToScreen("dense1", tx as number, ty as number), [x, y]);
+    const free = await page.evaluate(([px, py]) => document.elementFromPoint(px as number, py as number) instanceof HTMLCanvasElement, [p.x, p.y]);
+    expect(free, `tile ${x},${y} on the bare canvas`).toBe(true);
+    return p;
+  };
+  const gridNear = (x: number, y: number) =>
+    expect
+      .poll(async () => {
+        const g = await page.evaluate(() => window.__newShores!.gridAt());
+        return g ? Math.hypot(g.x - (x + 0.5), g.y - (y + 0.5)) : Infinity;
+      })
+      .toBeLessThan(1.5);
+  /**
+   * One finger from tile a to tile b; `during` runs while it rests on b.
+   * Few steps, so that the first one leaves the touch slop long before the
+   * long-press time on a slow renderer.
+   */
+  const drag = async (a: [number, number], b: [number, number], during: () => Promise<void>) => {
+    const p = await at(...a);
+    const q = await at(...b);
+    const steps = 4;
+    await touch.raw({ type: "start", fingers: [{ ...p, id: 1 }] });
+    for (let i = 1; i <= steps; i++) {
+      await page.waitForTimeout(16);
+      await touch.raw({ type: "move", fingers: [{ x: p.x + ((q.x - p.x) * i) / steps, y: p.y + ((q.y - p.y) * i) / steps, id: 1 }] });
+    }
+    await during();
+    await touch.raw({ type: "end", fingers: [] });
+  };
+
+  // Road drag: more than the grid radius (8 tiles) away from where it began.
+  await page.getByTestId("build-tab-roads").tap();
+  await page.getByTestId("build-road").tap();
+  await expect.poll(() => page.evaluate(() => window.__newShores!.gridOverlayVisible())).toBe(true);
+  await drag([16, 24], [30, 24], () => gridNear(30, 24));
+  await page.getByTestId("road-done").tap();
+
+  // Fields: a first rectangle stays pending; a second drag elsewhere takes the grid along.
+  await page.getByTestId("build-tab-production").tap();
+  await page.getByTestId("build-pasture").tap();
+  await drag([20, 25], [23, 27], () => gridNear(23, 27));
+  await gridNear(23, 27);
+  await drag([26, 24], [34, 27], () => gridNear(34, 27));
+  await gridNear(34, 27);
+  await context.close();
 });
 
 test("the palette custom properties resolve on :root", async ({ page }) => {
