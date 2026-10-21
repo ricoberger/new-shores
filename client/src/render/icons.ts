@@ -6,6 +6,7 @@ import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTextur
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { STATUS_STYLES, type StatusKey, statusKey } from "../display/status";
@@ -17,7 +18,10 @@ export class IconLayer {
   private readonly templates = new Map<StatusKey, Mesh>();
   private icons: Mesh[] = [];
 
-  constructor(private readonly scene: Scene) {}
+  constructor(
+    private readonly scene: Scene,
+    private readonly parent: TransformNode | null = null,
+  ) {}
 
   private template(key: StatusKey): Mesh {
     let mesh = this.templates.get(key);
@@ -63,7 +67,7 @@ export class IconLayer {
       const def = defs.get(b.type);
       if (!def) continue;
       const { cx, cz } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-      const icon = this.template(statusKey(b)).clone(`icon_${b.id}`);
+      const icon = this.template(statusKey(b)).clone(`icon_${b.id}`, this.parent);
       icon.position.set(cx, 1.6, cz);
       icon.setEnabled(true);
       this.icons.push(icon);

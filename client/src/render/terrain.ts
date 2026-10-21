@@ -4,13 +4,14 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
+import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { Island, Terrain } from "../api/client";
 import { TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 
 export const CHUNK = 16;
 
-export function buildTerrain(scene: Scene, island: Island): Mesh[] {
+export function buildTerrain(scene: Scene, island: Island, parent: TransformNode | null = null): Mesh[] {
   const material = new StandardMaterial("terrain", scene);
   material.specularColor = Color3.Black();
   material.backFaceCulling = false;
@@ -45,6 +46,7 @@ export function buildTerrain(scene: Scene, island: Island): Mesh[] {
       data.normals = normals;
       data.applyToMesh(mesh);
       mesh.material = material;
+      mesh.parent = parent;
       mesh.isPickable = false;
       mesh.freezeWorldMatrix();
       meshes.push(mesh);

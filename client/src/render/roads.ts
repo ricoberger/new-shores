@@ -5,6 +5,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
+import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { TilePos } from "../display/geometry";
 import { setInstances } from "./instances";
@@ -21,13 +22,14 @@ export class RoadLayer {
   private readonly roads: Mesh;
   private readonly preview: Mesh;
 
-  constructor(scene: Scene) {
+  constructor(scene: Scene, parent: TransformNode | null = null) {
     this.roads = CreateBox("roads", { width: 0.96, height: 0.04, depth: 0.96 }, scene);
     const mat = new StandardMaterial("roads", scene);
     mat.diffuseColor = ROAD;
     mat.specularColor = Color3.Black();
     this.roads.material = mat;
     this.roads.isPickable = false;
+    this.roads.parent = parent;
     setInstances(this.roads, null);
 
     this.preview = CreateBox("road_preview", { width: 0.9, height: 0.06, depth: 0.9 }, scene);
@@ -37,6 +39,7 @@ export class RoadLayer {
     pm.specularColor = Color3.Black();
     this.preview.material = pm;
     this.preview.isPickable = false;
+    this.preview.parent = parent;
     setInstances(this.preview, null);
   }
 

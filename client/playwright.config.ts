@@ -24,7 +24,15 @@ export default defineConfig({
     trace: "retain-on-failure",
     viewport: { width: 1280, height: 800 },
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  // The specs share the dev server's in-memory world and build on each
+  // other: the archipelago spec needs the sloop and the settled island 2 of
+  // the voyage spec, and the away spec runs last. Project dependencies make
+  // that order explicit.
+  projects: [
+    { name: "chromium", testMatch: /(smoke|ttfi|voyage)\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
+    { name: "archipelago", testMatch: /archipelago\.spec\.ts$/, dependencies: ["chromium"], use: { ...devices["Desktop Chrome"] } },
+    { name: "away", testMatch: /wait-away\.spec\.ts$/, dependencies: ["archipelago"], use: { ...devices["Desktop Chrome"] } },
+  ],
   webServer: [
     {
       command: `go run ./cmd/server --dev --content ../content/old_coast --addr :${API_PORT} --cors-origin http://localhost:${WEB_PORT} --time-scale ${E2E_TIME_SCALE}`,

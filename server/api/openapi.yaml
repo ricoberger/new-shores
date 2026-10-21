@@ -1889,7 +1889,7 @@ components:
     RouteDisplay:
       type: object
       additionalProperties: false
-      required: [id, name, stops, ship_ids, loop_ms]
+      required: [id, name, stops, ship_ids, loop_ms, effects]
       properties:
         id:
           type: integer
@@ -1912,6 +1912,38 @@ components:
           type: integer
           format: int64
           description: Duration of one loop at reference speed 1.0 (ms) — the handling time of every stop plus the travel time of every leg.
+        effects:
+          type: array
+          description: >-
+            Estimated net effect of the route per island and good (display
+            only; stock availability ignored). Per good, the stops are walked
+            twice from stop 0 with an empty virtual hold H (the smallest
+            slots × slot_size among the assigned ships, else among the
+            catalogue's ship types); a stop first unloads the good aboard,
+            then tops it up to min(max_amount, H). The sums of the second
+            pass are per_loop. Sorted by the first stop of the island, then
+            by good; pairs with per_loop 0 are omitted; [] when the route
+            moves nothing.
+          items:
+            $ref: "#/components/schemas/RouteEffectDisplay"
+    RouteEffectDisplay:
+      type: object
+      additionalProperties: false
+      required: [island_id, good, per_loop, per_min]
+      properties:
+        island_id:
+          type: string
+        good:
+          type: string
+          description: Content good ID.
+        per_loop:
+          type: integer
+          format: int64
+          description: Signed net change per loop (milli-units); positive when the island gains the good.
+        per_min:
+          type: integer
+          format: int64
+          description: Signed net change per minute (milli-units) with all assigned ships — per_loop × assigned ships × 60000 / loop_ms, truncated toward zero; 0 when no ship is assigned or loop_ms is 0.
     RouteStopDisplay:
       type: object
       additionalProperties: false

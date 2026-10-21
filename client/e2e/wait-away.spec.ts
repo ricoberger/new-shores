@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { dismissAwayDialog } from "./away";
-import { E2E_TIME_SCALE, ISLAND, LUMBERJACK } from "./constants";
+import { E2E_TIME_SCALE, ISLAND, ISLAND_ZOOM_OUT_TICKS, LUMBERJACK } from "./constants";
 
 // "While you were away" (R28) at the E2E time scale: after a command the
 // world is left alone for away_summary_minutes of world time; a reload
@@ -26,7 +26,7 @@ test("the away dialog shows once per summary", async ({ page }) => {
   await dismissAwayDialog(page);
   const box = (await page.getByTestId("game-canvas").boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  for (let i = 0; i < 6; i++) await page.mouse.wheel(0, 300);
+  for (let i = 0; i < ISLAND_ZOOM_OUT_TICKS; i++) await page.mouse.wheel(0, 300);
   await page.waitForTimeout(200);
 
   // A command: pause and resume the lumberjack in its info panel.

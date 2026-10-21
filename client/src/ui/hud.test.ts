@@ -7,7 +7,9 @@ import { describe, expect, it } from "vitest";
 import type { Content, DisplayState } from "../api/client";
 import { AwayDialog } from "./AwayDialog";
 import { InsolvencyBanner } from "./InsolvencyBanner";
+import { draftFromRoute } from "../display/routes";
 import { QuestsPanel } from "./QuestsPanel";
+import { RouteEditor } from "./RouteEditor";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -65,5 +67,58 @@ describe("HUD components", () => {
     expect(text(html)).toContain("300/300at capacity");
     expect(text(html)).toContain("Settlers: 32 → 8");
     expect(text(html)).toContain("Ships arrived: 1");
+  });
+
+  describe("route editor", () => {
+    const model = fixture("route_loop");
+    const route = model.routes[0]!;
+    const noop = () => {};
+    const editor = (routeId: number | null) =>
+      renderToStaticMarkup(
+        createElement(RouteEditor, {
+          model,
+          content,
+          routeId,
+          draft: draftFromRoute(route),
+          pickingShip: null,
+          error: null,
+          onChange: noop,
+          onAddStop: noop,
+          onRemoveStop: noop,
+          onMoveStop: noop,
+          onSave: noop,
+          onClose: noop,
+          onAssign: noop,
+          onUnassign: noop,
+          onCancelPick: noop,
+        }),
+      );
+
+    it("renders the server's estimated effects and loop time of a saved route", () => {
+      const html = editor(route.id);
+      expect(text(html)).toContain("Net effect (estimated)");
+      expect(text(html)).toContain("loop time 2:40");
+      // route_loop: wood out of start (−100 per loop, 37.5/min), planks back (+40, 15.0/min).
+      const row = (island: string, good: string) => {
+        const m = html.match(new RegExp(`<tr data-testid="route-effect-${island}-${good}">(.*?)</tr>`));
+        return m ? text(m[1]!) : "";
+      };
+      expect(row("start", "wood")).toBe("StartWood−100−37.5");
+      expect(row("start", "planks")).toBe("StartPlanks+40+15.0");
+      expect(row("island2", "wood")).toBe("Island 2Wood+100+37.5");
+      expect(row("island2", "planks")).toBe("Island 2Planks−40−15.0");
+      // Rows follow the server's order (first stop of the island, then good).
+      expect(route.effects.map((e) => `${e.island_id}/${e.good}`)).toEqual(["start/planks", "start/wood", "island2/planks", "island2/wood"]);
+      expect(html.indexOf("route-effect-start-planks")).toBeLessThan(html.indexOf("route-effect-island2-planks"));
+      // The ship assigned to the route can be unassigned here.
+      expect(html).toContain(`data-testid="route-unassign-${route.ship_ids[0]}"`);
+    });
+
+    it('shows "Save to compute" before the route is saved', () => {
+      const html = editor(null);
+      expect(text(html)).toContain("Save to compute");
+      expect(html).not.toContain("route-effect-");
+      expect(html).not.toContain("route-unassign-");
+    });
   });
 });

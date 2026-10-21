@@ -168,6 +168,20 @@ type RouteDisplay struct {
 	// LoopMs is the duration of one loop at reference speed 1.0: the
 	// handling time of every stop plus the travel time of every leg.
 	LoopMs int64 `json:"loop_ms"`
+	// Effects is the estimated net change per island and good of one loop
+	// and per minute (MECHANICS §9.2 estimate; stock availability ignored).
+	Effects []RouteEffectDisplay `json:"effects"`
+}
+
+// RouteEffectDisplay is the estimated net effect of a route on one good of
+// one island (signed milli-units, positive when the island gains).
+type RouteEffectDisplay struct {
+	IslandID string `json:"island_id"`
+	Good     string `json:"good"`
+	// PerLoop is per loop of the route; PerMin per minute with all
+	// assigned ships (0 when none is assigned).
+	PerLoop Qty `json:"per_loop"`
+	PerMin  Qty `json:"per_min"`
 }
 
 // RouteStopDisplay is one stop of a route.
@@ -519,6 +533,13 @@ func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
 		if s.RouteID == r.ID {
 			d.ShipIDs = append(d.ShipIDs, s.ID)
 		}
+	}
+	hold, ships := routeHold(w, c, r)
+	d.Effects = []RouteEffectDisplay{}
+	for _, e := range routeEffects(r, hold) {
+		d.Effects = append(d.Effects, RouteEffectDisplay{
+			IslandID: e.IslandID, Good: e.Good, PerLoop: e.PerLoop, PerMin: routePerMin(e.PerLoop, ships, d.LoopMs),
+		})
 	}
 	return d
 }

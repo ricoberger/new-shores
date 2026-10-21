@@ -9,6 +9,7 @@ import "@babylonjs/core/Meshes/thinInstanceMesh";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
+import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, IslandDisplay } from "../api/client";
 import { adjacentRoads, type FootprintDef, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
@@ -68,13 +69,14 @@ export class CartLayer {
   private carts: Cart[] = [];
   private buffer = new Float32Array(0);
 
-  constructor(scene: Scene) {
+  constructor(scene: Scene, parent: TransformNode | null = null) {
     this.mesh = CreateBox("carts", { width: 0.3, height: 0.22, depth: 0.3 }, scene);
     const mat = new StandardMaterial("carts", scene);
     mat.disableLighting = true;
     mat.emissiveColor = CART;
     this.mesh.material = mat;
     this.mesh.isPickable = false;
+    this.mesh.parent = parent;
     setInstances(this.mesh, null);
   }
 

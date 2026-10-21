@@ -8,6 +8,7 @@ import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { CreateCylinder } from "@babylonjs/core/Meshes/Builders/cylinderBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { footprintBox } from "./coords";
@@ -72,7 +73,10 @@ export class BuildingLayer {
   private readonly doors: Mesh;
   private readonly selection: Mesh;
 
-  constructor(private readonly scene: Scene) {
+  constructor(
+    private readonly scene: Scene,
+    private readonly parent: TransformNode | null = null,
+  ) {
     this.material = new StandardMaterial("buildings", scene);
     this.material.specularColor = Color3.Black();
     this.doors = CreateBox("doors", { width: 0.35, height: 0.3, depth: 0.12 }, scene);
@@ -81,6 +85,7 @@ export class BuildingLayer {
     doorMat.specularColor = Color3.Black();
     this.doors.material = doorMat;
     this.doors.isPickable = false;
+    this.doors.parent = parent;
     setInstances(this.doors, null);
     this.selection = CreateBox("selection", { size: 1 }, scene);
     const selMat = new StandardMaterial("selection", scene);
@@ -89,6 +94,7 @@ export class BuildingLayer {
     selMat.wireframe = true;
     this.selection.material = selMat;
     this.selection.isPickable = false;
+    this.selection.parent = parent;
     this.selection.setEnabled(false);
   }
 
@@ -120,6 +126,7 @@ export class BuildingLayer {
         if (!def) continue;
         mesh = template(this.scene, def);
         mesh.material = this.material;
+        mesh.parent = this.parent;
         this.templates.set(id, mesh);
       }
       setInstances(mesh, new Float32Array(arr));
