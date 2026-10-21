@@ -228,9 +228,10 @@ Compose → Kubernetes.
 
 - **Icons:** the HUD icons come from [game-icons.net](https://game-icons.net)
   by Delapouite, Guard13007, Lorc and Sbed, licensed under
-  [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/); recoloured
-  and with coordinates rounded. The pinned files and the author of each
-  are listed in `assets/icons/icons.json`.
+  [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) (licence text
+  in `assets/icons/LICENSE.txt`); recoloured and with coordinates rounded.
+  The pinned files and the author of each are listed in
+  `assets/icons/icons.json`.
 - **Fonts:** [Cinzel](https://github.com/NDISCOVER/Cinzel) by Natanael Gama
   and [Source Sans 3](https://github.com/adobe-fonts/source-sans) by Paul
   D. Hunt (Adobe), both under the SIL Open Font License 1.1

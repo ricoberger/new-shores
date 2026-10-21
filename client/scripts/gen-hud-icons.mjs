@@ -1,6 +1,7 @@
 // Generates client/src/theme/icons.ts — the HUD icon set as path data,
 // recoloured with currentColor — from the pinned game-icons.net SVGs
-// (CC BY 3.0) listed in assets/icons/icons.json. No dependencies;
+// (CC BY 3.0) listed in assets/icons/icons.json, whose pinned licence text
+// (assets/icons/LICENSE.txt) is checked too. No dependencies;
 // deterministic output; exits non-zero on a missing file, a checksum
 // mismatch or malformed input. Coordinates are rounded to 0.1 of the
 // 512-unit view box (an adaptation noted in the credits). Run with
@@ -44,14 +45,18 @@ export function svgPaths(svg) {
 }
 
 /**
- * Validates icons.json against the SVG files (via `read(file)`) and returns
- * the generated TypeScript text. Throws an Error naming the first problem.
+ * Validates icons.json against the SVG files (via `read(file)`) and the
+ * licence text (via `readLicense(file)`) and returns the generated
+ * TypeScript text. Throws an Error naming the first problem.
  */
-export function generateIcons(manifest, read) {
+export function generateIcons(manifest, read, readLicense) {
   if (typeof manifest !== "object" || manifest === null || typeof manifest.icons !== "object" || manifest.icons === null) {
     throw new Error("icons: manifest without icons");
   }
   if (typeof manifest.license !== "string" || manifest.license === "") throw new Error("icons: manifest without a license");
+  const lic = manifest.licenseFile;
+  if (typeof lic?.file !== "string" || typeof lic.sha256 !== "string") throw new Error("icons: manifest without a licence file");
+  if (createHash("sha256").update(readLicense(lic.file)).digest("hex") !== lic.sha256) throw new Error(`icons: checksum mismatch for ${lic.file}`);
   const unique = [];
   const index = new Map();
   const entries = [];
@@ -102,7 +107,11 @@ function main() {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const dir = join(root, "assets", "icons");
   const manifest = JSON.parse(readFileSync(join(dir, "icons.json"), "utf8"));
-  const ts = generateIcons(manifest, (f) => readFileSync(join(dir, "game-icons", f)));
+  const ts = generateIcons(
+    manifest,
+    (f) => readFileSync(join(dir, "game-icons", f)),
+    (f) => readFileSync(join(dir, f)),
+  );
   const out = join(root, "client", "src", "theme", "icons.ts");
   writeFileSync(out, ts);
   console.log(`${Object.keys(manifest.icons).length} icons written to ${out}`);

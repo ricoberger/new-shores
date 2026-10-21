@@ -10,22 +10,30 @@ import { ICON_AUTHORS, ICON_PATHS } from "./icons";
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = join(here, "..", "..", "..");
 const iconsDir = join(repo, "assets", "icons");
-const manifest = JSON.parse(readFileSync(join(iconsDir, "icons.json"), "utf8")) as { icons: Record<string, { file: string; author: string }> };
+const manifest = JSON.parse(readFileSync(join(iconsDir, "icons.json"), "utf8")) as {
+  icons: Record<string, { file: string; author: string }>;
+  licenseFile: { file: string; sha256: string };
+};
 const read = (f: string) => readFileSync(join(iconsDir, "game-icons", f));
+const readLicense = (f: string) => readFileSync(join(iconsDir, f));
 
 describe("HUD icon generator", () => {
   it("the committed module is the output for assets/icons", () => {
-    expect(readFileSync(join(here, "icons.ts"), "utf8")).toBe(generateIcons(manifest, read));
+    expect(readFileSync(join(here, "icons.ts"), "utf8")).toBe(generateIcons(manifest, read, readLicense));
   });
 
   it("rejects a checksum mismatch, a missing fallback and bad keys", () => {
-    const one = (icons: Record<string, unknown>) => ({ license: "CC BY 3.0", icons });
+    const one = (icons: Record<string, unknown>) => ({ license: "CC BY 3.0", licenseFile: manifest.licenseFile, icons });
     const good = manifest.icons["good:_fallback"]!;
     const need = manifest.icons["need:_fallback"]!;
-    expect(() => generateIcons(one({ "good:_fallback": { ...good, sha256: "0".repeat(64) }, "need:_fallback": need }), read)).toThrow(/checksum/);
-    expect(() => generateIcons(one({ "good:_fallback": good }), read)).toThrow(/need:_fallback/);
-    expect(() => generateIcons(one({ "Good:X": good, "good:_fallback": good, "need:_fallback": need }), read)).toThrow(/bad key/);
-    expect(() => generateIcons({ icons: {} }, read)).toThrow(/license/);
+    expect(() => generateIcons(one({ "good:_fallback": { ...good, sha256: "0".repeat(64) }, "need:_fallback": need }), read, readLicense)).toThrow(/checksum/);
+    expect(() => generateIcons(one({ "good:_fallback": good }), read, readLicense)).toThrow(/need:_fallback/);
+    expect(() => generateIcons(one({ "Good:X": good, "good:_fallback": good, "need:_fallback": need }), read, readLicense)).toThrow(/bad key/);
+    expect(() => generateIcons({ icons: {} }, read, readLicense)).toThrow(/license/);
+    expect(() => generateIcons({ license: "CC BY 3.0", icons: {} }, read, readLicense)).toThrow(/licence file/);
+    expect(() =>
+      generateIcons({ license: "CC BY 3.0", licenseFile: { ...manifest.licenseFile, sha256: "0".repeat(64) }, icons: {} }, read, readLicense),
+    ).toThrow(/checksum mismatch for LICENSE\.txt/);
   });
 
   it("extracts the icon path without the background and rounds coordinates", () => {
@@ -57,6 +65,12 @@ describe("HUD icon set", () => {
     expect(categoryIcon("wonders")).toBe(ICON_PATHS["category:other"]);
     expect(goodIcon("fish")).toBe(ICON_PATHS["good:fish"]);
     expect(statusIcon("ok")).toBe(ICON_PATHS["status:ok"]);
+  });
+
+  it("pins the CC BY 3.0 licence text with the icon sources", () => {
+    const text = readLicense(manifest.licenseFile.file).toString("utf8");
+    expect(text).toContain("Attribution 3.0 Unported");
+    expect(text).toContain("Creative Commons Legal Code");
   });
 
   it("credits every author of the manifest", () => {

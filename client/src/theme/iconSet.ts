@@ -30,6 +30,7 @@ export function categoryIcon(id: string): string {
 
 export type ToolIcon =
   | "demolish"
+  | "resume"
   | "move"
   | "rotate"
   | "confirm"

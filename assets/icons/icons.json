@@ -2,6 +2,11 @@
   "description": "HUD icons from game-icons.net (CC BY 3.0), pinned at game-icons/icons commit 82d948812bfe3f269ef8f731dcdb07b08160edc4. Keys are kind:id (good, need, status, category, tool); the _fallback entries cover unknown content IDs. client/scripts/gen-hud-icons.mjs builds client/src/theme/icons.ts from these files (paths only, recoloured with currentColor).",
   "license": "CC BY 3.0",
   "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+  "licenseFile": {
+    "file": "LICENSE.txt",
+    "source": "https://creativecommons.org/licenses/by/3.0/legalcode.txt",
+    "sha256": "e6bc9e9c474700b708f568bac9e5a8a9bcb2b1dad53442f5ba449fcb848b8e76"
+  },
   "site": "https://game-icons.net",
   "commit": "82d948812bfe3f269ef8f731dcdb07b08160edc4",
   "icons": {
@@ -431,6 +436,13 @@
       "page": "https://game-icons.net/1x1/delapouite/scroll-quill.html",
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/scroll-quill.svg",
       "sha256": "152e01493acfbf39eb1ae708042f7310bdefc04620c2477093bf88bbb811fd3c"
+    },
+    "tool:resume": {
+      "file": "play-button.svg",
+      "author": "Guard13007",
+      "page": "https://game-icons.net/1x1/guard13007/play-button.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/guard13007/play-button.svg",
+      "sha256": "f3cc25dc35d60ce4341e1e72dc0bf582100a7750e767455835fad3fd78c96f7a"
     }
   }
 }
