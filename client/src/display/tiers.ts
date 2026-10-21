@@ -60,7 +60,7 @@ export function listedInBuildMenu(b: ContentBuilding, content: Content): boolean
  * static data): null when the building needs none.
  */
 export function fertilityNeed(b: ContentBuilding, fertilities: readonly string[] | undefined): { fertility: string; present: boolean } | null {
-  const f = b.work_area?.fertility;
+  const f = b.work_area?.fertility ?? b.field?.fertility;
   if (!f) return null;
   return { fertility: f, present: (fertilities ?? []).includes(f) };
 }

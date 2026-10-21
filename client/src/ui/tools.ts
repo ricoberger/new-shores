@@ -10,6 +10,12 @@ export type Tool =
   | { kind: "move"; buildingId: number; buildingType: string; rotation: Rotation; pending?: TilePos }
   /** Placing the first warehouse of an unsettled island from a ship's cargo. */
   | { kind: "found"; shipId: number; buildingType: string; rotation: Rotation; pending?: TilePos }
+  /**
+   * Placing fields of a field building (D-049): a click places one, a drag
+   * selects a rectangle. `pending`: the rectangle a touch drag (or tap)
+   * selected, waiting for Confirm.
+   */
+  | { kind: "field"; fieldType: string; pending?: { from: TilePos; to: TilePos } }
   | { kind: "demolish" };
 
 export type GhostTool = Extract<Tool, { kind: "build" | "move" | "found" }>;

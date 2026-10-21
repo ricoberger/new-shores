@@ -9,6 +9,9 @@ import {
   TOUCH_HOUSE,
   TOUCH_HOUSE_MOVED,
   TOUCH_HOUSE_WEBKIT,
+  TOUCH_PASTURE_FROM,
+  TOUCH_PASTURE_TO,
+  TOUCH_PASTURE_VALID,
   TOUCH_ROAD_FROM,
   TOUCH_ROAD_TO,
 } from "./constants";
@@ -523,6 +526,40 @@ test("draw a road with one finger", async ({ page, browserName }) => {
   for (let x = TOUCH_ROAD_FROM.x; x <= TOUCH_ROAD_TO.x; x++) expect(roads).toContain(x);
   await page.getByTestId("road-done").tap();
   await expect(page.getByTestId("road-bar")).toHaveCount(0);
+});
+
+test("place pastures by a one-finger drag and Confirm", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "world flow of the Pixel 5 project");
+  await page.goto("/");
+  await dismissAwayDialog(page);
+  await expectView(page, ISLAND);
+  // The sheep farm of the smoke test (x 28..30, y 5..7) and its free ring tiles.
+  await centreOn(page, { x: 31, y: 6 });
+  const v0 = await version(page);
+  await page.getByTestId("build-tab-production").tap();
+  await page.getByTestId("build-pasture").tap();
+  const bar = page.getByTestId("field-bar");
+  await expect(bar).toBeVisible();
+  await expect(page.getByTestId("field-confirm")).toBeDisabled();
+  // The drag only selects the rectangle; Cancel drops it, nothing is sent.
+  await touch.drag(await tile(page, ISLAND, TOUCH_PASTURE_FROM), await tile(page, ISLAND, TOUCH_PASTURE_TO), 10);
+  await expect(page.getByTestId("field-hint")).toHaveText(`${TOUCH_PASTURE_VALID} pastures · 1 outside every farm's ring`);
+  await page.getByTestId("field-cancel").tap();
+  await expect(page.getByTestId("field-confirm")).toBeDisabled();
+  await expect(bar).toBeVisible();
+  expect(await version(page)).toBe(v0);
+  // Drag again and Confirm: one place_fields with the green tiles.
+  await touch.drag(await tile(page, ISLAND, TOUCH_PASTURE_FROM), await tile(page, ISLAND, TOUCH_PASTURE_TO), 10);
+  await expect(page.getByTestId("field-confirm")).toBeEnabled();
+  await page.getByTestId("field-confirm").tap();
+  await expect.poll(() => version(page)).toBe(v0 + 1);
+  for (const t of [TOUCH_PASTURE_FROM, { x: 33, y: 6 }]) {
+    expect((await serverBuildingAt(page, ISLAND, t))?.type).toBe("pasture");
+  }
+  expect(await serverBuildingAt(page, ISLAND, { x: 33, y: 5 })).toBeNull();
+  // Cancel without a rectangle leaves the tool.
+  await page.getByTestId("field-cancel").tap();
+  await expect(bar).toHaveCount(0);
 });
 
 test("demolish mode shows the demolish bar until Done", async ({ page, browserName }) => {

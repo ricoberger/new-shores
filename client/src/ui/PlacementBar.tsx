@@ -1,5 +1,5 @@
 import styles from "./hud.module.css";
-import type { GhostTool } from "./tools";
+import type { GhostTool, Tool } from "./tools";
 
 interface Props {
   tool: GhostTool;
@@ -47,7 +47,7 @@ export function PlacementBar({ tool, hint, onConfirm, onRotate, onCancel }: Prop
 export function DemolishBar({ onDone }: { onDone: () => void }) {
   return (
     <div className={`${styles.toolBar} ${styles.demolishBar}`} role="status" data-testid="demolish-bar">
-      <span className={styles.toolBarText}>⚒ Demolish mode — tap a building</span>
+      <span className={styles.toolBarText}>⚒ Demolish mode — tap a building, field or road</span>
       <button type="button" className={`${styles.button} ${styles.demolishDone}`} onClick={onDone} data-testid="demolish-done">
         Done
       </button>
@@ -63,6 +63,44 @@ export function RoadBar({ onDone }: { onDone: () => void }) {
       <button type="button" className={styles.button} onClick={onDone} data-testid="road-done">
         Done
       </button>
+    </div>
+  );
+}
+
+/**
+ * The field tool on touch (D-049): a tap or a one-finger drag selects a
+ * rectangle (previewed green/yellow in the scene); Confirm places the
+ * green tiles with one command, Cancel drops the rectangle (and leaves the
+ * tool when there is none).
+ */
+export function FieldBar({
+  tool,
+  fieldName,
+  hint,
+  onConfirm,
+  onCancel,
+}: {
+  tool: Extract<Tool, { kind: "field" }>;
+  fieldName: string;
+  /** The rectangle's counts (from the renderer's preview), or null. */
+  hint: string | null;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const text = tool.pending ? (hint ?? fieldName) : `Tap or drag over the ground to place ${fieldName.toLowerCase()}s`;
+  return (
+    <div className={`${styles.panel} ${styles.toolBar}`} role="toolbar" aria-label="Field placement" data-testid="field-bar">
+      <span className={styles.toolBarText} data-testid="field-hint">
+        {text}
+      </span>
+      <div className={styles.toolBarButtons}>
+        <button type="button" className={`${styles.button} ${styles.primary}`} onClick={onConfirm} disabled={!tool.pending} data-testid="field-confirm">
+          ✓ Confirm
+        </button>
+        <button type="button" className={styles.button} onClick={onCancel} data-testid="field-cancel">
+          ✕ Cancel
+        </button>
+      </div>
     </div>
   );
 }

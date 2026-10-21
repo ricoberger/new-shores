@@ -12,6 +12,7 @@ import {
 } from "../api/client";
 import { GameSync, type SyncError, SyncStoppedError } from "../api/sync";
 import { units } from "../display/format";
+import { classifyFieldTiles, fieldTilesToSend, rectTiles } from "../display/fields";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
@@ -34,7 +35,8 @@ import { ShipmentDialog } from "./ShipmentDialog";
 import { ShipPanel } from "./ShipPanel";
 import { ShipsPanel } from "./ShipsPanel";
 import { type Toast, Toasts } from "./Toasts";
-import { DemolishBar, PlacementBar, RoadBar } from "./PlacementBar";
+import { DemolishBar, FieldBar, PlacementBar, RoadBar } from "./PlacementBar";
+import { FieldRingLabels } from "./FieldRingLabels";
 import { Sheet } from "./Sheet";
 import { useLayout } from "./useLayout";
 import { type GhostTool, isGhostTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
@@ -88,6 +90,8 @@ export interface SyncLike extends RenderSource {
   subscribeUnauthorized(l: () => void): () => void;
   subscribeErrors(l: (e: SyncError) => void): () => void;
   send(command: Command): Promise<WorldResponse>;
+  /** Re-fetches the world (e.g. after a rejected field rectangle: the client's data was stale). */
+  refresh(): Promise<void>;
 }
 
 interface AppProps {
@@ -298,6 +302,41 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     });
   };
 
+  /**
+   * Field tool (D-049): one place_fields command with the rectangle's tiles
+   * the client's data shows as valid (at most 256); none sends nothing. A
+   * rejection means the data was stale: the server's error is a toast
+   * (sendCommand) and the world is re-fetched; nothing is retried.
+   */
+  const placeFieldRect = (fieldType: string, from: TilePos, to: TilePos) => {
+    const snapNow = sync.getSnapshot();
+    const is = snapNow.server?.display.islands.find((x) => x.id === islandId);
+    const statics = snapNow.islands.get(islandId);
+    const def = defs.get(fieldType);
+    if (!is || !statics || !def) return;
+    const { valid } = classifyFieldTiles(def, rectTiles(from, to), { island: statics, buildings: is.buildings, roads: is.roads, defs });
+    const { tiles } = fieldTilesToSend(valid);
+    if (tiles.length === 0) return;
+    void sendCommand({ type: "place_fields", island_id: islandId, field_type: fieldType, tiles }).then(({ ok, error }) => {
+      if (!ok && error) void sync.refresh();
+    });
+  };
+
+  /** A single field (mouse click or a one-tile touch rectangle) is a place_building. */
+  const placeField = (fieldType: string, x: number, y: number) => {
+    void sendCommand({ type: "place_building", island_id: islandId, building_type: fieldType, x, y, rotation: 0 }).then(({ ok, error }) => {
+      if (!ok && error) void sync.refresh();
+    });
+  };
+
+  const confirmFields = () => {
+    if (tool.kind !== "field" || !tool.pending) return;
+    const { from, to } = tool.pending;
+    if (from.x === to.x && from.y === to.y) placeField(tool.fieldType, from.x, from.y);
+    else placeFieldRect(tool.fieldType, from, to);
+    setTool((cur) => (cur === tool ? { kind: "field", fieldType: tool.fieldType } : cur));
+  };
+
   const confirmPlacement = () => {
     if (isGhostTool(tool) && tool.pending) placeGhost(tool, tool.pending.x, tool.pending.y);
   };
@@ -326,6 +365,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       if (tiles.length === 0) return;
       void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles });
     },
+    placeField: (x: number, y: number) => {
+      if (tool.kind === "field") placeField(tool.fieldType, x, y);
+    },
+    fieldRect: (from: TilePos, to: TilePos) => {
+      if (tool.kind === "field") placeFieldRect(tool.fieldType, from, to);
+    },
+    pendFields: (from: TilePos, to: TilePos) => setTool((t) => (t.kind === "field" ? { ...t, pending: { from, to } } : t)),
     demolish: (x: number, y: number) => {
       if (!island) return;
       const b = buildingAt(island.buildings, defs, x, y);
@@ -368,7 +414,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const selectBuildItem = (b: ContentBuilding) => {
     dispatch({ type: "clearSelection" });
-    setTool(b.road ? { kind: "road", roadType: b.id } : { kind: "build", buildingType: b.id, rotation: 0 });
+    setTool(
+      b.road ? { kind: "road", roadType: b.id } : b.field ? { kind: "field", fieldType: b.id } : { kind: "build", buildingType: b.id, rotation: 0 },
+    );
   };
 
   // Background request failures (GET world, content, island) are toasts too
@@ -633,6 +681,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onUpgrade={() => void send({ type: "upgrade_house", island_id: islandId, building_id: selectedBuilding.id })}
           onUpgradeWarehouse={() => void send({ type: "upgrade_warehouse", island_id: islandId, building_id: selectedBuilding.id })}
           onSelectBuilding={focus}
+          onPlaceFields={(fieldType) => setTool({ kind: "field", fieldType })}
           nowMs={snap.nowMs}
           onOrderShip={(shipType) =>
             void send({ type: "order_ship", island_id: islandId, building_id: selectedBuilding.id, ship_type: shipType })
@@ -648,6 +697,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const placementBar = !archView && touchUI && isGhostTool(tool);
   const demolishBar = !archView && touchUI && tool.kind === "demolish";
   const roadBar = !archView && touchUI && tool.kind === "road";
+  const fieldBar = !archView && touchUI && tool.kind === "field";
   const verb = touchUI ? "Tap" : "Click";
 
   let archHint = "";
@@ -705,7 +755,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   // Short landscape phones: the side panel keeps a usable height; the hint
   // bar is hidden and the insolvency banner keeps one line.
-  const hintShown = archView || (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar);
+  const hintShown = archView || (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && !fieldBar);
   const tightLandscape = collapseLandscapeChrome({
     mode: layout.mode,
     sheets,
@@ -715,14 +765,16 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     banner: insolvencyBanner(model) !== null,
     hint: hintShown,
   });
-  const toolHint = !tightLandscape && !archView && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && (
+  const fieldPlural = tool.kind === "field" ? `${(defs.get(tool.fieldType)?.name ?? "field").toLowerCase()}s` : "";
+  const toolHint = !tightLandscape && !archView && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && !fieldBar && (
     <div className={phone ? styles.hintInline : styles.hint} data-testid="tool-hint">
       {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
       {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
       {tool.kind === "found" && `Click to place the warehouse from ship #${tool.shipId} (${tool.rotation}°) · R rotate · Esc cancel`}
       {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
-      {tool.kind === "demolish" && "Click a building or road to demolish · Esc / right click cancel"}
-      {ghostHint && (tool.kind === "build" || tool.kind === "move") && (
+      {tool.kind === "field" && `Click a tile or drag a rectangle to place ${fieldPlural} · Esc / right click cancel`}
+      {tool.kind === "demolish" && "Click a building, field or road to demolish · Esc / right click cancel"}
+      {ghostHint && (tool.kind === "build" || tool.kind === "move" || tool.kind === "field") && (
         <div className={styles.hintReason} data-testid="tool-hint-reason">
           {ghostHint}
         </div>
@@ -742,6 +794,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   return (
     <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
+      {!archView && <FieldRingLabels renderer={renderer} />}
       {archView && model && <ArchipelagoOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} />}
       <div className={styles.overlay}>
         <div className={styles.top}>
@@ -764,6 +817,15 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           )}
           {demolishBar && <DemolishBar onDone={() => setTool(NO_TOOL)} />}
           {roadBar && <RoadBar onDone={() => setTool(NO_TOOL)} />}
+          {fieldBar && tool.kind === "field" && (
+            <FieldBar
+              tool={tool}
+              fieldName={defs.get(tool.fieldType)?.name ?? tool.fieldType}
+              hint={ghostHint}
+              onConfirm={confirmFields}
+              onCancel={() => setTool((t) => (t.kind === "field" && t.pending ? { kind: "field", fieldType: t.fieldType } : NO_TOOL))}
+            />
+          )}
           {phone && toolHint}
           {phone && archHintEl}
           {phone && unreachable}
