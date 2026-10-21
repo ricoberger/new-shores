@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { camera, expectLod, freeCanvasPoint, islandPoint, islandTapPoint, type Lod, lod, shipPoint, worldReady } from "./archipelago";
+import { camera, expectFocused, expectLod, freeCanvasPoint, islandPoint, islandTapPoint, type Lod, lod, shipPoint, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 import {
   ISLAND,
@@ -242,6 +242,50 @@ test("pinch zooms through the LODs and back without a mode; tap an island at far
   console.log(`pinch in: ${back.join(" ")}`);
   expect(back.at(-1)).toBe("near");
   for (let i = 1; i < back.length; i++) expect(order.indexOf(back[i]!)).toBeLessThanOrEqual(order.indexOf(back[i - 1]!));
+});
+
+test("a touch gesture begun during a jump stays ignored after it, also when a drag turns into a pinch", async ({ page }) => {
+  test.skip(!touch.multiTouch, "no multi-touch emulation in this browser");
+  await page.goto("/?fixture=dense-2x400");
+  await worldReady(page, DENSE);
+  const c = await freeCanvasPoint(page);
+  // Jump to the second island (a DOM click: no touch pointer), and during
+  // the 350 ms animation press one finger, drag it, and add a second
+  // finger (the recogniser promotes the drag to a pinch with a cancel).
+  await page.evaluate(() => (document.querySelector('[data-testid="island-tab-dense2"]') as HTMLElement).click());
+  await touch.raw(
+    { type: "start", fingers: [{ ...c, id: 1 }] },
+    { type: "move", fingers: [{ x: c.x + 40, y: c.y, id: 1 }] },
+    {
+      type: "start",
+      fingers: [
+        { x: c.x + 40, y: c.y, id: 1 },
+        { x: c.x + 100, y: c.y, id: 2 },
+      ],
+    },
+  );
+  // All three were handled while the camera still animated.
+  expect(Number.isFinite(await page.evaluate(() => window.__newShores!.tileToScreen("dense2", 0, 0).x))).toBe(false);
+  // The jump ends with both fingers down; widening and moving them does nothing.
+  await expectFocused(page, "dense2");
+  await worldReady(page, "dense2");
+  const settled = await camera(page);
+  expect(settled.half).toBeCloseTo(18, 3);
+  for (let i = 1; i <= 8; i++) {
+    await touch.raw({
+      type: "move",
+      fingers: [
+        { x: c.x + 40 - i * 12, y: c.y + i * 4, id: 1 },
+        { x: c.x + 100 + i * 12, y: c.y + i * 4, id: 2 },
+      ],
+    });
+    await page.waitForTimeout(16);
+  }
+  expect(await camera(page)).toEqual(settled);
+  await touch.raw({ type: "end", fingers: [] });
+  // A fresh gesture after all fingers are up acts again.
+  await touch.pinch(await freeCanvasPoint(page), 150, 300);
+  await expect.poll(async () => (await camera(page)).half).toBeLessThan(settled.half * 0.8);
 });
 
 test("two-finger twist turns the camera without a tool and the ghost with a ghost tool", async ({ page }) => {
