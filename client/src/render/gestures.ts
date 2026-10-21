@@ -147,10 +147,16 @@ export class GestureRecognizer {
     return true;
   }
 
-  move(id: number, kind: PointerKind, p: Point): void {
+  /**
+   * A pointer moved. `now` is the event's own time (PointerEvent.timeStamp):
+   * a sample from after the long-press deadline completes a long-press
+   * first, even if the deadline timer has not run yet (busy main thread).
+   */
+  move(id: number, kind: PointerKind, p: Point, now?: number): void {
     if (kind !== "touch") this.emit({ type: "hover", p });
     const ptr = this.pointers.get(id);
     if (!ptr) return;
+    if (now !== undefined) this.tick(now);
     switch (this.mode) {
       case "press": {
         const threshold = ptr.kind === "touch" ? TOUCH_SLOP_PX : DRAG_THRESHOLD_PX;
@@ -200,9 +206,11 @@ export class GestureRecognizer {
     }
   }
 
-  up(id: number, p: Point): void {
+  /** A pointer was released; `now` (event time) decides a pending long-press like move(). */
+  up(id: number, p: Point, now?: number): void {
     const ptr = this.pointers.get(id);
     if (!ptr) return;
+    if (now !== undefined) this.tick(now);
     this.pointers.delete(id);
     switch (this.mode) {
       case "press":

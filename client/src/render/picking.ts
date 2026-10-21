@@ -27,6 +27,12 @@ export interface PointerHandlers {
   wheel(p: Point, deltaY: number): void;
 }
 
+/** The event's own time on the performance.now() clock (processing time if the browser reports another clock). */
+function eventTime(e: Event): number {
+  const now = performance.now();
+  return e.timeStamp > 0 && e.timeStamp <= now ? e.timeStamp : now;
+}
+
 function kindOf(pointerType: string): PointerKind {
   return pointerType === "touch" ? "touch" : pointerType === "pen" ? "pen" : "mouse";
 }
@@ -34,6 +40,7 @@ function kindOf(pointerType: string): PointerKind {
 export class PointerInput {
   private readonly gestures: GestureRecognizer;
   private timer: ReturnType<typeof setTimeout> | undefined;
+  private frame = 0;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -52,6 +59,7 @@ export class PointerInput {
 
   dispose(): void {
     clearTimeout(this.timer);
+    cancelAnimationFrame(this.frame);
     this.canvas.removeEventListener("pointerdown", this.onDown);
     this.canvas.removeEventListener("pointermove", this.onMove);
     this.canvas.removeEventListener("pointerup", this.onUp);
@@ -106,14 +114,22 @@ export class PointerInput {
     }
   }
 
-  /** Runs the recogniser's long-press deadline. */
+  /**
+   * Runs the recogniser's long-press deadline. The decision waits for the
+   * next animation frame after the timer: on a busy main thread, pointer
+   * events sampled before the deadline (a release, a move past the slop)
+   * are delivered before that frame and win over the timer.
+   */
   private schedule(): void {
     clearTimeout(this.timer);
+    cancelAnimationFrame(this.frame);
     const at = this.gestures.deadline();
     if (at === null) return;
     this.timer = setTimeout(() => {
-      this.gestures.tick(performance.now());
-      this.schedule();
+      this.frame = requestAnimationFrame(() => {
+        this.gestures.tick(performance.now());
+        this.schedule();
+      });
     }, Math.max(0, at - performance.now()));
   }
 
@@ -138,18 +154,20 @@ export class PointerInput {
   private readonly onDown = (e: PointerEvent): void => {
     const kind = kindOf(e.pointerType);
     this.h.pointerDown(kind);
-    if (this.gestures.down(e.pointerId, kind, e.button, this.css(e), performance.now())) this.capture(e.pointerId);
+    // Event times (PointerEvent.timeStamp, the performance.now() clock)
+    // decide tap vs long-press, not the time the event was processed.
+    if (this.gestures.down(e.pointerId, kind, e.button, this.css(e), eventTime(e))) this.capture(e.pointerId);
     this.schedule();
   };
 
   private readonly onMove = (e: PointerEvent): void => {
-    this.gestures.move(e.pointerId, kindOf(e.pointerType), this.css(e));
+    this.gestures.move(e.pointerId, kindOf(e.pointerType), this.css(e), eventTime(e));
     this.schedule();
   };
 
   private readonly onUp = (e: PointerEvent): void => {
     this.release(e.pointerId);
-    this.gestures.up(e.pointerId, this.css(e));
+    this.gestures.up(e.pointerId, this.css(e), eventTime(e));
     this.schedule();
   };
 

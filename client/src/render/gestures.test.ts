@@ -124,6 +124,32 @@ describe("long-press", () => {
     expect(types()).toEqual([]);
   });
 
+  it("is decided by event times: a release after the deadline is a long-press even if tick never ran", () => {
+    // A busy main thread: the deadline timer has not run when the release is processed.
+    const { g, types } = setup();
+    g.down(1, "touch", 0, pt(0, 0), 1000);
+    g.up(1, pt(0, 0), 1000 + LONG_PRESS_MS + 50);
+    expect(types()).toEqual(["longPress"]);
+    // A release before the deadline, processed late, is still a tap.
+    g.down(2, "touch", 0, pt(0, 0), 5000);
+    g.up(2, pt(0, 0), 5000 + 30);
+    expect(types()).toEqual(["longPress", "tap"]);
+  });
+
+  it("is decided by event times: a move sampled before the deadline starts a drag; after it, the long-press wins", () => {
+    const { g, types } = setup();
+    g.down(1, "touch", 0, pt(0, 0), 0);
+    g.move(1, "touch", pt(40, 0), 100);
+    g.tick(LONG_PRESS_MS * 2);
+    g.up(1, pt(40, 0), LONG_PRESS_MS * 2);
+    expect(types()).toEqual(["dragStart", "dragMove", "dragEnd"]);
+    g.down(2, "touch", 0, pt(0, 0), 10_000);
+    g.move(2, "touch", pt(2, 0), 10_000 + LONG_PRESS_MS + 1); // still within the slop
+    g.move(2, "touch", pt(60, 0), 10_000 + LONG_PRESS_MS + 20);
+    g.up(2, pt(60, 0), 10_000 + LONG_PRESS_MS + 40);
+    expect(types().slice(3)).toEqual(["longPress"]);
+  });
+
   it("never fires for the mouse", () => {
     const { g, types } = setup();
     g.down(1, "mouse", 0, pt(0, 0), 0);
