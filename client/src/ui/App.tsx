@@ -15,6 +15,8 @@ import { units } from "../display/format";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
+import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
+import { insolvencyBanner } from "../display/insolvency";
 import { blankStop, initialViewState, type View, viewReducer } from "../display/view";
 import { type FrameStats, GameRenderer, type RendererEvents, type RenderSource } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
@@ -32,7 +34,10 @@ import { ShipmentDialog } from "./ShipmentDialog";
 import { ShipPanel } from "./ShipPanel";
 import { ShipsPanel } from "./ShipsPanel";
 import { type Toast, Toasts } from "./Toasts";
-import { NO_TOOL, type Tool } from "./tools";
+import { DemolishBar, PlacementBar, RoadBar } from "./PlacementBar";
+import { Sheet } from "./Sheet";
+import { useLayout } from "./useLayout";
+import { type GhostTool, isGhostTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
 import { AwayDialog } from "./AwayDialog";
 import { InsolvencyBanner } from "./InsolvencyBanner";
 import { QuestsPanel } from "./QuestsPanel";
@@ -65,6 +70,10 @@ export interface TestHook {
   constructionMarkers(): { buildingId: number; scale: number }[];
   /** Frame times over the last windowMs (default 5 s). */
   frameStats(windowMs?: number): FrameStats;
+  /** Carts drawn in the island view. */
+  carts(): number;
+  /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
+  ghostTile(): { x: number; y: number } | null;
 }
 
 declare global {
@@ -111,6 +120,24 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // id does not re-open the dialog, a new id does.
   const [closedSummaries, setClosedSummaries] = useState<ReadonlySet<number>>(() => new Set());
   const [ghostHint, setGhostHint] = useState<string | null>(null);
+  // The last pointer was a finger (pointerType per gesture, never the
+  // device): touch gets the placement confirm step and the demolish bar.
+  const [touchInput, setTouchInput] = useState(false);
+  const layout = useLayout();
+  const phone = isPhoneLayout(layout.mode);
+  // Phones and tablets (44 px targets) need the scrolling top bar and build bar.
+  const compactHud = isTouchLayout(layout.mode);
+  const sheets = usesSheets(layout.mode, layout.width);
+  useEffect(() => {
+    // A mouse or pen switches back only on the canvas, so that clicking a
+    // touch bar's button with the mouse does not remove it mid-click.
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === "touch") setTouchInput(true);
+      else if (e.target instanceof HTMLCanvasElement) setTouchInput(false);
+    };
+    window.addEventListener("pointerdown", onDown, { capture: true, passive: true });
+    return () => window.removeEventListener("pointerdown", onDown, { capture: true });
+  }, []);
   const [renderer, setRenderer] = useState<GameRenderer | null>(null);
   const rendererRef = useRef<GameRenderer | null>(null);
   const toastId = useRef(0);
@@ -250,42 +277,47 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     }
   };
 
+  /**
+   * Places the ghost of a build, move or found tool at a tile (a mouse
+   * click, or Confirm of a touch-pending tile). Build stays active (without
+   * a pending tile) for the next building; move and found end on success.
+   * On an error the tool stays so the player can retry.
+   */
+  const placeGhost = (t: GhostTool, x: number, y: number) => {
+    const cmd: Command =
+      t.kind === "build"
+        ? { type: "place_building", island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation }
+        : t.kind === "move"
+          ? { type: "move_building", island_id: islandId, building_id: t.buildingId, x, y, rotation: t.rotation }
+          : { type: "found_island", ship_id: t.shipId, island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation };
+    void sendCommand(cmd).then(({ ok }) => {
+      if (!ok) return;
+      // On a move the building stays selected at its new position.
+      if (t.kind === "build") setTool((cur) => (cur === t && cur.kind === "build" && cur.pending ? { ...cur, pending: undefined } : cur));
+      else setTool((cur) => (cur === t ? NO_TOOL : cur));
+    });
+  };
+
+  const confirmPlacement = () => {
+    if (isGhostTool(tool) && tool.pending) placeGhost(tool, tool.pending.x, tool.pending.y);
+  };
+
+  const rotateTool = (steps: number) =>
+    setTool((t) => (isGhostTool(t) ? { ...t, rotation: rotateSteps(t.rotation, steps) } : t));
+
   const events: RendererEvents = {
     select: (id: number | null) => dispatch({ type: "selectBuilding", id }),
     place: (x: number, y: number) => {
-      if (tool.kind !== "build") return;
-      void send({ type: "place_building", island_id: islandId, building_type: tool.buildingType, x, y, rotation: tool.rotation });
+      if (tool.kind === "build") placeGhost(tool, x, y);
     },
+    pend: (x: number, y: number) => setTool((t) => (isGhostTool(t) ? { ...t, pending: { x, y } } : t)),
+    unpend: () => setTool((t) => (isGhostTool(t) && t.pending ? { ...t, pending: undefined } : t)),
+    rotateGhost: rotateTool,
     move: (x: number, y: number) => {
-      if (tool.kind !== "move") return;
-      const moving = tool;
-      void sendCommand({
-        type: "move_building",
-        island_id: islandId,
-        building_id: moving.buildingId,
-        x,
-        y,
-        rotation: moving.rotation,
-      }).then(({ ok }) => {
-        // On success the building stays selected at its new position; on an
-        // error the move tool stays active so the player can retry.
-        if (ok) setTool((t) => (t === moving ? NO_TOOL : t));
-      });
+      if (tool.kind === "move") placeGhost(tool, x, y);
     },
     found: (x: number, y: number) => {
-      if (tool.kind !== "found") return;
-      const founding = tool;
-      void sendCommand({
-        type: "found_island",
-        ship_id: founding.shipId,
-        island_id: islandId,
-        building_type: founding.buildingType,
-        x,
-        y,
-        rotation: founding.rotation,
-      }).then(({ ok }) => {
-        if (ok) setTool((t) => (t === founding ? NO_TOOL : t));
-      });
+      if (tool.kind === "found") placeGhost(tool, x, y);
     },
     road: (from: TilePos, to: TilePos) => {
       if (tool.kind !== "road" || !island) return;
@@ -316,6 +348,20 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       dispatch({ type: "tapShip", id });
     },
     tapSea: () => dispatch({ type: "tapSea" }),
+    // Inspecting closes a list panel (it would take precedence over the
+    // info panel); the active tool stays and nothing is sent.
+    inspectBuilding: (id: number) => {
+      setPanel("none");
+      dispatch({ type: "selectBuilding", id });
+    },
+    inspectShip: (id: number) => {
+      setPanel("none");
+      dispatch({ type: "selectShip", id });
+    },
+    inspectIsland: (id: string) => {
+      setPanel("none");
+      dispatch({ type: "selectIsland", id });
+    },
     dragShip: (shipId: number, from: string) => dispatch({ type: "dragShip", shipId, from }),
     dropShip: (to: string | null) => dispatch({ type: "dropShip", island: to }),
   };
@@ -366,9 +412,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   // Keyboard: Esc steps back one thing per press, Enter enters the selected
   // island, Backspace returns to the archipelago, R rotates the ghost.
-  const latest = useRef({ tool, confirm, dialog: vs.dialog });
+  const latest = useRef({ tool, confirm, dialog: vs.dialog, panel, sheets });
   useEffect(() => {
-    latest.current = { tool, confirm, dialog: vs.dialog };
+    latest.current = { tool, confirm, dialog: vs.dialog, panel, sheets };
   });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -379,6 +425,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         if (cur.confirm) setConfirm(null);
         else if (cur.dialog) dispatch({ type: "closeShipment" });
         else if (cur.tool.kind !== "none") setTool(NO_TOOL);
+        // A list sheet (ships, routes, quests) closes with Esc on phones.
+        else if (cur.sheets && cur.panel !== "none") setPanel("none");
         else dispatch({ type: "escape" });
       } else if (e.key === "Enter") {
         if (t instanceof HTMLButtonElement || t instanceof HTMLAnchorElement) return;
@@ -388,7 +436,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         e.preventDefault();
         dispatch({ type: "keyBack" });
       } else if (e.key === "r" || e.key === "R") {
-        setTool((x) => (x.kind === "build" || x.kind === "move" || x.kind === "found" ? { ...x, rotation: nextRotation(x.rotation) } : x));
+        setTool((x) => (isGhostTool(x) ? { ...x, rotation: nextRotation(x.rotation) } : x));
       }
     };
     window.addEventListener("keydown", onKey);
@@ -417,6 +465,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         shipStyle: (id) => rendererRef.current?.shipStyle(id) ?? null,
         constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
         frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 },
+        carts: () => rendererRef.current?.cartCount() ?? 0,
+        ghostTile: () => rendererRef.current?.ghostTile() ?? null,
       };
     }
   }, [sync]);
@@ -458,10 +508,20 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const editor = vs.editor.kind === "open" ? vs.editor : null;
 
   let right: React.ReactNode = null;
+  /** Sheet identity (a new kind opens at half), title and close action of the panel slot. */
+  let rightKey = "";
+  let rightTitle = "";
+  let rightClose = () => {};
   if (model && content) {
     if (panel === "ships") {
+      rightKey = "ships";
+      rightTitle = "Ships";
+      rightClose = () => setPanel("none");
       right = <ShipsPanel model={model} content={content} nowMs={snap.nowMs} onSelect={selectShipFromList} onClose={() => setPanel("none")} />;
     } else if (panel === "quests") {
+      rightKey = "quests";
+      rightTitle = "Quests";
+      rightClose = () => setPanel("none");
       right = (
         <QuestsPanel
           model={model}
@@ -473,6 +533,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         />
       );
     } else if (panel === "routes") {
+      rightKey = "routes";
+      rightTitle = "Routes";
+      rightClose = () => setPanel("none");
       right = (
         <RoutesPanel
           model={model}
@@ -482,6 +545,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         />
       );
     } else if (editor?.active && archView) {
+      rightKey = "editor";
+      rightTitle = editor.routeId === null ? "New route" : `Route #${editor.routeId}`;
+      rightClose = () => dispatch({ type: "closeEditor" });
       right = (
         <RouteEditor
           model={model}
@@ -503,6 +569,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       );
     } else if (selectedShip) {
       const ship = selectedShip;
+      rightKey = "ship";
+      rightTitle = `Ship #${ship.id}`;
+      rightClose = () => dispatch({ type: "clearSelection" });
       right = (
         <ShipPanel
           ship={ship}
@@ -521,6 +590,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       );
     } else if (archView && vs.selection.kind === "island") {
       const id = vs.selection.id;
+      rightKey = "island";
+      rightTitle = model.islands.find((is) => is.id === id)?.name || id;
+      rightClose = () => dispatch({ type: "clearSelection" });
       right = (
         <IslandCard
           islandId={id}
@@ -539,6 +611,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         />
       );
     } else if (!archView && selectedBuilding && island) {
+      rightKey = "building";
+      rightTitle = defs.get(selectedBuilding.type)?.name ?? selectedBuilding.type;
+      rightClose = () => dispatch({ type: "clearSelection" });
       right = (
         <InfoPanel
           building={selectedBuilding}
@@ -568,18 +643,105 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     }
   }
 
+  // Touch affordances: shown for touch input (the last pointer was a finger).
+  const touchUI = touchInput || isTouchLayout(layout.mode);
+  const placementBar = !archView && touchUI && isGhostTool(tool);
+  const demolishBar = !archView && touchUI && tool.kind === "demolish";
+  const roadBar = !archView && touchUI && tool.kind === "road";
+  const verb = touchUI ? "Tap" : "Click";
+
   let archHint = "";
   if (archView) {
     const sh = vs.shipment;
-    if (sh.kind === "awaitingTarget") archHint = `Click the destination island for ship #${sh.shipId} · Esc cancels`;
+    if (sh.kind === "awaitingTarget") archHint = `${verb} the destination island for ship #${sh.shipId} · Esc cancels`;
     else if (sh.kind === "dragging") archHint = `Drop ship #${sh.shipId} on an island to send it · the sea cancels`;
-    else if (editor?.active) archHint = "Click islands to add stops · Esc closes the editor";
-    else archHint = "Click an island to select it, again to enter · drag an idle ship onto an island to send it";
+    else if (editor?.active) archHint = `${verb} islands to add stops · Esc closes the editor`;
+    else archHint = `${verb} an island to select it, again to enter · drag an idle ship onto an island to send it`;
   }
 
+  const resumeBar = editor && !editor.active && archView && (
+    <div className={`${hud.panel} ${hud.resumeBar}`}>
+      <span className={hud.small}>Route editor paused ({editor.routeId === null ? "new route" : `route #${editor.routeId}`})</span>
+      <button
+        type="button"
+        className={hud.button}
+        onClick={() => {
+          // The editor becomes the only side panel again.
+          setPanel("none");
+          dispatch({ type: "resumeEditor" });
+        }}
+        data-testid="route-editor-resume"
+      >
+        Back to route editor
+      </button>
+    </div>
+  );
+  if (resumeBar && !right) {
+    rightKey = "editor-paused";
+    rightTitle = "Route editor paused";
+    rightClose = () => dispatch({ type: "closeEditor" });
+  }
+
+  let rightSlot: React.ReactNode;
+  if (sheets) {
+    rightSlot = (
+      <div className={styles.sheetHost}>
+        {(right || resumeBar) && (
+          <Sheet key={rightKey} title={rightTitle} onClose={rightClose}>
+            {resumeBar}
+            {right}
+          </Sheet>
+        )}
+      </div>
+    );
+  } else {
+    rightSlot = (
+      <div className={phone ? `${styles.right} ${styles.rightNarrow}` : styles.right}>
+        {resumeBar}
+        {right}
+      </div>
+    );
+  }
+
+  // Short landscape phones: the side panel keeps a usable height; the hint
+  // bar is hidden and the insolvency banner keeps one line.
+  const hintShown = archView || (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar);
+  const tightLandscape = collapseLandscapeChrome({
+    mode: layout.mode,
+    sheets,
+    panelOpen: right !== null || Boolean(resumeBar),
+    height: layout.height,
+    buildBar: !archView,
+    banner: insolvencyBanner(model) !== null,
+    hint: hintShown,
+  });
+  const toolHint = !tightLandscape && !archView && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && (
+    <div className={phone ? styles.hintInline : styles.hint} data-testid="tool-hint">
+      {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
+      {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
+      {tool.kind === "found" && `Click to place the warehouse from ship #${tool.shipId} (${tool.rotation}°) · R rotate · Esc cancel`}
+      {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
+      {tool.kind === "demolish" && "Click a building or road to demolish · Esc / right click cancel"}
+      {ghostHint && (tool.kind === "build" || tool.kind === "move") && (
+        <div className={styles.hintReason} data-testid="tool-hint-reason">
+          {ghostHint}
+        </div>
+      )}
+    </div>
+  );
+  const archHintEl = !tightLandscape && archView && (
+    <div className={phone ? styles.hintInline : styles.hint} data-testid="arch-hint">
+      {archHint}
+    </div>
+  );
+  const unreachable = snap.unreachable && (
+    <div className={phone ? styles.bannerInline : styles.banner} data-testid="unreachable-banner">
+      Server unreachable — retrying…
+    </div>
+  );
+
   return (
-    <div className={styles.root}>
-      <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialView={initialView} />
+    <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
       {archView && model && <ArchipelagoOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} />}
       <div className={styles.overlay}>
         <div className={styles.top}>
@@ -593,31 +755,22 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             onShips={() => setPanel((p) => (p === "ships" ? "none" : "ships"))}
             onRoutes={() => setPanel((p) => (p === "routes" ? "none" : "routes"))}
             onQuests={() => setPanel((p) => (p === "quests" ? "none" : "quests"))}
-            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
+            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} compact={compactHud} />}
+            compact={layout.mode === "phone-portrait" ? "portrait" : compactHud ? "landscape" : null}
           />
-          <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} />
-        </div>
-        <div className={styles.left}>
-          {model && content && (
-            <WarningsTray model={model} content={content} onFocus={focus} open={warningsOpen} onOpenChange={setWarningsOpen} />
+          <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} compact={phone} oneLine={tightLandscape} />
+          {placementBar && isGhostTool(tool) && (
+            <PlacementBar tool={tool} hint={ghostHint} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
           )}
+          {demolishBar && <DemolishBar onDone={() => setTool(NO_TOOL)} />}
+          {roadBar && <RoadBar onDone={() => setTool(NO_TOOL)} />}
+          {phone && toolHint}
+          {phone && archHintEl}
+          {phone && unreachable}
         </div>
-        <div className={styles.right}>
-          {editor && !editor.active && archView && (
-            <div className={`${hud.panel} ${hud.resumeBar}`}>
-              <span className={hud.small}>Route editor paused ({editor.routeId === null ? "new route" : `route #${editor.routeId}`})</span>
-              <button type="button" className={hud.button} onClick={() => {
-                  // The editor becomes the only side panel again.
-                  setPanel("none");
-                  dispatch({ type: "resumeEditor" });
-                }}
-                data-testid="route-editor-resume">
-                Back to route editor
-              </button>
-            </div>
-          )}
-          {right}
-        </div>
+        {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
+        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialView={initialView} />
+        {rightSlot}
         <div className={styles.bottom}>
           {archView ? null : island && !island.settled ? (
             <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid="unsettled-panel">
@@ -640,35 +793,21 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
               tool={tool}
               onSelect={selectBuildItem}
               onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
+              compact={compactHud}
+              singleRow={layout.mode === "phone-landscape"}
             />
           )}
         </div>
-      </div>
-      {archView && (
-        <div className={styles.hint} data-testid="arch-hint">
-          {archHint}
-        </div>
-      )}
-      {!archView && tool.kind !== "none" && (
-        <div className={styles.hint} data-testid="tool-hint">
-          {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
-          {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
-          {tool.kind === "found" && `Click to place the warehouse from ship #${tool.shipId} (${tool.rotation}°) · R rotate · Esc cancel`}
-          {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
-          {tool.kind === "demolish" && "Click a building or road to demolish · Esc / right click cancel"}
-          {ghostHint && (tool.kind === "build" || tool.kind === "move") && (
-            <div className={styles.hintReason} data-testid="tool-hint-reason">
-              {ghostHint}
-            </div>
+        <div className={styles.left}>
+          {model && content && (
+            <WarningsTray model={model} content={content} onFocus={focus} open={warningsOpen} onOpenChange={setWarningsOpen} />
           )}
         </div>
-      )}
-      {snap.unreachable && (
-        <div className={styles.banner} data-testid="unreachable-banner">
-          Server unreachable — retrying…
-        </div>
-      )}
-      <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((t) => t.id !== id))} />
+      </div>
+      {!phone && archHintEl}
+      {!phone && toolHint}
+      {!phone && unreachable}
+      <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((t) => t.id !== id))} phone={phone} />
       {confirm && <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />}
       {awaySummary && content && shouldShowSummary(awaySummary, closedSummaries) && (
         <AwayDialog summary={awaySummary} content={content} islandName={islandName} onDismiss={() => dismissSummary(awaySummary.id)} />

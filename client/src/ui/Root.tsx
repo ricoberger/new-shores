@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { NetworkError, type Player } from "../api/client";
 import { authErrorText, currentPlayer, parseMailLink, verifyEmail } from "../api/auth";
-import { FixtureSync, fixtureFromSearch } from "../dev/fixture";
+import { type FixtureId, FixtureSync, fixtureFromSearch, fixtureView } from "../dev/fixture";
 import { App } from "./App";
 import appStyles from "./App.module.css";
 import styles from "./account.module.css";
+import { UpdateToast } from "./PwaUi";
 import { StartScreen } from "./StartScreen";
 
 type State =
@@ -27,19 +28,24 @@ const DEV_HOOKS = import.meta.env.DEV || import.meta.env.VITE_E2E === "1";
 const FIXTURE_PLAYER: Player = { id: "fixture", display_name: "Fixture", guest: true, email_verified: false };
 
 /**
- * Entry: the synthetic archipelago fixture when the URL names it (dev and
+ * Entry: a synthetic fixture world when the URL names it (dev and
  * E2E builds only, no server), else the session gate.
  */
 export function Root() {
   const [fixture] = useState(() => (DEV_HOOKS ? fixtureFromSearch(globalThis.location?.search ?? "") : null));
-  if (DEV_HOOKS && fixture) return <FixtureApp />;
-  return <SessionRoot />;
+  return (
+    <>
+      {DEV_HOOKS && fixture ? <FixtureApp id={fixture} /> : <SessionRoot />}
+      <UpdateToast />
+    </>
+  );
 }
 
-function FixtureApp() {
-  const [sync] = useState(() => new FixtureSync());
+function FixtureApp({ id }: { id: FixtureId }) {
+  const [sync] = useState(() => new FixtureSync(id));
+  const [view] = useState(() => fixtureView(id));
   const noop = useCallback(() => undefined, []);
-  return <App player={FIXTURE_PLAYER} onPlayerChange={noop} onSessionEnded={noop} onLoggedOut={noop} sync={sync} initialView={{ kind: "archipelago" }} />;
+  return <App player={FIXTURE_PLAYER} onPlayerChange={noop} onSessionEnded={noop} onLoggedOut={noop} sync={sync} initialView={view} />;
 }
 
 /**

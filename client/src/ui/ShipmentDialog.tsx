@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CargoDisplay, Content, DisplayState, ShipDisplay } from "../api/client";
 import { units } from "../display/format";
 import { cargoTotals, slotsFor } from "../display/ships";
+import { DialogPanel } from "./DialogPanel";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -34,14 +35,15 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
     .map(([good, n]) => ({ good, amount: n * 1000 }));
   return (
     <div className={styles.backdrop} onClick={onClose}>
-      <div
+      <DialogPanel
         className={`${styles.panel} ${styles.dialog}`}
-        role="dialog"
-        aria-modal="true"
-        data-testid="shipment-dialog"
+        labelledBy="shipment-dialog-title"
+        testId="shipment-dialog"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className={styles.title}>Send ship #{ship.id}</h2>
+        <h2 className={styles.title} id="shipment-dialog-title">
+          Send ship #{ship.id}
+        </h2>
         <div className={styles.row}>
           <label htmlFor="shipment-dest">To</label>
           <select id="shipment-dest" className={styles.input} value={to} onChange={(e) => setTo(e.target.value)} data-testid="shipment-dest">
@@ -77,6 +79,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
                       className={`${styles.input} ${styles.number}`}
                       value={amounts[g.id] ?? 0}
                       onChange={(e) => setAmounts({ ...amounts, [g.id]: Math.max(0, Math.min(max, Math.floor(Number(e.target.value) || 0))) })}
+                      aria-label={`Load ${g.name} (units)`}
                       data-testid={`shipment-amount-${g.id}`}
                     />
                   </td>
@@ -105,7 +108,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
             Cancel
           </button>
         </div>
-      </div>
+      </DialogPanel>
     </div>
   );
 }

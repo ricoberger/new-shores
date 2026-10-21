@@ -1,5 +1,6 @@
 import type { Content } from "../api/client";
 import { type AwaySummary, summaryView } from "../display/summary";
+import { DialogPanel } from "./DialogPanel";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -15,8 +16,10 @@ export function AwayDialog({ summary, content, islandName, onDismiss }: Props) {
   const v = summaryView(summary, content, islandName);
   return (
     <div className={styles.backdrop}>
-      <div className={`${styles.panel} ${styles.dialog} ${styles.awayDialog}`} role="dialog" aria-modal="true" data-testid="away-dialog">
-        <h2 className={styles.title}>While you were away</h2>
+      <DialogPanel className={`${styles.panel} ${styles.dialog} ${styles.awayDialog}`} labelledBy="away-dialog-title" testId="away-dialog">
+        <h2 className={styles.title} id="away-dialog-title">
+          While you were away
+        </h2>
         <div className={styles.small}>
           <span data-testid="away-from">{v.from}</span> – <span data-testid="away-to">{v.to}</span> ({v.duration})
         </div>
@@ -86,7 +89,7 @@ export function AwayDialog({ summary, content, islandName, onDismiss }: Props) {
             Continue
           </button>
         </div>
-      </div>
+      </DialogPanel>
     </div>
   );
 }

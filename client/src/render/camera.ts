@@ -8,8 +8,8 @@ import type { AbstractEngine } from "@babylonjs/core/Engines/abstractEngine";
 import { Matrix, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { Scene } from "@babylonjs/core/scene";
 
-const AZIMUTH = Math.PI / 4;
-const ELEVATION = Math.PI / 6;
+export const AZIMUTH = Math.PI / 4;
+export const ELEVATION = Math.PI / 6;
 const DISTANCE = 400;
 export const ISLAND_MIN_HALF_HEIGHT = 4;
 export const ISLAND_MAX_HALF_HEIGHT = 40;

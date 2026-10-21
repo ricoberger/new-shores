@@ -77,6 +77,19 @@ export interface ViewState {
 export const ZOOM_OUT_THRESHOLD = 600;
 /** The accumulated zoom-out is forgotten after this pause between gestures. */
 export const ZOOM_OUT_RESET_MS = 800;
+/** Wheel zoom: the camera's half extent changes by exp(deltaY × WHEEL_ZOOM_RATE). */
+export const WHEEL_ZOOM_RATE = 0.0015;
+
+/**
+ * A pinch update (finger distance ratio, < 1: zoom out) in wheel delta
+ * units: the deltaY that zooms the camera by the same factor. A pinch to
+ * half the finger distance is ln 2 / 0.0015 ≈ 462 units, below the
+ * archipelago threshold: a single small pinch never switches views.
+ */
+export function pinchZoomDelta(scale: number): number {
+  if (!(scale > 0) || !Number.isFinite(scale)) return 0;
+  return Math.log(1 / scale) / WHEEL_ZOOM_RATE;
+}
 
 export type ViewAction =
   /** A zoom-out gesture while the island view is at its maximum extent. */

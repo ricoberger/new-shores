@@ -38,6 +38,9 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Prop
       {
         select: (id) => ev().select(id),
         place: (x, y) => ev().place(x, y),
+        pend: (x, y) => ev().pend(x, y),
+        unpend: () => ev().unpend(),
+        rotateGhost: (steps) => ev().rotateGhost(steps),
         move: (x, y) => ev().move(x, y),
         found: (x, y) => ev().found(x, y),
         road: (a, b) => ev().road(a, b),
@@ -49,6 +52,9 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Prop
         tapIsland: (id) => ev().tapIsland(id),
         tapShip: (id) => ev().tapShip(id),
         tapSea: () => ev().tapSea(),
+        inspectBuilding: (id) => ev().inspectBuilding(id),
+        inspectShip: (id) => ev().inspectShip(id),
+        inspectIsland: (id) => ev().inspectIsland(id),
         dragShip: (id, from) => ev().dragShip(id, from),
         dropShip: (island) => ev().dropShip(island),
       },
@@ -61,5 +67,14 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Prop
     };
   }, [sync, onRenderer]);
 
-  return <canvas ref={canvasRef} className={styles.canvas} data-testid="game-canvas" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className={styles.canvas}
+      tabIndex={0}
+      role="application"
+      aria-label="Game view: drag to pan, pinch or wheel to zoom, tap to select"
+      data-testid="game-canvas"
+    />
+  );
 }

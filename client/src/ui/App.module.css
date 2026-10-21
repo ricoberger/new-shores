@@ -4,14 +4,19 @@
   height: 100%;
 }
 
+/* The canvas sits in the overlay (focus order) below every HUD layer. */
 .canvas {
   position: absolute;
   inset: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
   display: block;
-  outline: none;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* The overlay never takes pointer events itself; only its panels do, and
@@ -22,7 +27,9 @@
   pointer-events: none;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  grid-template-columns: 1fr auto;
+  /* minmax(0, …): wide rows (top bar, build bar) never push the grid
+     beyond the viewport when a side panel takes its column. */
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
     "top top"
     "left right"
@@ -31,14 +38,36 @@
 
 .overlay > * {
   pointer-events: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.overlay > .canvas {
+  position: absolute;
+  z-index: 0;
+}
+
+.canvas:focus {
+  outline: none;
+}
+
+.canvas:focus-visible {
+  outline: 3px solid #e69f00;
+  outline-offset: -3px;
 }
 
 .top {
   grid-area: top;
+  min-width: 0;
+  /* Popovers of the top bar stay above sheets and side panels. */
+  position: relative;
+  z-index: 4;
 }
 
 .left {
   grid-area: left;
+  min-width: 0;
+  max-width: calc(100% - 16px);
   align-self: end;
   justify-self: start;
   margin: 8px;
@@ -52,10 +81,12 @@
 
 .bottom {
   grid-area: bottom;
+  min-width: 0;
 }
 
 .banner {
   position: absolute;
+  z-index: 2;
   top: 48px;
   left: 50%;
   transform: translateX(-50%);
@@ -68,6 +99,7 @@
 
 .hint {
   position: absolute;
+  z-index: 2;
   bottom: 96px;
   left: 50%;
   transform: translateX(-50%);
@@ -83,4 +115,69 @@
   margin-top: 2px;
   color: #ffb3a7;
   font-weight: 600;
+}
+
+/* Phone layouts: panels in a bottom sheet over the area below the top bar
+   (never over the top bar and the touch tool bars). */
+.sheetHost {
+  grid-area: 2 / 1 / 4 / 3;
+  position: relative;
+  z-index: 3;
+  min-height: 0;
+}
+
+.overlay > .sheetHost {
+  pointer-events: none;
+}
+
+/* Landscape phones ≥ 640 px wide: a narrow side panel instead of a sheet. */
+.rightNarrow {
+  max-width: 300px;
+  align-self: stretch;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 6px;
+  margin-right: max(6px, env(safe-area-inset-right));
+}
+
+.rightNarrow > * {
+  width: 100%;
+  max-height: none;
+}
+
+.phone .left {
+  margin: 6px;
+  margin-left: max(6px, env(safe-area-inset-left));
+  max-width: calc(100vw - 12px);
+}
+
+.phone .left > * {
+  width: auto;
+  max-width: 100%;
+  max-height: 25vh;
+}
+
+/* Hints and banners of the phone layout stack below the top bar. */
+.hintInline {
+  margin: 6px auto 0;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+  background: rgb(0 0 0 / 70%);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.bannerInline {
+  margin: 6px auto 0;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+  background: #d55e00;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
 }

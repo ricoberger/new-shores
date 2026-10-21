@@ -1,3 +1,4 @@
+import { DialogPanel } from "./DialogPanel";
 import styles from "./hud.module.css";
 
 export interface ConfirmRequest {
@@ -10,14 +11,10 @@ export interface ConfirmRequest {
 export function ConfirmDialog({ request, onClose }: { request: ConfirmRequest; onClose: () => void }) {
   return (
     <div className={styles.backdrop} onClick={onClose}>
-      <div
-        className={`${styles.panel} ${styles.dialog}`}
-        role="dialog"
-        aria-modal="true"
-        data-testid="dialog"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className={styles.title}>{request.title}</h2>
+      <DialogPanel className={`${styles.panel} ${styles.dialog}`} labelledBy="confirm-dialog-title" testId="dialog" onClick={(e) => e.stopPropagation()}>
+        <h2 className={styles.title} id="confirm-dialog-title">
+          {request.title}
+        </h2>
         <p>{request.body}</p>
         <div className={styles.buttons}>
           <button
@@ -35,7 +32,7 @@ export function ConfirmDialog({ request, onClose }: { request: ConfirmRequest; o
             Cancel
           </button>
         </div>
-      </div>
+      </DialogPanel>
     </div>
   );
 }

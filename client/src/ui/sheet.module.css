@@ -1,0 +1,100 @@
+/* Bottom sheet (phone layout). Its host spans the area below the top bar;
+   heights are fractions of the host. */
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  min-height: 88px;
+  pointer-events: auto;
+  background: rgb(250 247 240);
+  border-top: 1px solid #b9ad94;
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -4px 16px rgb(0 0 0 / 30%);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  transition: height 160ms ease-out;
+}
+
+.sheet:focus {
+  outline: none;
+}
+
+.sheet:focus-visible {
+  outline: 3px solid #0072b2;
+  outline-offset: -3px;
+}
+
+.dragging {
+  transition: none;
+}
+
+.handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  border: none;
+  background: none;
+  touch-action: none;
+  cursor: grab;
+  flex: none;
+}
+
+.grip {
+  width: 48px;
+  height: 5px;
+  border-radius: 3px;
+  background: #8c7f66;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 14px;
+  flex: none;
+}
+
+.title {
+  flex: 1;
+  font-weight: 700;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.close {
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: none;
+  font-size: 18px;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  padding: 0 10px 10px;
+}
+
+/* The desktop panels inside a sheet take its width and scroll with it. */
+.body > * {
+  width: auto;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+}

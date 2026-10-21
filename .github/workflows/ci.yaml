@@ -133,11 +133,17 @@ jobs:
       - name: npm ci
         run: npm ci
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
 
-      - name: Playwright smoke test
+      - name: Playwright e2e (desktop, touch, PWA and perf projects)
         run: npm run test:e2e
+        env:
+          # fps threshold of the perf check (SwiftShader, 4x CPU throttling):
+          # the PERF line's 412x915 fps on this runner x 0.8, rounded down.
+          # ubuntu-latest, run 39559545287: 5.5 fps (both attempts) -> 4.
+          # (Apple M4 Pro: 34.1 fps -> the default 27.)
+          PERF_MIN_FPS: "4"
 
       - name: Upload Playwright report
         if: failure()

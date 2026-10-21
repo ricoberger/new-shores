@@ -8,6 +8,8 @@ body,
   font-size: 14px;
   color: #1d1d1f;
   background: #1f4569;
+  /* No pull-to-refresh or scroll chaining on the game screen. */
+  overscroll-behavior: none;
 }
 
 * {
@@ -17,4 +19,29 @@ body,
 button {
   font: inherit;
   cursor: pointer;
+}
+
+/* Controls: no double-tap zoom delay; inputs and sheets keep scrolling. */
+button,
+a,
+input,
+select,
+label {
+  touch-action: manipulation;
+}
+
+/* Touch layouts (phones, tablets): every control is at least 44 × 44 CSS px. */
+[data-touch="true"] button,
+[data-touch="true"] a,
+[data-touch="true"] input,
+[data-touch="true"] select {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Visible keyboard focus on every control (the focus colour differs from
+   the active-item outline). */
+:focus-visible {
+  outline: 3px solid #e69f00;
+  outline-offset: 2px;
 }

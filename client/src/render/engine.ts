@@ -20,7 +20,8 @@ import type { SyncSnapshot } from "../api/sync";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
-import type { Tool } from "../ui/tools";
+import { pinchZoomDelta, WHEEL_ZOOM_RATE } from "../display/view";
+import { isGhostTool, type Tool } from "../ui/tools";
 import { ArchipelagoLayer, type ArchSelection } from "./archipelago";
 import { BuildingLayer } from "./buildings";
 import { CameraRig, type CameraState, fitHalfHeight, ISLAND_DEFAULT_HALF_HEIGHT } from "./camera";
@@ -29,13 +30,19 @@ import { footprintBox, tileCenter, worldToTile } from "./coords";
 import { HarbourLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
-import { type Point, PointerInput } from "./picking";
+import { type Point, PointerInput, type PointerKind } from "./picking";
 import { RoadLayer } from "./roads";
 import type { ShipStyle } from "./shipmesh";
 import { buildTerrain } from "./terrain";
 
 /** Duration of the island ↔ archipelago camera transition (≤ 400 ms). */
 export const TRANSITION_MS = 350;
+/**
+ * Render resolution cap (render pixels per CSS pixel). High-DPR phones
+ * (2.6–3) would otherwise shade 2–4× the pixels for little visible gain
+ * on flat low-poly meshes; measured in the M3 perf notes.
+ */
+export const MAX_RENDER_DPR = 1.5;
 /** Pick radius of ships (CSS pixels). */
 const SHIP_PICK_PX = 18;
 /** Margin (tiles) around the islands for the archipelago camera bounds. */
@@ -48,6 +55,12 @@ export type RenderView = { kind: "island"; id: string } | { kind: "archipelago" 
 export interface RendererEvents {
   select(buildingId: number | null): void;
   place(x: number, y: number): void;
+  /** Touch: a tap put the placement ghost on a tile; Confirm places it. */
+  pend(x: number, y: number): void;
+  /** A mouse or pen took over: the touch-pending tile is dropped (the ghost follows the pointer). */
+  unpend(): void;
+  /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed). */
+  rotateGhost(steps: number): void;
   move(x: number, y: number): void;
   found(x: number, y: number): void;
   road(from: TilePos, to: TilePos): void;
@@ -66,6 +79,10 @@ export interface RendererEvents {
   tapIsland(id: string): void;
   tapShip(id: number): void;
   tapSea(): void;
+  /** Long-press on a building, ship or island: select it and open its panel (no tool acts). */
+  inspectBuilding(id: number): void;
+  inspectShip(id: number): void;
+  inspectIsland(id: string): void;
   /** An idle ship is dragged from its island; dropShip ends the drag (island null: the sea). */
   dragShip(shipId: number, from: string): void;
   dropShip(island: string | null): void;
@@ -106,6 +123,9 @@ export class GameRenderer {
   private deposits = new Map<string, string>();
   private fertilities: readonly string[] = [];
   private lastGhostHint: string | null = null;
+  /** The last pointer was a mouse or pen (the ghost follows it, not a touch-pending tile). */
+  private precise = false;
+  private ghostAt: TilePos | null = null;
   private readonly input: PointerInput;
   private readonly unsubscribe: () => void;
   private terrain: Mesh[] = [];
@@ -145,7 +165,9 @@ export class GameRenderer {
     private readonly events: RendererEvents,
     initialView: RenderView = { kind: "island", id: "" },
   ) {
-    this.engine = new Engine(canvas, true, { stencil: false, preserveDrawingBuffer: false }, true);
+    // The canvas renders at most MAX_RENDER_DPR pixels per CSS pixel (HTML
+    // text and the HUD stay at the device resolution).
+    this.engine = new Engine(canvas, true, { stencil: false, preserveDrawingBuffer: false, limitDeviceRatio: MAX_RENDER_DPR }, true);
     this.scene = new Scene(this.engine);
     this.scene.clearColor = new Color4(0.12, 0.27, 0.42, 1);
     this.scene.skipPointerMovePicking = true;
@@ -176,10 +198,14 @@ export class GameRenderer {
     this.applyMode();
 
     this.input = new PointerInput(canvas, () => this.ratio(), {
-      tap: (p, button) => this.onTap(p, button),
+      pointerDown: (kind) => this.onPointerDown(kind),
+      tap: (p, button, kind) => this.onTap(p, button, kind),
+      longPress: (p) => this.onLongPress(p),
       dragStart: (p, button) => this.onDragStart(p, button),
       dragMove: (prev, cur, button) => this.onDragMove(prev, cur, button),
       dragEnd: (p, button) => this.onDragEnd(p, button),
+      pinch: (centre, prev, scale) => this.onPinch(centre, prev, scale),
+      rotate: (steps) => this.onRotate(steps),
       cancel: () => this.onPointerCancel(),
       hover: (p) => this.onHover(p),
       wheel: (p, dy) => this.onWheel(p, dy),
@@ -248,6 +274,7 @@ export class GameRenderer {
 
   private onHover(p: Point | null): void {
     this.hover = p;
+    if (p) this.takePrecisePointer();
     if (this.hoverListeners.size === 0) return;
     let id: string | null = null;
     let at: { x: number; y: number } | null = null;
@@ -257,6 +284,11 @@ export class GameRenderer {
       at = { x: p.x / k, y: p.y / k };
     }
     for (const l of this.hoverListeners) l(id, at);
+  }
+
+  /** Carts drawn in the island view. */
+  cartCount(): number {
+    return this.archMode ? 0 : this.carts.count();
   }
 
   /** Draw calls of the last frame. */
@@ -652,10 +684,81 @@ export class GameRenderer {
       if (dy > 0 && this.rig.atMaxZoom()) this.events.zoomOutAtMax(dy);
       else this.events.zoomReset();
     }
-    this.rig.zoom(Math.exp(dy * 0.0015), p);
+    this.rig.zoom(Math.exp(dy * WHEEL_ZOOM_RATE), p);
   }
 
-  private onTap(p: Point, button: number): void {
+  /**
+   * Touch has no hover: a stale mouse position must not place the ghost.
+   * A mouse or pen press takes over from a pending touch tile.
+   */
+  private onPointerDown(kind: PointerKind): void {
+    if (kind === "touch") {
+      this.precise = false;
+      if (this.hover) this.onHover(null);
+    } else {
+      this.takePrecisePointer();
+    }
+  }
+
+  /**
+   * A mouse or pen is in use: the ghost follows it at once (also before
+   * the UI state drops the pending tile), so a click places exactly what
+   * the preview shows.
+   */
+  private takePrecisePointer(): void {
+    this.precise = true;
+    const tool = this.tool();
+    if (isGhostTool(tool) && tool.pending) this.events.unpend();
+  }
+
+  /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
+  ghostTile(): TilePos | null {
+    return this.ghostAt;
+  }
+
+  /**
+   * Two-finger pan and pinch zoom (any tool). Zooming out at the island
+   * maximum feeds the same accumulator as the wheel, in wheel delta units.
+   */
+  private onPinch(centre: Point, prev: Point, scale: number): void {
+    if (this.rig.animating()) return;
+    this.rig.pan(prev, centre);
+    if (!this.archMode) {
+      const delta = pinchZoomDelta(scale);
+      if (delta > 0 && this.rig.atMaxZoom()) this.events.zoomOutAtMax(delta);
+      else if (delta < -1) this.events.zoomReset();
+    }
+    this.rig.zoom(1 / scale, centre);
+  }
+
+  private onRotate(steps: number): void {
+    if (!this.archMode && isGhostTool(this.tool())) this.events.rotateGhost(steps);
+  }
+
+  /**
+   * Long-press inspects: a building, ship or island under the finger is
+   * selected and its panel opens; the active tool stays and nothing is
+   * placed or demolished. Empty ground or sea does nothing.
+   */
+  private onLongPress(p: Point): void {
+    if (this.rig.animating()) return;
+    const ship = this.shipUnder(p);
+    if (ship !== null) {
+      this.events.inspectShip(ship);
+      return;
+    }
+    if (this.archMode) {
+      const id = this.islandUnder(p);
+      if (id) this.events.inspectIsland(id);
+      return;
+    }
+    const t = this.tileAt(p);
+    const is = this.displayIsland();
+    const b = t && is ? buildingAt(is.buildings, this.defs, t.x, t.y) : undefined;
+    if (b) this.events.inspectBuilding(b.id);
+  }
+
+  private onTap(p: Point, button: number, kind: PointerKind): void {
     if (this.rig.animating()) return;
     if (this.archMode) {
       if (button !== 0) return;
@@ -677,6 +780,11 @@ export class GameRenderer {
     if (button !== 0) return;
     const t = this.tileAt(p);
     if (!t) return;
+    // Touch has no hover: a tap only positions the ghost; Confirm places it.
+    if (kind === "touch" && isGhostTool(tool)) {
+      this.events.pend(t.x, t.y);
+      return;
+    }
     switch (tool.kind) {
       case "build":
         this.events.place(t.x, t.y);
@@ -794,9 +902,12 @@ export class GameRenderer {
    */
   private updateGhost(): void {
     const tool = this.tool();
-    const ghostTool = !this.archMode && (tool.kind === "build" || tool.kind === "move" || tool.kind === "found");
+    const ghostTool = !this.archMode && isGhostTool(tool);
     const def = ghostTool ? this.defs.get(tool.buildingType) : undefined;
-    const t = this.hover && def ? this.tileAt(this.hover) : null;
+    // Touch: the pending tile; mouse or pen: the tile under the pointer.
+    const hovered = this.hover ? this.tileAt(this.hover) : null;
+    const t = !ghostTool || !def ? null : this.precise ? hovered : (tool.pending ?? hovered);
+    this.ghostAt = t;
     if (!ghostTool || !def || !t) {
       this.ghost.setEnabled(false);
       this.setGhostHint(null);
