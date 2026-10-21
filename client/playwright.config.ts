@@ -39,8 +39,9 @@ export default defineConfig({
     { name: "chromium", testMatch: /(smoke|ttfi|voyage)\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
     { name: "archipelago", testMatch: /archipelago\.spec\.ts$/, dependencies: ["chromium"], use: { ...devices["Desktop Chrome"] } },
     { name: "away", testMatch: /wait-away\.spec\.ts$/, dependencies: ["archipelago"], use: { ...devices["Desktop Chrome"] } },
-    // Mobile performance budget on the dense fixture (no server state).
-    { name: "perf", testMatch: /perf\.spec\.ts$/, use: { ...devices["Desktop Chrome"], launchOptions: { args: gpuArgs } } },
+    // Mobile performance budget and the opt-in Lighthouse measurement on
+    // the dense fixture (no server state).
+    { name: "perf", testMatch: /(perf|lighthouse)\.spec\.ts$/, use: { ...devices["Desktop Chrome"], launchOptions: { args: gpuArgs } } },
   ],
   webServer: [
     {
