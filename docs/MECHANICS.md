@@ -487,6 +487,18 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   `assign_ship` requires an idle ship and starts at the first stop on its
   island, else positions to stop 0.
 - Loop time shown in the UI is computed at reference speed 1.0.
+- **Route effects (display only, estimated):** for the UI the server
+  computes per route `effects[] {island, good, per_loop, per_min}`:
+  a virtual hold `H` = the smallest `slots × slot_size` among the assigned
+  ships (or among all ship types when none is assigned); for every good
+  that appears in a load rule, walk the stops twice from stop 0 with
+  `aboard = 0` — at each stop unload first (the island gains `aboard`,
+  `aboard = 0` if the good is in `unload`), then load (`delta = max(0,
+  min(max_amount, H) − aboard)`; the island loses `delta`); the second
+  pass's per-island sums are `per_loop`; `per_min = per_loop ×
+  assigned_ships × 60 000 / loop_ms` (0 without ships). Stock availability
+  and cross-good slot competition are ignored, so the UI labels the values
+  "estimated". This is a derived display field, never used by rules.
 - Manual shipment = a one-off two-stop leg from the ship's island to a
   target island with an explicit cargo list taken from the island
   inventory (or already aboard); on arrival everything is unloaded as far

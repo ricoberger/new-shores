@@ -7,11 +7,14 @@ other players on a shared world map. Anno's pace — build instantly, be gated b
 what you produce — with an economy that keeps running on the server while you
 are away. Cosmetic-only monetisation.
 
-Status: **M2 — the tier-1 island is playable in the browser against
-PostgreSQL with guest and registered accounts, a scheduled-events worker,
-WebSocket push and two stateless server instances** (ships and routes
-follow; see [docs/FIRST_PLAYABLE.md](docs/FIRST_PLAYABLE.md)). The
-in-memory `--dev` server remains for quick local work.
+Status: **M4 part 2b done — tiers 1–2 playable end to end**: two islands,
+ships, routes and settling, Citizens with balanced tier 1–2 content, intro
+quests, "while you were away", automatic stall recovery, a 3D archipelago
+view with a graphical route editor, all persisted in PostgreSQL with
+accounts, a scheduled-events worker, WebSocket push and two stateless
+server instances (see [docs/FIRST_PLAYABLE.md](docs/FIRST_PLAYABLE.md)).
+Next: M3 — touch, polish and the mobile budget. The in-memory `--dev`
+server remains for quick local work.
 
 ## Documents
 

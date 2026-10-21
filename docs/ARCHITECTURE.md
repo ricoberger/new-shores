@@ -242,8 +242,9 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `unassign_ship`, `scrap_ship`, `create_route`, `update_route`,
   `delete_route` (list bounds: ≤ 8 stops, ≤ 32 load/unload entries per
   stop, ≤ 16 cargo entries), returning `{version, display}`; the display
-  payload includes `ships`, `routes`, shipyard `ship_order` and per-island
-  `name`, `settled`, `position`; `GET /world/islands/{id}` → `{id, width, height, revision,
+  payload includes `ships`, `routes` (with `loop_ms` and the estimated
+  `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,
+  `settled`, `position`, `quests`, `away_summary`, `insolvency`; `GET /world/islands/{id}` → `{id, width, height, revision,
   terrain[]}` (row-major, index `y*width+x`; fertilities and slots will be
   sibling arrays); `GET /content` → catalogue in the same fixed-point units
   as the display payload; `GET /healthz`.

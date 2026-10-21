@@ -139,8 +139,13 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
-- **Part 2b-ii:** 3D archipelago view and graphical route editor;
-  rebalance warehouse levels 3–4 with tier 3.
+- **Part 2b-ii — done (PR #10):** 3D archipelago view in the same scene
+  (procedural island silhouettes, sea, ships on their legs from server
+  timestamps, route lines), island card, ship info panel, graphical route
+  editor with server-computed estimated effects, 350 ms view transitions,
+  per-island camera memory. 8 islands / 20 ships fixture: 60 fps, 14–15
+  draw calls; main chunk 337 → 353 kB gzip. Open: rebalance warehouse
+  levels 3–4 with tier 3.
 - Acceptance: see §3.
 
 Ordering rationale: M1 carries the design risk and needs no UI (the scenario
