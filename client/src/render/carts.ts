@@ -64,6 +64,9 @@ export function roadPath(roads: ReadonlySet<string>, from: readonly TilePos[], t
   return null;
 }
 
+const CART_Y = 0.15;
+const IDENTITY = Matrix.Identity().asArray();
+
 export class CartLayer {
   private readonly mesh: Mesh;
   private carts: Cart[] = [];
@@ -96,7 +99,9 @@ export class CartLayer {
       const path = roadPath(roads, footprintRoads(roads, b, def), footprintRoads(roads, wh, whDef));
       if (path && path.length > 0) this.carts.push({ path, periodMs: period, phaseMs: (b.id * 7919) % period });
     }
+    // Identity matrices; frame() only rewrites the translations.
     this.buffer = new Float32Array(this.carts.length * 16);
+    for (let i = 0; i < this.carts.length; i++) this.buffer.set(IDENTITY, i * 16);
     this.frame(0, false);
     setInstances(this.mesh, this.carts.length ? this.buffer : null);
   }
@@ -109,17 +114,20 @@ export class CartLayer {
   /** Positions the carts at server time nowMs (called every frame). */
   frame(nowMs: number, upload = true): void {
     if (this.carts.length === 0) return;
-    this.carts.forEach((c, i) => {
+    for (let i = 0; i < this.carts.length; i++) {
+      const c = this.carts[i] as Cart;
       const t = ((nowMs + c.phaseMs) % c.periodMs) / c.periodMs; // 0..1 round trip
       const f = t < 0.5 ? t * 2 : 2 - t * 2; // 0..1..0
       const pos = f * (c.path.length - 1);
       const a = c.path[Math.floor(pos)] as TilePos;
       const b = c.path[Math.min(c.path.length - 1, Math.floor(pos) + 1)] as TilePos;
       const k = pos - Math.floor(pos);
-      const x = a.x + (b.x - a.x) * k + 0.5;
-      const z = -(a.y + (b.y - a.y) * k + 0.5);
-      this.buffer.set(Matrix.Translation(x, 0.15, z).asArray(), i * 16);
-    });
+      // No per-frame allocation: write the translation of the matrix only.
+      const o = i * 16;
+      this.buffer[o + 12] = a.x + (b.x - a.x) * k + 0.5;
+      this.buffer[o + 13] = CART_Y;
+      this.buffer[o + 14] = -(a.y + (b.y - a.y) * k + 0.5);
+    }
     if (upload) this.mesh.thinInstanceBufferUpdated("matrix");
   }
 }
