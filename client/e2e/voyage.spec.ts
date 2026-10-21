@@ -124,12 +124,20 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
   await page.getByTestId("shipyard-order-sloop").click();
   await expect(page.getByTestId("shipyard-progress")).toBeVisible();
   await expect(page.getByTestId("shipyard-order")).toContainText("ready in");
+  // The scene shows the hull under construction on the shipyard.
+  const yardId = await page.evaluate(
+    () => window.__newShores!.getServer()!.display.islands[0]!.buildings.find((x) => x.type === "shipyard")!.id,
+  );
+  await expect
+    .poll(() => page.evaluate(() => window.__newShores!.constructionMarkers().map((m) => m.buildingId)))
+    .toEqual([yardId]);
 
   // ship_built arrives by push/next_change_at without a reload.
   await expect(page.getByTestId("hud-ship-count")).toHaveText("1", { timeout: BUILD_WALL_MS });
   const [ship] = await ships(page);
   expect(ship).toMatchObject({ state: "idle", island_id: ISLAND });
-  // The idle sloop is drawn at the harbour of the island view.
+  // The hull marker is gone; the idle sloop is drawn at the harbour of the island view.
+  await expect.poll(() => page.evaluate(() => window.__newShores!.constructionMarkers().length)).toBe(0);
   await expect.poll(async () => (await page.evaluate((id) => window.__newShores!.shipToScreen(id), ship!.id)).x).not.toBeNaN();
 
   // Manual shipment by drag and drop in the archipelago view: a drop on the

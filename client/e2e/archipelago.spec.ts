@@ -246,11 +246,19 @@ test("fixture: continuous transitions, Esc cancels a ship drag, selecting a ship
   const island1 = await islandPoint(page, "isle2");
   expect(Math.hypot(island1.x - island0.x, island1.y - island0.y)).toBeLessThan(1);
 
+  // Ships are drawn in their state's style: anchored_unpaid greyed (the
+  // renderer's instance style, exposed by the test hook).
+  const unpaid = 5; // anchored_unpaid at isle5 in the fixture
+  expect(await page.evaluate((id) => window.__newShores!.getServer()!.display.ships.find((s) => s.id === id)!.state, unpaid)).toBe("anchored_unpaid");
+  await expect.poll(() => page.evaluate((id) => window.__newShores!.shipStyle(id), unpaid)).toBe("unpaid");
+  expect(await page.evaluate((id) => window.__newShores!.shipStyle(id), idle)).toBe("active");
+
   // Selecting a ship while the route editor is open shows its panel (list
   // and scene); the editor is suspended and comes back.
   await page.getByTestId("hud-routes").click();
   await page.getByTestId("route-edit-1").click();
   await expect(page.getByTestId("route-editor")).toBeVisible();
+  await page.getByTestId("route-name").fill("Draft kept");
   await page.getByTestId("hud-ships").click();
   await page.getByTestId(`ship-${idle}`).click();
   await expect(page.getByTestId("ship-panel-name")).toContainText(`#${idle}`);
@@ -262,6 +270,20 @@ test("fixture: continuous transitions, Esc cancels a ship drag, selecting a ship
   await expect(page.getByTestId("ship-panel-name")).toContainText(`#${idle}`);
   await page.getByTestId("ship-panel-close").click();
   await expect(page.getByTestId("route-editor")).toBeVisible();
+  // Paused by a ship, with the Ships list open: "Back to route editor"
+  // leaves the editor as the only side panel, its draft intact.
+  await page.getByTestId("hud-ships").click();
+  await page.getByTestId(`ship-${idle}`).click();
+  await expect(page.getByTestId("ship-panel")).toBeVisible();
+  await page.getByTestId("hud-ships").click();
+  await expect(page.getByTestId("ships-panel")).toBeVisible();
+  await page.getByTestId("route-editor-resume").click();
+  await expect(page.getByTestId("route-editor")).toBeVisible();
+  await expect(page.getByTestId("ships-panel")).toHaveCount(0);
+  await expect(page.getByTestId("ship-panel")).toHaveCount(0);
+  await expect(page.getByTestId("route-editor-resume")).toHaveCount(0);
+  await expect(page.getByTestId("route-name")).toHaveValue("Draft kept");
+  await expect(page.getByTestId("route-stop-name-0")).toContainText("Isle");
   await page.getByTestId("route-editor-close").click();
 
   // Entering an island starts the camera exactly where it was (no snap in
