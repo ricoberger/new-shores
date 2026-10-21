@@ -13,8 +13,9 @@ quests, "while you were away", automatic stall recovery, a 3D archipelago
 view with a graphical route editor, all persisted in PostgreSQL with
 accounts, a scheduled-events worker, WebSocket push and two stateless
 server instances (see [docs/FIRST_PLAYABLE.md](docs/FIRST_PLAYABLE.md)).
-Next: M3 — touch, polish and the mobile budget. The in-memory `--dev`
-server remains for quick local work.
+M3 (touch input, mobile layout, PWA shell, mobile performance budget)
+is in place with emulated measurements; a check on a real phone is still
+open. The in-memory `--dev` server remains for quick local work.
 
 ## Documents
 
@@ -132,9 +133,9 @@ service before the servers start.
 ### Checks and tests
 
 - `make check` (server, content and client: gofmt, vet, golangci-lint,
-  `go test`, eslint, typecheck, Vitest). Browser smoke test against the dev
-  server: `cd client && npx playwright install chromium`, then
-  `make client-e2e`.
+  `go test`, eslint, typecheck, Vitest). Browser tests against the dev
+  server: `cd client && npx playwright install chromium webkit`, then
+  `make client-e2e` (all Playwright projects, see "Mobile" below).
 - PostgreSQL/Redis integration tests (store, events worker, auth,
   two-instance test): `make server-integration`. They use
   `TEST_DATABASE_URL` (a server where the tests may create databases) and
@@ -147,6 +148,43 @@ service before the servers start.
   removes the label when it finishes, so after pushing new commits add it
   again. Nothing runs on push to `main`; `workflow_dispatch` is available
   for manual runs. Run `make check` locally before asking for CI.
+
+### Mobile, fixtures and measurements
+
+- **Mobile:** the same client works by touch alone on phones and tablets
+  (minimum 360 × 640, portrait and landscape): one-finger pan, pinch zoom
+  (pinching out at the island maximum opens the archipelago), tap to
+  select, long-press to inspect, tap + Confirm to place, a two-finger
+  twist or the Rotate button to rotate, one-finger road drawing, ship
+  drag-to-send. Phones get bottom sheets, a scrolling build bar and a
+  collapsed top bar; the mouse keeps click-to-place.
+- **Fixtures** (dev and E2E builds only, no server needed):
+  `?fixture=archipelago-8x20` (8 islands, 20 ships, archipelago view) and
+  `?fixture=dense-2x400` (two islands, ≈ 400 buildings, 63 carts, 2 ships
+  on legs; island view), e.g. <http://localhost:5173/?fixture=dense-2x400>
+  under `make dev`.
+- **Playwright projects** (`npm run test:e2e` runs all of them):
+  `chromium`, `archipelago` and `away` (desktop, shared dev world), then
+  `touch-chromium` (Pixel 5 profile at 412 × 915, incl. the PWA
+  installability check) and `touch-webkit` (iPhone 12; needs
+  `npx playwright install webkit`), and `perf` (the dense fixture under
+  4× CPU throttling; logs fps, frame times, draw calls, JS heap, WebGL
+  renderer and bundle size and asserts `PERF_MIN_FPS` in
+  `client/e2e/perf.spec.ts`). Single projects:
+  `npx playwright test --project=perf` (add `--no-deps` to skip the
+  desktop projects a touch project depends on). Headless Chromium renders
+  with SwiftShader (software); `PERF_GPU=1` runs the perf project with
+  hardware WebGL flags for comparison (its fps threshold is not asserted).
+- **Opt-in measurements:** `MEASURE_TTFI=1 npx playwright test e2e/ttfi.spec.ts`
+  (time to first interaction) and
+  `MEASURE_LIGHTHOUSE=1 npx playwright test e2e/lighthouse.spec.ts`
+  (Lighthouse accessibility of the island view, desktop and 412 × 915,
+  with the project-local `lighthouse` devDependency).
+- **PWA:** production builds register a service worker that caches the
+  app shell only (installable, starts fast); the game itself always needs
+  connectivity and `/api/` is never cached. A new version shows an
+  "Update available" toast with Reload; "Install app" appears in the
+  account menu when the browser offers installation.
 
 ## Tech stack at a glance
 
