@@ -271,6 +271,11 @@ export class GameRenderer {
     for (const l of this.hoverListeners) l(id, at);
   }
 
+  /** Carts drawn in the island view. */
+  cartCount(): number {
+    return this.archMode ? 0 : this.carts.count();
+  }
+
   /** Draw calls of the last frame. */
   lastDrawCalls(): number {
     return this.drawCalls;

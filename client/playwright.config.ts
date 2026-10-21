@@ -12,6 +12,13 @@ const env = {
   VITE_TIME_SCALE: String(E2E_TIME_SCALE),
 };
 
+// PERF_GPU=1 runs the perf project with hardware WebGL where available
+// (headless Chromium otherwise uses SwiftShader, a software renderer).
+const gpuArgs =
+  process.env.PERF_GPU === "1"
+    ? ["--enable-gpu", "--ignore-gpu-blocklist", ...(process.platform === "darwin" ? ["--use-angle=metal"] : [])]
+    : [];
+
 export default defineConfig({
   testDir: "./e2e",
   timeout: 120_000,
@@ -32,6 +39,8 @@ export default defineConfig({
     { name: "chromium", testMatch: /(smoke|ttfi|voyage)\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
     { name: "archipelago", testMatch: /archipelago\.spec\.ts$/, dependencies: ["chromium"], use: { ...devices["Desktop Chrome"] } },
     { name: "away", testMatch: /wait-away\.spec\.ts$/, dependencies: ["archipelago"], use: { ...devices["Desktop Chrome"] } },
+    // Mobile performance budget on the dense fixture (no server state).
+    { name: "perf", testMatch: /perf\.spec\.ts$/, use: { ...devices["Desktop Chrome"], launchOptions: { args: gpuArgs } } },
   ],
   webServer: [
     {

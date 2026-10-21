@@ -101,6 +101,11 @@ export class CartLayer {
     setInstances(this.mesh, this.carts.length ? this.buffer : null);
   }
 
+  /** Number of carts drawn (one per delivering producer with a road path). */
+  count(): number {
+    return this.carts.length;
+  }
+
   /** Positions the carts at server time nowMs (called every frame). */
   frame(nowMs: number, upload = true): void {
     if (this.carts.length === 0) return;

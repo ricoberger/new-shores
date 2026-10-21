@@ -69,6 +69,8 @@ export interface TestHook {
   constructionMarkers(): { buildingId: number; scale: number }[];
   /** Frame times over the last windowMs (default 5 s). */
   frameStats(windowMs?: number): FrameStats;
+  /** Carts drawn in the island view. */
+  carts(): number;
 }
 
 declare global {
@@ -451,6 +453,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         shipStyle: (id) => rendererRef.current?.shipStyle(id) ?? null,
         constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
         frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 },
+        carts: () => rendererRef.current?.cartCount() ?? 0,
       };
     }
   }, [sync]);
