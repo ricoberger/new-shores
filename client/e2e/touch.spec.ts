@@ -499,6 +499,28 @@ test("every HUD control is at least 44 × 44 px; no horizontal overflow at 360 �
   expect(overflow.body).toBeLessThanOrEqual(0);
 });
 
+test("the minimap collapses on a phone and shows again on a larger layout", async ({ page }) => {
+  test.skip(page.viewportSize()!.width !== 412, "Chromium touch project (coarse pointer)");
+  await page.setViewportSize({ width: 360, height: 640 });
+  await page.goto("/?fixture=dense-2x400");
+  await worldReady(page, DENSE);
+  // Phone portrait: collapsed behind its toggle.
+  await expect(page.getByTestId("minimap")).toHaveCount(0);
+  await page.getByTestId("minimap-toggle").tap();
+  await expect(page.getByTestId("minimap")).toBeVisible();
+  await page.getByTestId("minimap-toggle").tap();
+  await expect(page.getByTestId("minimap")).toHaveCount(0);
+  // Collapsed, then a tablet layout without a toggle: the minimap shows.
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(page.locator('[data-layout="tablet"]')).toHaveCount(1);
+  await expect(page.getByTestId("minimap-toggle")).toHaveCount(0);
+  await expect(page.getByTestId("minimap")).toBeVisible();
+  // Back on the phone it keeps its collapsed state.
+  await page.setViewportSize({ width: 360, height: 640 });
+  await expect(page.getByTestId("minimap-toggle")).toBeVisible();
+  await expect(page.getByTestId("minimap")).toHaveCount(0);
+});
+
 test("tablet layouts: every HUD control is reachable and at least 44 × 44 px", async ({ page }) => {
   test.skip(page.viewportSize()!.width !== 412, "Chromium touch project (coarse pointer)");
   for (const vp of [

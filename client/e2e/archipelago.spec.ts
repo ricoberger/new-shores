@@ -17,7 +17,7 @@ import {
   worldReady,
 } from "./archipelago";
 import { dismissAwayDialog } from "./away";
-import { E2E_TIME_SCALE, ISLAND, ISLAND_INLAND, ISLAND2, ISLAND2_INLAND, ROTATION_ROADS } from "./constants";
+import { E2E_TIME_SCALE, ISLAND, ISLAND_INLAND, ISLAND2, ISLAND2_INLAND, ROTATION_HOUSES } from "./constants";
 
 // One continuous world (D-048) on the world the voyage spec left behind
 // (island 2 settled, the sloop sailing "Fish home"): a mouse pan across
@@ -62,8 +62,15 @@ function flips(seq: Lod[]): number {
   return n;
 }
 
-async function roadsAt(page: Page, island: string): Promise<string[]> {
-  return page.evaluate((id) => window.__newShores!.getServer()!.display.islands.find((i) => i.id === id)!.roads.map((r) => `${r.x},${r.y}`), island);
+/** Type and rotation of the server's building at a tile of an island (null: none). */
+async function buildingAt(page: Page, island: string, t: Point): Promise<{ type: string; rotation: number } | null> {
+  return page.evaluate(
+    ([id, x, y]) => {
+      const b = window.__newShores!.getServer()!.display.islands.find((i) => i.id === id)!.buildings.find((x2) => x2.x === x && x2.y === y);
+      return b ? { type: b.type, rotation: b.rotation } : null;
+    },
+    [island, t.x, t.y] as const,
+  );
 }
 
 test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, minimap and tabs", async ({ page }) => {
@@ -76,43 +83,55 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   await expectLod(page, "near");
   await expectFocused(page, ISLAND);
 
-  // Four 90° rotation steps (buttons and Q/E) about the target; a road tile
-  // placed by a click in each step lands on the intended tile, and the
-  // placement ghost follows the hovered tile. (First: the road commands
-  // also keep the world from producing an away summary mid-test.)
+  // The four camera rotation steps 0 → 1 → 2 → 3 (right button, E, E),
+  // then back 3 → 2 → 1 → 0 (Q, left button, Q), always about the same
+  // target and zoom. In each distinct step a settler house is placed by a
+  // click with building rotation step × 90° (world-relative, D-042): the
+  // server has it on the intended tile with that rotation. (First: the
+  // commands also keep the world from producing an away summary mid-test.)
   await showIsland(page, ISLAND);
   await expectLod(page, "near");
-  const keys = ["button-right", "E", "button-left", "Q"] as const;
-  let expected = (await camera(page)).rotation;
-  for (let i = 0; i < 4; i++) {
+  await expect
+    .poll(() => page.evaluate((id) => window.__newShores!.getServer()!.display.islands.find((i) => i.id === id)!.inventory.planks?.stock ?? 0, ISLAND), {
+      timeout: 60_000,
+    })
+    .toBeGreaterThanOrEqual(10_000 * ROTATION_HOUSES.length);
+  const placeHouse = async (step: number) => {
+    const t = ROTATION_HOUSES[step]!;
+    const rotation = step * 90;
+    await page.getByTestId("build-tab-houses").click();
+    await page.getByTestId("build-house_settlers").click();
+    for (let r = 0; r < rotation; r += 90) await page.keyboard.press("r");
+    await expect(page.getByTestId("tool-hint")).toContainText(`(${rotation}°)`);
+    const p = await tile(page, ISLAND, t);
+    await page.mouse.move(p.x, p.y);
+    await expect.poll(() => page.evaluate(() => window.__newShores!.ghostTile())).toEqual(t);
+    await page.mouse.click(p.x, p.y);
+    await expect.poll(() => buildingAt(page, ISLAND, t)).toEqual({ type: "house_settlers", rotation });
+    await page.keyboard.press("Escape");
+  };
+  const press = async (k: "button-right" | "button-left" | "E" | "Q", to: number) => {
     const before = await camera(page);
-    const k = keys[i]!;
     if (k === "button-right") await page.getByTestId("camera-rotate-right").click();
     else if (k === "button-left") await page.getByTestId("camera-rotate-left").click();
     else await page.keyboard.press(k);
-    expected = (expected + (k === "E" || k === "button-right" ? 1 : 3)) % 4;
-    await expect.poll(async () => (await camera(page)).rotation).toBe(expected);
+    await expect.poll(async () => (await camera(page)).rotation).toBe(to);
     const after = await camera(page);
     expect(after.x).toBeCloseTo(before.x, 6);
     expect(after.z).toBeCloseTo(before.z, 6);
     expect(after.half).toBeCloseTo(before.half, 6);
-    // Ghost of a settler house under the mouse on a tile.
-    const t = ROTATION_ROADS[i]!;
-    await page.getByTestId("build-tab-houses").click();
-    await page.getByTestId("build-house_settlers").click();
-    const p = await tile(page, ISLAND, { x: t.x, y: t.y + 3 });
-    await page.mouse.move(p.x, p.y);
-    await expect.poll(() => page.evaluate(() => window.__newShores!.ghostTile())).toEqual({ x: t.x, y: t.y + 3 });
-    await page.keyboard.press("Escape");
-    // One road tile by a click with the road tool.
-    await page.getByTestId("build-tab-roads").click();
-    await page.getByTestId("build-road_dirt").click();
-    const r = await tile(page, ISLAND, t);
-    await page.mouse.click(r.x, r.y);
-    await expect.poll(() => roadsAt(page, ISLAND)).toContain(`${t.x},${t.y}`);
-    await page.keyboard.press("Escape");
-  }
+  };
   expect((await camera(page)).rotation).toBe(0);
+  await placeHouse(0);
+  await press("button-right", 1);
+  await placeHouse(1);
+  await press("E", 2);
+  await placeHouse(2);
+  await press("E", 3);
+  await placeHouse(3);
+  await press("Q", 2);
+  await press("button-left", 1);
+  await press("Q", 0);
 
   // Back at the start island for the pan.
   await showIsland(page, ISLAND);
@@ -374,6 +393,20 @@ test("the 8-island / 20-ship fixture: far LOD within the draw-call budget; off-s
   expect(counts.unpaid).toBeGreaterThan(0);
   expect(await page.evaluate(() => window.__newShores!.visibleIslands())).toHaveLength(8);
   expect(await page.evaluate(() => window.__newShores!.landmarks())).toBe(0); // no buildings in this fixture
+  // The minimap's land layer is cached: the fixture's 250 ms model updates
+  // (new display objects, same geometry) create no new canvases.
+  await expect(page.getByTestId("minimap")).toBeVisible();
+  await page.evaluate(() => {
+    const w = window as unknown as { __canvases: number };
+    w.__canvases = 0;
+    const create = document.createElement.bind(document);
+    document.createElement = ((tag: string, options?: ElementCreationOptions) => {
+      if (tag.toLowerCase() === "canvas") w.__canvases++;
+      return create(tag, options);
+    }) as typeof document.createElement;
+  });
+  await page.waitForTimeout(1_500);
+  expect(await page.evaluate(() => (window as unknown as { __canvases: number }).__canvases)).toBe(0);
   await page.waitForTimeout(5_500);
   const stats = await page.evaluate(() => ({ drawCalls: window.__newShores!.drawCalls(), frames: window.__newShores!.frameStats(5_000) }));
   console.log(`fixture archipelago-8x20 far LOD: ${JSON.stringify(stats)}`);
@@ -503,4 +536,17 @@ test("fixture: Esc cancels a ship drag, ship styles, selecting a ship suspends t
   await page.mouse.move(free.x + 200, free.y + 120, { steps: 6 });
   await page.mouse.up();
   expect(await camera(page)).toEqual(settled);
+
+  // A click during a jump is ignored, but only that press: right after the
+  // jump the wheel zooms without another click first.
+  const into = await freeCanvasPoint(page);
+  await page.evaluate(() => (document.querySelector('[data-testid="island-tab-isle1"]') as HTMLElement).click());
+  await page.mouse.click(into.x, into.y);
+  await expectFocused(page, "isle1");
+  await worldReady(page, "isle1");
+  const halfBefore = (await camera(page)).half;
+  const wheelAt = await freeCanvasPoint(page);
+  await page.mouse.move(wheelAt.x, wheelAt.y);
+  await page.mouse.wheel(0, 300);
+  await expect.poll(async () => (await camera(page)).half).toBeGreaterThan(halfBefore * 1.3);
 });

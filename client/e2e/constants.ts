@@ -113,10 +113,11 @@ export const TOUCH_PASTURE_FROM = { x: 31, y: 5 };
 export const TOUCH_PASTURE_TO = { x: 33, y: 6 };
 export const TOUCH_PASTURE_VALID = 5;
 
-// Camera rotation (archipelago.spec.ts): one road tile placed by a click in
-// each of the four rotation steps, on free grass of the start island away
-// from every other spec's tiles.
-export const ROTATION_ROADS = [
+// Camera rotation (archipelago.spec.ts): one settler house (2 × 2, 10
+// planks) placed by a click in each of the four camera rotation steps,
+// with building rotation step × 90°, on free grass of the start island
+// (x 12..19, y 23..24) reserved for this test; no other spec builds there.
+export const ROTATION_HOUSES = [
   { x: 12, y: 23 },
   { x: 14, y: 23 },
   { x: 16, y: 23 },
