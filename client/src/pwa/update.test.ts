@@ -102,6 +102,19 @@ describe("UpdateFlow", () => {
     expect(u.flow.available()).toBe(true);
   });
 
+  it("offers an update that was already installing when watching started", () => {
+    const t = setup(true);
+    const w = new FakeWorker();
+    t.reg.installing = w;
+    t.flow.watch(t.reg);
+    // A late updatefound for the same worker must not observe it twice.
+    t.reg.found(w);
+    expect(t.flow.available()).toBe(false);
+    w.set("installed");
+    expect(t.flow.available()).toBe(true);
+    expect(t.notified()).toBe(1);
+  });
+
   it("offers a worker that was already waiting at registration", () => {
     const t = setup(true);
     t.reg.waiting = new FakeWorker();

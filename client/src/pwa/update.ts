@@ -43,23 +43,28 @@ export class UpdateFlow {
   watch(reg: RegistrationLike): void {
     let first: WorkerLike | null = null;
     let firstPending = false;
+    const observe = (w: WorkerLike) =>
+      w.addEventListener("statechange", () => {
+        if (w.state === "installed") this.offer(w);
+      });
     if (!reg.active) {
       first = reg.installing ?? reg.waiting;
       firstPending = first === null;
-    } else if (reg.waiting) {
-      this.offer(reg.waiting);
+    } else {
+      if (reg.waiting) this.offer(reg.waiting);
+      // An update already installing when the page starts watching.
+      if (reg.installing) observe(reg.installing);
     }
+    const seen = reg.installing;
     reg.addEventListener("updatefound", () => {
       const w = reg.installing;
-      if (!w || w === first) return;
+      if (!w || w === first || w === seen) return;
       if (firstPending) {
         firstPending = false;
         first = w;
         return;
       }
-      w.addEventListener("statechange", () => {
-        if (w.state === "installed") this.offer(w);
-      });
+      observe(w);
     });
   }
 
