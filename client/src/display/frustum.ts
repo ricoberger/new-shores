@@ -63,3 +63,27 @@ export function visibleIslands(
 ): string[] {
   return islands.filter((is) => rectIntersectsQuad(islandRect(is), footprint)).map((is) => is.id);
 }
+
+/**
+ * The focused island (UI only, no game rule): the island whose rectangle
+ * plus a 1-tile margin contains the point (the camera target; the first
+ * such island in payload order), else the island whose centre is nearest.
+ * "" without islands.
+ */
+export function focusedIsland(
+  islands: readonly { id: string; position: { x: number; y: number }; width: number; height: number }[],
+  p: ArchPoint,
+): string {
+  let best = "";
+  let bestD = Infinity;
+  for (const is of islands) {
+    const r = islandRect(is);
+    if (p.x >= r.minX - 1 && p.x <= r.maxX + 1 && p.y >= r.minY - 1 && p.y <= r.maxY + 1) return is.id;
+    const d = Math.hypot(p.x - (r.minX + r.maxX) / 2, p.y - (r.minY + r.maxY) / 2);
+    if (d < bestD) {
+      bestD = d;
+      best = is.id;
+    }
+  }
+  return best;
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { groundFootprint } from "./camera";
-import { islandRect, rectIntersectsQuad, visibleIslands } from "./frustum";
+import { focusedIsland, islandRect, rectIntersectsQuad, visibleIslands } from "./frustum";
 
 const square = (x0: number, y0: number, s: number) => [
   { x: x0, y: y0 },
@@ -61,5 +61,22 @@ describe("visibleIslands", () => {
 
   it("islandRect spans position to position + size", () => {
     expect(islandRect(islands[1]!)).toEqual({ minX: 200, minY: 0, maxX: 240, maxY: 30 });
+  });
+});
+
+describe("focusedIsland", () => {
+  const islands = [
+    { id: "start", position: { x: 0, y: 0 }, width: 56, height: 40 },
+    { id: "island2", position: { x: 72, y: 96 }, width: 40, height: 18 },
+  ];
+  it("the island under the target (1-tile margin), else the nearest by centre distance", () => {
+    expect(focusedIsland(islands, { x: 10, y: 10 })).toBe("start");
+    expect(focusedIsland(islands, { x: 56.5, y: 40.5 })).toBe("start");
+    expect(focusedIsland(islands, { x: 90, y: 100 })).toBe("island2");
+    expect(focusedIsland(islands, { x: 71.2, y: 95.5 })).toBe("island2");
+    // Open sea: nearest centre.
+    expect(focusedIsland(islands, { x: 80, y: 60 })).toBe("island2");
+    expect(focusedIsland(islands, { x: 40, y: 60 })).toBe("start");
+    expect(focusedIsland([], { x: 0, y: 0 })).toBe("");
   });
 });

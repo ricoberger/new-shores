@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { adjacentRoads, covers, lPath, missingDepositHint, missingRoadHint, nextRotation, rotatedFootprint } from "./geometry";
+import { adjacentRoads, covers, lPath, missingDepositHint, missingRoadHint, nextRotation, roadStrips, rotatedFootprint, type TilePos } from "./geometry";
 
 describe("geometry", () => {
   it("swaps the footprint at 90 and 270 degrees", () => {
@@ -61,5 +61,32 @@ describe("geometry", () => {
     // The wrong kind does not count; buildings without a deposit never hint.
     expect(missingDepositHint(quarry, deposits, 19, 19, 0)).toBe(true);
     expect(missingDepositHint({ width: 2, height: 2 }, new Map(), 0, 0, 0)).toBe(false);
+  });
+});
+
+describe("roadStrips", () => {
+  const tilesOf = (strips: ReturnType<typeof roadStrips>): string[] => {
+    const out: string[] = [];
+    for (const s of strips) for (let y = s.y0; y <= s.y1; y++) for (let x = s.x0; x <= s.x1; x++) out.push(`${x},${y}`);
+    return out.sort();
+  };
+
+  it("merges rows into horizontal strips and the rest into vertical ones, each tile once", () => {
+    // A grid: two rows joined by a column at each end, plus a lone tile.
+    const tiles: TilePos[] = [];
+    for (let x = 0; x <= 5; x++) tiles.push({ x, y: 0 }, { x, y: 4 });
+    for (let y = 1; y <= 3; y++) tiles.push({ x: 0, y }, { x: 5, y });
+    tiles.push({ x: 9, y: 9 }, { x: 0, y: 0 }); // a duplicate is ignored
+    const strips = roadStrips(tiles);
+    expect(strips).toEqual([
+      { x0: 0, y0: 0, x1: 5, y1: 0 },
+      { x0: 0, y0: 4, x1: 5, y1: 4 },
+      { x0: 0, y0: 1, x1: 0, y1: 3 },
+      { x0: 5, y0: 1, x1: 5, y1: 3 },
+      { x0: 9, y0: 9, x1: 9, y1: 9 },
+    ]);
+    const unique = [...new Set(tiles.map((t) => `${t.x},${t.y}`))].sort();
+    expect(tilesOf(strips)).toEqual(unique);
+    expect(roadStrips([])).toEqual([]);
   });
 });

@@ -136,3 +136,15 @@ export function groundFootprint(v: CameraView, aspect: number): [ArchPoint, Arch
 export function footprintScreenFraction(w: number, h: number, half: number, aspect: number): number {
   return (w + h) / Math.SQRT2 / (2 * half * aspect);
 }
+
+/**
+ * Margin (tiles) of the sea around the islands' bounding box such that no
+ * background shows at any clamped target at the maximum zoom in any
+ * rotation: the target's margin plus the farthest viewport corner's ground
+ * distance from the target (half × √(aspect² + 1/sin² ELEVATION)), plus a
+ * little more.
+ */
+export function seaMargin(bounds: Rect | null, aspect: number): number {
+  const max = zoomRange(bounds, aspect).max;
+  return BOUNDS_MARGIN + max * Math.hypot(aspect, 1 / Math.sin(ELEVATION)) + 10;
+}

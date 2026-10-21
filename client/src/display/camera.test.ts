@@ -11,6 +11,8 @@ import {
   NEAR_DEFAULT_HALF_HEIGHT,
   normRotation,
   screenAxes,
+  seaMargin,
+  targetBounds,
   zoomRange,
 } from "./camera";
 
@@ -88,4 +90,31 @@ describe("ground footprint", () => {
   it("the viewport centre is the target in every rotation", () => {
     for (let r = 0; r < 4; r++) expect(groundAtNdc({ ...view, rotation: r }, aspect, 0, 0)).toEqual({ x: 40, y: 30 });
   });
+});
+
+describe("sea extent", () => {
+  for (const [w, h] of [
+    [1280, 800],
+    [360, 640],
+  ] as const) {
+    it(`${w} × ${h}: the sea covers the viewport at every clamped target at the maximum zoom in every rotation`, () => {
+      const aspect = w / h;
+      const m = seaMargin(DEV, aspect);
+      const sea = { minX: DEV.minX - m, minY: DEV.minY - m, maxX: DEV.maxX + m, maxY: DEV.maxY + m };
+      const t = targetBounds(DEV);
+      const half = zoomRange(DEV, aspect).max;
+      for (const x of [t.minX, t.maxX]) {
+        for (const y of [t.minY, t.maxY]) {
+          for (let rotation = 0; rotation < 4; rotation++) {
+            for (const p of groundFootprint({ x, y, half, rotation }, aspect)) {
+              expect(p.x).toBeGreaterThanOrEqual(sea.minX);
+              expect(p.x).toBeLessThanOrEqual(sea.maxX);
+              expect(p.y).toBeGreaterThanOrEqual(sea.minY);
+              expect(p.y).toBeLessThanOrEqual(sea.maxY);
+            }
+          }
+        }
+      }
+    });
+  }
 });

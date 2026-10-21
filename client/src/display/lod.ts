@@ -12,9 +12,9 @@
 export type Lod = "near" | "mid" | "far";
 
 /** near → mid when the half extent exceeds this. */
-export const NEAR_EXIT_HALF = 26;
+export const NEAR_EXIT_HALF = 30;
 /** mid (or far) → near when the half extent falls below this. */
-export const MID_TO_NEAR_HALF = 23;
+export const MID_TO_NEAR_HALF = 27;
 /** near or mid → far when the half extent exceeds this. */
 export const FAR_ENTER_HALF = 48;
 /** far → mid (or near) when the half extent falls below this. */
