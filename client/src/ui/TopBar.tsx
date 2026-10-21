@@ -23,8 +23,9 @@ interface Props {
   /** The account menu. */
   account?: ReactNode;
   /**
-   * Phone layouts: population collapses into one tap-to-expand chip; the
-   * navigation scrolls horizontally (a second row in portrait).
+   * Touch layouts (phones, tablets): population collapses into one
+   * tap-to-expand chip; the navigation scrolls horizontally between the
+   * pinned stats and quests/account (a second row on portrait phones).
    */
   compact?: "portrait" | "landscape" | null;
 }

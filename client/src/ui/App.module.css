@@ -27,7 +27,9 @@
   pointer-events: none;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  grid-template-columns: 1fr auto;
+  /* minmax(0, …): wide rows (top bar, build bar) never push the grid
+     beyond the viewport when a side panel takes its column. */
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
     "top top"
     "left right"
@@ -56,6 +58,7 @@
 
 .top {
   grid-area: top;
+  min-width: 0;
   /* Popovers of the top bar stay above sheets and side panels. */
   position: relative;
   z-index: 4;
@@ -63,6 +66,8 @@
 
 .left {
   grid-area: left;
+  min-width: 0;
+  max-width: calc(100% - 16px);
   align-self: end;
   justify-self: start;
   margin: 8px;
@@ -76,6 +81,7 @@
 
 .bottom {
   grid-area: bottom;
+  min-width: 0;
 }
 
 .banner {

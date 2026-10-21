@@ -376,6 +376,42 @@ test("every HUD control is at least 44 × 44 px; no horizontal overflow at 360 �
   expect(overflow.body).toBeLessThanOrEqual(0);
 });
 
+test("tablet layouts: every HUD control is reachable and at least 44 × 44 px", async ({ page }) => {
+  test.skip(page.viewportSize()!.width !== 412, "Chromium touch project (coarse pointer)");
+  for (const vp of [
+    { width: 481, height: 800 },
+    { width: 768, height: 1024 },
+    { width: 1024, height: 768 },
+  ]) {
+    await page.setViewportSize(vp);
+    await page.goto("/?fixture=dense-2x400");
+    await expectView(page, DENSE);
+    await expect(page.locator('[data-layout="tablet"]')).toHaveCount(1);
+    // A side panel open too (tablets keep panels at the side).
+    await touch.tap((await denseBuilding(page, "woodcutter").catch(() => denseBuilding(page, "sawmill"))).at);
+    await expect(page.getByTestId("info-panel")).toBeVisible();
+    await expect(page.getByTestId("sheet")).toHaveCount(0);
+    const bad = await page.evaluate(() => {
+      const out: string[] = [];
+      for (const el of document.querySelectorAll<HTMLElement>("#root button, #root a, #root input, #root select")) {
+        if (el.getClientRects().length === 0) continue; // not rendered
+        // Controls in a scrolling row are reachable by scrolling that row.
+        el.scrollIntoView({ block: "nearest", inline: "nearest" });
+        const r = el.getBoundingClientRect();
+        const name = el.dataset.testid ?? el.textContent?.trim().slice(0, 20) ?? "?";
+        if (r.left < -0.5 || r.right > window.innerWidth + 0.5 || r.top < -0.5 || r.bottom > window.innerHeight + 0.5) out.push(`${name} off-screen`);
+        if (r.width < 43.5 || r.height < 43.5) out.push(`${name} ${r.width.toFixed(0)}×${r.height.toFixed(0)}`);
+      }
+      // Only the designated scrollers may scroll, never the page itself.
+      const root = document.getElementById("root")!;
+      if (document.documentElement.scrollLeft || document.body.scrollLeft || root.scrollLeft || root.scrollTop) out.push("page scrolled");
+      if (root.scrollWidth > window.innerWidth || document.documentElement.scrollWidth > window.innerWidth) out.push("page overflow");
+      return out;
+    });
+    expect(bad, `${vp.width} × ${vp.height}`).toEqual([]);
+  }
+});
+
 // World flows (dev server, shared world; after the away project).
 
 test("place a building by tap + Confirm; a tap alone or a long-press never places", async ({ page, browserName }) => {

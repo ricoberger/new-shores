@@ -124,6 +124,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const [touchInput, setTouchInput] = useState(false);
   const layout = useLayout();
   const phone = isPhoneLayout(layout.mode);
+  // Phones and tablets (44 px targets) need the scrolling top bar and build bar.
+  const compactHud = isTouchLayout(layout.mode);
   const sheets = usesSheets(layout.mode, layout.width);
   useEffect(() => {
     // A mouse or pen switches back only on the canvas, so that clicking a
@@ -740,8 +742,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             onShips={() => setPanel((p) => (p === "ships" ? "none" : "ships"))}
             onRoutes={() => setPanel((p) => (p === "routes" ? "none" : "routes"))}
             onQuests={() => setPanel((p) => (p === "quests" ? "none" : "quests"))}
-            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} compact={phone} />}
-            compact={phone ? (layout.mode === "phone-portrait" ? "portrait" : "landscape") : null}
+            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} compact={compactHud} />}
+            compact={layout.mode === "phone-portrait" ? "portrait" : compactHud ? "landscape" : null}
           />
           <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} compact={phone} />
           {placementBar && isGhostTool(tool) && (
@@ -778,7 +780,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
               tool={tool}
               onSelect={selectBuildItem}
               onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
-              compact={phone}
+              compact={compactHud}
               singleRow={layout.mode === "phone-landscape"}
             />
           )}
