@@ -132,7 +132,7 @@ export type ScatterKind = "tuft" | "flower" | "rock";
 
 /** Chance per tile of each class on grass and on coast (sand). */
 const CHANCE: Record<ScatterKind, { grass: number; coast: number }> = {
-  tuft: { grass: 0.55, coast: 0.12 },
+  tuft: { grass: 0.4, coast: 0.1 },
   flower: { grass: 0.14, coast: 0 },
   rock: { grass: 0.05, coast: 0.1 },
 };

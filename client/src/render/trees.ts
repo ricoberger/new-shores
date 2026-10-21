@@ -35,9 +35,9 @@ export const TREE_VARIANTS: readonly Tri[][] = [
 ];
 
 const TUFT: Tri[] = [
-  { a: [-0.05, 0, 0], b: [0.05, 0, 0], c: [-0.02, 0.17, 0.01], color: GRASS_A.scale(0.78) },
-  { a: [0, 0, -0.05], b: [0, 0, 0.05], c: [0.04, 0.13, 0.02], color: c3(TERRAIN.grass_b).scale(0.85) },
-  { a: [-0.04, 0, 0.03], b: [0.04, 0, -0.03], c: [0.01, 0.15, -0.04], color: GRASS_A.scale(0.9) },
+  { a: [-0.05, 0, 0], b: [0.05, 0, 0], c: [-0.02, 0.17, 0.01], color: GRASS_A.scale(0.9) },
+  { a: [0, 0, -0.05], b: [0, 0, 0.05], c: [0.04, 0.13, 0.02], color: c3(TERRAIN.grass_b).scale(0.95) },
+  { a: [-0.04, 0, 0.03], b: [0.04, 0, -0.03], c: [0.01, 0.15, -0.04], color: GRASS_A.scale(1.0) },
 ];
 const FLOWER_PETALS = [c3(TERRAIN.flower), c3(WATER.foam), c3(UI.brass_light)];
 const flower = (petal: Color3): Tri[] => [
