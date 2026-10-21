@@ -336,7 +336,20 @@ test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the c
   };
   // Up to full, down to peek, by the handle (heights are fractions of the
   // area below the top bar).
+  // The sheet animates its height (160 ms): measure it once it has settled.
+  const settled = async () => {
+    let last = NaN;
+    await expect
+      .poll(async () => {
+        const y = (await sheet.boundingBox())!.y;
+        const still = Math.abs(y - last) < 0.5;
+        last = y;
+        return still;
+      })
+      .toBe(true);
+  };
   const dragTo = async (fraction: number) => {
+    await settled();
     const h = await handle();
     const top = await page.evaluate((f) => {
       const host = document.querySelector('[data-testid="sheet"]')!.parentElement!.getBoundingClientRect();
@@ -359,6 +372,7 @@ test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the c
   // Reopen and drag the sheet below peek: it closes.
   await touch.tap(house.at);
   await expect(sheet).toHaveAttribute("data-snap", "half");
+  await settled();
   const body = (await sheet.boundingBox())!;
   await touch.drag({ x: body.x + body.width / 2, y: body.y + body.height - 40 }, { x: body.x + body.width / 2 - 100, y: body.y + 60 });
   const h = await handle();
