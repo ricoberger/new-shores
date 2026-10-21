@@ -1,16 +1,18 @@
 import { ICON_AUTHORS, ICON_LICENSE } from "../theme/icons";
+import styles from "./account.module.css";
 import { DialogPanel } from "./DialogPanel";
 import hud from "./hud.module.css";
 
 /**
  * Credits / attribution (CC BY 3.0 asks for it where the work is used):
  * the game-icons.net icons with their authors and the OFL fonts. The same
- * text is in the README.
+ * text is in the README. A viewport-level modal (fixed, like the
+ * registration dialog), not positioned inside the account menu.
  */
 export function CreditsDialog({ onClose }: { onClose: () => void }) {
   return (
     <div
-      className={hud.backdrop}
+      className={styles.modal}
       onClick={onClose}
       onKeyDown={(e) => {
         if (e.key === "Escape") {

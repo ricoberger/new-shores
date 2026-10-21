@@ -101,19 +101,53 @@ test("render quality: high on desktop, low at 412 × 915, overridable", async ({
   await context.close();
 });
 
+/** The Credits dialog lies inside the viewport, wide enough to read, with its attribution on screen. */
+async function expectCreditsReadable(page: Page): Promise<void> {
+  const dialog = page.getByTestId("credits-dialog");
+  await expect(dialog).toBeVisible();
+  const vp = page.viewportSize()!;
+  const box = (await dialog.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(vp.width);
+  expect(box.y + box.height).toBeLessThanOrEqual(vp.height);
+  expect(box.width).toBeGreaterThanOrEqual(Math.min(360, vp.width - 32));
+  const link = (await dialog.getByRole("link", { name: "game-icons.net" }).boundingBox())!;
+  expect(link.y).toBeGreaterThanOrEqual(box.y);
+  expect(link.y + link.height).toBeLessThanOrEqual(box.y + box.height);
+  // Nothing covers it: the topmost element at its centre belongs to the dialog.
+  expect(
+    await page.evaluate(([x, y]) => document.querySelector('[data-testid="credits-dialog"]')!.contains(document.elementFromPoint(x as number, y as number)), [
+      box.x + box.width / 2,
+      box.y + box.height / 2,
+    ]),
+  ).toBe(true);
+  await expect(dialog).toContainText("game-icons.net");
+  await expect(dialog).toContainText("CC BY 3.0");
+  await expect(dialog).toContainText("SIL Open Font License");
+}
+
 test("the Credits dialog names game-icons.net and opens by keyboard", async ({ page }) => {
   await page.goto("/?fixture=dense-2x400");
   await page.getByTestId("account-menu").focus();
   await page.keyboard.press("Enter");
   await page.getByTestId("account-credits").focus();
   await page.keyboard.press("Enter");
-  const dialog = page.getByTestId("credits-dialog");
-  await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("game-icons.net");
-  await expect(dialog).toContainText("CC BY 3.0");
-  await expect(dialog).toContainText("SIL Open Font License");
+  await expectCreditsReadable(page);
   await page.keyboard.press("Escape");
-  await expect(dialog).toBeHidden();
+  await expect(page.getByTestId("credits-dialog")).toBeHidden();
+});
+
+test("the Credits dialog is readable on a phone", async ({ browser }) => {
+  const context = await browser.newContext({ ...devices["Pixel 5"], viewport: { width: 412, height: 915 } });
+  const page = await context.newPage();
+  await page.goto("/?fixture=dense-2x400");
+  await page.getByTestId("account-menu").tap();
+  await page.getByTestId("account-credits").tap();
+  await expectCreditsReadable(page);
+  await page.getByTestId("credits-close").tap();
+  await expect(page.getByTestId("credits-dialog")).toBeHidden();
+  await context.close();
 });
 
 test("no external font or icon requests", async ({ page }) => {
