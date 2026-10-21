@@ -14,12 +14,27 @@ import { expectView } from "./archipelago";
 // PERF_GPU=1 the GPU flags of playwright.config.ts apply instead).
 
 /**
- * Regression threshold (fps, 412 × 915 @ 2.625, 4× CPU throttling,
- * headless Chromium with SwiftShader): the measured average × 0.8,
- * rounded down (median of three runs 34.1 fps on an Apple M4 Pro →
+ * Default regression threshold (fps, 412 × 915 @ 2.625, 4× CPU
+ * throttling, headless Chromium with SwiftShader): the measured average
+ * × 0.8, rounded down (median of three runs 34.1 fps on an Apple M4 Pro →
  * 27). Measurements and the derivation are in the M3 notes.
  */
-export const PERF_MIN_FPS = 27;
+export const DEFAULT_PERF_MIN_FPS = 27;
+
+/**
+ * The threshold in force: the PERF_MIN_FPS environment variable when set
+ * (software rendering scales with the CPU, so a slower machine or CI
+ * runner sets its own value, re-derived as measured × 0.8), else the
+ * default.
+ */
+export function perfMinFps(env: string | undefined = process.env.PERF_MIN_FPS): number {
+  if (env === undefined || env.trim() === "") return DEFAULT_PERF_MIN_FPS;
+  const v = Number(env);
+  if (!Number.isFinite(v) || v <= 0) throw new Error(`PERF_MIN_FPS must be a positive number, got "${env}"`);
+  return v;
+}
+
+export const PERF_MIN_FPS = perfMinFps();
 /** JS heap ceiling (bytes): the < 400 MB mobile budget. */
 const MAX_HEAP_BYTES = 400 * 1024 * 1024;
 /** Draw-call ceiling of the dense island view (27 measured; instancing regressions exceed it). */
@@ -124,6 +139,7 @@ for (const c of CONFIGS) {
     const bundle = bundleSizes();
     console.log(
       `PERF ${c.name} ${JSON.stringify({
+        minFps: c.check ? PERF_MIN_FPS : null,
         fps: Number(r.frames.fps.toFixed(1)),
         avgMs: Number(r.frames.avgMs.toFixed(1)),
         p95Ms: Number(r.frames.p95Ms.toFixed(1)),
