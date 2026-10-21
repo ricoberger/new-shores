@@ -59,6 +59,10 @@ export interface TestHook {
   archToScreen(x: number, y: number): { x: number; y: number };
   /** Draw calls of the last frame. */
   drawCalls(): number;
+  /** Instance style a ship was drawn with in the last frame ("active" / "unpaid"), null if not drawn. */
+  shipStyle(id: number): "active" | "unpaid" | null;
+  /** Shipyard construction hulls drawn in the last island-view frame. */
+  constructionMarkers(): { buildingId: number; scale: number }[];
   /** Frame times over the last windowMs (default 5 s). */
   frameStats(windowMs?: number): FrameStats;
 }
@@ -410,6 +414,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         shipToScreen: (id) => rendererRef.current?.shipToScreen(id) ?? nan,
         archToScreen: (x, y) => rendererRef.current?.archToClient({ x, y }) ?? nan,
         drawCalls: () => rendererRef.current?.lastDrawCalls() ?? 0,
+        shipStyle: (id) => rendererRef.current?.shipStyle(id) ?? null,
+        constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
         frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 },
       };
     }
@@ -600,7 +606,12 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {editor && !editor.active && archView && (
             <div className={`${hud.panel} ${hud.resumeBar}`}>
               <span className={hud.small}>Route editor paused ({editor.routeId === null ? "new route" : `route #${editor.routeId}`})</span>
-              <button type="button" className={hud.button} onClick={() => dispatch({ type: "resumeEditor" })} data-testid="route-editor-resume">
+              <button type="button" className={hud.button} onClick={() => {
+                  // The editor becomes the only side panel again.
+                  setPanel("none");
+                  dispatch({ type: "resumeEditor" });
+                }}
+                data-testid="route-editor-resume">
                 Back to route editor
               </button>
             </div>

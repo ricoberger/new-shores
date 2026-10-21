@@ -145,7 +145,8 @@ describe("route editor", () => {
         expect(r.selection).toEqual({ kind: "none" });
         expect(r.editor).toMatchObject({ kind: "open", active: true });
       }
-      expect(run(s, { type: "resumeEditor" }).editor).toMatchObject({ active: true });
+      // "Back to route editor" resumes it and closes the ship panel.
+      expect(run(s, { type: "resumeEditor" })).toMatchObject({ selection: { kind: "none" }, editor: { active: true } });
     }
     // "Assign to route…" opens the editor active with the ship still selected.
     const assign = run(arch(), { type: "selectShip", id: 5 }, { type: "openEditor", routeId: null, draft, pickingShip: 5 });

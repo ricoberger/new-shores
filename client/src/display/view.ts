@@ -226,7 +226,8 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
       };
     }
     case "resumeEditor":
-      return s.editor.kind === "open" ? { ...s, editor: { ...s.editor, active: true } } : s;
+      // The ship info panel / island card that suspended the editor closes.
+      return s.editor.kind === "open" ? { ...s, selection: { kind: "none" }, editor: { ...s.editor, active: true } } : s;
     case "setDraft":
       return s.editor.kind === "open" ? { ...s, editor: { ...s.editor, draft: a.draft } } : s;
     case "appendStop":
