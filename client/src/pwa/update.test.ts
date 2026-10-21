@@ -102,7 +102,19 @@ describe("UpdateFlow", () => {
     expect(u.flow.available()).toBe(true);
   });
 
-  it("offers an update that was already installing when watching started", () => {
+  it("offers an update that began installing before the page started watching", () => {
+    // updatefound fired before watch(): no further event arrives.
+    const t = setup(true);
+    const w = new FakeWorker();
+    t.reg.installing = w;
+    t.flow.watch(t.reg);
+    expect(t.flow.available()).toBe(false);
+    w.set("installed");
+    expect(t.flow.available()).toBe(true);
+    expect(t.notified()).toBe(1);
+  });
+
+  it("observes an installing update once even if updatefound arrives after watching", () => {
     const t = setup(true);
     const w = new FakeWorker();
     t.reg.installing = w;
