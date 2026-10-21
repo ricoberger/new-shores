@@ -1,0 +1,14 @@
+[
+  {
+    "id": "sloop",
+    "name": "Sloop",
+    "region": "old_coast",
+    "tier": "settlers",
+    "slots": 2,
+    "slot_size": 50,
+    "speed": 1.0,
+    "build_seconds": 120,
+    "cost": { "gold": 100, "planks": 20, "sails": 10 },
+    "upkeep_per_min": 1
+  }
+]

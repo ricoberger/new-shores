@@ -2,8 +2,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import type { Content, DisplayState } from "../api/client";
-import { statusText } from "./status";
+import type { BuildingDisplay, Content, DisplayState } from "../api/client";
+import { fieldsPlural, statusText } from "./status";
 
 const content = {
   region: { id: "r", name: "R", version: "v", rules: {} },
@@ -67,5 +67,50 @@ describe("statusText", () => {
       }
     }
     throw new Error("no input_starved building in the fixtures");
+  });
+});
+
+describe("field statuses (D-049)", () => {
+  const fieldContent = {
+    ...content,
+    buildings: [
+      { id: "sheep_farm", name: "Sheep farm", fields: { type: "pasture", required: 16 } },
+      { id: "pasture", name: "Pasture", field: { type: "pasture", terrain: ["grass"] } },
+      { id: "lumberjack", name: "Lumberjack", work_area: { radius: 4, terrain: ["forest"], required_tiles: 24 } },
+    ],
+  } as unknown as Content;
+  const first = <T>(xs: T[]): T => {
+    const x = xs[0];
+    if (x === undefined) throw new Error("no fixture");
+    return x;
+  };
+  const d = first(bases);
+  const is = first(d.islands);
+  const building = (b: Partial<BuildingDisplay>) =>
+    ({ id: 99, x: 0, y: 0, rotation: 0, paused: false, paused_reason: "", throughput_factor_permille: 1000, ...b }) as BuildingDisplay;
+
+  it("counts the fields of a farm below full efficiency", () => {
+    const s = statusText(
+      building({ type: "sheep_farm", status: "low_efficiency", efficiency_permille: 750, fields: { assigned: 12, required: 16 } }),
+      is,
+      d,
+      fieldContent,
+    );
+    expect(s).toEqual({ key: "low_efficiency", sentence: "12 / 16 fields", fix: "Place more pastures inside the ring." });
+  });
+
+  it("keeps the work-area sentence of the lumberjack", () => {
+    const s = statusText(building({ type: "lumberjack", status: "low_efficiency", efficiency_permille: 500 }), is, d, fieldContent);
+    expect(s.sentence).toBe("Only 50 % usable land in range");
+  });
+
+  it("explains an unassigned field", () => {
+    const s = statusText(building({ type: "pasture", status: "no_farm", efficiency_permille: 1000 }), is, d, fieldContent);
+    expect(s).toEqual({ key: "no_farm", sentence: "No accepting farm in range", fix: "Move it or build a farm nearby." });
+  });
+
+  it("names the field type of a farm in the plural", () => {
+    expect(fieldsPlural(fieldContent, "sheep_farm")).toBe("pastures");
+    expect(fieldsPlural(fieldContent, "lumberjack")).toBe("fields");
   });
 });

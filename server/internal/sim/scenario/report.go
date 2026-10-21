@@ -305,7 +305,12 @@ func reason(c *content.Catalogue, is sim.IslandDisplay, b sim.BuildingDisplay) s
 		}
 		return "Short of workers"
 	case sim.StatusLowEfficiency:
+		if b.Fields != nil {
+			return fmt.Sprintf("%d / %d fields", b.Fields.Assigned, b.Fields.Required)
+		}
 		return fmt.Sprintf("Only %d ‰ of the work area usable", b.EfficiencyPermille)
+	case sim.StatusNoFarm:
+		return "No accepting farm in range"
 	}
 	return b.Status
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/telemetry"
@@ -19,16 +20,17 @@ import (
 // that locks the world row (SELECT … FOR UPDATE).
 type Store struct {
 	pool           *pgxpool.Pool
+	catalogue      *content.Catalogue
 	contentVersion string
 	logger         *slog.Logger
 }
 
 var _ store.Store = (*Store)(nil)
 
-// New returns the store. contentVersion is the version of the loaded
-// catalogue, written into every envelope.
-func New(pool *pgxpool.Pool, contentVersion string, logger *slog.Logger) *Store {
-	return &Store{pool: pool, contentVersion: contentVersion, logger: logger}
+// New returns the store. The catalogue's content version is written into
+// every envelope; schema migrations of stored worlds read the catalogue.
+func New(pool *pgxpool.Pool, c *content.Catalogue, logger *slog.Logger) *Store {
+	return &Store{pool: pool, catalogue: c, contentVersion: c.Region.Version, logger: logger}
 }
 
 // Pool returns the connection pool.
@@ -47,7 +49,8 @@ type LockedWorld struct {
 // LockWorld locks the world row (FOR UPDATE) and decodes its envelope.
 // Unknown or malformed IDs are store.ErrWorldNotFound; an envelope without
 // a schema migration path fails with sim.ErrSchemaVersion (logged with the
-// world ID).
+// world ID); farms whose efficiency a migration could not keep are logged
+// as warnings.
 func (s *Store) LockWorld(ctx context.Context, tx pgx.Tx, id store.WorldID) (*LockedWorld, error) {
 	if !validUUID(string(id)) {
 		return nil, store.ErrWorldNotFound
@@ -63,18 +66,31 @@ func (s *Store) LockWorld(ctx context.Context, tx pgx.Tx, id store.WorldID) (*Lo
 	if err != nil {
 		return nil, fmt.Errorf("lock world: %w", err)
 	}
-	w, cv, err := sim.Decode(state)
+	w, cv, notes, err := sim.Decode(state, s.catalogue)
 	if err != nil {
 		if errors.Is(err, sim.ErrSchemaVersion) {
 			s.logger.Error("world envelope has an unsupported schema version", "world_id", string(id), "error", err)
 		}
 		return nil, fmt.Errorf("world %s: %w", id, err)
 	}
+	LogMigrationNotes(s.logger, string(id), notes)
 	if cv != s.contentVersion {
 		telemetry.ContentVersionMismatch.Inc()
 		s.logger.Debug("world content version differs from the catalogue", "world_id", string(id), "stored", cv, "loaded", s.contentVersion)
 	}
 	return &LockedWorld{ID: id, World: w, Version: version}, nil
+}
+
+// LogMigrationNotes logs what the schema migrations of a decoded world
+// reported: every farm whose efficiency the fields migration (schema 3,
+// D-049) could not keep, at warning level.
+func LogMigrationNotes(logger *slog.Logger, worldID string, notes sim.MigrationNotes) {
+	for _, f := range notes.FieldShortfalls {
+		logger.Warn("migrated farm has fewer fields than its former efficiency needs",
+			"world_id", worldID, "island_id", f.IslandID, "building_id", f.BuildingID, "type", f.Type,
+			"fields_placed", f.Placed, "fields_required", f.Required,
+			"old_efficiency_permille", f.OldEfficiency, "new_efficiency_permille", f.NewEfficiency)
+	}
 }
 
 // SaveWorld writes the locked world back and increments its version.

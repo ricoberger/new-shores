@@ -5,8 +5,9 @@
 // ?fixture=archipelago-8x20: 8 islands and 20 ships (idle, on_route,
 // manual_leg, anchored_unpaid) on 3 routes (the archipelago view).
 // ?fixture=dense-2x400: two islands, ≈ 400 buildings on the shown one (plus
-// 40 on the other), a road grid, ≥ 60 producers that draw moving carts and
-// 2 ships on legs (the island view's mobile budget, FIRST_PLAYABLE §3).
+// 40 on the other), a road grid, ≥ 60 producers that draw moving carts,
+// 16 fields of two types (D-049) and 2 ships on legs (the island view's
+// mobile budget, FIRST_PLAYABLE §3).
 import type {
   BuildingDisplay,
   Command,
@@ -259,6 +260,8 @@ function denseContent(): Content {
       def("depot", "Depot", "harbour", { warehouse: { levels: [{ capacity: 100_000, throughput_per_min: 60_000 }] } }),
       def("yard", "Yard", "harbour", { shipyard: {} }),
       def("road", "Road", "roads", { width: 1, height: 1, requires_road: false, road: { ms_per_tile: 500 } }),
+      def("pasture", "Pasture", "production", { width: 1, height: 1, requires_road: false, field: { type: "pasture", terrain: ["grass"] } }),
+      def("wheat_field", "Wheat field", "production", { width: 1, height: 1, requires_road: false, field: { type: "wheat_field", terrain: ["grass"] } }),
     ],
     needs: [],
     ships: [{ id: "sloop", name: "Sloop", slots: 2, slot_size: 50_000 }],
@@ -336,6 +339,33 @@ function denseIsland(id: string, name: string, width: number, height: number, co
       buildings.push({ ...base, type: "house", status: unhappy ? "short_of_workers" : "ok", residents: 8_000 } as unknown as BuildingDisplay);
     }
   });
+  // Eight fields of each type on the free grass columns west and east of
+  // the road grid (the field layer's draw calls; the shown island stays
+  // at ≈ 400 buildings).
+  let fieldId = firstId + n;
+  const terrain = blockTerrain(width, height);
+  for (const [x, type] of [
+    [2, "pasture"],
+    [width - 3, "wheat_field"],
+  ] as const) {
+    let placed = 0;
+    for (let y = 2; y < height - 2 && placed < 8; y++) {
+      if (terrain[y * width + x] !== "grass") continue;
+      placed++;
+      buildings.push({
+        id: fieldId++,
+        type,
+        x,
+        y,
+        rotation: 0,
+        paused: false,
+        paused_reason: "",
+        status: "ok",
+        efficiency_permille: 1000,
+        throughput_factor_permille: 1000,
+      } as BuildingDisplay);
+    }
+  }
   const inventory: IslandDisplay["inventory"] = {};
   for (const g of DENSE_GOODS) inventory[g] = { stock: 40_000, capacity: 100_000, in_transit: 0, rate_per_min: 1_000 };
   const display = {
@@ -461,5 +491,9 @@ export class FixtureSync implements SyncLike {
 
   send(command: Command): Promise<WorldResponse> {
     return Promise.reject(new Error(`fixture is read-only (${command.type})`));
+  }
+
+  refresh(): Promise<void> {
+    return Promise.resolve();
   }
 }

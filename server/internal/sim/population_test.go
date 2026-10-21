@@ -417,7 +417,7 @@ func TestGrantWorkforce(t *testing.T) {
 		t.Error("clone shares the grant map")
 	}
 	data := encode(t, w)
-	w2, _, err := Decode(data)
+	w2, _, _, err := Decode(data, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

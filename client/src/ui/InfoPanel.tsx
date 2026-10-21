@@ -1,7 +1,8 @@
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
 import { percent, perMin, seconds, units } from "../display/format";
 import { countdown, orderTiming } from "../display/ships";
-import { STATUS_STYLES, statusKey, statusText } from "../display/status";
+import { fieldBuildingOf } from "../display/fields";
+import { fieldsPlural, STATUS_STYLES, statusKey, statusText } from "../display/status";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -17,6 +18,8 @@ interface Props {
   /** Raises a warehouse to its next level (upgrade_warehouse). */
   onUpgradeWarehouse: () => void;
   onSelectBuilding: (id: number) => void;
+  /** Activates the field tool for a field building (a farm's "Place …" button, D-049). */
+  onPlaceFields: (fieldType: string) => void;
   /** Server time the model was extrapolated to (ms since the epoch). */
   nowMs: number;
   onOrderShip: (shipType: string) => void;
@@ -110,6 +113,7 @@ export function InfoPanel({
   onUpgrade,
   onUpgradeWarehouse,
   onSelectBuilding,
+  onPlaceFields,
   nowMs,
   onOrderShip,
   onCancelShipOrder,
@@ -135,6 +139,42 @@ export function InfoPanel({
           {status.fix && <div className={styles.fix}>{status.fix}</div>}
         </div>
       </div>
+
+      {b.fields && def?.fields && (
+        <div className={styles.section} data-testid="farm-fields">
+          <div className={styles.sectionTitle} data-testid="farm-fields-count">
+            Fields {b.fields.assigned} / {b.fields.required}
+          </div>
+          <Bar permille={Math.min(1000, (b.fields.assigned * 1000) / Math.max(1, b.fields.required))} />
+          {(() => {
+            const field = fieldBuildingOf(content, b.type);
+            if (!field) return null;
+            return (
+              <div className={styles.buttons}>
+                <button type="button" className={styles.button} onClick={() => onPlaceFields(field.id)} data-testid="farm-place-fields">
+                  Place {fieldsPlural(content, b.type)} {b.fields.assigned} / {b.fields.required}
+                </button>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {def?.field && (
+        <div className={styles.section} data-testid="field-farm">
+          <div className={styles.sectionTitle}>Farm</div>
+          {(() => {
+            const farm = b.farm_id !== undefined ? island.buildings.find((f) => f.id === b.farm_id) : undefined;
+            if (!farm) return <div className={styles.small}>No farm in range</div>;
+            const name = content.buildings.find((d) => d.id === farm.type)?.name ?? farm.type;
+            return (
+              <button type="button" className={styles.link} onClick={() => onSelectBuilding(farm.id)} data-testid="field-farm-link">
+                {name} #{farm.id}
+              </button>
+            );
+          })()}
+        </div>
+      )}
 
       {b.rates && (
         <>

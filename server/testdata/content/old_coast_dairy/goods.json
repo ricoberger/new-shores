@@ -1,0 +1,21 @@
+[
+  { "id": "wood", "name": "Wood", "type": "raw" },
+  { "id": "planks", "name": "Planks", "type": "construction" },
+  { "id": "fish", "name": "Fish", "type": "food" },
+  { "id": "wool", "name": "Wool", "type": "raw" },
+  { "id": "wool_garments", "name": "Wool garments", "type": "clothing" },
+  { "id": "sails", "name": "Sails", "type": "construction" },
+  { "id": "wheat", "name": "Wheat", "type": "raw" },
+  { "id": "flour", "name": "Flour", "type": "intermediate" },
+  { "id": "bread", "name": "Bread", "type": "food" },
+  { "id": "apples", "name": "Apples", "type": "raw" },
+  { "id": "cider", "name": "Cider", "type": "drink" },
+  { "id": "hemp", "name": "Hemp", "type": "raw" },
+  { "id": "linen_garments", "name": "Linen garments", "type": "clothing" },
+  { "id": "stone", "name": "Stone", "type": "construction" },
+  { "id": "iron_ore", "name": "Iron ore", "type": "raw" },
+  { "id": "charcoal", "name": "Charcoal", "type": "intermediate" },
+  { "id": "iron", "name": "Iron", "type": "intermediate" },
+  { "id": "tools", "name": "Tools", "type": "construction" },
+  { "id": "milk", "name": "Milk", "type": "raw" }
+]

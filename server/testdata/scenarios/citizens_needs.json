@@ -276,6 +276,17 @@
       }
     },
     {
+      "fields": {
+        "type": "wheat_field",
+        "rect": [
+          1,
+          19,
+          7,
+          21
+        ]
+      }
+    },
+    {
       "place": {
         "type": "mill",
         "x": 6,
@@ -300,6 +311,17 @@
       }
     },
     {
+      "fields": {
+        "type": "orchard_plot",
+        "rect": [
+          11,
+          19,
+          17,
+          21
+        ]
+      }
+    },
+    {
       "place": {
         "type": "cidery",
         "x": 10,
@@ -313,6 +335,17 @@
         "x": 24,
         "y": 17,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "type": "hemp_field",
+        "rect": [
+          22,
+          19,
+          28,
+          21
+        ]
       }
     },
     {

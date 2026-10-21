@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"maps"
 	"math/rand/v2"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -211,6 +212,24 @@ func (p *propCase) townWorld() *World {
 			free(sp.typ, sp.x, sp.y, sp.rot)
 		}
 	}
+	// Up to 16 fields around the town's farms (D-049), so that their
+	// chains run.
+	for _, fb := range sortedKeys(p.c.FieldByType) {
+		def := p.c.FieldByType[fb]
+		if def.Tier != p.c.Tiers[0].ID {
+			continue
+		}
+		var cand []Pos
+		for y := range 14 {
+			for x := range 30 {
+				cand = append(cand, Pos{x, y})
+			}
+		}
+		valid := ValidFieldTiles(w.Islands[0], p.c, def.ID, cand)
+		for i := 0; i < len(valid) && i < 4*(1+p.rng.IntN(4)); i++ {
+			free(def.ID, valid[i].X, valid[i].Y, 0)
+		}
+	}
 	for _, n := range p.c.NeedsByTier[p.c.Tiers[0].ID] {
 		for _, g := range n.Goods {
 			if err := AddStock(w, p.c, "main", g.Good, Qty(p.rng.IntN(30))*1000, p.l); err != nil {
@@ -234,9 +253,11 @@ func (p *propCase) randomPos() (int, int) {
 func (p *propCase) randomCommand() Command {
 	is := p.w.Islands[0]
 	switch r := p.rng.IntN(100); {
-	case r < 12:
+	case r < 8:
 		x, y := p.randomPos()
 		return PlaceBuilding{IslandID: "main", Type: p.types[p.rng.IntN(len(p.types))], X: x, Y: y, Rotation: 90 * p.rng.IntN(4)}
+	case r < 12:
+		return p.randomFieldCommand()
 	case r < 47:
 		return p.placeAtRoad()
 	case r < 52:
@@ -304,6 +325,67 @@ func (p *propCase) randomCommand() Command {
 		}
 		return Demolish{IslandID: "main", BuildingID: b.ID, AcceptSurplusLoss: p.rng.IntN(3) == 0}
 	}
+}
+
+// randomFieldCommand returns a PlaceFields of the valid tiles of a random
+// rectangle around a farm (sometimes with one random, mostly invalid,
+// tile, which fails the whole command) or a DemolishFields of random
+// field tiles (sometimes with another tile). Nil without field types.
+func (p *propCase) randomFieldCommand() Command {
+	is := p.w.Islands[0]
+	if len(p.c.FieldByType) == 0 {
+		return nil
+	}
+	var fields []Pos
+	for _, b := range is.Buildings {
+		if def := p.c.BuildingByID[b.Type]; def != nil && def.Field != nil {
+			fields = append(fields, Pos{b.X, b.Y})
+		}
+	}
+	if len(fields) > 0 && p.rng.IntN(3) == 0 {
+		var tiles []Pos
+		for range 1 + p.rng.IntN(3) {
+			tiles = append(tiles, fields[p.rng.IntN(len(fields))])
+		}
+		if p.rng.IntN(4) == 0 {
+			x, y := p.randomPos()
+			tiles = append(tiles, Pos{x, y})
+		}
+		return DemolishFields{IslandID: "main", Tiles: uniquePos(tiles)}
+	}
+	types := sortedKeys(p.c.FieldByType)
+	def := p.c.FieldByType[types[p.rng.IntN(len(types))]]
+	cx, cy := p.randomPos()
+	for _, b := range is.Buildings {
+		if fd := p.c.BuildingByID[b.Type]; fd != nil && fd.Fields != nil && fd.Fields.Type == def.Field.Type && p.rng.IntN(2) == 0 {
+			cx, cy = b.X+1, b.Y+1
+		}
+	}
+	var rect []Pos
+	w, h := 1+p.rng.IntN(8), 1+p.rng.IntN(8)
+	for y := cy - h/2; y < cy-h/2+h; y++ {
+		for x := cx - w/2; x < cx-w/2+w; x++ {
+			rect = append(rect, Pos{x, y})
+		}
+	}
+	tiles := ValidFieldTiles(is, p.c, def.ID, rect)
+	if p.rng.IntN(5) == 0 || len(tiles) == 0 {
+		x, y := p.randomPos()
+		tiles = append(tiles, Pos{x, y})
+	}
+	return PlaceFields{IslandID: "main", Type: def.ID, Tiles: uniquePos(tiles)}
+}
+
+func uniquePos(tiles []Pos) []Pos {
+	seen := map[Pos]bool{}
+	var out []Pos
+	for _, t := range tiles {
+		if !seen[t] {
+			seen[t] = true
+			out = append(out, t)
+		}
+	}
+	return out
 }
 
 // placeAtRoad returns a random placement whose footprint touches a road
@@ -653,6 +735,7 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 				p.splitKinds[sp.kind]++
 			}
 		}
+		moved := next.After(p.w.LastEvaluatedAt)
 		bs, err := AdvanceWithLedger(p.w, p.c, next, p.l)
 		if err != nil {
 			p.fail("advance: %v", err)
@@ -664,7 +747,12 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 		}
 		all = append(all, bs...)
 		p.checkInvariants(fmt.Sprintf("advance piece %d", i))
-		p.checkSettled(fmt.Sprintf("advance piece %d", i))
+		// A zero-length piece is a no-op Advance: right after a command the
+		// regimes are still cleared (re-derived by the next settle), which
+		// is not a settled world.
+		if moved {
+			p.checkSettled(fmt.Sprintf("advance piece %d", i))
+		}
 	}
 	if !p.w.LastEvaluatedAt.Equal(to) {
 		bs, err := AdvanceWithLedger(p.w, p.c, to, p.l)
@@ -1274,6 +1362,11 @@ func TestPropertyMoveRoundTrip(t *testing.T) {
 				}
 				before := p.w.Clone()
 				b := p.w.Islands[0].Building(cmd.BuildingID)
+				// An unassigned field stands where no field may be placed
+				// (its farm was moved or demolished): it cannot move back.
+				if def := p.c.BuildingByID[b.Type]; def != nil && def.Field != nil && b.FarmID == 0 {
+					continue
+				}
 				back := MoveBuilding{IslandID: "main", BuildingID: b.ID, X: b.X, Y: b.Y, Rotation: b.Rotation}
 				p.apply(cmd)
 				if err := ApplyWithLedger(p.w, p.c, back, p.l); err != nil {
@@ -1293,4 +1386,83 @@ func TestPropertyMoveRoundTrip(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestPropertyFieldMoveEqualsPlacement (D-049): moving a field to tile T
+// yields the same field assignment and farm efficiencies as demolishing
+// it and placing a field of its type at T, apart from building IDs and
+// the refund.
+func TestPropertyFieldMoveEqualsPlacement(t *testing.T) {
+	for name, c := range propertyCatalogues(t) {
+		c := withoutQuests(c)
+		t.Run(name, func(t *testing.T) {
+			compared, reassigned := 0, 0
+			for seed := range uint64(propertyCases) {
+				p := moveWorld(t, c, 210_000+seed)
+				p.w.Gold = max(p.w.Gold, 1_000_000_000)
+				is := p.w.Islands[0]
+				var fields []*Building
+				for _, b := range is.Buildings {
+					if def := p.c.BuildingByID[b.Type]; def != nil && def.Field != nil {
+						fields = append(fields, b)
+					}
+				}
+				if len(fields) == 0 {
+					continue
+				}
+				f := fields[p.rng.IntN(len(fields))]
+				var cand []Pos
+				for y := f.Y - 6; y <= f.Y+6; y++ {
+					for x := f.X - 6; x <= f.X+6; x++ {
+						cand = append(cand, Pos{x, y})
+					}
+				}
+				valid := ValidFieldTiles(is, p.c, f.Type, cand)
+				if len(valid) == 0 {
+					continue
+				}
+				to := valid[p.rng.IntN(len(valid))]
+				viaMove := p.w.Clone()
+				if err := Apply(viaMove, p.c, MoveBuilding{IslandID: "main", BuildingID: f.ID, X: to.X, Y: to.Y}); err != nil {
+					p.fail("seed %d: move field %d to %v: %v", seed, f.ID, to, err)
+				}
+				direct := p.w.Clone()
+				if err := Apply(direct, p.c, Demolish{IslandID: "main", BuildingID: f.ID}); err != nil {
+					p.fail("seed %d: demolish field %d: %v", seed, f.ID, err)
+				}
+				if err := Apply(direct, p.c, PlaceFields{IslandID: "main", Type: f.Type, Tiles: []Pos{to}}); err != nil {
+					p.fail("seed %d: place field at %v: %v", seed, to, err)
+				}
+				a, b := fieldState(viaMove, p.c), fieldState(direct, p.c)
+				if a != b {
+					p.fail("seed %d: move field %d to %v:\nmove:   %s\ndirect: %s", seed, f.ID, to, a, b)
+				}
+				if f.FarmID != viaMove.Islands[0].BuildingAt(p.c, to.X, to.Y).FarmID {
+					reassigned++
+				}
+				compared++
+			}
+			t.Logf("%d comparisons, %d reassigned", compared, reassigned)
+			if compared < propertyCases/4 {
+				t.Errorf("only %d comparisons in %d cases", compared, propertyCases)
+			}
+		})
+	}
+}
+
+// fieldState describes the fields (position, type, farm) and the farms
+// (ID, efficiency) of the first island, independent of field IDs.
+func fieldState(w *World, c *content.Catalogue) string {
+	var parts []string
+	for _, b := range w.Islands[0].Buildings {
+		def := c.BuildingByID[b.Type]
+		switch {
+		case def != nil && def.Field != nil:
+			parts = append(parts, fmt.Sprintf("field %s (%d,%d) -> %d", b.Type, b.X, b.Y, b.FarmID))
+		case def != nil && def.Fields != nil:
+			parts = append(parts, fmt.Sprintf("farm %d %d", b.ID, b.Efficiency))
+		}
+	}
+	slices.Sort(parts)
+	return strings.Join(parts, "; ")
 }

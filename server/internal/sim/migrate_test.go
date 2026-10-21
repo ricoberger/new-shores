@@ -7,18 +7,21 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
 // TestSchemaMigrationsRegistered: every version below SchemaVersion has a
 // migration (from 1 on); envelopes without a path (version 0), newer ones
 // and envelopes without a version fail loudly.
 func TestSchemaMigrationsRegistered(t *testing.T) {
-	m := SchemaMigrations()
-	if SchemaVersion != 2 || len(m) != SchemaVersion-1 {
+	m := SchemaMigrations(catalogue(t))
+	if SchemaVersion != 3 || len(m) != SchemaVersion-1 {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for v := 1; v < SchemaVersion; v++ {
@@ -28,12 +31,12 @@ func TestSchemaMigrationsRegistered(t *testing.T) {
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":3,"content_version":"x","world":{}}`,
+		`{"schema_version":4,"content_version":"x","world":{}}`,
 		`{"content_version":"x","world":{}}`,
 		`{"schema_version":1,"content_version":"x","world":{}}`,
 		`{"schema_version":1,"content_version":"x","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 	} {
-		if _, _, err := Decode([]byte(raw)); !errors.Is(err, ErrSchemaVersion) {
+		if _, _, _, err := Decode([]byte(raw), catalogue(t)); !errors.Is(err, ErrSchemaVersion) {
 			t.Errorf("%s: err = %v, want ErrSchemaVersion", raw, err)
 		}
 	}
@@ -65,7 +68,7 @@ func TestDecodeAppliesRegisteredMigration(t *testing.T) {
 	old, _ := json.Marshal(env)
 
 	calls := 0
-	migrations := Migrations{prev: func(e RawEnvelope) (RawEnvelope, error) {
+	migrations := Migrations{prev: func(e RawEnvelope, _ *MigrationNotes) (RawEnvelope, error) {
 		calls++
 		var m map[string]json.RawMessage
 		if err := json.Unmarshal(e.World, &m); err != nil {
@@ -76,7 +79,7 @@ func TestDecodeAppliesRegisteredMigration(t *testing.T) {
 		out, err := json.Marshal(m)
 		return RawEnvelope{ContentVersion: e.ContentVersion, World: out}, err
 	}}
-	got, cv, err := DecodeWith(old, migrations)
+	got, cv, _, err := DecodeWith(old, migrations)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,17 +91,17 @@ func TestDecodeAppliesRegisteredMigration(t *testing.T) {
 	}
 
 	// Without the registered migration the same envelope fails loudly.
-	if _, _, err := DecodeWith(old, Migrations{}); !errors.Is(err, ErrSchemaVersion) {
+	if _, _, _, err := DecodeWith(old, Migrations{}); !errors.Is(err, ErrSchemaVersion) {
 		t.Fatalf("err = %v, want ErrSchemaVersion", err)
 	}
 	// A failing migration fails with ErrSchemaVersion too.
-	fail := Migrations{prev: func(e RawEnvelope) (RawEnvelope, error) { return e, errors.New("boom") }}
-	if _, _, err := DecodeWith(old, fail); !errors.Is(err, ErrSchemaVersion) || !strings.Contains(err.Error(), "boom") {
+	fail := Migrations{prev: func(e RawEnvelope, _ *MigrationNotes) (RawEnvelope, error) { return e, errors.New("boom") }}
+	if _, _, _, err := DecodeWith(old, fail); !errors.Is(err, ErrSchemaVersion) || !strings.Contains(err.Error(), "boom") {
 		t.Fatalf("err = %v", err)
 	}
 	// Newer than the binary: never migrated down.
 	newer := bytes.Replace(current, []byte(fmt.Sprintf(`"schema_version":%d`, SchemaVersion)), []byte(fmt.Sprintf(`"schema_version":%d`, SchemaVersion+1)), 1)
-	if _, _, err := DecodeWith(newer, migrations); !errors.Is(err, ErrSchemaVersion) {
+	if _, _, _, err := DecodeWith(newer, migrations); !errors.Is(err, ErrSchemaVersion) {
 		t.Fatalf("newer: err = %v", err)
 	}
 }
@@ -137,7 +140,7 @@ func TestSchema1FixtureWithoutShips(t *testing.T) {
 			t.Fatalf("schema-1 fixture carries %s", field)
 		}
 	}
-	w, cv, err := Decode(data)
+	w, cv, _, err := Decode(data, c)
 	if err != nil || cv != "old_coast-0.2.0" {
 		t.Fatalf("decode: %v %s schema %d", err, cv, SchemaVersion)
 	}
@@ -146,7 +149,7 @@ func TestSchema1FixtureWithoutShips(t *testing.T) {
 	}
 	end := w.LastEvaluatedAt.Add(12 * time.Hour)
 	run := func(split time.Duration) []byte {
-		cw, _, err := Decode(data)
+		cw, _, _, err := Decode(data, c)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -200,7 +203,7 @@ func TestDecodeIgnoresTileFertility(t *testing.T) {
 	if bytes.Equal(withTag, data) {
 		t.Fatal("fixture has no grass tile to tag")
 	}
-	w, _, err := Decode(withTag)
+	w, _, _, err := Decode(withTag, catalogue(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -221,18 +224,36 @@ func TestMigrations(t *testing.T) {
 		fixture string
 		version int
 		content string
-		check   func(t *testing.T, w *World)
+		check   func(t *testing.T, c *content.Catalogue, w *World, before *World)
 	}{
 		{
 			// The end state of the bootstrap_citizens reference game encoded
 			// at schema 1 (content old_coast-0.4.0): two islands, ships,
-			// routes and tier 2.
-			name: "1to2 bootstrap_citizens", fixture: "schema1_bootstrap_citizens.json", version: 1, content: "old_coast-0.4.0",
-			check: checkMigrated1to2,
+			// routes and tier 2. Chained 1 -> 2 -> 3.
+			name: "1to3 bootstrap_citizens", fixture: "schema1_bootstrap_citizens.json", version: 1, content: "old_coast-0.4.0",
+			check: func(t *testing.T, c *content.Catalogue, w, before *World) {
+				checkMigrated1to2(t, w)
+				checkMigrated2to3(t, c, w, before)
+			},
 		},
 		{
-			name: "1to2 dev world", fixture: "schema1_dev_world.json", version: 1, content: "old_coast-0.2.0",
-			check: checkMigrated1to2,
+			name: "1to3 dev world", fixture: "schema1_dev_world.json", version: 1, content: "old_coast-0.2.0",
+			check: func(t *testing.T, c *content.Catalogue, w, before *World) {
+				checkMigrated1to2(t, w)
+				checkMigrated2to3(t, c, w, before)
+			},
+		},
+		{
+			// The end state of bootstrap_citizens encoded at schema 2
+			// (content old_coast-0.5.0): three sheep farms at 1000.
+			name: "2to3 bootstrap_citizens", fixture: "schema2_bootstrap_citizens.json", version: 2, content: "old_coast-0.5.0",
+			check: checkMigrated2to3,
+		},
+		{
+			// The end state of citizens_island_load at schema 2: thirteen
+			// farms of all four types, six tiles apart on one island.
+			name: "2to3 citizens_island_load", fixture: "schema2_citizens_island_load.json", version: 2, content: "old_coast-0.5.0",
+			check: checkMigrated2to3,
 		},
 	}
 	for _, tt := range tests {
@@ -242,16 +263,26 @@ func TestMigrations(t *testing.T) {
 				t.Fatal(err)
 			}
 			var head struct {
-				SchemaVersion int `json:"schema_version"`
+				SchemaVersion int             `json:"schema_version"`
+				World         json.RawMessage `json:"world"`
 			}
 			if err := json.Unmarshal(data, &head); err != nil || head.SchemaVersion != tt.version {
 				t.Fatalf("fixture schema version %d (%v), want %d", head.SchemaVersion, err, tt.version)
 			}
-			w, cv, err := Decode(data)
+			// The stored world as written (the schema-3 struct reads every
+			// field of schema 1 and 2).
+			var before World
+			if err := json.Unmarshal(head.World, &before); err != nil {
+				t.Fatal(err)
+			}
+			w, cv, notes, err := Decode(data, c)
 			if err != nil || cv != tt.content {
 				t.Fatalf("decode: %v, content %q", err, cv)
 			}
-			tt.check(t, w)
+			if len(notes.FieldShortfalls) != 0 {
+				t.Errorf("shortfalls %+v", notes.FieldShortfalls)
+			}
+			tt.check(t, c, w, &before)
 
 			// Re-encoded at the current schema version; a current envelope
 			// round-trips unchanged.
@@ -259,12 +290,17 @@ func TestMigrations(t *testing.T) {
 			if err := json.Unmarshal(enc, &head); err != nil || head.SchemaVersion != SchemaVersion {
 				t.Fatalf("re-encoded schema version %d (%v)", head.SchemaVersion, err)
 			}
-			again, _, err := Decode(enc)
+			again, _, _, err := Decode(enc, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if got := encode(t, again); !bytes.Equal(got, enc) {
 				t.Fatal("current envelope does not round-trip")
+			}
+			// The migration is deterministic.
+			w2, _, _, err := Decode(data, c)
+			if err != nil || !bytes.Equal(encode(t, w2), enc) {
+				t.Fatalf("second decode differs (%v)", err)
 			}
 
 			// Advance and Display work on the migrated world.
@@ -276,6 +312,182 @@ func TestMigrations(t *testing.T) {
 				t.Fatal(err)
 			}
 		})
+	}
+}
+
+// checkMigrated2to3 checks the fields migration against the stored world:
+// every farm's efficiency is at least its stored one (per mille), farms at
+// 1000 stay at 1000; each farm has min(required, available) fields, all
+// assigned to it (a farm below required has no valid field tile left for
+// which it is the nearest farm); the new fields have sequential IDs from
+// the stored next building ID; nothing else changed.
+func checkMigrated2to3(t *testing.T, c *content.Catalogue, w, before *World) {
+	t.Helper()
+	next := before.NextBuildingID
+	farms := 0
+	for _, bis := range before.Islands {
+		is := w.Island(bis.ID)
+		stored := map[int64]*Building{}
+		for _, b := range bis.Buildings {
+			stored[b.ID] = b
+		}
+		fields := map[int64][]*Building{}
+		var newIDs []int64
+		for _, b := range is.Buildings {
+			def := c.BuildingByID[b.Type]
+			if old := stored[b.ID]; old != nil {
+				if old.Type != b.Type || old.X != b.X || old.Y != b.Y {
+					t.Errorf("building %d moved or changed", b.ID)
+				}
+				continue
+			}
+			if def == nil || def.Field == nil {
+				t.Errorf("new building %d is %s", b.ID, b.Type)
+				continue
+			}
+			newIDs = append(newIDs, b.ID)
+			fields[b.FarmID] = append(fields[b.FarmID], b)
+		}
+		for i, id := range newIDs {
+			if id != next+int64(i) {
+				t.Errorf("field IDs %v not sequential from %d", newIDs, next)
+				break
+			}
+		}
+		next += int64(len(newIDs))
+		if len(fields[0]) != 0 {
+			t.Errorf("island %s: %d unassigned fields", is.ID, len(fields[0]))
+		}
+		for _, b := range is.Buildings {
+			def := c.BuildingByID[b.Type]
+			if def == nil || def.Fields == nil {
+				continue
+			}
+			farms++
+			old := stored[b.ID].Efficiency
+			n := len(fields[b.ID])
+			if b.Efficiency < old || (old == 1000 && b.Efficiency != 1000) || b.Efficiency != fieldEfficiency(n, def.Fields.Required) {
+				t.Errorf("%s %d: efficiency %d -> %d with %d fields", b.Type, b.ID, old, b.Efficiency, n)
+			}
+			for _, f := range fields[b.ID] {
+				if fdef := c.BuildingByID[f.Type]; fdef.Field.Type != def.Fields.Type {
+					t.Errorf("%s %d got a %s", b.Type, b.ID, f.Type)
+				}
+			}
+			if n > def.Fields.Required {
+				t.Errorf("%s %d: %d fields", b.Type, b.ID, n)
+			}
+			if n < def.Fields.Required {
+				if left := freeOwnFieldTiles(is, c, b); len(left) > 0 {
+					t.Errorf("%s %d: %d fields but free tiles %v", b.Type, b.ID, n, left)
+				}
+			}
+		}
+	}
+	if w.NextBuildingID != next {
+		t.Errorf("next building ID %d, want %d", w.NextBuildingID, next)
+	}
+	t.Logf("%d farms migrated", farms)
+}
+
+// freeOwnFieldTiles returns the valid field tiles in the farm's radius for
+// which the farm is the nearest accepting farm.
+func freeOwnFieldTiles(is *Island, c *content.Catalogue, farm *Building) []Pos {
+	def := c.BuildingByID[farm.Type]
+	var cand []Pos
+	for y := 0; y < is.Height; y++ {
+		for x := 0; x < is.Width; x++ {
+			cand = append(cand, Pos{x, y})
+		}
+	}
+	farms := acceptingFarms(is, c, def.Fields.Type)
+	var out []Pos
+	for _, p := range ValidFieldTiles(is, c, c.FieldByType[def.Fields.Type].ID, cand) {
+		if nearestFarm(farms, p.X, p.Y) == farm.ID {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// schema2Envelope re-labels a current envelope as schema 2 (the schema-3
+// world format is schema 2 plus fields and farm_id).
+func schema2Envelope(t *testing.T, w *World) []byte {
+	t.Helper()
+	return bytes.Replace(encode(t, w), []byte(`"schema_version":3`), []byte(`"schema_version":2`), 1)
+}
+
+// TestMigrate2to3Shortfall: a farm whose stored efficiency needs more
+// fields than its free grass tiles allow gets every free tile, a lower
+// efficiency and is reported as a shortfall; a farm with room keeps 1000.
+func TestMigrate2to3Shortfall(t *testing.T) {
+	c := catalogue(t)
+	w := NewWorld(t0)
+	w.Islands = []*Island{islandFromRows("main",
+		"~~~~~~~~~~~~~~~~~~~~~~~~",
+		"~cccccffffffff.........~",
+		"~....cffffffff.........~",
+		"~....cff...fff.........~",
+		"~....cff...fff.........~",
+		"~....cff...fff.........~",
+		"~....cff..ffff.........~",
+		"~....cffffffff.........~",
+		"~....cffffffff.........~",
+		"~~~~~~~~~~~~~~~~~~~~~~~~",
+	)}
+	mustPlaceFree(t, w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1})
+	// The first farm sits in a forest clearing with 2 free grass tiles; the
+	// second in open grass.
+	mustPlaceFree(t, w, c, PlaceBuilding{IslandID: "main", Type: "sheep_farm", X: 8, Y: 3})
+	mustPlaceFree(t, w, c, PlaceBuilding{IslandID: "main", Type: "sheep_farm", X: 17, Y: 3})
+	w.Gold = 10_000_000
+	// The stored schema-2 efficiencies (24 required tiles).
+	w.Islands[0].Buildings[1].Efficiency = 1000
+	w.Islands[0].Buildings[2].Efficiency = 1000
+	got, _, notes, err := Decode(schema2Envelope(t, w), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []FieldShortfall{{IslandID: "main", BuildingID: 2, Type: "sheep_farm", Placed: 2, Required: 16, OldEfficiency: 1000, NewEfficiency: 125}}
+	if !slices.Equal(notes.FieldShortfalls, want) {
+		t.Fatalf("shortfalls %+v, want %+v", notes.FieldShortfalls, want)
+	}
+	farm1, farm2 := got.Islands[0].Building(2), got.Islands[0].Building(3)
+	if farm1.Efficiency != 125 || farm2.Efficiency != 1000 {
+		t.Errorf("efficiencies %d, %d", farm1.Efficiency, farm2.Efficiency)
+	}
+	ds, err := Display(got, c, got.LastEvaluatedAt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, b := range ds.Islands[0].Buildings {
+		// Unconnected (no road): the status is not_connected.
+		if b.ID == 2 && (b.Fields == nil || *b.Fields != (FieldsDisplay{Assigned: 2, Required: 16}) || b.EfficiencyPermille != 125) {
+			t.Errorf("farm display %+v efficiency %d", b.Fields, b.EfficiencyPermille)
+		}
+	}
+}
+
+// TestMigrate2to3RejectsFields: a schema-2 world cannot contain a field.
+func TestMigrate2to3RejectsFields(t *testing.T) {
+	c := catalogue(t)
+	w := testWorld(t, c)
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sheep_farm", X: 14, Y: 5})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "pasture", X: 13, Y: 7})
+	if _, _, _, err := Decode(schema2Envelope(t, w), c); !errors.Is(err, ErrSchemaVersion) || !strings.Contains(err.Error(), "already has field") {
+		t.Fatalf("err = %v", err)
+	}
+	// Without a catalogue the migration cannot run.
+	w2 := testWorld(t, c)
+	if _, _, _, err := Decode(schema2Envelope(t, w2), nil); !errors.Is(err, ErrSchemaVersion) {
+		t.Fatalf("nil catalogue: err = %v", err)
+	}
+}
+
+func mustPlaceFree(t *testing.T, w *World, c *content.Catalogue, cmd PlaceBuilding) {
+	t.Helper()
+	if err := PlaceFree(w, c, cmd, nil); err != nil {
+		t.Fatalf("PlaceFree(%+v): %v", cmd, err)
 	}
 }
 

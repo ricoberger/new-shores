@@ -51,7 +51,7 @@ func newService(t *testing.T) (*Service, *recordingMailer) {
 	t.Helper()
 	_, pool := testenv.Database(t)
 	c := testenv.Catalogue(t)
-	st := postgres.New(pool, c.Region.Version, slog.New(slog.DiscardHandler))
+	st := postgres.New(pool, c, slog.New(slog.DiscardHandler))
 	mail := &recordingMailer{}
 	s, err := NewService(Config{
 		Store: st, NewWorld: func(now time.Time) (*sim.World, error) { return devworld.New(c, now) },

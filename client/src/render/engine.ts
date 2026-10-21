@@ -17,6 +17,7 @@ import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { SyncSnapshot } from "../api/sync";
+import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "../display/fields";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
@@ -27,6 +28,7 @@ import { BuildingLayer } from "./buildings";
 import { CameraRig, type CameraState, fitHalfHeight, ISLAND_DEFAULT_HALF_HEIGHT } from "./camera";
 import { CartLayer } from "./carts";
 import { footprintBox, tileCenter, worldToTile } from "./coords";
+import { farmRing, FieldLayer, type FieldRing } from "./fields";
 import { HarbourLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
@@ -57,13 +59,22 @@ export interface RendererEvents {
   place(x: number, y: number): void;
   /** Touch: a tap put the placement ghost on a tile; Confirm places it. */
   pend(x: number, y: number): void;
-  /** A mouse or pen took over: the touch-pending tile is dropped (the ghost follows the pointer). */
+  /**
+   * A mouse or pen took over: the touch-pending tile of a ghost tool or the
+   * unconfirmed field rectangle is dropped (the preview follows the pointer).
+   */
   unpend(): void;
   /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed). */
   rotateGhost(steps: number): void;
   move(x: number, y: number): void;
   found(x: number, y: number): void;
   road(from: TilePos, to: TilePos): void;
+  /** Field tool (D-049): a mouse click on one tile. */
+  placeField(x: number, y: number): void;
+  /** Field tool: a mouse drag released over a rectangle (corners, any order). */
+  fieldRect(from: TilePos, to: TilePos): void;
+  /** Field tool on touch: a tap or one-finger drag selected a rectangle; Confirm places it. */
+  pendFields(from: TilePos, to: TilePos): void;
   demolish(x: number, y: number): void;
   cancelTool(): void;
   /**
@@ -114,6 +125,15 @@ export class GameRenderer {
   private readonly carts: CartLayer;
   private readonly icons: IconLayer;
   private readonly harbour: HarbourLayer;
+  private readonly fields: FieldLayer;
+  /** Start and current tile of a field-tool drag, and whether a finger drags. */
+  private fieldStart: TilePos | null = null;
+  private fieldEnd: TilePos | null = null;
+  private fieldTouch = false;
+  /** Cache keys of the field preview and the rings (recomputed only when they change). */
+  private fieldPreviewKey = "";
+  private fieldRectShown: { from: TilePos; to: TilePos } | null = null;
+  private ringKey = "";
   private readonly arch: ArchipelagoLayer;
   private readonly ghost: Mesh;
   private readonly ghostMaterial: StandardMaterial;
@@ -181,6 +201,7 @@ export class GameRenderer {
     this.carts = new CartLayer(this.scene, this.islandRoot);
     this.icons = new IconLayer(this.scene, this.islandRoot);
     this.harbour = new HarbourLayer(this.scene, this.islandRoot);
+    this.fields = new FieldLayer(this.scene, this.islandRoot);
     this.arch = new ArchipelagoLayer(this.scene);
 
     this.ghost = CreateBox("ghost", { size: 1 }, this.scene);
@@ -201,7 +222,7 @@ export class GameRenderer {
       pointerDown: (kind) => this.onPointerDown(kind),
       tap: (p, button, kind) => this.onTap(p, button, kind),
       longPress: (p) => this.onLongPress(p),
-      dragStart: (p, button) => this.onDragStart(p, button),
+      dragStart: (p, button, kind) => this.onDragStart(p, button, kind),
       dragMove: (prev, cur, button) => this.onDragMove(prev, cur, button),
       dragEnd: (p, button) => this.onDragEnd(p, button),
       pinch: (centre, prev, scale) => this.onPinch(centre, prev, scale),
@@ -230,6 +251,8 @@ export class GameRenderer {
     this.harbour.frame(now);
     this.arch.frame(now);
     this.updateGhost();
+    this.updateFieldPreview();
+    this.updateRings();
     this.engine._drawCalls.fetchNewFrame();
     this.scene.render();
     this.drawCalls = this.engine._drawCalls.current;
@@ -375,6 +398,8 @@ export class GameRenderer {
     const now = performance.now();
     this.roadStart = null;
     this.roads.setPreview([]);
+    this.fieldStart = null;
+    this.fieldEnd = null;
     if (this.draggingShip !== null) {
       this.input.cancel(); // emits dropShip(null)
     }
@@ -543,6 +568,7 @@ export class GameRenderer {
       this.lastServer = snap.server;
       const is = this.displayIsland();
       this.buildings.update(is?.buildings ?? [], this.defs);
+      this.fields.update(is?.buildings ?? [], this.defs);
       this.roads.update(is?.roads ?? []);
       this.roadTiles = new Set((is?.roads ?? []).map(tileKey));
       this.carts.update(is, this.defs);
@@ -703,17 +729,23 @@ export class GameRenderer {
   /**
    * A mouse or pen is in use: the ghost follows it at once (also before
    * the UI state drops the pending tile), so a click places exactly what
-   * the preview shows.
+   * the preview shows. An unconfirmed touch field rectangle is dropped the
+   * same way.
    */
   private takePrecisePointer(): void {
     this.precise = true;
     const tool = this.tool();
-    if (isGhostTool(tool) && tool.pending) this.events.unpend();
+    if ((isGhostTool(tool) || tool.kind === "field") && tool.pending) this.events.unpend();
   }
 
   /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
   ghostTile(): TilePos | null {
     return this.ghostAt;
+  }
+
+  /** Rectangle the field tool's preview shows (null: none). */
+  fieldPreview(): { from: TilePos; to: TilePos } | null {
+    return this.fieldRectShown;
   }
 
   /**
@@ -798,6 +830,11 @@ export class GameRenderer {
       case "road":
         this.events.road(t, t);
         return;
+      case "field":
+        // Touch: the tapped tile becomes the pending rectangle (Confirm places it).
+        if (kind === "touch") this.events.pendFields(t, t);
+        else this.events.placeField(t.x, t.y);
+        return;
       case "demolish":
         this.events.demolish(t.x, t.y);
         return;
@@ -819,7 +856,7 @@ export class GameRenderer {
     return button === 1 || button === 2 || (button === 0 && this.tool().kind === "none");
   }
 
-  private onDragStart(p: Point, button: number): void {
+  private onDragStart(p: Point, button: number, kind: PointerKind): void {
     if (this.rig.animating()) return;
     if (this.archMode) {
       if (button !== 0) return;
@@ -833,6 +870,11 @@ export class GameRenderer {
       return;
     }
     if (button === 0 && this.tool().kind === "road") this.roadStart = this.tileAt(p);
+    if (button === 0 && this.tool().kind === "field") {
+      this.fieldStart = this.tileAt(p);
+      this.fieldEnd = this.fieldStart;
+      this.fieldTouch = kind === "touch";
+    }
   }
 
   private onDragMove(prev: Point, cur: Point, button: number): void {
@@ -846,6 +888,11 @@ export class GameRenderer {
       if (t) this.roads.setPreview(lPath(this.roadStart, t));
       return;
     }
+    if (this.fieldStart && button === 0) {
+      const t = this.tileAt(cur);
+      if (t) this.fieldEnd = t;
+      return;
+    }
     if (this.pans(button)) this.rig.pan(prev, cur);
   }
 
@@ -853,6 +900,8 @@ export class GameRenderer {
   private onPointerCancel(): void {
     this.roadStart = null;
     this.roads.setPreview([]);
+    this.fieldStart = null;
+    this.fieldEnd = null;
     if (this.draggingShip !== null) {
       this.draggingShip = null;
       this.arch.setDragged(null);
@@ -890,6 +939,92 @@ export class GameRenderer {
       this.roads.setPreview([]);
       if (t && this.tool().kind === "road") this.events.road(start, t);
     }
+    if (this.fieldStart && button === 0) {
+      const start = this.fieldStart;
+      const end = this.tileAt(p) ?? this.fieldEnd ?? start;
+      this.fieldStart = null;
+      this.fieldEnd = null;
+      if (this.tool().kind !== "field") return;
+      if (this.fieldTouch) this.events.pendFields(start, end);
+      else this.events.fieldRect(start, end);
+    }
+  }
+
+  /**
+   * The field tool's rectangle (a drag in progress, else the touch-pending
+   * rectangle, else the tile under the mouse) coloured from the client's
+   * data: green tiles are sent, yellow ones lie outside every accepting
+   * farm's ring (a hint, D-027; the server validates). The hint text counts
+   * both. Recomputed only when the rectangle or the server state changes.
+   */
+  private updateFieldPreview(): void {
+    const tool = this.tool();
+    let rect: { from: TilePos; to: TilePos } | null = null;
+    if (!this.archMode && tool.kind === "field") {
+      // Mouse or pen: the hovered tile (also before the UI state drops a
+      // touch-pending rectangle); touch: the pending rectangle.
+      const hovered = this.precise && this.hover ? this.tileAt(this.hover) : null;
+      if (this.fieldStart && this.fieldEnd) rect = { from: this.fieldStart, to: this.fieldEnd };
+      else if (hovered) rect = { from: hovered, to: hovered };
+      else if (!this.precise && tool.pending) rect = tool.pending;
+    }
+    const def = tool.kind === "field" ? this.defs.get(tool.fieldType) : undefined;
+    const server = this.sync.getSnapshot().server;
+    const key = rect && def ? `${def.id}|${rect.from.x},${rect.from.y},${rect.to.x},${rect.to.y}|${server?.version ?? 0}|${this.currentIslandId()}|${this.island() ? 1 : 0}` : "";
+    if (key === this.fieldPreviewKey) return;
+    this.fieldPreviewKey = key;
+    const island = this.island();
+    const is = this.displayIsland();
+    if (!rect || !def || !island || !is) {
+      this.fieldRectShown = null;
+      this.fields.setPreview([], []);
+      if (tool.kind === "field") this.setGhostHint(null);
+      return;
+    }
+    this.fieldRectShown = rect;
+    const tiles = rectTiles(rect.from, rect.to);
+    const { valid, outOfRange } = classifyFieldTiles(def, tiles, { island, buildings: is.buildings, roads: is.roads, defs: this.defs });
+    this.fields.setPreview(valid, outOfRange);
+    this.setGhostHint(fieldRectHint(valid.length, outOfRange.length, def.name));
+  }
+
+  /**
+   * Work-radius rings: every farm accepting the field tool's type, and the
+   * selected farm with fields; each with the server's "n / required".
+   */
+  private updateRings(): void {
+    const tool = this.tool();
+    const is = this.archMode ? undefined : this.displayIsland();
+    const server = this.sync.getSnapshot().server;
+    const fieldType = tool.kind === "field" ? this.defs.get(tool.fieldType)?.field?.type : undefined;
+    const key = is ? `${fieldType ?? ""}|${this.selected ?? ""}|${server?.version ?? 0}|${is.id}` : "";
+    if (key === this.ringKey) return;
+    this.ringKey = key;
+    const rings: FieldRing[] = [];
+    if (is) {
+      const ids = new Set<number>();
+      if (fieldType) for (const f of acceptingFarms(is.buildings, this.defs, fieldType)) ids.add(f.id);
+      if (this.selected !== null) ids.add(this.selected);
+      for (const b of is.buildings) {
+        if (!ids.has(b.id)) continue;
+        const r = farmRing(b, this.defs.get(b.type));
+        if (r) rings.push(r);
+      }
+    }
+    this.fields.setRings(rings);
+  }
+
+  /**
+   * The rings drawn with the canvas-relative CSS position of their top
+   * edge (the "n / required" labels follow it every frame).
+   */
+  fieldRingLabels(): { farmId: number; assigned: number; required: number; x: number; y: number }[] {
+    if (this.archMode) return [];
+    const k = this.ratio();
+    return this.fields.ringsShown().map((r) => {
+      const s = this.rig.project(new Vector3(r.cx, 0, r.cz + r.radius));
+      return { farmId: r.farmId, assigned: r.assigned, required: r.required, x: s.x / k, y: s.y / k };
+    });
   }
 
   /**
@@ -910,7 +1045,8 @@ export class GameRenderer {
     this.ghostAt = t;
     if (!ghostTool || !def || !t) {
       this.ghost.setEnabled(false);
-      this.setGhostHint(null);
+      // The field tool owns the hint (updateFieldPreview).
+      if (tool.kind !== "field") this.setGhostHint(null);
       return;
     }
     const [w, h] = rotatedFootprint(def.width, def.height, tool.rotation);

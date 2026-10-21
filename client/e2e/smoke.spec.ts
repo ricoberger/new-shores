@@ -15,11 +15,18 @@ import {
   WAREHOUSE_TILE,
   WATER,
   QUEST_HOUSES,
+  PASTURE_RECT_FROM,
+  PASTURE_RECT_OUTSIDE,
+  PASTURE_RECT_TO,
+  PASTURE_RECT_VALID,
+  SHEEP_FARM,
 } from "./constants";
 import { dismissAwayDialog } from "./away";
 
 /** The planks must flow within this much simulated time after placing the sawmill. */
 const PLANKS_WITHIN_SIM_MS = 90_000;
+/** Wool must be produced (in transit or in stock) within this much simulated time after the fields. */
+const WOOL_WITHIN_SIM_MS = 300_000;
 /** Wall-clock allowance on top of the scaled bound (requests, rendering). */
 const WALL_MARGIN_MS = 5_000;
 
@@ -317,4 +324,124 @@ test("complete and claim the first three quests", async ({ page }) => {
   await expect(page.getByTestId("hud-quests-badge")).toHaveCount(0);
   await expect(page.getByTestId("quest-completed-intro_houses")).toContainText("claimed");
   await expect(page.getByTestId("quest-active-intro_fish")).toBeVisible();
+});
+
+interface FieldsServerBuilding extends ServerBuilding {
+  efficiency_permille: number;
+  fields?: { assigned: number; required: number };
+  farm_id?: number;
+}
+
+test("a sheep farm with a dragged pasture rectangle produces wool", async ({ page }) => {
+  await page.goto("/");
+  await dismissAwayDialog(page);
+  const canvas = page.getByTestId("game-canvas");
+  const box = (await canvas.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  for (let i = 0; i < ISLAND_ZOOM_OUT_TICKS; i++) await page.mouse.wheel(0, 300);
+  await page.waitForTimeout(200);
+
+  // The pasture is listed under Production right after the sheep farm.
+  await page.getByTestId("build-tab-production").click();
+  const items = await page
+    .getByTestId("build-menu")
+    .locator('[data-testid^="build-"]:not([data-testid^="build-tab-"]):not([data-testid^="build-lock-"]):not([data-testid^="build-fertility-"]):not([data-testid^="build-deposit-"])')
+    .evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")));
+  expect(items.indexOf("build-pasture")).toBe(items.indexOf("build-sheep_farm") + 1);
+
+  // A farm with fields is placed at 0 fields (D-049).
+  const v0 = await version(page);
+  await pick(page, "production", "sheep_farm", SHEEP_FARM.rotation);
+  await clickTile(page, SHEEP_FARM);
+  await expectVersion(page, v0 + 1);
+  await page.keyboard.press("Escape");
+  const farm = (await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding;
+  expect(farm.fields).toEqual({ assigned: 0, required: 16 });
+  expect(farm.efficiency_permille).toBe(0);
+
+  // Its panel counts the fields and opens the field tool with the ring.
+  await clickTile(page, { x: SHEEP_FARM.x + 1, y: SHEEP_FARM.y + 1 });
+  await expect(page.getByTestId("info-name")).toHaveText("Sheep farm");
+  await expect(page.getByTestId("farm-fields-count")).toHaveText("Fields 0 / 16");
+  await expect(page.getByTestId("farm-place-fields")).toHaveText("Place pastures 0 / 16");
+  await page.getByTestId("farm-place-fields").click();
+  await expect(page.getByTestId("tool-hint")).toContainText("drag a rectangle to place pastures");
+  const label = page.getByTestId(`field-ring-label-${farm.id}`);
+  await expect(label).toHaveText("0 / 16");
+
+  // Right click and Esc cancel the tool; nothing is sent.
+  const a = await screen(page, PASTURE_RECT_FROM);
+  const b = await screen(page, PASTURE_RECT_TO);
+  await page.mouse.click(a.x, a.y, { button: "right" });
+  await expect(page.getByTestId("tool-hint")).toBeHidden();
+  await pick(page, "production", "pasture", 0);
+  await expect(page.getByTestId("tool-hint")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("tool-hint")).toBeHidden();
+  expect(await version(page)).toBe(v0 + 1);
+
+  // Drag a rectangle: the preview counts the green and yellow tiles; the
+  // release sends one place_fields command with the green ones.
+  await pick(page, "production", "pasture", 0);
+  const commands: string[] = [];
+  page.on("request", (r) => {
+    if (r.method() === "POST" && r.url().endsWith("/api/v1/world/commands")) commands.push(r.postData() ?? "");
+  });
+  await page.mouse.move(a.x, a.y);
+  await page.mouse.down();
+  await page.mouse.move(b.x, b.y, { steps: 10 });
+  await expect(page.getByTestId("tool-hint-reason")).toHaveText(
+    `${PASTURE_RECT_VALID} pastures · ${PASTURE_RECT_OUTSIDE} outside every farm's ring`,
+  );
+  expect(commands).toHaveLength(0);
+  await page.mouse.up();
+  await expectVersion(page, v0 + 2);
+  expect(commands).toHaveLength(1);
+  const sent = JSON.parse(commands[0]!) as { command: { type: string; field_type: string; tiles: Tile[] } };
+  expect(sent.command.type).toBe("place_fields");
+  expect(sent.command.field_type).toBe("pasture");
+  expect(sent.command.tiles).toHaveLength(PASTURE_RECT_VALID);
+  await expect(label).toHaveText("16 / 16");
+  const full = (await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding;
+  expect(full.fields).toEqual({ assigned: 16, required: 16 });
+  expect(full.efficiency_permille).toBe(1000);
+  const pastures = (await serverBuildings(page)).filter((x) => x.type === "pasture") as FieldsServerBuilding[];
+  expect(pastures).toHaveLength(16);
+  for (const p of pastures) expect(p.farm_id).toBe(farm.id);
+  await page.keyboard.press("Escape");
+
+  // The farm runs at 100 % on 16 fields; wool flows.
+  await clickTile(page, { x: SHEEP_FARM.x + 1, y: SHEEP_FARM.y + 1 });
+  await expect(page.getByTestId("farm-fields-count")).toHaveText("Fields 16 / 16");
+  await expect(page.getByTestId("info-panel")).toContainText("Efficiency100 %");
+  await expect
+    .poll(async () => Number(await page.getByTestId("rate-output-wool").textContent()), {
+      timeout: WOOL_WITHIN_SIM_MS / E2E_TIME_SCALE + WALL_MARGIN_MS,
+    })
+    .toBeGreaterThan(0);
+  await expect.poll(() => committed(page, "wool"), { timeout: WOOL_WITHIN_SIM_MS / E2E_TIME_SCALE + WALL_MARGIN_MS }).toBeGreaterThan(0);
+
+  // Demolish mode removes a field with one click (no confirmation); a
+  // click with the pasture tool places one again.
+  await page.keyboard.press("Escape");
+  await page.getByTestId("tool-demolish").click();
+  await expect(page.getByTestId("tool-hint")).toContainText("building, field or road");
+  const v2 = await version(page);
+  await clickTile(page, PASTURE_RECT_FROM);
+  await expectVersion(page, v2 + 1);
+  expect(((await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding).fields?.assigned).toBe(15);
+  await page.keyboard.press("Escape");
+  await pick(page, "production", "pasture", 0);
+  await clickTile(page, PASTURE_RECT_FROM);
+  await expectVersion(page, v2 + 2);
+  expect(((await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding).fields?.assigned).toBe(16);
+  await page.keyboard.press("Escape");
+
+  // The later specs keep the economy they were written for: the farm is
+  // paused (no upkeep, no workers); a paused farm still accepts fields.
+  await clickTile(page, { x: SHEEP_FARM.x + 1, y: SHEEP_FARM.y + 1 });
+  await expect(page.getByTestId("info-name")).toHaveText("Sheep farm");
+  await page.getByTestId("info-pause").click();
+  await expect.poll(async () => (await serverBuilding(page, "sheep_farm")).status).toBe("paused");
+  await page.keyboard.press("Escape");
 });

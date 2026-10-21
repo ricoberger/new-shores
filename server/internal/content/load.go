@@ -297,6 +297,15 @@ type rawBuilding struct {
 		Tier   string `json:"tier"`
 		Amount int64  `json:"amount"`
 	} `json:"workforce"`
+	Fields *struct {
+		Type     string `json:"type"`
+		Required int    `json:"required"`
+	} `json:"fields"`
+	Field *struct {
+		Type      string   `json:"type"`
+		Terrain   []string `json:"terrain"`
+		Fertility string   `json:"fertility"`
+	} `json:"field"`
 	Shipyard *struct {
 		Ships []string `json:"ships"`
 	} `json:"shipyard"`
@@ -431,6 +440,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		TierByID:     map[string]*Tier{},
 		GoodByID:     map[string]*Good{},
 		BuildingByID: map[string]*Building{},
+		FieldByType:  map[string]*Building{},
 		NeedsByTier:  map[string][]*Need{},
 		ShipByID:     map[string]*Ship{},
 		QuestByID:    map[string]*Quest{},
@@ -507,6 +517,11 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		b := decodeBuilding(col, ent, rb, cat.GoodByID)
 		cat.Buildings = append(cat.Buildings, b)
 		cat.BuildingByID[b.ID] = b
+		// The first declaration of a field type wins; checkReferences
+		// reports later duplicates.
+		if f := b.Field; f != nil && cat.FieldByType[f.Type] == nil {
+			cat.FieldByType[f.Type] = b
+		}
 	}
 
 	seenNeeds := map[string]bool{}
@@ -689,9 +704,20 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 	}
 	if wa := rb.WorkArea; wa != nil {
 		b.WorkArea = &WorkArea{Radius: wa.Radius, Terrain: wa.Terrain, RequiredTiles: wa.RequiredTiles, Fertility: wa.Fertility}
-		if wa.RequiredTiles < 1 {
+		// A farm with a fields block has no implicit terrain rule: its
+		// work area only bounds its fields (D-049).
+		if rb.Fields == nil && wa.RequiredTiles < 1 {
 			col.add(file, ent, "work_area.required_tiles", "must be >= 1")
 		}
+	}
+	if f := rb.Fields; f != nil {
+		b.Fields = &FarmFields{Type: f.Type, Required: f.Required}
+		if f.Required < 1 {
+			col.add(file, ent, "fields.required", "must be >= 1")
+		}
+	}
+	if f := rb.Field; f != nil {
+		b.Field = &Field{Type: f.Type, Terrain: append([]string(nil), f.Terrain...), Fertility: f.Fertility}
 	}
 	return b
 }

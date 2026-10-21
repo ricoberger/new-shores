@@ -88,9 +88,17 @@ func TestFertility(t *testing.T) {
 	w.Islands[0].Fertilities = []string{"wheat"}
 	mustApply(t, w, c, farm)
 	id := w.NextBuildingID - 1
-	if b := w.Islands[0].Building(id); b == nil || b.Type != "wheat_farm" || b.Efficiency != 1000 {
+	// A farm with fields starts without fields (D-049).
+	if b := w.Islands[0].Building(id); b == nil || b.Type != "wheat_farm" || b.Efficiency != 0 {
 		t.Fatalf("farm = %+v", b)
 	}
+	// Its fields need the fertility too.
+	field := PlaceBuilding{IslandID: "main", Type: "wheat_field", X: 5, Y: 5}
+	mustApply(t, w, c, field)
+	w.Islands[0].Fertilities = []string{"apple"}
+	expectApplyErr(t, w, c, PlaceBuilding{IslandID: "main", Type: "wheat_field", X: 5, Y: 6}, ErrNoFertility)
+	w.Islands[0].Fertilities = []string{"wheat"}
+	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: w.NextBuildingID - 1})
 	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: id, X: 7, Y: 5})
 
 	// Moving applies the same rule; buildings without a fertility are not

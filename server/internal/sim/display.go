@@ -14,7 +14,7 @@ import (
 // Building statuses (MECHANICS §14). A building has one primary status; the
 // precedence is the order of the constants: paused > not_connected >
 // warehouse_full > input_starved > throttled > short_of_workers >
-// low_efficiency > ok.
+// low_efficiency > ok. A field is ok or StatusNoFarm (fields.go).
 const (
 	StatusPaused         = "paused"
 	StatusNotConnected   = "not_connected"
@@ -384,6 +384,19 @@ type BuildingDisplay struct {
 
 	// ShipOrder is set for shipyards: the pending order or null.
 	ShipOrder OptionalShipOrder `json:"ship_order,omitzero"`
+
+	// Fields is set for farms with a fields block (D-049).
+	Fields *FieldsDisplay `json:"fields,omitempty"`
+	// FarmID is set for an assigned field: the ID of its farm (omitted
+	// when the field is unassigned, status no_farm).
+	FarmID *int64 `json:"farm_id,omitempty"`
+}
+
+// FieldsDisplay is the field count of a farm: the fields assigned to it
+// and the number it needs for full efficiency.
+type FieldsDisplay struct {
+	Assigned int `json:"assigned"`
+	Required int `json:"required"`
 }
 
 // perMin converts a sub-milli rate per millisecond to milli-units per minute.
@@ -575,6 +588,7 @@ func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) Island
 	for _, h := range r.houses {
 		houses[h.b.ID] = h
 	}
+	assigned := assignedFields(is, c)
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
 		if def == nil {
@@ -592,6 +606,16 @@ func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) Island
 			bd.Status = StatusPaused
 		case (def.Service != nil || def.Shipyard != nil || houses[b.ID] != nil) && b.AssignedWarehouseID == 0:
 			bd.Status = StatusNotConnected
+		}
+		if def.Fields != nil {
+			bd.Fields = &FieldsDisplay{Assigned: assigned[b.ID], Required: def.Fields.Required}
+		}
+		if def.Field != nil {
+			if b.FarmID != 0 {
+				bd.FarmID = ptr(b.FarmID)
+			} else {
+				bd.Status = StatusNoFarm
+			}
 		}
 		if def.Shipyard != nil {
 			bd.ShipOrder.Present = true

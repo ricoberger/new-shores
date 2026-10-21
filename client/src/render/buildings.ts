@@ -103,7 +103,8 @@ export class BuildingLayer {
     const doors: number[] = [];
     for (const b of buildings) {
       const def = defs.get(b.type);
-      if (!def || def.category === "roads") continue;
+      // Roads and fields (FieldLayer) are flat layers of their own.
+      if (!def || def.category === "roads" || def.field) continue;
       const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
       const m = Matrix.Scaling(w, 1, h).multiply(Matrix.Translation(cx, 0, cz));
       let arr = byType.get(b.type);

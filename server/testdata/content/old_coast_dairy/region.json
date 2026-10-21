@@ -1,0 +1,20 @@
+{
+  "id": "old_coast",
+  "name": "The Old Coast (shared pasture test content)",
+  "version": "old_coast_dairy-test",
+  "rules": {
+    "transfer_base_seconds": 10,
+    "unconnected_buffer_units": 5,
+    "iteration_cap": 10000,
+    "coarse_step_seconds": 60,
+    "growth_per_min": 1,
+    "decline_per_min": 0.5,
+    "growth_satisfaction_threshold": 0.5,
+    "optional_tax_bonus": 0.25,
+    "auto_resume_upkeep_minutes": 5,
+    "ship_handling_seconds": 20,
+    "ship_speed_tiles_per_min": 60,
+    "away_summary_minutes": 15,
+    "trial_resume_upkeep_minutes": 30
+  }
+}

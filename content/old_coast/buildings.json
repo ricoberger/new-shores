@@ -145,7 +145,21 @@
       "outputs": [{ "good": "wool", "amount": 1 }],
       "cycle_seconds": 90
     },
-    "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24 }
+    "work_area": { "radius": 4 },
+    "fields": { "type": "pasture", "required": 16 }
+  },
+  {
+    "id": "pasture",
+    "name": "Pasture",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 0 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "pasture", "terrain": ["grass"] }
   },
   {
     "id": "weaver_wool",
@@ -234,7 +248,21 @@
       "outputs": [{ "good": "wheat", "amount": 1 }],
       "cycle_seconds": 60
     },
-    "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24, "fertility": "wheat" }
+    "work_area": { "radius": 4, "fertility": "wheat" },
+    "fields": { "type": "wheat_field", "required": 16 }
+  },
+  {
+    "id": "wheat_field",
+    "name": "Wheat field",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 0 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "wheat_field", "terrain": ["grass"], "fertility": "wheat" }
   },
   {
     "id": "mill",
@@ -289,7 +317,21 @@
       "outputs": [{ "good": "apples", "amount": 1 }],
       "cycle_seconds": 90
     },
-    "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24, "fertility": "apple" }
+    "work_area": { "radius": 4, "fertility": "apple" },
+    "fields": { "type": "orchard_plot", "required": 16 }
+  },
+  {
+    "id": "orchard_plot",
+    "name": "Orchard plot",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 0 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "orchard_plot", "terrain": ["grass"], "fertility": "apple" }
   },
   {
     "id": "cidery",
@@ -326,7 +368,21 @@
       "outputs": [{ "good": "hemp", "amount": 1 }],
       "cycle_seconds": 60
     },
-    "work_area": { "radius": 4, "terrain": ["grass"], "required_tiles": 24, "fertility": "hemp" }
+    "work_area": { "radius": 4, "fertility": "hemp" },
+    "fields": { "type": "hemp_field", "required": 16 }
+  },
+  {
+    "id": "hemp_field",
+    "name": "Hemp field",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 0 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "hemp_field", "terrain": ["grass"], "fertility": "hemp" }
   },
   {
     "id": "weaver_linen",

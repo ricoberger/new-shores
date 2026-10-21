@@ -717,3 +717,17 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Farm ring labels of the field tool (D-049). */
+.ringLabel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgb(250 247 240 / 88%);
+  color: #2a2a2a;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}

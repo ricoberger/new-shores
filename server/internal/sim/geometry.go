@@ -93,17 +93,14 @@ func buildableTerrain(t string) bool {
 // the building itself) nor a road.
 func workAreaEfficiency(is *Island, occ []int64, def *content.Building, x, y, rotation int) int64 {
 	wa := def.WorkArea
+	if wa.RequiredTiles < 1 {
+		return 0
+	}
 	w, h := footprint(def, rotation)
-	cx2, cy2 := 2*x+w, 2*y+h
-	r2 := 4 * wa.Radius * wa.Radius
 	matching := 0
 	for ty := y - wa.Radius - h; ty <= y+h+wa.Radius; ty++ {
 		for tx := x - wa.Radius - w; tx <= x+w+wa.Radius; tx++ {
-			if !is.InBounds(tx, ty) {
-				continue
-			}
-			dx, dy := 2*tx+1-cx2, 2*ty+1-cy2
-			if dx*dx+dy*dy > r2 {
+			if !is.InBounds(tx, ty) || !inRadius(x, y, w, h, wa.Radius, tx, ty) {
 				continue
 			}
 			if tx >= x && tx < x+w && ty >= y && ty < y+h {
@@ -123,20 +120,22 @@ func workAreaEfficiency(is *Island, occ []int64, def *content.Building, x, y, ro
 }
 
 // recomputeEfficiency updates the efficiency of every work-area building on
-// the island (MECHANICS §2: recomputed when neighbouring tiles change).
+// the island (MECHANICS §2: recomputed when neighbouring tiles change) and
+// the field assignment and efficiency of every farm with fields (D-049).
 func recomputeEfficiency(is *Island, c *content.Catalogue) {
 	occ := is.occupancy(c)
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
-		if def == nil {
-			continue
-		}
-		if def.WorkArea == nil {
+		switch {
+		case def == nil, def.Fields != nil:
+			// Farms with fields: assignFields below.
+		case def.WorkArea == nil:
 			b.Efficiency = 1000
-			continue
+		default:
+			b.Efficiency = workAreaEfficiency(is, occ, def, b.X, b.Y, b.Rotation)
 		}
-		b.Efficiency = workAreaEfficiency(is, occ, def, b.X, b.Y, b.Rotation)
 	}
+	assignFields(is, c)
 }
 
 // BuildingAt returns the building whose footprint covers (x, y), or nil.

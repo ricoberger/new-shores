@@ -32,7 +32,7 @@ export const WAREHOUSE_TILE = { x: 3, y: 2 };
 export const WATER = { x: 0, y: 0 };
 /** Gold of the dev world: start.json (no dev-only bonus since the tier 1–2 balancing pass). */
 export const START_GOLD = 800;
-export const CONTENT_VERSION = "old_coast-0.5.0";
+export const CONTENT_VERSION = "old_coast-0.6.0";
 
 // Shipping (voyage.spec.ts; the Go test TestShippingLayoutFoundsIsland2
 // checks the same layout): a road from below the warehouse down the west
@@ -95,3 +95,19 @@ export const TOUCH_ROAD_TO = { x: 20, y: 19 };
 export const TOUCH_HOUSE_WEBKIT = { x: 22, y: 12 };
 /** Grass with nothing on it (a tap there with a tool positions only). */
 export const TOUCH_EMPTY = { x: 16, y: 16 };
+
+// Fields (D-049, smoke.spec.ts and touch.spec.ts): a sheep farm below the
+// road east of the moved sawmill (x 28..30, y 5..7), its top edge on the
+// road. Its pasture disc (radius 4 around the doubled centre (59, 13))
+// covers exactly 16 free grass tiles of the rectangle (26,7)–(32,9):
+// row 7 x 26, 27, 31, 32; row 8 x 26..32; row 9 x 27..31. (26,9) and
+// (32,9) lie outside the ring (yellow, not sent).
+export const SHEEP_FARM = { x: 28, y: 5, rotation: 0 };
+export const PASTURE_RECT_FROM = { x: 26, y: 7 };
+export const PASTURE_RECT_TO = { x: 32, y: 9 };
+export const PASTURE_RECT_VALID = 16;
+export const PASTURE_RECT_OUTSIDE = 2;
+/** Touch project (Pixel 5): a one-finger pasture drag over (31,5)–(33,6): 5 valid tiles, (33,5) outside the ring. */
+export const TOUCH_PASTURE_FROM = { x: 31, y: 5 };
+export const TOUCH_PASTURE_TO = { x: 33, y: 6 };
+export const TOUCH_PASTURE_VALID = 5;

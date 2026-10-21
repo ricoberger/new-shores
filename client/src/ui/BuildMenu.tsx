@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
+import { buildMenuOrder } from "../display/fields";
 import { perMin, units } from "../display/format";
 import { fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
 import styles from "./hud.module.css";
@@ -42,11 +43,15 @@ interface Props {
 export function BuildMenu({ content, model, islandId, fertilities, tool, onSelect, onDemolishTool, compact = false, singleRow = false }: Props) {
   const [category, setCategory] = useState<ContentBuilding["category"]>("houses");
   if (!content) return null;
-  const listed = content.buildings.filter((b) => listedInBuildMenu(b, content));
+  // Fields are listed right after the farm that accepts them (D-049).
+  const listed = buildMenuOrder(content.buildings).filter((b) => listedInBuildMenu(b, content));
   const present = CATEGORIES.filter((c) => listed.some((b) => b.category === c.id));
+  // The first present category when the chosen one has no buildings.
+  const shown = present.some((c) => c.id === category) ? category : (present[0]?.id ?? category);
   const inventory = model?.islands.find((is) => is.id === islandId)?.inventory ?? {};
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
-  const activeId = tool.kind === "build" ? tool.buildingType : tool.kind === "road" ? tool.roadType : null;
+  const activeId =
+    tool.kind === "build" ? tool.buildingType : tool.kind === "road" ? tool.roadType : tool.kind === "field" ? tool.fieldType : null;
 
   return (
     <div
@@ -58,8 +63,8 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
           <button
             key={c.id}
             type="button"
-            aria-pressed={c.id === category}
-            className={`${styles.tab} ${c.id === category ? styles.tabActive : ""}`}
+            aria-pressed={c.id === shown}
+            className={`${styles.tab} ${c.id === shown ? styles.tabActive : ""}`}
             onClick={() => setCategory(c.id)}
             data-testid={`build-tab-${c.id}`}
           >
@@ -78,7 +83,7 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
       </div>
       <div className={styles.items}>
         {listed
-          .filter((b) => b.category === category)
+          .filter((b) => b.category === shown)
           .map((b) => {
             const locked = !tierUnlocked(model, b.tier);
             const fertility = fertilityNeed(b, fertilities);

@@ -36,7 +36,7 @@ func TestLoadOldCoast(t *testing.T) {
 	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.GrowthThreshold != 500_000 || rules.OptionalTaxBonus != 250_000 || rules.AutoResumeMs != 300_000 {
 		t.Errorf("rules = %+v", rules)
 	}
-	if rules.ShipHandlingMs != 20_000 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 || rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.5.0" {
+	if rules.ShipHandlingMs != 20_000 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 || rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.6.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 
@@ -57,9 +57,9 @@ func TestLoadOldCoast(t *testing.T) {
 		ids = append(ids, b.ID)
 	}
 	wantIDs("buildings", ids, "house_settlers", "road_dirt", "warehouse", "market_small", "chapel",
-		"lumberjack", "sawmill", "fisher", "sheep_farm", "weaver_wool", "shipyard",
-		"house_citizens", "road_paved", "tavern", "wheat_farm", "mill", "bakery", "orchard", "cidery", "hemp_farm",
-		"weaver_linen", "sailmaker", "quarry", "iron_mine", "charcoal_burner", "smelter", "toolmaker")
+		"lumberjack", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
+		"house_citizens", "road_paved", "tavern", "wheat_farm", "wheat_field", "mill", "bakery", "orchard", "orchard_plot",
+		"cidery", "hemp_farm", "hemp_field", "weaver_linen", "sailmaker", "quarry", "iron_mine", "charcoal_burner", "smelter", "toolmaker")
 	ids = nil
 	for _, tr := range c.Tiers {
 		ids = append(ids, tr.ID)
@@ -595,8 +595,10 @@ func TestParseFixed(t *testing.T) {
 // simulation tests against the shipped schemas (R32).
 func TestLoadTestContent(t *testing.T) {
 	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
-	if _, err := LoadWithSchemas(filepath.Join(repoRoot(t), "server", "testdata", "content", "old_coast_variety"), schemaDir); err != nil {
-		t.Fatal(err)
+	for _, dir := range []string{"old_coast_variety", "old_coast_dairy"} {
+		if _, err := LoadWithSchemas(filepath.Join(repoRoot(t), "server", "testdata", "content", dir), schemaDir); err != nil {
+			t.Fatalf("%s: %v", dir, err)
+		}
 	}
 }
 

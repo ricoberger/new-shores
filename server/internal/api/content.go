@@ -159,11 +159,24 @@ type serviceJSON struct {
 	Radius int `json:"radius"`
 }
 
+// workAreaJSON is a work area; Terrain and RequiredTiles are omitted for a
+// farm with fields (D-049), whose work area only bounds its fields.
 type workAreaJSON struct {
 	Radius        int      `json:"radius"`
-	Terrain       []string `json:"terrain"`
-	RequiredTiles int      `json:"required_tiles"`
+	Terrain       []string `json:"terrain,omitempty"`
+	RequiredTiles int      `json:"required_tiles,omitempty"`
 	Fertility     string   `json:"fertility,omitempty"`
+}
+
+type farmFieldsJSON struct {
+	Type     string `json:"type"`
+	Required int    `json:"required"`
+}
+
+type fieldJSON struct {
+	Type      string   `json:"type"`
+	Terrain   []string `json:"terrain"`
+	Fertility string   `json:"fertility,omitempty"`
 }
 
 type workforceJSON struct {
@@ -191,6 +204,8 @@ type buildingJSON struct {
 	WorkArea      *workAreaJSON    `json:"work_area,omitempty"`
 	Workforce     *workforceJSON   `json:"workforce,omitempty"`
 	Shipyard      *shipyardJSONOut `json:"shipyard,omitempty"`
+	Fields        *farmFieldsJSON  `json:"fields,omitempty"`
+	Field         *fieldJSON       `json:"field,omitempty"`
 	// RequiresDeposit is the deposit kind the footprint must cover.
 	RequiresDeposit string `json:"requires_deposit,omitempty"`
 }
@@ -219,7 +234,8 @@ func buildingCategory(b *content.Building) string {
 	switch {
 	case b.House != nil:
 		return categoryHouses
-	case b.Recipe != nil:
+	case b.Recipe != nil, b.Field != nil:
+		// Fields sit next to the farms that accept them (D-049).
 		return categoryProduction
 	case b.Service != nil:
 		return categoryPublic
@@ -347,7 +363,16 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		bj.Service = &serviceJSON{Radius: s.Radius}
 	}
 	if wa := b.WorkArea; wa != nil {
-		bj.WorkArea = &workAreaJSON{Radius: wa.Radius, Terrain: append([]string{}, wa.Terrain...), RequiredTiles: wa.RequiredTiles, Fertility: wa.Fertility}
+		bj.WorkArea = &workAreaJSON{Radius: wa.Radius, RequiredTiles: wa.RequiredTiles, Fertility: wa.Fertility}
+		if b.Fields == nil {
+			bj.WorkArea.Terrain = append([]string{}, wa.Terrain...)
+		}
+	}
+	if f := b.Fields; f != nil {
+		bj.Fields = &farmFieldsJSON{Type: f.Type, Required: f.Required}
+	}
+	if f := b.Field; f != nil {
+		bj.Field = &fieldJSON{Type: f.Type, Terrain: append([]string{}, f.Terrain...), Fertility: f.Fertility}
 	}
 	if wf := b.Workforce; wf != nil {
 		bj.Workforce = &workforceJSON{Tier: wf.Tier, Amount: wf.Amount}

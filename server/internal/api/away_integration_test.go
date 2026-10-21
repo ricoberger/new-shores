@@ -106,7 +106,7 @@ func storedWorld(t *testing.T, st *postgres.Store, id store.WorldID) *sim.World 
 func TestAwaySummaryAcrossWorkerEvent(t *testing.T) {
 	_, pool := testenv.Database(t)
 	c := catalogue(t)
-	st := postgres.New(pool, c.Region.Version, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	st := postgres.New(pool, c, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	t0 := dbNow(t, st).Add(-12 * time.Hour).Truncate(time.Millisecond)
 
 	// The player's last commands at T0: a plank chain on the dev island.
@@ -193,7 +193,7 @@ func TestAwaySummaryAcrossWorkerEvent(t *testing.T) {
 func TestAwaySummaryTwoInstances(t *testing.T) {
 	_, pool := testenv.Database(t)
 	c := catalogue(t)
-	st := postgres.New(pool, c.Region.Version, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	st := postgres.New(pool, c, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	_, id := testenv.NewWorld(t, st, time.Hour)
 	a, b := newPGInstance(t, st, id), newPGInstance(t, st, id)
 

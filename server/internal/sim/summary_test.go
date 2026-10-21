@@ -217,7 +217,7 @@ func TestAwaySummaryListsEveryArrival(t *testing.T) {
 		}
 	}
 	// Survives the envelope.
-	again, _, err := Decode(encode(t, w))
+	again, _, _, err := Decode(encode(t, w), nil)
 	if err != nil || len(ProduceSummary(again, c).Arrivals) != len(want) {
 		t.Fatalf("after decode: %v", err)
 	}

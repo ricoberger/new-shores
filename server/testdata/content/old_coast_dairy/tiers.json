@@ -1,0 +1,22 @@
+[
+  {
+    "id": "settlers",
+    "name": "Settlers",
+    "residents": { "floor": 2, "max": 8 },
+    "tax_per_resident_per_min": 0.2,
+    "house": "house_settlers",
+    "unlock": { "population": {}, "buildings": [], "goods_delivered": [] }
+  },
+  {
+    "id": "citizens",
+    "name": "Citizens",
+    "residents": { "floor": 5, "max": 15 },
+    "tax_per_resident_per_min": 0.48,
+    "house": "house_citizens",
+    "unlock": {
+      "population": { "settlers": 120 },
+      "buildings": ["market_small", "chapel"],
+      "goods_delivered": []
+    }
+  }
+]

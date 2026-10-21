@@ -3,8 +3,6 @@ package sim
 import (
 	"fmt"
 	"math"
-	"slices"
-	"strings"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
@@ -130,6 +128,10 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 		err = demolish(w, c, cmd, l)
 	case DemolishRoad:
 		err = demolishRoad(w, c, cmd, l)
+	case PlaceFields:
+		err = placeFields(w, c, cmd, l)
+	case DemolishFields:
+		err = demolishFields(w, c, cmd, l)
 	case SetPaused:
 		err = setPaused(w, c, cmd)
 	case UpgradeHouse:
@@ -359,9 +361,14 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 // mountain tiles) and free (per occ and roads); a coastal building touches
 // the coast; a deposit building covers at least one tile with a deposit of
 // its kind; the island has the fertility of a work-area building; and,
-// with workArea set, a work-area building has efficiency > 0. A road is
-// never required (D-042).
+// with workArea set, a work-area building without a fields block has
+// efficiency > 0 (a farm with fields starts at 0 fields, D-049). A field
+// is validated by the field rule (fields.go). A road is never required
+// (D-042).
 func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Building, x, y, rotation int, workArea bool) error {
+	if def.Field != nil {
+		return checkFieldTile(is, occ, def, acceptingFarms(is, c, def.Field.Type), x, y)
+	}
 	fw, fh := footprint(def, rotation)
 	// Overflow-safe bounds check of the whole footprint before any tile
 	// arithmetic: x+fw could wrap for extreme anchors.
@@ -401,14 +408,12 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 			return fmt.Errorf("%w: %s at (%d,%d) must cover a %s deposit", ErrNoDeposit, def.ID, x, y, kind)
 		}
 	}
-	if wa := def.WorkArea; wa != nil && wa.Fertility != "" && !slices.Contains(is.Fertilities, wa.Fertility) {
-		have := "none"
-		if len(is.Fertilities) > 0 {
-			have = strings.Join(is.Fertilities, ", ")
+	if wa := def.WorkArea; wa != nil {
+		if err := checkFertility(is, def.ID, wa.Fertility); err != nil {
+			return err
 		}
-		return fmt.Errorf("%w: %s needs %s (island %q has %s)", ErrNoFertility, def.ID, wa.Fertility, is.ID, have)
 	}
-	if workArea && def.WorkArea != nil && workAreaEfficiency(is, occ, def, x, y, rotation) == 0 {
+	if workArea && def.WorkArea != nil && def.Fields == nil && workAreaEfficiency(is, occ, def, x, y, rotation) == 0 {
 		return fmt.Errorf("%w: %s at (%d,%d)", ErrNoWorkArea, def.ID, x, y)
 	}
 	return nil

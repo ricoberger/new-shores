@@ -133,6 +133,27 @@ type MoveStep struct {
 	Rotation int    `json:"rotation"`
 }
 
+// FieldsStep places fields of the field building Type (sim.PlaceFields,
+// D-049). Exactly one of Rect and Tiles is set. Rect [x0, y0, x1, y1] is a
+// rectangle with inclusive corners in any order: the step places a field on
+// every tile of it, in row-major order, that is a valid field site at that
+// moment (sim.ValidFieldTiles, the rule the client's rectangle drag
+// mirrors) and fails when no tile is valid. Tiles ([x, y] pairs) are sent
+// verbatim.
+type FieldsStep struct {
+	Island string   `json:"island,omitempty"`
+	Type   string   `json:"type"`
+	Rect   *[4]int  `json:"rect,omitempty"`
+	Tiles  [][2]int `json:"tiles,omitempty"`
+}
+
+// DemolishFieldsStep demolishes the fields on Tiles ([x, y] pairs,
+// sim.DemolishFields).
+type DemolishFieldsStep struct {
+	Island string   `json:"island,omitempty"`
+	Tiles  [][2]int `json:"tiles"`
+}
+
 // StockGrant adds Amount units of Good to the island (fails above capacity).
 type StockGrant struct {
 	Island string      `json:"island,omitempty"`
@@ -228,17 +249,20 @@ type Step struct {
 	// produce one.
 	AwaySummary bool `json:"away_summary,omitempty"`
 
-	Place      *Placement   `json:"place,omitempty"`
-	PlaceGrid  *Grid        `json:"place_grid,omitempty"`
-	Road       *Road        `json:"road,omitempty"`
-	Demolish   *At          `json:"demolish,omitempty"`
-	DemolishRd *Road        `json:"demolish_road,omitempty"`
-	Pause      *At          `json:"pause,omitempty"`
-	Resume     *At          `json:"resume,omitempty"`
-	Upgrade    *At          `json:"upgrade,omitempty"`
-	Move       *MoveStep    `json:"move,omitempty"`
-	Stock      *StockGrant  `json:"stock,omitempty"`
-	Advance    *AdvanceStep `json:"advance,omitempty"`
+	Place      *Placement  `json:"place,omitempty"`
+	PlaceGrid  *Grid       `json:"place_grid,omitempty"`
+	Road       *Road       `json:"road,omitempty"`
+	Demolish   *At         `json:"demolish,omitempty"`
+	DemolishRd *Road       `json:"demolish_road,omitempty"`
+	Pause      *At         `json:"pause,omitempty"`
+	Resume     *At         `json:"resume,omitempty"`
+	Upgrade    *At         `json:"upgrade,omitempty"`
+	Move       *MoveStep   `json:"move,omitempty"`
+	Fields     *FieldsStep `json:"fields,omitempty"`
+	// DemolishFields removes fields (sim.DemolishFields).
+	DemolishFields *DemolishFieldsStep `json:"demolish_fields,omitempty"`
+	Stock          *StockGrant         `json:"stock,omitempty"`
+	Advance        *AdvanceStep        `json:"advance,omitempty"`
 }
 
 func (s Step) kind() (string, error) {
@@ -246,7 +270,7 @@ func (s Step) kind() (string, error) {
 	for name, set := range map[string]bool{
 		"place": s.Place != nil, "place_grid": s.PlaceGrid != nil, "road": s.Road != nil,
 		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "pause": s.Pause != nil,
-		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "move": s.Move != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
+		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "move": s.Move != nil, "fields": s.Fields != nil, "demolish_fields": s.DemolishFields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
 		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "found_island": s.FoundIsland != nil,
@@ -675,6 +699,14 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		return r.apply(sim.MoveBuilding{IslandID: id, BuildingID: b.ID, X: m.ToX, Y: m.ToY, Rotation: m.Rotation})
+	case st.Fields != nil:
+		return r.fields(st.Fields)
+	case st.DemolishFields != nil:
+		var tiles []sim.Pos
+		for _, t := range st.DemolishFields.Tiles {
+			tiles = append(tiles, sim.Pos{X: t[0], Y: t[1]})
+		}
+		return r.apply(sim.DemolishFields{IslandID: r.islandID(st.DemolishFields.Island), Tiles: tiles})
 	case st.Stock != nil:
 		qty, err := parseUnits(st.Stock.Amount)
 		if err != nil {
@@ -767,6 +799,43 @@ func (r *runner) step(i int, st Step) error {
 	return errors.New("empty step")
 }
 
+// fields places the fields of a fields step.
+func (r *runner) fields(f *FieldsStep) error {
+	id := r.islandID(f.Island)
+	is := r.w.Island(id)
+	if is == nil {
+		return fmt.Errorf("%w: %q", sim.ErrUnknownIsland, id)
+	}
+	var tiles []sim.Pos
+	switch {
+	case (f.Rect == nil) == (len(f.Tiles) == 0):
+		return errors.New("fields: set exactly one of rect and tiles")
+	case f.Rect != nil:
+		x0, y0, x1, y1 := f.Rect[0], f.Rect[1], f.Rect[2], f.Rect[3]
+		if x0 > x1 {
+			x0, x1 = x1, x0
+		}
+		if y0 > y1 {
+			y0, y1 = y1, y0
+		}
+		var rect []sim.Pos
+		for y := y0; y <= y1; y++ {
+			for x := x0; x <= x1; x++ {
+				rect = append(rect, sim.Pos{X: x, Y: y})
+			}
+		}
+		tiles = sim.ValidFieldTiles(is, r.c, f.Type, rect)
+		if len(tiles) == 0 {
+			return fmt.Errorf("fields: no valid %s tile in rect %v", f.Type, *f.Rect)
+		}
+	default:
+		for _, t := range f.Tiles {
+			tiles = append(tiles, sim.Pos{X: t[0], Y: t[1]})
+		}
+	}
+	return r.apply(sim.PlaceFields{IslandID: id, Type: f.Type, Tiles: tiles})
+}
+
 // expectError runs a step that must fail with the sentinel named by
 // st.ExpectError and must leave the encoded world unchanged; the failure is
 // recorded in the report. Advance steps cannot be expected to fail.
@@ -825,6 +894,8 @@ func Sentinels() map[string]error {
 		"last_warehouse": sim.ErrLastWarehouse, "not_connected": sim.ErrNotConnected,
 		"quest_not_found": sim.ErrQuestNotFound, "quest_not_completed": sim.ErrQuestNotCompleted,
 		"quest_already_claimed": sim.ErrQuestAlreadyClaimed,
+		"no_farm_in_range":      sim.ErrNoFarmInRange, "field_type_mismatch": sim.ErrFieldTypeMismatch,
+		"not_a_field": sim.ErrNotAField,
 	}
 }
 

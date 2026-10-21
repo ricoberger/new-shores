@@ -286,7 +286,7 @@ func TestMultiInstance(t *testing.T) {
 
 	// Shared event queue: 200 test_credit events over 10 worlds, drained
 	// by both instances.
-	st := postgres.New(pool, testenv.Catalogue(t).Region.Version, slog.New(slog.DiscardHandler))
+	st := postgres.New(pool, testenv.Catalogue(t), slog.New(slog.DiscardHandler))
 	type guest struct {
 		token string
 		world store.WorldID

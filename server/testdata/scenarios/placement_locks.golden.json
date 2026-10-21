@@ -1,6 +1,6 @@
 {
   "name": "placement_locks",
-  "content_version": "old_coast-0.5.0",
+  "content_version": "old_coast-0.6.0",
   "boundary_count": 95,
   "totals": {
     "island2": {
@@ -65,7 +65,7 @@
   "bottlenecks": [
     {
       "island_id": "island2",
-      "building_id": 23,
+      "building_id": 39,
       "type": "hemp_farm",
       "status": "not_connected",
       "reason": "No road to a warehouse"
@@ -94,7 +94,32 @@
       "message": "terrain not buildable: (17,8) is mountain"
     },
     {
-      "step": 34,
+      "step": 29,
+      "error": "no_farm_in_range",
+      "message": "no farm accepting the field in range: wheat_field at (36,10)"
+    },
+    {
+      "step": 30,
+      "error": "terrain",
+      "message": "terrain not buildable: wheat_field at (22,8) cannot stand on mountain"
+    },
+    {
+      "step": 31,
+      "error": "occupied",
+      "message": "tile occupied: (24,4)"
+    },
+    {
+      "step": 32,
+      "error": "field_type_mismatch",
+      "message": "building type is not a field: \"wheat_farm\" is not a field"
+    },
+    {
+      "step": 33,
+      "error": "not_a_field",
+      "message": "building is not a field: wheat_farm 20 at (25,6)"
+    },
+    {
+      "step": 40,
       "error": "no_fertility",
       "message": "island lacks fertility: wheat_farm needs wheat (island \"island2\" has hemp)"
     }
@@ -141,7 +166,7 @@
       ]
     },
     {
-      "step": 30,
+      "step": 36,
       "at": "2026-01-01T00:12:00.000Z",
       "boundaries": 3,
       "inventory": {
@@ -190,7 +215,7 @@
       ]
     },
     {
-      "step": 32,
+      "step": 38,
       "at": "2026-01-01T00:15:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -243,7 +268,7 @@
       ]
     },
     {
-      "step": 36,
+      "step": 43,
       "at": "2026-01-01T00:16:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -1679,10 +1704,222 @@
             "workforce": {
               "tier": "settlers",
               "required": 6000
+            },
+            "fields": {
+              "assigned": 16,
+              "required": 16
             }
           },
           {
             "id": 21,
+            "type": "wheat_field",
+            "x": 23,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 22,
+            "type": "wheat_field",
+            "x": 27,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 23,
+            "type": "wheat_field",
+            "x": 23,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 24,
+            "type": "wheat_field",
+            "x": 27,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 25,
+            "type": "wheat_field",
+            "x": 23,
+            "y": 7,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 26,
+            "type": "wheat_field",
+            "x": 27,
+            "y": 7,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 27,
+            "type": "wheat_field",
+            "x": 23,
+            "y": 8,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 28,
+            "type": "wheat_field",
+            "x": 24,
+            "y": 8,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 29,
+            "type": "wheat_field",
+            "x": 25,
+            "y": 8,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 30,
+            "type": "wheat_field",
+            "x": 26,
+            "y": 8,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 31,
+            "type": "wheat_field",
+            "x": 27,
+            "y": 8,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 32,
+            "type": "wheat_field",
+            "x": 23,
+            "y": 9,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 33,
+            "type": "wheat_field",
+            "x": 24,
+            "y": 9,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 34,
+            "type": "wheat_field",
+            "x": 25,
+            "y": 9,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 35,
+            "type": "wheat_field",
+            "x": 26,
+            "y": 9,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 36,
+            "type": "wheat_field",
+            "x": 27,
+            "y": 9,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 20
+          },
+          {
+            "id": 37,
             "type": "shipyard",
             "x": 30,
             "y": 9,
@@ -1829,7 +2066,7 @@
         "roads": [],
         "buildings": [
           {
-            "id": 22,
+            "id": 38,
             "type": "warehouse",
             "x": 1,
             "y": 1,
@@ -1845,7 +2082,7 @@
             "load_permille": 0
           },
           {
-            "id": 23,
+            "id": 39,
             "type": "hemp_farm",
             "x": 15,
             "y": 6,
@@ -1853,7 +2090,7 @@
             "paused": false,
             "paused_reason": "",
             "status": "not_connected",
-            "efficiency_permille": 833,
+            "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
@@ -1876,7 +2113,219 @@
             "workforce": {
               "tier": "settlers",
               "required": 6000
+            },
+            "fields": {
+              "assigned": 16,
+              "required": 16
             }
+          },
+          {
+            "id": 40,
+            "type": "hemp_field",
+            "x": 14,
+            "y": 4,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 41,
+            "type": "hemp_field",
+            "x": 15,
+            "y": 4,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 42,
+            "type": "hemp_field",
+            "x": 16,
+            "y": 4,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 43,
+            "type": "hemp_field",
+            "x": 17,
+            "y": 4,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 44,
+            "type": "hemp_field",
+            "x": 18,
+            "y": 4,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 45,
+            "type": "hemp_field",
+            "x": 14,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 46,
+            "type": "hemp_field",
+            "x": 15,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 47,
+            "type": "hemp_field",
+            "x": 16,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 48,
+            "type": "hemp_field",
+            "x": 17,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 49,
+            "type": "hemp_field",
+            "x": 18,
+            "y": 5,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 50,
+            "type": "hemp_field",
+            "x": 14,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 51,
+            "type": "hemp_field",
+            "x": 18,
+            "y": 6,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 52,
+            "type": "hemp_field",
+            "x": 14,
+            "y": 7,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 53,
+            "type": "hemp_field",
+            "x": 18,
+            "y": 7,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 54,
+            "type": "hemp_field",
+            "x": 14,
+            "y": 8,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
+          },
+          {
+            "id": 55,
+            "type": "hemp_field",
+            "x": 18,
+            "y": 8,
+            "rotation": 0,
+            "paused": false,
+            "paused_reason": "",
+            "status": "ok",
+            "efficiency_permille": 1000,
+            "throughput_factor_permille": 1000,
+            "farm_id": 39
           }
         ],
         "workforce": {

@@ -38,3 +38,9 @@ export const GHOST_NO_ROAD = Color3.FromHexString("#F0C808");
  */
 export const GHOST_INVALID = Color3.FromHexString("#D7263D");
 export const SELECTION = Color3.FromHexString("#FFD23F");
+/** Field tool preview: a tile the drag will send (D-049). */
+export const FIELD_VALID = Color3.FromHexString("#3BB273");
+/** Field tool preview: a free matching tile outside every accepting farm's ring (shown, not sent). */
+export const FIELD_OUT_OF_RANGE = Color3.FromHexString("#F0C808");
+/** Work-radius ring of a farm with fields. */
+export const FIELD_RING = Color3.FromHexString("#FFF4D6");

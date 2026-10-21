@@ -298,11 +298,33 @@
       }
     },
     {
+      "fields": {
+        "type": "wheat_field",
+        "rect": [
+          3,
+          13,
+          7,
+          17
+        ]
+      }
+    },
+    {
       "place": {
         "type": "wheat_farm",
         "x": 10,
         "y": 13,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "type": "wheat_field",
+        "rect": [
+          9,
+          13,
+          13,
+          17
+        ]
       }
     },
     {
@@ -314,11 +336,33 @@
       }
     },
     {
+      "fields": {
+        "type": "wheat_field",
+        "rect": [
+          15,
+          13,
+          19,
+          17
+        ]
+      }
+    },
+    {
       "place": {
         "type": "wheat_farm",
         "x": 22,
         "y": 13,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "type": "wheat_field",
+        "rect": [
+          21,
+          13,
+          25,
+          17
+        ]
       }
     },
     {
@@ -330,11 +374,33 @@
       }
     },
     {
+      "fields": {
+        "type": "orchard_plot",
+        "rect": [
+          27,
+          13,
+          31,
+          17
+        ]
+      }
+    },
+    {
       "place": {
         "type": "orchard",
         "x": 34,
         "y": 13,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "type": "orchard_plot",
+        "rect": [
+          33,
+          13,
+          37,
+          17
+        ]
       }
     },
     {
@@ -346,11 +412,33 @@
       }
     },
     {
+      "fields": {
+        "type": "orchard_plot",
+        "rect": [
+          39,
+          13,
+          43,
+          17
+        ]
+      }
+    },
+    {
       "place": {
         "type": "orchard",
         "x": 46,
         "y": 13,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "type": "orchard_plot",
+        "rect": [
+          45,
+          13,
+          49,
+          17
+        ]
       }
     },
     {
@@ -362,11 +450,33 @@
       }
     },
     {
+      "fields": {
+        "type": "hemp_field",
+        "rect": [
+          51,
+          13,
+          55,
+          17
+        ]
+      }
+    },
+    {
       "place": {
         "type": "hemp_farm",
         "x": 58,
         "y": 13,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "type": "hemp_field",
+        "rect": [
+          57,
+          13,
+          61,
+          17
+        ]
       }
     },
     {
@@ -569,6 +679,17 @@
       }
     },
     {
+      "fields": {
+        "type": "pasture",
+        "rect": [
+          32,
+          23,
+          38,
+          25
+        ]
+      }
+    },
+    {
       "place": {
         "type": "weaver_wool",
         "x": 50,
@@ -585,6 +706,17 @@
       }
     },
     {
+      "fields": {
+        "type": "pasture",
+        "rect": [
+          40,
+          23,
+          46,
+          25
+        ]
+      }
+    },
+    {
       "place": {
         "type": "weaver_wool",
         "x": 53,
@@ -598,6 +730,17 @@
         "x": 50,
         "y": 21,
         "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "type": "pasture",
+        "rect": [
+          48,
+          23,
+          54,
+          25
+        ]
       }
     },
     {
