@@ -43,3 +43,30 @@ export function minimapSize(bounds: Rect, viewportW: number, viewportH: number, 
   if (w >= h) return { width: side, height: Math.max(24, Math.round((side * h) / w)) };
   return { width: Math.max(24, Math.round((side * w) / h)), height: side };
 }
+
+interface IslandShape {
+  id: string;
+  position: { x: number; y: number };
+  width: number;
+  height: number;
+  settled: boolean;
+}
+
+/**
+ * Key of what the minimap's cached land layer shows: the islands' IDs,
+ * positions, sizes and settlement. Display numbers (stocks, population)
+ * change every model update and are not part of it.
+ */
+export function minimapLandKey(islands: readonly IslandShape[]): string {
+  return islands.map((is) => `${is.id}:${is.position.x},${is.position.y},${is.width},${is.height},${is.settled ? 1 : 0}`).join("|");
+}
+
+/** Bounding box of the islands (archipelago tiles), null without islands. */
+export function islandsBounds(islands: readonly Omit<IslandShape, "id" | "settled">[]): Rect | null {
+  let b: Rect | null = null;
+  for (const is of islands) {
+    const r = { minX: is.position.x, minY: is.position.y, maxX: is.position.x + is.width, maxY: is.position.y + is.height };
+    b = b ? { minX: Math.min(b.minX, r.minX), minY: Math.min(b.minY, r.minY), maxX: Math.max(b.maxX, r.maxX), maxY: Math.max(b.maxY, r.maxY) } : r;
+  }
+  return b;
+}

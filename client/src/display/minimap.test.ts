@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { groundFootprint } from "./camera";
-import { fromMinimap, MINIMAP_MARGIN, minimapProjection, minimapSize, toMinimap } from "./minimap";
+import { fromMinimap, islandsBounds, MINIMAP_MARGIN, minimapLandKey, minimapProjection, minimapSize, toMinimap } from "./minimap";
 
 const BOUNDS = { minX: 0, minY: 0, maxX: 200, maxY: 100 };
 
@@ -53,5 +53,29 @@ describe("minimap projection", () => {
     const tall = minimapSize({ minX: 0, minY: 0, maxX: 50, maxY: 300 }, 1280, 800);
     expect(tall.height).toBe(180);
     expect(tall.width).toBeLessThan(180);
+  });
+});
+
+describe("minimap land cache key", () => {
+  const islands = [
+    { id: "a", position: { x: 0, y: 0 }, width: 40, height: 30, settled: true, inventory: { fish: { stock: 1 } } },
+    { id: "b", position: { x: 80, y: 60 }, width: 20, height: 10, settled: false, inventory: {} },
+  ];
+
+  it("ignores display numbers (an extrapolated model update keeps the key)", () => {
+    const next = islands.map((is) => ({ ...is, inventory: { fish: { stock: 999 } } }));
+    expect(minimapLandKey(next)).toBe(minimapLandKey(islands));
+  });
+
+  it("changes with geometry and settlement", () => {
+    const key = minimapLandKey(islands);
+    expect(minimapLandKey([islands[0]!, { ...islands[1]!, settled: true }])).not.toBe(key);
+    expect(minimapLandKey([islands[0]!, { ...islands[1]!, position: { x: 81, y: 60 } }])).not.toBe(key);
+    expect(minimapLandKey([islands[0]!])).not.toBe(key);
+  });
+
+  it("islandsBounds spans every island", () => {
+    expect(islandsBounds(islands)).toEqual({ minX: 0, minY: 0, maxX: 100, maxY: 70 });
+    expect(islandsBounds([])).toBeNull();
   });
 });

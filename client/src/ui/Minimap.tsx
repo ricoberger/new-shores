@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { DisplayState, Island } from "../api/client";
 import type { Rect } from "../display/camera";
-import { islandRect } from "../display/frustum";
-import { fromMinimap, minimapProjection, minimapSize, toMinimap } from "../display/minimap";
+import { fromMinimap, islandsBounds, minimapLandKey, minimapProjection, minimapSize, toMinimap } from "../display/minimap";
 import type { GameRenderer } from "../render/engine";
 import styles from "./hud.module.css";
 
@@ -35,23 +34,22 @@ const VIEW = "#ffd23f";
  */
 export function Minimap({ renderer, model, statics, viewport, collapsible, initiallyCollapsed }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [collapsed, setCollapsed] = useState(initiallyCollapsed);
+  const [collapsedState, setCollapsed] = useState(initiallyCollapsed);
+  // Only phone layouts can collapse it: on a larger layout (e.g. after a
+  // resize or rotation) the minimap shows, whatever the phone state was.
+  const collapsed = collapsible && collapsedState;
   const islands = model.islands;
-  const bounds = useMemo<Rect | null>(() => {
-    let b: Rect | null = null;
-    for (const is of islands) {
-      const r = islandRect(is);
-      b = b ? { minX: Math.min(b.minX, r.minX), minY: Math.min(b.minY, r.minY), maxX: Math.max(b.maxX, r.maxX), maxY: Math.max(b.maxY, r.maxY) } : r;
-    }
-    return b;
-  }, [islands]);
+  // The land layer and the bounds are keyed by geometry and settlement
+  // (and static data), not by the model object that every extrapolated
+  // update replaces.
+  const landKey = minimapLandKey(islands);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- landKey stands for the islands' geometry
+  const bounds = useMemo<Rect | null>(() => islandsBounds(islands), [landKey]);
   const size = bounds ? minimapSize(bounds, viewport.width, viewport.height) : { width: 0, height: 0 };
-  // Land is keyed by geometry, settlement and static data, not by every payload.
-  const landKey = islands.map((is) => `${is.id}:${is.position.x},${is.position.y},${is.width},${is.height},${is.settled}`).join("|");
 
-  // The cached land layer (an offscreen canvas at device resolution).
+  // The cached land layer (an offscreen canvas at device resolution), drawn while the minimap shows.
   const land = useMemo(() => {
-    if (!bounds || size.width === 0 || typeof document === "undefined") return null;
+    if (collapsed || !bounds || size.width === 0 || typeof document === "undefined") return null;
     const dpr = Math.min(2, globalThis.devicePixelRatio || 1);
     const c = document.createElement("canvas");
     c.width = Math.round(size.width * dpr);
@@ -80,7 +78,7 @@ export function Minimap({ renderer, model, statics, viewport, collapsible, initi
     }
     return { canvas: c, dpr };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- landKey stands for the islands' geometry and settlement
-  }, [landKey, statics, bounds, size.width, size.height]);
+  }, [landKey, statics, bounds, size.width, size.height, collapsed]);
 
   useEffect(() => {
     const el = canvas.current;
