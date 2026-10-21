@@ -157,8 +157,9 @@ export class GestureRecognizer {
         if (dist(p, ptr.start) > threshold) {
           this.mode = "drag";
           this.longPressAt = null;
+          // The first move covers the slop too, so the content follows the finger exactly.
           this.emit({ type: "dragStart", start: ptr.start, button: ptr.button, kind: ptr.kind });
-          this.emit({ type: "dragMove", prev: ptr.last, cur: p, button: ptr.button, kind: ptr.kind });
+          this.emit({ type: "dragMove", prev: ptr.start, cur: p, button: ptr.button, kind: ptr.kind });
         }
         ptr.last = p;
         return;

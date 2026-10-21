@@ -40,7 +40,8 @@ describe("one pointer", () => {
     expect(types()).toEqual(["dragStart", "dragMove", "dragMove", "dragEnd"]);
     expect(events.find((e) => e.type === "dragStart")).toEqual({ type: "dragStart", start: pt(0, 0), button: 2, kind: "mouse" });
     const moves = events.filter((e) => e.type === "dragMove");
-    expect(moves[0]).toMatchObject({ prev: pt(3, 0), cur: pt(DRAG_THRESHOLD_PX + 1, 0) });
+    // The first move starts at the press point (no movement is lost to the threshold).
+    expect(moves[0]).toMatchObject({ prev: pt(0, 0), cur: pt(DRAG_THRESHOLD_PX + 1, 0) });
     expect(moves[1]).toMatchObject({ prev: pt(DRAG_THRESHOLD_PX + 1, 0), cur: pt(20, 0) });
   });
 
