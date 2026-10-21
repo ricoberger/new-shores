@@ -1,0 +1,65 @@
+import { describe, expect, it } from "vitest";
+import { groundFootprint } from "./camera";
+import { islandRect, rectIntersectsQuad, visibleIslands } from "./frustum";
+
+const square = (x0: number, y0: number, s: number) => [
+  { x: x0, y: y0 },
+  { x: x0 + s, y: y0 },
+  { x: x0 + s, y: y0 + s },
+  { x: x0, y: y0 + s },
+];
+
+describe("rectIntersectsQuad", () => {
+  it("axis-aligned overlap, touching and separation", () => {
+    const r = { minX: 0, minY: 0, maxX: 10, maxY: 10 };
+    expect(rectIntersectsQuad(r, square(5, 5, 10))).toBe(true);
+    expect(rectIntersectsQuad(r, square(10, 0, 5))).toBe(true); // touching edge
+    expect(rectIntersectsQuad(r, square(11, 0, 5))).toBe(false);
+    expect(rectIntersectsQuad(r, square(2, 2, 3))).toBe(true); // inside
+    expect(rectIntersectsQuad(r, square(-20, -20, 60))).toBe(true); // contains
+    expect(rectIntersectsQuad(r, [])).toBe(false);
+  });
+
+  it("a rotated quad whose bounding box overlaps the rectangle but not the quad itself", () => {
+    // Diamond centred at (14, 14) with radius 5: its box (9..19) overlaps the 0..10 square, the diamond does not.
+    const diamond = [
+      { x: 14, y: 9 },
+      { x: 19, y: 14 },
+      { x: 14, y: 19 },
+      { x: 9, y: 14 },
+    ];
+    expect(rectIntersectsQuad({ minX: 0, minY: 0, maxX: 10, maxY: 10 }, diamond)).toBe(false);
+    expect(rectIntersectsQuad({ minX: 0, minY: 0, maxX: 12, maxY: 12 }, diamond)).toBe(true);
+  });
+});
+
+describe("visibleIslands", () => {
+  const islands = [
+    { id: "a", position: { x: 0, y: 0 }, width: 40, height: 30 },
+    { id: "b", position: { x: 200, y: 0 }, width: 40, height: 30 },
+    { id: "c", position: { x: 0, y: 200 }, width: 40, height: 30 },
+  ];
+
+  it("keeps islands under the rotated camera footprint, in payload order", () => {
+    const aspect = 412 / 915;
+    // Near island a: only a.
+    expect(visibleIslands(islands, groundFootprint({ x: 20, y: 15, half: 18, rotation: 0 }, aspect))).toEqual(["a"]);
+    // Zoomed far out over the middle: everything.
+    expect(visibleIslands(islands, groundFootprint({ x: 120, y: 120, half: 400, rotation: 0 }, aspect))).toEqual(["a", "b", "c"]);
+  });
+
+  it("the footprint's long axis turns with the rotation", () => {
+    // A tall phone viewport: the footprint reaches far along screen up
+    // (step 0: +x −y). An island in that direction is visible in step 0
+    // and step 2 (opposite), not in the steps beside them.
+    const aspect = 412 / 915;
+    const probe = [{ id: "p", position: { x: 150, y: -25 }, width: 10, height: 10 }];
+    const v = { x: 120, y: 15, half: 30 };
+    const seen = [0, 1, 2, 3].map((r) => visibleIslands(probe, groundFootprint({ ...v, rotation: r }, aspect)).length);
+    expect(seen).toEqual([1, 0, 1, 0]);
+  });
+
+  it("islandRect spans position to position + size", () => {
+    expect(islandRect(islands[1]!)).toEqual({ minX: 200, minY: 0, maxX: 240, maxY: 30 });
+  });
+});
