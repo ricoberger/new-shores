@@ -436,4 +436,12 @@ test("a sheep farm with a dragged pasture rectangle produces wool", async ({ pag
   await expectVersion(page, v2 + 2);
   expect(((await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding).fields?.assigned).toBe(16);
   await page.keyboard.press("Escape");
+
+  // The later specs keep the economy they were written for: the farm is
+  // paused (no upkeep, no workers); a paused farm still accepts fields.
+  await clickTile(page, { x: SHEEP_FARM.x + 1, y: SHEEP_FARM.y + 1 });
+  await expect(page.getByTestId("info-name")).toHaveText("Sheep farm");
+  await page.getByTestId("info-pause").click();
+  await expect.poll(async () => (await serverBuilding(page, "sheep_farm")).status).toBe("paused");
+  await page.keyboard.press("Escape");
 });
