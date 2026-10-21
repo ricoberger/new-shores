@@ -13,7 +13,10 @@ import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import { roadStrips, type TilePos } from "../display/geometry";
 import { setInstances } from "./instances";
-import { GHOST, ROAD } from "./palette";
+import { TERRAIN } from "../theme/palette";
+import { c3, GHOST } from "./palette";
+
+const ROAD = c3(TERRAIN.road_dirt);
 
 function slabs(tiles: readonly TilePos[], y: number): Float32Array | null {
   if (tiles.length === 0) return null;

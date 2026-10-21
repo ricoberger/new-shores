@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:pg": "playwright test -c playwright.pg.config.ts",
-    "gen:api": "openapi-typescript ../server/api/openapi.yaml -o src/api/schema.d.ts"
+    "gen:api": "openapi-typescript ../server/api/openapi.yaml -o src/api/schema.d.ts",
+    "gen:palette": "node scripts/gen-palette.mjs"
   },
   "dependencies": {
     "@babylonjs/core": "^9.31.0",

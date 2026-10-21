@@ -17,6 +17,7 @@ import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import type { TilePos } from "../display/geometry";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
+import { FIELDS, UI } from "../theme/palette";
 import { buildingColor, FIELD_OUT_OF_RANGE, FIELD_RING, FIELD_VALID } from "./palette";
 
 const TEX = 64;
@@ -26,10 +27,10 @@ type Pattern = "plain" | "stripes" | "dots";
 
 /** Placeholder look per field type (visual only; unknown types get stripes in their stable colour). */
 const LOOKS: Record<string, { color: string; mark: string; pattern: Pattern }> = {
-  pasture: { color: "#8DBF5C", mark: "#A9D37A", pattern: "plain" },
-  wheat_field: { color: "#D9B84A", mark: "#B8952E", pattern: "stripes" },
-  hemp_field: { color: "#6F9E4C", mark: "#4F7E34", pattern: "stripes" },
-  orchard_plot: { color: "#86A95E", mark: "#B5452F", pattern: "dots" },
+  pasture: { color: FIELDS.pasture, mark: FIELDS.pasture_mark, pattern: "plain" },
+  wheat_field: { color: FIELDS.wheat, mark: FIELDS.wheat_mark, pattern: "stripes" },
+  hemp_field: { color: FIELDS.hemp, mark: FIELDS.hemp_mark, pattern: "stripes" },
+  orchard_plot: { color: FIELDS.orchard, mark: FIELDS.orchard_mark, pattern: "dots" },
 };
 
 function lookOf(id: string): { color: string; mark: string; pattern: Pattern } {
@@ -60,9 +61,11 @@ function patternTexture(scene: Scene, id: string): DynamicTexture {
   } else {
     ctx.fillRect(TEX / 2 - 3, TEX / 2 - 3, 6, 6);
   }
-  ctx.strokeStyle = "rgba(60, 45, 25, 0.5)";
+  ctx.globalAlpha = 0.5;
+  ctx.strokeStyle = UI.ink;
   ctx.lineWidth = 3;
   ctx.strokeRect(1.5, 1.5, TEX - 3, TEX - 3);
+  ctx.globalAlpha = 1;
   tex.update();
   return tex;
 }

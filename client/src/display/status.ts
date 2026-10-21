@@ -1,6 +1,7 @@
 // Status sentences and suggested fixes (MECHANICS §14, UI.md §7). These are
 // string templates over server fields: no rule is evaluated here.
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
+import { STATUS } from "../theme/palette";
 import { percent, perMin, units } from "./format";
 
 export type StatusKey =
@@ -18,22 +19,22 @@ export type StatusKey =
 export interface StatusStyle {
   /** Glyph shown with the colour (never colour alone). */
   glyph: string;
-  /** Colour-blind-safe colour (Okabe–Ito palette). */
+  /** Colour-blind-safe colour (Okabe–Ito, from the palette's status group). */
   color: string;
   label: string;
 }
 
 export const STATUS_STYLES: Record<StatusKey, StatusStyle> = {
-  paused_player: { glyph: "II", color: "#56B4E9", label: "Paused" },
-  paused_unpaid: { glyph: "$", color: "#D55E00", label: "Unpaid" },
-  not_connected: { glyph: "×", color: "#CC79A7", label: "Not connected" },
-  warehouse_full: { glyph: "▲", color: "#E69F00", label: "Warehouse full" },
-  input_starved: { glyph: "?", color: "#F0E442", label: "Input missing" },
-  throttled: { glyph: "»", color: "#0072B2", label: "Throttled" },
-  short_of_workers: { glyph: "W", color: "#999999", label: "Short of workers" },
-  low_efficiency: { glyph: "%", color: "#009E73", label: "Low efficiency" },
-  no_farm: { glyph: "∅", color: "#CC79A7", label: "No farm" },
-  ok: { glyph: "✓", color: "#009E73", label: "Running" },
+  paused_player: { glyph: "II", color: STATUS.paused_player, label: "Paused" },
+  paused_unpaid: { glyph: "$", color: STATUS.paused_unpaid, label: "Unpaid" },
+  not_connected: { glyph: "×", color: STATUS.not_connected, label: "Not connected" },
+  warehouse_full: { glyph: "▲", color: STATUS.warehouse_full, label: "Warehouse full" },
+  input_starved: { glyph: "?", color: STATUS.input_starved, label: "Input missing" },
+  throttled: { glyph: "»", color: STATUS.throttled, label: "Throttled" },
+  short_of_workers: { glyph: "W", color: STATUS.short_of_workers, label: "Short of workers" },
+  low_efficiency: { glyph: "%", color: STATUS.low_efficiency, label: "Low efficiency" },
+  no_farm: { glyph: "∅", color: STATUS.no_farm, label: "No farm" },
+  ok: { glyph: "✓", color: STATUS.ok, label: "Running" },
 };
 
 export function statusKey(b: BuildingDisplay): StatusKey {

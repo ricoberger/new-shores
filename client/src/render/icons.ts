@@ -16,6 +16,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { STATUS_STYLES, type StatusKey, statusKey } from "../display/status";
 import { azimuthOf, ELEVATION } from "../display/camera";
+import { UI } from "../theme/palette";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
 
@@ -47,9 +48,9 @@ export class IconLayer {
     ctx.fillStyle = style.color;
     ctx.fill();
     ctx.lineWidth = 8;
-    ctx.strokeStyle = "#1b1b1b";
+    ctx.strokeStyle = UI.ink;
     ctx.stroke();
-    ctx.fillStyle = "#111111";
+    ctx.fillStyle = UI.ink;
     ctx.font = "bold 64px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";

@@ -10,10 +10,10 @@
   flex-direction: column;
   min-height: 88px;
   pointer-events: auto;
-  background: rgb(250 247 240);
-  border-top: 1px solid #b9ad94;
+  background: var(--ns-ui-parchment);
+  border-top: 1px solid var(--ns-ui-parchment-edge);
   border-radius: 14px 14px 0 0;
-  box-shadow: 0 -4px 16px rgb(0 0 0 / 30%);
+  box-shadow: 0 -4px 16px color-mix(in srgb, var(--ns-ui-ink) 35%, transparent);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
@@ -25,7 +25,7 @@
 }
 
 .sheet:focus-visible {
-  outline: 3px solid #0072b2;
+  outline: 3px solid var(--ns-ui-active);
   outline-offset: -3px;
 }
 
@@ -50,7 +50,7 @@
   width: 48px;
   height: 5px;
   border-radius: 3px;
-  background: #8c7f66;
+  background: var(--ns-ui-wood-light);
 }
 
 .header {

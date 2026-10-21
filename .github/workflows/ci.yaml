@@ -94,6 +94,11 @@ jobs:
           npm run gen:api
           git diff --exit-code -- src/api/schema.d.ts
 
+      - name: Generated palette is up to date
+        run: |
+          npm run gen:palette
+          git diff --exit-code -- src/theme/palette.ts src/theme/palette.css
+
       - name: lint
         run: npm run lint
 

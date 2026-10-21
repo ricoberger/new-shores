@@ -24,7 +24,8 @@ import type { Lod } from "../display/lod";
 import { anchorSlots, type ArchPoint, berthAnchor, type Berths, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
 import { footprintBox } from "./coords";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
-import { HAZE, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
+import { ARROW_BRIGHT, ARROW_DIM, DRAFT_COLOR, HAZE, ROUTE_COLORS, colorTuple, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
+import { BUILDINGS, WATER } from "../theme/palette";
 
 const SILHOUETTE_TOP = 0.3;
 const SILHOUETTE_BOTTOM = -0.2;
@@ -41,15 +42,11 @@ const SEA_REPEAT_TILES = 24;
 /** The haze starts this far (tiles) outside the islands' bounding box. */
 const HAZE_INNER = 30;
 const LANDMARK_SIZE = 3;
-const LANDMARK_WAREHOUSE = [0.95, 0.85, 0.55, 1];
-const LANDMARK_SHIPYARD = [0.75, 0.45, 0.25, 1];
+const LANDMARK_WAREHOUSE = colorTuple(BUILDINGS.ochre);
+const LANDMARK_SHIPYARD = colorTuple(BUILDINGS.terracotta);
 /** Sea texture scroll speed (texture repeats per second). */
 const SEA_SPEED = 0.01;
 
-const ROUTE_COLORS = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"].map((h) => Color3.FromHexString(h));
-const DRAFT_COLOR = Color3.FromHexString("#FFFFFF");
-const ARROW_DIM = [0.75, 0.75, 0.75, 1];
-const ARROW_BRIGHT = [1, 0.82, 0.25, 1];
 
 export type ArchSelection = { kind: "none" } | { kind: "island"; id: string } | { kind: "ship"; id: number };
 
@@ -117,6 +114,7 @@ function seaTexture(scene: Scene): RawTexture {
     return seed / 0x7fffffff;
   };
   const grid = Array.from({ length: 8 * 8 }, rnd);
+  const [r, g, b] = colorTuple(WATER.deep);
   const at = (x: number, y: number) => grid[(y & 7) * 8 + (x & 7)] as number;
   for (let y = 0; y < n; y++) {
     for (let x = 0; x < n; x++) {
@@ -130,9 +128,9 @@ function seaTexture(scene: Scene): RawTexture {
         at(x0, y0) * (1 - tx) * (1 - ty) + at(x0 + 1, y0) * tx * (1 - ty) + at(x0, y0 + 1) * (1 - tx) * ty + at(x0 + 1, y0 + 1) * tx * ty;
       const k = 0.88 + v * 0.2;
       const i = (y * n + x) * 4;
-      data[i] = Math.min(255, 0x2b * k);
-      data[i + 1] = Math.min(255, 0x5c * k);
-      data[i + 2] = Math.min(255, 0x8a * k);
+      data[i] = Math.min(255, r * 255 * k);
+      data[i + 1] = Math.min(255, g * 255 * k);
+      data[i + 2] = Math.min(255, b * 255 * k);
       data[i + 3] = 255;
     }
   }

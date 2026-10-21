@@ -11,24 +11,26 @@ import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
+import { BUILDINGS, TERRAIN } from "../theme/palette";
 import { footprintBox } from "./coords";
+import { colorTuple } from "./palette";
 
 const BLOCK_Y = 0.15;
 const FIELD_Y = 0.05;
 /** Blocks are inset by this much (tiles) on every side, so neighbours stay apart. */
 const INSET = 0.06;
 
-/** Tint per content category (RGBA, provisional). */
+/** Tint per content category (RGBA from the building palette). */
 export const CATEGORY_TINTS: Readonly<Record<string, readonly [number, number, number, number]>> = {
-  houses: [0.84, 0.42, 0.33, 1],
-  production: [0.85, 0.66, 0.29, 1],
-  public: [0.56, 0.45, 0.66, 1],
-  harbour: [0.29, 0.44, 0.65, 1],
-  roads: [0.55, 0.42, 0.29, 1],
-  other: [0.6, 0.6, 0.6, 1],
+  houses: colorTuple(BUILDINGS.terracotta),
+  production: colorTuple(BUILDINGS.ochre),
+  public: colorTuple(BUILDINGS.plaster),
+  harbour: colorTuple(BUILDINGS.slate),
+  roads: colorTuple(TERRAIN.road_dirt),
+  other: colorTuple(BUILDINGS.stone),
 };
-/** Fields are a flatter, greener block. */
-const FIELD_TINT = [0.62, 0.78, 0.4, 1] as const;
+/** Fields are a flatter block in the dry-grass tone. */
+const FIELD_TINT = colorTuple(TERRAIN.dry);
 
 export class BlockLayer {
   private readonly material: StandardMaterial;
