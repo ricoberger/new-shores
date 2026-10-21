@@ -273,6 +273,7 @@
 
 .toasts {
   position: absolute;
+  z-index: 5;
   top: 48px;
   right: 12px;
   display: flex;
@@ -294,6 +295,7 @@
 
 .backdrop {
   position: absolute;
+  z-index: 10;
   inset: 0;
   background: rgb(0 0 0 / 35%);
   display: flex;
@@ -413,6 +415,7 @@
 /* Archipelago overlay: passive HTML positioned from the camera projection. */
 .archOverlay {
   position: absolute;
+  z-index: 1;
   inset: 0;
   overflow: hidden;
   pointer-events: none;

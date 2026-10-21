@@ -26,7 +26,7 @@ export function WarningsTray({ model, content, onFocus, open: controlled, onOpen
   );
   return (
     <div className={`${styles.panel} ${styles.tray}`} data-testid="warnings-tray">
-      <button type="button" className={styles.trayHeader} onClick={() => setOpen(!open)} data-testid="warnings-toggle">
+      <button type="button" className={styles.trayHeader} onClick={() => setOpen(!open)} aria-expanded={open} data-testid="warnings-toggle">
         ⚠ <span data-testid="warnings-count">{entries.length}</span> warnings {open ? "▾" : "▸"}
       </button>
       {open && (

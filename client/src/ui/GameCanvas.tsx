@@ -65,5 +65,14 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Prop
     };
   }, [sync, onRenderer]);
 
-  return <canvas ref={canvasRef} className={styles.canvas} data-testid="game-canvas" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className={styles.canvas}
+      tabIndex={0}
+      role="application"
+      aria-label="Game view: drag to pan, pinch or wheel to zoom, tap to select"
+      data-testid="game-canvas"
+    />
+  );
 }

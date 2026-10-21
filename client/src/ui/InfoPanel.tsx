@@ -44,7 +44,7 @@ function Bar({ permille, testId }: { permille: number; testId?: string }) {
 export function StatusIcon({ building }: { building: BuildingDisplay }) {
   const s = STATUS_STYLES[statusKey(building)];
   return (
-    <span className={styles.icon} style={{ background: s.color }} title={s.label} aria-label={s.label}>
+    <span className={styles.icon} style={{ background: s.color }} title={s.label} role="img" aria-label={s.label}>
       {s.glyph}
     </span>
   );

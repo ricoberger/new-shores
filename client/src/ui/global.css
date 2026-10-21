@@ -38,3 +38,10 @@ label {
   min-height: 44px;
   min-width: 44px;
 }
+
+/* Visible keyboard focus on every control (the focus colour differs from
+   the active-item outline). */
+:focus-visible {
+  outline: 3px solid #e69f00;
+  outline-offset: 2px;
+}

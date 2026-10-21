@@ -38,10 +38,13 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
         className={`${styles.panel} ${styles.dialog}`}
         role="dialog"
         aria-modal="true"
+        aria-labelledby="shipment-dialog-title"
         data-testid="shipment-dialog"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className={styles.title}>Send ship #{ship.id}</h2>
+        <h2 className={styles.title} id="shipment-dialog-title">
+          Send ship #{ship.id}
+        </h2>
         <div className={styles.row}>
           <label htmlFor="shipment-dest">To</label>
           <select id="shipment-dest" className={styles.input} value={to} onChange={(e) => setTo(e.target.value)} data-testid="shipment-dest">
@@ -77,6 +80,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
                       className={`${styles.input} ${styles.number}`}
                       value={amounts[g.id] ?? 0}
                       onChange={(e) => setAmounts({ ...amounts, [g.id]: Math.max(0, Math.min(max, Math.floor(Number(e.target.value) || 0))) })}
+                      aria-label={`Load ${g.name} (units)`}
                       data-testid={`shipment-amount-${g.id}`}
                     />
                   </td>

@@ -4,9 +4,11 @@
   height: 100%;
 }
 
+/* The canvas sits in the overlay (focus order) below every HUD layer. */
 .canvas {
   position: absolute;
   inset: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
   display: block;
@@ -34,6 +36,22 @@
 
 .overlay > * {
   pointer-events: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.overlay > .canvas {
+  position: absolute;
+  z-index: 0;
+}
+
+.canvas:focus {
+  outline: none;
+}
+
+.canvas:focus-visible {
+  outline: 3px solid #e69f00;
+  outline-offset: -3px;
 }
 
 .top {
@@ -62,6 +80,7 @@
 
 .banner {
   position: absolute;
+  z-index: 2;
   top: 48px;
   left: 50%;
   transform: translateX(-50%);
@@ -74,6 +93,7 @@
 
 .hint {
   position: absolute;
+  z-index: 2;
   bottom: 96px;
   left: 50%;
   transform: translateX(-50%);

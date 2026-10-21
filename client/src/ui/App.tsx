@@ -717,7 +717,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   return (
     <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
-      <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialView={initialView} />
       {archView && model && <ArchipelagoOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} />}
       <div className={styles.overlay}>
         <div className={styles.top}>
@@ -744,6 +743,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {phone && archHintEl}
           {phone && unreachable}
         </div>
+        {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
+        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialView={initialView} />
         {rightSlot}
         <div className={styles.bottom}>
           {archView ? null : island && !island.settled ? (

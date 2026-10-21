@@ -104,7 +104,7 @@ export function RouteEditor(p: Props) {
               {i + 1}. {islandName(s.island)}
             </strong>
             <div className={styles.spacer} />
-            <button type="button" className={styles.link} disabled={i === 0} onClick={() => p.onMoveStop(i, -1)} aria-label="Move up" data-testid={`route-stop-up-${i}`}>
+            <button type="button" className={styles.link} disabled={i === 0} onClick={() => p.onMoveStop(i, -1)} aria-label={`Move stop ${i + 1} up`} data-testid={`route-stop-up-${i}`}>
               ↑
             </button>
             <button
@@ -112,12 +112,12 @@ export function RouteEditor(p: Props) {
               className={styles.link}
               disabled={i === draft.stops.length - 1}
               onClick={() => p.onMoveStop(i, 1)}
-              aria-label="Move down"
+              aria-label={`Move stop ${i + 1} down`}
               data-testid={`route-stop-down-${i}`}
             >
               ↓
             </button>
-            <button type="button" className={styles.link} onClick={() => p.onRemoveStop(i)} data-testid={`route-stop-remove-${i}`}>
+            <button type="button" className={styles.link} onClick={() => p.onRemoveStop(i)} aria-label={`Remove stop ${i + 1}`} data-testid={`route-stop-remove-${i}`}>
               remove
             </button>
           </div>
@@ -128,6 +128,7 @@ export function RouteEditor(p: Props) {
                 className={styles.input}
                 value={l.good}
                 onChange={(e) => setStop(i, { load: s.load.map((x, k) => (k === j ? { ...x, good: e.target.value } : x)) })}
+                aria-label={`Stop ${i + 1}: good to load`}
                 data-testid={`route-load-good-${i}-${j}`}
               >
                 {content.goods.map((g) => (
@@ -145,6 +146,7 @@ export function RouteEditor(p: Props) {
                 onChange={(e) =>
                   setStop(i, { load: s.load.map((x, k) => (k === j ? { ...x, max: Math.max(1, Math.floor(Number(e.target.value) || 0)) } : x)) })
                 }
+                aria-label={`Stop ${i + 1}: top up to (units)`}
                 data-testid={`route-load-max-${i}-${j}`}
               />
               <span className={styles.small} data-testid={`route-load-stock-${i}-${j}`}>
@@ -170,6 +172,7 @@ export function RouteEditor(p: Props) {
                 className={styles.input}
                 value={g}
                 onChange={(e) => setStop(i, { unload: s.unload.map((x, k) => (k === j ? e.target.value : x)) })}
+                aria-label={`Stop ${i + 1}: good to unload`}
                 data-testid={`route-unload-good-${i}-${j}`}
               >
                 {content.goods.map((x) => (

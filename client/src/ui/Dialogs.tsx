@@ -14,10 +14,13 @@ export function ConfirmDialog({ request, onClose }: { request: ConfirmRequest; o
         className={`${styles.panel} ${styles.dialog}`}
         role="dialog"
         aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
         data-testid="dialog"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className={styles.title}>{request.title}</h2>
+        <h2 className={styles.title} id="confirm-dialog-title">
+          {request.title}
+        </h2>
         <p>{request.body}</p>
         <div className={styles.buttons}>
           <button

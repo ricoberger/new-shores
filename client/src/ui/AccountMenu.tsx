@@ -83,8 +83,10 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
       )}
       {registering && (
         <div className={styles.modal} onClick={() => setRegistering(false)}>
-          <div className={`${hud.panel} ${hud.dialog}`} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-            <h2 className={hud.title}>Register</h2>
+          <div className={`${hud.panel} ${hud.dialog}`} role="dialog" aria-modal="true" aria-labelledby="register-dialog-title" onClick={(e) => e.stopPropagation()}>
+            <h2 className={hud.title} id="register-dialog-title">
+              Register
+            </h2>
             <AuthForm
               mode="register"
               onDone={(p) => {
