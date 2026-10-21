@@ -285,6 +285,20 @@ test("a mouse or pen taking over drops the touch-pending tile; the ghost follows
   // Touch again: a tap positions the ghost on the tapped tile.
   await touch.tap(await tile(page, DENSE, a));
   await expect.poll(ghost).toEqual(a);
+
+  // Field tool (D-049): an unconfirmed touch rectangle is dropped the same
+  // way; the preview follows the mouse, not the stale rectangle.
+  await page.keyboard.press("Escape");
+  await page.getByTestId("build-tab-production").tap();
+  await page.getByTestId("build-pasture").tap();
+  const preview = () => page.evaluate(() => window.__newShores!.fieldPreview());
+  await touch.drag(await tile(page, DENSE, a), await tile(page, DENSE, { x: a.x + 2, y: a.y + 1 }), 8);
+  await expect.poll(preview).toEqual({ from: a, to: { x: a.x + 2, y: a.y + 1 } });
+  await expect(page.getByTestId("field-confirm")).toBeEnabled();
+  const pb2 = await tile(page, DENSE, b);
+  await page.mouse.move(pb2.x, pb2.y);
+  await expect.poll(preview).toEqual({ from: b, to: b });
+  await expect(page.getByTestId("field-confirm")).toBeDisabled();
 });
 
 test("keyboard: a dialog opened from a sheet takes focus, keeps Tab and returns focus", async ({ page }) => {

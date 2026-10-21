@@ -59,7 +59,10 @@ export interface RendererEvents {
   place(x: number, y: number): void;
   /** Touch: a tap put the placement ghost on a tile; Confirm places it. */
   pend(x: number, y: number): void;
-  /** A mouse or pen took over: the touch-pending tile is dropped (the ghost follows the pointer). */
+  /**
+   * A mouse or pen took over: the touch-pending tile of a ghost tool or the
+   * unconfirmed field rectangle is dropped (the preview follows the pointer).
+   */
   unpend(): void;
   /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed). */
   rotateGhost(steps: number): void;
@@ -129,6 +132,7 @@ export class GameRenderer {
   private fieldTouch = false;
   /** Cache keys of the field preview and the rings (recomputed only when they change). */
   private fieldPreviewKey = "";
+  private fieldRectShown: { from: TilePos; to: TilePos } | null = null;
   private ringKey = "";
   private readonly arch: ArchipelagoLayer;
   private readonly ghost: Mesh;
@@ -725,17 +729,23 @@ export class GameRenderer {
   /**
    * A mouse or pen is in use: the ghost follows it at once (also before
    * the UI state drops the pending tile), so a click places exactly what
-   * the preview shows.
+   * the preview shows. An unconfirmed touch field rectangle is dropped the
+   * same way.
    */
   private takePrecisePointer(): void {
     this.precise = true;
     const tool = this.tool();
-    if (isGhostTool(tool) && tool.pending) this.events.unpend();
+    if ((isGhostTool(tool) || tool.kind === "field") && tool.pending) this.events.unpend();
   }
 
   /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
   ghostTile(): TilePos | null {
     return this.ghostAt;
+  }
+
+  /** Rectangle the field tool's preview shows (null: none). */
+  fieldPreview(): { from: TilePos; to: TilePos } | null {
+    return this.fieldRectShown;
   }
 
   /**
@@ -951,12 +961,12 @@ export class GameRenderer {
     const tool = this.tool();
     let rect: { from: TilePos; to: TilePos } | null = null;
     if (!this.archMode && tool.kind === "field") {
+      // Mouse or pen: the hovered tile (also before the UI state drops a
+      // touch-pending rectangle); touch: the pending rectangle.
+      const hovered = this.precise && this.hover ? this.tileAt(this.hover) : null;
       if (this.fieldStart && this.fieldEnd) rect = { from: this.fieldStart, to: this.fieldEnd };
-      else if (tool.pending) rect = tool.pending;
-      else if (this.precise && this.hover) {
-        const t = this.tileAt(this.hover);
-        if (t) rect = { from: t, to: t };
-      }
+      else if (hovered) rect = { from: hovered, to: hovered };
+      else if (!this.precise && tool.pending) rect = tool.pending;
     }
     const def = tool.kind === "field" ? this.defs.get(tool.fieldType) : undefined;
     const server = this.sync.getSnapshot().server;
@@ -966,10 +976,12 @@ export class GameRenderer {
     const island = this.island();
     const is = this.displayIsland();
     if (!rect || !def || !island || !is) {
+      this.fieldRectShown = null;
       this.fields.setPreview([], []);
       if (tool.kind === "field") this.setGhostHint(null);
       return;
     }
+    this.fieldRectShown = rect;
     const tiles = rectTiles(rect.from, rect.to);
     const { valid, outOfRange } = classifyFieldTiles(def, tiles, { island, buildings: is.buildings, roads: is.roads, defs: this.defs });
     this.fields.setPreview(valid, outOfRange);

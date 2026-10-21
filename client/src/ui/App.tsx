@@ -76,6 +76,8 @@ export interface TestHook {
   carts(): number;
   /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
   ghostTile(): { x: number; y: number } | null;
+  /** Rectangle the field tool's preview showed in the last frame (null: none). */
+  fieldPreview(): { from: { x: number; y: number }; to: { x: number; y: number } } | null;
 }
 
 declare global {
@@ -350,7 +352,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       if (tool.kind === "build") placeGhost(tool, x, y);
     },
     pend: (x: number, y: number) => setTool((t) => (isGhostTool(t) ? { ...t, pending: { x, y } } : t)),
-    unpend: () => setTool((t) => (isGhostTool(t) && t.pending ? { ...t, pending: undefined } : t)),
+    unpend: () => setTool((t) => ((isGhostTool(t) || t.kind === "field") && t.pending ? { ...t, pending: undefined } : t)),
     rotateGhost: rotateTool,
     move: (x: number, y: number) => {
       if (tool.kind === "move") placeGhost(tool, x, y);
@@ -515,6 +517,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 },
         carts: () => rendererRef.current?.cartCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
+        fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
       };
     }
   }, [sync]);
