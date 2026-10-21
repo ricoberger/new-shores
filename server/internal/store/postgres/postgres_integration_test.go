@@ -7,8 +7,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -319,5 +321,52 @@ func TestConcurrentAdvancesNeverGoBackwards(t *testing.T) {
 		if err != nil {
 			t.Fatalf("concurrent advance: %v", err)
 		}
+	}
+}
+
+// TestLockWorldLogsFieldShortfall (D-049): a stored schema-2 world whose
+// farm cannot keep its efficiency after the fields migration decodes,
+// saves at the current schema and logs the shortfall with the world ID.
+func TestLockWorldLogsFieldShortfall(t *testing.T) {
+	_, pool := testenv.Database(t)
+	var logs bytes.Buffer
+	st := postgres.New(pool, catalogue(t), slog.New(slog.NewTextHandler(&logs, nil)))
+	_, id := newWorld(t, st, 0)
+	ctx := context.Background()
+	var state []byte
+	if err := pool.QueryRow(ctx, "SELECT state FROM worlds WHERE id = $1", string(id)).Scan(&state); err != nil {
+		t.Fatal(err)
+	}
+	w, cv, _, err := sim.Decode(state, catalogue(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A sheep farm deep in the forest of the start island: no free grass
+	// for pastures, although the stored schema-2 efficiency is 1000.
+	farm := w.NextBuildingID
+	if err := sim.PlaceFree(w, catalogue(t), sim.PlaceBuilding{IslandID: "start", Type: "sheep_farm", X: 42, Y: 8}, nil); err != nil {
+		t.Fatal(err)
+	}
+	w.Island("start").Building(farm).Efficiency = 1000
+	enc, err := sim.Encode(w, cv)
+	if err != nil {
+		t.Fatal(err)
+	}
+	enc = bytes.Replace(enc, []byte(fmt.Sprintf(`"schema_version":%d`, sim.SchemaVersion)), []byte(`"schema_version":2`), 1)
+	if _, err := pool.Exec(ctx, "UPDATE worlds SET state = $2, schema_version = 2 WHERE id = $1", string(id), enc); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.Update(ctx, id, func(*sim.World, int64, time.Time) (bool, error) { return true, nil }); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"level=WARN", "world_id=" + string(id), "island_id=start", fmt.Sprintf("building_id=%d", farm),
+		"fields_placed=0", "fields_required=16", "old_efficiency_permille=1000", "new_efficiency_permille=0"} {
+		if !strings.Contains(logs.String(), want) {
+			t.Errorf("log %q lacks %q", logs.String(), want)
+		}
+	}
+	var schema int
+	if err := pool.QueryRow(ctx, "SELECT schema_version FROM worlds WHERE id = $1", string(id)).Scan(&schema); err != nil || schema != sim.SchemaVersion {
+		t.Errorf("saved schema %d (%v)", schema, err)
 	}
 }
