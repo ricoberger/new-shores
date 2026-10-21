@@ -579,3 +579,29 @@ Full brief: docs/ART_DIRECTION.md.
 - *Rejected:* textured/painterly materials (artist-bound, texture memory);
   AI mesh generation as the default pipeline (style drift, licences);
   keeping the archipelago view as a mode; day/night cycle and seasons.
+
+## D-049 Explicit fields for farms
+
+**Decision:** Farms need **fields**: 1×1 placeables of a per-crop type
+(`pasture`, `pig_pen`, `wheat_field`, `orchard_plot`, `hemp_field`,
+`hop_field`, `woad_field`, `vineyard_row`, `meadow`), free or near-free, no
+upkeep, no road, never auto-paused, placed only on matching terrain (and
+fertility) inside the work radius of a farm that accepts the type. A field
+belongs to the nearest accepting farm (ties by ID); the farm's efficiency is
+`min(1, assigned_fields / required)` (provisional 16 on a radius-4 disc).
+Fields occupy tiles, can be moved and demolished, and are placed by tap or
+by dragging a rectangle (preview on valid free tiles, one command on
+release); there is no auto-fill. Lumberjack, fisher and trapper keep the
+implicit terrain rule. Supersedes the implicit "free matching tiles /
+required_tiles" rule of MECHANICS §2 for farms.
+
+- *Rationale:* Anno's farms are a spatial puzzle and make islands look
+  farmed; the implicit disc gave neither. Shared field types (pasture for
+  sheep, dairy and cattle) add a small layout decision without new rules.
+  Still "efficiency recomputed on placement change" — lazy-model safe.
+- *Consequences:* a `fields {type, required}` building block; field
+  placeables in content with their own models (asset task); scenario
+  runner `fields` step; the tier 1–2 reference games are re-verified with
+  fields; farm panels show `n / required` on the radius ring.
+- *Rejected:* auto-fill button (hides the puzzle; rectangle drag is enough);
+  per-farm private field types (needless content).
