@@ -138,6 +138,11 @@ jobs:
 
       - name: Playwright e2e (desktop, touch, PWA and perf projects)
         run: npm run test:e2e
+        env:
+          # fps threshold of the perf check (SwiftShader, 4x CPU throttling).
+          # Calibrated on an Apple M4 Pro; if the runner is slower, set it to
+          # the PERF line's 412x915 fps x 0.8 (rounded down) from a CI run.
+          PERF_MIN_FPS: "27"
 
       - name: Upload Playwright report
         if: failure()
