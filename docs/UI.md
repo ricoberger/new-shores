@@ -9,44 +9,63 @@ UI shows the same numbers the server uses.
 
 | View | Renders | Purpose |
 |---|---|---|
-| **World scene** (target, D-048) | one 3D scene with all islands at their positions and sea between; fixed isometric-style ortho camera with four 90° rotation steps, free pan, continuous zoom with LOD (detail → blocks → silhouettes); minimap | build, inspect, sail, manage routes, settle |
-| *Island view / Archipelago view* (current) | the two-mode implementation of PRs #4–#11; to be merged into the world scene by the first art task | — |
+| **World scene** (D-048, PR #13) | one 3D scene with all islands at their archipelago positions and sea between; fixed isometric-style ortho camera (30° elevation, azimuth 45° + k·90°), free pan within the archipelago bounds + 30 tiles, continuous zoom with three LOD levels; minimap | build, inspect, sail, manage routes, settle |
 | **World map** | 2D HTML screen (no 3D) | neighbours, offers, expeditions, contracts, visits, leaderboards |
 | **Account / shop** | HTML | profile, purchases, settings |
 
-Current two-mode behaviour (superseded by the world scene once the first
-art task lands; see docs/ART_DIRECTION.md §3):
-Transitions: zooming out of an island while already at its maximum zoom
-(accumulated wheel/pinch past a threshold; a single tick never switches)
-→ archipelago view; zooming in inside the archipelago never switches back.
-Entering an island (second click on the selected island, double-click,
-Enter, the island card's "Enter island", or a top-bar island tab) is a
-350 ms camera move with no blank frame; each island and the archipelago
-remember their last camera. A back control ("◰ Archipelago") and Backspace
-return. Input is ignored while the camera animates. A world-map button in
-the HUD opens the 2D screen as an overlay (later).
+### World scene
 
-### Archipelago view
-
-- One procedural silhouette mesh per island from its terrain, name label,
-  settled/unsettled badge; an animated sea plane; the island view keeps the
-  sea and the other silhouettes visible around the shown island.
-- Ships as low-poly instances: with a leg, lerped between the two islands'
-  anchors by `(now − depart_at) / (arrive_at − depart_at)`; without a leg,
-  at berths spread around their island's anchor; `anchored_unpaid` ships
-  greyed. Route lines between stops with direction arrows; the selected
-  ship shows its route and an ETA badge.
-- Single click selects an island and opens the **island card** (population,
-  warehouse fill, warnings count, fertilities, deposits; "Found settlement
-  with ship #n" when an idle ship there carries the warehouse cost; "New
-  route from here"; "Enter island"). Hover shows a lightweight tooltip
-  only; nothing is hover-only.
-- Picking order on tap: nearest ship within 18 CSS px → island under or
-  within one tile of the pointer → sea (clears the selection, or cancels an
-  active pick/drag).
-- Manual shipment: drag an idle ship onto another island (drop on sea or
-  its own island cancels; dragging a non-idle ship pans), or "Send to…" in
-  the ship panel then tap the target island; both open the cargo dialog.
+- **Camera.** Zoom is the vertical orthographic half-extent in tiles:
+  min 7 (a 2×2 footprint ≈ ⅓ of a 360 px phone width), default 18, max =
+  whole archipelago fits. Rotation in 90° steps via `Q`/`E`, on-screen
+  buttons or a two-finger twist with no ghost tool active; it snaps, keeps
+  target and zoom; building rotation stays fixed to the world (D-042).
+  **Jumps** (island tabs, island card "Go to island", Enter, founding,
+  warnings tray) move the camera in ≤ 350 ms and zoom in to 18 only when
+  the camera is farther out; minimap taps keep the zoom. A gesture in
+  progress when a jump starts is cancelled without its release action; a
+  press begun during a jump is ignored until all fingers lift; wheel and
+  pinch are ignored during the jump.
+- **LOD** is a pure function of the half-extent and the previous level
+  (no timers): near → mid above 30, mid → near below 27, → far above 48,
+  far → mid below 42. *Near:* full detail (buildings, roads, fields, carts,
+  status icons). *Mid:* buildings and fields as merged category-tinted
+  blocks, roads as strips, no carts or status icons. *Far:* the island
+  silhouette with landmark markers, name label and settled badge. Islands
+  outside the frustum are not rendered; ships, route ribbons and the
+  selected ship's ETA badge render at every level (ships ×2 near/mid,
+  ×4 far). The level is exposed to tests via the hook.
+- **Sea and haze:** a scrolling-noise sea plane sized so every viewport
+  corner stays on water at the clamped bounds in all rotations, fading into
+  a haze colour toward the edge; the clear colour is the haze.
+- **Labels** are keyboard buttons with the island name and badge, hidden
+  near the canvas edge; pointer taps resolve **ship → label → land**. A
+  label tap is an island tap at every LOD: it appends a stop when the route
+  editor is open, picks the destination for an awaiting shipment, otherwise
+  opens the **island card** (population, warehouse fill, warnings count,
+  fertilities, deposits; "Found settlement with ship #n" when an idle ship
+  there carries the warehouse cost; "New route from here"; "Go to island").
+  Hover shows a lightweight tooltip only; nothing is hover-only.
+- **Ships** are low-poly instances: with a leg, lerped between the two
+  islands' berth anchors by `(now − depart_at) / (arrive_at − depart_at)`;
+  berth 0 (nearest the harbour building) is the anchor for legs and
+  ribbons, idle and anchored ships take the next berths; `anchored_unpaid`
+  ships greyed. Legs and ribbons are straight lines and may cross land
+  (dressing task). Route ribbons carry direction arrows; the selected ship
+  shows its route and ETA.
+- **Manual shipment:** drag an idle ship onto another island (drop on sea
+  or its own island cancels; dragging a non-idle ship pans), or "Send to…"
+  then tap the target island; both open the cargo dialog.
+- **Focused island** = the island under the camera centre, else the
+  nearest; it drives the build-menu stock display, the highlighted tab and
+  the unsettled-island panel, never a command.
+- **Minimap** (HUD, top of the left column; `min(180 px, 25 % of the short
+  side)`; collapsible and collapsed by default in phone portrait): north-up
+  2D canvas with island outlines (settled/unsettled tint, cached),
+  ship dots and the camera's viewport quad (rotates with the camera);
+  tap/click jumps the camera. `role="img"` with a label.
+- The HUD's world-map button opens the 2D world-map screen as an overlay
+  (later).
 
 ## 2. Island view HUD
 
@@ -153,11 +172,14 @@ the HUD opens the 2D screen as an overlay (later).
   (manual shipment dialog), "Send to… (pick island)", found settlement,
   scrap; later: send on expedition (Harbourmaster).
 
-**Route editor** (archipelago view; the Routes list opens it and may delete)
+**Route editor** (panel; the Routes list opens it and may delete)
 
 - Opened from the Routes list, a ship's "Assign to route…" or an island
-  card; it lives in the archipelago view (entering an island closes it).
-- Stops are added by clicking islands in order; per stop a load list with
+  card; stays open while the camera moves.
+- Stops are chosen from **island pickers** (each option shows the island
+  name, settled state and the relevant goods' stock/capacity); clicking an
+  island or its label in the world while the editor is open also appends
+  it. Per stop a load list with
   "top up to" amounts and an unload list, with the island's current stock
   inline; assigned ships. Server errors (e.g. consecutive stops on one
   island, `route_invalid`) are shown as toast and inline.

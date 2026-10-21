@@ -161,8 +161,10 @@ and colour carry the look, life carries the feeling, detail does not**:
 
 ## 9. Task breakdown
 
-1. **Continuous world** — remove the view switch, zoom LOD, minimap, route
-   editor with island pickers, camera rotation steps, sea haze.
+1. **Continuous world** — done (PR #13): view switch removed, three-level
+   LOD (30/27, 48/42 half-extent), minimap, route editor with island
+   pickers, 90° camera steps, sea haze. Phone perf at 4× throttling: near
+   42 fps / 19 draw calls, mid 57 / 13, far 46 / 15.
 2. **Visual foundation** — palette JSON, light and shadows, terrain
    (coast, grass, trees, mountains), water, grid overlay rule, roads,
    post-processing toggle, HUD theme and icon set.
