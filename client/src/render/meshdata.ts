@@ -73,10 +73,6 @@ export class TriBuilder {
     });
   }
 
-  get triangles(): number {
-    return this.positions.length / 9;
-  }
-
   /** The mesh of the accumulated triangles (null when empty). */
   build(name: string, scene: Scene, material: StandardMaterial, parent: TransformNode | null, vertexAlpha = false): Mesh | null {
     if (this.positions.length === 0) return null;
