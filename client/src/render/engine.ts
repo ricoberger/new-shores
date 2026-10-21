@@ -77,7 +77,8 @@ export interface RendererEvents {
   tapIsland(id: string): void;
   tapShip(id: number): void;
   tapSea(): void;
-  /** Long-press on a ship or island: select it and open its panel (no tool acts). */
+  /** Long-press on a building, ship or island: select it and open its panel (no tool acts). */
+  inspectBuilding(id: number): void;
   inspectShip(id: number): void;
   inspectIsland(id: string): void;
   /** An idle ship is dragged from its island; dropShip ends the drag (island null: the sea). */
@@ -724,7 +725,7 @@ export class GameRenderer {
     const t = this.tileAt(p);
     const is = this.displayIsland();
     const b = t && is ? buildingAt(is.buildings, this.defs, t.x, t.y) : undefined;
-    if (b) this.events.select(b.id);
+    if (b) this.events.inspectBuilding(b.id);
   }
 
   private onTap(p: Point, button: number, kind: PointerKind): void {

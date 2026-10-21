@@ -57,18 +57,21 @@ async function serverBuildingAt(page: Page, island: string, t: Point): Promise<{
 }
 
 /** A dense-fixture building of a type whose footprint centre is in the free middle of the screen. */
-async function denseBuilding(page: Page, type: string): Promise<{ id: number; at: Point }> {
-  const found = await page.evaluate((t) => {
-    const h = window.__newShores!;
-    const w = window.innerWidth;
-    const hgt = window.innerHeight;
-    for (const b of h.getServer()!.display.islands[0]!.buildings) {
-      if (b.type !== t) continue;
-      const at = h.tileToScreen("dense1", b.x + 1, b.y + 1);
-      if (at.x > w * 0.25 && at.x < w * 0.75 && at.y > hgt * 0.3 && at.y < hgt * 0.6) return { id: b.id, at };
-    }
-    return null;
-  }, type);
+async function denseBuilding(page: Page, type: string, yFrom = 0.3, yTo = 0.6): Promise<{ id: number; at: Point }> {
+  const found = await page.evaluate(
+    ([t, y0, y1]) => {
+      const h = window.__newShores!;
+      const w = window.innerWidth;
+      const hgt = window.innerHeight;
+      for (const b of h.getServer()!.display.islands[0]!.buildings) {
+        if (b.type !== t) continue;
+        const at = h.tileToScreen("dense1", b.x + 1, b.y + 1);
+        if (at.x > w * 0.25 && at.x < w * 0.75 && at.y > hgt * (y0 as number) && at.y < hgt * (y1 as number)) return { id: b.id, at };
+      }
+      return null;
+    },
+    [type, yFrom, yTo] as const,
+  );
   expect(found, `a ${type} in the middle of the screen`).not.toBeNull();
   return found!;
 }
@@ -193,6 +196,24 @@ test("tap and long-press select a building, a ship and an island", async ({ page
   await page.getByTestId("sheet-close").tap();
   await touch.longPress(await islandPoint(page, "isle3", { x: 8, y: 10 }));
   await expect(page.getByTestId("island-card-name")).toHaveText("Isle 3");
+});
+
+test("long-press opens the info panel over an open list sheet and keeps the tool", async ({ page }) => {
+  await page.goto("/?fixture=dense-2x400");
+  await expectView(page, DENSE);
+  await page.getByTestId("build-tab-production").tap();
+  await page.getByTestId("build-woodcutter").tap();
+  await expect(page.getByTestId("placement-bar")).toBeVisible();
+  await page.getByTestId("hud-quests").tap();
+  await expect(page.getByTestId("quests-panel")).toBeVisible();
+  // A building above the half-open sheet.
+  const house = await denseBuilding(page, "house", 0.32, 0.5);
+  await touch.longPress(house.at);
+  await expect(page.getByTestId("info-panel")).toBeVisible();
+  await expect(page.getByTestId("info-name")).toHaveText("House");
+  await expect(page.getByTestId("quests-panel")).toHaveCount(0);
+  await expect(page.getByTestId("placement-bar")).toBeVisible();
+  await expect(page.getByTestId("placement-confirm")).toBeDisabled();
 });
 
 test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the camera", async ({ page }) => {

@@ -342,6 +342,12 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       dispatch({ type: "tapShip", id });
     },
     tapSea: () => dispatch({ type: "tapSea" }),
+    // Inspecting closes a list panel (it would take precedence over the
+    // info panel); the active tool stays and nothing is sent.
+    inspectBuilding: (id: number) => {
+      setPanel("none");
+      dispatch({ type: "selectBuilding", id });
+    },
     inspectShip: (id: number) => {
       setPanel("none");
       dispatch({ type: "selectShip", id });

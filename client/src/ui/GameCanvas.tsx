@@ -51,6 +51,7 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialView }: Prop
         tapIsland: (id) => ev().tapIsland(id),
         tapShip: (id) => ev().tapShip(id),
         tapSea: () => ev().tapSea(),
+        inspectBuilding: (id) => ev().inspectBuilding(id),
         inspectShip: (id) => ev().inspectShip(id),
         inspectIsland: (id) => ev().inspectIsland(id),
         dragShip: (id, from) => ev().dragShip(id, from),
