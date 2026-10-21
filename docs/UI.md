@@ -9,11 +9,13 @@ UI shows the same numbers the server uses.
 
 | View | Renders | Purpose |
 |---|---|---|
-| **Island view** | 3D, fixed isometric-style ortho camera, pan/zoom, no rotation at launch | build, inspect, fix bottlenecks |
-| **Archipelago view** | 3D zoom-out of all islands, ships, route lines | pick islands, manage routes/ships, settle |
+| **World scene** (target, D-048) | one 3D scene with all islands at their positions and sea between; fixed isometric-style ortho camera with four 90° rotation steps, free pan, continuous zoom with LOD (detail → blocks → silhouettes); minimap | build, inspect, sail, manage routes, settle |
+| *Island view / Archipelago view* (current) | the two-mode implementation of PRs #4–#11; to be merged into the world scene by the first art task | — |
 | **World map** | 2D HTML screen (no 3D) | neighbours, offers, expeditions, contracts, visits, leaderboards |
 | **Account / shop** | HTML | profile, purchases, settings |
 
+Current two-mode behaviour (superseded by the world scene once the first
+art task lands; see docs/ART_DIRECTION.md §3):
 Transitions: zooming out of an island while already at its maximum zoom
 (accumulated wheel/pinch past a threshold; a single tick never switches)
 → archipelago view; zooming in inside the archipelago never switches back.

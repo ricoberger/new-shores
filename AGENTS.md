@@ -11,7 +11,8 @@ the referenced documents before changing anything.
    require it, stop and raise the conflict instead of working around it.
 3. The document for the area you touch: `docs/MECHANICS.md` for simulation
    rules, `docs/CONTENT.md` for content, `docs/ARCHITECTURE.md` for server/
-   client structure, `docs/UI.md` for interface, `docs/ONLINE.md` and
+   client structure, `docs/UI.md` for interface, `docs/ART_DIRECTION.md`
+   for visuals and assets, `docs/ONLINE.md` and
    `docs/MONETIZATION.md` for those features, `docs/FIRST_PLAYABLE.md` for
    current scope.
 

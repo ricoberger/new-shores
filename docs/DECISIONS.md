@@ -550,3 +550,32 @@ resume of any kind per millisecond.
   2 with bread); counting the candidate's own output in the resume check
   (changes every decision, flapping risk); serialising trials (slower
   recovery for no safety gain, since each trial already paid its reserve).
+
+## D-048 Art direction: light and colour first, one continuous world
+
+**Decision:** The visual target is Anno 1404's warm golden-hour feeling,
+carried by light, colour and animated life rather than textured detail
+(flat-shaded, one palette, no photo textures). The client renders **one
+continuous world**: all islands in one scene at their archipelago
+positions with sea between, free pan and continuous zoom with zoom-based
+LOD, a minimap, four 90° camera rotation steps; the separate archipelago
+view is removed and routes are edited in a panel (clicking islands stays
+a shortcut). Terrain is continuous with the grid shown only while a tool
+is active; the HUD is themed-flat Anno (parchment, dark wood, brass, icon
+set, CSS-only ornament); buildings and ships are kit-bashed by data
+recipes from CC0 Quaternius kits through a Blender script with enforced
+footprint and triangle budgets; every animation encodes a game state.
+Full brief: docs/ART_DIRECTION.md.
+
+- *Rationale:* mechanics are stable, so visuals will not be redone; a
+  flat-shaded kit with strong light and colour reads "Anno-like at a
+  glance" within the mobile budget, while textured detail would fight the
+  kit and the phones. The continuous world is how Anno plays, removes a
+  concept (two views), and reuses the PR #10 silhouettes, ship
+  interpolation and route ribbons as the far LOD.
+- *Refines:* D-024 (the "three views" become one 3D world scene plus the
+  2D world-map screen; rotation in 90° steps is now allowed) and the
+  asset-pipeline section of ARCHITECTURE.
+- *Rejected:* textured/painterly materials (artist-bound, texture memory);
+  AI mesh generation as the default pipeline (style drift, licences);
+  keeping the archipelago view as a mode; day/night cycle and seasons.
