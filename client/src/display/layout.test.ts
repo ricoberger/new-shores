@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { isTouchLayout, layoutMode, nextSnap, SHEET_CLOSE_MARGIN, SHEET_SNAPS, snapFor, usesSheets } from "./layout";
+import {
+  collapseLandscapeChrome,
+  isTouchLayout,
+  type LandscapeChrome,
+  layoutMode,
+  nextSnap,
+  SHEET_CLOSE_MARGIN,
+  SHEET_SNAPS,
+  snapFor,
+  usesSheets,
+} from "./layout";
 
 describe("layoutMode", () => {
   it.each([
@@ -67,5 +77,33 @@ describe("sheet snap points", () => {
     expect(nextSnap("peek")).toBe("half");
     expect(nextSnap("half")).toBe("full");
     expect(nextSnap("full")).toBe("peek");
+  });
+});
+
+describe("landscape chrome collapse", () => {
+  // Archipelago view (no build bar) with the banner and the hint: 73 + 50 + 30 = 153 px of chrome.
+  const base: LandscapeChrome = { mode: "phone-landscape", sheets: false, panelOpen: true, height: 393, buildBar: false, banner: true, hint: true };
+
+  it("collapses when the side panel would be shorter than 240 px", () => {
+    expect(collapseLandscapeChrome(base)).toBe(false); // 393 − 153 = 240
+    expect(collapseLandscapeChrome({ ...base, height: 392 })).toBe(true);
+    expect(collapseLandscapeChrome({ ...base, height: 360 })).toBe(true);
+    // Island view: the build bar takes 55 px more.
+    expect(collapseLandscapeChrome({ ...base, buildBar: true })).toBe(true);
+    expect(collapseLandscapeChrome({ ...base, buildBar: true, height: 448 })).toBe(false);
+  });
+
+  it("counts only the chrome that is shown", () => {
+    expect(collapseLandscapeChrome({ ...base, height: 340, banner: false })).toBe(true); // 340 − 73 − 30 = 237
+    expect(collapseLandscapeChrome({ ...base, height: 343, banner: false })).toBe(false);
+    expect(collapseLandscapeChrome({ ...base, height: 300, banner: false, hint: false })).toBe(false); // nothing to collapse
+  });
+
+  it("never collapses without a side panel or outside landscape phones", () => {
+    const tight = { ...base, height: 360 };
+    expect(collapseLandscapeChrome({ ...tight, panelOpen: false })).toBe(false);
+    expect(collapseLandscapeChrome({ ...tight, sheets: true })).toBe(false);
+    expect(collapseLandscapeChrome({ ...tight, mode: "phone-portrait" })).toBe(false);
+    expect(collapseLandscapeChrome({ ...tight, mode: "tablet" })).toBe(false);
   });
 });

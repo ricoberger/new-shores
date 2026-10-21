@@ -59,3 +59,46 @@ export function snapFor(fraction: number): SheetSnap | "closed" {
 export function nextSnap(s: SheetSnap): SheetSnap {
   return s === "peek" ? "half" : s === "half" ? "full" : "peek";
 }
+
+/** A landscape side panel should keep at least this height (CSS px). */
+export const LANDSCAPE_PANEL_MIN_PX = 240;
+/**
+ * Heights (CSS px, measured at 851 × 393 including margins) of the
+ * landscape chrome: the top bar, the one-row build bar (island view), the
+ * insolvency banner (at most two lines, a 44 px target) and the hint bar.
+ */
+export const LANDSCAPE_TOP_PX = 73;
+export const LANDSCAPE_BUILD_BAR_PX = 55;
+export const LANDSCAPE_BANNER_PX = 50;
+export const LANDSCAPE_HINT_PX = 30;
+
+export interface LandscapeChrome {
+  mode: LayoutMode;
+  /** Panels are bottom sheets (narrow landscape phones). */
+  sheets: boolean;
+  /** A side panel is open. */
+  panelOpen: boolean;
+  /** Viewport height (CSS px). */
+  height: number;
+  /** The build bar is shown (island view). */
+  buildBar: boolean;
+  banner: boolean;
+  hint: boolean;
+}
+
+/**
+ * Landscape phones with a side panel open: true when the panel would be
+ * shorter than LANDSCAPE_PANEL_MIN_PX with the hint bar and the
+ * insolvency banner shown; the HUD then hides the hint and keeps the
+ * banner to one line.
+ */
+export function collapseLandscapeChrome(c: LandscapeChrome): boolean {
+  if (c.mode !== "phone-landscape" || c.sheets || !c.panelOpen || (!c.banner && !c.hint)) return false;
+  const panel =
+    c.height -
+    LANDSCAPE_TOP_PX -
+    (c.buildBar ? LANDSCAPE_BUILD_BAR_PX : 0) -
+    (c.banner ? LANDSCAPE_BANNER_PX : 0) -
+    (c.hint ? LANDSCAPE_HINT_PX : 0);
+  return panel < LANDSCAPE_PANEL_MIN_PX;
+}

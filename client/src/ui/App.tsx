@@ -15,7 +15,8 @@ import { units } from "../display/format";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
-import { isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
+import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
+import { insolvencyBanner } from "../display/insolvency";
 import { blankStop, initialViewState, type View, viewReducer } from "../display/view";
 import { type FrameStats, GameRenderer, type RendererEvents, type RenderSource } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
@@ -702,7 +703,19 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     );
   }
 
-  const toolHint = !archView && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && (
+  // Short landscape phones: the side panel keeps a usable height; the hint
+  // bar is hidden and the insolvency banner keeps one line.
+  const hintShown = archView || (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar);
+  const tightLandscape = collapseLandscapeChrome({
+    mode: layout.mode,
+    sheets,
+    panelOpen: right !== null || Boolean(resumeBar),
+    height: layout.height,
+    buildBar: !archView,
+    banner: insolvencyBanner(model) !== null,
+    hint: hintShown,
+  });
+  const toolHint = !tightLandscape && !archView && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && (
     <div className={phone ? styles.hintInline : styles.hint} data-testid="tool-hint">
       {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
       {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
@@ -716,7 +729,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       )}
     </div>
   );
-  const archHintEl = archView && (
+  const archHintEl = !tightLandscape && archView && (
     <div className={phone ? styles.hintInline : styles.hint} data-testid="arch-hint">
       {archHint}
     </div>
@@ -745,7 +758,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} compact={compactHud} />}
             compact={layout.mode === "phone-portrait" ? "portrait" : compactHud ? "landscape" : null}
           />
-          <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} compact={phone} />
+          <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} compact={phone} oneLine={tightLandscape} />
           {placementBar && isGhostTool(tool) && (
             <PlacementBar tool={tool} hint={ghostHint} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
           )}

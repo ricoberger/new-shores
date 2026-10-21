@@ -710,3 +710,10 @@
 .updateToast .button {
   min-height: 44px;
 }
+
+.clamp1 {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
