@@ -12,6 +12,7 @@ import { Matrix, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { Scene } from "@babylonjs/core/scene";
 import {
   azimuthOf,
+  cameraClip,
   type CameraView,
   clampView,
   ELEVATION,
@@ -22,8 +23,6 @@ import {
   zoomRange,
 } from "../display/camera";
 import type { ArchPoint } from "../display/ships";
-
-const DISTANCE = 400;
 
 interface Animation {
   from: { x: number; y: number; half: number };
@@ -44,6 +43,7 @@ export class CameraRig {
   private halfHeight = NEAR_DEFAULT_HALF_HEIGHT;
   private rotation = 0;
   private bounds: Rect | null = null;
+  /** Unit vector from the target to the camera. */
   private readonly offset = new Vector3();
   private anim: Animation | null = null;
 
@@ -51,17 +51,15 @@ export class CameraRig {
     private readonly scene: Scene,
     private readonly engine: AbstractEngine,
   ) {
-    this.camera = new TargetCamera("camera", new Vector3(0, DISTANCE, 0), scene);
+    this.camera = new TargetCamera("camera", new Vector3(0, 1, 0), scene);
     this.camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
-    this.camera.minZ = 1;
-    this.camera.maxZ = DISTANCE * 3;
     this.setOffset();
     this.update();
   }
 
   private setOffset(): void {
     const a = azimuthOf(this.rotation);
-    this.offset.set(-Math.cos(ELEVATION) * Math.sin(a), Math.sin(ELEVATION), -Math.cos(ELEVATION) * Math.cos(a)).scaleInPlace(DISTANCE);
+    this.offset.set(-Math.cos(ELEVATION) * Math.sin(a), Math.sin(ELEVATION), -Math.cos(ELEVATION) * Math.cos(a));
   }
 
   /** Bounding box of the islands (archipelago tiles): target bounds and the maximum zoom follow it. */
@@ -140,7 +138,11 @@ export class CameraRig {
       this.target.set(v.x, 0, -v.y);
       this.halfHeight = v.half;
     }
-    this.camera.position.set(this.target.x + this.offset.x, this.offset.y, this.target.z + this.offset.z);
+    // Distance and clip planes follow the zoom, so the whole ground in view stays between them.
+    const clip = cameraClip(this.halfHeight);
+    this.camera.minZ = clip.near;
+    this.camera.maxZ = clip.far;
+    this.camera.position.set(this.target.x + this.offset.x * clip.distance, this.offset.y * clip.distance, this.target.z + this.offset.z * clip.distance);
     this.camera.setTarget(this.target);
     const aspect = this.aspect();
     this.camera.orthoTop = this.halfHeight;

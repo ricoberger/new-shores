@@ -2,7 +2,8 @@ import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { afterEach, describe, expect, it } from "vitest";
-import { BOUNDS_MARGIN, groundFootprint, MIN_HALF_HEIGHT, NEAR_DEFAULT_HALF_HEIGHT } from "../display/camera";
+import { BOUNDS_MARGIN, groundFootprint, MIN_HALF_HEIGHT, NEAR_DEFAULT_HALF_HEIGHT, type Rect, seaMargin, targetBounds } from "../display/camera";
+import { buildDenseArchipelagoFixture } from "../dev/fixture";
 import { CameraRig, easeInOut } from "./camera";
 
 // The Babylon rig against the pure camera math, headless (NullEngine).
@@ -10,12 +11,23 @@ import { CameraRig, easeInOut } from "./camera";
 const DEV = { minX: 0, minY: 0, maxX: 112, maxY: 114 };
 let engine: NullEngine | null = null;
 
-function rig(width: number, height: number): CameraRig {
+function rig(width: number, height: number, bounds: Rect = DEV): CameraRig {
   engine = new NullEngine({ renderWidth: width, renderHeight: height, textureSize: 256, deterministicLockstep: false, lockstepMaxSteps: 1 });
   const scene = new Scene(engine);
   const r = new CameraRig(scene, engine);
-  r.setIslandBounds(DEV);
+  r.setIslandBounds(bounds);
   return r;
+}
+
+/** Bounding box of the dense-archipelago-8 fixture's islands. */
+function eightIslandBounds(): Rect {
+  const is = buildDenseArchipelagoFixture(0).server.display.islands;
+  return {
+    minX: Math.min(...is.map((i) => i.position.x)),
+    minY: Math.min(...is.map((i) => i.position.y)),
+    maxX: Math.max(...is.map((i) => i.position.x + i.width)),
+    maxY: Math.max(...is.map((i) => i.position.y + i.height)),
+  };
 }
 
 afterEach(() => {
@@ -123,4 +135,46 @@ describe("CameraRig", () => {
     expect(easeInOut(1)).toBe(1);
     expect(easeInOut(0.5)).toBeCloseTo(0.5, 9);
   });
+});
+
+describe("CameraRig clip range", () => {
+  for (const [w, h] of [
+    [412, 915],
+    [360, 640],
+    [1280, 800],
+  ] as const) {
+    it(`${w} × ${h}: at the whole-archipelago zoom the ground in view (and 6 tiles above it) lies between the clip planes in every rotation`, () => {
+      const b = eightIslandBounds();
+      const r = rig(w, h, b);
+      const t = targetBounds(b);
+      const aspect = w / h;
+      const sea = seaMargin(b, aspect);
+      const targets = [
+        { x: 110.5, y: 91 },
+        { x: t.minX, y: t.minY },
+        { x: t.maxX, y: t.minY },
+        { x: t.maxX, y: t.maxY },
+        { x: t.minX, y: t.maxY },
+      ];
+      for (const at of targets) {
+        for (let rotation = 0; rotation < 4; rotation++) {
+          r.setCamera({ ...at, half: 100_000, rotation });
+          const v = r.view();
+          expect(v.half).toBeCloseTo(r.zoomRange().max, 6);
+          const cam = r.camera;
+          const forward = cam.getTarget().subtract(cam.position).normalize();
+          for (const p of groundFootprint(v, aspect)) {
+            // The viewport corners lie on the sea.
+            expect(p.x).toBeGreaterThanOrEqual(b.minX - sea);
+            expect(p.x).toBeLessThanOrEqual(b.maxX + sea);
+            for (const y of [0, 6]) {
+              const depth = Vector3.Dot(new Vector3(p.x, y, -p.y).subtract(cam.position), forward);
+              expect(depth).toBeGreaterThan(cam.minZ);
+              expect(depth).toBeLessThan(cam.maxZ);
+            }
+          }
+        }
+      }
+    });
+  }
 });

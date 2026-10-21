@@ -148,3 +148,21 @@ export function seaMargin(bounds: Rect | null, aspect: number): number {
   const max = zoomRange(bounds, aspect).max;
   return BOUNDS_MARGIN + max * Math.hypot(aspect, 1 / Math.sin(ELEVATION)) + 10;
 }
+
+/** Smallest distance of the camera from its target along the view direction (tiles). */
+export const CAMERA_MIN_DISTANCE = 400;
+/** Room (tiles) between the clip planes and the nearest / farthest ground point in view. */
+const CLIP_MARGIN = 100;
+
+/**
+ * Camera distance and clip planes for a zoom: the ground in view lies at
+ * depths distance ± half · cot(ELEVATION) (the viewport's top and bottom
+ * edges), so the camera moves back and the far plane out as the view
+ * grows; anything above the ground is nearer than the ground under it.
+ * Orthographic: the distance changes no projected position.
+ */
+export function cameraClip(half: number): { distance: number; near: number; far: number } {
+  const reach = half / Math.tan(ELEVATION);
+  const distance = Math.max(CAMERA_MIN_DISTANCE, reach + CLIP_MARGIN);
+  return { distance, near: 1, far: distance + reach + CLIP_MARGIN };
+}
