@@ -689,3 +689,20 @@
   flex: 1;
   min-width: 0;
 }
+
+.updateToast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: max-content;
+  max-width: calc(100vw - 16px);
+}
+
+.updateToast .button {
+  min-height: 44px;
+}

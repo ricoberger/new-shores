@@ -4,6 +4,8 @@ import { authErrorText, logout } from "../api/auth";
 import styles from "./account.module.css";
 import hud from "./hud.module.css";
 import { AuthForm } from "./AuthForm";
+import { installPrompt } from "../pwa";
+import { useInstallAvailable } from "./PwaUi";
 
 interface Props {
   player: Player;
@@ -19,6 +21,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
   const [open, setOpen] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const canInstall = useInstallAvailable();
 
   const name = `${player.display_name}${player.guest ? " (guest)" : ""}`;
 
@@ -58,6 +61,18 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
               data-testid="account-register"
             >
               Register (keeps your island)
+            </button>
+          )}
+          {canInstall && (
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                void installPrompt.prompt();
+              }}
+              data-testid="install-app"
+            >
+              Install app
             </button>
           )}
           <button type="button" onClick={() => void doLogout()} data-testid="account-logout">

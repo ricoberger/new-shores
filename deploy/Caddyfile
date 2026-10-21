@@ -16,6 +16,12 @@
 		}
 	}
 
+	# The service worker, the manifest and the app shell's entry are always
+	# revalidated, so a new client version is picked up (hashed assets
+	# under /assets/ keep their default caching).
+	@revalidate path /sw.js /manifest.webmanifest / /index.html
+	header @revalidate Cache-Control "no-cache"
+
 	handle {
 		root * /srv
 		try_files {path} /index.html

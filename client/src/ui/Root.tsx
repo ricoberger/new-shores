@@ -5,6 +5,7 @@ import { type FixtureId, FixtureSync, fixtureFromSearch, fixtureView } from "../
 import { App } from "./App";
 import appStyles from "./App.module.css";
 import styles from "./account.module.css";
+import { UpdateToast } from "./PwaUi";
 import { StartScreen } from "./StartScreen";
 
 type State =
@@ -32,8 +33,12 @@ const FIXTURE_PLAYER: Player = { id: "fixture", display_name: "Fixture", guest: 
  */
 export function Root() {
   const [fixture] = useState(() => (DEV_HOOKS ? fixtureFromSearch(globalThis.location?.search ?? "") : null));
-  if (DEV_HOOKS && fixture) return <FixtureApp id={fixture} />;
-  return <SessionRoot />;
+  return (
+    <>
+      {DEV_HOOKS && fixture ? <FixtureApp id={fixture} /> : <SessionRoot />}
+      <UpdateToast />
+    </>
+  );
 }
 
 function FixtureApp({ id }: { id: FixtureId }) {
