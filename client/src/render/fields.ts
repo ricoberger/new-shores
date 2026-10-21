@@ -19,6 +19,7 @@ import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
 import { FIELDS, UI } from "../theme/palette";
 import { buildingColor, FIELD_OUT_OF_RANGE, FIELD_RING, FIELD_VALID } from "./palette";
+import { skyFill } from "./lighting";
 
 const TEX = 64;
 const FIELD_Y = 0.015;
@@ -79,7 +80,7 @@ function slabs(tiles: readonly TilePos[], y: number): Float32Array | null {
 
 function flat(scene: Scene, name: string, size: number, height: number, color: Color3, alpha: number, parent: TransformNode | null): Mesh {
   const mesh = CreateBox(name, { width: size, height, depth: size }, scene);
-  const mat = new StandardMaterial(name, scene);
+  const mat = skyFill(new StandardMaterial(name, scene));
   mat.diffuseColor = color;
   mat.emissiveColor = color.scale(0.35);
   mat.specularColor = Color3.Black();
@@ -126,7 +127,7 @@ export class FieldTiles {
       let mesh = this.meshes.get(id);
       if (!mesh) {
         mesh = CreateBox(`field_${id}`, { width: 0.96, height: 0.03, depth: 0.96 }, this.scene);
-        const mat = new StandardMaterial(`field_${id}`, this.scene);
+        const mat = skyFill(new StandardMaterial(`field_${id}`, this.scene));
         mat.diffuseTexture = patternTexture(this.scene, id);
         mat.specularColor = Color3.Black();
         mesh.material = mat;

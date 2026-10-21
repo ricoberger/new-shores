@@ -10,6 +10,7 @@ import "@babylonjs/core/Meshes/thinInstanceMesh";
 import type { Scene } from "@babylonjs/core/scene";
 import { BUILDINGS, WATER } from "../theme/palette";
 import { c4 } from "./palette";
+import { skyFill } from "./lighting";
 
 // Palette wood tones; SHIP_UNPAID dims them toward a cool grey and the
 // sail toward a dim blue-grey.
@@ -46,7 +47,7 @@ export function shipTemplate(scene: Scene, name: string): Mesh {
   const mesh = Mesh.MergeMeshes([hull, bow, sail], true, true);
   if (!mesh) throw new Error(`cannot build ship mesh ${name}`);
   mesh.name = name;
-  const mat = new StandardMaterial(name, scene);
+  const mat = skyFill(new StandardMaterial(name, scene));
   mat.specularColor = Color3.Black();
   mesh.material = mat;
   mesh.isPickable = false;

@@ -4,13 +4,16 @@
 // is world (position.x + x, 0, −(position.y + y)). Built lazily (when the
 // island is first shown at near or mid LOD) and rebuilt on payload changes
 // while shown. The level of detail toggles layers: near shows everything,
-// mid shows terrain, roads and flat category blocks only.
+// mid shows terrain (ground, beach, cliffs, outcrops), roads, blob shadows
+// and flat category blocks only.
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
+import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
+import { islandSeed } from "../display/scatter";
 import { BlockLayer } from "./blocks";
 import { BuildingLayer } from "./buildings";
 import { CartLayer } from "./carts";
@@ -18,12 +21,13 @@ import { FieldTiles } from "./fields";
 import { ConstructionLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
+import { OutcropLayer } from "./outcrops";
 import { RoadLayer } from "./roads";
-import { BlobLayer, blobMatrix } from "./shadows";
-import { buildTerrain } from "./terrain";
+import { FootprintShadows } from "./shadows";
+import { buildTerrain, FoamLine } from "./terrain";
 
-/** Blob shadow of a building: its rotated footprint plus this margin (tiles). */
-const BUILDING_BLOB_MARGIN = 0.35;
+/** Contact shadow of a building: a soft frame this wide (tiles) around its rotated footprint. */
+const BUILDING_SHADOW_RIM = 0.3;
 /** Height (tiles) the blob shadows of buildings lean for. */
 const BUILDING_HEIGHT = 0.7;
 
@@ -38,8 +42,13 @@ export class IslandDetail {
   private readonly icons: IconLayer;
   private readonly construction: ConstructionLayer;
   private readonly blocks: BlockLayer;
-  private readonly buildingBlobs: BlobLayer;
+  private readonly buildingBlobs: FootprintShadows;
+  private readonly outcrops: OutcropLayer;
+  private foam: FoamLine | null = null;
   private terrain: Mesh[] = [];
+  /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
+  private loops: CoastLoop[] = [];
+  private seed = 0;
   private terrainKey = "";
   /** The display payload and content the layers were built from (identity). */
   private builtFrom: { display: IslandDisplay; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
@@ -64,7 +73,8 @@ export class IslandDetail {
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near);
     this.blocks = new BlockLayer(scene, this.mid);
-    this.buildingBlobs = new BlobLayer(scene, `blob_buildings_${id}`, this.root, 0.5);
+    this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55);
+    this.outcrops = new OutcropLayer(scene, this.root);
     this.mid.setEnabled(false);
     this.root.setEnabled(false);
   }
@@ -82,7 +92,12 @@ export class IslandDetail {
     if (key === this.terrainKey) return;
     for (const m of this.terrain) m.dispose();
     this.root.computeWorldMatrix(true);
-    this.terrain = buildTerrain(this.scene, statics, this.root);
+    this.seed = islandSeed(statics.id, statics.revision);
+    this.loops = coastline(statics);
+    this.terrain = buildTerrain(this.scene, statics, this.loops, this.seed, this.root);
+    this.outcrops.update(statics.deposits, this.seed);
+    this.foam ??= new FoamLine(this.scene, this.near, this.seed);
+    this.foam.update(this.loops);
     this.terrainKey = key;
   }
 
@@ -104,19 +119,15 @@ export class IslandDetail {
     this.updateBlobs(display, defs);
   }
 
-  /** Blob shadows under every building (near and mid LOD). */
+  /** Contact shadows around every building (near and mid LOD). */
   private updateBlobs(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
-    const list = display.buildings.filter((b) => {
+    const rects = [];
+    for (const b of display.buildings) {
       const def = defs.get(b.type);
-      return def && def.category !== "roads" && !def.field;
-    });
-    const out = new Float32Array(list.length * 16);
-    list.forEach((b, i) => {
-      const def = defs.get(b.type) as ContentBuilding;
-      const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-      blobMatrix(out, i, cx, cz, w + BUILDING_BLOB_MARGIN, h + BUILDING_BLOB_MARGIN, BUILDING_HEIGHT);
-    });
-    this.buildingBlobs.set(list.length ? out : null);
+      if (!def || def.category === "roads" || def.field) continue;
+      rects.push(footprintBox(b.x, b.y, def.width, def.height, b.rotation));
+    }
+    this.buildingBlobs.update(rects, BUILDING_SHADOW_RIM, BUILDING_HEIGHT);
   }
 
   /** Meshes casting into the sun shadow map: the buildings while shown at near LOD. */
@@ -150,6 +161,7 @@ export class IslandDetail {
   /** Moves carts and construction hulls (near LOD, shown). */
   frame(nowMs: number): void {
     if (!this.shown || this.lod !== "near") return;
+    this.foam?.frame(nowMs);
     this.carts.frame(nowMs);
     this.construction.frame(nowMs);
   }

@@ -14,6 +14,7 @@ import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
 import { buildingColor, DOOR, roofColor, SELECTION } from "./palette";
+import { skyFill } from "./lighting";
 
 function faces(c: Color4, n: number): Color4[] {
   return Array.from({ length: n }, () => c);
@@ -79,10 +80,10 @@ export class BuildingLayer {
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
   ) {
-    this.material = new StandardMaterial("buildings", scene);
+    this.material = skyFill(new StandardMaterial("buildings", scene));
     this.material.specularColor = Color3.Black();
     this.doors = CreateBox("doors", { width: 0.35, height: 0.3, depth: 0.12 }, scene);
-    const doorMat = new StandardMaterial("doors", scene);
+    const doorMat = skyFill(new StandardMaterial("doors", scene));
     doorMat.diffuseColor = DOOR;
     doorMat.specularColor = Color3.Black();
     this.doors.material = doorMat;

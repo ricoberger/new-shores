@@ -538,7 +538,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
-        effects: () => rendererRef.current?.effects() ?? null,
+        effects: () => {
+          const e = rendererRef.current?.effects();
+          return e ? { ...e, vignette: document.querySelector('[data-testid="vignette"]') !== null } : null;
+        },
       };
     }
   }, [sync]);

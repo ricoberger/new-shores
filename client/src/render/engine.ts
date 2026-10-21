@@ -37,7 +37,7 @@ import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
-import { type Effects, SceneLighting } from "./lighting";
+import { type Effects, SceneLighting, skyFill } from "./lighting";
 import { RoadPreview } from "./roads";
 import type { ShipStyle } from "./shipmesh";
 
@@ -201,11 +201,12 @@ export class GameRenderer {
     this.rig = new CameraRig(this.scene, this.engine);
     this.lighting = new SceneLighting(this.scene, this.rig.camera, quality);
     this.arch = new ArchipelagoLayer(this.scene);
+    this.arch.setQuality(quality);
     this.fields = new FieldLayer(this.scene);
     this.roadPreview = new RoadPreview(this.scene);
 
     this.ghost = CreateBox("ghost", { size: 1 }, this.scene);
-    this.ghostMaterial = new StandardMaterial("ghost", this.scene);
+    this.ghostMaterial = skyFill(new StandardMaterial("ghost", this.scene));
     this.ghostMaterial.diffuseColor = GHOST;
     this.ghostMaterial.alpha = 0.45;
     this.ghost.material = this.ghostMaterial;
@@ -332,6 +333,7 @@ export class GameRenderer {
   /** Render quality (high: shadow map, grading, FXAA; low: blob shadows and vignette only). */
   setQuality(q: Quality): void {
     this.lighting.setQuality(q);
+    this.arch.setQuality(q);
     this.refreshCasters();
   }
 

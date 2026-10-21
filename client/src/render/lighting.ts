@@ -1,26 +1,27 @@
 // Fixed golden-hour lighting (ART_DIRECTION §2, §8): one warm directional
 // sun fixed to the world (it does not follow the camera's 90° steps), a
-// cool hemispheric sky fill at LIGHT_VALUES.fill_ratio of the key, and the
-// quality-dependent extras. "high" (desktop layout): a low-resolution sun
-// shadow map from buildings and trees onto the ground, slight warm colour
-// grading and FXAA; "low" (touch layouts): none of them is created. The
-// soft vignette is part of both. Grading and vignette run in the materials'
-// image processing (no extra full-screen pass); FXAA is the only post
-// process. No bloom, SSAO or depth of field.
+// cool sky fill at LIGHT_VALUES.fill_ratio of the key — the scene's
+// ambient colour, taken by every lit material (skyFill), so the fill costs
+// no second per-pixel light — and the quality-dependent extras. "high"
+// (desktop layout): a low-resolution sun shadow map from buildings and
+// trees onto the ground, slight warm colour grading (the materials' image
+// processing) and FXAA; "low" (touch layouts): none of them is created.
+// The soft vignette of both is an HTML overlay above the canvas
+// (GameCanvas), composited for free instead of shaded per pixel. No bloom,
+// SSAO or depth of field.
 import type { Camera } from "@babylonjs/core/Cameras/camera";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
-import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator";
 import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent";
 import { ColorCurves } from "@babylonjs/core/Materials/colorCurves";
-import { ImageProcessingConfiguration } from "@babylonjs/core/Materials/imageProcessingConfiguration";
-import { Color4 } from "@babylonjs/core/Maths/math.color";
+import type { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import { FxaaPostProcess } from "@babylonjs/core/PostProcesses/fxaaPostProcess";
 import type { Scene } from "@babylonjs/core/scene";
 import type { Quality } from "../display/quality";
-import { LIGHT, LIGHT_VALUES, UI } from "../theme/palette";
+import { LIGHT, LIGHT_VALUES } from "../theme/palette";
 import { c3 } from "./palette";
 
 /**
@@ -60,18 +61,22 @@ function hue(hex: string): number {
   return (h * 60 + 360) % 360;
 }
 
-/** Which quality-dependent effects exist (tests). */
+/** Which quality-dependent effects exist (tests; the vignette is the canvas overlay's). */
 export interface Effects {
   quality: Quality;
   shadowMap: boolean;
   grading: boolean;
   fxaa: boolean;
-  vignette: boolean;
+}
+
+/** A lit material takes the sky fill (the scene's ambient colour); unlit materials must not. */
+export function skyFill<T extends StandardMaterial>(m: T): T {
+  m.ambientColor = Color3.White();
+  return m;
 }
 
 export class SceneLighting {
   readonly sun: DirectionalLight;
-  readonly sky: HemisphericLight;
   private shadows: ShadowGenerator | null = null;
   private fxaa: FxaaPostProcess | null = null;
   private level: Quality | null = null;
@@ -88,21 +93,8 @@ export class SceneLighting {
     this.sun.intensity = SUN_INTENSITY;
     this.sun.autoUpdateExtends = true;
     this.sun.autoCalcShadowZBounds = true;
-    this.sky = new HemisphericLight("sky", new Vector3(0, 1, 0), scene);
-    this.sky.diffuse = c3(LIGHT.sky);
-    this.sky.groundColor = c3(LIGHT.ground);
-    this.sky.specular.set(0, 0, 0);
-    this.sky.intensity = SUN_INTENSITY * LIGHT_VALUES.fill_ratio;
-
-    // Soft vignette at every quality (material image processing).
-    const ip = scene.imageProcessingConfiguration;
-    ip.vignetteEnabled = true;
-    ip.vignetteBlendMode = ImageProcessingConfiguration.VIGNETTEMODE_MULTIPLY;
-    const ink = c3(UI.ink);
-    ip.vignetteColor = new Color4(ink.r, ink.g, ink.b, 0);
-    ip.vignetteWeight = 1.6;
-    ip.vignetteStretch = 0.4;
-    ip.vignetteCameraFov = 0.9;
+    // Sky fill: the ambient term of the lit materials, at the fill ratio of the key.
+    scene.ambientColor = c3(LIGHT.sky).scale(SUN_INTENSITY * LIGHT_VALUES.fill_ratio);
     this.setQuality(quality);
   }
 
@@ -162,7 +154,6 @@ export class SceneLighting {
       shadowMap: this.shadows !== null,
       grading: ip.colorCurvesEnabled,
       fxaa: this.fxaa !== null,
-      vignette: ip.vignetteEnabled,
     };
   }
 }

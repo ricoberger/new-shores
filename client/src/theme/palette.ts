@@ -114,11 +114,10 @@ export const ROUTES = {
   arrow_bright: "#FFD140",
 } as const;
 
-/** Fixed golden hour (ART_DIRECTION §2): warm sun key from the south-west, cool sky fill at fill-ratio of the key, warm ground bounce, grading tint and the shadow colour. */
+/** Fixed golden hour (ART_DIRECTION §2): warm sun key, cool sky fill at fill-ratio of the key (the lit materials' ambient term), the warm grading tint and the blob-shadow colour. */
 export const LIGHT = {
   sun: "#FFF1D6",
   sky: "#9DB7D9",
-  ground: "#A89878",
   grade: "#FFD9A0",
   shadow: "#2A2A35",
 } as const;

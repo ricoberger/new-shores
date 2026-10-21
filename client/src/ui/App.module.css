@@ -47,6 +47,17 @@
   z-index: 0;
 }
 
+/* Soft vignette over the canvas (ART_DIRECTION §8): below the world
+   labels and every HUD layer, never under the pointer. */
+.vignette,
+.overlay > .vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 58%, color-mix(in srgb, var(--ns-ui-ink) 34%, transparent) 100%);
+}
+
 .canvas:focus {
   outline: none;
 }

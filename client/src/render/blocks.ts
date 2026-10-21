@@ -14,6 +14,7 @@ import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { BUILDINGS, TERRAIN } from "../theme/palette";
 import { footprintBox } from "./coords";
 import { colorTuple } from "./palette";
+import { skyFill } from "./lighting";
 
 const BLOCK_Y = 0.15;
 const FIELD_Y = 0.05;
@@ -40,7 +41,7 @@ export class BlockLayer {
     private readonly scene: Scene,
     private readonly parent: TransformNode | null,
   ) {
-    this.material = new StandardMaterial("blocks", scene);
+    this.material = skyFill(new StandardMaterial("blocks", scene));
     this.material.specularColor = Color3.Black();
     this.material.backFaceCulling = false;
   }

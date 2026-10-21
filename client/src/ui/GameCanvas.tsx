@@ -82,13 +82,17 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialCamera, qual
   }, [sync, onRenderer]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className={styles.canvas}
-      tabIndex={0}
-      role="application"
-      aria-label="Game view: drag to pan, pinch or wheel to zoom, Q and E rotate, tap to select"
-      data-testid="game-canvas"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={styles.canvas}
+        tabIndex={0}
+        role="application"
+        aria-label="Game view: drag to pan, pinch or wheel to zoom, Q and E rotate, tap to select"
+        data-testid="game-canvas"
+      />
+      {/* The soft vignette of every quality (ART_DIRECTION §8): composited over the canvas, never shaded per pixel. */}
+      <div className={styles.vignette} aria-hidden="true" data-testid="vignette" />
+    </>
   );
 }

@@ -15,6 +15,7 @@ import { roadStrips, type TilePos } from "../display/geometry";
 import { setInstances } from "./instances";
 import { TERRAIN } from "../theme/palette";
 import { c3, GHOST } from "./palette";
+import { skyFill } from "./lighting";
 
 const ROAD = c3(TERRAIN.road_dirt);
 
@@ -38,7 +39,7 @@ export class RoadLayer {
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
   ) {
-    this.material = new StandardMaterial("roads", scene);
+    this.material = skyFill(new StandardMaterial("roads", scene));
     this.material.diffuseColor = ROAD;
     this.material.specularColor = Color3.Black();
     this.material.backFaceCulling = false;
@@ -81,7 +82,7 @@ export class RoadPreview {
 
   constructor(scene: Scene) {
     this.preview = CreateBox("road_preview", { width: 0.9, height: 0.06, depth: 0.9 }, scene);
-    const pm = new StandardMaterial("road_preview", scene);
+    const pm = skyFill(new StandardMaterial("road_preview", scene));
     pm.diffuseColor = GHOST;
     pm.alpha = 0.6;
     pm.specularColor = Color3.Black();
