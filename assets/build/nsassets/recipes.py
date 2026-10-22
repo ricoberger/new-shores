@@ -96,7 +96,15 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
         return errors
     recipe = expand(recipe)
     cid = recipe["id"]
-    kind = content_mod.kind_of(content, cid)
+    kind = "decor" if recipe["kind"] == "decor" else content_mod.kind_of(content, cid)
+    if kind == "decor":
+        if not cid.startswith(config.DECOR_PREFIX):
+            errors.append(f"{name}: decoration IDs start with {config.DECOR_PREFIX!r} (they are not content IDs)")
+        if content_mod.kind_of(content, cid) is not None:
+            errors.append(f"{name}: id {cid!r} is a content ID; decoration needs its own")
+        for k in ("variants", "levels", "ship", "attachments", "budget_exception", "anchors"):
+            if k in recipe:
+                errors.append(f"{name}: {k} is not for decoration")
     if kind is None:
         errors.append(f"{name}: id {cid!r} is not a building or ship in content/old_coast")
         return errors
@@ -104,7 +112,7 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
         errors.append(f"{name}: file name must be {cid}.json")
     if kind == "road":
         errors.append(f"{name}: roads have no model (they stay strips)")
-    elif recipe["kind"] != kind:
+    elif kind != "decor" and recipe["kind"] != kind:
         errors.append(f"{name}: kind {recipe['kind']!r} does not match the content ({kind})")
     is_house = content_mod.is_house(content, cid)
     if is_house and len(recipe.get("variants", [])) != 3:
@@ -119,7 +127,7 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
     if kind == "ship":
         if "ship" not in recipe:
             errors.append(f"{name}: ships need a ship block")
-    else:
+    elif kind != "decor":
         for k in ("ship", "attachments"):
             if k in recipe:
                 errors.append(f"{name}: {k} is only for ships")

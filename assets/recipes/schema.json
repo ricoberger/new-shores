@@ -8,8 +8,8 @@
   "additionalProperties": false,
   "properties": {
     "$schema": { "type": "string" },
-    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Content ID (content/old_coast/buildings.json or ships.json)." },
-    "kind": { "enum": ["building", "field", "ship"] },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Content ID (content/old_coast/buildings.json or ships.json), or decor_<name> for decoration." },
+    "kind": { "enum": ["building", "field", "ship", "decor"], "description": "decor: island decoration (trees, bushes, rocks, tufts, stumps, outcrops) with an id starting decor_, not a content ID; listed under the manifest's decor key." },
     "notes": { "type": "string", "description": "What the model shows; production buildings name their signature prop." },
     "parts": { "$ref": "#/$defs/partList", "description": "Parts shared by every variant and level." },
     "variants": {

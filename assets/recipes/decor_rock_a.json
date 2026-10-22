@@ -1,0 +1,2 @@
+{"$schema": "./schema.json", "id": "decor_rock_a", "kind": "decor", "notes": "Boulder (KayKit Forest Rock_1_A).", "parts": [
+  {"kit": "kaykit_forest", "file": "Assets/gltf/Rock_1_A_Color1.gltf", "roles": {"Atlas/rock": "mountain"}, "scale": 1.8}]}

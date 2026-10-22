@@ -91,3 +91,29 @@ class ExaggerateTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DecorTest(unittest.TestCase):
+    def test_decor_recipes_build_without_content_ids_or_lite(self):
+        r = {"id": "decor_rock", "kind": "decor", "parts": [{"prim": "rock", "size": [0.2, 0.2, 0.15], "role": "mountain"}]}
+        self.assertEqual(recipes.check_recipe(r, "recipes/decor_rock.json", SCHEMA, CONTENT, KIT_FILES, ROLES), [])
+        files, entry, errors = pipeline.build_recipe(r, CONTENT, ROLES, fake_loader())
+        self.assertEqual(errors, [])
+        self.assertEqual([f[0] for f in files], ["decor_rock.glb"])
+        self.assertEqual(entry["kind"], "decor")
+        self.assertEqual(entry["file"]["budget"], config.BUDGET_DECOR)
+        self.assertNotIn("footprint", entry)
+
+    def test_decor_ids_need_the_prefix_and_no_content_options(self):
+        r = {"id": "rock", "kind": "decor", "parts": [{"prim": "rock", "size": [0.2, 0.2, 0.15], "role": "mountain"}], "variants": [[], []]}
+        errs = recipes.check_recipe(r, "recipes/rock.json", SCHEMA, CONTENT, KIT_FILES, ROLES)
+        self.assertTrue(any("start with 'decor_'" in e for e in errs), errs)
+        self.assertTrue(any("variants is not for decoration" in e for e in errs), errs)
+
+    def test_manifest_lists_decor_apart_from_content_models(self):
+        doc = pipeline.manifest({"decor_rock": {"kind": "decor", "file": {}}, "chapel": {"kind": "building"}}, "x", "5.2", [])
+        import json as _json
+
+        m = _json.loads(doc)
+        self.assertEqual(sorted(m["decor"]), ["decor_rock"])
+        self.assertEqual(sorted(m["models"]), ["chapel"])

@@ -221,6 +221,8 @@ def budget_of(recipe, content, key):
         return config.BUDGET_ATTACHMENT
     if kind == "ship":
         return config.BUDGET_SHIP
+    if kind == "decor":
+        return config.BUDGET_DECOR
     if kind == "field":
         return config.BUDGET_FIELD
     if content_mod.is_house(content, cid):
@@ -316,7 +318,9 @@ def _check_file(recipe, content, roles, fname, key, mesh, declared, limit):
     """Validates one model file (full or lite: the same rules, the lite budget); returns (bytes, problems)."""
     cid = recipe["id"]
     problems = validate.budget(mesh, limit, fname)
-    if recipe["kind"] in ("building", "field"):
+    if recipe["kind"] == "decor":
+        problems += [f"{fname}: {p}" for p in validate.ground_contact(mesh)]
+    elif recipe["kind"] in ("building", "field"):
         w, h = content_mod.footprint(content, cid)
         problems += [f"{fname}: footprint fit: {p}" for p in validate.footprint_fit(mesh, w, h)]
         problems += [f"{fname}: {p}" for p in validate.ground_contact(mesh)]
@@ -403,6 +407,13 @@ def manifest_entry(recipe, content, files, meta, kit_used):
     cid = recipe["id"]
     entry = {"kind": recipe["kind"]}
     by_name = {f[0]: f for f in files}
+    if recipe["kind"] == "decor":
+        fname, (_, mesh, _) = next(iter(meta.items()))
+        entry["file"] = file_info(fname, by_name[fname][1], mesh)
+        entry["file"]["budget"] = by_name[fname][3]
+        entry["bounds"] = entry["file"]["bounds"]
+        entry["kit_sources"] = [{"kit": k, "files": sorted(v)} for k, v in sorted(kit_used.items())]
+        return entry
     main = []
     for fname, (key, mesh, lite) in meta.items():
         info = file_info(fname, by_name[fname][1], mesh)
@@ -451,7 +462,10 @@ def manifest_entry(recipe, content, files, meta, kit_used):
 
 
 def manifest(entries, palette_sha, blender_version, missing):
+    decor = {k: v for k, v in entries.items() if v["kind"] == "decor"}
+    entries = {k: v for k, v in entries.items() if v["kind"] != "decor"}
     doc = {
+        "decor": dict(sorted(decor.items())),
         "version": config.MANIFEST_VERSION,
         "generator": config.GENERATOR,
         "blender": blender_version,

@@ -203,6 +203,11 @@ BUDGET_HOUSE = 2500
 BUDGET_FIELD = 300
 BUDGET_SHIP = 1500
 BUDGET_ATTACHMENT = 150
+#: Decoration pieces (kind "decor": trees, bushes, rocks, tufts, stumps,
+#: outcrops) are merged by the hundreds per island chunk: small budgets.
+BUDGET_DECOR = 300
+#: Decoration recipe IDs start with this prefix (they are not content IDs).
+DECOR_PREFIX = "decor_"
 #: Lite models (drawn at the near-LOD default zoom, full ones at a half
 #: extent ≤ 10) are generated, not authored: every building's model
 #: without its lod-"full" parts is decimated by Blender's edge collapse to

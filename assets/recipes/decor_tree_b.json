@@ -1,0 +1,2 @@
+{"$schema": "./schema.json", "id": "decor_tree_b", "kind": "decor", "notes": "Leaning broadleaf (KayKit Forest Tree_2_A, decimated).", "parts": [
+  {"kit": "kaykit_forest", "file": "Assets/gltf/Tree_2_A_Color1.gltf", "simplify": {"collapse": 0.33}, "roles": {"Atlas/foliage": {"role": "tree-crown", "shade": 1.08}}}]}

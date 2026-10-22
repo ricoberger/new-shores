@@ -1,5 +1,643 @@
 {
   "blender": "5.2",
+  "decor": {
+    "decor_bush_a": {
+      "bounds": {
+        "max": [
+          0.1603,
+          0.2685,
+          0.1405
+        ],
+        "min": [
+          -0.1603,
+          -0.0035,
+          -0.1405
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.1603,
+            0.2685,
+            0.1405
+          ],
+          "min": [
+            -0.1603,
+            -0.0035,
+            -0.1405
+          ]
+        },
+        "budget": 300,
+        "bytes": 7208,
+        "path": "decor_bush_a.glb",
+        "sha256": "bba8149da64f581a3d7e6bc48d92a88e2b741b7e030da0d312320966371c215f",
+        "triangles": 72
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Bush_1_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_bush_b": {
+      "bounds": {
+        "max": [
+          0.1742,
+          0.3485,
+          0.1742
+        ],
+        "min": [
+          -0.1742,
+          0.0,
+          -0.1742
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.1742,
+            0.3485,
+            0.1742
+          ],
+          "min": [
+            -0.1742,
+            0.0,
+            -0.1742
+          ]
+        },
+        "budget": 300,
+        "bytes": 4180,
+        "path": "decor_bush_b.glb",
+        "sha256": "30c3ea494b0fe8207aaa389b9b2c735591bce71e625a1844945555f9410a07f7",
+        "triangles": 44
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Bush_2_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_outcrop_iron": {
+      "bounds": {
+        "max": [
+          0.5439,
+          0.403,
+          0.4541
+        ],
+        "min": [
+          -0.5286,
+          -0.0002,
+          -0.4331
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5439,
+            0.403,
+            0.4541
+          ],
+          "min": [
+            -0.5286,
+            -0.0002,
+            -0.4331
+          ]
+        },
+        "budget": 300,
+        "bytes": 10368,
+        "path": "decor_outcrop_iron.glb",
+        "sha256": "6b0610652dc30618b576bd8fcdb0b3a154feb2a4680c6ae42917e7967071e8fb",
+        "triangles": 133
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/rock_single_C.gltf",
+            "Assets/gltf/decoration/nature/rock_single_D.gltf",
+            "Assets/gltf/decoration/nature/rock_single_E.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "decor_outcrop_other": {
+      "bounds": {
+        "max": [
+          0.5439,
+          0.403,
+          0.4541
+        ],
+        "min": [
+          -0.5286,
+          -0.0002,
+          -0.4331
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5439,
+            0.403,
+            0.4541
+          ],
+          "min": [
+            -0.5286,
+            -0.0002,
+            -0.4331
+          ]
+        },
+        "budget": 300,
+        "bytes": 10372,
+        "path": "decor_outcrop_other.glb",
+        "sha256": "5e5caa6e3fb4d73883d201a0cad6e2de75edf619620112acb17b6c977b1c15a2",
+        "triangles": 133
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/rock_single_C.gltf",
+            "Assets/gltf/decoration/nature/rock_single_D.gltf",
+            "Assets/gltf/decoration/nature/rock_single_E.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "decor_outcrop_stone": {
+      "bounds": {
+        "max": [
+          0.5439,
+          0.403,
+          0.4541
+        ],
+        "min": [
+          -0.5286,
+          -0.0002,
+          -0.4331
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5439,
+            0.403,
+            0.4541
+          ],
+          "min": [
+            -0.5286,
+            -0.0002,
+            -0.4331
+          ]
+        },
+        "budget": 300,
+        "bytes": 10372,
+        "path": "decor_outcrop_stone.glb",
+        "sha256": "8eb5475b1b0181c814e24da1d463dd56aa3113984e22fd9b614ef467afff2e24",
+        "triangles": 133
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/rock_single_C.gltf",
+            "Assets/gltf/decoration/nature/rock_single_D.gltf",
+            "Assets/gltf/decoration/nature/rock_single_E.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "decor_rock_a": {
+      "bounds": {
+        "max": [
+          0.1396,
+          0.2917,
+          0.1641
+        ],
+        "min": [
+          -0.1725,
+          0.0,
+          -0.1641
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.1396,
+            0.2917,
+            0.1641
+          ],
+          "min": [
+            -0.1725,
+            0.0,
+            -0.1641
+          ]
+        },
+        "budget": 300,
+        "bytes": 3808,
+        "path": "decor_rock_a.glb",
+        "sha256": "43b74029116e34dc5e252d3de609f1f1f6385fc6e0b113fe7870f24d5e72c5fb",
+        "triangles": 48
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Rock_1_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_rock_b": {
+      "bounds": {
+        "max": [
+          0.097,
+          0.194,
+          0.097
+        ],
+        "min": [
+          -0.097,
+          0.0,
+          -0.097
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.097,
+            0.194,
+            0.097
+          ],
+          "min": [
+            -0.097,
+            0.0,
+            -0.097
+          ]
+        },
+        "budget": 300,
+        "bytes": 1920,
+        "path": "decor_rock_b.glb",
+        "sha256": "b2cbba0104390ff4d7602e8c1ea60628c7d085ace9a03121791c7edc78551a99",
+        "triangles": 12
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Rock_2_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_stump_a": {
+      "bounds": {
+        "max": [
+          0.0975,
+          0.2618,
+          0.0835
+        ],
+        "min": [
+          -0.0976,
+          -0.118,
+          -0.1025
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.0975,
+            0.2618,
+            0.0835
+          ],
+          "min": [
+            -0.0976,
+            -0.118,
+            -0.1025
+          ]
+        },
+        "budget": 300,
+        "bytes": 2056,
+        "path": "decor_stump_a.glb",
+        "sha256": "55b164036fae672bf0c071eb4a721ce18ded2d239a64a880acd9d8693f83a6db",
+        "triangles": 16
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/tree_single_A_cut.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "decor_stump_b": {
+      "bounds": {
+        "max": [
+          0.1143,
+          0.1729,
+          0.1202
+        ],
+        "min": [
+          -0.1143,
+          -0.1265,
+          -0.1202
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.1143,
+            0.1729,
+            0.1202
+          ],
+          "min": [
+            -0.1143,
+            -0.1265,
+            -0.1202
+          ]
+        },
+        "budget": 300,
+        "bytes": 3060,
+        "path": "decor_stump_b.glb",
+        "sha256": "ec79752ca80a459269de8b04bd1c0ac0d7270a1b10e87be78964f0fbb43143cc",
+        "triangles": 38
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/tree_single_B_cut.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "decor_tree_a": {
+      "bounds": {
+        "max": [
+          0.3807,
+          1.1664,
+          0.4858
+        ],
+        "min": [
+          -0.5691,
+          -0.0745,
+          -0.4858
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.3807,
+            1.1664,
+            0.4858
+          ],
+          "min": [
+            -0.5691,
+            -0.0745,
+            -0.4858
+          ]
+        },
+        "budget": 300,
+        "bytes": 11568,
+        "path": "decor_tree_a.glb",
+        "sha256": "dd79cd1823627426d9db769d377220b187496a1bc86b55895489a3bf0d4a87d4",
+        "triangles": 116
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Tree_1_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_tree_b": {
+      "bounds": {
+        "max": [
+          0.2745,
+          1.2773,
+          0.2183
+        ],
+        "min": [
+          -0.4811,
+          -0.1109,
+          -0.3533
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.2745,
+            1.2773,
+            0.2183
+          ],
+          "min": [
+            -0.4811,
+            -0.1109,
+            -0.3533
+          ]
+        },
+        "budget": 300,
+        "bytes": 11028,
+        "path": "decor_tree_b.glb",
+        "sha256": "fd6d1ac62f1e8d9d58c55f41ba738e70005c8df59e24ed5ed4e20bc7029adf90",
+        "triangles": 110
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Tree_2_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_tree_c": {
+      "bounds": {
+        "max": [
+          0.2662,
+          1.2611,
+          0.2483
+        ],
+        "min": [
+          -0.2427,
+          -0.0851,
+          -0.2596
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.2662,
+            1.2611,
+            0.2483
+          ],
+          "min": [
+            -0.2427,
+            -0.0851,
+            -0.2596
+          ]
+        },
+        "budget": 300,
+        "bytes": 11204,
+        "path": "decor_tree_c.glb",
+        "sha256": "5538bd4f478f7e83ba2733956379ea5fe8e82e3d5e945b1d13f1ee97584adc5a",
+        "triangles": 112
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Tree_4_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_tree_d": {
+      "bounds": {
+        "max": [
+          0.4695,
+          0.9632,
+          0.4632
+        ],
+        "min": [
+          -0.4728,
+          -0.0745,
+          -0.4711
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.4695,
+            0.9632,
+            0.4632
+          ],
+          "min": [
+            -0.4728,
+            -0.0745,
+            -0.4711
+          ]
+        },
+        "budget": 300,
+        "bytes": 11560,
+        "path": "decor_tree_d.glb",
+        "sha256": "6a9430e84c80800a63da64cab786f50c0141b651fae75d30cd28990d7728dc20",
+        "triangles": 116
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Tree_3_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_tuft_a": {
+      "bounds": {
+        "max": [
+          0.0602,
+          0.2265,
+          0.0187
+        ],
+        "min": [
+          -0.0602,
+          -0.0084,
+          -0.0347
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.0602,
+            0.2265,
+            0.0187
+          ],
+          "min": [
+            -0.0602,
+            -0.0084,
+            -0.0347
+          ]
+        },
+        "budget": 300,
+        "bytes": 2384,
+        "path": "decor_tuft_a.glb",
+        "sha256": "cea56bf457e41c3199bd4edb3ce41af909e49d8c55163bdbcaf326b35314f3f2",
+        "triangles": 14
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Grass_1_A_Singlesided_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_tuft_b": {
+      "bounds": {
+        "max": [
+          0.0186,
+          0.213,
+          0.0159
+        ],
+        "min": [
+          -0.0186,
+          -0.0075,
+          -0.0386
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.0186,
+            0.213,
+            0.0159
+          ],
+          "min": [
+            -0.0186,
+            -0.0075,
+            -0.0386
+          ]
+        },
+        "budget": 300,
+        "bytes": 2380,
+        "path": "decor_tuft_b.glb",
+        "sha256": "f76be0c4240c794ff4cd93babb1f02aba01bc854f318a605fa62244034cacd90",
+        "triangles": 14
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Grass_2_A_Singlesided_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
+    }
+  },
   "file_scale": {
     "pirate:glTF/Ship_Small.gltf": 0.35
   },

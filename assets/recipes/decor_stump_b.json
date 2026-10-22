@@ -1,0 +1,2 @@
+{"$schema": "./schema.json", "id": "decor_stump_b", "kind": "decor", "notes": "Tree stump with a chopped top (KayKit Hexagon tree_single_B_cut).", "parts": [
+  {"kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/nature/tree_single_B_cut.gltf", "scale": 0.55}]}

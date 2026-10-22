@@ -1,0 +1,2 @@
+{"$schema": "./schema.json", "id": "decor_tree_d", "kind": "decor", "notes": "Round bushy tree (KayKit Forest Tree_3_A, decimated).", "parts": [
+  {"kit": "kaykit_forest", "file": "Assets/gltf/Tree_3_A_Color1.gltf", "simplify": {"collapse": 0.12}, "roles": {"Atlas/foliage": {"role": "grass-a", "shade": 0.85}}}]}
