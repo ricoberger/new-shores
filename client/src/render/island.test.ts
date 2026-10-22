@@ -1,9 +1,13 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { Scene } from "@babylonjs/core/scene";
 import { afterEach, describe, expect, it } from "vitest";
 import type { ContentBuilding, IslandDisplay } from "../api/client";
 import { buildDenseArchipelagoFixture } from "../dev/fixture";
+import { RISE_MS } from "./buildings";
 import { IslandDetail } from "./island";
+import { ModelRegistry } from "./models";
 
 // The merged static layers of an island (roads, footprints, trees and
 // scatter) rebuild per island and only when their inputs changed,
@@ -80,7 +84,7 @@ describe("per-island merged-layer rebuilds", () => {
     w.show(w.islands);
     const moved = next(w.islands, (is) => {
       if (is.id !== "dense1") return;
-      const house = is.buildings.find((b) => b.type === "house")!;
+      const house = is.buildings.find((b) => b.type === "house_settlers")!;
       house.rotation = house.rotation === 0 ? 180 : 0;
     });
     w.show(moved);
@@ -91,7 +95,7 @@ describe("per-island merged-layer rebuilds", () => {
     w.show(
       next(moved, (is) => {
         if (is.id !== "dense2") return;
-        is.buildings.find((b) => b.type === "woodcutter")!.efficiency_permille = 400;
+        is.buildings.find((b) => b.type === "lumberjack")!.efficiency_permille = 400;
       }),
     );
     expect(w.details.get("dense2")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 2 });
@@ -104,5 +108,44 @@ describe("per-island merged-layer rebuilds", () => {
     w.show(next(w.islands, (is) => is.id === "isle5" && is.roads.push({ x: 1, y: 1, type: "road" } as IslandDisplay["roads"][number])));
     expect(w.details.get("isle5")!.rebuilds).toEqual({ roads: 2, layout: 1, decoration: 2 });
     expect(w.details.get("isle7")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
+  });
+});
+
+describe("shadow casters with models", () => {
+  it("lists the re-merged chunk meshes after a rise-in finishes (frame() reports the change)", async () => {
+    engine = new NullEngine({ renderWidth: 320, renderHeight: 200, textureSize: 64, deterministicLockstep: false, lockstepMaxSteps: 1 });
+    const scene = new Scene(engine);
+    const models = join(__dirname, "..", "..", "public", "models");
+    const reg = new ModelRegistry(scene, {
+      fetch: (url) => {
+        const path = url.endsWith("manifest.json") ? "manifest.json" : (url.replace("/models/", "").split("?")[0] as string);
+        return Promise.resolve(new Response(new Uint8Array(readFileSync(join(models, path))), { status: 200 }));
+      },
+    });
+    await reg.loadManifest();
+    const built = buildDenseArchipelagoFixture(0);
+    const defs = new Map<string, ContentBuilding>(built.content.buildings.map((b) => [b.id, b]));
+    const is = built.server.display.islands[0]!;
+    const d = new IslandDetail(scene, is.id, is.position, reg);
+    d.setStatics(built.islands.get(is.id)!);
+    d.setShown(true, "near");
+    d.update(is, defs);
+    for (let i = 0; i < 400 && (reg.status().pending.length > 0 || reg.status().loaded.length === 0); i++) await new Promise((r) => setTimeout(r, 5));
+    d.refreshModels();
+    // A new house next to the first one rises in.
+    const next = structuredClone(is);
+    const first = next.buildings.find((b) => b.type === "house_settlers")!;
+    next.buildings.push({ ...first, id: 999_999 });
+    d.update(next, defs);
+    const before = new Set(d.shadowCasters());
+    expect(d.frame(1000)).toBe(false);
+    expect(d.frame(1000 + RISE_MS + 1)).toBe(true);
+    const after = d.shadowCasters();
+    const fresh = after.filter((m) => !before.has(m));
+    expect(fresh.length).toBeGreaterThan(0);
+    expect(fresh.every((m) => m.name.startsWith("models_"))).toBe(true);
+    expect([...before].some((m) => m.isDisposed())).toBe(true);
+    expect(after.some((m) => m.isDisposed())).toBe(false);
+    scene.dispose();
   });
 });

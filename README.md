@@ -168,7 +168,10 @@ service before the servers start.
   view), `?fixture=dense-2x400` (two islands, ≈ 400 buildings, 63 carts,
   2 ships on legs; near the dense island) and
   `?fixture=dense-archipelago-8` (8 islands, two of them dense, ships on
-  legs and 2 routes; the far and mid LOD budget), e.g.
+  legs and 2 routes; the far and mid LOD budget) and `?fixture=showcase`
+  (every building, field and ship model once or more: house variants,
+  warehouse levels, a paused building, sloops with and without cargo and
+  unpaid), all with the real content IDs and footprints, e.g.
   <http://localhost:5173/?fixture=dense-2x400> under `make dev`.
   `?quality=high|low` overrides the render quality the layout selects
   (desktop: high — shadow map, grading, FXAA, the latter not on software

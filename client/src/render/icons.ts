@@ -31,7 +31,7 @@ export class IconLayer {
   /** Rotation that turns the quad towards the camera. */
   private facing = Matrix.RotationYawPitchRoll(azimuthOf(0), ELEVATION, 0);
   private rotation = 0;
-  private last: { buildings: BuildingDisplay[]; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
+  private last: { buildings: readonly BuildingDisplay[]; defs: ReadonlyMap<string, ContentBuilding>; heightOf?: (b: BuildingDisplay) => number } | null = null;
 
   constructor(
     private readonly scene: Scene,
@@ -90,11 +90,12 @@ export class IconLayer {
     if (step === this.rotation) return;
     this.rotation = step;
     this.facing = Matrix.RotationYawPitchRoll(azimuthOf(step), ELEVATION, 0);
-    if (this.last) this.update(this.last.buildings, this.last.defs);
+    if (this.last) this.update(this.last.buildings, this.last.defs, this.last.heightOf);
   }
 
-  update(buildings: BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
-    this.last = { buildings, defs };
+  /** Icons above every building whose status is not ok, at heightOf (the model's status anchor) or ICON_Y. */
+  update(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>, heightOf?: (b: BuildingDisplay) => number): void {
+    this.last = { buildings, defs, heightOf };
     const byKey = new Map<StatusKey, number[]>();
     for (const b of buildings) {
       if (b.status === "ok") continue;
@@ -104,7 +105,7 @@ export class IconLayer {
       const key = statusKey(b);
       let arr = byKey.get(key);
       if (!arr) byKey.set(key, (arr = []));
-      for (const v of this.facing.multiply(Matrix.Translation(cx, ICON_Y, cz)).asArray()) arr.push(v);
+      for (const v of this.facing.multiply(Matrix.Translation(cx, heightOf?.(b) ?? ICON_Y, cz)).asArray()) arr.push(v);
     }
     for (const [key, mesh] of this.templates) if (!byKey.has(key)) setInstances(mesh, null);
     for (const [key, arr] of byKey) setInstances(this.template(key), new Float32Array(arr));

@@ -87,5 +87,11 @@ export const ROUTE_COLORS = [ROUTES.route_1, ROUTES.route_2, ROUTES.route_3, ROU
 export const DRAFT_COLOR = c3(ROUTES.draft);
 export const ARROW_DIM = colorTuple(ROUTES.arrow_dim);
 export const ARROW_BRIGHT = colorTuple(ROUTES.arrow_bright);
+/**
+ * Instance colour of a paused building (player or unpaid): a cool-grey
+ * multiplier that desaturates and dims its palette colours (ART_DIRECTION
+ * §7 "paused/unpaid = desaturated tint"; like SHIP_UNPAID for ships).
+ */
+export const PAUSED_TINT: readonly [number, number, number, number] = [0.6, 0.64, 0.74, 1];
 /** Shadow tint (blob shadows). */
 export const SHADOW = c3(LIGHT.shadow);

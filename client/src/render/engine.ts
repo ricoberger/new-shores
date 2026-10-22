@@ -23,7 +23,7 @@ import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "..
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
-import { initialLod, type Lod, lodFor } from "../display/lod";
+import { detailFor, initialLod, type Lod, lodFor } from "../display/lod";
 import { type Quality, softwareRenderer } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
@@ -37,6 +37,7 @@ import { islandBerths } from "./harbour";
 import { GridOverlay } from "./grid";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
+import { type AssetsStatus, type Detail, ModelRegistry } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
 import { type Effects, SceneLighting, skyFill } from "./lighting";
@@ -134,6 +135,8 @@ interface IslandLookups {
 }
 
 const FRAME_RING = 2048;
+/** Longest wait (ms) before loaded models replace their placeholders while more are still loading. */
+const MODEL_REFRESH_MS = 400;
 
 export class GameRenderer {
   private readonly engine: Engine;
@@ -141,6 +144,13 @@ export class GameRenderer {
   private readonly rig: CameraRig;
   private readonly lighting: SceneLighting;
   private readonly arch: ArchipelagoLayer;
+  /** Asset manifest and lazily loaded models of this scene. */
+  private readonly models: ModelRegistry;
+  /** A model finished loading since the last refresh (the layers swap placeholders in batches, see renderFrame). */
+  private modelsDirty = false;
+  private modelsRefreshedAt = 0;
+  /** Model detail inside the near level (lite at the default zoom, full zoomed in). */
+  private detail: Detail = "lite";
   private readonly details = new Map<string, IslandDetail>();
   private readonly fields: FieldLayer;
   private readonly roadPreview: RoadPreview;
@@ -216,7 +226,12 @@ export class GameRenderer {
     this.rig = new CameraRig(this.scene, this.engine);
     const software = softwareRenderer(this.engine.getGlInfo().renderer);
     this.lighting = new SceneLighting(this.scene, this.rig.camera, quality, software && !forceFxaa, software);
-    this.arch = new ArchipelagoLayer(this.scene);
+    this.models = new ModelRegistry(this.scene);
+    this.models.onChange(() => {
+      this.modelsDirty = true;
+    });
+    void this.models.loadManifest();
+    this.arch = new ArchipelagoLayer(this.scene, this.models);
     this.arch.setQuality(quality);
     this.fields = new FieldLayer(this.scene);
     this.roadPreview = new RoadPreview(this.scene);
@@ -261,7 +276,18 @@ export class GameRenderer {
     const now = this.frozenAt ?? this.sync.serverNowMs();
     this.rig.tick(t);
     this.updateView();
-    for (const d of this.details.values()) d.frame(now);
+    // Loaded models swap in once the requests in flight have settled (or
+    // every MODEL_REFRESH_MS while many load): each swap re-merges chunks.
+    if (this.modelsDirty && (this.models.status().pending.length === 0 || t - this.modelsRefreshedAt >= MODEL_REFRESH_MS)) {
+      this.modelsDirty = false;
+      this.modelsRefreshedAt = t;
+      for (const d of this.details.values()) d.refreshModels();
+      this.refreshCasters();
+    }
+    let casters = false;
+    for (const d of this.details.values()) casters = d.frame(now) || casters;
+    // Rise-ins that finished re-merged their chunks: new caster meshes.
+    if (casters) this.refreshCasters();
     this.arch.frame(now);
     this.updateGhost();
     this.updateGrid();
@@ -270,6 +296,7 @@ export class GameRenderer {
     this.engine._drawCalls.fetchNewFrame();
     this.scene.render();
     this.drawCalls = this.engine._drawCalls.current;
+    if (!this.models.rendered() && (this.arch.drawsModels() || [...this.details.values()].some((d) => d.drawsModels()))) this.models.markRendered();
     for (const l of this.frameListeners) l();
     if (!this.firstFrameMarked && this.placedInitially) {
       this.firstFrameMarked = true;
@@ -505,6 +532,12 @@ export class GameRenderer {
     if (key === this.viewKey) return;
     this.viewKey = key;
     const lod = lodFor(v.half, this.lod);
+    const detail = detailFor(v.half, this.detail);
+    if (detail !== this.detail) {
+      this.detail = detail;
+      for (const d of this.details.values()) d.setDetail(detail);
+      this.refreshCasters();
+    }
     const fp = this.rig.footprint();
     let changed = lod !== this.lod;
     for (const is of islands) {
@@ -545,8 +578,9 @@ export class GameRenderer {
     if (!statics || this.defs.size === 0) return this.details.get(is.id);
     let d = this.details.get(is.id);
     if (!d) {
-      d = new IslandDetail(this.scene, is.id, is.position);
+      d = new IslandDetail(this.scene, is.id, is.position, this.models);
       d.setRotation(this.rig.view().rotation);
+      d.setDetail(this.detail);
       this.details.set(is.id, d);
     }
     d.setPosition(is.position);
@@ -717,6 +751,26 @@ export class GameRenderer {
   }
 
   /** Landmark markers drawn (far LOD). */
+  /**
+   * Asset loading state, the content IDs drawn with a placeholder (islands
+   * at near LOD, ships) and the buildings still drawn with the other
+   * detail's model (bridged) until the wanted file has loaded and swapped in.
+   */
+  assets(): AssetsStatus & { placeholders: string[]; bridged: number } {
+    const placeholders = new Set<string>(this.arch.shipPlaceholders());
+    let bridged = 0;
+    for (const d of this.details.values()) {
+      for (const id of d.placeholders()) placeholders.add(id);
+      bridged += d.bridged();
+    }
+    return { ...this.models.status(), placeholders: [...placeholders].sort(), bridged };
+  }
+
+  /** Model detail drawn at near LOD. */
+  modelDetail(): Detail {
+    return this.detail;
+  }
+
   landmarkCount(): number {
     return this.arch.landmarkCount();
   }

@@ -24,6 +24,7 @@ import { footprintBox } from "./coords";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
+import { type ModelRegistry, shipMeshes, shipModel } from "./models";
 import { ARROW_BRIGHT, ARROW_DIM, c3, colorTuple, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { BUILDINGS, TERRAIN } from "../theme/palette";
 import { skyFill } from "./lighting";
@@ -188,7 +189,8 @@ export class ArchipelagoLayer {
   private readonly silhouettes = new Map<string, Silhouette>();
   private readonly sea: Sea;
   private readonly haze: Mesh;
-  private readonly ships = new Map<string, ColoredInstances>();
+  /** Ship instances per type, with the cargo attachment where the model has one; model: the kit-bashed model (else the placeholder). */
+  private readonly ships = new Map<string, { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean }>();
   private readonly arrows: ColoredInstances;
   private readonly landmarks: ColoredInstances;
   private readonly routeLines = new Map<string, RouteLine>();
@@ -216,7 +218,10 @@ export class ArchipelagoLayer {
   private landKey = "";
   private seaMargin = 400;
 
-  constructor(private readonly scene: Scene) {
+  constructor(
+    private readonly scene: Scene,
+    private readonly registry: ModelRegistry | null = null,
+  ) {
     this.silhouetteMaterial = skyFill(new StandardMaterial("silhouettes", scene));
     this.silhouetteMaterial.specularColor = Color3.Black();
     this.silhouetteMaterial.backFaceCulling = false;
@@ -506,13 +511,39 @@ export class ArchipelagoLayer {
     return mesh;
   }
 
-  private shipInstances(type: string): ColoredInstances {
-    let inst = this.ships.get(type);
-    if (!inst) {
-      inst = new ColoredInstances(shipTemplate(this.scene, `ships_${type}`));
-      this.ships.set(type, inst);
+  /**
+   * The instances of a ship type: the model (and its cargo attachment)
+   * once loaded, the placeholder before and without one — swapped on the
+   * first frame after the model arrives.
+   */
+  private shipInstances(type: string): { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean } {
+    let s = this.ships.get(type);
+    if (s?.model) return s;
+    const model = this.registry ? shipModel(this.registry, type) : null;
+    if (s && !model) return s;
+    if (s) {
+      s.inst.mesh.dispose(false, true);
+      s.cargo?.mesh.dispose(false, true);
     }
-    return inst;
+    if (model) {
+      const m = shipMeshes(this.scene, `ships_${type}`, model);
+      s = { inst: new ColoredInstances(m.hull), cargo: m.cargo ? new ColoredInstances(m.cargo) : null, model: true };
+    } else {
+      s = { inst: new ColoredInstances(shipTemplate(this.scene, `ships_${type}`)), cargo: null, model: false };
+    }
+    this.ships.set(type, s);
+    return s;
+  }
+
+  /** Whether a ship model is drawn (any LOD). */
+  drawsModels(): boolean {
+    for (const s of this.ships.values()) if (s.model && s.inst.size() > 0) return true;
+    return false;
+  }
+
+  /** Ship types drawn with the placeholder in the last frame. */
+  shipPlaceholders(): string[] {
+    return [...this.ships.entries()].filter(([, s]) => !s.model && s.inst.size() > 0).map(([t]) => t);
   }
 
   /** Ship instance scale at the current LOD. */
@@ -530,7 +561,11 @@ export class ArchipelagoLayer {
       if (!list) byType.set(s.type, (list = []));
       list.push(s);
     }
-    for (const [type, inst] of this.ships) if (!byType.has(type)) inst.resize(0);
+    for (const [type, s] of this.ships) {
+      if (byType.has(type)) continue;
+      s.inst.resize(0);
+      s.cargo?.resize(0);
+    }
     this.shipPoints.clear();
     this.shipStyles.clear();
     const scale = this.shipScale();
@@ -543,20 +578,32 @@ export class ArchipelagoLayer {
     this.shipBlobs.setEnabled(blobs && this.shipList.length > 0);
     let blob = 0;
     for (const [type, list] of byType) {
-      const inst = this.shipInstances(type);
+      const { inst, cargo, model } = this.shipInstances(type);
+      // A model's origin is its waterline (at the sea surface); the placeholder floats on y = SHIP_Y.
+      const sy = model && this.lod !== "far" ? SEA_LEVEL : y;
       inst.resize(list.length);
+      const loaded = cargo ? list.filter((s) => s.cargo.length > 0).length : 0;
+      cargo?.resize(loaded);
+      let c = 0;
       list.forEach((s, i) => {
         const p = shipPlacement(s, this.placements, nowMs, slots.get(s.id) ?? 0, this.berths);
         let point = p?.point ?? { x: 0, y: 0 };
         if (this.dragged?.shipId === s.id) point = this.dragged.point;
         this.shipPoints.set(s.id, point);
-        shipMatrix(inst.matrices, i, point.x, y, -point.y, p?.heading ?? 0, p ? scale : 0);
+        shipMatrix(inst.matrices, i, point.x, sy, -point.y, p?.heading ?? 0, p ? scale : 0);
         if (blobs) blobMatrix(this.shipBlobBuffer, blob++, point.x, -point.y, p ? 1.25 * scale : 0, p ? 0.5 * scale : 0, 0.5 * scale, p?.heading ?? 0);
         const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
         this.shipStyles.set(s.id, style);
         inst.setColor(i, shipColor(style));
+        // Crates on deck while carrying cargo, at the same matrix.
+        if (cargo && s.cargo.length > 0) {
+          cargo.matrices.set(inst.matrices.subarray(i * 16, i * 16 + 16), c * 16);
+          cargo.setColor(c, shipColor(style));
+          c++;
+        }
       });
       inst.commit();
+      cargo?.commit();
     }
     if (blobs && blob > 0) this.shipBlobs.mesh.thinInstanceBufferUpdated("matrix");
     this.placeRing();

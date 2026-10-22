@@ -43,6 +43,13 @@ export async function worldReady(page: Page, island: string): Promise<void> {
     .toBe(true);
 }
 
+/** Waits until the model manifest and every model requested so far have loaded and swapped in (no building still drawn with the other detail). */
+export async function modelsLoaded(page: Page): Promise<void> {
+  await expect
+    .poll(() => page.evaluate(() => window.__newShores!.assets()), { timeout: 30_000 })
+    .toMatchObject({ manifest: true, pending: [], failed: [], bridged: 0 });
+}
+
 /** Viewport position of an island tile (or its centre without a tile), once no camera jump runs. */
 export async function islandPoint(page: Page, island: string, tile?: Point): Promise<Point> {
   let p: Point = { x: NaN, y: NaN };

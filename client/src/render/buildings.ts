@@ -1,26 +1,47 @@
-// Buildings: one procedural low-poly template mesh per content ID, drawn
-// with thin instances sized to the rotated footprint, a door marker in the
-// middle of the front edge (purely visual; rotation has no gameplay effect,
-// D-042) and a selection frame.
+// Buildings: the kit-bashed models of the manifest (render/models.ts) and,
+// for content IDs without a model or until it has loaded, one procedural
+// low-poly placeholder per content ID drawn with thin instances sized to
+// the rotated footprint, with a door marker in the middle of the front
+// edge (purely visual; rotation has no gameplay effect, D-042). Also the
+// selection frame.
+//
+// Models are merged per island chunk (CHUNK × CHUNK tiles) into static
+// meshes — one draw call per chunk without thin instances, which software
+// renderers pay per vertex (the phone perf budget; ART_DIRECTION §2), and
+// chunks outside the view are culled. The paused tint is baked into the
+// chunk's vertex colours. Newly placed buildings rise in as thin instances
+// of their model over RISE_MS (renderer animation clock) and then join
+// their chunk. At the near-LOD default zoom the lite models are drawn,
+// zoomed in the full ones (setDetail). Fields with a model are drawn here
+// too; the field layers keep the others.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { CreateCylinder } from "@babylonjs/core/Meshes/Builders/cylinderBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
-import { buildingColor, DOOR, roofColor, SELECTION } from "./palette";
+import { type Detail, type ModelData, type ModelEntry, type ModelFile, type ModelRegistry, atDetail, modelFileFor, placement, worldData } from "./models";
+import { buildingColor, DOOR, PAUSED_TINT, roofColor, SELECTION } from "./palette";
 import { skyFill } from "./lighting";
+import { ColoredInstances } from "./shipmesh";
+
+/** Chunk size (tiles) of the merged model meshes. */
+export const CHUNK = 16;
+/** Duration of the rise-in of a newly placed building (ms of the animation clock). */
+export const RISE_MS = 350;
+const WHITE = [1, 1, 1, 1] as const;
 
 function faces(c: Color4, n: number): Color4[] {
   return Array.from({ length: n }, () => c);
 }
 
-/** Builds the unit-footprint template of a building (scaled per instance). */
+/** Builds the unit-footprint placeholder of a building (scaled per instance). */
 function template(scene: Scene, def: ContentBuilding): Mesh {
   const body = buildingColor(def.id);
   const roofC = roofColor(def.id, def.category);
@@ -70,15 +91,104 @@ function template(scene: Scene, def: ContentBuilding): Mesh {
   return merged;
 }
 
+/** World-oriented vertex data of a building model file (cached per loaded data). */
+const worldCache = new WeakMap<ModelData, ModelData>();
+function buildingData(data: ModelData): ModelData {
+  let w = worldCache.get(data);
+  if (!w) worldCache.set(data, (w = worldData("building", data)));
+  return w;
+}
+
+/** A model instance of a building in a chunk. */
+interface Item {
+  b: BuildingDisplay;
+  entry: ModelEntry;
+  def: ContentBuilding;
+  file: ModelFile;
+  data: ModelData;
+}
+
+/**
+ * Merges model instances into one vertex buffer (island-local): rotated
+ * by their yaw, stretched by the footprint scale, moved to the footprint
+ * centre, colours × the paused tint.
+ */
+export function mergeItems(items: readonly { data: ModelData; cx: number; cz: number; yaw: number; sx: number; sz: number; tint: readonly number[] }[]): VertexData {
+  let nv = 0;
+  let ni = 0;
+  for (const it of items) {
+    nv += it.data.positions.length / 3;
+    ni += it.data.indices.length;
+  }
+  const positions = new Float32Array(nv * 3);
+  const normals = new Float32Array(nv * 3);
+  const colors = new Float32Array(nv * 4);
+  const indices = new Uint32Array(ni);
+  let v = 0;
+  let k = 0;
+  for (const it of items) {
+    const c = Math.cos(it.yaw);
+    const s = Math.sin(it.yaw);
+    const d = it.data;
+    const n = d.positions.length / 3;
+    for (let i = 0; i < n; i++) {
+      const x = (d.positions[i * 3] as number) * it.sx;
+      const y = d.positions[i * 3 + 1] as number;
+      const z = (d.positions[i * 3 + 2] as number) * it.sz;
+      positions[(v + i) * 3] = x * c + z * s + it.cx;
+      positions[(v + i) * 3 + 1] = y;
+      positions[(v + i) * 3 + 2] = -x * s + z * c + it.cz;
+      const nx = d.normals[i * 3] as number;
+      const nz = d.normals[i * 3 + 2] as number;
+      normals[(v + i) * 3] = nx * c + nz * s;
+      normals[(v + i) * 3 + 1] = d.normals[i * 3 + 1] as number;
+      normals[(v + i) * 3 + 2] = -nx * s + nz * c;
+      for (let j = 0; j < 4; j++) colors[(v + i) * 4 + j] = (d.colors[i * 4 + j] as number) * (it.tint[j] as number);
+    }
+    for (let i = 0; i < d.indices.length; i++) indices[k + i] = (d.indices[i] as number) + v;
+    v += n;
+    k += d.indices.length;
+  }
+  const out = new VertexData();
+  out.positions = positions;
+  out.normals = normals;
+  out.colors = colors;
+  out.indices = indices;
+  return out;
+}
+
+/** Rise-in scale at progress t (0..1): ease-out with a slight overshoot. */
+export function riseScale(t: number): number {
+  if (t <= 0) return 0;
+  if (t >= 1) return 1;
+  const u = t - 1;
+  return 1 + 2.2 * u * u * u + 1.2 * u * u;
+}
+
 export class BuildingLayer {
   private readonly templates = new Map<string, Mesh>();
   private readonly material: StandardMaterial;
   private readonly doors: Mesh;
   private readonly selection: Mesh;
+  private readonly chunks = new Map<string, { key: string; mesh: Mesh | null }>();
+  private readonly risingMeshes = new Map<string, ColoredInstances>();
+  /** Newly placed buildings rising in: building ID → start time (null: starts with the next frame). */
+  private readonly rising = new Map<number, number | null>();
+  /** Building IDs of the previous payload (null: nothing shown yet, the first payload never animates). */
+  private known: Set<number> | null = null;
+  private last: { buildings: readonly BuildingDisplay[]; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
+  private detail: Detail = "lite";
+  /** Content IDs drawn with a placeholder, and building IDs drawn as a model, in the last update. */
+  private placeholderIds = new Set<string>();
+  private modelIds = new Set<number>();
+  /** Buildings drawn with the other detail's file while the wanted one loads (last update). */
+  private bridgedCount = 0;
+  private risingItems: Item[] = [];
 
   constructor(
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
+    private readonly registry: ModelRegistry | null = null,
   ) {
     this.material = skyFill(new StandardMaterial("buildings", scene));
     this.material.specularColor = Color3.Black();
@@ -101,13 +211,73 @@ export class BuildingLayer {
     this.selection.setEnabled(false);
   }
 
-  update(buildings: BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
+  /** Detail level of the models (lite at the near default zoom, full zoomed in). */
+  setDetail(detail: Detail): void {
+    if (detail === this.detail) return;
+    this.detail = detail;
+    this.refresh();
+  }
+
+  /** Redraws the last payload (a model finished loading or the detail changed). */
+  refresh(): void {
+    if (this.last) this.draw(this.last.buildings, this.last.defs);
+  }
+
+  update(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
+    const ids = new Set(buildings.map((b) => b.id));
+    if (this.known) for (const id of ids) if (!this.known.has(id)) this.rising.set(id, null);
+    for (const id of this.rising.keys()) if (!ids.has(id)) this.rising.delete(id);
+    this.known = ids;
+    this.last = { buildings, defs };
+    this.draw(buildings, defs);
+  }
+
+  /** The model file and data to draw for a building (wanted detail, else the other one), or null (placeholder). */
+  private modelOf(b: BuildingDisplay, def: ContentBuilding): Item | null {
+    const entry = this.registry?.entry(b.type);
+    if (!entry || !this.registry) return null;
+    const main = modelFileFor(entry, b);
+    if (!main) return null;
+    const want = atDetail(main, this.detail);
+    const other = want === main ? (main.lite ?? main) : main;
+    // Only the wanted detail is loaded; the other one bridges the time until it arrives if it is already there.
+    // `file` is the file actually drawn, so chunk signatures and rising meshes change when the wanted one arrives.
+    const wanted = this.registry.request(want);
+    if (wanted) return { b, entry, def, file: want, data: buildingData(wanted) };
+    const bridge = other !== want ? this.registry.peek(other) : null;
+    if (!bridge) return null;
+    this.bridgedCount++;
+    return { b, entry, def, file: other, data: buildingData(bridge) };
+  }
+
+  private draw(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
     const byType = new Map<string, number[]>();
     const doors: number[] = [];
+    const byChunk = new Map<string, Item[]>();
+    const rising: Item[] = [];
+    this.placeholderIds = new Set();
+    this.modelIds = new Set();
+    this.bridgedCount = 0;
     for (const b of buildings) {
       const def = defs.get(b.type);
-      // Roads and fields (FieldLayer) are flat layers of their own.
-      if (!def || def.category === "roads" || def.field) continue;
+      // Roads are strips of their own; fields without a model stay in the field layers.
+      if (!def || def.category === "roads") continue;
+      const item = this.modelOf(b, def);
+      if (item) {
+        this.modelIds.add(b.id);
+        if (this.rising.has(b.id)) {
+          rising.push(item);
+          continue;
+        }
+        const p = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
+        const key = `${Math.floor(p.cx / CHUNK)},${Math.floor(-p.cz / CHUNK)}`;
+        let list = byChunk.get(key);
+        if (!list) byChunk.set(key, (list = []));
+        list.push(item);
+        continue;
+      }
+      if (def.field) continue;
+      this.placeholderIds.add(b.type);
       const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
       const m = Matrix.Scaling(w, 1, h).multiply(Matrix.Translation(cx, 0, cz));
       let arr = byType.get(b.type);
@@ -136,11 +306,121 @@ export class BuildingLayer {
       setInstances(mesh, new Float32Array(arr));
     }
     setInstances(this.doors, doors.length ? new Float32Array(doors) : null);
+    this.drawChunks(byChunk);
+    this.risingItems = rising;
+    if (rising.length === 0) for (const inst of this.risingMeshes.values()) inst.resize(0);
+  }
+
+  private drawChunks(byChunk: Map<string, Item[]>): void {
+    for (const [key, chunk] of this.chunks) {
+      if (byChunk.has(key)) continue;
+      chunk.mesh?.dispose();
+      this.chunks.delete(key);
+    }
+    for (const [key, items] of byChunk) {
+      const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}:${it.b.paused ? 1 : 0}:${it.def.width}x${it.def.height}`).join(";");
+      const old = this.chunks.get(key);
+      if (old?.key === sig) continue;
+      old?.mesh?.dispose();
+      const data = mergeItems(
+        items.map((it) => {
+          const p = placement(it.entry, it.def, it.b);
+          return { data: it.data, cx: p.cx, cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: it.b.paused ? PAUSED_TINT : WHITE };
+        }),
+      );
+      const mesh = new Mesh(`models_${key}`, this.scene);
+      data.applyToMesh(mesh);
+      mesh.material = this.material;
+      mesh.parent = this.parent;
+      mesh.isPickable = false;
+      this.chunks.set(key, { key: sig, mesh });
+    }
+  }
+
+  /**
+   * Advances the rise-in of newly placed buildings (every frame while shown
+   * at near LOD). Returns true when finished buildings joined their chunks,
+   * i.e. the chunk meshes (shadow casters) were replaced.
+   */
+  frame(nowMs: number): boolean {
+    if (this.risingItems.length === 0) return false;
+    const byFile = new Map<string, Item[]>();
+    let finished = false;
+    for (const it of this.risingItems) {
+      let start = this.rising.get(it.b.id);
+      if (start === undefined) continue;
+      if (start === null) this.rising.set(it.b.id, (start = nowMs));
+      if (nowMs - start >= RISE_MS) {
+        this.rising.delete(it.b.id);
+        finished = true;
+        continue;
+      }
+      let list = byFile.get(it.file.path);
+      if (!list) byFile.set(it.file.path, (list = []));
+      list.push(it);
+    }
+    for (const [path, inst] of this.risingMeshes) if (!byFile.has(path)) inst.resize(0);
+    for (const [path, items] of byFile) {
+      let inst = this.risingMeshes.get(path);
+      if (!inst) {
+        const mesh = new Mesh(`rising_${path}`, this.scene);
+        mergeItems([{ data: (items[0] as Item).data, cx: 0, cz: 0, yaw: 0, sx: 1, sz: 1, tint: WHITE }]).applyToMesh(mesh);
+        mesh.material = this.material;
+        mesh.parent = this.parent;
+        mesh.isPickable = false;
+        mesh.alwaysSelectAsActiveMesh = true;
+        inst = new ColoredInstances(mesh);
+        this.risingMeshes.set(path, inst);
+      }
+      inst.resize(items.length);
+      items.forEach((it, i) => {
+        const p = placement(it.entry, it.def, it.b);
+        const s = riseScale((nowMs - (this.rising.get(it.b.id) ?? nowMs)) / RISE_MS);
+        Matrix.Scaling(s * p.sx, s, s * p.sz)
+          .multiply(Matrix.RotationY(p.yaw))
+          .multiply(Matrix.Translation(p.cx, 0, p.cz))
+          .copyToArray(inst.matrices, i * 16);
+        inst.setColor(i, it.b.paused ? PAUSED_TINT : WHITE);
+      });
+      inst.commit();
+    }
+    // Finished buildings join their chunk.
+    if (finished) this.refresh();
+    return finished;
+  }
+
+  /** Triangles drawn by the model chunks (tests). */
+  chunkTriangles(): number {
+    let n = 0;
+    for (const c of this.chunks.values()) n += (c.mesh?.getTotalIndices() ?? 0) / 3;
+    return n;
   }
 
   /** The building meshes drawn (shadow casters). */
   meshes(): Mesh[] {
-    return [...this.templates.values()].filter((m) => m.isVisible);
+    const out = [...this.templates.values()].filter((m) => m.isVisible);
+    for (const c of this.chunks.values()) if (c.mesh) out.push(c.mesh);
+    return out;
+  }
+
+  /** Content IDs drawn with a placeholder in the last update. */
+  placeholders(): ReadonlySet<string> {
+    return this.placeholderIds;
+  }
+
+  /** Buildings drawn with the other detail's file until the wanted one has loaded (last update). */
+  bridged(): number {
+    return this.bridgedCount;
+  }
+
+  /** Building IDs drawn as a model (fields among them leave the field layers). */
+  modelled(): ReadonlySet<number> {
+    return this.modelIds;
+  }
+
+  /** Model chunks drawn (tests). */
+  chunkCount(): number {
+    return this.chunks.size;
   }
 
   select(b: BuildingDisplay | undefined, def: ContentBuilding | undefined): void {
@@ -148,15 +428,22 @@ export class BuildingLayer {
       this.selection.setEnabled(false);
       return;
     }
-    const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-    this.selection.scaling.set(w + 0.1, 1.1, h + 0.1);
-    this.selection.position.set(cx, 0.5, cz);
+    const entry = this.registry?.entry(b.type);
+    if (entry && entry.kind !== "ship") {
+      const p = placement(entry, def, b);
+      this.selection.scaling.set(p.rect.w + 0.1, p.height + 0.1, p.rect.h + 0.1);
+      this.selection.position.set(p.rect.cx, p.height / 2, p.rect.cz);
+    } else {
+      const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
+      this.selection.scaling.set(w + 0.1, 1.1, h + 0.1);
+      this.selection.position.set(cx, 0.5, cz);
+    }
     this.selection.setEnabled(true);
   }
 }
 
 /** Unit direction (world x, z) of a building's front and the door rotation. */
-function frontOffset(rotation: number): [number, number, number] {
+export function frontOffset(rotation: number): [number, number, number] {
   switch (rotation) {
     case 90:
       return [-1, 0, Math.PI / 2];

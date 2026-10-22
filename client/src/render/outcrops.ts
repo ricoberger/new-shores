@@ -55,9 +55,11 @@ export class OutcropLayer {
     private readonly parent: TransformNode | null,
   ) {}
 
-  update(deposits: readonly { x: number; y: number; kind: string }[], seed: number): void {
+  /** Rock clusters on the deposit tiles, except inside a building footprint (`blocked` tile keys "x,y": mines and quarries are not pierced). */
+  update(deposits: readonly { x: number; y: number; kind: string }[], seed: number, blocked: ReadonlySet<string> = new Set()): void {
     const byKind = new Map<string, number[]>();
     for (const d of deposits) {
+      if (blocked.has(`${d.x},${d.y}`)) continue;
       const kind = KIND_TINTS[d.kind] ? d.kind : "other";
       let arr = byKind.get(kind);
       if (!arr) byKind.set(kind, (arr = []));

@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { camera, expectFocused, expectLod, freeCanvasPoint, islandPoint, islandTapPoint, type Lod, lod, shipPoint, worldReady } from "./archipelago";
+import { camera, expectFocused, expectLod, freeCanvasPoint, islandPoint, islandTapPoint, type Lod, lod, modelsLoaded, shipPoint, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 import {
   ISLAND,
@@ -162,15 +162,15 @@ test("gestures on a janky main thread: pan, tap and long-press keep their meanin
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
   await page.getByTestId("build-tab-production").tap();
-  await page.getByTestId("build-woodcutter").tap();
+  await page.getByTestId("build-lumberjack").tap();
   const ref = { x: 30, y: 25 };
-  const house = await denseBuilding(page, "house", 0.32, 0.6);
+  const house = await denseBuilding(page, "house_settlers", 0.32, 0.6);
   await jank(page, 500);
   // With a build tool: a tap positions the ghost, a long-press only inspects.
   await touch.tap(await tile(page, DENSE, { x: 30, y: 24 }));
   await expect(page.getByTestId("placement-hint")).toContainText("30, 24");
   await touch.longPress(house.at);
-  await expect(page.getByTestId("info-name")).toHaveText("House");
+  await expect(page.getByTestId("info-name")).toHaveText("Settler house");
   await expect(page.getByTestId("placement-hint")).toContainText("30, 24"); // the long-press placed nothing
   await page.getByTestId("placement-cancel").tap();
   await page.getByTestId("sheet-close").tap();
@@ -248,6 +248,9 @@ test("a touch gesture begun during a jump stays ignored after it, also when a dr
   test.skip(!touch.multiTouch, "no multi-touch emulation in this browser");
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
+  // The models have loaded and merged (no main-thread work left that could outlast the jump).
+  await modelsLoaded(page);
+  await page.waitForTimeout(300);
   const c = await freeCanvasPoint(page);
   // Jump to the second island (a DOM click: no touch pointer), and during
   // the 350 ms animation press one finger, drag it, and add a second
@@ -301,7 +304,7 @@ test("two-finger twist turns the camera without a tool and the ghost with a ghos
   expect(after.half).toBeCloseTo(before.half, 3);
   // With a build tool the twist turns the ghost; the camera stays.
   await page.getByTestId("build-tab-production").tap();
-  await page.getByTestId("build-woodcutter").tap();
+  await page.getByTestId("build-lumberjack").tap();
   await expect(page.getByTestId("placement-rotate")).toContainText(/(^|\D)0°/);
   await touch.twist(await freeCanvasPoint(page), 180, Math.PI / 3);
   await expect(page.getByTestId("placement-rotate")).toContainText(/(90|270)°/);
@@ -311,15 +314,15 @@ test("two-finger twist turns the camera without a tool and the ghost with a ghos
 test("tap and long-press select a building, a ship and an island", async ({ page }) => {
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
-  const house = await denseBuilding(page, "house");
+  const house = await denseBuilding(page, "house_settlers");
   await touch.tap(house.at);
   await expect(page.getByTestId("sheet")).toBeVisible();
-  await expect(page.getByTestId("info-name")).toHaveText("House");
+  await expect(page.getByTestId("info-name")).toHaveText("Settler house");
   await expect(page.getByTestId("sheet")).toHaveAttribute("data-snap", "half");
   await page.getByTestId("sheet-close").tap();
   await expect(page.getByTestId("sheet")).toHaveCount(0);
   // Long-press opens the context panel.
-  const depot = await denseBuilding(page, "woodcutter").catch(() => denseBuilding(page, "sawmill"));
+  const depot = await denseBuilding(page, "lumberjack").catch(() => denseBuilding(page, "sawmill"));
   await touch.longPress(depot.at);
   await expect(page.getByTestId("info-panel")).toBeVisible();
   await expect(page.getByTestId("sheet")).toBeVisible();
@@ -341,15 +344,15 @@ test("long-press opens the info panel over an open list sheet and keeps the tool
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
   await page.getByTestId("build-tab-production").tap();
-  await page.getByTestId("build-woodcutter").tap();
+  await page.getByTestId("build-lumberjack").tap();
   await expect(page.getByTestId("placement-bar")).toBeVisible();
   await page.getByTestId("hud-quests").tap();
   await expect(page.getByTestId("quests-panel")).toBeVisible();
   // A building above the half-open sheet.
-  const house = await denseBuilding(page, "house", 0.32, 0.5);
+  const house = await denseBuilding(page, "house_settlers", 0.32, 0.5);
   await touch.longPress(house.at);
   await expect(page.getByTestId("info-panel")).toBeVisible();
-  await expect(page.getByTestId("info-name")).toHaveText("House");
+  await expect(page.getByTestId("info-name")).toHaveText("Settler house");
   await expect(page.getByTestId("quests-panel")).toHaveCount(0);
   await expect(page.getByTestId("placement-bar")).toBeVisible();
   await expect(page.getByTestId("placement-confirm")).toBeDisabled();
@@ -360,7 +363,7 @@ test("a mouse or pen taking over drops the touch-pending tile; the ghost follows
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
   await page.getByTestId("build-tab-production").tap();
-  await page.getByTestId("build-woodcutter").tap();
+  await page.getByTestId("build-lumberjack").tap();
   const ghost = () => page.evaluate(() => window.__newShores!.ghostTile());
   const a = { x: 30, y: 24 };
   const b = { x: 26, y: 26 };
@@ -434,7 +437,7 @@ test("keyboard: a dialog opened from a sheet takes focus, keeps Tab and returns 
 test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the camera", async ({ page }) => {
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
-  const house = await denseBuilding(page, "house");
+  const house = await denseBuilding(page, "house_settlers");
   await touch.tap(house.at);
   const sheet = page.getByTestId("sheet");
   await expect(sheet).toHaveAttribute("data-snap", "half");
@@ -516,7 +519,7 @@ test("every HUD control is at least 44 × 44 px; no horizontal overflow at 360 �
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
   // Open a sheet and the population chip so their controls are audited too.
-  await touch.tap((await denseBuilding(page, "woodcutter").catch(() => denseBuilding(page, "sawmill"))).at);
+  await touch.tap((await denseBuilding(page, "lumberjack").catch(() => denseBuilding(page, "sawmill"))).at);
   await expect(page.getByTestId("sheet")).toBeVisible();
   await page.getByTestId("hud-population-chip").tap();
   await expect(page.getByTestId("hud-population-list")).toBeVisible();
@@ -577,7 +580,7 @@ test("tablet layouts: every HUD control is reachable and at least 44 × 44 px", 
     await worldReady(page, DENSE);
     await expect(page.locator('[data-layout="tablet"]')).toHaveCount(1);
     // A side panel open too (tablets keep panels at the side).
-    await touch.tap((await denseBuilding(page, "woodcutter").catch(() => denseBuilding(page, "sawmill"))).at);
+    await touch.tap((await denseBuilding(page, "lumberjack").catch(() => denseBuilding(page, "sawmill"))).at);
     await expect(page.getByTestId("info-panel")).toBeVisible();
     await expect(page.getByTestId("sheet")).toHaveCount(0);
     const bad = await page.evaluate(() => {
