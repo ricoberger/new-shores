@@ -172,7 +172,8 @@ service before the servers start.
   <http://localhost:5173/?fixture=dense-2x400> under `make dev`.
   `?quality=high|low` overrides the render quality the layout selects
   (desktop: high — shadow map, grading, FXAA, the latter not on software
-  WebGL such as headless Chromium; touch layouts: low).
+  WebGL such as headless Chromium unless `?fxaa=1` forces it; touch
+  layouts: low).
 - **Playwright projects** (`npm run test:e2e` runs all of them):
   `chromium`, `archipelago` and `away` (desktop, shared dev world), then
   `touch-chromium` (Pixel 5 profile at 412 × 915, incl. the PWA
