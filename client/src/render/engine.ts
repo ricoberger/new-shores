@@ -411,6 +411,11 @@ export class GameRenderer {
     return this.drawCalls;
   }
 
+  /** Draw calls, triangles (the scene's active indices of the last frame ÷ 3; shadow passes included) and the current LOD and model detail (the fps badge). */
+  renderStats(): { drawCalls: number; triangles: number; lod: Lod; detail: Detail } {
+    return { drawCalls: this.drawCalls, triangles: Math.round(this.scene.getActiveIndices() / 3), lod: this.lod, detail: this.detail };
+  }
+
   /** Frame time statistics over the frames of the last windowMs. */
   frameStats(windowMs = 5000): FrameStats {
     const n = Math.min(this.frameCount, FRAME_RING);

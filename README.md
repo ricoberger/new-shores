@@ -103,6 +103,17 @@ in as the fixed player "Developer". The API is at
   call the API; default `http://localhost:5173,http://127.0.0.1:5173`),
   `--log-format text|json`. If you open the client from another origin
   (another host or port), add it there.
+- **Phone on the LAN:** `make dev HOST=<lan-ip>` (e.g. `HOST=192.168.1.20`)
+  starts Vite with `--host` and the client with
+  `VITE_API_BASE=http://$HOST:8080`, and the dev server additionally allows
+  `http://$HOST:5173` and `http://$HOST:4173`; open `http://$HOST:5173` on the
+  phone. Without `HOST` nothing changes.
+- **`make preview [HOST=<lan-ip>]`:** builds the client in E2E mode
+  (`VITE_E2E=1`: fixtures and the `?stats=1` fps badge are available) and
+  serves the bundle with `vite preview` on :4173 (`--host` with `HOST`)
+  against the same in-memory dev server. Use it for fps numbers on a phone:
+  Vite's unbundled dev serving is slower than a bundle. Open
+  `http://$HOST:4173/?fixture=dense-2x400&stats=1`.
 
 ### Server configuration (default mode)
 
@@ -173,6 +184,9 @@ service before the servers start.
   warehouse levels, a paused building, sloops with and without cargo and
   unpaid), all with the real content IDs and footprints, e.g.
   <http://localhost:5173/?fixture=dense-2x400> under `make dev`.
+  `?stats=1` (dev and E2E builds, with or without a fixture) shows a small
+  fps badge bottom left: fps, frame ms (p95), draw calls, triangles, JS
+  heap (Chromium only), LOD and model detail.
   `?quality=high|low` overrides the render quality the layout selects
   (desktop: high — shadow map, grading, FXAA, the latter not on software
   WebGL such as headless Chromium unless `?fxaa=1` forces it; touch

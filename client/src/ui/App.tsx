@@ -49,6 +49,8 @@ import { QuestsPanel } from "./QuestsPanel";
 import { TopBar } from "./TopBar";
 import { WarningsTray } from "./WarningsTray";
 import { WorldOverlay } from "./WorldOverlay";
+import { StatsBadge } from "./StatsBadge";
+import { statsRequested } from "../dev/stats";
 
 /** Demolishing anything that cost more than this (milli-gold) is confirmed. */
 const CONFIRM_DEMOLISH_GOLD = 100_000;
@@ -175,6 +177,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const sheets = usesSheets(layout.mode, layout.width);
   const quality = resolveQuality(layout.mode, globalThis.location?.search ?? "");
   const [forceFxaa] = useState(() => fxaaForced(globalThis.location?.search ?? ""));
+  // Dev/E2E builds only (the constant folds to false in production): the ?stats=1 fps badge.
+  const [showStats] = useState(() => (import.meta.env.DEV || import.meta.env.VITE_E2E === "1") && statsRequested(globalThis.location?.search ?? ""));
   useEffect(() => {
     // A mouse or pen switches back only on the canvas, so that clicking a
     // touch bar's button with the mouse does not remove it mid-click.
@@ -880,6 +884,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         </div>
         {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
         <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} quality={quality} forceFxaa={forceFxaa} />
+        {showStats && <StatsBadge renderer={renderer} />}
         {model && (
           <div className={styles.mapCorner}>
             <Minimap
