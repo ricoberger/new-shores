@@ -116,6 +116,17 @@ jobs:
       - name: build
         run: npm run build
 
+      # The asset build needs Blender 5.2 and the kits (not on the runner):
+      # the drift check skips and says so; the Python tests and Vitest's
+      # manifest/GLB consistency checks run without Blender.
+      - name: Asset build tests (Python)
+        working-directory: .
+        run: make assets-test
+
+      - name: Asset drift check
+        working-directory: .
+        run: make assets-check
+
   e2e:
     name: e2e
     if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'ci'

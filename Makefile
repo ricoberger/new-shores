@@ -11,6 +11,9 @@
 #   make makefile-test  dry-run checks of the up/down targets
 #   make server-integration  Go integration tests (PostgreSQL + Redis)
 #   make client-e2e-pg       Playwright persistence test (default-mode server)
+#   make assets       rebuild the models (Blender 5.2 + the CC0 kits, see README "Asset build")
+#   make assets-check rebuild into a temp dir and compare with client/public/models (skips without Blender)
+#   make assets-test  asset build unit tests (stdlib Python ≥ 3.11; part of `make check`)
 #
 # TIME_SCALE sets world seconds per wall-clock second for `make dev`
 # (server --time-scale and client VITE_TIME_SCALE).
@@ -34,9 +37,9 @@ DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUM
 
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
 	client-install client-check client-lint client-typecheck client-test client-build client-e2e dev \
-	server-integration client-e2e-pg up down logs makefile-test
+	server-integration client-e2e-pg up down logs makefile-test assets assets-check assets-test
 
-check: server-check content-test client-check makefile-test
+check: server-check content-test client-check makefile-test assets-test
 
 server-check: server-fmt server-vet server-lint server-test
 
@@ -74,6 +77,15 @@ client-build:
 
 client-e2e:
 	cd $(CLIENT_DIR) && npm run test:e2e
+
+assets:
+	cd $(CLIENT_DIR) && npm run assets
+
+assets-check:
+	cd $(CLIENT_DIR) && npm run --silent assets -- --check
+
+assets-test:
+	python3 -m unittest discover -s assets/build/tests -t assets/build/tests
 
 # Needs TEST_DATABASE_URL/TEST_REDIS_URL or a running Docker (testcontainers);
 # skipped otherwise (failed when CI is set).

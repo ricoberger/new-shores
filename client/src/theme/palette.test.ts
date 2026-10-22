@@ -93,6 +93,11 @@ describe("palette values (ART_DIRECTION §2)", () => {
       slate: "#5C6670",
       stone: "#B9B2A4",
       brass: "#C9A24A",
+      // Model re-palette roles (art task 3): sail canvas, metal, glass, dyed cloth.
+      canvas: "#EDE3CC",
+      iron: "#4E4F55",
+      window: "#3B4A57",
+      dye_blue: "#3F6F9C",
     });
     expect(UI).toMatchObject({ parchment: "#F1E6CC", dark_wood: "#4A3421", brass: "#C9A24A", ink: "#2B2117" });
     expect(LIGHT).toMatchObject({ sun: "#FFF1D6", sky: "#9DB7D9" });
