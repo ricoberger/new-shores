@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
-import { blockedTiles, islandSeed, NEAR_BLOCKED_KEEP, scatterGround, scatterTrees, thinningAreas, treeKeepFraction, TREES_PER_TILE } from "./scatter";
+import { blockedTiles, islandSeed, layerKeys, NEAR_BLOCKED_KEEP, scatterGround, scatterTrees, thinningAreas, treeKeepFraction, TREES_PER_TILE } from "./scatter";
 
 /** A width × height map of one terrain. */
 const map = (width: number, height: number, t: string) => ({ width, height, terrain: Array.from({ length: width * height }, () => t) });
@@ -94,5 +94,32 @@ describe("deterministic scatter", () => {
     for (let seed = 0; seed < 30; seed++) {
       for (const p of scatterGround({ ...m, seed, blocked: new Set() })) expect([1, 2]).toContain(Math.floor(p.x));
     }
+  });
+});
+
+describe("merged-layer keys", () => {
+  const base = { buildings: [building("lumberjack", 10, 10, 800), building("house", 4, 4)], roads: [{ x: 3, y: 4, type: "road_dirt" }] };
+
+  it("ignore what does not place a strip, footprint or tree", () => {
+    const k = layerKeys(base, defs);
+    const busy = { ...base, buildings: base.buildings.map((b) => ({ ...b, status: "warehouse_full", cycle_progress_permille: 500 }) as BuildingDisplay) };
+    expect(layerKeys(busy, defs)).toEqual(k);
+    // A house's efficiency thins nothing.
+    expect(layerKeys({ ...base, buildings: [base.buildings[0]!, { ...base.buildings[1]!, efficiency_permille: 10 }] }, defs)).toEqual(k);
+  });
+
+  it("change per layer with its inputs", () => {
+    const k = layerKeys(base, defs);
+    const moved = layerKeys({ ...base, buildings: [base.buildings[0]!, building("house", 6, 4)] }, defs);
+    expect(moved.roads).toBe(k.roads);
+    expect(moved.layout).not.toBe(k.layout);
+    expect(moved.decoration).not.toBe(k.decoration);
+    const road = layerKeys({ ...base, roads: [...base.roads, { x: 3, y: 5, type: "road_dirt" }] }, defs);
+    expect(road.roads).not.toBe(k.roads);
+    expect(road.layout).toBe(k.layout);
+    expect(road.decoration).not.toBe(k.decoration);
+    const thinned = layerKeys({ ...base, buildings: [building("lumberjack", 10, 10, 200), base.buildings[1]!] }, defs);
+    expect(thinned.layout).toBe(k.layout);
+    expect(thinned.decoration).not.toBe(k.decoration);
   });
 });

@@ -14,7 +14,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
-import { blockedTiles, islandSeed, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
+import { blockedTiles, islandSeed, layerKeys, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
 import { BlockLayer } from "./blocks";
 import { BuildingLayer } from "./buildings";
 import { CartLayer } from "./carts";
@@ -54,6 +54,10 @@ export class IslandDetail {
   private loops: CoastLoop[] = [];
   private seed = 0;
   private statics: Island | null = null;
+  /** Inputs of the merged layers last built (display/scatter.ts layerKeys; null: rebuild all). */
+  private keys: ReturnType<typeof layerKeys> | null = null;
+  /** Merged-layer rebuilds of this island (roads, layout, decoration), for tests and profiling. */
+  readonly rebuilds = { roads: 0, layout: 0, decoration: 0 };
   private terrainKey = "";
   /** The display payload and content the layers were built from (identity). */
   private builtFrom: { display: IslandDisplay; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
@@ -109,6 +113,7 @@ export class IslandDetail {
     this.statics = statics;
     // The decoration depends on the terrain too: rebuild with the next update.
     this.builtFrom = null;
+    this.keys = null;
   }
 
   /** Whether the layers reflect this payload and content. */
@@ -116,19 +121,39 @@ export class IslandDetail {
     return this.builtFrom?.display === display && this.builtFrom.defs === defs;
   }
 
-  /** Rebuilds the buildings, fields, roads, carts, icons and blocks from the island's payload. */
+  /**
+   * Brings the layers up to date with the island's payload. The instanced
+   * layers (buildings, field tiles, carts, icons, construction) follow
+   * every payload; the merged static meshes (roads, blocks, contact
+   * shadows, field decoration, trees and scatter) are rebuilt only when
+   * their inputs on this island changed (layerKeys) — per island, never
+   * for the whole world.
+   */
   update(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
+    const defsChanged = this.builtFrom?.defs !== defs;
     this.builtFrom = { display, defs };
     this.buildings.update(display.buildings, defs);
     this.fields.update(display.buildings, defs);
-    this.roads.update(display.roads);
     this.carts.update(display, defs);
     this.icons.update(display.buildings, defs);
     this.construction.update(display, defs);
-    this.blocks.update(display.buildings, defs);
-    this.fieldDecor.update(display.buildings, defs);
-    this.updateBlobs(display, defs);
-    this.updateDecoration(display, defs);
+    const keys = layerKeys(display, defs);
+    const old = defsChanged ? null : this.keys;
+    this.keys = keys;
+    if (old?.roads !== keys.roads) {
+      this.rebuilds.roads++;
+      this.roads.update(display.roads);
+    }
+    if (old?.layout !== keys.layout) {
+      this.rebuilds.layout++;
+      this.blocks.update(display.buildings, defs);
+      this.fieldDecor.update(display.buildings, defs);
+      this.updateBlobs(display, defs);
+    }
+    if (old?.decoration !== keys.decoration) {
+      this.rebuilds.decoration++;
+      this.updateDecoration(display, defs);
+    }
   }
 
   /** Trees (thinned by forest harvesters) and ground scatter, kept off buildings, fields and roads. */

@@ -8,7 +8,7 @@
 // whose work area includes forest the kept tree fraction follows the
 // server's efficiency (treeKeepFraction) — decoration, never a rule
 // (D-027): nothing here influences placement or hints.
-import type { BuildingDisplay, ContentBuilding } from "../api/client";
+import type { BuildingDisplay, ContentBuilding, IslandDisplay } from "../api/client";
 import { rotatedFootprint, type TilePos, tileKey } from "./geometry";
 import { hash2, hashString } from "./noise";
 
@@ -162,4 +162,26 @@ export function scatterGround(input: ScatterInput): (Placed & { kind: ScatterKin
     }
   }
   return out;
+}
+
+/**
+ * What each merged layer of an island is built from, as comparable keys,
+ * so that a payload rebuilds only the layers — and only the islands —
+ * whose inputs changed (every payload replaces every island object, but
+ * stocks, rates, statuses and cycle progress do not move a tree):
+ * `roads` (the road strips), `layout` (building and field footprints:
+ * contact shadows, field decoration, mid-LOD blocks) and `decoration`
+ * (trees and scatter: the layout, the roads and the efficiency of the
+ * harvesters that thin forest).
+ */
+export function layerKeys(
+  display: Pick<IslandDisplay, "buildings" | "roads">,
+  defs: ReadonlyMap<string, ContentBuilding>,
+): { roads: string; layout: string; decoration: string } {
+  const roads = display.roads.map((r) => `${r.x},${r.y},${r.type}`).join(";");
+  const layout = display.buildings.map((b) => `${b.type}@${b.x},${b.y},${b.rotation}`).join(";");
+  const thinning = thinningAreas(display.buildings, defs)
+    .map((a) => `${a.cx},${a.cy},${a.keep}`)
+    .join(";");
+  return { roads, layout, decoration: `${layout}|${roads}|${thinning}` };
 }
