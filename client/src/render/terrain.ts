@@ -44,7 +44,7 @@ export const SLAB_REACH = 0.36;
  * lip, the upper cliff band, a ledge, the lower band and the foot below
  * the sea. Noise moves the inner rings' heights by up to ±weight.
  */
-const PROFILE: readonly { out: number; y: number; color: Color3; jitter: number }[] = [
+const PROFILE: readonly ProfileRing[] = [
   { out: -RIM_INLAND, y: 0.004, color: c3(ISLAND.sand_rim), jitter: 0 },
   { out: 0, y: 0.004, color: c3(ISLAND.sand_rim).scale(0.97), jitter: 0 },
   { out: 0.05, y: -0.045, color: c3(ISLAND.sand_rim).scale(0.88), jitter: 0 },
@@ -90,7 +90,7 @@ export function groundColor(terrain: Terrain | undefined, x: number, y: number, 
 }
 
 /** Mesh data under construction (positions, colours, normals, indices) with shared vertices by key. */
-class Builder {
+export class Builder {
   positions: number[] = [];
   colors: number[] = [];
   normals: number[] = [];
@@ -171,20 +171,24 @@ export interface GroundColors {
 
 /**
  * Ground fill of the cell between the centres of tiles (i, j) … (i+1,
- * j+1): the land part of the marching-squares cell, centres coloured by
- * their terrain, crossings (edge midpoints) by the beach or cliff.
+ * j+1) at height y: the part of the marching-squares cell inside the
+ * mask, centres coloured per tile, crossings (edge midpoints) by `edge`.
  */
-function fillCell(b: Builder, island: Island, i: number, j: number, colors: GroundColors): void {
-  const { width, height, terrain } = island;
-  const t = (x: number, y: number) => (x >= 0 && y >= 0 && x < width && y < height ? (terrain[y * width + x] as Terrain | undefined) : "water");
-  const land = (x: number, y: number) => t(x, y) !== "water";
-  const corner = (x: number, y: number) => b.vertex(x + 0.5, 0, -(y + 0.5), colors.tile(t(x, y), x, y), `c${x},${y}`);
-  const rim = colors.slab(c3(ISLAND.sand_rim));
-  const edge = (x: number, y: number) => b.vertex(x, 0, -y, rim, `e${x},${y}`);
-  const tl = land(i, j);
-  const tr = land(i + 1, j);
-  const br = land(i + 1, j + 1);
-  const bl = land(i, j + 1);
+export function fillCell(
+  b: Builder,
+  inside: (x: number, y: number) => boolean,
+  tile: (x: number, y: number) => Color3,
+  edgeColor: Color3,
+  i: number,
+  j: number,
+  y = 0,
+): void {
+  const corner = (x: number, yy: number) => b.vertex(x + 0.5, y, -(yy + 0.5), tile(x, yy), `c${x},${yy}`);
+  const edge = (x: number, yy: number) => b.vertex(x, y, -yy, edgeColor, `e${x},${yy}`);
+  const tl = inside(i, j);
+  const tr = inside(i + 1, j);
+  const br = inside(i + 1, j + 1);
+  const bl = inside(i, j + 1);
   const T = () => edge(i + 1, j + 0.5);
   const R = () => edge(i + 1.5, j + 1);
   const B = () => edge(i + 1, j + 1.5);
@@ -212,12 +216,27 @@ function fillCell(b: Builder, island: Island, i: number, j: number, colors: Grou
   for (let k = 1; k + 1 < poly.length; k++) b.tri(poly[0] as number, poly[k] as number, poly[k + 1] as number);
 }
 
+/** The island ground's cell: land is any terrain but water, tiles coloured by `colors`. */
+function groundCell(b: Builder, island: Island, i: number, j: number, colors: GroundColors): void {
+  const { width, height, terrain } = island;
+  const t = (x: number, y: number) => (x >= 0 && y >= 0 && x < width && y < height ? (terrain[y * width + x] as Terrain | undefined) : "water");
+  fillCell(b, (x, y) => t(x, y) !== "water", (x, y) => colors.tile(t(x, y), x, y), colors.slab(c3(ISLAND.sand_rim)), i, j);
+}
+
+/** One ring of a slab profile: outward offset from the contour, height, colour and noise weight of the height. */
+export interface ProfileRing {
+  out: number;
+  y: number;
+  color: Color3;
+  jitter: number;
+}
+
 /**
  * The slab along one smoothed coastline loop: PROFILE rings offset along
  * the outward normal, heights wandering with noise along the loop
  * (deterministic per seed), flat-shaded quads between consecutive points.
  */
-function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: Color3) => Color3): void {
+export function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: Color3) => Color3, profile: readonly ProfileRing[] = PROFILE, topRings = 2): void {
   const n = loop.length;
   if (n < 3) return;
   const rings: { pts: [number, number, number][]; out: [number, number, number] }[] = [];
@@ -246,21 +265,21 @@ function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: Color3) 
     const o = smooth[k] as { x: number; y: number };
     const wobble = fbm(along / 2.5, seed % 97, seed) * 2 - 1;
     const reach = 1 + 0.25 * (fbm(along / 4 + 17, seed % 53, seed + 3) * 2 - 1);
-    const pts = PROFILE.map((r): [number, number, number] => {
+    const pts = profile.map((r): [number, number, number] => {
       const out = r.out > 0 ? r.out * reach : r.out;
       return [p.x + o.x * out, r.y + r.jitter * wobble, -(p.y + o.y * out)];
     });
     rings.push({ pts, out: [o.x, 0.35, -o.y] });
   }
-  const cols = PROFILE.map((r) => tint(r.color));
+  const cols = profile.map((r) => tint(r.color));
   for (let k = 0; k < n; k++) {
     const a = rings[k] as (typeof rings)[number];
     const c = rings[(k + 1) % n] as (typeof rings)[number];
     const toward: [number, number, number] = [a.out[0] + c.out[0], 0.7, a.out[2] + c.out[2]];
-    for (let s = 0; s + 1 < PROFILE.length; s++) {
+    for (let s = 0; s + 1 < profile.length; s++) {
       const ca = cols[s] as Color3;
       const cb = cols[s + 1] as Color3;
-      const top = s < 2;
+      const top = s < topRings;
       const dir: [number, number, number] = top ? [0, 1, 0] : toward;
       b.flat([a.pts[s] as [number, number, number], c.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number]], [ca, ca, cb], dir);
       b.flat([a.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number], a.pts[s + 1] as [number, number, number]], [ca, cb, cb], dir);
@@ -296,7 +315,7 @@ export function buildIslandMeshes(
     return b;
   };
   for (let j = -1; j < island.height; j++) {
-    for (let i = -1; i < island.width; i++) fillCell(chunk(i + 1, j + 1), island, i, j, colors);
+    for (let i = -1; i < island.width; i++) groundCell(chunk(i + 1, j + 1), island, i, j, colors);
   }
   for (const loop of loops) {
     const p = loop[0];

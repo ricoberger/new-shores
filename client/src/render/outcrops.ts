@@ -1,8 +1,10 @@
-// Deposit outcrops (ART_DIRECTION §4): a low-poly rock cluster (48
-// triangles) on every deposit tile of an island, mountain grey tinted per
-// deposit kind from the palette (stone, iron; unknown kinds plain
-// mountain). One template mesh per kind with thin instances; turned and
-// scaled per tile from the island seed. Shown at near and mid LOD.
+// Deposit outcrops (ART_DIRECTION §4, restyle): a KayKit rock cluster
+// (the decor_outcrop_<kind> model, tinted per deposit kind in the asset
+// build) on every deposit tile of an island, standing on the plateau the
+// tile belongs to; until the model has loaded (or without one) a
+// procedural low-poly cluster in mountain grey tinted per kind. One
+// template mesh per kind with thin instances; turned and scaled per tile
+// from the island seed. Shown at near and mid LOD.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
@@ -14,6 +16,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import { hash2 } from "../display/noise";
 import { BUILDINGS, TERRAIN } from "../theme/palette";
 import { setInstances } from "./instances";
+import { decorModel, modelMesh, type ModelRegistry } from "./models";
 import { c3 } from "./palette";
 import { skyFill } from "./lighting";
 
@@ -48,15 +51,41 @@ function template(scene: Scene, kind: string): Mesh {
 }
 
 export class OutcropLayer {
-  private readonly templates = new Map<string, Mesh>();
+  /** Template per kind and whether it is the kit model (false: the procedural fallback). */
+  private readonly templates = new Map<string, { mesh: Mesh; model: boolean }>();
+  private readonly material: StandardMaterial;
 
   constructor(
     private readonly scene: Scene,
     private readonly parent: TransformNode | null,
-  ) {}
+    private readonly registry: ModelRegistry | null = null,
+  ) {
+    this.material = skyFill(new StandardMaterial("outcrops", scene));
+    this.material.specularColor = Color3.Black();
+  }
 
-  /** Rock clusters on the deposit tiles, except inside a building footprint (`blocked` tile keys "x,y": mines and quarries are not pierced). */
-  update(deposits: readonly { x: number; y: number; kind: string }[], seed: number, blocked: ReadonlySet<string> = new Set()): void {
+  private template(kind: string): Mesh {
+    const data = decorModel(this.registry, `decor_outcrop_${kind}`);
+    const cur = this.templates.get(kind);
+    if (cur && (cur.model || !data)) return cur.mesh;
+    cur?.mesh.dispose();
+    const mesh = data ? modelMesh(this.scene, `outcrop_${kind}`, data, this.material) : template(this.scene, kind);
+    mesh.parent = this.parent;
+    this.templates.set(kind, { mesh, model: !!data });
+    return mesh;
+  }
+
+  /**
+   * Rock clusters on the deposit tiles, except inside a building footprint
+   * (`blocked` tile keys "x,y": mines and quarries are not pierced), at the
+   * ground height of their tile (plateaus).
+   */
+  update(
+    deposits: readonly { x: number; y: number; kind: string }[],
+    seed: number,
+    blocked: ReadonlySet<string> = new Set(),
+    heightAt: (x: number, y: number) => number = () => 0,
+  ): void {
     const byKind = new Map<string, number[]>();
     for (const d of deposits) {
       if (blocked.has(`${d.x},${d.y}`)) continue;
@@ -64,21 +93,13 @@ export class OutcropLayer {
       let arr = byKind.get(kind);
       if (!arr) byKind.set(kind, (arr = []));
       const yaw = hash2(d.x, d.y, seed) * Math.PI * 2;
-      const s = 1.25 + 0.4 * hash2(d.y, d.x, seed + 1);
+      const s = 0.85 + 0.3 * hash2(d.y, d.x, seed + 1);
       const m = Matrix.Scaling(s, s, s)
         .multiply(Matrix.RotationY(yaw))
-        .multiply(Matrix.Translation(d.x + 0.5, 0, -(d.y + 0.5)));
+        .multiply(Matrix.Translation(d.x + 0.5, heightAt(d.x, d.y), -(d.y + 0.5)));
       for (const v of m.asArray()) arr.push(v);
     }
-    for (const [kind, mesh] of this.templates) if (!byKind.has(kind)) setInstances(mesh, null);
-    for (const [kind, arr] of byKind) {
-      let mesh = this.templates.get(kind);
-      if (!mesh) {
-        mesh = template(this.scene, kind);
-        mesh.parent = this.parent;
-        this.templates.set(kind, mesh);
-      }
-      setInstances(mesh, new Float32Array(arr));
-    }
+    for (const [kind, t] of this.templates) if (!byKind.has(kind)) setInstances(t.mesh, null);
+    for (const [kind, arr] of byKind) setInstances(this.template(kind), new Float32Array(arr));
   }
 }

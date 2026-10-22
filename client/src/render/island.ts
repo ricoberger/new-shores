@@ -27,6 +27,7 @@ import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
 import { type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
 import { OutcropLayer } from "./outcrops";
+import { PlateauLayer } from "./plateaus";
 import { RoadLayer } from "./roads";
 import { FootprintShadows } from "./shadows";
 import { buildTerrain, FoamLine } from "./terrain";
@@ -52,6 +53,7 @@ export class IslandDetail {
   private readonly blocks: BlockLayer;
   private readonly buildingBlobs: FootprintShadows;
   private readonly outcrops: OutcropLayer;
+  private readonly plateaus: PlateauLayer;
   private foam: FoamLine | null = null;
   private terrain: Mesh[] = [];
   /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
@@ -91,7 +93,8 @@ export class IslandDetail {
     this.construction = new ConstructionLayer(scene, this.near, registry);
     this.blocks = new BlockLayer(scene, this.mid);
     this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55);
-    this.outcrops = new OutcropLayer(scene, this.root);
+    this.outcrops = new OutcropLayer(scene, this.root, registry);
+    this.plateaus = new PlateauLayer(scene, this.root);
     this.mid.setEnabled(false);
     this.root.setEnabled(false);
   }
@@ -113,7 +116,8 @@ export class IslandDetail {
     this.loops = coastline(statics);
     this.terrain = buildTerrain(this.scene, statics, this.loops, this.seed, this.root);
     this.deposits = statics.deposits;
-    this.outcrops.update(statics.deposits, this.seed, this.footprintTiles());
+    this.statics = statics;
+    this.updateRelief();
     this.foam ??= new FoamLine(this.scene, this.near, this.seed);
     this.foam.update(this.loops);
     this.terrainKey = key;
@@ -156,7 +160,7 @@ export class IslandDetail {
       this.blocks.update(display.buildings, defs);
       this.fieldDecor.update(this.unmodelledFields(display), defs);
       this.updateBlobs(display, defs);
-      this.outcrops.update(this.deposits, this.seed, this.footprintTiles());
+      this.updateRelief();
     }
     if (old?.decoration !== keys.decoration) {
       this.rebuilds.decoration++;
@@ -179,6 +183,15 @@ export class IslandDetail {
   private unmodelledFields(display: IslandDisplay): IslandDisplay["buildings"] {
     const modelled = this.buildings.modelled();
     return modelled.size === 0 ? display.buildings : display.buildings.filter((b) => !modelled.has(b.id));
+  }
+
+  /** Plateaus and the deposit outcrops on them (mines and quarries keep their tiles at ground level). */
+  private updateRelief(): void {
+    const st = this.statics;
+    if (!st) return;
+    const blocked = this.footprintTiles();
+    this.plateaus.update(st, this.seed, blocked);
+    this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.plateaus.heightAt(x, y));
   }
 
   /** Tiles covered by a building footprint ("x,y"; outcrops stay out of them). */
@@ -223,6 +236,7 @@ export class IslandDetail {
     this.fieldDecor.update(this.unmodelledFields(built.display), built.defs);
     this.icons.update(built.display.buildings, built.defs, this.statusY);
     this.updateBlobs(built.display, built.defs);
+    this.updateRelief();
   }
 
   /** Model detail level (lite at the near default zoom, full zoomed in). */
