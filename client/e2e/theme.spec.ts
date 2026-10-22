@@ -145,6 +145,14 @@ test("render quality: high on desktop, low at 412 × 915, overridable", async ({
   // FXAA runs on hardware WebGL; headless Chromium's SwiftShader skips it (a pass costs more than a frame there).
   expect(high.fxaa).toBe(!high.software);
 
+  // ?fxaa=1 keeps FXAA at high quality on any renderer, never at low.
+  await page.goto("/?fixture=dense-2x400&quality=high&fxaa=1");
+  await worldReady(page, "dense1");
+  expect(await page.evaluate(() => window.__newShores!.effects())).toMatchObject({ quality: "high", fxaa: true });
+  await page.goto("/?fixture=dense-2x400&quality=low&fxaa=1");
+  await worldReady(page, "dense1");
+  expect(await page.evaluate(() => window.__newShores!.effects())).toMatchObject({ quality: "low", fxaa: false });
+
   await page.goto("/?fixture=dense-2x400&quality=low");
   await worldReady(page, "dense1");
   expect(await page.evaluate(() => window.__newShores!.effects())).toMatchObject({ quality: "low", shadowMap: false, grading: false, fxaa: false, vignette: true });

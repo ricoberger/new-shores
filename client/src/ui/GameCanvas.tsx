@@ -13,6 +13,8 @@ interface Props {
   initialCamera?: InitialCamera;
   /** Render quality (from the layout mode or the ?quality override). */
   quality: Quality;
+  /** ?fxaa=1: FXAA at "high" also on software WebGL (read when the renderer is created). */
+  forceFxaa?: boolean;
 }
 
 /**
@@ -20,12 +22,13 @@ interface Props {
  * cleanup disposes it, so React Strict Mode's double-invoked effects never
  * leave a second engine or canvas listeners behind.
  */
-export function GameCanvas({ sync, tool, events, onRenderer, initialCamera, quality }: Props) {
+export function GameCanvas({ sync, tool, events, onRenderer, initialCamera, quality, forceFxaa = false }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const toolRef = useRef(tool);
   const eventsRef = useRef(events);
   const cameraRef = useRef(initialCamera);
   const qualityRef = useRef(quality);
+  const fxaaRef = useRef(forceFxaa);
   const rendererRef = useRef<GameRenderer | null>(null);
   useEffect(() => {
     toolRef.current = tool;
@@ -71,6 +74,7 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialCamera, qual
       },
       cameraRef.current,
       qualityRef.current,
+      fxaaRef.current,
     );
     rendererRef.current = renderer;
     onRenderer(renderer);

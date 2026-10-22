@@ -201,6 +201,8 @@ export class GameRenderer {
     private readonly events: RendererEvents,
     private readonly initialCamera: InitialCamera = { kind: "island" },
     quality: Quality = "high",
+    /** Keep FXAA at "high" also on software WebGL (?fxaa=1, the visual test of the FXAA path). */
+    forceFxaa = false,
   ) {
     // The canvas renders at most MAX_RENDER_DPR pixels per CSS pixel (HTML
     // text and the HUD stay at the device resolution). Edges: multisampling
@@ -212,7 +214,8 @@ export class GameRenderer {
     this.scene.clearColor = new Color4(HAZE.r, HAZE.g, HAZE.b, 1);
     this.scene.skipPointerMovePicking = true;
     this.rig = new CameraRig(this.scene, this.engine);
-    this.lighting = new SceneLighting(this.scene, this.rig.camera, quality, softwareRenderer(this.engine.getGlInfo().renderer));
+    const software = softwareRenderer(this.engine.getGlInfo().renderer);
+    this.lighting = new SceneLighting(this.scene, this.rig.camera, quality, software && !forceFxaa, software);
     this.arch = new ArchipelagoLayer(this.scene);
     this.arch.setQuality(quality);
     this.fields = new FieldLayer(this.scene);

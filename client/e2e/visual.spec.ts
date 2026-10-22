@@ -17,9 +17,9 @@ import { expectLod, setCamera, showArchipelago, worldReady } from "./archipelago
 const T = new Date("2026-10-21T16:00:00Z");
 const SHOT = { maxDiffPixelRatio: 0.02, animations: "disabled" as const, caret: "hide" as const };
 
-async function open(page: Page, fixture: string): Promise<void> {
+async function open(page: Page, fixture: string, query = ""): Promise<void> {
   await page.clock.setFixedTime(T);
-  await page.goto(`/?fixture=${fixture}`);
+  await page.goto(`/?fixture=${fixture}${query}`);
   await worldReady(page, "dense1");
   await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
 }
@@ -65,6 +65,20 @@ test("near LOD of the dense island (desktop)", async ({ page }, info) => {
   await expectLod(page, "near");
   await settle(page);
   await compare(page, info, "near-desktop.png");
+  skipIfWritten(info);
+});
+
+// The complete high-quality path, FXAA included: headless Chromium renders
+// with SwiftShader, where "high" skips FXAA unless the ?fxaa=1 toggle asks
+// for it, so this baseline exercises the real FXAA pass (shadow map,
+// grading overlay, vignette and FXAA together).
+test("near LOD at high quality with FXAA forced on (desktop)", async ({ page }, info) => {
+  await open(page, "dense-2x400", "&quality=high&fxaa=1");
+  await expectLod(page, "near");
+  expect(await page.evaluate(() => window.__newShores!.effects())).toMatchObject({ quality: "high", shadowMap: true, grading: true, fxaa: true, vignette: true });
+  await setCamera(page, { half: 9 });
+  await settle(page);
+  await compare(page, info, "near-high-fxaa-desktop.png");
   skipIfWritten(info);
 });
 

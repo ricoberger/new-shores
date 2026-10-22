@@ -19,7 +19,7 @@ import { shouldShowSummary } from "../display/summary";
 import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
 import { insolvencyBanner } from "../display/insolvency";
 import type { Lod } from "../display/lod";
-import { type Quality, resolveQuality } from "../display/quality";
+import { fxaaForced, type Quality, resolveQuality } from "../display/quality";
 import { blankStop, initialViewState, viewReducer } from "../display/view";
 import { type CameraInfo, type FrameStats, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
@@ -163,6 +163,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const compactHud = isTouchLayout(layout.mode);
   const sheets = usesSheets(layout.mode, layout.width);
   const quality = resolveQuality(layout.mode, globalThis.location?.search ?? "");
+  const [forceFxaa] = useState(() => fxaaForced(globalThis.location?.search ?? ""));
   useEffect(() => {
     // A mouse or pen switches back only on the canvas, so that clicking a
     // touch bar's button with the mouse does not remove it mid-click.
@@ -864,7 +865,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {phone && unreachable}
         </div>
         {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
-        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} quality={quality} />
+        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} quality={quality} forceFxaa={forceFxaa} />
         {model && (
           <div className={styles.mapCorner}>
             <Minimap

@@ -77,6 +77,9 @@ export class SceneLighting {
     scene: Scene,
     private readonly camera: Camera,
     quality: Quality,
+    /** Skip FXAA at "high" (software WebGL, unless forced with ?fxaa=1). */
+    private readonly skipFxaa = false,
+    /** The WebGL renderer is a software rasteriser (reported by effects()). */
     private readonly software = false,
   ) {
     this.sun = new DirectionalLight("sun", SUN_DIRECTION.clone(), scene);
@@ -111,7 +114,7 @@ export class SceneLighting {
       if (map) map.refreshRate = RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
       this.shadows = sg;
       for (const m of this.casters) sg.addShadowCaster(m, false);
-      if (!this.software) this.fxaa = new FxaaPostProcess("fxaa", 1, this.camera);
+      if (!this.skipFxaa) this.fxaa = new FxaaPostProcess("fxaa", 1, this.camera);
     } else {
       this.shadows?.dispose();
       this.shadows = null;

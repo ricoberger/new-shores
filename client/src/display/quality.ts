@@ -2,7 +2,9 @@
 // mode: the desktop layout renders the sun shadow map, warm grading and
 // FXAA ("high"); touch layouts — phones and tablets, devices of unknown
 // GPU class — render blob shadows and the vignette only ("low"). The
-// ?quality=high|low URL parameter overrides it (tests and comparisons).
+// ?quality=high|low URL parameter overrides it (tests and comparisons);
+// ?fxaa=1 keeps FXAA at "high" also on software WebGL, where it is
+// otherwise skipped (the visual test of the real FXAA path).
 import type { LayoutMode } from "./layout";
 
 export type Quality = "high" | "low";
@@ -25,6 +27,11 @@ export function qualityOverride(search: string): Quality | null {
  */
 export function softwareRenderer(renderer: string): boolean {
   return /swiftshader|llvmpipe|softpipe|software/i.test(renderer);
+}
+
+/** Whether ?fxaa=1 forces FXAA at "high" quality also on a software rasteriser. */
+export function fxaaForced(search: string): boolean {
+  return new URLSearchParams(search).get("fxaa") === "1";
 }
 
 /** The quality in force: the URL override, else the layout's. */

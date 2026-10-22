@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { qualityFor, qualityOverride, resolveQuality, softwareRenderer } from "./quality";
+import { fxaaForced, qualityFor, qualityOverride, resolveQuality, softwareRenderer } from "./quality";
 
 describe("render quality", () => {
   it("is high on the desktop layout and low on touch layouts", () => {
@@ -21,6 +21,12 @@ describe("render quality", () => {
     expect(softwareRenderer("llvmpipe (LLVM 15.0.7, 256 bits)")).toBe(true);
     expect(softwareRenderer("ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)")).toBe(false);
     expect(softwareRenderer("ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0, D3D11)")).toBe(false);
+  });
+
+  it("reads the ?fxaa=1 toggle", () => {
+    expect(fxaaForced("?fixture=dense-2x400&quality=high&fxaa=1")).toBe(true);
+    expect(fxaaForced("?fxaa=0")).toBe(false);
+    expect(fxaaForced("")).toBe(false);
   });
 
   it("the override wins over the layout", () => {
