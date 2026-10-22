@@ -29,6 +29,15 @@ export const WATER = {
   haze: "#B9C9CB",
 } as const;
 
+/** Diorama island slab (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line. */
+export const ISLAND = {
+  sand_rim: "#E2CC93",
+  cliff_upper: "#B79C76",
+  cliff_ledge: "#9E8A6C",
+  cliff_lower: "#877766",
+  cliff_foot: "#4F4A55",
+} as const;
+
 /** Building materials of the procedural placeholders and the kit re-palette of the models (ART_DIRECTION §7): walls, roofs, timber, stone, metal, glass, sail canvas and dyed cloth. */
 export const BUILDINGS = {
   plaster: "#E7D7B8",

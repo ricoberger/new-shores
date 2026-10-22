@@ -23,16 +23,20 @@ import { anchorSlots, type ArchPoint, berthAnchor, type Berths, islandAnchor, ty
 import { footprintBox } from "./coords";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
+import { buildIslandMeshes, type GroundColors, SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
+import { coastline } from "../display/coastline";
+import { islandSeed } from "../display/scatter";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { type ModelRegistry, shipMeshes, shipModel } from "./models";
-import { ARROW_BRIGHT, ARROW_DIM, c3, colorTuple, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
-import { BUILDINGS, TERRAIN } from "../theme/palette";
+import { ARROW_BRIGHT, ARROW_DIM, colorTuple, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
+import { BUILDINGS } from "../theme/palette";
 import { skyFill } from "./lighting";
 
-const SILHOUETTE_TOP = 0.3;
-const SILHOUETTE_BOTTOM = -0.2;
-/** Height of the sea surface (the beach and foam of the islands meet it). */
-export const SEA_LEVEL = -0.15;
+/** Top of the far-LOD silhouettes: the islands' ground (the same slab as near LOD). */
+const SILHOUETTE_TOP = 0;
+/** Height of the sea surface (the islands' slabs drop into it). */
+export const SEA_LEVEL = TERRAIN_SEA_LEVEL;
 /** Ships above the far-LOD silhouettes; at near/mid on the water. */
 const SHIP_Y_FAR = SILHOUETTE_TOP + 0.05;
 const SHIP_Y = 0;
@@ -57,76 +61,22 @@ function desaturate(c: Color3, settled: boolean): Color3 {
   return new Color3(c.r * 0.3 + grey * 0.7, c.g * 0.3 + grey * 0.7, c.b * 0.3 + grey * 0.7);
 }
 
-function silhouetteColor(t: Terrain | undefined, settled: boolean): Color3 {
-  return desaturate((t && TERRAIN_COLORS[t]) || UNKNOWN_TERRAIN, settled);
+/** Far-LOD colours: flat terrain colours on the same slab as near LOD, desaturated for unsettled islands. */
+function silhouetteColors(settled: boolean): GroundColors {
+  return {
+    tile: (t: Terrain | undefined) => desaturate((t && TERRAIN_COLORS[t]) || UNKNOWN_TERRAIN, settled),
+    slab: (c: Color3) => desaturate(c, settled),
+  };
 }
 
-/** Width (tiles) of the sand rim along the top edge of a silhouette. */
-const RIM = 0.35;
-
-/**
- * One mesh per island: the non-water tiles as a flat top at a low height
- * with cliff-coloured walls along the outline and a sand beach rim on the
- * top edge (no elevation), vertex-coloured by terrain.
- */
-function buildSilhouette(scene: Scene, island: Island, settled: boolean, material: StandardMaterial): Mesh {
-  const { width, height, terrain } = island;
-  const land = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && terrain[y * width + x] !== "water";
-  const positions: number[] = [];
-  const colors: number[] = [];
-  const normals: number[] = [];
-  const indices: number[] = [];
-  const quad = (p: number[], n: [number, number, number], c: Color3) => {
-    const v = positions.length / 3;
-    positions.push(...p);
-    for (let i = 0; i < 4; i++) {
-      normals.push(...n);
-      colors.push(c.r, c.g, c.b, 1);
-    }
-    indices.push(v, v + 1, v + 2, v, v + 2, v + 3);
-  };
-  const T = SILHOUETTE_TOP;
-  const B = SILHOUETTE_BOTTOM;
-  const R = T + 0.002;
-  const wall = desaturate(c3(TERRAIN.cliff), settled).scale(0.85);
-  const sand = desaturate(c3(TERRAIN.sand), settled);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (!land(x, y)) continue;
-      const c = silhouetteColor(terrain[y * width + x], settled);
-      quad([x, T, -y, x + 1, T, -y, x + 1, T, -(y + 1), x, T, -(y + 1)], [0, 1, 0], c);
-      if (!land(x, y - 1)) {
-        quad([x + 1, T, -y, x, T, -y, x, B, -y, x + 1, B, -y], [0, 0, 1], wall);
-        quad([x, R, -y, x + 1, R, -y, x + 1, R, -(y + RIM), x, R, -(y + RIM)], [0, 1, 0], sand);
-      }
-      if (!land(x, y + 1)) {
-        quad([x, T, -(y + 1), x + 1, T, -(y + 1), x + 1, B, -(y + 1), x, B, -(y + 1)], [0, 0, -1], wall);
-        quad([x, R, -(y + 1 - RIM), x + 1, R, -(y + 1 - RIM), x + 1, R, -(y + 1), x, R, -(y + 1)], [0, 1, 0], sand);
-      }
-      if (!land(x - 1, y)) {
-        quad([x, T, -y, x, T, -(y + 1), x, B, -(y + 1), x, B, -y], [-1, 0, 0], wall);
-        quad([x, R, -y, x + RIM, R, -y, x + RIM, R, -(y + 1), x, R, -(y + 1)], [0, 1, 0], sand);
-      }
-      if (!land(x + 1, y)) {
-        quad([x + 1, T, -(y + 1), x + 1, T, -y, x + 1, B, -y, x + 1, B, -(y + 1)], [1, 0, 0], wall);
-        quad([x + 1 - RIM, R, -y, x + 1, R, -y, x + 1, R, -(y + 1), x + 1 - RIM, R, -(y + 1)], [0, 1, 0], sand);
-      }
-    }
-  }
-  const mesh = new Mesh(`silhouette_${island.id}`, scene);
-  const data = new VertexData();
-  data.positions = positions;
-  data.indices = indices;
-  data.colors = colors;
-  data.normals = normals;
-  data.applyToMesh(mesh);
-  mesh.material = material;
-  mesh.isPickable = false;
-  return mesh;
+/** The far-LOD silhouette of an island: the near terrain's ground fill and diorama slab with flat colours, one mesh per chunk. */
+function buildSilhouette(scene: Scene, island: Island, settled: boolean, material: StandardMaterial, seed: number, parent: TransformNode): Mesh[] {
+  return buildIslandMeshes(scene, island, coastline(island), seed, silhouetteColors(settled), material, parent, "silhouette");
 }
 
 interface Silhouette {
-  mesh: Mesh;
+  node: TransformNode;
+  meshes: Mesh[];
   key: string;
 }
 
@@ -301,15 +251,17 @@ export class ArchipelagoLayer {
       const key = `${st.revision}|${is.settled}|${is.position.x},${is.position.y}`;
       const cur = this.silhouettes.get(is.id);
       if (cur?.key === key) continue;
-      cur?.mesh.dispose();
-      const mesh = buildSilhouette(this.scene, st, is.settled, this.silhouetteMaterial);
-      mesh.position.set(is.position.x, 0, -is.position.y);
-      mesh.freezeWorldMatrix();
-      this.silhouettes.set(is.id, { mesh, key });
+      cur?.node.dispose();
+      const node = new TransformNode(`silhouette_${is.id}`, this.scene);
+      node.position.set(is.position.x, 0, -is.position.y);
+      node.computeWorldMatrix(true);
+      const meshes = buildSilhouette(this.scene, st, is.settled, this.silhouetteMaterial, islandSeed(st.id, st.revision), node);
+      node.setEnabled(this.lod === "far" && this.visible.has(is.id));
+      this.silhouettes.set(is.id, { node, meshes, key });
     }
     for (const [id, s] of this.silhouettes) {
       if (!this.placements.has(id)) {
-        s.mesh.dispose();
+        s.node.dispose();
         this.silhouettes.delete(id);
       }
     }
@@ -389,7 +341,7 @@ export class ArchipelagoLayer {
 
   private applyVisibility(): void {
     const far = this.lod === "far";
-    for (const [id, s] of this.silhouettes) s.mesh.setEnabled(far && this.visible.has(id));
+    for (const [id, s] of this.silhouettes) s.node.setEnabled(far && this.visible.has(id));
     this.rebuildLandmarks();
   }
 
@@ -591,7 +543,7 @@ export class ArchipelagoLayer {
         if (this.dragged?.shipId === s.id) point = this.dragged.point;
         this.shipPoints.set(s.id, point);
         shipMatrix(inst.matrices, i, point.x, sy, -point.y, p?.heading ?? 0, p ? scale : 0);
-        if (blobs) blobMatrix(this.shipBlobBuffer, blob++, point.x, -point.y, p ? 1.25 * scale : 0, p ? 0.5 * scale : 0, 0.5 * scale, p?.heading ?? 0);
+        if (blobs) blobMatrix(this.shipBlobBuffer, blob++, point.x, -point.y, p ? 1.25 * scale : 0, p ? 0.5 * scale : 0, 0.5 * scale, p?.heading ?? 0, SEA_LEVEL + 0.02);
         const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
         this.shipStyles.set(s.id, style);
         inst.setColor(i, shipColor(style));

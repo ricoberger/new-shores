@@ -29,6 +29,16 @@
         "haze": "#B9C9CB"
       }
     },
+    "island": {
+      "description": "Diorama island slab (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line.",
+      "colors": {
+        "sand-rim": "#E2CC93",
+        "cliff-upper": "#B79C76",
+        "cliff-ledge": "#9E8A6C",
+        "cliff-lower": "#877766",
+        "cliff-foot": "#4F4A55"
+      }
+    },
     "buildings": {
       "description": "Building materials of the procedural placeholders and the kit re-palette of the models (ART_DIRECTION §7): walls, roofs, timber, stone, metal, glass, sail canvas and dyed cloth.",
       "colors": {

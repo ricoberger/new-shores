@@ -1,13 +1,18 @@
-// Terrain (ART_DIRECTION §4), render-only: continuous flat ground with a
-// hidden grid. The land is filled by marching squares over the tile
-// centres (display/coastline.ts) so its outline follows the chamfered
-// coastline; vertex colours at the tile centres give two-tone grass noise
-// with dry patches, the forest floor, rock and sand, blending smoothly
-// between tiles. Along the smoothed coastline a sand beach band slopes
-// toward the water, replaced by a low cliff where a mountain tile meets
-// the water. One mesh per CHUNK × CHUNK tiles (the whole island for the
-// current content): draw calls, not vertices, are the phone budget. The
-// foam line (FoamLine) is a separate animated strip at near LOD.
+// Terrain (ART_DIRECTION §4, restyle diorama), render-only: continuous
+// flat ground with a hidden grid on top of a diorama slab. The land is
+// filled by marching squares over the tile centres (display/coastline.ts)
+// so its outline follows the chamfered coastline; vertex colours at the
+// tile centres give two-tone grass noise with dry patches, the forest
+// floor, rock and sand, blending smoothly between tiles. Along the
+// smoothed coastline the land ends in a slab: a thin sand rim on top, then
+// a layered cliff (an upper band, a ledge, a lower band) down to its
+// AO-darkened foot under the sea surface (SEA_LEVEL, ≈ 0.6 tiles below the
+// ground), flat-shaded with per-face normals so the bands catch the sun;
+// band heights and offsets wander with noise along the coast. The far-LOD
+// silhouettes are the same mesh with flat terrain colours. One mesh per
+// CHUNK × CHUNK tiles (the whole island for the current content): draw
+// calls, not vertices, are the phone budget. The foam line (FoamLine) is a
+// separate animated strip at the cliff foot at near LOD.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
@@ -19,27 +24,43 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { Island, Terrain } from "../api/client";
 import { type CoastLoop, outwardNormal } from "../display/coastline";
 import { fbm } from "../display/noise";
-import { TERRAIN, WATER } from "../theme/palette";
+import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 
 export const CHUNK = 64;
-/** Width (tiles) of the beach band from the coastline toward the water. */
-export const BEACH_WIDTH = 0.7;
-/** The beach starts this far inland (it overlaps the ground fill's edge). */
-const BEACH_INLAND = 0.25;
-/** Height of the beach's outer edge (just above the sea surface). */
-const BEACH_LOW = -0.11;
-/** Low cliffs where mountain meets water: top above the ground, foot below the sea. */
-const CLIFF_TOP = 0.22;
-const CLIFF_FOOT = -0.3;
+/** Upward tilt added to the slab's steep face normals (stylised soft lighting of the cliffs). */
+const UP_TILT = 0.55;
+/** Height of the sea surface: the slab's cliffs drop from the ground (0) to below it. */
+export const SEA_LEVEL = -0.6;
+/** How far (tiles) the sand rim reaches inland from the coastline. */
+const RIM_INLAND = 0.22;
+/** How far (tiles) the cliff foot reaches out from the coastline (the foam starts there). */
+export const SLAB_REACH = 0.36;
+
+/**
+ * The slab profile from the coastline outward: (outward offset, height,
+ * colour, noise weight of the height) per ring. The rim and its rounded
+ * lip, the upper cliff band, a ledge, the lower band and the foot below
+ * the sea. Noise moves the inner rings' heights by up to ±weight.
+ */
+const PROFILE: readonly { out: number; y: number; color: Color3; jitter: number }[] = [
+  { out: -RIM_INLAND, y: 0.004, color: c3(ISLAND.sand_rim), jitter: 0 },
+  { out: 0, y: 0.004, color: c3(ISLAND.sand_rim).scale(0.97), jitter: 0 },
+  { out: 0.05, y: -0.045, color: c3(ISLAND.sand_rim).scale(0.88), jitter: 0 },
+  { out: 0.08, y: -0.09, color: c3(ISLAND.cliff_upper), jitter: 0.015 },
+  { out: 0.1, y: -0.25, color: c3(ISLAND.cliff_upper).scale(0.86), jitter: 0.04 },
+  { out: 0.19, y: -0.29, color: c3(ISLAND.cliff_ledge), jitter: 0.04 },
+  { out: 0.23, y: -0.33, color: c3(ISLAND.cliff_ledge).scale(0.9), jitter: 0.04 },
+  { out: 0.25, y: -0.4, color: c3(ISLAND.cliff_lower), jitter: 0.03 },
+  { out: 0.28, y: -0.56, color: c3(ISLAND.cliff_lower).scale(0.78), jitter: 0.02 },
+  { out: SLAB_REACH, y: SEA_LEVEL - 0.1, color: c3(ISLAND.cliff_foot), jitter: 0 },
+];
 
 const SAND = c3(TERRAIN.sand);
 const GRASS_A = c3(TERRAIN.grass_a);
 const GRASS_B = c3(TERRAIN.grass_b);
 const DRY = c3(TERRAIN.dry);
-const CLIFF = c3(TERRAIN.cliff);
-const WET_SAND = Color3.Lerp(SAND, c3(WATER.shallows), 0.5);
 
 const smoothstep = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -68,10 +89,11 @@ export function groundColor(terrain: Terrain | undefined, x: number, y: number, 
   }
 }
 
-/** Mesh data under construction (positions, colours, indices) with shared vertices by key. */
+/** Mesh data under construction (positions, colours, normals, indices) with shared vertices by key. */
 class Builder {
   positions: number[] = [];
   colors: number[] = [];
+  normals: number[] = [];
   indices: number[] = [];
   private readonly shared = new Map<string, number>();
 
@@ -83,12 +105,44 @@ class Builder {
     const v = this.positions.length / 3;
     this.positions.push(x, y, z);
     this.colors.push(c.r, c.g, c.b, 1);
+    this.normals.push(0, 1, 0);
     if (share !== null) this.shared.set(share, v);
     return v;
   }
 
   tri(a: number, b: number, c: number): void {
     this.indices.push(a, b, c);
+  }
+
+  /** A flat-shaded triangle (own vertices, the face normal turned toward `toward`). */
+  flat(p: readonly [number, number, number][], cols: readonly Color3[], toward: [number, number, number]): void {
+    const [a, b, c] = p as [[number, number, number], [number, number, number], [number, number, number]];
+    const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+    const vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+    let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+    const len = Math.hypot(nx, ny, nz);
+    if (len < 1e-9) return;
+    const s = nx * toward[0] + ny * toward[1] + nz * toward[2] < 0 ? -1 / len : 1 / len;
+    nx *= s;
+    ny *= s;
+    nz *= s;
+    // Stylised: tilt steep faces toward the sky, so cliffs turned away from
+    // the sun keep a readable mid-tone instead of the bare ambient fill.
+    if (ny < 0.6) {
+      ny += UP_TILT;
+      const l = Math.hypot(nx, ny, nz);
+      nx /= l;
+      ny /= l;
+      nz /= l;
+    }
+    for (let k = 0; k < 3; k++) {
+      const q = p[k] as [number, number, number];
+      const col = cols[k] as Color3;
+      this.indices.push(this.positions.length / 3);
+      this.positions.push(q[0], q[1], q[2]);
+      this.colors.push(col.r, col.g, col.b, 1);
+      this.normals.push(nx, ny, nz);
+    }
   }
 
   mesh(name: string, scene: Scene, material: StandardMaterial, parent: TransformNode | null): Mesh | null {
@@ -98,7 +152,7 @@ class Builder {
     data.positions = this.positions;
     data.indices = this.indices;
     data.colors = this.colors;
-    data.normals = this.positions.map((_, i) => (i % 3 === 1 ? 1 : 0));
+    data.normals = this.normals;
     data.applyToMesh(mesh);
     mesh.material = material;
     mesh.parent = parent;
@@ -108,26 +162,33 @@ class Builder {
   }
 }
 
+/** Ground colour of a tile (centre) and of a coastline crossing. */
+export interface GroundColors {
+  tile(terrain: Terrain | undefined, x: number, y: number): Color3;
+  /** Colour transform of the slab (far silhouettes of unsettled islands are desaturated). */
+  slab(c: Color3): Color3;
+}
+
 /**
  * Ground fill of the cell between the centres of tiles (i, j) … (i+1,
  * j+1): the land part of the marching-squares cell, centres coloured by
  * their terrain, crossings (edge midpoints) by the beach or cliff.
  */
-function fillCell(b: Builder, island: Island, i: number, j: number, seed: number): void {
+function fillCell(b: Builder, island: Island, i: number, j: number, colors: GroundColors): void {
   const { width, height, terrain } = island;
   const t = (x: number, y: number) => (x >= 0 && y >= 0 && x < width && y < height ? (terrain[y * width + x] as Terrain | undefined) : "water");
   const land = (x: number, y: number) => t(x, y) !== "water";
-  const corner = (x: number, y: number) => b.vertex(x + 0.5, 0, -(y + 0.5), groundColor(t(x, y), x, y, seed), `c${x},${y}`);
-  const edge = (x: number, y: number, lx: number, ly: number) =>
-    b.vertex(x, 0, -y, t(lx, ly) === "mountain" ? CLIFF : SAND, `e${x},${y}`);
+  const corner = (x: number, y: number) => b.vertex(x + 0.5, 0, -(y + 0.5), colors.tile(t(x, y), x, y), `c${x},${y}`);
+  const rim = colors.slab(c3(ISLAND.sand_rim));
+  const edge = (x: number, y: number) => b.vertex(x, 0, -y, rim, `e${x},${y}`);
   const tl = land(i, j);
   const tr = land(i + 1, j);
   const br = land(i + 1, j + 1);
   const bl = land(i, j + 1);
-  const T = () => edge(i + 1, j + 0.5, tl ? i : i + 1, j);
-  const R = () => edge(i + 1.5, j + 1, i + 1, tr ? j : j + 1);
-  const B = () => edge(i + 1, j + 1.5, bl ? i : i + 1, j + 1);
-  const L = () => edge(i + 0.5, j + 1, i, tl ? j : j + 1);
+  const T = () => edge(i + 1, j + 0.5);
+  const R = () => edge(i + 1.5, j + 1);
+  const B = () => edge(i + 1, j + 1.5);
+  const L = () => edge(i + 0.5, j + 1);
   // Saddles keep diagonal land apart (as the coastline does).
   if (tr && bl && !tl && !br) {
     b.tri(T(), corner(i + 1, j), R());
@@ -151,51 +212,81 @@ function fillCell(b: Builder, island: Island, i: number, j: number, seed: number
   for (let k = 1; k + 1 < poly.length; k++) b.tri(poly[0] as number, poly[k] as number, poly[k + 1] as number);
 }
 
-/** Beach band and cliffs along one smoothed coastline loop. */
-function coastStrip(b: Builder, island: Island, loop: CoastLoop): void {
+/**
+ * The slab along one smoothed coastline loop: PROFILE rings offset along
+ * the outward normal, heights wandering with noise along the loop
+ * (deterministic per seed), flat-shaded quads between consecutive points.
+ */
+function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: Color3) => Color3): void {
   const n = loop.length;
   if (n < 3) return;
-  const mountain = (k: number) => {
-    const p = loop[k % n] as CoastLoop[number];
-    return island.terrain[p.landY * island.width + p.landX] === "mountain";
-  };
-  // Per point: inland, contour, outer (beach) or rim, top, foot (cliff).
-  const beach: [number, number, number][] = [];
-  const cliff: [number, number, number][] = [];
+  const rings: { pts: [number, number, number][]; out: [number, number, number] }[] = [];
+  // Outward normals averaged over neighbours, so that the rings of tight
+  // concave corners fan instead of folding over each other.
+  const normals = loop.map((_, k) => outwardNormal(loop, k));
+  const smooth = normals.map((_, k) => {
+    let x = 0;
+    let y = 0;
+    for (let d = -2; d <= 2; d++) {
+      const q = normals[(k + d + n) % n] as { x: number; y: number };
+      const w = 3 - Math.abs(d);
+      x += q.x * w;
+      y += q.y * w;
+    }
+    const len = Math.hypot(x, y) || 1;
+    return { x: x / len, y: y / len };
+  });
+  let along = 0;
   for (let k = 0; k < n; k++) {
     const p = loop[k] as CoastLoop[number];
-    const o = outwardNormal(loop, k);
-    beach.push([
-      b.vertex(p.x - o.x * BEACH_INLAND, 0.004, -(p.y - o.y * BEACH_INLAND), SAND),
-      b.vertex(p.x, 0.002, -p.y, SAND.scale(0.98)),
-      b.vertex(p.x + o.x * BEACH_WIDTH, BEACH_LOW, -(p.y + o.y * BEACH_WIDTH), WET_SAND),
-    ]);
-    if (mountain(k)) {
-      cliff.push([
-        b.vertex(p.x - o.x * 0.35, 0.006, -(p.y - o.y * 0.35), CLIFF.scale(0.95)),
-        b.vertex(p.x, CLIFF_TOP, -p.y, CLIFF),
-        b.vertex(p.x + o.x * 0.08, CLIFF_FOOT, -(p.y + o.y * 0.08), CLIFF.scale(0.62)),
-      ]);
-    } else {
-      cliff.push([-1, -1, -1]);
+    if (k > 0) {
+      const q = loop[k - 1] as CoastLoop[number];
+      along += Math.hypot(p.x - q.x, p.y - q.y);
     }
+    const o = smooth[k] as { x: number; y: number };
+    const wobble = fbm(along / 2.5, seed % 97, seed) * 2 - 1;
+    const reach = 1 + 0.25 * (fbm(along / 4 + 17, seed % 53, seed + 3) * 2 - 1);
+    const pts = PROFILE.map((r): [number, number, number] => {
+      const out = r.out > 0 ? r.out * reach : r.out;
+      return [p.x + o.x * out, r.y + r.jitter * wobble, -(p.y + o.y * out)];
+    });
+    rings.push({ pts, out: [o.x, 0.35, -o.y] });
   }
+  const cols = PROFILE.map((r) => tint(r.color));
   for (let k = 0; k < n; k++) {
-    const k2 = (k + 1) % n;
-    const strip = mountain(k) && mountain(k2) ? cliff : beach;
-    const a = strip[k] as [number, number, number];
-    const c = strip[k2] as [number, number, number];
-    for (let s = 0; s < 2; s++) {
-      b.tri(a[s] as number, c[s] as number, c[s + 1] as number);
-      b.tri(a[s] as number, c[s + 1] as number, a[s + 1] as number);
+    const a = rings[k] as (typeof rings)[number];
+    const c = rings[(k + 1) % n] as (typeof rings)[number];
+    const toward: [number, number, number] = [a.out[0] + c.out[0], 0.7, a.out[2] + c.out[2]];
+    for (let s = 0; s + 1 < PROFILE.length; s++) {
+      const ca = cols[s] as Color3;
+      const cb = cols[s + 1] as Color3;
+      const top = s < 2;
+      const dir: [number, number, number] = top ? [0, 1, 0] : toward;
+      b.flat([a.pts[s] as [number, number, number], c.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number]], [ca, ca, cb], dir);
+      b.flat([a.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number], a.pts[s + 1] as [number, number, number]], [ca, cb, cb], dir);
     }
   }
 }
 
-export function buildTerrain(scene: Scene, island: Island, loops: readonly CoastLoop[], seed: number, parent: TransformNode | null = null): Mesh[] {
-  const material = skyFill(new StandardMaterial("terrain", scene));
-  material.specularColor = Color3.Black();
-  material.backFaceCulling = false;
+/** Ground colours of the near/mid terrain (noise-tinted per terrain). */
+export function terrainColors(seed: number): GroundColors {
+  return { tile: (t, x, y) => groundColor(t, x, y, seed), slab: (c) => c };
+}
+
+/**
+ * The island's ground and slab, one mesh per chunk under `parent`, with
+ * the given colours and material (default: a lit terrain material).
+ */
+export function buildIslandMeshes(
+  scene: Scene,
+  island: Island,
+  loops: readonly CoastLoop[],
+  seed: number,
+  colors: GroundColors,
+  material: StandardMaterial,
+  parent: TransformNode | null,
+  name: string,
+): Mesh[] {
   const meshes: Mesh[] = [];
   const chunks = new Map<string, Builder>();
   const chunk = (x: number, y: number) => {
@@ -205,14 +296,14 @@ export function buildTerrain(scene: Scene, island: Island, loops: readonly Coast
     return b;
   };
   for (let j = -1; j < island.height; j++) {
-    for (let i = -1; i < island.width; i++) fillCell(chunk(i + 1, j + 1), island, i, j, seed);
+    for (let i = -1; i < island.width; i++) fillCell(chunk(i + 1, j + 1), island, i, j, colors);
   }
   for (const loop of loops) {
     const p = loop[0];
-    if (p) coastStrip(chunk(p.x, p.y), island, loop);
+    if (p) slabStrip(chunk(p.x, p.y), loop, seed, colors.slab);
   }
   for (const [k, b] of chunks) {
-    const mesh = b.mesh(`terrain_${island.id}_${k}`, scene, material, parent);
+    const mesh = b.mesh(`${name}_${island.id}_${k}`, scene, material, parent);
     if (!mesh) continue;
     mesh.freezeWorldMatrix();
     meshes.push(mesh);
@@ -220,12 +311,19 @@ export function buildTerrain(scene: Scene, island: Island, loops: readonly Coast
   return meshes;
 }
 
+export function buildTerrain(scene: Scene, island: Island, loops: readonly CoastLoop[], seed: number, parent: TransformNode | null = null): Mesh[] {
+  const material = skyFill(new StandardMaterial("terrain", scene));
+  material.specularColor = Color3.Black();
+  material.backFaceCulling = false;
+  return buildIslandMeshes(scene, island, loops, seed, terrainColors(seed), material, parent, "terrain");
+}
+
 const FOAM_TEX_W = 128;
 const FOAM_TEX_H = 32;
-/** Foam band: from this far beyond the coastline to that far (tiles). */
-const FOAM_IN = BEACH_WIDTH * 0.55;
-const FOAM_OUT = BEACH_WIDTH + 0.45;
-const FOAM_Y = -0.095;
+/** Foam band: from just inside the cliff foot to this far beyond the coastline (tiles), on the sea surface. */
+const FOAM_IN = SLAB_REACH * 0.7;
+const FOAM_OUT = SLAB_REACH + 0.55;
+const FOAM_Y = SEA_LEVEL + 0.015;
 
 /** Foam texture: a broken white band across v, varying along u (wraps in u). */
 function foamTexture(scene: Scene, seed: number): DynamicTexture {
