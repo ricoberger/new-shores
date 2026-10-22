@@ -185,7 +185,12 @@ BACKGROUND = palette.hex_rgb("#E4D3AE")
 
 
 def _colors(roles, mesh):
-    return {(t[3], t[4]): tuple(min(1.0, c * t[4]) for c in roles[t[3]]) for t in mesh.tris}
+    """Corner colours (three per triangle) as exported: palette × shade, blended by the baked occlusion."""
+    declared = {(t[3], t[4]) for t in mesh.tris}
+    colors = pipeline.file_colors(roles, declared, mesh.ao)
+    if mesh.ao is None:
+        return [[tuple(min(1.0, c) for c in colors[(t[3], t[4])])] * 3 for t in mesh.tris]
+    return [[tuple(min(1.0, c) for c in colors[(t[3], t[4], lvl)]) for lvl in levels] for t, levels in zip(mesh.tris, mesh.ao)]
 
 
 def _cell(meshes):
@@ -207,7 +212,9 @@ def write_sheets(out, items, blender_ops):
             # The attachment on its model (drawn at the same matrix in the client).
             from nsassets.geometry import Mesh
 
-            both = Mesh(main[0][2].tris + c[2].tris)
+            m0, m1 = main[0][2], c[2]
+            ao = m0.ao + m1.ao if m0.ao is not None and m1.ao is not None else None
+            both = Mesh(m0.tris + m1.tris, ao)
             columns.append((f"{main[0][0]} + {c[0]}", both))
         cell = _cell([m for _, m in columns])
         cells = []

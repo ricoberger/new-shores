@@ -56,6 +56,21 @@ FILE_SCALE = {
 #: UI, status, route and light colours are not).
 ROLE_GROUPS = ("buildings", "terrain", "fields", "water")
 
+#: Palette group with the two-tone shadow tone of every role.
+SHADOW_GROUP = "shadows"
+
+#: Ambient occlusion baked into the vertex colours (Blender BVH ray casts,
+#: deterministic): every triangle corner casts AO_RAYS fixed cosine-weighted
+#: rays into its face's hemisphere up to AO_DISTANCE tiles (buildings and
+#: fields also against the ground plane z = 0); the hit share is quantised
+#: to AO_LEVELS steps and blends the corner colour toward the role's shadow
+#: tone by up to AO_STRENGTH. Quantised levels keep the colours a small,
+#: checkable set (palette × shade blended toward shadow × shade).
+AO_RAYS = 24
+AO_DISTANCE = 0.45
+AO_LEVELS = 4
+AO_STRENGTH = 0.75
+
 #: Kit material defaults: material name → (role, shade). The Medieval kit's
 #: textured materials are replaced by flat palette colours.
 KIT_MATERIALS = {

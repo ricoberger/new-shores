@@ -34,22 +34,23 @@ def _json_float(v):
     return 0.0 if r == 0 else r
 
 
-def vertex_data(tris, colors):
+def vertex_data(tris, colors, ao=None):
     """
     Deduplicated vertices of flat-shaded triangles in glTF space: positions
-    and normals rounded (stable bytes), colours as RGBA bytes. Returns
-    (positions, normals, colors, indices).
+    and normals rounded (stable bytes), colours as RGBA bytes. colors maps
+    (role, shade) → colour, or with ao (one level triple per triangle)
+    (role, shade, level) → colour. Returns (positions, normals, colors, indices).
     """
     index = {}
     positions, normals, cols, indices = [], [], [], []
     pd, nd = config.POSITION_DECIMALS, config.NORMAL_DECIMALS
-    for t in tris:
+    for k, t in enumerate(tris):
         a, b, c = (to_gltf(p) for p in t[:3])
         # An explicit normal (sails: up, lit from both sides) or the flat face normal.
         n = to_gltf(t[6]) if len(t) > 6 else geometry.normal(a, b, c)
         n = tuple(round(x, nd) + 0.0 for x in n)
-        col = colors[(t[3], t[4])]
-        for p in (a, b, c):
+        corner = [colors[(t[3], t[4], lvl)] for lvl in ao[k]] if ao is not None else [colors[(t[3], t[4])]] * 3
+        for p, col in zip((a, b, c), corner):
             q = tuple(round(x, pd) + 0.0 for x in p)
             key = (q, n, col)
             i = index.get(key)
@@ -67,10 +68,10 @@ def color_bytes(rgb):
     return tuple(to_byte(c) for c in rgb) + (255,)
 
 
-def write(name, tris, colors):
-    """GLB bytes of the triangles; colors maps (role, shade) → (r, g, b) floats."""
+def write(name, tris, colors, ao=None):
+    """GLB bytes of the triangles; colors maps (role, shade) → (r, g, b) floats, with ao (role, shade, level) → (r, g, b)."""
     byte_colors = {k: color_bytes(v) for k, v in colors.items()}
-    positions, normals, cols, indices = vertex_data(tris, byte_colors)
+    positions, normals, cols, indices = vertex_data(tris, byte_colors, ao)
     n = len(positions)
     pos_bin = b"".join(struct.pack("<3f", *p) for p in positions)
     nor_bin = b"".join(struct.pack("<3f", *v) for v in normals)

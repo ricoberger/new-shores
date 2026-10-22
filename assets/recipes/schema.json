@@ -95,6 +95,7 @@
         "bulge": { "type": "number", "description": "sail: depth of the wind belly toward +y." },
         "profile": { "type": "array", "items": { "$ref": "#/$defs/vec2" }, "minItems": 2, "description": "lathe: (radius, z) points from bottom to top, revolved about z." },
         "detail": { "type": "integer", "minimum": 0, "maximum": 1, "description": "rock: 0 = octahedron-like, 1 = subdivided." },
+        "bevel": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.2, "description": "Primitives: bevels the sharp edges (> 30°) by this width (tiles, one segment; Blender bevel modifier) — softer, chunkier silhouettes for about 3× the triangles." },
         "position": { "$ref": "#/$defs/vec3" },
         "rotation": { "$ref": "#/$defs/vec3" },
         "scale": { "oneOf": [{ "type": "number", "exclusiveMinimum": 0 }, { "$ref": "#/$defs/vec3" }] },

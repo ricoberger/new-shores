@@ -13,6 +13,9 @@ PRIM_PARAMS = {
     "lathe": ({"profile"}, {"segments"}),
     "rock": ({"size"}, {"detail"}),
 }
+#: Options every primitive accepts (bevel: Blender bevel of the sharp edges, width in tiles).
+for _req, _opt in PRIM_PARAMS.values():
+    _opt.add("bevel")
 ALL_PRIM_PARAMS = set().union(*(req | opt for req, opt in PRIM_PARAMS.values()))
 KIT_ONLY = {"roles", "simplify", "crop", "drop"}
 

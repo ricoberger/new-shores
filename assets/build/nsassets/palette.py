@@ -21,6 +21,18 @@ def load(path=config.PALETTE_PATH):
     return roles, hashlib.sha256(raw).hexdigest()
 
 
+def load_shadows(path=config.PALETTE_PATH):
+    """Shadow tone per role (palette group "shadows"): role name → (r, g, b); every material role must have one."""
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    roles, _ = load(path)
+    colors = data["groups"].get(config.SHADOW_GROUP, {}).get("colors", {})
+    missing = sorted(set(roles) - set(colors))
+    if missing:
+        raise ValueError(f"palette: group {config.SHADOW_GROUP!r} lacks a shadow tone for {', '.join(missing)}")
+    return {name: hex_rgb(colors[name]) for name in sorted(roles)}
+
+
 def hex_rgb(h):
     """'#RRGGBB' → (r, g, b) floats in 0..1."""
     h = h.lstrip("#")

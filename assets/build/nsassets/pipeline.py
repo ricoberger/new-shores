@@ -9,7 +9,7 @@ import hashlib
 import json
 import math
 
-from . import atlas, config, content as content_mod, geometry, glb, validate
+from . import atlas, config, content as content_mod, geometry, glb, palette, validate
 from .recipes import part_groups, part_label
 
 
@@ -160,7 +160,13 @@ def part_mesh(recipe_id, group, index, part, kit_loader, roles=None):
             tris = local
         else:
             seed = geometry.seed_of(recipe_id, group, index, k)
-            tris = [(a, b, c, part["role"], shade, label) for a, b, c in primitive(part, seed)]
+            prim = primitive(part, seed)
+            if "bevel" in part:
+                bevel = getattr(kit_loader, "bevel", None)
+                if bevel is None:
+                    raise BuildError(f"{label}: bevel needs the Blender build")
+                prim = bevel(prim, part["bevel"])
+            tris = [(a, b, c, part["role"], shade, label) for a, b, c in prim]
             if part["prim"] == "sail":
                 # Cloth is lit from both sides: both faces of a sail get the up normal.
                 tris = [t + (UP,) for t in tris]
@@ -228,6 +234,39 @@ def _assemble(cid, groups, kit_loader, kit_used, lod, roles=None):
     return mesh, declared
 
 
+_SHADOWS = {}
+
+
+def shadows():
+    """Shadow tone per role (palette group "shadows"), loaded once."""
+    if not _SHADOWS:
+        _SHADOWS.update(palette.load_shadows())
+    return _SHADOWS
+
+
+def ao_color(base, shadow, shade, level):
+    """A colour at an occlusion level: base blended toward shadow × shade by level / AO_LEVELS × AO_STRENGTH."""
+    t = level / config.AO_LEVELS * config.AO_STRENGTH
+    return tuple(b + (s * shade - b) * t for b, s in zip(base, shadow))
+
+
+def file_colors(roles, declared, ao):
+    """(role, shade) → colour, or with baked occlusion (role, shade, level) → colour, of a file's declared pairs."""
+    base = {k: tuple(c * k[1] for c in roles[k[0]]) for k in declared}
+    if ao is None:
+        return base
+    tone = shadows()
+    return {(r, s, lvl): ao_color(base[(r, s)], tone[r], s, lvl) for (r, s) in declared for lvl in range(config.AO_LEVELS + 1)}
+
+
+def bake(mesh, recipe, kit_loader):
+    """Bakes ambient occlusion into a mesh when the loader can (Blender); returns the mesh."""
+    occlusion = getattr(kit_loader, "occlusion", None)
+    if occlusion is not None:
+        mesh.ao = occlusion(mesh.tris, recipe["kind"] != "ship")
+    return mesh
+
+
 def _check_file(recipe, content, roles, fname, key, mesh, declared, limit):
     """Validates one model file (full or lite: the same rules, the lite budget); returns (bytes, problems)."""
     cid = recipe["id"]
@@ -239,8 +278,8 @@ def _check_file(recipe, content, roles, fname, key, mesh, declared, limit):
     elif key is None:
         problems += [f"{fname}: {p}" for p in validate.ship_length(mesh, recipe["ship"]["length_tiles"])]
     problems += validate.palette_check(mesh, roles, declared, fname)
-    colors = {k: tuple(c * k[1] for c in roles[k[0]]) for k in declared}
-    data = glb.write(cid, mesh.tris, colors)
+    colors = file_colors(roles, declared, mesh.ao)
+    data = glb.write(cid, mesh.tris, colors, mesh.ao)
     problems += validate.export_profile(data, fname)
     problems += readback_colors(data, colors, fname)
     return data, problems
@@ -263,6 +302,9 @@ def build_recipe(recipe, content, roles, kit_loader):
         try:
             mesh, declared = _assemble(cid, groups, kit_loader, kit_used, "full", roles)
             lite = _assemble(cid, groups, kit_loader, kit_used, "lite", roles) if has_lite else None
+            bake(mesh, recipe, kit_loader)
+            if lite is not None:
+                bake(lite[0], recipe, kit_loader)
         except BuildError as e:
             errors.append(f"{name} {fname}: {e}")
             continue

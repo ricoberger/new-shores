@@ -9,15 +9,21 @@ import math
 
 
 class Mesh:
-    """Triangles: (a, b, c, role, shade, label[, normal]) with a/b/c as (x, y, z) tuples (an explicit normal overrides the face normal)."""
+    """
+    Triangles: (a, b, c, role, shade, label[, normal]) with a/b/c as (x, y, z)
+    tuples (an explicit normal overrides the face normal). `ao` is None or one
+    (level, level, level) tuple of baked occlusion levels per triangle.
+    """
 
-    __slots__ = ("tris",)
+    __slots__ = ("tris", "ao")
 
-    def __init__(self, tris=None):
+    def __init__(self, tris=None, ao=None):
         self.tris = list(tris or [])
+        self.ao = ao
 
     def extend(self, other):
         self.tris.extend(other.tris)
+        self.ao = None
 
     def __len__(self):
         return len(self.tris)
@@ -316,3 +322,25 @@ def rock(size, detail, rng):
     jitter = [0.78 + 0.4 * rng.next() for _ in verts]
     pts = [(v[0] * size[0] * j, v[1] * size[1] * j, v[2] * size[2] * j) for v, j in zip(verts, jitter)]
     return [(pts[a], pts[b], pts[c]) for a, b, c in faces]
+
+
+def hemisphere(n):
+    """n fixed cosine-weighted directions about +z (golden-angle spiral; deterministic)."""
+    out = []
+    golden = math.pi * (3.0 - math.sqrt(5.0))
+    for i in range(n):
+        r = math.sqrt((i + 0.5) / n)
+        a = i * golden
+        out.append((r * math.cos(a), r * math.sin(a), math.sqrt(max(0.0, 1.0 - r * r))))
+    return out
+
+
+def frame(nrm):
+    """An orthonormal (tangent, bitangent, normal) frame about a unit normal."""
+    nx, ny, nz = nrm
+    h = (1.0, 0.0, 0.0) if abs(nx) < 0.9 else (0.0, 1.0, 0.0)
+    t = (h[1] * nz - h[2] * ny, h[2] * nx - h[0] * nz, h[0] * ny - h[1] * nx)
+    ln = math.sqrt(sum(c * c for c in t)) or 1.0
+    t = tuple(c / ln for c in t)
+    b = (ny * t[2] - nz * t[1], nz * t[0] - nx * t[2], nx * t[1] - ny * t[0])
+    return t, b, nrm
