@@ -73,8 +73,8 @@ class KitBuildingTest(unittest.TestCase):
         errs = recipes.check_recipe(chapel([{"kit_building": "home_A", "prim": "box"}]), "recipes/chapel.json", SCHEMA, CONTENT, files, ROLES)
         self.assertTrue(any("kit_building replaces kit/file/prim" in e for e in errs), errs)
         # Not pinned yet: named like any kit file.
-        errs = recipes.check_recipe(chapel([{"kit_building": "church"}]), "recipes/chapel.json", SCHEMA, CONTENT, files, ROLES)
-        self.assertTrue(any("building_church_blue.gltf is not listed" in e for e in errs), errs)
+        errs = recipes.check_recipe(chapel([{"kit_building": "castle"}]), "recipes/chapel.json", SCHEMA, CONTENT, files, ROLES)
+        self.assertTrue(any("building_castle_blue.gltf is not listed" in e for e in errs), errs)
 
 
 class ExaggerateTest(unittest.TestCase):
