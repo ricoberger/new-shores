@@ -1,2 +1,10 @@
 # Local overrides of the Compose stack (credentials); never commit.
 deploy/.env
+
+# Third-party model kits (CC0, downloaded from quaternius.com; tens of MB of
+# binaries and partly paid tiers). The asset build verifies them by checksum
+# against assets/kits/MANIFEST.json; recipes and generated GLBs are committed.
+assets/kits/*
+!assets/kits/MANIFEST.json
+!assets/kits/README.md
+.DS_Store
