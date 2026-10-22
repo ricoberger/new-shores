@@ -1,0 +1,93 @@
+import unittest
+
+from helpers import CONTENT, KIT_FILES, ROLES, SCHEMA, fake_loader
+from nsassets import config, geometry, pipeline, recipes
+
+
+class Decimating:
+    """The fake kit loader plus a fake decimate that keeps the first ratio × n triangles."""
+
+    def __init__(self):
+        self.load = fake_loader()
+        self.ratios = []
+
+    def __call__(self, kit, rel, simplify):
+        return self.load(kit, rel, simplify)
+
+    def decimate(self, mesh, ratio):
+        self.ratios.append(ratio)
+        return geometry.Mesh(mesh.tris[: int(len(mesh) * ratio)])
+
+
+def chapel(parts):
+    return {"id": "chapel", "kind": "building", "parts": parts}
+
+
+class LiteTest(unittest.TestCase):
+    def test_lite_is_generated_for_buildings_only_and_leaves_out_full_parts(self):
+        r = chapel([{"prim": "box", "size": [1.8, 1.8, 0.6], "role": "stone", "name": "nave"},
+                    {"prim": "cylinder", "radius": 0.1, "height": 0.2, "segments": 32, "role": "brass", "lod": "full", "name": "bell"}])
+        files, entry, errors = pipeline.build_recipe(r, CONTENT, ROLES, fake_loader())
+        self.assertEqual(errors, [])
+        self.assertEqual([f[0] for f in files], ["chapel.glb", "chapel.lite.glb"])
+        self.assertEqual(entry["file"]["lite"]["triangles"], 12)
+        field = {"id": "pasture", "kind": "field", "parts": [{"prim": "box", "size": [0.9, 0.9, 0.05], "role": "pasture"}]}
+        files, _, errors = pipeline.build_recipe(field, CONTENT, ROLES, fake_loader())
+        self.assertEqual((errors, [f[0] for f in files]), ([], ["pasture.glb"]))
+
+    def test_decimation_steps_up_until_the_footprint_is_covered(self):
+        # 408 small core triangles first, then 408 yard triangles (only they cover the footprint).
+        yard = {"prim": "box", "size": [1.9, 1.9, 0.02], "role": "road-dirt", "name": "yard", "repeat": {"count": 34, "step": [0, 0, 0]}}
+        core = {"prim": "box", "size": [0.5, 0.5, 0.5], "role": "stone", "name": "core", "repeat": {"count": 34, "step": [0, 0, 0]}}
+        loader = Decimating()
+        _, entry, errors = pipeline.build_recipe(chapel([core, yard]), CONTENT, ROLES, loader)
+        self.assertEqual(errors, [])
+        # Up to 50 % only core triangles survive (no coverage); 70 % reaches the yard.
+        self.assertEqual(loader.ratios, list(config.LITE_RATIOS[:4]))
+        self.assertEqual(entry["file"]["lite"]["triangles"], int(816 * 0.7))
+
+    def test_small_models_are_not_decimated(self):
+        loader = Decimating()
+        pipeline.build_recipe(chapel([{"prim": "box", "size": [1.8, 1.8, 0.6], "role": "stone"}]), CONTENT, ROLES, loader)
+        self.assertEqual(loader.ratios, [])
+
+
+class KitBuildingTest(unittest.TestCase):
+    def test_expands_to_the_kit_piece_turned_to_the_front(self):
+        part = {"kit_building": "home_A", "rotation": [0, 0, 90], "roles": {"Atlas/team": "terracotta"}}
+        out = recipes.expand_part(part)
+        self.assertEqual(out["kit"], "kaykit_hexagon")
+        self.assertEqual(out["file"], "Assets/gltf/buildings/blue/building_home_A_blue.gltf")
+        self.assertEqual(out["rotation"], [0, 0, 270.0])
+        self.assertEqual(out["name"], "home_A")
+        self.assertNotIn("kit_building", out)
+        self.assertEqual(part["rotation"], [0, 0, 90])
+
+    def test_validation(self):
+        files = dict(KIT_FILES)
+        files[("kaykit_hexagon", "Assets/gltf/buildings/blue/building_home_A_blue.gltf")] = "0" * 64
+        r = chapel([{"kit_building": "home_A", "scale": 1.1}])
+        self.assertEqual(recipes.check_recipe(r, "recipes/chapel.json", SCHEMA, CONTENT, files, ROLES), [])
+        errs = recipes.check_recipe(chapel([{"kit_building": "palace"}]), "recipes/chapel.json", SCHEMA, CONTENT, files, ROLES)
+        self.assertTrue(any("unknown kit_building 'palace'" in e for e in errs), errs)
+        errs = recipes.check_recipe(chapel([{"kit_building": "home_A", "prim": "box"}]), "recipes/chapel.json", SCHEMA, CONTENT, files, ROLES)
+        self.assertTrue(any("kit_building replaces kit/file/prim" in e for e in errs), errs)
+        # Not pinned yet: named like any kit file.
+        errs = recipes.check_recipe(chapel([{"kit_building": "church"}]), "recipes/chapel.json", SCHEMA, CONTENT, files, ROLES)
+        self.assertTrue(any("building_church_blue.gltf is not listed" in e for e in errs), errs)
+
+
+class ExaggerateTest(unittest.TestCase):
+    def test_scales_the_selection_about_its_bottom_centre(self):
+        low = ((0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), "Atlas/wood@1")
+        top = ((0.0, 0.0, 1.0), (1.0, 0.0, 1.0), (0.0, 1.0, 1.5), "Atlas/team@1")
+        out = pipeline.exaggerate([low, top], {"min": [-9, -9, 0.9], "max": [9, 9, 9], "scale": 2.0})
+        self.assertEqual(out[0], low)
+        # Pivot (0.5, 0.5, 1.0): x/y spread about the centre, z grows upward from the selection's base.
+        self.assertEqual(out[1][:3], ((-0.5, -0.5, 1.0), (1.5, -0.5, 1.0), (-0.5, 1.5, 2.0)))
+        same = pipeline.exaggerate([low], {"min": [5, 5, 5], "max": [6, 6, 6], "scale": 2.0})
+        self.assertEqual(same, [low])
+
+
+if __name__ == "__main__":
+    unittest.main()

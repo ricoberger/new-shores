@@ -42,7 +42,8 @@ class OcclusionTest(unittest.TestCase):
         loader = Loader()
         files, entry, errors = pipeline.build_recipe(HOUSE, CONTENT, ROLES, loader)
         self.assertEqual(errors, [])
-        self.assertEqual(loader.calls, [True])
+        # The full model and its generated lite model.
+        self.assertEqual(loader.calls, [True, True])
         doc, binary = glb.read(files[0][1])
         cols = {tuple(round(c * 255) for c in v[:3]) for v in glb.accessor_values(doc, binary, doc["meshes"][0]["primitives"][0]["attributes"]["COLOR_0"])}
         plaster = tuple(round(c * 255) for c in ROLES["plaster"])

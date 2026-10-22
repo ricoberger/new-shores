@@ -41,10 +41,10 @@ class PipelineTest(unittest.TestCase):
 
     def test_over_budget_recipe_fails_naming_recipe_part_and_file(self):
         r = json.loads(json.dumps(CHAPEL))
-        r["parts"].append({"prim": "cylinder", "radius": 0.3, "height": 0.4, "segments": 32, "caps": True, "role": "stone", "name": "big tower", "repeat": {"count": 12, "step": [0, 0, 0.0]}})
+        r["parts"].append({"prim": "cylinder", "radius": 0.3, "height": 0.4, "segments": 32, "caps": True, "role": "stone", "name": "big tower", "repeat": {"count": 64, "step": [0, 0, 0.0]}})
         _, entry, errors = build(r)
         self.assertIsNone(entry)
-        self.assertTrue(any(e.startswith("recipes/chapel.json chapel.glb:") and "> budget 1500" in e and "'big tower'" in e for e in errors), errors)
+        self.assertTrue(any(e.startswith("recipes/chapel.json chapel.glb:") and "> budget 6000" in e and "'big tower'" in e for e in errors), errors)
 
     def test_model_outside_the_footprint_band_fails_with_values(self):
         r = json.loads(json.dumps(CHAPEL))
@@ -54,9 +54,9 @@ class PipelineTest(unittest.TestCase):
 
     def test_houses_and_attachments_use_their_budgets(self):
         house = {"id": "house_settlers", "kind": "building", "parts": [{"prim": "box", "size": [1.8, 1.8, 0.5], "role": "plaster"}],
-                 "variants": [[{"prim": "cylinder", "radius": 0.2, "height": 0.3, "segments": 32, "caps": True, "role": "stone", "repeat": {"count": 7, "step": [0, 0, 0]}}], [], []]}
+                 "variants": [[{"prim": "cylinder", "radius": 0.2, "height": 0.3, "segments": 32, "caps": True, "role": "stone", "repeat": {"count": 22, "step": [0, 0, 0]}}], [], []]}
         _, _, errors = build(house)
-        self.assertTrue(any("house_settlers.v0.glb: 880 triangles > budget 400" in e for e in errors), errors)
+        self.assertTrue(any("house_settlers.v0.glb: 2740 triangles > budget 2500" in e for e in errors), errors)
         self.assertFalse(any("house_settlers.v1.glb" in e for e in errors), errors)
         sloop = {"id": "sloop", "kind": "ship", "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0},
                  "parts": [{"prim": "box", "size": [2.0, 0.5, 0.3], "role": "timber"}],
@@ -107,7 +107,7 @@ class DetailTest(unittest.TestCase):
         files, entry, errors = build(r)
         self.assertEqual(errors, [])
         self.assertEqual(entry["file"]["lite"]["triangles"], 24)
-        self.assertEqual(entry["file"]["lite"]["budget"], int(1500 * config.LITE_FACTOR))
+        self.assertEqual(entry["file"]["lite"]["budget"], int(6000 * config.LITE_FACTOR))
         # A lite model without the yard no longer covers the footprint: it fails like a full one would.
         r["parts"][0]["lod"] = "full"
         _, _, errors = build(r)
@@ -115,8 +115,8 @@ class DetailTest(unittest.TestCase):
         self.assertFalse(any("chapel.glb: footprint fit" in e for e in errors), errors)
 
     def test_lite_budgets(self):
-        self.assertEqual(pipeline.lite_budget({"id": "chapel", "kind": "building"}, CONTENT, 1500), 750)
-        self.assertEqual(pipeline.lite_budget({"id": "house_settlers", "kind": "building"}, CONTENT, 400), 80)
+        self.assertEqual(pipeline.lite_budget({"id": "chapel", "kind": "building"}, CONTENT, 6000), 1500)
+        self.assertEqual(pipeline.lite_budget({"id": "house_settlers", "kind": "building"}, CONTENT, 2500), 625)
 
     def test_sails_are_lit_from_both_sides(self):
         r = {"id": "sloop", "kind": "ship", "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0},

@@ -17,8 +17,6 @@
     {"name": "saw blade", "prim": "cylinder", "radius": 0.22, "height": 0.025, "segments": 10, "caps": true, "position": [-0.25, -0.31, 0.24], "rotation": [90, 0, 0], "role": "iron"},
     {"name": "log", "prim": "cylinder", "radius": 0.06, "height": 0.5, "segments": 5, "caps": true, "position": [-0.7, -0.3, 0.06], "rotation": [0, 90, 0], "role": "timber", "shade": 1.02},
     {"name": "sawhorse logs", "kit": "pirate", "file": "glTF/Environment_Sawmill.gltf", "simplify": {"collapse": 0.15}, "position": [0.45, 0.4, 0], "rotation": [0, 0, 90], "scale": 1.25, "roles": {"Atlas/wood_light": "thatch"}, "lod": "full"},
-    {"name": "log", "prim": "cylinder", "radius": 0.06, "height": 0.6, "segments": 5, "caps": true, "position": [0.44, 0.75, 0.06], "rotation": [90, 0, 0], "role": "timber", "shade": 1.02, "lod": "lite"},
-    {"name": "log", "prim": "cylinder", "radius": 0.06, "height": 0.6, "segments": 5, "caps": true, "position": [0.56, 0.75, 0.06], "rotation": [90, 0, 0], "role": "timber", "shade": 1.12, "lod": "lite"},
     {"name": "planks", "prim": "box", "size": [0.5, 0.22, 0.04], "position": [-0.5, 0.55, 0], "repeat": {"count": 4, "step": [0.0, 0.0, 0.04], "rotate": 3}, "role": "thatch", "shade": 1.1},
     {"name": "trestle", "prim": "box", "size": [0.06, 0.2, 0.16], "open": ["bottom"], "position": [0.6, -0.7, 0], "repeat": {"count": 2, "step": [0.18, 0, 0]}, "role": "timber"}
   ]

@@ -71,7 +71,7 @@ def cmd_pin(args):
         if not fname.endswith(".json") or fname == "schema.json":
             continue
         with open(os.path.join(args.recipes, fname), encoding="utf-8") as f:
-            recipe = json.load(f)
+            recipe = recipes_mod.expand(json.load(f))
         for _, parts in recipes_mod.part_groups(recipe):
             for p in parts:
                 if "kit" in p:

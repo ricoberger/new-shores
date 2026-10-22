@@ -174,23 +174,46 @@ KIT_ATLAS_CELLS = {
     },
 }
 
-#: Triangle budgets per exported file (ART_DIRECTION §7; ships aligned with buildings).
-BUDGET_BUILDING = 1500
-BUDGET_BUILDING_EXCEPTION = 3000
-BUDGET_HOUSE = 400
-BUDGET_FIELD = 60
+#: Whole kit buildings a recipe can reference by name (`kit_building`): name
+#: → (kit, file, front rotation about z in degrees). KayKit buildings face
+#: −y; our front is +y, so they turn 180° (the recipe's rotation adds to
+#: it). The blue files are used everywhere: the colour variants differ only
+#: in the `team` swatch, which recipes re-colour.
+_HEX_BUILDINGS = "Assets/gltf/buildings/"
+KIT_BUILDINGS = {
+    **{
+        name: ("kaykit_hexagon", f"{_HEX_BUILDINGS}blue/building_{name}_blue.gltf", 180.0)
+        for name in (
+            "archeryrange", "barracks", "blacksmith", "castle", "church", "home_A", "home_B", "lumbermill",
+            "market", "mine", "tavern", "tower_A", "tower_B", "tower_base", "tower_catapult", "watermill",
+            "well", "windmill",
+        )
+    },
+    **{
+        name: ("kaykit_hexagon", f"{_HEX_BUILDINGS}neutral/building_{name}.gltf", 180.0)
+        for name in ("destroyed", "dirt", "grain", "scaffolding", "stage_A", "stage_B", "stage_C")
+    },
+}
+
+#: Triangle budgets per exported file (restyle: chunky KayKit-led models;
+#: ships unchanged).
+BUDGET_BUILDING = 6000
+BUDGET_BUILDING_EXCEPTION = 12000
+BUDGET_HOUSE = 2500
+BUDGET_FIELD = 300
 BUDGET_SHIP = 1500
 BUDGET_ATTACHMENT = 150
-#: Budget of a lite model (parts with lod "full" left out) relative to its
-#: full model's budget. The client draws the lite models at the near-LOD
-#: default zoom (full ones at a half extent ≤ 10), where a dense town is
-#: hundreds of houses: measured on the dense fixture (software WebGL, 412 ×
-#: 915, 4× throttling) every ~10 house triangles cost ~0.4 ms per frame, so
-#: houses get a fifth of their budget (80) and the few other buildings
-#: half (750). Lite models are validated like full ones (footprint fit and
-#: coverage, palette, export profile).
-LITE_FACTOR = 0.5
-LITE_FACTOR_HOUSE = 0.2
+#: Lite models (drawn at the near-LOD default zoom, full ones at a half
+#: extent ≤ 10) are generated, not authored: every building's model
+#: without its lod-"full" parts is decimated by Blender's edge collapse to
+#: the first ratio of LITE_RATIOS whose result still fits and covers the
+#: footprint and touches the ground (collapse can eat a thin yard or
+#: plinth), never below LITE_MIN_TRIS triangles; then it is validated like
+#: the full model (footprint, palette, export profile) against
+#: LITE_FACTOR × the full budget.
+LITE_RATIOS = (0.25, 0.35, 0.5, 0.7, 1.0)
+LITE_MIN_TRIS = 150
+LITE_FACTOR = 0.25
 #: Buildings that may declare a budget_exception (×2).
 EXCEPTION_ALLOWED = ("warehouse", "shipyard", "chapel", "market_small")
 

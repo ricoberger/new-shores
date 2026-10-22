@@ -17,7 +17,7 @@ PRIM_PARAMS = {
 for _req, _opt in PRIM_PARAMS.values():
     _opt.add("bevel")
 ALL_PRIM_PARAMS = set().union(*(req | opt for req, opt in PRIM_PARAMS.values()))
-KIT_ONLY = {"roles", "simplify", "crop", "drop"}
+KIT_ONLY = {"roles", "simplify", "crop", "drop", "exaggerate"}
 
 
 class RecipeError(Exception):
@@ -43,11 +43,58 @@ def part_groups(recipe):
     return out
 
 
+def expand_part(part):
+    """A `kit_building` part as the kit piece it names (front turned to +y, the part's rotation added); other parts unchanged."""
+    if "kit_building" not in part or part["kit_building"] not in config.KIT_BUILDINGS:
+        return part
+    kit, file, front = config.KIT_BUILDINGS[part["kit_building"]]
+    out = {k: v for k, v in part.items() if k != "kit_building"}
+    out.setdefault("name", part["kit_building"])
+    out["kit"] = kit
+    out["file"] = file
+    rot = list(part.get("rotation", [0.0, 0.0, 0.0]))
+    rot[2] = rot[2] + front
+    out["rotation"] = rot
+    return out
+
+
+def expand(recipe):
+    """A copy of a recipe with every kit_building part expanded (expand_part)."""
+    out = json.loads(json.dumps(recipe))
+    if "parts" in out:
+        out["parts"] = [expand_part(p) for p in out["parts"]]
+    if "variants" in out:
+        out["variants"] = [[expand_part(p) for p in v] for v in out["variants"]]
+    for key in ("levels", "attachments"):
+        if key in out:
+            out[key] = {k: [expand_part(p) for p in v] for k, v in out[key].items()}
+    return out
+
+
+def _check_kit_buildings(recipe, name):
+    errors = []
+    for group, parts in part_groups(recipe):
+        for i, p in enumerate(parts):
+            if "kit_building" not in p:
+                continue
+            label = f"{name} {part_label(p, i, group)}"
+            if p["kit_building"] not in config.KIT_BUILDINGS:
+                errors.append(f"{label}: unknown kit_building {p['kit_building']!r} (one of {', '.join(sorted(config.KIT_BUILDINGS))})")
+            for k in ("kit", "file", "prim"):
+                if k in p:
+                    errors.append(f"{label}: kit_building replaces kit/file/prim; remove {k!r}")
+    return errors
+
+
 def check_recipe(recipe, name, schema, content, kit_files, roles):
-    """Returns a list of problems of one recipe (schema first, then semantics)."""
+    """Returns a list of problems of one recipe (schema first, then semantics; kit_building parts are checked as the kit piece they name)."""
     errors = [f"{name}: {e}" for e in schema_mod.validate(recipe, schema)]
     if errors:
         return errors
+    errors = _check_kit_buildings(recipe, name)
+    if errors:
+        return errors
+    recipe = expand(recipe)
     cid = recipe["id"]
     kind = content_mod.kind_of(content, cid)
     if kind is None:
@@ -139,7 +186,7 @@ def load_all(recipes_dir, content, kit_files, roles, schema=None, only=None):
         if problems:
             errors += problems
         else:
-            recipes[recipe["id"]] = recipe
+            recipes[recipe["id"]] = expand(recipe)
     if errors:
         raise RecipeError(f"{len(errors)} recipe problem(s):\n  " + "\n  ".join(errors))
     return recipes

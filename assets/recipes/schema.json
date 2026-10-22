@@ -71,11 +71,12 @@
     "partList": { "type": "array", "items": { "$ref": "#/$defs/part" } },
     "part": {
       "type": "object",
-      "description": "A kit piece (kit + file) or a procedural primitive (prim + its parameters), placed by position/rotation/scale.",
+      "description": "A kit piece (kit + file, or kit_building), or a procedural primitive (prim + its parameters), placed by position/rotation/scale.",
       "additionalProperties": false,
       "properties": {
         "name": { "type": "string", "description": "Label in error messages (default: file or prim and the index)." },
         "kit": { "enum": ["medieval", "pirate", "kaykit_hexagon", "kaykit_forest"] },
+        "kit_building": { "type": "string", "description": "A whole kit building by name (KIT_BUILDINGS in assets/build/nsassets/config.py, e.g. home_A, church, lumbermill, windmill, scaffolding) — the kit piece turned so its front faces +y; replaces kit + file and takes the kit-piece options (roles, drop, crop, exaggerate, simplify) and transforms." },
         "file": { "type": "string", "description": "Kit-relative path as listed in assets/kits/MANIFEST.json." },
         "prim": { "enum": ["box", "cylinder", "wedge", "sail", "lathe", "rock"] },
         "size": { "$ref": "#/$defs/vec3", "description": "box: x y z (base centred at z = 0); wedge: ridge length x, depth y, height z; rock: radii x y z." },
@@ -151,10 +152,25 @@
           "properties": { "min": { "$ref": "#/$defs/vec3" }, "max": { "$ref": "#/$defs/vec3" } },
           "description": "Kit pieces: keeps only the triangles whose centroid lies in this box (kit units, Blender axes, before any transform) — takes a part of a piece."
         },
+        "exaggerate": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["min", "max", "scale"],
+            "additionalProperties": false,
+            "properties": {
+              "min": { "$ref": "#/$defs/vec3" },
+              "max": { "$ref": "#/$defs/vec3" },
+              "scale": { "oneOf": [{ "type": "number", "exclusiveMinimum": 0, "maximum": 3 }, { "$ref": "#/$defs/vec3" }] },
+              "pivot": { "$ref": "#/$defs/vec3" }
+            }
+          },
+          "description": "Kit pieces: scales the triangles whose centroid lies in min..max (kit units, Blender axes, before any transform) about pivot (default: the selection's bottom centre), in order — e.g. a roof 1.3× or a chimney 1.5× taller (exaggerated silhouettes)."
+        },
         "flip_normals": { "type": "boolean", "description": "Reverses the triangle winding (inside-out pieces)." },
         "lod": {
-          "enum": ["full", "lite"],
-          "description": "Detail level: full = only in the full model, lite = only in the lite model (absent: both). A file with any lod part is also exported as <file>.lite.glb, drawn by the client at the near-LOD default zoom (dense towns stay inside the software-rendering budget); the full model is drawn when zoomed in."
+          "enum": ["full"],
+          "description": "full = only in the full model: left out of the generated lite model. Every building is also exported as <file>.lite.glb (the model without these parts, decimated to ~25 %), drawn by the client at the near-LOD default zoom; the full model is drawn when zoomed in."
         }
       }
     }

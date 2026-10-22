@@ -10,6 +10,7 @@ import json
 import math
 
 from . import atlas, config, content as content_mod, geometry, glb, palette, validate
+from . import recipes as recipes_mod
 from .recipes import part_groups, part_label
 
 
@@ -89,6 +90,29 @@ def kit_role(kit, material, part, roles=None):
     return None, shade
 
 
+def exaggerate(tris, ex):
+    """
+    Scales the triangles whose centroid lies in the box ex["min"]..ex["max"]
+    (kit units, before any transform) by ex["scale"] about ex["pivot"] or
+    the selection's bottom centre — a bigger roof or a taller chimney that
+    stays seated on the piece.
+    """
+    sel = [all(ex["min"][i] <= (t[0][i] + t[1][i] + t[2][i]) / 3 <= ex["max"][i] for i in range(3)) for t in tris]
+    pts = [p for t, s in zip(tris, sel) if s for p in t[:3]]
+    if not pts:
+        return tris
+    if "pivot" in ex:
+        pv = ex["pivot"]
+    else:
+        pv = [(min(p[0] for p in pts) + max(p[0] for p in pts)) / 2, (min(p[1] for p in pts) + max(p[1] for p in pts)) / 2, min(p[2] for p in pts)]
+    sc = ex["scale"] if isinstance(ex["scale"], list) else [ex["scale"]] * 3
+    m = geometry.mat_mul(geometry.translation(pv), geometry.mat_mul(geometry.scaling(sc), geometry.translation([-c for c in pv])))
+    out = []
+    for t, s in zip(tris, sel):
+        out.append((geometry.apply(m, t[0]), geometry.apply(m, t[1]), geometry.apply(m, t[2])) + tuple(t[3:]) if s else t)
+    return out
+
+
 def dropped(material, drop):
     """Whether a kit material is in a part's drop list (atlas materials: by band or by swatch)."""
     return material in drop or atlas.split(material)[0] in drop
@@ -146,6 +170,8 @@ def part_mesh(recipe_id, group, index, part, kit_loader, roles=None):
             shade = _r(shade)
             declared.add((role, shade))
             local.append((a, b, c, role, shade, label))
+        for ex in part.get("exaggerate", ()):
+            local = exaggerate(local, ex)
         base_scale = [s * f for s in scale]
     else:
         shade = _r(part.get("shade", 1.0))
@@ -203,9 +229,8 @@ def budget_of(recipe, content, key):
 
 
 def lite_budget(recipe, content, limit):
-    """Triangle budget of a lite file (a share of its full file's budget; houses a smaller one)."""
-    house = recipe["kind"] == "building" and content_mod.is_house(content, recipe["id"])
-    return int(limit * (config.LITE_FACTOR_HOUSE if house else config.LITE_FACTOR))
+    """Triangle budget of a lite file (a share of its full file's budget)."""
+    return int(limit * config.LITE_FACTOR)
 
 
 def gltf_bounds(mesh):
@@ -219,12 +244,12 @@ def lite_name(fname):
 
 
 def _assemble(cid, groups, kit_loader, kit_used, lod, roles=None):
-    """The merged mesh of part groups at a detail level ("full" leaves out lod-lite parts and vice versa)."""
+    """The merged mesh of part groups at a detail level ("lite" leaves out the lod-"full" parts)."""
     mesh = geometry.Mesh()
     declared = set()
     for group, parts in groups:
         for i, part in enumerate(parts):
-            if part.get("lod", lod) != lod:
+            if lod == "lite" and part.get("lod") == "full":
                 continue
             m, d, kf = part_mesh(cid, group, i, part, kit_loader, roles)
             mesh.extend(m)
@@ -259,6 +284,26 @@ def file_colors(roles, declared, ao):
     return {(r, s, lvl): ao_color(base[(r, s)], tone[r], s, lvl) for (r, s) in declared for lvl in range(config.AO_LEVELS + 1)}
 
 
+def decimate(mesh, kit_loader, footprint=None):
+    """
+    The lite mesh: decimated (when the loader can, i.e. Blender) to the first
+    of LITE_RATIOS (at least LITE_MIN_TRIS triangles) whose result still fits
+    and covers the footprint (w, h) and touches the ground; else unchanged.
+    """
+    fn = getattr(kit_loader, "decimate", None)
+    n = len(mesh)
+    if fn is None or n <= config.LITE_MIN_TRIS:
+        return mesh
+    for ratio in config.LITE_RATIOS:
+        r = max(ratio, config.LITE_MIN_TRIS / n)
+        if r >= 1.0:
+            return mesh
+        out = fn(mesh, r)
+        if footprint is None or not (validate.footprint_fit(out, *footprint) or validate.ground_contact(out)):
+            return out
+    return mesh
+
+
 def bake(mesh, recipe, kit_loader):
     """Bakes ambient occlusion into a mesh when the loader can (Blender); returns the mesh."""
     occlusion = getattr(kit_loader, "occlusion", None)
@@ -291,6 +336,7 @@ def build_recipe(recipe, content, roles, kit_loader):
     a list of (name, bytes, mesh, budget) for the writer and the sheets,
     entry the manifest entry, errors a list of problems (empty when valid).
     """
+    recipe = recipes_mod.expand(recipe)
     cid = recipe["id"]
     name = f"recipes/{cid}.json"
     errors = []
@@ -298,10 +344,14 @@ def build_recipe(recipe, content, roles, kit_loader):
     kit_used = {}
     meta = {}
     for fname, key, groups in outputs(recipe):
-        has_lite = any("lod" in p for _, parts in groups for p in parts)
+        # Every building model gets a generated lite file (fields and ships do not).
+        has_lite = recipe["kind"] == "building" and (key is None or key[0] in ("variant", "level"))
         try:
             mesh, declared = _assemble(cid, groups, kit_loader, kit_used, "full", roles)
-            lite = _assemble(cid, groups, kit_loader, kit_used, "lite", roles) if has_lite else None
+            lite = None
+            if has_lite:
+                lite = _assemble(cid, groups, kit_loader, kit_used, "lite", roles)
+                lite = (decimate(lite[0], kit_loader, content_mod.footprint(content, cid)), lite[1])
             bake(mesh, recipe, kit_loader)
             if lite is not None:
                 bake(lite[0], recipe, kit_loader)

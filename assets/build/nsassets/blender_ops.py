@@ -149,6 +149,22 @@ class KitLoader:
             out.append(tuple(corner))
         return out
 
+    def decimate(self, mesh, ratio):
+        """A Mesh decimated by edge collapse to ratio of its triangles (role, shade, label and explicit normals kept per face)."""
+        keys = []
+        index = {}
+        raw = []
+        for t in mesh.tris:
+            k = tuple(t[3:])
+            if k not in index:
+                index[k] = f"m{len(keys)}"
+                keys.append(k)
+            raw.append((t[0], t[1], t[2], index[k]))
+        out = _simplify(raw, {"collapse": ratio})
+        back = {f"m{i}": k for i, k in enumerate(keys)}
+        tris = [(a, b, c) + back[m] for a, b, c, m in out if geometry.area2(a, b, c) > 1e-12]
+        return geometry.Mesh(tris)
+
     def bevel(self, tris, width):
         """Primitive triangles (a, b, c) with their sharp edges (> 30°) bevelled by width (one segment)."""
         key = ("bevel", round(width, 6), tuple(tuple(round(c, 6) for p in t for c in p) for t in tris))
