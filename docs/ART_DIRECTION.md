@@ -27,12 +27,20 @@ and colour carry the look, life carries the feeling, detail does not**:
 
 - **Fixed golden hour.** No day/night cycle, no seasons. Every screenshot
   and the mobile budget stay predictable.
-- **Sun:** warm key light from the south-west so shadows fall toward the
-  camera's lower right and give the isometric relief; colour ≈ `#FFF1D6`.
-  Cool sky fill ≈ `#9DB7D9` at ~35 % so shadows are never black.
+- **Sun:** one world-fixed warm key light placed so that, at the default
+  camera rotation, **shadows fall toward the camera's lower right** and the
+  faces turned to the camera are lit — with our north-east-looking camera
+  that is a sun in the north-west (`SUN_AZIMUTH`), not the compass
+  "south-west" of the first draft; colour ≈ `#FFF1D6`. The sky fill
+  (≈ `#9DB7D9` at ~35 %) is applied as the materials' ambient term so
+  shadows are never black. Other camera rotations are partly back-lit, as
+  in Anno.
 - **Shadows:** soft blob/contact shadows under buildings, trees and ships
-  everywhere; one low-resolution sun shadow map on desktop only. Both
-  inside the perf guard.
+  at every quality (merged static mesh per island and layer — one draw
+  call; thin instances cost ≈ 3× on software WebGL); a 1024 px PCF sun
+  shadow map on **high** quality only, redrawn only when casters change.
+  **Quality** follows the layout mode (desktop → high; tablets and phones →
+  low), overridable with `?quality=` for tests. Both inside the perf guard.
 - **Palette v1** (single source `assets/palette.json`; Blender re-palette,
   terrain materials and CSS variables all read it):
 
@@ -109,7 +117,12 @@ and colour carry the look, life carries the feeling, detail does not**:
   cards with brass tier badges; ornament only at a few anchors (top-bar
   ends, panel headers). Toasts as parchment slips; the away summary as a
   letter from the advisor; status as a wax-seal-style badge.
-- **Icon set** for every good, need and status (needed for mobile anyway).
+- **Icon set** for every good, need and status (needed for mobile anyway):
+  game-icons.net SVGs pinned under `assets/icons/` with per-icon source and
+  checksum in `icons.json`, recoloured via `currentColor`; CC BY 3.0 with
+  attribution in the README and the in-game Credits dialog. Fonts: Cinzel
+  (titles) and Source Sans 3 (text/numbers), OFL, pinned pre-subset woff2
+  under `assets/fonts/`.
 - **Rules:** no information in decoration; ornaments are CSS only (never
   images with text); contrast ≥ 4.5:1; every panel keeps its structure and
   test IDs so the e2e suites stay green; bottom sheets use the same theme.
@@ -152,10 +165,13 @@ and colour carry the look, life carries the feeling, detail does not**:
 
 ## 8. Post-processing and sound
 
-- Nearly free effects only: soft vignette, slight warm colour grading
-  toward the palette, FXAA on desktop. No bloom, SSAO or depth of field.
-  All behind a quality toggle set by the layout mode (phones: vignette
-  only).
+- Nearly free effects only: soft vignette (all qualities) and a slight
+  warm colour grading (high) — both composited as HTML overlays above the
+  canvas, below labels and HUD, because per-material image processing cost
+  ≈ 5 ms/frame on the phone probe; FXAA at high on hardware WebGL (skipped
+  on software rasterisers so headless runs stay fast; `?fxaa=1` forces it
+  and a dedicated screenshot baseline covers that path). No bloom, SSAO or
+  depth of field.
 - Sound is a separate later task (ambient sea/gulls, UI clicks, build and
   completion chimes).
 
@@ -165,9 +181,15 @@ and colour carry the look, life carries the feeling, detail does not**:
    LOD (30/27, 48/42 half-extent), minimap, route editor with island
    pickers, 90° camera steps, sea haze. Phone perf at 4× throttling: near
    42 fps / 19 draw calls, mid 57 / 13, far 46 / 15.
-2. **Visual foundation** — palette JSON, light and shadows, terrain
-   (coast, grass, trees, mountains), water, grid overlay rule, roads,
-   post-processing toggle, HUD theme and icon set.
+2. **Visual foundation** — done (PR #14): `assets/palette.json` with
+   generated TS/CSS (drift-checked), golden-hour light, blob shadows +
+   desktop shadow map, continuous terrain with marching-squares coast,
+   beach, foam, cliffs, deposits, trees, scatter, field patterns, road
+   strips, tool-only grid overlay, shallows-to-deep animated sea, quality
+   toggle, themed HUD with Cinzel/Source Sans 3 and 60 game-icons icons
+   (CC BY, Credits dialog). Phone perf at 4× throttling: near 31 fps /
+   26 draw calls, mid 33 / 17, far 41 / 15 (thin margin at near — profile
+   on a real GPU before adding the life layer). Bundle 454 → 537 kB gzip.
 3. **Asset pipeline + models** — kit pinning, re-palette, recipe script,
    manifest/GLB loader with fallbacks, recipes for all tier 1–2 buildings
    and the sloop, state tints, variants.

@@ -351,6 +351,13 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   origins, GET only), shows an "update available" toast on a new deploy
   and offers an install action; Caddy serves `sw.js` and the manifest with
   `no-cache`. The game itself requires connectivity.
+- **Theme and assets:** `assets/palette.json` is the single colour source;
+  `npm run gen:palette` writes `client/src/theme/palette.{ts,css}` and CI
+  fails on drift (like `schema.d.ts`). Fonts and icons are pinned files
+  under `assets/` with licences and checksums; nothing is loaded from a
+  CDN. A `visual` Playwright project keeps per-platform screenshot
+  baselines (2 % tolerance; a missing baseline is written and the
+  comparison skipped, so a new platform needs two runs).
 - **Perf guard:** a Playwright `perf` project renders the dense fixture
   under 4× CPU throttling at 412 × 915 and fails below `PERF_MIN_FPS`
   (default 27 = 0.8 × the fps measured on the reference machine; the CI

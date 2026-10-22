@@ -142,6 +142,9 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **Art 2, visual foundation — done (PR #14):** palette source, light and
+  shadows, continuous terrain and water, themed HUD with icons; see
+  ART_DIRECTION §9 for the numbers.
 - **Art 1, continuous world (D-048) — done (PR #13):** one scene, LOD,
   minimap, rotation; see UI.md §1 and ART_DIRECTION §9.
 - **Fields (D-049) — done (PR #12):** farms need 16 placed 1×1 fields of

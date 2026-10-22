@@ -245,6 +245,21 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   focus rings, aria labels on icon buttons; Lighthouse accessibility 100
   on desktop and phone (island view).
 
+## 6a. Theme (art task 2)
+
+- Colours come from `assets/palette.json` through generated CSS custom
+  properties (`client/src/theme/palette.css`); the renderer reads the same
+  file. Parchment panels with a dark-wood border and brass accent line,
+  dark-wood top bar and build bar, Cinzel titles, Source Sans 3 text,
+  brass tier badges on building cards, parchment toasts, the away summary
+  as a letter, status as a wax-seal badge; bottom sheets, minimap and
+  dialogs share the theme. Icons for goods, needs, statuses and tools from
+  the pinned game-icons set; a **Credits** dialog (account menu) carries
+  the attributions.
+- Post effects are overlays above the canvas and below labels/HUD:
+  vignette always, warm grading at high quality; both `pointer-events:
+  none`.
+
 ## 7. Feedback and clarity rules
 
 - Every number in the UI is a server number or a linear extrapolation of one;
