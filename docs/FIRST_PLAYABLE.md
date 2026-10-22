@@ -142,6 +142,9 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **Art 3, asset pipeline and models — done (PR #15):** recipe-driven
+  Blender build, 31 kit-bashed recipes, lite/full model LOD; see
+  ART_DIRECTION §7/§9.
 - **Art 2, visual foundation — done (PR #14):** palette source, light and
   shadows, continuous terrain and water, themed HUD with icons; see
   ART_DIRECTION §9 for the numbers.

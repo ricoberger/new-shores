@@ -364,6 +364,19 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   runner, which rasterises in software, uses its own calibrated value),
   above 400 MB JS heap or above 40 draw calls.
 
+## 5a. Asset pipeline (art task 3)
+
+See ART_DIRECTION §7 for the rules. Mechanically: `assets/recipes/*.json`
+(data) + `assets/build/` (Python, runs inside Blender 5.2 headless) →
+`client/public/models/*.glb` + `manifest.json` (committed) → the client's
+model registry (`client/src/render/models.ts`, `@babylonjs/loaders` glTF)
+builds merged per-chunk meshes with variant selection by building ID and
+falls back to procedural placeholders for IDs without a model (none at
+present; the `showcase` fixture asserts it). Kits are inputs only
+(`assets/kits/`, git-ignored, sha256-pinned in `MANIFEST.json`). `make
+assets-check` proves reproducibility locally; CI skips it when Blender is
+absent and runs the Python tests instead.
+
 ## 6. Content pipeline
 
 - `content/schema/*.schema.json` → Go types (hand-written structs, validated

@@ -48,7 +48,7 @@ and colour carry the look, life carries the feeling, detail does not**:
 |---|---|
 | Terrain | sand `#E8D6A3` · grass `#7FA85A` / `#93B86A` · dry patches `#B9B46A` · forest floor `#4F7A3A` · mountain `#8E8A82` · cliff `#A89A80` |
 | Water | shallows `#4FB1B0` → deep `#1F5F8B` · foam `#F4F6F0` |
-| Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#B5563B` · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` |
+| Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#B5563B` · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` · plus (art task 3) `canvas` (sails), `iron`, `window`, `dye-blue` — exact values in `assets/palette.json` |
 | UI chrome | parchment `#F1E6CC` · dark wood `#4A3421` · brass `#C9A24A` · ink `#2B2117` |
 | Status | keep the current colour-blind-safe set; icons always paired with colour |
 
@@ -127,41 +127,65 @@ and colour carry the look, life carries the feeling, detail does not**:
   images with text); contrast ≥ 4.5:1; every panel keeps its structure and
   test IDs so the e2e suites stay green; bottom sheets use the same theme.
 
-## 7. Building and ship models — kit-bash by recipe
+## 7. Building and ship models — kit-bash by recipe (as built, PR #15)
 
-- **Source:** Quaternius *Medieval Village MegaKit* (buildings, props) and
-  *Pirate Kit* (ships, harbour), CC0; Kenney Nature/Castle pieces where
-  the MegaKit has gaps. Kit files are pinned under `assets/kits/` (or
-  fetched by checksum); everything is re-paletted to §2.
-- **Recipes as data:** `assets/recipes/<content_id>.json` lists kit pieces
-  (and procedural parts) with transforms and the footprint. A Blender
-  Python script (`npm run assets`, Blender headless) builds every recipe,
-  applies the palette, sets the origin to the footprint's ground centre,
-  validates footprint fit and triangle budget, and exports one GLB per
-  content ID plus the asset manifest (ARCHITECTURE "asset pipeline"). The
-  client falls back to the procedural placeholder when a GLB is missing.
-- **Procedural parts** (generated in the same script): stretched roofs,
-  sails with wind bulge, flags, ropes, carts, barrel stacks, cliffs/rocks,
-  deposit outcrops, field rows, quay walls, slipway, foam.
+- **Source:** Quaternius *Medieval Village MegaKit* (doors, windows,
+  chimneys, fences, barrels) and *Pirate Kit* (hull `Ship_Small`, dock,
+  sawmill, barrels), CC0. Kit files live under `assets/kits/` (git-ignored;
+  resolved via `NEW_SHORES_KITS_DIR` or a symlink) and are verified by
+  sha256 against the committed `assets/kits/MANIFEST.json`; a missing or
+  changed file fails the build naming it. Most kit wall/roof modules are
+  far too dense for our budgets at 1 tile = 4 m (a 4×4 roof ≈ 2 000 tris),
+  so walls, roofs and most props are **procedural primitives in kit
+  colours**; kit pieces supply the detail. Kit scale factors: Medieval
+  0.25 tiles/m, Pirate 0.25 (hull 0.35 → the sloop is 2.0 tiles long).
+- **Recipes as data:** `assets/recipes/<content_id>.json` (schema in
+  `assets/recipes/schema.json`): parts = kit piece or primitive (box,
+  cylinder, wedge roof, sail, lathe) with transforms in tiles and a palette
+  role; house `variants`, warehouse `levels`, ship data, attachments and
+  anchor points (chimney, door, smoke). Footprints come from content.
+- **Build:** `npm run assets` / `make assets` runs Blender 5.2 headless
+  (`assets/build/`): import, palette mapping (kit material slots → roles;
+  Pirate atlas faces snapped to named swatches), simplification, merge,
+  origin at the footprint's ground centre, validation (footprint fit
+  ±0.3 tiles, triangle budgets, palette-only colours), export by our own
+  deterministic GLB writer (one mesh, POSITION/NORMAL/COLOR_0, no UVs or
+  textures) to `client/public/models/` plus `manifest.json`, and contact
+  sheets to `assets/build/out/`. `make assets-check` rebuilds into a temp
+  dir and compares (skipped on CI without Blender); `make assets-test`
+  runs the Python tests. **GLBs and manifest are committed**, so the client
+  builds without Blender or the kits.
+- **Budgets:** ≤ 1 500 tris per building, ≤ 400 per house, ≤ 60 per field,
+  1 500 for the sloop + 150 cargo; warehouse, shipyard, chapel and market
+  may go ×2 (not needed so far). Each building also has a **lite** model
+  (~20–30 % of the budget) that must still cover its footprint and keep
+  its tier language and signature prop.
 - **Fidelity rules:** fill the footprint within ±0.3 tiles; front toward
-  +y at rotation 0 (visual only, D-042); ≤ 1 500 triangles per building,
-  ≤ 400 for houses; one palette atlas → one material → instancing.
+  +y at rotation 0 (visual only, D-042); one material (vertex colours).
 - **Tier language:** Settlers = timber frame + thatch, single storey;
   Citizens = plaster + terracotta tiles, 1½–2 storeys; Merchants = stone
   ground floor, gables, slate; Patricians = dressed stone, ornament,
-  towers. Houses get 2–3 variants per tier chosen deterministically from
-  the building ID.
+  towers. Houses get 3 variants per tier chosen by building-ID hash.
 - **Signature prop** per production building (sawmill blade + log pile,
   drying nets + boat, dyed cloth lines, tall chimney, oven dome, apple
-  barrels, …); farms show field rows within the work radius.
-- **States:** place = short rise-in; paused/unpaid = desaturated tint;
-  not_connected/starved keep the status icon and lose smoke/walkers.
-- **Ships:** sloop/brig/galleon from Pirate Kit hulls, differentiated by
-  mast count and sail scale; crates visible on deck when carrying cargo.
+  barrels, …); farms show a fenced yard and their field type; fields are
+  1×1 models (pasture fence + sheep, wheat rows, orchard trees, hemp rows).
+- **States:** place = short rise-in (thin instance during the animation);
+  paused/unpaid = desaturated tint; not_connected/starved keep the status
+  icon and lose smoke/walkers (task 4).
+- **Ships:** sloop from the Pirate hull with procedural sails and bowsprit;
+  cargo crates shown when the cargo list is non-empty; brig/galleon later
+  via mast count and sail scale as recipe data.
+- **Rendering:** models are **merged per 16×16-tile chunk** (one draw call
+  per chunk and layer; measured 2 ms/frame cheaper than thin instances on
+  software WebGL and equal on GPU); **lite ↔ full** switches at a camera
+  half-extent of 10 tiles (full) / 11.5 (back to lite) inside the near LOD;
+  mid/far LOD unchanged. Loaded through `@babylonjs/loaders` (glTF only);
+  66 files ≈ 1.6 MB total, the dense town loads ≈ 125 kB.
 - **Hero pass (later, optional):** church, harbourmaster, theatre,
   galleon may exceed budgets ×2 and be replaced by hand-made or
-  AI-generated GLBs through the manifest, one entry each. AI mesh services
-  are a per-asset decision, never part of the default pipeline.
+  AI-generated GLBs through the manifest. AI mesh services are a per-asset
+  decision, never part of the default pipeline.
 
 ## 8. Post-processing and sound
 
@@ -190,9 +214,13 @@ and colour carry the look, life carries the feeling, detail does not**:
    (CC BY, Credits dialog). Phone perf at 4× throttling: near 31 fps /
    26 draw calls, mid 33 / 17, far 41 / 15 (thin margin at near — profile
    on a real GPU before adding the life layer). Bundle 454 → 537 kB gzip.
-3. **Asset pipeline + models** — kit pinning, re-palette, recipe script,
-   manifest/GLB loader with fallbacks, recipes for all tier 1–2 buildings
-   and the sloop, state tints, variants.
+3. **Asset pipeline + models** — done (PR #15): kit manifest, recipe
+   schema and Blender build with deterministic GLB writer, 31 recipes
+   (25 buildings with variants/levels, 4 fields, sloop + cargo), lite/full
+   model LOD, merged chunks, state tints, rise-in. Phone perf at 4×
+   throttling (software WebGL): near 28.7 fps / 26 draw calls, mid 32 / 18,
+   far 38 / 16 — **≈ 2 fps of margin at near; measure on a real device
+   before task 4 adds the life layer.** GPU runs hold 60 fps.
 4. **Life layer and island dressing** — walkers, smoke, sails, gulls,
    boats, inhabitants, scattered decoration, budgets in the perf guard.
 

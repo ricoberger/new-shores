@@ -29,7 +29,8 @@ UI shows the same numbers the server uses.
 - **LOD** is a pure function of the half-extent and the previous level
   (no timers): near → mid above 30, mid → near below 27, → far above 48,
   far → mid below 42. *Near:* full detail (buildings, roads, fields, carts,
-  status icons). *Mid:* buildings and fields as merged category-tinted
+  status icons); within near, building models switch from **lite** to
+  **full** at a half-extent ≤ 10 and back above 11.5. *Mid:* buildings and fields as merged category-tinted
   blocks, roads as strips, no carts or status icons. *Far:* the island
   silhouette with landmark markers, name label and settled badge. Islands
   outside the frustum are not rendered; ships, route ribbons and the
