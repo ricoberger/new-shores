@@ -29,6 +29,18 @@ import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 
 export const CHUNK = 64;
+/**
+ * The slab at far LOD: the same silhouette with four rings (rim, contour,
+ * one cliff band, foot), cheap enough for every island in view.
+ */
+export const FAR_PROFILE: readonly ProfileRing[] = [
+  // A wider rim than near LOD: it must read from afar.
+  { out: -0.35, y: 0.004, color: c3(ISLAND.sand_rim), jitter: 0 },
+  { out: 0, y: 0.004, color: c3(ISLAND.sand_rim).scale(0.95), jitter: 0 },
+  { out: 0.12, y: -0.3, color: c3(ISLAND.cliff_ledge), jitter: 0 },
+  { out: 0.36, y: -0.7, color: c3(ISLAND.cliff_foot), jitter: 0 },
+];
+
 /** Upward tilt added to the slab's steep face normals (stylised soft lighting of the cliffs). */
 const UP_TILT = 0.55;
 /** Height of the sea surface: the slab's cliffs drop from the ground (0) to below it. */
@@ -305,6 +317,7 @@ export function buildIslandMeshes(
   material: StandardMaterial,
   parent: TransformNode | null,
   name: string,
+  profile: readonly ProfileRing[] = PROFILE,
 ): Mesh[] {
   const meshes: Mesh[] = [];
   const chunks = new Map<string, Builder>();
@@ -319,7 +332,7 @@ export function buildIslandMeshes(
   }
   for (const loop of loops) {
     const p = loop[0];
-    if (p) slabStrip(chunk(p.x, p.y), loop, seed, colors.slab);
+    if (p) slabStrip(chunk(p.x, p.y), loop, seed, colors.slab, profile);
   }
   for (const [k, b] of chunks) {
     const mesh = b.mesh(`${name}_${island.id}_${k}`, scene, material, parent);

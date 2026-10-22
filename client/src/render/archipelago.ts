@@ -23,7 +23,7 @@ import { anchorSlots, type ArchPoint, berthAnchor, type Berths, islandAnchor, ty
 import { footprintBox } from "./coords";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
-import { buildIslandMeshes, type GroundColors, SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
+import { buildIslandMeshes, FAR_PROFILE, type GroundColors, SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
 import { coastline } from "../display/coastline";
 import { islandSeed } from "../display/scatter";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
@@ -71,7 +71,7 @@ function silhouetteColors(settled: boolean): GroundColors {
 
 /** The far-LOD silhouette of an island: the near terrain's ground fill and diorama slab with flat colours, one mesh per chunk. */
 function buildSilhouette(scene: Scene, island: Island, settled: boolean, material: StandardMaterial, seed: number, parent: TransformNode): Mesh[] {
-  return buildIslandMeshes(scene, island, coastline(island), seed, silhouetteColors(settled), material, parent, "silhouette");
+  return buildIslandMeshes(scene, island, coastline(island, 1), seed, silhouetteColors(settled), material, parent, "silhouette", FAR_PROFILE);
 }
 
 interface Silhouette {
