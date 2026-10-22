@@ -3,7 +3,7 @@ import json
 import unittest
 
 from helpers import A_KIT_FILE, CONTENT, PALETTE_SHA, ROLES, fake_loader
-from nsassets import glb, pipeline, validate
+from nsassets import config, glb, pipeline, validate
 
 
 def build(recipe):
@@ -95,6 +95,43 @@ class PipelineTest(unittest.TestCase):
         cols = glb.accessor_values(doc, binary, doc["meshes"][0]["primitives"][0]["attributes"]["COLOR_0"])
         allowed = {tuple(round(c * 255) for c in ROLES[r]) for r in ("stone", "thatch", "brass")}
         self.assertTrue({tuple(round(c * 255) for c in v[:3]) for v in cols} <= allowed)
+
+
+class DetailTest(unittest.TestCase):
+    def test_lite_files_are_validated_like_full_ones(self):
+        r = {"id": "chapel", "kind": "building", "parts": [
+            {"prim": "box", "size": [1.9, 1.9, 0.02], "role": "road-dirt", "name": "yard"},
+            {"prim": "box", "size": [1.0, 1.0, 0.6], "role": "stone", "name": "nave"},
+            {"prim": "box", "size": [0.2, 0.2, 0.2], "position": [0.5, 0.5, 0.6], "role": "timber", "lod": "full", "name": "detail"},
+        ]}
+        files, entry, errors = build(r)
+        self.assertEqual(errors, [])
+        self.assertEqual(entry["file"]["lite"]["triangles"], 24)
+        self.assertEqual(entry["file"]["lite"]["budget"], int(1500 * config.LITE_FACTOR))
+        # A lite model without the yard no longer covers the footprint: it fails like a full one would.
+        r["parts"][0]["lod"] = "full"
+        _, _, errors = build(r)
+        self.assertTrue(any("chapel.lite.glb: footprint fit" in e and "must cover" in e for e in errors), errors)
+        self.assertFalse(any("chapel.glb: footprint fit" in e for e in errors), errors)
+
+    def test_lite_budgets(self):
+        self.assertEqual(pipeline.lite_budget({"id": "chapel", "kind": "building"}, CONTENT, 1500), 750)
+        self.assertEqual(pipeline.lite_budget({"id": "house_settlers", "kind": "building"}, CONTENT, 400), 80)
+
+    def test_sails_are_lit_from_both_sides(self):
+        r = {"id": "sloop", "kind": "ship", "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0},
+             "parts": [{"prim": "box", "size": [2.0, 0.5, 0.3], "role": "timber"},
+                       {"prim": "sail", "width": 0.8, "height": 1.0, "bulge": 0.1, "position": [0, 0, 0.3], "rotation": [0, 0, 30], "role": "canvas"}]}
+        files, _, errors = build(r)
+        self.assertEqual(errors, [])
+        doc, binary = glb.read(files[0][1])
+        prim = doc["meshes"][0]["primitives"][0]
+        normals = glb.accessor_values(doc, binary, prim["attributes"]["NORMAL"])
+        cols = glb.accessor_values(doc, binary, prim["attributes"]["COLOR_0"])
+        canvas = tuple(round(c * 255) for c in ROLES["canvas"])
+        sail = [n for n, c in zip(normals, cols) if tuple(round(x * 255) for x in c[:3]) == canvas]
+        self.assertTrue(sail)
+        self.assertTrue(all(abs(n[1] - 1.0) < 1e-6 for n in sail))
 
 
 class ProfileTest(unittest.TestCase):

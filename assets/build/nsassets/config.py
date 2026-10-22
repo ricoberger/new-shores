@@ -96,8 +96,16 @@ BUDGET_HOUSE = 400
 BUDGET_FIELD = 60
 BUDGET_SHIP = 1500
 BUDGET_ATTACHMENT = 150
-#: Budget of a lite model (parts with lod "full" left out) relative to its full model.
-LITE_FACTOR = 0.3
+#: Budget of a lite model (parts with lod "full" left out) relative to its
+#: full model's budget. The client draws the lite models at the near-LOD
+#: default zoom (full ones at a half extent ≤ 10), where a dense town is
+#: hundreds of houses: measured on the dense fixture (software WebGL, 412 ×
+#: 915, 4× throttling) every ~10 house triangles cost ~0.4 ms per frame, so
+#: houses get a fifth of their budget (80) and the few other buildings
+#: half (750). Lite models are validated like full ones (footprint fit and
+#: coverage, palette, export profile).
+LITE_FACTOR = 0.5
+LITE_FACTOR_HOUSE = 0.2
 #: Buildings that may declare a budget_exception (×2).
 EXCEPTION_ALLOWED = ("warehouse", "shipyard", "chapel", "market_small")
 

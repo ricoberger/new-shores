@@ -9,7 +9,7 @@ import math
 
 
 class Mesh:
-    """Triangles: (a, b, c, role, shade, label) with a/b/c as (x, y, z) tuples."""
+    """Triangles: (a, b, c, role, shade, label[, normal]) with a/b/c as (x, y, z) tuples (an explicit normal overrides the face normal)."""
 
     __slots__ = ("tris",)
 

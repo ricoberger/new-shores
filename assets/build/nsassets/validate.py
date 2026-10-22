@@ -19,7 +19,7 @@ def footprint_fit(mesh, w, h, tol=config.FOOTPRINT_TOLERANCE):
     """
     Problems of a building or field model against its footprint (w along x,
     h along y in recipe space): the XY bounds must lie inside the footprint
-    grown by tol and cover the footprint shrunk by tol.
+    grown by tol and cover the footprint shrunk by tol (lite models too).
     """
     out = []
     mn, mx = mesh.bounds()

@@ -182,7 +182,7 @@ def _render_object(name, tris, colors, rot_k, location, sky, sun):
     attr = me.color_attributes.new("col", "FLOAT_COLOR", "CORNER")
     data = []
     for t in tris:
-        n = Vector(geometry.normal(*t[:3]))
+        n = Vector(t[6] if len(t) > 6 else geometry.normal(*t[:3]))
         rgb = _lit(colors[(t[3], t[4])], n, sky, sun)
         lin = [_srgb_to_linear(c) for c in rgb] + [1.0]
         data += lin * 3

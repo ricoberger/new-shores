@@ -16,6 +16,10 @@ class BuildError(Exception):
     pass
 
 
+#: Normal of sail (cloth) triangles in recipe space.
+UP = (0.0, 0.0, 1.0)
+
+
 def _r(v, d=4):
     return round(v, d) + 0.0
 
@@ -109,6 +113,9 @@ def part_mesh(recipe_id, group, index, part, kit_loader):
         else:
             seed = geometry.seed_of(recipe_id, group, index, k)
             tris = [(a, b, c, part["role"], shade, label) for a, b, c in primitive(part, seed)]
+            if part["prim"] == "sail":
+                # Cloth is lit from both sides: both faces of a sail get the up normal.
+                tris = [t + (UP,) for t in tris]
         out += geometry.transformed(tris, m, flip)
     return geometry.Mesh(out), declared, kit_file
 
@@ -141,6 +148,12 @@ def budget_of(recipe, content, key):
     return config.BUDGET_BUILDING_EXCEPTION if "budget_exception" in recipe else config.BUDGET_BUILDING
 
 
+def lite_budget(recipe, content, limit):
+    """Triangle budget of a lite file (a share of its full file's budget; houses a smaller one)."""
+    house = recipe["kind"] == "building" and content_mod.is_house(content, recipe["id"])
+    return int(limit * (config.LITE_FACTOR_HOUSE if house else config.LITE_FACTOR))
+
+
 def gltf_bounds(mesh):
     """Bounds in glTF space (y up): x, z, −y of recipe space."""
     mn, mx = mesh.bounds()
@@ -168,7 +181,7 @@ def _assemble(cid, groups, kit_loader, kit_used, lod):
 
 
 def _check_file(recipe, content, roles, fname, key, mesh, declared, limit):
-    """Validates one model file; returns (bytes, problems)."""
+    """Validates one model file (full or lite: the same rules, the lite budget); returns (bytes, problems)."""
     cid = recipe["id"]
     problems = validate.budget(mesh, limit, fname)
     if recipe["kind"] in ("building", "field"):
@@ -211,7 +224,7 @@ def build_recipe(recipe, content, roles, kit_loader):
         lite_info = None
         if lite is not None:
             lname = lite_name(fname)
-            llimit = int(limit * config.LITE_FACTOR)
+            llimit = lite_budget(recipe, content, limit)
             ldata, lproblems = _check_file(recipe, content, roles, lname, key, lite[0], lite[1], llimit)
             problems += lproblems
             files.append((lname, ldata, lite[0], llimit))

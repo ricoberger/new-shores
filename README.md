@@ -236,8 +236,11 @@ palette or the build.
   (every model from the game's four camera rotations, plus `all.png`) into
   `assets/build/out/` (git-ignored). The build fails, naming the recipe,
   part and values, on a footprint misfit (± 0.3 tiles), a triangle budget
-  overrun (building 1 500, house 400, field 60, sloop 1 500, cargo 150), a
-  non-palette colour or an export-profile violation.
+  overrun (building 1 500, house 400, field 60, sloop 1 500, cargo 150;
+  lite files 750 and 80 for houses), a non-palette colour or an
+  export-profile violation. Lite files pass the same footprint and palette
+  checks; the client draws them at the near-LOD default zoom and the full
+  models at a half extent ≤ 10 (back to lite above 11.5).
 - `make assets-check` rebuilds into a temporary directory and compares
   with the committed files (it prints `skipped (Blender not found)` and
   passes without Blender, e.g. in CI); `make assets-test` runs the

@@ -45,7 +45,8 @@ def vertex_data(tris, colors):
     pd, nd = config.POSITION_DECIMALS, config.NORMAL_DECIMALS
     for t in tris:
         a, b, c = (to_gltf(p) for p in t[:3])
-        n = geometry.normal(a, b, c)
+        # An explicit normal (sails: up, lit from both sides) or the flat face normal.
+        n = to_gltf(t[6]) if len(t) > 6 else geometry.normal(a, b, c)
         n = tuple(round(x, nd) + 0.0 for x in n)
         col = colors[(t[3], t[4])]
         for p in (a, b, c):

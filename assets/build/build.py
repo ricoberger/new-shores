@@ -118,7 +118,8 @@ def cmd_build(args):
         for fname, data, mesh, _ in files:
             written[fname] = data
         sheet_items.append((cid, files, roles))
-        log(f"  {cid}: " + ", ".join(f"{f[0]} {len(f[2])} tris" for f in files))
+        if not args.check:
+            log(f"  {cid}: " + ", ".join(f"{f[0]} {len(f[2])} tris" for f in files))
     missing = sorted(set(content_mod.required_ids(content)) - set(recipes))
     if only is None:
         for m in missing:
