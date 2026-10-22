@@ -44,7 +44,7 @@ open. The in-memory `--dev` server remains for quick local work.
 | `client/` | Vite + React + Babylon.js browser client |
 | `deploy/` | Dockerfiles, Caddyfile and `docker-compose.yaml` of the local stack |
 | `content/` | Game content (JSON) and its JSON Schemas |
-| `assets/` | Art sources: `palette.json` (generates the client palette, `npm run gen:palette`), pinned fonts and HUD icons (`npm run gen:hud-icons`) |
+| `assets/` | Art sources: `palette.json` (generates the client palette, `npm run gen:palette`), pinned fonts and HUD icons (`npm run gen:hud-icons`), model recipes (`recipes/`), the asset build (`build/`) and the kit pins (`kits/MANIFEST.json`) |
 | `docs/` | Design documents |
 
 ## Run locally
@@ -168,7 +168,10 @@ service before the servers start.
   view), `?fixture=dense-2x400` (two islands, ≈ 400 buildings, 63 carts,
   2 ships on legs; near the dense island) and
   `?fixture=dense-archipelago-8` (8 islands, two of them dense, ships on
-  legs and 2 routes; the far and mid LOD budget), e.g.
+  legs and 2 routes; the far and mid LOD budget) and `?fixture=showcase`
+  (every building, field and ship model once or more: house variants,
+  warehouse levels, a paused building, sloops with and without cargo and
+  unpaid), all with the real content IDs and footprints, e.g.
   <http://localhost:5173/?fixture=dense-2x400> under `make dev`.
   `?quality=high|low` overrides the render quality the layout selects
   (desktop: high — shadow map, grading, FXAA, the latter not on software
@@ -208,6 +211,47 @@ service before the servers start.
   "Update available" toast with Reload; "Install app" appears in the
   account menu when the browser offers installation.
 
+### Asset build
+
+Buildings, fields and ships are low-poly models kit-bashed from two CC0
+Quaternius kits by data recipes (ART_DIRECTION §7). The results are
+committed: `client/public/models/*.glb` plus `manifest.json`, which the
+client loads lazily (procedural placeholders until a model arrives or when
+one is missing). Rebuilding is only needed after changing a recipe, the
+palette or the build.
+
+- **Requirements:** Blender **5.2.x** (`/opt/homebrew/bin/blender`, `blender`
+  on `PATH` or `BLENDER=/path/to/blender`; other versions are refused, the
+  output is byte-identical only within 5.2) and the kits as described in
+  [assets/kits/README.md](assets/kits/README.md): set
+  `NEW_SHORES_KITS_DIR` to the directory holding the kit folders, or put
+  the kit folders (or symlinks) into `assets/kits/` (git-ignored). The
+  build verifies every kit file against the sha256 pins in
+  `assets/kits/MANIFEST.json`.
+- **Recipes:** one `assets/recipes/<content_id>.json` per building, field
+  and ship, validated by `assets/recipes/schema.json`: kit pieces and
+  procedural primitives in tile units with palette roles (colours come only
+  from `assets/palette.json`), house variants, warehouse levels, the
+  sloop's cargo attachment and optional lite parts for the near-LOD default
+  zoom.
+- `make assets` (= `cd client && npm run assets`) rebuilds the GLBs and
+  `manifest.json` in `client/public/models/` and renders contact sheets
+  (every model from the game's four camera rotations, plus `all.png`) into
+  `assets/build/out/` (git-ignored). The build fails, naming the recipe,
+  part and values, on a footprint misfit (± 0.3 tiles), a triangle budget
+  overrun (building 1 500, house 400, field 60, sloop 1 500, cargo 150;
+  lite files 750 and 80 for houses), a non-palette colour or an
+  export-profile violation. Lite files pass the same footprint and palette
+  checks; the client draws them at the near-LOD default zoom and the full
+  models at a half extent ≤ 10 (back to lite above 11.5).
+- `make assets-check` rebuilds into a temporary directory and compares
+  with the committed files (it prints `skipped (Blender not found)` and
+  passes without Blender, e.g. in CI); `make assets-test` runs the
+  build's Python unit tests (stdlib, Python ≥ 3.11; part of `make check`;
+  the determinism test needs Blender and the kits and is skipped with a
+  notice otherwise). `python3 assets/build/build.py validate` checks the
+  recipes without Blender.
+
 ## Tech stack at a glance
 
 Go game server · PostgreSQL · Redis · TypeScript/Vite/React/Babylon.js client ·
@@ -233,6 +277,12 @@ Compose → Kubernetes.
   in `assets/icons/LICENSE.txt`); recoloured and with coordinates rounded.
   The pinned files and the author of each are listed in
   `assets/icons/icons.json`.
+- **Models:** kit pieces from the
+  [Medieval Village MegaKit](https://quaternius.com/packs/medievalvillagemegakit.html)
+  and the [Pirate Kit](https://quaternius.com/packs/piratekit.html) by
+  Quaternius, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)
+  (no attribution required; the kits are not redistributed, see
+  `assets/kits/README.md`).
 - **Fonts:** [Cinzel](https://github.com/NDISCOVER/Cinzel) by Natanael Gama
   and [Source Sans 3](https://github.com/adobe-fonts/source-sans) by Paul
   D. Hunt (Adobe), both under the SIL Open Font License 1.1

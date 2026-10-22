@@ -17,7 +17,7 @@ test("the grid overlay shows for placement tools only", async ({ page }) => {
 
   // Build tool: visible; Esc: hidden again.
   await page.getByTestId("build-tab-production").click();
-  await page.getByTestId("build-woodcutter").click();
+  await page.getByTestId("build-lumberjack").click();
   await expect.poll(() => gridVisible(page)).toBe(true);
   await page.keyboard.press("Escape");
   await expect.poll(() => gridVisible(page)).toBe(false);
@@ -30,7 +30,7 @@ test("the grid overlay shows for placement tools only", async ({ page }) => {
 
   // Road tool: visible.
   await page.getByTestId("build-tab-roads").click();
-  await page.getByTestId("build-road").click();
+  await page.getByTestId("build-road_dirt").click();
   await expect.poll(() => gridVisible(page)).toBe(true);
   await page.keyboard.press("Escape");
   await expect.poll(() => gridVisible(page)).toBe(false);
@@ -44,7 +44,7 @@ test("the grid overlay shows for placement tools only", async ({ page }) => {
   // Move (from a building's info panel): visible.
   const t = await page.evaluate(() => {
     const is = window.__newShores!.getServer()!.display.islands.find((i) => i.id === "dense1")!;
-    const b = is.buildings.find((x) => x.type === "house")!;
+    const b = is.buildings.find((x) => x.type === "house_settlers")!;
     return { x: b.x, y: b.y };
   });
   await page.evaluate(([x, y]) => window.__newShores!.setCamera({ x: (x as number) + 1, y: (y as number) + 1 }), [t.x, t.y]);
@@ -111,7 +111,7 @@ test("on touch the grid follows the finger of a road drag and of a second field 
 
   // Road drag: more than the grid radius (8 tiles) away from where it began.
   await page.getByTestId("build-tab-roads").tap();
-  await page.getByTestId("build-road").tap();
+  await page.getByTestId("build-road_dirt").tap();
   await expect.poll(() => page.evaluate(() => window.__newShores!.gridOverlayVisible())).toBe(true);
   await drag([16, 24], [30, 24], () => gridNear(30, 24));
   await page.getByTestId("road-done").tap();

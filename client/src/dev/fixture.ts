@@ -18,6 +18,14 @@
 // silhouette-only and two with 30 buildings, ships on legs and 2 routes;
 // the camera starts on the first dense island (the far and mid LOD
 // budgets of the continuous world, D-048).
+// ?fixture=showcase: one island with every building, field and ship model
+// of the asset manifest (tier 1–2 content IDs): houses of both tiers in
+// all variants, warehouse levels 1 and 2, a paused building, fields of
+// all four types, an anchored_unpaid sloop and sloops with and without
+// cargo (the art gate's model showcase).
+//
+// The dense and showcase fixtures use the real content IDs and footprints
+// of content/old_coast (FIXTURE_DEFS), so they draw the real models.
 import type {
   BuildingDisplay,
   Command,
@@ -38,7 +46,8 @@ import type { SyncLike } from "../ui/App";
 export const ARCHIPELAGO_FIXTURE = "archipelago-8x20";
 export const DENSE_FIXTURE = "dense-2x400";
 export const DENSE_ARCHIPELAGO_FIXTURE = "dense-archipelago-8";
-export type FixtureId = typeof ARCHIPELAGO_FIXTURE | typeof DENSE_FIXTURE | typeof DENSE_ARCHIPELAGO_FIXTURE;
+export const SHOWCASE_FIXTURE = "showcase";
+export type FixtureId = typeof ARCHIPELAGO_FIXTURE | typeof DENSE_FIXTURE | typeof DENSE_ARCHIPELAGO_FIXTURE | typeof SHOWCASE_FIXTURE;
 
 const GOODS = ["fish", "planks", "wood", "tools"];
 const MODEL_INTERVAL_MS = 250;
@@ -46,12 +55,13 @@ const MODEL_INTERVAL_MS = 250;
 /** The fixture named in a location.search string, or null. */
 export function fixtureFromSearch(search: string): FixtureId | null {
   const id = new URLSearchParams(search).get("fixture");
-  return id === ARCHIPELAGO_FIXTURE || id === DENSE_FIXTURE || id === DENSE_ARCHIPELAGO_FIXTURE ? id : null;
+  return id === ARCHIPELAGO_FIXTURE || id === DENSE_FIXTURE || id === DENSE_ARCHIPELAGO_FIXTURE || id === SHOWCASE_FIXTURE ? id : null;
 }
 
-/** Where a fixture's camera starts: the whole archipelago (far) or the first dense island (near). */
+/** Where a fixture's camera starts: the whole archipelago (far), the showcase island or the first dense island (near). */
 export function fixtureCamera(id: FixtureId): InitialCamera {
-  return id === ARCHIPELAGO_FIXTURE ? { kind: "fit" } : { kind: "island", id: DENSE_ISLAND };
+  if (id === ARCHIPELAGO_FIXTURE) return { kind: "fit" };
+  return { kind: "island", id: id === SHOWCASE_FIXTURE ? SHOWCASE_ISLAND : DENSE_ISLAND };
 }
 
 /** Deterministic pseudo-random numbers (LCG). */
@@ -271,57 +281,96 @@ function denseDeposits(width: number, height: number): Island["deposits"] {
   ];
 }
 
-/** Synthetic building definitions (all 2 × 2) for the renderer and the HUD. */
-function denseContent(): Content {
-  const def = (id: string, name: string, category: string, extra: Record<string, unknown> = {}) => ({
+type FixtureDef = [id: string, name: string, tier: string, category: string, width: number, height: number, extra?: Record<string, unknown>];
+
+/**
+ * Building definitions of content/old_coast (IDs, tiers, categories and
+ * footprints as the server derives them; a Vitest cross-checks them
+ * against the content JSON) for the renderer and the HUD of the dense and
+ * showcase fixtures. Costs and recipes are simplified.
+ */
+const FIXTURE_DEFS: FixtureDef[] = [
+  ["house_settlers", "Settler house", "settlers", "houses", 2, 2, { house: { tier: "settlers" } }],
+  ["road_dirt", "Dirt road", "settlers", "roads", 1, 1, { road: { ms_per_tile: 500 } }],
+  ["warehouse", "Warehouse", "settlers", "harbour", 4, 3, { coastal: true, warehouse: { levels: [{ capacity: 300_000, throughput_per_min: 30_000 }, { capacity: 500_000, throughput_per_min: 55_000 }] } }],
+  ["market_small", "Small market", "settlers", "public", 3, 3, { service: { radius: 10 } }],
+  ["chapel", "Chapel", "settlers", "public", 2, 2, { service: { radius: 10 } }],
+  ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { work_area: { radius: 4, terrain: ["forest"] } }],
+  ["sawmill", "Sawmill", "settlers", "production", 2, 2],
+  ["fisher", "Fisher", "settlers", "production", 2, 2, { coastal: true }],
+  ["sheep_farm", "Sheep farm", "settlers", "production", 3, 3, { work_area: { radius: 4 }, fields: { type: "pasture", required: 4 } }],
+  ["pasture", "Pasture", "settlers", "production", 1, 1, { requires_road: false, field: { type: "pasture", terrain: ["grass"] } }],
+  ["weaver_wool", "Wool weaver", "settlers", "production", 2, 2],
+  ["shipyard", "Shipyard", "settlers", "harbour", 5, 4, { coastal: true, shipyard: {} }],
+  ["house_citizens", "Citizen house", "citizens", "houses", 2, 2, { house: { tier: "citizens" } }],
+  ["road_paved", "Paved road", "citizens", "roads", 1, 1, { road: { ms_per_tile: 350 } }],
+  ["tavern", "Tavern", "citizens", "public", 3, 3, { service: { radius: 10 } }],
+  ["wheat_farm", "Wheat farm", "citizens", "production", 3, 3, { work_area: { radius: 4 }, fields: { type: "wheat_field", required: 4 } }],
+  ["wheat_field", "Wheat field", "citizens", "production", 1, 1, { requires_road: false, field: { type: "wheat_field", terrain: ["grass"] } }],
+  ["mill", "Mill", "citizens", "production", 2, 2],
+  ["bakery", "Bakery", "citizens", "production", 2, 2],
+  ["orchard", "Orchard", "citizens", "production", 3, 3, { work_area: { radius: 4 }, fields: { type: "orchard_plot", required: 4 } }],
+  ["orchard_plot", "Orchard plot", "citizens", "production", 1, 1, { requires_road: false, field: { type: "orchard_plot", terrain: ["grass"] } }],
+  ["cidery", "Cidery", "citizens", "production", 2, 2],
+  ["hemp_farm", "Hemp farm", "citizens", "production", 3, 3, { work_area: { radius: 4 }, fields: { type: "hemp_field", required: 4 } }],
+  ["hemp_field", "Hemp field", "citizens", "production", 1, 1, { requires_road: false, field: { type: "hemp_field", terrain: ["grass"] } }],
+  ["weaver_linen", "Linen weaver", "citizens", "production", 2, 2],
+  ["sailmaker", "Sailmaker", "citizens", "production", 2, 2],
+  ["quarry", "Quarry", "citizens", "production", 3, 3],
+  ["iron_mine", "Iron mine", "citizens", "production", 3, 3],
+  ["charcoal_burner", "Charcoal burner", "citizens", "production", 2, 2],
+  ["smelter", "Smelter", "citizens", "production", 3, 3],
+  ["toolmaker", "Toolmaker", "citizens", "production", 2, 2],
+];
+
+/** The fixture building definitions (exported for the content cross-check). */
+export function fixtureDefs(): { id: string; tier: string; category: string; width: number; height: number; field?: { type: string } }[] {
+  return FIXTURE_DEFS.map(([id, name, tier, category, width, height, extra = {}]) => ({
     id,
     name,
-    tier: "settlers",
+    tier,
     category,
-    width: 2,
-    height: 2,
+    width,
+    height,
     coastal: false,
-    requires_road: category !== "houses",
+    requires_road: category !== "houses" && category !== "roads",
     cost: { gold: 50_000, materials: { planks: 2_000 } },
-    upkeep_per_min: category === "houses" ? 0 : 1_000,
+    upkeep_per_min: category === "houses" || category === "roads" ? 0 : 1_000,
     pause_category: category === "houses" ? "never" : "production",
+    ...(category === "production" && !("field" in extra) ? { recipe: { inputs: [], outputs: [{ good: "planks", amount: 1_000 }], cycle_ms: 20_000 } } : {}),
     ...extra,
-  });
+  }));
+}
+
+/** Content of the dense and showcase fixtures. */
+function denseContent(): Content {
   return {
     region: { id: "fixture", name: "Fixture", version: "fixture" },
     quests: [],
-    tiers: [{ id: "settlers", name: "Settlers" }],
-    goods: DENSE_GOODS.map((g) => ({ id: g, name: g[0]?.toUpperCase() + g.slice(1) })),
-    buildings: [
-      def("house", "House", "houses", { house: { tier: "settlers" } }),
-      def("woodcutter", "Woodcutter", "production", {
-        recipe: { inputs: [], outputs: [{ good: "wood", amount: 1_000 }], cycle_ms: 20_000 },
-        work_area: { radius: 4, terrain: ["forest"] },
-      }),
-      def("sawmill", "Sawmill", "production", {
-        recipe: { inputs: [{ good: "wood", amount: 1_000 }], outputs: [{ good: "planks", amount: 1_000 }], cycle_ms: 20_000 },
-      }),
-      def("fisher", "Fisher", "production", { recipe: { inputs: [], outputs: [{ good: "fish", amount: 1_000 }], cycle_ms: 30_000 } }),
-      def("chapel", "Chapel", "public", { service: { radius: 10 } }),
-      def("depot", "Depot", "harbour", { warehouse: { levels: [{ capacity: 100_000, throughput_per_min: 60_000 }] } }),
-      def("yard", "Yard", "harbour", { shipyard: {} }),
-      def("road", "Road", "roads", { width: 1, height: 1, requires_road: false, road: { ms_per_tile: 500 } }),
-      def("pasture", "Pasture", "production", { width: 1, height: 1, requires_road: false, field: { type: "pasture", terrain: ["grass"] } }),
-      def("wheat_field", "Wheat field", "production", { width: 1, height: 1, requires_road: false, field: { type: "wheat_field", terrain: ["grass"] } }),
+    tiers: [
+      { id: "settlers", name: "Settlers" },
+      { id: "citizens", name: "Citizens" },
     ],
+    goods: DENSE_GOODS.map((g) => ({ id: g, name: g[0]?.toUpperCase() + g.slice(1) })),
+    buildings: fixtureDefs(),
     needs: [],
     ships: [{ id: "sloop", name: "Sloop", slots: 2, slot_size: 50_000 }],
   } as unknown as Content;
 }
 
-const PRODUCERS = ["woodcutter", "sawmill", "fisher"];
+const PRODUCERS = ["lumberjack", "sawmill", "fisher"];
+/** Every slot of a 64 × 50 dense island (448): ≈ 400 buildings once the warehouses and shipyards take theirs, plus 16 fields. */
+const DENSE_SLOTS = 1_000;
 const BAD_STATUS: BuildingDisplay["status"][] = ["input_starved", "short_of_workers", "warehouse_full", "low_efficiency"];
 
 /**
  * A grid town: horizontal roads every 5 rows joined by a road column at
- * each side; 2 × 2 buildings in two rows between the roads (each touches
- * one). Warehouses spread over the grid; producers deliver to the nearest
- * one by slot order and draw a cart each.
+ * each side; buildings in two rows of 2 × 2 slots between the roads,
+ * fronts toward their road (the upper row faces up, rotation 180; the
+ * lower row down, rotation 0). Warehouses (4 × 3) and shipyards (5 × 4)
+ * take several slots of the upper row and the one below. Warehouses
+ * spread over the grid; producers deliver to the nearest one by slot
+ * order and draw a cart each.
  */
 function denseIsland(id: string, name: string, width: number, height: number, count: number, firstId: number) {
   const roads: { x: number; y: number; type: string }[] = [];
@@ -329,10 +378,10 @@ function denseIsland(id: string, name: string, width: number, height: number, co
   for (let y = 4; y <= height - 5; y += 5) roadRows.push(y);
   const minX = 3;
   const maxX = width - 4;
-  for (const y of roadRows) for (let x = minX; x <= maxX; x++) roads.push({ x, y, type: "road" });
+  for (const y of roadRows) for (let x = minX; x <= maxX; x++) roads.push({ x, y, type: "road_dirt" });
   for (let y = roadRows[0] ?? 4; y <= (roadRows[roadRows.length - 1] ?? 4); y++) {
     if (roadRows.includes(y)) continue;
-    roads.push({ x: minX, y, type: "road" }, { x: maxX, y, type: "road" });
+    roads.push({ x: minX, y, type: "road_dirt" }, { x: maxX, y, type: "road_dirt" });
   }
   const slots: { x: number; y: number }[] = [];
   for (let i = 0; i + 1 < roadRows.length; i++) {
@@ -342,30 +391,70 @@ function denseIsland(id: string, name: string, width: number, height: number, co
   const n = Math.min(count, slots.length);
   const step = slots.length / n;
   const chosen = Array.from({ length: n }, (_, i) => slots[Math.floor(i * step)] as { x: number; y: number });
-  const warehouses = new Set([0, Math.floor(n / 3), Math.floor((2 * n) / 3), n - 1]);
+  const taken = new Set<string>();
+  const key = (x: number, y: number) => `${x},${y}`;
+  /** Takes the slots a w × h footprint at (x, y) covers (all must be chosen and free). */
+  const claim = (x: number, y: number, w: number, h: number): boolean => {
+    const need: string[] = [];
+    for (const s of chosen) {
+      if (s.x + 2 > x && s.x < x + w && s.y + 2 > y && s.y < y + h) need.push(key(s.x, s.y));
+    }
+    const fits = x + w <= maxX && need.every((k) => !taken.has(k)) && need.length === Math.ceil(w / 2) * Math.ceil(h / 2);
+    if (fits) for (const k of need) taken.add(k);
+    return fits;
+  };
+  const upper = (p: { y: number }) => roadRows.includes(p.y - 1);
+  // Warehouses and shipyards: the first upper-row slot from a target index on whose covered slots are free.
+  const big = new Map<number, "warehouse" | "shipyard">();
+  const targets: [number, "warehouse" | "shipyard"][] = [
+    [0, "warehouse"],
+    [Math.floor(n / 3), "warehouse"],
+    [Math.floor((2 * n) / 3), "warehouse"],
+    [Math.max(0, n - 40), "warehouse"],
+  ];
+  // The first shipyard sits in the top row by the north coast: the island's harbour (berths, ship legs).
+  for (let i = 4; i < n - 40; i += 52) targets.push([i, "shipyard"]);
+  for (const [target, type] of targets) {
+    for (let j = target; j < n; j++) {
+      const p = chosen[j] as { x: number; y: number };
+      if (!upper(p) || big.has(j) || taken.has(key(p.x, p.y))) continue;
+      if (claim(p.x, p.y, type === "warehouse" ? 4 : 6, 4)) {
+        big.set(j, type);
+        break;
+      }
+    }
+  }
   const buildings: BuildingDisplay[] = [];
   let lastWarehouse = firstId;
+  let bid = firstId;
   chosen.forEach((p, i) => {
-    const bid = firstId + i;
+    const kind = big.get(i);
+    if (!kind && taken.has(key(p.x, p.y))) return;
     const base = {
       id: bid,
       x: p.x,
       y: p.y,
-      rotation: (p.y % 5 === 0 ? 0 : 180) as BuildingDisplay["rotation"],
+      rotation: (upper(p) ? 180 : 0) as BuildingDisplay["rotation"],
       paused: false,
       paused_reason: "",
       status: "ok",
       efficiency_permille: 1000,
       throughput_factor_permille: 1000,
     } as BuildingDisplay;
-    if (warehouses.has(i)) {
-      lastWarehouse = bid;
-      buildings.push({ ...base, type: "depot", level: 1, capacity: 100_000 } as BuildingDisplay);
-    } else if (i % 5 === 1) {
+    if (kind) {
+      if (kind === "warehouse") {
+        lastWarehouse = bid;
+        buildings.push({ ...base, type: "warehouse", level: 1, capacity: 100_000 } as BuildingDisplay);
+      } else buildings.push({ ...base, type: "shipyard" } as BuildingDisplay);
+      bid++;
+      return;
+    }
+    taken.add(key(p.x, p.y));
+    if (i % 5 === 1) {
       // Producers: most deliver (a cart each); some are starved (status icon).
       const type = PRODUCERS[i % PRODUCERS.length] as string;
-      const good = type === "woodcutter" ? "wood" : type === "sawmill" ? "planks" : "fish";
-      const bad = i % 25 === 6;
+      const good = type === "lumberjack" ? "wood" : type === "sawmill" ? "planks" : "fish";
+      const bad = i % 50 === 6;
       buildings.push({
         ...base,
         type,
@@ -379,16 +468,17 @@ function denseIsland(id: string, name: string, width: number, height: number, co
         road_distance: 10,
       } as BuildingDisplay);
     } else if (i % 13 === 4) {
-      buildings.push({ ...base, type: i % 26 === 4 ? "yard" : "chapel" } as BuildingDisplay);
+      buildings.push({ ...base, type: "chapel" } as BuildingDisplay);
     } else {
       const unhappy = i % 17 === 0;
-      buildings.push({ ...base, type: "house", status: unhappy ? "short_of_workers" : "ok", residents: 8_000 } as unknown as BuildingDisplay);
+      buildings.push({ ...base, type: "house_settlers", status: unhappy ? "short_of_workers" : "ok", residents: 8_000 } as unknown as BuildingDisplay);
     }
+    bid++;
   });
   // Eight fields of each type on the free grass columns west and east of
   // the road grid (the field layer's draw calls; the shown island stays
   // at ≈ 400 buildings).
-  let fieldId = firstId + n;
+  let fieldId = bid;
   const terrain = blockTerrain(width, height);
   for (const [x, type] of [
     [2, "pasture"],
@@ -425,14 +515,14 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     roads,
     buildings,
     workforce: {},
-    population: { settlers: buildings.filter((b) => b.type === "house").length * 8_000 },
+    population: { settlers: buildings.filter((b) => b.type === "house_settlers").length * 8_000 },
   } as IslandDisplay;
   const statics: Island = { id, width, height, revision: "fixture", terrain, fertilities: ["wheat"], deposits: denseDeposits(width, height) };
   return { display, statics };
 }
 
 export function buildDenseFixture(nowMs: number): Built {
-  const a = denseIsland(DENSE_ISLAND, "Dense", 64, 50, 400, 1);
+  const a = denseIsland(DENSE_ISLAND, "Dense", 64, 50, DENSE_SLOTS, 1);
   const b = denseIsland("dense2", "Neighbour", 44, 30, 40, 1001);
   a.display.position = { x: 0, y: 0 };
   b.display.position = { x: 90, y: 12 };
@@ -492,8 +582,8 @@ export const DENSE_ISLAND_2 = "dense2";
  * them at the upper end of the mid band has both in its footprint.
  */
 export function buildDenseArchipelagoFixture(nowMs: number): Built {
-  const dense1 = denseIsland(DENSE_ISLAND, "Dense", 64, 50, 400, 1);
-  const dense2 = denseIsland(DENSE_ISLAND_2, "Dense 2", 64, 50, 400, 1001);
+  const dense1 = denseIsland(DENSE_ISLAND, "Dense", 64, 50, DENSE_SLOTS, 1);
+  const dense2 = denseIsland(DENSE_ISLAND_2, "Dense 2", 64, 50, DENSE_SLOTS, 1001);
   dense1.display.position = { x: 10, y: 90 };
   dense2.display.position = { x: 100, y: 10 };
   const town5 = denseIsland("isle5", "Isle 5", 30, 34, 30, 2001);
@@ -599,6 +689,147 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
   return { server: { version: 1, display }, islands: statics, content: denseContent() };
 }
 
+/** The showcase island. */
+export const SHOWCASE_ISLAND = "showcase";
+
+/** Showcase terrain: water border, coast ring, grass; a forest belt and a rocky patch in the south. */
+function showcaseTerrain(width: number, height: number): Terrain[] {
+  const out: Terrain[] = [];
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const edge = Math.min(x, y, width - 1 - x, height - 1 - y);
+      let t: Terrain = edge === 0 ? "water" : edge === 1 ? "coast" : "grass";
+      if (edge > 1 && y >= 20 && y <= 25 && x >= 3 && x <= 18) t = "forest";
+      if (edge > 1 && y >= 21 && y <= 26 && x >= 30 && x <= 38) t = "mountain";
+      out.push(t);
+    }
+  }
+  return out;
+}
+
+/**
+ * ?fixture=showcase: every model of the manifest on one island along
+ * three roads, fronts toward the roads: houses of both tiers (6 each, so
+ * every variant appears), all production, public and harbour buildings,
+ * the warehouse at level 1 and 2, a paused sawmill, a shipyard building a
+ * sloop, 4 fields of each type, and three sloops at the berths (one with
+ * cargo, one empty, one anchored_unpaid).
+ */
+export function buildShowcaseFixture(nowMs: number): Built {
+  const width = 44;
+  const height = 32;
+  const roadRows = [8, 17];
+  const roads: { x: number; y: number; type: string }[] = [];
+  for (const y of roadRows) for (let x = 3; x <= 40; x++) roads.push({ x, y, type: y === 8 ? "road_dirt" : "road_paved" });
+  for (let y = 9; y < 17; y++) roads.push({ x: 40, y, type: "road_dirt" });
+  const placed: [type: string, x: number, y: number, rotation: number, extra?: Partial<BuildingDisplay>][] = [];
+  // North of the first road (fronts down, rotation 0): houses and public buildings.
+  for (let i = 0; i < 6; i++) placed.push(["house_settlers", 3 + 2 * i, 6, 0]);
+  for (let i = 0; i < 6; i++) placed.push(["house_citizens", 15 + 2 * i, 6, 0]);
+  placed.push(["chapel", 27, 6, 0], ["market_small", 29, 5, 0], ["tavern", 32, 5, 0]);
+  // South of the first road (fronts up, rotation 180): production.
+  ["lumberjack", "sawmill", "fisher", "weaver_wool", "mill", "bakery", "cidery", "weaver_linen", "sailmaker", "charcoal_burner", "toolmaker"].forEach((t, i) =>
+    placed.push([t, 3 + 2 * i, 9, 180, t === "sawmill" ? { paused: true, paused_reason: "player", status: "paused" } : {}]),
+  );
+  ["sheep_farm", "wheat_farm", "orchard", "hemp_farm"].forEach((t, i) => placed.push([t, 25 + 3 * i, 9, 180]));
+  // North of the second road (fronts down): mining and smelting, the harbour buildings and the fields.
+  placed.push(["quarry", 3, 14, 0], ["iron_mine", 6, 14, 0], ["smelter", 9, 14, 0]);
+  placed.push(["warehouse", 13, 14, 0, { level: 1 }], ["warehouse", 18, 14, 0, { level: 2 }]);
+  placed.push(["shipyard", 23, 13, 0, { ship_order: { type: "sloop", ordered_at: ts(nowMs - 60_000), due_at: ts(nowMs + 60_000) } }]);
+  ["pasture", "wheat_field", "orchard_plot", "hemp_field"].forEach((t, i) => {
+    for (const [dx, dy] of [
+      [0, 0],
+      [1, 0],
+      [0, 1],
+      [1, 1],
+    ] as const) {
+      placed.push([t, 29 + 2 * i + dx, 14 + dy, 0]);
+    }
+  });
+  const buildings: BuildingDisplay[] = placed.map(([type, x, y, rotation, extra = {}], i) => ({
+    id: 5001 + i,
+    type,
+    x,
+    y,
+    rotation: rotation as BuildingDisplay["rotation"],
+    paused: false,
+    paused_reason: "",
+    status: "ok",
+    efficiency_permille: 1000,
+    throughput_factor_permille: 1000,
+    ...extra,
+  }) as BuildingDisplay);
+  const inventory: IslandDisplay["inventory"] = {};
+  for (const g of DENSE_GOODS) inventory[g] = { stock: 40_000, capacity: 100_000, in_transit: 0, rate_per_min: 1_000 };
+  const island = {
+    id: SHOWCASE_ISLAND,
+    name: "Showcase",
+    settled: true,
+    position: { x: 0, y: 0 },
+    width,
+    height,
+    inventory,
+    roads,
+    buildings,
+    workforce: {},
+    population: { settlers: 48_000, citizens: 30_000 },
+  } as IslandDisplay;
+  const statics: Island = {
+    id: SHOWCASE_ISLAND,
+    width,
+    height,
+    revision: "fixture",
+    terrain: showcaseTerrain(width, height),
+    fertilities: ["wheat", "apple", "hemp"],
+    // Under the quarry and the iron mine: their outcrops stay hidden (the models sit on rock).
+    deposits: [
+      { x: 4, y: 15, kind: "stone" },
+      { x: 7, y: 15, kind: "iron" },
+    ],
+  };
+  const ship = (id: number, extra: Partial<ShipDisplay>): ShipDisplay => ({
+    id,
+    type: "sloop",
+    state: "idle",
+    island_id: SHOWCASE_ISLAND,
+    route_id: 0,
+    stop_index: 0,
+    leg: null,
+    cargo: [],
+    slots: 2,
+    slot_size: 50_000,
+    upkeep_per_min: 1_000,
+    paused: false,
+    paused_reason: "",
+    ...extra,
+  });
+  const display = {
+    evaluated_at: ts(nowMs),
+    next_change_at: null,
+    gold: 5_000_000,
+    balance_rate_per_min: 12_000,
+    tax_rate_per_min: 60_000,
+    upkeep_rate_per_min: 48_000,
+    tiers: [
+      { id: "settlers", unlocked: true, population: {}, buildings: {}, goods_delivered: {} },
+      { id: "citizens", unlocked: true, population: {}, buildings: {}, goods_delivered: {} },
+    ],
+    islands: [island],
+    ships: [
+      ship(1, { cargo: [{ good: "planks", amount: 20_000 }] }),
+      ship(2, {}),
+      ship(3, { state: "anchored_unpaid", upkeep_per_min: 0, paused: true, paused_reason: "unpaid", cargo: [{ good: "fish", amount: 10_000 }] }),
+    ],
+    routes: [],
+    // The anchored_unpaid sloop is the ship style under test; no insolvency banner over the showcase.
+    insolvency: { unpaid_buildings: 0, unpaid_ships: 0, unpaid_upkeep_per_min: 0, balance_if_resumed_per_min: 12_000 },
+    quests: { active: [], claimable: [], completed: [] },
+    away_summary: null,
+    last_seen_at: ts(nowMs),
+  } as unknown as DisplayState;
+  return { server: { version: 1, display }, islands: new Map([[SHOWCASE_ISLAND, statics]]), content: denseContent() };
+}
+
 /** A read-only data source with a fixture; commands are rejected. */
 export class FixtureSync implements SyncLike {
   private snapshot: SyncSnapshot;
@@ -611,7 +842,9 @@ export class FixtureSync implements SyncLike {
         ? buildDenseFixture(Date.now())
         : id === DENSE_ARCHIPELAGO_FIXTURE
           ? buildDenseArchipelagoFixture(Date.now())
-          : buildArchipelagoFixture(Date.now());
+          : id === SHOWCASE_FIXTURE
+            ? buildShowcaseFixture(Date.now())
+            : buildArchipelagoFixture(Date.now());
     const nowMs = Date.now();
     this.snapshot = {
       server: built.server,

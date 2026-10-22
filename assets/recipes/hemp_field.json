@@ -1,0 +1,12 @@
+{
+  "$schema": "./schema.json",
+  "id": "hemp_field",
+  "kind": "field",
+  "notes": "Hemp field: green slab with three tall ridged rows of hemp.",
+  "parts": [
+    {"name": "slab", "prim": "box", "size": [0.94, 0.94, 0.022], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "hemp"},
+    {"name": "hemp row", "prim": "wedge", "size": [0.86, 0.2, 0.22], "position": [0, -0.3, 0.02], "role": "hemp-mark", "shade": 1.08},
+    {"name": "hemp row", "prim": "wedge", "size": [0.86, 0.2, 0.22], "position": [0, 0, 0.02], "role": "hemp-mark", "shade": 1.08},
+    {"name": "hemp row", "prim": "wedge", "size": [0.86, 0.2, 0.22], "position": [0, 0.3, 0.02], "role": "hemp-mark", "shade": 1.08}
+  ]
+}

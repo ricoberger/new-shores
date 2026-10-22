@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kits": [
+    {
+      "id": "medieval",
+      "name": "Medieval Village MegaKit (Source)",
+      "author": "Quaternius",
+      "source_url": "https://quaternius.com/packs/medievalvillagemegakit.html",
+      "version": "Source edition, files dated 2025-01-21",
+      "downloaded": "2026-10-22",
+      "licence": "CC0-1.0",
+      "licence_file": "License_Source.txt",
+      "dir": "Medieval-Village-MegaKit-Source",
+      "files": {
+        "License_Source.txt": "7310dfa8512d7ca12b6591329fda4adab7e8b9cdbe04c7d7061c2fe5c7dc38ee",
+        "glTF/DoorFrame_Flat_WoodDark.bin": "1e59d95393867a3cfa0612bea2086018d5ddcb3252969525679391a52e16f94c",
+        "glTF/DoorFrame_Flat_WoodDark.gltf": "e12b923833fe91ba7c26c3984b0d7860a498bc955f6092b2af9fc0f3012105c6",
+        "glTF/DoorFrame_Round_WoodDark.bin": "1899a064497568422c4d2a9246be0f7dba9e1f9fae6483f4dc39fe63c398b824",
+        "glTF/DoorFrame_Round_WoodDark.gltf": "d96fb7e3b6b7a5cb97339a7667dee3d9e03b5b0a02cbea283bd75a69f58bb4a7",
+        "glTF/Prop_Chimney2.bin": "07d34b621ea375292e907a92f9231da9539d44224b7b54ff0aaf8d4cc871dc09",
+        "glTF/Prop_Chimney2.gltf": "45e93dfdacd304864ec90fd8a36392bf743b62a35d3b850ac3a25cb4330dc3c6",
+        "glTF/Prop_WoodenFence_Single.bin": "aac37141af8f33e762b330486fd1cbd1c12a96b2978f491be4a58e24f1fe9ec1",
+        "glTF/Prop_WoodenFence_Single.gltf": "c9f787c03c62dd94268da84bf3e4dacf554b2a5a9beee38314e37ff5d929c407",
+        "glTF/Roof_Front_Wood2.bin": "6117dd5d07e006c524b2df323a632a1490d655527404f1e28639cd5821874b18",
+        "glTF/Roof_Front_Wood2.gltf": "17164d921a9cafb387016b4879d2258245ca00c65e990d7e6517b1c9b30721a7",
+        "glTF/WindowShutters_Thin_Flat_Closed.bin": "5e4abb4cff41e1106eaec7302429e43aaa7d5b1f67a8991618344abf6c372943",
+        "glTF/WindowShutters_Thin_Flat_Closed.gltf": "7e2b10bc0de0e92543f9ee6962651b0714d53c463e250c9bf1e9126dd64b86a0",
+        "glTF/Window_Wide_Round2.bin": "abeed9b4ea176f95ea38b5c8699da031b1b18fbd1a545d979e206f72ae07a80a",
+        "glTF/Window_Wide_Round2.gltf": "f3103df2cec7723d81bff31d58d8bd50eb4198fbe9cbce024d41290203ac7688"
+      }
+    },
+    {
+      "id": "pirate",
+      "name": "Pirate Kit",
+      "author": "Quaternius",
+      "source_url": "https://quaternius.com/packs/piratekit.html",
+      "version": "files dated 2023-11-04",
+      "downloaded": "2026-10-22",
+      "licence": "CC0-1.0",
+      "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "dir": "Pirate-Kit",
+      "files": {
+        "glTF/Environment_Cliff2.gltf": "c5c022324a365158e1f2df9b53efde31cd0c2bb27fa4ec198665714c928d2826",
+        "glTF/Environment_Cliff3.gltf": "0f0566322d2958e0081da2c2910861962ceea7096c400a46ff090bd3f86f0cd0",
+        "glTF/Environment_Dock.gltf": "cdbcd1dc78b7adb0a83f9ef475e61c5df5302c2cac9a340266b986165636d940",
+        "glTF/Environment_Sawmill.gltf": "994d359a7cb9dcf232c4d4c7c2b94fe5f48e5a33dcf69b733b60271f0214cb0f",
+        "glTF/Prop_Barrel.gltf": "5180ba3e2dd3a3485bf24a2e309dc5e24ec22deb2a2da15a516a02085fef66c4",
+        "glTF/Prop_Bucket_Fishes.gltf": "f366412e831a4f14b73cf4a1d15e2acc70c2588c36bdf7db24f18d235e059861",
+        "glTF/Ship_Small.gltf": "c2596ed1eec90c9b0338109f5e66a88755db92f37c5473937fe5f463365a726f"
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { type Browser, expect, type Page, test } from "@playwright/test";
-import { expectLod, setCamera, showArchipelago, worldReady } from "./archipelago";
+import { expectLod, modelsLoaded, setCamera, showArchipelago, worldReady } from "./archipelago";
 
 // Mobile performance budget (FIRST_PLAYABLE §3) of the continuous world
 // (D-048) under 4× CDP CPU throttling at phone viewports, per LOD:
@@ -12,7 +12,9 @@ import { expectLod, setCamera, showArchipelago, worldReady } from "./archipelago
 // archipelago in view; mid — the same fixture centred between its dense
 // islands at the upper end of the mid band (both in view). Every run logs
 // fps, frame times, draw calls, JS heap, TTFI, the WebGL renderer
-// (hardware or SwiftShader) and the gzip size of the built chunks. The
+// (hardware or SwiftShader), the gzip size of the built chunks and the
+// kit-bashed models loaded (GLB bytes, time to the first model; the
+// measurement starts once every requested model has loaded). The
 // regression check asserts PERF_MIN_FPS for the 412 × 915 runs in the
 // configuration this project runs in (headless Chromium; with PERF_GPU=1
 // the GPU flags of playwright.config.ts apply instead).
@@ -156,6 +158,9 @@ async function measure(browser: Browser, c: Config, run: Run) {
   }
   await run.setup(page);
   if (run.lod === "near") expect(await page.evaluate(() => window.__newShores!.carts())).toBeGreaterThanOrEqual(60);
+  // The models in view (buildings at near LOD, ships at every LOD) have loaded: measure with them, not the placeholders.
+  await modelsLoaded(page);
+  if (run.lod === "near") expect(await page.evaluate(() => window.__newShores!.assets().placeholders)).toEqual([]);
 
   await page.waitForTimeout(SETTLE_MS);
   let drawCalls = 0;
@@ -177,8 +182,9 @@ async function measure(browser: Browser, c: Config, run: Run) {
   });
   const lod = await page.evaluate(() => window.__newShores!.lod());
   const visible = await page.evaluate(() => window.__newShores!.visibleIslands());
+  const assets = await page.evaluate(() => window.__newShores!.assets());
   await context.close();
-  return { ...payload, ttfiMs, drawCalls, frames, heapBytes, renderer, renderScale, lod, visible };
+  return { ...payload, ttfiMs, drawCalls, frames, heapBytes, renderer, renderScale, lod, visible, glbBytes: assets.bytes, firstModelMs: assets.firstModelMs, models: assets.loaded.length };
 }
 
 test.describe.configure({ mode: "serial" });
@@ -199,6 +205,9 @@ for (const run of RUNS) {
           drawCalls: r.drawCalls,
           heapMB: Number((r.heapBytes / 1024 / 1024).toFixed(1)),
           ttfiMs: Math.round(r.ttfiMs),
+          glbBytes: r.glbBytes,
+          firstModelMs: r.firstModelMs === null ? null : Math.round(r.firstModelMs),
+          models: r.models,
           renderScale: Number(r.renderScale.toFixed(3)),
           lod: r.lod,
           visible: r.visible,

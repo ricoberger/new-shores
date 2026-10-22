@@ -1,11 +1,14 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { type Browser, devices, expect, type Page, test, type TestInfo } from "@playwright/test";
-import { expectLod, setCamera, showArchipelago, worldReady } from "./archipelago";
+import { expectLod, modelsLoaded, setCamera, showArchipelago, worldReady } from "./archipelago";
 
-// Screenshot baselines of the visual foundation (art task 2) on the
-// fixtures only (no server state): the dense island at near, mid and far
-// LOD and the HUD on desktop and on a Pixel 5 (portrait, a sheet open).
+// Screenshot baselines of the visual foundation (art task 2) and the
+// kit-bashed models (art task 3) on the fixtures only (no server state):
+// the dense island at near, mid and far LOD, the HUD on desktop and on a
+// Pixel 5 (portrait, a sheet open), every model on the showcase island
+// (two camera rotations) and a sloop on a leg. Shots wait until every
+// requested model has loaded.
 // Time is fixed (Date via the Playwright clock, the renderer's animation
 // time via freezeTime), CSS animations are disabled. Baselines are per
 // platform (Playwright's default naming); a missing baseline for the
@@ -17,16 +20,39 @@ import { expectLod, setCamera, showArchipelago, worldReady } from "./archipelago
 const T = new Date("2026-10-21T16:00:00Z");
 const SHOT = { maxDiffPixelRatio: 0.02, animations: "disabled" as const, caret: "hide" as const };
 
-async function open(page: Page, fixture: string, query = ""): Promise<void> {
+async function open(page: Page, fixture: string, query = "", island = "dense1"): Promise<void> {
   await page.clock.setFixedTime(T);
   await page.goto(`/?fixture=${fixture}${query}`);
-  await worldReady(page, "dense1");
+  await worldReady(page, island);
   await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
 }
 
-/** Lets the frame settle (camera moves, textures upload). */
+/** Lets the frame settle (camera moves, textures upload, models load and swap in). */
 async function settle(page: Page): Promise<void> {
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(1000);
+  await modelsLoaded(page);
+  await page.waitForTimeout(800);
+}
+
+/** Centres the camera on a ship (through the archipelago → screen Jacobian of the hook's projections). */
+async function centreOnShip(page: Page, id: number): Promise<void> {
+  for (let i = 0; i < 4; i++) {
+    await page.evaluate((shipId) => {
+      const h = window.__newShores!;
+      const c = h.camera();
+      const s = h.shipToScreen(shipId);
+      const o = h.archToScreen(c.x, c.y);
+      const ax = h.archToScreen(c.x + 1, c.y);
+      const ay = h.archToScreen(c.x, c.y + 1);
+      const det = (ax.x - o.x) * (ay.y - o.y) - (ay.x - o.x) * (ax.y - o.y);
+      const dx = s.x - o.x;
+      const dy = s.y - o.y;
+      const u = ((ay.y - o.y) * dx - (ay.x - o.x) * dy) / det;
+      const v = (-(ax.y - o.y) * dx + (ax.x - o.x) * dy) / det;
+      if (Number.isFinite(u) && Number.isFinite(v)) h.setCamera({ x: c.x + u, y: c.y + v });
+    }, id);
+    await page.waitForTimeout(250);
+  }
 }
 
 /**
@@ -103,7 +129,7 @@ test("HUD with the info panel (desktop)", async ({ page }, info) => {
   await open(page, "dense-2x400");
   const t = await page.evaluate(() => {
     const is = window.__newShores!.getServer()!.display.islands.find((i) => i.id === "dense1")!;
-    const b = is.buildings.find((x) => x.status !== "ok" && x.type === "woodcutter") ?? is.buildings.find((x) => x.status !== "ok")!;
+    const b = is.buildings.find((x) => x.status !== "ok" && x.type === "lumberjack") ?? is.buildings.find((x) => x.status !== "ok")!;
     return { x: b.x, y: b.y };
   });
   await setCamera(page, { x: t.x + 1, y: t.y + 1 });
@@ -114,6 +140,35 @@ test("HUD with the info panel (desktop)", async ({ page }, info) => {
   await page.mouse.move(5, 400);
   await settle(page);
   await compare(page, info, "hud-desktop.png");
+  skipIfWritten(info);
+});
+
+test("every model on the showcase island, two camera rotations (desktop)", async ({ page }, info) => {
+  await open(page, "showcase", "", "showcase");
+  // Zoomed in to the full models.
+  await setCamera(page, { x: 22, y: 13, half: 10, rotation: 0 });
+  await settle(page);
+  expect(await page.evaluate(() => window.__newShores!.modelDetail())).toBe("full");
+  const a = await page.evaluate(() => window.__newShores!.assets());
+  expect(a.placeholders).toEqual([]);
+  expect(a.failed).toEqual([]);
+  expect(a.loaded.length).toBeGreaterThan(30);
+  await compare(page, info, "showcase-desktop.png");
+  await setCamera(page, { rotation: 2 });
+  await settle(page);
+  expect(await page.evaluate(() => window.__newShores!.assets().placeholders)).toEqual([]);
+  await compare(page, info, "showcase-rot2-desktop.png");
+  skipIfWritten(info);
+});
+
+test("a sloop on a leg (desktop)", async ({ page }, info) => {
+  await open(page, "dense-2x400");
+  await setCamera(page, { half: 7 });
+  await centreOnShip(page, 2);
+  await settle(page);
+  expect(await page.evaluate(() => window.__newShores!.assets().placeholders)).toEqual([]);
+  expect(await page.evaluate(() => window.__newShores!.shipStyle(2))).toBe("active");
+  await compare(page, info, "sloop-desktop.png");
   skipIfWritten(info);
 });
 

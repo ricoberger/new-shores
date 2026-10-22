@@ -8,3 +8,7 @@ assets/kits/*
 !assets/kits/MANIFEST.json
 !assets/kits/README.md
 .DS_Store
+
+# Asset build output (contact sheets) and Python caches.
+assets/build/out/
+__pycache__/

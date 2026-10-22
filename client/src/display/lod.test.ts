@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { fitHalfHeight, NEAR_DEFAULT_HALF_HEIGHT } from "./camera";
-import { FAR_ENTER_HALF, FAR_EXIT_HALF, initialLod, type Lod, lodFor, MID_TO_NEAR_HALF, NEAR_EXIT_HALF } from "./lod";
+import { fitHalfHeight, MIN_HALF_HEIGHT, NEAR_DEFAULT_HALF_HEIGHT } from "./camera";
+import {
+  detailFor,
+  FAR_ENTER_HALF,
+  FAR_EXIT_HALF,
+  FULL_DETAIL_ENTER_HALF,
+  FULL_DETAIL_EXIT_HALF,
+  initialLod,
+  type Lod,
+  lodFor,
+  MID_TO_NEAR_HALF,
+  NEAR_EXIT_HALF,
+} from "./lod";
 
 // Dev world geometry (server/internal/devworld): start 56 × 40 at (0,0),
 // island 2 40 × 18 at (72,96): bounding box 112 × 114.
@@ -89,5 +100,20 @@ describe("LOD hysteresis", () => {
     // Jumps across a whole band land on the right level.
     expect(lodFor(200, "near")).toBe("far");
     expect(lodFor(10, "far")).toBe("near");
+  });
+});
+
+describe("model detail inside the near level", () => {
+  it("draws the lite models at the near default zoom and the full ones zoomed in, with hysteresis", () => {
+    expect(detailFor(NEAR_DEFAULT_HALF_HEIGHT, "lite")).toBe("lite");
+    expect(detailFor(NEAR_DEFAULT_HALF_HEIGHT, "full")).toBe("lite");
+    expect(detailFor(MIN_HALF_HEIGHT, "lite")).toBe("full");
+    expect(detailFor(FULL_DETAIL_ENTER_HALF, "lite")).toBe("full");
+    // Between the thresholds the previous detail stays.
+    const mid = (FULL_DETAIL_ENTER_HALF + FULL_DETAIL_EXIT_HALF) / 2;
+    expect(detailFor(mid, "lite")).toBe("lite");
+    expect(detailFor(mid, "full")).toBe("full");
+    expect(detailFor(FULL_DETAIL_EXIT_HALF + 0.01, "full")).toBe("lite");
+    expect(FULL_DETAIL_EXIT_HALF / FULL_DETAIL_ENTER_HALF).toBeGreaterThanOrEqual(1.1);
   });
 });

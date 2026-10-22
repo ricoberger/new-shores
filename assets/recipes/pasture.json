@@ -1,0 +1,17 @@
+{
+  "$schema": "./schema.json",
+  "id": "pasture",
+  "kind": "field",
+  "notes": "Pasture field: grass slab with two fence posts and rails on the north and west edges (neighbours draw the others) and grass tufts.",
+  "parts": [
+    {"name": "slab", "prim": "box", "size": [0.94, 0.94, 0.022], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "pasture"},
+    {"name": "post", "prim": "cylinder", "radius": 0.03, "height": 0.2, "segments": 3, "position": [-0.42, -0.42, 0], "role": "timber"},
+    {"name": "post", "prim": "cylinder", "radius": 0.03, "height": 0.2, "segments": 3, "position": [0.42, -0.42, 0], "role": "timber"},
+    {"name": "post", "prim": "cylinder", "radius": 0.03, "height": 0.2, "segments": 3, "position": [-0.42, 0.42, 0], "role": "timber"},
+    {"name": "rail", "prim": "box", "size": [0.84, 0.02, 0.025], "open": ["bottom", "top", "+x", "-x"], "position": [0, -0.42, 0.1], "repeat": {"count": 2, "step": [0, 0, 0.07]}, "role": "timber", "shade": 1.15},
+    {"name": "rail", "prim": "box", "size": [0.02, 0.84, 0.025], "open": ["bottom", "top", "+y", "-y"], "position": [-0.42, 0, 0.1], "repeat": {"count": 2, "step": [0, 0, 0.07]}, "role": "timber", "shade": 1.15},
+    {"name": "tuft", "prim": "cylinder", "radius": 0.05, "radius_top": 0, "height": 0.11, "segments": 3, "position": [-0.1, 0.15, 0.02], "role": "pasture-mark", "shade": 0.85},
+    {"name": "tuft", "prim": "cylinder", "radius": 0.05, "radius_top": 0, "height": 0.11, "segments": 3, "position": [0.2, -0.15, 0.02], "role": "pasture-mark", "shade": 0.85},
+    {"name": "tuft", "prim": "cylinder", "radius": 0.05, "radius_top": 0, "height": 0.11, "segments": 3, "position": [0.25, 0.3, 0.02], "role": "pasture-mark", "shade": 0.85}
+  ]
+}

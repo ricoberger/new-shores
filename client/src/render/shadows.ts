@@ -122,17 +122,17 @@ export class FootprintShadows {
     this.material.backFaceCulling = false;
   }
 
-  /** Footprints (centre x, z and rotated size, island-local) with the height they lean for. */
-  update(rects: readonly { cx: number; cz: number; w: number; h: number }[], rim: number, height: number): void {
+  /** Footprints (centre x, z and rotated size, island-local) with the height they lean for (per rect, else `height`). */
+  update(rects: readonly { cx: number; cz: number; w: number; h: number; height?: number }[], rim: number, height: number): void {
     this.mesh?.dispose();
     this.mesh = null;
     if (rects.length === 0) return;
     const positions: number[] = [];
     const colors: number[] = [];
     const indices: number[] = [];
-    const lx = SHADOW_LEAN.x * height * 0.35;
-    const lz = SHADOW_LEAN.z * height * 0.35;
     for (const r of rects) {
+      const lx = SHADOW_LEAN.x * (r.height ?? height) * 0.35;
+      const lz = SHADOW_LEAN.z * (r.height ?? height) * 0.35;
       const base = positions.length / 3;
       const cx = r.cx + lx;
       const cz = r.cz + lz;

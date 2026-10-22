@@ -2,12 +2,14 @@
 // next to the coast nearest the harbour building (shipyard, else
 // warehouse) — and a hull rising on every shipyard with an order. Visual
 // placement only; positions and progress come from the display payload.
+// The hull is the ship type's model once loaded (the placeholder before).
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
 import type { TilePos } from "../display/geometry";
 import { orderTiming } from "../display/ships";
 import { footprintBox } from "./coords";
+import { type ModelRegistry, shipMeshes, shipModel } from "./models";
 import { ColoredInstances, shipMatrix, shipTemplate } from "./shipmesh";
 
 /** Minimum distance (tiles) between two harbour berths. */
@@ -60,15 +62,40 @@ export function islandBerths(island: IslandDisplay, statics: Island, defs: Reado
 
 /** A hull rising on every shipyard with an order (near LOD, under the island's node). */
 export class ConstructionLayer {
-  private readonly construction: ColoredInstances;
+  private construction: ColoredInstances;
+  /** The hull is the model (of this ship type) rather than the placeholder. */
+  private modelType: string | null = null;
+  private orderType: string | null = null;
   private island: IslandDisplay | undefined;
   private defs: ReadonlyMap<string, ContentBuilding> = new Map();
   /** Shipyards (building IDs) with a construction hull in the last frame, with its scale. */
   private readonly markers = new Map<number, number>();
 
-  constructor(scene: Scene, parent: TransformNode | null = null) {
+  constructor(
+    private readonly scene: Scene,
+    private readonly parent: TransformNode | null = null,
+    private readonly registry: ModelRegistry | null = null,
+  ) {
     this.construction = new ColoredInstances(shipTemplate(scene, "shipyard_construction"));
     this.construction.mesh.parent = parent;
+  }
+
+  /** Swaps the placeholder hull for the ordered type's model once it has loaded. */
+  private useModel(type: string): void {
+    if (this.modelType === type || !this.registry) return;
+    const model = shipModel(this.registry, type);
+    if (!model) return;
+    this.construction.mesh.dispose(false, true);
+    const meshes = shipMeshes(this.scene, "shipyard_construction", model);
+    meshes.cargo?.dispose();
+    meshes.hull.parent = this.parent;
+    this.construction = new ColoredInstances(meshes.hull);
+    this.modelType = type;
+  }
+
+  /** The ordered ship type when its hull is drawn with the placeholder (no loaded model), else null. */
+  placeholder(): string | null {
+    return this.markers.size > 0 && this.modelType === null ? this.orderType : null;
   }
 
   update(island: IslandDisplay | undefined, defs: ReadonlyMap<string, ContentBuilding>): void {
@@ -80,6 +107,9 @@ export class ConstructionLayer {
   frame(nowMs: number): void {
     this.markers.clear();
     const orders = this.island ? this.island.buildings.filter((b) => b.ship_order) : [];
+    const type = orders[0]?.ship_order?.type ?? null;
+    this.orderType = type;
+    if (type) this.useModel(type);
     this.construction.resize(orders.length);
     orders.forEach((b, i) => {
       const def = this.defs.get(b.type);

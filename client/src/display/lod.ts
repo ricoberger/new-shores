@@ -39,3 +39,18 @@ export function lodFor(half: number, prev: Lod): Lod {
       return half < FAR_EXIT_HALF ? "mid" : "far";
   }
 }
+
+/**
+ * Model detail inside the near level (art task 3): the full kit-bashed
+ * models when zoomed in to at most FULL_DETAIL_ENTER_HALF, the lite ones
+ * above FULL_DETAIL_EXIT_HALF (the near default zoom shows a whole dense
+ * town, which software renderers cannot afford at full detail), with the
+ * same kind of hysteresis as the levels.
+ */
+export const FULL_DETAIL_ENTER_HALF = 10;
+export const FULL_DETAIL_EXIT_HALF = 11.5;
+
+/** The model detail at a half extent, given the previous one. */
+export function detailFor(half: number, prev: "full" | "lite"): "full" | "lite" {
+  return prev === "full" ? (half > FULL_DETAIL_EXIT_HALF ? "lite" : "full") : half <= FULL_DETAIL_ENTER_HALF ? "full" : "lite";
+}

@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/assets/recipes/schema.json",
+  "title": "New Shores model recipe",
+  "description": "One kit-bashed model per content ID (ART_DIRECTION §7). Coordinates are in tiles (1 tile = 4 m) in recipe space: Blender axes, z up, origin at the footprint's ground centre, the front edge (the door at rotation 0) toward +y; ships: bow toward +x, origin at the waterline centre. Rotations are XYZ Euler angles in degrees. The footprint is read from content/old_coast, never repeated here. Validated by assets/build/nsassets/schema.py (stdlib subset of JSON Schema: type, enum, const, required, properties, additionalProperties, items, minItems, maxItems, minimum, maximum, exclusiveMinimum, pattern, minLength, $ref, oneOf).",
+  "type": "object",
+  "required": ["id", "kind", "parts"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Content ID (content/old_coast/buildings.json or ships.json)." },
+    "kind": { "enum": ["building", "field", "ship"] },
+    "notes": { "type": "string", "description": "What the model shows; production buildings name their signature prop." },
+    "parts": { "$ref": "#/$defs/partList", "description": "Parts shared by every variant and level." },
+    "variants": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/partList" },
+      "description": "Variant n (file <id>.v<n>.glb) = parts + variants[n]. Houses have exactly 3."
+    },
+    "levels": {
+      "type": "object",
+      "description": "Content level → parts (file <id>.l<level>.glb = parts + levels[level]).",
+      "additionalProperties": false,
+      "properties": {
+        "1": { "$ref": "#/$defs/partList" },
+        "2": { "$ref": "#/$defs/partList" },
+        "3": { "$ref": "#/$defs/partList" }
+      }
+    },
+    "attachments": {
+      "type": "object",
+      "description": "Separately exported parts drawn on top of the model (<id>.<name>.glb).",
+      "additionalProperties": false,
+      "properties": {
+        "cargo": { "$ref": "#/$defs/partList" }
+      }
+    },
+    "ship": {
+      "type": "object",
+      "required": ["length_tiles", "masts", "sail_scale"],
+      "additionalProperties": false,
+      "properties": {
+        "length_tiles": { "type": "number", "exclusiveMinimum": 0, "maximum": 10 },
+        "masts": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "sail_scale": { "type": "number", "exclusiveMinimum": 0, "maximum": 4 }
+      }
+    },
+    "budget_exception": {
+      "type": "object",
+      "required": ["reason"],
+      "additionalProperties": false,
+      "properties": { "reason": { "type": "string", "minLength": 10 } },
+      "description": "Doubles the building budget; only warehouse, shipyard, chapel and market_small."
+    },
+    "anchors": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "door": { "$ref": "#/$defs/vec3" },
+        "chimney": { "$ref": "#/$defs/vec3" },
+        "smoke": { "$ref": "#/$defs/vec3" },
+        "status": { "$ref": "#/$defs/vec3" }
+      }
+    }
+  },
+  "$defs": {
+    "vec3": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+    "vec2": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+    "role": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$", "description": "A colour name of the buildings, terrain, fields or water group of assets/palette.json." },
+    "partList": { "type": "array", "items": { "$ref": "#/$defs/part" } },
+    "part": {
+      "type": "object",
+      "description": "A kit piece (kit + file) or a procedural primitive (prim + its parameters), placed by position/rotation/scale.",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "description": "Label in error messages (default: file or prim and the index)." },
+        "kit": { "enum": ["medieval", "pirate"] },
+        "file": { "type": "string", "description": "Kit-relative path as listed in assets/kits/MANIFEST.json." },
+        "prim": { "enum": ["box", "cylinder", "wedge", "sail", "lathe", "rock"] },
+        "size": { "$ref": "#/$defs/vec3", "description": "box: x y z (base centred at z = 0); wedge: ridge length x, depth y, height z; rock: radii x y z." },
+        "radius": { "type": "number", "exclusiveMinimum": 0, "description": "cylinder: bottom radius." },
+        "radius_top": { "type": "number", "minimum": 0, "description": "cylinder: top radius (default = radius; 0 = cone)." },
+        "height": { "type": "number", "exclusiveMinimum": 0, "description": "cylinder, sail." },
+        "segments": { "type": "integer", "minimum": 1, "maximum": 32, "description": "cylinder, lathe: sides (≥ 3); sail: rows." },
+        "caps": { "type": "boolean", "description": "cylinder: draw the top and bottom caps (default: top only)." },
+        "open": {
+          "type": "array",
+          "items": { "enum": ["top", "bottom", "+x", "-x", "+y", "-y"] },
+          "description": "box: faces left out (unseen faces cost triangles)."
+        },
+        "hip": { "type": "number", "minimum": 0, "description": "wedge: hip inset of both ridge ends (0 = gable roof)." },
+        "width": { "type": "number", "exclusiveMinimum": 0, "description": "sail: bottom width (along x)." },
+        "width_top": { "type": "number", "minimum": 0, "description": "sail: top width (0 = triangle; default = width)." },
+        "bulge": { "type": "number", "description": "sail: depth of the wind belly toward +y." },
+        "profile": { "type": "array", "items": { "$ref": "#/$defs/vec2" }, "minItems": 2, "description": "lathe: (radius, z) points from bottom to top, revolved about z." },
+        "detail": { "type": "integer", "minimum": 0, "maximum": 1, "description": "rock: 0 = octahedron-like, 1 = subdivided." },
+        "position": { "$ref": "#/$defs/vec3" },
+        "rotation": { "$ref": "#/$defs/vec3" },
+        "scale": { "oneOf": [{ "type": "number", "exclusiveMinimum": 0 }, { "$ref": "#/$defs/vec3" }] },
+        "repeat": {
+          "type": "object",
+          "required": ["count", "step"],
+          "additionalProperties": false,
+          "properties": {
+            "count": { "type": "integer", "minimum": 1, "maximum": 64 },
+            "step": { "$ref": "#/$defs/vec3" },
+            "rotate": { "type": "number", "description": "Extra rotation about z (degrees) per copy." }
+          },
+          "description": "Copies the part count times, each moved by step (tiles, recipe space) from the previous."
+        },
+        "role": { "$ref": "#/$defs/role", "description": "Colour of the whole part (required for primitives)." },
+        "roles": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/role" },
+          "description": "Kit material name (atlas kits: Atlas/<swatch>) → role; other materials keep the kit default."
+        },
+        "shade": { "type": "number", "minimum": 0.6, "maximum": 1.2, "description": "Multiplier on the palette colour (default 1.0)." },
+        "simplify": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dissolve": { "type": "number", "exclusiveMinimum": 0, "maximum": 45, "description": "Planar decimation angle limit (degrees), material borders kept." },
+            "collapse": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "Edge-collapse ratio of the remaining triangles." }
+          },
+          "description": "Mesh simplification of a kit piece (dissolve first, then collapse)."
+        },
+        "crop": {
+          "type": "object",
+          "required": ["min", "max"],
+          "additionalProperties": false,
+          "properties": { "min": { "$ref": "#/$defs/vec3" }, "max": { "$ref": "#/$defs/vec3" } },
+          "description": "Kit pieces: keeps only the triangles whose centroid lies in this box (kit units, Blender axes, before any transform) — takes a part of a piece."
+        },
+        "flip_normals": { "type": "boolean", "description": "Reverses the triangle winding (inside-out pieces)." },
+        "lod": {
+          "enum": ["full", "lite"],
+          "description": "Detail level: full = only in the full model, lite = only in the lite model (absent: both). A file with any lod part is also exported as <file>.lite.glb, drawn by the client at the near-LOD default zoom (dense towns stay inside the software-rendering budget); the full model is drawn when zoomed in."
+        }
+      }
+    }
+  }
+}

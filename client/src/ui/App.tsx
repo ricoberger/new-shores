@@ -106,6 +106,17 @@ export interface TestHook {
   gridAt(): { x: number; y: number } | null;
   /** Which quality-dependent effects exist (FXAA is skipped on software WebGL, see `software`). */
   effects(): { quality: Quality; shadowMap: boolean; grading: boolean; fxaa: boolean; vignette: boolean; software: boolean } | null;
+  /**
+   * Model loading (render/models.ts): manifest loaded; model files (GLB
+   * paths) loaded, pending and failed; GLB bytes fetched; the time of the
+   * first rendered frame with a model (performance.now(), ms); the content
+   * IDs drawn with a placeholder now (islands at near LOD and ships) and
+   * the buildings drawn with the other detail's model until the wanted
+   * one has swapped in (bridged).
+   */
+  assets(): { manifest: boolean; loaded: string[]; pending: string[]; failed: string[]; placeholders: string[]; bridged: number; bytes: number; firstModelMs: number | null };
+  /** Model detail at near LOD ("lite" at the default zoom, "full" zoomed in). */
+  modelDetail(): "full" | "lite";
 }
 
 declare global {
@@ -548,6 +559,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
         gridAt: () => rendererRef.current?.gridAt() ?? null,
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
+        assets: () =>
+          rendererRef.current?.assets() ?? { manifest: false, loaded: [], pending: [], failed: [], placeholders: [], bridged: 0, bytes: 0, firstModelMs: null },
+        modelDetail: () => rendererRef.current?.modelDetail() ?? "lite",
         effects: () => {
           const e = rendererRef.current?.effects();
           return e
