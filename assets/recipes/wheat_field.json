@@ -1,0 +1,13 @@
+{
+  "$schema": "./schema.json",
+  "id": "wheat_field",
+  "kind": "field",
+  "notes": "Wheat field: golden slab with four ridged rows of wheat.",
+  "parts": [
+    {"name": "slab", "prim": "box", "size": [0.94, 0.94, 0.022], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "wheat"},
+    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.16, 0.13], "position": [0, -0.33, 0.02], "role": "wheat-mark", "shade": 1.12},
+    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.16, 0.13], "position": [0, -0.11, 0.02], "role": "wheat-mark", "shade": 1.12},
+    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.16, 0.13], "position": [0, 0.11, 0.02], "role": "wheat-mark", "shade": 1.12},
+    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.16, 0.13], "position": [0, 0.33, 0.02], "role": "wheat-mark", "shade": 1.12}
+  ]
+}

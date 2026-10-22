@@ -1,0 +1,33 @@
+{
+  "$schema": "./schema.json",
+  "id": "quarry",
+  "kind": "building",
+  "notes": "Quarry (Citizens look with stone): sits on a rock outcrop (Pirate Kit cliff in mountain and cliff colours) with a cut face toward the yard. Signature prop: the rock face with stacked cut stone blocks and a timber hoist frame over the pit; a small stone hut.",
+  "parts": [
+    {"name": "yard", "prim": "box", "size": [2.9, 2.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "dry", "shade": 0.95},
+    {"name": "rock", "kit": "pirate", "file": "glTF/Environment_Cliff2.gltf", "simplify": {"collapse": 0.006}, "position": [-0.25, -0.55, -0.12], "scale": [0.85, 0.75, 0.55], "role": "cliff", "lod": "full"},
+    {"name": "cut face", "prim": "box", "size": [1.1, 0.5, 0.35], "open": ["bottom"], "position": [-0.2, 0, 0], "rotation": [0, 0, 4], "role": "stone", "shade": 1.05},
+    {"name": "pit floor", "prim": "box", "size": [0.9, 0.45, 0.04], "position": [-0.2, 0.35, 0], "role": "mountain", "shade": 1.1},
+    {"name": "rock", "prim": "rock", "size": [0.9, 0.7, 0.45], "detail": 1, "position": [-0.25, -0.6, 0.28], "role": "cliff", "lod": "lite"},
+    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.9], "open": ["bottom"], "position": [-0.75, 0.25, 0], "role": "timber"},
+    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.9], "open": ["bottom"], "position": [0.35, 0.25, 0], "role": "timber"},
+    {"name": "beam", "prim": "box", "size": [1.1, 0.06, 0.06], "position": [-0.2, 0.25, 0.86], "role": "timber"},
+    {"name": "hoist rope", "prim": "box", "size": [0.012, 0.012, 0.45], "position": [-0.2, 0.25, 0.42], "role": "timber", "shade": 0.7, "lod": "full"},
+    {"name": "hoisted block", "prim": "box", "size": [0.16, 0.14, 0.12], "position": [-0.2, 0.25, 0.3], "role": "stone"},
+    {"name": "stone block", "prim": "box", "size": [0.168, 0.14, 0.112], "open": ["bottom"], "position": [0.666, 0.53, 0], "role": "stone"},
+    {"name": "stone block", "prim": "box", "size": [0.168, 0.14, 0.112], "open": ["bottom"], "position": [0.841, 0.53, 0], "role": "stone", "shade": 1.05},
+    {"name": "stone block", "prim": "box", "size": [0.168, 0.14, 0.112], "open": ["bottom"], "position": [0.666, 0.677, 0], "role": "stone"},
+    {"name": "stone block", "prim": "box", "size": [0.168, 0.14, 0.112], "open": ["bottom"], "position": [0.841, 0.677, 0], "role": "stone", "shade": 1.05},
+    {"name": "stone block", "prim": "box", "size": [0.168, 0.14, 0.112], "open": ["bottom"], "position": [0.866, 0.83, 0], "role": "stone", "lod": "full"},
+    {"name": "stone block", "prim": "box", "size": [0.168, 0.14, 0.112], "open": ["bottom"], "position": [1.041, 0.83, 0], "role": "stone", "shade": 1.05, "lod": "full"},
+    {"name": "walls", "prim": "box", "size": [0.7, 0.65, 0.45], "open": ["bottom"], "position": [0.85, -0.55, 0], "role": "stone"},
+    {"name": "plinth", "prim": "box", "size": [0.75, 0.7, 0.07], "open": ["bottom", "top"], "position": [0.85, -0.55, 0], "role": "stone", "shade": 0.88, "lod": "full"},
+    {"name": "gables", "prim": "wedge", "size": [0.65, 0.7, 0.35], "position": [0.85, -0.55, 0.45], "rotation": [0, 0, 90], "role": "stone"},
+    {"name": "roof slab", "prim": "box", "size": [0.608, 0.81, 0.05], "open": ["bottom"], "position": [0.635, -0.55, 0.585], "rotation": [0, -45, 0], "role": "terracotta"},
+    {"name": "roof slab", "prim": "box", "size": [0.608, 0.81, 0.05], "open": ["bottom"], "position": [1.065, -0.55, 0.585], "rotation": [0, 45, 0], "role": "terracotta"},
+    {"name": "door frame", "kit": "medieval", "file": "glTF/DoorFrame_Flat_WoodDark.gltf", "position": [0.85, -0.225, 0], "scale": 0.65, "lod": "full"},
+    {"name": "door leaf", "prim": "box", "size": [0.213, 0.025, 0.346], "open": ["bottom", "-y"], "position": [0.85, -0.213, 0], "role": "timber", "shade": 0.62, "lod": "full"},
+    {"name": "door leaf", "prim": "box", "size": [0.213, 0.025, 0.346], "open": ["top", "bottom", "+x", "-x", "-y"], "position": [0.85, -0.213, 0], "role": "timber", "shade": 0.62, "lod": "lite"},
+    {"name": "stone cart", "prim": "box", "size": [0.4, 0.25, 0.2], "open": ["bottom"], "position": [-0.95, 1, 0], "role": "timber", "shade": 1.1, "lod": "full"}
+  ]
+}

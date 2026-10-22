@@ -1,0 +1,33 @@
+{
+  "$schema": "./schema.json",
+  "id": "iron_mine",
+  "kind": "building",
+  "notes": "Iron mine (Citizens look with stone): sits on a rock outcrop (Pirate Kit cliff in mountain and iron-deposit colours). Signature prop: the timber-framed mine entrance into the rock with rails, a mine cart and an ore heap; a small stone hut.",
+  "parts": [
+    {"name": "yard", "prim": "box", "size": [2.9, 2.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "dry", "shade": 0.92},
+    {"name": "rock", "kit": "pirate", "file": "glTF/Environment_Cliff3.gltf", "simplify": {"collapse": 0.006}, "position": [-0.15, -0.55, -0.12], "scale": [0.85, 0.85, 0.6], "role": "mountain", "lod": "full"},
+    {"name": "iron vein", "prim": "rock", "size": [0.2, 0.15, 0.12], "position": [-0.6, -0.3, 0.3], "role": "deposit-iron", "shade": 0.95},
+    {"name": "iron vein", "prim": "rock", "size": [0.2, 0.15, 0.12], "position": [0.25, -0.75, 0.45], "role": "deposit-iron", "shade": 0.95},
+    {"name": "iron vein", "prim": "rock", "size": [0.2, 0.15, 0.12], "position": [-0.3, -0.95, 0.5], "role": "deposit-iron", "shade": 0.95},
+    {"name": "rock", "prim": "rock", "size": [0.95, 0.7, 0.5], "detail": 1, "position": [-0.15, -0.6, 0.32], "role": "mountain", "lod": "lite"},
+    {"name": "mine opening", "prim": "box", "size": [0.5, 0.2, 0.55], "open": ["bottom"], "position": [-0.2, 0.18, 0], "role": "iron", "shade": 0.6},
+    {"name": "frame post", "prim": "box", "size": [0.07, 0.07, 0.6], "open": ["bottom"], "position": [-0.47, 0.3, 0], "role": "timber"},
+    {"name": "frame post", "prim": "box", "size": [0.07, 0.07, 0.6], "open": ["bottom"], "position": [0.07, 0.3, 0], "role": "timber"},
+    {"name": "lintel", "prim": "box", "size": [0.65, 0.09, 0.08], "open": ["bottom"], "position": [-0.2, 0.3, 0.6], "role": "timber"},
+    {"name": "entrance roof", "prim": "wedge", "size": [0.75, 0.3, 0.18], "position": [-0.2, 0.3, 0.68], "role": "terracotta", "shade": 0.9},
+    {"name": "rail", "prim": "box", "size": [0.03, 1, 0.02], "position": [-0.3, 0.85, 0], "role": "iron"},
+    {"name": "rail", "prim": "box", "size": [0.03, 1, 0.02], "position": [-0.1, 0.85, 0], "role": "iron"},
+    {"name": "mine cart", "prim": "box", "size": [0.3, 0.22, 0.16], "open": ["bottom"], "position": [-0.2, 0.95, 0.05], "role": "iron", "shade": 0.85},
+    {"name": "ore load", "prim": "rock", "size": [0.12, 0.09, 0.06], "position": [-0.2, 0.95, 0.22], "role": "deposit-iron"},
+    {"name": "ore heap", "prim": "rock", "size": [0.35, 0.3, 0.2], "detail": 1, "position": [0.75, 0.6, 0], "role": "deposit-iron"},
+    {"name": "ore heap", "prim": "rock", "size": [0.2, 0.18, 0.14], "position": [1.05, 0.95, 0], "role": "deposit-iron", "shade": 0.9},
+    {"name": "walls", "prim": "box", "size": [0.65, 0.65, 0.45], "open": ["bottom"], "position": [0.95, -0.5, 0], "role": "stone"},
+    {"name": "plinth", "prim": "box", "size": [0.7, 0.7, 0.07], "open": ["bottom", "top"], "position": [0.95, -0.5, 0], "role": "stone", "shade": 0.88, "lod": "full"},
+    {"name": "gables", "prim": "wedge", "size": [0.65, 0.65, 0.35], "position": [0.95, -0.5, 0.45], "rotation": [0, 0, 90], "role": "stone"},
+    {"name": "roof slab", "prim": "box", "size": [0.595, 0.81, 0.05], "open": ["bottom"], "position": [0.747, -0.5, 0.582], "rotation": [0, -47.121, 0], "role": "terracotta"},
+    {"name": "roof slab", "prim": "box", "size": [0.595, 0.81, 0.05], "open": ["bottom"], "position": [1.152, -0.5, 0.582], "rotation": [0, 47.121, 0], "role": "terracotta"},
+    {"name": "door frame", "kit": "medieval", "file": "glTF/DoorFrame_Flat_WoodDark.gltf", "position": [0.95, -0.175, 0], "scale": 0.65, "lod": "full"},
+    {"name": "door leaf", "prim": "box", "size": [0.213, 0.025, 0.346], "open": ["bottom", "-y"], "position": [0.95, -0.163, 0], "role": "timber", "shade": 0.62, "lod": "full"},
+    {"name": "door leaf", "prim": "box", "size": [0.213, 0.025, 0.346], "open": ["top", "bottom", "+x", "-x", "-y"], "position": [0.95, -0.163, 0], "role": "timber", "shade": 0.62, "lod": "lite"}
+  ]
+}

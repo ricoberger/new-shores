@@ -1,0 +1,18 @@
+{
+  "$schema": "./schema.json",
+  "id": "orchard_plot",
+  "kind": "field",
+  "notes": "Orchard plot: grass slab with three small apple trees (trunk, crown, red fruit).",
+  "parts": [
+    {"name": "slab", "prim": "box", "size": [0.94, 0.94, 0.022], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "orchard"},
+    {"name": "trunk", "prim": "cylinder", "radius": 0.025, "height": 0.14, "segments": 3, "position": [-0.22, -0.22, 0.02], "role": "timber"},
+    {"name": "crown", "prim": "cylinder", "radius": 0.15, "radius_top": 0, "height": 0.28, "segments": 5, "position": [-0.22, -0.22, 0.1], "role": "orchard", "shade": 0.88},
+    {"name": "apples", "prim": "box", "size": [0.05, 0.05, 0.04], "open": ["bottom", "-x", "-y"], "position": [-0.16, -0.16, 0.16], "role": "orchard-mark"},
+    {"name": "trunk", "prim": "cylinder", "radius": 0.025, "height": 0.14, "segments": 3, "position": [0.24, -0.05, 0.02], "role": "timber"},
+    {"name": "crown", "prim": "cylinder", "radius": 0.15, "radius_top": 0, "height": 0.28, "segments": 5, "position": [0.24, -0.05, 0.1], "role": "orchard", "shade": 0.88},
+    {"name": "apples", "prim": "box", "size": [0.05, 0.05, 0.04], "open": ["bottom", "-x", "-y"], "position": [0.3, 0.01, 0.16], "role": "orchard-mark"},
+    {"name": "trunk", "prim": "cylinder", "radius": 0.025, "height": 0.14, "segments": 3, "position": [-0.1, 0.27, 0.02], "role": "timber"},
+    {"name": "crown", "prim": "cylinder", "radius": 0.15, "radius_top": 0, "height": 0.28, "segments": 5, "position": [-0.1, 0.27, 0.1], "role": "orchard", "shade": 0.88},
+    {"name": "apples", "prim": "box", "size": [0.05, 0.05, 0.04], "open": ["bottom", "-x", "-y"], "position": [-0.04, 0.33, 0.16], "role": "orchard-mark"}
+  ]
+}

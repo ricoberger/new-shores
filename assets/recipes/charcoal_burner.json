@@ -1,0 +1,25 @@
+{
+  "$schema": "./schema.json",
+  "id": "charcoal_burner",
+  "kind": "building",
+  "notes": "Charcoal burner (Citizens look with timber): Signature prop: two smouldering charcoal mounds (earth-covered domes with vents; the smoke anchor sits on the big one), stacked billets and a lean-to hut with a terracotta roof.",
+  "anchors": {"smoke": [0.2, -0.25, 0.6]},
+  "parts": [
+    {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-dirt", "shade": 0.9},
+    {"name": "charcoal mound", "prim": "lathe", "profile": [[0.55, 0], [0.5, 0.18], [0.32, 0.42], [0.1, 0.52], [0, 0.53]], "segments": 8, "position": [0.2, -0.25, 0], "role": "timber", "shade": 0.72},
+    {"name": "charcoal mound", "prim": "lathe", "profile": [[0.32, 0], [0.28, 0.12], [0.14, 0.27], [0, 0.3]], "segments": 7, "position": [-0.55, 0.45, 0], "role": "timber", "shade": 0.65},
+    {"name": "vent", "prim": "cylinder", "radius": 0.06, "height": 0.06, "segments": 5, "position": [0.2, -0.25, 0.52], "role": "timber", "shade": 0.6},
+    {"name": "glowing vent", "prim": "box", "size": [0.05, 0.06, 0.18], "position": [0.546, -0.05, 0.1], "rotation": [0, 0, 30], "role": "terracotta", "shade": 0.7},
+    {"name": "glowing vent", "prim": "box", "size": [0.05, 0.06, 0.18], "position": [-0.146, -0.05, 0.1], "rotation": [0, 0, 150], "role": "terracotta", "shade": 0.7},
+    {"name": "glowing vent", "prim": "box", "size": [0.05, 0.06, 0.18], "position": [0.2, -0.65, 0.1], "rotation": [0, 0, 270], "role": "terracotta", "shade": 0.7},
+    {"name": "log", "prim": "cylinder", "radius": 0.055, "height": 0.5, "segments": 5, "caps": true, "position": [0.4, 0.49, 0.055], "rotation": [0, 90, 0], "role": "timber", "shade": 1.02},
+    {"name": "log", "prim": "cylinder", "radius": 0.055, "height": 0.5, "segments": 5, "caps": true, "position": [0.4, 0.6, 0.055], "rotation": [0, 90, 0], "role": "timber", "shade": 1.12},
+    {"name": "log", "prim": "cylinder", "radius": 0.055, "height": 0.5, "segments": 5, "caps": true, "position": [0.4, 0.71, 0.055], "rotation": [0, 90, 0], "role": "timber", "shade": 1.02},
+    {"name": "log", "prim": "cylinder", "radius": 0.055, "height": 0.5, "segments": 5, "caps": true, "position": [0.4, 0.6, 0.149], "rotation": [0, 90, 0], "role": "timber", "shade": 1.08},
+    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.55], "open": ["bottom"], "position": [-0.95, -0.95, 0], "role": "timber"},
+    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.55], "open": ["bottom"], "position": [-0.25, -0.95, 0], "role": "timber"},
+    {"name": "hut", "prim": "box", "size": [0.7, 0.55, 0.45], "open": ["bottom"], "position": [-0.6, -0.72, 0], "role": "timber", "shade": 1.1},
+    {"name": "lean-to roof", "prim": "box", "size": [0.85, 0.75, 0.05], "position": [-0.6, -0.68, 0.48], "rotation": [-14, 0, 0], "role": "terracotta"},
+    {"name": "door leaf", "prim": "box", "size": [0.197, 0.025, 0.319], "open": ["bottom", "-y"], "position": [-0.6, -0.433, 0], "role": "timber", "shade": 0.62, "lod": "full"}
+  ]
+}

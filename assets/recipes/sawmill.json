@@ -1,0 +1,25 @@
+{
+  "$schema": "./schema.json",
+  "id": "sawmill",
+  "kind": "building",
+  "notes": "Sawmill: open timber shed with a thatch gable roof over the saw bench. Signature prop: the big circular saw blade on its bench and the Pirate Kit sawhorse log pile, with a stack of fresh planks.",
+  "parts": [
+    {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-dirt", "shade": 1.08},
+    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.5], "open": ["bottom"], "position": [-0.75, -0.75, 0], "role": "timber"},
+    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.5], "open": ["bottom"], "position": [0.25, -0.75, 0], "role": "timber"},
+    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.5], "open": ["bottom"], "position": [-0.75, 0.15, 0], "role": "timber"},
+    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.5], "open": ["bottom"], "position": [0.25, 0.15, 0], "role": "timber"},
+    {"name": "gables", "prim": "wedge", "size": [1, 0.9, 0.42], "position": [-0.25, -0.3, 0.5], "role": "timber"},
+    {"name": "roof slab", "prim": "box", "size": [1.24, 0.78, 0.05], "open": ["bottom"], "position": [-0.25, -0.585, 0.654], "rotation": [43.025, 0, 0], "role": "thatch"},
+    {"name": "roof slab", "prim": "box", "size": [1.24, 0.78, 0.05], "open": ["bottom"], "position": [-0.25, -0.015, 0.654], "rotation": [-43.025, 0, 0], "role": "thatch"},
+    {"name": "ridge", "prim": "box", "size": [1.26, 0.07, 0.05], "open": ["bottom"], "position": [-0.25, -0.3, 0.915], "role": "thatch", "shade": 0.8, "lod": "full"},
+    {"name": "saw bench", "prim": "box", "size": [0.9, 0.3, 0.22], "open": ["bottom"], "position": [-0.25, -0.3, 0], "role": "timber", "shade": 1.1},
+    {"name": "saw blade", "prim": "cylinder", "radius": 0.22, "height": 0.025, "segments": 10, "caps": true, "position": [-0.25, -0.31, 0.24], "rotation": [90, 0, 0], "role": "iron"},
+    {"name": "log", "prim": "cylinder", "radius": 0.06, "height": 0.5, "segments": 5, "caps": true, "position": [-0.7, -0.3, 0.06], "rotation": [0, 90, 0], "role": "timber", "shade": 1.02},
+    {"name": "sawhorse logs", "kit": "pirate", "file": "glTF/Environment_Sawmill.gltf", "simplify": {"collapse": 0.15}, "position": [0.45, 0.4, 0], "rotation": [0, 0, 90], "scale": 1.25, "roles": {"Atlas/wood_light": "thatch"}, "lod": "full"},
+    {"name": "log", "prim": "cylinder", "radius": 0.06, "height": 0.6, "segments": 5, "caps": true, "position": [0.44, 0.75, 0.06], "rotation": [90, 0, 0], "role": "timber", "shade": 1.02, "lod": "lite"},
+    {"name": "log", "prim": "cylinder", "radius": 0.06, "height": 0.6, "segments": 5, "caps": true, "position": [0.56, 0.75, 0.06], "rotation": [90, 0, 0], "role": "timber", "shade": 1.12, "lod": "lite"},
+    {"name": "planks", "prim": "box", "size": [0.5, 0.22, 0.04], "position": [-0.5, 0.55, 0], "repeat": {"count": 4, "step": [0.0, 0.0, 0.04], "rotate": 3}, "role": "thatch", "shade": 1.1},
+    {"name": "trestle", "prim": "box", "size": [0.06, 0.2, 0.16], "open": ["bottom"], "position": [0.6, -0.7, 0], "repeat": {"count": 2, "step": [0.18, 0, 0]}, "role": "timber"}
+  ]
+}
