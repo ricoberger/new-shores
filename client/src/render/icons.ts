@@ -1,6 +1,7 @@
 // Status icons: a camera-facing quad above every building whose status is
-// not ok, with both a colour and a glyph (UI.md §7). Unpaid and player
-// pauses use distinct glyphs. One mesh per status and island with thin
+// not ok, with both a colour and the status icon of the HUD set drawn into
+// the texture (UI.md §7; the text glyph when Path2D is unavailable).
+// Unpaid and player pauses use distinct icons. One mesh per status and island with thin
 // instances (one draw call per status, not per building); the camera turns
 // only in 90° steps, so the facing rotation of the current step is baked
 // into the instance matrices (re-baked on a rotation) instead of a
@@ -16,6 +17,9 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { STATUS_STYLES, type StatusKey, statusKey } from "../display/status";
 import { azimuthOf, ELEVATION } from "../display/camera";
+import { statusIcon } from "../theme/iconSet";
+import { ICON_VIEWBOX } from "../theme/icons";
+import { UI } from "../theme/palette";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
 
@@ -47,13 +51,24 @@ export class IconLayer {
     ctx.fillStyle = style.color;
     ctx.fill();
     ctx.lineWidth = 8;
-    ctx.strokeStyle = "#1b1b1b";
+    ctx.strokeStyle = UI.ink;
     ctx.stroke();
-    ctx.fillStyle = "#111111";
-    ctx.font = "bold 64px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(style.glyph, SIZE / 2, SIZE / 2 + 4);
+    ctx.fillStyle = UI.ink;
+    const path = statusIcon(key);
+    if (typeof Path2D !== "undefined" && path) {
+      // The icon (512 units) scaled into the disc.
+      const k = (SIZE * 0.56) / ICON_VIEWBOX;
+      ctx.save();
+      ctx.translate(SIZE / 2 - (ICON_VIEWBOX * k) / 2, SIZE / 2 - (ICON_VIEWBOX * k) / 2);
+      ctx.scale(k, k);
+      ctx.fill(new Path2D(path));
+      ctx.restore();
+    } else {
+      ctx.font = "bold 64px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(style.glyph, SIZE / 2, SIZE / 2 + 4);
+    }
     tex.update();
     const mat = new StandardMaterial(`icon_${key}`, this.scene);
     mat.diffuseTexture = tex;

@@ -44,6 +44,7 @@ open. The in-memory `--dev` server remains for quick local work.
 | `client/` | Vite + React + Babylon.js browser client |
 | `deploy/` | Dockerfiles, Caddyfile and `docker-compose.yaml` of the local stack |
 | `content/` | Game content (JSON) and its JSON Schemas |
+| `assets/` | Art sources: `palette.json` (generates the client palette, `npm run gen:palette`), pinned fonts and HUD icons (`npm run gen:hud-icons`) |
 | `docs/` | Design documents |
 
 ## Run locally
@@ -169,6 +170,10 @@ service before the servers start.
   `?fixture=dense-archipelago-8` (8 islands, two of them dense, ships on
   legs and 2 routes; the far and mid LOD budget), e.g.
   <http://localhost:5173/?fixture=dense-2x400> under `make dev`.
+  `?quality=high|low` overrides the render quality the layout selects
+  (desktop: high — shadow map, grading, FXAA, the latter not on software
+  WebGL such as headless Chromium unless `?fxaa=1` forces it; touch
+  layouts: low).
 - **Playwright projects** (`npm run test:e2e` runs all of them):
   `chromium`, `archipelago` and `away` (desktop, shared dev world), then
   `touch-chromium` (Pixel 5 profile at 412 × 915, incl. the PWA
@@ -177,9 +182,13 @@ service before the servers start.
   near, mid and far LOD under 4× CPU throttling; logs fps, frame times,
   draw calls, JS heap, WebGL renderer and bundle size and asserts an fps
   threshold: the `PERF_MIN_FPS` environment variable, default 27 from
-  `client/e2e/perf.spec.ts`). Single projects:
-  `npx playwright test --project=perf` (add `--no-deps` to skip the
-  desktop projects a touch project depends on). Headless Chromium renders
+  `client/e2e/perf.spec.ts`), and `visual` (screenshot baselines of the
+  fixtures on desktop and a Pixel 5, per platform: a missing baseline is
+  written and its test skipped with a notice; plus the grid overlay,
+  palette, render quality and credits rules). `perf` and `visual` run
+  last, after the shared-world projects. Single projects:
+  `npx playwright test --project=perf --no-deps` (`--no-deps` skips the
+  projects a project depends on). Headless Chromium renders
   with SwiftShader (software); `PERF_GPU=1` runs the perf project with
   hardware WebGL flags for comparison (its fps threshold is not asserted).
 - **Perf threshold on slower machines:** software WebGL is CPU-bound, so
@@ -215,3 +224,18 @@ Compose → Kubernetes.
   barter-only trading (D-003, D-004, D-020).
 - Strictly cosmetic shop; two decoupled currencies (D-021).
 - Client extrapolates from server rates; no game rules in the client (D-027).
+
+## Credits / attribution
+
+- **Icons:** the HUD icons come from [game-icons.net](https://game-icons.net)
+  by Delapouite, Guard13007, Lorc and Sbed, licensed under
+  [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) (licence text
+  in `assets/icons/LICENSE.txt`); recoloured and with coordinates rounded.
+  The pinned files and the author of each are listed in
+  `assets/icons/icons.json`.
+- **Fonts:** [Cinzel](https://github.com/NDISCOVER/Cinzel) by Natanael Gama
+  and [Source Sans 3](https://github.com/adobe-fonts/source-sans) by Paul
+  D. Hunt (Adobe), both under the SIL Open Font License 1.1
+  (`assets/fonts/*/OFL.txt`, origins and checksums in `SOURCES.md`).
+
+The same credits are in the game's account menu (Credits).

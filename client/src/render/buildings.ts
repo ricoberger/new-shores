@@ -13,7 +13,8 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
-import { buildingColor, DOOR, ROOF, SELECTION } from "./palette";
+import { buildingColor, DOOR, roofColor, SELECTION } from "./palette";
+import { skyFill } from "./lighting";
 
 function faces(c: Color4, n: number): Color4[] {
   return Array.from({ length: n }, () => c);
@@ -22,6 +23,7 @@ function faces(c: Color4, n: number): Color4[] {
 /** Builds the unit-footprint template of a building (scaled per instance). */
 function template(scene: Scene, def: ContentBuilding): Mesh {
   const body = buildingColor(def.id);
+  const roofC = roofColor(def.id, def.category);
   const parts: Mesh[] = [];
   const box = (w: number, h: number, d: number, y: number, c: Color4, x = 0, z = 0) => {
     const m = CreateBox(`${def.id}_part`, { width: w, height: h, depth: d, faceColors: faces(c, 6) }, scene);
@@ -41,21 +43,22 @@ function template(scene: Scene, def: ContentBuilding): Mesh {
   switch (def.category) {
     case "houses": {
       box(0.8, 0.45, 0.8, 0.225, body);
-      const roof = cyl(0, 0.95, 0.8, 4, 0.65, ROOF);
+      // A hip roof covering the whole body (a 4-sided cone, base 0.8 × 0.8).
+      const roof = cyl(0, 0.8 * Math.SQRT2, 0.5, 4, 0.7, roofC);
       roof.rotation.y = Math.PI / 4;
       break;
     }
     case "production":
       box(0.85, 0.4, 0.85, 0.2, body);
-      cyl(0.12, 0.15, 0.5, 6, 0.55, ROOF, 0.25, 0.25);
+      cyl(0.12, 0.15, 0.5, 6, 0.55, roofC, 0.25, 0.25);
       break;
     case "public":
       box(0.85, 0.35, 0.85, 0.175, body);
-      cyl(0, 0.5, 0.7, 6, 0.7, ROOF);
+      cyl(0, 0.5, 0.7, 6, 0.7, roofC);
       break;
     case "harbour":
       box(0.92, 0.5, 0.92, 0.25, body);
-      box(0.95, 0.06, 0.95, 0.53, ROOF);
+      box(0.95, 0.06, 0.95, 0.53, roofC);
       break;
     default:
       box(0.8, 0.4, 0.8, 0.2, body);
@@ -77,10 +80,10 @@ export class BuildingLayer {
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
   ) {
-    this.material = new StandardMaterial("buildings", scene);
+    this.material = skyFill(new StandardMaterial("buildings", scene));
     this.material.specularColor = Color3.Black();
     this.doors = CreateBox("doors", { width: 0.35, height: 0.3, depth: 0.12 }, scene);
-    const doorMat = new StandardMaterial("doors", scene);
+    const doorMat = skyFill(new StandardMaterial("doors", scene));
     doorMat.diffuseColor = DOOR;
     doorMat.specularColor = Color3.Black();
     this.doors.material = doorMat;
@@ -133,6 +136,11 @@ export class BuildingLayer {
       setInstances(mesh, new Float32Array(arr));
     }
     setInstances(this.doors, doors.length ? new Float32Array(doors) : null);
+  }
+
+  /** The building meshes drawn (shadow casters). */
+  meshes(): Mesh[] {
+    return [...this.templates.values()].filter((m) => m.isVisible);
   }
 
   select(b: BuildingDisplay | undefined, def: ContentBuilding | undefined): void {

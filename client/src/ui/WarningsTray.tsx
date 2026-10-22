@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { Content, DisplayState } from "../api/client";
 import { statusText } from "../display/status";
+import { toolIcon } from "../theme/iconSet";
+import { Icon } from "./Icon";
 import { StatusIcon } from "./InfoPanel";
 import styles from "./hud.module.css";
 
@@ -27,7 +29,7 @@ export function WarningsTray({ model, content, onFocus, open: controlled, onOpen
   return (
     <div className={`${styles.panel} ${styles.tray}`} data-testid="warnings-tray">
       <button type="button" className={styles.trayHeader} onClick={() => setOpen(!open)} aria-expanded={open} data-testid="warnings-toggle">
-        ⚠ <span data-testid="warnings-count">{entries.length}</span> warnings {open ? "▾" : "▸"}
+        <Icon path={toolIcon("warnings")} /> <span data-testid="warnings-count">{entries.length}</span> warnings {open ? "▾" : "▸"}
       </button>
       {open && (
         <ul className={styles.trayList}>

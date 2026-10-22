@@ -7,13 +7,10 @@
 // (D-027): ship positions are lerps of server leg timestamps between the
 // islands' harbour berths.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { RawTexture } from "@babylonjs/core/Materials/Textures/rawTexture";
-import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateCylinder } from "@babylonjs/core/Meshes/Builders/cylinderBuilder";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
-import { CreateGround } from "@babylonjs/core/Meshes/Builders/groundBuilder";
 import { CreateTorus } from "@babylonjs/core/Meshes/Builders/torusBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
@@ -21,14 +18,20 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay, RouteDisplay, ShipDisplay, Terrain } from "../api/client";
 import type { Rect } from "../display/camera";
 import type { Lod } from "../display/lod";
+import type { Quality } from "../display/quality";
 import { anchorSlots, type ArchPoint, berthAnchor, type Berths, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
 import { footprintBox } from "./coords";
+import { BlobLayer, blobMatrix } from "./shadows";
+import { Sea } from "./water";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
-import { HAZE, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
+import { ARROW_BRIGHT, ARROW_DIM, c3, colorTuple, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
+import { BUILDINGS, TERRAIN } from "../theme/palette";
+import { skyFill } from "./lighting";
 
 const SILHOUETTE_TOP = 0.3;
 const SILHOUETTE_BOTTOM = -0.2;
-const SEA_LEVEL = -0.15;
+/** Height of the sea surface (the beach and foam of the islands meet it). */
+export const SEA_LEVEL = -0.15;
 /** Ships above the far-LOD silhouettes; at near/mid on the water. */
 const SHIP_Y_FAR = SILHOUETTE_TOP + 0.05;
 const SHIP_Y = 0;
@@ -37,33 +40,33 @@ export const SHIP_SCALE = 2;
 export const SHIP_SCALE_FAR = 4;
 const ROUTE_Y = SILHOUETTE_TOP + 0.25;
 const ROUTE_WIDTH = 0.8;
-const SEA_REPEAT_TILES = 24;
 /** The haze starts this far (tiles) outside the islands' bounding box. */
 const HAZE_INNER = 30;
 const LANDMARK_SIZE = 3;
-const LANDMARK_WAREHOUSE = [0.95, 0.85, 0.55, 1];
-const LANDMARK_SHIPYARD = [0.75, 0.45, 0.25, 1];
-/** Sea texture scroll speed (texture repeats per second). */
-const SEA_SPEED = 0.01;
+const LANDMARK_WAREHOUSE = colorTuple(BUILDINGS.ochre);
+const LANDMARK_SHIPYARD = colorTuple(BUILDINGS.terracotta);
 
-const ROUTE_COLORS = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"].map((h) => Color3.FromHexString(h));
-const DRAFT_COLOR = Color3.FromHexString("#FFFFFF");
-const ARROW_DIM = [0.75, 0.75, 0.75, 1];
-const ARROW_BRIGHT = [1, 0.82, 0.25, 1];
 
 export type ArchSelection = { kind: "none" } | { kind: "island"; id: string } | { kind: "ship"; id: number };
 
-/** Unsettled islands: the terrain colours, desaturated. */
-function silhouetteColor(t: Terrain | undefined, settled: boolean): Color3 {
-  const c = (t && TERRAIN_COLORS[t]) || UNKNOWN_TERRAIN;
+/** Unsettled islands: the colours, desaturated. */
+function desaturate(c: Color3, settled: boolean): Color3 {
   if (settled) return c;
   const grey = (c.r + c.g + c.b) / 3;
   return new Color3(c.r * 0.3 + grey * 0.7, c.g * 0.3 + grey * 0.7, c.b * 0.3 + grey * 0.7);
 }
 
+function silhouetteColor(t: Terrain | undefined, settled: boolean): Color3 {
+  return desaturate((t && TERRAIN_COLORS[t]) || UNKNOWN_TERRAIN, settled);
+}
+
+/** Width (tiles) of the sand rim along the top edge of a silhouette. */
+const RIM = 0.35;
+
 /**
  * One mesh per island: the non-water tiles as a flat top at a low height
- * with walls along the outline (no elevation), vertex-coloured by terrain.
+ * with cliff-coloured walls along the outline and a sand beach rim on the
+ * top edge (no elevation), vertex-coloured by terrain.
  */
 function buildSilhouette(scene: Scene, island: Island, settled: boolean, material: StandardMaterial): Mesh {
   const { width, height, terrain } = island;
@@ -83,16 +86,30 @@ function buildSilhouette(scene: Scene, island: Island, settled: boolean, materia
   };
   const T = SILHOUETTE_TOP;
   const B = SILHOUETTE_BOTTOM;
+  const R = T + 0.002;
+  const wall = desaturate(c3(TERRAIN.cliff), settled).scale(0.85);
+  const sand = desaturate(c3(TERRAIN.sand), settled);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       if (!land(x, y)) continue;
       const c = silhouetteColor(terrain[y * width + x], settled);
       quad([x, T, -y, x + 1, T, -y, x + 1, T, -(y + 1), x, T, -(y + 1)], [0, 1, 0], c);
-      const wall = c.scale(0.7);
-      if (!land(x, y - 1)) quad([x + 1, T, -y, x, T, -y, x, B, -y, x + 1, B, -y], [0, 0, 1], wall);
-      if (!land(x, y + 1)) quad([x, T, -(y + 1), x + 1, T, -(y + 1), x + 1, B, -(y + 1), x, B, -(y + 1)], [0, 0, -1], wall);
-      if (!land(x - 1, y)) quad([x, T, -y, x, T, -(y + 1), x, B, -(y + 1), x, B, -y], [-1, 0, 0], wall);
-      if (!land(x + 1, y)) quad([x + 1, T, -(y + 1), x + 1, T, -y, x + 1, B, -y, x + 1, B, -(y + 1)], [1, 0, 0], wall);
+      if (!land(x, y - 1)) {
+        quad([x + 1, T, -y, x, T, -y, x, B, -y, x + 1, B, -y], [0, 0, 1], wall);
+        quad([x, R, -y, x + 1, R, -y, x + 1, R, -(y + RIM), x, R, -(y + RIM)], [0, 1, 0], sand);
+      }
+      if (!land(x, y + 1)) {
+        quad([x, T, -(y + 1), x + 1, T, -(y + 1), x + 1, B, -(y + 1), x, B, -(y + 1)], [0, 0, -1], wall);
+        quad([x, R, -(y + 1 - RIM), x + 1, R, -(y + 1 - RIM), x + 1, R, -(y + 1), x, R, -(y + 1)], [0, 1, 0], sand);
+      }
+      if (!land(x - 1, y)) {
+        quad([x, T, -y, x, T, -(y + 1), x, B, -(y + 1), x, B, -y], [-1, 0, 0], wall);
+        quad([x, R, -y, x + RIM, R, -y, x + RIM, R, -(y + 1), x, R, -(y + 1)], [0, 1, 0], sand);
+      }
+      if (!land(x + 1, y)) {
+        quad([x + 1, T, -(y + 1), x + 1, T, -y, x + 1, B, -y, x + 1, B, -(y + 1)], [1, 0, 0], wall);
+        quad([x + 1 - RIM, R, -y, x + 1, R, -y, x + 1, R, -(y + 1), x + 1 - RIM, R, -(y + 1)], [0, 1, 0], sand);
+      }
     }
   }
   const mesh = new Mesh(`silhouette_${island.id}`, scene);
@@ -105,41 +122,6 @@ function buildSilhouette(scene: Scene, island: Island, settled: boolean, materia
   mesh.material = material;
   mesh.isPickable = false;
   return mesh;
-}
-
-/** Procedural sea texture: deterministic value noise in two blues. */
-function seaTexture(scene: Scene): RawTexture {
-  const n = 64;
-  const data = new Uint8Array(n * n * 4);
-  let seed = 7;
-  const rnd = () => {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x7fffffff;
-  };
-  const grid = Array.from({ length: 8 * 8 }, rnd);
-  const at = (x: number, y: number) => grid[(y & 7) * 8 + (x & 7)] as number;
-  for (let y = 0; y < n; y++) {
-    for (let x = 0; x < n; x++) {
-      const fx = (x / n) * 8;
-      const fy = (y / n) * 8;
-      const x0 = Math.floor(fx);
-      const y0 = Math.floor(fy);
-      const tx = fx - x0;
-      const ty = fy - y0;
-      const v =
-        at(x0, y0) * (1 - tx) * (1 - ty) + at(x0 + 1, y0) * tx * (1 - ty) + at(x0, y0 + 1) * (1 - tx) * ty + at(x0 + 1, y0 + 1) * tx * ty;
-      const k = 0.88 + v * 0.2;
-      const i = (y * n + x) * 4;
-      data[i] = Math.min(255, 0x2b * k);
-      data[i + 1] = Math.min(255, 0x5c * k);
-      data[i + 2] = Math.min(255, 0x8a * k);
-      data[i + 3] = 255;
-    }
-  }
-  const tex = RawTexture.CreateRGBATexture(data, n, n, scene, true, false, Texture.TRILINEAR_SAMPLINGMODE);
-  tex.wrapU = Texture.WRAP_ADDRESSMODE;
-  tex.wrapV = Texture.WRAP_ADDRESSMODE;
-  return tex;
 }
 
 interface Silhouette {
@@ -204,14 +186,16 @@ function setHazeGeometry(mesh: Mesh, inner: Rect, outer: Rect, y: number): void 
 export class ArchipelagoLayer {
   private readonly silhouetteMaterial: StandardMaterial;
   private readonly silhouettes = new Map<string, Silhouette>();
-  private readonly sea: Mesh;
-  private readonly seaTexture: RawTexture;
+  private readonly sea: Sea;
   private readonly haze: Mesh;
   private readonly ships = new Map<string, ColoredInstances>();
   private readonly arrows: ColoredInstances;
   private readonly landmarks: ColoredInstances;
   private readonly routeLines = new Map<string, RouteLine>();
   private readonly ring: Mesh;
+  /** Blob shadows of the ships at near and mid LOD (matrices rewritten every frame). */
+  private readonly shipBlobs: BlobLayer;
+  private shipBlobBuffer = new Float32Array(0);
   private placements = new Map<string, IslandPlacement>();
   private islandList: IslandDisplay[] = [];
   private defs: ReadonlyMap<string, ContentBuilding> = new Map();
@@ -229,22 +213,15 @@ export class ArchipelagoLayer {
   private readonly shipStyles = new Map<number, ShipStyle>();
   private dragged: { shipId: number; point: ArchPoint } | null = null;
   private seaKey = "";
+  private landKey = "";
   private seaMargin = 400;
 
   constructor(private readonly scene: Scene) {
-    this.silhouetteMaterial = new StandardMaterial("silhouettes", scene);
+    this.silhouetteMaterial = skyFill(new StandardMaterial("silhouettes", scene));
     this.silhouetteMaterial.specularColor = Color3.Black();
     this.silhouetteMaterial.backFaceCulling = false;
 
-    this.sea = CreateGround("sea", { width: 1, height: 1 }, scene);
-    this.seaTexture = seaTexture(scene);
-    const seaMat = new StandardMaterial("sea", scene);
-    seaMat.disableLighting = true;
-    seaMat.emissiveTexture = this.seaTexture;
-    seaMat.specularColor = Color3.Black();
-    this.sea.material = seaMat;
-    this.sea.isPickable = false;
-    this.sea.alwaysSelectAsActiveMesh = true;
+    this.sea = new Sea(scene, SEA_LEVEL);
     this.haze = hazeFrame(scene);
 
     const arrow = CreateCylinder("route_arrows", { diameterTop: 0, diameterBottom: 1.6, height: 2.2, tessellation: 3 }, scene);
@@ -261,12 +238,15 @@ export class ArchipelagoLayer {
     // Far-LOD landmarks: a simple tower per warehouse and shipyard.
     const tower = CreateBox("landmarks", { width: LANDMARK_SIZE, height: LANDMARK_SIZE, depth: LANDMARK_SIZE }, scene);
     tower.bakeTransformIntoVertices(Matrix.Translation(0, LANDMARK_SIZE / 2, 0));
-    const towerMat = new StandardMaterial("landmarks", scene);
+    const towerMat = skyFill(new StandardMaterial("landmarks", scene));
     towerMat.specularColor = Color3.Black();
     tower.material = towerMat;
     tower.isPickable = false;
     tower.alwaysSelectAsActiveMesh = true;
     this.landmarks = new ColoredInstances(tower);
+
+    this.shipBlobs = new BlobLayer(scene, "blob_ships", null, 0.45);
+    this.shipBlobs.mesh.alwaysSelectAsActiveMesh = true;
 
     this.ring = CreateTorus("arch_selection", { diameter: 1, thickness: 0.06, tessellation: 32 }, scene);
     const ringMat = new StandardMaterial("arch_selection", scene);
@@ -328,11 +308,26 @@ export class ArchipelagoLayer {
         this.silhouettes.delete(id);
       }
     }
+    // The sea's shallows follow the islands' land (recomputed only when it moved or changed).
+    const land = islands.flatMap((is) => {
+      const st = statics.get(is.id);
+      return st ? [{ position: is.position, width: st.width, height: st.height, terrain: st.terrain, key: `${is.id}|${st.revision}|${is.position.x},${is.position.y}` }] : [];
+    });
+    const landKey = land.map((l) => l.key).join(";");
+    if (landKey !== this.landKey) {
+      this.landKey = landKey;
+      this.sea.setIslands(land);
+    }
     this.layoutSea();
     this.shipList = [...ships];
     this.routes = [...routes];
     this.rebuildRoutes();
     this.applyVisibility();
+  }
+
+  /** Render quality of the sea (ripples with specular, or glints). */
+  setQuality(q: Quality): void {
+    this.sea.setQuality(q);
   }
 
   /** Margin (tiles) of the sea around the islands' bounding box: no background shows at any target and zoom. */
@@ -350,10 +345,7 @@ export class ArchipelagoLayer {
     const m = Math.max(this.seaMargin, HAZE_INNER + 1);
     const w = b.maxX - b.minX + 2 * m;
     const h = b.maxY - b.minY + 2 * m;
-    this.sea.scaling.set(w, 1, h);
-    this.sea.position.set((b.minX + b.maxX) / 2, SEA_LEVEL, -(b.minY + b.maxY) / 2);
-    this.seaTexture.uScale = w / SEA_REPEAT_TILES;
-    this.seaTexture.vScale = h / SEA_REPEAT_TILES;
+    this.sea.layout({ minX: b.minX - m, minY: b.minY - m, maxX: b.minX - m + w, maxY: b.minY - m + h });
     const grow = (d: number): Rect => ({ minX: b.minX - d, minY: b.minY - d, maxX: b.maxX + d, maxY: b.maxY + d });
     setHazeGeometry(this.haze, grow(HAZE_INNER), grow(m), SEA_LEVEL + 0.01);
   }
@@ -381,6 +373,7 @@ export class ArchipelagoLayer {
   show(lod: Lod, visible: ReadonlySet<string>): void {
     this.lod = lod;
     this.visible = visible;
+    this.sea.setLod(lod);
     this.applyVisibility();
   }
 
@@ -529,9 +522,7 @@ export class ArchipelagoLayer {
 
   /** Positions ships, the selection ring and the sea at server time nowMs (every frame). */
   frame(nowMs: number): void {
-    const off = (nowMs / 1000) * SEA_SPEED;
-    this.seaTexture.uOffset = off % 1;
-    this.seaTexture.vOffset = (off * 0.6) % 1;
+    this.sea.frame(nowMs);
     const slots = anchorSlots(this.shipList);
     const byType = new Map<string, ShipDisplay[]>();
     for (const s of this.shipList) {
@@ -544,6 +535,13 @@ export class ArchipelagoLayer {
     this.shipStyles.clear();
     const scale = this.shipScale();
     const y = this.lod === "far" ? SHIP_Y_FAR : SHIP_Y;
+    const blobs = this.lod !== "far";
+    if (blobs && this.shipBlobBuffer.length !== this.shipList.length * 16) {
+      this.shipBlobBuffer = new Float32Array(this.shipList.length * 16);
+      this.shipBlobs.set(this.shipList.length ? this.shipBlobBuffer : null);
+    }
+    this.shipBlobs.setEnabled(blobs && this.shipList.length > 0);
+    let blob = 0;
     for (const [type, list] of byType) {
       const inst = this.shipInstances(type);
       inst.resize(list.length);
@@ -553,12 +551,14 @@ export class ArchipelagoLayer {
         if (this.dragged?.shipId === s.id) point = this.dragged.point;
         this.shipPoints.set(s.id, point);
         shipMatrix(inst.matrices, i, point.x, y, -point.y, p?.heading ?? 0, p ? scale : 0);
+        if (blobs) blobMatrix(this.shipBlobBuffer, blob++, point.x, -point.y, p ? 1.25 * scale : 0, p ? 0.5 * scale : 0, 0.5 * scale, p?.heading ?? 0);
         const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
         this.shipStyles.set(s.id, style);
         inst.setColor(i, shipColor(style));
       });
       inst.commit();
     }
+    if (blobs && blob > 0) this.shipBlobs.mesh.thinInstanceBufferUpdated("matrix");
     this.placeRing();
   }
 

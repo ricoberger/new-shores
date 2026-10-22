@@ -1,6 +1,8 @@
 import type { DisplayState } from "../api/client";
 import { insolvencyBanner } from "../display/insolvency";
+import { toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
+import { Icon } from "./Icon";
 
 interface Props {
   model: DisplayState | null;
@@ -18,7 +20,9 @@ export function InsolvencyBanner({ model, onOpenWarnings, compact = false, oneLi
   if (!text) return null;
   return (
     <button type="button" className={`${styles.panel} ${styles.insolvencyBanner} ${compact ? styles.bannerCompact : ""}`} onClick={onOpenWarnings} data-testid="insolvency-banner">
-      <span className={oneLine ? styles.clamp1 : compact ? styles.clamp2 : undefined}>⚠ {text}</span>
+      <span className={oneLine ? styles.clamp1 : compact ? styles.clamp2 : undefined}>
+        <Icon path={toolIcon("warnings")} /> {text}
+      </span>
     </button>
   );
 }

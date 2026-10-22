@@ -4,7 +4,10 @@ import { authErrorText, logout } from "../api/auth";
 import styles from "./account.module.css";
 import hud from "./hud.module.css";
 import { AuthForm } from "./AuthForm";
+import { CreditsDialog } from "./Credits";
 import { DialogPanel } from "./DialogPanel";
+import { Icon } from "./Icon";
+import { toolIcon } from "../theme/iconSet";
 import { installPrompt } from "../pwa";
 import { useInstallAvailable } from "./PwaUi";
 
@@ -17,10 +20,11 @@ interface Props {
   compact?: boolean;
 }
 
-/** HUD account menu: display name, "Register" (guests), "Log out". */
+/** HUD account menu: display name, "Register" (guests), "Install app", "Credits", "Log out". */
 export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false }: Props) {
   const [open, setOpen] = useState(false);
   const [registering, setRegistering] = useState(false);
+  const [credits, setCredits] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const canInstall = useInstallAvailable();
 
@@ -46,7 +50,13 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
         aria-label={compact ? `Account: ${name}` : undefined}
         data-testid="account-menu"
       >
-        {compact ? "☰" : `${name} ▾`}
+        {compact ? (
+          <Icon path={toolIcon("menu")} />
+        ) : (
+          <>
+            <Icon path={toolIcon("account")} /> {name} ▾
+          </>
+        )}
       </button>
       {open && (
         <div className={styles.dropdown} data-testid="account-dropdown">
@@ -73,15 +83,26 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
               }}
               data-testid="install-app"
             >
-              Install app
+              <Icon path={toolIcon("install")} /> Install app
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              setCredits(true);
+            }}
+            data-testid="account-credits"
+          >
+            <Icon path={toolIcon("credits")} /> Credits
+          </button>
           <button type="button" onClick={() => void doLogout()} data-testid="account-logout">
             Log out
           </button>
           {error && <span className={styles.error}>{error}</span>}
         </div>
       )}
+      {credits && <CreditsDialog onClose={() => setCredits(false)} />}
       {registering && (
         <div className={styles.modal} onClick={() => setRegistering(false)}>
           <DialogPanel className={`${hud.panel} ${hud.dialog}`} labelledBy="register-dialog-title" onClick={(e) => e.stopPropagation()}>

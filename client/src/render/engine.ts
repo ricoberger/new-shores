@@ -3,15 +3,15 @@
 // cleanup). One continuous world (D-048): every island at its archipelago
 // position with sea between, one free camera (pan, continuous zoom, four
 // 90° rotation steps), zoom-based LOD and frustum culling per island.
-// Renders only what the payloads contain — no shadows, sky or
-// post-processing. Scene coordinates are archipelago coordinates: island
+// Fixed golden-hour light with blob shadows everywhere and, at "high"
+// quality (desktop layout), a sun shadow map, warm grading and FXAA
+// (render/lighting.ts). Scene coordinates are archipelago coordinates: island
 // tile (x, y) of an island at `position` is world
 // (position.x + x, 0, −(position.y + y)).
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { EngineStore } from "@babylonjs/core/Engines/engineStore";
-import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
+import { Color4 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -21,8 +21,10 @@ import type { SyncSnapshot } from "../api/sync";
 import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin } from "../display/camera";
 import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "../display/fields";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
+import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
 import { initialLod, type Lod, lodFor } from "../display/lod";
+import { type Quality, softwareRenderer } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
@@ -32,10 +34,12 @@ import { CameraRig } from "./camera";
 import { footprintBox } from "./coords";
 import { farmRing, FieldLayer, type FieldRing } from "./fields";
 import { islandBerths } from "./harbour";
+import { GridOverlay } from "./grid";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
+import { type Effects, SceneLighting, skyFill } from "./lighting";
 import { RoadPreview } from "./roads";
 import type { ShipStyle } from "./shipmesh";
 
@@ -135,10 +139,17 @@ export class GameRenderer {
   private readonly engine: Engine;
   private readonly scene: Scene;
   private readonly rig: CameraRig;
+  private readonly lighting: SceneLighting;
   private readonly arch: ArchipelagoLayer;
   private readonly details = new Map<string, IslandDetail>();
   private readonly fields: FieldLayer;
   private readonly roadPreview: RoadPreview;
+  private readonly grid: GridOverlay;
+  /** Ground point of the last touch tap or drag position (archipelago tiles): the grid's centre on touch. */
+  private lastTouch: ArchPoint | null = null;
+  private gridCentre: ArchPoint | null = null;
+  /** The current drag is a finger's (its moves update lastTouch). */
+  private touchDrag = false;
   /** Start and current tile of a field-tool drag (island tiles), and whether a finger drags. */
   private fieldStart: IslandTile | null = null;
   private fieldEnd: TilePos | null = null;
@@ -180,6 +191,8 @@ export class GameRenderer {
   private lastFrameAt = 0;
   private drawCalls = 0;
   private firstFrameMarked = false;
+  /** Animation time pinned by a test (server ms; null: live). */
+  private frozenAt: number | null = null;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -187,23 +200,30 @@ export class GameRenderer {
     private readonly tool: () => Tool,
     private readonly events: RendererEvents,
     private readonly initialCamera: InitialCamera = { kind: "island" },
+    quality: Quality = "high",
+    /** Keep FXAA at "high" also on software WebGL (?fxaa=1, the visual test of the FXAA path). */
+    forceFxaa = false,
   ) {
     // The canvas renders at most MAX_RENDER_DPR pixels per CSS pixel (HTML
-    // text and the HUD stay at the device resolution).
-    this.engine = new Engine(canvas, true, { stencil: false, preserveDrawingBuffer: false, limitDeviceRatio: MAX_RENDER_DPR }, true);
+    // text and the HUD stay at the device resolution). Edges: multisampling
+    // at "low"; "high" smooths them with FXAA instead (both together cost
+    // twice for no visible gain). The context keeps the choice of the
+    // quality it was created with.
+    this.engine = new Engine(canvas, quality === "low", { stencil: false, preserveDrawingBuffer: false, limitDeviceRatio: MAX_RENDER_DPR }, true);
     this.scene = new Scene(this.engine);
     this.scene.clearColor = new Color4(HAZE.r, HAZE.g, HAZE.b, 1);
     this.scene.skipPointerMovePicking = true;
-    const light = new HemisphericLight("light", new Vector3(0.3, 1, -0.5), this.scene);
-    light.intensity = 0.95;
-    light.groundColor = new Color3(0.45, 0.45, 0.5);
     this.rig = new CameraRig(this.scene, this.engine);
+    const software = softwareRenderer(this.engine.getGlInfo().renderer);
+    this.lighting = new SceneLighting(this.scene, this.rig.camera, quality, software && !forceFxaa, software);
     this.arch = new ArchipelagoLayer(this.scene);
+    this.arch.setQuality(quality);
     this.fields = new FieldLayer(this.scene);
     this.roadPreview = new RoadPreview(this.scene);
+    this.grid = new GridOverlay(this.scene);
 
     this.ghost = CreateBox("ghost", { size: 1 }, this.scene);
-    this.ghostMaterial = new StandardMaterial("ghost", this.scene);
+    this.ghostMaterial = skyFill(new StandardMaterial("ghost", this.scene));
     this.ghostMaterial.diffuseColor = GHOST;
     this.ghostMaterial.alpha = 0.45;
     this.ghost.material = this.ghostMaterial;
@@ -238,12 +258,13 @@ export class GameRenderer {
       this.frameCount++;
     }
     this.lastFrameAt = t;
-    const now = this.sync.serverNowMs();
+    const now = this.frozenAt ?? this.sync.serverNowMs();
     this.rig.tick(t);
     this.updateView();
     for (const d of this.details.values()) d.frame(now);
     this.arch.frame(now);
     this.updateGhost();
+    this.updateGrid();
     this.updateFieldPreview();
     this.updateRings();
     this.engine._drawCalls.fetchNewFrame();
@@ -325,6 +346,37 @@ export class GameRenderer {
     let n = 0;
     for (const d of this.details.values()) n += d.cartCount();
     return n;
+  }
+
+  /**
+   * Pins the animation time (sea ripples, foam, carts, ships) to a server
+   * time in ms, or releases it with null — deterministic screenshots.
+   */
+  freezeTime(ms: number | null): void {
+    this.frozenAt = ms;
+  }
+
+  /** Render quality (high: shadow map and FXAA here, grading as the canvas overlay; low: blob shadows and the vignette only). */
+  setQuality(q: Quality): void {
+    this.lighting.setQuality(q);
+    this.arch.setQuality(q);
+    this.refreshCasters();
+  }
+
+  quality(): Quality {
+    return this.lighting.quality();
+  }
+
+  /** Which quality-dependent effects exist (tests). */
+  effects(): Effects {
+    return this.lighting.effects();
+  }
+
+  /** Shadow-map casters: the islands shown at near LOD. */
+  private refreshCasters(): void {
+    const out = [];
+    for (const d of this.details.values()) out.push(...d.shadowCasters());
+    this.lighting.setCasters(out);
   }
 
   /** Draw calls of the last frame. */
@@ -484,6 +536,7 @@ export class GameRenderer {
       if (shown) d = this.ensureDetail(is, snap);
       d?.setShown(shown, this.lod);
     }
+    this.refreshCasters();
   }
 
   /** The detail of an island, created and brought up to date with its payload (null without content or statics). */
@@ -815,6 +868,7 @@ export class GameRenderer {
 
   private onTap(p: Point, button: number, kind: PointerKind): void {
     if (this.blocked()) return;
+    if (kind === "touch") this.lastTouch = this.groundPoint(p);
     const tool = this.tool();
     if (button === 2) {
       if (tool.kind !== "none") this.events.cancelTool();
@@ -885,6 +939,8 @@ export class GameRenderer {
 
   private onDragStart(p: Point, button: number, kind: PointerKind): void {
     if (this.blocked()) return;
+    this.touchDrag = kind === "touch";
+    if (kind === "touch") this.lastTouch = this.groundPoint(p);
     const tool = this.tool();
     if (button !== 0) return;
     if (tool.kind === "none") {
@@ -907,6 +963,7 @@ export class GameRenderer {
 
   private onDragMove(prev: Point, cur: Point, button: number): void {
     if (this.blocked()) return;
+    if (this.touchDrag) this.lastTouch = this.groundPoint(cur) ?? this.lastTouch;
     if (this.draggingShip !== null) {
       const g = this.groundPoint(cur);
       if (g) this.arch.setDragged({ shipId: this.draggingShip, point: g });
@@ -1134,6 +1191,55 @@ export class GameRenderer {
     if (this.ghostMaterial.diffuseColor !== color) this.ghostMaterial.diffuseColor = color;
     this.ghost.setEnabled(true);
     this.setGhostHint(hint);
+  }
+
+  /**
+   * The grid overlay while a placement tool is active, centred on the
+   * active drag's end (field rectangle corner, the finger or mouse of a
+   * road drag), else the mouse, else the touch-pending tile or rectangle,
+   * else the last touch, else the camera target. Decoration only.
+   */
+  private updateGrid(): void {
+    const tool = this.tool();
+    if (!gridOverlayVisible(tool.kind)) {
+      if (this.grid.visible()) this.grid.set(null);
+      return;
+    }
+    const toArch = (island: string, t: TilePos): ArchPoint | null => {
+      const pl = this.arch.placement(island);
+      return pl ? { x: pl.position.x + t.x + 0.5, y: pl.position.y + t.y + 0.5 } : null;
+    };
+    const mouse = this.precise && this.hover ? this.groundPoint(this.hover) : null;
+    let at: ArchPoint | null = null;
+    if (this.fieldStart && this.fieldEnd) at = toArch(this.fieldStart.island, this.fieldEnd);
+    else if (this.roadStart) at = mouse ?? (this.touchDrag ? this.lastTouch : null) ?? toArch(this.roadStart.island, this.roadStart);
+    else if (mouse) at = mouse;
+    else if (isGhostTool(tool) && tool.pending) at = toArch(tool.pending.island, tool.pending);
+    else if (tool.kind === "field" && tool.pending) at = toArch(tool.pending.island, tool.pending.to);
+    at ??= this.lastTouch ?? { x: this.rig.view().x, y: this.rig.view().y };
+    this.gridCentre = at;
+    this.grid.set(at);
+  }
+
+  /** Archipelago point the grid overlay was centred on in the last frame (null: hidden). */
+  gridAt(): ArchPoint | null {
+    return this.grid.visible() ? this.gridCentre : null;
+  }
+
+  /** The grid overlay was drawn in the last frame. */
+  gridVisible(): boolean {
+    return this.grid.visible();
+  }
+
+  /** Trees and ground scatter items built on the islands with detail (near-LOD decoration). */
+  decorationCounts(): { trees: number; scatter: number } {
+    const n = { trees: 0, scatter: 0 };
+    for (const d of this.details.values()) {
+      const c = d.decorationCounts();
+      n.trees += c.trees;
+      n.scatter += c.scatter;
+    }
+    return n;
   }
 
   private setGhostHint(hint: string | null): void {

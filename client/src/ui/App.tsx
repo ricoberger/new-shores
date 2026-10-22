@@ -19,6 +19,7 @@ import { shouldShowSummary } from "../display/summary";
 import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
 import { insolvencyBanner } from "../display/insolvency";
 import type { Lod } from "../display/lod";
+import { fxaaForced, type Quality, resolveQuality } from "../display/quality";
 import { blankStop, initialViewState, viewReducer } from "../display/view";
 import { type CameraInfo, type FrameStats, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
@@ -95,6 +96,16 @@ export interface TestHook {
   ghostTile(): { x: number; y: number } | null;
   /** Rectangle the field tool's preview showed in the last frame (null: none). */
   fieldPreview(): { from: { x: number; y: number }; to: { x: number; y: number } } | null;
+  /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
+  quality(): Quality;
+  /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
+  freezeTime(ms: number | null): void;
+  /** The grid overlay was drawn in the last frame (only while a placement tool is active). */
+  gridOverlayVisible(): boolean;
+  /** Archipelago point the grid overlay was centred on in the last frame (null: hidden). */
+  gridAt(): { x: number; y: number } | null;
+  /** Which quality-dependent effects exist (FXAA is skipped on software WebGL, see `software`). */
+  effects(): { quality: Quality; shadowMap: boolean; grading: boolean; fxaa: boolean; vignette: boolean; software: boolean } | null;
 }
 
 declare global {
@@ -151,6 +162,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // Phones and tablets (44 px targets) need the scrolling top bar and build bar.
   const compactHud = isTouchLayout(layout.mode);
   const sheets = usesSheets(layout.mode, layout.width);
+  const quality = resolveQuality(layout.mode, globalThis.location?.search ?? "");
+  const [forceFxaa] = useState(() => fxaaForced(globalThis.location?.search ?? ""));
   useEffect(() => {
     // A mouse or pen switches back only on the canvas, so that clicking a
     // touch bar's button with the mouse does not remove it mid-click.
@@ -531,6 +544,20 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
+        quality: () => rendererRef.current?.quality() ?? "low",
+        gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
+        gridAt: () => rendererRef.current?.gridAt() ?? null,
+        freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
+        effects: () => {
+          const e = rendererRef.current?.effects();
+          return e
+            ? {
+                ...e,
+                grading: document.querySelector('[data-testid="grading"]') !== null,
+                vignette: document.querySelector('[data-testid="vignette"]') !== null,
+              }
+            : null;
+        },
       };
     }
   }, [sync]);
@@ -838,7 +865,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {phone && unreachable}
         </div>
         {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
-        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} />
+        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} quality={quality} forceFxaa={forceFxaa} />
         {model && (
           <div className={styles.mapCorner}>
             <Minimap

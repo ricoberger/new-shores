@@ -1,48 +1,91 @@
-// Colours. Terrain uses a colour-blind-safe set that also differs in
-// lightness: water and mountain are clearly distinct from the buildable
-// coast, grass and forest.
+// Renderer colours: Babylon colours of the palette roles (single source
+// assets/palette.json → theme/palette.ts, ART_DIRECTION §2). Terrain
+// roles keep water and mountain clearly distinct from the buildable coast,
+// grass and forest.
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import type { Terrain } from "../api/client";
+import { BUILDINGS, LIGHT, ROUTES, STATUS, TERRAIN, UI, WATER } from "../theme/palette";
 
-export const TERRAIN_COLORS: Record<Terrain, Color3> = {
-  water: Color3.FromHexString("#2B5C8A"),
-  coast: Color3.FromHexString("#E8D9A8"),
-  grass: Color3.FromHexString("#9CC27A"),
-  forest: Color3.FromHexString("#3E7A3E"),
-  mountain: Color3.FromHexString("#8A8580"),
-};
-
-export const UNKNOWN_TERRAIN = Color3.FromHexString("#FF00FF");
-
-const BUILDING_HUES = ["#C8553D", "#8E6C8A", "#D9A441", "#5B8E7D", "#4A6FA5", "#B5838D", "#6D9DC5", "#A0522D", "#7A9E7E", "#C9A66B"];
-
-/** A stable colour per content ID. */
-export function buildingColor(id: string): Color4 {
-  let h = 0;
-  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  const c = Color3.FromHexString(BUILDING_HUES[h % BUILDING_HUES.length] ?? "#999999");
-  return new Color4(c.r, c.g, c.b, 1);
+/** A palette hex colour as a Babylon Color3. */
+export function c3(hex: string): Color3 {
+  return Color3.FromHexString(hex);
 }
 
-export const ROOF = new Color4(0.45, 0.25, 0.2, 1);
-export const ROAD = Color3.FromHexString("#8B6B4A");
-export const DOOR = Color3.FromHexString("#3A2A1A");
-export const CART = Color3.FromHexString("#F2E8CF");
-export const GHOST = Color3.FromHexString("#DDDDDD");
+/** A palette hex colour as a Babylon Color4. */
+export function c4(hex: string, alpha = 1): Color4 {
+  const c = Color3.FromHexString(hex);
+  return new Color4(c.r, c.g, c.b, alpha);
+}
+
+/** A palette hex colour as an RGBA tuple (vertex and instance colours). */
+export function colorTuple(hex: string, alpha = 1): [number, number, number, number] {
+  const c = Color3.FromHexString(hex);
+  return [c.r, c.g, c.b, alpha];
+}
+
+/** Linear blend of two palette colours (t = 0: a, 1: b). */
+export function mix(a: string, b: string, t: number): Color3 {
+  return Color3.Lerp(c3(a), c3(b), t);
+}
+
+export const TERRAIN_COLORS: Record<Terrain, Color3> = {
+  water: c3(WATER.deep),
+  coast: c3(TERRAIN.sand),
+  grass: c3(TERRAIN.grass_a),
+  forest: c3(TERRAIN.forest_floor),
+  mountain: c3(TERRAIN.mountain),
+};
+
+/** Debug colour of a terrain value this client does not know (deliberately loud, not a palette role). */
+export const UNKNOWN_TERRAIN = Color3.FromHexString("#FF00FF");
+
+/** Wall and roof materials of the procedural placeholder buildings. */
+const WALLS = [BUILDINGS.plaster, BUILDINGS.ochre, BUILDINGS.stone];
+const ROOFS = [BUILDINGS.terracotta, BUILDINGS.thatch, BUILDINGS.slate];
+/** Houses: the warm roofs of the tier language (thatch, terracotta). */
+const HOUSE_ROOFS = [BUILDINGS.terracotta, BUILDINGS.thatch];
+
+function hashId(id: string): number {
+  let h = 0;
+  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h;
+}
+
+/** A stable wall colour per content ID. */
+export function buildingColor(id: string): Color4 {
+  return c4(WALLS[hashId(id) % WALLS.length] ?? BUILDINGS.plaster);
+}
+
+/** A stable roof colour per content ID (varies independently of the wall). */
+export function roofColor(id: string, category = ""): Color4 {
+  const roofs = category === "houses" ? HOUSE_ROOFS : ROOFS;
+  return c4(roofs[Math.floor(hashId(id) / WALLS.length) % roofs.length] ?? BUILDINGS.terracotta);
+}
+
+export const DOOR = c3(BUILDINGS.timber);
+export const CART = c3(UI.parchment);
+export const GHOST = c3(STATUS.ghost_ok);
 /** Ghost of a building without an adjacent road: "not connected", never red. */
-export const GHOST_NO_ROAD = Color3.FromHexString("#F0C808");
+export const GHOST_NO_ROAD = c3(STATUS.ghost_no_road);
 /**
  * Ghost of a building the server would reject for a missing fertility or
  * deposit (a lookup of the island's static data; the click still goes to
  * the server, which validates).
  */
-export const GHOST_INVALID = Color3.FromHexString("#D7263D");
-export const SELECTION = Color3.FromHexString("#FFD23F");
+export const GHOST_INVALID = c3(STATUS.ghost_invalid);
+export const SELECTION = c3(STATUS.selection);
 /** Field tool preview: a tile the drag will send (D-049). */
-export const FIELD_VALID = Color3.FromHexString("#3BB273");
+export const FIELD_VALID = c3(STATUS.field_valid);
 /** Field tool preview: a free matching tile outside every accepting farm's ring (shown, not sent). */
-export const FIELD_OUT_OF_RANGE = Color3.FromHexString("#F0C808");
+export const FIELD_OUT_OF_RANGE = c3(STATUS.field_out_of_range);
 /** Work-radius ring of a farm with fields. */
-export const FIELD_RING = Color3.FromHexString("#FFF4D6");
+export const FIELD_RING = c3(STATUS.field_ring);
 /** Haze the sea fades into toward the edges of the world (also the scene's clear colour). */
-export const HAZE = Color3.FromHexString("#A9C2D3");
+export const HAZE = c3(WATER.haze);
+/** Route ribbons in route order, the editor's draft and the direction arrows. */
+export const ROUTE_COLORS = [ROUTES.route_1, ROUTES.route_2, ROUTES.route_3, ROUTES.route_4, ROUTES.route_5, ROUTES.route_6, ROUTES.route_7].map(c3);
+export const DRAFT_COLOR = c3(ROUTES.draft);
+export const ARROW_DIM = colorTuple(ROUTES.arrow_dim);
+export const ARROW_BRIGHT = colorTuple(ROUTES.arrow_bright);
+/** Shadow tint (blob shadows). */
+export const SHADOW = c3(LIGHT.shadow);

@@ -94,6 +94,16 @@ jobs:
           npm run gen:api
           git diff --exit-code -- src/api/schema.d.ts
 
+      - name: Generated palette is up to date
+        run: |
+          npm run gen:palette
+          git diff --exit-code -- src/theme/palette.ts src/theme/palette.css
+
+      - name: Generated HUD icons are up to date
+        run: |
+          npm run gen:hud-icons
+          git diff --exit-code -- src/theme/icons.ts
+
       - name: lint
         run: npm run lint
 
@@ -136,7 +146,7 @@ jobs:
       - name: Install Chromium and WebKit
         run: npx playwright install --with-deps chromium webkit
 
-      - name: Playwright e2e (desktop, touch, PWA and perf projects)
+      - name: Playwright e2e (desktop, touch, PWA, perf and visual projects)
         run: npm run test:e2e
         env:
           # fps threshold of the perf check (SwiftShader, 4x CPU throttling):
@@ -153,6 +163,20 @@ jobs:
           path: |
             client/playwright-report
             client/test-results
+          retention-days: 7
+
+      # The visual project writes a missing per-platform baseline and skips
+      # its test: the Linux baselines of a run are uploaded so they can be
+      # reviewed and committed (the next run then compares against them).
+      - name: Upload visual baselines and diffs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-snapshots
+          path: |
+            client/e2e/*-snapshots/*-linux.png
+            client/test-results/visual-*/
+          if-no-files-found: ignore
           retention-days: 7
 
   integration:

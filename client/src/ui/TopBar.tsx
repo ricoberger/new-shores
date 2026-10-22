@@ -3,7 +3,9 @@ import type { Content, DisplayState } from "../api/client";
 import { perMin, units } from "../display/format";
 import { claimableCount } from "../display/quests";
 import { populationTotals } from "../display/tiers";
+import { toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
+import { Icon } from "./Icon";
 
 interface Props {
   model: DisplayState | null;
@@ -73,8 +75,9 @@ export function TopBar({
   );
   const tierStat = (t: { id: string; name: string }) => (
     <div className={styles.stat} key={t.id}>
-      <span className={styles.label}>
-        ⌂ {t.name}
+      <span className={`${styles.label} ${styles.withIcon}`}>
+        <Icon path={toolIcon("population")} />
+        {t.name}
         <span className={styles.srOnly}> residents</span>
       </span>
       <span className={styles.value} data-testid={`hud-population-${t.id}`}>
@@ -101,10 +104,10 @@ export function TopBar({
         ))}
       </div>
       <button type="button" className={styles.hudButton} onClick={onShips} data-testid="hud-ships">
-        ⛵ Ships <span data-testid="hud-ship-count">{model?.ships.length ?? 0}</span>
+        <Icon path={toolIcon("ships")} /> Ships <span data-testid="hud-ship-count">{model?.ships.length ?? 0}</span>
       </button>
       <button type="button" className={styles.hudButton} onClick={onRoutes} data-testid="hud-routes">
-        ⇄ Routes {model?.routes.length ?? 0}
+        <Icon path={toolIcon("routes")} /> Routes {model?.routes.length ?? 0}
       </button>
     </>
   );
@@ -116,7 +119,8 @@ export function TopBar({
       aria-label={claimable > 0 ? `Quests, ${claimable} rewards to claim` : "Quests"}
       data-testid="hud-quests"
     >
-      ✦{compact ? "" : " Quests"}
+      <Icon path={toolIcon("quests")} />
+      {compact ? "" : " Quests"}
       {claimable > 0 && (
         <span className={styles.badge} data-testid="hud-quests-badge">
           {claimable}
@@ -140,7 +144,7 @@ export function TopBar({
               onClick={() => setPopulationOpen((o) => !o)}
               data-testid="hud-population-chip"
             >
-              ⌂ {units(totalPopulation)}
+              <Icon path={toolIcon("population")} /> {units(totalPopulation)}
             </button>
             {populationOpen && (
               <div className={`${styles.panel} ${styles.populationPopover}`} data-testid="hud-population-list">

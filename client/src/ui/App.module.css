@@ -47,12 +47,36 @@
   z-index: 0;
 }
 
+/* Soft vignette over the canvas (ART_DIRECTION §8): below the world
+   labels and every HUD layer, never under the pointer. */
+.vignette,
+.overlay > .vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 58%, color-mix(in srgb, var(--ns-ui-ink) 34%, transparent) 100%);
+}
+
+/* Slight warm colour grading toward the palette ("high" quality): a light
+   multiply of the grading tint, composited like the vignette. */
+.grading,
+.overlay > .grading {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--ns-light-grade);
+  mix-blend-mode: multiply;
+  opacity: 0.16;
+}
+
 .canvas:focus {
   outline: none;
 }
 
 .canvas:focus-visible {
-  outline: 3px solid #e69f00;
+  outline: 3px solid var(--ns-ui-focus);
   outline-offset: -3px;
 }
 
@@ -90,8 +114,8 @@
   top: 48px;
   left: 50%;
   transform: translateX(-50%);
-  background: #d55e00;
-  color: #fff;
+  background: var(--ns-ui-negative);
+  color: var(--ns-ui-parchment-light);
   padding: 8px 16px;
   border-radius: 6px;
   pointer-events: auto;
@@ -103,8 +127,8 @@
   bottom: 96px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgb(0 0 0 / 65%);
-  color: #fff;
+  background: color-mix(in srgb, var(--ns-ui-ink) 85%, transparent);
+  color: var(--ns-ui-parchment-light);
   padding: 4px 12px;
   border-radius: 4px;
   pointer-events: none;
@@ -113,7 +137,7 @@
 
 .hintReason {
   margin-top: 2px;
-  color: #ffb3a7;
+  color: var(--ns-ui-warn-on-dark);
   font-weight: 600;
 }
 
@@ -163,8 +187,8 @@
   margin: 6px auto 0;
   width: fit-content;
   max-width: calc(100% - 16px);
-  background: rgb(0 0 0 / 70%);
-  color: #fff;
+  background: color-mix(in srgb, var(--ns-ui-ink) 88%, transparent);
+  color: var(--ns-ui-parchment-light);
   padding: 4px 12px;
   border-radius: 4px;
   font-size: 13px;
@@ -176,8 +200,8 @@
   margin: 6px auto 0;
   width: fit-content;
   max-width: calc(100% - 16px);
-  background: #d55e00;
-  color: #fff;
+  background: var(--ns-ui-negative);
+  color: var(--ns-ui-parchment-light);
   padding: 6px 12px;
   border-radius: 6px;
 }

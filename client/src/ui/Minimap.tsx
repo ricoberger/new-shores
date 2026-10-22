@@ -3,6 +3,9 @@ import type { DisplayState, Island } from "../api/client";
 import type { Rect } from "../display/camera";
 import { fromMinimap, islandsBounds, minimapLandKey, minimapProjection, minimapSize, toMinimap } from "../display/minimap";
 import type { GameRenderer } from "../render/engine";
+import { toolIcon } from "../theme/iconSet";
+import { TERRAIN, UI, WATER } from "../theme/palette";
+import { Icon } from "./Icon";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -18,11 +21,11 @@ interface Props {
 
 /** Dots and the viewport quadrilateral are redrawn at most this often (ms). */
 const REFRESH_MS = 50;
-const SEA = "#2b5c8a";
-const SETTLED = "#9cc27a";
-const UNSETTLED = "#b8b2a3";
-const SHIP = "#fff4d6";
-const VIEW = "#ffd23f";
+const SEA = WATER.deep;
+const SETTLED = TERRAIN.grass_a;
+const UNSETTLED = TERRAIN.unsettled;
+const SHIP = UI.map_ship;
+const VIEW = UI.map_view;
 
 /**
  * Minimap (D-048): a north-up 2D canvas of the islands' land (settled vs
@@ -139,7 +142,7 @@ export function Minimap({ renderer, model, statics, viewport, collapsible, initi
           aria-label={collapsed ? "Show minimap" : "Hide minimap"}
           data-testid="minimap-toggle"
         >
-          {collapsed ? "▣" : "▢"}
+          <Icon path={toolIcon("minimap")} />
         </button>
       )}
       {!collapsed && (

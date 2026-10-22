@@ -52,9 +52,24 @@ export default defineConfig({
       use: { ...devices["Pixel 5"], viewport: { width: 412, height: 915 } },
     },
     { name: "touch-webkit", testMatch: /touch\.spec\.ts$/, dependencies: ["touch-chromium"], use: { ...devices["iPhone 12"] } },
+    // The fixture-only projects (no server state) run after the
+    // shared-world chain: between the desktop specs they would stretch the
+    // world time (at the E2E time scale an idle minute is ten world
+    // minutes: an away summary pops up mid-spec, upkeep drains the gold the
+    // away spec expects). Alone: `npx playwright test --project=perf --no-deps`.
     // Mobile performance budget and the opt-in Lighthouse measurement on
-    // the dense fixture (no server state).
-    { name: "perf", testMatch: /(perf|lighthouse)\.spec\.ts$/, use: { ...devices["Desktop Chrome"], launchOptions: { args: gpuArgs } } },
+    // the dense fixture.
+    {
+      name: "perf",
+      testMatch: /(perf|lighthouse)\.spec\.ts$/,
+      dependencies: ["touch-webkit"],
+      use: { ...devices["Desktop Chrome"], launchOptions: { args: gpuArgs } },
+    },
+    // Visual foundation (art task 2) on the fixtures: screenshot baselines
+    // per platform (desktop and a Pixel 5 context; a missing baseline is
+    // written and its test skipped) and the grid, palette, quality and
+    // credits rules.
+    { name: "visual", testMatch: /(visual|theme)\.spec\.ts$/, dependencies: ["perf"], use: { ...devices["Desktop Chrome"] } },
   ],
   webServer: [
     {

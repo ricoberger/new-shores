@@ -2,18 +2,21 @@
 // plane merged into one mesh with vertex colours, drawn as thin instances
 // with a per-instance colour (white = as is, grey = anchored unpaid).
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
 import type { Scene } from "@babylonjs/core/scene";
+import { BUILDINGS, WATER } from "../theme/palette";
+import { c4 } from "./palette";
+import { skyFill } from "./lighting";
 
-// Wood tones chosen so that SHIP_UNPAID turns them neutral grey (r × 0.6 =
-// g × 0.68 = b × 0.8) and the sail a dim blue-grey.
-const HULL = new Color4(0.36, 0.32, 0.27, 1);
-const DECK = new Color4(0.53, 0.47, 0.4, 1);
-const SAIL = new Color4(0.97, 0.95, 0.88, 1);
+// Palette wood tones; SHIP_UNPAID dims them toward a cool grey and the
+// sail toward a dim blue-grey.
+const HULL = c4(BUILDINGS.timber);
+const DECK = c4(BUILDINGS.thatch);
+const SAIL = c4(WATER.foam);
 
 /** Drawing style of a ship instance (exposed to tests; not a pixel colour). */
 export type ShipStyle = "active" | "unpaid";
@@ -44,7 +47,7 @@ export function shipTemplate(scene: Scene, name: string): Mesh {
   const mesh = Mesh.MergeMeshes([hull, bow, sail], true, true);
   if (!mesh) throw new Error(`cannot build ship mesh ${name}`);
   mesh.name = name;
-  const mat = new StandardMaterial(name, scene);
+  const mat = skyFill(new StandardMaterial(name, scene));
   mat.specularColor = Color3.Black();
   mesh.material = mat;
   mesh.isPickable = false;

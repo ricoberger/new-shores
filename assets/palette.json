@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "groups": {
+    "terrain": {
+      "description": "Ground of the islands (ART_DIRECTION §2 and §4): grass noise, beach, forest floor, rock, cliffs, deposit outcrops, roads and ground decoration.",
+      "colors": {
+        "sand": "#E8D6A3",
+        "grass-a": "#7FA85A",
+        "grass-b": "#93B86A",
+        "dry": "#B9B46A",
+        "forest-floor": "#4F7A3A",
+        "mountain": "#8E8A82",
+        "cliff": "#A89A80",
+        "deposit-iron": "#8A5E48",
+        "road-dirt": "#A88760",
+        "road-paved": "#B9B2A4",
+        "road-border": "#DCCDA6",
+        "tree-crown": "#5E8E45",
+        "flower": "#E9C64B",
+        "unsettled": "#B8B2A3"
+      }
+    },
+    "water": {
+      "description": "Sea surface from the shallows to the deep, the coastal foam line and the haze the sea fades into (also the clear colour).",
+      "colors": {
+        "shallows": "#4FB1B0",
+        "deep": "#1F5F8B",
+        "foam": "#F4F6F0",
+        "haze": "#B9C9CB"
+      }
+    },
+    "buildings": {
+      "description": "Building materials of the procedural placeholders and later the kit re-palette (ART_DIRECTION §7).",
+      "colors": {
+        "plaster": "#E7D7B8",
+        "ochre": "#D9A85E",
+        "timber": "#6F4A2E",
+        "thatch": "#B98F4F",
+        "terracotta": "#B5563B",
+        "slate": "#5C6670",
+        "stone": "#B9B2A4",
+        "brass": "#C9A24A"
+      }
+    },
+    "fields": {
+      "description": "Field decoration per field type (D-049): base and mark colour; unknown types use a stable building colour.",
+      "colors": {
+        "pasture": "#8DB85A",
+        "pasture-mark": "#A9CF78",
+        "wheat": "#D9B84A",
+        "wheat-mark": "#B8952E",
+        "hemp": "#6F9E4C",
+        "hemp-mark": "#4F7E34",
+        "orchard": "#86A95E",
+        "orchard-mark": "#B5452F"
+      }
+    },
+    "ui": {
+      "description": "HUD chrome (themed-flat, ART_DIRECTION §6): parchment panels, dark-wood bars, brass accents, ink text, and the listed tints and shades the HUD uses.",
+      "colors": {
+        "parchment": "#F1E6CC",
+        "parchment-light": "#FAF3E1",
+        "parchment-dark": "#E4D3AE",
+        "parchment-edge": "#C9B48A",
+        "dark-wood": "#4A3421",
+        "wood-light": "#7A5A3C",
+        "brass": "#C9A24A",
+        "brass-light": "#E2C77E",
+        "ink": "#2B2117",
+        "ink-soft": "#5C4A36",
+        "positive": "#1E6B3C",
+        "negative": "#A33F00",
+        "positive-light": "#A6DDAF",
+        "negative-light": "#FFB48A",
+        "danger-dark": "#7A2E00",
+        "link": "#005A8C",
+        "active": "#0072B2",
+        "focus": "#E69F00",
+        "warn-on-dark": "#FFB3A7",
+        "map-ship": "#FFF4D6",
+        "map-view": "#FFD23F",
+        "grid": "#FFF8E6"
+      }
+    },
+    "status": {
+      "description": "Building status (Okabe–Ito, colour-blind safe, always paired with an icon; keys are the StatusKey names) and the placement validity colours. Values unchanged from the pre-palette client.",
+      "colors": {
+        "paused-player": "#56B4E9",
+        "paused-unpaid": "#D55E00",
+        "not-connected": "#CC79A7",
+        "warehouse-full": "#E69F00",
+        "input-starved": "#F0E442",
+        "throttled": "#0072B2",
+        "short-of-workers": "#999999",
+        "low-efficiency": "#009E73",
+        "no-farm": "#CC79A7",
+        "ok": "#009E73",
+        "ghost-ok": "#DDDDDD",
+        "ghost-no-road": "#F0C808",
+        "ghost-invalid": "#D7263D",
+        "field-valid": "#3BB273",
+        "field-out-of-range": "#F0C808",
+        "field-ring": "#FFF4D6",
+        "selection": "#FFD23F"
+      }
+    },
+    "routes": {
+      "description": "Trade route ribbons (Okabe–Ito, in route order), the route editor's draft and the direction arrows.",
+      "colors": {
+        "route-1": "#E69F00",
+        "route-2": "#56B4E9",
+        "route-3": "#009E73",
+        "route-4": "#F0E442",
+        "route-5": "#0072B2",
+        "route-6": "#D55E00",
+        "route-7": "#CC79A7",
+        "draft": "#FFFFFF",
+        "arrow-dim": "#BFBFBF",
+        "arrow-bright": "#FFD140"
+      }
+    },
+    "light": {
+      "description": "Fixed golden hour (ART_DIRECTION §2): warm sun key, cool sky fill at fill-ratio of the key (the lit materials' ambient term), the warm grading tint and the blob-shadow colour.",
+      "colors": {
+        "sun": "#FFF1D6",
+        "sky": "#9DB7D9",
+        "grade": "#FFD9A0",
+        "shadow": "#2A2A35"
+      },
+      "values": {
+        "fill-ratio": 0.35
+      }
+    }
+  }
+}

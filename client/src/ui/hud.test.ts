@@ -4,8 +4,10 @@ import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import type { Content, DisplayState } from "../api/client";
+import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
+import { goodIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import { AwayDialog } from "./AwayDialog";
+import { InfoPanel } from "./InfoPanel";
 import { InsolvencyBanner } from "./InsolvencyBanner";
 import { draftFromRoute } from "../display/routes";
 import { QuestsPanel } from "./QuestsPanel";
@@ -119,6 +121,69 @@ describe("HUD components", () => {
       expect(text(html)).toContain("Save to compute");
       expect(html).not.toContain("route-effect-");
       expect(html).not.toContain("route-unassign-");
+    });
+  });
+
+  describe("info panel icons", () => {
+    const shipContent = {
+      ...content,
+      buildings: [
+        { id: "shipyard", name: "Shipyard", tier: "settlers", category: "harbour", width: 2, height: 2, pause_category: "production", shipyard: { ships: ["sloop"] } },
+      ],
+      ships: [{ id: "sloop", name: "Sloop", slots: 2, slot_size: 50_000, build_ms: 60_000, upkeep_per_min: 1_000, cost: { gold: 900_000, materials: { planks: 40_000, wood: 5_000 } } }],
+    } as unknown as Content;
+    const island = {
+      id: "start",
+      name: "Start",
+      buildings: [],
+      roads: [],
+      workforce: {},
+      inventory: { planks: { stock: 10_000, capacity: 100_000, in_transit: 0, rate_per_min: 0 }, wood: { stock: 9_000, capacity: 100_000, in_transit: 0, rate_per_min: 0 } },
+    } as unknown as IslandDisplay;
+    const model = { ...fixture("chain_planks"), gold: 100_000, balance_rate_per_min: 0 } as DisplayState;
+    const panel = (b: Partial<BuildingDisplay>) => {
+      const noop = () => {};
+      return renderToStaticMarkup(
+        createElement(InfoPanel, {
+          building: { id: 7, type: "shipyard", x: 1, y: 1, rotation: 0, paused: false, paused_reason: "", status: "ok", efficiency_permille: 1000, throughput_factor_permille: 1000, ...b } as BuildingDisplay,
+          island,
+          model,
+          content: shipContent,
+          onSetPaused: noop,
+          onDemolish: noop,
+          onMove: noop,
+          onUpgrade: noop,
+          onUpgradeWarehouse: noop,
+          onSelectBuilding: noop,
+          onPlaceFields: noop,
+          nowMs: 0,
+          onOrderShip: noop,
+          onCancelShipOrder: noop,
+        }),
+      );
+    };
+    const icon = (path: string) => `<path d="${path}" fill="currentColor"></path>`;
+
+    it("puts an icon next to every good of the shipyard costs and the missing list", () => {
+      const html = panel({});
+      const costs = html.slice(html.indexOf('data-testid="shipyard-order-sloop"'));
+      // Costs: planks and wood with their icons.
+      expect(costs.split(icon(goodIcon("planks"))).length - 1).toBe(2); // cost line and missing list
+      expect(costs).toContain(icon(goodIcon("wood")));
+      const missing = html.match(/data-testid="shipyard-missing-sloop">(.*?)<\/div>/)![1]!;
+      expect(text(missing)).toBe("Missing: 800 gold, 30 Planks");
+      expect(missing).toContain(icon(goodIcon("planks")));
+      expect(missing).not.toContain(icon(goodIcon("wood")));
+    });
+
+    it("shows the pause and resume buttons with icons, no glyphs", () => {
+      const running = panel({}).match(/data-testid="info-pause">(.*?)<\/button>/)![1]!;
+      expect(running).toContain(icon(statusIcon("paused_player")));
+      expect(text(running).trim()).toBe("Pause");
+      const paused = panel({ paused: true, status: "paused", paused_reason: "player" }).match(/data-testid="info-pause">(.*?)<\/button>/)![1]!;
+      expect(paused).toContain(icon(toolIcon("resume")));
+      expect(text(paused).trim()).toBe("Resume");
+      expect(paused).not.toContain("▶");
     });
   });
 });
