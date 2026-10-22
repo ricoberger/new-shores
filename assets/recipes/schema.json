@@ -75,7 +75,7 @@
       "additionalProperties": false,
       "properties": {
         "name": { "type": "string", "description": "Label in error messages (default: file or prim and the index)." },
-        "kit": { "enum": ["medieval", "pirate"] },
+        "kit": { "enum": ["medieval", "pirate", "kaykit_hexagon", "kaykit_forest"] },
         "file": { "type": "string", "description": "Kit-relative path as listed in assets/kits/MANIFEST.json." },
         "prim": { "enum": ["box", "cylinder", "wedge", "sail", "lathe", "rock"] },
         "size": { "$ref": "#/$defs/vec3", "description": "box: x y z (base centred at z = 0); wedge: ridge length x, depth y, height z; rock: radii x y z." },
@@ -112,8 +112,26 @@
         "role": { "$ref": "#/$defs/role", "description": "Colour of the whole part (required for primitives)." },
         "roles": {
           "type": "object",
-          "additionalProperties": { "$ref": "#/$defs/role" },
-          "description": "Kit material name (atlas kits: Atlas/<swatch>) → role; other materials keep the kit default."
+          "additionalProperties": {
+            "oneOf": [
+              { "$ref": "#/$defs/role" },
+              {
+                "type": "object",
+                "required": ["role"],
+                "additionalProperties": false,
+                "properties": {
+                  "role": { "$ref": "#/$defs/role" },
+                  "shade": { "type": "number", "minimum": 0.5, "maximum": 1.5, "description": "Replaces the kit default shade (times the part shade and, for gradient atlases, the band shade)." }
+                }
+              }
+            ]
+          },
+          "description": "Kit material name (atlas kits: Atlas/<swatch>; gradient atlases also Atlas/<swatch>@<band>, band 0 = light … 2 = dark) → role or {role, shade}; other materials keep the kit default."
+        },
+        "drop": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Kit pieces: materials left out (e.g. Atlas/stone to strip a KayKit plinth; gradient atlases by swatch or swatch@band)."
         },
         "shade": { "type": "number", "minimum": 0.6, "maximum": 1.2, "description": "Multiplier on the palette colour (default 1.0)." },
         "simplify": {

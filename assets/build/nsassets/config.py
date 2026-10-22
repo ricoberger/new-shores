@@ -35,6 +35,13 @@ METRES_PER_TILE = 4.0
 KIT_SCALE = {
     "medieval": 0.25,
     "pirate": 0.25,
+    # KayKit Medieval Hexagon: home_A (0.79 × 0.85 kit units) on the 2 × 2
+    # house footprint → 1.82 × 1.96 tiles, 2.1 tiles tall (the chunky,
+    # exaggerated silhouette of the restyle). Props need a part scale.
+    "kaykit_hexagon": 2.3,
+    # KayKit Forest Nature: Tree_1_A is 3.9 units tall → 1.2 tiles
+    # (provisional until the nature pass measures it in the client).
+    "kaykit_forest": 0.3,
 }
 
 #: Per-file overrides of the kit factor. The Pirate Kit's Ship_Small hull is
@@ -87,6 +94,69 @@ KIT_ATLAS_SWATCHES = {
         ("blue", "#4A80B8", "dye-blue", 1.0),
         ("green", "#5A9A20", "tree-crown", 1.0),
     ],
+}
+
+#: Gradient-atlas kits (KayKit, nsassets/atlas.py): a face's material is
+#: "Atlas/<swatch>@<band>" from the grid cell of its UV centroid (exact:
+#: no triangle spans cells) and the band of the cell's vertical gradient
+#: (0 = light top … 2 = dark bottom). Cells map to (swatch, role, shade);
+#: the band multiplies the shade (KayKit's two-tone read without the
+#: texture), capped so that no channel clamps. A recipe's `roles` map may
+#: re-colour "Atlas/<swatch>" or one band "Atlas/<swatch>@<band>".
+#: See assets/kits/README.md for the cell survey.
+KIT_ATLAS_CELLS = {
+    "kaykit_hexagon": {
+        "grid": (8, 4),
+        "bands": (1.1, 1.0, 0.86),
+        "default": ("other", "stone", 1.0),
+        "cells": {
+            (0, 0): ("black", "iron", 0.75),
+            (1, 0): ("white", "plaster", 1.0),
+            (2, 0): ("stone", "stone", 1.0),
+            (3, 0): ("stone_dark", "slate", 1.0),
+            (4, 0): ("charcoal", "iron", 1.0),
+            (5, 0): ("wood_light", "timber", 1.2),
+            (6, 0): ("wood", "timber", 1.0),
+            (7, 0): ("orange", "terracotta", 1.1),
+            (0, 1): ("water", "shallows", 1.0),
+            (1, 1): ("blue", "dye-blue", 1.0),
+            (2, 1): ("brown", "timber", 0.9),
+            (3, 1): ("straw", "wheat", 1.0),
+            (4, 1): ("green", "hemp", 1.0),
+            (5, 1): ("tan", "canvas", 0.92),
+            (6, 1): ("grey", "stone", 0.85),
+            (7, 1): ("taupe", "mountain", 0.8),
+            (0, 2): ("grass", "grass-b", 1.0),
+            (1, 2): ("leaf", "tree-crown", 1.0),
+            (2, 2): ("rock", "mountain", 1.0),
+            (3, 2): ("sand", "sand", 0.95),
+            (4, 2): ("sand", "sand", 0.95),
+            (5, 2): ("cream", "canvas", 1.0),
+            (6, 2): ("red", "terracotta", 1.1),
+            (7, 2): ("pink", "orchard-mark", 1.0),
+            # The team colour (roofs, flags, awnings): the only difference
+            # between the blue/red/yellow/green building files.
+            (0, 3): ("team", "thatch", 1.0),
+            (1, 3): ("team", "thatch", 1.0),
+            (2, 3): ("team", "thatch", 1.0),
+            (3, 3): ("team", "thatch", 1.0),
+            (4, 3): ("amber", "ochre", 1.0),
+            (5, 3): ("beige", "canvas", 0.85),
+            (6, 3): ("dust", "road-dirt", 0.9),
+            (7, 3): ("umber", "mountain", 0.7),
+        },
+    },
+    "kaykit_forest": {
+        "grid": (8, 4),
+        "bands": (1.1, 1.0, 0.86),
+        # Only column 0 is painted; the rest is a grey placeholder gradient.
+        "default": ("other", "mountain", 1.0),
+        "cells": {
+            (0, 0): ("foliage", "tree-crown", 1.0),
+            (0, 1): ("bark", "timber", 1.1),
+            (0, 2): ("rock", "mountain", 1.0),
+        },
+    },
 }
 
 #: Triangle budgets per exported file (ART_DIRECTION §7; ships aligned with buildings).

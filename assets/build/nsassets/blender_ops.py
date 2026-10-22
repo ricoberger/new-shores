@@ -11,7 +11,7 @@ import bmesh
 import bpy
 from mathutils import Matrix, Vector
 
-from . import config, geometry
+from . import atlas, config, geometry
 from .palette import hex_rgb
 
 _SUFFIX = re.compile(r"\.\d{3}$")
@@ -61,6 +61,7 @@ class KitLoader:
         dg = bpy.context.evaluated_depsgraph_get()
         tris = []
         swatches = config.KIT_ATLAS_SWATCHES.get(kit)
+        cells = config.KIT_ATLAS_CELLS.get(kit)
         for obj in sorted((o for o in bpy.context.scene.objects if o.type == "MESH"), key=lambda o: o.name):
             ev = obj.evaluated_get(dg)
             me = ev.to_mesh()
@@ -70,7 +71,9 @@ class KitLoader:
             for t in me.loop_triangles:
                 slot = obj.material_slots[t.material_index].material if obj.material_slots else None
                 mname = _SUFFIX.sub("", slot.name) if slot else "-"
-                if swatches is not None:
+                if cells is not None:
+                    mname = atlas.classify(cells, [tuple(uv[i].uv) for i in t.loops]) if uv is not None else f"Atlas/{cells['default'][0]}@1"
+                elif swatches is not None:
                     mname = "Atlas/" + self._swatch(slot, uv, t, swatches)
                 pts = [tuple(mw @ me.vertices[v].co) for v in t.vertices]
                 tris.append((pts[0], pts[1], pts[2], mname))

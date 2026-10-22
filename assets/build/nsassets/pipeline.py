@@ -7,8 +7,9 @@ manifest entry.
 
 import hashlib
 import json
+import math
 
-from . import config, content as content_mod, geometry, glb, validate
+from . import atlas, config, content as content_mod, geometry, glb, validate
 from .recipes import part_groups, part_label
 
 
@@ -32,13 +33,52 @@ def kit_scale(kit, file):
     return config.FILE_SCALE.get(f"{kit}:{file}", config.KIT_SCALE[kit])
 
 
-def kit_role(kit, material, part):
-    """(role, shade) of a kit material in a part: part role, then the part's roles map, then the kit default."""
+def _role_value(v, shade):
+    """A `roles` map value (role name or {role, shade}) → (role, shade)."""
+    if isinstance(v, dict):
+        return v["role"], v.get("shade", 1.0) * shade
+    return v, shade
+
+
+def no_clamp(role, shade, roles):
+    """The shade capped (down to 3 decimals) so that no channel of palette[role] × shade exceeds 1."""
+    if roles is None or role not in roles:
+        return shade
+    peak = max(roles[role])
+    if peak * shade <= 1.0:
+        return shade
+    return math.floor(1000.0 / peak) / 1000.0
+
+
+def kit_role(kit, material, part, roles=None):
+    """
+    (role, shade) of a kit material in a part: part role, then the part's
+    roles map, then the kit default. Gradient-atlas materials
+    ("Atlas/<swatch>@<band>") match the roles map by band first, then by
+    swatch, and multiply the band shade in (capped so nothing clamps).
+    """
     shade = part.get("shade", 1.0)
+    cells = config.KIT_ATLAS_CELLS.get(kit)
+    if cells is not None:
+        base, band = atlas.split(material)
+        bshade = cells["bands"][band] if band is not None else 1.0
+        mapped = part.get("roles", {})
+        if "role" in part:
+            role, s = part["role"], shade
+        elif material in mapped:
+            role, s = _role_value(mapped[material], shade)
+        elif base in mapped:
+            role, s = _role_value(mapped[base], shade)
+        else:
+            sw = atlas.swatch(cells, base)
+            if sw is None:
+                return None, shade
+            role, s = sw[0], sw[1] * shade
+        return role, no_clamp(role, _r(s * bshade), roles)
     if "role" in part:
         return part["role"], shade
     if material in part.get("roles", {}):
-        return part["roles"][material], shade
+        return _role_value(part["roles"][material], shade)
     if kit in config.KIT_MATERIALS and material in config.KIT_MATERIALS[kit]:
         role, s = config.KIT_MATERIALS[kit][material]
         return role, s * shade
@@ -47,6 +87,11 @@ def kit_role(kit, material, part):
             if material == f"Atlas/{name}":
                 return role, s * shade
     return None, shade
+
+
+def dropped(material, drop):
+    """Whether a kit material is in a part's drop list (atlas materials: by band or by swatch)."""
+    return material in drop or atlas.split(material)[0] in drop
 
 
 def primitive(part, seed):
@@ -66,7 +111,7 @@ def primitive(part, seed):
     raise BuildError(f"unknown primitive {kind}")
 
 
-def part_mesh(recipe_id, group, index, part, kit_loader):
+def part_mesh(recipe_id, group, index, part, kit_loader, roles=None):
     """
     The triangles of one part (all repeat copies) in recipe space with
     (role, shade, label), the declared (role, shade) pairs and the kit file
@@ -88,11 +133,14 @@ def part_mesh(recipe_id, group, index, part, kit_loader):
         f = kit_scale(part["kit"], part["file"])
         raw = kit_loader(part["kit"], part["file"], part.get("simplify"))
         crop = part.get("crop")
+        drop = set(part.get("drop", ()))
         local = []
         for a, b, c, material in raw:
             if crop and not all(crop["min"][i] <= (a[i] + b[i] + c[i]) / 3 <= crop["max"][i] for i in range(3)):
                 continue
-            role, shade = kit_role(part["kit"], material, part)
+            if drop and dropped(material, drop):
+                continue
+            role, shade = kit_role(part["kit"], material, part, roles)
             if role is None:
                 raise BuildError(f"{label}: kit material {material!r} has no role (add it to the part's roles)")
             shade = _r(shade)
@@ -164,7 +212,7 @@ def lite_name(fname):
     return fname[: -len(".glb")] + ".lite.glb"
 
 
-def _assemble(cid, groups, kit_loader, kit_used, lod):
+def _assemble(cid, groups, kit_loader, kit_used, lod, roles=None):
     """The merged mesh of part groups at a detail level ("full" leaves out lod-lite parts and vice versa)."""
     mesh = geometry.Mesh()
     declared = set()
@@ -172,7 +220,7 @@ def _assemble(cid, groups, kit_loader, kit_used, lod):
         for i, part in enumerate(parts):
             if part.get("lod", lod) != lod:
                 continue
-            m, d, kf = part_mesh(cid, group, i, part, kit_loader)
+            m, d, kf = part_mesh(cid, group, i, part, kit_loader, roles)
             mesh.extend(m)
             declared |= d
             if kf:
@@ -213,8 +261,8 @@ def build_recipe(recipe, content, roles, kit_loader):
     for fname, key, groups in outputs(recipe):
         has_lite = any("lod" in p for _, parts in groups for p in parts)
         try:
-            mesh, declared = _assemble(cid, groups, kit_loader, kit_used, "full")
-            lite = _assemble(cid, groups, kit_loader, kit_used, "lite") if has_lite else None
+            mesh, declared = _assemble(cid, groups, kit_loader, kit_used, "full", roles)
+            lite = _assemble(cid, groups, kit_loader, kit_used, "lite", roles) if has_lite else None
         except BuildError as e:
             errors.append(f"{name} {fname}: {e}")
             continue

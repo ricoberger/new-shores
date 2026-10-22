@@ -14,8 +14,8 @@ CONTENT = content.load()
 SCHEMA = schema.load()
 KIT_FILES = kits.kit_files(kits.load_manifest())
 
-#: A kit file pinned in MANIFEST.json (any).
-A_KIT_FILE = sorted(KIT_FILES)[0]
+#: A Medieval kit piece pinned in MANIFEST.json (the fake loader returns MI_Plaster cubes).
+A_KIT_FILE = sorted(k for k in KIT_FILES if k[0] == "medieval" and k[1].endswith(".gltf"))[0]
 
 
 def unit_box(n_parts=1, size=(1.8, 1.8, 0.5), role="plaster"):

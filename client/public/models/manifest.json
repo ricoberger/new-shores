@@ -5,6 +5,8 @@
   },
   "generator": "new-shores assets build",
   "kit_scale": {
+    "kaykit_forest": 0.3,
+    "kaykit_hexagon": 2.3,
     "medieval": 0.25,
     "pirate": 0.25
   },

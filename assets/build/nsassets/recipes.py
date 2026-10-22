@@ -3,7 +3,7 @@
 import json
 import os
 
-from . import config, content as content_mod, schema as schema_mod
+from . import atlas, config, content as content_mod, schema as schema_mod
 
 PRIM_PARAMS = {
     "box": ({"size"}, {"open"}),
@@ -14,7 +14,7 @@ PRIM_PARAMS = {
     "rock": ({"size"}, {"detail"}),
 }
 ALL_PRIM_PARAMS = set().union(*(req | opt for req, opt in PRIM_PARAMS.values()))
-KIT_ONLY = {"roles", "simplify", "crop"}
+KIT_ONLY = {"roles", "simplify", "crop", "drop"}
 
 
 class RecipeError(Exception):
@@ -89,6 +89,14 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
                 bad = ALL_PRIM_PARAMS & set(p)
                 if bad:
                     errors.append(f"{label}: primitive parameters on a kit piece: {', '.join(sorted(bad))}")
+                cells = config.KIT_ATLAS_CELLS.get(p["kit"])
+                if cells is not None:
+                    known = atlas.names(cells)
+                    bands = len(cells["bands"])
+                    for k in sorted(set(p.get("roles", {})) | set(p.get("drop", []))):
+                        base, band = atlas.split(k)
+                        if not base.startswith("Atlas/") or base[len("Atlas/"):] not in known or (band is not None and not 0 <= band < bands):
+                            errors.append(f"{label}: {k!r} is not a swatch of kit {p['kit']} (Atlas/<{'|'.join(known)}>[@0-{bands - 1}])")
             else:
                 req, opt = PRIM_PARAMS[p["prim"]]
                 for r in sorted(req - set(p)):
@@ -100,7 +108,8 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
                     errors.append(f"{label}: primitives need a role")
                 if p["prim"] in ("cylinder", "lathe") and p.get("segments", 8) < 3:
                     errors.append(f"{label}: {p['prim']} needs at least 3 segments")
-            for r in [p.get("role")] + list(p.get("roles", {}).values()):
+            mapped = [v["role"] if isinstance(v, dict) else v for v in p.get("roles", {}).values()]
+            for r in [p.get("role")] + mapped:
                 if r is not None and r not in roles:
                     errors.append(f"{label}: unknown role {r!r} (not a colour of {', '.join(config.ROLE_GROUPS)} in assets/palette.json)")
     return errors
