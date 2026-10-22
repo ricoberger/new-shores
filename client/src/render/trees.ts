@@ -1,21 +1,27 @@
-// Trees and ground scatter (ART_DIRECTION §4) of one island at near LOD:
-// three procedural low-poly tree variants (≤ 24 triangles each: a timber
-// trunk and crowns in forest-floor / tree-crown / grass shades) on the
-// forest tiles, a soft blob shadow under each, and tufts, flowers and
-// small rocks (≤ 4 triangles each) on free grass and coast — placed by
-// display/scatter.ts from the island seed. Each layer is one merged
-// static mesh (see meshdata.ts), rebuilt with the payload. Decoration is
-// never pickable and holds no state.
+// Trees and ground scatter (ART_DIRECTION §4, restyle) of one island at
+// near LOD: KayKit Forest trees (four species, decor_tree_a–d) on the
+// forest tiles, a soft blob shadow under each, stumps of the felled trees
+// inside lumberjack radii (decor_stump_a/b), grass tufts, bushes and rocks
+// (decor_tuft_*, decor_bush_*, decor_rock_*) on grass, along the coast and
+// on the plateaus (at their height), and small procedural flowers —
+// placed by display/scatter.ts from the island seed. The kit pieces come
+// from the asset manifest's decor models; until they have loaded (or
+// without them) the procedural low-poly trees, tufts and rocks stand in,
+// and the layer is rebuilt when they arrive (needsModels). Each layer is
+// one merged static mesh per island (indexed, typed arrays), rebuilt
+// with the payload. Decoration is never pickable and holds no state.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
-import type { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { Placed, ScatterKind } from "../display/scatter";
 import { BUILDINGS, TERRAIN, UI, WATER } from "../theme/palette";
 import { SHADOW_LEAN, skyFill } from "./lighting";
 import { bipyramid, cone, prism, type Tri, TriBuilder } from "./meshdata";
+import { decorModel, type ModelData, type ModelRegistry } from "./models";
 import { c3, SHADOW } from "./palette";
 import { BLOB_Y } from "./shadows";
 
@@ -24,7 +30,16 @@ const FOREST = c3(TERRAIN.forest_floor);
 const CROWN = c3(TERRAIN.tree_crown);
 const GRASS_A = c3(TERRAIN.grass_a);
 
-/** The tree variants (model space, y up, about one tile tall). */
+/** Decor models of the tree species (variant index → manifest decor ID). */
+export const TREE_MODELS = ["decor_tree_a", "decor_tree_b", "decor_tree_c", "decor_tree_d"] as const;
+const STUMP_MODELS = ["decor_stump_a", "decor_stump_b"] as const;
+const SCATTER_MODELS: Partial<Record<ScatterKind, readonly string[]>> = {
+  tuft: ["decor_tuft_a", "decor_tuft_b"],
+  rock: ["decor_rock_a", "decor_rock_b"],
+  bush: ["decor_bush_a", "decor_bush_b"],
+};
+
+/** The procedural fallback tree variants (model space, y up, about one tile tall). */
 export const TREE_VARIANTS: readonly Tri[][] = [
   // Conifer: two stacked cones.
   [...prism(4, 0.05, 0, 0.25, TRUNK), ...cone(6, 0.3, 0.18, 0.72, FOREST.scale(1.05), 0, 0.85), ...cone(6, 0.22, 0.48, 0.98, FOREST.scale(1.12), 0.5, 0.85)],
@@ -57,6 +72,7 @@ const ROCK: Tri[] = (() => {
   ];
   return p.map((q, i) => ({ a: q, b: p[(i + 1) % 4] as [number, number, number], c: top, color: r.scale(0.92 + 0.06 * i) }));
 })();
+const BUSH: Tri[] = bipyramid(5, 0.16, 0, 0.12, 0.28, FOREST.scale(1.1), 0.3);
 
 function decorMaterial(scene: Scene, name: string): StandardMaterial {
   const m = skyFill(new StandardMaterial(name, scene));
@@ -65,19 +81,119 @@ function decorMaterial(scene: Scene, name: string): StandardMaterial {
   return m;
 }
 
-/** Trees, their blob shadows and the ground scatter of one island (under its near node). */
+/** Accumulates copies of indexed model data (moved, scaled, turned, shaded) into one indexed mesh. */
+export class ModelMerger {
+  private positions = new Float32Array(512 * 3);
+  private normals = new Float32Array(512 * 3);
+  private colors = new Float32Array(512 * 4);
+  private indices = new Uint32Array(1024);
+  private nv = 0;
+  private ni = 0;
+
+  private grow(vertices: number, indices: number): void {
+    const capV = this.positions.length / 3;
+    if (this.nv + vertices > capV) {
+      const v = Math.max(this.nv + vertices, capV * 2);
+      const p = new Float32Array(v * 3);
+      p.set(this.positions);
+      this.positions = p;
+      const n = new Float32Array(v * 3);
+      n.set(this.normals);
+      this.normals = n;
+      const c = new Float32Array(v * 4);
+      c.set(this.colors);
+      this.colors = c;
+    }
+    if (this.ni + indices > this.indices.length) {
+      const i = new Uint32Array(Math.max(this.ni + indices, this.indices.length * 2));
+      i.set(this.indices);
+      this.indices = i;
+    }
+  }
+
+  /** Adds one copy of world-oriented model data at (x, y, z), scaled by s, turned by yaw about y, colours × shade. */
+  add(d: ModelData, x: number, y: number, z: number, s: number, yaw: number, shade = 1): void {
+    const vc = d.positions.length / 3;
+    this.grow(vc, d.indices.length);
+    const cos = Math.cos(yaw);
+    const sin = Math.sin(yaw);
+    const base = this.nv;
+    for (let v = 0; v < vc; v++) {
+      const px = d.positions[v * 3] as number;
+      const py = d.positions[v * 3 + 1] as number;
+      const pz = d.positions[v * 3 + 2] as number;
+      const nx = d.normals[v * 3] as number;
+      const nz = d.normals[v * 3 + 2] as number;
+      const o = (base + v) * 3;
+      this.positions[o] = x + (px * cos + pz * sin) * s;
+      this.positions[o + 1] = y + py * s;
+      this.positions[o + 2] = z + (-px * sin + pz * cos) * s;
+      this.normals[o] = nx * cos + nz * sin;
+      this.normals[o + 1] = d.normals[v * 3 + 1] as number;
+      this.normals[o + 2] = -nx * sin + nz * cos;
+      const c = (base + v) * 4;
+      this.colors[c] = (d.colors[v * 4] as number) * shade;
+      this.colors[c + 1] = (d.colors[v * 4 + 1] as number) * shade;
+      this.colors[c + 2] = (d.colors[v * 4 + 2] as number) * shade;
+      this.colors[c + 3] = 1;
+    }
+    for (let i = 0; i < d.indices.length; i++) this.indices[this.ni + i] = base + (d.indices[i] as number);
+    this.nv += vc;
+    this.ni += d.indices.length;
+  }
+
+  /** Adds the triangles of a TriBuilder (procedural pieces) as they are. */
+  addTris(t: TriBuilder): void {
+    const vc = t.positions.length / 3;
+    if (vc === 0) return;
+    this.grow(vc, vc);
+    const base = this.nv;
+    this.positions.set(t.positions, base * 3);
+    this.normals.set(t.normals, base * 3);
+    this.colors.set(t.colors, base * 4);
+    for (let i = 0; i < vc; i++) this.indices[this.ni + i] = base + i;
+    this.nv += vc;
+    this.ni += vc;
+  }
+
+  /** Triangles accumulated. */
+  triangles(): number {
+    return this.ni / 3;
+  }
+
+  build(name: string, scene: Scene, material: StandardMaterial, parent: TransformNode | null): Mesh | null {
+    if (this.ni === 0) return null;
+    const mesh = new Mesh(name, scene);
+    const data = new VertexData();
+    data.positions = this.positions.subarray(0, this.nv * 3);
+    data.normals = this.normals.subarray(0, this.nv * 3);
+    data.colors = this.colors.subarray(0, this.nv * 4);
+    data.indices = this.indices.subarray(0, this.ni);
+    data.applyToMesh(mesh);
+    mesh.material = material;
+    mesh.parent = parent;
+    mesh.isPickable = false;
+    mesh.freezeWorldMatrix();
+    return mesh;
+  }
+}
+
+/** Trees, stumps, their blob shadows and the ground scatter of one island (under its near node). */
 export class Decoration {
   private readonly material: StandardMaterial;
   private readonly shadowMaterial: StandardMaterial;
   private trees: Mesh | null = null;
   private shadows: Mesh | null = null;
   private scatter: Mesh | null = null;
-  private count = { trees: 0, scatter: 0 };
+  private count = { trees: 0, scatter: 0, stumps: 0, triangles: 0 };
+  /** The last build used a fallback for a decor model that has loaded since (or might load): rebuild on the next model refresh. */
+  private fallback = false;
 
   constructor(
     private readonly scene: Scene,
     private readonly name: string,
     private readonly parent: TransformNode | null,
+    private readonly registry: ModelRegistry | null = null,
   ) {
     this.material = decorMaterial(scene, `decor_${name}`);
     this.shadowMaterial = new StandardMaterial(`tree_shadows_${name}`, scene);
@@ -87,25 +203,56 @@ export class Decoration {
     this.shadowMaterial.backFaceCulling = false;
   }
 
-  update(trees: readonly Placed[], ground: readonly (Placed & { kind: ScatterKind })[]): void {
+  /** A decor model by ID (null: not available yet; marks the build as a fallback when the manifest lists it). */
+  private model(id: string): ModelData | null {
+    const d = decorModel(this.registry, id);
+    const entry = this.registry?.decor(id);
+    if (!d && entry && !this.registry?.failed(entry.file)) this.fallback = true;
+    return d;
+  }
+
+  update(
+    trees: readonly Placed[],
+    ground: readonly (Placed & { kind: ScatterKind })[],
+    stumps: readonly Placed[] = [],
+    heightAt: (x: number, y: number) => number = () => 0,
+  ): void {
     this.trees?.dispose();
     this.shadows?.dispose();
     this.scatter?.dispose();
-    const t = new TriBuilder();
+    this.fallback = false;
+    const t = new ModelMerger();
+    const tp = new TriBuilder();
     const sh = new TriBuilder();
     for (const p of trees) {
-      const tris = TREE_VARIANTS[p.variant] ?? TREE_VARIANTS[0] ?? [];
       // Slight per-tree tint so a forest is not one flat green.
       const shade = 0.92 + 0.16 * ((p.yaw / (Math.PI * 2)) % 1);
-      for (const tri of tris) t.add(tri, p.x, 0, -p.y, p.scale, p.yaw, tri.color === TRUNK ? 1 : shade);
-      blob(sh, p.x + SHADOW_LEAN.x * p.scale * 0.3, -p.y + SHADOW_LEAN.z * p.scale * 0.3, 0.34 * p.scale);
+      const m = this.model(TREE_MODELS[p.variant % TREE_MODELS.length] as string);
+      if (m) t.add(m, p.x, 0, -p.y, p.scale, p.yaw, shade);
+      else for (const tri of TREE_VARIANTS[p.variant % TREE_VARIANTS.length] ?? []) tp.add(tri, p.x, 0, -p.y, p.scale, p.yaw, tri.color === TRUNK ? 1 : shade);
+      blob(sh, p.x + SHADOW_LEAN.x * p.scale * 0.3, -p.y + SHADOW_LEAN.z * p.scale * 0.3, 0.42 * p.scale);
     }
-    const g = new TriBuilder();
+    for (const p of stumps) {
+      const m = this.model(STUMP_MODELS[p.variant % STUMP_MODELS.length] as string);
+      if (m) t.add(m, p.x, 0, -p.y, p.scale, p.yaw);
+    }
+    t.addTris(tp);
+    const g = new ModelMerger();
+    const gp = new TriBuilder();
     for (const p of ground) {
-      const tris = p.kind === "tuft" ? TUFT : p.kind === "flower" ? flower(FLOWER_PETALS[Math.floor(p.scale * 10) % FLOWER_PETALS.length] as Color3) : ROCK;
-      for (const tri of tris) g.add(tri, p.x, 0, -p.y, p.scale, p.yaw);
+      const y = heightAt(Math.floor(p.x), Math.floor(p.y));
+      const ids = SCATTER_MODELS[p.kind];
+      const m = ids ? this.model(ids[Math.floor(p.scale * 13) % ids.length] as string) : null;
+      if (m) {
+        g.add(m, p.x, y, -p.y, p.scale, p.yaw, 0.94 + 0.12 * ((p.yaw / (Math.PI * 2)) % 1));
+        continue;
+      }
+      const tris =
+        p.kind === "tuft" ? TUFT : p.kind === "flower" ? flower(FLOWER_PETALS[Math.floor(p.scale * 10) % FLOWER_PETALS.length] as Color3) : p.kind === "bush" ? BUSH : ROCK;
+      for (const tri of tris) gp.add(tri, p.x, y, -p.y, p.scale, p.yaw);
     }
-    this.count = { trees: trees.length, scatter: ground.length };
+    g.addTris(gp);
+    this.count = { trees: trees.length, scatter: ground.length, stumps: stumps.length, triangles: t.triangles() + g.triangles() };
     this.trees = t.build(`trees_${this.name}`, this.scene, this.material, this.parent);
     this.shadows = sh.build(`tree_shadows_${this.name}`, this.scene, this.shadowMaterial, this.parent, true);
     if (this.shadows) this.shadows.hasVertexAlpha = true;
@@ -113,13 +260,18 @@ export class Decoration {
     if (this.trees) this.trees.receiveShadows = false;
   }
 
+  /** Whether the last build stood in for a decor model that may have loaded since (rebuild on the next model refresh). */
+  needsModels(): boolean {
+    return this.fallback;
+  }
+
   /** Meshes casting into the sun shadow map (the trees). */
   casters(): AbstractMesh[] {
     return this.trees ? [this.trees] : [];
   }
 
-  /** Trees and scatter items drawn (tests and the perf notes). */
-  counts(): { trees: number; scatter: number } {
+  /** Trees, scatter items and stumps drawn and their triangles (tests and the perf notes). */
+  counts(): { trees: number; scatter: number; stumps: number; triangles: number } {
     return this.count;
   }
 }

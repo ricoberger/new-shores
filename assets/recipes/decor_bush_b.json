@@ -1,2 +1,2 @@
 {"$schema": "./schema.json", "id": "decor_bush_b", "kind": "decor", "notes": "Pointed bush (KayKit Forest Bush_2_A).", "parts": [
-  {"kit": "kaykit_forest", "file": "Assets/gltf/Bush_2_A_Color1.gltf", "scale": 2.2, "roles": {"Atlas/foliage": "forest-floor"}}]}
+  {"kit": "kaykit_forest", "file": "Assets/gltf/Bush_2_A_Color1.gltf", "scale": 2.2, "roles": {"Atlas/foliage": {"role": "tree-crown", "shade": 0.92}}}]}

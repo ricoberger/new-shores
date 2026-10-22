@@ -72,7 +72,7 @@
         "budget": 300,
         "bytes": 4180,
         "path": "decor_bush_b.glb",
-        "sha256": "30c3ea494b0fe8207aaa389b9b2c735591bce71e625a1844945555f9410a07f7",
+        "sha256": "87af0e62205aefa9f575443576bb7d074957f623635abc631d961447696dd06e",
         "triangles": 44
       },
       "kind": "decor",
@@ -430,40 +430,40 @@
     "decor_tree_b": {
       "bounds": {
         "max": [
-          0.2745,
-          1.2773,
-          0.2183
+          0.5728,
+          1.1728,
+          0.4312
         ],
         "min": [
-          -0.4811,
-          -0.1109,
-          -0.3533
+          -0.4391,
+          -0.0832,
+          -0.4312
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.2745,
-            1.2773,
-            0.2183
+            0.5728,
+            1.1728,
+            0.4312
           ],
           "min": [
-            -0.4811,
-            -0.1109,
-            -0.3533
+            -0.4391,
+            -0.0832,
+            -0.4312
           ]
         },
         "budget": 300,
-        "bytes": 11028,
+        "bytes": 10844,
         "path": "decor_tree_b.glb",
-        "sha256": "fd6d1ac62f1e8d9d58c55f41ba738e70005c8df59e24ed5ed4e20bc7029adf90",
-        "triangles": 110
+        "sha256": "54c58a5a431a872c5528ddd2bfcb3207b4d09070bc9e01535644ef069ebe7293",
+        "triangles": 108
       },
       "kind": "decor",
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Tree_2_A_Color1.gltf"
+            "Assets/gltf/Tree_1_B_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }

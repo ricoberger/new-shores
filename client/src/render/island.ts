@@ -17,7 +17,7 @@ import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
 import { rotatedFootprint } from "../display/geometry";
-import { blockedTiles, islandSeed, layerKeys, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
+import { blockedTiles, islandSeed, layerKeys, type Placed, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
 import { BlockLayer } from "./blocks";
 import { BuildingLayer } from "./buildings";
 import { CartLayer } from "./carts";
@@ -31,7 +31,7 @@ import { PlateauLayer } from "./plateaus";
 import { RoadLayer } from "./roads";
 import { FootprintShadows } from "./shadows";
 import { buildTerrain, FoamLine } from "./terrain";
-import { Decoration } from "./trees";
+import { Decoration, TREE_MODELS } from "./trees";
 
 /** Contact shadow of a building: a soft frame this wide (tiles) around its rotated footprint. */
 const BUILDING_SHADOW_RIM = 0.3;
@@ -86,7 +86,7 @@ export class IslandDetail {
     this.buildings = new BuildingLayer(scene, this.near, registry);
     this.fields = new FieldTiles(scene, this.near);
     this.fieldDecor = new FieldDecor(scene, this.near);
-    this.decoration = new Decoration(scene, id, this.near);
+    this.decoration = new Decoration(scene, id, this.near, registry);
     this.roads = new RoadLayer(scene, this.root);
     this.carts = new CartLayer(scene, this.near);
     this.icons = new IconLayer(scene, this.near);
@@ -173,7 +173,9 @@ export class IslandDetail {
     const st = this.statics;
     if (!st) return;
     const input = { width: st.width, height: st.height, terrain: st.terrain, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
-    this.decoration.update(scatterTrees(input, thinningAreas(display.buildings, defs)), scatterGround(input));
+    const stumps: Placed[] = [];
+    const trees = scatterTrees(input, thinningAreas(display.buildings, defs), TREE_MODELS.length, stumps);
+    this.decoration.update(trees, scatterGround(input), stumps, (x, y) => this.plateaus.heightAt(x, y));
   }
 
   /** Status icon height of a building: its model's status anchor (else the default). */
@@ -237,6 +239,10 @@ export class IslandDetail {
     this.icons.update(built.display.buildings, built.defs, this.statusY);
     this.updateBlobs(built.display, built.defs);
     this.updateRelief();
+    if (this.decoration.needsModels()) {
+      this.rebuilds.decoration++;
+      this.updateDecoration(built.display, built.defs);
+    }
   }
 
   /** Model detail level (lite at the near default zoom, full zoomed in). */

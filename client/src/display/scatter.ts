@@ -2,12 +2,14 @@
 // pure: everything derives from a seed that is a stable hash of the
 // island's ID and revision (the API has no island seed), so the same
 // island and revision look the same across reloads and clients. Trees
-// grow on forest tiles, tufts, flowers and small rocks on grass and coast
-// tiles; none of them on a building footprint, field or road tile, and
-// fewer within one tile of those. Inside the work radius of a harvester
-// whose work area includes forest the kept tree fraction follows the
-// server's efficiency (treeKeepFraction) — decoration, never a rule
-// (D-027): nothing here influences placement or hints.
+// grow on forest tiles, tufts, flowers, rocks and bushes on grass, coast
+// and mountain tiles (bushes and rocks mostly along the coast and on the
+// plateaus); none of them on a building footprint, field or road tile,
+// and fewer within one tile of those. Inside the work radius of a
+// harvester whose work area includes forest the kept tree fraction
+// follows the server's efficiency (treeKeepFraction), the felled trees
+// leaving stumps — decoration, never a rule (D-027): nothing here
+// influences placement or hints.
 import type { BuildingDisplay, ContentBuilding, IslandDisplay } from "../api/client";
 import { rotatedFootprint, type TilePos, tileKey } from "./geometry";
 import { hash2, hashString } from "./noise";
@@ -99,7 +101,7 @@ function nearBlocked(blocked: ReadonlySet<string>, x: number, y: number): boolea
  * numbers from (tile, index, seed), so a change elsewhere never moves a
  * tree, and the kept/dropped choice is stable between payloads.
  */
-export function scatterTrees(input: ScatterInput, areas: readonly ThinningArea[], variants = 3): Placed[] {
+export function scatterTrees(input: ScatterInput, areas: readonly ThinningArea[], variants = 3, stumps: Placed[] | null = null): Placed[] {
   const { width, height, terrain, seed, blocked } = input;
   const out: Placed[] = [];
   for (let y = 0; y < height; y++) {
@@ -113,7 +115,11 @@ export function scatterTrees(input: ScatterInput, areas: readonly ThinningArea[]
         if (near && hash2(x, y, s + 2) >= NEAR_BLOCKED_KEEP) continue;
         let keep = 1;
         for (const a of areas) if ((px - a.cx) ** 2 + (py - a.cy) ** 2 <= a.radius * a.radius) keep = Math.min(keep, a.keep);
-        if (keep < 1 && hash2(x, y, s + 3) >= keep) continue;
+        if (keep < 1 && hash2(x, y, s + 3) >= keep) {
+          // A felled tree: a stump where it stood (the more efficient the harvester, the more stumps).
+          stumps?.push({ x: px, y: py, variant: Math.floor(hash2(x, y, s + 7) * 2) % 2, scale: 0.85 + 0.3 * hash2(x, y, s + 5), yaw: hash2(x, y, s + 6) * Math.PI * 2 });
+          continue;
+        }
         out.push({
           x: px,
           y: py,
@@ -128,24 +134,25 @@ export function scatterTrees(input: ScatterInput, areas: readonly ThinningArea[]
 }
 
 /** Ground scatter classes. */
-export type ScatterKind = "tuft" | "flower" | "rock";
+export type ScatterKind = "tuft" | "flower" | "rock" | "bush";
 
-/** Chance per tile of each class on grass and on coast (sand). */
-const CHANCE: Record<ScatterKind, { grass: number; coast: number }> = {
-  tuft: { grass: 0.4, coast: 0.1 },
-  flower: { grass: 0.14, coast: 0 },
-  rock: { grass: 0.05, coast: 0.1 },
+/** Chance per tile of each class on grass, on coast (sand) and on mountain (plateau tops). */
+const CHANCE: Record<ScatterKind, { grass: number; coast: number; mountain: number }> = {
+  tuft: { grass: 0.4, coast: 0.1, mountain: 0.05 },
+  flower: { grass: 0.14, coast: 0, mountain: 0 },
+  rock: { grass: 0.05, coast: 0.14, mountain: 0.3 },
+  bush: { grass: 0.03, coast: 0.12, mountain: 0.1 },
 };
 
-/** Tufts, flowers and small rocks on the free grass and coast tiles (variant: 0 tuft, 1 flower, 2 rock). */
+/** Tufts, flowers, rocks and bushes on the free grass, coast and mountain tiles (variant: 0 tuft, 1 flower, 2 rock, 3 bush). */
 export function scatterGround(input: ScatterInput): (Placed & { kind: ScatterKind })[] {
   const { width, height, terrain, seed, blocked } = input;
   const out: (Placed & { kind: ScatterKind })[] = [];
-  const kinds: ScatterKind[] = ["tuft", "flower", "rock"];
+  const kinds: ScatterKind[] = ["tuft", "flower", "rock", "bush"];
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const t = terrain[y * width + x];
-      if ((t !== "grass" && t !== "coast") || blocked.has(`${x},${y}`)) continue;
+      if ((t !== "grass" && t !== "coast" && t !== "mountain") || blocked.has(`${x},${y}`)) continue;
       const damp = nearBlocked(blocked, x, y) ? 0.5 : 1;
       kinds.forEach((kind, v) => {
         const s = seed + 1013 * (v + 1);
