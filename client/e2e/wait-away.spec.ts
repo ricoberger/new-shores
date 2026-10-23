@@ -8,7 +8,7 @@ import { E2E_TIME_SCALE, ISLAND, ISLAND_ZOOM_OUT_TICKS, LUMBERJACK } from "./con
 // shows the summary from the command's time; dismissing acknowledges it
 // and a reload shows no dialog. Runs last (file name) on the world the
 // other specs built and relies on no version number, only on the smoke
-// test's lumberjack.
+// test's lumberjack (running or auto-paused).
 
 /** away_summary_minutes (15) of world time in wall ms at the E2E scale, plus margin. */
 const GAP_WALL_MS = (15 * 60_000) / E2E_TIME_SCALE + 5_000;
@@ -28,7 +28,11 @@ test("the away dialog shows once per summary", async ({ page }) => {
   await worldReady(page, ISLAND);
   await wheelZoom(page, ISLAND_ZOOM_OUT_TICKS);
 
-  // A command: pause and resume the lumberjack in its info panel.
+  // A command: toggle the lumberjack's pause in its info panel and back.
+  // Its starting state depends on the world time the other specs took:
+  // when the town's gold ran out meanwhile, the insolvency cascade has
+  // auto-paused it (paused_reason "unpaid", MECHANICS §7), and the button
+  // then resumes it first.
   const p = await page.evaluate(([id, x, y]) => window.__newShores!.tileToScreen(id as string, x as number, y as number), [
     ISLAND,
     LUMBERJACK.x,
@@ -36,10 +40,11 @@ test("the away dialog shows once per summary", async ({ page }) => {
   ]);
   await page.mouse.click(p.x, p.y);
   await expect(page.getByTestId("info-name")).toHaveText("Lumberjack");
+  const before = await lumberjackPaused(page);
   await page.getByTestId("info-pause").click();
-  await expect.poll(() => lumberjackPaused(page)).toBe(true);
+  await expect.poll(() => lumberjackPaused(page)).toBe(!before);
   await page.getByTestId("info-pause").click();
-  await expect.poll(() => lumberjackPaused(page)).toBe(false);
+  await expect.poll(() => lumberjackPaused(page)).toBe(before);
   const lastSeen = await page.evaluate(() => window.__newShores!.getServer()!.display.last_seen_at);
 
   // away_summary_minutes of world time later a reload shows the summary.
