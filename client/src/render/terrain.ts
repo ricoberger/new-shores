@@ -41,6 +41,19 @@ export const FAR_PROFILE: readonly ProfileRing[] = [
   { out: 0.36, y: -0.7, color: c3(ISLAND.cliff_foot), jitter: 0 },
 ];
 
+/**
+ * The slab at the near default zoom and mid LOD: the same bands merged to
+ * five rings (rim, contour, the upper cliff's top, the ledge, the foot) —
+ * about half the triangles of PROFILE, which is drawn zoomed in.
+ */
+export const NEAR_PROFILE: readonly ProfileRing[] = [
+  { out: -0.22, y: 0.004, color: c3(ISLAND.sand_rim), jitter: 0 },
+  { out: 0, y: 0.004, color: c3(ISLAND.sand_rim).scale(0.97), jitter: 0 },
+  { out: 0.08, y: -0.09, color: c3(ISLAND.cliff_upper), jitter: 0.015 },
+  { out: 0.21, y: -0.31, color: c3(ISLAND.cliff_ledge), jitter: 0.04 },
+  { out: 0.36, y: -0.7, color: c3(ISLAND.cliff_foot), jitter: 0 },
+];
+
 /** Share of the local radius of curvature a slab ring may reach on the curve's inner side. */
 const CURVE_SHARE = 0.8;
 /** Upward tilt added to the slab's steep face normals (stylised soft lighting of the cliffs). */
@@ -399,11 +412,27 @@ export function buildIslandMeshes(
   return meshes;
 }
 
-export function buildTerrain(scene: Scene, island: Island, loops: readonly CoastLoop[], seed: number, parent: TransformNode | null = null): Mesh[] {
+/**
+ * The island's terrain in two details: `lite` with the coarse slab
+ * profile (near LOD at the default zoom and mid LOD) and `full` with the
+ * full profile (zoomed in, together with the full models). The ground
+ * fill is in both; exactly one set is enabled at a time.
+ */
+export function buildTerrain(
+  scene: Scene,
+  island: Island,
+  loops: readonly CoastLoop[],
+  seed: number,
+  parent: TransformNode | null = null,
+): { lite: Mesh[]; full: Mesh[] } {
   const material = skyFill(new StandardMaterial("terrain", scene));
   material.specularColor = Color3.Black();
   material.backFaceCulling = false;
-  return buildIslandMeshes(scene, island, loops, seed, terrainColors(seed), material, parent, "terrain");
+  const colors = terrainColors(seed);
+  return {
+    lite: buildIslandMeshes(scene, island, loops, seed, colors, material, parent, "terrain_lite", NEAR_PROFILE),
+    full: buildIslandMeshes(scene, island, loops, seed, colors, material, parent, "terrain", PROFILE),
+  };
 }
 
 const FOAM_TEX_W = 128;

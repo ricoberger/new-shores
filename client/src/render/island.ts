@@ -55,7 +55,9 @@ export class IslandDetail {
   private readonly outcrops: OutcropLayer;
   private readonly plateaus: PlateauLayer;
   private foam: FoamLine | null = null;
-  private terrain: Mesh[] = [];
+  private terrain: { lite: Mesh[]; full: Mesh[] } = { lite: [], full: [] };
+  /** Model detail (lite at the near default zoom, full zoomed in): the terrain's slab profile follows it at near LOD. */
+  private detail: Detail = "lite";
   /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
   private loops: CoastLoop[] = [];
   private seed = 0;
@@ -103,18 +105,19 @@ export class IslandDetail {
   setPosition(p: { x: number; y: number }): void {
     if (this.root.position.x === p.x && this.root.position.z === -p.y) return;
     this.root.position.set(p.x, 0, -p.y);
-    for (const m of this.terrain) m.freezeWorldMatrix();
+    for (const m of [...this.terrain.lite, ...this.terrain.full]) m.freezeWorldMatrix();
   }
 
   /** Rebuilds the terrain when the static data changed. */
   setStatics(statics: Island): void {
     const key = `${statics.revision}|${statics.id}`;
     if (key === this.terrainKey) return;
-    for (const m of this.terrain) m.dispose();
+    for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
     this.root.computeWorldMatrix(true);
     this.seed = islandSeed(statics.id, statics.revision);
     this.loops = coastline(statics);
     this.terrain = buildTerrain(this.scene, statics, this.loops, this.seed, this.root);
+    this.applyTerrainDetail();
     this.deposits = statics.deposits;
     this.statics = statics;
     this.updateRelief();
@@ -247,6 +250,8 @@ export class IslandDetail {
 
   /** Model detail level (lite at the near default zoom, full zoomed in). */
   setDetail(detail: Detail): void {
+    this.detail = detail;
+    this.applyTerrainDetail();
     this.buildings.setDetail(detail);
     const built = this.builtFrom;
     if (built) {
@@ -283,7 +288,15 @@ export class IslandDetail {
       this.lod = lod;
       this.near.setEnabled(lod === "near");
       this.mid.setEnabled(lod === "mid");
+      this.applyTerrainDetail();
     }
+  }
+
+  /** The full slab profile only at near LOD with the full models; the coarse one otherwise. */
+  private applyTerrainDetail(): void {
+    const full = this.lod === "near" && this.detail === "full";
+    for (const m of this.terrain.full) m.setEnabled(full);
+    for (const m of this.terrain.lite) m.setEnabled(!full);
   }
 
   /** Camera rotation step (status icons face the camera). */
