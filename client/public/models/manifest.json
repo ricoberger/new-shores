@@ -1307,14 +1307,14 @@
         ],
         "status": [
           0.0,
-          0.49,
+          0.63,
           0.0
         ]
       },
       "bounds": {
         "max": [
           0.47,
-          0.24,
+          0.38,
           0.47
         ],
         "min": [
@@ -1327,7 +1327,7 @@
         "bounds": {
           "max": [
             0.47,
-            0.24,
+            0.38,
             0.47
           ],
           "min": [
@@ -1337,10 +1337,10 @@
           ]
         },
         "budget": 300,
-        "bytes": 2692,
+        "bytes": 5828,
         "path": "hemp_field.glb",
-        "sha256": "48b7ed87a448c3e00f61bbf6bc4a68add67c242b5b2b6d9629b3102826c75012",
-        "triangles": 20
+        "sha256": "0d8ed83cc422fc856f0edeab90b7e6409af0fe401b31fe81e9dfe08e9add51c8",
+        "triangles": 56
       },
       "footprint": {
         "h": 1,
@@ -2073,19 +2073,19 @@
         ],
         "status": [
           0.0,
-          0.63,
+          0.68,
           0.0
         ]
       },
       "bounds": {
         "max": [
           0.47,
-          0.38,
+          0.43,
           0.47
         ],
         "min": [
           -0.47,
-          0.02,
+          -0.0259,
           -0.47
         ]
       },
@@ -2093,27 +2093,34 @@
         "bounds": {
           "max": [
             0.47,
-            0.38,
+            0.43,
             0.47
           ],
           "min": [
             -0.47,
-            0.02,
+            -0.0259,
             -0.47
           ]
         },
         "budget": 300,
-        "bytes": 5104,
+        "bytes": 21596,
         "path": "orchard_plot.glb",
-        "sha256": "13839e8c530a4d8c42a06311a60c37376819c0dee34517583dcf4474a7a3d3aa",
-        "triangles": 56
+        "sha256": "9fedba3fd6f0f2805a563bc5ab797080561c92a128d8b517f38b27f5b6ea7fb3",
+        "triangles": 242
       },
       "footprint": {
         "h": 1,
         "w": 1
       },
       "kind": "field",
-      "kit_sources": []
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Tree_3_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        }
+      ]
     },
     "pasture": {
       "anchors": {
@@ -2124,14 +2131,14 @@
         ],
         "status": [
           0.0,
-          0.45,
+          0.49,
           0.0
         ]
       },
       "bounds": {
         "max": [
           0.47,
-          0.2,
+          0.24,
           0.47
         ],
         "min": [
@@ -2144,7 +2151,7 @@
         "bounds": {
           "max": [
             0.47,
-            0.2,
+            0.24,
             0.47
           ],
           "min": [
@@ -2154,10 +2161,10 @@
           ]
         },
         "budget": 300,
-        "bytes": 4560,
+        "bytes": 15528,
         "path": "pasture.glb",
-        "sha256": "0814cdab6e4d8236090578e618afef5df38d459782908a22dcbc14e0f6b93e21",
-        "triangles": 48
+        "sha256": "52b22d62871531707c8ceb76017b151ca7f66d7a4b7efb21942d0fd1ad62b7dd",
+        "triangles": 186
       },
       "footprint": {
         "h": 1,
@@ -3262,14 +3269,14 @@
         ],
         "status": [
           0.0,
-          0.4,
+          0.5,
           0.0
         ]
       },
       "bounds": {
         "max": [
           0.47,
-          0.15,
+          0.25,
           0.47
         ],
         "min": [
@@ -3282,7 +3289,7 @@
         "bounds": {
           "max": [
             0.47,
-            0.15,
+            0.25,
             0.47
           ],
           "min": [
@@ -3292,10 +3299,10 @@
           ]
         },
         "budget": 300,
-        "bytes": 3008,
+        "bytes": 6472,
         "path": "wheat_field.glb",
-        "sha256": "0a0c1255cff08c62b8602f4de40c8e6519d826fc403334315ea2a9704db9c241",
-        "triangles": 26
+        "sha256": "ca45c7674033992fc42810f181bf5708d3b158a4a2e0c683334c68c9d74252aa",
+        "triangles": 62
       },
       "footprint": {
         "h": 1,
