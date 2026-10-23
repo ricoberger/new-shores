@@ -100,10 +100,13 @@ test("on touch the grid follows the finger of a road drag and of a second field 
     const p = await at(...a);
     const q = await at(...b);
     const steps = 4;
-    await touch.raw({ type: "start", fingers: [{ ...p, id: 1 }] });
-    for (let i = 1; i <= steps; i++) {
+    const step = (i: number) => ({ type: "move" as const, fingers: [{ x: p.x + ((q.x - p.x) * i) / steps, y: p.y + ((q.y - p.y) * i) / steps, id: 1 }] });
+    // The first move goes out with the start (no wait for the start's
+    // acknowledgement, which on a busy software renderer takes frames).
+    await touch.raw({ type: "start", fingers: [{ ...p, id: 1 }] }, step(1));
+    for (let i = 2; i <= steps; i++) {
       await page.waitForTimeout(16);
-      await touch.raw({ type: "move", fingers: [{ x: p.x + ((q.x - p.x) * i) / steps, y: p.y + ((q.y - p.y) * i) / steps, id: 1 }] });
+      await touch.raw(step(i));
     }
     await during();
     await touch.raw({ type: "end", fingers: [] });

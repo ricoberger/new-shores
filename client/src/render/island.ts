@@ -2,13 +2,15 @@
 // fields, roads, carts, status icons and construction hulls of one island
 // under a node at the island's archipelago position, so local tile (x, y)
 // is world (position.x + x, 0, −(position.y + y)). Built lazily (when the
-// island is first shown at near or mid LOD) and rebuilt on payload changes
-// while shown. The level of detail toggles layers: near shows everything
-// (with trees, ground scatter, field decoration and foam), mid shows
-// terrain (ground, beach, cliffs, outcrops), roads, contact shadows and
-// flat category blocks only. Buildings, fields and ships are kit-bashed
-// models where the manifest has them (render/models.ts), placeholders
-// otherwise.
+// island is first shown) and rebuilt on payload changes while shown. Every
+// LOD draws the same diorama: terrain (ground, slab, plateaus, outcrops),
+// roads, contact shadows, the kit-bashed models of buildings and fields,
+// trees and ground scatter. The level of detail only toggles pre-built
+// geometry: the full models and the full slab profile at near and mid,
+// the lite models and the coarser slab at far; carts, status icons,
+// construction hulls and foam at near only. Buildings, fields and ships
+// are kit-bashed models where the manifest has them (render/models.ts),
+// placeholders otherwise.
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
@@ -17,8 +19,6 @@ import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
 import { blockedTiles, islandSeed, layerKeys, type Placed, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
-import { BlockLayer } from "./blocks";
-import { canopyBlobs } from "./canopy";
 import { BuildingLayer } from "./buildings";
 import { CartLayer } from "./carts";
 import { FieldDecor, FieldTiles } from "./fields";
@@ -40,8 +40,10 @@ const BUILDING_HEIGHT = DEFAULT_MODEL_HEIGHT;
 
 export class IslandDetail {
   readonly root: TransformNode;
+  /** The models, fields and decoration (every LOD). */
+  private readonly models: TransformNode;
+  /** Carts, status icons, construction hulls and foam (near LOD). */
   private readonly near: TransformNode;
-  private readonly mid: TransformNode;
   private readonly buildings: BuildingLayer;
   private readonly fields: FieldTiles;
   private readonly fieldDecor: FieldDecor;
@@ -50,14 +52,13 @@ export class IslandDetail {
   private readonly carts: CartLayer;
   private readonly icons: IconLayer;
   private readonly construction: ConstructionLayer;
-  private readonly blocks: BlockLayer;
   private readonly buildingBlobs: FootprintShadows;
   private readonly outcrops: OutcropLayer;
   private readonly plateaus: PlateauLayer;
   private foam: FoamLine | null = null;
   private terrain: { lite: Mesh[]; full: Mesh[] } = { lite: [], full: [] };
-  /** Model detail (lite at the near default zoom, full zoomed in): the terrain's slab profile follows it at near LOD. */
-  private detail: Detail = "lite";
+  /** Model detail (full at near and mid, lite at far): the terrain's slab profile follows it. */
+  private detail: Detail = "full";
   /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
   private loops: CoastLoop[] = [];
   private seed = 0;
@@ -70,7 +71,6 @@ export class IslandDetail {
   /** The display payload and content the layers were built from (identity). */
   private builtFrom: { display: IslandDisplay; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
   private lod: Lod = "near";
-  private modelsAtMid = false;
   private shown = false;
   private deposits: Island["deposits"] = [];
 
@@ -82,23 +82,21 @@ export class IslandDetail {
   ) {
     this.root = new TransformNode(`island_${id}`, scene);
     this.root.position.set(position.x, 0, -position.y);
+    this.models = new TransformNode(`island_${id}_models`, scene);
+    this.models.parent = this.root;
     this.near = new TransformNode(`island_${id}_near`, scene);
     this.near.parent = this.root;
-    this.mid = new TransformNode(`island_${id}_mid`, scene);
-    this.mid.parent = this.root;
-    this.buildings = new BuildingLayer(scene, this.near, registry);
-    this.fields = new FieldTiles(scene, this.near);
-    this.fieldDecor = new FieldDecor(scene, this.near);
-    this.decoration = new Decoration(scene, id, this.near, registry);
+    this.buildings = new BuildingLayer(scene, this.models, registry);
+    this.fields = new FieldTiles(scene, this.models);
+    this.fieldDecor = new FieldDecor(scene, this.models);
+    this.decoration = new Decoration(scene, id, this.models, registry);
     this.roads = new RoadLayer(scene, this.root);
     this.carts = new CartLayer(scene, this.near);
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near, registry);
-    this.blocks = new BlockLayer(scene, this.mid);
     this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55);
     this.outcrops = new OutcropLayer(scene, this.root, registry);
     this.plateaus = new PlateauLayer(scene, this.root, registry);
-    this.mid.setEnabled(false);
     this.root.setEnabled(false);
   }
 
@@ -139,7 +137,7 @@ export class IslandDetail {
   /**
    * Brings the layers up to date with the island's payload. The instanced
    * layers (buildings, field tiles, carts, icons, construction) follow
-   * every payload; the merged static meshes (roads, blocks, contact
+   * every payload; the merged static meshes (roads, contact
    * shadows, field decoration, trees and scatter) are rebuilt only when
    * their inputs on this island changed (layerKeys) — per island, never
    * for the whole world.
@@ -193,11 +191,8 @@ export class IslandDetail {
   /** Plateaus and the deposit outcrops on them (mines and quarries keep their tiles at ground level). */
   private updateRelief(): void {
     const st = this.statics;
-    const blocked = this.footprintTiles();
-    const built = this.builtFrom;
-    // Mid LOD: the blocks and the forest canopies around them.
-    if (built) this.blocks.update(built.display.buildings, built.defs, st ? canopyBlobs(st, blocked, this.seed) : []);
     if (!st) return;
+    const blocked = this.footprintTiles();
     this.plateaus.update(st, this.seed, blocked);
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.plateaus.heightAt(x, y));
   }
@@ -210,7 +205,7 @@ export class IslandDetail {
 
 
   /**
-   * Contact shadows around every building (near and mid LOD): the model's
+   * Contact shadows around every building: the model's
    * rotated bounds and height where the manifest has a model, else the
    * footprint and a default height.
    */
@@ -244,19 +239,7 @@ export class IslandDetail {
     }
   }
 
-  /** Mid LOD with the near layers (the models) instead of the blocks (`?mid=models`). */
-  setModelsAtMid(on: boolean): void {
-    if (on === this.modelsAtMid) return;
-    this.modelsAtMid = on;
-    this.applyLod();
-  }
-
-  /** Without the lite tier only the full building chunks are built and drawn. */
-  setLiteTier(on: boolean): void {
-    this.buildings.setDetails(on ? ["lite", "full"] : ["full"]);
-  }
-
-  /** Model detail level (lite at the near default zoom, full zoomed in). */
+  /** Model detail level (full at near and mid, lite at far). */
   setDetail(detail: Detail): void {
     this.detail = detail;
     this.applyTerrainDetail();
@@ -270,9 +253,9 @@ export class IslandDetail {
     }
   }
 
-  /** Content IDs drawn with a placeholder (shown at near LOD; fields included). */
+  /** Content IDs drawn with a placeholder (shown; fields included). */
   placeholders(): string[] {
-    if (!this.shown || this.lod !== "near" || !this.builtFrom) return [];
+    if (!this.shown || !this.builtFrom) return [];
     const out = new Set(this.buildings.placeholders());
     const hull = this.construction.placeholder();
     if (hull) out.add(hull);
@@ -288,7 +271,7 @@ export class IslandDetail {
     return this.shown && this.lod === "near" ? [...this.buildings.meshes(), ...this.decoration.casters()] : [];
   }
 
-  /** Shown (in view at near or mid LOD) or hidden, and the level of detail. */
+  /** Shown (in view) or hidden, and the level of detail. */
   setShown(shown: boolean, lod: Lod): void {
     if (shown !== this.shown) {
       this.shown = shown;
@@ -296,20 +279,23 @@ export class IslandDetail {
     }
     if (lod !== this.lod) {
       this.lod = lod;
-      this.applyLod();
+      this.near.setEnabled(lod === "near");
     }
   }
 
-  private applyLod(): void {
-    const models = this.lod === "near" || (this.lod === "mid" && this.modelsAtMid);
-    this.near.setEnabled(models);
-    this.mid.setEnabled(this.lod === "mid" && !models);
-    this.applyTerrainDetail();
+  /** Warehouses and shipyards drawn (shown at far LOD: the landmarks of the archipelago view). */
+  landmarks(): number {
+    const built = this.builtFrom;
+    if (!this.shown || this.lod !== "far" || !built) return 0;
+    return built.display.buildings.filter((b) => {
+      const def = built.defs.get(b.type);
+      return def?.warehouse !== undefined || def?.shipyard !== undefined;
+    }).length;
   }
 
-  /** The full slab profile only at near LOD with the full models; the coarse one otherwise. */
+  /** The full slab profile with the full models; the coarse one with the lite models (far LOD). */
   private applyTerrainDetail(): void {
-    const full = this.lod === "near" && this.detail === "full";
+    const full = this.detail === "full";
     for (const m of this.terrain.full) m.setEnabled(full);
     for (const m of this.terrain.lite) m.setEnabled(!full);
   }
@@ -325,29 +311,31 @@ export class IslandDetail {
   }
 
   /**
-   * Moves carts and construction hulls (near LOD, shown). Returns true when
-   * the building meshes were replaced (the shadow casters need a refresh).
+   * Rising buildings (shown), carts, construction hulls and foam (near
+   * LOD). Returns true when the building meshes were replaced (the shadow
+   * casters need a refresh).
    */
   frame(nowMs: number): boolean {
-    if (!this.shown || this.lod !== "near") return false;
-    this.foam?.frame(nowMs);
+    if (!this.shown) return false;
     const casters = this.buildings.frame(nowMs);
+    if (this.lod !== "near") return casters;
+    this.foam?.frame(nowMs);
     this.carts.frame(nowMs);
     this.construction.frame(nowMs);
     return casters;
   }
 
-  /** Buildings drawn with the other detail's model until the wanted one has loaded (shown at near LOD). */
+  /** Buildings drawn with the other detail's model until the wanted one has loaded (shown). */
   bridged(): number {
-    return this.shown && this.lod === "near" ? this.buildings.bridged() : 0;
+    return this.shown ? this.buildings.bridged() : 0;
   }
 
-  /** Whether a kit-bashed building or field model is drawn (shown at near LOD). */
+  /** Whether a kit-bashed building or field model is drawn (shown). */
   drawsModels(): boolean {
-    return this.shown && this.lod === "near" && this.buildings.modelled().size > 0;
+    return this.shown && this.buildings.modelled().size > 0;
   }
 
-  /** Trees and ground scatter items built (near-LOD decoration). */
+  /** Trees and ground scatter items built (decoration, every LOD). */
   decorationCounts(): { trees: number; scatter: number } {
     return this.decoration.counts();
   }

@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { fitHalfHeight, MIN_HALF_HEIGHT, NEAR_DEFAULT_HALF_HEIGHT } from "./camera";
+import { fitHalfHeight, NEAR_DEFAULT_HALF_HEIGHT } from "./camera";
 import {
-  detailFor,
+  detailForLod,
   FAR_ENTER_HALF,
   FAR_EXIT_HALF,
-  FULL_DETAIL_ENTER_HALF,
-  FULL_DETAIL_EXIT_HALF,
   initialLod,
   type Lod,
-  liteTier,
   lodFor,
-  modelsAtMid,
   MID_TO_NEAR_HALF,
   NEAR_EXIT_HALF,
 } from "./lod";
@@ -105,29 +101,10 @@ describe("LOD hysteresis", () => {
   });
 });
 
-describe("model detail inside the near level", () => {
-  it("draws the lite models at the near default zoom and the full ones zoomed in, with hysteresis", () => {
-    expect(detailFor(NEAR_DEFAULT_HALF_HEIGHT, "lite")).toBe("lite");
-    expect(detailFor(NEAR_DEFAULT_HALF_HEIGHT, "full")).toBe("lite");
-    expect(detailFor(MIN_HALF_HEIGHT, "lite")).toBe("full");
-    expect(detailFor(FULL_DETAIL_ENTER_HALF, "lite")).toBe("full");
-    // Between the thresholds the previous detail stays.
-    const mid = (FULL_DETAIL_ENTER_HALF + FULL_DETAIL_EXIT_HALF) / 2;
-    expect(detailFor(mid, "lite")).toBe("lite");
-    expect(detailFor(mid, "full")).toBe("full");
-    expect(detailFor(FULL_DETAIL_EXIT_HALF + 0.01, "full")).toBe("lite");
-    expect(FULL_DETAIL_EXIT_HALF / FULL_DETAIL_ENTER_HALF).toBeGreaterThanOrEqual(1.1);
-  });
-
-  it("keeps the lite tier unless ?detail=full", () => {
-    expect(liteTier("")).toBe(true);
-    expect(liteTier("?stats=1")).toBe(true);
-    expect(liteTier("?detail=full&stats=1")).toBe(false);
-  });
-
-  it("draws the blocks at mid LOD unless ?mid=models", () => {
-    expect(modelsAtMid("")).toBe(false);
-    expect(modelsAtMid("?mid=blocks")).toBe(false);
-    expect(modelsAtMid("?detail=full&mid=models")).toBe(true);
+describe("model detail per level", () => {
+  it("draws the full models at near and mid LOD and the lite ones at far LOD", () => {
+    expect(detailForLod("near")).toBe("full");
+    expect(detailForLod("mid")).toBe("full");
+    expect(detailForLod("far")).toBe("lite");
   });
 });

@@ -49,7 +49,7 @@ export function perfMinFps(lod: PerfLod, env: string | undefined = process.env.P
 /** JS heap ceiling (bytes): the < 400 MB mobile budget. */
 const MAX_HEAP_BYTES = 400 * 1024 * 1024;
 /** Draw-call ceiling of every run (instancing or culling regressions exceed it). */
-const MAX_DRAW_CALLS = 40;
+const MAX_DRAW_CALLS = 160;
 const CPU_THROTTLE = 4;
 const SETTLE_MS = 3_000;
 const SAMPLE_MS = 5_000;
@@ -126,8 +126,7 @@ async function measure(browser: Browser, c: Config, run: Run) {
   const cdp = await context.newCDPSession(page);
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: CPU_THROTTLE });
   await cdp.send("Performance.enable");
-  // PERF_DETAIL=full: the trial without the lite tier (?detail=full); PERF_MID=models: the models at mid LOD (?mid=models).
-  await page.goto(`/?fixture=${run.fixture}${process.env.PERF_DETAIL === "full" ? "&detail=full" : ""}${process.env.PERF_MID === "models" ? "&mid=models" : ""}`);
+  await page.goto(`/?fixture=${run.fixture}`);
   await expect.poll(() => page.evaluate(() => performance.getEntriesByName("ns-first-frame").length), { timeout: 30_000 }).toBeGreaterThan(0);
   const ttfiMs = await page.evaluate(() => {
     const at = (n: string) => performance.getEntriesByName(n)[0]?.startTime ?? NaN;

@@ -23,7 +23,7 @@ import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "..
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
-import { detailFor, initialLod, type Lod, liteTier, lodFor, modelsAtMid } from "../display/lod";
+import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import { type Quality, softwareRenderer } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
@@ -149,12 +149,8 @@ export class GameRenderer {
   /** A model finished loading since the last refresh (the layers swap placeholders in batches, see renderFrame). */
   private modelsDirty = false;
   private modelsRefreshedAt = 0;
-  /** Model detail inside the near level (lite at the default zoom, full zoomed in). */
-  private detail: Detail = "lite";
-  /** The lite tier in use (?detail=full: the full models at the whole near LOD). */
-  private readonly lite = liteTier(globalThis.location?.search ?? "");
-  /** The models instead of the blocks at mid LOD (?mid=models). */
-  private readonly modelsAtMid = modelsAtMid(globalThis.location?.search ?? "");
+  /** Model detail of the current LOD (full at near and mid, lite at far). */
+  private detail: Detail = "full";
   private readonly details = new Map<string, IslandDetail>();
   private readonly fields: FieldLayer;
   private readonly roadPreview: RoadPreview;
@@ -541,7 +537,7 @@ export class GameRenderer {
     if (key === this.viewKey) return;
     this.viewKey = key;
     const lod = lodFor(v.half, this.lod);
-    const detail = this.lite ? detailFor(v.half, this.detail) : "full";
+    const detail = detailForLod(lod);
     if (detail !== this.detail) {
       this.detail = detail;
       for (const d of this.details.values()) d.setDetail(detail);
@@ -570,10 +566,10 @@ export class GameRenderer {
 
   /** Shows the layers of the current LOD for the islands in view (building their detail on first use). */
   private applyView(): void {
-    this.arch.show(this.lod, this.visible);
+    this.arch.show(this.lod);
     const snap = this.sync.getSnapshot();
     for (const is of snap.server?.display.islands ?? []) {
-      const shown = this.lod !== "far" && this.visible.has(is.id);
+      const shown = this.visible.has(is.id);
       let d = this.details.get(is.id);
       if (shown) d = this.ensureDetail(is, snap);
       d?.setShown(shown, this.lod);
@@ -584,13 +580,12 @@ export class GameRenderer {
   /** The detail of an island, created and brought up to date with its payload (null without content or statics). */
   private ensureDetail(is: IslandDisplay, snap: SyncSnapshot): IslandDetail | undefined {
     const statics = snap.islands.get(is.id);
-    if (!statics || this.defs.size === 0) return this.details.get(is.id);
+    // Content (the building definitions) first: an island's layers are built with them (a fixture may define none).
+    if (!statics || !this.lastContent) return this.details.get(is.id);
     let d = this.details.get(is.id);
     if (!d) {
       d = new IslandDetail(this.scene, is.id, is.position, this.models);
       d.setRotation(this.rig.view().rotation);
-      if (!this.lite) d.setLiteTier(false);
-      if (this.modelsAtMid) d.setModelsAtMid(true);
       d.setDetail(this.detail);
       this.details.set(is.id, d);
     }
@@ -630,7 +625,7 @@ export class GameRenderer {
         islandBerths(is, st, this.defs).map((t) => ({ x: is.position.x + t.x + 0.5, y: is.position.y + t.y + 0.5 })),
       );
     }
-    this.arch.update(d.islands, snap.islands, d.ships, d.routes, berths, this.defs);
+    this.arch.update(d.islands, snap.islands, d.ships, d.routes, berths);
     this.lookups.clear();
     this.rig.setIslandBounds(this.arch.bounds());
     this.layoutSea();
@@ -777,13 +772,16 @@ export class GameRenderer {
     return { ...this.models.status(), placeholders: [...placeholders].sort(), bridged };
   }
 
-  /** Model detail drawn at near LOD. */
+  /** Model detail drawn (full at near and mid, lite at far). */
   modelDetail(): Detail {
     return this.detail;
   }
 
+  /** Warehouses and shipyards drawn on the islands in view at far LOD. */
   landmarkCount(): number {
-    return this.arch.landmarkCount();
+    let n = 0;
+    for (const d of this.details.values()) n += d.landmarks();
+    return n;
   }
 
   // Picking ----------------------------------------------------------------------

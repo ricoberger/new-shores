@@ -41,35 +41,11 @@ export function lodFor(half: number, prev: Lod): Lod {
 }
 
 /**
- * Model detail inside the near level (art task 3): the full kit-bashed
- * models when zoomed in to at most FULL_DETAIL_ENTER_HALF, the lite ones
- * above FULL_DETAIL_EXIT_HALF (the near default zoom shows a whole dense
- * town, which software renderers cannot afford at full detail), with the
- * same kind of hysteresis as the levels.
+ * Model detail per level (art restyle): the full kit-bashed models at near
+ * and mid LOD, the lite ones (≈ 25 % of the triangles, covering the same
+ * footprint) at far LOD. Both are built once per island and only toggled
+ * at the mid/far boundary, so a zoom never rebuilds geometry.
  */
-export const FULL_DETAIL_ENTER_HALF = 10;
-export const FULL_DETAIL_EXIT_HALF = 11.5;
-
-/** The model detail at a half extent, given the previous one. */
-export function detailFor(half: number, prev: "full" | "lite"): "full" | "lite" {
-  return prev === "full" ? (half > FULL_DETAIL_EXIT_HALF ? "lite" : "full") : half <= FULL_DETAIL_ENTER_HALF ? "full" : "lite";
-}
-
-/**
- * Whether the lite model tier is in use: by default lite at the near
- * default zoom and full zoomed in; `?detail=full` draws the full models
- * (and the full cliff) at the whole near LOD, the trial of dropping the
- * lite tier on capable devices.
- */
-export function liteTier(search: string): boolean {
-  return new URLSearchParams(search).get("detail") !== "full";
-}
-
-/**
- * Whether the mid LOD draws the models instead of the blocks: `?mid=models`,
- * the trial of the full models at mid LOD on capable devices (default:
- * blocks).
- */
-export function modelsAtMid(search: string): boolean {
-  return new URLSearchParams(search).get("mid") === "models";
+export function detailForLod(lod: Lod): "full" | "lite" {
+  return lod === "far" ? "lite" : "full";
 }
