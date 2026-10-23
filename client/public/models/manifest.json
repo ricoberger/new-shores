@@ -1143,59 +1143,59 @@
         ],
         "status": [
           0.0,
-          1.4315,
+          1.5762,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          0.9949,
-          1.1815,
+          1.2449,
+          1.3262,
           1.2389
         ],
         "min": [
-          -1.005,
+          -0.95,
           -0.1535,
-          -1.0543
+          -1.2564
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.9949,
-            1.1815,
+            1.2449,
+            1.3262,
             1.2389
           ],
           "min": [
-            -1.005,
+            -0.95,
             -0.1535,
-            -1.0543
+            -1.2564
           ]
         },
         "budget": 6000,
-        "bytes": 61500,
+        "bytes": 105080,
         "lite": {
           "bounds": {
             "max": [
               0.95,
-              1.1076,
+              1.3359,
               0.95
             ],
             "min": [
-              -0.995,
+              -0.95,
               0.0,
-              -0.95
+              -1.1216
             ]
           },
           "budget": 1500,
-          "bytes": 8308,
+          "bytes": 25928,
           "path": "fisher.lite.glb",
-          "sha256": "2f0357b0c5a093b1f34451ed50c7ffd206c4dcceb4b5d5d94e901c704e828583",
-          "triangles": 118
+          "sha256": "fb2003d93c64a69372d4632056319ef25ac18b33abc35a3aecf0bee9013235db",
+          "triangles": 277
         },
         "path": "fisher.glb",
-        "sha256": "a46eb298f1d1afadb8d8624d8ee862d2ad452504c21ad6fc9e3595f2f402ab6c",
-        "triangles": 754
+        "sha256": "2af386de34ad6e060e9548f43b6ed63ec2039bf4f4ee58051b4429a944cf30f2",
+        "triangles": 1441
       },
       "footprint": {
         "h": 2,
@@ -1205,10 +1205,9 @@
       "kit_sources": [
         {
           "files": [
-            "glTF/DoorFrame_Flat_WoodDark.gltf",
-            "glTF/Prop_Chimney2.gltf"
+            "Assets/gltf/buildings/blue/building_home_A_blue.gltf"
           ],
-          "kit": "medieval"
+          "kit": "kaykit_hexagon"
         },
         {
           "files": [
@@ -1766,59 +1765,59 @@
         ],
         "status": [
           0.0,
-          1.4315,
+          2.6804,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          0.9508,
-          1.1815,
-          0.965
+          1.1678,
+          2.4304,
+          1.0017
         ],
         "min": [
-          -0.965,
-          -0.0071,
-          -0.95
+          -1.1588,
+          -0.253,
+          -1.262
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.9508,
-            1.1815,
-            0.965
+            1.1678,
+            2.4304,
+            1.0017
           ],
           "min": [
-            -0.965,
-            -0.0071,
-            -0.95
+            -1.1588,
+            -0.253,
+            -1.262
           ]
         },
         "budget": 6000,
-        "bytes": 28260,
+        "bytes": 240892,
         "lite": {
           "bounds": {
             "max": [
-              0.95,
-              1.08,
-              0.95
+              1.1714,
+              2.3979,
+              1.0015
             ],
             "min": [
-              -0.965,
-              0.0,
-              -0.95
+              -1.1386,
+              -0.253,
+              -1.2589
             ]
           },
           "budget": 1500,
-          "bytes": 7216,
+          "bytes": 76572,
           "path": "lumberjack.lite.glb",
-          "sha256": "c9e1692bff7a504294c07e25511f24be9c0cebc4ddd219ce5c529c1d81b7d344",
-          "triangles": 98
+          "sha256": "6ac7db0988c3f02a9c3de1f8261c214e8e53fce153c53dcf0bd44b3971a481be",
+          "triangles": 856
         },
         "path": "lumberjack.glb",
-        "sha256": "e202c14397793194caf9a78e4109f4019192deea92c543a40aa5605a4d38268a",
-        "triangles": 396
+        "sha256": "d9e306201a6ed2990b1e22a1d0e66c6e0a817138c4cfbe72a7ba3f3b249c8588",
+        "triangles": 3648
       },
       "footprint": {
         "h": 2,
@@ -1828,11 +1827,11 @@
       "kit_sources": [
         {
           "files": [
-            "glTF/DoorFrame_Flat_WoodDark.gltf",
-            "glTF/Prop_Chimney2.gltf",
-            "glTF/Prop_WoodenFence_Single.gltf"
+            "Assets/gltf/buildings/blue/building_lumbermill_blue.gltf",
+            "Assets/gltf/decoration/nature/tree_single_B_cut.gltf",
+            "Assets/gltf/decoration/props/resource_lumber.gltf"
           ],
-          "kit": "medieval"
+          "kit": "kaykit_hexagon"
         }
       ]
     },
@@ -2345,59 +2344,59 @@
         ],
         "status": [
           0.0,
-          1.215,
+          2.6804,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          0.95,
-          0.965,
-          0.95
+          1.1588,
+          2.4304,
+          1.0017
         ],
         "min": [
-          -0.95,
-          -0.0181,
-          -0.95
+          -1.1678,
+          -0.005,
+          -1.2523
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.95,
-            0.965,
-            0.95
+            1.1588,
+            2.4304,
+            1.0017
           ],
           "min": [
-            -0.95,
-            -0.0181,
-            -0.95
+            -1.1678,
+            -0.005,
+            -1.2523
           ]
         },
         "budget": 6000,
-        "bytes": 25460,
+        "bytes": 231392,
         "lite": {
           "bounds": {
             "max": [
-              0.95,
-              0.9567,
-              0.95
+              1.1386,
+              2.4228,
+              1.0015
             ],
             "min": [
-              -0.95,
-              0.0,
-              -0.95
+              -1.1714,
+              -0.0125,
+              -1.2667
             ]
           },
           "budget": 1500,
-          "bytes": 12316,
+          "bytes": 77852,
           "path": "sawmill.lite.glb",
-          "sha256": "7b5f424e553ab0a78fdd25166fd01e8bb64780dc99ea8827875f3c73e946336a",
-          "triangles": 150
+          "sha256": "7af60bb6efe414edbb4b102394fe75e3299f717f89dbfdccf8abeda3cffce94c",
+          "triangles": 874
         },
         "path": "sawmill.glb",
-        "sha256": "6a8022dde15c34c7a56cf6dcb0f6855e663178b88e12e5c09cdfee2a888a9560",
-        "triangles": 332
+        "sha256": "ecdb5fcaac61e47fbb09f783b230230b6f87abf93e80c4d770e7a6f1477dcc70",
+        "triangles": 3540
       },
       "footprint": {
         "h": 2,
@@ -2407,9 +2406,12 @@
       "kit_sources": [
         {
           "files": [
-            "glTF/Environment_Sawmill.gltf"
+            "Assets/gltf/buildings/blue/building_lumbermill_blue.gltf",
+            "Assets/gltf/decoration/props/crate_long_empty.gltf",
+            "Assets/gltf/decoration/props/pallet.gltf",
+            "Assets/gltf/decoration/props/resource_lumber.gltf"
           ],
-          "kit": "pirate"
+          "kit": "kaykit_hexagon"
         }
       ]
     },
@@ -2501,18 +2503,18 @@
         ],
         "status": [
           0.0,
-          1.88,
+          1.95,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.45,
-          1.63,
-          2.0093
+          1.7,
+          2.0936
         ],
         "min": [
-          -2.45,
+          -2.6469,
           -0.1535,
           -1.95
         ]
@@ -2521,39 +2523,39 @@
         "bounds": {
           "max": [
             2.45,
-            1.63,
-            2.0093
+            1.7,
+            2.0936
           ],
           "min": [
-            -2.45,
+            -2.6469,
             -0.1535,
             -1.95
           ]
         },
         "budget": 6000,
-        "bytes": 70752,
+        "bytes": 324928,
         "lite": {
           "bounds": {
             "max": [
               2.45,
-              1.63,
-              2.0009
+              1.7,
+              2.0964
             ],
             "min": [
-              -2.45,
-              -0.0837,
+              -2.6369,
+              -0.0538,
               -1.95
             ]
           },
           "budget": 1500,
-          "bytes": 13800,
+          "bytes": 96480,
           "path": "shipyard.lite.glb",
-          "sha256": "944b057f6abf14b47e809b4842ea7453a8f043e124bdedd16d0170cb88a0f014",
-          "triangles": 150
+          "sha256": "a741481666abb9885d7e4e4c30d66026fcbde5c37595ca84e3ffa13a059e7c23",
+          "triangles": 1071
         },
         "path": "shipyard.glb",
-        "sha256": "aec6d7f7bf5e6a9786b4486670820a16fb5edfb732ec607b3380f0afe7842fd1",
-        "triangles": 970
+        "sha256": "e09a156217a1dc24b55dab5262d52dc0abb770a58263612082aa50280eee6729",
+        "triangles": 4797
       },
       "footprint": {
         "h": 4,
@@ -2563,10 +2565,14 @@
       "kit_sources": [
         {
           "files": [
-            "glTF/DoorFrame_Flat_WoodDark.gltf",
-            "glTF/Prop_Chimney2.gltf"
+            "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
+            "Assets/gltf/buildings/neutral/building_scaffolding.gltf",
+            "Assets/gltf/decoration/props/crate_A_big.gltf",
+            "Assets/gltf/decoration/props/crate_long_empty.gltf",
+            "Assets/gltf/decoration/props/pallet.gltf",
+            "Assets/gltf/decoration/props/resource_lumber.gltf"
           ],
-          "kit": "medieval"
+          "kit": "kaykit_hexagon"
         },
         {
           "files": [
