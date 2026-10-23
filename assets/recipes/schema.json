@@ -11,6 +11,8 @@
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Content ID (content/old_coast/buildings.json or ships.json), or decor_<name> for decoration." },
     "kind": { "enum": ["building", "field", "ship", "decor"], "description": "decor: island decoration (trees, bushes, rocks, tufts, stumps, outcrops) with an id starting decor_, not a content ID; listed under the manifest's decor key." },
     "notes": { "type": "string", "description": "What the model shows; production buildings name their signature prop." },
+    "shading": { "enum": ["flat", "smooth"], "description": "flat (default): one normal per face; smooth: corner normals averaged over the faces of the same role sharing a position (rounded kit trees and bushes)." },
+    "ao": { "enum": ["full", "crevices"], "description": "Baked ambient occlusion: full (default) or crevices (only the strongest levels, shifted down, so small decoration keeps its palette colour and darkens only in its crevices)." },
     "parts": { "$ref": "#/$defs/partList", "description": "Parts shared by every variant and level." },
     "variants": {
       "type": "array",

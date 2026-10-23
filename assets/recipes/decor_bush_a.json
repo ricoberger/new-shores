@@ -1,2 +1,2 @@
-{"$schema": "./schema.json", "id": "decor_bush_a", "kind": "decor", "notes": "Round bush (KayKit Forest Bush_1_A).", "parts": [
-  {"kit": "kaykit_forest", "file": "Assets/gltf/Bush_1_A_Color1.gltf", "scale": 4.0}]}
+{"$schema": "./schema.json", "id": "decor_bush_a", "kind": "decor", "shading": "smooth", "ao": "crevices", "notes": "Round bush (KayKit Forest Bush_1_A).", "parts": [
+  {"kit": "kaykit_forest", "file": "Assets/gltf/Bush_1_A_Color1.gltf", "scale": 4.0, "roles": {"Atlas/foliage": {"role": "tree-crown", "shade": 1.05}}}]}

@@ -54,7 +54,7 @@ FILE_SCALE = {
 
 #: Palette groups whose colour names are valid roles (material colours;
 #: UI, status, route and light colours are not).
-ROLE_GROUPS = ("buildings", "terrain", "fields", "water")
+ROLE_GROUPS = ("buildings", "terrain", "fields", "water", "island")
 
 #: Palette group with the two-tone shadow tone of every role.
 SHADOW_GROUP = "shadows"
@@ -70,6 +70,10 @@ AO_RAYS = 24
 AO_DISTANCE = 0.45
 AO_LEVELS = 4
 AO_STRENGTH = 0.75
+#: Recipes with "ao": "crevices" (small decoration) drop this many levels
+#: from every corner: open and lightly occluded faces keep the palette
+#: colour, only the crevices darken.
+AO_CREVICE_CUT = 2
 
 #: Kit material defaults: material name → (role, shade). The Medieval kit's
 #: textured materials are replaced by flat palette colours.

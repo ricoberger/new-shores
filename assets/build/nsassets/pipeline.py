@@ -308,9 +308,14 @@ def decimate(mesh, kit_loader, footprint=None):
 
 def bake(mesh, recipe, kit_loader):
     """Bakes ambient occlusion into a mesh when the loader can (Blender); returns the mesh."""
+    if recipe.get("shading") == "smooth":
+        mesh.tris = geometry.smooth_normals(mesh.tris)
     occlusion = getattr(kit_loader, "occlusion", None)
     if occlusion is not None:
         mesh.ao = occlusion(mesh.tris, recipe["kind"] != "ship")
+        if recipe.get("ao") == "crevices":
+            cut = config.AO_CREVICE_CUT
+            mesh.ao = [tuple(max(0, lvl - cut) for lvl in t) for t in mesh.ao]
     return mesh
 
 

@@ -66,5 +66,32 @@ class OcclusionTest(unittest.TestCase):
         self.assertTrue(any("bevel needs the Blender build" in e for e in errors), errors)
 
 
+class ShadingTest(unittest.TestCase):
+    def test_crevices_keep_only_the_strongest_occlusion(self):
+        tris = [((0, 0, z), (1, 0, z), (0, 1, z + 0.5), "plaster", 1.0, "a") for z in (0.0, 0.1, 0.2, 0.4)]
+        mesh = pipeline.bake(geometry.Mesh(tris), {**HOUSE, "ao": "crevices"}, Loader())
+        full = pipeline.bake(geometry.Mesh(tris), HOUSE, Loader())
+        self.assertTrue(any(lvl > 0 for t in full.ao for lvl in t))
+        cut = config.AO_CREVICE_CUT
+        for a, b in zip(mesh.ao, full.ao):
+            self.assertEqual(a, tuple(max(0, lvl - cut) for lvl in b))
+
+    def test_smooth_shading_averages_normals_per_role_and_position(self):
+        # Two faces of a ridge (same role) and one of another role at the same edge.
+        tris = [
+            ((0, 0, 0), (1, 0, 0), (0, 1, 1), "thatch", 1.0, "a"),
+            ((1, 0, 0), (0, 0, 0), (0, -1, 1), "thatch", 1.0, "a"),
+            ((0, 0, 0), (1, 0, 0), (0, 0, 1), "timber", 1.0, "b"),
+        ]
+        out = geometry.smooth_normals(tris)
+        ridge = out[0][7][0]
+        self.assertAlmostEqual(ridge[0], 0.0)
+        self.assertAlmostEqual(ridge[1], 0.0, places=6)
+        self.assertGreater(ridge[2], 0.99)
+        self.assertEqual(out[2][7][0], out[2][6])
+        positions, normals, _, _ = glb.vertex_data(out, {(r, s): (1, 1, 1, 1) for r in ("thatch", "timber") for s in (1.0,)})
+        self.assertEqual(len(positions), 7)
+
+
 if __name__ == "__main__":
     unittest.main()

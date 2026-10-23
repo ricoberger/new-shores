@@ -96,7 +96,7 @@ export class IslandDetail {
     this.blocks = new BlockLayer(scene, this.mid);
     this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55);
     this.outcrops = new OutcropLayer(scene, this.root, registry);
-    this.plateaus = new PlateauLayer(scene, this.root);
+    this.plateaus = new PlateauLayer(scene, this.root, registry);
     this.mid.setEnabled(false);
     this.root.setEnabled(false);
   }

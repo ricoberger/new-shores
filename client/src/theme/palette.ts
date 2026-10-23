@@ -29,13 +29,17 @@ export const WATER = {
   haze: "#B9C9CB",
 } as const;
 
-/** Diorama island slab (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line. */
+/** Diorama island slab and plateaus (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line; warm rock bands, crags and the moss cap of the mountain plateaus. */
 export const ISLAND = {
   sand_rim: "#E2CC93",
   cliff_upper: "#B79C76",
   cliff_ledge: "#9E8A6C",
   cliff_lower: "#877766",
   cliff_foot: "#4F4A55",
+  rock_light: "#B39878",
+  rock: "#977C62",
+  rock_deep: "#735F4E",
+  moss: "#7F9A55",
 } as const;
 
 /** Building materials of the procedural placeholders and the kit re-palette of the models (ART_DIRECTION §7): walls, roofs, timber, stone, metal, glass, sail canvas and dyed cloth. */
@@ -66,7 +70,7 @@ export const FIELDS = {
   orchard_mark: "#B5452F",
 } as const;
 
-/** Two-tone shadow tone per material role (same names as the buildings, terrain, fields and water roles): baked ambient occlusion in the models blends a role's colour toward its shadow tone — darker and cooler, so shadows read violet-blue under the warm grade instead of grey. */
+/** Two-tone shadow tone per material role (same names as the buildings, terrain, fields, water and island roles): baked ambient occlusion in the models blends a role's colour toward its shadow tone — darker and cooler, so shadows read violet-blue under the warm grade instead of grey. */
 export const SHADOWS = {
   plaster: "#867879",
   ochre: "#7E5E3E",
@@ -106,6 +110,15 @@ export const SHADOWS = {
   deep: "#12355C",
   foam: "#8E8A9E",
   haze: "#6B7186",
+  sand_rim: "#837261",
+  cliff_upper: "#6A574E",
+  cliff_ledge: "#5C4D47",
+  cliff_lower: "#4E4343",
+  cliff_foot: "#2E2938",
+  rock_light: "#68554F",
+  rock: "#584541",
+  rock_deep: "#433533",
+  moss: "#4A5638",
 } as const;
 
 /** HUD chrome (themed-flat, ART_DIRECTION §6): parchment panels, dark-wood bars, brass accents, ink text, and the listed tints and shades the HUD uses. */

@@ -1,0 +1,2 @@
+{"$schema": "./schema.json", "id": "decor_rock_c", "kind": "decor", "notes": "Flat boulder along the plateau steps (KayKit Hexagon rock_single_E, warm rock).", "parts": [
+  {"kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/nature/rock_single_E.gltf", "scale": 0.6, "roles": {"Atlas/rock": "rock-light"}}]}

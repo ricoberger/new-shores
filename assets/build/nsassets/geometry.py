@@ -10,8 +10,9 @@ import math
 
 class Mesh:
     """
-    Triangles: (a, b, c, role, shade, label[, normal]) with a/b/c as (x, y, z)
-    tuples (an explicit normal overrides the face normal). `ao` is None or one
+    Triangles: (a, b, c, role, shade, label[, normal[, corner normals]])
+    with a/b/c as (x, y, z) tuples (an explicit normal overrides the face
+    normal; corner normals, one per corner, smooth-shade the triangle). `ao` is None or one
     (level, level, level) tuple of baked occlusion levels per triangle.
     """
 
@@ -144,6 +145,37 @@ def normal(a, b, c):
     n = (uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx)
     length = math.sqrt(n[0] ** 2 + n[1] ** 2 + n[2] ** 2) or 1.0
     return (n[0] / length, n[1] / length, n[2] / length)
+
+
+def smooth_normals(tris, decimals=4):
+    """
+    Smooth shading: every corner gets the area-weighted mean of the face
+    normals of the triangles of the same role sharing its (rounded)
+    position; returns the triangles with (face normal, corner normals).
+    Role seams stay crisp (a trunk does not soften into its crown).
+    """
+    sums = {}
+    faces = []
+    for t in tris:
+        a, b, c = t[:3]
+        ux, uy, uz = b[0] - a[0], b[1] - a[1], b[2] - a[2]
+        vx, vy, vz = c[0] - a[0], c[1] - a[1], c[2] - a[2]
+        w = (uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx)
+        faces.append(t[6] if len(t) > 6 else normal(a, b, c))
+        for p in (a, b, c):
+            key = (t[3], tuple(round(x, decimals) for x in p))
+            acc = sums.setdefault(key, [0.0, 0.0, 0.0])
+            for i in range(3):
+                acc[i] += w[i]
+    out = []
+    for t, n in zip(tris, faces):
+        corners = []
+        for p in t[:3]:
+            v = sums[(t[3], tuple(round(x, decimals) for x in p))]
+            length = math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2)
+            corners.append(tuple(x / length for x in v) if length > 1e-12 else n)
+        out.append(tuple(t[:6]) + (n, tuple(corners)))
+    return out
 
 
 # Deterministic random numbers for perturbations (seeded by recipe ID and part).

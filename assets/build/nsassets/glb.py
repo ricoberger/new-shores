@@ -49,8 +49,10 @@ def vertex_data(tris, colors, ao=None):
         # An explicit normal (sails: up, lit from both sides) or the flat face normal.
         n = to_gltf(t[6]) if len(t) > 6 else geometry.normal(a, b, c)
         n = tuple(round(x, nd) + 0.0 for x in n)
+        # Smooth-shaded triangles carry one normal per corner.
+        ns = [tuple(round(x, nd) + 0.0 for x in to_gltf(m)) for m in t[7]] if len(t) > 7 else [n] * 3
         corner = [colors[(t[3], t[4], lvl)] for lvl in ao[k]] if ao is not None else [colors[(t[3], t[4])]] * 3
-        for p, col in zip((a, b, c), corner):
+        for p, col, n in zip((a, b, c), corner, ns):
             q = tuple(round(x, pd) + 0.0 for x in p)
             key = (q, n, col)
             i = index.get(key)

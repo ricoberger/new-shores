@@ -28,9 +28,9 @@
           ]
         },
         "budget": 300,
-        "bytes": 7208,
+        "bytes": 3396,
         "path": "decor_bush_a.glb",
-        "sha256": "bba8149da64f581a3d7e6bc48d92a88e2b741b7e030da0d312320966371c215f",
+        "sha256": "7225bbe9af7044a0544f90b563eace36cf3f8ca28fff667486968103749d5466",
         "triangles": 72
       },
       "kind": "decor",
@@ -70,9 +70,9 @@
           ]
         },
         "budget": 300,
-        "bytes": 4180,
+        "bytes": 2692,
         "path": "decor_bush_b.glb",
-        "sha256": "87af0e62205aefa9f575443576bb7d074957f623635abc631d961447696dd06e",
+        "sha256": "560152bcdb73b8ddfdbf27f7094c7c206210771bf74a88c5f26fe722986870f4",
         "triangles": 44
       },
       "kind": "decor",
@@ -82,6 +82,132 @@
             "Assets/gltf/Bush_2_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_crag_a": {
+      "bounds": {
+        "max": [
+          0.4174,
+          0.6557,
+          0.432
+        ],
+        "min": [
+          -0.4111,
+          0.0,
+          -0.4311
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.4174,
+            0.6557,
+            0.432
+          ],
+          "min": [
+            -0.4111,
+            0.0,
+            -0.4311
+          ]
+        },
+        "budget": 300,
+        "bytes": 9988,
+        "path": "decor_crag_a.glb",
+        "sha256": "b3902cdb9d5c85cb9192083f4fcda8d9cd1871284de3d1b2c66e56ec2f75abfc",
+        "triangles": 120
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/mountain_A.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "decor_crag_b": {
+      "bounds": {
+        "max": [
+          0.4201,
+          0.814,
+          0.4334
+        ],
+        "min": [
+          -0.4084,
+          0.0,
+          -0.4297
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.4201,
+            0.814,
+            0.4334
+          ],
+          "min": [
+            -0.4084,
+            0.0,
+            -0.4297
+          ]
+        },
+        "budget": 300,
+        "bytes": 10044,
+        "path": "decor_crag_b.glb",
+        "sha256": "89e49d83e513cc13810e838f251b8b20268981f227e75810e93781838a4b4793",
+        "triangles": 120
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/mountain_B.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "decor_crag_c": {
+      "bounds": {
+        "max": [
+          0.4174,
+          0.6937,
+          0.4624
+        ],
+        "min": [
+          -0.3916,
+          0.0,
+          -0.4682
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.4174,
+            0.6937,
+            0.4624
+          ],
+          "min": [
+            -0.3916,
+            0.0,
+            -0.4682
+          ]
+        },
+        "budget": 300,
+        "bytes": 15876,
+        "path": "decor_crag_c.glb",
+        "sha256": "2add9602c7bf597ae9cada2f63f50267924b8cf64fe099e173d123937f4575aa",
+        "triangles": 200
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/mountain_C.gltf"
+          ],
+          "kit": "kaykit_hexagon"
         }
       ]
     },
@@ -244,9 +370,9 @@
           ]
         },
         "budget": 300,
-        "bytes": 3808,
+        "bytes": 3752,
         "path": "decor_rock_a.glb",
-        "sha256": "43b74029116e34dc5e252d3de609f1f1f6385fc6e0b113fe7870f24d5e72c5fb",
+        "sha256": "4a4e0b2d372bfd0e59062e5c499d679e2c85e11339681a92a21ef3ee3e2bf088",
         "triangles": 48
       },
       "kind": "decor",
@@ -286,9 +412,9 @@
           ]
         },
         "budget": 300,
-        "bytes": 1920,
+        "bytes": 1864,
         "path": "decor_rock_b.glb",
-        "sha256": "b2cbba0104390ff4d7602e8c1ea60628c7d085ace9a03121791c7edc78551a99",
+        "sha256": "4c2d3562e861f48ba2d85ef598ccaf2a778fe250acb6110f117efeda1a6f5d53",
         "triangles": 12
       },
       "kind": "decor",
@@ -298,6 +424,48 @@
             "Assets/gltf/Rock_2_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
+        }
+      ]
+    },
+    "decor_rock_c": {
+      "bounds": {
+        "max": [
+          0.3212,
+          0.2687,
+          0.2245
+        ],
+        "min": [
+          -0.3524,
+          -0.0001,
+          -0.255
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.3212,
+            0.2687,
+            0.2245
+          ],
+          "min": [
+            -0.3524,
+            -0.0001,
+            -0.255
+          ]
+        },
+        "budget": 300,
+        "bytes": 6256,
+        "path": "decor_rock_c.glb",
+        "sha256": "8b23f753ba54bd5b794098bd39565a31e1388babcc09e47e117acd2009f19e94",
+        "triangles": 71
+      },
+      "kind": "decor",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/rock_single_E.gltf"
+          ],
+          "kit": "kaykit_hexagon"
         }
       ]
     },
@@ -412,9 +580,9 @@
           ]
         },
         "budget": 300,
-        "bytes": 11568,
+        "bytes": 6108,
         "path": "decor_tree_a.glb",
-        "sha256": "dd79cd1823627426d9db769d377220b187496a1bc86b55895489a3bf0d4a87d4",
+        "sha256": "8aaf19eaf5d06801530e718fdd4a4c4664760a196b36ac99d9e9e2da46e212a5",
         "triangles": 116
       },
       "kind": "decor",
@@ -454,9 +622,9 @@
           ]
         },
         "budget": 300,
-        "bytes": 10844,
+        "bytes": 5972,
         "path": "decor_tree_b.glb",
-        "sha256": "54c58a5a431a872c5528ddd2bfcb3207b4d09070bc9e01535644ef069ebe7293",
+        "sha256": "27c07629548c836cdd64ee83ee3d3d523fd2365c18c8f47f27483f4cc1d2bbcb",
         "triangles": 108
       },
       "kind": "decor",
@@ -496,9 +664,9 @@
           ]
         },
         "budget": 300,
-        "bytes": 11204,
+        "bytes": 6080,
         "path": "decor_tree_c.glb",
-        "sha256": "5538bd4f478f7e83ba2733956379ea5fe8e82e3d5e945b1d13f1ee97584adc5a",
+        "sha256": "670e4b23cf74bc7c8e36afa17a6099752d119fc3e2e19549d11f51d595699c5a",
         "triangles": 112
       },
       "kind": "decor",
@@ -538,9 +706,9 @@
           ]
         },
         "budget": 300,
-        "bytes": 11560,
+        "bytes": 6912,
         "path": "decor_tree_d.glb",
-        "sha256": "6a9430e84c80800a63da64cab786f50c0141b651fae75d30cd28990d7728dc20",
+        "sha256": "382af78b601c055fe282e7229ae5e4a8ba15ac469cd4ace7ab5833fbf32c270c",
         "triangles": 116
       },
       "kind": "decor",
@@ -3145,6 +3313,6 @@
       "kit_sources": []
     }
   },
-  "palette_sha256": "0c866a1a6de3f921b54f4cb76c7c853143fb069d52be1996cb52f81f19238845",
+  "palette_sha256": "d2c891b4a710fae1c4774f81d1ddca7c561844f68a332f471614563b47d6c182",
   "version": 1
 }

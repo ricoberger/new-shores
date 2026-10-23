@@ -1,2 +1,2 @@
-{"$schema": "./schema.json", "id": "decor_rock_b", "kind": "decor", "notes": "Small rock (KayKit Forest Rock_2_A).", "parts": [
-  {"kit": "kaykit_forest", "file": "Assets/gltf/Rock_2_A_Color1.gltf", "scale": 3.0, "roles": {"Atlas/rock": {"role": "mountain", "shade": 1.08}}}]}
+{"$schema": "./schema.json", "id": "decor_rock_b", "kind": "decor", "ao": "crevices", "notes": "Small rock (KayKit Forest Rock_2_A).", "parts": [
+  {"kit": "kaykit_forest", "file": "Assets/gltf/Rock_2_A_Color1.gltf", "scale": 3.0, "roles": {"Atlas/rock": "rock-light"}}]}

@@ -1,2 +1,2 @@
-{"$schema": "./schema.json", "id": "decor_tree_b", "kind": "decor", "notes": "Two-crowned broadleaf (KayKit Forest Tree_1_B, decimated).", "parts": [
+{"$schema": "./schema.json", "id": "decor_tree_b", "kind": "decor", "shading": "smooth", "notes": "Two-crowned broadleaf (KayKit Forest Tree_1_B, decimated).", "parts": [
   {"kit": "kaykit_forest", "file": "Assets/gltf/Tree_1_B_Color1.gltf", "simplify": {"collapse": 0.17}, "scale": 0.85, "roles": {"Atlas/foliage": {"role": "tree-crown", "shade": 1.08}}}]}
