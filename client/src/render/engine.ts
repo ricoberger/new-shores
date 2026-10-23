@@ -23,7 +23,7 @@ import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "..
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
-import { detailFor, initialLod, type Lod, liteTier, lodFor } from "../display/lod";
+import { detailFor, initialLod, type Lod, liteTier, lodFor, modelsAtMid } from "../display/lod";
 import { type Quality, softwareRenderer } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
@@ -153,6 +153,8 @@ export class GameRenderer {
   private detail: Detail = "lite";
   /** The lite tier in use (?detail=full: the full models at the whole near LOD). */
   private readonly lite = liteTier(globalThis.location?.search ?? "");
+  /** The models instead of the blocks at mid LOD (?mid=models). */
+  private readonly modelsAtMid = modelsAtMid(globalThis.location?.search ?? "");
   private readonly details = new Map<string, IslandDetail>();
   private readonly fields: FieldLayer;
   private readonly roadPreview: RoadPreview;
@@ -588,6 +590,7 @@ export class GameRenderer {
       d = new IslandDetail(this.scene, is.id, is.position, this.models);
       d.setRotation(this.rig.view().rotation);
       if (!this.lite) d.setLiteTier(false);
+      if (this.modelsAtMid) d.setModelsAtMid(true);
       d.setDetail(this.detail);
       this.details.set(is.id, d);
     }

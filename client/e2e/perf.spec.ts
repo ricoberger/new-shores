@@ -121,8 +121,8 @@ async function measure(browser: Browser, c: Config, run: Run) {
   const cdp = await context.newCDPSession(page);
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: CPU_THROTTLE });
   await cdp.send("Performance.enable");
-  // PERF_DETAIL=full: the trial without the lite tier (?detail=full).
-  await page.goto(`/?fixture=${run.fixture}${process.env.PERF_DETAIL === "full" ? "&detail=full" : ""}`);
+  // PERF_DETAIL=full: the trial without the lite tier (?detail=full); PERF_MID=models: the models at mid LOD (?mid=models).
+  await page.goto(`/?fixture=${run.fixture}${process.env.PERF_DETAIL === "full" ? "&detail=full" : ""}${process.env.PERF_MID === "models" ? "&mid=models" : ""}`);
   await expect.poll(() => page.evaluate(() => performance.getEntriesByName("ns-first-frame").length), { timeout: 30_000 }).toBeGreaterThan(0);
   const ttfiMs = await page.evaluate(() => {
     const at = (n: string) => performance.getEntriesByName(n)[0]?.startTime ?? NaN;

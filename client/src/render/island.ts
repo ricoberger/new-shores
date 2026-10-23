@@ -70,6 +70,7 @@ export class IslandDetail {
   /** The display payload and content the layers were built from (identity). */
   private builtFrom: { display: IslandDisplay; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
   private lod: Lod = "near";
+  private modelsAtMid = false;
   private shown = false;
   private deposits: Island["deposits"] = [];
 
@@ -243,6 +244,13 @@ export class IslandDetail {
     }
   }
 
+  /** Mid LOD with the near layers (the models) instead of the blocks (`?mid=models`). */
+  setModelsAtMid(on: boolean): void {
+    if (on === this.modelsAtMid) return;
+    this.modelsAtMid = on;
+    this.applyLod();
+  }
+
   /** Without the lite tier only the full building chunks are built and drawn. */
   setLiteTier(on: boolean): void {
     this.buildings.setDetails(on ? ["lite", "full"] : ["full"]);
@@ -288,10 +296,15 @@ export class IslandDetail {
     }
     if (lod !== this.lod) {
       this.lod = lod;
-      this.near.setEnabled(lod === "near");
-      this.mid.setEnabled(lod === "mid");
-      this.applyTerrainDetail();
+      this.applyLod();
     }
+  }
+
+  private applyLod(): void {
+    const models = this.lod === "near" || (this.lod === "mid" && this.modelsAtMid);
+    this.near.setEnabled(models);
+    this.mid.setEnabled(this.lod === "mid" && !models);
+    this.applyTerrainDetail();
   }
 
   /** The full slab profile only at near LOD with the full models; the coarse one otherwise. */

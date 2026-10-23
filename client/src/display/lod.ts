@@ -64,3 +64,12 @@ export function detailFor(half: number, prev: "full" | "lite"): "full" | "lite" 
 export function liteTier(search: string): boolean {
   return new URLSearchParams(search).get("detail") !== "full";
 }
+
+/**
+ * Whether the mid LOD draws the models instead of the blocks: `?mid=models`,
+ * the trial of the full models at mid LOD on capable devices (default:
+ * blocks).
+ */
+export function modelsAtMid(search: string): boolean {
+  return new URLSearchParams(search).get("mid") === "models";
+}

@@ -10,6 +10,7 @@ import {
   type Lod,
   liteTier,
   lodFor,
+  modelsAtMid,
   MID_TO_NEAR_HALF,
   NEAR_EXIT_HALF,
 } from "./lod";
@@ -122,5 +123,11 @@ describe("model detail inside the near level", () => {
     expect(liteTier("")).toBe(true);
     expect(liteTier("?stats=1")).toBe(true);
     expect(liteTier("?detail=full&stats=1")).toBe(false);
+  });
+
+  it("draws the blocks at mid LOD unless ?mid=models", () => {
+    expect(modelsAtMid("")).toBe(false);
+    expect(modelsAtMid("?mid=blocks")).toBe(false);
+    expect(modelsAtMid("?detail=full&mid=models")).toBe(true);
   });
 });
