@@ -100,6 +100,8 @@ export interface TestHook {
   landmarks(): number;
   /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
   ghostTile(): { x: number; y: number } | null;
+  /** What the placement ghost drew in the last frame: the building's model, the footprint box (no model yet) or null (hidden). */
+  ghostKind(): "model" | "box" | null;
   /** Rectangle the field tool's preview showed in the last frame (null: none). */
   fieldPreview(): { from: { x: number; y: number }; to: { x: number; y: number } } | null;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
@@ -564,6 +566,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         carts: () => rendererRef.current?.cartCount() ?? 0,
         landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
+        ghostKind: () => rendererRef.current?.ghostKind() ?? null,
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
         gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,

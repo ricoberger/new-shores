@@ -58,6 +58,23 @@ test("the grid overlay shows for placement tools only", async ({ page }) => {
   await expect.poll(() => gridVisible(page)).toBe(false);
 });
 
+test("the placement ghost is the building's model, rotated with the tool", async ({ page }) => {
+  await page.goto("/?fixture=showcase");
+  await worldReady(page, "showcase");
+  await setCamera(page, { x: 30, y: 20, half: 8, rotation: 0 });
+  await page.getByTestId("build-tab-production").click();
+  await page.getByTestId("build-sawmill").click();
+  const p = await page.evaluate(() => window.__newShores!.tileToScreen("showcase", 30, 22));
+  await page.mouse.move(p.x, p.y);
+  await expect.poll(() => page.evaluate(() => window.__newShores!.ghostKind()), { timeout: 15_000 }).toBe("model");
+  expect(await page.evaluate(() => window.__newShores!.ghostTile())).toEqual({ x: 30, y: 22 });
+  await page.keyboard.press("r");
+  await page.waitForTimeout(200);
+  expect(await page.evaluate(() => window.__newShores!.ghostKind())).toBe("model");
+  await page.keyboard.press("Escape");
+  await expect.poll(() => page.evaluate(() => window.__newShores!.ghostKind())).toBeNull();
+});
+
 test("the grid overlay shows for the found tool", async ({ page }) => {
   // archipelago-8x20: ship 14 lies idle at the unsettled Isle 8.
   await page.goto("/?fixture=archipelago-8x20");

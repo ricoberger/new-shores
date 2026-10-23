@@ -10,11 +10,8 @@
 // (position.x + x, 0, −(position.y + y)).
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { EngineStore } from "@babylonjs/core/Engines/engineStore";
-import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color4 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
-import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
-import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { SyncSnapshot } from "../api/sync";
@@ -22,7 +19,7 @@ import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin } from ".
 import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "../display/fields";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
-import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
+import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import { type Quality, softwareRenderer } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
@@ -34,13 +31,14 @@ import { CameraRig } from "./camera";
 import { footprintBox } from "./coords";
 import { farmRing, FieldLayer, type FieldRing } from "./fields";
 import { islandBerths } from "./harbour";
+import { PlacementGhost } from "./ghost";
 import { GridOverlay } from "./grid";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type AssetsStatus, type Detail, ModelRegistry } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
-import { type Effects, SceneLighting, skyFill } from "./lighting";
+import { type Effects, SceneLighting } from "./lighting";
 import { RoadPreview } from "./roads";
 import type { ShipStyle } from "./shipmesh";
 
@@ -170,8 +168,7 @@ export class GameRenderer {
   private fieldPreviewKey = "";
   private fieldRectShown: { from: TilePos; to: TilePos } | null = null;
   private ringKey = "";
-  private readonly ghost: Mesh;
-  private readonly ghostMaterial: StandardMaterial;
+  private readonly ghost: PlacementGhost;
   private lookups = new Map<string, IslandLookups>();
   private lastGhostHint: string | null = null;
   /** The last pointer was a mouse or pen (the ghost follows it, not a touch-pending tile). */
@@ -241,13 +238,7 @@ export class GameRenderer {
     this.roadPreview = new RoadPreview(this.scene);
     this.grid = new GridOverlay(this.scene);
 
-    this.ghost = CreateBox("ghost", { size: 1 }, this.scene);
-    this.ghostMaterial = skyFill(new StandardMaterial("ghost", this.scene));
-    this.ghostMaterial.diffuseColor = GHOST;
-    this.ghostMaterial.alpha = 0.45;
-    this.ghost.material = this.ghostMaterial;
-    this.ghost.isPickable = false;
-    this.ghost.setEnabled(false);
+    this.ghost = new PlacementGhost(this.scene, this.models);
 
     this.input = new PointerInput(canvas, () => this.ratio(), {
       pointerDown: (kind, first) => this.onPointerDown(kind, first),
@@ -889,6 +880,11 @@ export class GameRenderer {
     if ((isGhostTool(tool) || tool.kind === "field") && tool.pending) this.events.unpend();
   }
 
+  /** What the placement ghost drew in the last frame: the building's model, the footprint box (no model yet) or null (hidden). */
+  ghostKind(): "model" | "box" | null {
+    return this.ghost.kind();
+  }
+
   /** Tile the placement ghost was drawn on in the last frame (local to its island; null: hidden). */
   ghostTile(): TilePos | null {
     return this.ghostAt;
@@ -1232,7 +1228,8 @@ export class GameRenderer {
 
   /**
    * Placement/move ghost under the pointer, on the island whose rectangle
-   * it is over. It turns red when that island lacks the building's
+   * it is over: the building's model, translucent and tinted (render/
+   * ghost.ts), at the tool's rotation. It turns red when that island lacks the building's
    * fertility or the footprint covers no deposit of the required kind
    * (lookups of the island's static data, with the reason as hint text),
    * and yellow when the building requires a road and none of the server's
@@ -1250,14 +1247,11 @@ export class GameRenderer {
     const pl = t ? this.arch.placement(t.island) : undefined;
     this.ghostAt = t && pl ? { x: t.x, y: t.y } : null;
     if (!ghostTool || !def || !t || !pl) {
-      this.ghost.setEnabled(false);
+      this.ghost.hide();
       // The field tool owns the hint (updateFieldPreview).
       if (tool.kind !== "field") this.setGhostHint(null);
       return;
     }
-    const [w, h] = rotatedFootprint(def.width, def.height, tool.rotation);
-    this.ghost.scaling.set(w, 0.6, h);
-    this.ghost.position.set(pl.position.x + t.x + w / 2, 0.3, -(pl.position.y + t.y + h / 2));
     const fertilities = l?.statics?.fertilities ?? [];
     const fertility = fertilityNeed(def, fertilities);
     let hint: string | null = null;
@@ -1267,8 +1261,11 @@ export class GameRenderer {
       hint = `Must cover a ${def.requires_deposit ?? ""} deposit`;
     }
     const color = hint ? GHOST_INVALID : missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation) ? GHOST_NO_ROAD : GHOST;
-    if (this.ghostMaterial.diffuseColor !== color) this.ghostMaterial.diffuseColor = color;
-    this.ghost.setEnabled(true);
+    const moved = tool.kind === "move" ? this.findBuilding(tool.buildingId)?.b : undefined;
+    this.ghost.show(
+      { def, island: pl.position, x: t.x, y: t.y, rotation: tool.rotation, ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}) },
+      color,
+    );
     this.setGhostHint(hint);
   }
 
