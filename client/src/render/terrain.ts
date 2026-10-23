@@ -357,9 +357,15 @@ export function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: C
   }
 }
 
-/** Ground colours of the terrain (noise-tinted per terrain). */
-export function terrainColors(seed: number): GroundColors {
-  return { tile: (t, x, y) => groundColor(t, x, y, seed), slab: (c) => c };
+/** Ground colours of the terrain (noise-tinted per terrain), optionally through a colour transform. */
+export function terrainColors(seed: number, tint: (c: Color3) => Color3 = (c) => c): GroundColors {
+  return { tile: (t, x, y) => tint(groundColor(t, x, y, seed)), slab: tint };
+}
+
+/** Unsettled islands at far LOD: the colours blended 70 % toward their grey (a glance tells them apart). */
+export function unsettledTint(c: Color3): Color3 {
+  const grey = (c.r + c.g + c.b) / 3;
+  return new Color3(c.r * 0.3 + grey * 0.7, c.g * 0.3 + grey * 0.7, c.b * 0.3 + grey * 0.7);
 }
 
 /**
@@ -405,7 +411,8 @@ export function buildIslandMeshes(
  * The island's terrain in two details, both built once: `lite` with the
  * five-ring slab profile (far LOD, with the lite models) and `full` with
  * the full profile (near and mid LOD, with the full models). The ground
- * fill is in both; exactly one set is enabled at a time.
+ * fill is in both; exactly one set is enabled at a time. An unsettled
+ * island's `lite` set is desaturated (unsettledTint).
  */
 export function buildTerrain(
   scene: Scene,
@@ -413,13 +420,14 @@ export function buildTerrain(
   loops: readonly CoastLoop[],
   seed: number,
   parent: TransformNode | null = null,
+  settled = true,
 ): { lite: Mesh[]; full: Mesh[] } {
   const material = skyFill(new StandardMaterial("terrain", scene));
   material.specularColor = Color3.Black();
   material.backFaceCulling = false;
   const colors = terrainColors(seed);
   return {
-    lite: buildIslandMeshes(scene, island, loops, seed, colors, material, parent, "terrain_lite", NEAR_PROFILE),
+    lite: buildIslandMeshes(scene, island, loops, seed, settled ? colors : terrainColors(seed, unsettledTint), material, parent, "terrain_lite", NEAR_PROFILE),
     full: buildIslandMeshes(scene, island, loops, seed, colors, material, parent, "terrain", PROFILE),
   };
 }

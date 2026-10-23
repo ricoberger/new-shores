@@ -606,7 +606,7 @@ export class GameRenderer {
       this.details.set(is.id, d);
     }
     d.setPosition(is.position);
-    d.setStatics(statics);
+    d.setStatics(statics, is.settled);
     if (!d.builtWith(is, this.defs)) {
       d.update(is, this.defs);
       this.applySelection();

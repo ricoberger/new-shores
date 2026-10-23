@@ -38,6 +38,9 @@ const GRASS_A = c3(TERRAIN.grass_a);
  */
 export const FAR_TREE_STRIDE = 1;
 
+/** Material colour of the muted ground scatter (vertex colours × this). */
+const MUTED = new Color3(0.62, 0.62, 0.64);
+
 /** Decor models of the tree species (variant index → manifest decor ID). */
 export const TREE_MODELS = ["decor_tree_a", "decor_tree_b", "decor_tree_c", "decor_tree_d"] as const;
 const STUMP_MODELS = ["decor_stump_a", "decor_stump_b"] as const;
@@ -194,6 +197,8 @@ export class ModelMerger {
 /** Trees, stumps, their blob shadows and the ground scatter of one island (under its near node). */
 export class Decoration {
   private readonly material: StandardMaterial;
+  /** The ground scatter's own material: tinted down on unsettled islands at far LOD (setMuted). */
+  private readonly scatterMaterial: StandardMaterial;
   private readonly shadowMaterial: StandardMaterial;
   private trees: Mesh | null = null;
   private shadows: Mesh | null = null;
@@ -212,6 +217,7 @@ export class Decoration {
     private readonly registry: ModelRegistry | null = null,
   ) {
     this.material = decorMaterial(scene, `decor_${name}`);
+    this.scatterMaterial = decorMaterial(scene, `scatter_${name}`);
     this.shadowMaterial = new StandardMaterial(`tree_shadows_${name}`, scene);
     this.shadowMaterial.diffuseColor = Color3.White();
     this.shadowMaterial.specularColor = Color3.Black();
@@ -289,11 +295,22 @@ export class Decoration {
     this.trees = t.build(`trees_${this.name}`, this.scene, this.material, this.parent);
     this.shadows = sh.build(`tree_shadows_${this.name}`, this.scene, this.shadowMaterial, this.parent, true);
     if (this.shadows) this.shadows.hasVertexAlpha = true;
-    this.scatter = g.build(`scatter_${this.name}`, this.scene, this.material, this.parent);
+    this.scatter = g.build(`scatter_${this.name}`, this.scene, this.scatterMaterial, this.parent);
     if (this.trees) this.trees.receiveShadows = false;
     const all = (m: Mesh | null) => m?.getTotalIndices() ?? 0;
     this.ranges = { trees: { kept: keptTrees, all: all(this.trees) }, shadows: { kept: keptShadows, all: all(this.shadows) } };
     this.applyThinning();
+  }
+
+  /** Tints the ground scatter down (unsettled islands at far LOD): a material colour, no rebuild. */
+  setMuted(on: boolean): void {
+    this.scatterMaterial.diffuseColor = on ? MUTED : Color3.White();
+    this.scatterMaterial.ambientColor = on ? MUTED : Color3.White();
+  }
+
+  /** The scatter's material colour (tests). */
+  scatterTint(): Color3 {
+    return this.scatterMaterial.diffuseColor;
   }
 
   /** Far LOD: draw only the kept trees (and their shadows) — a toggle of the drawn index range. */

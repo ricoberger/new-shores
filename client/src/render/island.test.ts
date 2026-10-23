@@ -149,3 +149,37 @@ describe("shadow casters with models", () => {
     scene.dispose();
   });
 });
+
+describe("unsettled islands at far LOD", () => {
+  it("draw a desaturated ground and muted scatter at far LOD only, by toggles", () => {
+    engine = new NullEngine({ renderWidth: 320, renderHeight: 200, textureSize: 64, deterministicLockstep: false, lockstepMaxSteps: 1 });
+    const scene = new Scene(engine);
+    const built = buildDenseArchipelagoFixture(0);
+    const defs = new Map<string, ContentBuilding>(built.content.buildings.map((b) => [b.id, b]));
+    const is = built.server.display.islands.find((x) => !x.settled)!;
+    const st = built.islands.get(is.id)!;
+    const saturation = (name: string) => {
+      const m = scene.meshes.find((x) => x.name.startsWith(`${name}_${is.id}`))!;
+      const c = m.getVerticesData("color")!;
+      let s = 0;
+      for (let i = 0; i < c.length; i += 4) s += Math.max(c[i]!, c[i + 1]!, c[i + 2]!) - Math.min(c[i]!, c[i + 1]!, c[i + 2]!);
+      return s / (c.length / 4);
+    };
+    const d = new IslandDetail(scene, is.id, is.position);
+    d.setStatics(st, false);
+    d.update(is, defs);
+    // The far (lite) ground is greyer than the near/mid (full) one.
+    expect(saturation("terrain_lite")).toBeLessThan(saturation("terrain") * 0.5);
+    d.setShown(true, "near");
+    const meshes = scene.meshes.length;
+    d.setShown(true, "far");
+    expect(d.mutedScatter()).toBe(true);
+    d.setShown(true, "mid");
+    expect(d.mutedScatter()).toBe(false);
+    expect(scene.meshes.length).toBe(meshes);
+    // A settled island keeps its colours at far LOD.
+    d.setStatics(st, true);
+    d.setShown(true, "far");
+    expect(d.mutedScatter()).toBe(false);
+  });
+});

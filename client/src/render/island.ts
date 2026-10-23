@@ -71,6 +71,8 @@ export class IslandDetail {
   /** The display payload and content the layers were built from (identity). */
   private builtFrom: { display: IslandDisplay; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
   private lod: Lod = "near";
+  /** Settled (from the payload): an unsettled island is drawn muted at far LOD. */
+  private settled = true;
   private shown = false;
   private deposits: Island["deposits"] = [];
 
@@ -108,14 +110,16 @@ export class IslandDetail {
   }
 
   /** Rebuilds the terrain when the static data changed. */
-  setStatics(statics: Island): void {
-    const key = `${statics.revision}|${statics.id}`;
+  setStatics(statics: Island, settled = true): void {
+    const key = `${statics.revision}|${statics.id}|${settled}`;
+    this.settled = settled;
+    this.applyMuted();
     if (key === this.terrainKey) return;
     for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
     this.root.computeWorldMatrix(true);
     this.seed = islandSeed(statics.id, statics.revision);
     this.loops = coastline(statics);
-    this.terrain = buildTerrain(this.scene, statics, this.loops, this.seed, this.root);
+    this.terrain = buildTerrain(this.scene, statics, this.loops, this.seed, this.root, settled);
     this.applyTerrainDetail();
     this.deposits = statics.deposits;
     this.statics = statics;
@@ -281,7 +285,18 @@ export class IslandDetail {
       this.lod = lod;
       this.near.setEnabled(lod === "near");
       this.decoration.setThinned(lod === "far");
+      this.applyMuted();
     }
+  }
+
+  /** Unsettled islands at far LOD: the ground scatter tinted down (the desaturated ground is the terrain's lite set). */
+  private applyMuted(): void {
+    this.decoration.setMuted(this.lod === "far" && !this.settled);
+  }
+
+  /** Whether the ground scatter is drawn muted (tests). */
+  mutedScatter(): boolean {
+    return this.decoration.scatterTint().r < 1;
   }
 
   /** Warehouses and shipyards drawn (shown at far LOD: the landmarks of the archipelago view). */
