@@ -114,6 +114,15 @@ in as the fixed player "Developer". The API is at
   against the same in-memory dev server. Use it for fps numbers on a phone:
   Vite's unbundled dev serving is slower than a bundle. Open
   `http://$HOST:4173/?fixture=dense-2x400&stats=1`.
+- **`POST /api/v1/dev/reset` (tests only):** replaces the dev server's
+  in-memory world with a fresh dev fixture (optional body
+  `{"fixture": "default" | "town" | "settled"}`, see
+  `server/internal/devworld/fixtures.go`): pending events, the last-seen
+  time and the away summary start over, the version increases and
+  `world_changed` is published. It exists for the E2E specs, which reset
+  the world in `beforeAll` (`client/e2e/world.ts`) instead of depending
+  on each other's leftovers. It is mounted only with `--dev` (404 in
+  default mode) and is not part of the public API (`openapi.yaml`).
 
 ### Server configuration (default mode)
 
