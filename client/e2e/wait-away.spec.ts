@@ -28,11 +28,11 @@ test("the away dialog shows once per summary", async ({ page }) => {
   await worldReady(page, ISLAND);
   await wheelZoom(page, ISLAND_ZOOM_OUT_TICKS);
 
-  // A command: toggle the lumberjack's pause in its info panel and back.
-  // Its starting state depends on the world time the other specs took:
-  // when the town's gold ran out meanwhile, the insolvency cascade has
-  // auto-paused it (paused_reason "unpaid", MECHANICS §7), and the button
-  // then resumes it first.
+  // A command in the lumberjack's info panel, leaving it running for the
+  // specs after this one. Its starting state depends on the world time the
+  // other specs took: when the town's gold ran out meanwhile, the
+  // insolvency cascade has auto-paused it (paused_reason "unpaid",
+  // MECHANICS §7) and one Resume is the command; else Pause and Resume.
   const p = await page.evaluate(([id, x, y]) => window.__newShores!.tileToScreen(id as string, x as number, y as number), [
     ISLAND,
     LUMBERJACK.x,
@@ -40,11 +40,12 @@ test("the away dialog shows once per summary", async ({ page }) => {
   ]);
   await page.mouse.click(p.x, p.y);
   await expect(page.getByTestId("info-name")).toHaveText("Lumberjack");
-  const before = await lumberjackPaused(page);
+  if (!(await lumberjackPaused(page))) {
+    await page.getByTestId("info-pause").click();
+    await expect.poll(() => lumberjackPaused(page)).toBe(true);
+  }
   await page.getByTestId("info-pause").click();
-  await expect.poll(() => lumberjackPaused(page)).toBe(!before);
-  await page.getByTestId("info-pause").click();
-  await expect.poll(() => lumberjackPaused(page)).toBe(before);
+  await expect.poll(() => lumberjackPaused(page)).toBe(false);
   const lastSeen = await page.evaluate(() => window.__newShores!.getServer()!.display.last_seen_at);
 
   // away_summary_minutes of world time later a reload shows the summary.
