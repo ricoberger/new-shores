@@ -18,7 +18,7 @@ class SchemaTest(unittest.TestCase):
     def test_valid_recipe_passes(self):
         self.assertEqual(check(base()), [])
         kit, rel = A_KIT_FILE
-        self.assertEqual(check(base(parts=[{"kit": kit, "file": rel, "roles": {"MI_Plaster": "ochre"}, "simplify": {"dissolve": 5}}])), [])
+        self.assertEqual(check(base(parts=[{"kit": kit, "file": rel, "roles": {"Atlas/white": "ochre"}, "simplify": {"dissolve": 5}}])), [])
 
     def test_unknown_field_fails_naming_the_recipe(self):
         errs = check(base(colour="red"))
@@ -37,9 +37,9 @@ class SchemaTest(unittest.TestCase):
         self.assertTrue(any("unknown role 'ink'" in e for e in errs), errs)
 
     def test_unknown_kit_file_fails_naming_the_part(self):
-        errs = check(base(parts=[{"kit": "medieval", "file": "glTF/Not_A_Piece.gltf"}]))
+        errs = check(base(parts=[{"kit": "kaykit_hexagon", "file": "Assets/gltf/Not_A_Piece.gltf"}]))
         self.assertEqual(len(errs), 1, errs)
-        self.assertIn("parts[0] (glTF/Not_A_Piece.gltf)", errs[0])
+        self.assertIn("parts[0] (Assets/gltf/Not_A_Piece.gltf)", errs[0])
         self.assertIn("not listed in assets/kits/MANIFEST.json", errs[0])
 
     def test_wrong_id_fails(self):

@@ -34,11 +34,8 @@ GENERATOR = "new-shores assets build"
 #: 1 tile = 4 m (ART_DIRECTION §5).
 METRES_PER_TILE = 4.0
 
-#: Kit unit (metre) → tiles. Both Quaternius kits are authored in metres
-#: (Medieval walls are 2 m wide and 3.12 m high), so 1 / 4 m.
+#: Kit unit → tiles.
 KIT_SCALE = {
-    "medieval": 0.25,
-    "pirate": 0.25,
     # KayKit Medieval Hexagon: home_A (0.79 × 0.85 kit units) on the 2 × 2
     # house footprint → 1.82 × 1.96 tiles, 2.1 tiles tall (the chunky,
     # exaggerated silhouette of the restyle). Props need a part scale.
@@ -48,13 +45,10 @@ KIT_SCALE = {
     "kaykit_forest": 0.3,
 }
 
-#: Per-file overrides of the kit factor. The Pirate Kit's Ship_Small hull is
-#: 5.15 m long; at 0.35 tiles/m it is 1.80 tiles, and with the procedural
-#: bowsprit the sloop measures 2.0 tiles (the near-LOD length of the former
-#: placeholder, so berths, legs and the ship blob stay valid).
-FILE_SCALE = {
-    "pirate:glTF/Ship_Small.gltf": 0.35,
-}
+#: Per-file overrides of the kit factor ("<kit>:<file>" → tiles per kit
+#: unit); none at the moment (the sloop scales its KayKit ship by a part
+#: scale).
+FILE_SCALE = {}
 
 #: Palette groups whose colour names are valid roles (material colours;
 #: UI, status, route and light colours are not).
@@ -91,46 +85,6 @@ AO_CREVICE_CUT = 2
 #:   closer and the shadow side keeps the straw's chroma.
 SHADOW_CHROMA = {"thatch": 0.9}
 NORMAL_TILT = {"thatch": 0.7}
-
-#: Kit material defaults: material name → (role, shade). The Medieval kit's
-#: textured materials are replaced by flat palette colours.
-KIT_MATERIALS = {
-    "medieval": {
-        "MI_Plaster": ("plaster", 1.0),
-        "MI_WoodTrim": ("timber", 1.0),
-        "MI_WoodTrim_Wear": ("timber", 0.85),
-        "MI_RockTrim": ("stone", 1.0),
-        "MI_Brick": ("stone", 0.92),
-        "MI_UnevenBrick": ("stone", 0.95),
-        "MI_RoundRocks": ("stone", 0.9),
-        "MI_RedBrick": ("terracotta", 0.9),
-        "MI_RoundTiles": ("terracotta", 1.0),
-        "MI_FlatTiles": ("terracotta", 0.9),
-        "MI_MetalOrnaments": ("iron", 1.0),
-        "MI_WindowGlass": ("window", 1.0),
-        "MI_Vine": ("tree-crown", 1.0),
-    },
-}
-
-#: Atlas kits: every face samples the atlas at its UV centroid and takes the
-#: nearest swatch (sRGB distance). The face's material is renamed to
-#: "Atlas/<swatch>"; a recipe's `roles` map may use those names.
-KIT_ATLAS_SWATCHES = {
-    "pirate": [
-        # name, reference sRGB hex, role, shade
-        ("wood_dark", "#3A2A20", "timber", 0.75),
-        ("wood", "#6B4A30", "timber", 1.0),
-        ("wood_light", "#A07850", "thatch", 1.0),
-        ("sand", "#C8A878", "thatch", 1.1),
-        ("metal", "#7C7C80", "iron", 1.0),
-        ("black", "#1C1C1C", "iron", 0.8),
-        ("red", "#8E1E1E", "terracotta", 0.85),
-        ("white", "#D8D8D0", "canvas", 1.0),
-        ("gold", "#D8A830", "brass", 1.0),
-        ("blue", "#4A80B8", "dye-blue", 1.0),
-        ("green", "#5A9A20", "tree-crown", 1.0),
-    ],
-}
 
 #: Gradient-atlas kits (KayKit, nsassets/atlas.py): a face's material is
 #: "Atlas/<swatch>@<band>" from the grid cell of its UV centroid (exact:

@@ -66,14 +66,14 @@ class PipelineTest(unittest.TestCase):
 
     def test_kit_pieces_use_the_kit_scale_and_material_roles(self):
         kit, rel = A_KIT_FILE
-        r = {"id": "chapel", "kind": "building", "parts": CHAPEL["parts"][:1] + [{"kit": kit, "file": rel, "position": [0, 0, 0.6], "name": "piece"}]}
+        r = {"id": "chapel", "kind": "building", "parts": CHAPEL["parts"][:1] + [{"kit": kit, "file": rel, "position": [0, 0, 0.6], "scale": 0.1, "name": "piece"}]}
         files, entry, errors = build(r)
         self.assertEqual(errors, [])
         piece = [t for t in files[0][2].tris if t[5].endswith("'piece'")]
         self.assertEqual(len(piece), 12)
-        # 1 m kit cube → 0.25 tiles; MI_Plaster → plaster by the kit default.
+        # 1-unit kit cube × kit scale × part scale; the atlas's white cell → plaster.
         xs = [p[0] for t in piece for p in t[:3]]
-        self.assertAlmostEqual(max(xs) - min(xs), 0.25)
+        self.assertAlmostEqual(max(xs) - min(xs), config.KIT_SCALE["kaykit_hexagon"] * 0.1)
         self.assertEqual({t[3] for t in piece}, {"plaster"})
         self.assertEqual(entry["kit_sources"], [{"kit": kit, "files": [rel]}])
 

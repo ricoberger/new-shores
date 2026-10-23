@@ -14,11 +14,10 @@ CONTENT = content.load()
 SCHEMA = schema.load()
 KIT_FILES = kits.kit_files(kits.load_manifest())
 
-#: A Medieval kit piece (the fake loader returns MI_Plaster cubes). The
-#: restyled recipes no longer use that kit, so the piece is added to the
-#: pinned files the tests check recipes against.
-A_KIT_FILE = ("medieval", "glTF/DoorFrame_Flat_WoodDark.gltf")
-KIT_FILES.setdefault(A_KIT_FILE, "0" * 64)
+#: A pinned KayKit piece (the fake loader returns cubes in the atlas's white cell).
+A_KIT_FILE = ("kaykit_hexagon", "Assets/gltf/decoration/props/barrel.gltf")
+#: The material of every fake kit triangle: the hexagon atlas's white cell, middle band (plaster × 1.0).
+FAKE_MATERIAL = "Atlas/white@1"
 
 
 def unit_box(n_parts=1, size=(1.8, 1.8, 0.5), role="plaster"):
@@ -26,10 +25,10 @@ def unit_box(n_parts=1, size=(1.8, 1.8, 0.5), role="plaster"):
 
 
 def fake_loader(tris_per_file=None):
-    """A kit loader without Blender: every kit piece is a 1 m cube (12 triangles, material MI_Plaster)."""
+    """A kit loader without Blender: every kit piece is a 1-unit cube (12 triangles, material FAKE_MATERIAL)."""
     from nsassets import geometry
 
     def load(kit, rel, simplify):
-        return [(a, b, c, "MI_Plaster") for a, b, c in geometry.box((1.0, 1.0, 1.0))]
+        return [(a, b, c, FAKE_MATERIAL) for a, b, c in geometry.box((1.0, 1.0, 1.0))]
 
     return load

@@ -80,13 +80,6 @@ def kit_role(kit, material, part, roles=None):
         return part["role"], shade
     if material in part.get("roles", {}):
         return _role_value(part["roles"][material], shade)
-    if kit in config.KIT_MATERIALS and material in config.KIT_MATERIALS[kit]:
-        role, s = config.KIT_MATERIALS[kit][material]
-        return role, s * shade
-    if kit in config.KIT_ATLAS_SWATCHES and material.startswith("Atlas/"):
-        for name, _hex, role, s in config.KIT_ATLAS_SWATCHES[kit]:
-            if material == f"Atlas/{name}":
-                return role, s * shade
     return None, shade
 
 

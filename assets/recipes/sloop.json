@@ -2,36 +2,86 @@
   "$schema": "./schema.json",
   "id": "sloop",
   "kind": "ship",
-  "notes": "Pirate Kit Ship_Small hull (side barrels cropped, simplified, slimmed, turned bow to +x) with one procedural mast, boom and gaff, a bulged gaff mainsail and a jib on a bowsprit, stays and a pennant. The cargo attachment stacks crates and a barrel on the deck.",
-  "ship": { "length_tiles": 2.0, "masts": 1, "sail_scale": 1.0 },
+  "notes": "KayKit Medieval Hexagon ship (the blue 'accent' file: wood hull, cream sails with team-colour stripes and flags; the team swatch is re-coloured to canvas by the palette, the hull a warm timber), simplified to the ship budget, turned bow to +x and scaled to the two-tile length. The cargo attachment stacks two simplified KayKit crates on the aft deck.",
+  "ship": {
+    "length_tiles": 2.0,
+    "masts": 3,
+    "sail_scale": 1.0
+  },
   "parts": [
     {
-      "name": "hull",
-      "kit": "pirate",
-      "file": "glTF/Ship_Small.gltf",
-      "crop": { "min": [-3.0, -1.15, -0.1], "max": [2.4, 1.15, 1.2] },
-      "simplify": { "collapse": 0.12 },
-      "rotation": [0, 0, 180],
-      "scale": [1, 0.62, 1],
-      "position": [0.05, 0, -0.16],
-      "roles": { "Atlas/black": "timber", "Atlas/metal": "iron", "Atlas/sand": "thatch" }
-    },
-    { "name": "mast", "prim": "cylinder", "radius": 0.028, "radius_top": 0.02, "height": 1.55, "segments": 5, "position": [0.12, 0, 0.0], "role": "timber" },
-    { "name": "boom", "prim": "cylinder", "radius": 0.02, "height": 0.95, "segments": 4, "position": [0.1, 0, 0.3], "rotation": [0, -90, 0], "role": "timber", "shade": 0.9 },
-    { "name": "gaff", "prim": "cylinder", "radius": 0.016, "height": 0.62, "segments": 4, "position": [0.1, 0, 1.35], "rotation": [0, -112, 0], "role": "timber", "shade": 0.9 },
-    { "name": "mainsail", "prim": "sail", "width": 0.86, "width_top": 0.56, "height": 1.02, "bulge": 0.09, "segments": 3, "position": [-0.33, 0, 0.33], "role": "canvas" },
-    { "name": "bowsprit", "prim": "cylinder", "radius": 0.022, "radius_top": 0.012, "height": 0.42, "segments": 4, "position": [0.62, 0, 0.13], "rotation": [0, 78, 0], "role": "timber" },
-    { "name": "jib", "prim": "sail", "width": 0.56, "width_top": 0, "height": 1.05, "bulge": 0.05, "segments": 2, "position": [0.55, 0, 0.32], "role": "canvas", "shade": 0.95 },
-    { "name": "forestay", "prim": "box", "size": [0.012, 0.012, 1.42], "position": [0.98, 0, 0.18], "rotation": [0, -37, 0], "role": "timber", "shade": 0.7, "open": ["top", "bottom"] },
-    { "name": "backstay", "prim": "box", "size": [0.012, 0.012, 1.55], "position": [-0.85, 0, 0.12], "rotation": [0, 33, 0], "role": "timber", "shade": 0.7, "open": ["top", "bottom"] },
-    { "name": "pennant", "prim": "sail", "width": 0.22, "width_top": 0, "height": 0.08, "bulge": 0.01, "segments": 1, "position": [0.0, 0, 1.5], "rotation": [0, 90, 0], "role": "dye-blue" }
+      "name": "ship",
+      "kit": "kaykit_hexagon",
+      "file": "Assets/gltf/units/blue/ship_blue_accent.gltf",
+      "simplify": {
+        "dissolve": 1
+      },
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale": 0.385,
+      "position": [
+        0,
+        0,
+        -0.15
+      ],
+      "roles": {
+        "Atlas/team": "canvas",
+        "Atlas/wood": {
+          "role": "timber",
+          "shade": 1.12
+        }
+      }
+    }
   ],
   "attachments": {
     "cargo": [
-      { "name": "crates", "prim": "box", "size": [0.16, 0.16, 0.14], "position": [-0.42, 0.05, 0.06], "role": "timber", "shade": 1.15, "open": ["bottom"], "repeat": { "count": 2, "step": [0.18, -0.1, 0], "rotate": 12 } },
-      { "name": "crate top", "prim": "box", "size": [0.14, 0.14, 0.12], "position": [-0.36, 0.0, 0.2], "rotation": [0, 0, 20], "role": "thatch", "open": ["bottom"] },
-      { "name": "barrel", "prim": "lathe", "profile": [[0.06, 0], [0.075, 0.08], [0.06, 0.16], [0, 0.16]], "segments": 6, "position": [0.42, 0.04, 0.06], "role": "timber", "shade": 0.95 },
-      { "name": "sack", "prim": "rock", "size": [0.09, 0.07, 0.06], "position": [0.3, -0.08, 0.1], "role": "canvas", "shade": 0.85 }
+      {
+        "name": "crate",
+        "kit": "kaykit_hexagon",
+        "file": "Assets/gltf/decoration/props/crate_A_small.gltf",
+        "simplify": {
+          "collapse": 0.5
+        },
+        "position": [
+          -0.55,
+          0.06,
+          0.2
+        ],
+        "rotation": [
+          0,
+          0,
+          12
+        ],
+        "scale": 0.8
+      },
+      {
+        "name": "crate",
+        "kit": "kaykit_hexagon",
+        "file": "Assets/gltf/decoration/props/crate_B_small.gltf",
+        "simplify": {
+          "collapse": 0.5
+        },
+        "position": [
+          -0.36,
+          -0.06,
+          0.2
+        ],
+        "rotation": [
+          0,
+          0,
+          -8
+        ],
+        "scale": 0.8,
+        "roles": {
+          "Atlas/beige": {
+            "role": "timber",
+            "shade": 1.3
+          }
+        }
+      }
     ]
   }
 }

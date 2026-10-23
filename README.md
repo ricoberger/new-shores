@@ -253,8 +253,8 @@ service before the servers start.
 
 ### Asset build
 
-Buildings, fields and ships are low-poly models kit-bashed from two CC0
-Quaternius kits by data recipes (ART_DIRECTION §7). The results are
+Buildings, fields, ships and island decoration are low-poly models
+kit-bashed from two CC0 KayKit packs by data recipes (ART_DIRECTION §7). The results are
 committed: `client/public/models/*.glb` plus `manifest.json`, which the
 client loads lazily (procedural placeholders until a model arrives or when
 one is missing). Rebuilding is only needed after changing a recipe, the
@@ -318,10 +318,11 @@ Compose → Kubernetes.
   The pinned files and the author of each are listed in
   `assets/icons/icons.json`.
 - **Models:** kit pieces from the
-  [Medieval Village MegaKit](https://quaternius.com/packs/medievalvillagemegakit.html)
-  and the [Pirate Kit](https://quaternius.com/packs/piratekit.html) by
-  Quaternius, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)
-  (no attribution required; the kits are not redistributed, see
+  [KayKit Medieval Hexagon Pack](https://kaylousberg.itch.io/kaykit-medieval-hexagon-pack)
+  and the [KayKit Forest Nature Pack](https://kaylousberg.itch.io/kaykit-forest-nature-pack)
+  (SOURCE editions) by Kay Lousberg,
+  [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (no
+  attribution required; the kits are not redistributed, see
   `assets/kits/README.md`).
 - **Fonts:** [Cinzel](https://github.com/NDISCOVER/Cinzel) by Natanael Gama
   and [Source Sans 3](https://github.com/adobe-fonts/source-sans) by Paul
