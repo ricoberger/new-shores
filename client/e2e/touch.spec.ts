@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { camera, expectFocused, expectLod, freeCanvasPoint, islandPoint, islandTapPoint, type Lod, lod, modelsLoaded, setCamera, shipPoint, worldReady } from "./archipelago";
+import { camera, expectFocused, expectLod, freeCanvasPoint, islandPoint, islandTapPoint, type Lod, lod, modelsLoaded, shipPoint, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 import {
   ISLAND,
@@ -250,22 +250,21 @@ test("pinch zooms through the LODs and back without a mode; tap an island at far
 
 test("a touch gesture begun during a jump stays ignored after it, also when a drag turns into a pinch", async ({ page }) => {
   test.skip(!touch.multiTouch, "no multi-touch emulation in this browser");
+  // The page's clock is controlled: the jump's 350 ms animation is held
+  // while the touch events arrive, however slow the renderer (a software
+  // renderer on a CI runner takes longer for a frame than the jump lasts).
+  await page.clock.install();
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
   // The models have loaded and merged (no main-thread work left that could outlast the jump).
   await modelsLoaded(page);
-  // Start over the sea beside the small second island: the frames of the
-  // jump stay cheap, so the 350 ms animation outlasts the three touch
-  // events on a software renderer too (the dense town at full detail
-  // takes ~200 ms a frame there).
-  const d2 = await page.evaluate(() => window.__newShores!.getServer()!.display.islands.find((is) => is.id === "dense2")!);
-  await setCamera(page, { x: d2.position.x - 12, y: d2.position.y + d2.height / 2, half: 18 });
-  await modelsLoaded(page);
   await page.waitForTimeout(300);
   const c = await freeCanvasPoint(page);
-  // Jump to the second island (a DOM click: no touch pointer), and during
-  // the 350 ms animation press one finger, drag it, and add a second
-  // finger (the recogniser promotes the drag to a pinch with a cancel).
+  // Jump to the second island (a DOM click: no touch pointer) with the
+  // clock paused, and during the animation press one finger, drag it, and
+  // add a second finger (the recogniser promotes the drag to a pinch with
+  // a cancel).
+  await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1_000);
   await page.evaluate(() => (document.querySelector('[data-testid="island-tab-dense2"]') as HTMLElement).click());
   await touch.raw(
     { type: "start", fingers: [{ ...c, id: 1 }] },
@@ -280,6 +279,7 @@ test("a touch gesture begun during a jump stays ignored after it, also when a dr
   );
   // All three were handled while the camera still animated.
   expect(Number.isFinite(await page.evaluate(() => window.__newShores!.tileToScreen("dense2", 0, 0).x))).toBe(false);
+  await page.clock.resume();
   // The jump ends with both fingers down; widening and moving them does nothing.
   await expectFocused(page, "dense2");
   await worldReady(page, "dense2");
