@@ -4,9 +4,11 @@ import {
   clickIsland,
   clickLabel,
   expectFocused,
+  expectHudIsland,
   expectLod,
   freeCanvasPoint,
   islandPoint,
+  jumpTo,
   type Lod,
   lod,
   type Point,
@@ -28,7 +30,7 @@ import { resetWorld } from "./world";
 // returning to the default heading) with a house placed at four headings, clickable island labels and the island card, the route
 // editor's island pickers (and the world-click shortcut), the server's
 // loop time and estimated effects, the sloop assigned from the editor
-// moving with its ETA badge at near and far LOD, minimap and tab jumps.
+// moving with its ETA badge at near and far LOD, minimap and island jumps.
 // Further tests render the synthetic fixtures without a server: the far
 // LOD draw-call budget and culling, Esc cancelling a ship drag, the ship
 // styles, the editor suspended by a ship selection, and jumps that start
@@ -206,7 +208,7 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   }
   await expectFocused(page, ISLAND2);
   expect(lods.every((l) => l === "near")).toBe(true);
-  await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toHaveAttribute("aria-selected", "true");
+  await expectHudIsland(page, ISLAND2);
   expect(Number.isFinite((await tile(page, ISLAND, ISLAND_INLAND)).x)).toBe(true);
   expect(Number.isFinite((await tile(page, ISLAND2, ISLAND2_INLAND)).x)).toBe(true);
 
@@ -400,7 +402,7 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   expect((await camera(page)).half).toBeCloseTo(halfBefore, 6);
   await expectFocused(page, ISLAND2);
 
-  // Tabs jump with a ≤ 350 ms animation; the focused island follows. The
+  // Island jumps (the island card's "Go to island") take ≤ 350 ms; the focused island follows. The
   // jump is observed within 1.5 s, or within the animation plus four of the
   // renderer's frames where a frame takes longer (a software renderer on a
   // CI runner draws the whole archipelago at far LOD in ~0.5 s).
@@ -408,16 +410,16 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   const frame = (await page.evaluate(() => window.__newShores!.frameStats(2_000))).p95Ms;
   const bound = Math.max(1_500, 350 + 4 * frame);
   const t0 = Date.now();
-  await page.getByTestId(`island-tab-${ISLAND}`).click();
+  await jumpTo(page, ISLAND);
   await expectFocused(page, ISLAND);
   await expect.poll(() => page.evaluate(() => Number.isFinite(window.__newShores!.tileToScreen("start", 1, 1).x))).toBe(true);
   const jumpMs = Date.now() - t0;
-  console.log(`tab jump observed after ${jumpMs} ms (animation 350 ms, polled; bound ${Math.round(bound)} ms at a ${Math.round(frame)} ms frame)`);
+  console.log(`island jump observed after ${jumpMs} ms (animation 350 ms, polled; bound ${Math.round(bound)} ms at a ${Math.round(frame)} ms frame)`);
   expect(jumpMs).toBeLessThan(bound);
   // Zoomed in from far to the near default; the build menu shows the focused island.
   await expectLod(page, "near");
   expect((await camera(page)).half).toBeCloseTo(18, 3);
-  await expect(page.getByTestId(`island-tab-${ISLAND}`)).toHaveAttribute("aria-selected", "true");
+  await expectHudIsland(page, ISLAND);
   await expect(page.getByTestId("build-menu")).toBeVisible();
   // With the editor closed, a label opens the island card; Enter on the
   // selected island jumps there (a closer zoom is kept).
@@ -490,7 +492,10 @@ async function jumpStart(page: Page, testId: string, at: Point): Promise<{ befor
     async ([id, x, y]) => {
       const h = window.__newShores!;
       const before = h.archToScreen(x as number, y as number);
-      (document.querySelector(`[data-testid="${id as string}"]`) as HTMLElement).click();
+      const trigger = id as string;
+      // "island:<id>": the island card's jump through the hook; otherwise a control's test ID.
+      if (trigger.startsWith("island:")) h.jumpToIsland(trigger.slice(7));
+      else (document.querySelector(`[data-testid="${trigger}"]`) as HTMLElement).click();
       for (let i = 0; i < 60; i++) {
         await new Promise((r) => requestAnimationFrame(r));
         // tileToScreen is NaN while the camera animates.
@@ -578,17 +583,17 @@ test("fixture: Esc cancels a ship drag, ship styles, selecting a ship suspends t
   expect(Math.hypot(go!.first.x - go!.before.x, go!.first.y - go!.before.y)).toBeLessThan(12);
   await expectFocused(page, "isle2");
   await expectLod(page, "near");
-  const across = await jumpStart(page, "island-tab-isle6", fixed);
+  const across = await jumpStart(page, "island:isle6", fixed);
   expect(across).not.toBeNull();
   expect(Math.hypot(across!.first.x - across!.before.x, across!.first.y - across!.before.y)).toBeLessThan(12);
   await expectFocused(page, "isle6");
-  // A pan in progress when a tab is clicked is cancelled, not continued after the jump.
+  // A pan in progress when a jump starts is cancelled, not continued after the jump.
   await worldReady(page, "isle6");
   const free = await freeCanvasPoint(page);
   await page.mouse.move(free.x, free.y);
   await page.mouse.down();
   await page.mouse.move(free.x + 40, free.y + 10, { steps: 4 });
-  await page.evaluate(() => (document.querySelector('[data-testid="island-tab-isle3"]') as HTMLElement).click());
+  await jumpTo(page, "isle3");
   await expectFocused(page, "isle3");
   await worldReady(page, "isle3");
   const settled = await camera(page);
@@ -599,7 +604,7 @@ test("fixture: Esc cancels a ship drag, ship styles, selecting a ship suspends t
   // A click during a jump is ignored, but only that press: right after the
   // jump the wheel zooms without another click first.
   const into = await freeCanvasPoint(page);
-  await page.evaluate(() => (document.querySelector('[data-testid="island-tab-isle1"]') as HTMLElement).click());
+  await jumpTo(page, "isle1");
   await page.mouse.click(into.x, into.y);
   await expectFocused(page, "isle1");
   await worldReady(page, "isle1");

@@ -20,7 +20,7 @@ import {
   SHIPYARD,
   WAREHOUSE_PLANKS,
 } from "./constants";
-import { clickIsland, dragShip, expectFocused, islandPoint, showArchipelago, wheelZoom, worldReady } from "./archipelago";
+import { clickIsland, dragShip, expectFocused, expectHudIsland, islandPoint, jumpTo, showArchipelago, wheelZoom, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 import { resetWorld } from "./world";
 
@@ -100,7 +100,7 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
   await page.goto("/");
   await dismissAwayDialog(page);
   await expect(page.getByTestId("hud-gold")).toBeVisible();
-  await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toContainText("unsettled");
+  await expect.poll(() => page.evaluate((id) => window.__newShores!.getServer()!.display.islands.find((x) => x.id === id)!.settled, ISLAND2)).toBe(false);
   await zoomOut(page, ISLAND);
 
   // Road to the south coast and a connected shipyard.
@@ -177,13 +177,15 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
   await clickIsland(page, ISLAND2, ISLAND2_INLAND);
   await expect(page.getByTestId("island-card")).toBeVisible();
   await page.getByTestId(`island-card-found-${ship!.id}`).click();
-  await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toHaveAttribute("aria-selected", "true");
+  await expectHudIsland(page, ISLAND2);
+  await expect(page.getByTestId("hud-island-unsettled")).toBeVisible();
   await expect(page.getByTestId("tool-hint")).toContainText("warehouse");
   await expectFocused(page, ISLAND2);
   await expect.poll(async () => (await screen(page, ISLAND2, ISLAND2_WAREHOUSE)).x).not.toBeNaN();
   await clickTile(page, ISLAND2, ISLAND2_WAREHOUSE);
   await expect.poll(() => island2(page)).toEqual({ settled: true, types: ["warehouse"] });
-  await expect(page.getByTestId(`island-tab-${ISLAND2}`)).not.toContainText("unsettled");
+  await expect(page.getByTestId("hud-island-unsettled")).toHaveCount(0);
+  await expect(page.getByTestId("hud-materials")).toBeVisible();
   await expect(page.getByTestId("unsettled-panel")).toBeHidden();
   await expect(page.getByTestId("build-menu")).toBeVisible();
 
@@ -203,8 +205,8 @@ test("build on island 2 and bring fish home on a route", async ({ page }) => {
   await page.goto("/");
   await dismissAwayDialog(page);
   await expect(page.getByTestId("hud-ship-count")).toHaveText("1");
-  await page.getByTestId(`island-tab-${ISLAND2}`).click();
-  await expect(page.getByTestId(`island-tab-${ISLAND2}`)).toHaveAttribute("aria-selected", "true");
+  await jumpTo(page, ISLAND2);
+  await expectHudIsland(page, ISLAND2);
   await zoomOut(page, ISLAND2);
   await expect.poll(async () => (await screen(page, ISLAND2, ISLAND2_ROAD_FROM)).x).not.toBeNaN();
 

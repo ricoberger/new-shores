@@ -265,7 +265,7 @@ test("a touch gesture begun during a jump stays ignored after it, also when a dr
   // add a second finger (the recogniser promotes the drag to a pinch with
   // a cancel).
   await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1_000);
-  await page.evaluate(() => (document.querySelector('[data-testid="island-tab-dense2"]') as HTMLElement).click());
+  await page.evaluate(() => window.__newShores!.jumpToIsland("dense2"));
   await touch.raw(
     { type: "start", fingers: [{ ...c, id: 1 }] },
     { type: "move", fingers: [{ x: c.x + 40, y: c.y, id: 1 }] },

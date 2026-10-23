@@ -99,6 +99,8 @@ export interface TestHook {
   landmarks(): number;
   /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
   ghostTile(): { x: number; y: number } | null;
+  /** Jumps the camera to an island (the island card's "Go to island"; tests trigger jumps without a visible card). */
+  jumpToIsland(id: string): void;
   /** What the placement ghost drew in the last frame: the building's model, the footprint box (no model yet) or null (hidden). */
   ghostKind(): "model" | "box" | null;
   /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
@@ -568,6 +570,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
         ghostKind: () => rendererRef.current?.ghostKind() ?? null,
+        jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
@@ -867,7 +870,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             model={model}
             content={content}
             islandId={focusId}
-            onSelectIsland={goTo}
+            statics={staticFocused}
+            onOpenIsland={() => focusId && dispatch({ type: "selectIsland", id: focusId })}
             onShips={() => setPanel((p) => (p === "ships" ? "none" : "ships"))}
             onRoutes={() => setPanel((p) => (p === "routes" ? "none" : "routes"))}
             onQuests={() => setPanel((p) => (p === "quests" ? "none" : "quests"))}

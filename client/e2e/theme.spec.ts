@@ -92,7 +92,9 @@ test("the grid overlay shows for the found tool", async ({ page }) => {
   // archipelago-8x20: ship 14 lies idle at the unsettled Isle 8.
   await page.goto("/?fixture=archipelago-8x20");
   await expect.poll(() => page.evaluate(() => window.__newShores?.getServer() != null)).toBe(true);
-  await page.getByTestId("island-tab-isle8").click();
+  await page.evaluate(() => window.__newShores!.jumpToIsland("isle8"));
+  await expect(page.getByTestId("hud-island")).toHaveAttribute("data-island", "isle8");
+  await expect(page.getByTestId("hud-island-unsettled")).toBeVisible();
   await expect(page.getByTestId("found-settlement-14")).toBeVisible();
   await page.getByTestId("found-settlement-14").click();
   await expect.poll(() => gridVisible(page)).toBe(true);

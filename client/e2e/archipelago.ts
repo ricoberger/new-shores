@@ -231,3 +231,13 @@ export async function islandTapPoint(page: Page, island: string, clearPx = 26): 
   expect(p, `a tap point on ${island}`).not.toBeNull();
   return p!;
 }
+
+/** Starts the island jump of the island card's "Go to island" (islands have no tabs since D-051 part 7). */
+export async function jumpTo(page: Page, island: string): Promise<void> {
+  await page.evaluate((id) => window.__newShores!.jumpToIsland(id), island);
+}
+
+/** The top bar shows an island (the focused one). */
+export async function expectHudIsland(page: Page, island: string): Promise<void> {
+  await expect(page.getByTestId("hud-island")).toHaveAttribute("data-island", island);
+}

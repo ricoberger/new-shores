@@ -12,6 +12,7 @@ import { InsolvencyBanner } from "./InsolvencyBanner";
 import { draftFromRoute } from "../display/routes";
 import { QuestsPanel } from "./QuestsPanel";
 import { RouteEditor } from "./RouteEditor";
+import { TopBar } from "./TopBar";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -34,6 +35,57 @@ const content = {
 const text = (html: string) => html.replace(/<[^>]+>/g, "");
 
 describe("HUD components", () => {
+  describe("top bar", () => {
+    const model = fixture("citizens_needs");
+    const island = model.islands[0]!;
+    const tbContent = {
+      ...content,
+      region: { id: "r", name: "R", version: "v1", rules: {} },
+      tiers: [
+        { id: "settlers", name: "Settlers", index: 0 },
+        { id: "citizens", name: "Citizens", index: 1 },
+      ],
+      goods: [...content.goods, { id: "stone", name: "Stone" }],
+      buildings: [
+        { id: "house_settlers", name: "Settler house", width: 2, height: 2, house: { tier: "settlers" }, cost: { gold: 0, materials: { planks: 10_000 } } },
+        { id: "house_citizens", name: "Citizen house", width: 2, height: 2, house: { tier: "citizens" }, cost: { gold: 0, materials: { planks: 15_000, stone: 10_000 } } },
+        { id: "market_small", name: "Small market", width: 3, height: 3, cost: { gold: 0, materials: {} } },
+      ],
+    } as unknown as Content;
+    const statics = {
+      id: island.id,
+      width: 2,
+      height: 1,
+      terrain: ["coast", "grass"],
+      fertilities: ["wheat"],
+      deposits: [{ x: 1, y: 0, kind: "iron" }],
+      revision: "r",
+    };
+    const props = { model, content: tbContent, islandId: island.id, statics, onOpenIsland: () => {}, onShips: () => {}, onRoutes: () => {}, onQuests: () => {} } as const;
+
+    it("shows the focused island with its resources, materials, employed / total and satisfaction; no island tabs", () => {
+      const html = renderToStaticMarkup(createElement(TopBar, props as never));
+      expect(html).not.toContain("island-tab-");
+      expect(html).toContain(`data-island="${island.id}"`);
+      expect(html).toContain('data-testid="hud-fertility-wheat"');
+      expect(html).toContain('data-testid="hud-deposit-iron"');
+      expect(text(html)).toContain("Free coast: 1 of 1 tiles");
+      expect(html).toContain('data-testid="hud-material-planks"');
+      expect(html).toContain('data-testid="hud-material-stone"');
+      expect(html).not.toContain('data-testid="hud-material-fish"');
+      expect(text(html)).toContain("18 / 88");
+      expect(text(html)).toContain("81 %");
+      expect(html).toContain('title="Worst unmet need: Small market 36 % (out of range)"');
+      expect(text(html)).toContain("22 / 40");
+    });
+
+    it("collapses into chips on a phone", () => {
+      const html = renderToStaticMarkup(createElement(TopBar, { ...props, compact: "portrait" } as never));
+      for (const id of ["hud-island-chip", "hud-materials-chip", "hud-population-chip", "hud-gold", "hud-balance", "hud-ships", "hud-routes"]) expect(html).toContain(`data-testid="${id}"`);
+      expect(html).not.toContain('data-testid="hud-island-details"');
+    });
+  });
+
   it("renders the insolvency banner from a fixture with unpaid buildings", () => {
     const html = renderToStaticMarkup(createElement(InsolvencyBanner, { model: fixture("away_summary_12h"), onOpenWarnings: () => {} }));
     expect(html).toContain('data-testid="insolvency-banner"');

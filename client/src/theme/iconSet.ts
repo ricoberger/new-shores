@@ -55,3 +55,15 @@ export type ToolIcon =
 export function toolIcon(name: ToolIcon): string {
   return path(`tool:${name}`, "need:_fallback");
 }
+
+/**
+ * Icon of an island resource (top bar, island card): a fertility tag shows
+ * its crop's good ("wheat", "apple" → apples), a deposit its raw good
+ * ("iron" → iron ore, "stone"), the coast the harbour category.
+ */
+export function resourceIcon(kind: "fertility" | "deposit" | "coast", id = ""): string {
+  if (kind === "coast") return categoryIcon("harbour");
+  const keys = kind === "fertility" ? [`good:${id}`, `good:${id}s`] : [`good:${id}_ore`, `good:${id}`];
+  for (const k of keys) if (ICON_PATHS[k]) return ICON_PATHS[k];
+  return path("", "good:_fallback");
+}
