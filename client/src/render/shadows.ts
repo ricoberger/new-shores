@@ -1,11 +1,11 @@
-// Blob / contact shadows (ART_DIRECTION §2) at near and mid LOD and at
-// every quality, one draw call per object class: ships are thin instances
-// of a plane with a shared radial alpha texture (few instances, moving);
-// buildings get a soft-edged frame around their footprint (alpha in the
-// vertices, the covered footprint left out) merged into one static mesh
-// per island, because software renderers pay per instance and a dense
-// town has hundreds (the phone perf budget; trees do the same in their
-// own mesh). Purely visual, never pickable.
+// Blob / contact shadows (ART_DIRECTION §2) at every LOD and quality,
+// one draw call per object class: ships are thin instances of a plane
+// with a shared radial alpha texture (few instances, moving); buildings
+// get a soft rounded rectangle at their model's bounds (alpha in the
+// vertices: a dense core that eases out past the outline) merged into one
+// static mesh per island, because software renderers pay per instance and
+// a dense town has hundreds (the phone perf budget; trees do the same in
+// their own mesh). Purely visual, never pickable.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { RawTexture } from "@babylonjs/core/Materials/Textures/rawTexture";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
@@ -53,8 +53,104 @@ function blobTexture(scene: Scene): RawTexture {
   return tex;
 }
 
-/** Alpha of the footprint shadows at the footprint edge (falling to 0 at the rim). */
-const FRAME_CORE = 0.85;
+/** Alpha of the building shadows inside their outline (falling to 0 at the rim). */
+const SHADOW_CORE = 0.85;
+/** Alpha at the model outline (the middle ring of the falloff). */
+const SHADOW_EDGE = 0.45;
+/** Points per rounded corner of a building shadow (quarter circle, both ends included). */
+export const CORNER_POINTS = 5;
+
+/** A building's shadow outline: centre x, z and size (island-local, already rotated) and the height it leans for. */
+export interface ShadowRect {
+  cx: number;
+  cz: number;
+  w: number;
+  h: number;
+  height?: number;
+}
+
+/**
+ * Corner radius of a shadow outline of w × h tiles: about a third of the
+ * short side (chunky buildings read as rounded), at least 0.15 and at
+ * most 0.7 tiles.
+ */
+export function shadowRadius(w: number, h: number): number {
+  return Math.min(0.7, Math.max(0.15, Math.min(w, h) * 0.32));
+}
+
+/**
+ * One ring of a rounded rectangle (half extents ix, iz, corner radius r)
+ * about (cx, cz): CORNER_POINTS per corner, counter-clockwise from the
+ * +x/−z corner, so rings with the same parameters line up point by point.
+ */
+function ring(out: number[], cx: number, cz: number, ix: number, iz: number, r: number, y: number): void {
+  const corners: [number, number, number][] = [
+    [ix - r, -(iz - r), -Math.PI / 2],
+    [ix - r, iz - r, 0],
+    [-(ix - r), iz - r, Math.PI / 2],
+    [-(ix - r), -(iz - r), Math.PI],
+  ];
+  for (const [ox, oz, a0] of corners) {
+    for (let k = 0; k < CORNER_POINTS; k++) {
+      const a = a0 + ((Math.PI / 2) * k) / (CORNER_POINTS - 1);
+      out.push(cx + ox + r * Math.cos(a), y, cz + oz + r * Math.sin(a));
+    }
+  }
+}
+
+/**
+ * Vertex data of the soft rounded shadows of a set of building outlines
+ * (one mesh): per rect a filled core (fan from the centre) inset by half
+ * the rim, a middle ring just outside the outline and a transparent outer
+ * ring `rim` outside it, all with the outline's rounded corners grown or
+ * shrunk alike; each shifted away from the sun by its height × the shadow
+ * lean. Alpha lives in the vertex colours (white RGB; the material is the
+ * shadow colour).
+ */
+export function roundedShadows(
+  rects: readonly ShadowRect[],
+  rim: number,
+  height: number,
+  y = BLOB_Y,
+): { positions: number[]; colors: number[]; indices: number[] } {
+  const positions: number[] = [];
+  const colors: number[] = [];
+  const indices: number[] = [];
+  const n = 4 * CORNER_POINTS;
+  for (const r of rects) {
+    const lean = (r.height ?? height) * 0.35;
+    const cx = r.cx + SHADOW_LEAN.x * lean;
+    const cz = r.cz + SHADOW_LEAN.z * lean;
+    const ix = r.w / 2;
+    const iz = r.h / 2;
+    const radius = Math.min(shadowRadius(r.w, r.h), ix, iz);
+    const inset = Math.min(rim * 0.5, ix * 0.5, iz * 0.5);
+    const base = positions.length / 3;
+    positions.push(cx, y, cz);
+    colors.push(1, 1, 1, SHADOW_CORE);
+    const rings: [number, number][] = [
+      [-inset, SHADOW_CORE],
+      [rim * 0.35, SHADOW_EDGE],
+      [rim, 0],
+    ];
+    for (const [grow, alpha] of rings) {
+      ring(positions, cx, cz, ix + grow, iz + grow, Math.max(0.02, radius + grow), y);
+      for (let k = 0; k < n; k++) colors.push(1, 1, 1, alpha);
+    }
+    // Core: a fan from the centre to the inner ring (convex).
+    for (let k = 0; k < n; k++) indices.push(base, base + 1 + k, base + 1 + ((k + 1) % n));
+    // Bands between consecutive rings.
+    for (let q = 0; q < rings.length - 1; q++) {
+      const a = base + 1 + q * n;
+      const b = a + n;
+      for (let k = 0; k < n; k++) {
+        const k1 = (k + 1) % n;
+        indices.push(a + k, b + k, b + k1, a + k, b + k1, a + k1);
+      }
+    }
+  }
+  return { positions, colors, indices };
+}
 
 /**
  * Writes the matrix of a blob of w × d tiles (world x, z extent before
@@ -99,10 +195,10 @@ export class BlobLayer {
 }
 
 /**
- * Contact shadows of the buildings of one island: a soft frame (vertex
- * alpha) around every rotated footprint, merged into one static mesh — a
- * single draw call without instances (software renderers pay per
- * instance), rebuilt with the payload.
+ * Contact shadows of the buildings of one island: a soft rounded
+ * rectangle (vertex alpha) at every model's rotated bounds, merged into
+ * one static mesh — a single draw call without instances (software
+ * renderers pay per instance), rebuilt with the payload.
  */
 export class FootprintShadows {
   private readonly material: StandardMaterial;
@@ -122,58 +218,12 @@ export class FootprintShadows {
     this.material.backFaceCulling = false;
   }
 
-  /** Footprints (centre x, z and rotated size, island-local) with the height they lean for (per rect, else `height`). */
-  update(rects: readonly { cx: number; cz: number; w: number; h: number; height?: number }[], rim: number, height: number): void {
+  /** Outlines (centre x, z and rotated size, island-local) with the height they lean for (per rect, else `height`). */
+  update(rects: readonly ShadowRect[], rim: number, height: number): void {
     this.mesh?.dispose();
     this.mesh = null;
     if (rects.length === 0) return;
-    const positions: number[] = [];
-    const colors: number[] = [];
-    const indices: number[] = [];
-    for (const r of rects) {
-      const lx = SHADOW_LEAN.x * (r.height ?? height) * 0.35;
-      const lz = SHADOW_LEAN.z * (r.height ?? height) * 0.35;
-      const base = positions.length / 3;
-      const cx = r.cx + lx;
-      const cz = r.cz + lz;
-      const ix = r.w / 2;
-      const iz = r.h / 2;
-      const ox = ix + rim;
-      const oz = iz + rim;
-      const cut = rim * 0.6;
-      const inner = [
-        [-ix, -iz],
-        [ix, -iz],
-        [ix, iz],
-        [-ix, iz],
-      ];
-      const outer = [
-        [-ox + cut, -oz],
-        [ox - cut, -oz],
-        [ox, -oz + cut],
-        [ox, oz - cut],
-        [ox - cut, oz],
-        [-ox + cut, oz],
-        [-ox, oz - cut],
-        [-ox, -oz + cut],
-      ];
-      for (const [x, z] of inner) {
-        positions.push(cx + (x as number), BLOB_Y, cz + (z as number));
-        colors.push(1, 1, 1, FRAME_CORE);
-      }
-      for (const [x, z] of outer) {
-        positions.push(cx + (x as number), BLOB_Y, cz + (z as number));
-        colors.push(1, 1, 1, 0);
-      }
-      for (let k = 0; k < 4; k++) {
-        const a = base + k;
-        const b = base + ((k + 1) % 4);
-        const o1 = base + 4 + ((2 * k + 7) % 8);
-        const o2 = base + 4 + 2 * k;
-        const o3 = base + 4 + 2 * k + 1;
-        indices.push(a, o2, o1, a, o3, o2, a, b, o3);
-      }
-    }
+    const { positions, colors, indices } = roundedShadows(rects, rim, height);
     const mesh = new Mesh(this.name, this.scene);
     const data = new VertexData();
     data.positions = positions;
@@ -186,5 +236,10 @@ export class FootprintShadows {
     mesh.parent = this.parent;
     mesh.isPickable = false;
     this.mesh = mesh;
+  }
+
+  /** The merged shadow mesh (tests; null without buildings). */
+  current(): Mesh | null {
+    return this.mesh;
   }
 }

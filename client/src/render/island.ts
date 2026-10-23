@@ -33,8 +33,8 @@ import { FootprintShadows } from "./shadows";
 import { buildTerrain, FoamLine } from "./terrain";
 import { Decoration, TREE_MODELS } from "./trees";
 
-/** Contact shadow of a building: a soft frame this wide (tiles) around its rotated footprint. */
-const BUILDING_SHADOW_RIM = 0.3;
+/** Contact shadow of a building: a soft rounded rectangle at its model's bounds, fading out over this many tiles. */
+const BUILDING_SHADOW_RIM = 0.4;
 /** Height (tiles) the blob shadows of buildings without a model lean for. */
 const BUILDING_HEIGHT = DEFAULT_MODEL_HEIGHT;
 
@@ -209,9 +209,10 @@ export class IslandDetail {
 
 
   /**
-   * Contact shadows around every building: the model's
-   * rotated bounds and height where the manifest has a model, else the
-   * footprint and a default height.
+   * Contact shadows under every building (trees and ships keep their
+   * discs): a soft rounded rectangle at the model's rotated bounds,
+   * leaning for its height, where the manifest has a model, else at the
+   * footprint with a default height.
    */
   private updateBlobs(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
     const rects = [];
