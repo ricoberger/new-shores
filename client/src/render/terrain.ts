@@ -8,8 +8,9 @@
 // a layered cliff (an upper band, a ledge, a lower band) down to its
 // AO-darkened foot under the sea surface (SEA_LEVEL, ≈ 0.6 tiles below the
 // ground), flat-shaded with per-face normals so the bands catch the sun;
-// band heights and offsets wander with noise along the coast. The far-LOD
-// silhouettes are the same mesh with flat terrain colours. One mesh per
+// band heights and offsets wander with noise along the coast. Every LOD
+// draws this diorama ground: the full slab profile with the full models
+// (near and mid LOD), the five-ring one with the lite models (far). One mesh per
 // CHUNK × CHUNK tiles (the whole island for the current content): draw
 // calls, not vertices, are the phone budget. The foam line (FoamLine) is a
 // separate animated strip at the cliff foot at near LOD.
@@ -30,21 +31,9 @@ import { skyFill } from "./lighting";
 
 export const CHUNK = 64;
 /**
- * The slab at far LOD: the same silhouette with four rings (rim, contour,
- * one cliff band, foot), cheap enough for every island in view.
- */
-export const FAR_PROFILE: readonly ProfileRing[] = [
-  // A wider rim than near LOD: it must read from afar.
-  { out: -0.35, y: 0.004, color: c3(ISLAND.sand_rim), jitter: 0 },
-  { out: 0, y: 0.004, color: c3(ISLAND.sand_rim).scale(0.95), jitter: 0 },
-  { out: 0.12, y: -0.3, color: c3(ISLAND.cliff_ledge), jitter: 0 },
-  { out: 0.36, y: -0.7, color: c3(ISLAND.cliff_foot), jitter: 0 },
-];
-
-/**
- * The slab at the near default zoom and mid LOD: the same bands merged to
+ * The slab at far LOD (with the lite models): the same bands merged to
  * five rings (rim, contour, the upper cliff's top, the ledge, the foot) —
- * about half the triangles of PROFILE, which is drawn zoomed in.
+ * about half the triangles of PROFILE, which near and mid LOD draw.
  */
 export const NEAR_PROFILE: readonly ProfileRing[] = [
   { out: -0.22, y: 0.004, color: c3(ISLAND.sand_rim), jitter: 0 },
@@ -203,7 +192,7 @@ export class Builder {
 /** Ground colour of a tile (centre) and of a coastline crossing. */
 export interface GroundColors {
   tile(terrain: Terrain | undefined, x: number, y: number): Color3;
-  /** Colour transform of the slab (far silhouettes of unsettled islands are desaturated). */
+  /** Colour transform of the slab colours. */
   slab(c: Color3): Color3;
 }
 
@@ -368,7 +357,7 @@ export function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: C
   }
 }
 
-/** Ground colours of the near/mid terrain (noise-tinted per terrain). */
+/** Ground colours of the terrain (noise-tinted per terrain). */
 export function terrainColors(seed: number): GroundColors {
   return { tile: (t, x, y) => groundColor(t, x, y, seed), slab: (c) => c };
 }
@@ -413,9 +402,9 @@ export function buildIslandMeshes(
 }
 
 /**
- * The island's terrain in two details: `lite` with the coarse slab
- * profile (near LOD at the default zoom and mid LOD) and `full` with the
- * full profile (zoomed in, together with the full models). The ground
+ * The island's terrain in two details, both built once: `lite` with the
+ * five-ring slab profile (far LOD, with the lite models) and `full` with
+ * the full profile (near and mid LOD, with the full models). The ground
  * fill is in both; exactly one set is enabled at a time.
  */
 export function buildTerrain(
