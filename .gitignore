@@ -12,3 +12,6 @@ assets/kits/*
 # Asset build output (contact sheets) and Python caches.
 assets/build/out/
 __pycache__/
+
+# Local experiments and scratch notes (renders, exploration scripts).
+.experiment/

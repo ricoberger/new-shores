@@ -55,11 +55,19 @@ export interface ModelEntry {
   budget_exception?: { reason: string };
 }
 
+/** Manifest decoration entry (trees, bushes, rocks, tufts, stumps, outcrops; IDs decor_*). */
+export interface DecorEntry {
+  kind: "decor";
+  file: ModelFile;
+  bounds: { min: [number, number, number]; max: [number, number, number] };
+}
+
 export interface ModelManifest {
   version: number;
   palette_sha256: string;
   missing_recipes: string[];
   models: Record<string, ModelEntry>;
+  decor?: Record<string, DecorEntry>;
 }
 
 /** Vertex data of a loaded model (glTF space as in the file). */
@@ -300,6 +308,21 @@ export function shipModel(registry: ModelRegistry, type: string): { hull: ModelD
   return { hull: worldData("ship", hull, 1 / length), cargo: cargo ? worldData("ship", cargo, 1 / length) : null };
 }
 
+/**
+ * World-oriented vertex data of a decoration piece (x → −x like the
+ * buildings), or null while loading or without one (requests the file).
+ */
+const worldDecor = new WeakMap<ModelData, ModelData>();
+export function decorModel(registry: ModelRegistry | null, id: string): ModelData | null {
+  const entry = registry?.decor(id);
+  if (!registry || !entry) return null;
+  const data = registry.request(entry.file);
+  if (!data) return null;
+  let w = worldDecor.get(data);
+  if (!w) worldDecor.set(data, (w = worldData("building", data)));
+  return w;
+}
+
 /** Meshes of a ship model (thin-instanced by the caller; always active, the instances move). */
 export function shipMeshes(scene: Scene, name: string, model: { hull: ModelData; cargo: ModelData | null }): { hull: Mesh; cargo: Mesh | null } {
   const hull = modelMesh(scene, name, model.hull);
@@ -394,6 +417,11 @@ export class ModelRegistry {
   /** The manifest entry of a content ID (undefined: no model, the placeholder stays). */
   entry(id: string): ModelEntry | undefined {
     return this.manifestData?.models[id];
+  }
+
+  /** The manifest entry of a decoration piece (undefined: none, the procedural fallback stays). */
+  decor(id: string): DecorEntry | undefined {
+    return this.manifestData?.decor?.[id];
   }
 
   /** Loaded data of a model file, or null (starts loading it on the first request). */

@@ -9,15 +9,22 @@ import math
 
 
 class Mesh:
-    """Triangles: (a, b, c, role, shade, label[, normal]) with a/b/c as (x, y, z) tuples (an explicit normal overrides the face normal)."""
+    """
+    Triangles: (a, b, c, role, shade, label[, normal[, corner normals]])
+    with a/b/c as (x, y, z) tuples (an explicit normal overrides the face
+    normal; corner normals, one per corner, smooth-shade the triangle). `ao` is None or one
+    (level, level, level) tuple of baked occlusion levels per triangle.
+    """
 
-    __slots__ = ("tris",)
+    __slots__ = ("tris", "ao")
 
-    def __init__(self, tris=None):
+    def __init__(self, tris=None, ao=None):
         self.tris = list(tris or [])
+        self.ao = ao
 
     def extend(self, other):
         self.tris.extend(other.tris)
+        self.ao = None
 
     def __len__(self):
         return len(self.tris)
@@ -138,6 +145,61 @@ def normal(a, b, c):
     n = (uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx)
     length = math.sqrt(n[0] ** 2 + n[1] ** 2 + n[2] ** 2) or 1.0
     return (n[0] / length, n[1] / length, n[2] / length)
+
+
+def smooth_normals(tris, decimals=4):
+    """
+    Smooth shading: every corner gets the area-weighted mean of the face
+    normals of the triangles of the same role sharing its (rounded)
+    position; returns the triangles with (face normal, corner normals).
+    Role seams stay crisp (a trunk does not soften into its crown).
+    """
+    sums = {}
+    faces = []
+    for t in tris:
+        a, b, c = t[:3]
+        ux, uy, uz = b[0] - a[0], b[1] - a[1], b[2] - a[2]
+        vx, vy, vz = c[0] - a[0], c[1] - a[1], c[2] - a[2]
+        w = (uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx)
+        faces.append(t[6] if len(t) > 6 else normal(a, b, c))
+        for p in (a, b, c):
+            key = (t[3], tuple(round(x, decimals) for x in p))
+            acc = sums.setdefault(key, [0.0, 0.0, 0.0])
+            for i in range(3):
+                acc[i] += w[i]
+    out = []
+    for t, n in zip(tris, faces):
+        corners = []
+        for p in t[:3]:
+            v = sums[(t[3], tuple(round(x, decimals) for x in p))]
+            length = math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2)
+            corners.append(tuple(x / length for x in v) if length > 1e-12 else n)
+        out.append(tuple(t[:6]) + (n, tuple(corners)))
+    return out
+
+
+def tilt_normals(tris, tilt):
+    """
+    The triangles with the normals of the roles in `tilt` (role → k) tilted
+    toward up (z): every corner normal (the smooth ones, else the face
+    normal) becomes normalise(n + k·up). The face normal t[6] stays (baked
+    occlusion samples its hemisphere); other roles are unchanged.
+    """
+    out = []
+    for t in tris:
+        k = tilt.get(t[3], 0.0)
+        if k <= 0:
+            out.append(t)
+            continue
+        face = t[6] if len(t) > 6 else normal(*t[:3])
+        corners = t[7] if len(t) > 7 else (face, face, face)
+        tilted = []
+        for n in corners:
+            v = (n[0], n[1], n[2] + k)
+            length = math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2)
+            tilted.append(tuple(x / length for x in v) if length > 1e-12 else n)
+        out.append(tuple(t[:6]) + (face, tuple(tilted)))
+    return out
 
 
 # Deterministic random numbers for perturbations (seeded by recipe ID and part).
@@ -316,3 +378,25 @@ def rock(size, detail, rng):
     jitter = [0.78 + 0.4 * rng.next() for _ in verts]
     pts = [(v[0] * size[0] * j, v[1] * size[1] * j, v[2] * size[2] * j) for v, j in zip(verts, jitter)]
     return [(pts[a], pts[b], pts[c]) for a, b, c in faces]
+
+
+def hemisphere(n):
+    """n fixed cosine-weighted directions about +z (golden-angle spiral; deterministic)."""
+    out = []
+    golden = math.pi * (3.0 - math.sqrt(5.0))
+    for i in range(n):
+        r = math.sqrt((i + 0.5) / n)
+        a = i * golden
+        out.append((r * math.cos(a), r * math.sin(a), math.sqrt(max(0.0, 1.0 - r * r))))
+    return out
+
+
+def frame(nrm):
+    """An orthonormal (tangent, bitangent, normal) frame about a unit normal."""
+    nx, ny, nz = nrm
+    h = (1.0, 0.0, 0.0) if abs(nx) < 0.9 else (0.0, 1.0, 0.0)
+    t = (h[1] * nz - h[2] * ny, h[2] * nx - h[0] * nz, h[0] * ny - h[1] * nx)
+    ln = math.sqrt(sum(c * c for c in t)) or 1.0
+    t = tuple(c / ln for c in t)
+    b = (ny * t[2] - nz * t[1], nz * t[0] - nx * t[2], nx * t[1] - ny * t[0])
+    return t, b, nrm

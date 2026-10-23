@@ -1,6 +1,5 @@
 // World layers of the continuous world (D-048): the sea with a haze toward
-// its edges, the far-LOD island silhouettes and landmark markers
-// (warehouses, shipyards), and at every LOD the ships, route ribbons with
+// its edges and, at every LOD, the ships, route ribbons with
 // direction arrows and the selection ring. Scene coordinates are
 // archipelago coordinates (tile (x, y) is world (x, 0, −y); archipelago
 // tiles equal island tiles). Everything is a view of the display payload
@@ -10,125 +9,39 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateCylinder } from "@babylonjs/core/Meshes/Builders/cylinderBuilder";
-import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { CreateTorus } from "@babylonjs/core/Meshes/Builders/torusBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
-import type { ContentBuilding, Island, IslandDisplay, RouteDisplay, ShipDisplay, Terrain } from "../api/client";
+import type { Island, IslandDisplay, RouteDisplay, ShipDisplay } from "../api/client";
 import type { Rect } from "../display/camera";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
 import { anchorSlots, type ArchPoint, berthAnchor, type Berths, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
-import { footprintBox } from "./coords";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
+import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { type ModelRegistry, shipMeshes, shipModel } from "./models";
-import { ARROW_BRIGHT, ARROW_DIM, c3, colorTuple, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
-import { BUILDINGS, TERRAIN } from "../theme/palette";
-import { skyFill } from "./lighting";
+import { ARROW_BRIGHT, ARROW_DIM, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION } from "./palette";
 
-const SILHOUETTE_TOP = 0.3;
-const SILHOUETTE_BOTTOM = -0.2;
-/** Height of the sea surface (the beach and foam of the islands meet it). */
-export const SEA_LEVEL = -0.15;
-/** Ships above the far-LOD silhouettes; at near/mid on the water. */
-const SHIP_Y_FAR = SILHOUETTE_TOP + 0.05;
+/** Top of the islands' ground (every LOD draws the island detail). */
+const GROUND_TOP = 0;
+/** Height of the sea surface (the islands' slabs drop into it). */
+export const SEA_LEVEL = TERRAIN_SEA_LEVEL;
+/** Ships slightly above the water at far LOD (drawn larger); at near/mid on the water. */
+const SHIP_Y_FAR = GROUND_TOP + 0.05;
 const SHIP_Y = 0;
 /** Ship instance scale at near/mid LOD and at far LOD (≥ 1.5×, so ships stay visible zoomed out). */
 export const SHIP_SCALE = 2;
 export const SHIP_SCALE_FAR = 4;
-const ROUTE_Y = SILHOUETTE_TOP + 0.25;
+const ROUTE_Y = GROUND_TOP + 0.25;
 const ROUTE_WIDTH = 0.8;
 /** The haze starts this far (tiles) outside the islands' bounding box. */
 const HAZE_INNER = 30;
-const LANDMARK_SIZE = 3;
-const LANDMARK_WAREHOUSE = colorTuple(BUILDINGS.ochre);
-const LANDMARK_SHIPYARD = colorTuple(BUILDINGS.terracotta);
 
 
 export type ArchSelection = { kind: "none" } | { kind: "island"; id: string } | { kind: "ship"; id: number };
-
-/** Unsettled islands: the colours, desaturated. */
-function desaturate(c: Color3, settled: boolean): Color3 {
-  if (settled) return c;
-  const grey = (c.r + c.g + c.b) / 3;
-  return new Color3(c.r * 0.3 + grey * 0.7, c.g * 0.3 + grey * 0.7, c.b * 0.3 + grey * 0.7);
-}
-
-function silhouetteColor(t: Terrain | undefined, settled: boolean): Color3 {
-  return desaturate((t && TERRAIN_COLORS[t]) || UNKNOWN_TERRAIN, settled);
-}
-
-/** Width (tiles) of the sand rim along the top edge of a silhouette. */
-const RIM = 0.35;
-
-/**
- * One mesh per island: the non-water tiles as a flat top at a low height
- * with cliff-coloured walls along the outline and a sand beach rim on the
- * top edge (no elevation), vertex-coloured by terrain.
- */
-function buildSilhouette(scene: Scene, island: Island, settled: boolean, material: StandardMaterial): Mesh {
-  const { width, height, terrain } = island;
-  const land = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && terrain[y * width + x] !== "water";
-  const positions: number[] = [];
-  const colors: number[] = [];
-  const normals: number[] = [];
-  const indices: number[] = [];
-  const quad = (p: number[], n: [number, number, number], c: Color3) => {
-    const v = positions.length / 3;
-    positions.push(...p);
-    for (let i = 0; i < 4; i++) {
-      normals.push(...n);
-      colors.push(c.r, c.g, c.b, 1);
-    }
-    indices.push(v, v + 1, v + 2, v, v + 2, v + 3);
-  };
-  const T = SILHOUETTE_TOP;
-  const B = SILHOUETTE_BOTTOM;
-  const R = T + 0.002;
-  const wall = desaturate(c3(TERRAIN.cliff), settled).scale(0.85);
-  const sand = desaturate(c3(TERRAIN.sand), settled);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (!land(x, y)) continue;
-      const c = silhouetteColor(terrain[y * width + x], settled);
-      quad([x, T, -y, x + 1, T, -y, x + 1, T, -(y + 1), x, T, -(y + 1)], [0, 1, 0], c);
-      if (!land(x, y - 1)) {
-        quad([x + 1, T, -y, x, T, -y, x, B, -y, x + 1, B, -y], [0, 0, 1], wall);
-        quad([x, R, -y, x + 1, R, -y, x + 1, R, -(y + RIM), x, R, -(y + RIM)], [0, 1, 0], sand);
-      }
-      if (!land(x, y + 1)) {
-        quad([x, T, -(y + 1), x + 1, T, -(y + 1), x + 1, B, -(y + 1), x, B, -(y + 1)], [0, 0, -1], wall);
-        quad([x, R, -(y + 1 - RIM), x + 1, R, -(y + 1 - RIM), x + 1, R, -(y + 1), x, R, -(y + 1)], [0, 1, 0], sand);
-      }
-      if (!land(x - 1, y)) {
-        quad([x, T, -y, x, T, -(y + 1), x, B, -(y + 1), x, B, -y], [-1, 0, 0], wall);
-        quad([x, R, -y, x + RIM, R, -y, x + RIM, R, -(y + 1), x, R, -(y + 1)], [0, 1, 0], sand);
-      }
-      if (!land(x + 1, y)) {
-        quad([x + 1, T, -(y + 1), x + 1, T, -y, x + 1, B, -y, x + 1, B, -(y + 1)], [1, 0, 0], wall);
-        quad([x + 1 - RIM, R, -y, x + 1, R, -y, x + 1, R, -(y + 1), x + 1 - RIM, R, -(y + 1)], [0, 1, 0], sand);
-      }
-    }
-  }
-  const mesh = new Mesh(`silhouette_${island.id}`, scene);
-  const data = new VertexData();
-  data.positions = positions;
-  data.indices = indices;
-  data.colors = colors;
-  data.normals = normals;
-  data.applyToMesh(mesh);
-  mesh.material = material;
-  mesh.isPickable = false;
-  return mesh;
-}
-
-interface Silhouette {
-  mesh: Mesh;
-  key: string;
-}
 
 interface RouteLine {
   mesh: Mesh;
@@ -185,22 +98,17 @@ function setHazeGeometry(mesh: Mesh, inner: Rect, outer: Rect, y: number): void 
 }
 
 export class ArchipelagoLayer {
-  private readonly silhouetteMaterial: StandardMaterial;
-  private readonly silhouettes = new Map<string, Silhouette>();
   private readonly sea: Sea;
   private readonly haze: Mesh;
   /** Ship instances per type, with the cargo attachment where the model has one; model: the kit-bashed model (else the placeholder). */
   private readonly ships = new Map<string, { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean }>();
   private readonly arrows: ColoredInstances;
-  private readonly landmarks: ColoredInstances;
   private readonly routeLines = new Map<string, RouteLine>();
   private readonly ring: Mesh;
   /** Blob shadows of the ships at near and mid LOD (matrices rewritten every frame). */
   private readonly shipBlobs: BlobLayer;
   private shipBlobBuffer = new Float32Array(0);
   private placements = new Map<string, IslandPlacement>();
-  private islandList: IslandDisplay[] = [];
-  private defs: ReadonlyMap<string, ContentBuilding> = new Map();
   private berths: Berths = new Map();
   private shipList: ShipDisplay[] = [];
   private routes: RouteDisplay[] = [];
@@ -208,7 +116,6 @@ export class ArchipelagoLayer {
   private highlight: number | null = null;
   private selection: ArchSelection = { kind: "none" };
   private lod: Lod = "near";
-  private visible: ReadonlySet<string> = new Set();
   /** Positions (archipelago tiles) of the ships in the last frame. */
   private readonly shipPoints = new Map<number, ArchPoint>();
   /** Instance style of every ship drawn in the last frame. */
@@ -222,10 +129,6 @@ export class ArchipelagoLayer {
     private readonly scene: Scene,
     private readonly registry: ModelRegistry | null = null,
   ) {
-    this.silhouetteMaterial = skyFill(new StandardMaterial("silhouettes", scene));
-    this.silhouetteMaterial.specularColor = Color3.Black();
-    this.silhouetteMaterial.backFaceCulling = false;
-
     this.sea = new Sea(scene, SEA_LEVEL);
     this.haze = hazeFrame(scene);
 
@@ -240,15 +143,6 @@ export class ArchipelagoLayer {
     arrow.alwaysSelectAsActiveMesh = true;
     this.arrows = new ColoredInstances(arrow);
 
-    // Far-LOD landmarks: a simple tower per warehouse and shipyard.
-    const tower = CreateBox("landmarks", { width: LANDMARK_SIZE, height: LANDMARK_SIZE, depth: LANDMARK_SIZE }, scene);
-    tower.bakeTransformIntoVertices(Matrix.Translation(0, LANDMARK_SIZE / 2, 0));
-    const towerMat = skyFill(new StandardMaterial("landmarks", scene));
-    towerMat.specularColor = Color3.Black();
-    tower.material = towerMat;
-    tower.isPickable = false;
-    tower.alwaysSelectAsActiveMesh = true;
-    this.landmarks = new ColoredInstances(tower);
 
     this.shipBlobs = new BlobLayer(scene, "blob_ships", null, 0.45);
     this.shipBlobs.mesh.alwaysSelectAsActiveMesh = true;
@@ -279,8 +173,8 @@ export class ArchipelagoLayer {
   }
 
   /**
-   * Rebuilds what changed in the payload: silhouettes, sea extent, berths,
-   * landmarks, routes and the ship list. `berths` are the islands' harbour
+   * Rebuilds what changed in the payload: sea extent, berths, routes and
+   * the ship list. `berths` are the islands' harbour
    * berths in archipelago tiles.
    */
   update(
@@ -289,30 +183,9 @@ export class ArchipelagoLayer {
     ships: readonly ShipDisplay[],
     routes: readonly RouteDisplay[],
     berths: Berths,
-    defs: ReadonlyMap<string, ContentBuilding>,
   ): void {
     this.placements = new Map(islands.map((is) => [is.id, { position: is.position, width: is.width, height: is.height }]));
-    this.islandList = [...islands];
     this.berths = berths;
-    this.defs = defs;
-    for (const is of islands) {
-      const st = statics.get(is.id);
-      if (!st) continue;
-      const key = `${st.revision}|${is.settled}|${is.position.x},${is.position.y}`;
-      const cur = this.silhouettes.get(is.id);
-      if (cur?.key === key) continue;
-      cur?.mesh.dispose();
-      const mesh = buildSilhouette(this.scene, st, is.settled, this.silhouetteMaterial);
-      mesh.position.set(is.position.x, 0, -is.position.y);
-      mesh.freezeWorldMatrix();
-      this.silhouettes.set(is.id, { mesh, key });
-    }
-    for (const [id, s] of this.silhouettes) {
-      if (!this.placements.has(id)) {
-        s.mesh.dispose();
-        this.silhouettes.delete(id);
-      }
-    }
     // The sea's shallows follow the islands' land (recomputed only when it moved or changed).
     const land = islands.flatMap((is) => {
       const st = statics.get(is.id);
@@ -327,7 +200,6 @@ export class ArchipelagoLayer {
     this.shipList = [...ships];
     this.routes = [...routes];
     this.rebuildRoutes();
-    this.applyVisibility();
   }
 
   /** Render quality of the sea (ripples with specular, or glints). */
@@ -374,49 +246,15 @@ export class ArchipelagoLayer {
     this.selection = sel;
   }
 
-  /** Level of detail and the islands in view: silhouettes and landmarks show at far LOD only, for islands in view. */
-  show(lod: Lod, visible: ReadonlySet<string>): void {
+  /** Level of detail (the sea and the ships follow it). */
+  show(lod: Lod): void {
     this.lod = lod;
-    this.visible = visible;
     this.sea.setLod(lod);
-    this.applyVisibility();
   }
 
   /** A dragged ship is drawn at the pointer (null: none). */
   setDragged(d: { shipId: number; point: ArchPoint } | null): void {
     this.dragged = d;
-  }
-
-  private applyVisibility(): void {
-    const far = this.lod === "far";
-    for (const [id, s] of this.silhouettes) s.mesh.setEnabled(far && this.visible.has(id));
-    this.rebuildLandmarks();
-  }
-
-  private rebuildLandmarks(): void {
-    const marks: { x: number; y: number; color: readonly number[] }[] = [];
-    if (this.lod === "far") {
-      for (const is of this.islandList) {
-        if (!this.visible.has(is.id)) continue;
-        for (const b of is.buildings) {
-          const def = this.defs.get(b.type);
-          if (!def || (!def.warehouse && !def.shipyard)) continue;
-          const box = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-          marks.push({ x: is.position.x + box.cx, y: is.position.y - box.cz, color: def.shipyard ? LANDMARK_SHIPYARD : LANDMARK_WAREHOUSE });
-        }
-      }
-    }
-    this.landmarks.resize(marks.length);
-    marks.forEach((m, i) => {
-      shipMatrix(this.landmarks.matrices, i, m.x, SILHOUETTE_TOP, -m.y, 0, 1);
-      this.landmarks.setColor(i, m.color);
-    });
-    this.landmarks.commit();
-  }
-
-  /** Landmark markers drawn (far LOD). */
-  landmarkCount(): number {
-    return this.landmarks.size();
   }
 
   /** Anchor point of an island's legs and route ribbons (its first berth, else its centre). */
@@ -591,7 +429,7 @@ export class ArchipelagoLayer {
         if (this.dragged?.shipId === s.id) point = this.dragged.point;
         this.shipPoints.set(s.id, point);
         shipMatrix(inst.matrices, i, point.x, sy, -point.y, p?.heading ?? 0, p ? scale : 0);
-        if (blobs) blobMatrix(this.shipBlobBuffer, blob++, point.x, -point.y, p ? 1.25 * scale : 0, p ? 0.5 * scale : 0, 0.5 * scale, p?.heading ?? 0);
+        if (blobs) blobMatrix(this.shipBlobBuffer, blob++, point.x, -point.y, p ? 1.25 * scale : 0, p ? 0.5 * scale : 0, 0.5 * scale, p?.heading ?? 0, SEA_LEVEL + 0.02);
         const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
         this.shipStyles.set(s.id, style);
         inst.setColor(i, shipColor(style));

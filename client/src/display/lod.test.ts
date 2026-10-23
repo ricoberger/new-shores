@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { fitHalfHeight, MIN_HALF_HEIGHT, NEAR_DEFAULT_HALF_HEIGHT } from "./camera";
+import { ELEVATION, fitHalfHeight, NEAR_DEFAULT_HALF_HEIGHT, zoomRange } from "./camera";
 import {
-  detailFor,
+  detailForLod,
   FAR_ENTER_HALF,
   FAR_EXIT_HALF,
-  FULL_DETAIL_ENTER_HALF,
-  FULL_DETAIL_EXIT_HALF,
   initialLod,
   type Lod,
   lodFor,
@@ -103,17 +101,22 @@ describe("LOD hysteresis", () => {
   });
 });
 
-describe("model detail inside the near level", () => {
-  it("draws the lite models at the near default zoom and the full ones zoomed in, with hysteresis", () => {
-    expect(detailFor(NEAR_DEFAULT_HALF_HEIGHT, "lite")).toBe("lite");
-    expect(detailFor(NEAR_DEFAULT_HALF_HEIGHT, "full")).toBe("lite");
-    expect(detailFor(MIN_HALF_HEIGHT, "lite")).toBe("full");
-    expect(detailFor(FULL_DETAIL_ENTER_HALF, "lite")).toBe("full");
-    // Between the thresholds the previous detail stays.
-    const mid = (FULL_DETAIL_ENTER_HALF + FULL_DETAIL_EXIT_HALF) / 2;
-    expect(detailFor(mid, "lite")).toBe("lite");
-    expect(detailFor(mid, "full")).toBe("full");
-    expect(detailFor(FULL_DETAIL_EXIT_HALF + 0.01, "full")).toBe("lite");
-    expect(FULL_DETAIL_EXIT_HALF / FULL_DETAIL_ENTER_HALF).toBeGreaterThanOrEqual(1.1);
+describe("model detail per level", () => {
+  it("draws the full models at near and mid LOD and the lite ones at far LOD", () => {
+    expect(detailForLod("near")).toBe("full");
+    expect(detailForLod("mid")).toBe("full");
+    expect(detailForLod("far")).toBe("lite");
+  });
+});
+
+describe("mid/far boundary", () => {
+  it("keeps the full models until a 2 × 2 footprint is about 12 px tall on a 412 × 915 phone", () => {
+    const px = (half: number, height: number) => (2 * Math.SQRT2 * Math.sin(ELEVATION) * height) / (2 * half);
+    expect(px(FAR_ENTER_HALF, 915)).toBeGreaterThan(11.5);
+    expect(px(FAR_ENTER_HALF, 915)).toBeLessThan(12.5);
+    // A small world (the dev world on a 16:9 desktop fits at ≈ 49) can still be zoomed out to far LOD.
+    for (const aspect of [16 / 9, 1280 / 800, 412 / 915]) {
+      expect(zoomRange({ minX: 0, minY: 0, maxX: DEV_BOUNDS.w, maxY: DEV_BOUNDS.h }, aspect).max).toBeGreaterThan(FAR_ENTER_HALF);
+    }
   });
 });

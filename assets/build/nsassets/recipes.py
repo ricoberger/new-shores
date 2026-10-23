@@ -3,7 +3,7 @@
 import json
 import os
 
-from . import config, content as content_mod, schema as schema_mod
+from . import atlas, config, content as content_mod, schema as schema_mod
 
 PRIM_PARAMS = {
     "box": ({"size"}, {"open"}),
@@ -13,8 +13,11 @@ PRIM_PARAMS = {
     "lathe": ({"profile"}, {"segments"}),
     "rock": ({"size"}, {"detail"}),
 }
+#: Options every primitive accepts (bevel: Blender bevel of the sharp edges, width in tiles).
+for _req, _opt in PRIM_PARAMS.values():
+    _opt.add("bevel")
 ALL_PRIM_PARAMS = set().union(*(req | opt for req, opt in PRIM_PARAMS.values()))
-KIT_ONLY = {"roles", "simplify", "crop"}
+KIT_ONLY = {"roles", "simplify", "crop", "drop", "exaggerate"}
 
 
 class RecipeError(Exception):
@@ -40,13 +43,68 @@ def part_groups(recipe):
     return out
 
 
+def expand_part(part):
+    """A `kit_building` part as the kit piece it names (front turned to +y, the part's rotation added); other parts unchanged."""
+    if "kit_building" not in part or part["kit_building"] not in config.KIT_BUILDINGS:
+        return part
+    kit, file, front = config.KIT_BUILDINGS[part["kit_building"]]
+    out = {k: v for k, v in part.items() if k != "kit_building"}
+    out.setdefault("name", part["kit_building"])
+    out["kit"] = kit
+    out["file"] = file
+    rot = list(part.get("rotation", [0.0, 0.0, 0.0]))
+    rot[2] = rot[2] + front
+    out["rotation"] = rot
+    return out
+
+
+def expand(recipe):
+    """A copy of a recipe with every kit_building part expanded (expand_part)."""
+    out = json.loads(json.dumps(recipe))
+    if "parts" in out:
+        out["parts"] = [expand_part(p) for p in out["parts"]]
+    if "variants" in out:
+        out["variants"] = [[expand_part(p) for p in v] for v in out["variants"]]
+    for key in ("levels", "attachments"):
+        if key in out:
+            out[key] = {k: [expand_part(p) for p in v] for k, v in out[key].items()}
+    return out
+
+
+def _check_kit_buildings(recipe, name):
+    errors = []
+    for group, parts in part_groups(recipe):
+        for i, p in enumerate(parts):
+            if "kit_building" not in p:
+                continue
+            label = f"{name} {part_label(p, i, group)}"
+            if p["kit_building"] not in config.KIT_BUILDINGS:
+                errors.append(f"{label}: unknown kit_building {p['kit_building']!r} (one of {', '.join(sorted(config.KIT_BUILDINGS))})")
+            for k in ("kit", "file", "prim"):
+                if k in p:
+                    errors.append(f"{label}: kit_building replaces kit/file/prim; remove {k!r}")
+    return errors
+
+
 def check_recipe(recipe, name, schema, content, kit_files, roles):
-    """Returns a list of problems of one recipe (schema first, then semantics)."""
+    """Returns a list of problems of one recipe (schema first, then semantics; kit_building parts are checked as the kit piece they name)."""
     errors = [f"{name}: {e}" for e in schema_mod.validate(recipe, schema)]
     if errors:
         return errors
+    errors = _check_kit_buildings(recipe, name)
+    if errors:
+        return errors
+    recipe = expand(recipe)
     cid = recipe["id"]
-    kind = content_mod.kind_of(content, cid)
+    kind = "decor" if recipe["kind"] == "decor" else content_mod.kind_of(content, cid)
+    if kind == "decor":
+        if not cid.startswith(config.DECOR_PREFIX):
+            errors.append(f"{name}: decoration IDs start with {config.DECOR_PREFIX!r} (they are not content IDs)")
+        if content_mod.kind_of(content, cid) is not None:
+            errors.append(f"{name}: id {cid!r} is a content ID; decoration needs its own")
+        for k in ("variants", "levels", "ship", "attachments", "budget_exception", "anchors"):
+            if k in recipe:
+                errors.append(f"{name}: {k} is not for decoration")
     if kind is None:
         errors.append(f"{name}: id {cid!r} is not a building or ship in content/old_coast")
         return errors
@@ -54,7 +112,7 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
         errors.append(f"{name}: file name must be {cid}.json")
     if kind == "road":
         errors.append(f"{name}: roads have no model (they stay strips)")
-    elif recipe["kind"] != kind:
+    elif kind != "decor" and recipe["kind"] != kind:
         errors.append(f"{name}: kind {recipe['kind']!r} does not match the content ({kind})")
     is_house = content_mod.is_house(content, cid)
     if is_house and len(recipe.get("variants", [])) != 3:
@@ -69,7 +127,7 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
     if kind == "ship":
         if "ship" not in recipe:
             errors.append(f"{name}: ships need a ship block")
-    else:
+    elif kind != "decor":
         for k in ("ship", "attachments"):
             if k in recipe:
                 errors.append(f"{name}: {k} is only for ships")
@@ -89,6 +147,14 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
                 bad = ALL_PRIM_PARAMS & set(p)
                 if bad:
                     errors.append(f"{label}: primitive parameters on a kit piece: {', '.join(sorted(bad))}")
+                cells = config.KIT_ATLAS_CELLS.get(p["kit"])
+                if cells is not None:
+                    known = atlas.names(cells)
+                    bands = len(cells["bands"])
+                    for k in sorted(set(p.get("roles", {})) | set(p.get("drop", []))):
+                        base, band = atlas.split(k)
+                        if not base.startswith("Atlas/") or base[len("Atlas/"):] not in known or (band is not None and not 0 <= band < bands):
+                            errors.append(f"{label}: {k!r} is not a swatch of kit {p['kit']} (Atlas/<{'|'.join(known)}>[@0-{bands - 1}])")
             else:
                 req, opt = PRIM_PARAMS[p["prim"]]
                 for r in sorted(req - set(p)):
@@ -100,7 +166,8 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
                     errors.append(f"{label}: primitives need a role")
                 if p["prim"] in ("cylinder", "lathe") and p.get("segments", 8) < 3:
                     errors.append(f"{label}: {p['prim']} needs at least 3 segments")
-            for r in [p.get("role")] + list(p.get("roles", {}).values()):
+            mapped = [v["role"] if isinstance(v, dict) else v for v in p.get("roles", {}).values()]
+            for r in [p.get("role")] + mapped:
                 if r is not None and r not in roles:
                     errors.append(f"{label}: unknown role {r!r} (not a colour of {', '.join(config.ROLE_GROUPS)} in assets/palette.json)")
     return errors
@@ -127,7 +194,7 @@ def load_all(recipes_dir, content, kit_files, roles, schema=None, only=None):
         if problems:
             errors += problems
         else:
-            recipes[recipe["id"]] = recipe
+            recipes[recipe["id"]] = expand(recipe)
     if errors:
         raise RecipeError(f"{len(errors)} recipe problem(s):\n  " + "\n  ".join(errors))
     return recipes

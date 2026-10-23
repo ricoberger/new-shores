@@ -79,9 +79,9 @@ export const ISLAND2_INLAND = { x: 8, y: 8 };
 /** Open sea between the islands, in start-island tile (= archipelago) coordinates. */
 export const SEA_BETWEEN = { x: 62, y: 66 };
 
-// Touch projects (touch.spec.ts) run after the away project on the same
-// world: free grass north-west of the forest of the start island, one
-// area per browser project, away from every earlier layout. The phone
+// Touch projects (touch.spec.ts) start from the settled fixture: free
+// grass north-west of the forest of the start island, one area per
+// browser project, away from the fixture's layout. The phone
 // view is centred on TOUCH_FOCUS first, which brings these tiles and the
 // sawmill on screen.
 export const TOUCH_FOCUS = { x: 20, y: 12 };

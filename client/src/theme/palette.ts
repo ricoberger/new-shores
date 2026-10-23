@@ -29,6 +29,19 @@ export const WATER = {
   haze: "#B9C9CB",
 } as const;
 
+/** Diorama island slab and plateaus (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line; warm rock bands, crags and the moss cap of the mountain plateaus. */
+export const ISLAND = {
+  sand_rim: "#E2CC93",
+  cliff_upper: "#B79C76",
+  cliff_ledge: "#9E8A6C",
+  cliff_lower: "#877766",
+  cliff_foot: "#4F4A55",
+  rock_light: "#B39878",
+  rock: "#977C62",
+  rock_deep: "#735F4E",
+  moss: "#7F9A55",
+} as const;
+
 /** Building materials of the procedural placeholders and the kit re-palette of the models (ART_DIRECTION §7): walls, roofs, timber, stone, metal, glass, sail canvas and dyed cloth. */
 export const BUILDINGS = {
   plaster: "#E7D7B8",
@@ -55,6 +68,57 @@ export const FIELDS = {
   hemp_mark: "#4F7E34",
   orchard: "#86A95E",
   orchard_mark: "#B5452F",
+} as const;
+
+/** Two-tone shadow tone per material role (same names as the buildings, terrain, fields, water and island roles): baked ambient occlusion in the models blends a role's colour toward its shadow tone — darker and cooler, so shadows read violet-blue under the warm grade instead of grey. */
+export const SHADOWS = {
+  plaster: "#867879",
+  ochre: "#7E5E3E",
+  timber: "#40291E",
+  thatch: "#6B5034",
+  terracotta: "#693027",
+  slate: "#35394A",
+  stone: "#6B646C",
+  brass: "#755B31",
+  canvas: "#897F87",
+  iron: "#2D2C38",
+  window: "#222939",
+  dye_blue: "#253E67",
+  sand: "#87786C",
+  grass_a: "#4A5E3B",
+  grass_b: "#556746",
+  dry: "#6B6546",
+  forest_floor: "#2E4426",
+  mountain: "#524D56",
+  cliff: "#615654",
+  deposit_iron: "#503530",
+  road_dirt: "#614C3F",
+  road_paved: "#6B646C",
+  road_border: "#80736E",
+  tree_crown: "#37502E",
+  flower: "#876F32",
+  unsettled: "#6B646C",
+  pasture: "#52673B",
+  pasture_mark: "#62744F",
+  wheat: "#7E6731",
+  wheat_mark: "#6B531E",
+  hemp: "#405832",
+  hemp_mark: "#2E4722",
+  orchard: "#4E5F3E",
+  orchard_mark: "#69271F",
+  shallows: "#2E6374",
+  deep: "#12355C",
+  foam: "#8E8A9E",
+  haze: "#6B7186",
+  sand_rim: "#837261",
+  cliff_upper: "#6A574E",
+  cliff_ledge: "#5C4D47",
+  cliff_lower: "#4E4343",
+  cliff_foot: "#2E2938",
+  rock_light: "#68554F",
+  rock: "#584541",
+  rock_deep: "#433533",
+  moss: "#4A5638",
 } as const;
 
 /** HUD chrome (themed-flat, ART_DIRECTION §6): parchment panels, dark-wood bars, brass accents, ink text, and the listed tints and shades the HUD uses. */

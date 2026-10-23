@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
-import { blockedTiles, islandSeed, layerKeys, NEAR_BLOCKED_KEEP, scatterGround, scatterTrees, thinningAreas, treeKeepFraction, TREES_PER_TILE } from "./scatter";
+import { blockedTiles, islandSeed, type Placed, layerKeys, NEAR_BLOCKED_KEEP, scatterGround, scatterSite, scatterTrees, thinningAreas, treeKeepFraction, TREES_PER_TILE } from "./scatter";
 
 /** A width × height map of one terrain. */
 const map = (width: number, height: number, t: string) => ({ width, height, terrain: Array.from({ length: width * height }, () => t) });
@@ -53,6 +53,12 @@ describe("tree thinning", () => {
     expect(trees.filter((t) => !inside(t))).toEqual(unthinned.filter((t) => !inside(t)));
     const keys = new Set(unthinned.map((t) => `${t.x},${t.y}`));
     expect(trees.every((t) => keys.has(`${t.x},${t.y}`))).toBe(true);
+    // Every felled tree leaves a stump where it stood, inside the disc.
+    const stumps: Placed[] = [];
+    scatterTrees(input, areas, 3, stumps);
+    expect(stumps.length).toBe(unthinned.length - trees.length);
+    expect(stumps.every(inside)).toBe(true);
+    expect(stumps.every((t) => keys.has(`${t.x},${t.y}`))).toBe(true);
   });
 });
 
@@ -66,7 +72,22 @@ describe("deterministic scatter", () => {
     const g = scatterGround({ ...map(20, 20, "grass"), seed: 5, blocked: new Set() });
     expect(scatterGround({ ...map(20, 20, "grass"), seed: 5, blocked: new Set() })).toEqual(g);
     expect(scatterGround({ ...map(20, 20, "grass"), seed: 6, blocked: new Set() })).not.toEqual(g);
-    expect(new Set(g.map((p) => p.kind))).toEqual(new Set(["tuft", "flower", "rock"]));
+    expect(new Set(g.map((p) => p.kind))).toEqual(new Set(["tuft", "flower", "bush"]));
+    // Rocks and bushes gather at the forest fringe (left half forest).
+    const fringe = { width: 20, height: 20, terrain: Array.from({ length: 400 }, (_, i) => (i % 20 < 10 ? "forest" : "grass")) };
+    const f = scatterGround({ ...fringe, seed: 5, blocked: new Set() });
+    expect(new Set(f.map((p) => p.kind))).toEqual(new Set(["tuft", "flower", "rock", "bush"]));
+  });
+
+  it("puts no rocks on open grass and clusters rocks and bushes at the coast, fringe and plateau feet", () => {
+    expect(scatterSite({ width: 3, height: 3, terrain: Array(9).fill("grass") }, 1, 1)).toBe("open");
+    const t = ["water", "grass", "grass", "grass", "grass", "grass", "forest", "grass", "mountain"];
+    expect(scatterSite({ width: 3, height: 3, terrain: t }, 1, 1)).toBe("foot");
+    expect(scatterSite({ width: 3, height: 3, terrain: t }, 0, 1)).toBe("fringe");
+    expect(scatterSite({ width: 3, height: 3, terrain: t }, 1, 0)).toBe("coast");
+    for (let seed = 0; seed < 20; seed++) {
+      expect(scatterGround({ ...map(20, 20, "grass"), seed, blocked: new Set() }).some((p) => p.kind === "rock")).toBe(false);
+    }
   });
 
   it("keeps off buildings, fields and roads and thins next to them", () => {
@@ -86,13 +107,13 @@ describe("deterministic scatter", () => {
     for (const p of ground) expect(blocked.has(`${Math.floor(p.x)},${Math.floor(p.y)}`)).toBe(false);
   });
 
-  it("grows trees on forest only and ground scatter on grass and coast only", () => {
+  it("grows trees on forest only and ground scatter on grass, coast and mountain only", () => {
     const terrain = ["forest", "grass", "coast", "mountain", "water"];
     const m = { width: 5, height: 1, terrain };
     const trees = scatterTrees({ ...m, seed: 3, blocked: new Set() }, []);
     expect(trees.every((t) => Math.floor(t.x) === 0)).toBe(true);
     for (let seed = 0; seed < 30; seed++) {
-      for (const p of scatterGround({ ...m, seed, blocked: new Set() })) expect([1, 2]).toContain(Math.floor(p.x));
+      for (const p of scatterGround({ ...m, seed, blocked: new Set() })) expect([1, 2, 3]).toContain(Math.floor(p.x));
     }
   });
 });

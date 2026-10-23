@@ -7,8 +7,10 @@ manifest entry.
 
 import hashlib
 import json
+import math
 
-from . import config, content as content_mod, geometry, glb, validate
+from . import atlas, config, content as content_mod, geometry, glb, palette, validate
+from . import recipes as recipes_mod
 from .recipes import part_groups, part_label
 
 
@@ -32,13 +34,52 @@ def kit_scale(kit, file):
     return config.FILE_SCALE.get(f"{kit}:{file}", config.KIT_SCALE[kit])
 
 
-def kit_role(kit, material, part):
-    """(role, shade) of a kit material in a part: part role, then the part's roles map, then the kit default."""
+def _role_value(v, shade):
+    """A `roles` map value (role name or {role, shade}) → (role, shade)."""
+    if isinstance(v, dict):
+        return v["role"], v.get("shade", 1.0) * shade
+    return v, shade
+
+
+def no_clamp(role, shade, roles):
+    """The shade capped (down to 3 decimals) so that no channel of palette[role] × shade exceeds 1."""
+    if roles is None or role not in roles:
+        return shade
+    peak = max(roles[role])
+    if peak * shade <= 1.0:
+        return shade
+    return math.floor(1000.0 / peak) / 1000.0
+
+
+def kit_role(kit, material, part, roles=None):
+    """
+    (role, shade) of a kit material in a part: part role, then the part's
+    roles map, then the kit default. Gradient-atlas materials
+    ("Atlas/<swatch>@<band>") match the roles map by band first, then by
+    swatch, and multiply the band shade in (capped so nothing clamps).
+    """
     shade = part.get("shade", 1.0)
+    cells = config.KIT_ATLAS_CELLS.get(kit)
+    if cells is not None:
+        base, band = atlas.split(material)
+        bshade = cells["bands"][band] if band is not None else 1.0
+        mapped = part.get("roles", {})
+        if "role" in part:
+            role, s = part["role"], shade
+        elif material in mapped:
+            role, s = _role_value(mapped[material], shade)
+        elif base in mapped:
+            role, s = _role_value(mapped[base], shade)
+        else:
+            sw = atlas.swatch(cells, base)
+            if sw is None:
+                return None, shade
+            role, s = sw[0], sw[1] * shade
+        return role, no_clamp(role, _r(s * bshade), roles)
     if "role" in part:
         return part["role"], shade
     if material in part.get("roles", {}):
-        return part["roles"][material], shade
+        return _role_value(part["roles"][material], shade)
     if kit in config.KIT_MATERIALS and material in config.KIT_MATERIALS[kit]:
         role, s = config.KIT_MATERIALS[kit][material]
         return role, s * shade
@@ -47,6 +88,34 @@ def kit_role(kit, material, part):
             if material == f"Atlas/{name}":
                 return role, s * shade
     return None, shade
+
+
+def exaggerate(tris, ex):
+    """
+    Scales the triangles whose centroid lies in the box ex["min"]..ex["max"]
+    (kit units, before any transform) by ex["scale"] about ex["pivot"] or
+    the selection's bottom centre — a bigger roof or a taller chimney that
+    stays seated on the piece.
+    """
+    sel = [all(ex["min"][i] <= (t[0][i] + t[1][i] + t[2][i]) / 3 <= ex["max"][i] for i in range(3)) for t in tris]
+    pts = [p for t, s in zip(tris, sel) if s for p in t[:3]]
+    if not pts:
+        return tris
+    if "pivot" in ex:
+        pv = ex["pivot"]
+    else:
+        pv = [(min(p[0] for p in pts) + max(p[0] for p in pts)) / 2, (min(p[1] for p in pts) + max(p[1] for p in pts)) / 2, min(p[2] for p in pts)]
+    sc = ex["scale"] if isinstance(ex["scale"], list) else [ex["scale"]] * 3
+    m = geometry.mat_mul(geometry.translation(pv), geometry.mat_mul(geometry.scaling(sc), geometry.translation([-c for c in pv])))
+    out = []
+    for t, s in zip(tris, sel):
+        out.append((geometry.apply(m, t[0]), geometry.apply(m, t[1]), geometry.apply(m, t[2])) + tuple(t[3:]) if s else t)
+    return out
+
+
+def dropped(material, drop):
+    """Whether a kit material is in a part's drop list (atlas materials: by band or by swatch)."""
+    return material in drop or atlas.split(material)[0] in drop
 
 
 def primitive(part, seed):
@@ -66,7 +135,7 @@ def primitive(part, seed):
     raise BuildError(f"unknown primitive {kind}")
 
 
-def part_mesh(recipe_id, group, index, part, kit_loader):
+def part_mesh(recipe_id, group, index, part, kit_loader, roles=None):
     """
     The triangles of one part (all repeat copies) in recipe space with
     (role, shade, label), the declared (role, shade) pairs and the kit file
@@ -88,16 +157,21 @@ def part_mesh(recipe_id, group, index, part, kit_loader):
         f = kit_scale(part["kit"], part["file"])
         raw = kit_loader(part["kit"], part["file"], part.get("simplify"))
         crop = part.get("crop")
+        drop = set(part.get("drop", ()))
         local = []
         for a, b, c, material in raw:
             if crop and not all(crop["min"][i] <= (a[i] + b[i] + c[i]) / 3 <= crop["max"][i] for i in range(3)):
                 continue
-            role, shade = kit_role(part["kit"], material, part)
+            if drop and dropped(material, drop):
+                continue
+            role, shade = kit_role(part["kit"], material, part, roles)
             if role is None:
                 raise BuildError(f"{label}: kit material {material!r} has no role (add it to the part's roles)")
             shade = _r(shade)
             declared.add((role, shade))
             local.append((a, b, c, role, shade, label))
+        for ex in part.get("exaggerate", ()):
+            local = exaggerate(local, ex)
         base_scale = [s * f for s in scale]
     else:
         shade = _r(part.get("shade", 1.0))
@@ -112,7 +186,13 @@ def part_mesh(recipe_id, group, index, part, kit_loader):
             tris = local
         else:
             seed = geometry.seed_of(recipe_id, group, index, k)
-            tris = [(a, b, c, part["role"], shade, label) for a, b, c in primitive(part, seed)]
+            prim = primitive(part, seed)
+            if "bevel" in part:
+                bevel = getattr(kit_loader, "bevel", None)
+                if bevel is None:
+                    raise BuildError(f"{label}: bevel needs the Blender build")
+                prim = bevel(prim, part["bevel"])
+            tris = [(a, b, c, part["role"], shade, label) for a, b, c in prim]
             if part["prim"] == "sail":
                 # Cloth is lit from both sides: both faces of a sail get the up normal.
                 tris = [t + (UP,) for t in tris]
@@ -141,6 +221,8 @@ def budget_of(recipe, content, key):
         return config.BUDGET_ATTACHMENT
     if kind == "ship":
         return config.BUDGET_SHIP
+    if kind == "decor":
+        return config.BUDGET_DECOR
     if kind == "field":
         return config.BUDGET_FIELD
     if content_mod.is_house(content, cid):
@@ -149,9 +231,8 @@ def budget_of(recipe, content, key):
 
 
 def lite_budget(recipe, content, limit):
-    """Triangle budget of a lite file (a share of its full file's budget; houses a smaller one)."""
-    house = recipe["kind"] == "building" and content_mod.is_house(content, recipe["id"])
-    return int(limit * (config.LITE_FACTOR_HOUSE if house else config.LITE_FACTOR))
+    """Triangle budget of a lite file (a share of its full file's budget)."""
+    return int(limit * config.LITE_FACTOR)
 
 
 def gltf_bounds(mesh):
@@ -164,15 +245,15 @@ def lite_name(fname):
     return fname[: -len(".glb")] + ".lite.glb"
 
 
-def _assemble(cid, groups, kit_loader, kit_used, lod):
-    """The merged mesh of part groups at a detail level ("full" leaves out lod-lite parts and vice versa)."""
+def _assemble(cid, groups, kit_loader, kit_used, lod, roles=None):
+    """The merged mesh of part groups at a detail level ("lite" leaves out the lod-"full" parts)."""
     mesh = geometry.Mesh()
     declared = set()
     for group, parts in groups:
         for i, part in enumerate(parts):
-            if part.get("lod", lod) != lod:
+            if lod == "lite" and part.get("lod") == "full":
                 continue
-            m, d, kf = part_mesh(cid, group, i, part, kit_loader)
+            m, d, kf = part_mesh(cid, group, i, part, kit_loader, roles)
             mesh.extend(m)
             declared |= d
             if kf:
@@ -180,19 +261,118 @@ def _assemble(cid, groups, kit_loader, kit_used, lod):
     return mesh, declared
 
 
+_SHADOWS = {}
+
+
+def shadows():
+    """Shadow tone per role (palette group "shadows"), loaded once."""
+    if not _SHADOWS:
+        _SHADOWS.update(palette.load_shadows())
+    return _SHADOWS
+
+
+def ao_color(base, shadow, shade, level):
+    """A colour at an occlusion level: base blended toward shadow × shade by level / AO_LEVELS × AO_STRENGTH."""
+    t = level / config.AO_LEVELS * config.AO_STRENGTH
+    return tuple(b + (s * shade - b) * t for b, s in zip(base, shadow))
+
+
+def luminance(c):
+    """Relative luminance (Rec. 709 weights) of a linear-ish RGB triple."""
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+
+
+def shadow_chroma(role, palette_rgb, c):
+    """
+    A colour of a role with the role's shadow chroma bias (SHADOW_CHROMA):
+    its chroma raised about its luminance by bias × darkness, darkness being
+    how much darker it is than the palette colour (0 when as light or
+    lighter); clamped to [0, 1].
+    """
+    bias = config.SHADOW_CHROMA.get(role, 0.0)
+    ref = luminance(palette_rgb)
+    if bias <= 0 or ref <= 0:
+        return c
+    lum = luminance(c)
+    darkness = max(0.0, min(1.0, 1.0 - lum / ref))
+    gain = 1.0 + bias * darkness
+    return tuple(min(1.0, max(0.0, lum + (v - lum) * gain)) for v in c)
+
+
+def file_colors(roles, declared, ao):
+    """(role, shade) → colour, or with baked occlusion (role, shade, level) → colour, of a file's declared pairs."""
+    base = {k: tuple(c * k[1] for c in roles[k[0]]) for k in declared}
+    if ao is None:
+        return {k: shadow_chroma(k[0], roles[k[0]], c) for k, c in base.items()}
+    tone = shadows()
+    return {
+        (r, s, lvl): shadow_chroma(r, roles[r], ao_color(base[(r, s)], tone[r], s, lvl))
+        for (r, s) in declared
+        for lvl in range(config.AO_LEVELS + 1)
+    }
+
+
+def lite_ratios(n, house=False):
+    """Decimation ratios to try for a mesh of n triangles: houses from LITE_HOUSE_TRIS up in LITE_HOUSE_STEP steps (below the first of LITE_RATIOS), then LITE_RATIOS (at least LITE_MIN_TRIS)."""
+    out = []
+    if house:
+        target = config.LITE_HOUSE_TRIS
+        while target < n * config.LITE_RATIOS[0]:
+            out.append(target / n)
+            target *= config.LITE_HOUSE_STEP
+    return out + [max(r, config.LITE_MIN_TRIS / n) for r in config.LITE_RATIOS]
+
+
+def decimate(mesh, kit_loader, footprint=None, house=False):
+    """
+    The lite mesh: decimated (when the loader can, i.e. Blender) to the first
+    of lite_ratios whose result still fits and covers the footprint (w, h)
+    and touches the ground; else unchanged.
+    """
+    fn = getattr(kit_loader, "decimate", None)
+    n = len(mesh)
+    floor = config.LITE_HOUSE_TRIS if house else config.LITE_MIN_TRIS
+    if fn is None or n <= floor:
+        return mesh
+    for r in lite_ratios(n, house):
+        if r >= 1.0:
+            return mesh
+        out = fn(mesh, r)
+        if footprint is None or not (validate.footprint_fit(out, *footprint) or validate.ground_contact(out)):
+            return out
+    return mesh
+
+
+def bake(mesh, recipe, kit_loader):
+    """Bakes ambient occlusion into a mesh when the loader can (Blender); returns the mesh."""
+    if recipe.get("shading") == "smooth":
+        mesh.tris = geometry.smooth_normals(mesh.tris)
+    if config.NORMAL_TILT:
+        mesh.tris = geometry.tilt_normals(mesh.tris, config.NORMAL_TILT)
+    occlusion = getattr(kit_loader, "occlusion", None)
+    if occlusion is not None:
+        mesh.ao = occlusion(mesh.tris, recipe["kind"] != "ship")
+        if recipe.get("ao") == "crevices":
+            cut = config.AO_CREVICE_CUT
+            mesh.ao = [tuple(max(0, lvl - cut) for lvl in t) for t in mesh.ao]
+    return mesh
+
+
 def _check_file(recipe, content, roles, fname, key, mesh, declared, limit):
     """Validates one model file (full or lite: the same rules, the lite budget); returns (bytes, problems)."""
     cid = recipe["id"]
     problems = validate.budget(mesh, limit, fname)
-    if recipe["kind"] in ("building", "field"):
+    if recipe["kind"] == "decor":
+        problems += [f"{fname}: {p}" for p in validate.ground_contact(mesh)]
+    elif recipe["kind"] in ("building", "field"):
         w, h = content_mod.footprint(content, cid)
         problems += [f"{fname}: footprint fit: {p}" for p in validate.footprint_fit(mesh, w, h)]
         problems += [f"{fname}: {p}" for p in validate.ground_contact(mesh)]
     elif key is None:
         problems += [f"{fname}: {p}" for p in validate.ship_length(mesh, recipe["ship"]["length_tiles"])]
     problems += validate.palette_check(mesh, roles, declared, fname)
-    colors = {k: tuple(c * k[1] for c in roles[k[0]]) for k in declared}
-    data = glb.write(cid, mesh.tris, colors)
+    colors = file_colors(roles, declared, mesh.ao)
+    data = glb.write(cid, mesh.tris, colors, mesh.ao)
     problems += validate.export_profile(data, fname)
     problems += readback_colors(data, colors, fname)
     return data, problems
@@ -204,6 +384,7 @@ def build_recipe(recipe, content, roles, kit_loader):
     a list of (name, bytes, mesh, budget) for the writer and the sheets,
     entry the manifest entry, errors a list of problems (empty when valid).
     """
+    recipe = recipes_mod.expand(recipe)
     cid = recipe["id"]
     name = f"recipes/{cid}.json"
     errors = []
@@ -211,10 +392,18 @@ def build_recipe(recipe, content, roles, kit_loader):
     kit_used = {}
     meta = {}
     for fname, key, groups in outputs(recipe):
-        has_lite = any("lod" in p for _, parts in groups for p in parts)
+        # Every building model gets a generated lite file (fields and ships do not).
+        has_lite = config.LITE_MODELS and recipe["kind"] == "building" and (key is None or key[0] in ("variant", "level"))
         try:
-            mesh, declared = _assemble(cid, groups, kit_loader, kit_used, "full")
-            lite = _assemble(cid, groups, kit_loader, kit_used, "lite") if has_lite else None
+            mesh, declared = _assemble(cid, groups, kit_loader, kit_used, "full", roles)
+            lite = None
+            if has_lite:
+                lite = _assemble(cid, groups, kit_loader, kit_used, "lite", roles)
+                house = content_mod.is_house(content, cid)
+                lite = (decimate(lite[0], kit_loader, content_mod.footprint(content, cid), house), lite[1])
+            bake(mesh, recipe, kit_loader)
+            if lite is not None:
+                bake(lite[0], recipe, kit_loader)
         except BuildError as e:
             errors.append(f"{name} {fname}: {e}")
             continue
@@ -263,6 +452,13 @@ def manifest_entry(recipe, content, files, meta, kit_used):
     cid = recipe["id"]
     entry = {"kind": recipe["kind"]}
     by_name = {f[0]: f for f in files}
+    if recipe["kind"] == "decor":
+        fname, (_, mesh, _) = next(iter(meta.items()))
+        entry["file"] = file_info(fname, by_name[fname][1], mesh)
+        entry["file"]["budget"] = by_name[fname][3]
+        entry["bounds"] = entry["file"]["bounds"]
+        entry["kit_sources"] = [{"kit": k, "files": sorted(v)} for k, v in sorted(kit_used.items())]
+        return entry
     main = []
     for fname, (key, mesh, lite) in meta.items():
         info = file_info(fname, by_name[fname][1], mesh)
@@ -311,7 +507,10 @@ def manifest_entry(recipe, content, files, meta, kit_used):
 
 
 def manifest(entries, palette_sha, blender_version, missing):
+    decor = {k: v for k, v in entries.items() if v["kind"] == "decor"}
+    entries = {k: v for k, v in entries.items() if v["kind"] != "decor"}
     doc = {
+        "decor": dict(sorted(decor.items())),
         "version": config.MANIFEST_VERSION,
         "generator": config.GENERATOR,
         "blender": blender_version,

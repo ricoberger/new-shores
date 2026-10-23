@@ -15,10 +15,18 @@ export type Lod = "near" | "mid" | "far";
 export const NEAR_EXIT_HALF = 30;
 /** mid (or far) → near when the half extent falls below this. */
 export const MID_TO_NEAR_HALF = 27;
-/** near or mid → far when the half extent exceeds this. */
-export const FAR_ENTER_HALF = 48;
-/** far → mid (or near) when the half extent falls below this. */
-export const FAR_EXIT_HALF = 42;
+/**
+ * near or mid → far when the half extent exceeds this: the full models stay
+ * until a 2 × 2 footprint is about 12 px tall on a 412 × 915 phone. Its
+ * ground diagonal (2√2 tiles) projects to 2√2 · sin 30° ≈ 1.41 ortho units,
+ * the screen shows 2 × half of them in 915 CSS px: 1.41 · 915 / (2 · 54)
+ * ≈ 12.0 px (10.5 px at 1280 × 800). The maximum zoom never stays below
+ * 1.1 × this (display/camera.ts FAR_REACH_HALF), so a small world still has
+ * its far-LOD overview. Was 48 / 42 with the block stand-ins.
+ */
+export const FAR_ENTER_HALF = 54;
+/** far → mid (or near) when the half extent falls below this (54 / 47 ≈ 1.15: hysteresis). */
+export const FAR_EXIT_HALF = 47;
 
 /** The level at a half extent with no previous level (first frame, a jump). */
 export function initialLod(half: number): Lod {
@@ -41,16 +49,11 @@ export function lodFor(half: number, prev: Lod): Lod {
 }
 
 /**
- * Model detail inside the near level (art task 3): the full kit-bashed
- * models when zoomed in to at most FULL_DETAIL_ENTER_HALF, the lite ones
- * above FULL_DETAIL_EXIT_HALF (the near default zoom shows a whole dense
- * town, which software renderers cannot afford at full detail), with the
- * same kind of hysteresis as the levels.
+ * Model detail per level (art restyle): the full kit-bashed models at near
+ * and mid LOD, the lite ones (≈ 25 % of the triangles, covering the same
+ * footprint) at far LOD. Both are built once per island and only toggled
+ * at the mid/far boundary, so a zoom never rebuilds geometry.
  */
-export const FULL_DETAIL_ENTER_HALF = 10;
-export const FULL_DETAIL_EXIT_HALF = 11.5;
-
-/** The model detail at a half extent, given the previous one. */
-export function detailFor(half: number, prev: "full" | "lite"): "full" | "lite" {
-  return prev === "full" ? (half > FULL_DETAIL_EXIT_HALF ? "lite" : "full") : half <= FULL_DETAIL_ENTER_HALF ? "full" : "lite";
+export function detailForLod(lod: Lod): "full" | "lite" {
+  return lod === "far" ? "lite" : "full";
 }

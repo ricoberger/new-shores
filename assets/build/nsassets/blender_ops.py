@@ -11,7 +11,7 @@ import bmesh
 import bpy
 from mathutils import Matrix, Vector
 
-from . import config, geometry
+from . import atlas, config, geometry
 from .palette import hex_rgb
 
 _SUFFIX = re.compile(r"\.\d{3}$")
@@ -61,6 +61,7 @@ class KitLoader:
         dg = bpy.context.evaluated_depsgraph_get()
         tris = []
         swatches = config.KIT_ATLAS_SWATCHES.get(kit)
+        cells = config.KIT_ATLAS_CELLS.get(kit)
         for obj in sorted((o for o in bpy.context.scene.objects if o.type == "MESH"), key=lambda o: o.name):
             ev = obj.evaluated_get(dg)
             me = ev.to_mesh()
@@ -70,7 +71,9 @@ class KitLoader:
             for t in me.loop_triangles:
                 slot = obj.material_slots[t.material_index].material if obj.material_slots else None
                 mname = _SUFFIX.sub("", slot.name) if slot else "-"
-                if swatches is not None:
+                if cells is not None:
+                    mname = atlas.classify(cells, [tuple(uv[i].uv) for i in t.loops]) if uv is not None else f"Atlas/{cells['default'][0]}@1"
+                elif swatches is not None:
                     mname = "Atlas/" + self._swatch(slot, uv, t, swatches)
                 pts = [tuple(mw @ me.vertices[v].co) for v in t.vertices]
                 tris.append((pts[0], pts[1], pts[2], mname))
@@ -100,6 +103,89 @@ class KitLoader:
         best = min(swatches, key=lambda s: sum((a - b) ** 2 for a, b in zip(rgb, hex_rgb(s[1]))))
         return best[0]
 
+
+    def occlusion(self, tris, ground):
+        """
+        Baked ambient occlusion: one (level, level, level) tuple per triangle
+        (0 = open … AO_LEVELS = fully occluded) from fixed hemisphere rays
+        against the mesh itself (and the ground plane z = 0 when ground).
+        """
+        from mathutils.bvhtree import BVHTree
+
+        if not tris:
+            return []
+        verts, polys = [], []
+        for t in tris:
+            base = len(verts)
+            verts += [Vector(p) for p in t[:3]]
+            polys.append((base, base + 1, base + 2))
+        bvh = BVHTree.FromPolygons(verts, polys, all_triangles=True, epsilon=0.0)
+        dirs = geometry.hemisphere(config.AO_RAYS)
+        dist = config.AO_DISTANCE
+        levels = config.AO_LEVELS
+        cache = {}
+        out = []
+        for t in tris:
+            n = t[6] if len(t) > 6 else geometry.normal(*t[:3])
+            tb = geometry.frame(n)
+            world = [Vector(tuple(d[0] * tb[0][i] + d[1] * tb[1][i] + d[2] * tb[2][i] for i in range(3))) for d in dirs]
+            cx = [sum(p[i] for p in t[:3]) / 3 for i in range(3)]
+            corner = []
+            for p in t[:3]:
+                # Slightly inside the triangle and off its surface (no self hits at shared edges).
+                o = tuple(p[i] + (cx[i] - p[i]) * 0.15 + n[i] * 2e-3 for i in range(3))
+                key = (tuple(round(c, 5) for c in o), tuple(round(c, 4) for c in n))
+                if key not in cache:
+                    origin = Vector(o)
+                    hits = 0
+                    for d in world:
+                        loc, _, _, _ = bvh.ray_cast(origin, d, dist)
+                        if loc is not None:
+                            hits += 1
+                        elif ground and d.z < -1e-6 and o[2] >= -1e-6 and -o[2] / d.z <= dist:
+                            hits += 1
+                    cache[key] = int(math.floor(hits / len(world) * levels + 0.5))
+                corner.append(cache[key])
+            out.append(tuple(corner))
+        return out
+
+    def decimate(self, mesh, ratio):
+        """A Mesh decimated by edge collapse to ratio of its triangles (role, shade, label and explicit normals kept per face)."""
+        keys = []
+        index = {}
+        raw = []
+        for t in mesh.tris:
+            k = tuple(t[3:])
+            if k not in index:
+                index[k] = f"m{len(keys)}"
+                keys.append(k)
+            raw.append((t[0], t[1], t[2], index[k]))
+        out = _simplify(raw, {"collapse": ratio})
+        back = {f"m{i}": k for i, k in enumerate(keys)}
+        tris = [(a, b, c) + back[m] for a, b, c, m in out if geometry.area2(a, b, c) > 1e-12]
+        return geometry.Mesh(tris)
+
+    def bevel(self, tris, width):
+        """Primitive triangles (a, b, c) with their sharp edges (> 30°) bevelled by width (one segment)."""
+        key = ("bevel", round(width, 6), tuple(tuple(round(c, 6) for p in t for c in p) for t in tris))
+        if key not in self.cache:
+            _clear_scene()
+            obj, _ = _mesh_from_tris("bevel", [(a, b, c, "-") for a, b, c in tris])
+            mod = obj.modifiers.new("bevel", "BEVEL")
+            mod.width = width
+            mod.segments = 1
+            mod.limit_method = "ANGLE"
+            mod.angle_limit = math.radians(30)
+            mod.use_clamp_overlap = True
+            dg = bpy.context.evaluated_depsgraph_get()
+            ev = obj.evaluated_get(dg)
+            me = ev.to_mesh()
+            me.calc_loop_triangles()
+            out = [tuple(tuple(me.vertices[v].co) for v in lt.vertices) for lt in me.loop_triangles]
+            ev.to_mesh_clear()
+            _clear_scene()
+            self.cache[key] = out
+        return self.cache[key]
 
 def _mesh_from_tris(name, tris):
     """A Blender mesh object from (a, b, c, material) triangles, welded (decimation needs connectivity)."""
@@ -171,7 +257,7 @@ def _lit(rgb, n, sky, sun):
     return tuple(min(1.0, c * (0.6 * s + 0.7 * u * d)) for c, s, u in zip(rgb, sky, sun))
 
 
-def _render_object(name, tris, colors, rot_k, location, sky, sun):
+def _render_object(name, tris, corners, rot_k, location, sky, sun):
     me = bpy.data.meshes.new(name)
     verts, faces = [], []
     for t in tris:
@@ -181,11 +267,10 @@ def _render_object(name, tris, colors, rot_k, location, sky, sun):
     me.from_pydata(verts, [], faces)
     attr = me.color_attributes.new("col", "FLOAT_COLOR", "CORNER")
     data = []
-    for t in tris:
+    for t, cols in zip(tris, corners):
         n = Vector(t[6] if len(t) > 6 else geometry.normal(*t[:3]))
-        rgb = _lit(colors[(t[3], t[4])], n, sky, sun)
-        lin = [_srgb_to_linear(c) for c in rgb] + [1.0]
-        data += lin * 3
+        for col in cols:
+            data += [_srgb_to_linear(c) for c in _lit(col, n, sky, sun)] + [1.0]
     attr.data.foreach_set("color", data)
     me.color_attributes.active_color = attr
     obj = bpy.data.objects.new(name, me)
@@ -218,7 +303,7 @@ def _text(body, location, rotation, size):
 
 def render_sheet(path, cells, cols, rows, cell_tiles, px, sky, sun, background):
     """
-    Renders cells (label, tris, colors, rotation step, column, row) into a
+    Renders cells (label, tris, corner colours, rotation step, column, row) into a
     grid seen by the game's camera (orthographic, 30° elevation, azimuth 45°;
     rotation step k turns the model by k·90°, i.e. the camera's step k).
     """
@@ -252,11 +337,11 @@ def render_sheet(path, cells, cols, rows, cell_tiles, px, sky, sun, background):
     cam_data.clip_end = 400.0
     m = rot.to_matrix()
     right, up = m.col[0], m.col[1]
-    for i, (label, tris, colors, k, col, row) in enumerate(cells):
+    for i, (label, tris, corners, k, col, row) in enumerate(cells):
         cx = (col - (cols - 1) / 2) * cell_tiles
         cy = ((rows - 1) / 2 - row) * cell_tiles
         centre = right * cx + up * cy
-        _render_object(f"cell{i}", tris, colors, k, centre - up * (cell_tiles * 0.12), sky, sun)
+        _render_object(f"cell{i}", tris, corners, k, centre - up * (cell_tiles * 0.12), sky, sun)
         if label:
             _text(label, centre - up * (cell_tiles * 0.42), rot.to_euler(), cell_tiles * 0.07)
     scene.render.filepath = path

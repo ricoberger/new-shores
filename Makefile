@@ -1,7 +1,10 @@
 # Verification and development targets mirroring AGENTS.md §4.
 #
 #   make check        server + content + client checks (no browser needed)
-#   make dev          dev server (in-memory world) + Vite, Ctrl-C stops both
+#   make dev          dev server (in-memory world) + Vite, Ctrl-C stops both;
+#                     `make dev HOST=<lan-ip>` serves both on the LAN (phone testing)
+#   make preview      e2e-mode build (fixtures, ?stats=1) served by `vite preview` on
+#                     :4173 against the dev server; HOST=<lan-ip> for the LAN
 #   make client-e2e   Playwright smoke test (needs `npx playwright install chromium`)
 #   make up           Compose stack (postgres, redis, migrate, server x2, caddy)
 #                     on http://localhost:8000 (HTTP_PORT from deploy/.env, the
@@ -36,7 +39,7 @@ COMPOSE_ENV := $(if $(filter command line,$(origin HTTP_PORT)),HTTP_PORT=$(HTTP_
 DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUMES)),$(error VOLUMES must be 1 (delete the database volume) or 0/false/no/unset (keep it), got '$(VOLUMES)')))
 
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
-	client-install client-check client-lint client-typecheck client-test client-build client-e2e dev \
+	client-install client-check client-lint client-typecheck client-test client-build client-e2e dev preview \
 	server-integration client-e2e-pg up down logs makefile-test assets assets-check assets-test
 
 check: server-check content-test client-check makefile-test assets-test
@@ -116,8 +119,29 @@ logs:
 makefile-test:
 	@deploy/makefile_test.sh
 
+# HOST=<lan-ip> makes the stack reachable from other devices (a phone): Vite
+# listens on all interfaces, the client calls the dev server at
+# http://$(HOST):8080 and the dev server allows the client origins on that
+# host (the localhost origins stay allowed). Without HOST nothing changes.
+CORS_LOCAL := http://localhost:5173,http://127.0.0.1:5173
+PREVIEW_PORT ?= 4173
+comma := ,
+DEV_CORS := $(CORS_LOCAL),http://localhost:$(PREVIEW_PORT),http://127.0.0.1:$(PREVIEW_PORT)$(if $(HOST),$(comma)http://$(HOST):5173$(comma)http://$(HOST):$(PREVIEW_PORT))
+VITE_HOST_FLAG := $(if $(HOST),--host)
+VITE_API_ENV := $(if $(HOST),VITE_API_BASE=http://$(HOST):8080 )
+
 dev:
 	@trap 'kill 0' INT TERM EXIT; \
-	(cd $(SERVER_DIR) && go run ./cmd/server --dev --content $(CONTENT) --time-scale $(TIME_SCALE)) & \
-	(cd $(CLIENT_DIR) && VITE_TIME_SCALE=$(TIME_SCALE) npm run dev) & \
+	(cd $(SERVER_DIR) && go run ./cmd/server --dev --content $(CONTENT) --time-scale $(TIME_SCALE) --cors-origin $(DEV_CORS)) & \
+	(cd $(CLIENT_DIR) && $(VITE_API_ENV)VITE_TIME_SCALE=$(TIME_SCALE) npm run dev -- $(VITE_HOST_FLAG)) & \
+	wait
+
+# Bundled build with the dev/e2e hooks on (VITE_E2E=1: ?fixture=, ?stats=1),
+# the realistic basis for fps numbers on a phone (Vite's unbundled dev
+# serving is slower). The build is baked against http://$(HOST):8080.
+preview:
+	cd $(CLIENT_DIR) && $(VITE_API_ENV)VITE_E2E=1 VITE_TIME_SCALE=$(TIME_SCALE) npx vite build
+	@trap 'kill 0' INT TERM EXIT; \
+	(cd $(SERVER_DIR) && go run ./cmd/server --dev --content $(CONTENT) --time-scale $(TIME_SCALE) --cors-origin $(DEV_CORS)) & \
+	(cd $(CLIENT_DIR) && npx vite preview --port $(PREVIEW_PORT) --strictPort $(VITE_HOST_FLAG)) & \
 	wait

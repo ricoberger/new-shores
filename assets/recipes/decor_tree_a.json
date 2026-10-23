@@ -1,0 +1,2 @@
+{"$schema": "./schema.json", "id": "decor_tree_a", "kind": "decor", "shading": "smooth", "notes": "Broadleaf tree (KayKit Forest Tree_1_A, decimated).", "parts": [
+  {"kit": "kaykit_forest", "file": "Assets/gltf/Tree_1_A_Color1.gltf", "simplify": {"collapse": 0.22}}]}

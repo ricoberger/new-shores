@@ -16,6 +16,7 @@ import {
   TOUCH_ROAD_TO,
 } from "./constants";
 import { type Point, type Touch, touchFor } from "./touch";
+import { resetWorld } from "./world";
 
 // Touch alone on phone profiles (Pixel 5 / Chromium at 412 × 915 and
 // iPhone 12 / WebKit): gestures on the fixtures (read-only) and the
@@ -25,6 +26,9 @@ import { type Point, type Touch, touchFor } from "./touch";
 // tile. One continuous world (D-048): pinches pass the LODs, no mode.
 
 test.describe.configure({ mode: "serial" });
+// The world tests start from the settled fixture (the moved sawmill, the
+// sheep farm, the sloop and its route); each touch project resets it.
+test.beforeAll(({ request }) => resetWorld(request, "settled"));
 
 const DENSE = "dense1";
 
@@ -246,15 +250,21 @@ test("pinch zooms through the LODs and back without a mode; tap an island at far
 
 test("a touch gesture begun during a jump stays ignored after it, also when a drag turns into a pinch", async ({ page }) => {
   test.skip(!touch.multiTouch, "no multi-touch emulation in this browser");
+  // The page's clock is controlled: the jump's 350 ms animation is held
+  // while the touch events arrive, however slow the renderer (a software
+  // renderer on a CI runner takes longer for a frame than the jump lasts).
+  await page.clock.install();
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
   // The models have loaded and merged (no main-thread work left that could outlast the jump).
   await modelsLoaded(page);
   await page.waitForTimeout(300);
   const c = await freeCanvasPoint(page);
-  // Jump to the second island (a DOM click: no touch pointer), and during
-  // the 350 ms animation press one finger, drag it, and add a second
-  // finger (the recogniser promotes the drag to a pinch with a cancel).
+  // Jump to the second island (a DOM click: no touch pointer) with the
+  // clock paused, and during the animation press one finger, drag it, and
+  // add a second finger (the recogniser promotes the drag to a pinch with
+  // a cancel).
+  await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1_000);
   await page.evaluate(() => (document.querySelector('[data-testid="island-tab-dense2"]') as HTMLElement).click());
   await touch.raw(
     { type: "start", fingers: [{ ...c, id: 1 }] },
@@ -269,6 +279,7 @@ test("a touch gesture begun during a jump stays ignored after it, also when a dr
   );
   // All three were handled while the camera still animated.
   expect(Number.isFinite(await page.evaluate(() => window.__newShores!.tileToScreen("dense2", 0, 0).x))).toBe(false);
+  await page.clock.resume();
   // The jump ends with both fingers down; widening and moving them does nothing.
   await expectFocused(page, "dense2");
   await worldReady(page, "dense2");
@@ -500,8 +511,14 @@ test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the c
 test("drag an idle ship onto another island, or Send to… and tap, opens the shipment dialog", async ({ page }) => {
   await page.goto("/?fixture=archipelago-8x20");
   await worldReady(page, "isle1");
+  // Every island is drawn with its models at far LOD, so a software
+  // renderer is slow here and every touch event waits for a frame: let the
+  // models load first and leave the touch slop with the first move (in
+  // small steps the browser holds the touch long enough to cancel it as a
+  // long press).
+  await modelsLoaded(page);
   const idle = 4; // idle at isle2
-  await touch.drag(await shipPoint(page, idle), await islandTapPoint(page, "isle1"), 16);
+  await touch.drag(await shipPoint(page, idle), await islandTapPoint(page, "isle1"), 4);
   await expect(page.getByTestId("shipment-dialog")).toBeVisible();
   await expect(page.getByTestId("shipment-dest")).toHaveValue("isle1");
   await page.keyboard.press("Escape");

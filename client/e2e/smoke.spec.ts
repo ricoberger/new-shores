@@ -23,6 +23,7 @@ import {
 } from "./constants";
 import { wheelZoom, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
+import { resetWorld } from "./world";
 
 /** The planks must flow within this much simulated time after placing the sawmill. */
 const PLANKS_WITHIN_SIM_MS = 90_000;
@@ -115,9 +116,10 @@ async function evaluatedAt(page: Page): Promise<number> {
   return page.evaluate(() => Date.parse(window.__newShores!.getServer()!.display.evaluated_at));
 }
 
-// The tests share the dev server's in-memory world and run in order: the
-// quest test continues on the plank chain of the first one.
+// The tests run in order on a fresh dev island: the quest test continues
+// on the plank chain of the first one.
 test.describe.configure({ mode: "serial" });
+test.beforeAll(({ request }) => resetWorld(request, "default"));
 
 test("place a plank chain and see planks produced", async ({ page }) => {
   await page.goto("/");
@@ -427,13 +429,5 @@ test("a sheep farm with a dragged pasture rectangle produces wool", async ({ pag
   await clickTile(page, PASTURE_RECT_FROM);
   await expectVersion(page, v2 + 2);
   expect(((await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding).fields?.assigned).toBe(16);
-  await page.keyboard.press("Escape");
-
-  // The later specs keep the economy they were written for: the farm is
-  // paused (no upkeep, no workers); a paused farm still accepts fields.
-  await clickTile(page, { x: SHEEP_FARM.x + 1, y: SHEEP_FARM.y + 1 });
-  await expect(page.getByTestId("info-name")).toHaveText("Sheep farm");
-  await page.getByTestId("info-pause").click();
-  await expect.poll(async () => (await serverBuilding(page, "sheep_farm")).status).toBe("paused");
   await page.keyboard.press("Escape");
 });

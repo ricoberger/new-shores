@@ -61,10 +61,10 @@ const FRAME_CORE = 0.85;
  * the rotation) centred at (cx, cz), leaning away from the sun by
  * `height` × the shadow lean, turned by `yaw` (radians).
  */
-export function blobMatrix(out: Float32Array, index: number, cx: number, cz: number, w: number, d: number, height: number, yaw = 0): void {
+export function blobMatrix(out: Float32Array, index: number, cx: number, cz: number, w: number, d: number, height: number, yaw = 0, y = BLOB_Y): void {
   const m = Matrix.Scaling(w, 1, d)
     .multiply(Matrix.RotationY(yaw))
-    .multiply(Matrix.Translation(cx + SHADOW_LEAN.x * height * 0.35, BLOB_Y, cz + SHADOW_LEAN.z * height * 0.35));
+    .multiply(Matrix.Translation(cx + SHADOW_LEAN.x * height * 0.35, y, cz + SHADOW_LEAN.z * height * 0.35));
   m.copyToArray(out, index * 16);
 }
 

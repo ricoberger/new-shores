@@ -29,6 +29,20 @@
         "haze": "#B9C9CB"
       }
     },
+    "island": {
+      "description": "Diorama island slab and plateaus (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line; warm rock bands, crags and the moss cap of the mountain plateaus.",
+      "colors": {
+        "sand-rim": "#E2CC93",
+        "cliff-upper": "#B79C76",
+        "cliff-ledge": "#9E8A6C",
+        "cliff-lower": "#877766",
+        "cliff-foot": "#4F4A55",
+        "rock-light": "#B39878",
+        "rock": "#977C62",
+        "rock-deep": "#735F4E",
+        "moss": "#7F9A55"
+      }
+    },
     "buildings": {
       "description": "Building materials of the procedural placeholders and the kit re-palette of the models (ART_DIRECTION §7): walls, roofs, timber, stone, metal, glass, sail canvas and dyed cloth.",
       "colors": {
@@ -57,6 +71,58 @@
         "hemp-mark": "#4F7E34",
         "orchard": "#86A95E",
         "orchard-mark": "#B5452F"
+      }
+    },
+    "shadows": {
+      "description": "Two-tone shadow tone per material role (same names as the buildings, terrain, fields, water and island roles): baked ambient occlusion in the models blends a role's colour toward its shadow tone — darker and cooler, so shadows read violet-blue under the warm grade instead of grey.",
+      "colors": {
+        "plaster": "#867879",
+        "ochre": "#7E5E3E",
+        "timber": "#40291E",
+        "thatch": "#6B5034",
+        "terracotta": "#693027",
+        "slate": "#35394A",
+        "stone": "#6B646C",
+        "brass": "#755B31",
+        "canvas": "#897F87",
+        "iron": "#2D2C38",
+        "window": "#222939",
+        "dye-blue": "#253E67",
+        "sand": "#87786C",
+        "grass-a": "#4A5E3B",
+        "grass-b": "#556746",
+        "dry": "#6B6546",
+        "forest-floor": "#2E4426",
+        "mountain": "#524D56",
+        "cliff": "#615654",
+        "deposit-iron": "#503530",
+        "road-dirt": "#614C3F",
+        "road-paved": "#6B646C",
+        "road-border": "#80736E",
+        "tree-crown": "#37502E",
+        "flower": "#876F32",
+        "unsettled": "#6B646C",
+        "pasture": "#52673B",
+        "pasture-mark": "#62744F",
+        "wheat": "#7E6731",
+        "wheat-mark": "#6B531E",
+        "hemp": "#405832",
+        "hemp-mark": "#2E4722",
+        "orchard": "#4E5F3E",
+        "orchard-mark": "#69271F",
+        "shallows": "#2E6374",
+        "deep": "#12355C",
+        "foam": "#8E8A9E",
+        "haze": "#6B7186",
+        "sand-rim": "#837261",
+        "cliff-upper": "#6A574E",
+        "cliff-ledge": "#5C4D47",
+        "cliff-lower": "#4E4343",
+        "cliff-foot": "#2E2938",
+        "rock-light": "#68554F",
+        "rock": "#584541",
+        "rock-deep": "#433533",
+        "moss": "#4A5638"
       }
     },
     "ui": {

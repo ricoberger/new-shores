@@ -119,6 +119,25 @@ func (m *Memory) Update(ctx context.Context, id WorldID, fn UpdateFunc) (int64, 
 	return m.version, nil
 }
 
+// Reset replaces the stored world with w (the dev server's reset
+// endpoint): every pending event is dropped, w's due moments get new ones,
+// the version increases by one (clients see a newer world, never an older
+// version number) and a waiting scheduler is woken. It returns the new
+// version.
+func (m *Memory) Reset(ctx context.Context, w *sim.World) (int64, error) {
+	if err := ctx.Err(); err != nil {
+		return 0, err
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.world = w
+	m.pending = nil
+	m.version++
+	m.reconcile(w)
+	m.notify()
+	return m.version, nil
+}
+
 // Version implements Store.
 func (m *Memory) Version(ctx context.Context, id WorldID) (int64, error) {
 	if err := ctx.Err(); err != nil {

@@ -2,12 +2,24 @@
   "$schema": "./schema.json",
   "id": "wheat_field",
   "kind": "field",
-  "notes": "Wheat field: golden slab with four ridged rows of wheat.",
+  "notes": "Wheat field: golden slab with four chunky ridged rows of ripe wheat in alternating shades, ear clumps breaking the row tops (the KayKit grain patch reads as a mound at one tile, so the rows are primitives).",
   "parts": [
     {"name": "slab", "prim": "box", "size": [0.94, 0.94, 0.022], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "wheat"},
-    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.16, 0.13], "position": [0, -0.33, 0.02], "role": "wheat-mark", "shade": 1.12},
-    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.16, 0.13], "position": [0, -0.11, 0.02], "role": "wheat-mark", "shade": 1.12},
-    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.16, 0.13], "position": [0, 0.11, 0.02], "role": "wheat-mark", "shade": 1.12},
-    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.16, 0.13], "position": [0, 0.33, 0.02], "role": "wheat-mark", "shade": 1.12}
+    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.17, 0.17], "position": [0, -0.33, 0.02], "role": "wheat-mark", "shade": 1.14},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [-0.28, -0.33, 0.13], "role": "wheat", "shade": 0.96},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [0.02, -0.33, 0.13], "role": "wheat", "shade": 1.1},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [0.3, -0.33, 0.13], "role": "wheat", "shade": 0.96},
+    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.17, 0.17], "position": [0, -0.11, 0.02], "role": "wheat-mark", "shade": 1.02},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [-0.23000000000000004, -0.11, 0.13], "role": "wheat", "shade": 1.1},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [0.07, -0.11, 0.13], "role": "wheat", "shade": 0.96},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [0.35, -0.11, 0.13], "role": "wheat", "shade": 1.1},
+    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.17, 0.17], "position": [0, 0.11, 0.02], "role": "wheat-mark", "shade": 1.14},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [-0.28, 0.11, 0.13], "role": "wheat", "shade": 0.96},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [0.02, 0.11, 0.13], "role": "wheat", "shade": 1.1},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [0.3, 0.11, 0.13], "role": "wheat", "shade": 0.96},
+    {"name": "wheat row", "prim": "wedge", "size": [0.86, 0.17, 0.17], "position": [0, 0.33, 0.02], "role": "wheat-mark", "shade": 1.02},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [-0.23000000000000004, 0.33, 0.13], "role": "wheat", "shade": 1.1},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [0.07, 0.33, 0.13], "role": "wheat", "shade": 0.96},
+    {"name": "ears", "prim": "cylinder", "radius": 0.045, "radius_top": 0, "height": 0.12, "segments": 3, "position": [0.35, 0.33, 0.13], "role": "wheat", "shade": 1.1}
   ]
 }

@@ -331,6 +331,15 @@ func runDev(o options, logger *slog.Logger) error {
 		CORSOrigins:  o.corsOrigins,
 		Version:      version,
 		Logger:       logger,
+		// Dev only: POST /api/v1/dev/reset seeds a fresh world (E2E specs).
+		DevReset: func(ctx context.Context, fixture string) (int64, error) {
+			w, err := devworld.NewFixture(cat, fixture, worldNow())
+			if err != nil {
+				return 0, err
+			}
+			return mem.Reset(ctx, w)
+		},
+		DevFixtures: devworld.Fixtures(),
 	})
 	if err != nil {
 		return err

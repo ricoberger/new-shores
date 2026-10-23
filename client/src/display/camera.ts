@@ -4,7 +4,11 @@
 // Scene coordinates are archipelago coordinates: archipelago tile (x, y)
 // is world (x, 0, −y). The Babylon rig (render/camera.ts) uses these
 // helpers; the minimap and the island culling use the footprint.
+import { FAR_ENTER_HALF } from "./lod";
 import type { ArchPoint } from "./ships";
+
+/** The smallest maximum zoom: 10 % past the far-LOD threshold. */
+export const FAR_REACH_HALF = FAR_ENTER_HALF * 1.1;
 
 /** Elevation of the camera above the ground plane (30°). */
 export const ELEVATION = Math.PI / 6;
@@ -64,10 +68,15 @@ export function fitHalfHeight(w: number, h: number, aspect: number): number {
   return Math.max(tall / 2, across / 2 / Math.max(0.1, aspect)) * 1.1;
 }
 
-/** Zoom range: the minimum is fixed, the maximum fits the whole archipelago (never below the minimum or the near default). */
+/**
+ * Zoom range: the minimum is fixed, the maximum fits the whole archipelago
+ * (the near default without islands), never below FAR_REACH_HALF (a small world can
+ * still be zoomed out to its far-LOD overview).
+ */
 export function zoomRange(bounds: Rect | null, aspect: number): { min: number; max: number } {
-  const fit = bounds ? fitHalfHeight(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY, aspect) : NEAR_DEFAULT_HALF_HEIGHT;
-  return { min: MIN_HALF_HEIGHT, max: Math.max(NEAR_DEFAULT_HALF_HEIGHT, fit) };
+  if (!bounds) return { min: MIN_HALF_HEIGHT, max: NEAR_DEFAULT_HALF_HEIGHT };
+  const fit = fitHalfHeight(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY, aspect);
+  return { min: MIN_HALF_HEIGHT, max: Math.max(NEAR_DEFAULT_HALF_HEIGHT, FAR_REACH_HALF, fit) };
 }
 
 /** The rectangle the camera target is clamped to: the bounds plus BOUNDS_MARGIN. */

@@ -1,0 +1,2 @@
+{"$schema": "./schema.json", "id": "decor_tree_c", "kind": "decor", "shading": "smooth", "notes": "Tall spruce (KayKit Forest Tree_4_A, decimated), the darker forest-floor green.", "parts": [
+  {"kit": "kaykit_forest", "file": "Assets/gltf/Tree_4_A_Color1.gltf", "simplify": {"collapse": 0.28}, "scale": 0.85, "roles": {"Atlas/foliage": "forest-floor"}}]}

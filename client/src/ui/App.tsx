@@ -49,6 +49,8 @@ import { QuestsPanel } from "./QuestsPanel";
 import { TopBar } from "./TopBar";
 import { WarningsTray } from "./WarningsTray";
 import { WorldOverlay } from "./WorldOverlay";
+import { StatsBadge } from "./StatsBadge";
+import { statsRequested } from "../dev/stats";
 
 /** Demolishing anything that cost more than this (milli-gold) is confirmed. */
 const CONFIRM_DEMOLISH_GOLD = 100_000;
@@ -82,6 +84,10 @@ export interface TestHook {
   archToScreen(x: number, y: number): { x: number; y: number };
   /** Draw calls of the last frame. */
   drawCalls(): number;
+  /** Meshes created since the renderer started (geometry builds). */
+  meshesCreated(): number;
+  /** Triangles drawn in the last frame (shadow passes included). */
+  triangles(): number;
   /** Instance style a ship was drawn with in the last frame ("active" / "unpaid"), null if not drawn. */
   shipStyle(id: number): "active" | "unpaid" | null;
   /** Shipyard construction hulls drawn in the last frame (near LOD). */
@@ -175,6 +181,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const sheets = usesSheets(layout.mode, layout.width);
   const quality = resolveQuality(layout.mode, globalThis.location?.search ?? "");
   const [forceFxaa] = useState(() => fxaaForced(globalThis.location?.search ?? ""));
+  // Dev/E2E builds only (the constant folds to false in production): the ?stats=1 fps badge.
+  const [showStats] = useState(() => (import.meta.env.DEV || import.meta.env.VITE_E2E === "1") && statsRequested(globalThis.location?.search ?? ""));
   useEffect(() => {
     // A mouse or pen switches back only on the canvas, so that clicking a
     // touch bar's button with the mouse does not remove it mid-click.
@@ -548,9 +556,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         shipToScreen: (id) => rendererRef.current?.shipToScreen(id) ?? nan,
         archToScreen: (x, y) => rendererRef.current?.archToClient({ x, y }) ?? nan,
         drawCalls: () => rendererRef.current?.lastDrawCalls() ?? 0,
+        meshesCreated: () => rendererRef.current?.meshesCreated() ?? 0,
+        triangles: () => rendererRef.current?.renderStats().triangles ?? 0,
         shipStyle: (id) => rendererRef.current?.shipStyle(id) ?? null,
         constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
-        frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 },
+        frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0, maxMs: 0 },
         carts: () => rendererRef.current?.cartCount() ?? 0,
         landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
@@ -880,6 +890,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         </div>
         {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
         <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} quality={quality} forceFxaa={forceFxaa} />
+        {showStats && <StatsBadge renderer={renderer} />}
         {model && (
           <div className={styles.mapCorner}>
             <Minimap

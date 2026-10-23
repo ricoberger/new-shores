@@ -23,7 +23,7 @@ import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "..
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
-import { detailFor, initialLod, type Lod, lodFor } from "../display/lod";
+import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import { type Quality, softwareRenderer } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
 import { fertilityNeed, missingFertilityText } from "../display/tiers";
@@ -124,6 +124,8 @@ export interface FrameStats {
   fps: number;
   avgMs: number;
   p95Ms: number;
+  /** The longest frame of the window (hitches). */
+  maxMs: number;
 }
 
 /** Lookups of one island for the ghost hints (rebuilt when its data changes). */
@@ -149,8 +151,8 @@ export class GameRenderer {
   /** A model finished loading since the last refresh (the layers swap placeholders in batches, see renderFrame). */
   private modelsDirty = false;
   private modelsRefreshedAt = 0;
-  /** Model detail inside the near level (lite at the default zoom, full zoomed in). */
-  private detail: Detail = "lite";
+  /** Model detail of the current LOD (full at near and mid, lite at far). */
+  private detail: Detail = "full";
   private readonly details = new Map<string, IslandDetail>();
   private readonly fields: FieldLayer;
   private readonly roadPreview: RoadPreview;
@@ -197,6 +199,7 @@ export class GameRenderer {
   private readonly frameListeners = new Set<() => void>();
   private readonly hoverListeners = new Set<(island: string | null, at: { x: number; y: number } | null) => void>();
   private readonly frameTimes = new Float64Array(FRAME_RING);
+  private meshCount = 0;
   private frameCount = 0;
   private lastFrameAt = 0;
   private drawCalls = 0;
@@ -221,6 +224,7 @@ export class GameRenderer {
     // quality it was created with.
     this.engine = new Engine(canvas, quality === "low", { stencil: false, preserveDrawingBuffer: false, limitDeviceRatio: MAX_RENDER_DPR }, true);
     this.scene = new Scene(this.engine);
+    this.scene.onNewMeshAddedObservable.add(() => this.meshCount++);
     this.scene.clearColor = new Color4(HAZE.r, HAZE.g, HAZE.b, 1);
     this.scene.skipPointerMovePicking = true;
     this.rig = new CameraRig(this.scene, this.engine);
@@ -411,6 +415,16 @@ export class GameRenderer {
     return this.drawCalls;
   }
 
+  /** Meshes created since start (a zoom must not create any: LOD changes only toggle pre-built geometry). */
+  meshesCreated(): number {
+    return this.meshCount;
+  }
+
+  /** Draw calls, triangles (the scene's active indices of the last frame ÷ 3; shadow passes included) and the current LOD and model detail (the fps badge). */
+  renderStats(): { drawCalls: number; triangles: number; lod: Lod; detail: Detail } {
+    return { drawCalls: this.drawCalls, triangles: Math.round(this.scene.getActiveIndices() / 3), lod: this.lod, detail: this.detail };
+  }
+
   /** Frame time statistics over the frames of the last windowMs. */
   frameStats(windowMs = 5000): FrameStats {
     const n = Math.min(this.frameCount, FRAME_RING);
@@ -421,7 +435,7 @@ export class GameRenderer {
       times.push(v);
       total += v;
     }
-    if (times.length === 0) return { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 };
+    if (times.length === 0) return { frames: 0, fps: 0, avgMs: 0, p95Ms: 0, maxMs: 0 };
     const sorted = [...times].sort((a, b) => a - b);
     const avg = total / times.length;
     return {
@@ -429,6 +443,7 @@ export class GameRenderer {
       fps: 1000 / avg,
       avgMs: avg,
       p95Ms: sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] as number,
+      maxMs: sorted[sorted.length - 1] as number,
     };
   }
 
@@ -532,7 +547,7 @@ export class GameRenderer {
     if (key === this.viewKey) return;
     this.viewKey = key;
     const lod = lodFor(v.half, this.lod);
-    const detail = detailFor(v.half, this.detail);
+    const detail = detailForLod(lod);
     if (detail !== this.detail) {
       this.detail = detail;
       for (const d of this.details.values()) d.setDetail(detail);
@@ -559,14 +574,20 @@ export class GameRenderer {
     }
   }
 
-  /** Shows the layers of the current LOD for the islands in view (building their detail on first use). */
+  /**
+   * Shows the layers of the current LOD for the islands in view. Every
+   * island's detail (both model details, both slab profiles) is built the
+   * first time it is seen in the payload, also out of view, so zooming and
+   * panning only toggle pre-built geometry; an island in view is brought
+   * up to date with its payload.
+   */
   private applyView(): void {
-    this.arch.show(this.lod, this.visible);
+    this.arch.show(this.lod);
     const snap = this.sync.getSnapshot();
     for (const is of snap.server?.display.islands ?? []) {
-      const shown = this.lod !== "far" && this.visible.has(is.id);
+      const shown = this.visible.has(is.id);
       let d = this.details.get(is.id);
-      if (shown) d = this.ensureDetail(is, snap);
+      if (shown || !d) d = this.ensureDetail(is, snap);
       d?.setShown(shown, this.lod);
     }
     this.refreshCasters();
@@ -575,7 +596,8 @@ export class GameRenderer {
   /** The detail of an island, created and brought up to date with its payload (null without content or statics). */
   private ensureDetail(is: IslandDisplay, snap: SyncSnapshot): IslandDetail | undefined {
     const statics = snap.islands.get(is.id);
-    if (!statics || this.defs.size === 0) return this.details.get(is.id);
+    // Content (the building definitions) first: an island's layers are built with them (a fixture may define none).
+    if (!statics || !this.lastContent) return this.details.get(is.id);
     let d = this.details.get(is.id);
     if (!d) {
       d = new IslandDetail(this.scene, is.id, is.position, this.models);
@@ -584,7 +606,7 @@ export class GameRenderer {
       this.details.set(is.id, d);
     }
     d.setPosition(is.position);
-    d.setStatics(statics);
+    d.setStatics(statics, is.settled);
     if (!d.builtWith(is, this.defs)) {
       d.update(is, this.defs);
       this.applySelection();
@@ -619,7 +641,7 @@ export class GameRenderer {
         islandBerths(is, st, this.defs).map((t) => ({ x: is.position.x + t.x + 0.5, y: is.position.y + t.y + 0.5 })),
       );
     }
-    this.arch.update(d.islands, snap.islands, d.ships, d.routes, berths, this.defs);
+    this.arch.update(d.islands, snap.islands, d.ships, d.routes, berths);
     this.lookups.clear();
     this.rig.setIslandBounds(this.arch.bounds());
     this.layoutSea();
@@ -766,13 +788,16 @@ export class GameRenderer {
     return { ...this.models.status(), placeholders: [...placeholders].sort(), bridged };
   }
 
-  /** Model detail drawn at near LOD. */
+  /** Model detail drawn (full at near and mid, lite at far). */
   modelDetail(): Detail {
     return this.detail;
   }
 
+  /** Warehouses and shipyards drawn on the islands in view at far LOD. */
   landmarkCount(): number {
-    return this.arch.landmarkCount();
+    let n = 0;
+    for (const d of this.details.values()) n += d.landmarks();
+    return n;
   }
 
   // Picking ----------------------------------------------------------------------

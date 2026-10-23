@@ -9,6 +9,7 @@ package api
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -104,6 +105,13 @@ type Config struct {
 	SessionTTL time.Duration
 	// TrustedProxies are the peers whose X-Forwarded-For is trusted.
 	TrustedProxies []netip.Prefix
+	// DevReset replaces the world with a fresh dev fixture (DevFixtures;
+	// "" is the default) and returns the new version. It mounts POST
+	// /api/v1/dev/reset in dev mode only (Accounts == nil): the E2E specs
+	// start from a known world instead of each other's leftovers. Nil (and
+	// default mode) leaves the endpoint absent (404).
+	DevReset    func(ctx context.Context, fixture string) (int64, error)
+	DevFixtures []string
 	// Version and Instance identify the server in /healthz and the
 	// X-Instance header (optional).
 	Version  string
@@ -169,6 +177,9 @@ func New(cfg Config) (*Server, error) {
 		"/api/v1/auth/password-reset/request": {http.MethodPost: {s.postResetRequest, public}},
 		"/api/v1/auth/password-reset/confirm": {http.MethodPost: {s.postResetConfirm, public}},
 		"/healthz":                            {http.MethodGet: {s.getHealth, public}},
+	}
+	if cfg.DevReset != nil && cfg.Accounts == nil {
+		s.routes["/api/v1/dev/reset"] = map[string]route{http.MethodPost: {s.postDevReset, requireSession}}
 	}
 	return s, nil
 }
@@ -615,4 +626,51 @@ func (s *Server) writeError(w http.ResponseWriter, r *http.Request, err error) {
 	}
 	ri.errorCode = code
 	s.writeJSON(w, status, errorBody{Error: errorDetail{Code: code, Message: msg}})
+}
+
+// devResetRequest is the optional body of POST /api/v1/dev/reset.
+type devResetRequest struct {
+	Fixture string `json:"fixture"`
+}
+
+// devResetResponse answers POST /api/v1/dev/reset.
+type devResetResponse struct {
+	Version int64  `json:"version"`
+	Fixture string `json:"fixture"`
+}
+
+// postDevReset replaces the dev world with a fresh fixture (dev mode only,
+// for the E2E specs): pending events, the last-seen time and the away
+// summary start over, the version increases and world_changed is
+// published.
+func (s *Server) postDevReset(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxBodyBytes))
+	if err != nil {
+		s.writeError(w, r, badRequest(fmt.Sprintf("request body: %v", err)))
+		return
+	}
+	var req devResetRequest
+	if len(bytes.TrimSpace(body)) > 0 {
+		if err := decodeStrict(body, &req); err != nil {
+			s.writeError(w, r, err)
+			return
+		}
+	}
+	if req.Fixture != "" && !slices.Contains(s.cfg.DevFixtures, req.Fixture) {
+		s.writeError(w, r, badRequest(fmt.Sprintf("unknown fixture %q (known: %s)", req.Fixture, strings.Join(s.cfg.DevFixtures, ", "))))
+		return
+	}
+	id, err := s.worldID(r)
+	if err != nil {
+		s.writeError(w, r, err)
+		return
+	}
+	version, err := s.cfg.DevReset(r.Context(), req.Fixture)
+	if err != nil {
+		s.writeError(w, r, err)
+		return
+	}
+	s.published(r, id)
+	s.cfg.Logger.Info("dev world reset", "fixture", req.Fixture, "version", version)
+	s.writeJSON(w, http.StatusOK, devResetResponse{Version: version, Fixture: req.Fixture})
 }

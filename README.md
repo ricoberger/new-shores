@@ -103,6 +103,26 @@ in as the fixed player "Developer". The API is at
   call the API; default `http://localhost:5173,http://127.0.0.1:5173`),
   `--log-format text|json`. If you open the client from another origin
   (another host or port), add it there.
+- **Phone on the LAN:** `make dev HOST=<lan-ip>` (e.g. `HOST=192.168.1.20`)
+  starts Vite with `--host` and the client with
+  `VITE_API_BASE=http://$HOST:8080`, and the dev server additionally allows
+  `http://$HOST:5173` and `http://$HOST:4173`; open `http://$HOST:5173` on the
+  phone. Without `HOST` nothing changes.
+- **`make preview [HOST=<lan-ip>]`:** builds the client in E2E mode
+  (`VITE_E2E=1`: fixtures and the `?stats=1` fps badge are available) and
+  serves the bundle with `vite preview` on :4173 (`--host` with `HOST`)
+  against the same in-memory dev server. Use it for fps numbers on a phone:
+  Vite's unbundled dev serving is slower than a bundle. Open
+  `http://$HOST:4173/?fixture=dense-2x400&stats=1`.
+- **`POST /api/v1/dev/reset` (tests only):** replaces the dev server's
+  in-memory world with a fresh dev fixture (optional body
+  `{"fixture": "default" | "town" | "settled"}`, see
+  `server/internal/devworld/fixtures.go`): pending events, the last-seen
+  time and the away summary start over, the version increases and
+  `world_changed` is published. It exists for the E2E specs, which reset
+  the world in `beforeAll` (`client/e2e/world.ts`) instead of depending
+  on each other's leftovers. It is mounted only with `--dev` (404 in
+  default mode) and is not part of the public API (`openapi.yaml`).
 
 ### Server configuration (default mode)
 
@@ -173,6 +193,9 @@ service before the servers start.
   warehouse levels, a paused building, sloops with and without cargo and
   unpaid), all with the real content IDs and footprints, e.g.
   <http://localhost:5173/?fixture=dense-2x400> under `make dev`.
+  `?stats=1` (dev and E2E builds, with or without a fixture) shows a small
+  fps badge bottom left: fps, frame ms (p95), draw calls, triangles, JS
+  heap (Chromium only), LOD and model detail.
   `?quality=high|low` overrides the render quality the layout selects
   (desktop: high — shadow map, grading, FXAA, the latter not on software
   WebGL such as headless Chromium unless `?fxaa=1` forces it; touch
@@ -184,8 +207,8 @@ service before the servers start.
   `npx playwright install webkit`), and `perf` (the dense fixtures at
   near, mid and far LOD under 4× CPU throttling; logs fps, frame times,
   draw calls, JS heap, WebGL renderer and bundle size and asserts an fps
-  threshold: the `PERF_MIN_FPS` environment variable, default 27 from
-  `client/e2e/perf.spec.ts`), and `visual` (screenshot baselines of the
+  floor per LOD: the `PERF_MIN_FPS` environment variable for every LOD,
+  else the per-LOD defaults in `client/e2e/perf.spec.ts`), and `visual` (screenshot baselines of the
   fixtures on desktop and a Pixel 5, per platform: a missing baseline is
   written and its test skipped with a notice; plus the grid overlay,
   palette, render quality and credits rules). `perf` and `visual` run
@@ -194,12 +217,29 @@ service before the servers start.
   projects a project depends on). Headless Chromium renders
   with SwiftShader (software); `PERF_GPU=1` runs the perf project with
   hardware WebGL flags for comparison (its fps threshold is not asserted).
-- **Perf threshold on slower machines:** software WebGL is CPU-bound, so
-  the default 27 fps (Apple M4 Pro) can be too high elsewhere. Do not
-  disable the check; read the lowest `"fps"` of the `PERF … 412x915@2.625`
-  lines of a run and set `PERF_MIN_FPS` to that fps × 0.8, rounded down —
-  locally `PERF_MIN_FPS=20 npm run test:e2e`, in CI the `PERF_MIN_FPS` value of
-  the e2e step in `.github/workflows/ci.yaml` (a one-line change).
+- **Perf floors:** a floor is a regression tripwire relative to a
+  device-validated build, not a target. Per LOD it is
+  `floor(0.8 × software fps of the device-validated build)` (median of
+  three runs of the floored 412 × 915 line on an Apple M4 Pro); the
+  build, the device baseline (model, readings, date) and the medians are
+  recorded at `DEFAULT_PERF_MIN_FPS` in `client/e2e/perf.spec.ts`.
+  Software WebGL fps are a proxy only: the device decides, so never thin
+  the look to raise them. When a new build is validated on the device,
+  re-measure and reset the floors. The other runs (each LOD on both dense
+  fixtures) and the zoom sweep (no geometry built on zoom; worst frame)
+  are measured and logged.
+- **fps validation is manual, on the baseline device:** at each art gate
+  the dense fixtures are checked on an iPhone 15 Pro Max (Safari) at near,
+  mid and far LOD (`make preview HOST=<lan ip>`, `&stats=1` for the fps
+  badge). Baseline 2026-10-23: 60 fps at near, mid and far on both
+  `dense-2x400` and `dense-archipelago-8`.
+- **CI's fps check is a render sanity check only:** the CI runner renders
+  in software at 1–6 fps, which measures nothing meaningful, so the e2e
+  step sets `PERF_MIN_FPS=1` ("it renders at all") in
+  `.github/workflows/ci.yaml`. The real CI perf assertions are the JS heap
+  and draw-call ceilings of every run and the zoom sweep (no geometry
+  built on zoom). Locally, on a slower machine, set `PERF_MIN_FPS` the
+  same way rather than disabling the check.
 - **Opt-in measurements:** `MEASURE_TTFI=1 npx playwright test e2e/ttfi.spec.ts`
   (time to first interaction) and
   `MEASURE_LIGHTHOUSE=1 npx playwright test e2e/lighthouse.spec.ts`
