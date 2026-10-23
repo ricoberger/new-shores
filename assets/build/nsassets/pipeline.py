@@ -286,18 +286,29 @@ def file_colors(roles, declared, ao):
     return {(r, s, lvl): ao_color(base[(r, s)], tone[r], s, lvl) for (r, s) in declared for lvl in range(config.AO_LEVELS + 1)}
 
 
-def decimate(mesh, kit_loader, footprint=None):
+def lite_ratios(n, house=False):
+    """Decimation ratios to try for a mesh of n triangles: houses from LITE_HOUSE_TRIS up in LITE_HOUSE_STEP steps (below the first of LITE_RATIOS), then LITE_RATIOS (at least LITE_MIN_TRIS)."""
+    out = []
+    if house:
+        target = config.LITE_HOUSE_TRIS
+        while target < n * config.LITE_RATIOS[0]:
+            out.append(target / n)
+            target *= config.LITE_HOUSE_STEP
+    return out + [max(r, config.LITE_MIN_TRIS / n) for r in config.LITE_RATIOS]
+
+
+def decimate(mesh, kit_loader, footprint=None, house=False):
     """
     The lite mesh: decimated (when the loader can, i.e. Blender) to the first
-    of LITE_RATIOS (at least LITE_MIN_TRIS triangles) whose result still fits
-    and covers the footprint (w, h) and touches the ground; else unchanged.
+    of lite_ratios whose result still fits and covers the footprint (w, h)
+    and touches the ground; else unchanged.
     """
     fn = getattr(kit_loader, "decimate", None)
     n = len(mesh)
-    if fn is None or n <= config.LITE_MIN_TRIS:
+    floor = config.LITE_HOUSE_TRIS if house else config.LITE_MIN_TRIS
+    if fn is None or n <= floor:
         return mesh
-    for ratio in config.LITE_RATIOS:
-        r = max(ratio, config.LITE_MIN_TRIS / n)
+    for r in lite_ratios(n, house):
         if r >= 1.0:
             return mesh
         out = fn(mesh, r)
@@ -360,7 +371,8 @@ def build_recipe(recipe, content, roles, kit_loader):
             lite = None
             if has_lite:
                 lite = _assemble(cid, groups, kit_loader, kit_used, "lite", roles)
-                lite = (decimate(lite[0], kit_loader, content_mod.footprint(content, cid)), lite[1])
+                house = content_mod.is_house(content, cid)
+                lite = (decimate(lite[0], kit_loader, content_mod.footprint(content, cid), house), lite[1])
             bake(mesh, recipe, kit_loader)
             if lite is not None:
                 bake(lite[0], recipe, kit_loader)

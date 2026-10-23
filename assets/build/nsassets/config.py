@@ -222,6 +222,11 @@ DECOR_PREFIX = "decor_"
 #: LITE_FACTOR × the full budget.
 LITE_RATIOS = (0.25, 0.35, 0.5, 0.7, 1.0)
 LITE_MIN_TRIS = 150
+#: Houses (dozens on screen at the default zoom) aim lower: their lite model
+#: is decimated toward LITE_HOUSE_TRIS first (stepping up by
+#: LITE_HOUSE_STEP while the footprint check fails), then LITE_RATIOS.
+LITE_HOUSE_TRIS = 120
+LITE_HOUSE_STEP = 1.25
 LITE_FACTOR = 0.25
 #: Buildings that may declare a budget_exception (×2).
 EXCEPTION_ALLOWED = ("warehouse", "shipyard", "chapel", "market_small")

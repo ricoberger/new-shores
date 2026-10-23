@@ -46,6 +46,15 @@ class LiteTest(unittest.TestCase):
         self.assertEqual(loader.ratios, list(config.LITE_RATIOS[:4]))
         self.assertEqual(entry["file"]["lite"]["triangles"], int(816 * 0.7))
 
+    def test_houses_aim_at_the_house_lite_target_first(self):
+        ratios = pipeline.lite_ratios(1600, house=True)
+        self.assertAlmostEqual(ratios[0], config.LITE_HOUSE_TRIS / 1600)
+        self.assertAlmostEqual(ratios[1], config.LITE_HOUSE_TRIS * config.LITE_HOUSE_STEP / 1600)
+        house_steps = ratios[: len(ratios) - len(config.LITE_RATIOS)]
+        self.assertTrue(all(r < config.LITE_RATIOS[0] for r in house_steps))
+        self.assertEqual(ratios[len(house_steps):], [max(r, config.LITE_MIN_TRIS / 1600) for r in config.LITE_RATIOS])
+        self.assertEqual(pipeline.lite_ratios(1600), ratios[len(house_steps):])
+
     def test_small_models_are_not_decimated(self):
         loader = Decimating()
         pipeline.build_recipe(chapel([{"prim": "box", "size": [1.8, 1.8, 0.6], "role": "stone"}]), CONTENT, ROLES, loader)
