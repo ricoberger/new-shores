@@ -12,11 +12,7 @@
       "licence_file": "License_Source.txt",
       "dir": "Medieval-Village-MegaKit-Source",
       "files": {
-        "License_Source.txt": "7310dfa8512d7ca12b6591329fda4adab7e8b9cdbe04c7d7061c2fe5c7dc38ee",
-        "glTF/DoorFrame_Flat_WoodDark.bin": "1e59d95393867a3cfa0612bea2086018d5ddcb3252969525679391a52e16f94c",
-        "glTF/DoorFrame_Flat_WoodDark.gltf": "e12b923833fe91ba7c26c3984b0d7860a498bc955f6092b2af9fc0f3012105c6",
-        "glTF/DoorFrame_Round_WoodDark.bin": "1899a064497568422c4d2a9246be0f7dba9e1f9fae6483f4dc39fe63c398b824",
-        "glTF/DoorFrame_Round_WoodDark.gltf": "d96fb7e3b6b7a5cb97339a7667dee3d9e03b5b0a02cbea283bd75a69f58bb4a7"
+        "License_Source.txt": "7310dfa8512d7ca12b6591329fda4adab7e8b9cdbe04c7d7061c2fe5c7dc38ee"
       }
     },
     {
@@ -30,8 +26,6 @@
       "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
       "dir": "Pirate-Kit",
       "files": {
-        "glTF/Environment_Cliff2.gltf": "c5c022324a365158e1f2df9b53efde31cd0c2bb27fa4ec198665714c928d2826",
-        "glTF/Environment_Cliff3.gltf": "0f0566322d2958e0081da2c2910861962ceea7096c400a46ff090bd3f86f0cd0",
         "glTF/Environment_Dock.gltf": "cdbcd1dc78b7adb0a83f9ef475e61c5df5302c2cac9a340266b986165636d940",
         "glTF/Prop_Barrel.gltf": "5180ba3e2dd3a3485bf24a2e309dc5e24ec22deb2a2da15a516a02085fef66c4",
         "glTF/Prop_Bucket_Fishes.gltf": "f366412e831a4f14b73cf4a1d15e2acc70c2588c36bdf7db24f18d235e059861",
@@ -49,6 +43,8 @@
       "licence_file": "License.txt",
       "dir": "KayKit_Medieval_Hexagon_Pack_1.0_FREE",
       "files": {
+        "Assets/gltf/buildings/blue/building_blacksmith_blue.bin": "2b5f91972249f3b4acee5d293b0291769213f3bd6272bd3fdacbd2b113b82853",
+        "Assets/gltf/buildings/blue/building_blacksmith_blue.gltf": "b9b76474cde5a379334b31cf8ef108c26e8051b6f7560402cd7c2a100fb4bf54",
         "Assets/gltf/buildings/blue/building_church_blue.bin": "f1609a2910972dd82f948b7265e65646a93cbe303d5deb7c69d5b3d6f4f50dda",
         "Assets/gltf/buildings/blue/building_church_blue.gltf": "ac2d9dfbdcffd1604e1522ddb26fe27c1feae2bc01bf90664c8044b22926867b",
         "Assets/gltf/buildings/blue/building_home_A_blue.bin": "31c30bc9d4fb9ac6182e20331f2501ec153131ca01a57d8412a6b8e6219c23fd",
@@ -59,6 +55,8 @@
         "Assets/gltf/buildings/blue/building_lumbermill_blue.gltf": "bf6ff5811c7e4aac10dbd32d0cb26b2dda6e31b894726bf9d567371a0fb1f1b4",
         "Assets/gltf/buildings/blue/building_market_blue.bin": "35713e17b24a26274ba38def66f17fe838987e4e8f803cf680140b3754676442",
         "Assets/gltf/buildings/blue/building_market_blue.gltf": "24874a4651dfff0d1aea31e15a32b9c35122958764c6f968ca55f286285ffbe9",
+        "Assets/gltf/buildings/blue/building_mine_blue.bin": "aaceea5aebc4039839feeade050616c9dd49e1c67d0f90442fa9a24f5aef186e",
+        "Assets/gltf/buildings/blue/building_mine_blue.gltf": "fe21db192f3ee7d40bd5f64a1d3782c6301b92a6676ca8a4d43e8c3e85ab7695",
         "Assets/gltf/buildings/blue/building_tavern_blue.bin": "00a4f91c275d168a4fcaea5f35cd4839047b498232f5f807d29ec17aa9490fe9",
         "Assets/gltf/buildings/blue/building_tavern_blue.gltf": "58a3573cf468f9c5f1d03a6da74fbc884f5f662ccddbfef2a10860abfe50109b",
         "Assets/gltf/buildings/blue/building_windmill_blue.bin": "ced3ff9447703352a7d57e2beb5b5e6f0c661c4d6c623a5d4efc22740103f467",
@@ -73,6 +71,8 @@
         "Assets/gltf/decoration/nature/mountain_B.gltf": "367b785733d37cb2714f65ba5ceb182e1c2209fafb81b7ad41ba773564cb6915",
         "Assets/gltf/decoration/nature/mountain_C.bin": "818e9d84d356f41886cc8a74041d930076b053706a1db6d6d49773188ad2e7d0",
         "Assets/gltf/decoration/nature/mountain_C.gltf": "e3c15b9f11b72745218ef87adc7a56d105816dd4ede111e4f58b315591201509",
+        "Assets/gltf/decoration/nature/rock_single_B.bin": "fcc0d8a45e7f6ad0eb674de934b0fa54be8f3dd61fa389446dd6b7be2cd2e2c1",
+        "Assets/gltf/decoration/nature/rock_single_B.gltf": "2014965b7131e6f9a804be7a90ba3800b6035e8af2ff6f0bf67c5e72cac1bf15",
         "Assets/gltf/decoration/nature/rock_single_C.bin": "7d63c76a9f576bda17a63c77d8f7c9f617e11ed57e3459d9c8d5da7ebdf0b8f1",
         "Assets/gltf/decoration/nature/rock_single_C.gltf": "4cbf4a67fa176d2374b4863348fddf7879b892e612dd455ad14173f17172d45b",
         "Assets/gltf/decoration/nature/rock_single_D.bin": "82df2f90d4458f2a100a38eaa1a367ceae15d88cdec71fee70a6e93c5a9d48f6",
@@ -105,6 +105,8 @@
         "Assets/gltf/decoration/props/pallet.gltf": "4e55587c2f2017e7e2965482b0976c75339e7dafcb627de2d275077bb6a97dc3",
         "Assets/gltf/decoration/props/resource_lumber.bin": "90bb1e1f23dbc3de372059b45ae289ec414b1fb50b49852ce0a3b30dc370db8b",
         "Assets/gltf/decoration/props/resource_lumber.gltf": "601a69f44f0c4a9b5070a80bd4a20887960e01f1523a6125c1edc8ba19168f1f",
+        "Assets/gltf/decoration/props/resource_stone.bin": "8af67e8fb7272c0d5e439361f9ebb33f55406bb65a4dcf0d7156fc2959ddb744",
+        "Assets/gltf/decoration/props/resource_stone.gltf": "427a22daaec3934ac85cd7e538415157264b96527577a3c9bbf793c1b5df8dca",
         "Assets/gltf/decoration/props/sack.bin": "5c3e6f5c63f8c4420ed3dfb2027beffc981740b5af9c89be148b56c19b993e02",
         "Assets/gltf/decoration/props/sack.gltf": "b61929d6161907aff4f1fd211cd0a8300d002d1a686ba43d07c4aff171fbd9f0",
         "Assets/gltf/decoration/props/wheelbarrow.bin": "72ca612b0dc940c856ed5abbbb9df9562c09bff52cfb2258375b16cbaad29e12",

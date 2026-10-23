@@ -14,8 +14,11 @@ CONTENT = content.load()
 SCHEMA = schema.load()
 KIT_FILES = kits.kit_files(kits.load_manifest())
 
-#: A Medieval kit piece pinned in MANIFEST.json (the fake loader returns MI_Plaster cubes).
-A_KIT_FILE = sorted(k for k in KIT_FILES if k[0] == "medieval" and k[1].endswith(".gltf"))[0]
+#: A Medieval kit piece (the fake loader returns MI_Plaster cubes). The
+#: restyled recipes no longer use that kit, so the piece is added to the
+#: pinned files the tests check recipes against.
+A_KIT_FILE = ("medieval", "glTF/DoorFrame_Flat_WoodDark.gltf")
+KIT_FILES.setdefault(A_KIT_FILE, "0" * 64)
 
 
 def unit_box(n_parts=1, size=(1.8, 1.8, 0.5), role="plaster"):

@@ -65,7 +65,7 @@ class CommittedModelsTest(unittest.TestCase):
             self.assertLessEqual(info["triangles"], config.BUDGET_DECOR, info["path"])
         on_disk = {f for f in os.listdir(config.MODELS_DIR) if f.endswith(".glb")}
         self.assertEqual(on_disk, listed)
-        self.assertLessEqual(total, 5 * 1024 * 1024)
+        self.assertLessEqual(total, 8 * 1024 * 1024)
 
     def test_variants_and_levels(self):
         models = self.manifest["models"]

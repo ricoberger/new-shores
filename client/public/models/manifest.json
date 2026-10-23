@@ -1001,7 +1001,7 @@
         "min": [
           -1.025,
           0.0,
-          -0.95
+          -1.0048
         ]
       },
       "file": {
@@ -1014,11 +1014,11 @@
           "min": [
             -1.025,
             0.0,
-            -0.95
+            -1.0048
           ]
         },
         "budget": 6000,
-        "bytes": 17700,
+        "bytes": 46420,
         "lite": {
           "bounds": {
             "max": [
@@ -1029,25 +1029,32 @@
             "min": [
               -1.025,
               0.0,
-              -0.95
+              -0.9817
             ]
           },
           "budget": 1500,
-          "bytes": 13168,
+          "bytes": 14260,
           "path": "charcoal_burner.lite.glb",
-          "sha256": "bb24a6cc35e7b16e0046c9ac56d63316e796fe593e5c0c02e21d184eda079247",
+          "sha256": "5a553a8bea12b332a1ffec3f4f3d724bf6bfd4f1d51de40031fd46c71b23947a",
           "triangles": 150
         },
         "path": "charcoal_burner.glb",
-        "sha256": "5c97ba368f55f849c8066df4d57991262b62d1baf4719268692252f44b9f0201",
-        "triangles": 256
+        "sha256": "b7c9939b9441d628fb847d0e0e703a31ca91f81c6bf8483139005cab55e22a2c",
+        "triangles": 632
       },
       "footprint": {
         "h": 2,
         "w": 2
       },
       "kind": "building",
-      "kit_sources": []
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/props/resource_lumber.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
     },
     "cidery": {
       "anchors": {
@@ -1674,19 +1681,19 @@
         ],
         "status": [
           0.0,
-          1.11,
+          1.6877,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.45,
-          0.86,
-          1.45
+          1.4377,
+          1.74
         ],
         "min": [
           -1.45,
-          -0.2075,
+          -0.2095,
           -1.45
         ]
       },
@@ -1694,39 +1701,39 @@
         "bounds": {
           "max": [
             1.45,
-            0.86,
-            1.45
+            1.4377,
+            1.74
           ],
           "min": [
             -1.45,
-            -0.2075,
+            -0.2095,
             -1.45
           ]
         },
         "budget": 6000,
-        "bytes": 40764,
+        "bytes": 86576,
         "lite": {
           "bounds": {
             "max": [
               1.45,
-              0.86,
-              1.45
+              1.4413,
+              1.74
             ],
             "min": [
               -1.45,
-              -0.1975,
+              -0.2248,
               -1.45
             ]
           },
           "budget": 1500,
-          "bytes": 13384,
+          "bytes": 28912,
           "path": "iron_mine.lite.glb",
-          "sha256": "93a7f85fa9f023cc55bd8a0f8d7f89a15e649ae3815663831faccd4e0fa9bca6",
-          "triangles": 149
+          "sha256": "a1be430c02fbf95f98fff18824f90a892ef421b8f1706f68547732709c2febbc",
+          "triangles": 319
         },
         "path": "iron_mine.glb",
-        "sha256": "b0350a3a5edf0bd8ddca88990e2403f52c84eb6d15534f7f1dca268be0813347",
-        "triangles": 488
+        "sha256": "9416f8146bb0ac4ce8d1261e6f1ea9b699b16b05824d73940098d170a53d461e",
+        "triangles": 1282
       },
       "footprint": {
         "h": 3,
@@ -1736,15 +1743,9 @@
       "kit_sources": [
         {
           "files": [
-            "glTF/DoorFrame_Flat_WoodDark.gltf"
+            "Assets/gltf/buildings/blue/building_mine_blue.gltf"
           ],
-          "kit": "medieval"
-        },
-        {
-          "files": [
-            "glTF/Environment_Cliff3.gltf"
-          ],
-          "kit": "pirate"
+          "kit": "kaykit_hexagon"
         }
       ]
     },
@@ -2174,59 +2175,59 @@
         ],
         "status": [
           0.0,
-          1.17,
+          1.6877,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.45,
-          0.92,
-          1.45
+          1.4529,
+          1.4377,
+          1.7227
         ],
         "min": [
-          -1.45,
-          -0.224,
+          -1.6572,
+          -0.0002,
           -1.45
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.45,
-            0.92,
-            1.45
+            1.4529,
+            1.4377,
+            1.7227
           ],
           "min": [
-            -1.45,
-            -0.224,
+            -1.6572,
+            -0.0002,
             -1.45
           ]
         },
         "budget": 6000,
-        "bytes": 28636,
+        "bytes": 116244,
         "lite": {
           "bounds": {
             "max": [
               1.45,
-              0.92,
-              1.45
+              1.4403,
+              1.7227
             ],
             "min": [
-              -1.45,
-              0.0,
+              -1.5963,
+              -0.0181,
               -1.45
             ]
           },
           "budget": 1500,
-          "bytes": 10508,
+          "bytes": 33052,
           "path": "quarry.lite.glb",
-          "sha256": "60382f3507b0db55df77e165231b33e4526812667e171b2033488057faaac343",
-          "triangles": 144
+          "sha256": "ce9741bc7004ad329fb47ebda6b56b3fa62131516d0e4c3e656d8fba1386aae3",
+          "triangles": 370
         },
         "path": "quarry.glb",
-        "sha256": "d46355046820518d32b1b9b6f0f7d6c8a96c67c928e18fc2e6f6fbe213a517eb",
-        "triangles": 372
+        "sha256": "8a0719fcb26cec52d4d4c6df00188598d737506b8b87018c5b3567fff96bb039",
+        "triangles": 1742
       },
       "footprint": {
         "h": 3,
@@ -2236,15 +2237,11 @@
       "kit_sources": [
         {
           "files": [
-            "glTF/DoorFrame_Flat_WoodDark.gltf"
+            "Assets/gltf/buildings/blue/building_mine_blue.gltf",
+            "Assets/gltf/decoration/nature/rock_single_B.gltf",
+            "Assets/gltf/decoration/props/resource_stone.gltf"
           ],
-          "kit": "medieval"
-        },
-        {
-          "files": [
-            "glTF/Environment_Cliff2.gltf"
-          ],
-          "kit": "pirate"
+          "kit": "kaykit_hexagon"
         }
       ]
     },
@@ -2677,8 +2674,8 @@
           1.45
         ],
         "min": [
-          -1.45,
-          -0.1761,
+          -1.589,
+          -0.2099,
           -1.45
         ]
       },
@@ -2690,35 +2687,35 @@
             1.45
           ],
           "min": [
-            -1.45,
-            -0.1761,
+            -1.589,
+            -0.2099,
             -1.45
           ]
         },
         "budget": 6000,
-        "bytes": 29880,
+        "bytes": 183704,
         "lite": {
           "bounds": {
             "max": [
               1.45,
-              2.02,
+              2.0,
               1.45
             ],
             "min": [
-              -1.45,
-              -0.169,
+              -1.5942,
+              -0.2059,
               -1.45
             ]
           },
           "budget": 1500,
-          "bytes": 12728,
+          "bytes": 57848,
           "path": "smelter.lite.glb",
-          "sha256": "440e8e5b566a9c2d6bec53c9ab8719828278f50b028632aa48f33007067de89c",
-          "triangles": 148
+          "sha256": "787302e36bb95fb9c836e0575c0c2f499ee305c775b6cedab12e5d4808386a6f",
+          "triangles": 654
         },
         "path": "smelter.glb",
-        "sha256": "82b190e03b872a92e625078ec3c57405118a35aa73b690e7222034a0bd2ac7d5",
-        "triangles": 425
+        "sha256": "5de671b00739ccccfe29ed0b07d53ea95b9e332361d2e012d329a00d3db4b34b",
+        "triangles": 2672
       },
       "footprint": {
         "h": 3,
@@ -2728,9 +2725,9 @@
       "kit_sources": [
         {
           "files": [
-            "glTF/DoorFrame_Round_WoodDark.gltf"
+            "Assets/gltf/buildings/blue/building_blacksmith_blue.gltf"
           ],
-          "kit": "medieval"
+          "kit": "kaykit_hexagon"
         }
       ]
     },
@@ -2816,9 +2813,9 @@
     "toolmaker": {
       "anchors": {
         "chimney": [
-          0.72,
-          1.25,
-          0.45
+          -0.39,
+          1.35,
+          0.62
         ],
         "door": [
           0.0,
@@ -2826,25 +2823,25 @@
           -1.0
         ],
         "smoke": [
-          0.72,
-          1.3,
-          0.45
+          -0.39,
+          1.4,
+          0.62
         ],
         "status": [
           0.0,
-          1.5836,
+          1.6024,
           0.0
         ]
       },
       "bounds": {
         "max": [
           0.95,
-          1.3336,
-          0.987
+          1.3524,
+          1.0728
         ],
         "min": [
-          -0.985,
-          0.0,
+          -1.0075,
+          -0.007,
           -0.95
         ]
       },
@@ -2852,39 +2849,39 @@
         "bounds": {
           "max": [
             0.95,
-            1.3336,
-            0.987
+            1.3524,
+            1.0728
           ],
           "min": [
-            -0.985,
-            0.0,
+            -1.0075,
+            -0.007,
             -0.95
           ]
         },
         "budget": 6000,
-        "bytes": 24640,
+        "bytes": 173040,
         "lite": {
           "bounds": {
             "max": [
               0.95,
-              1.3336,
-              0.987
+              1.3495,
+              1.0531
             ],
             "min": [
-              -0.975,
-              0.0,
+              -1.0118,
+              -0.0175,
               -0.95
             ]
           },
           "budget": 1500,
-          "bytes": 11924,
+          "bytes": 56344,
           "path": "toolmaker.lite.glb",
-          "sha256": "66b8ab9fbcc45ba534b732b07c183d17dee8ecf9b0e4af779efe071d17f7f1bb",
-          "triangles": 150
+          "sha256": "8a47c4f2469cc63d2dcf7fca44a2fbc38604c4bc6d9868965356c6317a594d6d",
+          "triangles": 629
         },
         "path": "toolmaker.glb",
-        "sha256": "ac6e43da271ffec8bf754cbcf4fe5eb4a9cc01d7aff563832b6183e2a51a2b60",
-        "triangles": 355
+        "sha256": "ef049092a3a66ae7ff843de76db1e9af23fe8c547e63895ce10d06519a20075f",
+        "triangles": 2522
       },
       "footprint": {
         "h": 2,
@@ -2894,9 +2891,9 @@
       "kit_sources": [
         {
           "files": [
-            "glTF/DoorFrame_Round_WoodDark.gltf"
+            "Assets/gltf/buildings/blue/building_blacksmith_blue.gltf"
           ],
-          "kit": "medieval"
+          "kit": "kaykit_hexagon"
         }
       ]
     },
