@@ -23,7 +23,7 @@ import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, t
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import { type Quality, softwareRenderer } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
-import { fertilityNeed, missingFertilityText } from "../display/tiers";
+import { depositText, fertilityNeed, missingFertilityText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
 import { ArchipelagoLayer, type ArchSelection } from "./archipelago";
@@ -1312,7 +1312,7 @@ export class GameRenderer {
     if (fertility && !fertility.present) {
       hint = missingFertilityText(fertility.fertility, fertilities);
     } else if (missingDepositHint(def, l?.deposits ?? new Map(), t.x, t.y, tool.rotation)) {
-      hint = `Must cover a ${def.requires_deposit ?? ""} deposit`;
+      hint = depositText(def.requires_deposit ?? "");
     }
     this.ghostValid = hint ? "invalid" : missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation) ? "no_road" : "ok";
     const color = this.ghostValid === "invalid" ? GHOST_INVALID : this.ghostValid === "no_road" ? GHOST_NO_ROAD : GHOST;

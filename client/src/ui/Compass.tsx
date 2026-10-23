@@ -81,7 +81,7 @@ export function Compass({ renderer, heading }: Props) {
   };
 
   const name = headingName(heading);
-  const label = `Camera heading ${Math.round(headingDegrees(heading))}° (${name}): activate to return to north-east, drag to turn, Q / E turn by 45°`;
+  const label = `Reset view (camera heading ${Math.round(headingDegrees(heading))}°, ${name}); drag to turn, Q / E turn by 45°`;
   return (
     <button
       type="button"
@@ -92,7 +92,7 @@ export function Compass({ renderer, heading }: Props) {
       onPointerCancel={end}
       onClick={onClick}
       aria-label={label}
-      title={label}
+      title="Reset view"
       data-testid="camera-compass"
       data-heading={heading}
     >

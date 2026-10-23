@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
 import { buildMenuOrder } from "../display/fields";
 import { perMin, units } from "../display/format";
-import { fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
+import { depositText, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
 import { categoryIcon, goodIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
@@ -134,7 +134,7 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
                 )}
                 {b.requires_deposit && (
                   <span className={styles.small} data-testid={`build-deposit-${b.id}`}>
-                    Must cover a {b.requires_deposit} deposit
+                    {depositText(b.requires_deposit)}
                   </span>
                 )}
                 {locked && (

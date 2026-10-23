@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
-import { fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, populationTotals, tierUnlocked } from "./tiers";
+import { depositText, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, populationTotals, tierUnlocked } from "./tiers";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -76,5 +76,12 @@ describe("tiers", () => {
     expect(pop.get("citizens")).toBeGreaterThan(20_000);
     expect(pop.get("settlers")).toBeGreaterThan(0);
     expect(populationTotals(null).size).toBe(0);
+  });
+});
+
+describe("deposit text", () => {
+  it("picks the article from the deposit's name", () => {
+    expect(depositText("stone")).toBe("Must cover a stone deposit");
+    expect(depositText("iron")).toBe("Must cover an iron deposit");
   });
 });
