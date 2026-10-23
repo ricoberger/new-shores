@@ -219,12 +219,18 @@ service before the servers start.
   re-measure and reset the floors. The other runs (each LOD on both dense
   fixtures) and the zoom sweep (no geometry built on zoom; worst frame)
   are measured and logged.
-- **Perf threshold on slower machines:** software WebGL is CPU-bound, so
-  the default floors (Apple M4 Pro) can be too high elsewhere. Do not
-  disable the check; read the lowest `"fps"` of the `PERF … 412x915@2.625`
-  lines of a run and set `PERF_MIN_FPS` to that fps × 0.8, rounded down —
-  locally `PERF_MIN_FPS=20 npm run test:e2e`, in CI the `PERF_MIN_FPS` value of
-  the e2e step in `.github/workflows/ci.yaml` (a one-line change).
+- **fps validation is manual, on the baseline device:** at each art gate
+  the dense fixtures are checked on an iPhone 15 Pro Max (Safari) at near,
+  mid and far LOD (`make preview HOST=<lan ip>`, `&stats=1` for the fps
+  badge). Baseline 2026-10-23: 60 fps at near, mid and far on both
+  `dense-2x400` and `dense-archipelago-8`.
+- **CI's fps check is a render sanity check only:** the CI runner renders
+  in software at 1–6 fps, which measures nothing meaningful, so the e2e
+  step sets `PERF_MIN_FPS=1` ("it renders at all") in
+  `.github/workflows/ci.yaml`. The real CI perf assertions are the JS heap
+  and draw-call ceilings of every run and the zoom sweep (no geometry
+  built on zoom). Locally, on a slower machine, set `PERF_MIN_FPS` the
+  same way rather than disabling the check.
 - **Opt-in measurements:** `MEASURE_TTFI=1 npx playwright test e2e/ttfi.spec.ts`
   (time to first interaction) and
   `MEASURE_LIGHTHOUSE=1 npx playwright test e2e/lighthouse.spec.ts`
