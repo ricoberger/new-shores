@@ -54,3 +54,13 @@ export const FULL_DETAIL_EXIT_HALF = 11.5;
 export function detailFor(half: number, prev: "full" | "lite"): "full" | "lite" {
   return prev === "full" ? (half > FULL_DETAIL_EXIT_HALF ? "lite" : "full") : half <= FULL_DETAIL_ENTER_HALF ? "full" : "lite";
 }
+
+/**
+ * Whether the lite model tier is in use: by default lite at the near
+ * default zoom and full zoomed in; `?detail=full` draws the full models
+ * (and the full cliff) at the whole near LOD, the trial of dropping the
+ * lite tier on capable devices.
+ */
+export function liteTier(search: string): boolean {
+  return new URLSearchParams(search).get("detail") !== "full";
+}

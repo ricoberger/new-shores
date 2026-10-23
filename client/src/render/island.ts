@@ -248,13 +248,20 @@ export class IslandDetail {
     }
   }
 
+  /** Without the lite tier only the full building chunks are built and drawn. */
+  setLiteTier(on: boolean): void {
+    this.buildings.setDetails(on ? ["lite", "full"] : ["full"]);
+  }
+
   /** Model detail level (lite at the near default zoom, full zoomed in). */
   setDetail(detail: Detail): void {
     this.detail = detail;
     this.applyTerrainDetail();
+    const before = [...this.buildings.modelled()].join();
     this.buildings.setDetail(detail);
     const built = this.builtFrom;
-    if (built) {
+    // Only when the detail changed which fields are modelled (a file still loading): no rebuild on a plain zoom.
+    if (built && [...this.buildings.modelled()].join() !== before) {
       this.fields.update(this.unmodelledFields(built.display), built.defs);
       this.fieldDecor.update(this.unmodelledFields(built.display), built.defs);
     }

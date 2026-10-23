@@ -59,16 +59,17 @@ describe("BuildingLayer with models", () => {
     expect([...layer.placeholders()]).toEqual(["temple"]);
     expect([...layer.modelled()].sort()).toEqual([1, 2]);
     expect(layer.chunkCount()).toBe(1);
-    // Only the lite files were requested at the default detail.
-    expect(reg.status().loaded.every((p) => p.includes(".lite."))).toBe(true);
-    layer.setDetail("full");
-    await loaded(reg);
-    layer.refresh();
+    // Both details are requested and built up front.
+    expect(reg.status().loaded.some((p) => p.includes(".lite."))).toBe(true);
     expect(reg.status().loaded.some((p) => p === "sawmill.glb")).toBe(true);
+    // Without the lite tier only the full files are built.
+    layer.setDetails(["full"]);
+    layer.setDetail("full");
+    expect(layer.chunkCount()).toBe(1);
     scene.dispose();
   });
 
-  it("redraws the chunk with the full model once it arrives after the detail switch (rendered triangles)", async () => {
+  it("builds both detail chunks once and only toggles them on a detail change (rendered triangles)", async () => {
     const scene = new Scene(engine);
     const reg = registry(scene);
     await reg.loadManifest();
@@ -78,19 +79,18 @@ describe("BuildingLayer with models", () => {
     layer.refresh();
     const saw = manifest.models.sawmill!.file!;
     expect(layer.chunkTriangles()).toBe(saw.lite!.triangles);
-    // Switch: the full file is requested, the lite one bridges until it loads.
-    layer.setDetail("full");
-    expect(layer.chunkTriangles()).toBe(saw.lite!.triangles);
-    expect(layer.bridged()).toBe(1);
-    await loaded(reg);
-    layer.refresh();
-    expect(layer.chunkTriangles()).toBe(saw.triangles);
     expect(layer.bridged()).toBe(0);
-    // And back: the lite data is cached, drawn at once.
+    const meshes = scene.meshes.length;
+    // The switch draws the prebuilt full chunk at once, without new geometry.
+    layer.setDetail("full");
+    expect(layer.chunkTriangles()).toBe(saw.triangles);
+    expect(scene.meshes.length).toBe(meshes);
     layer.setDetail("lite");
     expect(layer.chunkTriangles()).toBe(saw.lite!.triangles);
+    expect(scene.meshes.length).toBe(meshes);
     scene.dispose();
   });
+
 
   it("bakes the paused tint into the chunk's vertex colours", async () => {
     const scene = new Scene(engine);

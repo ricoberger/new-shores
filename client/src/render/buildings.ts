@@ -12,8 +12,11 @@
 // chunk's vertex colours. Newly placed buildings rise in as thin instances
 // of their model over RISE_MS (renderer animation clock) and then join
 // their chunk. At the near-LOD default zoom the lite models are drawn,
-// zoomed in the full ones (setDetail). Fields with a model are drawn here
-// too; the field layers keep the others.
+// zoomed in the full ones (setDetail). The chunks of every detail in use
+// are built together, once per layout change, and a detail change only
+// toggles which set is enabled — a zoom never rebuilds geometry (the
+// swap stutter). Fields with a model are drawn here too; the field layers
+// keep the others.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
@@ -170,7 +173,10 @@ export class BuildingLayer {
   private readonly material: StandardMaterial;
   private readonly doors: Mesh;
   private readonly selection: Mesh;
-  private readonly chunks = new Map<string, { key: string; mesh: Mesh | null }>();
+  /** Merged model chunks per detail level in use (chunk key → signature and mesh). */
+  private readonly chunks = new Map<Detail, Map<string, { key: string; mesh: Mesh | null }>>();
+  /** Detail levels whose chunks are built (both, or only full when the lite tier is off: then full is drawn at every zoom). */
+  private details: readonly Detail[] = ["lite", "full"];
   private readonly risingMeshes = new Map<string, ColoredInstances>();
   /** Newly placed buildings rising in: building ID → start time (null: starts with the next frame). */
   private readonly rising = new Map<number, number | null>();
@@ -211,11 +217,39 @@ export class BuildingLayer {
     this.selection.setEnabled(false);
   }
 
-  /** Detail level of the models (lite at the near default zoom, full zoomed in). */
+  /** Detail level of the models (lite at the near default zoom, full zoomed in): toggles the prebuilt chunk sets. */
   setDetail(detail: Detail): void {
     if (detail === this.detail) return;
+    const before = this.drawn();
     this.detail = detail;
+    if (this.drawn() !== before && this.risingItems.length > 0) this.refresh();
+    this.applyDetail();
+  }
+
+  /** The detail actually drawn: the wanted one when its chunks are built, else full. */
+  private drawn(): Detail {
+    return this.details.includes(this.detail) ? this.detail : "full";
+  }
+
+  /**
+   * The detail levels to build chunks for: ["lite", "full"] (default) or
+   * ["full"] (the lite tier off). Rebuilds when it changes.
+   */
+  setDetails(details: readonly Detail[]): void {
+    if (details.join() === this.details.join()) return;
+    for (const [d, set] of this.chunks) {
+      if (details.includes(d)) continue;
+      for (const c of set.values()) c.mesh?.dispose();
+      this.chunks.delete(d);
+    }
+    this.details = details;
     this.refresh();
+    this.applyDetail();
+  }
+
+  private applyDetail(): void {
+    const drawn = this.drawn();
+    for (const [d, set] of this.chunks) for (const c of set.values()) c.mesh?.setEnabled(d === drawn);
   }
 
   /** Redraws the last payload (a model finished loading or the detail changed). */
@@ -233,12 +267,12 @@ export class BuildingLayer {
   }
 
   /** The model file and data to draw for a building (wanted detail, else the other one), or null (placeholder). */
-  private modelOf(b: BuildingDisplay, def: ContentBuilding): Item | null {
+  private modelOf(b: BuildingDisplay, def: ContentBuilding, detail: Detail): Item | null {
     const entry = this.registry?.entry(b.type);
     if (!entry || !this.registry) return null;
     const main = modelFileFor(entry, b);
     if (!main) return null;
-    const want = atDetail(main, this.detail);
+    const want = atDetail(main, detail);
     const other = want === main ? (main.lite ?? main) : main;
     // Only the wanted detail is loaded; the other one bridges the time until it arrives if it is already there.
     // `file` is the file actually drawn, so chunk signatures and rising meshes change when the wanted one arrives.
@@ -253,7 +287,7 @@ export class BuildingLayer {
   private draw(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
     const byType = new Map<string, number[]>();
     const doors: number[] = [];
-    const byChunk = new Map<string, Item[]>();
+    const byChunk = new Map<Detail, Map<string, Item[]>>(this.details.map((d) => [d, new Map()]));
     const rising: Item[] = [];
     this.placeholderIds = new Set();
     this.modelIds = new Set();
@@ -262,7 +296,8 @@ export class BuildingLayer {
       const def = defs.get(b.type);
       // Roads are strips of their own; fields without a model stay in the field layers.
       if (!def || def.category === "roads") continue;
-      const item = this.modelOf(b, def);
+      const items = this.details.map((d) => [d, this.modelOf(b, def, d)] as const);
+      const item = items.find(([d]) => d === this.drawn())?.[1] ?? null;
       if (item) {
         this.modelIds.add(b.id);
         if (this.rising.has(b.id)) {
@@ -271,9 +306,13 @@ export class BuildingLayer {
         }
         const p = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
         const key = `${Math.floor(p.cx / CHUNK)},${Math.floor(-p.cz / CHUNK)}`;
-        let list = byChunk.get(key);
-        if (!list) byChunk.set(key, (list = []));
-        list.push(item);
+        for (const [d, it] of items) {
+          if (!it) continue;
+          const set = byChunk.get(d) as Map<string, Item[]>;
+          let list = set.get(key);
+          if (!list) set.set(key, (list = []));
+          list.push(it);
+        }
         continue;
       }
       if (def.field) continue;
@@ -311,15 +350,23 @@ export class BuildingLayer {
     if (rising.length === 0) for (const inst of this.risingMeshes.values()) inst.resize(0);
   }
 
-  private drawChunks(byChunk: Map<string, Item[]>): void {
-    for (const [key, chunk] of this.chunks) {
+  private drawChunks(byDetail: Map<Detail, Map<string, Item[]>>): void {
+    for (const [detail, byChunk] of byDetail) {
+      let chunks = this.chunks.get(detail);
+      if (!chunks) this.chunks.set(detail, (chunks = new Map()));
+      this.drawChunkSet(chunks, byChunk, detail === this.drawn());
+    }
+  }
+
+  private drawChunkSet(chunks: Map<string, { key: string; mesh: Mesh | null }>, byChunk: Map<string, Item[]>, enabled: boolean): void {
+    for (const [key, chunk] of chunks) {
       if (byChunk.has(key)) continue;
       chunk.mesh?.dispose();
-      this.chunks.delete(key);
+      chunks.delete(key);
     }
     for (const [key, items] of byChunk) {
       const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}:${it.b.paused ? 1 : 0}:${it.def.width}x${it.def.height}`).join(";");
-      const old = this.chunks.get(key);
+      const old = chunks.get(key);
       if (old?.key === sig) continue;
       old?.mesh?.dispose();
       const data = mergeItems(
@@ -333,7 +380,8 @@ export class BuildingLayer {
       mesh.material = this.material;
       mesh.parent = this.parent;
       mesh.isPickable = false;
-      this.chunks.set(key, { key: sig, mesh });
+      mesh.setEnabled(enabled);
+      chunks.set(key, { key: sig, mesh });
     }
   }
 
@@ -389,17 +437,22 @@ export class BuildingLayer {
     return finished;
   }
 
-  /** Triangles drawn by the model chunks (tests). */
+  /** The chunks of the current detail. */
+  private current(): Map<string, { key: string; mesh: Mesh | null }> {
+    return this.chunks.get(this.drawn()) ?? new Map();
+  }
+
+  /** Triangles drawn by the model chunks of the current detail (tests). */
   chunkTriangles(): number {
     let n = 0;
-    for (const c of this.chunks.values()) n += (c.mesh?.getTotalIndices() ?? 0) / 3;
+    for (const c of this.current().values()) n += (c.mesh?.getTotalIndices() ?? 0) / 3;
     return n;
   }
 
   /** The building meshes drawn (shadow casters). */
   meshes(): Mesh[] {
     const out = [...this.templates.values()].filter((m) => m.isVisible);
-    for (const c of this.chunks.values()) if (c.mesh) out.push(c.mesh);
+    for (const c of this.current().values()) if (c.mesh) out.push(c.mesh);
     return out;
   }
 
@@ -418,9 +471,9 @@ export class BuildingLayer {
     return this.modelIds;
   }
 
-  /** Model chunks drawn (tests). */
+  /** Model chunks drawn at the current detail (tests). */
   chunkCount(): number {
-    return this.chunks.size;
+    return this.current().size;
   }
 
   select(b: BuildingDisplay | undefined, def: ContentBuilding | undefined): void {

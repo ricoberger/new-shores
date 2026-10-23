@@ -8,6 +8,7 @@ import {
   FULL_DETAIL_EXIT_HALF,
   initialLod,
   type Lod,
+  liteTier,
   lodFor,
   MID_TO_NEAR_HALF,
   NEAR_EXIT_HALF,
@@ -115,5 +116,11 @@ describe("model detail inside the near level", () => {
     expect(detailFor(mid, "full")).toBe("full");
     expect(detailFor(FULL_DETAIL_EXIT_HALF + 0.01, "full")).toBe("lite");
     expect(FULL_DETAIL_EXIT_HALF / FULL_DETAIL_ENTER_HALF).toBeGreaterThanOrEqual(1.1);
+  });
+
+  it("keeps the lite tier unless ?detail=full", () => {
+    expect(liteTier("")).toBe(true);
+    expect(liteTier("?stats=1")).toBe(true);
+    expect(liteTier("?detail=full&stats=1")).toBe(false);
   });
 });
