@@ -12,7 +12,7 @@
 // influences placement or hints.
 import type { BuildingDisplay, ContentBuilding, IslandDisplay } from "../api/client";
 import { rotatedFootprint, type TilePos, tileKey } from "./geometry";
-import { hash2, hashString } from "./noise";
+import { hash2, hashString, valueNoise } from "./noise";
 
 /** Decoration seed of an island revision. */
 export function islandSeed(id: string, revision: string): number {
@@ -136,27 +136,67 @@ export function scatterTrees(input: ScatterInput, areas: readonly ThinningArea[]
 /** Ground scatter classes. */
 export type ScatterKind = "tuft" | "flower" | "rock" | "bush";
 
-/** Chance per tile of each class on grass, on coast (sand) and on mountain (plateau tops). */
-const CHANCE: Record<ScatterKind, { grass: number; coast: number; mountain: number }> = {
-  tuft: { grass: 0.4, coast: 0.1, mountain: 0.05 },
-  flower: { grass: 0.14, coast: 0, mountain: 0 },
-  rock: { grass: 0.05, coast: 0.14, mountain: 0.3 },
-  bush: { grass: 0.03, coast: 0.12, mountain: 0.1 },
+/** Where a ground tile sits: open grass, the coast edge, a forest fringe, a plateau foot, or a plateau top. */
+export type ScatterSite = "open" | "coast" | "fringe" | "foot" | "mountain";
+
+/**
+ * Chance per tile of each class by site. Tufts and flowers spread over
+ * the grass; rocks and bushes cluster where nature would put them — the
+ * coast edge, the forest fringe and the plateau feet — and stay off the
+ * open grass (no single tiny rocks there; a rare bush). The plateau tops
+ * carry their crags (render/plateaus.ts), so they get few.
+ */
+const CHANCE: Record<ScatterKind, Record<ScatterSite, number>> = {
+  tuft: { open: 0.4, coast: 0.1, fringe: 0.4, foot: 0.3, mountain: 0.05 },
+  flower: { open: 0.14, coast: 0, fringe: 0.1, foot: 0.06, mountain: 0 },
+  rock: { open: 0, coast: 0.07, fringe: 0.05, foot: 0.12, mountain: 0.05 },
+  bush: { open: 0.008, coast: 0.05, fringe: 0.14, foot: 0.06, mountain: 0.03 },
 };
+
+/** Rocks and bushes only where a low-frequency noise is high: they come in clumps, not as an even sprinkle. */
+const CLUMP_SCALE = 3.5;
+const CLUMP_THRESHOLD = 0.5;
+
+/** The site of a grass, coast or mountain tile (null for other terrain). */
+export function scatterSite(input: Pick<ScatterInput, "width" | "height" | "terrain">, x: number, y: number): ScatterSite | null {
+  const { width, height, terrain } = input;
+  const t = terrain[y * width + x];
+  if (t === "mountain") return "mountain";
+  if (t === "coast") return "coast";
+  if (t !== "grass") return null;
+  let site: ScatterSite = "open";
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if ((!dx && !dy) || nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+      const n = terrain[ny * width + nx];
+      if (n === "mountain") return "foot";
+      if (n === "forest") site = "fringe";
+      else if ((n === "coast" || n === "water") && site === "open") site = "coast";
+    }
+  }
+  return site;
+}
 
 /** Tufts, flowers, rocks and bushes on the free grass, coast and mountain tiles (variant: 0 tuft, 1 flower, 2 rock, 3 bush). */
 export function scatterGround(input: ScatterInput): (Placed & { kind: ScatterKind })[] {
-  const { width, height, terrain, seed, blocked } = input;
+  const { width, height, seed, blocked } = input;
   const out: (Placed & { kind: ScatterKind })[] = [];
   const kinds: ScatterKind[] = ["tuft", "flower", "rock", "bush"];
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const t = terrain[y * width + x];
-      if ((t !== "grass" && t !== "coast" && t !== "mountain") || blocked.has(`${x},${y}`)) continue;
+      const site = scatterSite(input, x, y);
+      if (site === null || blocked.has(`${x},${y}`)) continue;
       const damp = nearBlocked(blocked, x, y) ? 0.5 : 1;
       kinds.forEach((kind, v) => {
         const s = seed + 1013 * (v + 1);
-        if (hash2(x, y, s) >= CHANCE[kind][t] * damp) return;
+        let chance = CHANCE[kind][site] * damp;
+        if (kind === "rock" || kind === "bush") {
+          // Clumps: twice the chance inside, none outside (the same mean).
+          chance = valueNoise(x / CLUMP_SCALE, y / CLUMP_SCALE, s + 9) >= CLUMP_THRESHOLD ? chance * 2 : 0;
+        }
+        if (hash2(x, y, s) >= chance) return;
         out.push({
           kind,
           x: x + 0.15 + 0.7 * hash2(x, y, s + 1),
