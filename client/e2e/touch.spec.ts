@@ -317,6 +317,11 @@ test("two-finger twist turns the camera without a tool and the ghost with a ghos
   const after = await camera(page);
   expect([0.5, 1, 3, 3.5]).toContain(after.rotation);
   expect(after.half).toBeCloseTo(before.half, 3);
+  // A tap on the compass (on the minimap, or next to its toggle while collapsed) returns to the default heading, and back.
+  await page.getByTestId("camera-compass").tap();
+  await expect.poll(async () => (await camera(page)).rotation).toBe(0);
+  await touch.twist(await freeCanvasPoint(page), 180, Math.PI / 3);
+  await expect.poll(async () => (await camera(page)).rotation).toBe(after.rotation);
   // With a build tool the twist turns the ghost; the camera stays.
   await page.getByTestId("build-tab-production").tap();
   await page.getByTestId("build-lumberjack").tap();

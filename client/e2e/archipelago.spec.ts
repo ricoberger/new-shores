@@ -23,9 +23,9 @@ import { resetWorld } from "./world";
 // One continuous world (D-048) on the settled fixture (the voyage spec's
 // result: island 2 settled, the sloop sailing "Fish home"): a mouse pan across
 // the sea from the start island to island 2, wheel zoom through the three
-// LODs without flicker, free camera rotation (45° steps by button and
-// key, a right-drag easing to the nearest 45°) with a house placed at four
-// headings, clickable island labels and the island card, the route
+// LODs without flicker, free camera rotation (45° steps by key, a
+// right-drag and a compass drag easing to the nearest 45°, the compass
+// returning to the default heading) with a house placed at four headings, clickable island labels and the island card, the route
 // editor's island pickers (and the world-click shortcut), the server's
 // loop time and estimated effects, the sloop assigned from the editor
 // moving with its ETA badge at near and far LOD, minimap and tab jumps.
@@ -87,10 +87,11 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   await expectFocused(page, ISLAND);
 
   // Free rotation (D-051; rotation in quarter turns, 0.5 = 45°): 0 → 0.5
-  // (right button) → 1.5 (E, E) → 2.5 (a right-drag of ≈ 1.1 quarter
-  // turns, eased to the nearest 45° on release), then back 1.5 (right-drag
-  // the other way) → 1 (Q) → 0.5 (left button) → 0 (Q), always about the
-  // same target and zoom. At four headings — two of them diagonal to the
+  // (E) → 1.5 (E, E) → 2.5 (a right-drag of ≈ 1.1 quarter turns, eased to
+  // the nearest 45° on release), then 1.5 (right-drag the other way) →
+  // 2.5 (a quarter circle dragged clockwise on the compass) → 2 (Q) → 0
+  // (Enter on the focused compass) → 0.5 (E) → 0 (a compass click), always
+  // about the same target and zoom. At four headings — two of them diagonal to the
   // screen — a settler house is placed by a click with building rotation
   // i × 90° (world-relative, D-042): the server has it on the intended
   // tile with that rotation (picking is exact at any azimuth). (First: the
@@ -122,11 +123,13 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
     expect(after.z).toBeCloseTo(before.z, 6);
     expect(after.half).toBeCloseTo(before.half, 6);
   };
-  const press = async (k: "button-right" | "button-left" | "E" | "Q", to: number) => {
+  const press = async (k: "E" | "Q" | "compass-click" | "compass-enter", to: number) => {
     const before = await camera(page);
-    if (k === "button-right") await page.getByTestId("camera-rotate-right").click();
-    else if (k === "button-left") await page.getByTestId("camera-rotate-left").click();
-    else await page.keyboard.press(k);
+    if (k === "compass-click") await page.getByTestId("camera-compass").click();
+    else if (k === "compass-enter") {
+      await page.getByTestId("camera-compass").focus();
+      await page.keyboard.press("Enter");
+    } else await page.keyboard.press(k);
     await expect.poll(async () => (await camera(page)).rotation).toBe(to);
     await keep(before);
   };
@@ -145,9 +148,28 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
     await expect.poll(async () => (await camera(page)).rotation).toBe(to);
     await keep(before);
   };
+  /** A quarter circle dragged clockwise on the compass (top → right): +1 quarter turn, then eased to `to`. */
+  const compassDrag = async (to: number) => {
+    const before = await camera(page);
+    const box = (await page.getByTestId("camera-compass").boundingBox())!;
+    const c = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const r = box.width * 0.4;
+    await page.mouse.move(c.x, c.y - r);
+    await page.mouse.down();
+    for (let i = 1; i <= 12; i++) {
+      const a = (i / 12) * (Math.PI / 2);
+      await page.mouse.move(c.x + r * Math.sin(a), c.y - r * Math.cos(a));
+    }
+    const held = (await camera(page)).rotation;
+    // One quarter turn more while held (the shortest way round, rotations wrap at 4).
+    expect(Math.abs(((held - before.rotation + 6) % 4) - 2 - 1)).toBeLessThan(0.05);
+    await page.mouse.up();
+    await expect.poll(async () => (await camera(page)).rotation).toBe(to);
+    await keep(before);
+  };
   expect((await camera(page)).rotation).toBe(0);
   await placeHouse(0);
-  await press("button-right", 0.5);
+  await press("E", 0.5);
   await placeHouse(1);
   await press("E", 1);
   await press("E", 1.5);
@@ -156,9 +178,12 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   await rightDrag(270, 2.5);
   await placeHouse(3);
   await rightDrag(-270, 1.5);
-  await press("Q", 1);
-  await press("button-left", 0.5);
-  await press("Q", 0);
+  await compassDrag(2.5);
+  await press("Q", 2);
+  await press("compass-enter", 0);
+  await press("E", 0.5);
+  await press("compass-click", 0);
+  await expect(page.getByTestId("camera-compass")).toHaveAttribute("aria-label", /north-east/);
 
   // Back at the start island for the pan.
   await showIsland(page, ISLAND);

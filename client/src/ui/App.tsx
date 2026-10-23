@@ -26,7 +26,6 @@ import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
 import hud from "./hud.module.css";
 import { BuildMenu } from "./BuildMenu";
-import { CameraControls } from "./CameraControls";
 import { type ConfirmRequest, ConfirmDialog } from "./Dialogs";
 import { GameCanvas } from "./GameCanvas";
 import { InfoPanel } from "./InfoPanel";
@@ -906,8 +905,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
               viewport={{ width: layout.width, height: layout.height }}
               collapsible={phone}
               initiallyCollapsed={layout.mode === "phone-portrait"}
+              heading={cam.rotation}
             />
-            <CameraControls onRotate={(steps) => renderer?.rotateCamera(steps)} />
           </div>
         )}
         {rightSlot}

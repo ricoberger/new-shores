@@ -5,6 +5,7 @@ import { fromMinimap, islandsBounds, minimapLandKey, minimapProjection, minimapS
 import type { GameRenderer } from "../render/engine";
 import { toolIcon } from "../theme/iconSet";
 import { TERRAIN, UI, WATER } from "../theme/palette";
+import { Compass } from "./Compass";
 import { Icon } from "./Icon";
 import styles from "./hud.module.css";
 
@@ -17,6 +18,8 @@ interface Props {
   /** Phone layouts: a toggle collapses the minimap; `collapsed` is its initial state. */
   collapsible: boolean;
   initiallyCollapsed: boolean;
+  /** The camera's rotation rounded to 45° (the compass's accessible name). */
+  heading: number;
 }
 
 /** Dots and the viewport quadrilateral are redrawn at most this often (ms). */
@@ -30,12 +33,13 @@ const VIEW = UI.map_view;
 /**
  * Minimap (D-048): a north-up 2D canvas of the islands' land (settled vs
  * unsettled tint), ship dots and the camera's ground footprint (which
- * turns with the camera). The land is drawn once per change of the
+ * turns with the camera), with the compass (D-051) in its top-right
+ * corner (next to the toggle while collapsed). The land is drawn once per change of the
  * islands or their static data; dots and the footprint follow the frames.
  * A click or tap pans the camera there (zoom kept). Pointer events stay on
  * the minimap (a HUD element, never the game canvas).
  */
-export function Minimap({ renderer, model, statics, viewport, collapsible, initiallyCollapsed }: Props) {
+export function Minimap({ renderer, model, statics, viewport, collapsible, initiallyCollapsed, heading }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [collapsedState, setCollapsed] = useState(initiallyCollapsed);
   // Only phone layouts can collapse it: on a larger layout (e.g. after a
@@ -145,16 +149,21 @@ export function Minimap({ renderer, model, statics, viewport, collapsible, initi
           <Icon path={toolIcon("minimap")} />
         </button>
       )}
-      {!collapsed && (
-        <canvas
-          ref={canvas}
-          className={styles.minimapCanvas}
-          style={{ width: size.width, height: size.height }}
-          role="img"
-          aria-label="Minimap of the archipelago: click to move the camera there"
-          onPointerDown={onPointerDown}
-          data-testid="minimap"
-        />
+      {collapsed ? (
+        <Compass renderer={renderer} heading={heading} />
+      ) : (
+        <div className={styles.minimapView}>
+          <canvas
+            ref={canvas}
+            className={styles.minimapCanvas}
+            style={{ width: size.width, height: size.height }}
+            role="img"
+            aria-label="Minimap of the archipelago: click to move the camera there"
+            onPointerDown={onPointerDown}
+            data-testid="minimap"
+          />
+          <Compass renderer={renderer} heading={heading} />
+        </div>
       )}
     </div>
   );

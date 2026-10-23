@@ -153,6 +153,11 @@ export class CameraRig {
     this.easeTo(snapRotation(base) + steps * ROTATION_SNAP, ROTATION_EASE_MS);
   }
 
+  /** Eases to a rotation (e.g. the default heading 0 from the compass), the short way round. */
+  face(rotation: number): void {
+    this.easeTo(rotation, ROTATION_EASE_MS);
+  }
+
   /** Eases to the nearest 45° after a free turn (≤ ROTATION_EASE_MS, shorter for a small way); nothing when already there. */
   snap(): void {
     if (this.turn) return;

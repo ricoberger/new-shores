@@ -498,6 +498,22 @@ export class GameRenderer {
     this.rig.step(steps);
   }
 
+  /** Turns the camera freely by quarter turns about its target (compass drag); settleCamera() ends the turn. */
+  turnCamera(quarters: number): void {
+    if (this.rig.animating()) return;
+    this.rig.rotateBy(quarters);
+  }
+
+  /** A free turn ended: ease to the nearest 45°. */
+  settleCamera(): void {
+    this.rig.snap();
+  }
+
+  /** Eases the camera back to the default heading (rotation 0; the compass's "north"). */
+  faceDefaultHeading(): void {
+    this.rig.face(0);
+  }
+
   /** The camera moves on its own: a jump or a rotation ease runs (projected positions are NaN meanwhile). */
   private moving(): boolean {
     return this.rig.animating() || this.rig.turning();
