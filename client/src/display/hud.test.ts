@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { Content, ContentBuilding, DisplayState, Island } from "../api/client";
-import { constructionGoods, islandResources, tierRows, worstNeedText } from "./hud";
+import { constructionGoods, islandResources, tierRows, workforceText, worstNeedText } from "./hud";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -61,5 +61,22 @@ describe("top-bar aggregates", () => {
   it("has no satisfaction without residents (unsettled island)", () => {
     const island = { ...fixture("citizens_needs").islands[0]!, buildings: [], population: {}, workforce: {} };
     expect(tierRows(island, content, defs)[0]).toEqual({ tier: "settlers", name: "Settlers", employed: 0, total: 0, satisfactionPermille: null, worst: null });
+  });
+});
+
+describe("producer workforce text", () => {
+  const tierName = (id: string) => (id === "settlers" ? "Settlers" : id);
+  const island = { workforce: { settlers: { available: 16_000, required: 22_000, factor_permille: 727 } } };
+  it("states the need and the island's pool", () => {
+    expect(workforceText({ workforce: { tier: "settlers", required: 4_000 } }, island, tierName)).toBe("needs 4 Settlers · 16 available on this island");
+  });
+  it("adds the working factor when short of workers", () => {
+    expect(workforceText({ workforce: { tier: "settlers", required: 4_000 }, workforce_factor_permille: 727 }, island, tierName)).toBe(
+      "needs 4 Settlers · 16 available on this island (working at 72 %)",
+    );
+  });
+  it("is empty for buildings without workforce and counts a missing pool as 0", () => {
+    expect(workforceText({}, island, tierName)).toBeNull();
+    expect(workforceText({ workforce: { tier: "citizens", required: 2_000 } }, { workforce: {} }, tierName)).toBe("needs 2 citizens · 0 available on this island");
   });
 });

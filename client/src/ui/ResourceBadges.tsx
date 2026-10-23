@@ -9,7 +9,11 @@ interface Props {
   prefix: string;
   /** Icons with counts only (the top bar); the full text otherwise (island card, phone popover). */
   short?: boolean;
+  /** Only these kinds (the island card lists them in separate rows); all by default. */
+  only?: ResourceKind[];
 }
+
+type ResourceKind = "fertilities" | "deposits" | "coast";
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -19,7 +23,8 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
  * its icon and text (the short form keeps the text for screen readers and
  * the tooltip; the island card shows it in full).
  */
-export function ResourceBadges({ resources, prefix, short = false }: Props) {
+export function ResourceBadges({ resources, prefix, short = false, only }: Props) {
+  const show = (k: ResourceKind) => !only || only.includes(k);
   const badge = (key: string, testId: string, icon: string, text: string, count?: string) => (
     <span key={key} className={`${styles.resourceBadge} ${short ? styles.resourceShort : ""}`} title={text} data-testid={testId}>
       <Icon path={icon} />
@@ -34,15 +39,18 @@ export function ResourceBadges({ resources, prefix, short = false }: Props) {
     </span>
   );
   return (
-    <span className={styles.resourceBadges} data-testid={`${prefix}-resources`}>
-      {resources.fertilities.map((f) => badge(`f-${f}`, `${prefix}-fertility-${f}`, resourceIcon("fertility", f), `${cap(f)} fertility`))}
-      {resources.deposits.map((d) =>
+    <span className={styles.resourceBadges} data-testid={only ? undefined : `${prefix}-resources`}>
+      {show("fertilities") && resources.fertilities.map((f) => badge(`f-${f}`, `${prefix}-fertility-${f}`, resourceIcon("fertility", f), `${cap(f)} fertility`))}
+      {show("deposits") &&
+        resources.deposits.map((d) =>
         badge(`d-${d.kind}`, `${prefix}-deposit-${d.kind}`, resourceIcon("deposit", d.kind), `${cap(d.kind)} deposit (${d.tiles} ${d.tiles === 1 ? "tile" : "tiles"})`, String(d.tiles)),
       )}
-      {badge("coast", `${prefix}-coast`, resourceIcon("coast"), `Free coast: ${resources.coast.free} of ${resources.coast.tiles} tiles`, String(resources.coast.free))}
-      {resources.fertilities.length === 0 && resources.deposits.length === 0 && !short && (
+      {show("coast") && badge("coast", `${prefix}-coast`, resourceIcon("coast"), `Free coast: ${resources.coast.free} of ${resources.coast.tiles} tiles`, String(resources.coast.free))}
+      {!only && resources.fertilities.length === 0 && resources.deposits.length === 0 && !short && (
         <span className={styles.small}>No fertility or deposit</span>
       )}
+      {only?.includes("fertilities") && resources.fertilities.length === 0 && "none"}
+      {only?.includes("deposits") && resources.deposits.length === 0 && "none"}
     </span>
   );
 }

@@ -265,8 +265,8 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   await clickLabel(page, ISLAND2);
   await expect(page.getByTestId("island-card")).toBeVisible();
   await expect(page.getByTestId("island-card-name")).toHaveText("Island 2");
-  await expect(page.getByTestId("island-card-fertilities")).toContainText("hemp");
-  await expect(page.getByTestId("island-card-deposits")).toContainText("iron");
+  await expect(page.getByTestId("island-card-fertilities")).toContainText("Hemp");
+  await expect(page.getByTestId("island-card-deposits")).toContainText("Iron");
   await expect(page.getByTestId("island-card-enter")).toHaveText("Go to island");
   // A drag on a panel does not pan.
   const cam0 = await camera(page);

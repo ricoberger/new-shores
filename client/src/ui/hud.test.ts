@@ -9,6 +9,7 @@ import { goodIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import { AwayDialog } from "./AwayDialog";
 import { InfoPanel } from "./InfoPanel";
 import { InsolvencyBanner } from "./InsolvencyBanner";
+import { IslandCard } from "./IslandCard";
 import { draftFromRoute } from "../display/routes";
 import { QuestsPanel } from "./QuestsPanel";
 import { RouteEditor } from "./RouteEditor";
@@ -77,6 +78,20 @@ describe("HUD components", () => {
       expect(text(html)).toContain("81 %");
       expect(html).toContain('title="Worst unmet need: Small market 36 % (out of range)"');
       expect(text(html)).toContain("22 / 40");
+    });
+
+    it("shows the island's resources on the island card", () => {
+      const noop = () => {};
+      const card = (st: typeof statics | undefined) =>
+        renderToStaticMarkup(
+          createElement(IslandCard, { islandId: island.id, model, content: tbContent, statics: st as never, nowMs: 0, onGoTo: noop, onFound: noop, onNewRoute: noop, onSelectShip: noop, onClose: noop }),
+        );
+      const html = card(statics);
+      expect(html).toContain('data-testid="island-card-fertility-wheat"');
+      expect(text(html)).toContain("Iron deposit (1 tile)");
+      expect(text(html)).toContain("Free coast: 1 of 1 tiles");
+      expect(text(card({ ...statics, fertilities: [], deposits: [] }))).toMatch(/Fertilities.*none.*Deposits.*none/);
+      expect(text(card(undefined))).toContain("Fertilities…");
     });
 
     it("collapses into chips on a phone", () => {
