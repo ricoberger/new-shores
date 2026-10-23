@@ -52,6 +52,36 @@ class OcclusionTest(unittest.TestCase):
         self.assertIn(dark, cols)
         self.assertLess(sum(dark), sum(plaster))
 
+    def test_thatch_keeps_its_chroma_in_shadow(self):
+        def chroma(c):
+            return max(c) - min(c)
+
+        thatch = ROLES["thatch"]
+        tone = palette.load_shadows()["thatch"]
+        plain = pipeline.ao_color(thatch, tone, 0.86, config.AO_LEVELS)
+        biased = pipeline.shadow_chroma("thatch", thatch, plain)
+        # Darker colours gain chroma, keep their luminance and hue order; the palette colour is unchanged.
+        self.assertGreater(chroma(biased), chroma(plain))
+        self.assertAlmostEqual(pipeline.luminance(biased), pipeline.luminance(plain), places=6)
+        self.assertEqual(sorted(range(3), key=lambda i: biased[i]), sorted(range(3), key=lambda i: plain[i]))
+        self.assertEqual(pipeline.shadow_chroma("thatch", thatch, thatch), thatch)
+        # Lighter bands and other roles are unchanged.
+        light = tuple(c * 1.1 for c in thatch)
+        self.assertEqual(pipeline.shadow_chroma("thatch", thatch, light), light)
+        self.assertEqual(pipeline.shadow_chroma("plaster", ROLES["plaster"], plain), plain)
+
+    def test_thatch_normals_tilt_toward_up(self):
+        slope = ((0, 0, 0), (1, 0, 0), (0, 1, 1), "thatch", 1.0, "roof")
+        wall = ((0, 0, 0), (1, 0, 0), (0, 0, 1), "plaster", 1.0, "wall")
+        out = geometry.tilt_normals([slope, wall], {"thatch": 0.7})
+        face = geometry.normal(*slope[:3])
+        self.assertEqual(out[0][6], face)
+        for n in out[0][7]:
+            self.assertAlmostEqual(sum(c * c for c in n), 1.0)
+            self.assertGreater(n[2], face[2])
+        self.assertEqual(out[1], wall)
+        self.assertIn("thatch", config.NORMAL_TILT)
+
     def test_ships_are_baked_without_the_ground_plane(self):
         loader = Loader()
         sloop = {"id": "sloop", "kind": "ship", "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0},

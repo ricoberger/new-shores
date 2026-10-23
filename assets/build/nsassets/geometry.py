@@ -178,6 +178,30 @@ def smooth_normals(tris, decimals=4):
     return out
 
 
+def tilt_normals(tris, tilt):
+    """
+    The triangles with the normals of the roles in `tilt` (role → k) tilted
+    toward up (z): every corner normal (the smooth ones, else the face
+    normal) becomes normalise(n + k·up). The face normal t[6] stays (baked
+    occlusion samples its hemisphere); other roles are unchanged.
+    """
+    out = []
+    for t in tris:
+        k = tilt.get(t[3], 0.0)
+        if k <= 0:
+            out.append(t)
+            continue
+        face = t[6] if len(t) > 6 else normal(*t[:3])
+        corners = t[7] if len(t) > 7 else (face, face, face)
+        tilted = []
+        for n in corners:
+            v = (n[0], n[1], n[2] + k)
+            length = math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2)
+            tilted.append(tuple(x / length for x in v) if length > 1e-12 else n)
+        out.append(tuple(t[:6]) + (face, tuple(tilted)))
+    return out
+
+
 # Deterministic random numbers for perturbations (seeded by recipe ID and part).
 
 

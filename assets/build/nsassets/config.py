@@ -74,6 +74,19 @@ AO_STRENGTH = 0.75
 #: from every corner: open and lightly occluded faces keep the palette
 #: colour, only the crevices darken.
 AO_CREVICE_CUT = 2
+#: Shadow chroma bias per role (the two-tone of thatch): a roof slope
+#: turned from the sun is lit by the blue sky fill alone and turns
+#: grey-olive. Two parts:
+#: - SHADOW_CHROMA: the darker a colour of the role (dark gradient bands,
+#:   baked occlusion) is than the role's palette colour, the more its
+#:   chroma is raised about its own luminance — by up to this share at
+#:   black. Lit colours are unchanged.
+#: - NORMAL_TILT: the role's normals are tilted toward up by this much
+#:   (n + k·up, normalised), so the slope away from the sun still catches
+#:   some warm sunlight and the lit slope a little less: the two sides move
+#:   closer and the shadow side keeps the straw's chroma.
+SHADOW_CHROMA = {"thatch": 0.9}
+NORMAL_TILT = {"thatch": 0.7}
 
 #: Kit material defaults: material name → (role, shade). The Medieval kit's
 #: textured materials are replaced by flat palette colours.

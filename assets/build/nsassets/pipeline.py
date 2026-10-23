@@ -277,13 +277,39 @@ def ao_color(base, shadow, shade, level):
     return tuple(b + (s * shade - b) * t for b, s in zip(base, shadow))
 
 
+def luminance(c):
+    """Relative luminance (Rec. 709 weights) of a linear-ish RGB triple."""
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+
+
+def shadow_chroma(role, palette_rgb, c):
+    """
+    A colour of a role with the role's shadow chroma bias (SHADOW_CHROMA):
+    its chroma raised about its luminance by bias × darkness, darkness being
+    how much darker it is than the palette colour (0 when as light or
+    lighter); clamped to [0, 1].
+    """
+    bias = config.SHADOW_CHROMA.get(role, 0.0)
+    ref = luminance(palette_rgb)
+    if bias <= 0 or ref <= 0:
+        return c
+    lum = luminance(c)
+    darkness = max(0.0, min(1.0, 1.0 - lum / ref))
+    gain = 1.0 + bias * darkness
+    return tuple(min(1.0, max(0.0, lum + (v - lum) * gain)) for v in c)
+
+
 def file_colors(roles, declared, ao):
     """(role, shade) → colour, or with baked occlusion (role, shade, level) → colour, of a file's declared pairs."""
     base = {k: tuple(c * k[1] for c in roles[k[0]]) for k in declared}
     if ao is None:
-        return base
+        return {k: shadow_chroma(k[0], roles[k[0]], c) for k, c in base.items()}
     tone = shadows()
-    return {(r, s, lvl): ao_color(base[(r, s)], tone[r], s, lvl) for (r, s) in declared for lvl in range(config.AO_LEVELS + 1)}
+    return {
+        (r, s, lvl): shadow_chroma(r, roles[r], ao_color(base[(r, s)], tone[r], s, lvl))
+        for (r, s) in declared
+        for lvl in range(config.AO_LEVELS + 1)
+    }
 
 
 def lite_ratios(n, house=False):
@@ -321,6 +347,8 @@ def bake(mesh, recipe, kit_loader):
     """Bakes ambient occlusion into a mesh when the loader can (Blender); returns the mesh."""
     if recipe.get("shading") == "smooth":
         mesh.tris = geometry.smooth_normals(mesh.tris)
+    if config.NORMAL_TILT:
+        mesh.tris = geometry.tilt_normals(mesh.tris, config.NORMAL_TILT)
     occlusion = getattr(kit_loader, "occlusion", None)
     if occlusion is not None:
         mesh.ao = occlusion(mesh.tris, recipe["kind"] != "ship")
