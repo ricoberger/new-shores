@@ -32,7 +32,7 @@ Content IDs are stable snake_case strings and never reused.
 | Citizens | 120 Settlers, `market_small`, `chapel` |
 | Merchants | 400 Citizens, `tavern`, a trade route delivering ≥ 1 good |
 | Patricians | 800 Merchants, `church`, `harbourmaster_office` |
-| Island 3 | Citizens unlocked · Islands 4–5: 200 Merchants · Islands 6+: Patricians unlocked |
+| Islands | no tier gating — every island can be settled from the start (D-051) |
 
 ### Need categories per tier (D-031 – D-033)
 

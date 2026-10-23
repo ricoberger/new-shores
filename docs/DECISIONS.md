@@ -641,3 +641,43 @@ specs isolate through a dev-only world reset endpoint.
   2.5D renderer); hex grid (different game; D-006's rectangular layout
   puzzle); block LOD at far (ugly); thinning the look to satisfy the
   software guard.
+
+## D-051 Settling at sea, Trading Post and Warehouses, water-edge footprints, fields v2, berths, free camera
+
+**Decision (seven parts):**
+1. **Start at sea.** The player's sloop holds the starting stock; no island
+   is settled; every island can be settled from the start and nothing is
+   gated by tier (supersedes D-039's unlock ladder; the generator's
+   resource guarantees stay). The first building is the **Trading Post**,
+   placed from the ship.
+2. **Trading Post vs Warehouse.** The Trading Post (one per island,
+   coastal, levelled) holds the island's capacity, is its pier and the
+   endpoint for ships/founding/trades; **Warehouses** are inland
+   collectors with throughput only (levelled), never capacity. Producers
+   are assigned to the nearest collector by road.
+3. **Water-edge footprints:** Trading Post, fisher and shipyard declare
+   `water_tiles: n` front rows that must be water (2/4, 1/2, 2/4).
+4. **Fields v2** (supersedes the radius/nearest-farm parts of D-049):
+   crops 1×1, pastures and pig pens 2×2; placed only from the farm's
+   panel; valid when adjacent to the farm or to one of its own fields
+   (ownership by chain, orphaning on disconnect); tile totals unchanged.
+5. **Berths:** per Trading Post level; arrivals queue for a free berth;
+   handling = 10 s + 0.2 s/unit; harbour buildings later add berths.
+6. **Camera:** free rotation with soft snap to 45° on release, world-fixed
+   sun, compass on the minimap replaces the rotate buttons.
+7. **Satisfaction stays per house**; the HUD shows island aggregates.
+   Rivers and real elevation are deferred, not rejected.
+
+- *Rationale:* the original brief ("start with a ship and choose the
+  island") and the Anno 1404 Kontor/market split make storage and
+  collection two distinct decisions; adjacency fields read as farms and
+  make ownership trivial; berths give harbours a reason to grow; free
+  rotation suits a true 3D scene and the compass is the Anno idiom.
+- *Consequences:* content renames (`warehouse` → `trading_post`; new inland
+  `warehouse`), a schema migration (first warehouse → Trading Post,
+  others → Warehouses; fields re-sized/re-chained), reference games
+  re-verified with the sail-and-found opening, new e2e fixture
+  `seafaring`; D-049's `required` becomes a field count.
+- *Rejected:* a pre-settled tutorial island (contradicts the brief);
+  warehouses adding capacity (storage spam); island-wide satisfaction
+  (kills the public-building radius puzzle); rotation without snapping.

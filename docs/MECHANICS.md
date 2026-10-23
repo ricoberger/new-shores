@@ -124,8 +124,12 @@ handlers only.
 - **Fertility** is an island-wide tag list (`Island.Fertilities`). A farm
   whose `work_area.fertility` is set can only be placed on an island
   carrying that tag (`no_fertility`; the error lists the island's tags).
-- Coastal buildings (warehouse, fisher, shipyard, harbourmaster) need at
-  least one footprint tile on `coast`.
+- **Water-edge buildings** (D-051): Trading Post, fisher, shipyard (and
+  later harbour buildings) declare `water_tiles: n` — their first `n`
+  front rows must lie on water tiles and the remaining rows on buildable
+  land; the water tiles stay water for ships. Provisional: Trading Post
+  2 of 4 rows, fisher 1 of 2, shipyard 2 of 4. Other coastal buildings
+  need at least one footprint tile on `coast`.
 - **Work area** = a Euclidean disc of radius `r` around the footprint
   centre (tile centres inside count). Two rules use it:
   - **Harvesters** (lumberjack; later trapper) keep the implicit rule: a
@@ -133,24 +137,24 @@ handlers only.
     neither a building nor a road; `efficiency = min(1, matching /
     required_tiles)`; placement with efficiency 0 is rejected
     (`no_work_area`).
-  - **Farms** (D-049) have **fields**: 1×1 placeables of the farm's
-    `fields.type` (pasture, wheat_field, orchard_plot, hemp_field, …; one
-    type may serve several farm types). A field costs nothing, has no
-    upkeep, needs no road, is never auto-paused and is placed only on
-    matching terrain (and island fertility if the type needs one) inside
-    the radius of at least one farm that accepts the type
-    (`no_farm_in_range`). Each field is assigned to the **nearest accepting
-    farm whose radius contains it** (squared distance between footprint
-    centres, lowest farm ID on ties); a field outside every radius stays
-    unassigned (status `no_farm`). Farm `efficiency = min(1, assigned /
-    required)` (provisional 16 on a radius-4 disc); a farm may be placed
-    or moved with zero fields (status `low_efficiency`, "n / required
-    fields"). Fields occupy tiles, can be moved and demolished (refund per
-    D-019, i.e. nothing), and count as buildings for the last-warehouse
-    rule. `place_fields` / `demolish_fields` take up to 256 tiles and are
-    all-or-nothing; the exported pure tile-validity helper is what the
-    scenario runner and the client use to pick a rectangle's valid tiles,
-    the server remaining the authority.
+  - **Farms** (D-049, D-051) have **fields**: placeables of the farm's
+    `fields.type` — crops (`wheat_field`, `hemp_field`, `orchard_plot`,
+    `meadow`, later hop/woad/vineyard) are **1×1**, animal **pastures**
+    (sheep, dairy, cattle) and **pig pens** are **2×2**. A field costs
+    nothing, has no upkeep, needs no road, is never auto-paused and is
+    placed **from the farm's panel only** (not the build menu). A field
+    is valid where its footprint is on matching terrain (and the island
+    has the fertility), free, and **4-edge-adjacent to the farm's
+    footprint or to a field already belonging to that farm** — ownership
+    follows the chain, no radius and no nearest-farm rule. Removing a
+    field that disconnects others leaves them **orphaned** (`no_farm`,
+    not counted) until reconnected or moved. Farm `efficiency = min(1,
+    owned_fields / required)`; provisional `required`: 16 one-tile crop
+    fields, 12 meadows, 4 pastures (16 tiles), 3 pig pens (12 tiles). A
+    farm may stand with zero fields (`low_efficiency`, "n / required").
+    `place_fields` / `demolish_fields` take up to 256 fields and are
+    all-or-nothing; the rectangle drag places as many whole fields as fit
+    and connect; the server stays the authority.
   - Assignment and efficiency are recomputed for every work-area building
     after each placement, move, demolition or road change; they may drop
     for an existing building.
@@ -256,28 +260,35 @@ cycle:   seconds               at 100 % efficiency
 - Visible carts and cycle progress bars are derived from the rate and the
   phase of the cycle; they are not state.
 
-## 5. Warehouses and inventory (D-014)
+## 5. Trading Post, Warehouses and inventory (D-014, D-051)
 
 - One **inventory per island**: `stock[good]`, `capacity[good]`.
-- `capacity[good]` = Σ over the island's warehouses of their level's capacity
-  (provisional: level 1 = 300, level 2 = 500, … per good — capacity is per
-  good, not total, to keep the puzzle about rates rather than micro-sorting).
-- Each warehouse has a **throughput** `T` (units/min; provisional level 1 =
-  60). `R` is the sum of base output rates of its assigned producers that
-  are **running** (connected, not paused, not fully starved, not blocked).
-  If `R > T`, every running assigned producer gets
-  `throughput_factor = T / R`; else 1. The UI shows warehouse load as
-  `R / T`.
+- The **Trading Post** (one per island; its presence is what "settled"
+  means) holds the island's stock: `capacity[good]` = the Trading Post's
+  level capacity (provisional lvl 1 = 300, lvl 2 = 500, … per good —
+  capacity is per good, not total, to keep the puzzle about rates rather
+  than micro-sorting). It is also the island's pier (§9.3) and the
+  endpoint for ships, founding and trades. Coastal with its front rows
+  over water (§2).
+- **Collectors** fetch producer output: the Trading Post has a base
+  **throughput** `T` and every **Warehouse** (inland, cheap, no coast, no
+  capacity) adds its own `T` (levels raise it). Each producer is assigned
+  to the nearest collector by road (§3). `R` is the sum of base output
+  rates of a collector's assigned producers that are **running**
+  (connected, not paused, not fully starved, not blocked). If `R > T`,
+  every running assigned producer gets `throughput_factor = T / R`; else 1.
+  The UI shows collector load as `R / T`. Warehouses never add capacity
+  — storage is the Trading Post's lever, collection the Warehouse's.
 - A good counts as **full** when `stock + in_transit` reaches capacity
   (committed capacity), so goods already on the road never overflow on
   arrival.
-- Warehouses are **upgraded in place** (`upgrade_warehouse`: the next
-  level's gold + materials from the island) rather than demolished; an
-  upgrade raises capacity and throughput. Demolishing refunds 50 % of the
-  placement and of every paid level's materials, no gold. Additional
-  warehouses can also be built (coastal only).
-- Goods bought via trade or delivered by ships bypass throughput (they arrive
-  at the pier) but respect capacity; excess waits aboard the ship.
+- Trading Post and Warehouses are **upgraded in place** (next level's
+  gold + materials from the island). Demolishing a Warehouse refunds 50 %
+  of placement and paid levels, no gold; the Trading Post can only be
+  demolished when it is the island's last building (unsettles the island).
+- Goods delivered by ships or trades arrive at the Trading Post's pier:
+  they bypass collector throughput but respect capacity; excess waits
+  aboard.
 
 ## 6. Population and needs (D-013)
 
@@ -442,14 +453,16 @@ buildings (tavern and up) keep upkeep.
 - Building unlocks depend on the player's **global** progress (highest tier
   population reached anywhere), so a new island can immediately use all
   unlocked buildings.
-- Settling a new island requires a ship carrying the warehouse cost (planks,
-  tools, gold); the first warehouse is placed from the ship
-  (`found_island`): materials come from the ship's cargo only, gold from
-  the balance; the rest of the cargo is unloaded into the new warehouse.
-  An island is **settled** while it has at least one warehouse; nothing
-  else can be placed on an unsettled island (`island_not_settled`), and the
-  last warehouse can only be demolished when it is the island's only
-  building (roads may remain; `last_warehouse`).
+- **The game starts at sea** (D-051): the player's sloop holds the
+  starting stock; no island is settled, every island can be settled, and
+  nothing is gated by tier. Settling an island means sailing there and
+  placing the **Trading Post** from the ship (`found_island`): materials
+  come from the ship's cargo only, gold from the balance; the rest of the
+  cargo is unloaded into the new Trading Post. An island is **settled**
+  while it has a Trading Post; nothing else can be placed on an unsettled
+  island (`island_not_settled`); the Trading Post can only be demolished
+  when it is the island's only building (roads may remain;
+  `last_warehouse` → `last_trading_post`).
 
 ## 9. Ships and routes (D-007, D-015)
 
@@ -495,8 +508,9 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   (`route_invalid`).
 - At a stop: unload listed goods (respecting capacity; remainder stays
   aboard), then load listed goods **topping up to** `max_amount` per good
-  within slot availability. Handling takes `ship_handling_seconds`
-  regardless of quantity.
+  within slot availability. Handling takes `ship_handling_base_seconds +
+  ship_handling_seconds_per_unit × units moved` (provisional 10 s +
+  0.2 s/unit) and needs a free **berth** (§9.3).
 - A ship is `{routeId, stopIndex, legDepartAt, legArriveAt, cargo}`; its
   visual position is interpolated from the leg timers; arrival is a due
   moment (`ship_arrived`, §1.3) that applies unload/load and schedules the
@@ -526,24 +540,34 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   as capacity allows and the ship goes `idle` there. Goods delivered by
   ship bypass warehouse throughput but respect capacity (§5).
 
-## 10. Islands, archipelago and settling (D-016)
+### 9.3 Berths (D-051)
+
+- A Trading Post has `berths` per level (provisional lvl 1 = 1, lvl 2 = 2,
+  …). A ship arriving to load/unload occupies a berth for its handling
+  time; if none is free it waits at anchor and its arrival effect is
+  queued as the next due moment after the earliest berth frees (FIFO by
+  arrival time, then ship ID). Manual shipments, route ships and later
+  trade ships queue alike. Harbour buildings (pier, crane — later) add
+  berths or shorten handling. The Trading Post panel shows berths
+  busy/free and the queue; a waiting ship shows "waiting for berth".
+
+## 10. Islands, archipelago and settling (D-016, D-051)
 
 - Each archipelago has 6–8 islands of varied size (small/medium/large)
   generated from a seed. Each island gets fertilities (2–4 from the pool),
   typed deposit slots (0–4) and a harbour area proportional to its coast.
-- **Settling is gated** (D-039): the start island and one further island are
-  settleable at once; additional islands unlock at tier milestones defined in
-  content (`islands.json: unlock`). Locked islands are visible and show their
-  resources and unlock condition.
-- **Generator guarantees** (over the archipelago, per tier): the start island
-  always has forest, fish, grass, stone slot(s) and one of wheat/apple; iron
-  and hemp are on the second settleable island, never the first; clay, salt,
-  hops, woad and coal are reachable with the islands unlocked at Merchants;
-  grapes, quartz, copper and gold (exactly one gold slot) with those unlocked
-  at Patricians. Slot totals are chosen so that a balanced top-tier economy
-  needs most islands.
-- All islands are visible from the start. Settling requires a warehouse
-  delivery by ship (section 8).
+- **No gating** (D-051, supersedes D-039's unlock ladder): every island
+  can be settled from the start; pacing comes from ships, Trading Posts
+  and running a second settlement. Islands show their fertilities,
+  deposits and size before settling so the first choice is informed.
+- **Generator guarantees** (over the archipelago): at least one island has
+  forest, fish, grass, stone and one of wheat/apple (a good home island);
+  iron and hemp never share an island with all of those; clay, salt,
+  hops, woad, coal, grapes, quartz, copper and gold (exactly one gold
+  deposit) are spread so that a balanced top-tier economy needs most
+  islands.
+- All islands are visible from the start. Settling requires a ship
+  carrying the Trading Post cost (section 8).
 
 ## 11. World map interactions (rules only; see ONLINE.md)
 

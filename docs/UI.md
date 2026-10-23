@@ -17,9 +17,12 @@ UI shows the same numbers the server uses.
 
 - **Camera.** Zoom is the vertical orthographic half-extent in tiles:
   min 7 (a 2×2 footprint ≈ ⅓ of a 360 px phone width), default 18, max =
-  whole archipelago fits. Rotation in 90° steps via `Q`/`E`, on-screen
-  buttons or a two-finger twist with no ghost tool active; it snaps, keeps
-  target and zoom; building rotation stays fixed to the world (D-042).
+  whole archipelago fits. **Rotation is free** (D-051): right-drag,
+  two-finger twist (no ghost tool active) or `Q`/`E` in 45° steps; on
+  release the azimuth eases to the nearest 45°; the sun stays world-fixed.
+  A **compass on the minimap** shows the heading, can be dragged to rotate
+  and tapped to return north; there are no separate rotate buttons.
+  Building rotation stays fixed to the world (D-042).
   **Jumps** (island tabs, island card "Go to island", Enter, founding,
   warnings tray) move the camera in ≤ 350 ms and zoom in to 18 only when
   the camera is farther out; minimap taps keep the zoom. A gesture in
