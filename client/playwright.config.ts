@@ -34,35 +34,28 @@ export default defineConfig({
     trace: "retain-on-failure",
     viewport: { width: 1280, height: 800 },
   },
-  // The specs share the dev server's in-memory world and build on each
-  // other: the archipelago spec needs the sloop and the settled island 2 of
-  // the voyage spec, and the away spec runs last. Project dependencies make
-  // that order explicit.
+  // The world specs run against the dev server's in-memory world, each from
+  // a fresh dev fixture (e2e/world.ts resetWorld in beforeAll: default,
+  // town or settled): no spec depends on the order of the specs or on an
+  // earlier one's leftovers, so the projects need no dependencies for it.
   projects: [
     { name: "chromium", testMatch: /(smoke|ttfi|voyage)\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
-    { name: "archipelago", testMatch: /archipelago\.spec\.ts$/, dependencies: ["chromium"], use: { ...devices["Desktop Chrome"] } },
-    { name: "away", testMatch: /wait-away\.spec\.ts$/, dependencies: ["archipelago"], use: { ...devices["Desktop Chrome"] } },
-    // Touch alone on phone profiles, after the away project on the same
-    // world (reserved tiles); the Pixel 5 profile at 412 × 915. The PWA
-    // installability check runs in the Chromium touch project.
+    { name: "archipelago", testMatch: /archipelago\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
+    { name: "away", testMatch: /wait-away\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
+    // Touch alone on phone profiles; the Pixel 5 profile at 412 × 915. The
+    // PWA installability check runs in the Chromium touch project.
     {
       name: "touch-chromium",
       testMatch: /(touch|pwa)\.spec\.ts$/,
-      dependencies: ["away"],
       use: { ...devices["Pixel 5"], viewport: { width: 412, height: 915 } },
     },
-    { name: "touch-webkit", testMatch: /touch\.spec\.ts$/, dependencies: ["touch-chromium"], use: { ...devices["iPhone 12"] } },
-    // The fixture-only projects (no server state) run after the
-    // shared-world chain: between the desktop specs they would stretch the
-    // world time (at the E2E time scale an idle minute is ten world
-    // minutes: an away summary pops up mid-spec, upkeep drains the gold the
-    // away spec expects). Alone: `npx playwright test --project=perf --no-deps`.
-    // Mobile performance budget and the opt-in Lighthouse measurement on
-    // the dense fixture.
+    { name: "touch-webkit", testMatch: /touch\.spec\.ts$/, use: { ...devices["iPhone 12"] } },
+    // The fixture-only projects (no server state) run last (one worker,
+    // in this order). Mobile performance budget and the opt-in Lighthouse
+    // measurement on the dense fixture.
     {
       name: "perf",
       testMatch: /(perf|lighthouse)\.spec\.ts$/,
-      dependencies: ["touch-webkit"],
       use: { ...devices["Desktop Chrome"], launchOptions: { args: gpuArgs } },
     },
     // Visual foundation (art task 2) on the fixtures: screenshot baselines

@@ -22,12 +22,13 @@ import {
 } from "./constants";
 import { clickIsland, dragShip, expectFocused, islandPoint, showArchipelago, wheelZoom, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
+import { resetWorld } from "./world";
 
 // The shipping flow (R-69) through the UI only, against the dev server at
 // time scale 10: build a connected shipyard, order a sloop, wait for
 // ship_built, ship planks to island 2, found the settlement there and see
-// its warehouse. Runs after the smoke test on the same in-memory world, so
-// it never assumes version numbers. One continuous world (D-048): the
+// its warehouse. Starts from the town fixture (the smoke spec's result) and
+// never assumes version numbers. One continuous world (D-048): the
 // shipment is a drag and drop of the sloop with the whole archipelago in
 // view (far LOD); the founding starts from the island card there and jumps
 // the camera to island 2. The second test continues on island 2: houses
@@ -35,6 +36,7 @@ import { dismissAwayDialog } from "./away";
 // islands), and fish carried home to the start island.
 
 test.describe.configure({ mode: "serial" });
+test.beforeAll(({ request }) => resetWorld(request, "town"));
 
 /** Sloop build time (2 min) and a leg with handling (20 s + 2 min), in wall ms at the E2E time scale, plus margin. */
 const BUILD_WALL_MS = 120_000 / E2E_TIME_SCALE + 15_000;

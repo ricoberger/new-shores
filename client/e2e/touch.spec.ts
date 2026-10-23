@@ -16,6 +16,7 @@ import {
   TOUCH_ROAD_TO,
 } from "./constants";
 import { type Point, type Touch, touchFor } from "./touch";
+import { resetWorld } from "./world";
 
 // Touch alone on phone profiles (Pixel 5 / Chromium at 412 × 915 and
 // iPhone 12 / WebKit): gestures on the fixtures (read-only) and the
@@ -25,6 +26,9 @@ import { type Point, type Touch, touchFor } from "./touch";
 // tile. One continuous world (D-048): pinches pass the LODs, no mode.
 
 test.describe.configure({ mode: "serial" });
+// The world tests start from the settled fixture (the moved sawmill, the
+// sheep farm, the sloop and its route); each touch project resets it.
+test.beforeAll(({ request }) => resetWorld(request, "settled"));
 
 const DENSE = "dense1";
 

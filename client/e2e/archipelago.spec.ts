@@ -18,9 +18,10 @@ import {
 } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 import { E2E_TIME_SCALE, ISLAND, ISLAND_INLAND, ISLAND2, ISLAND2_INLAND, ROTATION_HOUSES } from "./constants";
+import { resetWorld } from "./world";
 
-// One continuous world (D-048) on the world the voyage spec left behind
-// (island 2 settled, the sloop sailing "Fish home"): a mouse pan across
+// One continuous world (D-048) on the settled fixture (the voyage spec's
+// result: island 2 settled, the sloop sailing "Fish home"): a mouse pan across
 // the sea from the start island to island 2, wheel zoom through the three
 // LODs without flicker, the four camera rotation steps with a road tile
 // placed in each, clickable island labels and the island card, the route
@@ -33,6 +34,7 @@ import { E2E_TIME_SCALE, ISLAND, ISLAND_INLAND, ISLAND2, ISLAND2_INLAND, ROTATIO
 // where the camera is.
 
 test.describe.configure({ mode: "serial" });
+test.beforeAll(({ request }) => resetWorld(request, "settled"));
 
 /** A leg with handling (20 s + up to 2 min) in wall ms at the E2E time scale, plus margin. */
 const LEG_WALL_MS = 140_000 / E2E_TIME_SCALE + 15_000;
