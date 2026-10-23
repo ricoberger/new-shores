@@ -521,3 +521,28 @@ def manifest(entries, palette_sha, blender_version, missing):
         "models": dict(sorted(entries.items())),
     }
     return (json.dumps(doc, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+def thumb_file(files):
+    """
+    The file a content ID's build-card thumbnail shows: its first full
+    model in name order (variant v0, warehouse level l1), never the lite
+    LOD or a ship's cargo attachment; None without one.
+    """
+    names = sorted(f[0] for f in files if not f[0].endswith(".lite.glb") and not f[0].endswith(".cargo.glb"))
+    return names[0] if names else None
+
+
+def thumb_frame(points, right, up, margin=0.06):
+    """
+    Orthographic framing of points seen along a view with screen axes right
+    and up (unit vectors): the centre (in the right/up plane) and the
+    square ortho scale that fits them with a relative margin per side.
+    """
+    xs = [sum(p[i] * right[i] for i in range(3)) for p in points]
+    ys = [sum(p[i] * up[i] for i in range(3)) for p in points]
+    if not xs:
+        return (0.0, 0.0), 1.0
+    w, h = max(xs) - min(xs), max(ys) - min(ys)
+    centre = ((max(xs) + min(xs)) / 2, (max(ys) + min(ys)) / 2)
+    return centre, max(w, h, 1e-3) * (1 + 2 * margin)

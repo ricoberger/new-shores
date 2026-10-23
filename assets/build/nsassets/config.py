@@ -18,6 +18,10 @@ KITS_README = "assets/kits/README.md"
 CONTENT_DIR = os.path.join(REPO_ROOT, "content", "old_coast")
 MODELS_DIR = os.path.join(REPO_ROOT, "client", "public", "models")
 SHEETS_DIR = os.path.join(BUILD_DIR, "out")
+#: Build-card thumbnails (client/public/models/thumbs/<content id>.png), committed.
+THUMBS_DIR = os.path.join(MODELS_DIR, "thumbs")
+#: Thumbnail edge in pixels (shown at 64 CSS px: sharp at 2× density).
+THUMB_PX = 128
 
 #: Environment variable that points to the kit root (default <repo>/assets/kits).
 KITS_ENV = "NEW_SHORES_KITS_DIR"

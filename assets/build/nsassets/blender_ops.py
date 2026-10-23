@@ -347,3 +347,52 @@ def render_sheet(path, cells, cols, rows, cell_tiles, px, sky, sun, background):
     scene.render.filepath = path
     bpy.ops.render.render(write_still=True)
     _clear_scene()
+
+
+def render_thumb(path, tris, corners, px, sky, sun, frame):
+    """
+    Renders one model as a build-card thumbnail: the game's camera
+    (orthographic, 30° elevation, azimuth 45°), flat vertex colours with
+    the contact sheets' ink outline, transparent background, px × px.
+    frame(right, up) returns the model's centre in the view plane and the
+    ortho scale (pipeline.thumb_frame).
+    """
+    _clear_scene()
+    scene = bpy.context.scene
+    scene.render.engine = "BLENDER_WORKBENCH"
+    shading = scene.display.shading
+    shading.light = "FLAT"
+    shading.color_type = "VERTEX"
+    shading.show_object_outline = True
+    shading.object_outline_color = (0.12, 0.09, 0.06)
+    scene.view_settings.view_transform = "Standard"
+    scene.render.film_transparent = True
+    scene.render.resolution_x = px
+    scene.render.resolution_y = px
+    scene.render.resolution_percentage = 100
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.image_settings.color_mode = "RGBA"
+    scene.render.image_settings.color_depth = "8"
+    scene.render.image_settings.compression = 100
+    # No metadata (date, time, render time, file name…): rebuilds are byte-identical.
+    for attr in dir(scene.render):
+        if attr.startswith("use_stamp"):
+            setattr(scene.render, attr, False)
+    cam_data = bpy.data.cameras.get("thumb") or bpy.data.cameras.new("thumb")
+    cam_data.type = "ORTHO"
+    cam = bpy.data.objects.new("thumb_cam", cam_data)
+    scene.collection.objects.link(cam)
+    scene.camera = cam
+    back = Vector((math.sin(BASE_AZIMUTH) * math.cos(ELEVATION), math.cos(BASE_AZIMUTH) * math.cos(ELEVATION), math.sin(ELEVATION)))
+    rot = (-back).to_track_quat("-Z", "Y")
+    cam.rotation_euler = rot.to_euler()
+    m = rot.to_matrix()
+    right, up = m.col[0], m.col[1]
+    (cx, cy), scale = frame(tuple(right), tuple(up))
+    cam_data.ortho_scale = scale
+    cam.location = back * 200.0 + right * cx + up * cy
+    cam_data.clip_end = 400.0
+    _render_object("thumb", tris, corners, 0, Vector((0.0, 0.0, 0.0)), sky, sun)
+    scene.render.filepath = path
+    bpy.ops.render.render(write_still=True)
+    _clear_scene()

@@ -46,10 +46,32 @@ export class IconLayer {
     tex.hasAlpha = true;
     const ctx = tex.getContext() as CanvasRenderingContext2D;
     ctx.clearRect(0, 0, SIZE, SIZE);
+    // The HUD's wax seal (InfoPanel StatusIcon, .seal): the status colour,
+    // a pressed light inner ring, a darker lower half and an ink rim, with
+    // the same icon at the same share of the disc.
+    const r = SIZE / 2 - 6;
     ctx.beginPath();
-    ctx.arc(SIZE / 2, SIZE / 2, SIZE / 2 - 6, 0, Math.PI * 2);
+    ctx.arc(SIZE / 2, SIZE / 2, r, 0, Math.PI * 2);
     ctx.fillStyle = style.color;
     ctx.fill();
+    ctx.save();
+    ctx.clip();
+    // The seal's lower shade: ink bands deepening towards the bottom (up to
+    // about 30 %; stacked rects rather than a gradient, which not every
+    // 2D context the engine runs with supports).
+    ctx.fillStyle = UI.ink;
+    ctx.globalAlpha = 0.085;
+    for (let i = 0; i < 4; i++) ctx.fillRect(0, SIZE * (0.6 + i * 0.09), SIZE, SIZE);
+    ctx.restore();
+    ctx.beginPath();
+    ctx.arc(SIZE / 2, SIZE / 2, r - 9, 0, Math.PI * 2);
+    ctx.lineWidth = 6;
+    ctx.globalAlpha = 0.4;
+    ctx.strokeStyle = UI.parchment_light;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.arc(SIZE / 2, SIZE / 2, r, 0, Math.PI * 2);
     ctx.lineWidth = 8;
     ctx.strokeStyle = UI.ink;
     ctx.stroke();
@@ -57,7 +79,7 @@ export class IconLayer {
     const path = statusIcon(key);
     if (typeof Path2D !== "undefined" && path) {
       // The icon (512 units) scaled into the disc.
-      const k = (SIZE * 0.56) / ICON_VIEWBOX;
+      const k = (SIZE * 0.55) / ICON_VIEWBOX;
       ctx.save();
       ctx.translate(SIZE / 2 - (ICON_VIEWBOX * k) / 2, SIZE / 2 - (ICON_VIEWBOX * k) / 2);
       ctx.scale(k, k);

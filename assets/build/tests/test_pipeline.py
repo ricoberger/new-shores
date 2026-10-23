@@ -155,3 +155,21 @@ class ProfileTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ThumbTest(unittest.TestCase):
+    def test_thumb_file_is_the_first_full_model(self):
+        f = lambda *names: [(n, b"", None, None) for n in names]
+        self.assertEqual(pipeline.thumb_file(f("chapel.glb", "chapel.lite.glb")), "chapel.glb")
+        self.assertEqual(pipeline.thumb_file(f("house.v1.glb", "house.v0.lite.glb", "house.v0.glb")), "house.v0.glb")
+        self.assertEqual(pipeline.thumb_file(f("warehouse.l2.glb", "warehouse.l1.glb")), "warehouse.l1.glb")
+        self.assertEqual(pipeline.thumb_file(f("sloop.cargo.glb", "sloop.glb")), "sloop.glb")
+        self.assertIsNone(pipeline.thumb_file(f("x.lite.glb")))
+
+    def test_thumb_frame_fits_and_centres(self):
+        pts = [(0, 0, 0), (2, 0, 0), (0, 1, 0), (2, 1, 0)]
+        centre, scale = pipeline.thumb_frame(pts, (1, 0, 0), (0, 1, 0), margin=0)
+        self.assertEqual(centre, (1.0, 0.5))
+        self.assertEqual(scale, 2.0)
+        _, scale = pipeline.thumb_frame(pts, (1, 0, 0), (0, 1, 0), margin=0.1)
+        self.assertAlmostEqual(scale, 2.4)
