@@ -37,7 +37,7 @@ const LOOKS: Record<string, { color: string; mark: string; pattern: Pattern }> =
   orchard_plot: { color: FIELDS.orchard, mark: FIELDS.orchard_mark, pattern: "dots" },
 };
 
-function lookOf(id: string): { color: string; mark: string; pattern: Pattern } {
+export function lookOf(id: string): { color: string; mark: string; pattern: Pattern } {
   const known = LOOKS[id];
   if (known) return known;
   const c = buildingColor(id);

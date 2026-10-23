@@ -16,9 +16,9 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
-import { rotatedFootprint } from "../display/geometry";
 import { blockedTiles, islandSeed, layerKeys, type Placed, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
 import { BlockLayer } from "./blocks";
+import { canopyBlobs } from "./canopy";
 import { BuildingLayer } from "./buildings";
 import { CartLayer } from "./carts";
 import { FieldDecor, FieldTiles } from "./fields";
@@ -27,7 +27,7 @@ import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
 import { type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
 import { OutcropLayer } from "./outcrops";
-import { PlateauLayer } from "./plateaus";
+import { footprintTiles, PlateauLayer } from "./plateaus";
 import { RoadLayer } from "./roads";
 import { FootprintShadows } from "./shadows";
 import { buildTerrain, FoamLine } from "./terrain";
@@ -160,7 +160,6 @@ export class IslandDetail {
     }
     if (old?.layout !== keys.layout) {
       this.rebuilds.layout++;
-      this.blocks.update(display.buildings, defs);
       this.fieldDecor.update(this.unmodelledFields(display), defs);
       this.updateBlobs(display, defs);
       this.updateRelief();
@@ -193,25 +192,21 @@ export class IslandDetail {
   /** Plateaus and the deposit outcrops on them (mines and quarries keep their tiles at ground level). */
   private updateRelief(): void {
     const st = this.statics;
-    if (!st) return;
     const blocked = this.footprintTiles();
+    const built = this.builtFrom;
+    // Mid LOD: the blocks and the forest canopies around them.
+    if (built) this.blocks.update(built.display.buildings, built.defs, st ? canopyBlobs(st, blocked, this.seed) : []);
+    if (!st) return;
     this.plateaus.update(st, this.seed, blocked);
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.plateaus.heightAt(x, y));
   }
 
   /** Tiles covered by a building footprint ("x,y"; outcrops stay out of them). */
   private footprintTiles(): Set<string> {
-    const out = new Set<string>();
     const built = this.builtFrom;
-    if (!built) return out;
-    for (const b of built.display.buildings) {
-      const def = built.defs.get(b.type);
-      if (!def || def.category === "roads" || def.field) continue;
-      const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
-      for (let y = b.y; y < b.y + h; y++) for (let x = b.x; x < b.x + w; x++) out.add(`${x},${y}`);
-    }
-    return out;
+    return built ? footprintTiles(built.display.buildings, built.defs) : new Set();
   }
+
 
   /**
    * Contact shadows around every building (near and mid LOD): the model's

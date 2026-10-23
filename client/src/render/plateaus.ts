@@ -19,7 +19,8 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
-import type { Island } from "../api/client";
+import type { BuildingDisplay, ContentBuilding, Island } from "../api/client";
+import { rotatedFootprint } from "../display/geometry";
 import { type CoastLoop, marchingSquares, traceLoops } from "../display/coastline";
 import { hash2 } from "../display/noise";
 import { ISLAND } from "../theme/palette";
@@ -90,6 +91,18 @@ export function plateauLevels(island: Pick<Island, "width" | "height" | "terrain
   return out;
 }
 
+/** Tiles ("x,y") covered by building footprints (not roads or fields): kept at ground level, no crags, canopies or outcrops. */
+export function footprintTiles(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): Set<string> {
+  const out = new Set<string>();
+  for (const b of buildings) {
+    const def = defs.get(b.type);
+    if (!def || def.category === "roads" || def.field) continue;
+    const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
+    for (let y = b.y; y < b.y + h; y++) for (let x = b.x; x < b.x + w; x++) out.add(`${x},${y}`);
+  }
+  return out;
+}
+
 /** Ground height (tiles) of a tile under the plateaus. */
 export function plateauHeight(levels: Uint8Array, width: number, x: number, y: number): number {
   return (levels[y * width + x] ?? 0) * PLATEAU_STEP;
@@ -137,7 +150,7 @@ export function insideLoops(loops: readonly (readonly { x: number; y: number }[]
 }
 
 /** The flat top inside rounded loops: marching squares over a TOP_GRID sample grid at height y. */
-function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, color: Color3): void {
+function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, color: Color3, grid = TOP_GRID): void {
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -151,7 +164,7 @@ function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, color: Colo
     }
   }
   if (!Number.isFinite(minX)) return;
-  const g = TOP_GRID;
+  const g = grid;
   const nx = Math.ceil((maxX - minX) / g) + 2;
   const ny = Math.ceil((maxY - minY) / g) + 2;
   const x0 = minX - g;
@@ -193,6 +206,12 @@ export class PlateauLayer {
     private readonly scene: Scene,
     private readonly parent: TransformNode | null,
     private readonly registry: ModelRegistry | null = null,
+    /**
+     * tint: colour transform (the far silhouettes of unsettled islands are
+     * desaturated); coarse: the far LOD's simplified plateaus (a coarser
+     * top grid and outline, fewer step bands).
+     */
+    private readonly options: { tint?: (c: Color3) => Color3; coarse?: boolean } = {},
   ) {
     this.material = skyFill(new StandardMaterial("plateaus", scene));
     this.material.specularColor = Color3.Black();
@@ -218,14 +237,17 @@ export class PlateauLayer {
     const rocks = new ModelMerger();
     for (const level of [1, 2]) {
       const mask = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && levels[y * width + x]! >= level;
-      const loops = traceLoops(marchingSquares(width, height, mask)).map((l) => roundLoop(l));
+      const coarse = this.options.coarse === true;
+      const tint = this.options.tint ?? ((c: Color3) => c);
+      const loops = traceLoops(marchingSquares(width, height, mask)).map((l) => (coarse ? roundLoop(l, OUTLINE_STEP * 2, SMOOTH_PASSES / 2) : roundLoop(l)));
       if (loops.length === 0) continue;
       const h1 = level * PLATEAU_STEP;
       const h0 = (level - 1) * PLATEAU_STEP;
-      const top = topColor(level);
-      fillTop(b, loops, h1, top);
-      const profile = stepProfile(h0, h1, top);
-      for (const loop of loops) slabStrip(b, loop, seed + 31 * level, (c) => c, profile, 2);
+      const top = tint(topColor(level));
+      fillTop(b, loops, h1, top, coarse ? TOP_GRID * 2 : TOP_GRID);
+      const full = stepProfile(h0, h1, topColor(level));
+      const profile = coarse ? [full[0], full[1], full[3], full[5], full[7]].filter((r) => r !== undefined) : full;
+      for (const loop of loops) slabStrip(b, loop, seed + 31 * level, tint, profile, 2);
       if (models) this.placeCrags(rocks, loops, level, h1, seed, (x, y) => mask(x, y) && !deposits.has(`${x},${y}`) && levels[y * width + x] === level);
     }
     this.mesh = b.mesh(`plateaus_${island.id}`, this.scene, this.material, this.parent);

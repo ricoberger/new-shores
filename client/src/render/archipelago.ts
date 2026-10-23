@@ -10,7 +10,6 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateCylinder } from "@babylonjs/core/Meshes/Builders/cylinderBuilder";
-import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { CreateTorus } from "@babylonjs/core/Meshes/Builders/torusBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
@@ -20,17 +19,18 @@ import type { Rect } from "../display/camera";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
 import { anchorSlots, type ArchPoint, berthAnchor, type Berths, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
-import { footprintBox } from "./coords";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
-import { buildIslandMeshes, FAR_PROFILE, type GroundColors, SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
+import { buildIslandMeshes, type GroundColors, groundColor, NEAR_PROFILE, SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
+import { BlockLayer } from "./blocks";
+import { canopyBlobs } from "./canopy";
+import { footprintTiles, PlateauLayer } from "./plateaus";
 import { coastline } from "../display/coastline";
 import { islandSeed } from "../display/scatter";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { type ModelRegistry, shipMeshes, shipModel } from "./models";
-import { ARROW_BRIGHT, ARROW_DIM, colorTuple, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
-import { BUILDINGS } from "../theme/palette";
+import { ARROW_BRIGHT, ARROW_DIM, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 
 /** Top of the far-LOD silhouettes: the islands' ground (the same slab as near LOD). */
@@ -47,9 +47,6 @@ const ROUTE_Y = SILHOUETTE_TOP + 0.25;
 const ROUTE_WIDTH = 0.8;
 /** The haze starts this far (tiles) outside the islands' bounding box. */
 const HAZE_INNER = 30;
-const LANDMARK_SIZE = 3;
-const LANDMARK_WAREHOUSE = colorTuple(BUILDINGS.ochre);
-const LANDMARK_SHIPYARD = colorTuple(BUILDINGS.terracotta);
 
 
 export type ArchSelection = { kind: "none" } | { kind: "island"; id: string } | { kind: "ship"; id: number };
@@ -61,23 +58,33 @@ function desaturate(c: Color3, settled: boolean): Color3 {
   return new Color3(c.r * 0.3 + grey * 0.7, c.g * 0.3 + grey * 0.7, c.b * 0.3 + grey * 0.7);
 }
 
-/** Far-LOD colours: flat terrain colours on the same slab as near LOD, desaturated for unsettled islands. */
-function silhouetteColors(settled: boolean): GroundColors {
+/** Far-LOD colours: the near ground colours on the same slab, desaturated for unsettled islands. */
+function silhouetteColors(settled: boolean, seed: number): GroundColors {
   return {
-    tile: (t: Terrain | undefined) => desaturate((t && TERRAIN_COLORS[t]) || UNKNOWN_TERRAIN, settled),
+    tile: (t: Terrain | undefined, x: number, y: number) => desaturate(t ? groundColor(t, x, y, seed) : UNKNOWN_TERRAIN, settled),
     slab: (c: Color3) => desaturate(c, settled),
   };
 }
 
-/** The far-LOD silhouette of an island: the near terrain's ground fill and diorama slab with flat colours, one mesh per chunk. */
+/** The far-LOD ground of an island: the near terrain's ground fill and the near default zoom's slab (cliff bands and sand rim), one mesh per chunk. */
 function buildSilhouette(scene: Scene, island: Island, settled: boolean, material: StandardMaterial, seed: number, parent: TransformNode): Mesh[] {
-  return buildIslandMeshes(scene, island, coastline(island, 1), seed, silhouetteColors(settled), material, parent, "silhouette", FAR_PROFILE);
+  return buildIslandMeshes(scene, island, coastline(island, 1), seed, silhouetteColors(settled, seed), material, parent, "silhouette", NEAR_PROFILE);
 }
 
+/**
+ * The far-LOD diorama of an island seen from above: the slab, the
+ * plateaus as plateau meshes, forest canopies and the buildings as
+ * blocks (warehouses and shipyards as landmark blocks under a roof).
+ */
 interface Silhouette {
   node: TransformNode;
   meshes: Mesh[];
   key: string;
+  plateaus: PlateauLayer;
+  blocks: BlockLayer;
+  layoutKey: string;
+  statics: Island;
+  seed: number;
 }
 
 interface RouteLine {
@@ -142,15 +149,12 @@ export class ArchipelagoLayer {
   /** Ship instances per type, with the cargo attachment where the model has one; model: the kit-bashed model (else the placeholder). */
   private readonly ships = new Map<string, { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean }>();
   private readonly arrows: ColoredInstances;
-  private readonly landmarks: ColoredInstances;
   private readonly routeLines = new Map<string, RouteLine>();
   private readonly ring: Mesh;
   /** Blob shadows of the ships at near and mid LOD (matrices rewritten every frame). */
   private readonly shipBlobs: BlobLayer;
   private shipBlobBuffer = new Float32Array(0);
   private placements = new Map<string, IslandPlacement>();
-  private islandList: IslandDisplay[] = [];
-  private defs: ReadonlyMap<string, ContentBuilding> = new Map();
   private berths: Berths = new Map();
   private shipList: ShipDisplay[] = [];
   private routes: RouteDisplay[] = [];
@@ -190,15 +194,6 @@ export class ArchipelagoLayer {
     arrow.alwaysSelectAsActiveMesh = true;
     this.arrows = new ColoredInstances(arrow);
 
-    // Far-LOD landmarks: a simple tower per warehouse and shipyard.
-    const tower = CreateBox("landmarks", { width: LANDMARK_SIZE, height: LANDMARK_SIZE, depth: LANDMARK_SIZE }, scene);
-    tower.bakeTransformIntoVertices(Matrix.Translation(0, LANDMARK_SIZE / 2, 0));
-    const towerMat = skyFill(new StandardMaterial("landmarks", scene));
-    towerMat.specularColor = Color3.Black();
-    tower.material = towerMat;
-    tower.isPickable = false;
-    tower.alwaysSelectAsActiveMesh = true;
-    this.landmarks = new ColoredInstances(tower);
 
     this.shipBlobs = new BlobLayer(scene, "blob_ships", null, 0.45);
     this.shipBlobs.mesh.alwaysSelectAsActiveMesh = true;
@@ -242,26 +237,38 @@ export class ArchipelagoLayer {
     defs: ReadonlyMap<string, ContentBuilding>,
   ): void {
     this.placements = new Map(islands.map((is) => [is.id, { position: is.position, width: is.width, height: is.height }]));
-    this.islandList = [...islands];
     this.berths = berths;
-    this.defs = defs;
     for (const is of islands) {
       const st = statics.get(is.id);
       if (!st) continue;
       const key = `${st.revision}|${is.settled}|${is.position.x},${is.position.y}`;
-      const cur = this.silhouettes.get(is.id);
-      if (cur?.key === key) continue;
-      cur?.node.dispose();
-      const node = new TransformNode(`silhouette_${is.id}`, this.scene);
-      node.position.set(is.position.x, 0, -is.position.y);
-      node.computeWorldMatrix(true);
-      const meshes = buildSilhouette(this.scene, st, is.settled, this.silhouetteMaterial, islandSeed(st.id, st.revision), node);
-      node.setEnabled(this.lod === "far" && this.visible.has(is.id));
-      this.silhouettes.set(is.id, { node, meshes, key });
+      let cur = this.silhouettes.get(is.id);
+      if (cur?.key !== key) {
+        if (cur) this.disposeSilhouette(cur);
+        const node = new TransformNode(`silhouette_${is.id}`, this.scene);
+        node.position.set(is.position.x, 0, -is.position.y);
+        node.computeWorldMatrix(true);
+        const seed = islandSeed(st.id, st.revision);
+        const meshes = buildSilhouette(this.scene, st, is.settled, this.silhouetteMaterial, seed, node);
+        const tint = (c: Color3) => desaturate(c, is.settled);
+        cur = {
+          node,
+          meshes,
+          key,
+          plateaus: new PlateauLayer(this.scene, node, this.registry, { tint, coarse: true }),
+          blocks: new BlockLayer(this.scene, node, tint),
+          layoutKey: "",
+          statics: st,
+          seed,
+        };
+        node.setEnabled(this.lod === "far" && this.visible.has(is.id));
+        this.silhouettes.set(is.id, cur);
+      }
+      this.updateLayout(cur, is, defs);
     }
     for (const [id, s] of this.silhouettes) {
       if (!this.placements.has(id)) {
-        s.node.dispose();
+        this.disposeSilhouette(s);
         this.silhouettes.delete(id);
       }
     }
@@ -280,6 +287,21 @@ export class ArchipelagoLayer {
     this.routes = [...routes];
     this.rebuildRoutes();
     this.applyVisibility();
+  }
+
+  /** Rebuilds an island's far blocks, plateaus and canopy when its building layout changed. */
+  private updateLayout(s: Silhouette, is: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
+    const key = is.buildings.map((b) => `${b.id}:${b.type}:${b.x},${b.y},${b.rotation}`).join(";");
+    if (key === s.layoutKey) return;
+    s.layoutKey = key;
+    const blocked = footprintTiles(is.buildings, defs);
+    s.plateaus.update(s.statics, s.seed, blocked);
+    s.blocks.update(is.buildings, defs, canopyBlobs(s.statics, blocked, s.seed));
+  }
+
+  private disposeSilhouette(s: Silhouette): void {
+    s.blocks.dispose();
+    s.node.dispose();
   }
 
   /** Render quality of the sea (ripples with specular, or glints). */
@@ -342,33 +364,14 @@ export class ArchipelagoLayer {
   private applyVisibility(): void {
     const far = this.lod === "far";
     for (const [id, s] of this.silhouettes) s.node.setEnabled(far && this.visible.has(id));
-    this.rebuildLandmarks();
   }
 
-  private rebuildLandmarks(): void {
-    const marks: { x: number; y: number; color: readonly number[] }[] = [];
-    if (this.lod === "far") {
-      for (const is of this.islandList) {
-        if (!this.visible.has(is.id)) continue;
-        for (const b of is.buildings) {
-          const def = this.defs.get(b.type);
-          if (!def || (!def.warehouse && !def.shipyard)) continue;
-          const box = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-          marks.push({ x: is.position.x + box.cx, y: is.position.y - box.cz, color: def.shipyard ? LANDMARK_SHIPYARD : LANDMARK_WAREHOUSE });
-        }
-      }
-    }
-    this.landmarks.resize(marks.length);
-    marks.forEach((m, i) => {
-      shipMatrix(this.landmarks.matrices, i, m.x, SILHOUETTE_TOP, -m.y, 0, 1);
-      this.landmarks.setColor(i, m.color);
-    });
-    this.landmarks.commit();
-  }
-
-  /** Landmark markers drawn (far LOD). */
+  /** Landmark blocks (warehouses, shipyards) drawn on the islands shown at far LOD. */
   landmarkCount(): number {
-    return this.landmarks.size();
+    if (this.lod !== "far") return 0;
+    let n = 0;
+    for (const [id, s] of this.silhouettes) if (this.visible.has(id)) n += s.blocks.landmarks();
+    return n;
   }
 
   /** Anchor point of an island's legs and route ribbons (its first berth, else its centre). */
