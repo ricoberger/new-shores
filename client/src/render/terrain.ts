@@ -41,6 +41,8 @@ export const FAR_PROFILE: readonly ProfileRing[] = [
   { out: 0.36, y: -0.7, color: c3(ISLAND.cliff_foot), jitter: 0 },
 ];
 
+/** Share of the local radius of curvature a slab ring may reach on the curve's inner side. */
+const CURVE_SHARE = 0.8;
 /** Upward tilt added to the slab's steep face normals (stylised soft lighting of the cliffs). */
 const UP_TILT = 0.55;
 /** Height of the sea surface: the slab's cliffs drop from the ground (0) to below it. */
@@ -101,6 +103,35 @@ export function groundColor(terrain: Terrain | undefined, x: number, y: number, 
   }
 }
 
+/** Outward normals of a loop averaged over ±w points (weights w+1−|d|): steps and kinks blend into their neighbours. */
+export function smoothNormals(loop: CoastLoop, w: number): { x: number; y: number }[] {
+  const n = loop.length;
+  const normals = loop.map((_, k) => outwardNormal(loop, k));
+  return normals.map((_, k) => {
+    let x = 0;
+    let y = 0;
+    for (let d = -w; d <= w; d++) {
+      const q = normals[(k + d + n) % n] as { x: number; y: number };
+      const wt = w + 1 - Math.abs(d);
+      x += q.x * wt;
+      y += q.y * wt;
+    }
+    const len = Math.hypot(x, y) || 1;
+    return { x: x / len, y: y / len };
+  });
+}
+
+/**
+ * Stylised: tilts steep normals toward the sky, so cliffs turned away from
+ * the sun keep a readable mid-tone instead of the bare ambient fill.
+ */
+function tilt(n: [number, number, number]): [number, number, number] {
+  if (n[1] >= 0.6) return n;
+  const ny = n[1] + UP_TILT;
+  const l = Math.hypot(n[0], ny, n[2]) || 1;
+  return [n[0] / l, ny / l, n[2] / l];
+}
+
 /** Mesh data under construction (positions, colours, normals, indices) with shared vertices by key. */
 export class Builder {
   positions: number[] = [];
@@ -126,34 +157,16 @@ export class Builder {
     this.indices.push(a, b, c);
   }
 
-  /** A flat-shaded triangle (own vertices, the face normal turned toward `toward`). */
-  flat(p: readonly [number, number, number][], cols: readonly Color3[], toward: [number, number, number]): void {
-    const [a, b, c] = p as [[number, number, number], [number, number, number], [number, number, number]];
-    const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
-    const vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
-    let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
-    const len = Math.hypot(nx, ny, nz);
-    if (len < 1e-9) return;
-    const s = nx * toward[0] + ny * toward[1] + nz * toward[2] < 0 ? -1 / len : 1 / len;
-    nx *= s;
-    ny *= s;
-    nz *= s;
-    // Stylised: tilt steep faces toward the sky, so cliffs turned away from
-    // the sun keep a readable mid-tone instead of the bare ambient fill.
-    if (ny < 0.6) {
-      ny += UP_TILT;
-      const l = Math.hypot(nx, ny, nz);
-      nx /= l;
-      ny /= l;
-      nz /= l;
-    }
+  /** A triangle with its own vertices, colours and normals (normals are tilted toward the sky like flat()). */
+  shaded(p: readonly [number, number, number][], cols: readonly Color3[], normals: readonly [number, number, number][]): void {
     for (let k = 0; k < 3; k++) {
       const q = p[k] as [number, number, number];
       const col = cols[k] as Color3;
+      const n = tilt(normals[k] as [number, number, number]);
       this.indices.push(this.positions.length / 3);
       this.positions.push(q[0], q[1], q[2]);
       this.colors.push(col.r, col.g, col.b, 1);
-      this.normals.push(nx, ny, nz);
+      this.normals.push(n[0], n[1], n[2]);
     }
   }
 
@@ -251,22 +264,48 @@ export interface ProfileRing {
 export function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: Color3) => Color3, profile: readonly ProfileRing[] = PROFILE, topRings = 2): void {
   const n = loop.length;
   if (n < 3) return;
-  const rings: { pts: [number, number, number][]; out: [number, number, number] }[] = [];
+  const rings: { pts: [number, number, number][] }[] = [];
   // Outward normals averaged over neighbours, so that the rings of tight
-  // concave corners fan instead of folding over each other.
-  const normals = loop.map((_, k) => outwardNormal(loop, k));
-  const smooth = normals.map((_, k) => {
-    let x = 0;
-    let y = 0;
-    for (let d = -2; d <= 2; d++) {
-      const q = normals[(k + d + n) % n] as { x: number; y: number };
-      const w = 3 - Math.abs(d);
-      x += q.x * w;
-      y += q.y * w;
-    }
-    const len = Math.hypot(x, y) || 1;
-    return { x: x / len, y: y / len };
-  });
+  // concave corners fan instead of folding over each other; the shading
+  // normals averaged wider (±4 points), so a short step of the coast (a
+  // one-tile notch) shades like its neighbours instead of as an isolated
+  // face turned away from the sun.
+  const smooth = smoothNormals(loop, 2);
+  const shadeN = smoothNormals(loop, 4);
+  // Clamp the offsets where the coast curves tighter than they reach: at
+  // an inward corner (curving toward the water) the outward rings would
+  // fold over each other into dark interpenetrating faces, at an outward
+  // corner the inland rim would. Each point's offsets on that side are
+  // limited to a share of the local radius of curvature (smoothed along
+  // the loop so the clamp blends in).
+  const maxOut = Math.max(...profile.map((r) => r.out)) * 1.25;
+  const maxIn = Math.max(0, ...profile.map((r) => -r.out));
+  const pt = (k: number) => loop[((k % n) + n) % n] as CoastLoop[number];
+  const rawOut: number[] = [];
+  const rawIn: number[] = [];
+  for (let k = 0; k < n; k++) {
+    const a0 = pt(k - 2);
+    const a1 = pt(k);
+    const a2 = pt(k + 2);
+    const ax = a1.x - a0.x;
+    const ay = a1.y - a0.y;
+    const bx = a2.x - a1.x;
+    const by = a2.y - a1.y;
+    const la = Math.hypot(ax, ay) || 1;
+    const lb = Math.hypot(bx, by) || 1;
+    const theta = Math.atan2(ax * by - ay * bx, ax * bx + ay * by);
+    const o = smooth[k] as { x: number; y: number };
+    const toward = (bx / lb - ax / la) * o.x + (by / lb - ay / la) * o.y;
+    const radius = (la + lb) / 2 / Math.max(1e-6, Math.abs(theta));
+    const limit = CURVE_SHARE * radius;
+    rawOut.push(toward > 0 && maxOut > limit ? limit / maxOut : 1);
+    rawIn.push(toward < 0 && maxIn > limit ? limit / maxIn : 1);
+  }
+  const window = (arr: number[], k: number) => {
+    let m = 1;
+    for (let d = -3; d <= 3; d++) m = Math.min(m, arr[((k + d) % n + n) % n] as number);
+    return m;
+  };
   let along = 0;
   for (let k = 0; k < n; k++) {
     const p = loop[k] as CoastLoop[number];
@@ -276,25 +315,42 @@ export function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: C
     }
     const o = smooth[k] as { x: number; y: number };
     const wobble = fbm(along / 2.5, seed % 97, seed) * 2 - 1;
-    const reach = 1 + 0.25 * (fbm(along / 4 + 17, seed % 53, seed + 3) * 2 - 1);
+    const reach = (1 + 0.25 * (fbm(along / 4 + 17, seed % 53, seed + 3) * 2 - 1)) * window(rawOut, k);
+    const inland = window(rawIn, k);
     const pts = profile.map((r): [number, number, number] => {
-      const out = r.out > 0 ? r.out * reach : r.out;
+      const out = r.out > 0 ? r.out * reach : r.out * inland;
       return [p.x + o.x * out, r.y + r.jitter * wobble, -(p.y + o.y * out)];
     });
-    rings.push({ pts, out: [o.x, 0.35, -o.y] });
+    rings.push({ pts });
   }
   const cols = profile.map((r) => tint(r.color));
+  // Per band, the normal of its slope in the (outward, up) plane: a wall is
+  // horizontal, a ledge points up; around the loop it turns with the
+  // smoothed outward direction (bands keep their flat colours).
+  const band = profile.slice(0, -1).map((r, s) => {
+    const next = profile[s + 1] as ProfileRing;
+    const dout = Math.max(0, next.out - r.out);
+    const dy = r.y - next.y;
+    const l = Math.hypot(dout, dy) || 1;
+    return { h: dy / l, v: dout / l };
+  });
+  const normalAt = (k: number, s: number): [number, number, number] => {
+    if (s < topRings) return [0, 1, 0];
+    const o = shadeN[k % n] as { x: number; y: number };
+    const bn = band[s] as { h: number; v: number };
+    return [o.x * bn.h, bn.v, -o.y * bn.h];
+  };
   for (let k = 0; k < n; k++) {
+    const k2 = (k + 1) % n;
     const a = rings[k] as (typeof rings)[number];
-    const c = rings[(k + 1) % n] as (typeof rings)[number];
-    const toward: [number, number, number] = [a.out[0] + c.out[0], 0.7, a.out[2] + c.out[2]];
+    const c = rings[k2] as (typeof rings)[number];
     for (let s = 0; s + 1 < profile.length; s++) {
       const ca = cols[s] as Color3;
       const cb = cols[s + 1] as Color3;
-      const top = s < topRings;
-      const dir: [number, number, number] = top ? [0, 1, 0] : toward;
-      b.flat([a.pts[s] as [number, number, number], c.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number]], [ca, ca, cb], dir);
-      b.flat([a.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number], a.pts[s + 1] as [number, number, number]], [ca, cb, cb], dir);
+      const na = normalAt(k, s);
+      const nc = normalAt(k2, s);
+      b.shaded([a.pts[s] as [number, number, number], c.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number]], [ca, ca, cb], [na, nc, nc]);
+      b.shaded([a.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number], a.pts[s + 1] as [number, number, number]], [ca, cb, cb], [na, nc, na]);
     }
   }
 }
@@ -417,13 +473,14 @@ export class FoamLine {
       if (n < 3) continue;
       const first = positions.length / 3;
       let along = 0;
+      const smooth = smoothNormals(loop, 3);
       for (let k = 0; k <= n; k++) {
         const p = loop[k % n] as CoastLoop[number];
         if (k > 0) {
           const q = loop[k - 1] as CoastLoop[number];
           along += Math.hypot(p.x - q.x, p.y - q.y);
         }
-        const o = outwardNormal(loop, k % n);
+        const o = smooth[k % n] as { x: number; y: number };
         positions.push(p.x + o.x * FOAM_IN, FOAM_Y, -(p.y + o.y * FOAM_IN), p.x + o.x * FOAM_OUT, FOAM_Y, -(p.y + o.y * FOAM_OUT));
         const u = along / 3;
         uvs.push(u, 0, u, 1);
