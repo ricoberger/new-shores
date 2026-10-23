@@ -15,10 +15,18 @@ export type Lod = "near" | "mid" | "far";
 export const NEAR_EXIT_HALF = 30;
 /** mid (or far) → near when the half extent falls below this. */
 export const MID_TO_NEAR_HALF = 27;
-/** near or mid → far when the half extent exceeds this. */
-export const FAR_ENTER_HALF = 48;
-/** far → mid (or near) when the half extent falls below this. */
-export const FAR_EXIT_HALF = 42;
+/**
+ * near or mid → far when the half extent exceeds this: the full models stay
+ * until a 2 × 2 footprint is about 12 px tall on a 412 × 915 phone. Its
+ * ground diagonal (2√2 tiles) projects to 2√2 · sin 30° ≈ 1.41 ortho units,
+ * the screen shows 2 × half of them in 915 CSS px: 1.41 · 915 / (2 · 54)
+ * ≈ 12.0 px (10.5 px at 1280 × 800). The maximum zoom never stays below
+ * 1.1 × this (display/camera.ts FAR_REACH_HALF), so a small world still has
+ * its far-LOD overview. Was 48 / 42 with the block stand-ins.
+ */
+export const FAR_ENTER_HALF = 54;
+/** far → mid (or near) when the half extent falls below this (54 / 47 ≈ 1.15: hysteresis). */
+export const FAR_EXIT_HALF = 47;
 
 /** The level at a half extent with no previous level (first frame, a jump). */
 export function initialLod(half: number): Lod {

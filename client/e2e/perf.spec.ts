@@ -84,8 +84,8 @@ const RUNS: Run[] = [
     fixture: "dense-archipelago-8",
     setup: async (page) => {
       await worldReady(page, "dense1");
-      // Between the dense islands' centres (42, 115) and (132, 35), just below FAR_ENTER_HALF (48).
-      await setCamera(page, { x: 87, y: 75, half: 47 });
+      // Between the dense islands' centres (42, 115) and (132, 35), just below FAR_ENTER_HALF (54).
+      await setCamera(page, { x: 87, y: 75, half: 53 });
       await expectLod(page, "mid");
       await expect.poll(() => page.evaluate(() => window.__newShores!.visibleIslands())).toEqual(expect.arrayContaining(["dense1", "dense2"]));
     },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fitHalfHeight, NEAR_DEFAULT_HALF_HEIGHT } from "./camera";
+import { ELEVATION, fitHalfHeight, NEAR_DEFAULT_HALF_HEIGHT, zoomRange } from "./camera";
 import {
   detailForLod,
   FAR_ENTER_HALF,
@@ -106,5 +106,17 @@ describe("model detail per level", () => {
     expect(detailForLod("near")).toBe("full");
     expect(detailForLod("mid")).toBe("full");
     expect(detailForLod("far")).toBe("lite");
+  });
+});
+
+describe("mid/far boundary", () => {
+  it("keeps the full models until a 2 × 2 footprint is about 12 px tall on a 412 × 915 phone", () => {
+    const px = (half: number, height: number) => (2 * Math.SQRT2 * Math.sin(ELEVATION) * height) / (2 * half);
+    expect(px(FAR_ENTER_HALF, 915)).toBeGreaterThan(11.5);
+    expect(px(FAR_ENTER_HALF, 915)).toBeLessThan(12.5);
+    // A small world (the dev world on a 16:9 desktop fits at ≈ 49) can still be zoomed out to far LOD.
+    for (const aspect of [16 / 9, 1280 / 800, 412 / 915]) {
+      expect(zoomRange({ minX: 0, minY: 0, maxX: DEV_BOUNDS.w, maxY: DEV_BOUNDS.h }, aspect).max).toBeGreaterThan(FAR_ENTER_HALF);
+    }
   });
 });

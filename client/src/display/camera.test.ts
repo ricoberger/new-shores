@@ -3,6 +3,7 @@ import {
   azimuthOf,
   BOUNDS_MARGIN,
   clampView,
+  FAR_REACH_HALF,
   fitHalfHeight,
   footprintScreenFraction,
   groundAtNdc,
@@ -15,6 +16,7 @@ import {
   targetBounds,
   zoomRange,
 } from "./camera";
+import { FAR_ENTER_HALF } from "./lod";
 
 const DEV = { minX: 0, minY: 0, maxX: 112, maxY: 114 };
 
@@ -25,10 +27,14 @@ describe("zoom range", () => {
     expect(f).toBeLessThanOrEqual(0.5);
   });
 
-  it("the maximum fits the whole archipelago; never below the near default", () => {
+  it("the maximum fits the whole archipelago; never below the far-LOD reach", () => {
     const aspect = 1280 / 800;
-    expect(zoomRange(DEV, aspect)).toEqual({ min: MIN_HALF_HEIGHT, max: fitHalfHeight(112, 114, aspect) });
-    expect(zoomRange({ minX: 0, minY: 0, maxX: 4, maxY: 4 }, aspect).max).toBe(NEAR_DEFAULT_HALF_HEIGHT);
+    expect(zoomRange(DEV, 412 / 915)).toEqual({ min: MIN_HALF_HEIGHT, max: fitHalfHeight(112, 114, 412 / 915) });
+    // The dev world fits at ≈ 54.9 on a desktop: the maximum still reaches past the far threshold.
+    expect(zoomRange(DEV, aspect).max).toBe(Math.max(FAR_REACH_HALF, fitHalfHeight(112, 114, aspect)));
+    expect(zoomRange(DEV, 16 / 9).max).toBe(FAR_REACH_HALF);
+    expect(FAR_REACH_HALF).toBeGreaterThan(FAR_ENTER_HALF);
+    expect(zoomRange({ minX: 0, minY: 0, maxX: 4, maxY: 4 }, aspect).max).toBe(FAR_REACH_HALF);
     expect(zoomRange(null, aspect)).toEqual({ min: MIN_HALF_HEIGHT, max: NEAR_DEFAULT_HALF_HEIGHT });
   });
 });
