@@ -86,6 +86,8 @@ export interface TestHook {
   drawCalls(): number;
   /** Meshes created since the renderer started (geometry builds). */
   meshesCreated(): number;
+  /** Triangles drawn in the last frame (shadow passes included). */
+  triangles(): number;
   /** Instance style a ship was drawn with in the last frame ("active" / "unpaid"), null if not drawn. */
   shipStyle(id: number): "active" | "unpaid" | null;
   /** Shipyard construction hulls drawn in the last frame (near LOD). */
@@ -555,6 +557,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         archToScreen: (x, y) => rendererRef.current?.archToClient({ x, y }) ?? nan,
         drawCalls: () => rendererRef.current?.lastDrawCalls() ?? 0,
         meshesCreated: () => rendererRef.current?.meshesCreated() ?? 0,
+        triangles: () => rendererRef.current?.renderStats().triangles ?? 0,
         shipStyle: (id) => rendererRef.current?.shipStyle(id) ?? null,
         constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
         frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0, maxMs: 0 },

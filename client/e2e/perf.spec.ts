@@ -22,17 +22,22 @@ import { expectLod, modelsLoaded, setCamera, showArchipelago, worldReady } from 
 type PerfLod = "near" | "mid" | "far";
 
 /**
- * Default fps floors per LOD (412 × 915 @ 2.625, 4× CPU throttling,
- * headless Chromium with SwiftShader on an Apple M4 Pro). A floor is a
- * regression tripwire relative to a device-validated build, not a
- * target: floor(0.8 × the software fps of that build), median of three
- * runs. Device-validated build: the KayKit restyle (art restyle
- * checkpoint 2), held at a stable 60 fps on an iPhone 15 Pro Max (Safari)
- * at near LOD and zoomed in on the dense fixture, 60 fps on a MacBook Pro
- * M4 Pro. Its software medians: near 19.9, mid 24.8, far 25.5 fps.
- * Re-derive the floors from the next device-validated build.
+ * Default fps floors per LOD (the floored runs below: 412 × 915 @ 2.625,
+ * 4× CPU throttling, headless Chromium with SwiftShader on an Apple M4
+ * Pro). A floor is a regression tripwire relative to a device-validated
+ * build, not a target, and software fps are a proxy only (never thin the
+ * look to raise them): floor(0.8 × the software fps of that build),
+ * median of three runs.
+ *
+ * Device baseline (2026-10-23): iPhone 15 Pro Max, Safari — a stable
+ * 60 fps at near LOD and zoomed in on dense-2x400 with the full models
+ * (MacBook Pro M4 Pro the same); the only visible drops were the
+ * model/stand-in swap hitches, since removed. This build: the full
+ * models at near and mid, the lite ones at far, no geometry built on
+ * zoom. Its software medians: near 5.2, mid 1.9, far 5.9 fps (GPU: 60 at
+ * every LOD). Re-derive the floors from the next device-validated build.
  */
-export const DEFAULT_PERF_MIN_FPS: Readonly<Record<PerfLod, number>> = { near: 15, mid: 19, far: 20 };
+export const DEFAULT_PERF_MIN_FPS: Readonly<Record<PerfLod, number>> = { near: 4, mid: 1, far: 4 };
 
 /**
  * The floor in force for a LOD: the PERF_MIN_FPS environment variable
@@ -58,30 +63,28 @@ const SAMPLE_MS = 5_000;
 interface Run {
   lod: PerfLod;
   fixture: string;
+  /** The run whose fps the LOD's floor guards (the others are measured and logged only). */
+  floor: boolean;
   setup: (page: Page) => Promise<void>;
 }
 
+const nearOnDense = async (page: Page) => {
+  await worldReady(page, "dense1");
+  await expectLod(page, "near");
+};
+const farOfAll = async (page: Page, islands: number) => {
+  await worldReady(page, "dense1");
+  await showArchipelago(page);
+  await expect.poll(() => page.evaluate(() => window.__newShores!.visibleIslands().length)).toBe(islands);
+};
+
 const RUNS: Run[] = [
-  {
-    lod: "near",
-    fixture: "dense-2x400",
-    setup: async (page) => {
-      await worldReady(page, "dense1");
-      await expectLod(page, "near");
-    },
-  },
-  {
-    lod: "far",
-    fixture: "dense-archipelago-8",
-    setup: async (page) => {
-      await worldReady(page, "dense1");
-      await showArchipelago(page);
-      await expect.poll(() => page.evaluate(() => window.__newShores!.visibleIslands().length)).toBe(8);
-    },
-  },
+  { lod: "near", fixture: "dense-2x400", floor: true, setup: nearOnDense },
+  { lod: "far", fixture: "dense-archipelago-8", floor: true, setup: (page) => farOfAll(page, 8) },
   {
     lod: "mid",
     fixture: "dense-archipelago-8",
+    floor: true,
     setup: async (page) => {
       await worldReady(page, "dense1");
       // Between the dense islands' centres (42, 115) and (132, 35), just below FAR_ENTER_HALF (54).
@@ -90,6 +93,20 @@ const RUNS: Run[] = [
       await expect.poll(() => page.evaluate(() => window.__newShores!.visibleIslands())).toEqual(expect.arrayContaining(["dense1", "dense2"]));
     },
   },
+  // Measured only: the other LODs of each fixture.
+  { lod: "near", fixture: "dense-archipelago-8", floor: false, setup: nearOnDense },
+  {
+    lod: "mid",
+    fixture: "dense-2x400",
+    floor: false,
+    setup: async (page) => {
+      await worldReady(page, "dense1");
+      // The dense island's centre, just below FAR_ENTER_HALF.
+      await setCamera(page, { x: 32, y: 24, half: 53 });
+      await expectLod(page, "mid");
+    },
+  },
+  { lod: "far", fixture: "dense-2x400", floor: false, setup: (page) => farOfAll(page, 2) },
 ];
 
 interface Config {
@@ -169,8 +186,10 @@ async function measure(browser: Browser, c: Config, run: Run) {
 
   await page.waitForTimeout(SETTLE_MS);
   let drawCalls = 0;
+  let triangles = 0;
   for (let i = 0; i < 5; i++) {
     drawCalls = Math.max(drawCalls, await page.evaluate(() => window.__newShores!.drawCalls()));
+    triangles = Math.max(triangles, await page.evaluate(() => window.__newShores!.triangles()));
     await page.waitForTimeout(SAMPLE_MS / 5);
   }
   const frames = await page.evaluate((ms) => window.__newShores!.frameStats(ms), SAMPLE_MS);
@@ -189,7 +208,7 @@ async function measure(browser: Browser, c: Config, run: Run) {
   const visible = await page.evaluate(() => window.__newShores!.visibleIslands());
   const assets = await page.evaluate(() => window.__newShores!.assets());
   await context.close();
-  return { ...payload, ttfiMs, drawCalls, frames, heapBytes, renderer, renderScale, lod, visible, glbBytes: assets.bytes, firstModelMs: assets.firstModelMs, models: assets.loaded.length };
+  return { ...payload, ttfiMs, drawCalls, triangles, frames, heapBytes, renderer, renderScale, lod, visible, glbBytes: assets.bytes, firstModelMs: assets.firstModelMs, models: assets.loaded.length };
 }
 
 test.describe.configure({ mode: "serial" });
@@ -202,12 +221,14 @@ for (const run of RUNS) {
       const bundle = bundleSizes();
       console.log(
         `PERF ${run.lod} ${run.fixture} ${c.name} ${JSON.stringify({
-          minFps: c.check ? perfMinFps(run.lod) : null,
+          minFps: c.check && run.floor ? perfMinFps(run.lod) : null,
           fps: Number(r.frames.fps.toFixed(1)),
           avgMs: Number(r.frames.avgMs.toFixed(1)),
           p95Ms: Number(r.frames.p95Ms.toFixed(1)),
+          maxMs: Number(r.frames.maxMs.toFixed(1)),
           frames: r.frames.frames,
           drawCalls: r.drawCalls,
+          triangles: r.triangles,
           heapMB: Number((r.heapBytes / 1024 / 1024).toFixed(1)),
           ttfiMs: Math.round(r.ttfiMs),
           glbBytes: r.glbBytes,
@@ -227,7 +248,7 @@ for (const run of RUNS) {
       expect(r.heapBytes).toBeLessThan(MAX_HEAP_BYTES);
       expect(r.drawCalls).toBeGreaterThan(0);
       expect(r.drawCalls).toBeLessThanOrEqual(MAX_DRAW_CALLS);
-      if (c.check && process.env.PERF_GPU !== "1") expect(r.frames.fps).toBeGreaterThanOrEqual(perfMinFps(run.lod));
+      if (c.check && run.floor && process.env.PERF_GPU !== "1") expect(r.frames.fps).toBeGreaterThanOrEqual(perfMinFps(run.lod));
     });
   }
 }

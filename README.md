@@ -211,10 +211,14 @@ service before the servers start.
 - **Perf floors:** a floor is a regression tripwire relative to a
   device-validated build, not a target. Per LOD it is
   `floor(0.8 × software fps of the device-validated build)` (median of
-  three runs of the 412 × 915 line on an Apple M4 Pro); the build, the
-  device and its readings are recorded at `DEFAULT_PERF_MIN_FPS` in
-  `client/e2e/perf.spec.ts`. When a new build is validated on the device,
-  re-measure and reset the floors.
+  three runs of the floored 412 × 915 line on an Apple M4 Pro); the
+  build, the device baseline (model, readings, date) and the medians are
+  recorded at `DEFAULT_PERF_MIN_FPS` in `client/e2e/perf.spec.ts`.
+  Software WebGL fps are a proxy only: the device decides, so never thin
+  the look to raise them. When a new build is validated on the device,
+  re-measure and reset the floors. The other runs (each LOD on both dense
+  fixtures) and the zoom sweep (no geometry built on zoom; worst frame)
+  are measured and logged.
 - **Perf threshold on slower machines:** software WebGL is CPU-bound, so
   the default floors (Apple M4 Pro) can be too high elsewhere. Do not
   disable the check; read the lowest `"fps"` of the `PERF … 412x915@2.625`
