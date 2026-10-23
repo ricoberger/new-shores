@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { camera, expectFocused, expectLod, freeCanvasPoint, islandPoint, islandTapPoint, type Lod, lod, modelsLoaded, shipPoint, worldReady } from "./archipelago";
+import { camera, expectFocused, expectLod, freeCanvasPoint, islandPoint, islandTapPoint, type Lod, lod, modelsLoaded, setCamera, shipPoint, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
 import {
   ISLAND,
@@ -249,6 +249,13 @@ test("a touch gesture begun during a jump stays ignored after it, also when a dr
   await page.goto("/?fixture=dense-2x400");
   await worldReady(page, DENSE);
   // The models have loaded and merged (no main-thread work left that could outlast the jump).
+  await modelsLoaded(page);
+  // Start over the sea beside the small second island: the frames of the
+  // jump stay cheap, so the 350 ms animation outlasts the three touch
+  // events on a software renderer too (the dense town at full detail
+  // takes ~200 ms a frame there).
+  const d2 = await page.evaluate(() => window.__newShores!.getServer()!.display.islands.find((is) => is.id === "dense2")!);
+  await setCamera(page, { x: d2.position.x - 12, y: d2.position.y + d2.height / 2, half: 18 });
   await modelsLoaded(page);
   await page.waitForTimeout(300);
   const c = await freeCanvasPoint(page);
@@ -500,8 +507,14 @@ test("sheet snaps by its handle; sheet, HUD and build-bar drags never move the c
 test("drag an idle ship onto another island, or Send to… and tap, opens the shipment dialog", async ({ page }) => {
   await page.goto("/?fixture=archipelago-8x20");
   await worldReady(page, "isle1");
+  // Every island is drawn with its models at far LOD, so a software
+  // renderer is slow here and every touch event waits for a frame: let the
+  // models load first and leave the touch slop with the first move (in
+  // small steps the browser holds the touch long enough to cancel it as a
+  // long press).
+  await modelsLoaded(page);
   const idle = 4; // idle at isle2
-  await touch.drag(await shipPoint(page, idle), await islandTapPoint(page, "isle1"), 16);
+  await touch.drag(await shipPoint(page, idle), await islandTapPoint(page, "isle1"), 4);
   await expect(page.getByTestId("shipment-dialog")).toBeVisible();
   await expect(page.getByTestId("shipment-dest")).toHaveValue("isle1");
   await page.keyboard.press("Escape");
