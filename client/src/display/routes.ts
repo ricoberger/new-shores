@@ -68,3 +68,30 @@ export function createdRouteId(before: readonly RouteDisplay[], after: readonly 
   const added = after.filter((r) => !known.has(r.id)).map((r) => r.id);
   return added.length > 0 ? Math.max(...added) : null;
 }
+
+/** A route ribbon to draw: its key, stops (island IDs), colour slot (route order; -1: the draft) and emphasis. */
+export interface Ribbon {
+  key: string;
+  stops: string[];
+  colorIndex: number;
+  /** Bright (the selected ship's or the edited route, the draft) or faint (the other routes while editing). */
+  bright: boolean;
+}
+
+/**
+ * Which route ribbons are drawn (polish pass): none by default; the
+ * selected ship's route (`highlight`, bright) when a ship is selected;
+ * while the route editor is open (`draft` non-null, possibly without
+ * stops yet) every route faintly, the edited one and the draft bright.
+ * Ships are drawn regardless.
+ */
+export function ribbonsShown(routes: readonly RouteDisplay[], highlight: number | null, draft: readonly string[] | null): Ribbon[] {
+  const editing = draft !== null;
+  const out: Ribbon[] = [];
+  routes.forEach((r, i) => {
+    if (!editing && r.id !== highlight) return;
+    out.push({ key: `route_${r.id}`, stops: r.stops.map((s) => s.island_id), colorIndex: i, bright: r.id === highlight });
+  });
+  if (draft && draft.length > 0) out.push({ key: "draft", stops: [...draft], colorIndex: -1, bright: true });
+  return out;
+}

@@ -1,6 +1,8 @@
 // World layers of the continuous world (D-048): the sea with a haze toward
-// its edges and, at every LOD, the ships, route ribbons with
-// direction arrows and the selection ring. Scene coordinates are
+// its edges and, at every LOD, the ships, the selection ring and route
+// ribbons with direction arrows — only for the selected ship's route or,
+// while the route editor is open, every route (display/routes.ts
+// ribbonsShown). Scene coordinates are
 // archipelago coordinates (tile (x, y) is world (x, 0, −y); archipelago
 // tiles equal island tiles). Everything is a view of the display payload
 // (D-027): ship positions are lerps of server leg timestamps between the
@@ -17,6 +19,7 @@ import type { Island, IslandDisplay, RouteDisplay, ShipDisplay } from "../api/cl
 import type { Rect } from "../display/camera";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
+import { ribbonsShown } from "../display/routes";
 import { anchorSlots, type ArchPoint, berthAnchor, type Berths, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
@@ -227,7 +230,7 @@ export class ArchipelagoLayer {
     setHazeGeometry(this.haze, grow(HAZE_INNER), grow(m), SEA_LEVEL + 0.01);
   }
 
-  /** Stops of the route being edited (island IDs), drawn live; null hides the draft. */
+  /** Stops of the route being edited (island IDs), drawn live; non-null (also empty) means the editor is open: every route shows. null: closed. */
   setDraft(stops: readonly string[] | null): void {
     const next = stops ? [...stops] : null;
     if (JSON.stringify(next) === JSON.stringify(this.draft)) return;
@@ -235,7 +238,7 @@ export class ArchipelagoLayer {
     this.rebuildRoutes();
   }
 
-  /** The highlighted route (the selected ship's or the edited one). */
+  /** The highlighted route (the selected ship's or the edited one); without one and outside the editor no ribbon is drawn. */
   setHighlight(routeId: number | null): void {
     if (routeId === this.highlight) return;
     this.highlight = routeId;
@@ -263,13 +266,10 @@ export class ArchipelagoLayer {
   }
 
   private rebuildRoutes(): void {
-    const lines: { key: string; stops: string[]; color: Color3; bright: boolean }[] = this.routes.map((r, i) => ({
-      key: `route_${r.id}`,
-      stops: r.stops.map((s) => s.island_id),
-      color: ROUTE_COLORS[i % ROUTE_COLORS.length] as Color3,
-      bright: r.id === this.highlight,
+    const lines = ribbonsShown(this.routes, this.highlight, this.draft).map((r) => ({
+      ...r,
+      color: r.colorIndex < 0 ? DRAFT_COLOR : (ROUTE_COLORS[r.colorIndex % ROUTE_COLORS.length] as Color3),
     }));
-    if (this.draft && this.draft.length > 0) lines.push({ key: "draft", stops: this.draft, color: DRAFT_COLOR, bright: true });
     const keep = new Set<string>();
     const arrows: { x: number; y: number; heading: number; bright: boolean }[] = [];
     const anyBright = lines.some((l) => l.bright);
@@ -290,11 +290,10 @@ export class ArchipelagoLayer {
         this.routeLines.set(l.key, line);
       }
       line.color = l.color;
-      // The highlighted route is bright, others are dimmer (all bright
-      // when nothing is highlighted would hide the highlight's meaning).
+      // The highlighted route is bright, the others (editor open) faint.
       const dim = anyBright && !l.bright;
       line.material.emissiveColor = dim ? l.color.scale(0.45) : l.color;
-      line.material.alpha = dim ? 0.55 : 1;
+      line.material.alpha = dim ? 0.45 : 1;
       for (let i = 0; i < pts.length; i++) {
         const a = pts[i] as ArchPoint;
         const b = pts[(i + 1) % pts.length] as ArchPoint;
