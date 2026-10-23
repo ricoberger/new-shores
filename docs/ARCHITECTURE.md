@@ -358,11 +358,20 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   CDN. A `visual` Playwright project keeps per-platform screenshot
   baselines (2 % tolerance; a missing baseline is written and the
   comparison skipped, so a new platform needs two runs).
-- **Perf guard:** a Playwright `perf` project renders the dense fixture
-  under 4× CPU throttling at 412 × 915 and fails below `PERF_MIN_FPS`
-  (default 27 = 0.8 × the fps measured on the reference machine; the CI
-  runner, which rasterises in software, uses its own calibrated value),
-  above 400 MB JS heap or above 40 draw calls.
+- **Perf guard:** a Playwright `perf` project renders the dense fixtures
+  under 4× CPU throttling at 412 × 915 on software WebGL. Per-LOD fps
+  floors are 0.8 × the software fps of the **device-validated** build
+  (iPhone 15 Pro Max at 60 fps; currently near 4, mid 1, far 4) — a
+  regression tripwire, not a target; `PERF_MIN_FPS` overrides them and CI
+  sets it to 1 (render sanity). The real automated assertions are the JS
+  heap ceiling (400 MB), the draw-call ceilings and "zero meshes created
+  during a zoom sweep". fps are validated manually on the baseline device
+  at each art gate (ART_DIRECTION §8).
+- **Dev reset:** `POST /api/v1/dev/reset` (dev mode only; 404 otherwise;
+  not in the OpenAPI contract) reseeds the in-memory world from a named
+  fixture (`default`, `town`, `settled`), clears pending dev events and
+  publishes; every e2e spec that mutates the world calls it in
+  `beforeAll`, so specs are independent of order and runner speed.
 
 ## 5a. Asset pipeline (art task 3)
 
@@ -370,9 +379,11 @@ See ART_DIRECTION §7 for the rules. Mechanically: `assets/recipes/*.json`
 (data) + `assets/build/` (Python, runs inside Blender 5.2 headless) →
 `client/public/models/*.glb` + `manifest.json` (committed) → the client's
 model registry (`client/src/render/models.ts`, `@babylonjs/loaders` glTF)
-builds merged per-chunk meshes with variant selection by building ID and
-falls back to procedural placeholders for IDs without a model (none at
-present; the `showcase` fixture asserts it). Kits are inputs only
+builds merged per-chunk meshes (full and lite tiers, built once, toggled
+by LOD) with variant selection by building ID and falls back to
+procedural placeholders for IDs without a model (none at present; the
+`showcase` fixture asserts it). Kits in use: KayKit Medieval Hexagon,
+KayKit Forest Nature, Quaternius Pirate Kit (D-050). Kits are inputs only
 (`assets/kits/`, git-ignored, sha256-pinned in `MANIFEST.json`). `make
 assets-check` proves reproducibility locally; CI skips it when Blender is
 absent and runs the Python tests instead.

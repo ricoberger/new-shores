@@ -142,6 +142,10 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **Art restyle (D-050) — done (PR #16):** KayKit buildings and nature,
+  AO/two-tone bake, diorama islands, real models at every zoom, perf
+  floors re-based on the iPhone 15 Pro Max, dev reset endpoint for e2e
+  isolation.
 - **Art 3, asset pipeline and models — done (PR #15):** recipe-driven
   Blender build, 31 kit-bashed recipes, lite/full model LOD; see
   ART_DIRECTION §7/§9.
@@ -197,7 +201,9 @@ underneath an already visible game.
   provisional):** 412 × 915 @ 4× CPU throttling with software WebGL
   34 fps (17.5 before optimisation), 27 draw calls, ≈ 20 MB JS heap, TTFI
   ≈ 0.55 s; hardware GL 60 fps (vsync); bundle 443 → 450 kB gzip;
-  Lighthouse accessibility 100. **Real-device measurement still open.**
+  Lighthouse accessibility 100. **Real device (D-050): iPhone 15 Pro Max
+  60 fps at near/mid/far on both dense fixtures with the full KayKit
+  scene (≈ 700 k tris near, 1.6 M mid on the 8-island fixture).**
 - Multi-instance integration test green; ownership and session tests green.
 - Backup + restore of Postgres rehearsed once.
 

@@ -27,15 +27,16 @@ UI shows the same numbers the server uses.
   press begun during a jump is ignored until all fingers lift; wheel and
   pinch are ignored during the jump.
 - **LOD** is a pure function of the half-extent and the previous level
-  (no timers): near → mid above 30, mid → near below 27, → far above 48,
-  far → mid below 42. *Near:* full detail (buildings, roads, fields, carts,
-  status icons); within near, building models switch from **lite** to
-  **full** at a half-extent ≤ 10 and back above 11.5. *Mid:* buildings and fields as merged category-tinted
-  blocks, roads as strips, no carts or status icons. *Far:* the island
-  silhouette with landmark markers, name label and settled badge. Islands
-  outside the frustum are not rendered; ships, route ribbons and the
-  selected ship's ETA badge render at every level (ships ×2 near/mid,
-  ×4 far). The level is exposed to tests via the hook.
+  (no timers): near → mid above 30, mid → near below 27, → far above 54,
+  far → mid below 47 (far begins where a 2×2 footprint is ≈ 12 px tall on
+  a phone). *Near:* full models, roads, fields, carts, status icons,
+  construction hulls, foam. *Mid:* full models, roads and fields, no carts
+  or status icons. *Far:* lite models (≈ 25 %), the same diorama ground,
+  labels and settled badges; unsettled islands desaturated (D-050). All
+  geometry is built once per island; zoom only toggles. Islands outside
+  the frustum are not rendered; ships, route ribbons and the selected
+  ship's ETA badge render at every level (ships ×2 near/mid, ×4 far). The
+  level is exposed to tests via the hook.
 - **Sea and haze:** a scrolling-noise sea plane sized so every viewport
   corner stays on water at the clamped bounds in all rotations, fading into
   a haze colour toward the edge; the clear colour is the haze.

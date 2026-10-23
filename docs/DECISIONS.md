@@ -605,3 +605,39 @@ required_tiles" rule of MECHANICS §2 for farms.
   fields; farm panels show `n / required` on the radius ring.
 - *Rejected:* auto-fill button (hides the puzzle; rectangle drag is enough);
   per-farm private field types (needless content).
+
+## D-050 Chunky stylised look: KayKit lead, baked shading, diorama islands, real models at every zoom
+
+**Decision:** The visual style is **chunky stylised flat-shaded** with
+exaggerated silhouettes: KayKit (Medieval Hexagon, Forest Nature; CC0) is
+the lead kit for buildings and nature, the Quaternius Pirate Kit supplies
+ships and harbour props, the Quaternius Medieval/Nature kits are dropped.
+Richness comes from **ambient occlusion and two-tone shading baked into
+vertex colours** (one palette, no textures). Islands are **dioramas**: the
+coastline is a slab with a layered cliff and sand rim, mountains are
+rounded rock plateaus with a moss cap and boulders, scatter is clustered.
+**Every zoom level shows real models** — full at near and mid, ≈ 25 %
+decimated lite models at far — with no block or treetop stand-ins; all
+geometry for an island is built once and only toggled on zoom.
+Performance is validated on a **baseline device** (iPhone 15 Pro Max:
+60 fps at all LODs on both dense fixtures); the software-WebGL perf
+project keeps per-LOD floors at 0.8 × that build's software fps as a
+regression tripwire, CI's fps check is a render sanity check, and e2e
+specs isolate through a dev-only world reset endpoint.
+
+- *Rationale:* the Quaternius kit-bash came out boxy; KayKit's shape
+  language gives the Siedler/1404 charm the owner wants while staying flat
+  shaded, which keeps consistency and makes future AI- or agent-generated
+  models a cleanup problem (quantise to palette + bake AO), not an art
+  problem. Real devices ran at 60 fps with 3–10× headroom over the
+  software guard, so designing to SwiftShader was the wrong constraint;
+  blocks at far looked bad and lite models keep silhouettes.
+- *Refines:* D-048 (its "mid = blocks, far = silhouette" LOD and
+  "Quaternius lead" are superseded; light, palette, continuous world,
+  HUD rules stay). D-024's "no elevation" still holds for rules; plateaus
+  and the slab are render-only.
+- *Rejected:* textured/PBR materials (consistency, UV/texture work);
+  Anno-Online-style pre-rendered sprites (needs high-detail source art,
+  2.5D renderer); hex grid (different game; D-006's rectangular layout
+  puzzle); block LOD at far (ugly); thinning the look to satisfy the
+  software guard.

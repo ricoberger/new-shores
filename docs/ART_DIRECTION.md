@@ -12,16 +12,20 @@ and terracotta roofs, deep green trees, turquoise shallows over sand turning
 to deep blue, a low warm sun with long soft shadows, and lots of small life
 — carts, people, boats, smoke, gulls.
 
-We cannot match its painterly textures with a flat-shaded kit, so **light
-and colour carry the look, life carries the feeling, detail does not**:
+We cannot match its painterly textures with a flat-shaded kit, so **light,
+colour and silhouette carry the look, life carries the feeling, textured
+detail does not** (D-048, refined by D-050):
 
 1. **Light + colour first.** Strong warm key light, soft shadows, a
    saturated warm palette, water and coast done well; flat-shaded models.
 2. **Life second.** Animated carts, walkers, smoke, sails, gulls, boats —
    every one of them derived from game state, so motion is also feedback.
 3. **No textured detail.** No photo textures, decals or wear maps. Detail
-   comes from silhouette, colour and motion. Hero pieces may go further
-   later (§7).
+   comes from silhouette, colour, baked ambient occlusion and motion.
+4. **Chunky stylised shapes (D-050).** Exaggerated proportions — tall steep
+   roofs, fat chimneys, oversized doors — strong silhouettes, bevelled
+   edges; KayKit's shape language is the lead for buildings and nature.
+   Hero pieces may go further later (§7).
 
 ## 2. Light, palette, time of day
 
@@ -50,6 +54,8 @@ and colour carry the look, life carries the feeling, detail does not**:
 | Water | shallows `#4FB1B0` → deep `#1F5F8B` · foam `#F4F6F0` |
 | Buildings | plaster `#E7D7B8` · ochre `#D9A85E` · timber `#6F4A2E` · thatch `#B98F4F` · terracotta roof `#B5563B` · slate `#5C6670` · stone `#B9B2A4` · brass `#C9A24A` · plus (art task 3) `canvas` (sails), `iron`, `window`, `dye-blue` — exact values in `assets/palette.json` |
 | UI chrome | parchment `#F1E6CC` · dark wood `#4A3421` · brass `#C9A24A` · ink `#2B2117` |
+| Shadows (D-050) | one cooler, lower-value **shadow tone per role** (`shadows` group) used by the AO/two-tone bake; thatch keeps extra chroma in shadow |
+| Island (D-050) | cliff bands (warm rock), sand rim, plateau rock and moss cap, shelf water (`island` group) |
 | Status | keep the current colour-blind-safe set; icons always paired with colour |
 
 ## 3. One continuous world (D-048)
@@ -60,10 +66,14 @@ and colour carry the look, life carries the feeling, detail does not**:
   island tabs become "jump to island" camera moves; a **minimap** (2D
   canvas: island outlines, ship dots, viewport rectangle; tap to jump)
   gives orientation.
-- **Zoom-based LOD** replaces the old view switch: near = full detail and
-  life layer; mid = simplified building blocks, no life; far = the island
-  silhouette with landmark markers and labels (the PR #10 silhouettes).
-  Islands outside the frustum are not rendered.
+- **Zoom-based LOD** replaces the old view switch, and since D-050 every
+  level shows **real models**: near and mid = full models; far = the
+  ≈ 25 % decimated **lite** models (silhouette-preserving, footprint-
+  covering). There are no block or treetop stand-ins. Carts, status icons,
+  construction hulls and foam show at near only. Every island's geometry
+  is built once (both detail tiers) when it first appears; zooming only
+  toggles pre-built meshes — never rebuilds. Islands outside the frustum
+  are not rendered.
 - **Routes** are edited in a panel with island pickers; clicking an island
   in the world while the editor is open still adds it as a stop
   (shortcut). Ship drag-to-send works on the continuous map. Settling
@@ -71,25 +81,37 @@ and colour carry the look, life carries the feeling, detail does not**:
 - The **world map** (other players, offers, expeditions) remains a 2D HTML
   screen (UI.md §5); it is not part of the 3D scene.
 
-## 4. Terrain and water
+## 4. Terrain and water — diorama islands (D-050)
 
 - **Continuous terrain, hidden grid.** The tile grid is not drawn; a
   subtle grid overlay fades in around the cursor (≈ 8 tiles) only while a
-  build/road tool is active. Ground stays **flat** (no elevation).
-- **Coast:** smoothed outline (marching squares over tile edges), a sand
-  beach band, a foam line that moves slowly; low cliffs where mountain
-  meets water.
-- **Grass:** two-tone noise with dry patches; scattered tufts, flowers and
-  small rocks (instanced). **Forest tiles:** instanced trees that thin
-  around buildings and visibly thin inside a lumberjack's work radius.
-  **Mountains/deposits:** low-poly rock meshes with a deposit-specific
-  outcrop colour.
+  build/road/field/move tool is active. Buildable ground stays **flat**.
+- **Slab:** the marching-squares coastline is extruded ≈ 0.6 tile down to
+  the water with a layered, rounded cliff profile in warm rock bands, an
+  AO-darkened underside and a sand rim on top; a coarser five-ring profile
+  at default zoom and far, the full profile when zoomed in (visibility
+  toggle, no rebuild). The foam line follows the slab.
+- **Plateaus:** mountain/deposit clusters rise as 1–2 rounded steps
+  (corners ≥ 0.5 tile) with the cliff profile, a moss cap on top and KayKit
+  crags/boulders along the step edges and on the deposits. Visual only:
+  rules keep mountains unbuildable; mines and quarries stand in a notch.
+- **Grass:** two-tone noise with dry patches. **Scatter** is clustered, not
+  uniform: rocks and bushes in clumps at the coast, forest edges and
+  plateau feet; open grass gets tufts and rare bushes only; everything
+  light with AO only in crevices. **Forest tiles:** KayKit Forest trees
+  (4 species, smooth-shaded), thinned around buildings and roads and
+  visibly thinned inside a lumberjack's radius with cut stumps.
 - **Water:** shallows→deep gradient by distance from the coast, slow noise
-  animation, subtle specular; the sea plane extends past the camera bounds
-  and fades into a warm haze — never a hard edge.
-- **Roads:** proper joins and a light border; dirt vs paved readable.
-- All decoration is **render-only**: it never blocks placement and holds
-  no state.
+  animation, subtle specular, foam line; the sea plane extends past the
+  camera bounds and fades into a warm haze — never a hard edge.
+  Unsettled islands are desaturated (grass blended toward grey, scatter
+  darkened) at far so they read at a glance; near and mid show true
+  colours.
+- **Roads:** continuous strips with joins and a light border; dirt vs paved
+  readable.
+- All decoration is **render-only**: it never blocks placement, holds no
+  state and is never pickable (tile picking is a ray against the ground
+  plane).
 
 ## 5. Scale, camera, life layer
 
@@ -127,65 +149,85 @@ and colour carry the look, life carries the feeling, detail does not**:
   images with text); contrast ≥ 4.5:1; every panel keeps its structure and
   test IDs so the e2e suites stay green; bottom sheets use the same theme.
 
-## 7. Building and ship models — kit-bash by recipe (as built, PR #15)
+## 7. Building and ship models — kit-bash by recipe (D-050, PR #15/#16)
 
-- **Source:** Quaternius *Medieval Village MegaKit* (doors, windows,
-  chimneys, fences, barrels) and *Pirate Kit* (hull `Ship_Small`, dock,
-  sawmill, barrels), CC0. Kit files live under `assets/kits/` (git-ignored;
-  resolved via `NEW_SHORES_KITS_DIR` or a symlink) and are verified by
-  sha256 against the committed `assets/kits/MANIFEST.json`; a missing or
-  changed file fails the build naming it. Most kit wall/roof modules are
-  far too dense for our budgets at 1 tile = 4 m (a 4×4 roof ≈ 2 000 tris),
-  so walls, roofs and most props are **procedural primitives in kit
-  colours**; kit pieces supply the detail. Kit scale factors: Medieval
-  0.25 tiles/m, Pirate 0.25 (hull 0.35 → the sloop is 2.0 tiles long).
-- **Recipes as data:** `assets/recipes/<content_id>.json` (schema in
-  `assets/recipes/schema.json`): parts = kit piece or primitive (box,
-  cylinder, wedge roof, sail, lathe) with transforms in tiles and a palette
-  role; house `variants`, warehouse `levels`, ship data, attachments and
-  anchor points (chimney, door, smoke). Footprints come from content.
+- **Kits (CC0, local, sha256-pinned in `assets/kits/MANIFEST.json`,
+  git-ignored):** **KayKit Medieval Hexagon** is the lead for buildings
+  (complete houses, market, church, tavern, blacksmith, lumbermill,
+  windmill, mine, fences, construction stages, props: crates, barrels,
+  sacks, lumber and stone piles) and **KayKit Forest Nature** for trees,
+  bushes, rocks and grass; the **Quaternius Pirate Kit** supplies the ship
+  hull, dock and harbour props. The Quaternius Medieval and Nature kits
+  are no longer used. Kits resolve via `NEW_SHORES_KITS_DIR` or a
+  git-ignored `assets/kits` symlink; a missing or changed file fails the
+  build naming it.
+- **Colour mapping:** KayKit's 1024² gradient atlas is a grid of cells;
+  every UV triangle lies inside one cell, so faces are classified by cell
+  and gradient position and mapped to palette roles (walls → plaster,
+  timber frame → timber, team-colour cell → roof role per tier: thatch
+  for Settlers, terracotta for Citizens). The Pirate atlas is sampled per
+  face and snapped to named swatches. Only the blue KayKit files are used;
+  roofs are recoloured per recipe. Kit buildings face −y and are turned
+  180° (ours face +y).
+- **Richness without textures:** **ambient occlusion baked into vertex
+  colours**, darkening toward a cooler per-role shadow tone (`shadows`
+  palette group); **two-tone** lit/shadow hues; thatch normals tilted
+  toward up and extra chroma in shadow so sun-averted thatch slopes stay
+  warm; bevels on procedural parts; per-instance colour jitter on houses.
+- **Recipes as data:** `assets/recipes/<content_id>.json` (schema
+  `assets/recipes/schema.json`): whole kit buildings (`kit_building`), kit
+  pieces, procedural primitives (box, cylinder, wedge roof, sail, lathe)
+  with transforms in tiles and palette roles; exaggeration helpers (roof
+  ×1.3, chimney ×1.5); house `variants`, warehouse `levels`, ship data,
+  attachments, anchor points. Footprints come from content. Mapping used:
+  houses ← `home_A/B`, market ← `market`, chapel ← `church`, tavern ←
+  `tavern`, lumberjack/sawmill ← `lumbermill`, mill ← `windmill`,
+  smelter/toolmaker ← `blacksmith`, quarry/iron_mine ← `mine`, farms ←
+  `home` + fences + yard props, warehouse ← procedural barn + props,
+  shipyard ← procedural slipway + Pirate hull + `scaffolding`, fisher ←
+  hut + Pirate dock. Fields: pasture (fence + sheep), wheat (chunky rows),
+  orchard_plot (small tree), hemp (rows).
 - **Build:** `npm run assets` / `make assets` runs Blender 5.2 headless
-  (`assets/build/`): import, palette mapping (kit material slots → roles;
-  Pirate atlas faces snapped to named swatches), simplification, merge,
-  origin at the footprint's ground centre, validation (footprint fit
-  ±0.3 tiles, triangle budgets, palette-only colours), export by our own
-  deterministic GLB writer (one mesh, POSITION/NORMAL/COLOR_0, no UVs or
-  textures) to `client/public/models/` plus `manifest.json`, and contact
-  sheets to `assets/build/out/`. `make assets-check` rebuilds into a temp
-  dir and compares (skipped on CI without Blender); `make assets-test`
-  runs the Python tests. **GLBs and manifest are committed**, so the client
-  builds without Blender or the kits.
-- **Budgets:** ≤ 1 500 tris per building, ≤ 400 per house, ≤ 60 per field,
-  1 500 for the sloop + 150 cargo; warehouse, shipyard, chapel and market
-  may go ×2 (not needed so far). Each building also has a **lite** model
-  (~20–30 % of the budget) that must still cover its footprint and keep
-  its tier language and signature prop.
+  (`assets/build/`): import, cell/atlas → palette mapping, decimation of
+  heavy pieces, merge, AO bake, origin at the footprint's ground centre,
+  validation (footprint fit ±0.3 tiles, triangle budgets, palette-only
+  colours), export by our deterministic GLB writer (one mesh,
+  POSITION/NORMAL/COLOR_0, no UVs/textures) to `client/public/models/` +
+  `manifest.json`, contact sheets to `assets/build/out/`. A **lite** model
+  per recipe is generated by decimation to ≈ 25 % (stepping up through
+  35/50/70/100 % until the footprint check passes; ≥ 150 tris) — this is
+  the far-zoom tier. `make assets-check` rebuilds into a temp dir and
+  compares (skipped on CI without Blender); `make assets-test` runs the
+  Python tests. GLBs and manifest are committed (5.3 MiB of an 8 MiB
+  ceiling) so the client builds without Blender or the kits.
+- **Budgets:** ≤ 6 000 tris per building, ≤ 2 500 per house, ≤ 300 per
+  field, sloop 1 500 + 150 cargo; houses' lite ≈ 120 tris, production
+  buildings' lite 14–25 % of full. Hero exceptions ×2 if ever needed.
 - **Fidelity rules:** fill the footprint within ±0.3 tiles; front toward
   +y at rotation 0 (visual only, D-042); one material (vertex colours).
 - **Tier language:** Settlers = timber frame + thatch, single storey;
-  Citizens = plaster + terracotta tiles, 1½–2 storeys; Merchants = stone
-  ground floor, gables, slate; Patricians = dressed stone, ornament,
-  towers. Houses get 3 variants per tier chosen by building-ID hash.
-- **Signature prop** per production building (sawmill blade + log pile,
-  drying nets + boat, dyed cloth lines, tall chimney, oven dome, apple
-  barrels, …); farms show a fenced yard and their field type; fields are
-  1×1 models (pasture fence + sheep, wheat rows, orchard trees, hemp rows).
+  Citizens = plaster + terracotta tiles, 1½–2 storeys (home_B + dormer);
+  Merchants = stone ground floor, gables, slate; Patricians = dressed
+  stone, ornament, towers. Houses get 3 variants per tier by building-ID
+  hash. One readable **signature prop** per production building; farms
+  show a fenced yard and their field type.
 - **States:** place = short rise-in (thin instance during the animation);
   paused/unpaid = desaturated tint; not_connected/starved keep the status
-  icon and lose smoke/walkers (task 4).
+  icon and lose smoke/walkers (life layer).
 - **Ships:** sloop from the Pirate hull with procedural sails and bowsprit;
-  cargo crates shown when the cargo list is non-empty; brig/galleon later
-  via mast count and sail scale as recipe data.
-- **Rendering:** models are **merged per 16×16-tile chunk** (one draw call
-  per chunk and layer; measured 2 ms/frame cheaper than thin instances on
-  software WebGL and equal on GPU); **lite ↔ full** switches at a camera
-  half-extent of 10 tiles (full) / 11.5 (back to lite) inside the near LOD;
-  mid/far LOD unchanged. Loaded through `@babylonjs/loaders` (glTF only);
-  66 files ≈ 1.6 MB total, the dense town loads ≈ 125 kB.
-- **Hero pass (later, optional):** church, harbourmaster, theatre,
-  galleon may exceed budgets ×2 and be replaced by hand-made or
-  AI-generated GLBs through the manifest. AI mesh services are a per-asset
-  decision, never part of the default pipeline.
+  cargo crates when the cargo list is non-empty; brig/galleon later via
+  mast count and sail scale as recipe data (KayKit ships if a pack
+  provides them).
+- **Rendering:** models merged per 16×16-tile chunk (one draw call per
+  chunk and layer; thin instances only during rise-in); full chunks at
+  near/mid, lite chunks at far, both built once and toggled. Loaded through
+  `@babylonjs/loaders` (glTF only). Dense town: ≈ 700 k triangles at near,
+  the 8-island archipelago ≈ 1.6 M at mid, 450 k at far — 60 fps on the
+  baseline device.
+- **Hero pass (later, optional):** church, harbourmaster, theatre, galleon
+  may exceed budgets ×2 and be replaced by hand-made or AI-generated GLBs
+  through the manifest after the same quantise-to-palette + AO step. AI
+  mesh services are a per-asset decision, never the default pipeline.
 
 ## 8. Post-processing and sound
 
@@ -198,6 +240,22 @@ and colour carry the look, life carries the feeling, detail does not**:
   depth of field.
 - Sound is a separate later task (ambient sea/gulls, UI clicks, build and
   completion chimes).
+
+### Performance validation (D-050)
+
+- The **baseline device** is the authority: iPhone 15 Pro Max (Safari),
+  plus an M4 Pro MacBook — 60 fps at near, mid and far on both dense
+  fixtures (2026-10-23). Each art gate re-checks on the device via
+  `make preview HOST=<lan-ip>` with the `?stats=1` badge.
+- The Playwright perf project on software WebGL is a **regression
+  tripwire**, not a target: per-LOD floors are 0.8 × the median of three
+  software runs of the device-validated build (currently near 4, mid 1,
+  far 4 fps); heap and draw-call ceilings and the "zero meshes created in
+  a zoom sweep" assertion are the real automated checks. CI runs with
+  `PERF_MIN_FPS=1` (render sanity only).
+- Test isolation: the dev server exposes `POST /api/v1/dev/reset`
+  (dev-only, 404 otherwise) to reseed the in-memory world from a named
+  fixture; every e2e spec that mutates the world resets in `beforeAll`.
 
 ## 9. Task breakdown
 
@@ -214,15 +272,16 @@ and colour carry the look, life carries the feeling, detail does not**:
    (CC BY, Credits dialog). Phone perf at 4× throttling: near 31 fps /
    26 draw calls, mid 33 / 17, far 41 / 15 (thin margin at near — profile
    on a real GPU before adding the life layer). Bundle 454 → 537 kB gzip.
-3. **Asset pipeline + models** — done (PR #15): kit manifest, recipe
-   schema and Blender build with deterministic GLB writer, 31 recipes
-   (25 buildings with variants/levels, 4 fields, sloop + cargo), lite/full
-   model LOD, merged chunks, state tints, rise-in. Phone perf at 4×
-   throttling (software WebGL): near 28.7 fps / 26 draw calls, mid 32 / 18,
-   far 38 / 16 — **≈ 2 fps of margin at near; measure on a real device
-   before task 4 adds the life layer.** GPU runs hold 60 fps.
-4. **Life layer and island dressing** — walkers, smoke, sails, gulls,
-   boats, inhabitants, scattered decoration, budgets in the perf guard.
+3. **Asset pipeline + models** — done (PR #15), **restyled to KayKit and
+   diorama islands (PR #16, D-050)**: kit manifest, recipe schema and
+   Blender build with deterministic GLB writer, AO/two-tone bake, all
+   tier 1–2 recipes + fields + sloop from KayKit/Pirate, slab/plateau/
+   scatter islands, real models at every zoom (lite at far), device-
+   validated perf floors, dev reset endpoint for e2e isolation.
+4. **Life layer and dressing** — walkers, smoke, sails, gulls, boats,
+   inhabitants; KayKit Extra-tier variety (more trees, dead trees,
+   plateau pieces, construction stages); budgets validated on the
+   baseline device.
 
 Each task ships screenshots at the gate; the reviewer compares against
 this document and the reference board (to be added under
