@@ -102,6 +102,8 @@ export interface TestHook {
   ghostTile(): { x: number; y: number } | null;
   /** What the placement ghost drew in the last frame: the building's model, the footprint box (no model yet) or null (hidden). */
   ghostKind(): "model" | "box" | null;
+  /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
+  ghostValidity(): "ok" | "no_road" | "invalid" | null;
   /** Rectangle the field tool's preview showed in the last frame (null: none). */
   fieldPreview(): { from: { x: number; y: number }; to: { x: number; y: number } } | null;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
@@ -567,6 +569,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
         ghostKind: () => rendererRef.current?.ghostKind() ?? null,
+        ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
         gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,

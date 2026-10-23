@@ -171,6 +171,8 @@ export class GameRenderer {
   private readonly ghost: PlacementGhost;
   private lookups = new Map<string, IslandLookups>();
   private lastGhostHint: string | null = null;
+  /** Validity the placement ghost was drawn with in the last frame (null: hidden). */
+  private ghostValid: "ok" | "no_road" | "invalid" | null = null;
   /** The last pointer was a mouse or pen (the ghost follows it, not a touch-pending tile). */
   private precise = false;
   private ghostAt: TilePos | null = null;
@@ -885,6 +887,11 @@ export class GameRenderer {
     return this.ghost.kind();
   }
 
+  /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
+  ghostValidity(): "ok" | "no_road" | "invalid" | null {
+    return this.ghostValid;
+  }
+
   /** Tile the placement ghost was drawn on in the last frame (local to its island; null: hidden). */
   ghostTile(): TilePos | null {
     return this.ghostAt;
@@ -1248,6 +1255,7 @@ export class GameRenderer {
     this.ghostAt = t && pl ? { x: t.x, y: t.y } : null;
     if (!ghostTool || !def || !t || !pl) {
       this.ghost.hide();
+      this.ghostValid = null;
       // The field tool owns the hint (updateFieldPreview).
       if (tool.kind !== "field") this.setGhostHint(null);
       return;
@@ -1260,7 +1268,8 @@ export class GameRenderer {
     } else if (missingDepositHint(def, l?.deposits ?? new Map(), t.x, t.y, tool.rotation)) {
       hint = `Must cover a ${def.requires_deposit ?? ""} deposit`;
     }
-    const color = hint ? GHOST_INVALID : missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation) ? GHOST_NO_ROAD : GHOST;
+    this.ghostValid = hint ? "invalid" : missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation) ? "no_road" : "ok";
+    const color = this.ghostValid === "invalid" ? GHOST_INVALID : this.ghostValid === "no_road" ? GHOST_NO_ROAD : GHOST;
     const moved = tool.kind === "move" ? this.findBuilding(tool.buildingId)?.b : undefined;
     this.ghost.show(
       { def, island: pl.position, x: t.x, y: t.y, rotation: tool.rotation, ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}) },

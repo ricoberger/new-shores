@@ -13,6 +13,7 @@ interface ContentJson {
   tier: string;
   footprint: [number, number];
   field?: { type: string };
+  requires_deposit?: string;
   house?: unknown;
   road?: unknown;
   warehouse?: unknown;
@@ -51,12 +52,13 @@ function overlaps(buildings: readonly BuildingDisplay[], defs: Map<string, Conte
 }
 
 describe("fixtures use the real content", () => {
-  it("define every tier 1–2 building with its content tier, category and footprint", () => {
+  it("define every tier 1–2 building with its content tier, category, footprint and deposit", () => {
     const defs = new Map(fixtureDefs().map((d) => [d.id, d]));
     for (const b of content.filter((c) => c.tier === "settlers" || c.tier === "citizens")) {
       const d = defs.get(b.id);
       expect(d, b.id).toBeDefined();
-      expect({ tier: d!.tier, category: d!.category, w: d!.width, h: d!.height, field: d!.field?.type }).toEqual({
+      expect({ tier: d!.tier, category: d!.category, w: d!.width, h: d!.height, field: d!.field?.type, deposit: d!.requires_deposit }).toEqual({
+        deposit: b.requires_deposit,
         tier: b.tier,
         category: category(b),
         w: b.footprint[0],

@@ -316,15 +316,15 @@ const FIXTURE_DEFS: FixtureDef[] = [
   ["hemp_field", "Hemp field", "citizens", "production", 1, 1, { requires_road: false, field: { type: "hemp_field", terrain: ["grass"] } }],
   ["weaver_linen", "Linen weaver", "citizens", "production", 2, 2],
   ["sailmaker", "Sailmaker", "citizens", "production", 2, 2],
-  ["quarry", "Quarry", "citizens", "production", 3, 3],
-  ["iron_mine", "Iron mine", "citizens", "production", 3, 3],
+  ["quarry", "Quarry", "citizens", "production", 3, 3, { requires_deposit: "stone" }],
+  ["iron_mine", "Iron mine", "citizens", "production", 3, 3, { requires_deposit: "iron" }],
   ["charcoal_burner", "Charcoal burner", "citizens", "production", 2, 2],
   ["smelter", "Smelter", "citizens", "production", 3, 3],
   ["toolmaker", "Toolmaker", "citizens", "production", 2, 2],
 ];
 
 /** The fixture building definitions (exported for the content cross-check). */
-export function fixtureDefs(): { id: string; tier: string; category: string; width: number; height: number; field?: { type: string } }[] {
+export function fixtureDefs(): { id: string; tier: string; category: string; width: number; height: number; field?: { type: string }; requires_deposit?: string }[] {
   return FIXTURE_DEFS.map(([id, name, tier, category, width, height, extra = {}]) => ({
     id,
     name,
