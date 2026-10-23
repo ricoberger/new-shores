@@ -46,6 +46,17 @@ class LiteTest(unittest.TestCase):
         self.assertEqual(loader.ratios, list(config.LITE_RATIOS[:4]))
         self.assertEqual(entry["file"]["lite"]["triangles"], int(816 * 0.7))
 
+    def test_the_lite_tier_can_be_switched_off(self):
+        r = chapel([{"prim": "box", "size": [1.8, 1.8, 0.6], "role": "stone", "name": "nave"}])
+        old = config.LITE_MODELS
+        try:
+            config.LITE_MODELS = False
+            files, entry, errors = pipeline.build_recipe(r, CONTENT, ROLES, fake_loader())
+        finally:
+            config.LITE_MODELS = old
+        self.assertEqual((errors, [f[0] for f in files]), ([], ["chapel.glb"]))
+        self.assertNotIn("lite", entry["file"])
+
     def test_houses_aim_at_the_house_lite_target_first(self):
         ratios = pipeline.lite_ratios(1600, house=True)
         self.assertAlmostEqual(ratios[0], config.LITE_HOUSE_TRIS / 1600)

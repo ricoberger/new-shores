@@ -365,7 +365,7 @@ def build_recipe(recipe, content, roles, kit_loader):
     meta = {}
     for fname, key, groups in outputs(recipe):
         # Every building model gets a generated lite file (fields and ships do not).
-        has_lite = recipe["kind"] == "building" and (key is None or key[0] in ("variant", "level"))
+        has_lite = config.LITE_MODELS and recipe["kind"] == "building" and (key is None or key[0] in ("variant", "level"))
         try:
             mesh, declared = _assemble(cid, groups, kit_loader, kit_used, "full", roles)
             lite = None

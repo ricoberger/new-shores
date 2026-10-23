@@ -220,6 +220,10 @@ DECOR_PREFIX = "decor_"
 #: plinth), never below LITE_MIN_TRIS triangles; then it is validated like
 #: the full model (footprint, palette, export profile) against
 #: LITE_FACTOR × the full budget.
+#: Whether building models get a generated lite file at all. The client
+#: draws the full file where a model has no lite one, so turning this off
+#: drops the lite tier (kept switchable for devices that need it).
+LITE_MODELS = True
 LITE_RATIOS = (0.25, 0.35, 0.5, 0.7, 1.0)
 LITE_MIN_TRIS = 150
 #: Houses (dozens on screen at the default zoom) aim lower: their lite model
