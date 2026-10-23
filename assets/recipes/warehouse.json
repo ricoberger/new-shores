@@ -25,9 +25,15 @@
       {"name": "mid post", "prim": "box", "size": [0.1, 1.86, 0.8], "open": ["bottom", "top"], "position": [-0.75, -0.25, 0.14], "role": "timber", "shade": 0.9, "repeat": {"count": 2, "step": [1.5, 0, 0]}},
       {"name": "corner post", "prim": "box", "size": [0.14, 0.14, 0.86], "open": ["bottom"], "position": [-1.45, 0.65, 0.12], "role": "timber", "shade": 0.8, "repeat": {"count": 2, "step": [2.9, 0, 0]}},
       {"name": "gable", "prim": "wedge", "size": [2.9, 1.8, 0.9], "position": [0, -0.25, 0.96], "role": "plaster", "shade": 0.9},
-      {"name": "roof", "prim": "box", "size": [3.4, 1.748, 0.12], "position": [0, 0.350, 1.400], "rotation": [-42.51, 0, 0], "role": "thatch", "bevel": 0.04},
-      {"name": "roof", "prim": "box", "size": [3.4, 1.748, 0.12], "position": [0, -0.850, 1.400], "rotation": [42.51, 0, 0], "role": "thatch", "bevel": 0.04},
-      {"name": "ridge", "prim": "box", "size": [3.44, 0.16, 0.12], "position": [0, -0.250, 1.960], "role": "thatch", "shade": 0.8, "bevel": 0.03},
+      {"name": "roof boards front", "prim": "box", "size": [3.72, 2.04, 0.05], "position": [0, 0.403, 1.25], "rotation": [-42.51, 0, 0], "role": "timber", "shade": 0.78},
+      {"name": "thatch course front", "prim": "box", "size": [3.52, 0.72, 0.12], "position": [0, -0.055, 1.772], "rotation": [-42.51, 0, 0], "role": "thatch", "shade": 1.2, "bevel": 0.04},
+      {"name": "thatch course front", "prim": "box", "size": [3.56, 0.72, 0.14], "position": [0, 0.455, 1.337], "rotation": [-42.51, 0, 0], "role": "thatch", "shade": 0.98, "bevel": 0.04},
+      {"name": "thatch course front", "prim": "box", "size": [3.6, 0.72, 0.16], "position": [0, 0.929, 0.937], "rotation": [-42.51, 0, 0], "role": "thatch", "shade": 1.14, "bevel": 0.04},
+      {"name": "roof boards back", "prim": "box", "size": [3.72, 2.04, 0.05], "position": [0, -0.903, 1.25], "rotation": [42.51, 0, 0], "role": "timber", "shade": 0.78},
+      {"name": "thatch course back", "prim": "box", "size": [3.52, 0.72, 0.12], "position": [0, -0.445, 1.772], "rotation": [42.51, 0, 0], "role": "thatch", "shade": 1.2, "bevel": 0.04},
+      {"name": "thatch course back", "prim": "box", "size": [3.56, 0.72, 0.14], "position": [0, -0.955, 1.337], "rotation": [42.51, 0, 0], "role": "thatch", "shade": 0.98, "bevel": 0.04},
+      {"name": "thatch course back", "prim": "box", "size": [3.6, 0.72, 0.16], "position": [0, -1.429, 0.937], "rotation": [42.51, 0, 0], "role": "thatch", "shade": 1.14, "bevel": 0.04},
+      {"name": "ridge", "prim": "box", "size": [3.66, 0.2, 0.14], "position": [0, -0.25, 1.975], "role": "timber", "shade": 0.85, "bevel": 0.03},
       {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_long_A.gltf", "position": [1.85, 0.4, 0], "rotation": [0, 0, 90], "scale": 0.6}
     ],
     "2": [

@@ -2952,8 +2952,8 @@
           "bounds": {
             "max": [
               1.988,
-              2.08,
-              1.5572
+              2.115,
+              1.7957
             ],
             "min": [
               -2.1116,
@@ -2962,29 +2962,29 @@
             ]
           },
           "budget": 6000,
-          "bytes": 141636,
+          "bytes": 158348,
           "lite": {
             "bounds": {
               "max": [
                 1.988,
-                2.0692,
-                1.5595
+                2.1044,
+                1.7904
               ],
               "min": [
                 -2.1116,
                 -0.0044,
-                -1.4273
+                -1.4257
               ]
             },
             "budget": 1500,
-            "bytes": 31592,
+            "bytes": 36460,
             "path": "warehouse.l1.lite.glb",
-            "sha256": "d26e1d08455fd981ff3d9e30f8c6a151f182d01c96835de8a139d3b0a23aa5dd",
-            "triangles": 345
+            "sha256": "baf6aec5cd9abc45b862acfdecb9b19b2f9e609591d5b5b86f43287e1a412656",
+            "triangles": 396
           },
           "path": "warehouse.l1.glb",
-          "sha256": "1af3a3c4c1392cdbdaf6233d9708df52af06573c3a3a06a0394c9189b4b80d6c",
-          "triangles": 2034
+          "sha256": "e861ff63878941f4fdaf37ae0948a2aeff00823eada90b39e95a6ec000728677",
+          "triangles": 2234
         },
         "2": {
           "bounds": {
