@@ -124,6 +124,8 @@ export interface FrameStats {
   fps: number;
   avgMs: number;
   p95Ms: number;
+  /** The longest frame of the window (hitches). */
+  maxMs: number;
 }
 
 /** Lookups of one island for the ghost hints (rebuilt when its data changes). */
@@ -197,6 +199,7 @@ export class GameRenderer {
   private readonly frameListeners = new Set<() => void>();
   private readonly hoverListeners = new Set<(island: string | null, at: { x: number; y: number } | null) => void>();
   private readonly frameTimes = new Float64Array(FRAME_RING);
+  private meshCount = 0;
   private frameCount = 0;
   private lastFrameAt = 0;
   private drawCalls = 0;
@@ -221,6 +224,7 @@ export class GameRenderer {
     // quality it was created with.
     this.engine = new Engine(canvas, quality === "low", { stencil: false, preserveDrawingBuffer: false, limitDeviceRatio: MAX_RENDER_DPR }, true);
     this.scene = new Scene(this.engine);
+    this.scene.onNewMeshAddedObservable.add(() => this.meshCount++);
     this.scene.clearColor = new Color4(HAZE.r, HAZE.g, HAZE.b, 1);
     this.scene.skipPointerMovePicking = true;
     this.rig = new CameraRig(this.scene, this.engine);
@@ -411,6 +415,11 @@ export class GameRenderer {
     return this.drawCalls;
   }
 
+  /** Meshes created since start (a zoom must not create any: LOD changes only toggle pre-built geometry). */
+  meshesCreated(): number {
+    return this.meshCount;
+  }
+
   /** Draw calls, triangles (the scene's active indices of the last frame ÷ 3; shadow passes included) and the current LOD and model detail (the fps badge). */
   renderStats(): { drawCalls: number; triangles: number; lod: Lod; detail: Detail } {
     return { drawCalls: this.drawCalls, triangles: Math.round(this.scene.getActiveIndices() / 3), lod: this.lod, detail: this.detail };
@@ -426,7 +435,7 @@ export class GameRenderer {
       times.push(v);
       total += v;
     }
-    if (times.length === 0) return { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 };
+    if (times.length === 0) return { frames: 0, fps: 0, avgMs: 0, p95Ms: 0, maxMs: 0 };
     const sorted = [...times].sort((a, b) => a - b);
     const avg = total / times.length;
     return {
@@ -434,6 +443,7 @@ export class GameRenderer {
       fps: 1000 / avg,
       avgMs: avg,
       p95Ms: sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] as number,
+      maxMs: sorted[sorted.length - 1] as number,
     };
   }
 
@@ -564,14 +574,20 @@ export class GameRenderer {
     }
   }
 
-  /** Shows the layers of the current LOD for the islands in view (building their detail on first use). */
+  /**
+   * Shows the layers of the current LOD for the islands in view. Every
+   * island's detail (both model details, both slab profiles) is built the
+   * first time it is seen in the payload, also out of view, so zooming and
+   * panning only toggle pre-built geometry; an island in view is brought
+   * up to date with its payload.
+   */
   private applyView(): void {
     this.arch.show(this.lod);
     const snap = this.sync.getSnapshot();
     for (const is of snap.server?.display.islands ?? []) {
       const shown = this.visible.has(is.id);
       let d = this.details.get(is.id);
-      if (shown) d = this.ensureDetail(is, snap);
+      if (shown || !d) d = this.ensureDetail(is, snap);
       d?.setShown(shown, this.lod);
     }
     this.refreshCasters();

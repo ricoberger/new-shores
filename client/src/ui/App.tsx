@@ -84,6 +84,8 @@ export interface TestHook {
   archToScreen(x: number, y: number): { x: number; y: number };
   /** Draw calls of the last frame. */
   drawCalls(): number;
+  /** Meshes created since the renderer started (geometry builds). */
+  meshesCreated(): number;
   /** Instance style a ship was drawn with in the last frame ("active" / "unpaid"), null if not drawn. */
   shipStyle(id: number): "active" | "unpaid" | null;
   /** Shipyard construction hulls drawn in the last frame (near LOD). */
@@ -552,9 +554,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         shipToScreen: (id) => rendererRef.current?.shipToScreen(id) ?? nan,
         archToScreen: (x, y) => rendererRef.current?.archToClient({ x, y }) ?? nan,
         drawCalls: () => rendererRef.current?.lastDrawCalls() ?? 0,
+        meshesCreated: () => rendererRef.current?.meshesCreated() ?? 0,
         shipStyle: (id) => rendererRef.current?.shipStyle(id) ?? null,
         constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
-        frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0 },
+        frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0, maxMs: 0 },
         carts: () => rendererRef.current?.cartCount() ?? 0,
         landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,

@@ -231,3 +231,68 @@ for (const run of RUNS) {
     });
   }
 }
+
+// Zoom sweep (art restyle): from the near default zoom on the first dense
+// island out to the whole archipelago (far LOD) and back, one camera step
+// per two frames, after a warm-up sweep that loads every model file. A zoom
+// only toggles pre-built geometry: no mesh is created during the sweep.
+// Logs the worst frame (hitches) next to the average.
+for (const c of CONFIGS.filter((x) => x.check)) {
+  test(`zoom sweep near → far → near creates no geometry (dense-archipelago-8) at ${c.name} (4× CPU throttling)`, async ({ browser }) => {
+    test.setTimeout(400_000);
+    const context = await browser.newContext({ viewport: { width: c.width, height: c.height }, deviceScaleFactor: c.dpr, isMobile: true, hasTouch: true });
+    const page = await context.newPage();
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: CPU_THROTTLE });
+    await page.goto("/?fixture=dense-archipelago-8");
+    await worldReady(page, "dense1");
+    await expectLod(page, "near");
+    const start = await page.evaluate(() => window.__newShores!.camera());
+    const frames = (n: number) =>
+      page.evaluate(
+        (k) =>
+          new Promise<void>((resolve) => {
+            let left = k;
+            const step = () => (--left <= 0 ? resolve() : requestAnimationFrame(step));
+            requestAnimationFrame(step);
+          }),
+        n,
+      );
+    // Warm-up: every LOD once, every model file loaded and swapped in.
+    await modelsLoaded(page);
+    await showArchipelago(page);
+    await modelsLoaded(page);
+    await setCamera(page, { x: start.x, y: start.y, half: start.half });
+    await expectLod(page, "near");
+    await modelsLoaded(page);
+    await page.waitForTimeout(SETTLE_MS);
+
+    const far = 160;
+    const steps = 20;
+    const halves = Array.from({ length: steps + 1 }, (_, i) => start.half * (far / start.half) ** (i / steps));
+    const meshes0 = await page.evaluate(() => window.__newShores!.meshesCreated());
+    const t0 = Date.now();
+    const lods = new Set<string>();
+    for (const half of [...halves, ...halves.slice(0, -1).reverse()]) {
+      await setCamera(page, { x: start.x, y: start.y, half });
+      await frames(2);
+      lods.add(await page.evaluate(() => window.__newShores!.lod()));
+    }
+    const sweep = await page.evaluate((ms) => window.__newShores!.frameStats(ms), Date.now() - t0);
+    const created = (await page.evaluate(() => window.__newShores!.meshesCreated())) - meshes0;
+    console.log(
+      `PERF sweep dense-archipelago-8 ${c.name} ${JSON.stringify({
+        fps: Number(sweep.fps.toFixed(1)),
+        avgMs: Number(sweep.avgMs.toFixed(1)),
+        p95Ms: Number(sweep.p95Ms.toFixed(1)),
+        maxMs: Number(sweep.maxMs.toFixed(1)),
+        frames: sweep.frames,
+        meshesCreated: created,
+        lods: [...lods],
+      })}`,
+    );
+    await context.close();
+    expect([...lods].sort()).toEqual(["far", "mid", "near"]);
+    expect(created).toBe(0);
+  });
+}

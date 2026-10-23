@@ -30,6 +30,14 @@ const FOREST = c3(TERRAIN.forest_floor);
 const CROWN = c3(TERRAIN.tree_crown);
 const GRASS_A = c3(TERRAIN.grass_a);
 
+/**
+ * Far-LOD tree thinning: every FAR_TREE_STRIDE-th tree of an island stays
+ * at far LOD (1: all). The kept trees lead the merged mesh, so thinning
+ * only shortens the drawn index range of the pre-built mesh (no rebuild,
+ * no extra draw call).
+ */
+export const FAR_TREE_STRIDE = 1;
+
 /** Decor models of the tree species (variant index → manifest decor ID). */
 export const TREE_MODELS = ["decor_tree_a", "decor_tree_b", "decor_tree_c", "decor_tree_d"] as const;
 const STUMP_MODELS = ["decor_stump_a", "decor_stump_b"] as const;
@@ -161,6 +169,11 @@ export class ModelMerger {
     return this.ni / 3;
   }
 
+  /** Indices accumulated (the end of the range drawn so far). */
+  indexCount(): number {
+    return this.ni;
+  }
+
   build(name: string, scene: Scene, material: StandardMaterial, parent: TransformNode | null): Mesh | null {
     if (this.ni === 0) return null;
     const mesh = new Mesh(name, scene);
@@ -186,6 +199,9 @@ export class Decoration {
   private shadows: Mesh | null = null;
   private scatter: Mesh | null = null;
   private count = { trees: 0, scatter: 0, stumps: 0, triangles: 0 };
+  /** Index counts of the trees and their shadows: kept at far LOD (FAR_TREE_STRIDE) and all. */
+  private ranges = { trees: { kept: 0, all: 0 }, shadows: { kept: 0, all: 0 } };
+  private thinned = false;
   /** The last build used a fallback for a decor model that has loaded since (or might load): rebuild on the next model refresh. */
   private fallback = false;
 
@@ -216,27 +232,44 @@ export class Decoration {
     ground: readonly (Placed & { kind: ScatterKind })[],
     stumps: readonly Placed[] = [],
     heightAt: (x: number, y: number) => number = () => 0,
+    stride = FAR_TREE_STRIDE,
   ): void {
     this.trees?.dispose();
     this.shadows?.dispose();
     this.scatter?.dispose();
     this.fallback = false;
     const t = new ModelMerger();
-    const tp = new TriBuilder();
     const sh = new TriBuilder();
-    for (const p of trees) {
+    // The trees kept at far LOD first, then the others.
+    const ordered = [...trees.filter((_, i) => i % stride === 0), ...trees.filter((_, i) => i % stride !== 0)];
+    const kept = Math.ceil(trees.length / stride);
+    let keptTrees = 0;
+    let keptShadows = 0;
+    for (const [i, p] of ordered.entries()) {
+      if (i === kept) {
+        keptTrees = t.indexCount();
+        keptShadows = sh.positions.length / 3;
+      }
       // Slight per-tree tint so a forest is not one flat green.
       const shade = 0.92 + 0.16 * ((p.yaw / (Math.PI * 2)) % 1);
       const m = this.model(TREE_MODELS[p.variant % TREE_MODELS.length] as string);
       if (m) t.add(m, p.x, 0, -p.y, p.scale, p.yaw, shade);
-      else for (const tri of TREE_VARIANTS[p.variant % TREE_VARIANTS.length] ?? []) tp.add(tri, p.x, 0, -p.y, p.scale, p.yaw, tri.color === TRUNK ? 1 : shade);
+      else {
+        // The procedural stand-in, in tree order too (thinning keeps its range).
+        const tp = new TriBuilder();
+        for (const tri of TREE_VARIANTS[p.variant % TREE_VARIANTS.length] ?? []) tp.add(tri, p.x, 0, -p.y, p.scale, p.yaw, tri.color === TRUNK ? 1 : shade);
+        t.addTris(tp);
+      }
       blob(sh, p.x + SHADOW_LEAN.x * p.scale * 0.3, -p.y + SHADOW_LEAN.z * p.scale * 0.3, 0.42 * p.scale);
+    }
+    if (kept >= ordered.length) {
+      keptTrees = t.indexCount();
+      keptShadows = sh.positions.length / 3;
     }
     for (const p of stumps) {
       const m = this.model(STUMP_MODELS[p.variant % STUMP_MODELS.length] as string);
       if (m) t.add(m, p.x, 0, -p.y, p.scale, p.yaw);
     }
-    t.addTris(tp);
     const g = new ModelMerger();
     const gp = new TriBuilder();
     for (const p of ground) {
@@ -258,6 +291,30 @@ export class Decoration {
     if (this.shadows) this.shadows.hasVertexAlpha = true;
     this.scatter = g.build(`scatter_${this.name}`, this.scene, this.material, this.parent);
     if (this.trees) this.trees.receiveShadows = false;
+    const all = (m: Mesh | null) => m?.getTotalIndices() ?? 0;
+    this.ranges = { trees: { kept: keptTrees, all: all(this.trees) }, shadows: { kept: keptShadows, all: all(this.shadows) } };
+    this.applyThinning();
+  }
+
+  /** Far LOD: draw only the kept trees (and their shadows) — a toggle of the drawn index range. */
+  setThinned(on: boolean): void {
+    if (on === this.thinned) return;
+    this.thinned = on;
+    this.applyThinning();
+  }
+
+  private applyThinning(): void {
+    const set = (m: Mesh | null, r: { kept: number; all: number }) => {
+      const sub = m?.subMeshes?.[0];
+      if (sub) sub.indexCount = this.thinned ? r.kept : r.all;
+    };
+    set(this.trees, this.ranges.trees);
+    set(this.shadows, this.ranges.shadows);
+  }
+
+  /** Trees drawn (index range) of the trees mesh: kept and all (tests). */
+  treeRange(): { drawn: number; all: number } {
+    return { drawn: this.trees?.subMeshes?.[0]?.indexCount ?? 0, all: this.ranges.trees.all };
   }
 
   /** Whether the last build stood in for a decor model that may have loaded since (rebuild on the next model refresh). */

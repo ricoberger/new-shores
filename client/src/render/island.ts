@@ -280,6 +280,7 @@ export class IslandDetail {
     if (lod !== this.lod) {
       this.lod = lod;
       this.near.setEnabled(lod === "near");
+      this.decoration.setThinned(lod === "far");
     }
   }
 

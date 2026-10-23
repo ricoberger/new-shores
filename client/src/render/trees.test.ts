@@ -1,6 +1,8 @@
+import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
+import { Scene } from "@babylonjs/core/scene";
 import { describe, expect, it } from "vitest";
 import type { ModelData } from "./models";
-import { ModelMerger } from "./trees";
+import { Decoration, ModelMerger } from "./trees";
 
 // Merged decoration (restyle): copies of indexed kit models are moved,
 // scaled, turned and shaded into one indexed mesh.
@@ -30,5 +32,31 @@ describe("ModelMerger", () => {
     expect(n[0]).toBeCloseTo(0);
     expect(n[2]).toBeCloseTo(-1);
     expect(internal.colors[v * 4]).toBeCloseTo(0.25);
+  });
+});
+
+describe("Decoration far-LOD thinning", () => {
+  it("draws every stride-th tree when thinned, by shortening the index range of the pre-built mesh", () => {
+    const engine = new NullEngine();
+    const scene = new Scene(engine);
+    const d = new Decoration(scene, "t", null);
+    const trees = Array.from({ length: 10 }, (_, i) => ({ x: i * 2, y: 3, scale: 1, yaw: 0, variant: i }));
+    d.update(trees, [], [], () => 0, 2);
+    const all = d.treeRange();
+    expect(all.drawn).toBe(all.all);
+    d.setThinned(true);
+    const thin = d.treeRange();
+    expect(thin.all).toBe(all.all);
+    expect(thin.drawn).toBeGreaterThan(0);
+    expect(thin.drawn).toBeLessThan(all.all);
+    // Five of ten trees (the variants alternate, so roughly half the triangles).
+    expect(thin.drawn / all.all).toBeGreaterThan(0.3);
+    expect(thin.drawn / all.all).toBeLessThan(0.7);
+    expect(scene.meshes.length).toBeGreaterThan(0);
+    const meshes = scene.meshes.length;
+    d.setThinned(false);
+    expect(d.treeRange().drawn).toBe(all.all);
+    expect(scene.meshes.length).toBe(meshes);
+    engine.dispose();
   });
 });
