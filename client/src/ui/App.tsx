@@ -67,10 +67,10 @@ export interface TestHook {
   lod(): Lod;
   /**
    * Camera target in world coordinates (x, z = −archipelago y; y is the
-   * archipelago y for convenience), ortho half extent and rotation step 0–3.
+   * archipelago y for convenience), ortho half extent and rotation in quarter turns, continuous in [0, 4) (0.5 = 45°).
    */
   camera(): { x: number; z: number; y: number; half: number; rotation: number };
-  /** Sets parts of the camera (target x/z or y, half extent, rotation step), clamped like user input. */
+  /** Sets parts of the camera (target x/z or y, half extent, rotation in quarter turns), clamped like user input. */
   setCamera(c: { x?: number; z?: number; y?: number; half?: number; rotation?: number }): void;
   /** The focused island (under the camera target, else the nearest). */
   focusedIsland(): string;
@@ -498,7 +498,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   useEffect(() => renderer?.setArchState(archSel, highlight, draftStops));
 
   // Keyboard: Esc steps back one thing per press, Enter jumps to the
-  // selected island, Q / E turn the camera, R rotates the ghost.
+  // selected island, Q / E turn the camera by 45°, R rotates the ghost.
   const latest = useRef({ tool, confirm, dialog: vs.dialog, panel, sheets, selection: vs.selection });
   useEffect(() => {
     latest.current = { tool, confirm, dialog: vs.dialog, panel, sheets, selection: vs.selection };

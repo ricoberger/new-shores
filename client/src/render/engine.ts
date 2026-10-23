@@ -1,8 +1,8 @@
 // Babylon engine and scene of the game view. Created once per canvas and
 // disposed once (React Strict Mode safe: the owner disposes in its effect
 // cleanup). One continuous world (D-048): every island at its archipelago
-// position with sea between, one free camera (pan, continuous zoom, four
-// 90° rotation steps), zoom-based LOD and frustum culling per island.
+// position with sea between, one free camera (pan, continuous zoom, free
+// rotation easing to 45° steps, D-051), zoom-based LOD and frustum culling per island.
 // Fixed golden-hour light with blob shadows everywhere and, at "high"
 // quality (desktop layout), a sun shadow map, warm grading and FXAA
 // (render/lighting.ts). Scene coordinates are archipelago coordinates: island
@@ -15,7 +15,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { SyncSnapshot } from "../api/sync";
-import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin } from "../display/camera";
+import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "../display/fields";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
@@ -50,6 +50,8 @@ import type { ShipStyle } from "./shipmesh";
 export const MAX_RENDER_DPR = 1.5;
 /** Pick radius of ships (CSS pixels). */
 const SHIP_PICK_PX = 18;
+/** Right-drag rotation: quarter turns per CSS pixel of horizontal movement (45° per 120 px). */
+const DRAG_TURN_PER_PX = 0.5 / 120;
 const LABEL_Y = 0.4;
 
 /** Where the camera starts: an island (default: the first) at the near default zoom, or the whole archipelago. */
@@ -60,6 +62,7 @@ export interface CameraInfo {
   /** The focused island: under the camera target, else the nearest (UI only). */
   focus: string;
   lod: Lod;
+  /** The rotation's nearest 45° step (quarter turns; reported on change only, not every frame of a free turn). */
   rotation: number;
 }
 
@@ -81,7 +84,7 @@ export interface RendererEvents {
    * unconfirmed field rectangle is dropped (the preview follows the pointer).
    */
   unpend(): void;
-  /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed). */
+  /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed; one per 45° of twist). */
   rotateGhost(steps: number): void;
   move(at: IslandTile): void;
   found(at: IslandTile): void;
@@ -193,6 +196,8 @@ export class GameRenderer {
   private visible = new Set<string>();
   private viewKey = "";
   private info: CameraInfo = { focus: "", lod: "near", rotation: 0 };
+  /** Rotation the status icons face (follows every frame of a turn). */
+  private iconRotation = 0;
   /** The island whose HTML name label is at a client (viewport CSS) position, or null (set by the overlay). */
   private labelAt: ((clientX: number, clientY: number) => string | null) | null = null;
   private readonly frameListeners = new Set<() => void>();
@@ -244,14 +249,18 @@ export class GameRenderer {
 
     this.input = new PointerInput(canvas, () => this.ratio(), {
       pointerDown: (kind, first) => this.onPointerDown(kind, first),
-      released: () => this.latch.released(),
+      released: () => {
+        this.latch.released();
+        // A free turn (right-drag or twist) ends: ease to the nearest 45°.
+        this.rig.snap();
+      },
       tap: (p, button, kind) => this.onTap(p, button, kind),
       longPress: (p) => this.onLongPress(p),
       dragStart: (p, button, kind) => this.onDragStart(p, button, kind),
       dragMove: (prev, cur, button) => this.onDragMove(prev, cur, button),
       dragEnd: (p, button) => this.onDragEnd(p, button),
       pinch: (centre, prev, scale) => this.onPinch(centre, prev, scale),
-      rotate: (steps) => this.onRotate(steps),
+      rotate: (steps, delta, centre) => this.onRotate(steps, delta, centre),
       cancel: () => this.onPointerCancel(),
       hover: (p) => this.onHover(p),
       wheel: (p, dy) => this.onWheel(p, dy),
@@ -484,9 +493,14 @@ export class GameRenderer {
     return this.rig.footprint();
   }
 
-  /** Turns the camera by 90° steps about its target (positive: clockwise orbit seen from above); target and zoom stay. */
+  /** Turns the camera by 45° steps about its target, eased (positive: clockwise orbit seen from above; Q/E); target and zoom stay. */
   rotateCamera(steps: number): void {
-    this.rig.rotate(steps);
+    this.rig.step(steps);
+  }
+
+  /** The camera moves on its own: a jump or a rotation ease runs (projected positions are NaN meanwhile). */
+  private moving(): boolean {
+    return this.rig.animating() || this.rig.turning();
   }
 
   /** Jumps to an island's centre (zooms in to the near default if farther out). */
@@ -559,10 +573,15 @@ export class GameRenderer {
     for (const id of this.visible) if (!islands.some((is) => is.id === id)) this.visible.delete(id);
     this.lod = lod;
     if (changed) this.applyView();
+    if (v.rotation !== this.iconRotation) {
+      // Status icons face the camera at every azimuth.
+      this.iconRotation = v.rotation;
+      for (const d of this.details.values()) d.setRotation(v.rotation);
+    }
     const focus = focusedIsland(islands, v);
-    if (focus !== this.info.focus || lod !== this.info.lod || v.rotation !== this.info.rotation) {
-      if (v.rotation !== this.info.rotation) for (const d of this.details.values()) d.setRotation(v.rotation);
-      this.info = { focus, lod, rotation: v.rotation };
+    const heading = snapRotation(v.rotation);
+    if (focus !== this.info.focus || lod !== this.info.lod || heading !== this.info.rotation) {
+      this.info = { focus, lod, rotation: heading };
       this.events.camera(this.info);
     }
   }
@@ -715,7 +734,7 @@ export class GameRenderer {
   /** CSS-pixel viewport position of the centre of an island tile, any island at any LOD (NaN for unknown islands and during a camera animation). */
   tileToScreen(islandId: string, x: number, y: number): { x: number; y: number } {
     const p = this.arch.placement(islandId);
-    if (this.rig.animating() || !p) return { x: NaN, y: NaN };
+    if (this.moving() || !p) return { x: NaN, y: NaN };
     return this.worldToClient(new Vector3(p.position.x + x + 0.5, 0, -(p.position.y + y + 0.5)));
   }
 
@@ -726,7 +745,7 @@ export class GameRenderer {
    */
   islandToScreen(id: string, x?: number, y?: number): { x: number; y: number } {
     const p = this.arch.placement(id);
-    if (this.rig.animating() || !p) return { x: NaN, y: NaN };
+    if (this.moving() || !p) return { x: NaN, y: NaN };
     if (x !== undefined && y !== undefined) return this.tileToScreen(id, x, y);
     return this.worldToClient(new Vector3(p.position.x + p.width / 2, LABEL_Y, -(p.position.y + p.height / 2)));
   }
@@ -734,7 +753,7 @@ export class GameRenderer {
   /** Viewport position of a ship drawn in the last frame (NaN when not drawn or during a camera animation). */
   shipToScreen(id: number): { x: number; y: number } {
     const p = this.arch.shipPoint(id);
-    if (this.rig.animating() || !p) return { x: NaN, y: NaN };
+    if (this.moving() || !p) return { x: NaN, y: NaN };
     return this.worldToClient(new Vector3(p.x, this.shipPickY(), -p.y));
   }
 
@@ -910,14 +929,17 @@ export class GameRenderer {
   }
 
   /**
-   * Two-finger twist: with a ghost tool it rotates the ghost; otherwise one
-   * step turns the camera by 90° so that the world follows the fingers
-   * (a clockwise twist turns the map clockwise on screen).
+   * Two-finger twist: with a ghost tool every 45° of twist rotates the
+   * ghost by a quarter turn; otherwise the camera turns continuously about
+   * the fingers' midpoint so that the world follows the fingers (a
+   * clockwise twist turns the map clockwise on screen) and eases to the
+   * nearest 45° when the fingers lift.
    */
-  private onRotate(steps: number): void {
+  private onRotate(steps: number, delta: number, centre: Point): void {
     if (this.blocked()) return;
-    if (isGhostTool(this.tool())) this.events.rotateGhost(steps);
-    else this.rig.rotate(-steps);
+    if (isGhostTool(this.tool())) {
+      if (steps !== 0) this.events.rotateGhost(steps);
+    } else if (delta !== 0) this.rig.rotateBy(-delta / (Math.PI / 2), centre);
   }
 
   /**
@@ -1015,8 +1037,9 @@ export class GameRenderer {
     }
   }
 
+  /** The middle button pans, and the left one without a tool; the right button turns the camera (right-drag). */
   private pans(button: number): boolean {
-    return button === 1 || button === 2 || (button === 0 && this.tool().kind === "none");
+    return button === 1 || (button === 0 && this.tool().kind === "none");
   }
 
   private onDragStart(p: Point, button: number, kind: PointerKind): void {
@@ -1062,11 +1085,17 @@ export class GameRenderer {
       if (t) this.fieldEnd = t;
       return;
     }
+    // Right-drag turns the camera about its target: dragging right turns the map counter-clockwise on screen.
+    if (button === 2) {
+      this.rig.rotateBy(((cur.x - prev.x) / this.ratio()) * DRAG_TURN_PER_PX);
+      return;
+    }
     if (this.pans(button)) this.rig.pan(prev, cur);
   }
 
-  /** The pointer's press or drag was cancelled: drop any ship drag, road or field preview. */
+  /** The pointer's press or drag was cancelled: drop any ship drag, road or field preview; a free turn eases to 45°. */
   private onPointerCancel(): void {
+    this.rig.snap();
     this.roadStart = null;
     this.roadPreview.set([]);
     this.fieldStart = null;
@@ -1095,6 +1124,7 @@ export class GameRenderer {
   }
 
   private onDragEnd(p: Point, button: number): void {
+    if (button === 2) this.rig.snap();
     if (this.blocked()) {
       this.onPointerCancel();
       return;

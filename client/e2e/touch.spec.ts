@@ -309,9 +309,13 @@ test("two-finger twist turns the camera without a tool and the ghost with a ghos
   const before = await camera(page);
   await touch.twist(await freeCanvasPoint(page), 180, Math.PI / 3);
   await expect.poll(async () => (await camera(page)).rotation).not.toBe(before.rotation);
+  // The twist (60°) turns the camera freely; on release it eases to a 45° step (either way round), the zoom kept.
+  await expect.poll(async () => {
+    const r = (await camera(page)).rotation;
+    return Math.abs(r * 2 - Math.round(r * 2)) < 1e-9;
+  }).toBe(true);
   const after = await camera(page);
-  // One step (either way round), about the same target and zoom.
-  expect([(before.rotation + 1) % 4, (before.rotation + 3) % 4]).toContain(after.rotation);
+  expect([0.5, 1, 3, 3.5]).toContain(after.rotation);
   expect(after.half).toBeCloseTo(before.half, 3);
   // With a build tool the twist turns the ghost; the camera stays.
   await page.getByTestId("build-tab-production").tap();

@@ -317,7 +317,7 @@ export class IslandDetail {
     for (const m of this.terrain.lite) m.setEnabled(!full);
   }
 
-  /** Camera rotation step (status icons face the camera). */
+  /** Camera rotation (quarter turns, continuous; status icons face the camera). */
   setRotation(step: number): void {
     this.icons.setRotation(step);
   }

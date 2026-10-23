@@ -6,6 +6,7 @@ import {
   LONG_PRESS_MS,
   PINCH_START_PX,
   ROTATE_STEP_RAD,
+  TWIST_START_RAD,
   TOUCH_SLOP_PX,
 } from "./gestures";
 
@@ -223,21 +224,40 @@ describe("two fingers", () => {
     // Fingers opposite each other around (200, 200); finger 2 orbits.
     g.down(1, "touch", 0, pt(200 - r, 200), 0);
     g.down(2, "touch", 0, at(0), 0);
-    const rotates = () => events.filter((e) => e.type === "rotate");
+    const steps = () => events.filter((e) => e.type === "rotate" && e.steps !== 0);
     // Turning finger 2 about finger 1 by small increments.
     const orbit = (a: number) => pt(200 - r + 2 * r * Math.cos(a), 200 + 2 * r * Math.sin(a));
     for (let a = 0.05; a < ROTATE_STEP_RAD * 0.95; a += 0.05) g.move(2, "touch", orbit(a));
-    expect(rotates()).toHaveLength(0);
+    expect(steps()).toHaveLength(0);
     g.move(2, "touch", orbit(ROTATE_STEP_RAD + 0.01));
-    expect(rotates()).toHaveLength(1);
-    expect(rotates()[0]).toMatchObject({ steps: 1 });
+    expect(steps()).toHaveLength(1);
+    expect(steps()[0]).toMatchObject({ steps: 1 });
     for (let a = ROTATE_STEP_RAD; a < 2 * ROTATE_STEP_RAD + 0.05; a += 0.05) g.move(2, "touch", orbit(a));
-    expect(rotates()).toHaveLength(2);
-    const last = rotates().at(-1);
+    expect(steps()).toHaveLength(2);
+    const last = steps().at(-1);
     expect(last?.type === "rotate" && last.angle).toBeGreaterThan(2 * ROTATE_STEP_RAD);
     // Turning back crosses the thresholds in the other direction.
     for (let a = 2 * ROTATE_STEP_RAD; a > -0.05; a -= 0.05) g.move(2, "touch", orbit(a));
-    expect(rotates().slice(2).map((e) => (e.type === "rotate" ? e.steps : 0))).toEqual([-1, -1]);
+    expect(steps().slice(2).map((e) => (e.type === "rotate" ? e.steps : 0))).toEqual([-1, -1]);
+  });
+
+  it("emits the continuous twist past a dead zone, without a jump, summing to the twist beyond it", () => {
+    const { g, events } = setup();
+    const r = 100;
+    g.down(1, "touch", 0, pt(200 - r, 200), 0);
+    g.down(2, "touch", 0, pt(200 + r, 200), 0);
+    const orbit = (a: number) => pt(200 - r + 2 * r * Math.cos(a), 200 + 2 * r * Math.sin(a));
+    const deltas = () => events.flatMap((e) => (e.type === "rotate" && e.delta !== 0 ? [e.delta] : []));
+    // Inside the dead zone: nothing turns.
+    for (let a = 0.02; a < TWIST_START_RAD * 0.9; a += 0.02) g.move(2, "touch", orbit(a));
+    expect(deltas()).toEqual([]);
+    for (let a = TWIST_START_RAD; a <= 0.6 + 1e-9; a += 0.02) g.move(2, "touch", orbit(a));
+    const sum = deltas().reduce((n, d) => n + d, 0);
+    const angle = events.filter((e) => e.type === "rotate").at(-1)!;
+    expect(angle.type === "rotate" && sum).toBeCloseTo((angle.type === "rotate" ? angle.angle : 0) - TWIST_START_RAD, 9);
+    // Each delta is a small step (no jump by the dead zone).
+    expect(Math.max(...deltas())).toBeLessThan(0.05);
+    expect(events.find((e) => e.type === "rotate")).toMatchObject({ centre: expect.any(Object) });
   });
 
   it("does not combine a mouse with a touch", () => {

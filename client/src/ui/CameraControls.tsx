@@ -3,11 +3,11 @@ import styles from "./hud.module.css";
 import { Icon } from "./Icon";
 
 interface Props {
-  /** Turns the camera by 90° steps (positive: clockwise orbit, like E). */
+  /** Turns the camera by 45° steps (positive: clockwise orbit, like E). */
   onRotate: (steps: number) => void;
 }
 
-/** On-screen camera rotation (D-048): one 90° step per press, like Q and E. */
+/** On-screen camera rotation: one 45° step per press, like Q and E (D-051). */
 export function CameraControls({ onRotate }: Props) {
   return (
     <div className={styles.cameraControls}>

@@ -23,8 +23,12 @@ export interface PointerHandlers {
   dragEnd(cur: Point, button: number): void;
   /** Two fingers moved: pan from `prev` to `centre` and zoom by `scale` (> 1: in) about `centre`. */
   pinch(centre: Point, prev: Point, scale: number): void;
-  /** Two fingers twisted past one or more rotate steps (signed). */
-  rotate(steps: number): void;
+  /**
+   * Two fingers twisted: `steps` new 45° crossings (signed, may be 0; the
+   * ghost), `delta` the continuous twist (radians, clockwise on screen; the
+   * camera) about the fingers' midpoint `centre`.
+   */
+  rotate(steps: number, delta: number, centre: Point): void;
   /** A press or drag ended without a release (pointercancel or cancel()). */
   cancel(): void;
   /** Mouse or pen moved (also while dragging); null when it left the canvas. */
@@ -108,7 +112,7 @@ export class PointerInput {
         this.h.pinch(this.px(e.centre), this.px({ x: e.centre.x - e.translation.x, y: e.centre.y - e.translation.y }), e.scale);
         return;
       case "rotate":
-        this.h.rotate(e.steps);
+        this.h.rotate(e.steps, e.delta, this.px(e.centre));
         return;
       case "cancel":
         this.h.cancel();

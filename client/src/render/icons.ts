@@ -2,10 +2,10 @@
 // not ok, with both a colour and the status icon of the HUD set drawn into
 // the texture (UI.md §7; the text glyph when Path2D is unavailable).
 // Unpaid and player pauses use distinct icons. One mesh per status and island with thin
-// instances (one draw call per status, not per building); the camera turns
-// only in 90° steps, so the facing rotation of the current step is baked
-// into the instance matrices (re-baked on a rotation) instead of a
-// per-mesh billboard.
+// instances (one draw call per status, not per building); the facing
+// rotation of the camera's azimuth is baked into the instance matrices
+// (re-baked whenever the camera turns, also during a free turn: a few
+// hundred matrices at most) instead of a per-mesh billboard.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
@@ -85,7 +85,7 @@ export class IconLayer {
     return mesh;
   }
 
-  /** Camera rotation step: the icons are turned towards the camera again. */
+  /** Camera rotation (quarter turns, continuous): the icons are turned towards the camera again. */
   setRotation(step: number): void {
     if (step === this.rotation) return;
     this.rotation = step;

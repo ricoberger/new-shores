@@ -23,8 +23,9 @@ import { resetWorld } from "./world";
 // One continuous world (D-048) on the settled fixture (the voyage spec's
 // result: island 2 settled, the sloop sailing "Fish home"): a mouse pan across
 // the sea from the start island to island 2, wheel zoom through the three
-// LODs without flicker, the four camera rotation steps with a road tile
-// placed in each, clickable island labels and the island card, the route
+// LODs without flicker, free camera rotation (45° steps by button and
+// key, a right-drag easing to the nearest 45°) with a house placed at four
+// headings, clickable island labels and the island card, the route
 // editor's island pickers (and the world-click shortcut), the server's
 // loop time and estimated effects, the sloop assigned from the editor
 // moving with its ETA badge at near and far LOD, minimap and tab jumps.
@@ -85,11 +86,14 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   await expectLod(page, "near");
   await expectFocused(page, ISLAND);
 
-  // The four camera rotation steps 0 → 1 → 2 → 3 (right button, E, E),
-  // then back 3 → 2 → 1 → 0 (Q, left button, Q), always about the same
-  // target and zoom. In each distinct step a settler house is placed by a
-  // click with building rotation step × 90° (world-relative, D-042): the
-  // server has it on the intended tile with that rotation. (First: the
+  // Free rotation (D-051; rotation in quarter turns, 0.5 = 45°): 0 → 0.5
+  // (right button) → 1.5 (E, E) → 2.5 (a right-drag of ≈ 1.1 quarter
+  // turns, eased to the nearest 45° on release), then back 1.5 (right-drag
+  // the other way) → 1 (Q) → 0.5 (left button) → 0 (Q), always about the
+  // same target and zoom. At four headings — two of them diagonal to the
+  // screen — a settler house is placed by a click with building rotation
+  // i × 90° (world-relative, D-042): the server has it on the intended
+  // tile with that rotation (picking is exact at any azimuth). (First: the
   // commands also keep the world from producing an away summary mid-test.)
   await showIsland(page, ISLAND);
   await expectLod(page, "near");
@@ -98,9 +102,9 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
       timeout: 60_000,
     })
     .toBeGreaterThanOrEqual(10_000 * ROTATION_HOUSES.length);
-  const placeHouse = async (step: number) => {
-    const t = ROTATION_HOUSES[step]!;
-    const rotation = step * 90;
+  const placeHouse = async (i: number) => {
+    const t = ROTATION_HOUSES[i]!;
+    const rotation = i * 90;
     await page.getByTestId("build-tab-houses").click();
     await page.getByTestId("build-house_settlers").click();
     for (let r = 0; r < rotation; r += 90) await page.keyboard.press("r");
@@ -112,27 +116,48 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
     await expect.poll(() => buildingAt(page, ISLAND, t)).toEqual({ type: "house_settlers", rotation });
     await page.keyboard.press("Escape");
   };
+  const keep = async (before: { x: number; z: number; half: number }) => {
+    const after = await camera(page);
+    expect(after.x).toBeCloseTo(before.x, 6);
+    expect(after.z).toBeCloseTo(before.z, 6);
+    expect(after.half).toBeCloseTo(before.half, 6);
+  };
   const press = async (k: "button-right" | "button-left" | "E" | "Q", to: number) => {
     const before = await camera(page);
     if (k === "button-right") await page.getByTestId("camera-rotate-right").click();
     else if (k === "button-left") await page.getByTestId("camera-rotate-left").click();
     else await page.keyboard.press(k);
     await expect.poll(async () => (await camera(page)).rotation).toBe(to);
-    const after = await camera(page);
-    expect(after.x).toBeCloseTo(before.x, 6);
-    expect(after.z).toBeCloseTo(before.z, 6);
-    expect(after.half).toBeCloseTo(before.half, 6);
+    await keep(before);
+  };
+  /** A right-drag by dx CSS px from the canvas centre; on release the camera eases to `to`. */
+  const rightDrag = async (dx: number, to: number) => {
+    const before = await camera(page);
+    const box = (await page.getByTestId("game-canvas").boundingBox())!;
+    const c = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    await page.mouse.move(c.x, c.y);
+    await page.mouse.down({ button: "right" });
+    for (let i = 1; i <= 10; i++) await page.mouse.move(c.x + (dx * i) / 10, c.y);
+    // Free while held: between the 45° steps.
+    const held = (await camera(page)).rotation;
+    expect(Math.abs(held * 2 - Math.round(held * 2))).toBeGreaterThan(0.05);
+    await page.mouse.up({ button: "right" });
+    await expect.poll(async () => (await camera(page)).rotation).toBe(to);
+    await keep(before);
   };
   expect((await camera(page)).rotation).toBe(0);
   await placeHouse(0);
-  await press("button-right", 1);
+  await press("button-right", 0.5);
   await placeHouse(1);
-  await press("E", 2);
+  await press("E", 1);
+  await press("E", 1.5);
   await placeHouse(2);
-  await press("E", 3);
+  // 270 px ≈ 1.125 quarter turns: 2.625 eases to 2.5.
+  await rightDrag(270, 2.5);
   await placeHouse(3);
-  await press("Q", 2);
-  await press("button-left", 1);
+  await rightDrag(-270, 1.5);
+  await press("Q", 1);
+  await press("button-left", 0.5);
   await press("Q", 0);
 
   // Back at the start island for the pan.
