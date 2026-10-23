@@ -16,11 +16,7 @@
         "glTF/DoorFrame_Flat_WoodDark.bin": "1e59d95393867a3cfa0612bea2086018d5ddcb3252969525679391a52e16f94c",
         "glTF/DoorFrame_Flat_WoodDark.gltf": "e12b923833fe91ba7c26c3984b0d7860a498bc955f6092b2af9fc0f3012105c6",
         "glTF/DoorFrame_Round_WoodDark.bin": "1899a064497568422c4d2a9246be0f7dba9e1f9fae6483f4dc39fe63c398b824",
-        "glTF/DoorFrame_Round_WoodDark.gltf": "d96fb7e3b6b7a5cb97339a7667dee3d9e03b5b0a02cbea283bd75a69f58bb4a7",
-        "glTF/Prop_Chimney2.bin": "07d34b621ea375292e907a92f9231da9539d44224b7b54ff0aaf8d4cc871dc09",
-        "glTF/Prop_Chimney2.gltf": "45e93dfdacd304864ec90fd8a36392bf743b62a35d3b850ac3a25cb4330dc3c6",
-        "glTF/Prop_WoodenFence_Single.bin": "aac37141af8f33e762b330486fd1cbd1c12a96b2978f491be4a58e24f1fe9ec1",
-        "glTF/Prop_WoodenFence_Single.gltf": "c9f787c03c62dd94268da84bf3e4dacf554b2a5a9beee38314e37ff5d929c407"
+        "glTF/DoorFrame_Round_WoodDark.gltf": "d96fb7e3b6b7a5cb97339a7667dee3d9e03b5b0a02cbea283bd75a69f58bb4a7"
       }
     },
     {
@@ -65,6 +61,8 @@
         "Assets/gltf/buildings/blue/building_market_blue.gltf": "24874a4651dfff0d1aea31e15a32b9c35122958764c6f968ca55f286285ffbe9",
         "Assets/gltf/buildings/blue/building_tavern_blue.bin": "00a4f91c275d168a4fcaea5f35cd4839047b498232f5f807d29ec17aa9490fe9",
         "Assets/gltf/buildings/blue/building_tavern_blue.gltf": "58a3573cf468f9c5f1d03a6da74fbc884f5f662ccddbfef2a10860abfe50109b",
+        "Assets/gltf/buildings/blue/building_windmill_blue.bin": "ced3ff9447703352a7d57e2beb5b5e6f0c661c4d6c623a5d4efc22740103f467",
+        "Assets/gltf/buildings/blue/building_windmill_blue.gltf": "a98412d4bcd016ce63f66b5d7193adf664867c3649829707b04586fb73e31f38",
         "Assets/gltf/buildings/neutral/building_scaffolding.bin": "eed989f5f3c82d0e251b2dd2fc7e0cc350705160892a409a337c73b5f448fa54",
         "Assets/gltf/buildings/neutral/building_scaffolding.gltf": "1c11a7545694863a7edc58780ee60510b55676b97d6c5eee7e0dc7c256185c7a",
         "Assets/gltf/buildings/neutral/fence_wood_straight.bin": "fa71b68019e2fe287621f3a5b06b7e18d1dcdd74a6f1c38af7888a8fb0c0078b",
