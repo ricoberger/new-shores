@@ -15,32 +15,37 @@ import { expectLod, modelsLoaded, setCamera, showArchipelago, worldReady } from 
 // (hardware or SwiftShader), the gzip size of the built chunks and the
 // kit-bashed models loaded (GLB bytes, time to the first model; the
 // measurement starts once every requested model has loaded). The
-// regression check asserts PERF_MIN_FPS for the 412 × 915 runs in the
-// configuration this project runs in (headless Chromium; with PERF_GPU=1
-// the GPU flags of playwright.config.ts apply instead).
+// regression check asserts a per-LOD fps floor for the 412 × 915 runs in
+// the configuration this project runs in (headless Chromium; with
+// PERF_GPU=1 the GPU flags of playwright.config.ts apply instead).
+
+type PerfLod = "near" | "mid" | "far";
 
 /**
- * Default regression threshold (fps, 412 × 915 @ 2.625, 4× CPU
- * throttling, headless Chromium with SwiftShader): the measured average
- * × 0.8, rounded down (median of three runs 34.1 fps on an Apple M4 Pro →
- * 27). Measurements and the derivation are in the M3 notes.
+ * Default fps floors per LOD (412 × 915 @ 2.625, 4× CPU throttling,
+ * headless Chromium with SwiftShader on an Apple M4 Pro). A floor is a
+ * regression tripwire relative to a device-validated build, not a
+ * target: floor(0.8 × the software fps of that build), median of three
+ * runs. Device-validated build: the KayKit restyle (art restyle
+ * checkpoint 2), held at a stable 60 fps on an iPhone 15 Pro Max (Safari)
+ * at near LOD and zoomed in on the dense fixture, 60 fps on a MacBook Pro
+ * M4 Pro. Its software medians: near 19.9, mid 24.8, far 25.5 fps.
+ * Re-derive the floors from the next device-validated build.
  */
-export const DEFAULT_PERF_MIN_FPS = 27;
+export const DEFAULT_PERF_MIN_FPS: Readonly<Record<PerfLod, number>> = { near: 15, mid: 19, far: 20 };
 
 /**
- * The threshold in force: the PERF_MIN_FPS environment variable when set
- * (software rendering scales with the CPU, so a slower machine or CI
- * runner sets its own value, re-derived as measured × 0.8), else the
- * default.
+ * The floor in force for a LOD: the PERF_MIN_FPS environment variable
+ * when set (one value for every LOD: software rendering scales with the
+ * CPU, so a slower machine or CI runner sets its own, re-derived as its
+ * lowest measured fps × 0.8), else the LOD's default.
  */
-export function perfMinFps(env: string | undefined = process.env.PERF_MIN_FPS): number {
-  if (env === undefined || env.trim() === "") return DEFAULT_PERF_MIN_FPS;
+export function perfMinFps(lod: PerfLod, env: string | undefined = process.env.PERF_MIN_FPS): number {
+  if (env === undefined || env.trim() === "") return DEFAULT_PERF_MIN_FPS[lod];
   const v = Number(env);
   if (!Number.isFinite(v) || v <= 0) throw new Error(`PERF_MIN_FPS must be a positive number, got "${env}"`);
   return v;
 }
-
-export const PERF_MIN_FPS = perfMinFps();
 /** JS heap ceiling (bytes): the < 400 MB mobile budget. */
 const MAX_HEAP_BYTES = 400 * 1024 * 1024;
 /** Draw-call ceiling of every run (instancing or culling regressions exceed it). */
@@ -51,7 +56,7 @@ const SAMPLE_MS = 5_000;
 
 /** The camera set-up of a run: the fixture, where the camera goes and what must hold before measuring. */
 interface Run {
-  lod: "near" | "mid" | "far";
+  lod: PerfLod;
   fixture: string;
   setup: (page: Page) => Promise<void>;
 }
@@ -198,7 +203,7 @@ for (const run of RUNS) {
       const bundle = bundleSizes();
       console.log(
         `PERF ${run.lod} ${run.fixture} ${c.name} ${JSON.stringify({
-          minFps: c.check ? PERF_MIN_FPS : null,
+          minFps: c.check ? perfMinFps(run.lod) : null,
           fps: Number(r.frames.fps.toFixed(1)),
           avgMs: Number(r.frames.avgMs.toFixed(1)),
           p95Ms: Number(r.frames.p95Ms.toFixed(1)),
@@ -223,7 +228,7 @@ for (const run of RUNS) {
       expect(r.heapBytes).toBeLessThan(MAX_HEAP_BYTES);
       expect(r.drawCalls).toBeGreaterThan(0);
       expect(r.drawCalls).toBeLessThanOrEqual(MAX_DRAW_CALLS);
-      if (c.check && process.env.PERF_GPU !== "1") expect(r.frames.fps).toBeGreaterThanOrEqual(PERF_MIN_FPS);
+      if (c.check && process.env.PERF_GPU !== "1") expect(r.frames.fps).toBeGreaterThanOrEqual(perfMinFps(run.lod));
     });
   }
 }

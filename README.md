@@ -198,8 +198,8 @@ service before the servers start.
   `npx playwright install webkit`), and `perf` (the dense fixtures at
   near, mid and far LOD under 4× CPU throttling; logs fps, frame times,
   draw calls, JS heap, WebGL renderer and bundle size and asserts an fps
-  threshold: the `PERF_MIN_FPS` environment variable, default 27 from
-  `client/e2e/perf.spec.ts`), and `visual` (screenshot baselines of the
+  floor per LOD: the `PERF_MIN_FPS` environment variable for every LOD,
+  else the per-LOD defaults in `client/e2e/perf.spec.ts`), and `visual` (screenshot baselines of the
   fixtures on desktop and a Pixel 5, per platform: a missing baseline is
   written and its test skipped with a notice; plus the grid overlay,
   palette, render quality and credits rules). `perf` and `visual` run
@@ -208,8 +208,15 @@ service before the servers start.
   projects a project depends on). Headless Chromium renders
   with SwiftShader (software); `PERF_GPU=1` runs the perf project with
   hardware WebGL flags for comparison (its fps threshold is not asserted).
+- **Perf floors:** a floor is a regression tripwire relative to a
+  device-validated build, not a target. Per LOD it is
+  `floor(0.8 × software fps of the device-validated build)` (median of
+  three runs of the 412 × 915 line on an Apple M4 Pro); the build, the
+  device and its readings are recorded at `DEFAULT_PERF_MIN_FPS` in
+  `client/e2e/perf.spec.ts`. When a new build is validated on the device,
+  re-measure and reset the floors.
 - **Perf threshold on slower machines:** software WebGL is CPU-bound, so
-  the default 27 fps (Apple M4 Pro) can be too high elsewhere. Do not
+  the default floors (Apple M4 Pro) can be too high elsewhere. Do not
   disable the check; read the lowest `"fps"` of the `PERF … 412x915@2.625`
   lines of a run and set `PERF_MIN_FPS` to that fps × 0.8, rounded down —
   locally `PERF_MIN_FPS=20 npm run test:e2e`, in CI the `PERF_MIN_FPS` value of
