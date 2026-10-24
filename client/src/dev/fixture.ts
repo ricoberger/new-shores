@@ -309,16 +309,39 @@ const FIXTURE_DEFS: FixtureDef[] = [
       requires_road: false,
       water_tiles: 2,
       trading_post: {
+        // The shipped content's levels and upgrade costs (fixture.test.ts compares them).
         levels: [
           { capacity: 300_000, throughput_per_min: 30_000, berths: 1 },
-          { capacity: 500_000, throughput_per_min: 55_000, berths: 2 },
-          { capacity: 800_000, throughput_per_min: 80_000, berths: 3 },
-          { capacity: 1_200_000, throughput_per_min: 110_000, berths: 4 },
+          { capacity: 500_000, throughput_per_min: 55_000, berths: 2, cost: { gold: 300_000, materials: { planks: 20_000, stone: 10_000 } } },
+          { capacity: 800_000, throughput_per_min: 80_000, berths: 3, cost: { gold: 600_000, materials: { planks: 30_000, stone: 20_000 } } },
+          {
+            capacity: 1_200_000,
+            throughput_per_min: 110_000,
+            berths: 4,
+            cost: { gold: 1_200_000, materials: { planks: 40_000, stone: 30_000, tools: 10_000 } },
+          },
         ],
       },
     },
   ],
-  ["warehouse", "Warehouse", "settlers", "production", 2, 2, { requires_road: false, warehouse: { levels: [{ throughput_per_min: 30_000 }, { throughput_per_min: 55_000 }, { throughput_per_min: 80_000 }] } }],
+  [
+    "warehouse",
+    "Warehouse",
+    "settlers",
+    "production",
+    2,
+    2,
+    {
+      requires_road: false,
+      warehouse: {
+        levels: [
+          { throughput_per_min: 30_000 },
+          { throughput_per_min: 55_000, cost: { gold: 150_000, materials: { planks: 10_000, stone: 5_000 } } },
+          { throughput_per_min: 80_000, cost: { gold: 300_000, materials: { planks: 15_000, stone: 10_000 } } },
+        ],
+      },
+    },
+  ],
   ["market_small", "Small market", "settlers", "public", 3, 3, { service: { radius: 10 } }],
   ["chapel", "Chapel", "settlers", "public", 2, 2, { service: { radius: 10 } }],
   ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { work_area: { radius: 4, terrain: ["forest"] } }],

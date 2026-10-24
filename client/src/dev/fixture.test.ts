@@ -69,6 +69,25 @@ describe("fixtures use the real content", () => {
     }
   });
 
+  it("carry the content's Trading Post and Warehouse levels and upgrade costs (milli-units, as the API sends them)", () => {
+    type Level = { capacity?: number; throughput_per_min: number; berths?: number; cost?: Record<string, number> };
+    const api = (l: Level) => {
+      const { gold = 0, ...materials } = l.cost ?? {};
+      return {
+        ...(l.capacity === undefined ? {} : { capacity: l.capacity * 1000 }),
+        throughput_per_min: l.throughput_per_min * 1000,
+        ...(l.berths === undefined ? {} : { berths: l.berths }),
+        ...(l.cost ? { cost: { gold: gold * 1000, materials: Object.fromEntries(Object.entries(materials).map(([g, n]) => [g, n * 1000])) } } : {}),
+      };
+    };
+    const defs = new Map(fixtureDefs().map((d) => [d.id, d]));
+    for (const id of ["trading_post", "warehouse"] as const) {
+      const shipped = content.find((b) => b.id === id) as unknown as Record<string, { levels: Level[] }>;
+      const fixture = defs.get(id) as unknown as Record<string, { levels: unknown[] }>;
+      expect(fixture[id]!.levels, id).toEqual(shipped[id]!.levels.map(api));
+    }
+  });
+
   it("dense-2x400 keeps ≈ 400 buildings and ≥ 60 delivering producers without overlaps", () => {
     const f = buildDenseFixture(T);
     const defs = new Map(f.content.buildings.map((b) => [b.id, b]));

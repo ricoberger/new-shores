@@ -109,16 +109,27 @@ function WarehouseUpgrade({
         {next.capacity !== undefined && <>Capacity {units(next.capacity)} per good · </>}
         {next.berths !== undefined && <>{next.berths} berths · </>}throughput {perMin(next.throughput_per_min)}/min
       </div>
+      {/* The content's upgrade cost like a build card's; a part the balance or the island's stock does not cover is greyed (the server decides). */}
       <div className={styles.small} data-testid={`${testId}-cost`}>
-        <span className={cost.gold > model.gold ? styles.warn : undefined}>
-          {units(model.gold)}/{units(cost.gold)} gold
+        <span
+          className={cost.gold > model.gold ? styles.unaffordable : undefined}
+          data-short={cost.gold > model.gold || undefined}
+          title={`${units(model.gold)} gold on hand`}
+        >
+          {units(cost.gold)} gold
         </span>
         {Object.entries(cost.materials).map(([g, n]) => {
           const have = island.inventory[g]?.stock ?? 0;
           return (
-            <span key={g} className={have < n ? styles.warn : undefined}>
-              {" "}
-              · <GoodName id={g} name={goodName(g)} /> {units(have)}/{units(n)}
+            <span
+              key={g}
+              className={have < n ? styles.unaffordable : undefined}
+              data-short={have < n || undefined}
+              data-testid={`${testId}-cost-${g}`}
+              title={`${units(have)} in stock`}
+            >
+              {" · "}
+              {units(n)} {goodName(g).toLowerCase()}
             </span>
           );
         })}

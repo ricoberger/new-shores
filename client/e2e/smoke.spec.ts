@@ -156,8 +156,10 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await expect(page.getByTestId("trading-post-level")).toContainText("level 1 of 4");
   await expect(page.getByTestId("trading-post-berths")).toContainText("0 busy · 1 free of 1");
   await expect(page.getByTestId("trading-post-upgrade-button")).toContainText("level 2");
-  await expect(page.getByTestId("trading-post-upgrade-cost")).toContainText("/300 gold");
-  await expect(page.getByTestId("trading-post-upgrade-cost")).toContainText("Stone 0/10");
+  // The content's level-2 cost like a build card; the stone the island lacks is greyed.
+  await expect(page.getByTestId("trading-post-upgrade-cost")).toHaveText("300 gold · 20 planks · 10 stone");
+  await expect(page.getByTestId("trading-post-upgrade-cost-stone")).toHaveAttribute("data-short", "true");
+  await expect(page.getByTestId("trading-post-upgrade-cost-planks")).not.toHaveAttribute("data-short", "true");
   await page.keyboard.press("Escape");
   await clickTile(page, WATER);
   await expect(page.getByTestId("info-panel")).toBeHidden();

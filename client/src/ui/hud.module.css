@@ -668,6 +668,12 @@
   color: var(--ns-ui-negative);
 }
 
+/* A cost part the balance or the island's stock does not cover. */
+.unaffordable {
+  color: var(--ns-ui-ink-soft);
+  opacity: 0.6;
+}
+
 .stop {
   border: 1px solid var(--ns-ui-parchment-dark);
   border-radius: 6px;
