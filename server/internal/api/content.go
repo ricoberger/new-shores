@@ -27,8 +27,11 @@ type contentPayload struct {
 	Goods     []goodJSON     `json:"goods"`
 	Buildings []buildingJSON `json:"buildings"`
 	Needs     []needJSON     `json:"needs"`
-	Ships     []shipJSONOut  `json:"ships"`
-	Quests    []questJSON    `json:"quests"`
+	// NeedCategories are the goods-need categories (display names and
+	// HUD icons) in content order.
+	NeedCategories []needCategoryJSON `json:"need_categories"`
+	Ships          []shipJSONOut      `json:"ships"`
+	Quests         []questJSON        `json:"quests"`
 }
 
 // questJSON is a quest of quests.json in content order. Objective targets
@@ -215,8 +218,17 @@ type needGoodJSON struct {
 	PerResidentPerMin int64  `json:"per_resident_per_min"`
 }
 
+// needCategoryJSON is a goods-need category: display data only.
+type needCategoryJSON struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// Icon is a HUD icon key (assets/icons/icons.json), e.g. "need:food".
+	Icon string `json:"icon"`
+}
+
 type needJSON struct {
 	ID              string         `json:"id"`
+	Name            string         `json:"name"`
 	Tier            string         `json:"tier"`
 	Kind            string         `json:"kind"`
 	WeightPpm       int64          `json:"weight"`
@@ -270,7 +282,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 				AwaySummaryMs: r.AwaySummaryMs, TrialResumeUpkeepMs: r.TrialResumeMs,
 			},
 		},
-		Tiers: []tierJSON{}, Goods: []goodJSON{}, Buildings: []buildingJSON{}, Needs: []needJSON{}, Ships: []shipJSONOut{},
+		Tiers: []tierJSON{}, Goods: []goodJSON{}, Buildings: []buildingJSON{}, Needs: []needJSON{}, NeedCategories: []needCategoryJSON{}, Ships: []shipJSONOut{},
 		Quests: []questJSON{},
 	}
 	for _, q := range c.Quests {
@@ -328,6 +340,9 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 		for _, n := range c.NeedsByTier[t.ID] {
 			p.Needs = append(p.Needs, newNeedJSON(n))
 		}
+	}
+	for _, nc := range c.NeedCategories {
+		p.NeedCategories = append(p.NeedCategories, needCategoryJSON{ID: nc.ID, Name: nc.Name, Icon: nc.Icon})
 	}
 	return p
 }
@@ -392,7 +407,7 @@ func newCostJSON(c content.Cost) costJSON {
 }
 
 func newNeedJSON(n *content.Need) needJSON {
-	nj := needJSON{ID: n.ID, Tier: n.Tier, Kind: n.Kind, WeightPpm: n.Weight}
+	nj := needJSON{ID: n.ID, Name: n.Name, Tier: n.Tier, Kind: n.Kind, WeightPpm: n.Weight}
 	if n.IsGoods() {
 		nj.Category = n.Category
 		nj.VarietyBonusPpm = &n.VarietyBonus

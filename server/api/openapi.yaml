@@ -2440,7 +2440,7 @@ components:
     Content:
       type: object
       additionalProperties: false
-      required: [region, tiers, goods, buildings, needs, ships, quests]
+      required: [region, tiers, goods, buildings, needs, need_categories, ships, quests]
       properties:
         region:
           $ref: "#/components/schemas/ContentRegion"
@@ -2467,6 +2467,11 @@ components:
           description: Needs grouped by tier in progression order, file order within a tier.
           items:
             $ref: "#/components/schemas/ContentNeed"
+        need_categories:
+          type: array
+          description: Goods-need categories in content order (display names and HUD icons; a goods need's `category` is one of them).
+          items:
+            $ref: "#/components/schemas/ContentNeedCategory"
         ships:
           type: array
           description: Ship types (ordered at buildings with a shipyard block).
@@ -2943,13 +2948,29 @@ components:
             fertility:
               type: string
               description: Island fertility tag the field needs (absent for none).
-    ContentNeed:
+    ContentNeedCategory:
       type: object
       additionalProperties: false
-      required: [id, tier, kind, weight]
+      required: [id, name, icon]
       properties:
         id:
           type: string
+        name:
+          type: string
+          description: Player-facing name (1–32 printable characters).
+        icon:
+          type: string
+          description: HUD icon key (assets/icons/icons.json), e.g. `need:food`.
+    ContentNeed:
+      type: object
+      additionalProperties: false
+      required: [id, name, tier, kind, weight]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Player-facing name (1–32 printable characters), e.g. "Food" or "Market".
         tier:
           type: string
         kind:

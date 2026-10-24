@@ -1,6 +1,7 @@
 [
   {
     "id": "settlers_food",
+    "name": "Food",
     "tier": "settlers",
     "kind": "required",
     "weight": 0.5,
@@ -11,6 +12,7 @@
   },
   {
     "id": "settlers_clothing",
+    "name": "Clothing",
     "tier": "settlers",
     "kind": "required",
     "weight": 0.2,
@@ -21,6 +23,7 @@
   },
   {
     "id": "settlers_market_small",
+    "name": "Market",
     "tier": "settlers",
     "kind": "required",
     "weight": 0.4,

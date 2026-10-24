@@ -2,8 +2,9 @@ import { type ReactNode, useEffect, useState } from "react";
 import type { Content, DisplayState, Island } from "../api/client";
 import { perMin, units } from "../display/format";
 import { constructionGoods, islandResources, type TierRow, tierRows, worstNeedText } from "../display/hud";
+import { needCategory, needLabel } from "../display/needs";
 import { claimableCount } from "../display/quests";
-import { goodIcon, toolIcon } from "../theme/iconSet";
+import { goodIcon, needIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
 import { ResourceBadges } from "./ResourceBadges";
@@ -58,7 +59,6 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, onShip
   const resources = island && statics && statics.id === island.id ? islandResources(statics, island, defs) : null;
   const goods = content ? constructionGoods(content) : [];
   const goodName = (id: string) => content?.goods.find((g) => g.id === id)?.name ?? id;
-  const buildingName = (id: string) => content?.buildings.find((b) => b.id === id)?.name ?? id;
   // Tiers without residents on this island stay out of the bar (the first tier always shows on a settled island).
   const rows = island && content && island.settled ? tierRows(island, content, defs).filter((r, i) => i === 0 || r.total > 0 || r.employed > 0) : [];
   const balance = model?.balance_rate_per_min ?? 0;
@@ -106,7 +106,8 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, onShip
     );
   /** A tier: "employed / total" and the satisfaction aggregate (the worst unmet need as tooltip, or inline in the popover). */
   const tierStat = (r: TierRow, inline = false) => {
-    const worst = worstNeedText(r.worst, buildingName);
+    const worst = worstNeedText(r.worst, (n) => needLabel(content, n));
+    const w = r.worst;
     return (
       <div className={`${styles.stat} ${styles.tierStat}`} key={r.tier} title={inline ? undefined : worst} data-testid={`hud-tier-${r.tier}`}>
         <span className={`${styles.label} ${styles.withIcon}`}>
@@ -118,7 +119,12 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, onShip
           {units(r.employed)} / {units(r.total)}
         </span>
         {satisfaction(r)}
-        {r.satisfactionPermille !== null && <span className={inline ? styles.worstNeed : styles.srOnly}>{worst}</span>}
+        {r.satisfactionPermille !== null && (
+          <span className={inline ? styles.worstNeed : styles.srOnly} data-testid={`hud-worst-need-${r.tier}`}>
+            {inline && w && <Icon path={needIcon(w, w.category ? needCategory(content, w.category).icon : undefined)} />}
+            {worst}
+          </span>
+        )}
       </div>
     );
   };

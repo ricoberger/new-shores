@@ -285,6 +285,11 @@ func checkReferences(c *Catalogue) error {
 			if n.Building != "" {
 				building(FileNeeds, ent, "building", n.Building)
 			}
+			if n.IsGoods() || n.Category != "" {
+				if _, ok := c.NeedCategoryByID[n.Category]; !ok {
+					col.add(FileNeeds, ent, "category", "unknown need category %q (need_categories.json)", n.Category)
+				}
+			}
 			if n.VarietyBonus < 0 {
 				col.add(FileNeeds, ent, "variety_bonus", "must be >= 0")
 			}

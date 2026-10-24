@@ -1674,6 +1674,8 @@ export interface components {
             buildings: components["schemas"]["ContentBuilding"][];
             /** @description Needs grouped by tier in progression order, file order within a tier. */
             needs: components["schemas"]["ContentNeed"][];
+            /** @description Goods-need categories in content order (display names and HUD icons; a goods need's `category` is one of them). */
+            need_categories: components["schemas"]["ContentNeedCategory"][];
             /** @description Ship types (ordered at buildings with a shipyard block). */
             ships: components["schemas"]["ContentShip"][];
         };
@@ -2014,8 +2016,17 @@ export interface components {
                 fertility?: string;
             };
         };
+        ContentNeedCategory: {
+            id: string;
+            /** @description Player-facing name (1–32 printable characters). */
+            name: string;
+            /** @description HUD icon key (assets/icons/icons.json), e.g. `need:food`. */
+            icon: string;
+        };
         ContentNeed: {
             id: string;
+            /** @description Player-facing name (1–32 printable characters), e.g. "Food" or "Market". */
+            name: string;
             tier: string;
             /** @enum {string} */
             kind: "required" | "optional";

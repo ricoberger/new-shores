@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/need_categories.schema.json",
+  "title": "Need categories",
+  "description": "Goods-need categories of a region (CONTENT §2, D-031 – D-033): display data only. name is the player-facing name (1–32 printable characters); icon is a key of the HUD icon set (assets/icons/icons.json, e.g. \"need:food\"). Every goods need's category must be listed here.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "name", "icon"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+      "name": { "type": "string", "minLength": 1, "maxLength": 32 },
+      "icon": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*:[a-z0-9_][a-z0-9_-]*$" }
+    }
+  }
+}

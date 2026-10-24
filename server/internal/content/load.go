@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
@@ -25,9 +27,12 @@ const (
 	FileStart     = "start.json"
 	FileShips     = "ships.json"
 	FileQuests    = "quests.json"
+	// FileNeedCategories lists the goods-need categories with their
+	// display name and HUD icon (display data only).
+	FileNeedCategories = "need_categories.json"
 )
 
-var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeeds, FileStart, FileShips, FileQuests}
+var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeedCategories, FileNeeds, FileStart, FileShips, FileQuests}
 
 // Error describes one content problem. It names the file, the offending
 // entity (if any) and the field.
@@ -179,6 +184,8 @@ func entityKind(file string) string {
 		return "building"
 	case FileNeeds:
 		return "need"
+	case FileNeedCategories:
+		return "need category"
 	case FileStart:
 		return "start"
 	case FileShips:
@@ -325,8 +332,15 @@ type rawShip struct {
 	Upkeep       json.Number            `json:"upkeep_per_min"`
 }
 
+type rawNeedCategory struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Icon string `json:"icon"`
+}
+
 type rawNeed struct {
 	ID       string      `json:"id"`
+	Name     string      `json:"name"`
 	Tier     string      `json:"tier"`
 	Kind     string      `json:"kind"`
 	Weight   json.Number `json:"weight"`
@@ -408,6 +422,26 @@ func (c *collector) whole(file, entity, field string, v int64) int64 {
 	return v
 }
 
+// maxNameRunes bounds player-facing content names (need and need category
+// names): 1 to 32 printable runes.
+const maxNameRunes = 32
+
+// displayName checks a player-facing name: 1 to maxNameRunes printable
+// runes (the schema checks the length too; this also covers printability).
+func (c *collector) displayName(file, entity, name string) {
+	n := 0
+	for _, r := range name {
+		n++
+		if !unicode.IsPrint(r) {
+			c.add(file, entity, "name", "must consist of printable characters")
+			return
+		}
+	}
+	if n < 1 || n > maxNameRunes || !utf8.ValidString(name) {
+		c.add(file, entity, "name", "must be 1 to %d printable characters", maxNameRunes)
+	}
+}
+
 func (c *collector) err() error {
 	if len(c.errs) == 0 {
 		return nil
@@ -422,13 +456,14 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		goods     []rawGood
 		buildings []rawBuilding
 		needs     []rawNeed
+		needCats  []rawNeedCategory
 		start     rawStart
 		ships     []rawShip
 		quests    []rawQuest
 	)
 	for name, v := range map[string]any{
 		FileRegion: &region, FileTiers: &tiers, FileGoods: &goods, FileBuildings: &buildings, FileNeeds: &needs, FileStart: &start,
-		FileShips: &ships, FileQuests: &quests,
+		FileShips: &ships, FileQuests: &quests, FileNeedCategories: &needCats,
 	} {
 		if err := unmarshal(raw[name], v); err != nil {
 			return nil, &Error{File: name, Msg: fmt.Sprintf("decode: %v", err)}
@@ -437,13 +472,14 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 
 	col := &collector{}
 	cat := &Catalogue{
-		TierByID:     map[string]*Tier{},
-		GoodByID:     map[string]*Good{},
-		BuildingByID: map[string]*Building{},
-		FieldByType:  map[string]*Building{},
-		NeedsByTier:  map[string][]*Need{},
-		ShipByID:     map[string]*Ship{},
-		QuestByID:    map[string]*Quest{},
+		TierByID:         map[string]*Tier{},
+		GoodByID:         map[string]*Good{},
+		BuildingByID:     map[string]*Building{},
+		FieldByType:      map[string]*Building{},
+		NeedsByTier:      map[string][]*Need{},
+		NeedCategoryByID: map[string]*NeedCategory{},
+		ShipByID:         map[string]*Ship{},
+		QuestByID:        map[string]*Quest{},
 	}
 
 	ent := fmt.Sprintf("region %q", region.ID)
@@ -524,6 +560,18 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		}
 	}
 
+	for _, rc := range needCats {
+		ent := fmt.Sprintf("need category %q", rc.ID)
+		if _, dup := cat.NeedCategoryByID[rc.ID]; dup {
+			col.add(FileNeedCategories, ent, "id", "duplicate ID")
+			continue
+		}
+		col.displayName(FileNeedCategories, ent, rc.Name)
+		nc := &NeedCategory{ID: rc.ID, Name: rc.Name, Icon: rc.Icon}
+		cat.NeedCategories = append(cat.NeedCategories, nc)
+		cat.NeedCategoryByID[nc.ID] = nc
+	}
+
 	seenNeeds := map[string]bool{}
 	for _, rn := range needs {
 		ent := fmt.Sprintf("need %q", rn.ID)
@@ -532,8 +580,10 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			continue
 		}
 		seenNeeds[rn.ID] = true
+		col.displayName(FileNeeds, ent, rn.Name)
 		n := &Need{
 			ID:            rn.ID,
+			Name:          rn.Name,
 			Tier:          rn.Tier,
 			Kind:          rn.Kind,
 			Weight:        col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),

@@ -574,6 +574,10 @@
   color: var(--ns-ui-ink-soft);
 }
 
+.worstNeed .glyph {
+  margin-right: 4px;
+}
+
 .populationPopover .tierStat {
   flex-wrap: wrap;
 }
