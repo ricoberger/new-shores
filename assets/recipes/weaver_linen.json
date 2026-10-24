@@ -3,6 +3,7 @@
   "id": "weaver_linen",
   "kind": "building",
   "notes": "Linen weaver: a two-storey KayKit home_B (0.6) with ochre walls under terracotta. Signature prop: cloth lines of bleached linen and blue-dyed lengths, with flax bundles.",
+  "anchors": {"smoke": [-0.193, -1.08, 1.816], "chimney": [-0.193, -1.08, 1.766]},
   "parts": [
     {"kit_building": "home_B", "position": [0, -0.5, 0], "scale": 0.6, "roles": {"Atlas/team": "terracotta", "Atlas/white": {"role": "ochre", "shade": 1.08}}},
     {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-paved", "shade": 1.02},

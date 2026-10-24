@@ -12,8 +12,6 @@ import { allocate, hash01, lifeHash, type LifeAtLod, type LifeBudget, type LifeP
 import { alongPath, footprintRoads, roadPath } from "./roadpath";
 import { tileKey } from "./geometry";
 
-const NONE: LifeStats = { instances: 0, particles: 0 };
-
 /**
  * Visual cart capacity (output milli-units per minute one cart carries):
  * a producer with output rate r runs ceil(r / CART_CAPACITY) carts, at most
@@ -52,7 +50,40 @@ export const CLS = {
   cartLoaded: "cart_loaded",
   axle: "cart_axle",
   villager: (tier: string, variant: number) => `villager_${tier === "settlers" ? "settlers" : "citizens"}_${variant}`,
+  smoke: "smoke",
 } as const;
+
+/**
+ * Chimney smoke (LIFE_LAYER §3): puffs per second at full throughput and
+ * efficiency; a puff lives SMOKE_LIFE_MS, rising and drifting with the
+ * world-fixed wind (tiles per second, archipelago x/y), growing then
+ * shrinking away (opaque low-poly puffs: no transparency sorting).
+ */
+export const SMOKE_PER_S = 1.5;
+export const SMOKE_LIFE_MS = 4000;
+const SMOKE_RISE = 0.38;
+export const WIND: Readonly<{ x: number; y: number }> = { x: 0.16, y: -0.09 };
+const PUFF_MIN = 0.16;
+const PUFF_MAX = 0.5;
+const PUFF_JITTER = 0.07;
+
+/** Where a producer's smoke leaves its chimney (island tiles x/y, height), null without a model anchor. */
+export type SmokeAnchor = (b: BuildingDisplay, def: ContentBuilding) => { x: number; y: number; h: number } | null;
+
+/** Smoke puffs per second of a building: base × throughput × efficiency while ok, else 0. */
+export function smokeRate(b: Pick<BuildingDisplay, "status" | "throughput_factor_permille" | "efficiency_permille" | "rates">): number {
+  if (b.status !== "ok" || !b.rates) return 0;
+  return (SMOKE_PER_S * Math.max(0, b.throughput_factor_permille) * Math.max(0, b.efficiency_permille)) / 1e6;
+}
+
+interface Smoker {
+  b: BuildingDisplay;
+  def: ContentBuilding;
+  /** Puffs per ms. */
+  rate: number;
+  seed: number;
+  anchor: { x: number; y: number; h: number } | null;
+}
 
 /** Instances one cart draws (body and two axles). */
 export const CART_INSTANCES = 3;
@@ -129,13 +160,22 @@ export class IslandLife implements LifePlan {
   private routes: Route[] = [];
   /** Carts in draw order: every route's first cart, then every second cart, … (fair budget cuts). */
   private carts: { route: Route; index: number }[] = [];
+  private smokers: Smoker[] = [];
+  private smokeAnchor: SmokeAnchor | null = null;
 
   /** Rebuilds the plan from the island's payload (content for footprints and tiers; static data for paths and water). */
-  update(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>, _statics: Island | null): void {
+  update(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>, _statics: Island | null, smokeAnchor: SmokeAnchor | null = null): void {
     void _statics;
     this.routes = deliveryRoutes(display, defs);
     this.carts = [];
     for (let i = 0; i < MAX_CARTS; i++) for (const route of this.routes) if (i < route.carts) this.carts.push({ route, index: i });
+    this.smokeAnchor = smokeAnchor;
+    this.smokers = [];
+    for (const b of display.buildings) {
+      const def = defs.get(b.type);
+      const rate = smokeRate(b) / 1000;
+      if (def && rate > 0) this.smokers.push({ b, def, rate, seed: hash01(b.id, "smoke"), anchor: null });
+    }
   }
 
   /** Routes of the plan (tests). */
@@ -145,12 +185,47 @@ export class IslandLife implements LifePlan {
 
   /** Writes the island's instances at server time nowMs within the budget, only what the LOD shows. */
   frame(nowMs: number, sink: LifeSink, lod: LifeAtLod, budget: LifeBudget): LifeStats {
-    if (!lod.moving) return NONE;
+    const particles = lod.smoke ? this.drawSmoke(nowMs, sink, budget.particles) : 0;
+    if (!lod.moving) return { instances: 0, particles };
     const [cartInst = 0, walkers = 0] = allocate([this.carts.length * CART_INSTANCES, this.routes.length], budget.instances);
     const nCarts = Math.floor(cartInst / CART_INSTANCES);
     for (let i = 0; i < nCarts; i++) this.drawCart(this.carts[i] as { route: Route; index: number }, nowMs, sink);
     for (let i = 0; i < walkers; i++) this.drawWalker(this.routes[i] as Route, nowMs, sink);
-    return { instances: nCarts * CART_INSTANCES + walkers, particles: 0 };
+    return { instances: nCarts * CART_INSTANCES + walkers, particles };
+  }
+
+  /**
+   * Smoke puffs: puff k of a producer leaves at t_k = (k + seed) / rate
+   * and lives SMOKE_LIFE_MS, so the live puffs follow from the clock
+   * alone. Over the particle budget every producer's rate thins by the
+   * same factor (density stays proportional).
+   */
+  private drawSmoke(nowMs: number, sink: LifeSink, budget: number): number {
+    if (this.smokers.length === 0 || budget <= 0) return 0;
+    let demand = 0;
+    for (const s of this.smokers) {
+      s.anchor ??= this.smokeAnchor?.(s.b, s.def) ?? null;
+      if (s.anchor) demand += s.rate * SMOKE_LIFE_MS + 1;
+    }
+    const thin = demand > budget ? budget / demand : 1;
+    let drawn = 0;
+    for (const s of this.smokers) {
+      const a = s.anchor;
+      if (!a) continue;
+      const rate = s.rate * thin;
+      const kMax = Math.floor(nowMs * rate - s.seed);
+      const kMin = Math.floor((nowMs - SMOKE_LIFE_MS) * rate - s.seed) + 1;
+      for (let k = Math.max(kMin, kMax - 63); k <= kMax && drawn < budget; k++) {
+        const age = (nowMs - (k + s.seed) / rate) / SMOKE_LIFE_MS; // 0..1
+        const t = (age * SMOKE_LIFE_MS) / 1000;
+        const jx = (hash01(s.b.id, k, "x") - 0.5) * 2 * PUFF_JITTER;
+        const jy = (hash01(s.b.id, k, "y") - 0.5) * 2 * PUFF_JITTER;
+        const size = age < 0.6 ? PUFF_MIN + (PUFF_MAX - PUFF_MIN) * (age / 0.6) : PUFF_MAX * (1 - (age - 0.6) / 0.4) + PUFF_MIN * 0.3;
+        sink.add(CLS.smoke, a.x + jx + WIND.x * t, a.h + SMOKE_RISE * t, a.y + jy + WIND.y * t, hash01(s.b.id, k, "r") * Math.PI * 2, size);
+        drawn++;
+      }
+    }
+    return drawn;
   }
 
   private drawCart(c: { route: Route; index: number }, nowMs: number, sink: LifeSink): void {

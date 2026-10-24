@@ -3,6 +3,7 @@
   "id": "bakery",
   "kind": "building",
   "notes": "Bakery: a two-storey KayKit home_B (0.62) under terracotta. Signature prop: the domed stone bread oven with its own chimney on the side, firewood and flour sacks.",
+  "anchors": {"smoke": [0.75, 0.25, 0.95], "chimney": [0.75, 0.25, 0.9]},
   "parts": [
     {"kit_building": "home_B", "position": [-0.25, -0.3, 0], "scale": 0.62, "roles": {"Atlas/team": "terracotta"}},
     {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-paved", "shade": 1.02},

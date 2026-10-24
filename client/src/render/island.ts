@@ -16,7 +16,7 @@ import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
-import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
+import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay } from "../api/client";
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
 import { IslandLife } from "../display/lifeplan";
@@ -26,7 +26,7 @@ import { FieldDecor, FieldTiles } from "./fields";
 import { ConstructionLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
-import { type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
+import { type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, rotateXZ, statusHeight, toWorld } from "./models";
 import { OutcropLayer } from "./outcrops";
 import { footprintTiles, PlateauLayer } from "./plateaus";
 import { RoadLayer } from "./roads";
@@ -152,7 +152,7 @@ export class IslandDetail {
     this.builtFrom = { display, defs };
     this.buildings.update(display.buildings, defs);
     this.fields.update(this.unmodelledFields(display), defs);
-    this.life.update(display, defs, this.statics);
+    this.life.update(display, defs, this.statics, this.smokeAnchor);
     this.icons.update(display.buildings, defs, this.statusY);
     this.construction.update(display, defs);
     const keys = layerKeys(display, defs);
@@ -356,6 +356,17 @@ export class IslandDetail {
   decorationCounts(): { trees: number; scatter: number } {
     return this.decoration.counts();
   }
+
+  /** Where a producer's smoke leaves its chimney: the model's smoke anchor (island tiles), null without a model yet. */
+  private readonly smokeAnchor = (b: BuildingDisplay, def: ContentBuilding) => {
+    const entry = this.registry?.entry(b.type);
+    const a = entry?.anchors.smoke;
+    if (!entry || !a) return null;
+    const p = placement(entry, def, b);
+    const w = toWorld(entry.kind, a);
+    const [x, z] = rotateXZ(w[0] * p.sx, w[2] * p.sz, p.yaw);
+    return { x: p.cx + x, y: -(p.cz + z), h: w[1] };
+  };
 
   /** Island origin (archipelago tiles) while shown, for the life layer; null when hidden. */
   lifeOrigin(): { x: number; y: number } | null {

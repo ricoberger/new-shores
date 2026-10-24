@@ -3,6 +3,7 @@
   "id": "sheep_farm",
   "kind": "building",
   "notes": "Sheep farm: a KayKit home_A farmhouse (0.75) under thatch with a fenced sheep pen (the pasture field type as a yard): sheep, a hay pile and a trough. Signature prop: the sheep pen.",
+  "anchors": {"smoke": [-0.6, -1.354, 1.654], "chimney": [-0.6, -1.354, 1.604]},
   "parts": [
     {"kit_building": "home_A", "position": [-0.6, -0.75, 0], "scale": 0.75, "roles": {"Atlas/team": "thatch"}},
     {"name": "yard", "prim": "box", "size": [2.9, 2.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-dirt", "shade": 1.08},

@@ -3,6 +3,7 @@
   "id": "sawmill",
   "kind": "building",
   "notes": "Sawmill: a mirrored KayKit lumbermill under a darker thatch with its saw shed. Signature prop: a big iron saw blade by the door, a stack of sawn planks on a pallet and a log pile waiting to be cut.",
+  "anchors": {"smoke": [-0.238, 0.755, 2.48], "chimney": [-0.238, 0.755, 2.43]},
   "parts": [
     {"kit_building": "lumbermill", "position": [0, -0.22, 0], "scale": [-0.74, 0.74, 0.62], "roles": {"Atlas/team": {"role": "thatch", "shade": 0.84}}},
     {"name": "saw blade", "prim": "cylinder", "radius": 0.2, "height": 0.04, "segments": 10, "caps": true, "position": [-0.95, 0.95, 0.21], "rotation": [90, 0, 0], "role": "iron", "shade": 1.2},

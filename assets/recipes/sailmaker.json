@@ -3,6 +3,7 @@
   "id": "sailmaker",
   "kind": "building",
   "notes": "Sailmaker: a long KayKit home_A workshop (stretched, 0.75 x 0.6) under terracotta. Signature prop: a big canvas sail stretched on a timber frame in the yard, with rolled sails and rope.",
+  "anchors": {"smoke": [-0.1, -1.033, 1.376], "chimney": [-0.1, -1.033, 1.326]},
   "parts": [
     {"kit_building": "home_A", "position": [-0.1, -0.55, 0], "scale": [0.8, 0.6, 0.62], "roles": {"Atlas/team": "terracotta"}},
     {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-paved", "shade": 1.02},

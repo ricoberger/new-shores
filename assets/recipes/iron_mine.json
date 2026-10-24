@@ -3,6 +3,7 @@
   "id": "iron_mine",
   "kind": "building",
   "notes": "Iron mine: the KayKit mine hill (0.55) with its timber entrance under terracotta and its rock tinted toward iron ore. Signature prop: a mine cart of ore on rails out of the entrance and ore heaps by the door.",
+  "anchors": {"smoke": [-0.214, -1.114, 1.488], "chimney": [-0.214, -1.114, 1.438]},
   "parts": [
     {"kit_building": "mine", "position": [-0.1, -0.45, 0], "scale": [0.62, 0.55, 0.55], "roles": {"Atlas/team": "terracotta", "Atlas/rock": {"role": "deposit-iron", "shade": 0.95}}},
     {"name": "yard", "prim": "box", "size": [2.9, 2.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "dry", "shade": 0.92},

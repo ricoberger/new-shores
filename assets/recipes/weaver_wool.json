@@ -3,6 +3,7 @@
   "id": "weaver_wool",
   "kind": "building",
   "notes": "Wool weaver: a KayKit home_A workshop (0.62) under thatch. Signature prop: cloth lines with dyed woollen cloths (blue, red, natural) between posts, and wool bales by the door.",
+  "anchors": {"smoke": [0.0, -0.949, 1.376], "chimney": [0.0, -0.949, 1.326]},
   "parts": [
     {"kit_building": "home_A", "position": [0, -0.45, 0], "scale": 0.62, "roles": {"Atlas/team": {"role": "thatch", "shade": 0.92}}},
     {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-dirt", "shade": 1.08},

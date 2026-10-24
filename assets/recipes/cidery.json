@@ -3,6 +3,7 @@
   "id": "cidery",
   "kind": "building",
   "notes": "Cidery: a two-storey KayKit home_B (0.6) under terracotta and a timber cider press. Signature prop: rows of apple-cider barrels and crates of apples by the press.",
+  "anchors": {"smoke": [-0.543, -0.93, 1.816], "chimney": [-0.543, -0.93, 1.766]},
   "parts": [
     {"kit_building": "home_B", "position": [-0.35, -0.35, 0], "scale": 0.6, "roles": {"Atlas/team": {"role": "terracotta", "shade": 0.9}}},
     {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-paved", "shade": 1.02},

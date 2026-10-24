@@ -3,7 +3,22 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding, IslandDisplay } from "../api/client";
 import type { LifeSink } from "./life";
-import { CART_CAPACITY, CART_INSTANCES, cartsFor, CLS, deliveryRoutes, delivers, IslandLife, MAX_CARTS, WHEEL_AHEAD, WHEEL_HEIGHT } from "./lifeplan";
+import {
+  CART_CAPACITY,
+  CART_INSTANCES,
+  cartsFor,
+  CLS,
+  deliveryRoutes,
+  delivers,
+  IslandLife,
+  MAX_CARTS,
+  SMOKE_LIFE_MS,
+  SMOKE_PER_S,
+  type SmokeAnchor,
+  smokeRate,
+  WHEEL_AHEAD,
+  WHEEL_HEIGHT,
+} from "./lifeplan";
 
 const defs = new Map<string, ContentBuilding>(
   [
@@ -169,6 +184,55 @@ describe("IslandLife", () => {
     const s = record();
     life.frame(1000, s, NEAR, BIG);
     expect([...s.by.keys()].filter((k) => k.startsWith("villager_"))).toEqual([expect.stringMatching(/^villager_citizens_[0-2]$/)]);
+  });
+});
+
+describe("chimney smoke", () => {
+  const chimney: SmokeAnchor = (b) => ({ x: b.x + 0.5, y: b.y + 0.5, h: 1.5 });
+  const puffs = (b: BuildingDisplay[], now = 50_000, at = NEAR, budget = BIG, anchor: SmokeAnchor | null = chimney) => {
+    const life = new IslandLife();
+    life.update(island(b), defs, null, anchor);
+    const s = record();
+    const stats = life.frame(now, s, at, budget);
+    return { n: s.by.get(CLS.smoke)?.length ?? 0, stats, at: s.by.get(CLS.smoke) ?? [] };
+  };
+
+  it("is base × throughput × efficiency while ok, none otherwise", () => {
+    const b = producer(1, 2);
+    expect(smokeRate(b)).toBeCloseTo(SMOKE_PER_S);
+    expect(smokeRate({ ...b, throughput_factor_permille: 500, efficiency_permille: 800 })).toBeCloseTo(SMOKE_PER_S * 0.4);
+    for (const status of ["paused", "not_connected", "input_starved", "warehouse_full", "throttled", "short_of_workers", "low_efficiency"] as const) {
+      expect(smokeRate({ ...b, status })).toBe(0);
+    }
+    expect(smokeRate({ ...b, rates: undefined })).toBe(0);
+  });
+
+  it("keeps about rate × lifetime puffs alive, rising from the chimney and drifting", () => {
+    const { n, stats, at } = puffs([producer(1, 2)]);
+    const expected = (SMOKE_PER_S * SMOKE_LIFE_MS) / 1000;
+    expect(Math.abs(n - expected)).toBeLessThanOrEqual(1);
+    expect(stats.particles).toBe(n);
+    expect(stats.instances).toBeGreaterThan(0);
+    for (const p of at) expect(p.y).toBeLessThan(3);
+    // Half the throughput, about half the puffs; paused: none.
+    const half = puffs([producer(1, 2, { throughput_factor_permille: 500 })]).n;
+    expect(Math.abs(half - expected / 2)).toBeLessThanOrEqual(1);
+    expect(puffs([producer(1, 2, { status: "paused", paused: true })]).n).toBe(0);
+  });
+
+  it("is deterministic, shows at mid but not far, and needs the model's anchor", () => {
+    expect(puffs([producer(1, 2)], 77_777).at).toEqual(puffs([producer(1, 2)], 77_777).at);
+    expect(puffs([producer(1, 2)], 50_000, { moving: false, smoke: true, props: true }).stats).toEqual({ instances: 0, particles: expect.any(Number) });
+    expect(puffs([producer(1, 2)], 50_000, { moving: false, smoke: true, props: true }).n).toBeGreaterThan(0);
+    expect(puffs([producer(1, 2)], 50_000, { moving: false, smoke: false, props: false }).n).toBe(0);
+    expect(puffs([producer(1, 2)], 50_000, NEAR, BIG, null).n).toBe(0);
+  });
+
+  it("thins every producer alike within the particle budget", () => {
+    const many = Array.from({ length: 30 }, (_, i) => producer(i + 1, i % 10, { y: -5 - Math.floor(i / 10) } as Partial<BuildingDisplay>));
+    const { n } = puffs(many, 50_000, NEAR, { instances: 150, particles: 64 });
+    expect(n).toBeLessThanOrEqual(64);
+    expect(n).toBeGreaterThan(40);
   });
 });
 

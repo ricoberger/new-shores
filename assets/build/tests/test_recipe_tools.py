@@ -175,5 +175,31 @@ class LifeTest(unittest.TestCase):
         self.assertEqual(sorted(m["models"]), ["chapel"])
 
 
+class SmokeAnchorTest(unittest.TestCase):
+    def test_producers_need_chimney_and_smoke_anchors(self):
+        r = {"id": "sawmill", "kind": "building", "parts": [{"prim": "box", "size": [1.8, 1.8, 0.5], "role": "plaster"}]}
+        errs = recipes.check_recipe(r, "recipes/sawmill.json", SCHEMA, CONTENT, KIT_FILES, ROLES)
+        self.assertTrue(any("producers need anchors chimney, smoke" in e for e in errs), errs)
+        r["anchors"] = {"chimney": [0, 0, 0.5]}
+        errs = recipes.check_recipe(r, "recipes/sawmill.json", SCHEMA, CONTENT, KIT_FILES, ROLES)
+        self.assertTrue(any("producers need anchors smoke" in e for e in errs), errs)
+        r["anchors"]["smoke"] = [0, 0, 0.55]
+        self.assertEqual(recipes.check_recipe(r, "recipes/sawmill.json", SCHEMA, CONTENT, KIT_FILES, ROLES), [])
+
+    def test_every_committed_producer_recipe_has_them(self):
+        import json
+        import os
+
+        from nsassets import content as content_mod
+
+        for cid in content_mod.required_ids(CONTENT):
+            if not content_mod.is_producer(CONTENT, cid):
+                continue
+            with open(os.path.join(config.RECIPES_DIR, f"{cid}.json"), encoding="utf-8") as f:
+                anchors = json.load(f).get("anchors", {})
+            self.assertIn("chimney", anchors, cid)
+            self.assertIn("smoke", anchors, cid)
+
+
 if __name__ == "__main__":
     unittest.main()

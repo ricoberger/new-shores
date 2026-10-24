@@ -3,6 +3,7 @@
   "id": "mill",
   "kind": "building",
   "notes": "Mill: the KayKit windmill (0.8) with its timber cap under terracotta. Signature prop: the big sails on the front (+y); flour sacks and a cart by the door.",
+  "anchors": {"smoke": [0.0, -0.1, 2.587], "chimney": [0.0, -0.1, 2.537]},
   "parts": [
     {"kit_building": "windmill", "position": [0, -0.1, 0], "scale": 0.8, "roles": {"Atlas/team": "terracotta"}},
     {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-dirt", "shade": 1.08},

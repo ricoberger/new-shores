@@ -9,6 +9,7 @@
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3, type Color4 } from "@babylonjs/core/Maths/math.color";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
+import { CreateIcoSphere } from "@babylonjs/core/Meshes/Builders/icoSphereBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
@@ -17,10 +18,10 @@ import { lifeAtLod, lifeBudget, type LifePlan, type LifeSink, type LifeStats } f
 import { CLS, VILLAGER_VARIANTS } from "../display/lifeplan";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
-import { BUILDINGS } from "../theme/palette";
+import { BUILDINGS, WATER } from "../theme/palette";
 import { skyFill } from "./lighting";
 import { lifeModel, type ModelData, type ModelRegistry } from "./models";
-import { c4 } from "./palette";
+import { c4, mix } from "./palette";
 
 const WHITE = [1, 1, 1, 1] as const;
 
@@ -270,7 +271,18 @@ function box(w: number, h: number, d: number, color: Color4, centred = false): L
   };
 }
 
+/** A low-poly puff (unit diameter, flat-shaded) in one colour: smoke. */
+function puff(color: Color4): LifeGeometry {
+  return (scene, name) => {
+    const m = CreateIcoSphere(name, { radius: 0.5, subdivisions: 1, flat: true }, scene);
+    m.setVerticesData("color", new Array(m.getTotalVertices()).fill([color.r, color.g, color.b, 1]).flat());
+    return m;
+  };
+}
+
 const TIMBER = c4(BUILDINGS.timber);
+/** Smoke grey: between the stone role and the foam white (no palette entry of its own). */
+const SMOKE = mix(BUILDINGS.stone, WATER.foam, 0.7).toColor4(1);
 const CANVAS = c4(BUILDINGS.canvas);
 
 function villagers(tier: "settlers" | "citizens", color: Color4): Record<string, LifeClassDef> {
@@ -288,4 +300,5 @@ export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
   [CLS.axle]: { geometry: box(0.57, 0.18, 0.18, TIMBER, true), model: { id: "life_cart_axle" } },
   ...villagers("settlers", c4(BUILDINGS.thatch)),
   ...villagers("citizens", c4(BUILDINGS.terracotta)),
+  [CLS.smoke]: { geometry: puff(SMOKE), particle: true },
 };

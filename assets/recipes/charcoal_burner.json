@@ -3,7 +3,7 @@
   "id": "charcoal_burner",
   "kind": "building",
   "notes": "Charcoal burner: a smouldering earth-covered charcoal mound with glowing vents and a small lean-to hut. Signature prop: the mound, with stacked KayKit lumber waiting by it.",
-  "anchors": {"smoke": [0.2, -0.25, 0.6]},
+  "anchors": {"smoke": [0.2, -0.25, 0.6], "chimney": [0.2, -0.25, 0.55]},
   "parts": [
     {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-dirt", "shade": 0.9},
     {"name": "charcoal mound", "prim": "lathe", "profile": [[0.55, 0], [0.5, 0.18], [0.32, 0.42], [0.1, 0.52], [0, 0.53]], "segments": 8, "position": [0.2, -0.25, 0], "role": "timber", "shade": 0.72},

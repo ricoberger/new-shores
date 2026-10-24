@@ -39,6 +39,11 @@ def is_house(content, cid):
     return "house" in content["buildings"].get(cid, {})
 
 
+def is_producer(content, cid):
+    """Whether a building runs a production recipe (its model needs chimney and smoke anchors for the life layer's smoke)."""
+    return "recipe" in content["buildings"].get(cid, {}) and "field" not in content["buildings"].get(cid, {})
+
+
 def ground_range(content, cid):
     """The ground band of a building's lowest point: deeper for water-edge buildings (piles into the sea)."""
     if content["buildings"].get(cid, {}).get("water_tiles", 0) > 0:

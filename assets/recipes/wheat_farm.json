@@ -3,6 +3,7 @@
   "id": "wheat_farm",
   "kind": "building",
   "notes": "Wheat farm: a KayKit home_A farmhouse (0.7) under terracotta and a timber barn; the yard shows the wheat field type: sheaves stacked in a fenced corner and a few wheat rows. Signature prop: the wheat sheaves.",
+  "anchors": {"smoke": [-0.8, -1.313, 1.547], "chimney": [-0.8, -1.313, 1.497]},
   "parts": [
     {"kit_building": "home_A", "position": [-0.8, -0.75, 0], "scale": 0.7, "roles": {"Atlas/team": "terracotta"}},
     {"name": "yard", "prim": "box", "size": [2.9, 2.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-dirt", "shade": 1.08},

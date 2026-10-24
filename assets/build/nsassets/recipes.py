@@ -105,6 +105,11 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
         for k in ("levels", "ship", "attachments", "budget_exception"):
             if k in recipe:
                 errors.append(f"{name}: {k} is not for life-layer elements")
+    if kind == "building" and content_mod.is_producer(content, cid):
+        # The life layer's chimney smoke rises from these (LIFE_LAYER §2).
+        missing = [k for k in ("chimney", "smoke") if k not in recipe.get("anchors", {})]
+        if missing:
+            errors.append(f"{name}: producers need anchors {', '.join(missing)} (chimney top and smoke origin for the life layer)")
     if kind == "decor":
         if not cid.startswith(config.DECOR_PREFIX):
             errors.append(f"{name}: decoration IDs start with {config.DECOR_PREFIX!r} (they are not content IDs)")
