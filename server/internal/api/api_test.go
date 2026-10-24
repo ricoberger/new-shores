@@ -608,9 +608,18 @@ func TestHealthAndContent(t *testing.T) {
 				ShipSpeed      int64 `json:"ship_speed_milli_tiles_per_min"`
 			} `json:"rules"`
 		} `json:"region"`
-		Tiers     []json.RawMessage `json:"tiers"`
-		Goods     []json.RawMessage `json:"goods"`
-		Needs     []json.RawMessage `json:"needs"`
+		Tiers []json.RawMessage `json:"tiers"`
+		Goods []json.RawMessage `json:"goods"`
+		Needs []struct {
+			ID       string `json:"id"`
+			Name     string `json:"name"`
+			Category string `json:"category"`
+		} `json:"needs"`
+		NeedCategories []struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+			Icon string `json:"icon"`
+		} `json:"need_categories"`
 		Buildings []struct {
 			ID       string `json:"id"`
 			Category string `json:"category"`
@@ -667,6 +676,23 @@ func TestHealthAndContent(t *testing.T) {
 	}
 	if c.Region.Rules.ShipHandlingMs != 20_000 || c.Region.Rules.ShipSpeed != 60_000 {
 		t.Errorf("rules = %+v", c.Region.Rules)
+	}
+	// Display names: every need has one; categories carry name and icon.
+	var cats []string
+	for _, nc := range c.NeedCategories {
+		cats = append(cats, nc.ID+"="+nc.Name+"/"+nc.Icon)
+	}
+	if got := strings.Join(cats, ","); got != "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:_fallback,luxury=Luxury/need:_fallback" {
+		t.Errorf("need categories = %s", got)
+	}
+	for _, n := range c.Needs {
+		want := map[string]string{"food": "Food", "drink": "Drink", "clothing": "Clothing"}[n.Category]
+		if n.Category == "" {
+			want = map[string]string{"settlers_market_small": "Market", "citizens_market_small": "Market", "citizens_chapel": "Chapel", "citizens_tavern": "Tavern"}[n.ID]
+		}
+		if n.Name == "" || n.Name != want {
+			t.Errorf("need %s name %q, want %q", n.ID, n.Name, want)
+		}
 	}
 	want := map[string]string{
 		"house_settlers": "houses", "road_dirt": "roads", "warehouse": "harbour", "market_small": "public",
