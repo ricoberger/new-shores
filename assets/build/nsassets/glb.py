@@ -34,12 +34,19 @@ def _json_float(v):
     return 0.0 if r == 0 else r
 
 
-def vertex_data(tris, colors, ao=None):
+def sway_alpha(w):
+    """COLOR_0 alpha byte of a sway weight w ∈ [0, 1] (the client's cloth mask: 255 = rigid)."""
+    return 255 - int(round(max(0.0, min(1.0, w)) * 255))
+
+
+def vertex_data(tris, colors, ao=None, sway=None):
     """
     Deduplicated vertices of flat-shaded triangles in glTF space: positions
     and normals rounded (stable bytes), colours as RGBA bytes. colors maps
     (role, shade) → colour, or with ao (one level triple per triangle)
-    (role, shade, level) → colour. Returns (positions, normals, colors, indices).
+    (role, shade, level) → colour. sway (one weight triple or None per
+    triangle) lowers the alpha byte of swaying cloth (sway_alpha). Returns
+    (positions, normals, colors, indices).
     """
     index = {}
     positions, normals, cols, indices = [], [], [], []
@@ -52,6 +59,8 @@ def vertex_data(tris, colors, ao=None):
         # Smooth-shaded triangles carry one normal per corner.
         ns = [tuple(round(x, nd) + 0.0 for x in to_gltf(m)) for m in t[7]] if len(t) > 7 else [n] * 3
         corner = [colors[(t[3], t[4], lvl)] for lvl in ao[k]] if ao is not None else [colors[(t[3], t[4])]] * 3
+        if sway is not None and sway[k] is not None:
+            corner = [col[:3] + (sway_alpha(w),) for col, w in zip(corner, sway[k])]
         for p, col, n in zip((a, b, c), corner, ns):
             q = tuple(round(x, pd) + 0.0 for x in p)
             key = (q, n, col)
@@ -70,10 +79,10 @@ def color_bytes(rgb):
     return tuple(to_byte(c) for c in rgb) + (255,)
 
 
-def write(name, tris, colors, ao=None):
-    """GLB bytes of the triangles; colors maps (role, shade) → (r, g, b) floats, with ao (role, shade, level) → (r, g, b)."""
+def write(name, tris, colors, ao=None, sway=None):
+    """GLB bytes of the triangles; colors maps (role, shade) → (r, g, b) floats, with ao (role, shade, level) → (r, g, b); sway as in vertex_data."""
     byte_colors = {k: color_bytes(v) for k, v in colors.items()}
-    positions, normals, cols, indices = vertex_data(tris, byte_colors, ao)
+    positions, normals, cols, indices = vertex_data(tris, byte_colors, ao, sway)
     n = len(positions)
     pos_bin = b"".join(struct.pack("<3f", *p) for p in positions)
     nor_bin = b"".join(struct.pack("<3f", *v) for v in normals)

@@ -41,6 +41,7 @@ import { type AssetsStatus, type Detail, ModelRegistry } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
 import { LIFE_CLASSES, LifeLayer } from "./life";
+import { setSwayTime } from "./sway";
 import { type Effects, SceneLighting } from "./lighting";
 import { RoadPreview } from "./roads";
 import type { ShipStyle } from "./shipmesh";
@@ -297,6 +298,7 @@ export class GameRenderer {
     // Rise-ins that finished re-merged their chunks: new caster meshes.
     if (casters) this.refreshCasters();
     this.life.frame(now, this.lifeIslands(), this.lod);
+    setSwayTime(now, this.life.isEnabled());
     this.arch.frame(now);
     this.updateGhost();
     this.updateGrid();

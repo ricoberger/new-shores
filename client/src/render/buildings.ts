@@ -32,6 +32,7 @@ import { setInstances } from "./instances";
 import { type Detail, type ModelData, type ModelEntry, type ModelFile, type ModelRegistry, atDetail, modelFileFor, placement, worldData } from "./models";
 import { buildingColor, DOOR, INACTIVE_TINT, PAUSED_TINT, roofColor, SELECTION } from "./palette";
 import { skyFill } from "./lighting";
+import { addSway } from "./sway";
 import { ColoredInstances } from "./shipmesh";
 
 /** Chunk size (tiles) of the merged model meshes. */
@@ -201,7 +202,7 @@ export class BuildingLayer {
     private readonly parent: TransformNode | null = null,
     private readonly registry: ModelRegistry | null = null,
   ) {
-    this.material = skyFill(new StandardMaterial("buildings", scene));
+    this.material = addSway(skyFill(new StandardMaterial("buildings", scene)));
     this.material.specularColor = Color3.Black();
     this.doors = CreateBox("doors", { width: 0.35, height: 0.3, depth: 0.12 }, scene);
     const doorMat = skyFill(new StandardMaterial("doors", scene));

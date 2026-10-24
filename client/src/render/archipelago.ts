@@ -25,6 +25,7 @@ import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
 import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
+import { SAILING_ALPHA, sailing } from "./sway";
 import { type ModelRegistry, shipMeshes, shipModel } from "./models";
 import { ARROW_BRIGHT, ARROW_DIM, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION } from "./palette";
 
@@ -436,6 +437,8 @@ export class ArchipelagoLayer {
         const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
         this.shipStyles.set(s.id, style);
         inst.setColor(i, shipColor(style));
+        // Sails fill while under way (the sway shader's sentinel).
+        if (sailing(s, p)) inst.colors[i * 4 + 3] = SAILING_ALPHA;
         // Crates on deck while carrying cargo, at the same matrix.
         if (cargo && s.cargo.length > 0) {
           cargo.matrices.set(inst.matrices.subarray(i * 16, i * 16 + 16), c * 16);

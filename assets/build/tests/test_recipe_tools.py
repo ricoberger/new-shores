@@ -201,5 +201,51 @@ class SmokeAnchorTest(unittest.TestCase):
             self.assertIn("smoke", anchors, cid)
 
 
+class SwayMaskTest(unittest.TestCase):
+    def alphas(self, recipe):
+        import struct
+
+        from nsassets import glb
+
+        files, _, errors = pipeline.build_recipe(recipe, CONTENT, ROLES, fake_loader())
+        self.assertEqual(errors, [])
+        doc, blob = glb.read(files[0][1])
+        acc = doc["accessors"][doc["meshes"][0]["primitives"][0]["attributes"]["COLOR_0"]]
+        view = doc["bufferViews"][acc["bufferView"]]
+        return [struct.unpack_from("<4B", blob, view["byteOffset"] + 4 * i)[3] for i in range(acc["count"])]
+
+    def test_cloth_and_flags_sway_with_a_belly_profile_the_rest_is_rigid(self):
+        r = {
+            "id": "sailmaker",
+            "kind": "building",
+            "anchors": {"chimney": [0, 0, 1], "smoke": [0, 0, 1.05]},
+            "parts": [
+                {"prim": "box", "size": [1.8, 1.8, 0.5], "role": "plaster"},
+                {"name": "spread sail", "prim": "sail", "width": 0.6, "height": 0.6, "position": [0, 0, 0.6], "role": "canvas"},
+                {"name": "flag pole", "prim": "box", "size": [0.05, 0.05, 1.0], "role": "timber"},
+                {"name": "flag", "prim": "box", "size": [0.3, 0.02, 0.2], "position": [0.15, 0, 0.8], "role": "dye-blue"},
+            ],
+        }
+        a = self.alphas(r)
+        self.assertIn(255, a)
+        swaying = [x for x in a if x < 255]
+        self.assertTrue(swaying, a)
+        # 0.3 at the edges (alpha 255 − 77), 1 at mid-height (alpha 0) at most.
+        self.assertGreaterEqual(min(swaying), 0)
+        self.assertLessEqual(max(swaying), 255 - 76)
+
+    def test_no_cloth_no_mask(self):
+        r = {"id": "decor_rock", "kind": "decor", "parts": [{"prim": "rock", "size": [0.2, 0.2, 0.15], "role": "mountain"}]}
+        self.assertEqual(set(self.alphas(r)), {255})
+
+    def test_ship_sails_are_the_kit_hull_canvas(self):
+        hull = {"prim": "box", "size": [1, 1, 1], "role": "canvas"}
+        r = {"id": "x", "kind": "ship"}
+        self.assertEqual(pipeline._sways(r, {"kit": "k", "file": "a.gltf"}), "canvas")
+        self.assertIsNone(pipeline._sways(r, hull))
+        self.assertEqual(pipeline._sways({"kind": "building"}, {"kit": "k", "file": "x/flag_blue.gltf"}), "all")
+        self.assertIsNone(pipeline._sways({"kind": "building"}, {"name": "flag pole", "prim": "box"}))
+
+
 if __name__ == "__main__":
     unittest.main()

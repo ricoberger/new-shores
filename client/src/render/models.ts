@@ -28,6 +28,7 @@ import "@babylonjs/loaders/glTF/2.0/glTFLoader";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
 import { skyFill } from "./lighting";
+import { addSway } from "./sway";
 
 /** Manifest file entry (one GLB). */
 export interface ModelFile {
@@ -360,6 +361,7 @@ export function lifeAnchor(registry: ModelRegistry | null, id: string, name: str
 /** Meshes of a ship model (thin-instanced by the caller; always active, the instances move). */
 export function shipMeshes(scene: Scene, name: string, model: { hull: ModelData; cargo: ModelData | null }): { hull: Mesh; cargo: Mesh | null } {
   const hull = modelMesh(scene, name, model.hull);
+  addSway(hull.material as StandardMaterial);
   hull.alwaysSelectAsActiveMesh = true;
   let cargo: Mesh | null = null;
   if (model.cargo) {

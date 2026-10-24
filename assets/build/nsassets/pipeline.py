@@ -8,6 +8,7 @@ manifest entry.
 import hashlib
 import json
 import math
+import os
 
 from . import atlas, config, content as content_mod, geometry, glb, palette, validate
 from . import recipes as recipes_mod
@@ -356,6 +357,59 @@ def bake(mesh, recipe, kit_loader):
     return mesh
 
 
+def _sways(recipe, part):
+    """
+    Which triangles of a part sway in the client (LIFE_LAYER §2, sails and
+    flags): every triangle of a cloth ("sail" primitive) or a flag (a part
+    named flag…, not its pole, or a KayKit flag_* piece); in ships the
+    canvas-role triangles of the kit hull (the sails). Returns "all",
+    "canvas" or None.
+    """
+    name = part.get("name", "")
+    if part.get("prim") == "sail" or (name.startswith("flag") and "pole" not in name):
+        return "all"
+    if os.path.basename(part.get("file", "")).startswith("flag_"):
+        return "all"
+    if recipe["kind"] == "ship" and "kit" in part:
+        return "canvas"
+    return None
+
+
+def sway_weights(recipe, mesh):
+    """
+    Per-triangle corner weights (None: rigid) of the cloth mask: within each
+    swaying part, 0.3 at the top and bottom rising to 1 at mid-height
+    (sin profile), so a sail bulges in its belly and a flag waves without
+    leaving its pole; None for a file without cloth.
+    """
+    rules = {}
+    for group, parts in part_groups(recipe):
+        for i, part in enumerate(parts):
+            rule = _sways(recipe, part)
+            if rule:
+                rules[part_label(part, i, group)] = rule
+    if not rules:
+        return None
+    picked = [rules.get(t[5]) == "all" or (rules.get(t[5]) == "canvas" and t[3] == "canvas") for t in mesh.tris]
+    if not any(picked):
+        return None
+    span = {}
+    for t, on in zip(mesh.tris, picked):
+        if on:
+            lo, hi = span.get(t[5], (math.inf, -math.inf))
+            zs = [p[2] for p in t[:3]]
+            span[t[5]] = (min(lo, *zs), max(hi, *zs))
+    out = []
+    for t, on in zip(mesh.tris, picked):
+        if not on:
+            out.append(None)
+            continue
+        lo, hi = span[t[5]]
+        h = hi - lo
+        out.append(tuple(0.3 + 0.7 * math.sin(math.pi * ((p[2] - lo) / h if h > 1e-9 else 0.5)) for p in t[:3]))
+    return out
+
+
 def _check_file(recipe, content, roles, fname, key, mesh, declared, limit):
     """Validates one model file (full or lite: the same rules, the lite budget); returns (bytes, problems)."""
     cid = recipe["id"]
@@ -371,7 +425,7 @@ def _check_file(recipe, content, roles, fname, key, mesh, declared, limit):
         problems += [f"{fname}: {p}" for p in validate.ship_length(mesh, recipe["ship"]["length_tiles"])]
     problems += validate.palette_check(mesh, roles, declared, fname)
     colors = file_colors(roles, declared, mesh.ao)
-    data = glb.write(cid, mesh.tris, colors, mesh.ao)
+    data = glb.write(cid, mesh.tris, colors, mesh.ao, sway_weights(recipe, mesh))
     problems += validate.export_profile(data, fname)
     problems += readback_colors(data, colors, fname)
     return data, problems

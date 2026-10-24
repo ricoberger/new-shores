@@ -2708,11 +2708,11 @@
           "budget": 1500,
           "bytes": 25136,
           "path": "sailmaker.lite.glb",
-          "sha256": "6110bd0cc7514e417c3278bde264cd48906b106e2b18030dbd9ab909757c1fb4",
+          "sha256": "211006b076a23dce07a38d2aede4603f9e2447d7f55abdbe6e52b90ef6643306",
           "triangles": 270
         },
         "path": "sailmaker.glb",
-        "sha256": "a4c5e56fb006aa3e926e4edf54bba9d3ae02aecbac2311e822cbd573a98f2561",
+        "sha256": "45a05c8947e17ca0cc95a469bd116e21e219284d813518e71ff03e36f594519d",
         "triangles": 1173
       },
       "footprint": {
@@ -3047,7 +3047,7 @@
         "budget": 1500,
         "bytes": 115528,
         "path": "sloop.glb",
-        "sha256": "1f02a5eef200cefa76cab7d801e8df6ad77270a954a8e4d3096979a1fceef92d",
+        "sha256": "cef9ca01db6f014be3d1edb526dbe6c6586c3482f108a53e2a027e111f25d12b",
         "triangles": 1488
       },
       "kind": "ship",
@@ -3512,11 +3512,11 @@
             "budget": 1500,
             "bytes": 56700,
             "path": "trading_post.l4.lite.glb",
-            "sha256": "12764aebf046bc1c3114fbf974dcfba5bad6789509ffe5178ad9255ba7caf392",
+            "sha256": "9d9717a0f5ded8b91d3ac4bd875e1ca8cc7ee9b5dba61ff2f8a900d59b105ef5",
             "triangles": 623
           },
           "path": "trading_post.l4.glb",
-          "sha256": "faaa7655ba12b2e2f19a57958bb55c4ebc5396e0a2d998110d1c785622d52270",
+          "sha256": "1901f53c8f29c7700a7b96b08c0f6e8f002fc1f6ab3a299de79f9b22f56ae671",
           "triangles": 3664
         }
       }
@@ -3674,11 +3674,11 @@
             "budget": 1500,
             "bytes": 33784,
             "path": "warehouse.l3.lite.glb",
-            "sha256": "d4fb0fd11f11e3a0d95edde99fb2e58fcdf167de91e074c8cf64c4af9518e5ed",
+            "sha256": "3a11739f2ef2f59c94fca141fc865db865be5e4d92170782cfa4d2a91d7c0a34",
             "triangles": 366
           },
           "path": "warehouse.l3.glb",
-          "sha256": "fe6edc28ec5dbe3776e0e19170a80bbae3cf03be25aae56915ed40331985b2b2",
+          "sha256": "cfa69ed196c0485e3ec5d603d477f6bec94683bf169d84aea731d681c7e28b0e",
           "triangles": 2638
         }
       }
@@ -3749,11 +3749,11 @@
           "budget": 1500,
           "bytes": 33684,
           "path": "weaver_linen.lite.glb",
-          "sha256": "09f67b38b15b5192cdeaa81af0b81d20736498fcc307118c162792b598b8a440",
+          "sha256": "02b6705df0d54675cbdb439ac44945a1482b059969cf3e7bbf0bf44bca0a2a01",
           "triangles": 370
         },
         "path": "weaver_linen.glb",
-        "sha256": "7ecb22dc4fdfc263b32f7af33d843ff90950f5217ec5127fc5d4238768e25f5a",
+        "sha256": "17dd0c9b9fb60564f1c8ec9c5957e7eb9be6d2c0fea97292b1752b95e243f197",
         "triangles": 1521
       },
       "footprint": {
@@ -3836,11 +3836,11 @@
           "budget": 1500,
           "bytes": 25688,
           "path": "weaver_wool.lite.glb",
-          "sha256": "2b322f7eebdb946b6219cf277c26045b41e1c8935931f9a0b6844e1804778751",
+          "sha256": "c92b87bbb862372e7f516ac03dadba9b0c8380425c6315c7ee4db384231c02c8",
           "triangles": 277
         },
         "path": "weaver_wool.glb",
-        "sha256": "e4bf715a9952b281d48741a01535fe98585d22f3ccd349fc320e7c2ad2e336e5",
+        "sha256": "abfa5925dda21f4e96977014f61465affe537027151949f9ca19c4f239115fd3",
         "triangles": 1149
       },
       "footprint": {
