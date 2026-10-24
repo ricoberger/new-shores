@@ -35,8 +35,21 @@ function world(version: number, evaluatedAt: string, nextChangeAt: string | null
   return { version, display };
 }
 
+/**
+ * A JSON response whose body resolves at once. A real Response streams
+ * its body through the runtime's event loop (real timers), which
+ * advanceTimersByTimeAsync does not drive: under load the body could
+ * still be pending after a fake-timer step, so the tests flaked.
+ */
 function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+  const text = JSON.stringify(body);
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    headers: new Headers({ "Content-Type": "application/json" }),
+    json: () => Promise.resolve(JSON.parse(text) as unknown),
+    text: () => Promise.resolve(text),
+  } as unknown as Response;
 }
 
 const CONTENT = { region: { version: "v" }, tiers: [], goods: [], buildings: [], needs: [] };
