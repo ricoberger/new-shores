@@ -22,8 +22,17 @@ test("the grid overlay shows for placement tools only", async ({ page }) => {
   await page.keyboard.press("Escape");
   await expect.poll(() => gridVisible(page)).toBe(false);
 
-  // Field tool: visible.
-  await page.getByTestId("build-pasture").click();
+  // Field tool (from the sheep farm's panel, D-051 part 4): visible.
+  const farm = await page.evaluate(() => {
+    const is = window.__newShores!.getServer()!.display.islands.find((i) => i.id === "dense1")!;
+    const b = is.buildings.find((x) => x.type === "sheep_farm")!;
+    return { x: b.x, y: b.y };
+  });
+  await page.evaluate(([x, y]) => window.__newShores!.setCamera({ x: (x as number) + 1, y: (y as number) + 1 }), [farm.x, farm.y]);
+  await page.waitForTimeout(300);
+  const fp = await page.evaluate(([x, y]) => window.__newShores!.tileToScreen("dense1", x as number, y as number), [farm.x, farm.y]);
+  await page.mouse.click(fp.x, fp.y);
+  await page.getByTestId("farm-add-field").click();
   await expect.poll(() => gridVisible(page)).toBe(true);
   await page.keyboard.press("Escape");
   await expect.poll(() => gridVisible(page)).toBe(false);
@@ -151,13 +160,6 @@ test("on touch the grid follows the finger of a road drag and of a second field 
   await drag([16, 24], [30, 24], () => gridNear(30, 24));
   await page.getByTestId("road-done").tap();
 
-  // Fields: a first rectangle stays pending; a second drag elsewhere takes the grid along.
-  await page.getByTestId("build-tab-production").tap();
-  await page.getByTestId("build-pasture").tap();
-  await drag([20, 25], [23, 27], () => gridNear(23, 27));
-  await gridNear(23, 27);
-  await drag([26, 24], [34, 27], () => gridNear(34, 27));
-  await gridNear(34, 27);
   await context.close();
 });
 

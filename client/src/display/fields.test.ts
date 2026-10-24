@@ -2,16 +2,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import type { BuildingDisplay, ContentBuilding, DisplayState } from "../api/client";
-import {
-  buildMenuOrder,
-  classifyFieldTiles,
-  fieldRectHint,
-  fieldTilesToSend,
-  inFarmRadius,
-  MAX_FIELD_TILES,
-  rectTiles,
-} from "./fields";
+import type { BuildingDisplay, Content, ContentBuilding, DisplayState } from "../api/client";
+import { farmChain, fieldBuildingOf, fieldHintText, fieldPlacementHint, rectsTouch } from "./fields";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const fixtureDir = join(root, "server", "testdata", "display");
@@ -19,63 +11,136 @@ const fixtures = readdirSync(fixtureDir)
   .filter((f) => f.endsWith(".json"))
   .map((f) => ({ name: f, base: (JSON.parse(readFileSync(join(fixtureDir, f), "utf8")) as { base: DisplayState }).base }));
 
-/** The shipped content file (footprint and work radius of the farms). */
+/** The shipped content file (footprints and the farm of each field). */
 const shipped = JSON.parse(readFileSync(join(root, "content", "old_coast", "buildings.json"), "utf8")) as {
   id: string;
   footprint: [number, number];
-  work_area?: { radius: number };
-  fields?: { type: string };
-  field?: { type: string };
+  fields?: { type: string; required: number; max: number };
+  field?: { type: string; farm: string };
 }[];
 
 const def = (id: string, w: number, h: number, extra: Partial<ContentBuilding> = {}) =>
   ({ id, name: id, width: w, height: h, category: "production", ...extra }) as ContentBuilding;
 
-const pasture = def("pasture", 1, 1, { name: "Pasture", field: { type: "pasture", terrain: ["grass"] } });
-const wheatField = def("wheat_field", 1, 1, { name: "Wheat field", field: { type: "wheat_field", terrain: ["grass"], fertility: "wheat" } });
-const sheepFarm = def("sheep_farm", 3, 3, { work_area: { radius: 4 }, fields: { type: "pasture", required: 16 } });
-const defs = new Map([pasture, wheatField, sheepFarm, def("house", 2, 2)].map((d) => [d.id, d]));
+const pasture = def("pasture", 2, 2, { name: "Pasture", field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } });
+const wheatField = def("wheat_field", 1, 1, { name: "Wheat field", field: { type: "wheat_field", farm: "wheat_farm", terrain: ["grass"], fertility: "wheat" } });
+const sheepFarm = def("sheep_farm", 3, 3, { fields: { type: "pasture", required: 4, max: 8 } });
+const wheatFarm = def("wheat_farm", 3, 3, { fields: { type: "wheat_field", required: 16, max: 20 } });
+const defs = new Map([pasture, wheatField, sheepFarm, wheatFarm, def("house", 2, 2)].map((d) => [d.id, d]));
 
-const building = (id: number, type: string, x: number, y: number, rotation = 0) =>
-  ({ id, type, x, y, rotation, status: "ok" }) as BuildingDisplay;
+const building = (id: number, type: string, x: number, y: number, extra: Partial<BuildingDisplay> = {}) =>
+  ({ id, type, x, y, rotation: 0, status: "ok", ...extra }) as BuildingDisplay;
 
-/** A 20 × 12 grass island with a forest tile at (2,6). */
+/** A 24 × 14 grass island with a forest tile at (2,6). */
 function island(fertilities: string[] = []) {
-  const width = 20;
-  const height = 12;
+  const width = 24;
+  const height = 14;
   const terrain = Array.from({ length: width * height }, (_, i) => (i === 6 * width + 2 ? "forest" : "grass")) as ("grass" | "forest")[];
   return { width, height, terrain, fertilities };
 }
 
-describe("rectTiles", () => {
-  it("lists the inclusive rectangle row by row for any corner order", () => {
-    const a = rectTiles({ x: 3, y: 2 }, { x: 1, y: 3 });
-    expect(a).toEqual([
-      { x: 1, y: 2 },
-      { x: 2, y: 2 },
-      { x: 3, y: 2 },
-      { x: 1, y: 3 },
-      { x: 2, y: 3 },
-      { x: 3, y: 3 },
-    ]);
-    expect(rectTiles({ x: 1, y: 3 }, { x: 3, y: 2 })).toEqual(a);
-    expect(rectTiles({ x: 5, y: 5 }, { x: 5, y: 5 })).toEqual([{ x: 5, y: 5 }]);
+/** The farm at (8,5) (x 8..10, y 5..7) with the given fields. */
+function world(fields: { id: number; x: number; y: number; active?: boolean; type?: string; farm?: number }[] = []) {
+  const farm = building(1, "sheep_farm", 8, 5, { fields: { active: fields.filter((f) => f.active !== false).length, required: 4, max: 8, ids: fields.map((f) => f.id) } });
+  const fs = fields.map((f) => building(f.id, f.type ?? "pasture", f.x, f.y, { farm_id: f.farm ?? 1, active: f.active ?? true }));
+  const buildings = [farm, building(50, "house", 14, 10), ...fs];
+  return { farm, buildings, data: { island: island(), buildings, roads: [{ x: 9, y: 4 }], defs } };
+}
+
+describe("rectsTouch", () => {
+  it("is the server's 8-adjacency: edges and corners touch, a gap does not", () => {
+    const a = { x: 8, y: 5, w: 3, h: 3 };
+    expect(rectsTouch(a, { x: 11, y: 5, w: 2, h: 2 })).toBe(true); // edge
+    expect(rectsTouch(a, { x: 11, y: 8, w: 2, h: 2 })).toBe(true); // corner
+    expect(rectsTouch(a, { x: 12, y: 5, w: 2, h: 2 })).toBe(false); // gap at x = 11
+    expect(rectsTouch(a, { x: 11, y: 9, w: 2, h: 2 })).toBe(false); // gap at y = 8
+    expect(rectsTouch(a, { x: 6, y: 3, w: 2, h: 2 })).toBe(true); // corner, north-west
   });
 });
 
-describe("inFarmRadius", () => {
-  const farm = { x: 8, y: 5, rotation: 0, width: 3, height: 3, radius: 4 };
-  it("uses the server's integer disc rule (boundary included)", () => {
-    // (2*13+1-19)^2 + (2*6+1-13)^2 = 64 <= 64; (14,6) gives 100.
-    expect(inFarmRadius(farm, 13, 6)).toBe(true);
-    expect(inFarmRadius(farm, 14, 6)).toBe(false);
-    // Rotation swaps a non-square footprint.
-    const long = { x: 0, y: 0, rotation: 90, width: 4, height: 2, radius: 1 };
-    expect(inFarmRadius(long, 1, 2)).toBe(true);
-    expect(inFarmRadius({ ...long, rotation: 0 }, 1, 2)).toBe(false);
+describe("fieldPlacementHint", () => {
+  it("accepts a ghost next to the farm (edge or corner) and rejects one that touches nothing", () => {
+    const { farm, data } = world();
+    expect(fieldPlacementHint(farm, pasture, 11, 5, 0, data)).toBeNull();
+    expect(fieldPlacementHint(farm, pasture, 11, 8, 0, data)).toBeNull();
+    expect(fieldPlacementHint(farm, pasture, 12, 5, 0, data)).toBe("not_adjacent");
+    expect(fieldPlacementHint(farm, pasture, 16, 9, 0, data)).toBe("not_adjacent");
   });
 
-  it("contains every field the server assigned to a farm (shared display fixtures)", () => {
+  it("chains over active fields only", () => {
+    const active = world([{ id: 2, x: 11, y: 5 }]);
+    expect(fieldPlacementHint(active.farm, pasture, 13, 5, 0, active.data)).toBeNull();
+    const broken = world([{ id: 2, x: 11, y: 5, active: false }]);
+    expect(fieldPlacementHint(broken.farm, pasture, 13, 5, 0, broken.data)).toBe("not_adjacent");
+    // A field of another farm never carries the chain.
+    const foreign = world([{ id: 2, x: 11, y: 5, farm: 9 }]);
+    expect(fieldPlacementHint(foreign.farm, pasture, 13, 5, 0, foreign.data)).toBe("not_adjacent");
+  });
+
+  it("reports the server's rules in the server's order", () => {
+    const { farm, data } = world();
+    expect(fieldPlacementHint(farm, pasture, 23, 5, 0, data)).toBe("bounds");
+    expect(fieldPlacementHint(farm, pasture, -1, 5, 0, data)).toBe("bounds");
+    expect(fieldPlacementHint(farm, pasture, 6, 5, 0, { ...data, island: { ...data.island, terrain: data.island.terrain.map(() => "forest") } })).toBe("terrain");
+    expect(fieldPlacementHint(farm, pasture, 0, 5, 0, data)).toBe("not_adjacent");
+    expect(fieldPlacementHint(farm, pasture, 1, 5, 0, data)).toBe("terrain"); // (2,6) is forest
+    expect(fieldPlacementHint(farm, pasture, 9, 3, 0, data)).toBe("occupied"); // road at (9,4)
+    expect(fieldPlacementHint(farm, pasture, 9, 6, 0, data)).toBe("occupied"); // the farm
+    // Fertility is checked before adjacency.
+    const wheat = { ...farm, type: "wheat_farm" } as BuildingDisplay;
+    expect(fieldPlacementHint(wheat, wheatField, 11, 5, 0, data)).toBe("fertility");
+    expect(fieldPlacementHint(wheat, wheatField, 11, 5, 0, { ...data, island: island(["wheat"]) })).toBeNull();
+  });
+
+  it("stops at the maximum", () => {
+    const ids = Array.from({ length: 8 }, (_, i) => ({ id: 10 + i, x: 11 + 2 * (i % 4), y: i < 4 ? 5 : 7 }));
+    const full = world(ids);
+    expect(fieldPlacementHint(full.farm, pasture, 8, 8, 0, full.data)).toBe("max_reached");
+  });
+
+  it("has a sentence for every hint", () => {
+    for (const h of ["bounds", "terrain", "occupied", "fertility", "not_adjacent", "max_reached"] as const) {
+      expect(fieldHintText(h, "Pasture", "Sheep farm")).toMatch(/\S/);
+    }
+    expect(fieldHintText("not_adjacent", "Pasture", "Sheep farm")).toBe("A pasture must touch sheep farm or one of its active pastures");
+  });
+});
+
+describe("farmChain", () => {
+  it("is the farm and its fields from the farm or from one of its fields", () => {
+    const w = world([
+      { id: 2, x: 11, y: 5 },
+      { id: 3, x: 13, y: 5, active: false },
+      { id: 4, x: 16, y: 5, farm: 9 },
+    ]);
+    for (const selected of [w.farm, w.buildings.find((b) => b.id === 3)!]) {
+      const c = farmChain(selected, w.buildings);
+      expect(c.farm?.id).toBe(1);
+      expect(c.fields.map((f) => f.id)).toEqual([2, 3]);
+    }
+    expect(farmChain(w.buildings.find((b) => b.id === 50)!, w.buildings)).toEqual({ farm: undefined, fields: [] });
+  });
+});
+
+describe("fieldBuildingOf", () => {
+  it("finds the one field building of each shipped farm", () => {
+    const content = { buildings: shipped.map((b) => ({ ...def(b.id, b.footprint[0], b.footprint[1]), fields: b.fields, field: b.field })) } as unknown as Content;
+    for (const [farm, field, size] of [
+      ["sheep_farm", "pasture", 2],
+      ["wheat_farm", "wheat_field", 1],
+      ["orchard", "orchard_plot", 1],
+      ["hemp_farm", "hemp_field", 1],
+    ] as const) {
+      const f = fieldBuildingOf(content, farm);
+      expect(f?.id).toBe(field);
+      expect(f?.width).toBe(size);
+    }
+    expect(fieldBuildingOf(content, "lumberjack")).toBeUndefined();
+  });
+});
+
+describe("the shared display fixtures", () => {
+  it("show every field with its farm, an active flag and the farm's field list", () => {
     let checked = 0;
     for (const { name, base } of fixtures) {
       for (const is of base.islands) {
@@ -83,99 +148,33 @@ describe("inFarmRadius", () => {
           if (f.farm_id === undefined) continue;
           const farm = is.buildings.find((b) => b.id === f.farm_id);
           const fd = shipped.find((d) => d.id === farm?.type);
-          expect(farm && fd?.work_area && fd.fields, `${name}: farm ${f.farm_id}`).toBeTruthy();
-          if (!farm || !fd?.work_area) continue;
-          const ok = inFarmRadius(
-            { x: farm.x, y: farm.y, rotation: farm.rotation, width: fd.footprint[0], height: fd.footprint[1], radius: fd.work_area.radius },
-            f.x,
-            f.y,
-          );
-          expect(ok, `${name}: field ${f.id} at (${f.x},${f.y}) and farm ${farm.id}`).toBe(true);
+          expect(farm && fd?.fields, `${name}: farm ${f.farm_id}`).toBeTruthy();
+          expect(farm?.fields?.ids, `${name}: farm ${f.farm_id} lists field ${f.id}`).toContain(f.id);
+          expect(typeof f.active, `${name}: field ${f.id}`).toBe("boolean");
           checked++;
         }
       }
     }
-    expect(checked).toBeGreaterThan(100);
-  });
-});
-
-describe("classifyFieldTiles", () => {
-  const buildings = [building(1, "sheep_farm", 8, 5), building(2, "house", 6, 2), building(3, "pasture", 7, 8)];
-  const data = (fertilities: string[] = []) => ({ island: island(fertilities), buildings, roads: [{ x: 9, y: 4 }], defs });
-
-  it("colours free matching tiles inside a ring green and outside every ring yellow", () => {
-    const { valid, outOfRange } = classifyFieldTiles(pasture, rectTiles({ x: 12, y: 6 }, { x: 15, y: 6 }), data());
-    expect(valid).toEqual([
-      { x: 12, y: 6 },
-      { x: 13, y: 6 },
-    ]);
-    expect(outOfRange).toEqual([
-      { x: 14, y: 6 },
-      { x: 15, y: 6 },
-    ]);
+    expect(checked).toBeGreaterThan(30);
   });
 
-  it("drops occupied, wrong-terrain and out-of-bounds tiles", () => {
-    const tiles = [
-      { x: 9, y: 6 }, // farm footprint
-      { x: 6, y: 3 }, // house
-      { x: 7, y: 8 }, // field
-      { x: 9, y: 4 }, // road
-      { x: 2, y: 6 }, // forest
-      { x: -1, y: 6 },
-      { x: 20, y: 6 },
-      { x: 7, y: 9 }, // valid
-    ];
-    expect(classifyFieldTiles(pasture, tiles, data())).toEqual({ valid: [{ x: 7, y: 9 }], outOfRange: [] });
-  });
-
-  it("shows nothing for a field whose fertility the island lacks, and needs a farm accepting the type", () => {
-    const tiles = rectTiles({ x: 6, y: 6 }, { x: 7, y: 7 });
-    expect(classifyFieldTiles(wheatField, tiles, data())).toEqual({ valid: [], outOfRange: [] });
-    // Wheat fertility, but no wheat farm: free grass is yellow.
-    const r = classifyFieldTiles(wheatField, tiles, data(["wheat"]));
-    expect(r.valid).toEqual([]);
-    expect(r.outOfRange).toHaveLength(4);
-  });
-});
-
-describe("field rectangle commands", () => {
-  it("sends at most 256 tiles and says so", () => {
-    const valid = rectTiles({ x: 0, y: 0 }, { x: 29, y: 9 });
-    const { tiles, capped } = fieldTilesToSend(valid);
-    expect(tiles).toHaveLength(MAX_FIELD_TILES);
-    expect(tiles[0]).toEqual({ x: 0, y: 0 });
-    expect(capped).toBe(true);
-    expect(fieldTilesToSend(valid.slice(0, 10)).capped).toBe(false);
-    expect(fieldRectHint(300, 2, "Pasture")).toBe("256 pastures · at most 256 per drag — 44 not placed · 2 outside every farm's ring");
-    expect(fieldRectHint(1, 0, "Wheat field")).toBe("1 wheat field");
-    expect(fieldRectHint(0, 3, "Pasture")).toBe("No valid pasture tile · 3 outside every farm's ring");
-  });
-});
-
-describe("buildMenuOrder", () => {
-  it("lists each field right after the farm that accepts it", () => {
-    const order = buildMenuOrder([
-      pasture,
-      def("lumberjack", 2, 2),
-      sheepFarm,
-      def("weaver", 2, 2),
-      def("dairy", 3, 3, { fields: { type: "pasture", required: 16 } }),
-      def("orphan_field", 1, 1, { field: { type: "orphan", terrain: ["grass"] } }),
-    ]).map((b) => b.id);
-    expect(order).toEqual(["lumberjack", "sheep_farm", "pasture", "weaver", "dairy", "orphan_field"]);
-  });
-
-  it("keeps the shipped content's fields next to their farms", () => {
-    const ids = shipped.map((b) => ({ ...def(b.id, b.footprint[0], b.footprint[1]), fields: b.fields, field: b.field }) as ContentBuilding);
-    const order = buildMenuOrder(ids).map((b) => b.id);
-    for (const [farm, field] of [
-      ["sheep_farm", "pasture"],
-      ["wheat_farm", "wheat_field"],
-      ["orchard", "orchard_plot"],
-      ["hemp_farm", "hemp_field"],
-    ]) {
-      expect(order.indexOf(field as string)).toBe(order.indexOf(farm as string) + 1);
+  it("agree with the client's chain hint: every active field touches its farm or an active field of it", () => {
+    for (const { name, base } of fixtures) {
+      for (const is of base.islands) {
+        const size = (b: BuildingDisplay) => {
+          const d = shipped.find((x) => x.id === b.type)!;
+          const [w, h] = b.rotation === 90 || b.rotation === 270 ? [d.footprint[1], d.footprint[0]] : d.footprint;
+          return { x: b.x, y: b.y, w, h };
+        };
+        for (const f of is.buildings.filter((b) => b.farm_id !== undefined && b.active)) {
+          const farm = is.buildings.find((b) => b.id === f.farm_id)!;
+          const near = [farm, ...is.buildings.filter((b) => b.farm_id === farm.id && b.active && b.id !== f.id)];
+          expect(
+            near.some((o) => rectsTouch(size(o), size(f))),
+            `${name}: active field ${f.id} touches nothing of farm ${farm.id}`,
+          ).toBe(true);
+        }
+      }
     }
   });
 });

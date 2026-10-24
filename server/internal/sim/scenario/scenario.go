@@ -153,25 +153,22 @@ type MoveStep struct {
 	Rotation int    `json:"rotation"`
 }
 
-// FieldsStep places fields of the field building Type (sim.PlaceFields,
-// D-049). Exactly one of Rect and Tiles is set. Rect [x0, y0, x1, y1] is a
-// rectangle with inclusive corners in any order: the step places a field on
-// every tile of it, in row-major order, that is a valid field site at that
-// moment (sim.ValidFieldTiles, the rule the client's rectangle drag
-// mirrors) and fails when no tile is valid. Tiles ([x, y] pairs) are sent
-// verbatim.
+// FieldsStep places fields from the farm covering tile Farm (a
+// sim.PlaceField per field, D-051 part 4); Type defaults to the farm's
+// field building. Exactly one of Tiles and Rect is set. Tiles ([x, y]
+// pairs, the top-left tile of each field) are placed in order, verbatim.
+// Rect [x0, y0, x1, y1] (inclusive corners in any order) places a field at
+// every anchor of it, in row-major order, where the field rule holds at
+// that moment, and repeats the pass while a pass placed a field (so a
+// chain grows outwards), up to Count fields (0: until the farm's maximum
+// or no anchor fits); it fails when it placed none or, with a Count, fewer.
 type FieldsStep struct {
 	Island string   `json:"island,omitempty"`
-	Type   string   `json:"type"`
+	Farm   [2]int   `json:"farm"`
+	Type   string   `json:"type,omitempty"`
 	Rect   *[4]int  `json:"rect,omitempty"`
 	Tiles  [][2]int `json:"tiles,omitempty"`
-}
-
-// DemolishFieldsStep demolishes the fields on Tiles ([x, y] pairs,
-// sim.DemolishFields).
-type DemolishFieldsStep struct {
-	Island string   `json:"island,omitempty"`
-	Tiles  [][2]int `json:"tiles"`
+	Count  int      `json:"count,omitempty"`
 }
 
 // StockGrant adds Amount units of Good to the island (fails above capacity).
@@ -277,20 +274,18 @@ type Step struct {
 	// produce one.
 	AwaySummary bool `json:"away_summary,omitempty"`
 
-	Place      *Placement  `json:"place,omitempty"`
-	PlaceGrid  *Grid       `json:"place_grid,omitempty"`
-	Road       *Road       `json:"road,omitempty"`
-	Demolish   *At         `json:"demolish,omitempty"`
-	DemolishRd *Road       `json:"demolish_road,omitempty"`
-	Pause      *At         `json:"pause,omitempty"`
-	Resume     *At         `json:"resume,omitempty"`
-	Upgrade    *At         `json:"upgrade,omitempty"`
-	Move       *MoveStep   `json:"move,omitempty"`
-	Fields     *FieldsStep `json:"fields,omitempty"`
-	// DemolishFields removes fields (sim.DemolishFields).
-	DemolishFields *DemolishFieldsStep `json:"demolish_fields,omitempty"`
-	Stock          *StockGrant         `json:"stock,omitempty"`
-	Advance        *AdvanceStep        `json:"advance,omitempty"`
+	Place      *Placement   `json:"place,omitempty"`
+	PlaceGrid  *Grid        `json:"place_grid,omitempty"`
+	Road       *Road        `json:"road,omitempty"`
+	Demolish   *At          `json:"demolish,omitempty"`
+	DemolishRd *Road        `json:"demolish_road,omitempty"`
+	Pause      *At          `json:"pause,omitempty"`
+	Resume     *At          `json:"resume,omitempty"`
+	Upgrade    *At          `json:"upgrade,omitempty"`
+	Move       *MoveStep    `json:"move,omitempty"`
+	Fields     *FieldsStep  `json:"fields,omitempty"`
+	Stock      *StockGrant  `json:"stock,omitempty"`
+	Advance    *AdvanceStep `json:"advance,omitempty"`
 }
 
 func (s Step) kind() (string, error) {
@@ -298,7 +293,7 @@ func (s Step) kind() (string, error) {
 	for name, set := range map[string]bool{
 		"place": s.Place != nil, "place_grid": s.PlaceGrid != nil, "road": s.Road != nil,
 		"demolish": s.Demolish != nil, "demolish_road": s.DemolishRd != nil, "pause": s.Pause != nil,
-		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "move": s.Move != nil, "fields": s.Fields != nil, "demolish_fields": s.DemolishFields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
+		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "move": s.Move != nil, "fields": s.Fields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
 		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
@@ -804,12 +799,6 @@ func (r *runner) step(i int, st Step) error {
 		return r.apply(sim.MoveBuilding{IslandID: id, BuildingID: b.ID, X: m.ToX, Y: m.ToY, Rotation: m.Rotation})
 	case st.Fields != nil:
 		return r.fields(st.Fields)
-	case st.DemolishFields != nil:
-		var tiles []sim.Pos
-		for _, t := range st.DemolishFields.Tiles {
-			tiles = append(tiles, sim.Pos{X: t[0], Y: t[1]})
-		}
-		return r.apply(sim.DemolishFields{IslandID: r.islandID(st.DemolishFields.Island), Tiles: tiles})
 	case st.Stock != nil:
 		qty, err := parseUnits(st.Stock.Amount)
 		if err != nil {
@@ -906,39 +895,64 @@ func (r *runner) step(i int, st Step) error {
 
 // fields places the fields of a fields step.
 func (r *runner) fields(f *FieldsStep) error {
-	id := r.islandID(f.Island)
-	is := r.w.Island(id)
-	if is == nil {
-		return fmt.Errorf("%w: %q", sim.ErrUnknownIsland, id)
+	id, farm, err := r.buildingAt(&At{Island: f.Island, X: f.Farm[0], Y: f.Farm[1]})
+	if err != nil {
+		return fmt.Errorf("fields: farm: %w", err)
 	}
-	var tiles []sim.Pos
+	typ := f.Type
+	if typ == "" {
+		fd := r.c.BuildingByID[farm.Type]
+		if fd == nil || fd.Fields == nil || r.c.FieldByType[fd.Fields.Type] == nil {
+			return fmt.Errorf("fields: %s is not a farm", farm.Type)
+		}
+		typ = r.c.FieldByType[fd.Fields.Type].ID
+	}
+	place := func(x, y int) error {
+		return r.apply(sim.PlaceField{IslandID: id, FarmID: farm.ID, Type: typ, X: x, Y: y})
+	}
 	switch {
 	case (f.Rect == nil) == (len(f.Tiles) == 0):
 		return errors.New("fields: set exactly one of rect and tiles")
-	case f.Rect != nil:
-		x0, y0, x1, y1 := f.Rect[0], f.Rect[1], f.Rect[2], f.Rect[3]
-		if x0 > x1 {
-			x0, x1 = x1, x0
-		}
-		if y0 > y1 {
-			y0, y1 = y1, y0
-		}
-		var rect []sim.Pos
-		for y := y0; y <= y1; y++ {
-			for x := x0; x <= x1; x++ {
-				rect = append(rect, sim.Pos{X: x, Y: y})
+	case f.Rect == nil:
+		for _, t := range f.Tiles {
+			if err := place(t[0], t[1]); err != nil {
+				return err
 			}
 		}
-		tiles = sim.ValidFieldTiles(is, r.c, f.Type, rect)
-		if len(tiles) == 0 {
-			return fmt.Errorf("fields: no valid %s tile in rect %v", f.Type, *f.Rect)
-		}
-	default:
-		for _, t := range f.Tiles {
-			tiles = append(tiles, sim.Pos{X: t[0], Y: t[1]})
+		return nil
+	}
+	def := r.c.BuildingByID[typ]
+	is := r.w.Island(id)
+	x0, y0, x1, y1 := f.Rect[0], f.Rect[1], f.Rect[2], f.Rect[3]
+	if x0 > x1 {
+		x0, x1 = x1, x0
+	}
+	if y0 > y1 {
+		y0, y1 = y1, y0
+	}
+	placed := 0
+	for progress := true; progress && (f.Count == 0 || placed < f.Count); {
+		progress = false
+		for y := y0; y <= y1 && (f.Count == 0 || placed < f.Count); y++ {
+			for x := x0; x <= x1 && (f.Count == 0 || placed < f.Count); x++ {
+				if sim.CheckFieldSite(is, r.c, is.Building(farm.ID), def, x, y, 0) != nil {
+					continue
+				}
+				if err := place(x, y); err != nil {
+					return err
+				}
+				placed++
+				progress = true
+			}
 		}
 	}
-	return r.apply(sim.PlaceFields{IslandID: id, Type: f.Type, Tiles: tiles})
+	if placed == 0 {
+		return fmt.Errorf("fields: no valid %s anchor in rect %v", typ, *f.Rect)
+	}
+	if f.Count > 0 && placed < f.Count {
+		return fmt.Errorf("fields: placed %d of %d %s in rect %v", placed, f.Count, typ, *f.Rect)
+	}
+	return nil
 }
 
 // expectError runs a step that must fail with the sentinel named by
@@ -999,8 +1013,9 @@ func Sentinels() map[string]error {
 		"last_trading_post": sim.ErrLastTradingPost, "not_connected": sim.ErrNotConnected,
 		"quest_not_found": sim.ErrQuestNotFound, "quest_not_completed": sim.ErrQuestNotCompleted,
 		"quest_already_claimed": sim.ErrQuestAlreadyClaimed,
-		"no_farm_in_range":      sim.ErrNoFarmInRange, "field_type_mismatch": sim.ErrFieldTypeMismatch,
-		"not_a_field": sim.ErrNotAField,
+		"field_type_mismatch":   sim.ErrFieldTypeMismatch, "field_not_adjacent": sim.ErrFieldNotAdjacent,
+		"field_max_reached": sim.ErrFieldMaxReached, "field_wrong_farm": sim.ErrFieldWrongFarm,
+		"field_needs_farm": sim.ErrFieldNeedsFarm,
 	}
 }
 

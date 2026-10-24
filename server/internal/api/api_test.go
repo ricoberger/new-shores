@@ -667,6 +667,7 @@ func TestHealthAndContent(t *testing.T) {
 			} `json:"shipyard"`
 			RequiresDeposit string `json:"requires_deposit"`
 			WorkArea        *struct {
+				Radius        int      `json:"radius"`
 				Fertility     string   `json:"fertility"`
 				Terrain       []string `json:"terrain"`
 				RequiredTiles int      `json:"required_tiles"`
@@ -674,9 +675,11 @@ func TestHealthAndContent(t *testing.T) {
 			Fields *struct {
 				Type     string `json:"type"`
 				Required int    `json:"required"`
+				Max      int    `json:"max"`
 			} `json:"fields"`
 			Field *struct {
 				Type      string   `json:"type"`
+				Farm      string   `json:"farm"`
 				Terrain   []string `json:"terrain"`
 				Fertility string   `json:"fertility"`
 			} `json:"field"`
@@ -715,7 +718,7 @@ func TestHealthAndContent(t *testing.T) {
 	if err := json.Unmarshal(res.body, &c); err != nil {
 		t.Fatal(err)
 	}
-	if c.Region.Version != "old_coast-0.7.0" || len(c.Buildings) != 32 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
+	if c.Region.Version != "old_coast-0.8.0" || len(c.Buildings) != 32 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
 		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d ships %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs), len(c.Ships))
 	}
 	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 4 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != catalogue(t).ShipByID["sloop"].Cost.Gold || sh.Cost.Materials["sails"] != 10_000 {
@@ -764,15 +767,19 @@ func TestHealthAndContent(t *testing.T) {
 				t.Errorf("%s requires_deposit %q", b.ID, b.RequiresDeposit)
 			}
 		case "wheat_farm", "orchard", "hemp_farm", "sheep_farm":
-			// Farms with fields (D-049): radius and fertility, no terrain rule.
+			// Farms with fields (D-051 part 4): no radius, at most a fertility.
 			field := map[string]string{"wheat_farm": "wheat_field", "orchard": "orchard_plot", "hemp_farm": "hemp_field", "sheep_farm": "pasture"}[b.ID]
-			if b.WorkArea == nil || b.WorkArea.Fertility != map[string]string{"wheat_farm": "wheat", "orchard": "apple", "hemp_farm": "hemp"}[b.ID] ||
-				b.WorkArea.Terrain != nil || b.WorkArea.RequiredTiles != 0 || b.Fields == nil || b.Fields.Type != field || b.Fields.Required != 16 {
+			required := map[string]int{"wheat_farm": 16, "orchard": 16, "hemp_farm": 16, "sheep_farm": 4}[b.ID]
+			fert := map[string]string{"wheat_farm": "wheat", "orchard": "apple", "hemp_farm": "hemp"}[b.ID]
+			if (fert == "") != (b.WorkArea == nil) || (b.WorkArea != nil && (b.WorkArea.Fertility != fert || b.WorkArea.Radius != 0 ||
+				b.WorkArea.Terrain != nil || b.WorkArea.RequiredTiles != 0)) ||
+				b.Fields == nil || b.Fields.Type != field || b.Fields.Required != required || b.Fields.Max != required+4 {
 				t.Errorf("%s work area %+v fields %+v", b.ID, b.WorkArea, b.Fields)
 			}
 		case "wheat_field", "orchard_plot", "hemp_field", "pasture":
 			if b.Field == nil || b.Field.Type != b.ID || strings.Join(b.Field.Terrain, ",") != "grass" ||
-				b.Field.Fertility != map[string]string{"wheat_field": "wheat", "orchard_plot": "apple", "hemp_field": "hemp"}[b.ID] || b.WorkArea != nil {
+				b.Field.Fertility != map[string]string{"wheat_field": "wheat", "orchard_plot": "apple", "hemp_field": "hemp"}[b.ID] || b.WorkArea != nil ||
+				b.Field.Farm != map[string]string{"wheat_field": "wheat_farm", "orchard_plot": "orchard", "hemp_field": "hemp_farm", "pasture": "sheep_farm"}[b.ID] {
 				t.Errorf("%s field %+v", b.ID, b.Field)
 			}
 		case "lumberjack":
@@ -810,7 +817,7 @@ func TestIslandData(t *testing.T) {
 	if err := json.Unmarshal(res.body, &is); err != nil {
 		t.Fatal(err)
 	}
-	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.7.0" {
+	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.8.0" {
 		t.Fatalf("island %s %dx%d terrain %d revision %s", is.ID, is.Width, is.Height, len(is.Terrain), is.Revision)
 	}
 	// Row 1 of the dev island starts with water then coast.

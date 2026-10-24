@@ -1,6 +1,6 @@
 {
   "name": "workforce_short",
-  "content_version": "old_coast-0.7.0",
+  "content_version": "old_coast-0.8.0",
   "boundary_count": 9,
   "totals": {
     "main": {
@@ -82,6 +82,18 @@
       },
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 4,
+          "type": "sheep_farm",
+          "active": 4,
+          "required": 4,
+          "max": 8,
+          "fields": 4,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
@@ -115,6 +127,18 @@
       },
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 4,
+          "type": "sheep_farm",
+          "active": 4,
+          "required": 4,
+          "max": 8,
+          "fields": 4,
+          "efficiency_permille": 1000
+        }
       ]
     },
     {
@@ -149,6 +173,18 @@
       },
       "unlocked_tiers": [
         "settlers"
+      ],
+      "farms": [
+        {
+          "island": "main",
+          "id": 4,
+          "type": "sheep_farm",
+          "active": 4,
+          "required": 4,
+          "max": 8,
+          "fields": 4,
+          "efficiency_permille": 1000
+        }
       ]
     }
   ],
@@ -574,40 +610,49 @@
               "required": 4000
             },
             "fields": {
-              "assigned": 16,
-              "required": 16
+              "active": 4,
+              "required": 4,
+              "max": 8,
+              "ids": [
+                5,
+                6,
+                7,
+                8
+              ]
             }
           },
           {
             "id": 5,
             "type": "pasture",
             "x": 22,
-            "y": 7,
+            "y": 5,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 4
+            "farm_id": 4,
+            "active": true
           },
           {
             "id": 6,
             "type": "pasture",
-            "x": 23,
-            "y": 7,
+            "x": 27,
+            "y": 5,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 4
+            "farm_id": 4,
+            "active": true
           },
           {
             "id": 7,
             "type": "pasture",
-            "x": 27,
+            "x": 22,
             "y": 7,
             "rotation": 0,
             "paused": false,
@@ -615,12 +660,13 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 4
+            "farm_id": 4,
+            "active": true
           },
           {
             "id": 8,
             "type": "pasture",
-            "x": 28,
+            "x": 27,
             "y": 7,
             "rotation": 0,
             "paused": false,
@@ -628,166 +674,11 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "farm_id": 4
+            "farm_id": 4,
+            "active": true
           },
           {
             "id": 9,
-            "type": "pasture",
-            "x": 22,
-            "y": 8,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 10,
-            "type": "pasture",
-            "x": 23,
-            "y": 8,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 11,
-            "type": "pasture",
-            "x": 24,
-            "y": 8,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 12,
-            "type": "pasture",
-            "x": 25,
-            "y": 8,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 13,
-            "type": "pasture",
-            "x": 26,
-            "y": 8,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 14,
-            "type": "pasture",
-            "x": 27,
-            "y": 8,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 15,
-            "type": "pasture",
-            "x": 28,
-            "y": 8,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 16,
-            "type": "pasture",
-            "x": 23,
-            "y": 9,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 17,
-            "type": "pasture",
-            "x": 24,
-            "y": 9,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 18,
-            "type": "pasture",
-            "x": 25,
-            "y": 9,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 19,
-            "type": "pasture",
-            "x": 26,
-            "y": 9,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 20,
-            "type": "pasture",
-            "x": 27,
-            "y": 9,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 4
-          },
-          {
-            "id": 21,
             "type": "house_settlers",
             "x": 9,
             "y": 2,
@@ -838,7 +729,7 @@
             ]
           },
           {
-            "id": 22,
+            "id": 10,
             "type": "house_settlers",
             "x": 11,
             "y": 2,
@@ -889,7 +780,7 @@
             ]
           },
           {
-            "id": 23,
+            "id": 11,
             "type": "house_settlers",
             "x": 13,
             "y": 2,
@@ -940,7 +831,7 @@
             ]
           },
           {
-            "id": 24,
+            "id": 12,
             "type": "house_settlers",
             "x": 15,
             "y": 2,
@@ -991,7 +882,7 @@
             ]
           },
           {
-            "id": 25,
+            "id": 13,
             "type": "house_settlers",
             "x": 9,
             "y": 5,
@@ -1042,7 +933,7 @@
             ]
           },
           {
-            "id": 26,
+            "id": 14,
             "type": "house_settlers",
             "x": 11,
             "y": 5,

@@ -2117,7 +2117,7 @@
         "door": [
           0.0,
           0.0,
-          -0.5
+          -1.0
         ],
         "status": [
           0.0,
@@ -2127,38 +2127,38 @@
       },
       "bounds": {
         "max": [
-          0.47,
+          0.97,
           0.24,
-          0.47
+          0.97
         ],
         "min": [
-          -0.47,
+          -0.97,
           0.0,
-          -0.47
+          -0.97
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.47,
+            0.97,
             0.24,
-            0.47
+            0.97
           ],
           "min": [
-            -0.47,
+            -0.97,
             0.0,
-            -0.47
+            -0.97
           ]
         },
         "budget": 300,
-        "bytes": 15528,
+        "bytes": 20940,
         "path": "pasture.glb",
-        "sha256": "52b22d62871531707c8ceb76017b151ca7f66d7a4b7efb21942d0fd1ad62b7dd",
-        "triangles": 186
+        "sha256": "276299b91aedaef4791e365f1b53d2d094fdc4210e621bccf4d006c6f7d7bc5f",
+        "triangles": 262
       },
       "footprint": {
-        "h": 1,
-        "w": 1
+        "h": 2,
+        "w": 2
       },
       "kind": "field",
       "kit_sources": []
@@ -3537,6 +3537,6 @@
       "kit_sources": []
     }
   },
-  "palette_sha256": "d2c891b4a710fae1c4774f81d1ddca7c561844f68a332f471614563b47d6c182",
+  "palette_sha256": "9cbacc44b66c0a6e54c8273c76df7a88f12f1ff98924f122f7508f1b62712a1a",
   "version": 1
 }

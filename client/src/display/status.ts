@@ -13,7 +13,7 @@ export type StatusKey =
   | "throttled"
   | "short_of_workers"
   | "low_efficiency"
-  | "no_farm"
+  | "not_adjacent"
   | "ok";
 
 export interface StatusStyle {
@@ -33,7 +33,7 @@ export const STATUS_STYLES: Record<StatusKey, StatusStyle> = {
   throttled: { glyph: "»", color: STATUS.throttled, label: "Throttled" },
   short_of_workers: { glyph: "W", color: STATUS.short_of_workers, label: "Short of workers" },
   low_efficiency: { glyph: "%", color: STATUS.low_efficiency, label: "Low efficiency" },
-  no_farm: { glyph: "∅", color: STATUS.no_farm, label: "No farm" },
+  not_adjacent: { glyph: "∅", color: STATUS.not_adjacent, label: "Not adjacent" },
   ok: { glyph: "✓", color: STATUS.ok, label: "Running" },
 };
 
@@ -126,13 +126,13 @@ export function statusText(b: BuildingDisplay, island: IslandDisplay, display: D
       if (b.fields) {
         return {
           key,
-          sentence: `${b.fields.assigned} / ${b.fields.required} fields`,
-          fix: `Place more ${fieldsPlural(content, b.type)} inside the ring.`,
+          sentence: `${b.fields.active} / ${b.fields.required} fields`,
+          fix: `Add more ${fieldsPlural(content, b.type)} next to the farm or its fields.`,
         };
       }
       return { key, sentence: `Only ${percent(b.efficiency_permille)} usable land in range`, fix: "Move it to more suitable land." };
-    case "no_farm":
-      return { key, sentence: "No accepting farm in range", fix: "Move it or build a farm nearby." };
+    case "not_adjacent":
+      return { key, sentence: "Not connected to its farm", fix: "Add or rebuild the fields between it and the farm." };
     case "ok":
       return { key, sentence: "Running", fix: "" };
   }

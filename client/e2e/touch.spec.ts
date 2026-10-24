@@ -9,9 +9,8 @@ import {
   TOUCH_HOUSE,
   TOUCH_HOUSE_MOVED,
   TOUCH_HOUSE_WEBKIT,
-  TOUCH_PASTURE_FROM,
-  TOUCH_PASTURE_TO,
-  TOUCH_PASTURE_VALID,
+  TOUCH_FAR,
+  TOUCH_PASTURE,
   TOUCH_ROAD_FROM,
   TOUCH_ROAD_TO,
 } from "./constants";
@@ -402,20 +401,6 @@ test("a mouse or pen taking over drops the touch-pending tile; the ghost follows
   // Touch again: a tap positions the ghost on the tapped tile.
   await touch.tap(await tile(page, DENSE, a));
   await expect.poll(ghost).toEqual(a);
-
-  // Field tool (D-049): an unconfirmed touch rectangle is dropped the same
-  // way; the preview follows the mouse, not the stale rectangle.
-  await page.keyboard.press("Escape");
-  await page.getByTestId("build-tab-production").tap();
-  await page.getByTestId("build-pasture").tap();
-  const preview = () => page.evaluate(() => window.__newShores!.fieldPreview());
-  await touch.drag(await tile(page, DENSE, a), await tile(page, DENSE, { x: a.x + 2, y: a.y + 1 }), 8);
-  await expect.poll(preview).toEqual({ from: a, to: { x: a.x + 2, y: a.y + 1 } });
-  await expect(page.getByTestId("field-confirm")).toBeEnabled();
-  const pb2 = await tile(page, DENSE, b);
-  await page.mouse.move(pb2.x, pb2.y);
-  await expect.poll(preview).toEqual({ from: b, to: b });
-  await expect(page.getByTestId("field-confirm")).toBeDisabled();
 });
 
 test("keyboard: a dialog opened from a sheet takes focus, keeps Tab and returns focus", async ({ page }) => {
@@ -695,37 +680,35 @@ test("draw a road with one finger", async ({ page, browserName }) => {
   await expect(page.getByTestId("road-bar")).toHaveCount(0);
 });
 
-test("place pastures by a one-finger drag and Confirm", async ({ page, browserName }) => {
+test("add a pasture from the farm panel by a tap and Confirm", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "world flow of the Pixel 5 project");
   await page.goto("/");
   await dismissAwayDialog(page);
   await worldReady(page, ISLAND);
-  // The sheep farm of the smoke test (x 28..30, y 5..7) and its free ring tiles.
+  // The sheep farm of the fixture (x 28..30, y 5..7) with four pastures.
   await centreOn(page, { x: 31, y: 6 });
   const v0 = await version(page);
   await page.getByTestId("build-tab-production").tap();
-  await page.getByTestId("build-pasture").tap();
-  const bar = page.getByTestId("field-bar");
+  await expect(page.getByTestId("build-pasture")).toHaveCount(0);
+  await touch.tap(await tile(page, ISLAND, { x: 29, y: 6 }));
+  await expect(page.getByTestId("farm-fields-count")).toHaveText("Fields 4 / 4");
+  await page.getByTestId("farm-add-field").tap();
+  const bar = page.getByTestId("placement-bar");
   await expect(bar).toBeVisible();
-  await expect(page.getByTestId("field-confirm")).toBeDisabled();
-  // The drag only selects the rectangle; Cancel drops it, nothing is sent.
-  await touch.drag(await tile(page, ISLAND, TOUCH_PASTURE_FROM), await tile(page, ISLAND, TOUCH_PASTURE_TO), 10);
-  await expect(page.getByTestId("field-hint")).toHaveText(`${TOUCH_PASTURE_VALID} pastures · 1 outside every farm's ring`);
-  await page.getByTestId("field-cancel").tap();
-  await expect(page.getByTestId("field-confirm")).toBeDisabled();
-  await expect(bar).toBeVisible();
+  await expect(page.getByTestId("placement-confirm")).toBeDisabled();
+  // A tap only positions the ghost; a spot touching nothing says why and Confirm is still the server's call.
+  await touch.tap(await tile(page, ISLAND, TOUCH_FAR));
+  await expect(page.getByTestId("placement-hint")).toContainText("must touch sheep farm or one of its active pastures");
+  await touch.tap(await tile(page, ISLAND, TOUCH_PASTURE));
+  await expect(page.getByTestId("placement-hint")).toHaveText(`Add field at ${TOUCH_PASTURE.x}, ${TOUCH_PASTURE.y}?`);
   expect(await version(page)).toBe(v0);
-  // Drag again and Confirm: one place_fields with the green tiles.
-  await touch.drag(await tile(page, ISLAND, TOUCH_PASTURE_FROM), await tile(page, ISLAND, TOUCH_PASTURE_TO), 10);
-  await expect(page.getByTestId("field-confirm")).toBeEnabled();
-  await page.getByTestId("field-confirm").tap();
+  await page.getByTestId("placement-confirm").tap();
   await expect.poll(() => version(page)).toBe(v0 + 1);
-  for (const t of [TOUCH_PASTURE_FROM, { x: 33, y: 6 }]) {
-    expect((await serverBuildingAt(page, ISLAND, t))?.type).toBe("pasture");
-  }
-  expect(await serverBuildingAt(page, ISLAND, { x: 33, y: 5 })).toBeNull();
-  // Cancel without a rectangle leaves the tool.
-  await page.getByTestId("field-cancel").tap();
+  expect((await serverBuildingAt(page, ISLAND, TOUCH_PASTURE))?.type).toBe("pasture");
+  // The tool stays for the next field; Cancel leaves it.
+  await expect(bar).toBeVisible();
+  await expect(page.getByTestId("placement-confirm")).toBeDisabled();
+  await page.getByTestId("placement-cancel").tap();
   await expect(bar).toHaveCount(0);
 });
 

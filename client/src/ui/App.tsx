@@ -15,7 +15,6 @@ import { founderFor, type PendingFounding, pendingFoundingStep } from "../displa
 import { serverTimeMs } from "../display/extrapolate";
 import { units } from "../display/format";
 import { countdown } from "../display/ships";
-import { classifyFieldTiles, fieldTilesToSend, rectTiles } from "../display/fields";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
@@ -40,8 +39,7 @@ import { ShipmentDialog } from "./ShipmentDialog";
 import { ShipPanel } from "./ShipPanel";
 import { ShipsPanel } from "./ShipsPanel";
 import { type Toast, Toasts } from "./Toasts";
-import { DemolishBar, FieldBar, PlacementBar, RoadBar } from "./PlacementBar";
-import { FieldRingLabels } from "./FieldRingLabels";
+import { DemolishBar, PlacementBar, RoadBar } from "./PlacementBar";
 import { Sheet } from "./Sheet";
 import { useLayout } from "./useLayout";
 import { type GhostTool, type IslandTile, isGhostTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
@@ -112,8 +110,8 @@ export interface TestHook {
   ghostWaterRows(): { x: number; y: number; w: number; h: number } | null;
   /** Ship the camera looks at on load when no island is settled yet (null: an island). */
   startShip(): number | null;
-  /** Rectangle the field tool's preview showed in the last frame (null: none). */
-  fieldPreview(): { from: { x: number; y: number }; to: { x: number; y: number } } | null;
+  /** Footprint outlines of the selected/edited farm's chain drawn in the last frame, by kind. */
+  fieldMarks(): Record<"farm" | "active" | "inactive" | "hover", number>;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -231,6 +229,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const selected = vs.selection.kind === "building" ? vs.selection.id : null;
   const selectedOwner = selected === null ? undefined : model?.islands.find((is) => is.buildings.some((b) => b.id === selected));
   const selectedBuilding = selectedOwner?.buildings.find((b) => b.id === selected);
+  // A fields-list hover ends with the panel it belongs to.
+  const selectedBuildingId = selectedBuilding?.id ?? null;
+  useEffect(() => {
+    rendererRef.current?.setHoverBuilding(null);
+  }, [selectedBuildingId]);
   const selectedShipId = vs.selection.kind === "ship" ? vs.selection.id : null;
   const selectedShip = selectedShipId === null ? undefined : model?.ships.find((s) => s.id === selectedShipId);
   const warehouseType = content?.buildings.find((b) => b.trading_post)?.id ?? "";
@@ -372,50 +375,32 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     const cmd: Command =
       t.kind === "build"
         ? { type: "place_building", island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation }
-        : t.kind === "move"
-          ? { type: "move_building", island_id: islandId, building_id: t.buildingId, x, y, rotation: t.rotation }
-          : { type: "found_island", ship_id: t.shipId, island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation };
-    void sendCommand(cmd).then(({ ok }) => {
-      if (!ok) return;
-      // On a move the building stays selected at its new position.
+        : t.kind === "field"
+          ? { type: "place_field", island_id: islandId, farm_id: t.farmId, building_type: t.buildingType, x, y, rotation: t.rotation }
+          : t.kind === "move"
+            ? { type: "move_building", island_id: islandId, building_id: t.buildingId, x, y, rotation: t.rotation }
+            : { type: "found_island", ship_id: t.shipId, island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation };
+    void sendCommand(cmd).then(({ ok, error, res }) => {
+      // A rejected field means the hint's data was stale: the world is re-fetched.
+      if (!ok) {
+        if (t.kind === "field" && error) void sync.refresh();
+        return;
+      }
+      if (t.kind === "field") {
+        // The tool stays for the next field until the farm has its maximum.
+        const farm = res?.display.islands.flatMap((is) => is.buildings).find((b) => b.id === t.farmId);
+        if (!farm || (farm.fields && farm.fields.ids.length >= farm.fields.max)) {
+          setTool((cur) => (cur === t || (cur.kind === "field" && cur.farmId === t.farmId) ? NO_TOOL : cur));
+          if (farm) toast(`${defs.get(farm.type)?.name ?? "The farm"} has all the ${(defs.get(t.buildingType)?.name ?? "field").toLowerCase()}s it can use`);
+        } else setTool((cur) => (cur === t && cur.pending ? { ...cur, pending: undefined } : cur));
+        return;
+      }
+      // Build stays active (without a pending tile) for the next building;
+      // move and found end on success. On a move the building stays selected
+      // at its new position.
       if (t.kind === "build") setTool((cur) => (cur === t && cur.kind === "build" && cur.pending ? { ...cur, pending: undefined } : cur));
       else setTool((cur) => (cur === t ? NO_TOOL : cur));
     });
-  };
-
-  /**
-   * Field tool (D-049): one place_fields command with the rectangle's tiles
-   * the client's data shows as valid (at most 256); none sends nothing. A
-   * rejection means the data was stale: the server's error is a toast
-   * (sendCommand) and the world is re-fetched; nothing is retried.
-   */
-  const placeFieldRect = (fieldType: string, islandId: string, from: TilePos, to: TilePos) => {
-    const snapNow = sync.getSnapshot();
-    const is = snapNow.server?.display.islands.find((x) => x.id === islandId);
-    const statics = snapNow.islands.get(islandId);
-    const def = defs.get(fieldType);
-    if (!is || !statics || !def) return;
-    const { valid } = classifyFieldTiles(def, rectTiles(from, to), { island: statics, buildings: is.buildings, roads: is.roads, defs });
-    const { tiles } = fieldTilesToSend(valid);
-    if (tiles.length === 0) return;
-    void sendCommand({ type: "place_fields", island_id: islandId, field_type: fieldType, tiles }).then(({ ok, error }) => {
-      if (!ok && error) void sync.refresh();
-    });
-  };
-
-  /** A single field (mouse click or a one-tile touch rectangle) is a place_building. */
-  const placeField = (fieldType: string, at: IslandTile) => {
-    void sendCommand({ type: "place_building", island_id: at.island, building_type: fieldType, x: at.x, y: at.y, rotation: 0 }).then(({ ok, error }) => {
-      if (!ok && error) void sync.refresh();
-    });
-  };
-
-  const confirmFields = () => {
-    if (tool.kind !== "field" || !tool.pending) return;
-    const { island, from, to } = tool.pending;
-    if (from.x === to.x && from.y === to.y) placeField(tool.fieldType, { island, x: from.x, y: from.y });
-    else placeFieldRect(tool.fieldType, island, from, to);
-    setTool((cur) => (cur === tool ? { kind: "field", fieldType: tool.fieldType } : cur));
   };
 
   const confirmPlacement = () => {
@@ -442,8 +427,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     place: (at: IslandTile) => {
       if (tool.kind === "build") placeGhost(tool, at);
     },
+    placeField: (at: IslandTile) => {
+      if (tool.kind === "field") placeGhost(tool, at);
+    },
     pend: (at: IslandTile) => setTool((t) => (isGhostTool(t) ? { ...t, pending: at } : t)),
-    unpend: () => setTool((t) => ((isGhostTool(t) || t.kind === "field") && t.pending ? { ...t, pending: undefined } : t)),
+    unpend: () => setTool((t) => (isGhostTool(t) && t.pending ? { ...t, pending: undefined } : t)),
     rotateGhost: rotateTool,
     move: (at: IslandTile) => {
       if (tool.kind === "move") placeGhost(tool, at);
@@ -459,13 +447,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       if (tiles.length === 0) return;
       void send({ type: "place_road", island_id: islandId, road_type: tool.roadType, tiles });
     },
-    placeField: (at: IslandTile) => {
-      if (tool.kind === "field") placeField(tool.fieldType, at);
-    },
-    fieldRect: (islandId: string, from: TilePos, to: TilePos) => {
-      if (tool.kind === "field") placeFieldRect(tool.fieldType, islandId, from, to);
-    },
-    pendFields: (island: string, from: TilePos, to: TilePos) => setTool((t) => (t.kind === "field" ? { ...t, pending: { island, from, to } } : t)),
     demolish: (at: IslandTile) => {
       const is = model?.islands.find((x) => x.id === at.island);
       if (!is) return;
@@ -499,9 +480,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const selectBuildItem = (b: ContentBuilding) => {
     dispatch({ type: "clearSelection" });
-    setTool(
-      b.road ? { kind: "road", roadType: b.id } : b.field ? { kind: "field", fieldType: b.id } : { kind: "build", buildingType: b.id, rotation: 0 },
-    );
+    setTool(b.road ? { kind: "road", roadType: b.id } : { kind: "build", buildingType: b.id, rotation: 0 });
   };
 
   // The chained founding (D-051): found_island as soon as the ship is idle
@@ -643,7 +622,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
         ghostWaterRows: () => rendererRef.current?.ghostWaterRows() ?? null,
         startShip: () => rendererRef.current?.startShip() ?? null,
-        fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
+        fieldMarks: () => rendererRef.current?.fieldMarks() ?? { farm: 0, active: 0, inactive: 0, hover: 0 },
         quality: () => rendererRef.current?.quality() ?? "low",
         gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
         gridAt: () => rendererRef.current?.gridAt() ?? null,
@@ -833,7 +812,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onUpgradeWarehouse={() => void send({ type: "upgrade_warehouse", island_id: islandId, building_id: selectedBuilding.id })}
           onUpgradeTradingPost={() => void send({ type: "upgrade_trading_post", island_id: islandId, building_id: selectedBuilding.id })}
           onSelectBuilding={focus}
-          onPlaceFields={(fieldType) => setTool({ kind: "field", fieldType })}
+          onAddField={(fieldType) => {
+            setTool({ kind: "field", farmId: selectedBuilding.id, island: islandId, buildingType: fieldType, rotation: 0 });
+          }}
+          onHoverBuilding={(id) => rendererRef.current?.setHoverBuilding(id)}
           nowMs={snap.nowMs}
           onOrderShip={(shipType) =>
             void send({ type: "order_ship", island_id: islandId, building_id: selectedBuilding.id, ship_type: shipType })
@@ -849,7 +831,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const placementBar = touchUI && isGhostTool(tool);
   const demolishBar = touchUI && tool.kind === "demolish";
   const roadBar = touchUI && tool.kind === "road";
-  const fieldBar = touchUI && tool.kind === "field";
   const verb = touchUI ? "Tap" : "Click";
 
   // Interaction hints (shipment target, ship drag, editor picks).
@@ -905,7 +886,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   // Short landscape phones: the side panel keeps a usable height; the hint
   // bar is hidden and the insolvency banner keeps one line.
-  const hintShown = archHint !== "" || (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && !fieldBar);
+  const hintShown = archHint !== "" || (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar);
   const tightLandscape = collapseLandscapeChrome({
     mode: layout.mode,
     sheets,
@@ -914,8 +895,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     banner: insolvencyBanner(model) !== null,
     hint: hintShown,
   });
-  const fieldPlural = tool.kind === "field" ? `${(defs.get(tool.fieldType)?.name ?? "field").toLowerCase()}s` : "";
-  const toolHint = !tightLandscape && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && !fieldBar && (
+  const fieldPlural = tool.kind === "field" ? `${(defs.get(tool.buildingType)?.name ?? "field").toLowerCase()}s` : "";
+  const toolHint = !tightLandscape && tool.kind !== "none" && !placementBar && !demolishBar && !roadBar && (
     <div className={phone ? styles.hintInline : styles.hint} data-testid="tool-hint">
       {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
       {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
@@ -926,7 +907,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             : "sails there and founds it on arrival"
         } (${tool.rotation}°) · R rotate · Esc cancel`}
       {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
-      {tool.kind === "field" && `Click a tile or drag a rectangle to place ${fieldPlural} · Esc / right click cancel`}
+      {tool.kind === "field" && `Click to add a ${fieldPlural.slice(0, -1)} next to the farm or its fields (${tool.rotation}°) · R rotate · Esc / right click leave`}
       {tool.kind === "demolish" && "Click a building, field or road to demolish · Esc / right click cancel"}
       {ghostHint && (tool.kind === "build" || tool.kind === "move" || tool.kind === "found" || tool.kind === "field") && (
         <div className={styles.hintReason} data-testid="tool-hint-reason">
@@ -948,7 +929,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   return (
     <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
-      <FieldRingLabels renderer={renderer} />
       {model && (
         <WorldOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} />
       )}
@@ -972,15 +952,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           )}
           {demolishBar && <DemolishBar onDone={() => setTool(NO_TOOL)} />}
           {roadBar && <RoadBar onDone={() => setTool(NO_TOOL)} />}
-          {fieldBar && tool.kind === "field" && (
-            <FieldBar
-              tool={tool}
-              fieldName={defs.get(tool.fieldType)?.name ?? tool.fieldType}
-              hint={ghostHint}
-              onConfirm={confirmFields}
-              onCancel={() => setTool((t) => (t.kind === "field" && t.pending ? { kind: "field", fieldType: t.fieldType } : NO_TOOL))}
-            />
-          )}
           {phone && toolHint}
           {phone && archHintEl}
           {phone && unreachable}

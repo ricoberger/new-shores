@@ -140,21 +140,20 @@
       "outputs": [{ "good": "wool", "amount": 1 }],
       "cycle_seconds": 60
     },
-    "work_area": { "radius": 4 },
-    "fields": { "type": "pasture", "required": 16 }
+    "fields": { "type": "pasture", "required": 4, "max": 8 }
   },
   {
     "id": "pasture",
     "name": "Pasture",
     "region": "old_coast",
     "tier": "settlers",
-    "footprint": [1, 1],
+    "footprint": [2, 2],
     "coastal": false,
     "requires_road": false,
-    "cost": { "gold": 0 },
+    "cost": { "gold": 15, "planks": 2 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "field": { "type": "pasture", "terrain": ["grass"] }
+    "field": { "type": "pasture", "farm": "sheep_farm", "terrain": ["grass"] }
   },
   {
     "id": "weaver_wool",

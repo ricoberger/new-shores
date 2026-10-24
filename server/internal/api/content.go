@@ -174,10 +174,10 @@ type serviceJSON struct {
 	Radius int `json:"radius"`
 }
 
-// workAreaJSON is a work area; Terrain and RequiredTiles are omitted for a
-// farm with fields (D-049), whose work area only bounds its fields.
+// workAreaJSON is a work area; a farm with fields (D-051 part 4) has no
+// radius, terrain or required tiles, only a fertility.
 type workAreaJSON struct {
-	Radius        int      `json:"radius"`
+	Radius        int      `json:"radius,omitempty"`
 	Terrain       []string `json:"terrain,omitempty"`
 	RequiredTiles int      `json:"required_tiles,omitempty"`
 	Fertility     string   `json:"fertility,omitempty"`
@@ -186,10 +186,12 @@ type workAreaJSON struct {
 type farmFieldsJSON struct {
 	Type     string `json:"type"`
 	Required int    `json:"required"`
+	Max      int    `json:"max"`
 }
 
 type fieldJSON struct {
 	Type      string   `json:"type"`
+	Farm      string   `json:"farm"`
 	Terrain   []string `json:"terrain"`
 	Fertility string   `json:"fertility,omitempty"`
 }
@@ -411,10 +413,10 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		}
 	}
 	if f := b.Fields; f != nil {
-		bj.Fields = &farmFieldsJSON{Type: f.Type, Required: f.Required}
+		bj.Fields = &farmFieldsJSON{Type: f.Type, Required: f.Required, Max: f.Max}
 	}
 	if f := b.Field; f != nil {
-		bj.Field = &fieldJSON{Type: f.Type, Terrain: append([]string{}, f.Terrain...), Fertility: f.Fertility}
+		bj.Field = &fieldJSON{Type: f.Type, Farm: f.Farm, Terrain: append([]string{}, f.Terrain...), Fertility: f.Fertility}
 	}
 	if wf := b.Workforce; wf != nil {
 		bj.Workforce = &workforceJSON{Tier: wf.Tier, Amount: wf.Amount}

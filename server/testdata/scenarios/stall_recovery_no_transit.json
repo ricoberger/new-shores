@@ -1,6 +1,6 @@
 {
   "name": "stall_recovery_no_transit",
-  "description": "Stall recovery without anything in stock or in transit (golden x, reviewer's case): the opening of stall_recovery_auto, but the five settler houses come at 6:50, after the gold ran out at 6:40 while no worker existed \u2014 every pausable building is paused and nothing was ever produced. Floor taxes 0.6 gold/min never cover the fisher's 1 gold/min (rule (b) fails); when gold reaches the trial reserve (30 minutes of the fisher's upkeep) the fisher is trial-resumed, its catch lifts the taxes and the chain restarts. No command after the houses.",
+  "description": "Stall recovery without anything in stock or in transit (golden x, reviewer's case): the opening of stall_recovery_auto, but the five settler houses come at 6:50, after the gold ran out at 6:40 while no worker existed — every pausable building is paused and nothing was ever produced. Floor taxes 0.6 gold/min never cover the fisher's 1 gold/min (rule (b) fails); when gold reaches the trial reserve (30 minutes of the fisher's upkeep) the fisher is trial-resumed, its catch lifts the taxes and the chain restarts. No command after the houses.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {
@@ -187,17 +187,6 @@
         "x": 14,
         "y": 21,
         "rotation": 0
-      }
-    },
-    {
-      "fields": {
-        "type": "pasture",
-        "rect": [
-          12,
-          23,
-          18,
-          25
-        ]
       }
     },
     {

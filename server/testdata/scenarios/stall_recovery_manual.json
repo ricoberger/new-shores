@@ -190,17 +190,6 @@
       }
     },
     {
-      "fields": {
-        "type": "pasture",
-        "rect": [
-          12,
-          23,
-          18,
-          25
-        ]
-      }
-    },
-    {
       "place": {
         "type": "weaver_wool",
         "x": 26,

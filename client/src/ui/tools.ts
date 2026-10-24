@@ -17,20 +17,21 @@ export type Tool =
   /** Placing the Trading Post of an unsettled island from a ship's cargo (D-051): the ship sails there first unless it is idle there. */
   | { kind: "found"; shipId: number; buildingType: string; rotation: Rotation; pending?: IslandTile }
   /**
-   * Placing fields of a field building (D-049): a click places one, a drag
-   * selects a rectangle. `pending`: the rectangle a touch drag (or tap)
-   * selected, waiting for Confirm.
+   * Adding fields to one farm from its panel (D-051 part 4): the ghost of the
+   * farm's field building (`buildingType`) follows the pointer, a click
+   * places one (place_field) and the tool stays until the farm has its
+   * maximum; Esc or a right click leaves it. `island`: the farm's island.
    */
-  | { kind: "field"; fieldType: string; pending?: { island: string; from: TilePos; to: TilePos } }
+  | { kind: "field"; farmId: number; island: string; buildingType: string; rotation: Rotation; pending?: IslandTile }
   | { kind: "demolish" };
 
-export type GhostTool = Extract<Tool, { kind: "build" | "move" | "found" }>;
+export type GhostTool = Extract<Tool, { kind: "build" | "move" | "found" | "field" }>;
 
 export const NO_TOOL: Tool = { kind: "none" };
 
-/** The tool places a ghost (build, move, found). */
+/** The tool places a ghost (build, move, found, field). */
 export function isGhostTool(t: Tool): t is GhostTool {
-  return t.kind === "build" || t.kind === "move" || t.kind === "found";
+  return t.kind === "build" || t.kind === "move" || t.kind === "found" || t.kind === "field";
 }
 
 /** Rotation after `steps` quarter turns (negative: counter-clockwise), via nextRotation like key R. */

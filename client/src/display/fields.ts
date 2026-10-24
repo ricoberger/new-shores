@@ -1,73 +1,27 @@
-// Field placement hints (D-049). The rectangle drag of the field tool
-// colours the tiles it covers from data the client already has (D-027):
-// the island's static terrain and fertility tags, the buildings and roads
-// of the latest server display, the content field definition and the
-// accepting farms' positions with their content work radius (the same
-// integer disc rule as the server). The colouring is a hint only: the
-// client sends the tiles it shows as valid in one place_fields command and
-// the server validates every tile (all or nothing). No assignment or
-// efficiency is computed here; farms show the server's fields counts.
+// Field placement hints and chain lookups (D-049, D-051 part 4). A field is
+// placed from its farm's panel ("Add field"): the ghost is coloured from data
+// the client already has (D-027) — the island's static terrain and fertility
+// tags, the buildings and roads of the latest server display and the
+// content field definition — and from the adjacency rule the server
+// enforces: the footprint must touch (edges or corners) the farm or one of
+// the farm's *active* fields. The colouring is a hint only: the client sends
+// the place_field command wherever the user clicks and the server validates.
+// No ownership, activity or efficiency is computed here; the farm and its
+// fields show the server's `fields`, `farm_id` and `active`.
 import type { BuildingDisplay, Content, ContentBuilding, Island } from "../api/client";
 import { rotatedFootprint, type TilePos, tileKey } from "./geometry";
 
-/** At most this many tiles per place_fields / demolish_fields command (server bound). */
-export const MAX_FIELD_TILES = 256;
-
-/** The tiles of the rectangle spanned by a and b (inclusive corners, any order), row by row. */
-export function rectTiles(a: TilePos, b: TilePos): TilePos[] {
-  const x0 = Math.min(a.x, b.x);
-  const x1 = Math.max(a.x, b.x);
-  const y0 = Math.min(a.y, b.y);
-  const y1 = Math.max(a.y, b.y);
-  const out: TilePos[] = [];
-  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) out.push({ x, y });
-  return out;
-}
-
-/** A placed building with the footprint and radius the disc rule needs. */
-interface FarmSite {
-  x: number;
-  y: number;
-  rotation: number;
-  width: number;
-  height: number;
-  radius: number;
-}
-
-/**
- * Whether the centre of tile (tx, ty) lies within the farm's work radius:
- * (2tx+1−(2x+W))² + (2ty+1−(2y+H))² ≤ (2r)² against the rotated footprint
- * (the server's disc rule in integer arithmetic).
- */
-export function inFarmRadius(farm: FarmSite, tx: number, ty: number): boolean {
-  const [w, h] = rotatedFootprint(farm.width, farm.height, farm.rotation);
-  const dx = 2 * tx + 1 - (2 * farm.x + w);
-  const dy = 2 * ty + 1 - (2 * farm.y + h);
-  return dx * dx + dy * dy <= 4 * farm.radius * farm.radius;
-}
-
-/** The farms of an island that accept a field type (content `fields.type`), with their radius. */
-export function acceptingFarms(
-  buildings: readonly BuildingDisplay[],
-  defs: ReadonlyMap<string, ContentBuilding>,
-  fieldType: string,
-): (BuildingDisplay & { def: ContentBuilding; radius: number })[] {
-  const out: (BuildingDisplay & { def: ContentBuilding; radius: number })[] = [];
-  for (const b of buildings) {
-    const def = defs.get(b.type);
-    if (def?.fields?.type === fieldType && def.work_area) out.push({ ...b, def, radius: def.work_area.radius });
-  }
-  return out;
-}
-
-/** The field building a farm type accepts (content), if any. */
+/** The field building a farm type owns (content `field.farm`), if any. */
 export function fieldBuildingOf(content: Content, farmType: string): ContentBuilding | undefined {
-  const farm = content.buildings.find((b) => b.id === farmType);
-  const type = farm?.fields?.type;
-  return type ? content.buildings.find((b) => b.field?.type === type) : undefined;
+  return content.buildings.find((b) => b.field?.farm === farmType);
 }
 
-/** What the client knows about the island for the hint. */
+/** Whether two non-overlapping footprints touch by an edge or a corner (the server's 8-adjacency). */
+export function rectsTouch(a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w: number; h: number }): boolean {
+  return a.x <= b.x + b.w && b.x <= a.x + a.w && a.y <= b.y + b.h && b.y <= a.y + a.h;
+}
+
+/** What the client knows about the island for the ghost hint. */
 export interface FieldHintData {
   island: Pick<Island, "width" | "height" | "terrain" | "fertilities">;
   buildings: readonly BuildingDisplay[];
@@ -75,77 +29,74 @@ export interface FieldHintData {
   defs: ReadonlyMap<string, ContentBuilding>;
 }
 
+/** Why the server would reject the field at the ghost's position. */
+export type FieldHint = "bounds" | "terrain" | "occupied" | "fertility" | "not_adjacent" | "max_reached";
+
 /**
- * Classification of candidate tiles for a field building: `valid` (green:
- * terrain, fertility, free and inside an accepting farm's radius) and
- * `outOfRange` (yellow: the only failing condition is the radius; shown,
- * never sent). Every other tile is dropped. Order follows the input.
+ * The first rule the field ghost breaks (null: it looks valid), in the
+ * server's order: maximum, bounds, terrain, occupied, fertility, adjacency.
+ * `farm` is the farm display the field is placed from.
  */
-export function classifyFieldTiles(field: ContentBuilding, tiles: readonly TilePos[], data: FieldHintData): { valid: TilePos[]; outOfRange: TilePos[] } {
-  const valid: TilePos[] = [];
-  const outOfRange: TilePos[] = [];
+export function fieldPlacementHint(farm: BuildingDisplay, field: ContentBuilding, x: number, y: number, rotation: number, data: FieldHintData): FieldHint | null {
   const f = field.field;
-  if (!f) return { valid, outOfRange };
+  if (!f || !farm.fields) return null;
+  if (farm.fields.ids.length >= farm.fields.max) return "max_reached";
+  const [w, h] = rotatedFootprint(field.width, field.height, rotation);
   const { island } = data;
-  if (f.fertility && !island.fertilities.includes(f.fertility)) return { valid, outOfRange };
+  if (x < 0 || y < 0 || x + w > island.width || y + h > island.height) return "bounds";
   const occupied = new Set(data.roads.map(tileKey));
   for (const b of data.buildings) {
     const def = data.defs.get(b.type);
     if (!def) continue;
-    const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
-    for (let y = b.y; y < b.y + h; y++) for (let x = b.x; x < b.x + w; x++) occupied.add(tileKey({ x, y }));
+    const [bw, bh] = rotatedFootprint(def.width, def.height, b.rotation);
+    for (let ty = b.y; ty < b.y + bh; ty++) for (let tx = b.x; tx < b.x + bw; tx++) occupied.add(tileKey({ x: tx, y: ty }));
   }
-  const farms = acceptingFarms(data.buildings, data.defs, f.type);
-  for (const t of tiles) {
-    if (t.x < 0 || t.y < 0 || t.x >= island.width || t.y >= island.height) continue;
-    const terrain = island.terrain[t.y * island.width + t.x];
-    if (terrain === undefined || !f.terrain.includes(terrain)) continue;
-    if (occupied.has(tileKey(t))) continue;
-    const inRange = farms.some((farm) =>
-      inFarmRadius({ x: farm.x, y: farm.y, rotation: farm.rotation, width: farm.def.width, height: farm.def.height, radius: farm.radius }, t.x, t.y),
-    );
-    (inRange ? valid : outOfRange).push(t);
+  for (let ty = y; ty < y + h; ty++) {
+    for (let tx = x; tx < x + w; tx++) {
+      const terrain = island.terrain[ty * island.width + tx];
+      if (terrain === undefined || !f.terrain.includes(terrain)) return "terrain";
+      if (occupied.has(tileKey({ x: tx, y: ty }))) return "occupied";
+    }
   }
-  return { valid, outOfRange };
+  if (f.fertility && !island.fertilities.includes(f.fertility)) return "fertility";
+  const rect = { x, y, w, h };
+  const farmDef = data.defs.get(farm.type);
+  if (farmDef) {
+    const [fw, fh] = rotatedFootprint(farmDef.width, farmDef.height, farm.rotation);
+    if (rectsTouch({ x: farm.x, y: farm.y, w: fw, h: fh }, rect)) return null;
+  }
+  for (const b of data.buildings) {
+    if (b.farm_id !== farm.id || b.active !== true) continue;
+    const def = data.defs.get(b.type);
+    if (!def) continue;
+    const [bw, bh] = rotatedFootprint(def.width, def.height, b.rotation);
+    if (rectsTouch({ x: b.x, y: b.y, w: bw, h: bh }, rect)) return null;
+  }
+  return "not_adjacent";
 }
 
-/** The tiles to send for a rectangle (the valid ones, at most MAX_FIELD_TILES) and whether some were cut. */
-export function fieldTilesToSend(valid: readonly TilePos[]): { tiles: TilePos[]; capped: boolean } {
-  return { tiles: valid.slice(0, MAX_FIELD_TILES), capped: valid.length > MAX_FIELD_TILES };
-}
-
-/** Hint line of a field rectangle: counts of tiles to place and outside every ring. */
-export function fieldRectHint(valid: number, outOfRange: number, fieldName: string): string {
-  const parts: string[] = [];
+/** Hint text of a rejected ghost. */
+export function fieldHintText(hint: FieldHint, fieldName: string, farmName: string): string {
   const name = fieldName.toLowerCase();
-  if (valid === 0) parts.push(`No valid ${name} tile`);
-  else parts.push(`${Math.min(valid, MAX_FIELD_TILES)} ${name}${valid === 1 ? "" : "s"}`);
-  if (valid > MAX_FIELD_TILES) parts.push(`at most ${MAX_FIELD_TILES} per drag — ${valid - MAX_FIELD_TILES} not placed`);
-  if (outOfRange > 0) parts.push(`${outOfRange} outside every farm's ring`);
-  return parts.join(" · ");
+  switch (hint) {
+    case "max_reached":
+      return `${farmName} has the most ${name}s it can use`;
+    case "bounds":
+      return `A ${name} needs to stay on the island`;
+    case "terrain":
+      return `A ${name} needs grass`;
+    case "occupied":
+      return "Something is in the way";
+    case "fertility":
+      return `This island is not fertile for a ${name}`;
+    case "not_adjacent":
+      return `A ${name} must touch ${farmName.toLowerCase()} or one of its active ${name}s`;
+  }
 }
 
-/**
- * Build menu order: content order, with each field building listed right
- * after the first farm that accepts it.
- */
-export function buildMenuOrder(buildings: readonly ContentBuilding[]): ContentBuilding[] {
-  const out: ContentBuilding[] = [];
-  const placed = new Set<string>();
-  const fieldOf = new Map<string, ContentBuilding>();
-  for (const b of buildings) if (b.field && !fieldOf.has(b.field.type)) fieldOf.set(b.field.type, b);
-  const accepted = new Set(buildings.flatMap((b) => (b.fields ? [b.fields.type] : [])));
-  for (const b of buildings) {
-    if (b.field && accepted.has(b.field.type)) continue;
-    if (!placed.has(b.id)) {
-      out.push(b);
-      placed.add(b.id);
-    }
-    const f = b.fields ? fieldOf.get(b.fields.type) : undefined;
-    if (f && !placed.has(f.id)) {
-      out.push(f);
-      placed.add(f.id);
-    }
-  }
-  return out;
+/** The farm of a field or the farm itself, and the farm's fields: the chain a selection highlights. */
+export function farmChain(selected: BuildingDisplay, buildings: readonly BuildingDisplay[]): { farm: BuildingDisplay | undefined; fields: BuildingDisplay[] } {
+  const farm = selected.fields ? selected : selected.farm_id !== undefined ? buildings.find((b) => b.id === selected.farm_id) : undefined;
+  if (!farm) return { farm: undefined, fields: [] };
+  return { farm, fields: buildings.filter((b) => b.farm_id === farm.id) };
 }

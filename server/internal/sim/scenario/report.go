@@ -117,6 +117,23 @@ type Snapshot struct {
 	UnlockedTiers []string         `json:"unlocked_tiers"`
 	// Ships after the step (omitted without ships).
 	Ships []ShipSnapshot `json:"ships,omitempty"`
+	// Farms with fields after the step (omitted without such farms).
+	Farms []FarmSnapshot `json:"farms,omitempty"`
+}
+
+// FarmSnapshot is the field state of a farm in a snapshot: its active
+// fields, the requirement and maximum, its efficiency (permille) and the
+// IDs of its inactive fields (omitted when all are active).
+type FarmSnapshot struct {
+	Island     string  `json:"island"`
+	ID         int64   `json:"id"`
+	Type       string  `json:"type"`
+	Active     int     `json:"active"`
+	Required   int     `json:"required"`
+	Max        int     `json:"max"`
+	Fields     int     `json:"fields"`
+	Efficiency int64   `json:"efficiency_permille"`
+	Inactive   []int64 `json:"inactive,omitempty"`
 }
 
 // ShipSnapshot is the state of a ship in a snapshot; Cargo in milli-units
@@ -173,9 +190,21 @@ func (r *runner) snapshot(step, boundaries int) Snapshot {
 		for tier, n := range is.Population {
 			snap.Population[tier] += n
 		}
+		inactive := map[int64][]int64{}
 		for _, b := range is.Buildings {
 			if b.Rates != nil {
 				snap.StatusesCount[b.Status]++
+			}
+			if b.FarmID != nil && b.Active != nil && !*b.Active {
+				inactive[*b.FarmID] = append(inactive[*b.FarmID], b.ID)
+			}
+		}
+		for _, b := range is.Buildings {
+			if f := b.Fields; f != nil {
+				snap.Farms = append(snap.Farms, FarmSnapshot{
+					Island: is.ID, ID: b.ID, Type: b.Type, Active: f.Active, Required: f.Required, Max: f.Max,
+					Fields: len(f.IDs), Efficiency: b.EfficiencyPermille, Inactive: inactive[b.ID],
+				})
 			}
 		}
 	}
@@ -306,11 +335,11 @@ func reason(c *content.Catalogue, is sim.IslandDisplay, b sim.BuildingDisplay) s
 		return "Short of workers"
 	case sim.StatusLowEfficiency:
 		if b.Fields != nil {
-			return fmt.Sprintf("%d / %d fields", b.Fields.Assigned, b.Fields.Required)
+			return fmt.Sprintf("%d / %d fields", b.Fields.Active, b.Fields.Required)
 		}
 		return fmt.Sprintf("Only %d ‰ of the work area usable", b.EfficiencyPermille)
-	case sim.StatusNoFarm:
-		return "No accepting farm in range"
+	case sim.StatusNotAdjacent:
+		return "Not connected to its farm"
 	}
 	return b.Status
 }

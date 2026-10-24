@@ -66,7 +66,7 @@ export function thinningAreas(buildings: readonly BuildingDisplay[], defs: Reado
   for (const b of buildings) {
     const def = defs.get(b.type);
     const area = def?.work_area;
-    if (!def || !area || !(area.terrain ?? []).includes("forest")) continue;
+    if (!def || !area || area.radius === undefined || !(area.terrain ?? []).includes("forest")) continue;
     const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
     out.push({ cx: b.x + w / 2, cy: b.y + h / 2, radius: area.radius, keep: treeKeepFraction(b.efficiency_permille) });
   }

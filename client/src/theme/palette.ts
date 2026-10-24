@@ -157,7 +157,7 @@ export const STATUS = {
   throttled: "#0072B2",
   short_of_workers: "#999999",
   low_efficiency: "#009E73",
-  no_farm: "#CC79A7",
+  not_adjacent: "#CC79A7",
   ok: "#009E73",
   ghost_ok: "#DDDDDD",
   ghost_no_road: "#F0C808",
@@ -165,6 +165,7 @@ export const STATUS = {
   field_valid: "#3BB273",
   field_out_of_range: "#F0C808",
   field_ring: "#FFF4D6",
+  field_hover: "#DDDDDD",
   selection: "#FFD23F",
 } as const;
 

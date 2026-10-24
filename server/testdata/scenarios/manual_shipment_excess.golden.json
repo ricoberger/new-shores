@@ -1,6 +1,6 @@
 {
   "name": "manual_shipment_excess",
-  "content_version": "old_coast-0.7.0",
+  "content_version": "old_coast-0.8.0",
   "boundary_count": 4,
   "totals": {
     "island2": {

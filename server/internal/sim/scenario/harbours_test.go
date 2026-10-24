@@ -231,7 +231,7 @@ func TestStartAtSea(t *testing.T) {
 // scenario encoded by the current binary, for the migration template of
 // the next schema version (sim.TestSchemaFixturesDecode).
 func TestSchemaFixtures(t *testing.T) {
-	for _, name := range []string{"bootstrap_citizens", "berth_queue", "start_voyage"} {
+	for _, name := range []string{"bootstrap_citizens", "berth_queue", "start_voyage", "fields_mixed"} {
 		t.Run(name, func(t *testing.T) {
 			c, w := runToEnd(t, name)
 			data, err := sim.Encode(w, c.Region.Version)

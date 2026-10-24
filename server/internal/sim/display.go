@@ -14,7 +14,7 @@ import (
 // Building statuses (MECHANICS §14). A building has one primary status; the
 // precedence is the order of the constants: paused > not_connected >
 // warehouse_full > input_starved > throttled > short_of_workers >
-// low_efficiency > ok. A field is ok or StatusNoFarm (fields.go).
+// low_efficiency > ok. A field is ok or StatusNotAdjacent (fields.go).
 const (
 	StatusPaused         = "paused"
 	StatusNotConnected   = "not_connected"
@@ -407,9 +407,11 @@ type BuildingDisplay struct {
 
 	// Fields is set for farms with a fields block (D-049).
 	Fields *FieldsDisplay `json:"fields,omitempty"`
-	// FarmID is set for an assigned field: the ID of its farm (omitted
-	// when the field is unassigned, status no_farm).
+	// FarmID and Active are set for a field: the ID of its farm and
+	// whether its chain to the farm is intact (an inactive field has
+	// status not_adjacent).
 	FarmID *int64 `json:"farm_id,omitempty"`
+	Active *bool  `json:"active,omitempty"`
 }
 
 // BerthsDisplay is the pier of a Trading Post: its berths (count), the
@@ -432,11 +434,14 @@ type CapacitySourceDisplay struct {
 	Capacity   Qty    `json:"capacity"`
 }
 
-// FieldsDisplay is the field count of a farm: the fields assigned to it
-// and the number it needs for full efficiency.
+// FieldsDisplay is the field count of a farm (D-051 part 4): its active
+// fields, the number it needs for full efficiency, the most it may own and
+// the IDs of all its fields (active or not) in ascending order.
 type FieldsDisplay struct {
-	Assigned int `json:"assigned"`
-	Required int `json:"required"`
+	Active   int     `json:"active"`
+	Required int     `json:"required"`
+	Max      int     `json:"max"`
+	IDs      []int64 `json:"ids"`
 }
 
 // perMin converts a sub-milli rate per millisecond to milli-units per minute.
@@ -648,7 +653,7 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int
 	for _, h := range r.houses {
 		houses[h.b.ID] = h
 	}
-	assigned := assignedFields(is, c)
+	summaries := farmFieldSummaries(is, c)
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
 		if def == nil {
@@ -668,13 +673,17 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int
 			bd.Status = StatusNotConnected
 		}
 		if def.Fields != nil {
-			bd.Fields = &FieldsDisplay{Assigned: assigned[b.ID], Required: def.Fields.Required}
+			fd := &FieldsDisplay{Required: def.Fields.Required, Max: def.Fields.Max, IDs: []int64{}}
+			if s := summaries[b.ID]; s != nil {
+				fd.Active, fd.IDs = s.Active, s.IDs
+			}
+			bd.Fields = fd
 		}
 		if def.Field != nil {
-			if b.FarmID != 0 {
-				bd.FarmID = ptr(b.FarmID)
-			} else {
-				bd.Status = StatusNoFarm
+			bd.FarmID = ptr(b.FarmID)
+			bd.Active = ptr(!b.Inactive)
+			if b.Inactive {
+				bd.Status = StatusNotAdjacent
 			}
 		}
 		if def.Shipyard != nil {

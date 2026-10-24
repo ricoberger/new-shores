@@ -74,8 +74,8 @@ describe("field statuses (D-049)", () => {
   const fieldContent = {
     ...content,
     buildings: [
-      { id: "sheep_farm", name: "Sheep farm", fields: { type: "pasture", required: 16 } },
-      { id: "pasture", name: "Pasture", field: { type: "pasture", terrain: ["grass"] } },
+      { id: "sheep_farm", name: "Sheep farm", fields: { type: "pasture", required: 4, max: 8 } },
+      { id: "pasture", name: "Pasture", field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } },
       { id: "lumberjack", name: "Lumberjack", work_area: { radius: 4, terrain: ["forest"], required_tiles: 24 } },
     ],
   } as unknown as Content;
@@ -91,12 +91,12 @@ describe("field statuses (D-049)", () => {
 
   it("counts the fields of a farm below full efficiency", () => {
     const s = statusText(
-      building({ type: "sheep_farm", status: "low_efficiency", efficiency_permille: 750, fields: { assigned: 12, required: 16 } }),
+      building({ type: "sheep_farm", status: "low_efficiency", efficiency_permille: 750, fields: { active: 3, required: 4, max: 8, ids: [1, 2, 3] } }),
       is,
       d,
       fieldContent,
     );
-    expect(s).toEqual({ key: "low_efficiency", sentence: "12 / 16 fields", fix: "Place more pastures inside the ring." });
+    expect(s).toEqual({ key: "low_efficiency", sentence: "3 / 4 fields", fix: "Add more pastures next to the farm or its fields." });
   });
 
   it("keeps the work-area sentence of the lumberjack", () => {
@@ -104,9 +104,9 @@ describe("field statuses (D-049)", () => {
     expect(s.sentence).toBe("Only 50 % usable land in range");
   });
 
-  it("explains an unassigned field", () => {
-    const s = statusText(building({ type: "pasture", status: "no_farm", efficiency_permille: 1000 }), is, d, fieldContent);
-    expect(s).toEqual({ key: "no_farm", sentence: "No accepting farm in range", fix: "Move it or build a farm nearby." });
+  it("explains an inactive field", () => {
+    const s = statusText(building({ type: "pasture", status: "not_adjacent", efficiency_permille: 1000, active: false }), is, d, fieldContent);
+    expect(s).toEqual({ key: "not_adjacent", sentence: "Not connected to its farm", fix: "Add or rebuild the fields between it and the farm." });
   });
 
   it("names the field type of a farm in the plural", () => {

@@ -1,7 +1,7 @@
 import { toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
-import type { GhostTool, Tool } from "./tools";
+import type { GhostTool } from "./tools";
 
 interface Props {
   tool: GhostTool;
@@ -19,8 +19,8 @@ interface Props {
  * reason is repeated here.
  */
 export function PlacementBar({ tool, hint, onConfirm, onRotate, onCancel }: Props) {
-  const what = tool.kind === "move" ? "Move" : tool.kind === "found" ? "Found settlement" : "Place";
-  let text = "Tap the map to position the building";
+  const what = tool.kind === "move" ? "Move" : tool.kind === "found" ? "Found settlement" : tool.kind === "field" ? "Add field" : "Place";
+  let text = tool.kind === "field" ? "Tap next to the farm or one of its fields" : "Tap the map to position the building";
   if (tool.pending) text = hint ?? `${what} at ${tool.pending.x}, ${tool.pending.y}?`;
   return (
     <div className={`${styles.panel} ${styles.toolBar}`} role="toolbar" aria-label="Placement" data-testid="placement-bar">
@@ -67,44 +67,6 @@ export function RoadBar({ onDone }: { onDone: () => void }) {
       <button type="button" className={styles.button} onClick={onDone} data-testid="road-done">
         Done
       </button>
-    </div>
-  );
-}
-
-/**
- * The field tool on touch (D-049): a tap or a one-finger drag selects a
- * rectangle (previewed green/yellow in the scene); Confirm places the
- * green tiles with one command, Cancel drops the rectangle (and leaves the
- * tool when there is none).
- */
-export function FieldBar({
-  tool,
-  fieldName,
-  hint,
-  onConfirm,
-  onCancel,
-}: {
-  tool: Extract<Tool, { kind: "field" }>;
-  fieldName: string;
-  /** The rectangle's counts (from the renderer's preview), or null. */
-  hint: string | null;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  const text = tool.pending ? (hint ?? fieldName) : `Tap or drag over the ground to place ${fieldName.toLowerCase()}s`;
-  return (
-    <div className={`${styles.panel} ${styles.toolBar}`} role="toolbar" aria-label="Field placement" data-testid="field-bar">
-      <span className={styles.toolBarText} data-testid="field-hint">
-        {text}
-      </span>
-      <div className={styles.toolBarButtons}>
-        <button type="button" className={`${styles.button} ${styles.primary}`} onClick={onConfirm} disabled={!tool.pending} data-testid="field-confirm">
-          <Icon path={toolIcon("confirm")} /> Confirm
-        </button>
-        <button type="button" className={styles.button} onClick={onCancel} data-testid="field-cancel">
-          <Icon path={toolIcon("cancel")} /> Cancel
-        </button>
-      </div>
     </div>
   );
 }

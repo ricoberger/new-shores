@@ -22,8 +22,8 @@ import (
 //     standard site (Trading Post at (2, 0)) at once; the sloop idle there.
 //   - town: default plus the smoke spec's result plus FixtureGold: a road along the north, a connected
 //     lumberjack and sawmill (both moved once), four settler houses, the
-//     quests that layout completes claimed, and a sheep farm with 16
-//     pastures.
+//     quests that layout completes claimed, and a sheep farm with four
+//     2x2 pastures chained around it.
 //   - settled: town plus the voyage spec's result: a shipyard on the south
 //     coast, a second sloop (ship 2), island 2 founded by it (Trading Post,
 //     road, two houses, a fisher) and ship 2 sailing the route "Fish home";
@@ -137,6 +137,24 @@ func (f *fixture) road(island string, x0, y0, x1, y1 int) {
 
 func (f *fixture) place(island, typ string, x, y, rot int) {
 	f.apply(sim.PlaceBuilding{IslandID: island, Type: typ, X: x, Y: y, Rotation: rot})
+}
+
+// field places a field of the farm covering (fx, fy) at (x, y).
+func (f *fixture) field(island string, fx, fy int, typ string, x, y int) {
+	if f.err != nil {
+		return
+	}
+	is := f.w.Island(island)
+	if is == nil {
+		f.err = fmt.Errorf("no island %q", island)
+		return
+	}
+	farm := is.BuildingAt(f.c, fx, fy)
+	if farm == nil {
+		f.err = fmt.Errorf("no farm at (%d,%d)", fx, fy)
+		return
+	}
+	f.apply(sim.PlaceField{IslandID: island, FarmID: farm.ID, Type: typ, X: x, Y: y})
 }
 
 // move moves the building at (x, y) of the start island to (tx, ty).
@@ -253,11 +271,10 @@ func town(f *fixture) {
 		}
 	}
 	f.place(startIsland, "sheep_farm", 28, 5, 0)
-	var tiles []sim.Pos
-	for _, p := range [][2]int{{26, 7}, {27, 7}, {31, 7}, {32, 7}, {26, 8}, {27, 8}, {28, 8}, {29, 8}, {30, 8}, {31, 8}, {32, 8}, {27, 9}, {28, 9}, {29, 9}, {30, 9}, {31, 9}} {
-		tiles = append(tiles, sim.Pos{X: p[0], Y: p[1]})
+	// Four 2x2 pastures in a chain around the farm (D-051 part 4).
+	for _, p := range [][2]int{{26, 6}, {31, 6}, {28, 8}, {30, 8}} {
+		f.field(startIsland, 28, 5, "pasture", p[0], p[1])
 	}
-	f.apply(sim.PlaceFields{IslandID: startIsland, Type: "pasture", Tiles: tiles})
 	f.advance(time.Minute)
 }
 

@@ -1,0 +1,246 @@
+{
+  "name": "fields_chain",
+  "description": "Adjacency chains of fields (D-051 part 4): a sheep farm at (8,5) with two 2x2 pastures in a chain (farm -> f1 -> f2, 50 % of the 4 required); demolishing f1 leaves f2 inactive and the farm at 0 %; a pasture touching only the inactive f2 is not adjacent; re-placing f1 reconnects f2; moving the farm away keeps both pastures (inactive) and moving it back reactivates them; fields up to the farm's maximum of 8 succeed and the ninth fails (field_max_reached); a field type that is no field (field_type_mismatch) and a free-standing pasture (field_needs_farm) fail; demolishing the farm demolishes all its fields (one refund per field).",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~cccccccccccccccccc~",
+      "~......................~",
+      "~......................~",
+      "~......................~",
+      "~......................~",
+      "~......................~",
+      "~......................~",
+      "~...fff................~",
+      "~...fff................~",
+      "~...................m..~",
+      "~......................~",
+      "~......................~",
+      "~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": "1000",
+    "stock": {
+      "planks": 100
+    },
+    "workforce": {
+      "settlers": 10
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          22,
+          4
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 8,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          5
+        ],
+        "tiles": [
+          [
+            11,
+            5
+          ],
+          [
+            13,
+            5
+          ]
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "demolish": {
+        "x": 11,
+        "y": 5
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          5
+        ],
+        "tiles": [
+          [
+            15,
+            5
+          ]
+        ]
+      },
+      "expect_error": "field_not_adjacent"
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          5
+        ],
+        "tiles": [
+          [
+            11,
+            5
+          ]
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "move": {
+        "x": 8,
+        "y": 5,
+        "to_x": 15,
+        "to_y": 9,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "move": {
+        "x": 15,
+        "y": 9,
+        "to_x": 8,
+        "to_y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          5
+        ],
+        "type": "wheat_farm",
+        "tiles": [
+          [
+            11,
+            7
+          ]
+        ]
+      },
+      "expect_error": "field_type_mismatch"
+    },
+    {
+      "place": {
+        "type": "pasture",
+        "x": 11,
+        "y": 7,
+        "rotation": 0
+      },
+      "expect_error": "field_needs_farm"
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          5
+        ],
+        "tiles": [
+          [
+            11,
+            7
+          ],
+          [
+            13,
+            7
+          ],
+          [
+            15,
+            5
+          ],
+          [
+            15,
+            7
+          ],
+          [
+            8,
+            8
+          ],
+          [
+            10,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          8,
+          5
+        ],
+        "tiles": [
+          [
+            17,
+            5
+          ]
+        ]
+      },
+      "expect_error": "field_max_reached"
+    },
+    {
+      "demolish": {
+        "x": 8,
+        "y": 5
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

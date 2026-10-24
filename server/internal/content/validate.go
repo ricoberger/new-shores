@@ -338,27 +338,27 @@ func checkReferences(c *Catalogue) error {
 	return col.err()
 }
 
-// checkFields validates the fields of farms (D-049): every fields.type
-// names a field type declared by exactly one field building, every field
-// type is accepted by at least one farm, a farm has a work radius and a
-// field is a 1x1 building without a recipe. The schema enforces the other
-// shape rules of both blocks.
+// checkFields validates the fields of farms (D-049, D-051 part 4): every
+// fields.type names a field type declared by exactly one field building,
+// that field building names the farm (field.farm) and a farm has exactly
+// one field type, no work radius and no terrain rule; a field is a
+// building without a recipe or a work area whose footprint is 1x1 or 2x2.
+// The schema enforces the other shape rules of both blocks.
 func checkFields(c *Catalogue, col *collector) {
 	declared := map[string]string{}
-	accepted := map[string]bool{}
-	for _, b := range c.Buildings {
-		if b.Fields != nil {
-			accepted[b.Fields.Type] = true
-		}
-	}
+	farmField := map[string]string{}
 	for _, b := range c.Buildings {
 		ent := fmt.Sprintf("building %q", b.ID)
 		if f := b.Fields; f != nil {
-			if fb := c.FieldByType[f.Type]; fb == nil || fb.Field == nil || fb.Field.Type != f.Type {
+			fb := c.FieldByType[f.Type]
+			switch {
+			case fb == nil || fb.Field == nil || fb.Field.Type != f.Type:
 				col.add(FileBuildings, ent, "fields.type", "no building with a field block of type %q", f.Type)
+			case fb.Field.Farm != b.ID:
+				col.add(FileBuildings, ent, "fields.type", "field type %q belongs to farm %q", f.Type, fb.Field.Farm)
 			}
-			if b.WorkArea == nil || b.WorkArea.Radius < 1 {
-				col.add(FileBuildings, ent, "work_area.radius", "a farm with fields needs a work radius")
+			if b.WorkArea != nil && b.WorkArea.Radius != 0 {
+				col.add(FileBuildings, ent, "work_area.radius", "a farm with fields has no work radius")
 			}
 			if b.Field != nil {
 				col.add(FileBuildings, ent, "field", "a farm cannot be a field")
@@ -373,11 +373,20 @@ func checkFields(c *Catalogue, col *collector) {
 		} else {
 			declared[f.Type] = b.ID
 		}
-		if !accepted[f.Type] {
-			col.add(FileBuildings, ent, "field.type", "field type %q is accepted by no farm", f.Type)
+		farm := c.BuildingByID[f.Farm]
+		switch {
+		case farm == nil || farm.Fields == nil:
+			col.add(FileBuildings, ent, "field.farm", "%q is not a farm with a fields block", f.Farm)
+		case farm.Fields.Type != f.Type:
+			col.add(FileBuildings, ent, "field.farm", "farm %q accepts field type %q, not %q", f.Farm, farm.Fields.Type, f.Type)
 		}
-		if b.Width != 1 || b.Height != 1 {
-			col.add(FileBuildings, ent, "footprint", "field buildings must be 1x1")
+		if other, dup := farmField[f.Farm]; dup {
+			col.add(FileBuildings, ent, "field.farm", "farm %q already has the field building %q", f.Farm, other)
+		} else {
+			farmField[f.Farm] = b.ID
+		}
+		if b.Width != b.Height || b.Width > 2 {
+			col.add(FileBuildings, ent, "footprint", "field buildings must be 1x1 or 2x2")
 		}
 		if b.Recipe != nil || b.WorkArea != nil {
 			col.add(FileBuildings, ent, "field", "a field cannot have a recipe or a work area")

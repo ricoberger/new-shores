@@ -206,8 +206,8 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 | `lumberjack` | 1 | 2×2 | 50 / 5 | 1 | 4 S | R, work radius 4 forest, 24 tiles |
 | `sawmill` | 1 | 2×2 | 80 / 8 | 2 | 4 S | R |
 | `fisher` | 1 | 2×2, 1 water row | 60 / 6 | 1 | 4 S | R |
-| `sheep_farm` | 1 | 3×3 + fields | 50 / 10 | 1 | 4 S | R, work radius 4, 16 `pasture` fields, cycle 90 s |
-| `pasture` | 1 | 1×1 field | 0 | 0 | — | grass, inside an accepting farm's radius, never paused |
+| `sheep_farm` | 1 | 3×3 + fields | 50 / 10 | 1 | 4 S | R, 4 `pasture` fields required (max 8), cycle 90 s |
+| `pasture` | 1 | 2×2 field | 15 gold | 0 | — | sheep_farm only; grass; 8-adjacent to the farm or an active field; never paused (planks 0: with 2 planks the reference game misses its §12 targets) |
 | `weaver_wool` | 1 | 2×2 | 70 / 10 | 1 | 6 S | R, cycle 90 s |
 | `shipyard` | 1 | 5×4, 2 water rows | 225 / 25 | 0 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
 | `house_citizens` | 2 | 2×2 | 150 / 15 / 10 | 0 | — | upgrade only |
@@ -217,21 +217,24 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 | `charcoal_burner` | 2 | 2×2 | 150 / 10 | 3 | 4 S | R |
 | `smelter` | 2 | 3×3 | 200 / 20 / 20 | 3 | 8 S | R |
 | `toolmaker` | 2 | 2×2 | 200 / 15 / 15 | 3 | 8 S | R |
-| `wheat_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, wheat fertility, work radius 4, 16 `wheat_field` fields |
-| `wheat_field` | 2 | 1×1 field | 0 | 0 | — | grass, wheat fertility |
+| `wheat_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, wheat fertility, 16 `wheat_field` fields required (max 20) |
+| `wheat_field` | 2 | 1×1 field | 5 gold | 0 | — | wheat_farm only; grass, wheat fertility; chain rule as `pasture` |
 | `mill` | 2 | 2×2 | 250 / 20 / 10 | 3 | 4 C | R |
 | `bakery` | 2 | 2×2 | 300 / 15 / 15 | 4 | 6 C | R |
-| `dairy_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass |
+| `dairy_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass; field `cattle_pasture` |
+| `cattle_pasture` | 2 | 2×2 field | 15 gold | 0 | — | **reserved ID**, not shipped (dairy_farm has no recipe yet); dairy_farm only, 4 required (max 8), 1 cow |
 | `cheese_dairy` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `orchard` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, apple fertility, work radius 4, 16 `orchard_plot` fields |
-| `orchard_plot` | 2 | 1×1 field | 0 | 0 | — | grass, apple fertility |
+| `orchard` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, apple fertility, 16 `orchard_plot` fields required (max 20) |
+| `orchard_plot` | 2 | 1×1 field | 5 gold | 0 | — | orchard only; grass, apple fertility |
 | `cidery` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `apiary` | 2 | 2×2 + fields | 200 / 15 / 5 | 3 | 4 S | R, meadow |
+| `apiary` | 2 | 2×2 + fields | 200 / 15 / 5 | 3 | 4 S | R; field `meadow` |
+| `meadow` | 2 | 1×1 field | 5 gold | 0 | — | **reserved ID**, not shipped (apiary has no recipe yet); apiary only, 16 required (max 20) |
 | `meadery` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `hemp_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, hemp fertility, work radius 4, 16 `hemp_field` fields |
-| `hemp_field` | 2 | 1×1 field | 0 | 0 | — | grass, hemp fertility |
+| `hemp_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, hemp fertility, 16 `hemp_field` fields required (max 20) |
+| `hemp_field` | 2 | 1×1 field | 5 gold | 0 | — | hemp_farm only; grass, hemp fertility |
 | `weaver_linen` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `pig_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass |
+| `pig_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass; field `pig_pen` |
+| `pig_pen` | 2 | 2×2 field | 15 gold | 0 | — | **reserved ID**, not shipped (pig_farm has no recipe yet); pig_farm only, 4 required (max 8), 2 pigs |
 | `tannery` | 2 | 3×3 | 400 / 20 / 15 | 5 | 8 C | R |
 | `sailmaker` | 2 | 2×2 | 300 / 20 / 5 | 3 | 6 C | R |
 | `tavern` | 2 | 3×3 | 600 / 30 / 20 | 6 | — | R, radius 14 |

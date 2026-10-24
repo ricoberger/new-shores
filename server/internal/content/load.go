@@ -316,9 +316,11 @@ type rawBuilding struct {
 	Fields *struct {
 		Type     string `json:"type"`
 		Required int    `json:"required"`
+		Max      int    `json:"max"`
 	} `json:"fields"`
 	Field *struct {
 		Type      string   `json:"type"`
+		Farm      string   `json:"farm"`
 		Terrain   []string `json:"terrain"`
 		Fertility string   `json:"fertility"`
 	} `json:"field"`
@@ -790,13 +792,16 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		}
 	}
 	if f := rb.Fields; f != nil {
-		b.Fields = &FarmFields{Type: f.Type, Required: f.Required}
+		b.Fields = &FarmFields{Type: f.Type, Required: f.Required, Max: f.Max}
 		if f.Required < 1 {
 			col.add(file, ent, "fields.required", "must be >= 1")
 		}
+		if f.Max < f.Required {
+			col.add(file, ent, "fields.max", "must be >= fields.required")
+		}
 	}
 	if f := rb.Field; f != nil {
-		b.Field = &Field{Type: f.Type, Terrain: append([]string(nil), f.Terrain...), Fertility: f.Fertility}
+		b.Field = &Field{Type: f.Type, Farm: f.Farm, Terrain: append([]string(nil), f.Terrain...), Fertility: f.Fertility}
 	}
 	return b
 }

@@ -28,11 +28,13 @@ var (
 	ErrDisplayTime           = errors.New("display time differs from last evaluation")
 )
 
-// Sentinel errors of fields (D-049).
+// Sentinel errors of fields (D-049, D-051 part 4).
 var (
-	ErrNoFarmInRange     = errors.New("no farm accepting the field in range")
 	ErrFieldTypeMismatch = errors.New("building type is not a field")
-	ErrNotAField         = errors.New("building is not a field")
+	ErrFieldNotAdjacent  = errors.New("field is not adjacent to its farm or an active field")
+	ErrFieldMaxReached   = errors.New("farm has the maximum number of fields")
+	ErrFieldWrongFarm    = errors.New("field belongs to another farm type")
+	ErrFieldNeedsFarm    = errors.New("fields are placed from their farm")
 )
 
 // Sentinel errors of the population and economy rules.

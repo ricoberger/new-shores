@@ -4,7 +4,7 @@ import { countdown, orderTiming } from "../display/ships";
 import { fieldBuildingOf } from "../display/fields";
 import { workforceText } from "../display/hud";
 import { needCategory, needLabel } from "../display/needs";
-import { fieldsPlural, STATUS_STYLES, statusKey, statusText } from "../display/status";
+import { STATUS_STYLES, statusKey, statusText } from "../display/status";
 import { goodIcon, needIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
@@ -24,8 +24,10 @@ interface Props {
   /** Raises the Trading Post to its next level (upgrade_trading_post). */
   onUpgradeTradingPost: () => void;
   onSelectBuilding: (id: number) => void;
-  /** Activates the field tool for a field building (a farm's "Place …" button, D-049). */
-  onPlaceFields: (fieldType: string) => void;
+  /** Activates the field tool bound to this farm for a field building (its "Add field" button, D-051 part 4). */
+  onAddField: (fieldType: string) => void;
+  /** A fields-list row is hovered or focused (its building ID; null: none): the scene outlines it. */
+  onHoverBuilding: (id: number | null) => void;
   /** Server time the model was extrapolated to (ms since the epoch). */
   nowMs: number;
   onOrderShip: (shipType: string) => void;
@@ -258,7 +260,8 @@ export function InfoPanel({
   onUpgradeWarehouse,
   onUpgradeTradingPost,
   onSelectBuilding,
-  onPlaceFields,
+  onAddField,
+  onHoverBuilding,
   nowMs,
   onOrderShip,
   onCancelShipOrder,
@@ -288,16 +291,47 @@ export function InfoPanel({
       {b.fields && def?.fields && (
         <div className={styles.section} data-testid="farm-fields">
           <div className={styles.sectionTitle} data-testid="farm-fields-count">
-            Fields {b.fields.assigned} / {b.fields.required}
+            Fields {b.fields.active} / {b.fields.required}
           </div>
-          <Bar permille={Math.min(1000, (b.fields.assigned * 1000) / Math.max(1, b.fields.required))} />
+          <Bar permille={Math.min(1000, (b.fields.active * 1000) / Math.max(1, b.fields.required))} />
+          <div className={styles.small} data-testid="farm-fields-max">
+            {b.fields.ids.length} of at most {b.fields.max} placed
+          </div>
+          {b.fields.ids.length > 0 && (
+            <ul className={styles.fieldList} data-testid="farm-field-list" onMouseLeave={() => onHoverBuilding(null)}>
+              {b.fields.ids.map((id) => {
+                const f = island.buildings.find((x) => x.id === id);
+                if (!f) return null;
+                const name = content.buildings.find((d) => d.id === f.type)?.name ?? f.type;
+                return (
+                  <li key={id}>
+                    <button
+                      type="button"
+                      className={styles.link}
+                      onClick={() => onSelectBuilding(id)}
+                      onMouseEnter={() => onHoverBuilding(id)}
+                      onFocus={() => onHoverBuilding(id)}
+                      onBlur={() => onHoverBuilding(null)}
+                      data-testid={`farm-field-${id}`}
+                      data-active={f.active === false ? "false" : "true"}
+                    >
+                      <StatusIcon building={f} /> {name} #{id}
+                      {f.active === false ? " · not adjacent" : ""}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
           {(() => {
             const field = fieldBuildingOf(content, b.type);
             if (!field) return null;
+            const full = b.fields.ids.length >= b.fields.max;
             return (
               <div className={styles.buttons}>
-                <button type="button" className={styles.button} onClick={() => onPlaceFields(field.id)} data-testid="farm-place-fields">
-                  Place {fieldsPlural(content, b.type)} {b.fields.assigned} / {b.fields.required}
+                <button type="button" className={styles.button} onClick={() => onAddField(field.id)} disabled={full} data-testid="farm-add-field">
+                  Add {field.name.toLowerCase()}
+                  {field.cost.gold > 0 ? ` (${units(field.cost.gold)} gold)` : ""}
                 </button>
               </div>
             );
@@ -310,14 +344,24 @@ export function InfoPanel({
           <div className={styles.sectionTitle}>Farm</div>
           {(() => {
             const farm = b.farm_id !== undefined ? island.buildings.find((f) => f.id === b.farm_id) : undefined;
-            if (!farm) return <div className={styles.small}>No farm in range</div>;
+            if (!farm) return <div className={styles.small}>Its farm is gone</div>;
             const name = content.buildings.find((d) => d.id === farm.type)?.name ?? farm.type;
             return (
-              <button type="button" className={styles.link} onClick={() => onSelectBuilding(farm.id)} data-testid="field-farm-link">
+              <button
+                type="button"
+                className={styles.link}
+                onClick={() => onSelectBuilding(farm.id)}
+                onMouseEnter={() => onHoverBuilding(farm.id)}
+                onMouseLeave={() => onHoverBuilding(null)}
+                data-testid="field-farm-link"
+              >
                 {name} #{farm.id}
               </button>
             );
           })()}
+          <div className={styles.small} data-testid="field-active">
+            {b.active === false ? "Not adjacent: its chain to the farm is broken" : "Active: it counts for its farm"}
+          </div>
         </div>
       )}
 

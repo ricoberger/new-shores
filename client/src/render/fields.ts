@@ -3,25 +3,22 @@
 // island (FieldTiles, near LOD) — and a per-type decoration on top
 // (FieldDecor: fence posts and tufts on pastures, rows on wheat and hemp,
 // small trees on orchards; one merged mesh per island, near LOD),
-// and in world coordinates the green/yellow preview of the field tool's
-// rectangle and the work-radius rings of farms with their "n / required"
-// labels (labels are HTML, see FieldRingLabels). Nothing here is pickable.
+// and in world coordinates the outlines of a farm's chain (FootprintMarks).
+// Nothing here is pickable.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
-import { CreateTorus } from "@babylonjs/core/Meshes/Builders/torusBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import type { TilePos } from "../display/geometry";
-import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
 import { cone, prism, type Tri, TriBuilder } from "./meshdata";
 import { BUILDINGS, FIELDS, UI } from "../theme/palette";
-import { buildingColor, c3, FIELD_OUT_OF_RANGE, FIELD_RING, FIELD_VALID } from "./palette";
+import { buildingColor, c3, FIELD_HOVER, FIELD_OUT_OF_RANGE, FIELD_RING, FIELD_VALID } from "./palette";
 import { skyFill } from "./lighting";
 
 const TEX = 64;
@@ -95,18 +92,6 @@ function flat(scene: Scene, name: string, size: number, height: number, color: C
   return mesh;
 }
 
-/** A farm whose work radius is drawn as a ring. */
-export interface FieldRing {
-  farmId: number;
-  /** Footprint centre in scene (world) coordinates (x, z). */
-  cx: number;
-  cz: number;
-  radius: number;
-  /** The server's fields counts of the farm. */
-  assigned: number;
-  required: number;
-}
-
 /** The fields of one island (under the island's node, local tiles). */
 export class FieldTiles {
   private readonly meshes = new Map<string, Mesh>();
@@ -143,60 +128,61 @@ export class FieldTiles {
   }
 }
 
-/** Field tool preview and farm rings, in world coordinates. */
-export class FieldLayer {
-  private readonly valid: Mesh;
-  private readonly outOfRange: Mesh;
-  private readonly rings = new Map<number, Mesh>();
-  private ringList: FieldRing[] = [];
-
-  constructor(private readonly scene: Scene) {
-    this.valid = flat(scene, "field_preview_valid", 0.9, 0.05, FIELD_VALID, 0.7, null);
-    this.outOfRange = flat(scene, "field_preview_out", 0.9, 0.05, FIELD_OUT_OF_RANGE, 0.6, null);
-  }
-
-  /** Field tool preview: green tiles are sent, yellow ones are outside every accepting farm's ring. */
-  setPreview(valid: readonly TilePos[], outOfRange: readonly TilePos[]): void {
-    setInstances(this.valid, slabs(valid, 0.04));
-    setInstances(this.outOfRange, slabs(outOfRange, 0.04));
-  }
-
-  /** Work-radius rings (one torus template per radius, thin instances). */
-  setRings(rings: readonly FieldRing[]): void {
-    this.ringList = [...rings];
-    const byRadius = new Map<number, number[]>();
-    for (const r of rings) {
-      let arr = byRadius.get(r.radius);
-      if (!arr) byRadius.set(r.radius, (arr = []));
-      for (const v of Matrix.Translation(r.cx, 0.06, r.cz).asArray()) arr.push(v);
-    }
-    for (const [radius, mesh] of this.rings) if (!byRadius.has(radius)) setInstances(mesh, null);
-    for (const [radius, arr] of byRadius) {
-      let mesh = this.rings.get(radius);
-      if (!mesh) {
-        mesh = CreateTorus(`field_ring_${radius}`, { diameter: 2 * radius, thickness: 0.08, tessellation: 64 }, this.scene);
-        const mat = new StandardMaterial(`field_ring_${radius}`, this.scene);
-        mat.emissiveColor = FIELD_RING;
-        mat.disableLighting = true;
-        mesh.material = mat;
-        mesh.isPickable = false;
-        this.rings.set(radius, mesh);
-      }
-      setInstances(mesh, new Float32Array(arr));
-    }
-  }
-
-  /** The rings drawn (for the HTML labels). */
-  ringsShown(): readonly FieldRing[] {
-    return this.ringList;
-  }
+/** A footprint outlined in world coordinates (the scene's x, z of its centre and size in tiles). */
+export interface Mark {
+  cx: number;
+  cz: number;
+  w: number;
+  h: number;
+  /** `farm`: the farm of the chain; `active` / `inactive`: its fields; `hover`: the row the list hovers. */
+  kind: "farm" | "active" | "inactive" | "hover";
 }
 
-/** Ring of a farm with fields (null for any other building); `origin` is its island's position. */
-export function farmRing(b: BuildingDisplay, def: ContentBuilding | undefined, origin: { x: number; y: number } = { x: 0, y: 0 }): FieldRing | null {
-  if (!def?.fields || !def.work_area) return null;
-  const { cx, cz } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-  return { farmId: b.id, cx: cx + origin.x, cz: cz - origin.y, radius: def.work_area.radius, assigned: b.fields?.assigned ?? 0, required: b.fields?.required ?? def.fields.required };
+const MARK_COLORS: Record<Mark["kind"], { color: Color3; alpha: number; y: number }> = {
+  farm: { color: FIELD_RING, alpha: 0.5, y: 0.05 },
+  active: { color: FIELD_VALID, alpha: 0.45, y: 0.055 },
+  inactive: { color: FIELD_OUT_OF_RANGE, alpha: 0.55, y: 0.055 },
+  hover: { color: FIELD_HOVER, alpha: 0.65, y: 0.06 },
+};
+
+/**
+ * The outlines of a farm's chain (D-051 part 4): flat translucent boxes, one
+ * thin-instance mesh per kind, scaled to each footprint. Nothing here is
+ * pickable.
+ */
+export class FootprintMarks {
+  private readonly meshes = new Map<Mark["kind"], Mesh>();
+  private shown: Record<Mark["kind"], number> = { farm: 0, active: 0, inactive: 0, hover: 0 };
+
+  constructor(scene: Scene) {
+    for (const [kind, look] of Object.entries(MARK_COLORS) as [Mark["kind"], (typeof MARK_COLORS)[Mark["kind"]]][]) {
+      this.meshes.set(kind, flat(scene, `field_mark_${kind}`, 1, 0.04, look.color, look.alpha, null));
+    }
+  }
+
+  /** Draws the marks (replacing the previous ones). */
+  set(marks: readonly Mark[]): void {
+    this.shown = { farm: 0, active: 0, inactive: 0, hover: 0 };
+    for (const [kind, mesh] of this.meshes) {
+      const of = marks.filter((m) => m.kind === kind);
+      this.shown[kind] = of.length;
+      if (of.length === 0) {
+        setInstances(mesh, null);
+        continue;
+      }
+      const out = new Float32Array(of.length * 16);
+      of.forEach((m, i) => {
+        const t = Matrix.Scaling(m.w + 0.04, 1, m.h + 0.04).multiply(Matrix.Translation(m.cx, MARK_COLORS[kind].y, m.cz));
+        out.set(t.asArray(), i * 16);
+      });
+      setInstances(mesh, out);
+    }
+  }
+
+  /** How many marks of each kind are drawn. */
+  counts(): Record<Mark["kind"], number> {
+    return { ...this.shown };
+  }
 }
 
 const POST = prism(4, 0.035, 0, 0.2, c3(BUILDINGS.timber), Math.PI / 4);

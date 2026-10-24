@@ -15,10 +15,8 @@ import {
   TRADING_POST_TILE,
   WATER,
   QUEST_HOUSES,
-  PASTURE_RECT_FROM,
-  PASTURE_RECT_OUTSIDE,
-  PASTURE_RECT_TO,
-  PASTURE_RECT_VALID,
+  PASTURE_CHAIN,
+  PASTURE_NOT_ADJACENT,
   SHEEP_FARM,
 } from "./constants";
 import { wheelZoom, worldReady } from "./archipelago";
@@ -339,89 +337,100 @@ test("complete and claim the first four quests", async ({ page }) => {
 
 interface FieldsServerBuilding extends ServerBuilding {
   efficiency_permille: number;
-  fields?: { assigned: number; required: number };
+  fields?: { active: number; required: number; max: number; ids: number[] };
   farm_id?: number;
+  active?: boolean;
 }
 
-test("a sheep farm with a dragged pasture rectangle produces wool", async ({ page }) => {
+test("a sheep farm with a chain of pastures produces wool; a broken chain leaves a field inactive", async ({ page }) => {
   await page.goto("/");
   await dismissAwayDialog(page);
   await worldReady(page, ISLAND);
   await wheelZoom(page, ISLAND_ZOOM_OUT_TICKS);
 
-  // The pasture is listed under Production right after the sheep farm.
+  // Fields are not in the build menu: they are added from their farm.
   await page.getByTestId("build-tab-production").click();
-  const items = await page
-    .getByTestId("build-menu")
-    .locator('[data-testid^="build-"]:not([data-testid^="build-tab-"]):not([data-testid^="build-lock-"]):not([data-testid^="build-fertility-"]):not([data-testid^="build-deposit-"])')
-    .evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")));
-  expect(items.indexOf("build-pasture")).toBe(items.indexOf("build-sheep_farm") + 1);
+  await expect(page.getByTestId("build-sheep_farm")).toBeVisible();
+  await expect(page.getByTestId("build-pasture")).toHaveCount(0);
 
-  // A farm with fields is placed at 0 fields (D-049).
+  // A farm with fields is placed at 0 fields.
   const v0 = await version(page);
   await pick(page, "production", "sheep_farm", SHEEP_FARM.rotation);
   await clickTile(page, SHEEP_FARM);
   await expectVersion(page, v0 + 1);
   await page.keyboard.press("Escape");
   const farm = (await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding;
-  expect(farm.fields).toEqual({ assigned: 0, required: 16 });
+  expect(farm.fields).toEqual({ active: 0, required: 4, max: 8, ids: [] });
   expect(farm.efficiency_permille).toBe(0);
 
-  // Its panel counts the fields and opens the field tool with the ring.
+  // Its panel shows the fields row and the Add button.
   await clickTile(page, { x: SHEEP_FARM.x + 1, y: SHEEP_FARM.y + 1 });
   await expect(page.getByTestId("info-name")).toHaveText("Sheep farm");
-  await expect(page.getByTestId("farm-fields-count")).toHaveText("Fields 0 / 16");
-  await expect(page.getByTestId("farm-place-fields")).toHaveText("Place pastures 0 / 16");
-  await page.getByTestId("farm-place-fields").click();
-  await expect(page.getByTestId("tool-hint")).toContainText("drag a rectangle to place pastures");
-  const label = page.getByTestId(`field-ring-label-${farm.id}`);
-  await expect(label).toHaveText("0 / 16");
+  await expect(page.getByTestId("farm-fields-count")).toHaveText("Fields 0 / 4");
+  await expect(page.getByTestId("farm-fields-max")).toHaveText("0 of at most 8 placed");
+  await expect(page.getByTestId("farm-add-field")).toHaveText("Add pasture (15 gold)");
+  await page.getByTestId("farm-add-field").click();
+  await expect(page.getByTestId("tool-hint")).toContainText("add a pasture next to the farm or its fields");
 
-  // Right click and Esc cancel the tool; nothing is sent.
-  const a = await screen(page, PASTURE_RECT_FROM);
-  const b = await screen(page, PASTURE_RECT_TO);
-  await page.mouse.click(a.x, a.y, { button: "right" });
-  await expect(page.getByTestId("tool-hint")).toBeHidden();
-  await pick(page, "production", "pasture", 0);
-  await expect(page.getByTestId("tool-hint")).toBeVisible();
+  // The ghost shows the adjacency rule: red away from the farm with the
+  // reason, neutral next to it; Esc and the right button leave the tool.
+  const ghostValidity = () => page.evaluate(() => window.__newShores!.ghostValidity());
+  const hover = async (t: Tile) => {
+    const p = await screen(page, t);
+    await page.mouse.move(p.x, p.y);
+  };
+  await hover(PASTURE_NOT_ADJACENT);
+  await expect.poll(ghostValidity).toBe("invalid");
+  await expect(page.getByTestId("tool-hint-reason")).toContainText("must touch sheep farm or one of its active pastures");
+  await hover(PASTURE_CHAIN[0]!);
+  await expect.poll(ghostValidity).toBe("ok");
+  await expect(page.getByTestId("tool-hint-reason")).toHaveCount(0);
   await page.keyboard.press("Escape");
+  await expect(page.getByTestId("tool-hint")).toBeHidden();
+  await page.getByTestId("farm-add-field").click();
+  const away = await screen(page, PASTURE_NOT_ADJACENT);
+  await page.mouse.click(away.x, away.y, { button: "right" });
   await expect(page.getByTestId("tool-hint")).toBeHidden();
   expect(await version(page)).toBe(v0 + 1);
 
-  // Drag a rectangle: the preview counts the green and yellow tiles; the
-  // release sends one place_fields command with the green ones.
-  await pick(page, "production", "pasture", 0);
+  // A click on an invalid spot is sent anyway (the server decides) and rejected.
+  await page.getByTestId("farm-add-field").click();
+  await page.mouse.click(away.x, away.y);
+  await expect(page.getByTestId("toast").first()).toContainText("touches neither sheep_farm");
+  expect(await version(page)).toBe(v0 + 1);
+
+  // The tool stays after each placement: four chained pastures, one of them
+  // touching only another pasture.
   const commands: string[] = [];
   page.on("request", (r) => {
     if (r.method() === "POST" && r.url().endsWith("/api/v1/world/commands")) commands.push(r.postData() ?? "");
   });
-  await page.mouse.move(a.x, a.y);
-  await page.mouse.down();
-  await page.mouse.move(b.x, b.y, { steps: 10 });
-  await expect(page.getByTestId("tool-hint-reason")).toHaveText(
-    `${PASTURE_RECT_VALID} pastures · ${PASTURE_RECT_OUTSIDE} outside every farm's ring`,
-  );
-  expect(commands).toHaveLength(0);
-  await page.mouse.up();
-  await expectVersion(page, v0 + 2);
-  expect(commands).toHaveLength(1);
-  const sent = JSON.parse(commands[0]!) as { command: { type: string; field_type: string; tiles: Tile[] } };
-  expect(sent.command.type).toBe("place_fields");
-  expect(sent.command.field_type).toBe("pasture");
-  expect(sent.command.tiles).toHaveLength(PASTURE_RECT_VALID);
-  await expect(label).toHaveText("16 / 16");
+  for (const [i, t] of PASTURE_CHAIN.entries()) {
+    await clickTile(page, t);
+    await expectVersion(page, v0 + 2 + i);
+    await expect(page.getByTestId("tool-hint")).toBeVisible();
+  }
+  const sent = JSON.parse(commands[0]!) as { command: Record<string, unknown> };
+  expect(sent.command).toMatchObject({ type: "place_field", island_id: ISLAND, farm_id: farm.id, building_type: "pasture", x: PASTURE_CHAIN[0]!.x, y: PASTURE_CHAIN[0]!.y });
+  await expect(page.getByTestId("farm-fields-count")).toHaveText("Fields 4 / 4");
   const full = (await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding;
-  expect(full.fields).toEqual({ assigned: 16, required: 16 });
+  expect(full.fields).toMatchObject({ active: 4, required: 4, max: 8 });
+  expect(full.fields!.ids).toHaveLength(4);
   expect(full.efficiency_permille).toBe(1000);
   const pastures = (await serverBuildings(page)).filter((x) => x.type === "pasture") as FieldsServerBuilding[];
-  expect(pastures).toHaveLength(16);
-  for (const p of pastures) expect(p.farm_id).toBe(farm.id);
+  expect(pastures).toHaveLength(4);
+  for (const p of pastures) {
+    expect(p.farm_id).toBe(farm.id);
+    expect(p.active).toBe(true);
+  }
   await page.keyboard.press("Escape");
 
-  // The farm runs at 100 % on 16 fields; wool flows.
+  // The farm runs at 100 %; wool flows.
   await clickTile(page, { x: SHEEP_FARM.x + 1, y: SHEEP_FARM.y + 1 });
-  await expect(page.getByTestId("farm-fields-count")).toHaveText("Fields 16 / 16");
+  await expect(page.getByTestId("farm-fields-count")).toHaveText("Fields 4 / 4");
   await expect(page.getByTestId("info-panel")).toContainText("Efficiency100 %");
+  // The chain is outlined: the farm and its four active fields.
+  await expect.poll(() => page.evaluate(() => window.__newShores!.fieldMarks())).toEqual({ farm: 1, active: 4, inactive: 0, hover: 0 });
   await expect
     .poll(async () => Number(await page.getByTestId("rate-output-wool").textContent()), {
       timeout: WOOL_WITHIN_SIM_MS / E2E_TIME_SCALE + WALL_MARGIN_MS,
@@ -429,19 +438,36 @@ test("a sheep farm with a dragged pasture rectangle produces wool", async ({ pag
     .toBeGreaterThan(0);
   await expect.poll(() => committed(page, "wool"), { timeout: WOOL_WITHIN_SIM_MS / E2E_TIME_SCALE + WALL_MARGIN_MS }).toBeGreaterThan(0);
 
-  // Demolish mode removes a field with one click (no confirmation); a
-  // click with the pasture tool places one again.
+  // Hovering a row of the list outlines that field.
+  await page.getByTestId(`farm-field-${full.fields!.ids[1]}`).hover();
+  await expect.poll(() => page.evaluate(() => window.__newShores!.fieldMarks().hover)).toBe(1);
+
+  // Chain break: demolishing the first pasture leaves the one that touched
+  // only it inactive (desaturated, not_adjacent); it counts nothing.
   await page.keyboard.press("Escape");
   await page.getByTestId("tool-demolish").click();
-  await expect(page.getByTestId("tool-hint")).toContainText("building, field or road");
   const v2 = await version(page);
-  await clickTile(page, PASTURE_RECT_FROM);
+  await clickTile(page, PASTURE_CHAIN[0]!);
   await expectVersion(page, v2 + 1);
-  expect(((await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding).fields?.assigned).toBe(15);
   await page.keyboard.press("Escape");
-  await pick(page, "production", "pasture", 0);
-  await clickTile(page, PASTURE_RECT_FROM);
+  const broken = (await serverBuildings(page)).filter((x) => x.type === "pasture") as FieldsServerBuilding[];
+  expect(broken).toHaveLength(3);
+  const inactive = broken.filter((p) => p.active === false);
+  expect(inactive.map((p) => ({ x: p.x, y: p.y, status: p.status }))).toEqual([{ x: PASTURE_CHAIN[1]!.x, y: PASTURE_CHAIN[1]!.y, status: "not_adjacent" }]);
+  const after = (await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding;
+  expect(after.fields).toMatchObject({ active: 2, required: 4, max: 8 });
+  expect(after.efficiency_permille).toBe(500);
+  // Selecting the inactive field shows its status and outlines its farm and chain.
+  await clickTile(page, PASTURE_CHAIN[1]!);
+  await expect(page.getByTestId("info-status")).toHaveText("Not connected to its farm");
+  await expect(page.getByTestId("field-active")).toContainText("Not adjacent");
+  await expect.poll(() => page.evaluate(() => window.__newShores!.fieldMarks())).toEqual({ farm: 1, active: 2, inactive: 1, hover: 0 });
+  // Re-placing the first pasture reconnects it.
+  await page.keyboard.press("Escape");
+  await clickTile(page, { x: SHEEP_FARM.x + 1, y: SHEEP_FARM.y + 1 });
+  await page.getByTestId("farm-add-field").click();
+  await clickTile(page, PASTURE_CHAIN[0]!);
   await expectVersion(page, v2 + 2);
-  expect(((await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding).fields?.assigned).toBe(16);
   await page.keyboard.press("Escape");
+  expect(((await serverBuilding(page, "sheep_farm")) as FieldsServerBuilding).fields).toMatchObject({ active: 4 });
 });

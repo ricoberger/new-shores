@@ -257,10 +257,10 @@ type Building struct {
 	Workforce *Workforce
 	Shipyard  *Shipyard
 	// Fields marks a farm whose efficiency comes from explicit fields
-	// (D-049); such a farm has a WorkArea with Radius (and optionally
-	// Fertility) only.
+	// (D-049, D-051 part 4); such a farm has at most a WorkArea with a
+	// Fertility.
 	Fields *FarmFields
-	// Field marks a 1x1 field placeable.
+	// Field marks a field placeable (1x1 crop tile or 2x2 animal field).
 	Field *Field
 
 	// RequiresDeposit is the deposit kind at least one footprint tile must
@@ -420,18 +420,27 @@ type Service struct {
 	Radius int
 }
 
-// FarmFields is the fields block of a farm (D-049): efficiency =
-// min(1, assigned fields of Type / Required).
+// FarmFields is the fields block of a farm (D-049, D-051 part 4):
+// efficiency = min(1, active fields of Type / Required).
 type FarmFields struct {
-	// Type is the field type (Field.Type) the farm accepts.
-	Type     string
+	// Type is the field type (Field.Type) of the farm; exactly one field
+	// building declares it and names this farm.
+	Type string
+	// Required is the number of active fields for full efficiency.
 	Required int
+	// Max is the most fields (active or not) the farm may own.
+	Max int
 }
 
-// Field is the field block of a 1x1 field placeable (D-049).
+// Field is the field block of a field placeable (D-049, D-051 part 4): a
+// 1x1 crop tile or a 2x2 animal field, placed from its farm's panel next
+// to the farm or to one of its active fields.
 type Field struct {
-	// Type is the field type; farms accept fields by this type.
-	Type    string
+	// Type is the field type, unique per field building.
+	Type string
+	// Farm is the building type of the one farm the field belongs to;
+	// its fields.type equals Type.
+	Farm    string
 	Terrain []string
 	// Fertility is the island-wide fertility tag the field needs ("" for
 	// none).
@@ -449,9 +458,8 @@ func (f *Field) MatchesTerrain(terrain string) bool {
 }
 
 // WorkArea is the data-driven work-area rule (MECHANICS §2):
-// efficiency = min(1, matching tiles within Radius / RequiredTiles). For a
-// farm with a Fields block only Radius (the bound of its fields) and
-// Fertility are set.
+// efficiency = min(1, matching tiles within Radius / RequiredTiles). A farm
+// with a Fields block has no radius: only Fertility is set (D-051 part 4).
 type WorkArea struct {
 	Radius        int
 	Terrain       []string

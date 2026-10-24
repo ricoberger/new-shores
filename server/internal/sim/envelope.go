@@ -8,10 +8,13 @@ import (
 
 // SchemaVersion is the current world schema version. Version 2 added the
 // quest state and the "while you were away" summary, version 3 the
-// explicit fields of farms (D-049) and version 4 the Trading Post, inland
-// Warehouses, berths and the start at sea (D-051). Versions 1-3 have no
-// migration path (the game was not deployed; a fresh database is needed).
-const SchemaVersion = 4
+// explicit fields of farms (D-049), version 4 the Trading Post, inland
+// Warehouses, berths and the start at sea (D-051) and version 5 the
+// adjacency fields (D-051 part 4: Building.FarmID is the owning farm,
+// Building.Inactive). Versions 1-4 have no migration path (the game was
+// not deployed; a fresh database is needed: make down VOLUMES=1 && make
+// up).
+const SchemaVersion = 5
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

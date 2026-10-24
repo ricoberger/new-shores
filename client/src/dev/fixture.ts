@@ -38,6 +38,8 @@ import type {
   Terrain,
   WorldResponse,
 } from "../api/client";
+import { rectsTouch } from "../display/fields";
+import { rotatedFootprint } from "../display/geometry";
 import type { InitialCamera } from "../render/engine";
 import { extrapolate } from "../display/extrapolate";
 import type { SyncSnapshot } from "../api/sync";
@@ -243,6 +245,54 @@ export function buildArchipelagoFixture(nowMs: number): Built {
 export const DENSE_ISLAND = "dense1";
 const DENSE_GOODS = ["wood", "planks", "fish", "tools"];
 
+/** The field building a farm type owns in the fixture content: its type and footprint. */
+const FIELD_OF: Record<string, { type: string; size: number }> = {
+  sheep_farm: { type: "pasture", size: 2 },
+  wheat_farm: { type: "wheat_field", size: 1 },
+  orchard: { type: "orchard_plot", size: 1 },
+  hemp_farm: { type: "hemp_field", size: 1 },
+};
+
+interface Placed {
+  x: number;
+  y: number;
+}
+
+/**
+ * Lays `count` fields of a farm as an adjacency chain (D-051 part 4): each
+ * one touches the farm or an earlier field of it (nearest to the farm's
+ * centre first, row-major on ties) on free grass inside `bounds`. `taken`
+ * holds the tiles already used and gets the new fields' tiles. Synthetic
+ * display data for the dev fixtures only, not a game rule.
+ */
+function chainFields(farm: { x: number; y: number }, farmType: string, count: number, taken: Set<string>, grass: (x: number, y: number) => boolean, bounds: { x0: number; y0: number; x1: number; y1: number }): Placed[] {
+  const size = FIELD_OF[farmType]?.size ?? 1;
+  const rects = [{ x: farm.x, y: farm.y, w: 3, h: 3 }];
+  const out: Placed[] = [];
+  for (let n = 0; n < count; n++) {
+    let best: (Placed & { d: number }) | null = null;
+    for (let y = bounds.y0; y + size - 1 <= bounds.y1; y++) {
+      for (let x = bounds.x0; x + size - 1 <= bounds.x1; x++) {
+        let free = true;
+        for (let dy = 0; dy < size && free; dy++) for (let dx = 0; dx < size && free; dx++) free = grass(x + dx, y + dy) && !taken.has(`${x + dx},${y + dy}`);
+        if (!free || !rects.some((r) => rectsTouch(r, { x, y, w: size, h: size }))) continue;
+        const d = (x + size / 2 - (farm.x + 1.5)) ** 2 + (y + size / 2 - (farm.y + 1.5)) ** 2;
+        if (!best || d < best.d) best = { x, y, d };
+      }
+    }
+    if (!best) break;
+    out.push({ x: best.x, y: best.y });
+    rects.push({ x: best.x, y: best.y, w: size, h: size });
+    for (let dy = 0; dy < size; dy++) for (let dx = 0; dx < size; dx++) taken.add(`${best.x + dx},${best.y + dy}`);
+  }
+  return out;
+}
+
+/** The display of a farm's fields: its `fields` block and one field display per chained field (all active). */
+function farmWithFields(base: BuildingDisplay, ids: number[], required: number, max: number): BuildingDisplay {
+  return { ...base, status: ids.length >= required ? "ok" : "low_efficiency", efficiency_permille: Math.min(1000, Math.floor((ids.length * 1000) / required)), fields: { active: ids.length, required, max, ids } } as BuildingDisplay;
+}
+
 /** The first row below the town's last road row (dense islands). */
 function belowTown(height: number): number {
   let last = 4;
@@ -347,22 +397,22 @@ const FIXTURE_DEFS: FixtureDef[] = [
   ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { work_area: { radius: 4, terrain: ["forest"] } }],
   ["sawmill", "Sawmill", "settlers", "production", 2, 2],
   ["fisher", "Fisher", "settlers", "production", 2, 2, { water_tiles: 1 }],
-  ["sheep_farm", "Sheep farm", "settlers", "production", 3, 3, { work_area: { radius: 4 }, fields: { type: "pasture", required: 4 } }],
-  ["pasture", "Pasture", "settlers", "production", 1, 1, { requires_road: false, field: { type: "pasture", terrain: ["grass"] } }],
+  ["sheep_farm", "Sheep farm", "settlers", "production", 3, 3, { fields: { type: "pasture", required: 4, max: 8 } }],
+  ["pasture", "Pasture", "settlers", "production", 2, 2, { requires_road: false, cost: { gold: 15_000, materials: {} }, field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } }],
   ["weaver_wool", "Wool weaver", "settlers", "production", 2, 2],
   ["shipyard", "Shipyard", "settlers", "harbour", 5, 4, { water_tiles: 2, shipyard: {} }],
   ["house_citizens", "Citizen house", "citizens", "houses", 2, 2, { house: { tier: "citizens" } }],
   ["road_paved", "Paved road", "citizens", "roads", 1, 1, { road: { ms_per_tile: 350 } }],
   ["tavern", "Tavern", "citizens", "public", 3, 3, { service: { radius: 10 } }],
-  ["wheat_farm", "Wheat farm", "citizens", "production", 3, 3, { work_area: { radius: 4 }, fields: { type: "wheat_field", required: 4 } }],
-  ["wheat_field", "Wheat field", "citizens", "production", 1, 1, { requires_road: false, field: { type: "wheat_field", terrain: ["grass"] } }],
+  ["wheat_farm", "Wheat farm", "citizens", "production", 3, 3, { fields: { type: "wheat_field", required: 16, max: 20 } }],
+  ["wheat_field", "Wheat field", "citizens", "production", 1, 1, { requires_road: false, cost: { gold: 5_000, materials: {} }, field: { type: "wheat_field", farm: "wheat_farm", terrain: ["grass"] } }],
   ["mill", "Mill", "citizens", "production", 2, 2],
   ["bakery", "Bakery", "citizens", "production", 2, 2],
-  ["orchard", "Orchard", "citizens", "production", 3, 3, { work_area: { radius: 4 }, fields: { type: "orchard_plot", required: 4 } }],
-  ["orchard_plot", "Orchard plot", "citizens", "production", 1, 1, { requires_road: false, field: { type: "orchard_plot", terrain: ["grass"] } }],
+  ["orchard", "Orchard", "citizens", "production", 3, 3, { fields: { type: "orchard_plot", required: 16, max: 20 } }],
+  ["orchard_plot", "Orchard plot", "citizens", "production", 1, 1, { requires_road: false, cost: { gold: 5_000, materials: {} }, field: { type: "orchard_plot", farm: "orchard", terrain: ["grass"] } }],
   ["cidery", "Cidery", "citizens", "production", 2, 2],
-  ["hemp_farm", "Hemp farm", "citizens", "production", 3, 3, { work_area: { radius: 4 }, fields: { type: "hemp_field", required: 4 } }],
-  ["hemp_field", "Hemp field", "citizens", "production", 1, 1, { requires_road: false, field: { type: "hemp_field", terrain: ["grass"] } }],
+  ["hemp_farm", "Hemp farm", "citizens", "production", 3, 3, { fields: { type: "hemp_field", required: 16, max: 20 } }],
+  ["hemp_field", "Hemp field", "citizens", "production", 1, 1, { requires_road: false, cost: { gold: 5_000, materials: {} }, field: { type: "hemp_field", farm: "hemp_farm", terrain: ["grass"] } }],
   ["weaver_linen", "Linen weaver", "citizens", "production", 2, 2],
   ["sailmaker", "Sailmaker", "citizens", "production", 2, 2],
   ["quarry", "Quarry", "citizens", "production", 3, 3, { requires_deposit: "stone" }],
@@ -373,7 +423,7 @@ const FIXTURE_DEFS: FixtureDef[] = [
 ];
 
 /** The fixture building definitions (exported for the content cross-check). */
-export function fixtureDefs(): { id: string; tier: string; category: string; width: number; height: number; field?: { type: string }; requires_deposit?: string }[] {
+export function fixtureDefs(): { id: string; tier: string; category: string; width: number; height: number; field?: { type: string; farm: string }; requires_deposit?: string }[] {
   return FIXTURE_DEFS.map(([id, name, tier, category, width, height, extra = {}]) => ({
     id,
     name,
@@ -439,10 +489,18 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     if (roadRows.includes(y)) continue;
     roads.push({ x: minX, y, type: "road_dirt" }, { x: maxX, y, type: "road_dirt" });
   }
+  // A farm cluster (D-051 part 4) replaces the slots of a block in the first
+  // building band of the large dense islands.
+  const cluster = width >= 60 && height >= 50 ? { x: 40, y: 5, w: 20, h: 4 } : null;
   const slots: { x: number; y: number }[] = [];
   for (let i = 0; i + 1 < roadRows.length; i++) {
     const r = roadRows[i] as number;
-    for (const y of [r + 1, r + 3]) for (let x = minX + 1; x + 1 < maxX; x += 2) slots.push({ x, y });
+    for (const y of [r + 1, r + 3]) {
+      for (let x = minX + 1; x + 1 < maxX; x += 2) {
+        if (cluster && x + 2 > cluster.x && x < cluster.x + cluster.w && y + 2 > cluster.y && y < cluster.y + cluster.h) continue;
+        slots.push({ x, y });
+      }
+    }
   }
   const n = Math.min(count, slots.length);
   const step = slots.length / n;
@@ -534,31 +592,65 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     }
     bid++;
   });
-  // Eight fields of each type on the free grass columns west and east of
-  // the road grid (the field layer's draw calls; the shown island stays
-  // at ≈ 400 buildings).
-  let fieldId = bid;
   const terrain = blockTerrain(width, height);
-  for (const [x, type] of [
-    [2, "pasture"],
-    [width - 3, "wheat_field"],
-  ] as const) {
-    let placed = 0;
-    for (let y = 2; y < height - 2 && placed < 8; y++) {
-      if (terrain[y * width + x] !== "grass") continue;
-      placed++;
-      buildings.push({
-        id: fieldId++,
-        type,
-        x,
-        y,
-        rotation: 0,
-        paused: false,
-        paused_reason: "",
-        status: "ok",
-        efficiency_permille: 1000,
-        throughput_factor_permille: 1000,
-      } as BuildingDisplay);
+  if (cluster) {
+    // A sheep farm with four 2 × 2 pastures and a wheat farm with sixteen
+    // wheat fields, each field chained to its farm (the field layer's draw
+    // calls and the chain highlight; the shown island stays at ≈ 400 buildings).
+    const taken = new Set<string>();
+    for (const b of buildings) {
+      const w = b.type === "trading_post" ? 4 : b.type === "shipyard" ? 6 : 2;
+      const h = b.type === "trading_post" || b.type === "shipyard" ? 4 : 2;
+      for (let dy = 0; dy < h; dy++) for (let dx = 0; dx < w; dx++) taken.add(`${b.x + dx},${b.y + dy}`);
+    }
+    for (const r of roads) taken.add(`${r.x},${r.y}`);
+    const grass = (x: number, y: number) => terrain[y * width + x] === "grass";
+    const bounds = { x0: cluster.x, y0: cluster.y, x1: cluster.x + cluster.w - 1, y1: cluster.y + cluster.h - 1 };
+    let nextId = bid;
+    for (const [farmType, farmX, count, required, max] of [
+      ["sheep_farm", 41, 4, 4, 8],
+      ["wheat_farm", 50, 16, 16, 20],
+    ] as const) {
+      const farmId = nextId++;
+      for (let dy = 0; dy < 3; dy++) for (let dx = 0; dx < 3; dx++) taken.add(`${farmX + dx},${cluster.y + dy}`);
+      const fieldType = (FIELD_OF[farmType] as { type: string; size: number }).type;
+      const laid = chainFields({ x: farmX, y: cluster.y }, farmType, count, taken, grass, bounds);
+      const ids = laid.map(() => nextId++);
+      buildings.push(
+        farmWithFields(
+          {
+            id: farmId,
+            type: farmType,
+            x: farmX,
+            y: cluster.y,
+            rotation: 180,
+            paused: false,
+            paused_reason: "",
+            status: "ok",
+            efficiency_permille: 1000,
+            throughput_factor_permille: 1000,
+          } as BuildingDisplay,
+          ids,
+          required,
+          max,
+        ),
+      );
+      laid.forEach((p, i) =>
+        buildings.push({
+          id: ids[i] as number,
+          type: fieldType,
+          x: p.x,
+          y: p.y,
+          rotation: 0,
+          paused: false,
+          paused_reason: "",
+          status: "ok",
+          efficiency_permille: 1000,
+          throughput_factor_permille: 1000,
+          farm_id: farmId,
+          active: true,
+        } as BuildingDisplay),
+      );
     }
   }
   const inventory: IslandDisplay["inventory"] = {};
@@ -823,16 +915,30 @@ export function buildShowcaseFixture(nowMs: number): Built {
   }
   placed.push(["fisher", 22, 30, 180]);
   placed.push(["shipyard", 25, 28, 180, { ship_order: { type: "sloop", ordered_at: ts(nowMs - 60_000), due_at: ts(nowMs + 60_000) } }]);
-  ["pasture", "wheat_field", "orchard_plot", "hemp_field"].forEach((t, i) => {
-    for (const [dx, dy] of [
-      [0, 0],
-      [1, 0],
-      [0, 1],
-      [1, 1],
-    ] as const) {
-      placed.push([t, 29 + 2 * i + dx, 14 + dy, 0]);
-    }
-  });
+  // The fields south of the farms: four chained fields each (D-051 part 4),
+  // laid nearest to their farm first on the free grass between the roads.
+  const terrain = showcaseTerrain(width, height);
+  const sizes = new Map(fixtureDefs().map((d) => [d.id, d]));
+  const taken = new Set<string>(roads.map((r) => `${r.x},${r.y}`));
+  for (const [type, x, y, rotation] of placed) {
+    const d = sizes.get(type);
+    if (!d) continue;
+    const [w, h] = rotatedFootprint(d.width, d.height, rotation);
+    for (let dy = 0; dy < h; dy++) for (let dx = 0; dx < w; dx++) taken.add(`${x + dx},${y + dy}`);
+  }
+  const grass = (x: number, y: number) => terrain[y * width + x] === "grass";
+  for (const farmType of ["sheep_farm", "wheat_farm", "orchard", "hemp_farm"]) {
+    const farmIndex = placed.findIndex((p) => p[0] === farmType);
+    const farm = placed[farmIndex] as (typeof placed)[number];
+    const field = FIELD_OF[farmType] as { type: string; size: number };
+    const laid = chainFields({ x: farm[1], y: farm[2] }, farmType, 4, taken, grass, { x0: 21, y0: 12, x1: 39, y1: 16 });
+    const ids = laid.map((p) => {
+      placed.push([field.type, p.x, p.y, 0, { farm_id: 5001 + farmIndex, active: true }]);
+      return 5001 + placed.length - 1;
+    });
+    const def = fixtureDefs().find((d) => d.id === farmType) as unknown as { fields: { required: number; max: number } };
+    farm[4] = { fields: { active: ids.length, required: def.fields.required, max: def.fields.max, ids }, status: ids.length >= def.fields.required ? "ok" : "low_efficiency", efficiency_permille: Math.min(1000, Math.floor((ids.length * 1000) / def.fields.required)) };
+  }
   const buildings: BuildingDisplay[] = placed.map(([type, x, y, rotation, extra = {}], i) => ({
     id: 5001 + i,
     type,
@@ -867,7 +973,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     width,
     height,
     revision: "fixture",
-    terrain: showcaseTerrain(width, height),
+    terrain,
     fertilities: ["wheat", "apple", "hemp"],
     // Under the quarry and the iron mine: their outcrops stay hidden (the models sit on rock).
     deposits: [

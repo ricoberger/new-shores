@@ -185,21 +185,20 @@
       "outputs": [{ "good": "wool", "amount": 1 }],
       "cycle_seconds": 90
     },
-    "work_area": { "radius": 4 },
-    "fields": { "type": "pasture", "required": 16 }
+    "fields": { "type": "pasture", "required": 4, "max": 8 }
   },
   {
     "id": "pasture",
     "name": "Pasture",
     "region": "old_coast",
     "tier": "settlers",
-    "footprint": [1, 1],
+    "footprint": [2, 2],
     "coastal": false,
     "requires_road": false,
-    "cost": { "gold": 0 },
+    "cost": { "gold": 15 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "field": { "type": "pasture", "terrain": ["grass"] }
+    "field": { "type": "pasture", "farm": "sheep_farm", "terrain": ["grass"] }
   },
   {
     "id": "weaver_wool",
@@ -289,8 +288,8 @@
       "outputs": [{ "good": "wheat", "amount": 1 }],
       "cycle_seconds": 60
     },
-    "work_area": { "radius": 4, "fertility": "wheat" },
-    "fields": { "type": "wheat_field", "required": 16 }
+    "work_area": { "fertility": "wheat" },
+    "fields": { "type": "wheat_field", "required": 16, "max": 20 }
   },
   {
     "id": "wheat_field",
@@ -300,10 +299,10 @@
     "footprint": [1, 1],
     "coastal": false,
     "requires_road": false,
-    "cost": { "gold": 0 },
+    "cost": { "gold": 5 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "field": { "type": "wheat_field", "terrain": ["grass"], "fertility": "wheat" }
+    "field": { "type": "wheat_field", "farm": "wheat_farm", "terrain": ["grass"], "fertility": "wheat" }
   },
   {
     "id": "mill",
@@ -358,8 +357,8 @@
       "outputs": [{ "good": "apples", "amount": 1 }],
       "cycle_seconds": 90
     },
-    "work_area": { "radius": 4, "fertility": "apple" },
-    "fields": { "type": "orchard_plot", "required": 16 }
+    "work_area": { "fertility": "apple" },
+    "fields": { "type": "orchard_plot", "required": 16, "max": 20 }
   },
   {
     "id": "orchard_plot",
@@ -369,10 +368,10 @@
     "footprint": [1, 1],
     "coastal": false,
     "requires_road": false,
-    "cost": { "gold": 0 },
+    "cost": { "gold": 5 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "field": { "type": "orchard_plot", "terrain": ["grass"], "fertility": "apple" }
+    "field": { "type": "orchard_plot", "farm": "orchard", "terrain": ["grass"], "fertility": "apple" }
   },
   {
     "id": "cidery",
@@ -409,8 +408,8 @@
       "outputs": [{ "good": "hemp", "amount": 1 }],
       "cycle_seconds": 60
     },
-    "work_area": { "radius": 4, "fertility": "hemp" },
-    "fields": { "type": "hemp_field", "required": 16 }
+    "work_area": { "fertility": "hemp" },
+    "fields": { "type": "hemp_field", "required": 16, "max": 20 }
   },
   {
     "id": "hemp_field",
@@ -420,10 +419,10 @@
     "footprint": [1, 1],
     "coastal": false,
     "requires_road": false,
-    "cost": { "gold": 0 },
+    "cost": { "gold": 5 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "field": { "type": "hemp_field", "terrain": ["grass"], "fertility": "hemp" }
+    "field": { "type": "hemp_field", "farm": "hemp_farm", "terrain": ["grass"], "fertility": "hemp" }
   },
   {
     "id": "weaver_linen",

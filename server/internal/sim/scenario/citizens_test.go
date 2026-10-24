@@ -116,16 +116,17 @@ func TestPlacementLocks(t *testing.T) {
 	for _, e := range rep.ExpectedErrors {
 		got = append(got, e.Error)
 	}
-	if want := []string{"upgrade_only", "no_deposit", "no_deposit", "terrain", "no_farm_in_range", "terrain", "occupied",
-		"field_type_mismatch", "not_a_field", "no_fertility"}; !slices.Equal(got, want) {
+	if want := []string{"upgrade_only", "no_deposit", "no_deposit", "terrain", "field_not_adjacent", "terrain", "occupied",
+		"field_type_mismatch", "field_wrong_farm", "field_needs_farm", "field_max_reached", "no_fertility"}; !slices.Equal(got, want) {
 		t.Errorf("expected errors = %v, want %v", got, want)
 	}
 	have := map[string]bool{}
 	for _, is := range rep.Final.Islands {
 		for _, b := range is.Buildings {
 			have[is.ID+":"+b.Type] = true
-			// Both farms run at full efficiency on their 16 fields.
-			if b.Fields != nil && (b.Fields.Assigned != 16 || b.EfficiencyPermille != 1000) {
+			// Both farms run at full efficiency on their 16 chained fields
+			// (the wheat farm has four more, up to its maximum of 20).
+			if b.Fields != nil && (b.Fields.Active < 16 || b.EfficiencyPermille != 1000) {
 				t.Errorf("%s %s fields %+v efficiency %d", is.ID, b.Type, b.Fields, b.EfficiencyPermille)
 			}
 		}

@@ -1,6 +1,6 @@
 {
   "name": "placement_locks",
-  "description": "Placement locks of tier-2 content (golden w, free seed): after the Citizens unlock, placing a Citizen house directly fails (upgrade_only), an iron mine on the start island's stone deposits and a quarry on mountain without a deposit fail (no_deposit), a sawmill stays off mountains (terrain), a wheat farm on island 2 (hemp only) fails (no_fertility); a quarry on the stone deposits, a wheat farm with 16 wheat fields on the start island and a hemp farm with 16 hemp fields on island 2 succeed; wheat fields outside the farm's radius (no_farm_in_range), on mountain (terrain) or on a road (occupied), a farm type as field type (field_type_mismatch) and demolishing the farm as a field (not_a_field) fail. Every failed step leaves the world byte-identical.",
+  "description": "Placement locks of tier-2 content (golden w, free seed): after the Citizens unlock, placing a Citizen house directly fails (upgrade_only), an iron mine on the start island's stone deposits and a quarry on mountain without a deposit fail (no_deposit), a sawmill stays off mountains (terrain), a wheat farm on island 2 (hemp only) fails (no_fertility); a quarry on the stone deposits, a wheat farm with 16 wheat fields chained from it on the start island and a hemp farm with 16 hemp fields on island 2 succeed; wheat fields not touching the farm or an active field (field_not_adjacent), on mountain (terrain) or on a road (occupied), a farm type as field type (field_type_mismatch), a pasture from a wheat farm (field_wrong_farm), a field placed free-standing (field_needs_farm) and a 21st field of a farm with maximum 20 (field_max_reached) fail; four more fields up to the maximum succeed. Every failed step leaves the world byte-identical.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {
@@ -57,7 +57,7 @@
       "y": 0,
       "rotation": 0
     },
-    "gold": "10000",
+    "gold": "10180",
     "stock": {
       "planks": 290,
       "stone": 40,
@@ -307,18 +307,25 @@
     },
     {
       "fields": {
-        "type": "wheat_field",
+        "farm": [
+          24,
+          5
+        ],
         "rect": [
-          23,
-          5,
-          27,
+          22,
+          3,
+          28,
           9
-        ]
+        ],
+        "count": 16
       }
     },
     {
       "fields": {
-        "type": "wheat_field",
+        "farm": [
+          24,
+          5
+        ],
         "tiles": [
           [
             36,
@@ -326,16 +333,15 @@
           ]
         ]
       },
-      "expect_error": "no_farm_in_range"
+      "expect_error": "field_not_adjacent"
     },
     {
       "fields": {
-        "type": "wheat_field",
+        "farm": [
+          24,
+          5
+        ],
         "tiles": [
-          [
-            28,
-            8
-          ],
           [
             22,
             8
@@ -346,7 +352,10 @@
     },
     {
       "fields": {
-        "type": "wheat_field",
+        "farm": [
+          24,
+          5
+        ],
         "tiles": [
           [
             24,
@@ -358,6 +367,10 @@
     },
     {
       "fields": {
+        "farm": [
+          24,
+          5
+        ],
         "type": "wheat_farm",
         "tiles": [
           [
@@ -369,15 +382,59 @@
       "expect_error": "field_type_mismatch"
     },
     {
-      "demolish_fields": {
+      "fields": {
+        "farm": [
+          24,
+          5
+        ],
+        "type": "pasture",
         "tiles": [
           [
-            25,
-            6
+            28,
+            9
           ]
         ]
       },
-      "expect_error": "not_a_field"
+      "expect_error": "field_wrong_farm"
+    },
+    {
+      "place": {
+        "type": "wheat_field",
+        "x": 28,
+        "y": 9,
+        "rotation": 0
+      },
+      "expect_error": "field_needs_farm"
+    },
+    {
+      "fields": {
+        "farm": [
+          24,
+          5
+        ],
+        "rect": [
+          22,
+          3,
+          28,
+          9
+        ],
+        "count": 4
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          24,
+          5
+        ],
+        "tiles": [
+          [
+            28,
+            9
+          ]
+        ]
+      },
+      "expect_error": "field_max_reached"
     },
     {
       "place": {
@@ -445,13 +502,17 @@
     {
       "fields": {
         "island": "island2",
-        "type": "hemp_field",
+        "farm": [
+          15,
+          6
+        ],
         "rect": [
-          14,
+          13,
           4,
-          18,
-          8
-        ]
+          19,
+          10
+        ],
+        "count": 16
       }
     },
     {

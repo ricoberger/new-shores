@@ -248,7 +248,7 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/speedometer.svg",
       "sha256": "9d38c9cb9bb3abd739f541e3d3f6246521b8ffa57de3f904ce69efb5a9313d95"
     },
-    "status:no_farm": {
+    "status:not_adjacent": {
       "file": "barn.svg",
       "author": "Delapouite",
       "page": "https://game-icons.net/1x1/delapouite/barn.html",
