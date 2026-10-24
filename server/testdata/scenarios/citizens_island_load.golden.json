@@ -3679,7 +3679,7 @@
           {
             "id": 52,
             "type": "wheat_field",
-            "x": 8,
+            "x": 9,
             "y": 17,
             "rotation": 0,
             "paused": false,
@@ -3955,7 +3955,7 @@
           {
             "id": 69,
             "type": "wheat_field",
-            "x": 14,
+            "x": 15,
             "y": 17,
             "rotation": 0,
             "paused": false,
@@ -4231,7 +4231,7 @@
           {
             "id": 86,
             "type": "wheat_field",
-            "x": 20,
+            "x": 21,
             "y": 17,
             "rotation": 0,
             "paused": false,
@@ -4507,7 +4507,7 @@
           {
             "id": 103,
             "type": "orchard_plot",
-            "x": 26,
+            "x": 27,
             "y": 17,
             "rotation": 0,
             "paused": false,
@@ -4783,7 +4783,7 @@
           {
             "id": 120,
             "type": "orchard_plot",
-            "x": 32,
+            "x": 33,
             "y": 17,
             "rotation": 0,
             "paused": false,
@@ -5059,7 +5059,7 @@
           {
             "id": 137,
             "type": "orchard_plot",
-            "x": 38,
+            "x": 39,
             "y": 17,
             "rotation": 0,
             "paused": false,
@@ -5335,7 +5335,7 @@
           {
             "id": 154,
             "type": "orchard_plot",
-            "x": 44,
+            "x": 45,
             "y": 17,
             "rotation": 0,
             "paused": false,
@@ -5611,7 +5611,7 @@
           {
             "id": 171,
             "type": "hemp_field",
-            "x": 50,
+            "x": 51,
             "y": 17,
             "rotation": 0,
             "paused": false,
@@ -5887,7 +5887,7 @@
           {
             "id": 188,
             "type": "hemp_field",
-            "x": 56,
+            "x": 57,
             "y": 17,
             "rotation": 0,
             "paused": false,

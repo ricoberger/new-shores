@@ -173,7 +173,7 @@
         }
       },
       "field": {
-        "description": "A field placeable (D-049, D-051 part 4): a 1x1 crop tile or a 2x2 animal field of one farm type, placed from that farm's panel on matching terrain (and fertility), 8-adjacent to the farm or to one of its active fields.",
+        "description": "A field placeable (D-049, D-051 part 4): a 1x1 crop tile or a 2x2 animal field of one farm type, placed from that farm's panel on matching terrain (and fertility), 4-edge adjacent to the farm or to one of its active fields.",
         "type": "object",
         "additionalProperties": false,
         "required": ["type", "farm", "terrain"],

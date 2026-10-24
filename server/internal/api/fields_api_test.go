@@ -145,7 +145,7 @@ func TestPlaceField(t *testing.T) {
 		t.Errorf("move field: %d %s", res.status, res.body)
 	}
 	// Up to the maximum of 8 fields, then field_max_reached.
-	for _, p := range [][2]int{{17, 8}, {19, 8}, {21, 8}, {19, 5}, {14, 8}, {12, 5}} {
+	for _, p := range [][2]int{{17, 7}, {19, 7}, {21, 7}, {19, 5}, {14, 8}, {12, 5}} {
 		res = ts.command(placeField(farm, p[0], p[1]), nil)
 		if res.status != http.StatusOK {
 			t.Fatalf("place_field %v: %d %s", p, res.status, res.body)

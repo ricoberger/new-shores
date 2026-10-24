@@ -1386,7 +1386,7 @@ func TestPropertyMoveRoundTrip(t *testing.T) {
 
 // TestPropertyFieldsActive (D-051 part 4): in every random world, the
 // active fields are a subset of a farm's fields, every active field is
-// 8-adjacent to its farm or another active field of the same farm (a chain
+// 4-edge adjacent to its farm or another active field of the same farm (a chain
 // that exists), every inactive field is not reachable that way, fields only
 // belong to a farm of their type, no farm owns more than fields.max and the
 // efficiency is min(1, active/required) and therefore monotone in the
@@ -1425,7 +1425,7 @@ func TestPropertyFieldsActive(t *testing.T) {
 }
 
 // tileChain is an independent flood fill of the chain rule over tiles: a
-// field is reachable when one of its tiles is within Chebyshev distance 1
+// field is reachable when one of its tiles is within Manhattan distance 1
 // of a tile of the farm or of a reachable field.
 func (p *propCase) tileChain(farm *Building, fields []*Building) map[int64]bool {
 	tiles := func(b *Building) []Pos {
@@ -1441,7 +1441,7 @@ func (p *propCase) tileChain(farm *Building, fields []*Building) map[int64]bool 
 	near := func(a, b []Pos) bool {
 		for _, s := range a {
 			for _, t := range b {
-				if max(abs(s.X-t.X), abs(s.Y-t.Y)) <= 1 {
+				if abs(s.X-t.X)+abs(s.Y-t.Y) <= 1 {
 					return true
 				}
 			}

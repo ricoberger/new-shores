@@ -1124,8 +1124,8 @@ components:
         (`x`, `y`), the top-left tile of the rotated footprint (D-051
         part 4). The footprint (1×1 crop tile, 2×2 animal field) must be
         on the island, on the field's terrain, free of buildings and
-        roads, on an island with the field's fertility and 8-adjacent
-        (edge or corner) to the farm or to one of the farm's active
+        roads, on an island with the field's fertility and 4-edge adjacent
+        (sharing an edge segment, not only a corner) to the farm or to one of the farm's active
         fields; the farm may own at most `fields.max` fields. The field's
         cost is charged. The client sends only placements its display data
         shows as valid and treats a rejection as stale data.
@@ -3156,7 +3156,7 @@ components:
           description: |
             A field placeable (D-049, D-051 part 4), 1×1 (crop) or 2×2
             (animal): placed with `place_field` from its farm on `terrain`
-            (and the island's `fertility`, when set), 8-adjacent to the farm
+            (and the island's `fertility`, when set), 4-edge adjacent to the farm
             or to one of its active fields.
           properties:
             type:

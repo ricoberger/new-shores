@@ -183,15 +183,20 @@ func TestFieldChain(t *testing.T) {
 	}
 }
 
-// TestFieldAdjacencyIsEightWay: corners touch, a gap of one tile does not.
-func TestFieldAdjacencyIsEightWay(t *testing.T) {
+// TestFieldAdjacencyIsFourEdge: sharing an edge segment counts; a corner
+// alone and a gap of one tile do not (MECHANICS §4).
+func TestFieldAdjacencyIsFourEdge(t *testing.T) {
 	c := catalogue(t)
 	w, farm := fieldsWorld(t, c)
 	// Farm footprint x 8..10, y 5..7.
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 12, Y: 5}, ErrFieldNotAdjacent) // gap at x=11
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 11, Y: 9}, ErrFieldNotAdjacent) // gap at y=8
-	putField(t, w, c, farm, "pasture", 11, 8)                                                                              // corner (10,7)-(11,8)
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 11, Y: 8}, ErrFieldNotAdjacent) // corner (10,7)-(11,8) only
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 6, Y: 8}, ErrTerrain)           // (forest; the corner case again below)
 	putField(t, w, c, farm, "pasture", 6, 5)                                                                               // edge, west
+	putField(t, w, c, farm, "pasture", 11, 7)                                                                              // edge, east (one row overlap)
+	// A field touching a field only at a corner is not adjacent either.
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 13, Y: 9}, ErrFieldNotAdjacent) // corner of (11,7)
 	if w.Islands[0].Building(farm).Efficiency != 500 {
 		t.Errorf("efficiency %d", w.Islands[0].Building(farm).Efficiency)
 	}
@@ -450,4 +455,23 @@ func TestFarmPlacementWithoutWorkArea(t *testing.T) {
 		}
 	}
 	expectApplyErr(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 6, Y: 5}, ErrNoWorkArea)
+}
+
+// TestDiagonalOnlyFieldIsInactive: a farm moved so that it meets its field
+// at a corner only leaves the field inactive; an edge restores it.
+func TestDiagonalOnlyFieldIsInactive(t *testing.T) {
+	c := catalogue(t)
+	w, farm := fieldsWorld(t, c)
+	f := putField(t, w, c, farm, "pasture", 11, 5) // x 11..12, y 5..6, touches the farm's east edge
+	is := w.Islands[0]
+	// Farm at (8,7): x 8..10, y 7..9 meets the field at the corner (10,7)-(11,6) only.
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 8, Y: 7})
+	if !is.Building(f).Inactive || is.Building(farm).Efficiency != 0 {
+		t.Fatalf("diagonal contact: inactive %v, efficiency %d", is.Building(f).Inactive, is.Building(farm).Efficiency)
+	}
+	// Farm at (8,6): x 8..10, y 6..8 shares the edge segment y = 6.
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 8, Y: 6})
+	if is.Building(f).Inactive || is.Building(farm).Efficiency != 250 {
+		t.Fatalf("edge contact: inactive %v, efficiency %d", is.Building(f).Inactive, is.Building(farm).Efficiency)
+	}
 }

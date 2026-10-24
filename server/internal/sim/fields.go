@@ -24,12 +24,13 @@ import (
 //     field"), never free-standing (PlaceBuilding of a field fails with
 //     ErrFieldNeedsFarm). The footprint must be on the island, on the
 //     field's terrain, free of buildings and roads, on an island with the
-//     field's fertility, and 8-adjacent (edges or corners touch) to the
+//     field's fertility, and 4-edge adjacent (they share an edge segment; a corner
+//     alone does not count) to the
 //     farm's footprint or to the footprint of one of the farm's active
 //     fields (ErrFieldNotAdjacent). A farm owns at most fields.max fields,
 //     active or not (ErrFieldMaxReached).
 //   - Active fields are computed per farm by a flood fill from the farm's
-//     footprint: a field is active when it is 8-adjacent to the farm or
+//     footprint: a field is active when it is 4-edge adjacent to the farm or
 //     to an active field of the same farm. The chain never passes through
 //     an inactive or foreign field. A field whose chain is broken (the
 //     farm moved, an intermediate field demolished) is inactive: it
@@ -60,9 +61,12 @@ type PlaceField struct {
 func (PlaceField) isCommand() {}
 
 // rectsTouch reports whether the non-overlapping rectangles a and b are
-// 8-adjacent: they share an edge segment or a corner.
+// 4-edge adjacent: they share an edge segment of at least one tile. Contact
+// at a corner only does not count (MECHANICS §4).
 func rectsTouch(ax, ay, aw, ah, bx, by, bw, bh int) bool {
-	return ax <= bx+bw && bx <= ax+aw && ay <= by+bh && by <= ay+ah
+	overlapX := ax < bx+bw && bx < ax+aw
+	overlapY := ay < by+bh && by < ay+ah
+	return (overlapY && (ax+aw == bx || bx+bw == ax)) || (overlapX && (ay+ah == by || by+bh == ay))
 }
 
 // farmFieldsOf returns the fields owned by the farm, in ascending ID.
@@ -178,7 +182,7 @@ func farmFieldSummaries(is *Island, c *content.Catalogue) map[int64]*FieldSummar
 // (ErrFieldWrongFarm), the farm has fewer than fields.max fields
 // (ErrFieldMaxReached), the footprint is on the island, on the field's
 // terrain and free (ErrOutOfBounds, ErrTerrain, ErrOccupied), the island
-// has the fertility (ErrNoFertility) and the footprint is 8-adjacent to
+// has the fertility (ErrNoFertility) and the footprint is 4-edge adjacent to
 // the farm or one of its active fields (ErrFieldNotAdjacent). It is the
 // check behind PlaceField and the scenario runner's rectangle helper; the
 // client mirrors it for the ghost as a hint.
