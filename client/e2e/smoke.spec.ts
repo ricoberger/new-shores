@@ -224,6 +224,13 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   // on a valid tile keeps its ID and residents.
   await clickTile(page, HOUSE);
   await expect(page.getByTestId("info-name")).toHaveText("Settler house");
+  // Needs show their content names (needs.json), never IDs; so does the
+  // worst unmet need in the tier's tooltip.
+  await expect(page.getByTestId("house-need-settlers_food")).toContainText("Food");
+  await expect(page.getByTestId("house-need-settlers_clothing")).toContainText("Clothing");
+  await expect(page.getByTestId("house-need-settlers_market_small")).toContainText("Market");
+  await expect(page.getByTestId("info-panel")).not.toContainText(/settlers_|market_small|\b(food|clothing)\b/);
+  await expect(page.getByTestId("hud-tier-settlers")).toHaveAttribute("title", /^Worst unmet need: (Food|Clothing|Market) \d+ % \(/);
   const house = await serverBuilding(page, "house_settlers");
   const count = (await serverBuildings(page)).length;
   const v = await version(page);

@@ -540,6 +540,14 @@ test("drag an idle ship onto another island, or Send to… and tap, opens the sh
   await expect(page.getByTestId("shipment-dest")).toHaveValue("isle3");
 });
 
+test("the population popover names the worst unmet need", async ({ page }) => {
+  await openWorld(page);
+  await page.getByTestId("hud-population-chip").tap();
+  await expect(page.getByTestId("hud-population-list")).toBeVisible();
+  // The need's content name (needs.json), never its ID or category ID.
+  await expect(page.getByTestId("hud-worst-need-settlers")).toHaveText(/^Worst unmet need: (Food|Clothing|Market) \d+ % \(.+\)$/);
+});
+
 test("every HUD control is at least 44 × 44 px; no horizontal overflow at 360 × 640", async ({ page }) => {
   test.skip(page.viewportSize()!.width !== 412, "audit at 412 × 915 (Pixel 5 project)");
   await page.goto("/?fixture=dense-2x400");
