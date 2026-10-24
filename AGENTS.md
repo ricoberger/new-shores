@@ -5,11 +5,13 @@ the referenced documents before changing anything.
 
 ## 1. Start here
 
-1. `README.md` — what the game is and the document index.
-2. `docs/DECISIONS.md` — **binding** design decisions (D-xxx). Do not
+1. `docs/STATUS.md` — one page: what exists, the binding rules, current
+   decisions, next tasks, how to run. Read this first.
+2. `README.md` — what the game is and the document index.
+3. `docs/DECISIONS.md` — **binding** design decisions (D-xxx). Do not
    implement anything that contradicts an accepted decision. If a task seems to
    require it, stop and raise the conflict instead of working around it.
-3. The document for the area you touch: `docs/MECHANICS.md` for simulation
+4. The document for the area you touch: `docs/MECHANICS.md` for simulation
    rules, `docs/CONTENT.md` for content, `docs/ARCHITECTURE.md` for server/
    client structure, `docs/UI.md` for interface, `docs/ART_DIRECTION.md`
    for visuals and assets, `docs/ONLINE.md` and

@@ -142,6 +142,12 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **Polish pass — done (PR #17):** footprint shadows, ribbons on
+  selection, model ghosts, free camera with compass (D-051 part 6), HUD
+  redesign with island resources, materials, employed/total and
+  thumbnails (D-051 part 7), KayKit SOURCE-only kits with the KayKit
+  sloop. Open: sloop berth offset, ghost variant hint, need display
+  names.
 - **Art restyle (D-050) — done (PR #16):** KayKit buildings and nature,
   AO/two-tone bake, diorama islands, real models at every zoom, perf
   floors re-based on the iPhone 15 Pro Max, dev reset endpoint for e2e

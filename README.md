@@ -23,6 +23,7 @@ open. The in-memory `--dev` server remains for quick local work.
 
 | Document | Contents |
 |---|---|
+| [docs/STATUS.md](docs/STATUS.md) | One-page status: what exists, binding rules, current decisions, next tasks |
 | [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) | Pitch, pillars, setting, player, session rhythm, core loop, progression, offline behaviour, goals |
 | [docs/MECHANICS.md](docs/MECHANICS.md) | Authoritative rules: lazy time model, placement, roads, production, warehouses, needs, taxes, insolvency, ships, routes, invariants |
 | [docs/CONTENT.md](docs/CONTENT.md) | Tiers, goods, buildings, production chains, ships, islands, decorations, content data format (numbers provisional) |

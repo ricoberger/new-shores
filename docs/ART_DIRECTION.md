@@ -117,9 +117,11 @@ detail does not** (D-048, refined by D-050):
 
 - **Scale:** 1 tile ≈ 4 m. Carts and people ≈ 1 tile, visible at default
   zoom; a single house fills ~⅓ of a phone screen at max zoom.
-- **Camera:** fixed isometric-style orthographic angles (D-024) with **four
-  90° rotation steps**; continuous zoom from "one house" to "whole
-  archipelago".
+- **Camera:** fixed isometric elevation (D-024) with **free rotation**
+  (D-051): right-drag, two-finger twist, Q/E; on release the azimuth
+  eases to the nearest 45°; the sun stays world-fixed; a compass on the
+  minimap shows the heading and resets the view. Continuous zoom from
+  "one house" to "whole archipelago".
 - **Life layer, in priority order:** carts on roads; **walkers** between a
   producer and its warehouse (spawned from the transfer timers — no new
   state); **smoke** from chimneys of running producers; **flags and sails**
@@ -152,15 +154,15 @@ detail does not** (D-048, refined by D-050):
 ## 7. Building and ship models — kit-bash by recipe (D-050, PR #15/#16)
 
 - **Kits (CC0, local, sha256-pinned in `assets/kits/MANIFEST.json`,
-  git-ignored):** **KayKit Medieval Hexagon** is the lead for buildings
-  (complete houses, market, church, tavern, blacksmith, lumbermill,
-  windmill, mine, fences, construction stages, props: crates, barrels,
-  sacks, lumber and stone piles) and **KayKit Forest Nature** for trees,
-  bushes, rocks and grass; the **Quaternius Pirate Kit** supplies the ship
-  hull, dock and harbour props. The Quaternius Medieval and Nature kits
-  are no longer used. Kits resolve via `NEW_SHORES_KITS_DIR` or a
-  git-ignored `assets/kits` symlink; a missing or changed file fails the
-  build naming it.
+  git-ignored): KayKit only, SOURCE editions.** **KayKit Medieval
+  Hexagon** (buildings: houses, market, church, tavern, blacksmith,
+  lumbermill, windmill, mine; units: `ship`, `boat`, `cart*`, animals;
+  harbour: `building_docks`, `building_shipyard`, `anchor`; props,
+  fences, construction stages) and **KayKit Forest Nature** (trees,
+  bushes, rocks, grass). The Quaternius kits (Medieval, Nature, Pirate)
+  have been removed from manifest, config and recipes. Kits resolve via
+  `NEW_SHORES_KITS_DIR` or a git-ignored `assets/kits` symlink; a missing
+  or changed file fails the build naming it.
 - **Colour mapping:** KayKit's 1024² gradient atlas is a grid of cells;
   every UV triangle lies inside one cell, so faces are classified by cell
   and gradient position and mapped to palette roles (walls → plaster,
@@ -214,14 +216,20 @@ detail does not** (D-048, refined by D-050):
 - **States:** place = short rise-in (thin instance during the animation);
   paused/unpaid = desaturated tint; not_connected/starved keep the status
   icon and lose smoke/walkers (life layer).
-- **Ships:** sloop from the Pirate hull with procedural sails and bowsprit;
-  cargo crates when the cargo list is non-empty; brig/galleon later via
-  mast count and sail scale as recipe data (KayKit ships if a pack
-  provides them).
+- **Ships:** sloop from the KayKit `ship` (team colour → canvas sails,
+  hull in timber tones, ≈ 1 500 tris); cargo from KayKit crates when the
+  cargo list is non-empty; the large KayKit ship and sail recolours give
+  brig/galleon later. The fisher and shipyard jetties are procedural
+  planks dressed with KayKit `boat`, `barrel`, `bucket`.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at
-  near/mid, lite chunks at far, both built once and toggled. Loaded through
-  `@babylonjs/loaders` (glTF only). Dense town: ≈ 700 k triangles at near,
+  near/mid, lite chunks at far, both built once and toggled. Building
+  shadows are soft rounded outlines of the model bounds (merged per
+  island); trees and ships keep discs. The placement ghost is the full
+  model, translucent, tinted by validity. Build-menu cards show 128 px
+  thumbnails rendered by the asset build (`client/public/models/thumbs/`,
+  byte-identical under `--check`). Loaded through `@babylonjs/loaders`
+  (glTF only). Dense town: ≈ 700 k triangles at near,
   the 8-island archipelago ≈ 1.6 M at mid, 450 k at far — 60 fps on the
   baseline device.
 - **Hero pass (later, optional):** church, harbourmaster, theatre, galleon

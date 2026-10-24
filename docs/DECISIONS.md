@@ -641,6 +641,9 @@ specs isolate through a dev-only world reset endpoint.
   2.5D renderer); hex grid (different game; D-006's rectangular layout
   puzzle); block LOD at far (ugly); thinning the look to satisfy the
   software guard.
+- *Update (PR #17):* the Quaternius Pirate Kit is gone too — the KayKit
+  SOURCE editions (which add ships, boats, docks, carts and animals) are
+  the only kits; the sloop is the KayKit `ship`.
 
 ## D-051 Settling at sea, Trading Post and Warehouses, water-edge footprints, fields v2, berths, free camera
 

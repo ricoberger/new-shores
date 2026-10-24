@@ -17,12 +17,17 @@ UI shows the same numbers the server uses.
 
 - **Camera.** Zoom is the vertical orthographic half-extent in tiles:
   min 7 (a 2×2 footprint ≈ ⅓ of a 360 px phone width), default 18, max =
-  whole archipelago fits. **Rotation is free** (D-051): right-drag,
-  two-finger twist (no ghost tool active) or `Q`/`E` in 45° steps; on
-  release the azimuth eases to the nearest 45°; the sun stays world-fixed.
-  A **compass on the minimap** shows the heading, can be dragged to rotate
-  and tapped to return north; there are no separate rotate buttons.
-  Building rotation stays fixed to the world (D-042).
+  whole archipelago fits (the fit uses the bounds' diagonal, so it does
+  not change while turning). **Rotation is free** (D-051, as built):
+  right-drag (45° per 120 px; the right button no longer pans, the middle
+  button does), two-finger twist about the fingers after a 12° dead zone
+  (with a ghost tool the twist rotates the ghost instead), `Q`/`E` in 45°
+  steps; on release the azimuth eases (≤ 250 ms) to the nearest 45°; the
+  sun stays world-fixed; the ease never blocks input. The **compass** in
+  the minimap's corner (next to the toggle when collapsed on phones) shows
+  the real heading on the north-up map; drag the ring to turn, tap/Enter
+  = "Reset view" (default heading, which looks north-east). No separate
+  rotate buttons. Building rotation stays fixed to the world (D-042).
   **Jumps** (island tabs, island card "Go to island", Enter, founding,
   warnings tray) move the camera in ≤ 350 ms and zoom in to 18 only when
   the camera is farther out; minimap taps keep the zoom. A gesture in
@@ -51,6 +56,9 @@ UI shows the same numbers the server uses.
   fertilities, deposits; "Found settlement with ship #n" when an idle ship
   there carries the warehouse cost; "New route from here"; "Go to island").
   Hover shows a lightweight tooltip only; nothing is hover-only.
+- **Route ribbons** are drawn only for the selected ship's route or while
+  the route editor is open (all routes faint, the edited one bright);
+  ships are always drawn.
 - **Ships** are low-poly instances: with a leg, lerped between the two
   islands' berth anchors by `(now − depart_at) / (arrive_at − depart_at)`;
   berth 0 (nearest the harbour building) is the anchor for legs and
@@ -72,51 +80,57 @@ UI shows the same numbers the server uses.
 - The HUD's world-map button opens the 2D world-map screen as an overlay
   (later).
 
-## 2. Island view HUD
+## 2. HUD (as built in the polish pass)
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│ gold 12 340  (+48/min)   ⌂ 230 S · 95 C · 0 M · 0 P   ⚓ 2 ships   ◎ 120 │ ← top bar
-│                                                      [quests] [map] [≡] │
-├──────────────────────────────────────────────────────────────────────┤
-│                                                             ┌────────┐ │
-│                        3D canvas                            │ info   │ │
-│                                                             │ panel  │ │
-│                                                             └────────┘ │
-│ ⚠ 3 warnings                                                            │
-├──────────────────────────────────────────────────────────────────────┤
-│ [Houses] [Production] [Public] [Harbour] [Roads] [Decor]   build menu  │
-└──────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ISLAND NAME ⌂⌂ 🌾🍎 ⛏1 📦1 ⚓140 │ 🪵 40 │ gold 5000 ▲ +12.0/min │        │
+│ Settlers 0/48 · Citizens 0/30 │ ⚠3 │ ⛵ 12 │ 🗺 2 │ Quests │ account ▾     │
+├──────────────────────────────────────────────────────────────────────────┤
+│ ┌minimap+compass┐                                           ┌ panel ┐   │
+│ └───────────────┘             3D canvas                     └───────┘   │
+│ ⚠ n warnings ▸                                                           │
+├──────────────────────────────────────────────────────────────────────────┤
+│ [Houses] [Production] [Public] [Harbour] [Roads]      build cards w/ thumbs │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Top bar:** gold and balance/min (green/red), population per tier, ship
-  count, Doubloons; quest, world-map and menu buttons.
-- **Build menu:** categories → items with cost, upkeep and a lock reason if
-  unavailable ("Needs 120 Settlers", "Missing 10 stone — available on Island
-  2"). Items show the island's stock for each required material.
-- **Info panel** (right on desktop, bottom sheet on mobile) for the selected
-  object — see §4.
+- **Focused island** = the island under the camera centre. The top bar
+  shows its **name** (opens the island card; unsettled islands show a
+  dashed "unsettled" chip and resources only), its **resources** as icon
+  badges (fertilities, deposits; the island card adds a Coast row), its
+  **construction-material stocks** with net rate, **gold and balance**, and
+  its **population per tier as employed / total** (workforce pool, D-035;
+  tiers without residents are hidden except the first) with a popover
+  showing capacity, satisfaction and the worst unmet need. Warnings, ships
+  and routes are icon chips with counts; Quests and the account menu are
+  pinned right. There are no island tabs — islands are reached via the
+  island name, the island card, the minimap and the Ships/Routes lists.
+- **Phone (compact):** island chip (name → details + "Island card"),
+  materials chip (first material + count → list), population chip (total →
+  tier rows); gold stays visible; the compass sits next to the minimap
+  toggle while collapsed.
+- **Build menu:** categories → items with cost, upkeep, lock reason and a
+  128 px model **thumbnail**; items are never disabled for cost.
+- **Panels:** parchment with a 3 px dark-wood border and inset light-wood
+  edge (10 px radius; build cards 7 px); status badges as wax seals (ink
+  bands, parchment ring). Producer panels show workforce as "needs 4
+  Settlers · 16 available on this island (working at n %)".
 - **Warnings tray:** collapsible list of bottleneck messages from
   MECHANICS §14, each clickable to focus the building.
-- **"While you were away" dialog** after ≥ 15 min absence: gold and
-  population before/after, per-island goods produced/consumed/lost and
-  "at capacity" flags, buildings paused/resumed and still unpaid, ship
-  arrivals, quests completed. Shown once per summary id; closing it
-  acknowledges on the server so no other device shows it again.
-- **Quests button** with a badge for claimable rewards; the quests panel
-  lists active quests with objective progress, claimable rewards (island
-  choice for goods, with the "excess is lost" note) and completed quests.
-- **Insolvency banner** whenever anything is `unpaid`: "Your city cannot
-  afford its upkeep: −x gold/min (balance if everything resumed). Paused:
-  n buildings, m ships. Demolish, resume manually, or grow your tax base."
-  — links to the warnings tray.
+- **"While you were away" dialog** after ≥ 15 min absence (see §4 and
+  MECHANICS §12b); **Quests button** with a badge; **insolvency banner**
+  whenever anything is unpaid.
 
 ## 3. Placement
 
-- Select item → ghost follows the pointer, snapped to grid; rotation via key
-  `R` / two-finger rotate / on-screen button. Validity colour: green (ok),
-  yellow (ok but not connected / low efficiency), red (invalid) with the
-  reason as a tooltip.
+- Select item → the **building's model**, translucent, follows the pointer
+  snapped to the grid (the old box only while the model loads); rotation
+  via `R` / two-finger twist / the placement bar. Validity tint: light
+  (ok), yellow (ok but no road adjacent), red (the server would reject it;
+  e.g. missing deposit or fertility) with the reason as a tooltip. A new
+  house may come out as a different variant than the ghost showed (variant
+  by building ID; follow-up: a server-side preview hint).
 - Roads: drag to draw; auto-connect; cost preview.
 - **Fields** (D-049): the field tool (build menu under Production, or the
   farm panel's "Place pastures n / 16") places one field per click/tap;
