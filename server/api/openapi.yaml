@@ -144,11 +144,17 @@ paths:
       description: |
         Commands (`command.type`): `place_building`, `place_road`,
         `demolish`, `demolish_road`, `place_fields`, `demolish_fields`,
-        `set_paused`, `upgrade_house`,
+        `set_paused`, `upgrade_house`, `upgrade_trading_post`,
         `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
         `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
-        `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`
-        and `found_island` (MECHANICS §8, §9).
+        `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`,
+        `sail_ship` and `found_island` (MECHANICS §8, §9).
+
+        A new world starts at sea (D-051): no island is settled and the
+        start sloop (ship 1) waits at its `position` with the starting
+        goods aboard. Settling is `sail_ship` to the chosen island, then
+        `found_island` once the ship is idle there; nothing else can be
+        placed on an unsettled island (`island_not_settled`).
 
         On success the version is incremented and the new display state is
         returned. On error the world and its version are unchanged. A
@@ -691,8 +697,8 @@ components:
           `no_deposit` (a deposit building's footprint covers no deposit
           of its kind), `insufficient_gold`, `insufficient_materials`,
           `surplus_loss`, `not_pausable`, `no_road`, `tier_locked`,
-          `not_a_house`, `upgrade_unavailable` (also: warehouse at its last
-          level), `house_not_full`, `needs_unmet`, `upgrade_only` (a house
+          `not_a_house`, `upgrade_unavailable` (also: a Trading Post or
+          Warehouse at its last level, or the other upgrade command), `house_not_full`, `needs_unmet`, `upgrade_only` (a house
           of a later tier is only reached by `upgrade_house`),
           `shipyard_busy` (one order at a time), `not_a_shipyard`,
           `unknown_ship_type` (the shipyard cannot build it),
@@ -700,11 +706,12 @@ components:
           ship; scrapping also accepts an anchored one), `ship_not_on_route`,
           `route_in_use` (delete a route with assigned ships),
           `island_already_settled`, `island_not_settled` (placement on an
-          island without warehouse; found it with a ship),
-          `cargo_insufficient` (founding: the cargo lacks the warehouse
+          island without a Trading Post; found it with a ship),
+          `cargo_insufficient` (founding: the cargo lacks the Trading Post
           materials), `cargo_exceeds_slots`, `last_trading_post` (the
           Trading Post of an island with other buildings; roads may stay), `not_connected`
-          (a shipyard without a road to a warehouse cannot order),
+          (a shipyard without a road to the Trading Post or a Warehouse
+          cannot order),
           `quest_not_completed`, `quest_already_claimed` (rewards are
           credited once), `email_taken`, `already_registered`;
         - 429: `rate_limited` (with `Retry-After` in seconds);
@@ -1257,8 +1264,8 @@ components:
       additionalProperties: false
       description: |
         Order a ship at a shipyard (a building with a `shipyard` block that
-        lists the ship type). The shipyard must be road-connected to a
-        warehouse and idle; the cost (gold from the world, materials from
+        lists the ship type). The shipyard must be road-connected to the
+        Trading Post or a Warehouse and idle; the cost (gold from the world, materials from
         the shipyard's island) is deducted at once. The ship appears idle at
         the shipyard's island at the order's `due_at` (ship_built).
       required: [type, island_id, building_id, ship_type]
@@ -1515,7 +1522,7 @@ components:
           type: string
         building_type:
           type: string
-          description: Content building ID with a warehouse block.
+          description: Content building ID with a `trading_post` block (the Trading Post).
         x:
           type: integer
           description: Left column of the rotated footprint (tiles).
@@ -2274,7 +2281,7 @@ components:
         in_transit:
           type: integer
           format: int64
-          description: Goods on the road to the warehouse (milli-units).
+          description: Goods on the road to a collector (milli-units).
         rate_per_min:
           type: integer
           format: int64
@@ -2441,7 +2448,7 @@ components:
         throughput_factor_permille:
           type: integer
           format: int64
-          description: Warehouse throughput factor (permille).
+          description: Collector throughput factor (permille).
         status_goods:
           type: array
           description: Goods behind the status, sorted by ID; starve-limited inputs for input_starved, full outputs for warehouse_full.
@@ -2459,14 +2466,14 @@ components:
         transfer_delay_ms:
           type: integer
           format: int64
-          description: Delivery latency to the assigned warehouse (ms).
+          description: Delivery latency to the assigned collector (ms).
         assigned_warehouse_id:
           type: integer
           format: int64
           description: Building ID of the assigned collector (the Trading Post or a Warehouse, nearest by road); 0 when not connected.
         road_distance:
           type: integer
-          description: Road distance to the assigned warehouse (tiles).
+          description: Road distance to the assigned collector (tiles).
         buffer:
           $ref: "#/components/schemas/BufferDisplay"
         cycle_rate_permille_per_min:
@@ -2996,7 +3003,7 @@ components:
                     additionalProperties: false
                     required: [gold, materials]
                     description: |
-                      Upgrade cost into this level (`upgrade_warehouse`);
+                      Upgrade cost into this level (`upgrade_trading_post`);
                       absent on the first level, which the building cost
                       places.
                     properties:

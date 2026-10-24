@@ -204,3 +204,20 @@ The rules are in docs/DECISIONS.md D-051 and docs/MECHANICS.md §2, §5, §8,
   by `sim.TestSchemaFixturesDecode` (the template for the next migration).
 - The client's extrapolation test accepts a display fixture without samples
   (one that ends right before its next change).
+
+## Step 5 — API
+
+- openapi.yaml: the commands overview names `upgrade_trading_post` and
+  `sail_ship` and describes the start at sea; error-code texts and display
+  field descriptions speak of the Trading Post and collectors (units kept on
+  every numeric field, enforced by `TestNumericFieldsStateTheirUnit`).
+  `schema.d.ts` regenerated. Most API additions (commands, codes, display
+  fields) had to land with the sim steps 1–3 to keep the openapi tests green;
+  the `sail_ship` schema of step 3 only reached `schema.d.ts` in this commit
+  (the step-3 commit's generated types lag behind its openapi.yaml by that
+  command — CI's `gen:api` diff check would flag that commit alone).
+- `TestStartAtSeaOverHTTP`: the whole start flow over HTTP against the spec
+  (errors of `sail_ship` and `found_island`, `not_on_water`, the
+  founding-only Trading Post, `upgrade_trading_post` vs
+  `upgrade_warehouse`, `last_trading_post`, `terrain` for a water-edge land
+  row on water).

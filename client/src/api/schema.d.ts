@@ -63,11 +63,17 @@ export interface paths {
          * Advance the world to now and apply one command.
          * @description Commands (`command.type`): `place_building`, `place_road`,
          *     `demolish`, `demolish_road`, `place_fields`, `demolish_fields`,
-         *     `set_paused`, `upgrade_house`,
+         *     `set_paused`, `upgrade_house`, `upgrade_trading_post`,
          *     `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
-         *     `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`
-         *     and `found_island` (MECHANICS §8, §9).
+         *     `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`,
+         *     `sail_ship` and `found_island` (MECHANICS §8, §9).
+         *
+         *     A new world starts at sea (D-051): no island is settled and the
+         *     start sloop (ship 1) waits at its `position` with the starting
+         *     goods aboard. Settling is `sail_ship` to the chosen island, then
+         *     `found_island` once the ship is idle there; nothing else can be
+         *     placed on an unsettled island (`island_not_settled`).
          *
          *     On success the version is incremented and the new display state is
          *     returned. On error the world and its version are unchanged. A
@@ -405,8 +411,8 @@ export interface components {
          *       `no_deposit` (a deposit building's footprint covers no deposit
          *       of its kind), `insufficient_gold`, `insufficient_materials`,
          *       `surplus_loss`, `not_pausable`, `no_road`, `tier_locked`,
-         *       `not_a_house`, `upgrade_unavailable` (also: warehouse at its last
-         *       level), `house_not_full`, `needs_unmet`, `upgrade_only` (a house
+         *       `not_a_house`, `upgrade_unavailable` (also: a Trading Post or
+         *       Warehouse at its last level, or the other upgrade command), `house_not_full`, `needs_unmet`, `upgrade_only` (a house
          *       of a later tier is only reached by `upgrade_house`),
          *       `shipyard_busy` (one order at a time), `not_a_shipyard`,
          *       `unknown_ship_type` (the shipyard cannot build it),
@@ -414,11 +420,12 @@ export interface components {
          *       ship; scrapping also accepts an anchored one), `ship_not_on_route`,
          *       `route_in_use` (delete a route with assigned ships),
          *       `island_already_settled`, `island_not_settled` (placement on an
-         *       island without warehouse; found it with a ship),
-         *       `cargo_insufficient` (founding: the cargo lacks the warehouse
+         *       island without a Trading Post; found it with a ship),
+         *       `cargo_insufficient` (founding: the cargo lacks the Trading Post
          *       materials), `cargo_exceeds_slots`, `last_trading_post` (the
          *       Trading Post of an island with other buildings; roads may stay), `not_connected`
-         *       (a shipyard without a road to a warehouse cannot order),
+         *       (a shipyard without a road to the Trading Post or a Warehouse
+         *       cannot order),
          *       `quest_not_completed`, `quest_already_claimed` (rewards are
          *       credited once), `email_taken`, `already_registered`;
          *     - 429: `rate_limited` (with `Retry-After` in seconds);
@@ -527,7 +534,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -765,8 +772,8 @@ export interface components {
         };
         /**
          * @description Order a ship at a shipyard (a building with a `shipyard` block that
-         *     lists the ship type). The shipyard must be road-connected to a
-         *     warehouse and idle; the cost (gold from the world, materials from
+         *     lists the ship type). The shipyard must be road-connected to the
+         *     Trading Post or a Warehouse and idle; the cost (gold from the world, materials from
          *     the shipyard's island) is deducted at once. The ship appears idle at
          *     the shipyard's island at the order's `due_at` (ship_built).
          */
@@ -951,9 +958,35 @@ export interface components {
             cargo: components["schemas"]["CargoEntry"][];
         };
         /**
-         * @description Settle an unsettled island: an idle ship there pays the warehouse's
-         *     materials from its cargo (gold from the world) and the warehouse is
-         *     placed; the remaining cargo is unloaded (up to capacity).
+         * @description Send an idle ship with its cargo (nothing is loaded) from its island
+         *     or from its sea position (the start ship of a new world, D-051) to
+         *     another island; it departs at once. At arrival it unloads like a
+         *     manual shipment at a settled island (queueing for a berth); at an
+         *     unsettled island everything stays aboard and the ship is idle
+         *     there, ready for `found_island`. Errors: `ship_not_found`,
+         *     `ship_not_idle`, `route_invalid` (unknown destination or the
+         *     ship's own island).
+         */
+        SailShipCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "sail_ship";
+            /**
+             * Format: int64
+             * @description Ship ID (unscaled integer identifier, from ShipDisplay.id).
+             */
+            ship_id: number;
+            to_island_id: string;
+        };
+        /**
+         * @description Settle an unsettled island (D-051): an idle ship there pays the
+         *     Trading Post's materials from its cargo (gold from the world) and
+         *     the Trading Post (`building_type` with a `trading_post` block) is
+         *     placed with its front rows over the water (`not_on_water`
+         *     otherwise); the remaining cargo is unloaded (up to capacity). The
+         *     Trading Post is never placed by `place_building`.
          */
         FoundIslandCommand: {
             /**
@@ -967,7 +1000,7 @@ export interface components {
              */
             ship_id: number;
             island_id: string;
-            /** @description Content building ID with a warehouse block. */
+            /** @description Content building ID with a `trading_post` block (the Trading Post). */
             building_type: string;
             /** @description Left column of the rotated footprint (tiles). */
             x: number;
@@ -1488,7 +1521,7 @@ export interface components {
             capacity: number;
             /**
              * Format: int64
-             * @description Goods on the road to the warehouse (milli-units).
+             * @description Goods on the road to a collector (milli-units).
              */
             in_transit: number;
             /**
@@ -1619,7 +1652,7 @@ export interface components {
             efficiency_permille: number;
             /**
              * Format: int64
-             * @description Warehouse throughput factor (permille).
+             * @description Collector throughput factor (permille).
              */
             throughput_factor_permille: number;
             /** @description Goods behind the status, sorted by ID; starve-limited inputs for input_starved, full outputs for warehouse_full. */
@@ -1634,7 +1667,7 @@ export interface components {
             cycle_progress_permille?: number;
             /**
              * Format: int64
-             * @description Delivery latency to the assigned warehouse (ms).
+             * @description Delivery latency to the assigned collector (ms).
              */
             transfer_delay_ms?: number;
             /**
@@ -1642,7 +1675,7 @@ export interface components {
              * @description Building ID of the assigned collector (the Trading Post or a Warehouse, nearest by road); 0 when not connected.
              */
             assigned_warehouse_id?: number;
-            /** @description Road distance to the assigned warehouse (tiles). */
+            /** @description Road distance to the assigned collector (tiles). */
             road_distance?: number;
             buffer?: components["schemas"]["BufferDisplay"];
             /**
@@ -2030,7 +2063,7 @@ export interface components {
                     /** @description Ships that can load or unload at once (count). */
                     berths: number;
                     /**
-                     * @description Upgrade cost into this level (`upgrade_warehouse`);
+                     * @description Upgrade cost into this level (`upgrade_trading_post`);
                      *     absent on the first level, which the building cost
                      *     places.
                      */

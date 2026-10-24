@@ -25,7 +25,6 @@ type shipServer struct {
 
 func newShipServer(t *testing.T) *shipServer {
 	t.Helper()
-	ts := newTestServer(t, 1)
 	c := catalogue(t)
 	w := foundedWorld(t, testStart)
 	// The ship flows start from a sloop the shipyard builds (ship 1): the
@@ -36,9 +35,17 @@ func newShipServer(t *testing.T) *shipServer {
 	if err := sim.AddStock(w, c, "start", "planks", 160_000, nil); err != nil {
 		t.Fatal(err)
 	}
+	return newShipServerFor(t, w)
+}
+
+// newShipServerFor is newShipServer on world w.
+func newShipServerFor(t *testing.T, w *sim.World) *shipServer {
+	t.Helper()
+	ts := newTestServer(t, 1)
+	c := catalogue(t)
 	now := func() time.Time { return TimeScale{Start: testStart, Scale: 1}.At(ts.clock.Now()) }
 	mem := store.NewMemory(testWorld, w, now)
-	ts.srv.cfg.Store = mem
+	ts.srv.cfg.Store, ts.mem = mem, mem
 	return &shipServer{testServer: ts, sched: &events.DevScheduler{
 		Store: mem, Registry: events.DefaultRegistry(time.Hour), Catalogue: c,
 		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)), WorldNow: now,
