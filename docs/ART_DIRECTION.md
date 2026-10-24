@@ -286,10 +286,11 @@ detail does not** (D-048, refined by D-050):
    tier 1–2 recipes + fields + sloop from KayKit/Pirate, slab/plateau/
    scatter islands, real models at every zoom (lite at far), device-
    validated perf floors, dev reset endpoint for e2e isolation.
-4. **Life layer and dressing** — walkers, smoke, sails, gulls, boats,
-   inhabitants; KayKit Extra-tier variety (more trees, dead trees,
-   plateau pieces, construction stages); budgets validated on the
-   baseline device.
+4. **Life layer and dressing** — brief in `docs/LIFE_LAYER.md`: carts
+   and walkers from transfer timers, smoke from running producers, sails
+   and flags, fishing boats, gulls, strollers from residents, pasture
+   animals, construction stages; all state-derived, deterministic,
+   near-LOD only, budgets validated on the baseline device.
 
 Each task ships screenshots at the gate; the reviewer compares against
 this document and the reference board (to be added under

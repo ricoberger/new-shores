@@ -33,6 +33,7 @@ open. The in-memory `--dev` server remains for quick local work.
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Tech stack, repository layout, server design, concurrency, API, client, content pipeline, deployment, testing |
 | [docs/FIRST_PLAYABLE.md](docs/FIRST_PLAYABLE.md) | Scope, milestones and acceptance criteria of the first vertical slice |
 | [docs/ART_DIRECTION.md](docs/ART_DIRECTION.md) | Visual target: light and palette, continuous world, terrain and water, life layer, HUD theme, kit-bash asset pipeline, task breakdown |
+| [docs/LIFE_LAYER.md](docs/LIFE_LAYER.md) | Brief for the life layer: elements, state sources, motion, budgets, kit inventory |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Numbered log of every design decision with rationale and "revisit" markers |
 | [AGENTS.md](AGENTS.md) | Instructions for AI coding agents working in this repository |
 
