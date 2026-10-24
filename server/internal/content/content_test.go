@@ -620,3 +620,168 @@ func TestCheckRejectsZeroResumeReserve(t *testing.T) {
 		}
 	}
 }
+
+// TestLoadNeedDisplayNames covers the display data of needs: every need
+// has a name, goods-need categories come from need_categories.json with a
+// name and a HUD icon of assets/icons/icons.json.
+func TestLoadNeedDisplayNames(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	var cats []string
+	for _, nc := range c.NeedCategories {
+		cats = append(cats, nc.ID+"="+nc.Name+"/"+nc.Icon)
+		if c.NeedCategoryByID[nc.ID] != nc {
+			t.Errorf("NeedCategoryByID[%q] = %+v", nc.ID, c.NeedCategoryByID[nc.ID])
+		}
+	}
+	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:_fallback,luxury=Luxury/need:_fallback"
+	if got := strings.Join(cats, ","); got != want {
+		t.Errorf("need categories = %s, want %s", got, want)
+	}
+	names := map[string]string{}
+	for _, tr := range c.Tiers {
+		for _, n := range c.NeedsByTier[tr.ID] {
+			names[n.ID] = n.Name
+		}
+	}
+	wantNames := map[string]string{
+		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_market_small": "Market",
+		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing",
+		"citizens_market_small": "Market", "citizens_chapel": "Chapel", "citizens_tavern": "Tavern",
+	}
+	if len(names) != len(wantNames) {
+		t.Errorf("need names = %v, want %v", names, wantNames)
+	}
+	for id, w := range wantNames {
+		if names[id] != w {
+			t.Errorf("need %s name = %q, want %q", id, names[id], w)
+		}
+	}
+}
+
+func TestLoadRejectsInvalidNeedDisplayData(t *testing.T) {
+	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
+	tests := []struct {
+		name    string
+		file    string
+		replace []string
+		want    []string
+	}{
+		{
+			"missing category", FileNeedCategories,
+			[]string{`  { "id": "clothing", "name": "Clothing", "icon": "need:clothing" },
+`, ""},
+			[]string{FileNeeds, `need "settlers_clothing"`, "category", `unknown need category "clothing"`},
+		},
+		{
+			"duplicate category", FileNeedCategories,
+			[]string{`{ "id": "luxury",`, `{ "id": "food",`},
+			[]string{FileNeedCategories, `need category "food"`, "id", "duplicate ID"},
+		},
+		{
+			"category without icon", FileNeedCategories,
+			[]string{`"name": "Food", "icon": "need:food"`, `"name": "Food"`},
+			[]string{FileNeedCategories, `need category "food"`, "schema violation"},
+		},
+		{
+			"category name too long", FileNeedCategories,
+			[]string{`"name": "Food"`, `"name": "` + strings.Repeat("F", 33) + `"`},
+			[]string{FileNeedCategories, `need category "food"`, "schema violation"},
+		},
+		{
+			"category name not printable", FileNeedCategories,
+			[]string{`"name": "Food"`, `"name": "Fo\u0007od"`},
+			[]string{FileNeedCategories, `need category "food"`, "name", "printable"},
+		},
+		{
+			"need without name", FileNeeds,
+			[]string{`"name": "Market",`, ""},
+			[]string{FileNeeds, `need "settlers_market_small"`, "schema violation"},
+		},
+		{
+			"need empty name", FileNeeds,
+			[]string{`"name": "Food",`, `"name": "",`},
+			[]string{FileNeeds, `need "settlers_food"`, "schema violation"},
+		},
+		{
+			"need name not printable", FileNeeds,
+			[]string{`"name": "Clothing",`, `"name": "Clo\tthing",`},
+			[]string{FileNeeds, `need "settlers_clothing"`, "name", "printable"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dir := copyContent(t, tt.file, tt.replace...)
+			_, err := LoadWithSchemas(dir, schemaDir)
+			if err == nil {
+				t.Fatal("Load succeeded, want error")
+			}
+			for _, w := range tt.want {
+				if !strings.Contains(err.Error(), w) {
+					t.Errorf("error %q does not contain %q", err, w)
+				}
+			}
+		})
+	}
+}
+
+// unknownHUDIcons returns the need categories whose icon is not a key of
+// the HUD icon set manifest (assets/icons/icons.json). The check lives in
+// the tests, not the loader: the server must not depend on a client asset
+// at startup.
+func unknownHUDIcons(t *testing.T, c *Catalogue, manifest string) []string {
+	t.Helper()
+	data, err := os.ReadFile(manifest) // #nosec G304 -- test fixture path.
+	if err != nil {
+		t.Fatal(err)
+	}
+	var m struct {
+		Icons map[string]json.RawMessage `json:"icons"`
+	}
+	if err := json.Unmarshal(data, &m); err != nil {
+		t.Fatal(err)
+	}
+	var bad []string
+	for _, nc := range c.NeedCategories {
+		if _, ok := m.Icons[nc.Icon]; !ok {
+			bad = append(bad, nc.ID+"="+nc.Icon)
+		}
+	}
+	return bad
+}
+
+// TestNeedCategoryIconsInHUDSet: every need category of the shipped and the
+// test-only content names an icon of the HUD icon set.
+func TestNeedCategoryIconsInHUDSet(t *testing.T) {
+	root := repoRoot(t)
+	manifest := filepath.Join(root, "assets", "icons", "icons.json")
+	schemaDir := filepath.Join(root, "content", "schema")
+	for _, dir := range []string{
+		filepath.Join(root, "content", "old_coast"),
+		filepath.Join(root, "server", "testdata", "content", "old_coast_variety"),
+		filepath.Join(root, "server", "testdata", "content", "old_coast_dairy"),
+	} {
+		c, err := LoadWithSchemas(dir, schemaDir)
+		if err != nil {
+			t.Fatalf("%s: %v", dir, err)
+		}
+		if len(c.NeedCategories) == 0 {
+			t.Errorf("%s: no need categories", dir)
+		}
+		if bad := unknownHUDIcons(t, c, manifest); len(bad) > 0 {
+			t.Errorf("%s: need categories with an icon outside assets/icons/icons.json: %v", dir, bad)
+		}
+	}
+
+	// The check catches an unknown icon (the loader accepts it).
+	dir := copyContent(t, FileNeedCategories, `"icon": "need:drink"`, `"icon": "need:grog"`)
+	c, err := LoadWithSchemas(dir, schemaDir)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if bad := unknownHUDIcons(t, c, manifest); strings.Join(bad, ",") != "drink=need:grog" {
+		t.Errorf("unknown icons = %v, want [drink=need:grog]", bad)
+	}
+}

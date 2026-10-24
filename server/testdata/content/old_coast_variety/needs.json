@@ -1,6 +1,7 @@
 [
   {
     "id": "settlers_food",
+    "name": "Food",
     "tier": "settlers",
     "kind": "required",
     "weight": 0.5,
@@ -14,6 +15,7 @@
   },
   {
     "id": "settlers_clothing",
+    "name": "Clothing",
     "tier": "settlers",
     "kind": "required",
     "weight": 0.2,
@@ -24,6 +26,7 @@
   },
   {
     "id": "settlers_market_small",
+    "name": "Market",
     "tier": "settlers",
     "kind": "required",
     "weight": 0.3,
@@ -32,6 +35,7 @@
   },
   {
     "id": "settlers_chapel",
+    "name": "Chapel",
     "tier": "settlers",
     "kind": "optional",
     "weight": 0.5,
@@ -40,6 +44,7 @@
   },
   {
     "id": "citizens_food",
+    "name": "Food",
     "tier": "citizens",
     "kind": "required",
     "weight": 0.5,
@@ -50,6 +55,7 @@
   },
   {
     "id": "citizens_market_small",
+    "name": "Market",
     "tier": "citizens",
     "kind": "required",
     "weight": 0.5,

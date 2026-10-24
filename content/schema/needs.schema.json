@@ -2,14 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/ricoberger/new-shores/content/schema/needs.schema.json",
   "title": "Needs",
-  "description": "Needs per tier (CONTENT §2, §11, MECHANICS §6.2). A need is either a goods need (a category with acceptable goods, variety_bonus and max_extra_goods) or a building need (building + radius). kind: required needs count toward satisfaction, optional needs only add the optional tax bonus.",
+  "description": "Needs per tier (CONTENT §2, §11, MECHANICS §6.2). A need is either a goods need (a category with acceptable goods, variety_bonus and max_extra_goods) or a building need (building + radius). kind: required needs count toward satisfaction, optional needs only add the optional tax bonus. name is the player-facing name (1–32 printable characters; display data only); a goods need's category must be listed in need_categories.json.",
   "type": "array",
   "items": {
     "type": "object",
     "additionalProperties": false,
-    "required": ["id", "tier", "weight", "kind"],
+    "required": ["id", "name", "tier", "weight", "kind"],
     "properties": {
       "id": { "$ref": "#/$defs/id" },
+      "name": { "type": "string", "minLength": 1, "maxLength": 32 },
       "tier": { "$ref": "#/$defs/id" },
       "weight": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
       "kind": { "enum": ["required", "optional"] },

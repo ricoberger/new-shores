@@ -55,6 +55,10 @@ type Catalogue struct {
 	FieldByType map[string]*Building
 	// NeedsByTier maps a tier ID to its needs in file order.
 	NeedsByTier map[string][]*Need
+	// NeedCategories are the goods-need categories in file order
+	// (need_categories.json): display data only.
+	NeedCategories   []*NeedCategory
+	NeedCategoryByID map[string]*NeedCategory
 	// Ships are the ship types in file order (ships.json).
 	Ships    []*Ship
 	ShipByID map[string]*Ship
@@ -385,7 +389,9 @@ const (
 // has a Category and a non-empty Goods list; a building need has Building and
 // Radius.
 type Need struct {
-	ID   string
+	ID string
+	// Name is the player-facing name (display data only).
+	Name string
 	Tier string
 	// Kind is NeedRequired or NeedOptional.
 	Kind string
@@ -402,6 +408,15 @@ type Need struct {
 	// Building and Radius are set for building needs.
 	Building string
 	Radius   int
+}
+
+// NeedCategory is a goods-need category (need_categories.json): display
+// data only, the simulation matches categories by ID.
+type NeedCategory struct {
+	ID   string
+	Name string
+	// Icon is a key of the HUD icon set (assets/icons/icons.json).
+	Icon string
 }
 
 // NeedGood is an acceptable good of a goods need.
