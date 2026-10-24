@@ -52,18 +52,24 @@ UI shows the same numbers the server uses.
   near the canvas edge; pointer taps resolve **ship → label → land**. A
   label tap is an island tap at every LOD: it appends a stop when the route
   editor is open, picks the destination for an awaiting shipment, otherwise
-  opens the **island card** (population, warehouse fill, warnings count,
-  fertilities, deposits; "Found settlement with ship #n" when an idle ship
-  there carries the warehouse cost; "New route from here"; "Go to island").
+  opens the **island card** (population, Trading Post fill, warnings
+  count, fertilities, deposits, coast; **"Found settlement here"** on an
+  unsettled island when a ship carries the Trading Post cost — the ship
+  sails there first (`sail_ship`), the founding is pending (shown on the
+  card and the ship panel, cancellable, survives a reload) and the
+  Trading Post ghost opens on arrival; "New route from here"; "Go to
+  island"). The world opens on the start sloop at sea with the first quest
+  ("Choose your home island") as the hint.
   Hover shows a lightweight tooltip only; nothing is hover-only.
 - **Route ribbons** are drawn only for the selected ship's route or while
   the route editor is open (all routes faint, the edited one bright);
   ships are always drawn.
 - **Ships** are low-poly instances: with a leg, lerped between the two
-  islands' berth anchors by `(now − depart_at) / (arrive_at − depart_at)`;
-  berth 0 (nearest the harbour building) is the anchor for legs and
-  ribbons, idle and anchored ships take the next berths; `anchored_unpaid`
-  ships greyed. Legs and ribbons are straight lines and may cross land
+  islands' pier anchors by `(now − depart_at) / (arrive_at − depart_at)`.
+  A ship handling at the Trading Post sits at **pier slot i** (tile i of
+  the front water row, one tile out, bow to sea); ships `waiting_for_berth`
+  sit one tile further out between two slots, two tiles apart; idle ships
+  take the island's harbour berths; `anchored_unpaid` ships greyed. Legs and ribbons are straight lines and may cross land
   (dressing task). Route ribbons carry direction arrows; the selected ship
   shows its route and ETA.
 - **Manual shipment:** drag an idle ship onto another island (drop on sea
@@ -177,15 +183,26 @@ UI shows the same numbers the server uses.
   0/min on island", "no market within 12").
 - Upgrade button with cost and lock reason.
 
+**Trading Post**
+
+- Level `n of 4`, capacity per good, throughput `R / T` load bar, berths
+  `busy / total`, who is at the pier and who waits, assigned producers
+  count; upgrade button with the next level's numbers and the cost in
+  build-card format ("300 gold · 20 planks · 10 stone", unaffordable parts
+  greyed with the stock on hover).
+- Island inventory table: good, stock/capacity, net rate, with a filter.
+
 **Warehouse**
 
-- Level, capacity per good, throughput `R / T` load bar, assigned producers
-  count, upgrade button.
-- Island inventory table: good, stock/capacity, net rate, with a filter.
+- Level, throughput `R / T` load bar, assigned producers count, upgrade
+  button (same cost format). No capacity row — capacity is the Trading
+  Post's.
 
 **Ship** (ship info panel; the Ships list only selects)
 
-- Type, state, cargo slots, current leg with ETA, route assignment, upkeep.
+- Type, state (incl. "waiting for berth" with the position in the queue
+  and "handling until"), cargo slots, current leg with ETA, route
+  assignment, pending founding, upkeep.
 - Buttons: "Assign to route…" (opens the editor with the ship pending;
   pick a saved route or save a new one to assign), unassign, "Send…"
   (manual shipment dialog), "Send to… (pick island)", found settlement,

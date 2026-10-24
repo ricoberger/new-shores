@@ -97,8 +97,8 @@ provisional.
 | fish | `fisher` (harbour slot → fish, 40 s) [4 S] | — |
 | wool_garments | `sheep_farm` (grass → wool, 90 s) [4 S], `weaver_wool` (wool → wool_garments, 90 s) [6 S] | 1 : 1 |
 
-Infrastructure: `warehouse` lvl 1, `road_dirt`, `market_small`, `chapel`,
-`shipyard` (sloop), `house_settlers`.
+Infrastructure: `trading_post` lvl 1 (founding), `warehouse` lvl 1,
+`road_dirt`, `market_small`, `chapel`, `shipyard` (sloop), `house_settlers`.
 
 ### Tier 2 — Citizens
 
@@ -113,7 +113,7 @@ Infrastructure: `warehouse` lvl 1, `road_dirt`, `market_small`, `chapel`,
 | construction | stone, tools | `quarry` (stone slot → stone, 45 s) [8 S]; `iron_mine` (iron slot → iron_ore, 60 s) [10 S], `charcoal_burner` (wood → charcoal, 45 s) [4 S], `smelter` (iron_ore + charcoal → iron, 60 s) [8 S], `toolmaker` (iron → tools, 60 s) [8 S] | tools 1 : 1.3 : 1 : 1 |
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
-Infrastructure: `warehouse` lvl 2, `road_paved`, `tavern`, `house_citizens`,
+Infrastructure: `trading_post` lvl 2, `road_paved`, `tavern`, `house_citizens`,
 brig. Iron and hemp are on the second settleable island, never the first.
 The construction chains (quarry, tool chain) are **Settler-staffed** per the
 bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
@@ -141,7 +141,7 @@ made by Citizens and glass (tier 4) by Citizens.
 One recipe per building (D-041): `leather_works` is a separate building from
 `tannery` rather than a second recipe.
 
-Infrastructure: `warehouse` lvl 3, `market_medium`, `church`,
+Infrastructure: `trading_post` lvl 3, `market_medium`, `church`,
 `harbourmaster_office` (world map, expeditions, contracts), `house_merchants`,
 galleon.
 
@@ -167,7 +167,7 @@ galleon.
 than a second quartz_quarry recipe (D-041); `gold_bars` avoids a good named
 `gold`, which is the reserved cost key (§11).
 
-Infrastructure: `warehouse` lvl 4, `market_large`, `theatre`, `university`,
+Infrastructure: `trading_post` lvl 4, `market_large`, `theatre`, `university`,
 `house_patricians`.
 
 ## 6. Catalogue totals
@@ -313,7 +313,8 @@ exponent notation; they are converted to fixed point at load time.
     "optional_tax_bonus": 0.25,
     "auto_resume_upkeep_minutes": 5,
     "ship_speed_tiles_per_min": 60,
-    "ship_handling_seconds": 20,
+    "ship_handling_base_seconds": 10,
+    "ship_handling_seconds_per_unit": 0.2,
     "away_summary_minutes": 15,
     "trial_resume_upkeep_minutes": 30
   }
@@ -339,11 +340,11 @@ exponent notation; they are converted to fixed point at load time.
 ### start.json — starting stock
 
 ```json
-{ "gold": 800, "goods": { "planks": 130, "sails": 10 } }
+{ "gold": 1000, "goods": { "planks": 150, "sails": 10 } }
 ```
 
-Granted once, after the first (free) warehouse is placed from the ship
-(MECHANICS §8). Goods must exist in `goods.json`.
+Aboard the start sloop and on the balance from the first moment; the
+Trading Post is paid from it when the player founds (MECHANICS §8). Goods must exist in `goods.json`.
 
 ### buildings.json — capability blocks instead of a type enum
 
@@ -358,7 +359,8 @@ it carries:
 |---|---|---|
 | `recipe` (later `recipes[]`, D-041) | `inputs[] {good, amount}` (may be empty), `outputs[] {good, amount}` (non-empty), `cycle_seconds` | producers |
 | `house` | `tier` | residences |
-| `warehouse` | `levels[] {capacity, throughput_per_min, cost?}` — level 1 has no cost (the building cost places it), every later level has one (`upgrade_warehouse`) | warehouse |
+| `trading_post` | `levels[] {capacity, throughput_per_min, berths, cost?}` — level 1 has no cost (founding places it), later levels have one (`upgrade_trading_post`); with `water_tiles` (front rows on water) | Trading Post, one per island |
+| `warehouse` | `levels[] {throughput_per_min, cost?}` — collector only, no capacity (`upgrade_warehouse`) | inland Warehouse |
 | `road` | `seconds_per_tile` (building must be 1×1) | roads |
 | `service` | `radius` | public buildings |
 | `work_area` | `radius`, `fertility?` (island-wide tag the island must carry, else `no_fertility`); harvesters also `terrain[]`, `required_tiles` | farms (radius only), lumberjack, gatherers |
@@ -417,9 +419,12 @@ kinds in MECHANICS §12a (`building_count`, `population`, `stock`,
 Quests that reward goods must mention that excess beyond capacity is lost
 (content test).
 
-### needs.json
+### need_categories.json and needs.json
 
-One entry per need: `{ id, tier, kind: required|optional, weight }` plus
+`need_categories.json` lists the display data per category: `{ id, name,
+icon }` (icon IDs from the HUD icon set; a test checks they exist).
+
+One entry per need: `{ id, name, tier, kind: required|optional, weight }` plus
 either a goods category — `category`, `goods[] {good,
 per_resident_per_min}`, `variety_bonus`, `max_extra_goods` — or a building
 need — `building`, `radius`. Required weights of a tier sum to exactly 1.
@@ -428,6 +433,7 @@ See MECHANICS §6.2 for the semantics.
 ```json
 {
   "id": "citizens_drink",
+  "name": "Drink",
   "tier": "citizens",
   "category": "drink",
   "weight": 0.2,

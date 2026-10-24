@@ -46,7 +46,7 @@ values that live in content data and will be tuned.
   milli-units, gold in milli-gold, durations in milliseconds, timestamps in
   UTC truncated to milliseconds. Internally goods are accounted in
   sub-milli units (`SubPerMilli = 360 000 000`, chosen so every cycle that
-  divides 360 s and every warehouse throughput is an exact integer flow per
+  divides 360 s and every collector throughput is an exact integer flow per
   millisecond); conservation holds exactly at that scale. Display rounds
   half-up to milli-units; rates are shown per minute (floor). Content
   decimals allow at most 3 places (weights 6) and no exponent notation.
@@ -182,18 +182,18 @@ handlers only.
 ## 3. Roads and connection (D-014)
 
 - A building is **connected** if there is a road path from a road tile
-  adjacent to its footprint to a road tile adjacent to a warehouse's
-  footprint on the same island (D-042). This is the single connectivity
+  adjacent to its footprint to a road tile adjacent to a **collector's**
+  (Trading Post or Warehouse) footprint on the same island (D-042). This is the single connectivity
   rule for producers, public buildings and houses alike; a house on a road
   stub that does not reach a warehouse is *not* connected. Roads are tiles;
   dirt roads (tier 1) and paved roads (tier 2, +speed) are the two types.
-- Each connected producer is **assigned** to the nearest warehouse by road
+- Each connected producer is **assigned** to the nearest collector by road
   distance `d`: the number of road tiles on the shortest 4-connected road
   path between any road tile adjacent to the producer and any road tile
-  adjacent to the warehouse, both ends included. Equal lengths prefer the
-  lower summed per-tile time; equal warehouses prefer the lowest ID.
-  Assignment is recomputed when roads, buildings or warehouses change. Only
-  buildings with a recipe are assigned; warehouses need no road themselves.
+  adjacent to the collector, both ends included. Equal lengths prefer the
+  lower summed per-tile time; equal collectors prefer the lowest ID.
+  Assignment is recomputed when roads, buildings or collectors change. Only
+  buildings with a recipe are assigned; collectors need no road themselves.
 - **Transfer delay** per delivery: `transfer_base_seconds + Σ seconds_per_tile`
   over the path (content; provisional 10 s + 1 s/tile dirt, 0.6 s/tile
   paved), minimum 1 ms. The delay is a latency: output produced during
@@ -666,10 +666,10 @@ has exactly one primary status; precedence when several apply:
 | State | Message | Suggested fix |
 |---|---|---|
 | paused (player) | "Paused by you" | resume |
-| not connected | "No road to a warehouse" | build road |
+| not connected | "No road to the Trading Post or a Warehouse" | build road |
 | input starved | "Missing: iron ore (0/min)" | build producer / import |
-| warehouse full | "Planks at capacity (400/400)" | upgrade warehouse / consume |
-| throttled | "Warehouse overloaded (140 %)" | second warehouse / upgrade |
+| warehouse full | "Planks at capacity (400/400)" | upgrade Trading Post / consume |
+| throttled | "Trading Post overloaded (140 %)" (or "Warehouse …") | Warehouse / upgrade |
 | unpaid | "Paused: insufficient gold (balance −3.2/min)" | demolish / grow / resume manually |
 | low efficiency | "Only 60 % fertile land in range" | move / clear |
 | short of workers | "Needs 12 Citizens on this island (8 available)" | build/upgrade houses here |

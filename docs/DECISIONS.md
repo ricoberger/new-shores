@@ -677,10 +677,17 @@ specs isolate through a dev-only world reset endpoint.
   make ownership trivial; berths give harbours a reason to grow; free
   rotation suits a true 3D scene and the compass is the Anno idiom.
 - *Consequences:* content renames (`warehouse` → `trading_post`; new inland
-  `warehouse`), a schema migration (first warehouse → Trading Post,
-  others → Warehouses; fields re-sized/re-chained), reference games
-  re-verified with the sail-and-found opening, new e2e fixture
-  `seafaring`; D-049's `required` becomes a field count.
+  `warehouse`), a schema bump (4) — no migration, the game was not
+  deployed and old worlds fail to load; reference games re-verified with
+  the sail-and-found opening, new e2e fixture `seafaring`; D-049's
+  `required` becomes a field count.
+- *Status:* parts 1, 2, 3, 5 (settling, Trading Post/Warehouse,
+  water_tiles, berths) shipped in PR #19; parts 6, 7 in PR #17; part 4
+  (fields v2) open. As built: founding from afar is two commands
+  (`sail_ship`, then `found_island` on arrival); berths gate arrivals only
+  (loading holds no berth; an island without a Trading Post has no pier
+  and handles at once); ship legs are straight and may cross land
+  (follow-up: routing around islands).
 - *Rejected:* a pre-settled tutorial island (contradicts the brief);
   warehouses adding capacity (storage spam); island-wide satisfaction
   (kills the public-building radius puzzle); rotation without snapping.

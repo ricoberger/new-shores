@@ -142,6 +142,11 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **Settling and harbours (D-051 parts 1, 2, 3, 5) — done (PR #19):**
+  start at sea and found from the island card, Trading Post with levels
+  and berth queues vs inland Warehouse, water-edge fisher/shipyard,
+  per-unit handling, 4-slot sloop, schema 4 (no migration). Need display
+  names (PR #18).
 - **Polish pass — done (PR #17):** footprint shadows, ribbons on
   selection, model ghosts, free camera with compass (D-051 part 6), HUD
   redesign with island resources, materials, employed/total and
