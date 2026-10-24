@@ -30,7 +30,7 @@ import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
 import { type Detail, type ModelData, type ModelEntry, type ModelFile, type ModelRegistry, atDetail, modelFileFor, placement, worldData } from "./models";
-import { buildingColor, DOOR, PAUSED_TINT, roofColor, SELECTION } from "./palette";
+import { buildingColor, DOOR, INACTIVE_TINT, PAUSED_TINT, roofColor, SELECTION } from "./palette";
 import { skyFill } from "./lighting";
 import { ColoredInstances } from "./shipmesh";
 
@@ -39,6 +39,11 @@ export const CHUNK = 16;
 /** Duration of the rise-in of a newly placed building (ms of the animation clock). */
 export const RISE_MS = 350;
 const WHITE = [1, 1, 1, 1] as const;
+
+/** Instance colour of a building: paused and unpaid ones are tinted cool grey, inactive fields (not_adjacent) neutral grey. */
+function tintOf(b: BuildingDisplay): readonly number[] {
+  return b.paused ? PAUSED_TINT : b.active === false ? INACTIVE_TINT : WHITE;
+}
 
 function faces(c: Color4, n: number): Color4[] {
   return Array.from({ length: n }, () => c);
@@ -365,14 +370,14 @@ export class BuildingLayer {
       chunks.delete(key);
     }
     for (const [key, items] of byChunk) {
-      const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}:${it.b.paused ? 1 : 0}:${it.def.width}x${it.def.height}`).join(";");
+      const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}:${it.b.paused ? 1 : 0}${it.b.active === false ? "i" : ""}:${it.def.width}x${it.def.height}`).join(";");
       const old = chunks.get(key);
       if (old?.key === sig) continue;
       old?.mesh?.dispose();
       const data = mergeItems(
         items.map((it) => {
           const p = placement(it.entry, it.def, it.b);
-          return { data: it.data, cx: p.cx, cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: it.b.paused ? PAUSED_TINT : WHITE };
+          return { data: it.data, cx: p.cx, cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b) };
         }),
       );
       const mesh = new Mesh(`models_${key}`, this.scene);
@@ -428,7 +433,7 @@ export class BuildingLayer {
           .multiply(Matrix.RotationY(p.yaw))
           .multiply(Matrix.Translation(p.cx, 0, p.cz))
           .copyToArray(inst.matrices, i * 16);
-        inst.setColor(i, it.b.paused ? PAUSED_TINT : WHITE);
+        inst.setColor(i, tintOf(it.b));
       });
       inst.commit();
     }

@@ -97,5 +97,7 @@ export const ARROW_BRIGHT = colorTuple(ROUTES.arrow_bright);
  * §7 "paused/unpaid = desaturated tint"; like SHIP_UNPAID for ships).
  */
 export const PAUSED_TINT: readonly [number, number, number, number] = [0.6, 0.64, 0.74, 1];
+/** Instance colour of an inactive field (its chain to the farm is broken, D-051 part 4): a neutral grey multiplier, desaturated and dimmed. */
+export const INACTIVE_TINT: readonly [number, number, number, number] = [0.62, 0.62, 0.58, 1];
 /** Shadow tint (blob shadows). */
 export const SHADOW = c3(LIGHT.shadow);
