@@ -640,8 +640,10 @@ func TestBootstrapSettlers(t *testing.T) {
 	if last := rep.Snapshots[len(rep.Snapshots)-1]; !slices.Contains(last.UnlockedTiers, "citizens") {
 		t.Errorf("unlocked = %v", last.UnlockedTiers)
 	}
-	if g := rep.Totals["main"]["sails"].Granted; g != 10_000 {
-		t.Errorf("sails granted = %d", g)
+	// The starting stock comes aboard the start ship and is unloaded
+	// into the founded Trading Post (D-051).
+	if g := rep.Totals["main"]["sails"]; g.Unloaded != 10_000 || g.Granted != 0 {
+		t.Errorf("sails %+v, want 10 unloaded from the start ship", g)
 	}
 	checkGoldNonNegative(t, rep)
 }

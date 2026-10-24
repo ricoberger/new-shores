@@ -953,6 +953,7 @@ components:
         - $ref: "#/components/schemas/AssignShipCommand"
         - $ref: "#/components/schemas/UnassignShipCommand"
         - $ref: "#/components/schemas/ManualShipmentCommand"
+        - $ref: "#/components/schemas/SailShipCommand"
         - $ref: "#/components/schemas/FoundIslandCommand"
         - $ref: "#/components/schemas/ClaimQuestCommand"
         - $ref: "#/components/schemas/AckSummaryCommand"
@@ -979,6 +980,7 @@ components:
           assign_ship: "#/components/schemas/AssignShipCommand"
           unassign_ship: "#/components/schemas/UnassignShipCommand"
           manual_shipment: "#/components/schemas/ManualShipmentCommand"
+          sail_ship: "#/components/schemas/SailShipCommand"
           found_island: "#/components/schemas/FoundIslandCommand"
           claim_quest: "#/components/schemas/ClaimQuestCommand"
           ack_summary: "#/components/schemas/AckSummaryCommand"
@@ -1467,13 +1469,39 @@ components:
           maxItems: 16
           items:
             $ref: "#/components/schemas/CargoEntry"
+    SailShipCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Send an idle ship with its cargo (nothing is loaded) from its island
+        or from its sea position (the start ship of a new world, D-051) to
+        another island; it departs at once. At arrival it unloads like a
+        manual shipment at a settled island (queueing for a berth); at an
+        unsettled island everything stays aboard and the ship is idle
+        there, ready for `found_island`. Errors: `ship_not_found`,
+        `ship_not_idle`, `route_invalid` (unknown destination or the
+        ship's own island).
+      required: [type, ship_id, to_island_id]
+      properties:
+        type:
+          type: string
+          enum: [sail_ship]
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
+        to_island_id:
+          type: string
     FoundIslandCommand:
       type: object
       additionalProperties: false
       description: |
-        Settle an unsettled island: an idle ship there pays the warehouse's
-        materials from its cargo (gold from the world) and the warehouse is
-        placed; the remaining cargo is unloaded (up to capacity).
+        Settle an unsettled island (D-051): an idle ship there pays the
+        Trading Post's materials from its cargo (gold from the world) and
+        the Trading Post (`building_type` with a `trading_post` block) is
+        placed with its front rows over the water (`not_on_water`
+        otherwise); the remaining cargo is unloaded (up to capacity). The
+        Trading Post is never placed by `place_building`.
       required: [type, ship_id, island_id, building_type, x, y, rotation]
       properties:
         type:
@@ -1919,7 +1947,7 @@ components:
         reserved. While handling cargo before `leg.depart_at` the ship is
         at the leg's origin, holding a berth until `berth_until`;
         afterwards `island_id` is empty.
-      required: [id, type, state, island_id, route_id, stop_index, leg, cargo, slots, slot_size, upkeep_per_min, paused, paused_reason, queued_at, berth_until]
+      required: [id, type, state, island_id, route_id, stop_index, leg, cargo, slots, slot_size, upkeep_per_min, paused, paused_reason, position, queued_at, berth_until]
       properties:
         id:
           type: integer
@@ -1933,7 +1961,12 @@ components:
           enum: [idle, on_route, manual_leg, waiting_for_berth, anchored_unpaid, on_world_map]
         island_id:
           type: string
-          description: Island where the ship is; empty while travelling.
+          description: Island where the ship is; empty while travelling or at sea.
+        position:
+          nullable: true
+          description: Archipelago position of an idle or anchored ship at sea (the start ship of a new world, D-051); null at an island or on a leg.
+          allOf:
+            - $ref: "#/components/schemas/SeaPosition"
         route_id:
           type: integer
           format: int64
@@ -1975,14 +2008,32 @@ components:
           type: string
           nullable: true
           description: End of the ship's handling at a berth of `island_id` (RFC 3339, UTC, ms) — the departure of a route ship, the end of unloading after a manual leg; null when it holds no berth.
+    SeaPosition:
+      type: object
+      additionalProperties: false
+      required: [x, y]
+      description: A position at sea.
+      properties:
+        x:
+          type: integer
+          description: Column (archipelago tiles).
+        y:
+          type: integer
+          description: Row (archipelago tiles).
     LegDisplay:
       type: object
       additionalProperties: false
-      description: The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between.
-      required: [from_island_id, to_island_id, depart_at, arrive_at]
+      description: The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between. A leg from the sea has an empty `from_island_id` and its origin in `from_position`.
+      required: [from_island_id, from_position, to_island_id, depart_at, arrive_at]
       properties:
         from_island_id:
           type: string
+          description: Origin island; empty for a leg from the sea.
+        from_position:
+          nullable: true
+          description: Origin of a leg from the sea; null for a leg from an island.
+          allOf:
+            - $ref: "#/components/schemas/SeaPosition"
         to_island_id:
           type: string
         depart_at:

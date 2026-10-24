@@ -110,7 +110,7 @@ func TestAwaySummaryAcrossWorkerEvent(t *testing.T) {
 	t0 := dbNow(t, st).Add(-12 * time.Hour).Truncate(time.Millisecond)
 
 	// The player's last commands at T0: a plank chain on the dev island.
-	w, err := devworld.New(c, t0)
+	w, err := devworld.NewFixture(c, devworld.FixtureDefault, t0)
 	if err != nil {
 		t.Fatal(err)
 	}

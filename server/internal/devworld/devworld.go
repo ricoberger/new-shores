@@ -2,8 +2,8 @@
 // the single in-memory world of the --dev server (NewDev) and the world of
 // every new player in default mode (New). It reuses the scenario runner's
 // island parser and seeding (scenario.Parse and scenario.BuildWorld); the
-// document is a two-island archipelago (the start island with its seed and
-// the unsettled island 2) and has no steps.
+// document is a two-island archipelago, both islands unsettled, with the
+// start ship at sea carrying the starting stock (D-051), and has no steps.
 package devworld
 
 import (
@@ -24,8 +24,9 @@ var islandJSON []byte
 func IslandJSON() []byte { return append([]byte(nil), islandJSON...) }
 
 // New builds a new player world evaluated at start (truncated to
-// milliseconds): the archipelago with the content starting stock only
-// (start.json).
+// milliseconds): the archipelago with no island settled and the start ship
+// at sea carrying the content starting stock (start.json; the gold on the
+// balance).
 func New(c *content.Catalogue, start time.Time) (*sim.World, error) {
 	return build(c, start, false)
 }

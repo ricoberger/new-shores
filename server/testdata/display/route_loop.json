@@ -2,7 +2,7 @@
   "scenario": "route_loop",
   "base": {
     "evaluated_at": "2026-01-01T00:13:08.000Z",
-    "next_change_at": "2026-01-01T00:13:18.400Z",
+    "next_change_at": "2026-01-01T00:13:19.400Z",
     "gold": 900733,
     "balance_rate_per_min": -2000,
     "tax_rate_per_min": 0,
@@ -542,23 +542,25 @@
         "stop_index": 0,
         "leg": {
           "from_island_id": "island2",
+          "from_position": null,
           "to_island_id": "start",
-          "depart_at": "2026-01-01T00:13:18.400Z",
-          "arrive_at": "2026-01-01T00:14:18.400Z"
+          "depart_at": "2026-01-01T00:13:19.400Z",
+          "arrive_at": "2026-01-01T00:14:19.400Z"
         },
         "cargo": [
           {
             "good": "planks",
-            "amount": 10000
+            "amount": 15000
           }
         ],
-        "slots": 2,
+        "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
+        "position": null,
         "queued_at": null,
-        "berth_until": "2026-01-01T00:13:18.400Z"
+        "berth_until": "2026-01-01T00:13:19.400Z"
       }
     ],
     "routes": [
@@ -652,9 +654,15 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",
@@ -670,7 +678,7 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T00:13:08.250Z",
-        "next_change_at": "2026-01-01T00:13:18.400Z",
+        "next_change_at": "2026-01-01T00:13:19.400Z",
         "gold": 900725,
         "balance_rate_per_min": -2000,
         "tax_rate_per_min": 0,
@@ -1210,23 +1218,25 @@
             "stop_index": 0,
             "leg": {
               "from_island_id": "island2",
+              "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T00:13:18.400Z",
-              "arrive_at": "2026-01-01T00:14:18.400Z"
+              "depart_at": "2026-01-01T00:13:19.400Z",
+              "arrive_at": "2026-01-01T00:14:19.400Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 10000
+                "amount": 15000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
-            "berth_until": "2026-01-01T00:13:18.400Z"
+            "berth_until": "2026-01-01T00:13:19.400Z"
           }
         ],
         "routes": [
@@ -1320,9 +1330,15 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -1338,7 +1354,7 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T00:13:09.000Z",
-        "next_change_at": "2026-01-01T00:13:18.400Z",
+        "next_change_at": "2026-01-01T00:13:19.400Z",
         "gold": 900700,
         "balance_rate_per_min": -2000,
         "tax_rate_per_min": 0,
@@ -1878,23 +1894,25 @@
             "stop_index": 0,
             "leg": {
               "from_island_id": "island2",
+              "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T00:13:18.400Z",
-              "arrive_at": "2026-01-01T00:14:18.400Z"
+              "depart_at": "2026-01-01T00:13:19.400Z",
+              "arrive_at": "2026-01-01T00:14:19.400Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 10000
+                "amount": 15000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
-            "berth_until": "2026-01-01T00:13:18.400Z"
+            "berth_until": "2026-01-01T00:13:19.400Z"
           }
         ],
         "routes": [
@@ -1988,9 +2006,15 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -2006,7 +2030,7 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T00:13:13.000Z",
-        "next_change_at": "2026-01-01T00:13:18.400Z",
+        "next_change_at": "2026-01-01T00:13:19.400Z",
         "gold": 900566,
         "balance_rate_per_min": -2000,
         "tax_rate_per_min": 0,
@@ -2546,23 +2570,25 @@
             "stop_index": 0,
             "leg": {
               "from_island_id": "island2",
+              "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T00:13:18.400Z",
-              "arrive_at": "2026-01-01T00:14:18.400Z"
+              "depart_at": "2026-01-01T00:13:19.400Z",
+              "arrive_at": "2026-01-01T00:14:19.400Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 10000
+                "amount": 15000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
-            "berth_until": "2026-01-01T00:13:18.400Z"
+            "berth_until": "2026-01-01T00:13:19.400Z"
           }
         ],
         "routes": [
@@ -2656,9 +2682,15 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",

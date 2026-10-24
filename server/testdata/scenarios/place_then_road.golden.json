@@ -69,6 +69,12 @@
       ]
     }
   ],
+  "quests": [
+    {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    }
+  ],
   "final": {
     "evaluated_at": "2026-01-01T00:12:00.000Z",
     "next_change_at": "2026-01-01T02:38:34.572Z",
@@ -360,8 +366,16 @@
           ]
         }
       ],
-      "claimable": [],
-      "completed": []
+      "claimable": [
+        "intro_home_island"
+      ],
+      "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
     },
     "away_summary": null,
     "last_seen_at": "2026-01-01T00:02:00.000Z"

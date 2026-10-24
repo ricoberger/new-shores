@@ -22,6 +22,8 @@ import (
 
 	"github.com/coder/websocket"
 
+	"github.com/ricoberger/new-shores/server/internal/devworld"
+	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
 	"github.com/ricoberger/new-shores/server/internal/testenv"
@@ -137,6 +139,10 @@ type worldView struct {
 				Stock int64 `json:"stock"`
 			} `json:"inventory"`
 		} `json:"islands"`
+		Ships []struct {
+			State string          `json:"state"`
+			Leg   json.RawMessage `json:"leg"`
+		} `json:"ships"`
 	} `json:"display"`
 }
 
@@ -250,7 +256,9 @@ func TestMultiInstance(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 	}
 
-	cmd := `{"command":{"type":"place_road","island_id":"start","road_type":"road_dirt","tiles":[{"x":3,"y":4},{"x":4,"y":4}]}}`
+	// A new world starts at sea (D-051): the start ship sails to the start
+	// island.
+	cmd := `{"command":{"type":"sail_ship","ship_id":1,"to_island_id":"start"}}`
 	sent := time.Now()
 	res, err := httpDo(http.MethodPost, a.url("/api/v1/world/commands"), cmd, map[string]string{"Authorization": "Bearer " + token, "Content-Type": "application/json"})
 	if err != nil || res.status != 200 {
@@ -276,12 +284,12 @@ func TestMultiInstance(t *testing.T) {
 		t.Fatalf("message %s", msg)
 	}
 
-	// The command is visible on B with the same version and layout.
+	// The command is visible on B with the same version and voyage.
 	wa, wb := getWorld(t, a, token), getWorld(t, b, token)
-	ja, _ := json.Marshal(wa.Display.Islands[0].Buildings)
-	jb, _ := json.Marshal(wb.Display.Islands[0].Buildings)
-	if wa.Version != 1 || wb.Version != 1 || string(ja) != string(jb) || len(wb.Display.Islands[0].Roads) != 2 {
-		t.Fatalf("A version %d, B version %d, roads on B %d", wa.Version, wb.Version, len(wb.Display.Islands[0].Roads))
+	ja, _ := json.Marshal(wa.Display.Ships)
+	jb, _ := json.Marshal(wb.Display.Ships)
+	if wa.Version != 1 || wb.Version != 1 || string(ja) != string(jb) || len(wb.Display.Ships) != 1 || wb.Display.Ships[0].State != "manual_leg" {
+		t.Fatalf("A version %d, B version %d, ships on B %s", wa.Version, wb.Version, jb)
 	}
 
 	// Shared event queue: 200 test_credit events over 10 worlds, drained
@@ -300,6 +308,19 @@ func TestMultiInstance(t *testing.T) {
 		tok, pid := newGuest(t, in)
 		wid, err := postgres.WorldOfPlayer(context.Background(), pool, pid, "old_coast")
 		if err != nil {
+			t.Fatal(err)
+		}
+		// The credits go to the start island: found it in the new world
+		// (which starts at sea, D-051) by replacing it with the founded
+		// dev fixture at the same time.
+		if _, err := st.Update(context.Background(), wid, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
+			founded, err := devworld.NewFixture(testenv.Catalogue(t), devworld.FixtureDefault, w.LastEvaluatedAt)
+			if err != nil {
+				return false, err
+			}
+			*w = *founded
+			return true, nil
+		}); err != nil {
 			t.Fatal(err)
 		}
 		guests = append(guests, guest{tok, wid})

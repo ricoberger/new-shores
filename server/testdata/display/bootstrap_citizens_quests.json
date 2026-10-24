@@ -1,12 +1,12 @@
 {
   "scenario": "bootstrap_citizens_quests",
   "base": {
-    "evaluated_at": "2026-01-01T02:04:00.000Z",
-    "next_change_at": "2026-01-01T02:05:01.655Z",
-    "gold": 1944901,
-    "balance_rate_per_min": 40720,
+    "evaluated_at": "2026-01-01T02:05:00.000Z",
+    "next_change_at": "2026-01-01T02:06:03.790Z",
+    "gold": 1844901,
+    "balance_rate_per_min": 39720,
     "tax_rate_per_min": 77720,
-    "upkeep_rate_per_min": 37000,
+    "upkeep_rate_per_min": 38000,
     "tiers": [
       {
         "id": "settlers",
@@ -104,7 +104,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 7730,
+            "stock": 7517,
             "capacity": 300000,
             "in_transit": 3900,
             "rate_per_min": 6000
@@ -116,13 +116,13 @@
             "rate_per_min": 0
           },
           "stone": {
-            "stock": 3436,
+            "stock": 3341,
             "capacity": 300000,
             "in_transit": 2467,
             "rate_per_min": 2666
           },
           "tools": {
-            "stock": 12912,
+            "stock": 12948,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -4878,7 +4878,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 110380,
+            "stock": 120594,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -4890,13 +4890,13 @@
             "rate_per_min": 0
           },
           "stone": {
-            "stock": 74746,
+            "stock": 74841,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
           },
           "tools": {
-            "stock": 3605,
+            "stock": 3569,
             "capacity": 300000,
             "in_transit": 483,
             "rate_per_min": 1000
@@ -5610,31 +5610,51 @@
       {
         "id": 1,
         "type": "sloop",
+        "state": "idle",
+        "island_id": "start",
+        "route_id": 0,
+        "stop_index": 0,
+        "leg": null,
+        "cargo": [],
+        "slots": 4,
+        "slot_size": 50000,
+        "upkeep_per_min": 1000,
+        "paused": false,
+        "paused_reason": "",
+        "position": null,
+        "queued_at": null,
+        "berth_until": null
+      },
+      {
+        "id": 2,
+        "type": "sloop",
         "state": "on_route",
         "island_id": "",
         "route_id": 1,
         "stop_index": 1,
         "leg": {
           "from_island_id": "start",
+          "from_position": null,
           "to_island_id": "island2",
-          "depart_at": "2026-01-01T02:03:01.655Z",
-          "arrive_at": "2026-01-01T02:05:01.655Z"
+          "depart_at": "2026-01-01T02:04:03.790Z",
+          "arrive_at": "2026-01-01T02:06:03.790Z"
         },
         "cargo": [
           {
             "good": "planks",
-            "amount": 27790
+            "amount": 27789
           },
           {
             "good": "stone",
             "amount": 12351
           }
         ],
-        "slots": 2,
+        "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
+        "position": null,
         "queued_at": null,
         "berth_until": null
       }
@@ -5675,7 +5695,7 @@
           }
         ],
         "ship_ids": [
-          1
+          2
         ],
         "loop_ms": 260000,
         "effects": [
@@ -5722,87 +5742,92 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 40720
+      "balance_if_resumed_per_min": 39720
     },
     "quests": {
       "active": [],
       "claimable": [],
       "completed": [
         {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:01:00.000Z",
+          "claimed": true
+        },
+        {
           "id": "intro_first_road",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_planks",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_houses",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_fish",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_market",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_wool",
-          "completed_at": "2026-01-01T00:52:00.000Z",
+          "completed_at": "2026-01-01T00:53:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_chapel",
-          "completed_at": "2026-01-01T01:02:00.000Z",
+          "completed_at": "2026-01-01T01:03:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_settlers_120",
-          "completed_at": "2026-01-01T01:02:00.000Z",
+          "completed_at": "2026-01-01T01:03:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_shipyard",
-          "completed_at": "2026-01-01T01:02:00.000Z",
+          "completed_at": "2026-01-01T01:03:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_island2",
-          "completed_at": "2026-01-01T01:02:00.000Z",
+          "completed_at": "2026-01-01T01:03:00.000Z",
           "claimed": true
         },
         {
           "id": "intro_tools",
-          "completed_at": "2026-01-01T02:02:42.700Z",
+          "completed_at": "2026-01-01T01:59:06.941Z",
           "claimed": true
         },
         {
           "id": "intro_citizen_house",
-          "completed_at": "2026-01-01T02:02:42.700Z",
+          "completed_at": "2026-01-01T01:59:06.941Z",
           "claimed": true
         }
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T02:04:00.000Z"
+    "last_seen_at": "2026-01-01T02:05:00.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T02:04:00.250Z",
-        "next_change_at": "2026-01-01T02:05:01.655Z",
-        "gold": 1945071,
-        "balance_rate_per_min": 40720,
+        "evaluated_at": "2026-01-01T02:05:00.250Z",
+        "next_change_at": "2026-01-01T02:06:03.790Z",
+        "gold": 1845067,
+        "balance_rate_per_min": 39720,
         "tax_rate_per_min": 77720,
-        "upkeep_rate_per_min": 37000,
+        "upkeep_rate_per_min": 38000,
         "tiers": [
           {
             "id": "settlers",
@@ -5900,7 +5925,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 7755,
+                "stock": 7542,
                 "capacity": 300000,
                 "in_transit": 3900,
                 "rate_per_min": 6000
@@ -5912,13 +5937,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 3447,
+                "stock": 3352,
                 "capacity": 300000,
                 "in_transit": 2467,
                 "rate_per_min": 2666
               },
               "tools": {
-                "stock": 12912,
+                "stock": 12948,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -10674,7 +10699,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 110380,
+                "stock": 120594,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -10686,13 +10711,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 74746,
+                "stock": 74841,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
               },
               "tools": {
-                "stock": 3609,
+                "stock": 3573,
                 "capacity": 300000,
                 "in_transit": 483,
                 "rate_per_min": 1000
@@ -11406,31 +11431,51 @@
           {
             "id": 1,
             "type": "sloop",
+            "state": "idle",
+            "island_id": "start",
+            "route_id": 0,
+            "stop_index": 0,
+            "leg": null,
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          },
+          {
+            "id": 2,
+            "type": "sloop",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
             "stop_index": 1,
             "leg": {
               "from_island_id": "start",
+              "from_position": null,
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T02:03:01.655Z",
-              "arrive_at": "2026-01-01T02:05:01.655Z"
+              "depart_at": "2026-01-01T02:04:03.790Z",
+              "arrive_at": "2026-01-01T02:06:03.790Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 27790
+                "amount": 27789
               },
               {
                 "good": "stone",
                 "amount": 12351
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -11471,7 +11516,7 @@
               }
             ],
             "ship_ids": [
-              1
+              2
             ],
             "loop_ms": 260000,
             "effects": [
@@ -11518,87 +11563,92 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 40720
+          "balance_if_resumed_per_min": 39720
         },
         "quests": {
           "active": [],
           "claimable": [],
           "completed": [
             {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:01:00.000Z",
+              "claimed": true
+            },
+            {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_planks",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_houses",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_fish",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_market",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_wool",
-              "completed_at": "2026-01-01T00:52:00.000Z",
+              "completed_at": "2026-01-01T00:53:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_chapel",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_settlers_120",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_shipyard",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_island2",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T02:02:42.700Z",
+              "completed_at": "2026-01-01T01:59:06.941Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T02:02:42.700Z",
+              "completed_at": "2026-01-01T01:59:06.941Z",
               "claimed": true
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T02:04:00.000Z"
+        "last_seen_at": "2026-01-01T02:05:00.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T02:04:01.000Z",
-        "next_change_at": "2026-01-01T02:05:01.655Z",
-        "gold": 1945580,
-        "balance_rate_per_min": 40720,
+        "evaluated_at": "2026-01-01T02:05:01.000Z",
+        "next_change_at": "2026-01-01T02:06:03.790Z",
+        "gold": 1845563,
+        "balance_rate_per_min": 39720,
         "tax_rate_per_min": 77720,
-        "upkeep_rate_per_min": 37000,
+        "upkeep_rate_per_min": 38000,
         "tiers": [
           {
             "id": "settlers",
@@ -11696,7 +11746,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 7830,
+                "stock": 7617,
                 "capacity": 300000,
                 "in_transit": 3900,
                 "rate_per_min": 6000
@@ -11708,13 +11758,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 3481,
+                "stock": 3386,
                 "capacity": 300000,
                 "in_transit": 2467,
                 "rate_per_min": 2666
               },
               "tools": {
-                "stock": 12912,
+                "stock": 12948,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -16470,7 +16520,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 110380,
+                "stock": 120594,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -16482,13 +16532,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 74746,
+                "stock": 74841,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
               },
               "tools": {
-                "stock": 3621,
+                "stock": 3585,
                 "capacity": 300000,
                 "in_transit": 483,
                 "rate_per_min": 1000
@@ -17202,31 +17252,51 @@
           {
             "id": 1,
             "type": "sloop",
+            "state": "idle",
+            "island_id": "start",
+            "route_id": 0,
+            "stop_index": 0,
+            "leg": null,
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          },
+          {
+            "id": 2,
+            "type": "sloop",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
             "stop_index": 1,
             "leg": {
               "from_island_id": "start",
+              "from_position": null,
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T02:03:01.655Z",
-              "arrive_at": "2026-01-01T02:05:01.655Z"
+              "depart_at": "2026-01-01T02:04:03.790Z",
+              "arrive_at": "2026-01-01T02:06:03.790Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 27790
+                "amount": 27789
               },
               {
                 "good": "stone",
                 "amount": 12351
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -17267,7 +17337,7 @@
               }
             ],
             "ship_ids": [
-              1
+              2
             ],
             "loop_ms": 260000,
             "effects": [
@@ -17314,87 +17384,92 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 40720
+          "balance_if_resumed_per_min": 39720
         },
         "quests": {
           "active": [],
           "claimable": [],
           "completed": [
             {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:01:00.000Z",
+              "claimed": true
+            },
+            {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_planks",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_houses",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_fish",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_market",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_wool",
-              "completed_at": "2026-01-01T00:52:00.000Z",
+              "completed_at": "2026-01-01T00:53:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_chapel",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_settlers_120",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_shipyard",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_island2",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T02:02:42.700Z",
+              "completed_at": "2026-01-01T01:59:06.941Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T02:02:42.700Z",
+              "completed_at": "2026-01-01T01:59:06.941Z",
               "claimed": true
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T02:04:00.000Z"
+        "last_seen_at": "2026-01-01T02:05:00.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T02:04:05.000Z",
-        "next_change_at": "2026-01-01T02:05:01.655Z",
-        "gold": 1948295,
-        "balance_rate_per_min": 40720,
+        "evaluated_at": "2026-01-01T02:05:05.000Z",
+        "next_change_at": "2026-01-01T02:06:03.790Z",
+        "gold": 1848211,
+        "balance_rate_per_min": 39720,
         "tax_rate_per_min": 77720,
-        "upkeep_rate_per_min": 37000,
+        "upkeep_rate_per_min": 38000,
         "tiers": [
           {
             "id": "settlers",
@@ -17492,7 +17567,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 8230,
+                "stock": 8017,
                 "capacity": 300000,
                 "in_transit": 3900,
                 "rate_per_min": 6000
@@ -17504,13 +17579,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 3659,
+                "stock": 3564,
                 "capacity": 300000,
                 "in_transit": 2467,
                 "rate_per_min": 2666
               },
               "tools": {
-                "stock": 12912,
+                "stock": 12948,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -22266,7 +22341,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 110380,
+                "stock": 120594,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -22278,13 +22353,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 74746,
+                "stock": 74841,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
               },
               "tools": {
-                "stock": 3688,
+                "stock": 3652,
                 "capacity": 300000,
                 "in_transit": 483,
                 "rate_per_min": 1000
@@ -22998,31 +23073,51 @@
           {
             "id": 1,
             "type": "sloop",
+            "state": "idle",
+            "island_id": "start",
+            "route_id": 0,
+            "stop_index": 0,
+            "leg": null,
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          },
+          {
+            "id": 2,
+            "type": "sloop",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
             "stop_index": 1,
             "leg": {
               "from_island_id": "start",
+              "from_position": null,
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T02:03:01.655Z",
-              "arrive_at": "2026-01-01T02:05:01.655Z"
+              "depart_at": "2026-01-01T02:04:03.790Z",
+              "arrive_at": "2026-01-01T02:06:03.790Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 27790
+                "amount": 27789
               },
               {
                 "good": "stone",
                 "amount": 12351
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -23063,7 +23158,7 @@
               }
             ],
             "ship_ids": [
-              1
+              2
             ],
             "loop_ms": 260000,
             "effects": [
@@ -23110,87 +23205,92 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 40720
+          "balance_if_resumed_per_min": 39720
         },
         "quests": {
           "active": [],
           "claimable": [],
           "completed": [
             {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:01:00.000Z",
+              "claimed": true
+            },
+            {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_planks",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_houses",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_fish",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_market",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_wool",
-              "completed_at": "2026-01-01T00:52:00.000Z",
+              "completed_at": "2026-01-01T00:53:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_chapel",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_settlers_120",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_shipyard",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_island2",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T02:02:42.700Z",
+              "completed_at": "2026-01-01T01:59:06.941Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T02:02:42.700Z",
+              "completed_at": "2026-01-01T01:59:06.941Z",
               "claimed": true
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T02:04:00.000Z"
+        "last_seen_at": "2026-01-01T02:05:00.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T02:04:30.000Z",
-        "next_change_at": "2026-01-01T02:05:01.655Z",
-        "gold": 1965261,
-        "balance_rate_per_min": 40720,
+        "evaluated_at": "2026-01-01T02:05:30.000Z",
+        "next_change_at": "2026-01-01T02:06:03.790Z",
+        "gold": 1864761,
+        "balance_rate_per_min": 39720,
         "tax_rate_per_min": 77720,
-        "upkeep_rate_per_min": 37000,
+        "upkeep_rate_per_min": 38000,
         "tiers": [
           {
             "id": "settlers",
@@ -23288,7 +23388,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 10730,
+                "stock": 10517,
                 "capacity": 300000,
                 "in_transit": 3900,
                 "rate_per_min": 6000
@@ -23300,13 +23400,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 4770,
+                "stock": 4675,
                 "capacity": 300000,
                 "in_transit": 2467,
                 "rate_per_min": 2666
               },
               "tools": {
-                "stock": 12912,
+                "stock": 12948,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -28062,7 +28162,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 110380,
+                "stock": 120594,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -28074,13 +28174,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 74746,
+                "stock": 74841,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
               },
               "tools": {
-                "stock": 4105,
+                "stock": 4069,
                 "capacity": 300000,
                 "in_transit": 483,
                 "rate_per_min": 1000
@@ -28794,31 +28894,51 @@
           {
             "id": 1,
             "type": "sloop",
+            "state": "idle",
+            "island_id": "start",
+            "route_id": 0,
+            "stop_index": 0,
+            "leg": null,
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          },
+          {
+            "id": 2,
+            "type": "sloop",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
             "stop_index": 1,
             "leg": {
               "from_island_id": "start",
+              "from_position": null,
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T02:03:01.655Z",
-              "arrive_at": "2026-01-01T02:05:01.655Z"
+              "depart_at": "2026-01-01T02:04:03.790Z",
+              "arrive_at": "2026-01-01T02:06:03.790Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 27790
+                "amount": 27789
               },
               {
                 "good": "stone",
                 "amount": 12351
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -28859,7 +28979,7 @@
               }
             ],
             "ship_ids": [
-              1
+              2
             ],
             "loop_ms": 260000,
             "effects": [
@@ -28906,76 +29026,81 @@
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 40720
+          "balance_if_resumed_per_min": 39720
         },
         "quests": {
           "active": [],
           "claimable": [],
           "completed": [
             {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:01:00.000Z",
+              "claimed": true
+            },
+            {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_planks",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_houses",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_fish",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_market",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_wool",
-              "completed_at": "2026-01-01T00:52:00.000Z",
+              "completed_at": "2026-01-01T00:53:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_chapel",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_settlers_120",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_shipyard",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_island2",
-              "completed_at": "2026-01-01T01:02:00.000Z",
+              "completed_at": "2026-01-01T01:03:00.000Z",
               "claimed": true
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T02:02:42.700Z",
+              "completed_at": "2026-01-01T01:59:06.941Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T02:02:42.700Z",
+              "completed_at": "2026-01-01T01:59:06.941Z",
               "claimed": true
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T02:04:00.000Z"
+        "last_seen_at": "2026-01-01T02:05:00.000Z"
       }
     }
   ]

@@ -142,6 +142,9 @@ type ShipDisplay struct {
 	UpkeepPerMin Qty    `json:"upkeep_per_min"`
 	Paused       bool   `json:"paused"`
 	PausedReason string `json:"paused_reason"`
+	// Position is the archipelago position (tiles) of an idle or anchored
+	// ship at sea (the start ship, D-051); null at an island or on a leg.
+	Position *PositionDisplay `json:"position"`
 	// QueuedAt is when a ship waiting for a berth (state
 	// waiting_for_berth) joined its island's queue; null otherwise.
 	QueuedAt *string `json:"queued_at"`
@@ -154,10 +157,14 @@ type ShipDisplay struct {
 // LegDisplay is a ship's current voyage (RFC 3339 timestamps with ms): the
 // ship handles cargo at the origin until DepartAt and arrives at ArriveAt.
 type LegDisplay struct {
+	// FromIslandID is empty for a leg from a sea position (FromPosition).
 	FromIslandID string `json:"from_island_id"`
-	ToIslandID   string `json:"to_island_id"`
-	DepartAt     string `json:"depart_at"`
-	ArriveAt     string `json:"arrive_at"`
+	// FromPosition is the archipelago origin (tiles) of a leg from the sea;
+	// null for a leg from an island.
+	FromPosition *PositionDisplay `json:"from_position"`
+	ToIslandID   string           `json:"to_island_id"`
+	DepartAt     string           `json:"depart_at"`
+	ArriveAt     string           `json:"arrive_at"`
 }
 
 // CargoDisplay is one occupied cargo slot (milli-units).
@@ -563,6 +570,12 @@ func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
 	}
 	if l := s.Leg; l != nil {
 		d.Leg = &LegDisplay{FromIslandID: l.FromIsland, ToIslandID: l.ToIsland, DepartAt: formatMs(l.DepartAtMs), ArriveAt: formatMs(l.ArriveAtMs)}
+		if l.From != nil {
+			d.Leg.FromPosition = &PositionDisplay{X: l.From.X, Y: l.From.Y}
+		}
+	}
+	if p := s.AtSea; p != nil {
+		d.Position = &PositionDisplay{X: p.X, Y: p.Y}
 	}
 	if s.State == ShipWaitingForBerth {
 		d.QueuedAt = ptr(formatMs(s.QueuedAtMs))

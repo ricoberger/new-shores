@@ -48,7 +48,7 @@ export function objectiveText(o: ObjectiveDisplay, content: Content): string {
     case "building_count":
       return `${building}${content.buildings.find((b) => b.id === o.type)?.road ? " (tiles)" : ""}${where} ${objectiveProgress(o)}`;
     case "connected":
-      return `${building} connected to a warehouse${where}`;
+      return `${building} connected to the Trading Post or a Warehouse${where}`;
     case "population":
       return `${tier} ${objectiveProgress(o)}`;
     case "stock":

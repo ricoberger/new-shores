@@ -184,7 +184,7 @@ func TestOrderShipAndBuilt(t *testing.T) {
 		t.Fatalf("ship = %+v", s)
 	}
 	ds = display(t, w, c)
-	if len(ds.Ships) != 1 || ds.Ships[0].Slots != 2 || ds.Ships[0].SlotSize != 50_000 || ds.Ships[0].UpkeepPerMin != sloop.UpkeepPerMin || ds.Ships[0].Leg != nil {
+	if len(ds.Ships) != 1 || ds.Ships[0].Slots != 4 || ds.Ships[0].SlotSize != 50_000 || ds.Ships[0].UpkeepPerMin != sloop.UpkeepPerMin || ds.Ships[0].Leg != nil {
 		t.Errorf("ships display = %+v", ds.Ships)
 	}
 	// Upkeep counts from the build: warehouse + shipyard + sloop.
@@ -246,7 +246,7 @@ func TestManualShipmentAndFounding(t *testing.T) {
 	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 0}}}, ErrInvalidCommand)
 	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 1000}, {"planks", 1000}}}, ErrInvalidCommand)
 	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"fish", 1000}}}, ErrInsufficientMaterials)
-	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 60_000}, {"wood", 1000}}}, ErrCargoExceedsSlots)
+	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 160_000}, {"wood", 1000}}}, ErrCargoExceedsSlots)
 	// Placement on the unsettled island is rejected.
 	expectErr(t, w, c, PlaceBuilding{IslandID: "b", Type: "trading_post", X: 1, Y: 0}, ErrIslandNotSettled)
 
@@ -254,7 +254,7 @@ func TestManualShipmentAndFounding(t *testing.T) {
 	mustApply(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 50_000}, {"wood", 1_500}}})
 	// Handling: 10 s base + 0.2 s per unit loaded (51.5 units) = 20.3 s.
 	dep := start + 20_300
-	if handlingMs(c, 51_500) != 20_300 || s.State != ShipManualLeg || s.IslandID != "a" || *s.Leg != (Leg{"a", "b", dep, dep + 10_000}) ||
+	if handlingMs(c, 51_500) != 20_300 || s.State != ShipManualLeg || s.IslandID != "a" || *s.Leg != (Leg{FromIsland: "a", ToIsland: "b", DepartAtMs: dep, ArriveAtMs: dep + 10_000}) ||
 		w.Islands[0].Inventory.Stock["planks"] != planks-50_000 {
 		t.Fatalf("ship %+v leg %+v", s, s.Leg)
 	}
@@ -406,7 +406,7 @@ func TestRouteLoop(t *testing.T) {
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
 	// At b (stop 1): load 30 fish now, depart to a (stop 0) after the
 	// handling time (10 s + 30 units x 0.2 s = 16 s).
-	if s.State != ShipOnRoute || s.StopIndex != 0 || *s.Leg != (Leg{"b", "a", now + 16_000, now + 26_000}) ||
+	if s.State != ShipOnRoute || s.StopIndex != 0 || *s.Leg != (Leg{FromIsland: "b", ToIsland: "a", DepartAtMs: now + 16_000, ArriveAtMs: now + 26_000}) ||
 		cargoAmounts(s)["fish"] != 30_000 || w.Island("b").Inventory.Stock["fish"] != 50_000 {
 		t.Fatalf("after assign: %+v %+v cargo %v", s, s.Leg, s.Cargo)
 	}
@@ -476,7 +476,7 @@ func TestAssignAwayFromRoute(t *testing.T) {
 	now := w.LastEvaluatedAt.UnixMilli()
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
 	want := TravelMs(6, 8, 30, 40, 1000, 60_000)
-	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{"b", "c", now, now + want}) {
+	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{FromIsland: "b", ToIsland: "c", DepartAtMs: now, ArriveAtMs: now + want}) {
 		t.Fatalf("positioning: %+v %+v", s, s.Leg)
 	}
 	// The route changes mid-leg so that c is no stop: at the arrival the
@@ -484,7 +484,7 @@ func TestAssignAwayFromRoute(t *testing.T) {
 	mustApply(t, w, c, UpdateRoute{RouteID: 1, Stops: []Stop{{IslandID: "a"}, {IslandID: "b"}}})
 	mustAdvance(t, w, c, time.Duration(want)*time.Millisecond)
 	arrive := now + want
-	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{"c", "a", arrive, arrive + TravelMs(30, 40, 0, 0, 1000, 60_000)}) {
+	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{FromIsland: "c", ToIsland: "a", DepartAtMs: arrive, ArriveAtMs: arrive + TravelMs(30, 40, 0, 0, 1000, 60_000)}) {
 		t.Fatalf("no matching stop: %+v %+v", s, s.Leg)
 	}
 }

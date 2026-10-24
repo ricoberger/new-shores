@@ -6265,13 +6265,14 @@
             {
               "kind": "ship_count",
               "current": 0,
-              "target": 1,
+              "target": 2,
               "met": false
             }
           ]
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks",
         "intro_houses",
@@ -6282,6 +6283,11 @@
         "intro_settlers_120"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",
@@ -12595,13 +12601,14 @@
                 {
                   "kind": "ship_count",
                   "current": 0,
-                  "target": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -12612,6 +12619,11 @@
             "intro_settlers_120"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -18925,13 +18937,14 @@
                 {
                   "kind": "ship_count",
                   "current": 0,
-                  "target": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -18942,6 +18955,11 @@
             "intro_settlers_120"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -25255,13 +25273,14 @@
                 {
                   "kind": "ship_count",
                   "current": 0,
-                  "target": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -25272,6 +25291,11 @@
             "intro_settlers_120"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -31585,13 +31609,14 @@
                 {
                   "kind": "ship_count",
                   "current": 0,
-                  "target": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -31602,6 +31627,11 @@
             "intro_settlers_120"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -37915,13 +37945,14 @@
                 {
                   "kind": "ship_count",
                   "current": 0,
-                  "target": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -37932,6 +37963,11 @@
             "intro_settlers_120"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",

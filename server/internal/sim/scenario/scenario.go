@@ -73,8 +73,13 @@ type Seed struct {
 	// TradingPost is placed without cost (optional); Type defaults to the
 	// first building with a trading_post block.
 	TradingPost *Placement `json:"trading_post,omitempty"`
-	// Start grants the content starting stock (start.json: gold and goods)
-	// after the Trading Post; it excludes Gold and Stock.
+	// Ship is the start ship, idle at a sea position (D-051, optional).
+	Ship *SeaShip `json:"ship,omitempty"`
+	// Start grants the content starting stock (start.json): the gold to
+	// the world and the goods aboard the start ship (the real start at
+	// sea), or, without a start ship, into the seeded Trading Post's
+	// island after charging the Trading Post's cost from it (as if it had
+	// been founded from the start ship). It excludes Gold and Stock.
 	Start bool `json:"start,omitempty"`
 	// Gold in units.
 	Gold json.Number `json:"gold,omitempty"`
@@ -84,6 +89,14 @@ type Seed struct {
 	// workforce pool (sim.GrantWorkforce). It is a seed-only grant, like the
 	// free Trading Post: no step can grant workforce.
 	Workforce map[string]int64 `json:"workforce,omitempty"`
+}
+
+// SeaShip is a ship at a sea position (archipelago tiles); Type defaults
+// to the first ship type of the content.
+type SeaShip struct {
+	Type string `json:"type,omitempty"`
+	X    int    `json:"x"`
+	Y    int    `json:"y"`
 }
 
 // Placement is a building position. Island defaults to the first island.
@@ -192,6 +205,12 @@ type ShipStep struct {
 	Route int64 `json:"route,omitempty"`
 }
 
+// SailStep sends ship Ship with its cargo to island To (sim.SailShip).
+type SailStep struct {
+	Ship int64  `json:"ship"`
+	To   string `json:"to"`
+}
+
 // ShipmentStep sends a ship to island To with cargo in units.
 type ShipmentStep struct {
 	Ship  int64                  `json:"ship"`
@@ -242,6 +261,7 @@ type Step struct {
 	AssignShip      *ShipStep      `json:"assign_ship,omitempty"`
 	UnassignShip    *ShipStep      `json:"unassign_ship,omitempty"`
 	ManualShipment  *ShipmentStep  `json:"manual_shipment,omitempty"`
+	SailShip        *SailStep      `json:"sail_ship,omitempty"`
 	FoundIsland     *FoundStep     `json:"found_island,omitempty"`
 	ScrapShip       *ShipStep      `json:"scrap_ship,omitempty"`
 	ClaimQuest      *ClaimStep     `json:"claim_quest,omitempty"`
@@ -275,7 +295,7 @@ func (s Step) kind() (string, error) {
 		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "move": s.Move != nil, "fields": s.Fields != nil, "demolish_fields": s.DemolishFields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
-		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "found_island": s.FoundIsland != nil,
+		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
 		"scrap_ship": s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil, "upgrade_trading_post": s.UpgradeTradingPost != nil,
 		"claim_quest": s.ClaimQuest != nil, "away_summary": s.AwaySummary,
 	} {
@@ -372,15 +392,33 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 			return nil, fmt.Errorf("seed trading post: %w", err)
 		}
 	}
+	var cargo map[string]int64
 	if s.Seed.Start {
 		if s.Seed.Gold != "" || len(s.Seed.Stock) > 0 {
 			return nil, errors.New("seed: start excludes gold and stock")
 		}
 		w.Gold = c.Start.Gold
-		for _, g := range c.Start.Goods {
-			if err := sim.AddStock(w, c, is.ID, g.Good, g.Amount, l); err != nil {
-				return nil, fmt.Errorf("seed start: %w", err)
+		switch {
+		case s.Seed.Ship != nil:
+			cargo = map[string]int64{}
+			for _, g := range c.Start.Goods {
+				cargo[g.Good] += g.Amount
 			}
+		case s.Seed.TradingPost != nil:
+			if err := grantStartAfterFounding(s, c, w, is.ID, l); err != nil {
+				return nil, err
+			}
+		default:
+			return nil, errors.New("seed: start needs a ship or a trading post")
+		}
+	}
+	if sh := s.Seed.Ship; sh != nil {
+		typ := sh.Type
+		if typ == "" && len(c.Ships) > 0 {
+			typ = c.Ships[0].ID
+		}
+		if _, err := sim.LaunchShipAtSea(w, c, typ, sim.Pos{X: sh.X, Y: sh.Y}, cargo); err != nil {
+			return nil, fmt.Errorf("seed ship: %w", err)
 		}
 	}
 	if s.Seed.Gold != "" {
@@ -411,6 +449,39 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		}
 	}
 	return w, nil
+}
+
+// grantStartAfterFounding grants the starting stock into the island of a
+// seeded Trading Post minus the Trading Post's cost: the state right after
+// founding from the start ship, without the ship.
+func grantStartAfterFounding(s *Scenario, c *content.Catalogue, w *sim.World, island string, l *sim.Ledger) error {
+	typ := s.Seed.TradingPost.Type
+	if typ == "" {
+		typ = firstTradingPostType(c)
+	}
+	def := c.BuildingByID[typ]
+	if def == nil {
+		return fmt.Errorf("seed start: unknown trading post %q", typ)
+	}
+	if def.Cost.Gold > w.Gold {
+		return errors.New("seed start: the starting gold does not cover the trading post")
+	}
+	w.Gold -= def.Cost.Gold
+	for _, g := range c.Start.Goods {
+		amount := g.Amount
+		for _, m := range def.Cost.Materials {
+			if m.Good == g.Good {
+				amount -= m.Amount
+			}
+		}
+		if amount < 0 {
+			return fmt.Errorf("seed start: the starting %s do not cover the trading post", g.Good)
+		}
+		if err := sim.AddStock(w, c, island, g.Good, amount, l); err != nil {
+			return fmt.Errorf("seed start: %w", err)
+		}
+	}
+	return nil
 }
 
 // RunSteps builds the scenario's world and executes its first n steps
@@ -767,6 +838,8 @@ func (r *runner) step(i int, st Step) error {
 			cargo = append(cargo, sim.CargoAmount{Good: g, Amount: v})
 		}
 		return r.apply(sim.ManualShipment{ShipID: m.Ship, ToIslandID: m.To, Cargo: cargo})
+	case st.SailShip != nil:
+		return r.apply(sim.SailShip{ShipID: st.SailShip.Ship, ToIslandID: st.SailShip.To})
 	case st.FoundIsland != nil:
 		f := st.FoundIsland
 		typ := f.Type

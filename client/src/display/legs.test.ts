@@ -86,7 +86,7 @@ describe("ship placement against the server fixtures", () => {
   });
 
   it("spread slots are per island by ascending ID; ships with a leg get none", () => {
-    const leg = { from_island_id: "a", to_island_id: "b", depart_at: "2026-01-01T00:00:10.000Z", arrive_at: "2026-01-01T00:01:00.000Z" };
+    const leg = { from_island_id: "a", from_position: null, to_island_id: "b", depart_at: "2026-01-01T00:00:10.000Z", arrive_at: "2026-01-01T00:01:00.000Z" };
     const ships = [
       { id: 5, island_id: "a", leg: null },
       { id: 2, island_id: "a", leg: null },

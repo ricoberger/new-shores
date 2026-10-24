@@ -79,8 +79,11 @@ type Ship struct {
 	// Type is the content ship ID.
 	Type  string `json:"type"`
 	State string `json:"state"`
-	// IslandID is where the ship is ("" while travelling).
+	// IslandID is where the ship is ("" while travelling or at sea).
 	IslandID string `json:"island_id,omitempty"`
+	// AtSea is the archipelago position (tiles) of an idle ship that is at
+	// no island: the start ship of a new world (D-051); nil otherwise.
+	AtSea *Pos `json:"at_sea,omitempty"`
 	// RouteID is the assigned route (0 when none).
 	RouteID int64 `json:"route_id,omitempty"`
 	// StopIndex is the index of the route stop the ship is heading to.
@@ -104,10 +107,15 @@ type Ship struct {
 // Leg is a voyage between two islands: the ship handles cargo at the origin
 // until DepartAtMs and arrives at ArriveAtMs (Unix milliseconds).
 type Leg struct {
+	// FromIsland is the origin island; "" for a leg from a sea position
+	// (From).
 	FromIsland string `json:"from_island"`
 	ToIsland   string `json:"to_island"`
 	DepartAtMs int64  `json:"depart_at_ms"`
 	ArriveAtMs int64  `json:"arrive_at_ms"`
+	// From is the archipelago origin (tiles) of a leg that starts at sea;
+	// nil for a leg from an island.
+	From *Pos `json:"from,omitempty"`
 }
 
 // Slot is one cargo slot holding Amount milli-units of Good.
@@ -120,7 +128,15 @@ func (s *Ship) clone() *Ship {
 	c := *s
 	if s.Leg != nil {
 		l := *s.Leg
+		if l.From != nil {
+			p := *l.From
+			l.From = &p
+		}
 		c.Leg = &l
+	}
+	if s.AtSea != nil {
+		p := *s.AtSea
+		c.AtSea = &p
 	}
 	if s.Cargo != nil {
 		c.Cargo = append([]Slot(nil), s.Cargo...)
@@ -676,6 +692,16 @@ type ScrapShip struct {
 	ShipID int64
 }
 
+// SailShip sends an idle ship with its cargo (nothing is loaded) from its
+// island or its sea position to another island (D-051: the start ship
+// sails to the island the player chooses). It arrives like a manual
+// shipment: at a settled island it unloads at a berth; at an unsettled one
+// everything stays aboard (for found_island).
+type SailShip struct {
+	ShipID     int64
+	ToIslandID string
+}
+
 func (OrderShip) isCommand()       {}
 func (CancelShipOrder) isCommand() {}
 func (FoundIsland) isCommand()     {}
@@ -683,6 +709,7 @@ func (AssignShip) isCommand()      {}
 func (UnassignShip) isCommand()    {}
 func (ManualShipment) isCommand()  {}
 func (ScrapShip) isCommand()       {}
+func (SailShip) isCommand()        {}
 
 func shipyardBuilding(w *World, c *content.Catalogue, islandID string, id int64) (*Island, *Building, *content.Building, error) {
 	is, err := lookupIsland(w, islandID)
@@ -846,6 +873,18 @@ func assignShip(w *World, c *content.Catalogue, cmd AssignShip, l *Ledger) error
 	now := w.LastEvaluatedAt.UnixMilli()
 	s.RouteID = r.ID
 	s.StopIndex = 0 // first occurrence of the island
+	if p := s.AtSea; p != nil && s.IslandID == "" {
+		// From the sea: a positioning leg to stop 0.
+		to := w.Island(r.Stops[0].IslandID)
+		def := c.ShipByID[s.Type]
+		if to == nil || def == nil {
+			return fmt.Errorf("%w: route %d", ErrRouteInvalid, r.ID)
+		}
+		s.State, s.AtSea = ShipOnRoute, nil
+		depart(s, Leg{From: &Pos{p.X, p.Y}, ToIsland: to.ID, DepartAtMs: now,
+			ArriveAtMs: now + TravelMs(p.X, p.Y, to.X, to.Y, def.SpeedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)}, now)
+		return nil
+	}
 	arriveAt(w, c, s, s.IslandID, now, l)
 	return nil
 }
@@ -926,6 +965,76 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 	dep := now + handlingMs(c, moved)
 	depart(s, Leg{FromIsland: from.ID, ToIsland: to.ID, DepartAtMs: dep, ArriveAtMs: dep + travelMs(c, ship.SpeedPermille, from, to)}, now)
 	clearRegimes(from)
+	return nil
+}
+
+// LaunchShipAtSea adds an idle ship of the given type at a sea position
+// (archipelago tiles) with the given cargo (milli-units per good, at most
+// its slots) and returns it. Like PlaceFree it is meant for world creation
+// (the start ship of a new world, D-051), never for player commands.
+func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo map[string]Qty) (*Ship, error) {
+	def := c.ShipByID[typ]
+	if def == nil {
+		return nil, fmt.Errorf("%w: %q", ErrUnknownShipType, typ)
+	}
+	if at.X < -maxCoord || at.X > maxCoord || at.Y < -maxCoord || at.Y > maxCoord {
+		return nil, fmt.Errorf("%w: sea position (%d,%d)", ErrOutOfBounds, at.X, at.Y)
+	}
+	amounts := map[string]Qty{}
+	for _, g := range sortedKeys(cargo) {
+		switch {
+		case c.GoodByID[g] == nil:
+			return nil, fmt.Errorf("%w: unknown good %q", ErrInvalidCommand, g)
+		case cargo[g] < 0:
+			return nil, fmt.Errorf("%w: negative cargo of %s", ErrInvalidCommand, g)
+		case cargo[g] > 0:
+			amounts[g] = cargo[g]
+		}
+	}
+	if used := slotsUsed(amounts, def.SlotSize); used > def.Slots {
+		return nil, fmt.Errorf("%w: needs %d of %d slots", ErrCargoExceedsSlots, used, def.Slots)
+	}
+	if w.NextShipID < 1 {
+		w.NextShipID = 1
+	}
+	s := &Ship{ID: w.NextShipID, Type: def.ID, State: ShipIdle, AtSea: &Pos{at.X, at.Y}}
+	setCargo(s, def.SlotSize, amounts)
+	w.NextShipID++
+	w.Ships = append(w.Ships, s)
+	return s, nil
+}
+
+func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
+	s, err := idleShip(w, cmd.ShipID)
+	if err != nil {
+		return err
+	}
+	to := w.Island(cmd.ToIslandID)
+	if to == nil {
+		return fmt.Errorf("%w: unknown destination %q", ErrRouteInvalid, cmd.ToIslandID)
+	}
+	if to.ID == s.IslandID {
+		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)
+	}
+	ship := c.ShipByID[s.Type]
+	if ship == nil {
+		return fmt.Errorf("%w: %q", ErrUnknownShipType, s.Type)
+	}
+	now := w.LastEvaluatedAt.UnixMilli()
+	leg := Leg{FromIsland: s.IslandID, ToIsland: to.ID, DepartAtMs: now}
+	switch from := w.Island(s.IslandID); {
+	case from != nil:
+		leg.ArriveAtMs = now + travelMs(c, ship.SpeedPermille, from, to)
+	case s.AtSea != nil:
+		p := *s.AtSea
+		leg.From = &p
+		leg.ArriveAtMs = now + TravelMs(p.X, p.Y, to.X, to.Y, ship.SpeedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)
+	default:
+		return fmt.Errorf("%w: ship %d has no position", ErrShipNotIdle, s.ID)
+	}
+	s.State = ShipManualLeg
+	s.AtSea = nil
+	depart(s, leg, now)
 	return nil
 }
 

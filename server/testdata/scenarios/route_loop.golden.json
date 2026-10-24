@@ -8,9 +8,9 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 20000,
+        "spent": 15000,
         "granted": 100000,
-        "loaded": 130000,
+        "loaded": 135000,
         "unloaded": 50000
       },
       "wood": {
@@ -135,7 +135,7 @@
       "inventory": {
         "island2": {
           "planks": {
-            "stock": 50000,
+            "stock": 55000,
             "in_transit": 0
           },
           "wood": {
@@ -182,7 +182,7 @@
       "inventory": {
         "island2": {
           "planks": {
-            "stock": 10000,
+            "stock": 15000,
             "in_transit": 0
           },
           "wood": {
@@ -260,7 +260,7 @@
           "island_id": "island2",
           "route_id": 1,
           "cargo": {
-            "planks": 10000
+            "planks": 15000
           }
         }
       ]
@@ -268,13 +268,17 @@
   ],
   "quests": [
     {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "intro_first_road",
       "completed_at": "2026-01-01T00:00:00.000Z"
     }
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:13:08.000Z",
-    "next_change_at": "2026-01-01T00:13:18.400Z",
+    "next_change_at": "2026-01-01T00:13:19.400Z",
     "gold": 900733,
     "balance_rate_per_min": -2000,
     "tax_rate_per_min": 0,
@@ -814,23 +818,25 @@
         "stop_index": 0,
         "leg": {
           "from_island_id": "island2",
+          "from_position": null,
           "to_island_id": "start",
-          "depart_at": "2026-01-01T00:13:18.400Z",
-          "arrive_at": "2026-01-01T00:14:18.400Z"
+          "depart_at": "2026-01-01T00:13:19.400Z",
+          "arrive_at": "2026-01-01T00:14:19.400Z"
         },
         "cargo": [
           {
             "good": "planks",
-            "amount": 10000
+            "amount": 15000
           }
         ],
-        "slots": 2,
+        "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
+        "position": null,
         "queued_at": null,
-        "berth_until": "2026-01-01T00:13:18.400Z"
+        "berth_until": "2026-01-01T00:13:19.400Z"
       }
     ],
     "routes": [
@@ -924,9 +930,15 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",

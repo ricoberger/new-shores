@@ -86,11 +86,19 @@ type testServer struct {
 
 func newTestServer(t *testing.T, scale float64) *testServer {
 	t.Helper()
-	w, err := devworld.New(catalogue(t), testStart)
+	return newTestServerFor(t, foundedWorld(t, testStart), testStart, scale)
+}
+
+// foundedWorld is the dev world at start with the start island founded
+// from the start ship (the default dev fixture): the island most tests
+// build on. A new player world starts at sea (TestGetWorldInitialState).
+func foundedWorld(t *testing.T, start time.Time) *sim.World {
+	t.Helper()
+	w, err := devworld.NewFixture(catalogue(t), devworld.FixtureDefault, start)
 	if err != nil {
 		t.Fatal(err)
 	}
-	return newTestServerFor(t, w, testStart, scale)
+	return w
 }
 
 // newTestServerFor serves world w from the in-memory store; the fake wall
@@ -237,8 +245,15 @@ func buildingIDs(t *testing.T, display json.RawMessage, typ string) []int64 {
 	return ids
 }
 
+// TestGetWorldInitialState: a new world starts at sea (D-051): no island
+// settled, the start ship idle at its sea position with the starting stock
+// aboard, the gold on the balance.
 func TestGetWorldInitialState(t *testing.T) {
-	ts := newTestServer(t, 1)
+	sea, err := devworld.New(catalogue(t), testStart)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ts := newTestServerFor(t, sea, testStart, 1)
 	w := ts.getWorld()
 	if w.Version != 0 {
 		t.Fatalf("version = %d", w.Version)
@@ -246,23 +261,43 @@ func TestGetWorldInitialState(t *testing.T) {
 	var d struct {
 		Gold    int64 `json:"gold"`
 		Islands []struct {
-			Inventory map[string]struct {
-				Stock int64 `json:"stock"`
-			} `json:"inventory"`
+			Settled   bool `json:"settled"`
 			Buildings []struct {
 				Type string `json:"type"`
 			} `json:"buildings"`
 		} `json:"islands"`
+		Ships []struct {
+			State    string `json:"state"`
+			IslandID string `json:"island_id"`
+			Position *struct {
+				X, Y int
+			} `json:"position"`
+			Cargo []struct {
+				Good   string `json:"good"`
+				Amount int64  `json:"amount"`
+			} `json:"cargo"`
+		} `json:"ships"`
 	}
 	if err := json.Unmarshal(w.Display, &d); err != nil {
 		t.Fatal(err)
 	}
-	inv := d.Islands[0].Inventory
-	if start := catalogue(t).Start; d.Gold != start.Gold || inv["planks"].Stock != 130_000 || inv["sails"].Stock != 10_000 {
-		t.Fatalf("gold %d planks %d sails %d", d.Gold, inv["planks"].Stock, inv["sails"].Stock)
+	if start := catalogue(t).Start; d.Gold != start.Gold {
+		t.Fatalf("gold %d", d.Gold)
 	}
-	if len(d.Islands[0].Buildings) != 1 || d.Islands[0].Buildings[0].Type != "trading_post" {
-		t.Fatalf("buildings = %+v", d.Islands[0].Buildings)
+	for _, is := range d.Islands {
+		if is.Settled || len(is.Buildings) != 0 {
+			t.Fatalf("island settled at the start: %+v", is)
+		}
+	}
+	if len(d.Ships) != 1 || d.Ships[0].State != "idle" || d.Ships[0].IslandID != "" || d.Ships[0].Position == nil {
+		t.Fatalf("ships = %+v", d.Ships)
+	}
+	aboard := map[string]int64{}
+	for _, sl := range d.Ships[0].Cargo {
+		aboard[sl.Good] += sl.Amount
+	}
+	if aboard["planks"] != 150_000 || aboard["sails"] != 10_000 {
+		t.Fatalf("aboard %v", aboard)
 	}
 }
 
@@ -683,7 +718,7 @@ func TestHealthAndContent(t *testing.T) {
 	if c.Region.Version != "old_coast-0.7.0" || len(c.Buildings) != 32 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
 		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d ships %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs), len(c.Ships))
 	}
-	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 2 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != catalogue(t).ShipByID["sloop"].Cost.Gold || sh.Cost.Materials["sails"] != 10_000 {
+	if sh := c.Ships[0]; sh.ID != "sloop" || sh.Slots != 4 || sh.SlotSize != 50_000 || sh.BuildMs != 120_000 || sh.Cost.Gold != catalogue(t).ShipByID["sloop"].Cost.Gold || sh.Cost.Materials["sails"] != 10_000 {
 		t.Errorf("sloop = %+v", sh)
 	}
 	if r := c.Region.Rules; r.ShipHandlingBaseMs != 10_000 || r.ShipHandlingMsPerUnit != 200 || r.ShipSpeed != 60_000 {

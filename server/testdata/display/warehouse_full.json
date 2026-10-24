@@ -278,8 +278,16 @@
           ]
         }
       ],
-      "claimable": [],
-      "completed": []
+      "claimable": [
+        "intro_home_island"
+      ],
+      "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
     },
     "away_summary": null,
     "last_seen_at": "2026-01-01T00:00:00.000Z"
@@ -565,8 +573,16 @@
               ]
             }
           ],
-          "claimable": [],
-          "completed": []
+          "claimable": [
+            "intro_home_island"
+          ],
+          "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
         },
         "away_summary": null,
         "last_seen_at": "2026-01-01T00:00:00.000Z"
@@ -852,8 +868,16 @@
               ]
             }
           ],
-          "claimable": [],
-          "completed": []
+          "claimable": [
+            "intro_home_island"
+          ],
+          "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
         },
         "away_summary": null,
         "last_seen_at": "2026-01-01T00:00:00.000Z"
@@ -1139,8 +1163,16 @@
               ]
             }
           ],
-          "claimable": [],
-          "completed": []
+          "claimable": [
+            "intro_home_island"
+          ],
+          "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
         },
         "away_summary": null,
         "last_seen_at": "2026-01-01T00:00:00.000Z"
@@ -1426,8 +1458,16 @@
               ]
             }
           ],
-          "claimable": [],
-          "completed": []
+          "claimable": [
+            "intro_home_island"
+          ],
+          "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
         },
         "away_summary": null,
         "last_seen_at": "2026-01-01T00:00:00.000Z"
@@ -1713,8 +1753,16 @@
               ]
             }
           ],
-          "claimable": [],
-          "completed": []
+          "claimable": [
+            "intro_home_island"
+          ],
+          "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
         },
         "away_summary": null,
         "last_seen_at": "2026-01-01T00:00:00.000Z"

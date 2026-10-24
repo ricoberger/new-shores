@@ -199,7 +199,7 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 |---|---|---|---|---|---|---|
 | `house_settlers` | 1 | 2×2 | 0 / 10 | 0 | — | R |
 | `road_dirt` | 1 | 1×1 | 0 | 0 | — | |
-| `trading_post` | 1 | 4×4, 2 water rows | 200 / 20 | 0 | — | founding only; lvl 1: cap 300/good, T 30/min, 1 berth |
+| `trading_post` | 1 | 4×4, 2 water rows | 200 / 15 | 0 | — | founding only; lvl 1: cap 300/good, T 30/min, 1 berth |
 | `warehouse` | 1 | 2×2 inland | 100 / 10 | 0 | — | collector: lvl 1 T 30/min, no capacity |
 | `market_small` | 1 | 3×3 | 225 / 15 | 0 | — | R, radius 12 |
 | `chapel` | 1 | 2×2 | 275 / 15 | 0 | — | R, radius 16 |
@@ -251,11 +251,12 @@ Warehouse levels (provisional, throughput only): lvl 1 T 30; lvl 2 T 55
 
 | ID | Tier | Slots × size | Speed | Build | Cost | Upkeep |
 |---|---|---|---|---|---|---|
-| `sloop` | 1 | 2 × 50 | 1.0 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
+| `sloop` | 1 | 4 × 50 | 1.0 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
 | `brig` | 2 | 4 × 50 | 1.2 | 5 min | 1 500 gold, 60 planks, 20 sails, 10 tools | 4 |
 | `galleon` | 3 | 6 × 60 | 1.0 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
 
-\*Starting stock includes sails for one sloop.
+\*Starting stock includes sails for one more sloop; the first sloop is the
+start ship (4 slots so that it carries the starting stock, D-051).
 
 Ships live in `ships.json` (`{ id, name, tier, slots, slot_size, speed,
 build_seconds, cost, upkeep_per_min }`, schema under `content/schema/`);
@@ -465,8 +466,9 @@ See MECHANICS §6.2 for the semantics.
   balanced chain set with ≥ 20 % margin.
 - Charcoal demand of a balanced Merchant economy must exceed one island's
   forest capacity so coal or a second forest island becomes relevant.
-- Starting stock (`start.json`: 800 gold, 130 planks, 10 sails), granted
-  after the free first warehouse, must allow: 8 settler houses + fisher +
+- Starting stock (`start.json`: 1 000 gold, 150 planks, 10 sails; the
+  goods aboard the start sloop, 800 gold and 135 planks left after founding
+  the Trading Post for 200 gold / 15 planks) must allow: 8 settler houses + fisher +
   lumberjack + sawmill + market + ~40 road tiles, and cover the early
   deficit for ≥ 15 min of upkeep (currently ≈ 96 min: 385 gold left at
   4 gold/min of upkeep).

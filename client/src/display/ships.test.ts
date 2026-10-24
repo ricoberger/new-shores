@@ -66,6 +66,7 @@ describe("ship timers against the server fixture", () => {
 describe("ship helpers", () => {
   const leg = {
     from_island_id: "a",
+    from_position: null,
     to_island_id: "b",
     depart_at: "2026-01-01T00:00:20.000Z",
     arrive_at: "2026-01-01T00:01:20.000Z",

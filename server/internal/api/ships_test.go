@@ -11,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/events"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
@@ -28,13 +27,13 @@ func newShipServer(t *testing.T) *shipServer {
 	t.Helper()
 	ts := newTestServer(t, 1)
 	c := catalogue(t)
-	w, err := devworld.NewDev(c, testStart)
-	if err != nil {
-		t.Fatal(err)
-	}
+	w := foundedWorld(t, testStart)
+	// The ship flows start from a sloop the shipyard builds (ship 1): the
+	// start sloop of the founded world is left out of this world.
+	w.Ships, w.NextShipID = nil, 0
 	// Extra planks (formerly the dev bonus) so that a cargo larger than the
 	// sloop's slots is in stock and fails for the slots, not the stock.
-	if err := sim.AddStock(w, c, "start", "planks", 100_000, nil); err != nil {
+	if err := sim.AddStock(w, c, "start", "planks", 160_000, nil); err != nil {
 		t.Fatal(err)
 	}
 	now := func() time.Time { return TimeScale{Start: testStart, Scale: 1}.At(ts.clock.Now()) }
@@ -182,7 +181,7 @@ func TestShipCommandsOverHTTP(t *testing.T) {
 		stops = append(stops, `{"island_id":"start","load":[],"unload":[]}`)
 	}
 	ss.failsSpec(t, `{"type":"create_route","stops":[`+strings.Join(stops, ",")+`]}`, http.StatusBadRequest, "invalid_command", false)
-	ss.fails(t, `{"type":"manual_shipment","ship_id":1,"to_island_id":"island2","cargo":[{"good":"planks","amount":120000}]}`, http.StatusConflict, "cargo_exceeds_slots")
+	ss.fails(t, `{"type":"manual_shipment","ship_id":1,"to_island_id":"island2","cargo":[{"good":"planks","amount":220000}]}`, http.StatusConflict, "cargo_exceeds_slots")
 
 	ss.ok(t, `{"type":"manual_shipment","ship_id":1,"to_island_id":"island2","cargo":[{"good":"planks","amount":70000}]}`)
 	if s := ss.view(t).Ships[0]; s.State != "manual_leg" || s.Leg == nil || s.Leg.ArriveAt != "2026-10-19T12:05:24.000Z" {

@@ -2,7 +2,7 @@
   "scenario": "offline_12h_route",
   "base": {
     "evaluated_at": "2026-01-01T12:04:30.000Z",
-    "next_change_at": "2026-01-01T12:05:38.436Z",
+    "next_change_at": "2026-01-01T12:05:36.434Z",
     "gold": 16037753,
     "balance_rate_per_min": -4400,
     "tax_rate_per_min": 1600,
@@ -829,9 +829,10 @@
         "stop_index": 0,
         "leg": {
           "from_island_id": "island2",
+          "from_position": null,
           "to_island_id": "start",
-          "depart_at": "2026-01-01T12:03:38.436Z",
-          "arrive_at": "2026-01-01T12:05:38.436Z"
+          "depart_at": "2026-01-01T12:03:36.434Z",
+          "arrive_at": "2026-01-01T12:05:36.434Z"
         },
         "cargo": [
           {
@@ -843,11 +844,12 @@
             "amount": 50000
           }
         ],
-        "slots": 2,
+        "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
+        "position": null,
         "queued_at": null,
         "berth_until": null
       }
@@ -936,10 +938,16 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",
@@ -960,7 +968,7 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T12:04:30.250Z",
-        "next_change_at": "2026-01-01T12:05:38.436Z",
+        "next_change_at": "2026-01-01T12:05:36.434Z",
         "gold": 16037735,
         "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
@@ -1787,9 +1795,10 @@
             "stop_index": 0,
             "leg": {
               "from_island_id": "island2",
+              "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T12:03:38.436Z",
-              "arrive_at": "2026-01-01T12:05:38.436Z"
+              "depart_at": "2026-01-01T12:03:36.434Z",
+              "arrive_at": "2026-01-01T12:05:36.434Z"
             },
             "cargo": [
               {
@@ -1801,11 +1810,12 @@
                 "amount": 50000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -1894,10 +1904,16 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -1918,7 +1934,7 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T12:04:31.000Z",
-        "next_change_at": "2026-01-01T12:05:38.436Z",
+        "next_change_at": "2026-01-01T12:05:36.434Z",
         "gold": 16037680,
         "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
@@ -2745,9 +2761,10 @@
             "stop_index": 0,
             "leg": {
               "from_island_id": "island2",
+              "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T12:03:38.436Z",
-              "arrive_at": "2026-01-01T12:05:38.436Z"
+              "depart_at": "2026-01-01T12:03:36.434Z",
+              "arrive_at": "2026-01-01T12:05:36.434Z"
             },
             "cargo": [
               {
@@ -2759,11 +2776,12 @@
                 "amount": 50000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -2852,10 +2870,16 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -2876,7 +2900,7 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T12:04:35.000Z",
-        "next_change_at": "2026-01-01T12:05:38.436Z",
+        "next_change_at": "2026-01-01T12:05:36.434Z",
         "gold": 16037386,
         "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
@@ -3703,9 +3727,10 @@
             "stop_index": 0,
             "leg": {
               "from_island_id": "island2",
+              "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T12:03:38.436Z",
-              "arrive_at": "2026-01-01T12:05:38.436Z"
+              "depart_at": "2026-01-01T12:03:36.434Z",
+              "arrive_at": "2026-01-01T12:05:36.434Z"
             },
             "cargo": [
               {
@@ -3717,11 +3742,12 @@
                 "amount": 50000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -3810,10 +3836,16 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -3834,7 +3866,7 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T12:05:00.000Z",
-        "next_change_at": "2026-01-01T12:05:38.436Z",
+        "next_change_at": "2026-01-01T12:05:36.434Z",
         "gold": 16035553,
         "balance_rate_per_min": -4400,
         "tax_rate_per_min": 1600,
@@ -4661,9 +4693,10 @@
             "stop_index": 0,
             "leg": {
               "from_island_id": "island2",
+              "from_position": null,
               "to_island_id": "start",
-              "depart_at": "2026-01-01T12:03:38.436Z",
-              "arrive_at": "2026-01-01T12:05:38.436Z"
+              "depart_at": "2026-01-01T12:03:36.434Z",
+              "arrive_at": "2026-01-01T12:05:36.434Z"
             },
             "cargo": [
               {
@@ -4675,11 +4708,12 @@
                 "amount": 50000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -4768,10 +4802,16 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",

@@ -77,7 +77,9 @@ func newPGEnv(t *testing.T, limiter auth.Limiter) *pgEnv {
 	// Tee: the log mailer writes to the captured logs, the mailbox keeps
 	// the tokens for the test.
 	accts2, err := auth.NewService(auth.Config{
-		Store: st, NewWorld: func(now time.Time) (*sim.World, error) { return devworld.New(c, now) },
+		// The account flows build on a founded start island (the default
+		// dev fixture); a new player's world at sea is TestGetWorldInitialState's.
+		Store: st, NewWorld: func(now time.Time) (*sim.World, error) { return devworld.NewFixture(c, devworld.FixtureDefault, now) },
 		Region: c.Region.ID, Freshness: time.Hour, SessionTTL: 30 * 24 * time.Hour, Argon2: auth.DefaultArgon2,
 		Mailer: teeMailer{mail, auth.LogMailer{Logger: logger}}, PublicURL: "http://localhost:8000", Logger: logger,
 	})

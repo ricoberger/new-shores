@@ -795,11 +795,12 @@
             "amount": 50000
           }
         ],
-        "slots": 2,
+        "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
+        "position": null,
         "queued_at": null,
         "berth_until": null
       }
@@ -827,10 +828,16 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",
@@ -1644,11 +1651,12 @@
                 "amount": 50000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -1676,10 +1684,16 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -2493,11 +2507,12 @@
                 "amount": 50000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -2525,10 +2540,16 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -3342,11 +3363,12 @@
                 "amount": 50000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -3374,10 +3396,16 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -4191,11 +4219,12 @@
                 "amount": 50000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -4223,10 +4252,16 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -5040,11 +5075,12 @@
                 "amount": 50000
               }
             ],
-            "slots": 2,
+            "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
             "paused_reason": "",
+            "position": null,
             "queued_at": null,
             "berth_until": null
           }
@@ -5072,10 +5108,16 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",

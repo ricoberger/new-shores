@@ -22,14 +22,33 @@
     ]
   },
   "seed": {
-    "trading_post": {
-      "x": 1,
-      "y": 0,
-      "rotation": 0
+    "ship": {
+      "x": 20,
+      "y": -30
     },
     "start": true
   },
   "steps": [
+    {
+      "sail_ship": {
+        "ship": 1,
+        "to": "main"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "main",
+        "x": 1,
+        "y": 0,
+        "rotation": 0
+      }
+    },
     {
       "road": {
         "type": "road_dirt",

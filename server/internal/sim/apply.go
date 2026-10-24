@@ -163,6 +163,8 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 		err = manualShipment(w, c, cmd, l)
 	case ScrapShip:
 		err = scrapShip(w, c, cmd, l)
+	case SailShip:
+		err = sailShip(w, c, cmd)
 	case CreateRoute:
 		err = createRoute(w, c, cmd)
 	case UpdateRoute:

@@ -119,7 +119,7 @@ describe("HUD components", () => {
     );
     expect(html).toContain('data-testid="quest-claim-intro_first_road"');
     expect(html).toContain('data-testid="quest-active-intro_fish"');
-    expect(text(html)).toContain("Fisher connected to a warehouse");
+    expect(text(html)).toContain("Fisher connected to the Trading Post or a Warehouse");
     expect(text(html)).toContain("Reward: 45 Planks");
     // Advisor prose also on quests that completed before they were shown
     // as active.

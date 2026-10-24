@@ -14,8 +14,8 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 46000,
-        "unloaded": 346000
+        "spent": 41000,
+        "unloaded": 341000
       },
       "wool_garments": {
         "produced": 0,
@@ -31,12 +31,12 @@
         "unloaded": 300000
       },
       "planks": {
-        "produced": 509000,
+        "produced": 504000,
         "consumed": 0,
         "lost": 0,
         "spent": 63000,
         "granted": 250000,
-        "loaded": 396000
+        "loaded": 391000
       },
       "sails": {
         "produced": 0,
@@ -46,8 +46,8 @@
         "granted": 10000
       },
       "wood": {
-        "produced": 809000,
-        "consumed": 509000,
+        "produced": 804000,
+        "consumed": 504000,
         "lost": 0
       }
     }
@@ -213,6 +213,10 @@
   ],
   "quests": [
     {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "intro_first_road",
       "completed_at": "2026-01-01T00:00:00.000Z"
     },
@@ -223,7 +227,7 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T12:04:30.000Z",
-    "next_change_at": "2026-01-01T12:05:38.436Z",
+    "next_change_at": "2026-01-01T12:05:36.434Z",
     "gold": 16037753,
     "balance_rate_per_min": -4400,
     "tax_rate_per_min": 1600,
@@ -1050,9 +1054,10 @@
         "stop_index": 0,
         "leg": {
           "from_island_id": "island2",
+          "from_position": null,
           "to_island_id": "start",
-          "depart_at": "2026-01-01T12:03:38.436Z",
-          "arrive_at": "2026-01-01T12:05:38.436Z"
+          "depart_at": "2026-01-01T12:03:36.434Z",
+          "arrive_at": "2026-01-01T12:05:36.434Z"
         },
         "cargo": [
           {
@@ -1064,11 +1069,12 @@
             "amount": 50000
           }
         ],
-        "slots": 2,
+        "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
+        "position": null,
         "queued_at": null,
         "berth_until": null
       }
@@ -1157,10 +1163,16 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",

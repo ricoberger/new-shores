@@ -180,6 +180,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
       upkeep_per_min: 1000,
       paused: false,
       paused_reason: "",
+      position: null,
       queued_at: null,
       berth_until: null,
     };
@@ -196,7 +197,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
         state: kind === 2 ? "manual_leg" : "on_route",
         island_id: depart > nowMs ? from : "",
         route_id: kind === 2 ? 0 : route.id,
-        leg: { from_island_id: from, to_island_id: to, depart_at: ts(depart), arrive_at: ts(arrive) },
+        leg: { from_island_id: from, from_position: null, to_island_id: to, depart_at: ts(depart), arrive_at: ts(arrive) },
       });
       if (kind !== 2) route.ship_ids.push(id);
     } else {
@@ -556,6 +557,7 @@ export function buildDenseFixture(nowMs: number): Built {
   b.display.position = { x: 90, y: 12 };
   const leg = (from: string, to: string, offset: number) => ({
     from_island_id: from,
+    from_position: null,
     to_island_id: to,
     depart_at: ts(nowMs - offset),
     arrive_at: ts(nowMs - offset + 20 * 60_000),
@@ -574,6 +576,7 @@ export function buildDenseFixture(nowMs: number): Built {
     upkeep_per_min: 1_000,
     paused: false,
     paused_reason: "",
+    position: null,
     queued_at: null,
     berth_until: null,
   });
@@ -682,6 +685,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
       upkeep_per_min: 1_000,
       paused: false,
       paused_reason: "",
+      position: null,
       queued_at: null,
       berth_until: null,
     };
@@ -699,7 +703,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
       ...base,
       state: "on_route",
       route_id: route.id,
-      leg: { from_island_id: from, to_island_id: to, depart_at: ts(depart), arrive_at: ts(depart + 900_000 + r() * 300_000) },
+      leg: { from_island_id: from, from_position: null, to_island_id: to, depart_at: ts(depart), arrive_at: ts(depart + 900_000 + r() * 300_000) },
     });
     route.ship_ids.push(id);
   }
@@ -840,6 +844,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     upkeep_per_min: 1_000,
     paused: false,
     paused_reason: "",
+    position: null,
     queued_at: null,
     berth_until: null,
     ...extra,

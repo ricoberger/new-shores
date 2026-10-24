@@ -2,7 +2,7 @@
   "scenario": "stall_recovery_no_transit",
   "base": {
     "evaluated_at": "2026-01-01T01:06:50.000Z",
-    "next_change_at": "2026-01-01T03:30:51.819Z",
+    "next_change_at": "2026-01-01T03:28:21.819Z",
     "gold": 32780,
     "balance_rate_per_min": 2000,
     "tax_rate_per_min": 8000,
@@ -104,7 +104,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 10706,
+            "stock": 15706,
             "capacity": 300000,
             "in_transit": 1233,
             "rate_per_min": 2000
@@ -1456,6 +1456,7 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks",
         "intro_houses",
@@ -1464,6 +1465,11 @@
         "intro_wool"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",
@@ -1504,7 +1510,7 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T01:06:50.250Z",
-        "next_change_at": "2026-01-01T03:30:51.819Z",
+        "next_change_at": "2026-01-01T03:28:21.819Z",
         "gold": 32788,
         "balance_rate_per_min": 2000,
         "tax_rate_per_min": 8000,
@@ -1606,7 +1612,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 10714,
+                "stock": 15714,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -2958,6 +2964,7 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -2966,6 +2973,11 @@
             "intro_wool"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -3006,7 +3018,7 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T01:06:51.000Z",
-        "next_change_at": "2026-01-01T03:30:51.819Z",
+        "next_change_at": "2026-01-01T03:28:21.819Z",
         "gold": 32813,
         "balance_rate_per_min": 2000,
         "tax_rate_per_min": 8000,
@@ -3108,7 +3120,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 10739,
+                "stock": 15739,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -4460,6 +4472,7 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -4468,6 +4481,11 @@
             "intro_wool"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -4508,7 +4526,7 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T01:06:55.000Z",
-        "next_change_at": "2026-01-01T03:30:51.819Z",
+        "next_change_at": "2026-01-01T03:28:21.819Z",
         "gold": 32946,
         "balance_rate_per_min": 2000,
         "tax_rate_per_min": 8000,
@@ -4610,7 +4628,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 10873,
+                "stock": 15873,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -5962,6 +5980,7 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -5970,6 +5989,11 @@
             "intro_wool"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -6010,7 +6034,7 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T01:07:20.000Z",
-        "next_change_at": "2026-01-01T03:30:51.819Z",
+        "next_change_at": "2026-01-01T03:28:21.819Z",
         "gold": 33780,
         "balance_rate_per_min": 2000,
         "tax_rate_per_min": 8000,
@@ -6112,7 +6136,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 11706,
+                "stock": 16706,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -7464,6 +7488,7 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -7472,6 +7497,11 @@
             "intro_wool"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",
@@ -7512,7 +7542,7 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T01:11:50.000Z",
-        "next_change_at": "2026-01-01T03:30:51.819Z",
+        "next_change_at": "2026-01-01T03:28:21.819Z",
         "gold": 42780,
         "balance_rate_per_min": 2000,
         "tax_rate_per_min": 8000,
@@ -7614,7 +7644,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 20706,
+                "stock": 25706,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -8966,6 +8996,7 @@
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -8974,6 +9005,11 @@
             "intro_wool"
           ],
           "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
             {
               "id": "intro_first_road",
               "completed_at": "2026-01-01T00:00:00.000Z",

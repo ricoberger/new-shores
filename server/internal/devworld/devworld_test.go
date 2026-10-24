@@ -37,9 +37,22 @@ func newWorld(t *testing.T) (*content.Catalogue, *sim.World) {
 	return c, w
 }
 
+// foundedWorld is the default dev fixture at start: the start island
+// founded from the start ship at the standard site.
+func foundedWorld(t *testing.T) (*content.Catalogue, *sim.World) {
+	t.Helper()
+	c := catalogue(t)
+	w, err := NewFixture(c, FixtureDefault, start)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return c, w
+}
+
 // TestNewSeedsTheStartIsland: a new player world (default mode, New) is the
-// two-island archipelago with exactly the content starting stock
-// (start.json) and no dev bonus.
+// two-island archipelago, no island settled, with the start ship at sea
+// carrying exactly the content starting stock (start.json, the gold on the
+// balance) and no dev bonus (D-051).
 func TestNewSeedsTheStartIsland(t *testing.T) {
 	c, w := newWorld(t)
 	if want := start.Truncate(time.Millisecond); !w.LastEvaluatedAt.Equal(want) {
@@ -61,18 +74,37 @@ func TestNewSeedsTheStartIsland(t *testing.T) {
 			t.Errorf("island has no %s", want)
 		}
 	}
-	if len(is.Buildings) != 1 || c.BuildingByID[is.Buildings[0].Type].TradingPost == nil {
-		t.Fatalf("buildings = %+v, want one trading post", is.Buildings)
+	if len(is.Buildings) != 0 || len(is.Inventory.Stock) != 0 {
+		t.Fatalf("start island: buildings %+v stock %v, want none", is.Buildings, is.Inventory.Stock)
 	}
 	if w.Gold != c.Start.Gold {
 		t.Errorf("gold = %d, want %d", w.Gold, c.Start.Gold)
 	}
-	if len(is.Inventory.Stock) != len(c.Start.Goods) {
-		t.Errorf("stock = %v, want exactly %v", is.Inventory.Stock, c.Start.Goods)
+	if len(w.Ships) != 1 {
+		t.Fatalf("ships = %+v, want the start ship", w.Ships)
+	}
+	ship := w.Ships[0]
+	if ship.State != sim.ShipIdle || ship.IslandID != "" || ship.AtSea == nil || ship.Type != c.Ships[0].ID {
+		t.Fatalf("start ship = %+v, want idle at sea", ship)
+	}
+	aboard := map[string]int64{}
+	for _, sl := range ship.Cargo {
+		aboard[sl.Good] += sl.Amount
 	}
 	for _, g := range c.Start.Goods {
-		if got := is.Inventory.Stock[g.Good]; got != g.Amount {
-			t.Errorf("stock %s = %d, want %d", g.Good, got, g.Amount)
+		if aboard[g.Good] != g.Amount {
+			t.Errorf("aboard %s = %d, want %d", g.Good, aboard[g.Good], g.Amount)
+		}
+	}
+	// The sea position is off both islands, about a minute from each.
+	for _, isl := range w.Islands {
+		p := *ship.AtSea
+		if p.X >= isl.X && p.X < isl.X+isl.Width && p.Y >= isl.Y && p.Y < isl.Y+isl.Height {
+			t.Errorf("start ship at (%d,%d) lies on island %s", p.X, p.Y, isl.ID)
+		}
+		ms := sim.TravelMs(p.X, p.Y, isl.X, isl.Y, c.ShipByID[ship.Type].SpeedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)
+		if ms < 30_000 || ms > 90_000 {
+			t.Errorf("start ship %d ms from %s, want about a minute", ms, isl.ID)
 		}
 	}
 	// Island 2: unsettled, nothing on it, coast, grass, forest and
@@ -98,8 +130,12 @@ func TestNewSeedsTheStartIsland(t *testing.T) {
 		t.Errorf("island 2: %d iron tiles, %d buildings, stock %v", iron, len(i2.Buildings), i2.Inventory.Stock)
 	}
 	ds, err := sim.Display(w, c, w.LastEvaluatedAt)
-	if err != nil || !ds.Islands[0].Settled || ds.Islands[1].Settled {
-		t.Errorf("settled: %v %+v", err, ds.Islands)
+	if err != nil || ds.Islands[0].Settled || ds.Islands[1].Settled || ds.Ships[0].Position == nil {
+		t.Errorf("settled: %v %+v ships %+v", err, ds.Islands, ds.Ships)
+	}
+	// The first quest is choosing the home island.
+	if len(ds.Quests.Active) != 1 || ds.Quests.Active[0].ID != "intro_home_island" {
+		t.Errorf("active quests = %+v", ds.Quests.Active)
 	}
 	s, err := scenario.Parse(IslandJSON())
 	if err != nil || len(s.Steps) != 0 {
@@ -193,7 +229,7 @@ func place(t *testing.T, w *sim.World, c *content.Catalogue, typ string, x, y, r
 // coast takes the seeded warehouse plus four fishers and the forest lets
 // three lumberjacks reach full efficiency.
 func TestIslandIsPlayable(t *testing.T) {
-	c, w := newWorld(t)
+	c, w := foundedWorld(t)
 	w.Gold = 1_000_000_000 // enough gold for the layout test
 	if err := sim.AddStock(w, c, "start", "planks", 100_000, nil); err != nil {
 		t.Fatal(err)
@@ -224,7 +260,7 @@ func TestIslandIsPlayable(t *testing.T) {
 // along the road, keeping their IDs, the house its residents and the island
 // its planks, and the sawmill produces again.
 func TestSmokeLayoutProducesPlanks(t *testing.T) {
-	c, w := newWorld(t)
+	c, w := foundedWorld(t)
 	lj := place(t, w, c, "lumberjack", 35, 5, 180)
 	if lj.AssignedWarehouseID != 0 {
 		t.Fatal("lumberjack connected without a road")
@@ -296,7 +332,7 @@ func TestSmokeLayoutProducesPlanks(t *testing.T) {
 // together with the smoke test's plank chain (no dev bonus).
 func TestShippingLayoutFoundsIsland2(t *testing.T) {
 	c := catalogue(t)
-	w, err := NewDev(c, start)
+	w, err := NewFixture(c, FixtureDefault, start)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -326,12 +362,14 @@ func TestShippingLayoutFoundsIsland2(t *testing.T) {
 	}
 	apply(sim.OrderShip{IslandID: "start", BuildingID: yard.ID, ShipType: "sloop"})
 	advance(2 * time.Minute)
-	if len(w.Ships) != 1 || w.Ships[0].State != sim.ShipIdle {
+	// Ship 1 is the start sloop (idle at the start island); the shipyard
+	// built ship 2.
+	if len(w.Ships) != 2 || w.Ships[1].State != sim.ShipIdle {
 		t.Fatalf("ships = %+v", w.Ships)
 	}
-	apply(sim.ManualShipment{ShipID: 1, ToIslandID: "island2", Cargo: []sim.CargoAmount{{Good: "planks", Amount: 60_000}}})
+	apply(sim.ManualShipment{ShipID: 2, ToIslandID: "island2", Cargo: []sim.CargoAmount{{Good: "planks", Amount: 60_000}}})
 	advance(2*time.Minute + 30*time.Second)
-	apply(sim.FoundIsland{ShipID: 1, IslandID: "island2", BuildingType: "trading_post", X: 2, Y: 0})
+	apply(sim.FoundIsland{ShipID: 2, IslandID: "island2", BuildingType: "trading_post", X: 2, Y: 0})
 	var tiles []sim.Pos
 	for x := 2; x <= 20; x++ {
 		tiles = append(tiles, sim.Pos{X: x, Y: 4})
@@ -345,7 +383,7 @@ func TestShippingLayoutFoundsIsland2(t *testing.T) {
 		{IslandID: "start", Unload: []string{"fish"}},
 	}})
 	advance(3 * time.Minute)
-	apply(sim.AssignShip{ShipID: 1, RouteID: 1})
+	apply(sim.AssignShip{ShipID: 2, RouteID: 1})
 	advance(10 * time.Minute)
 	if fish := w.Islands[0].Inventory.Stock["fish"]; fish <= 0 {
 		t.Errorf("no fish arrived at the start island")
@@ -423,7 +461,7 @@ func TestSeedFertilitiesAndDeposits(t *testing.T) {
 // never be connected (user note on R-11). Two quarries fit side by side on
 // the start island's stone deposits.
 func TestDepositBuildingsCanReachARoad(t *testing.T) {
-	c, w := newWorld(t)
+	c, w := foundedWorld(t)
 	buildable := func(terrain string) bool {
 		return terrain == content.TerrainCoast || terrain == content.TerrainGrass || terrain == content.TerrainForest
 	}

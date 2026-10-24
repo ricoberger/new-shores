@@ -31,7 +31,8 @@ const content = {
   ships: [{ id: "sloop", name: "Sloop" }],
   needs: [],
   quests: [
-    { id: "intro_first_road", title: "Roads from the warehouse", text: "", objectives: [], rewards: { gold: 25_000, goods: {} }, prerequisites: [] },
+    { id: "intro_home_island", title: "Choose your home island", text: "", objectives: [], rewards: { gold: 25_000, goods: {} }, prerequisites: [] },
+    { id: "intro_first_road", title: "Roads from the Trading Post", text: "", objectives: [], rewards: { gold: 25_000, goods: {} }, prerequisites: [] },
     { id: "intro_planks", title: "Timber for the colony", text: "", objectives: [], rewards: { gold: 0, goods: { planks: 45_000 } }, prerequisites: [] },
     { id: "intro_houses", title: "Room for settlers", text: "", objectives: [], rewards: { gold: 25_000, goods: {} }, prerequisites: [] },
     { id: "intro_fish", title: "Fish for the table", text: "", objectives: [], rewards: { gold: 0, goods: { planks: 45_000 } }, prerequisites: [] },
@@ -43,16 +44,17 @@ const islandName = (id: string) => (id === "start" ? "Start" : id);
 describe("quests", () => {
   it("reads quest progress from a server fixture (golden z)", () => {
     const model = fixture("away_summary_12h");
-    expect(claimableCount(model)).toBe(3);
+    expect(claimableCount(model)).toBe(4);
     expect(model.quests.claimable.map((id) => questTitle(content, id))).toEqual([
-      "Roads from the warehouse",
+      "Choose your home island",
+      "Roads from the Trading Post",
       "Timber for the colony",
       "Room for settlers",
     ]);
     expect(model.quests.active.map((q) => q.id)).toEqual(["intro_fish"]);
     const o = model.quests.active[0]!.objectives[0]!;
     expect(o.met).toBe(false);
-    expect(objectiveText(o, content)).toBe("Fisher connected to a warehouse");
+    expect(objectiveText(o, content)).toBe("Fisher connected to the Trading Post or a Warehouse");
     expect(model.quests.completed.every((q) => !q.claimed)).toBe(true);
     expect(claimableCount(null)).toBe(0);
   });
@@ -74,9 +76,9 @@ describe("quests", () => {
 
   it("describes rewards and whether a claim needs an island", () => {
     expect(rewardText(content.quests[0]!, content)).toBe("25 gold");
-    expect(rewardText(content.quests[1]!, content)).toBe("45 Planks");
+    expect(rewardText(content.quests[2]!, content)).toBe("45 Planks");
     expect(rewardsGoods(content.quests[0])).toBe(false);
-    expect(rewardsGoods(content.quests[1])).toBe(true);
+    expect(rewardsGoods(content.quests[2])).toBe(true);
   });
 });
 

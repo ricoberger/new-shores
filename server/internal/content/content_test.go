@@ -92,7 +92,8 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 
 	// Intro quests (quests.json): a linear chain, rewards in fixed point.
-	if len(c.Quests) < 10 || c.Quests[0].ID != "intro_first_road" || len(c.Quests[0].Prerequisites) != 0 {
+	if len(c.Quests) < 10 || c.Quests[0].ID != "intro_home_island" || len(c.Quests[0].Prerequisites) != 0 ||
+		c.Quests[0].Objectives[0] != (Objective{Kind: ObjectiveIslandSettled, Min: 1}) || c.Quests[1].ID != "intro_first_road" {
 		t.Fatalf("quests = %+v", c.Quests)
 	}
 	for i, q := range c.Quests[1:] {
@@ -106,14 +107,17 @@ func TestLoadOldCoast(t *testing.T) {
 	if q := c.QuestByID["intro_planks"]; q.Rewards.Gold != 0 || len(q.Rewards.Goods) != 1 || q.Rewards.Goods[0] != (GoodAmount{"planks", 45_000}) {
 		t.Errorf("intro_planks rewards %+v", q.Rewards)
 	}
-	if q := c.QuestByID["intro_tools"]; q.Objectives[1] != (Objective{Kind: ObjectiveStock, Good: "tools", Island: "start", Min: 10_000}) {
+	if q := c.QuestByID["intro_tools"]; q.Objectives[1] != (Objective{Kind: ObjectiveStock, Good: "tools", Min: 10_000}) {
 		t.Errorf("intro_tools objectives %+v", q.Objectives)
 	}
 	if q := c.QuestByID["intro_settlers_120"]; q.Objectives[0] != (Objective{Kind: ObjectivePopulation, Tier: "settlers", Min: 120_000}) {
 		t.Errorf("intro_settlers_120 objectives %+v", q.Objectives)
 	}
 
-	if c.Start.Gold != 800_000 || len(c.Start.Goods) != 2 || c.Start.Goods[0] != (GoodAmount{"planks", 130_000}) || c.Start.Goods[1] != (GoodAmount{"sails", 10_000}) {
+	// The start ship carries the starting stock (D-051): planks and sails
+	// fit its slots; gold and planks cover the Trading Post plus the old
+	// 800 gold / 130 planks of the first settlement.
+	if c.Start.Gold != 1_000_000 || len(c.Start.Goods) != 2 || c.Start.Goods[0] != (GoodAmount{"planks", 150_000}) || c.Start.Goods[1] != (GoodAmount{"sails", 10_000}) {
 		t.Errorf("start = %+v", c.Start)
 	}
 	if g := c.GoodByID["sails"]; g == nil || g.Type != "construction" {
@@ -129,7 +133,7 @@ func TestLoadOldCoast(t *testing.T) {
 	want := map[string]costs{
 		"house_settlers": {0, 10_000, 0, 2, 2, "never"},
 		"road_dirt":      {0, 0, 0, 1, 1, "never"},
-		"trading_post":   {200_000, 20_000, 0, 4, 4, "never"},
+		"trading_post":   {200_000, 15_000, 0, 4, 4, "never"},
 		"warehouse":      {100_000, 10_000, 0, 2, 2, "never"},
 		"market_small":   {225_000, 15_000, 0, 3, 3, "never"},
 		"chapel":         {275_000, 15_000, 0, 2, 2, "never"},
@@ -159,7 +163,7 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	sloop := c.ShipByID["sloop"]
 	wantCost := Cost{Gold: 100_000, Materials: []GoodAmount{{"planks", 20_000}, {"sails", 10_000}}}
-	if sloop == nil || sloop.Tier != "settlers" || sloop.Slots != 2 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1000 ||
+	if sloop == nil || sloop.Tier != "settlers" || sloop.Slots != 4 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1000 ||
 		sloop.BuildMs != 120_000 || sloop.UpkeepPerMin != 1_000 || sloop.Cost.Gold != wantCost.Gold ||
 		len(sloop.Cost.Materials) != 2 || sloop.Cost.Materials[0] != wantCost.Materials[0] || sloop.Cost.Materials[1] != wantCost.Materials[1] {
 		t.Errorf("sloop = %+v", sloop)
@@ -358,7 +362,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"negative start gold", FileStart,
-			[]string{`"gold": 800`, `"gold": -1`},
+			[]string{`"gold": 1000`, `"gold": -1`},
 			[]string{FileStart, "schema violation"},
 		},
 		{
@@ -398,12 +402,12 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"ship zero slots", FileShips,
-			[]string{`"slots": 2`, `"slots": 0`},
+			[]string{`"slots": 4`, `"slots": 0`},
 			[]string{FileShips, `ship "sloop"`, "schema violation"},
 		},
 		{
 			"ship unknown field", FileShips,
-			[]string{`"slots": 2`, `"slots": 2, "cannons": 4`},
+			[]string{`"slots": 4`, `"slots": 4, "cannons": 4`},
 			[]string{FileShips, `ship "sloop"`, "schema violation"},
 		},
 		{
@@ -459,9 +463,9 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{`"water_tiles": 2,
     "coastal": false,
     "requires_road": false,
-    "cost": { "gold": 200, "planks": 20 },`, `"coastal": false,
+    "cost": { "gold": 200, "planks": 15 },`, `"coastal": false,
     "requires_road": false,
-    "cost": { "gold": 200, "planks": 20 },`},
+    "cost": { "gold": 200, "planks": 15 },`},
 			[]string{FileBuildings, `building "trading_post"`, "water_tiles", "water-edge building"},
 		},
 		{
@@ -519,14 +523,14 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{`"rewards": { "gold": 25 },
     "prerequisites": []`, `"rewards": {},
     "prerequisites": []`},
-			[]string{FileQuests, `quest "intro_first_road"`, "schema violation"},
+			[]string{FileQuests, `quest "intro_home_island"`, "schema violation"},
 		},
 		{
 			"quest decoration reward", FileQuests,
 			[]string{`"rewards": { "gold": 25 },
     "prerequisites": []`, `"rewards": { "gold": 25, "decorations": ["statue"] },
     "prerequisites": []`},
-			[]string{FileQuests, `quest "intro_first_road"`, "schema violation"},
+			[]string{FileQuests, `quest "intro_home_island"`, "schema violation"},
 		},
 		{
 			"quest satisfaction decimals", FileQuests,

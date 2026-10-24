@@ -55,7 +55,7 @@ func (p *countingPublisher) count() int {
 // shipping layout of devworld's tests).
 func devShipyardWorld(t *testing.T, c *content.Catalogue, at time.Time) *sim.World {
 	t.Helper()
-	w, err := devworld.NewDev(c, at)
+	w, err := devworld.NewFixture(c, devworld.FixtureDefault, at)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +220,8 @@ func TestDevSchedulerRearms(t *testing.T) {
 		ships = len(w.Ships)
 		return false, nil
 	})
-	if ships != 1 || pub.count() != 1 {
+	// The start sloop of the founded dev world plus the built one.
+	if ships != 2 || pub.count() != 1 {
 		t.Fatalf("ships %d, publishes %d", ships, pub.count())
 	}
 	p := mem.Pending()

@@ -15,7 +15,6 @@ import (
 	"github.com/coder/websocket"
 
 	"github.com/ricoberger/new-shores/server/internal/auth"
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/ws"
 )
@@ -56,10 +55,7 @@ func TestDevAuthFacade(t *testing.T) {
 // through the in-process hub.
 func TestDevWebSocketPush(t *testing.T) {
 	c := catalogue(t)
-	w, err := devworld.New(c, testStart)
-	if err != nil {
-		t.Fatal(err)
-	}
+	w := foundedWorld(t, testStart)
 	hub := ws.NewHub(slog.New(slog.DiscardHandler))
 	srv, err := New(Config{
 		Store: store.NewMemory(testWorld, w, func() time.Time { return testStart }), Catalogue: c, Clock: WallClock{},
@@ -174,10 +170,7 @@ func (d *denyAfter) Allow(_ context.Context, key string) (bool, time.Duration) {
 func newSessionServer(t *testing.T, limiter auth.Limiter) (*Server, *fakeAccounts) {
 	t.Helper()
 	c := catalogue(t)
-	w, err := devworld.New(c, testStart)
-	if err != nil {
-		t.Fatal(err)
-	}
+	w := foundedWorld(t, testStart)
 	acc := &fakeAccounts{}
 	hub := ws.NewHub(slog.New(slog.DiscardHandler))
 	t.Cleanup(func() { hub.Close(context.Background()) })

@@ -1286,8 +1286,10 @@ export interface components {
             type: string;
             /** @enum {string} */
             state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map";
-            /** @description Island where the ship is; empty while travelling. */
+            /** @description Island where the ship is; empty while travelling or at sea. */
             island_id: string;
+            /** @description Archipelago position of an idle or anchored ship at sea (the start ship of a new world, D-051); null at an island or on a leg. */
+            position: components["schemas"]["SeaPosition"] | null;
             /**
              * Format: int64
              * @description Assigned route ID; 0 when none (unscaled identifier).
@@ -1321,9 +1323,19 @@ export interface components {
             /** @description End of the ship's handling at a berth of `island_id` (RFC 3339, UTC, ms) — the departure of a route ship, the end of unloading after a manual leg; null when it holds no berth. */
             berth_until: string | null;
         };
-        /** @description The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between. */
+        /** @description A position at sea. */
+        SeaPosition: {
+            /** @description Column (archipelago tiles). */
+            x: number;
+            /** @description Row (archipelago tiles). */
+            y: number;
+        };
+        /** @description The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between. A leg from the sea has an empty `from_island_id` and its origin in `from_position`. */
         LegDisplay: {
+            /** @description Origin island; empty for a leg from the sea. */
             from_island_id: string;
+            /** @description Origin of a leg from the sea; null for a leg from an island. */
+            from_position: components["schemas"]["SeaPosition"] | null;
             to_island_id: string;
             /** @description Departure (RFC 3339, UTC, ms). */
             depart_at: string;

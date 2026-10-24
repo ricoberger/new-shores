@@ -294,10 +294,10 @@ func TestClaimQuest(t *testing.T) {
 	}
 }
 
-// TestShippedQuestsInDisplay: on the test world (a warehouse with a road
-// of more than ten tiles) the shipped road quest is completed and
-// claimable, and the next quest of the chain is active with its progress
-// in the display units.
+// TestShippedQuestsInDisplay: on the test world (a Trading Post with a road
+// of more than ten tiles) the shipped home-island and road quests are
+// completed and claimable, and the next quest of the chain is active with
+// its progress in the display units.
 func TestShippedQuestsInDisplay(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
@@ -306,8 +306,8 @@ func TestShippedQuestsInDisplay(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	first, second := c.Quests[0], c.Quests[1]
-	if len(ds.Quests.Active) != 1 || ds.Quests.Active[0].ID != second.ID || len(ds.Quests.Claimable) != 1 || ds.Quests.Claimable[0] != first.ID {
+	home, first, second := c.Quests[0], c.Quests[1], c.Quests[2]
+	if len(ds.Quests.Active) != 1 || ds.Quests.Active[0].ID != second.ID || len(ds.Quests.Claimable) != 2 || ds.Quests.Claimable[0] != home.ID || ds.Quests.Claimable[1] != first.ID {
 		t.Fatalf("quests %s", data)
 	}
 	for i, o := range ds.Quests.Active[0].Objectives {

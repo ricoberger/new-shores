@@ -70,7 +70,7 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 20000,
+        "spent": 15000,
         "unloaded": 40000
       },
       "tools": {
@@ -258,7 +258,7 @@
         },
         "start": {
           "planks": {
-            "stock": 20000,
+            "stock": 25000,
             "in_transit": 0
           },
           "tools": {
@@ -332,7 +332,7 @@
         },
         "start": {
           "planks": {
-            "stock": 20000,
+            "stock": 25000,
             "in_transit": 0
           },
           "tools": {
@@ -410,7 +410,7 @@
         },
         "start": {
           "planks": {
-            "stock": 20000,
+            "stock": 25000,
             "in_transit": 0
           },
           "tools": {
@@ -445,6 +445,10 @@
     }
   ],
   "quests": [
+    {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
     {
       "id": "intro_first_road",
       "completed_at": "2026-01-01T00:00:00.000Z"
@@ -2066,7 +2070,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 20000,
+            "stock": 25000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -2159,6 +2163,7 @@
         "stop_index": 1,
         "leg": {
           "from_island_id": "island2",
+          "from_position": null,
           "to_island_id": "start",
           "depart_at": "2026-01-01T00:43:29.423Z",
           "arrive_at": "2026-01-01T00:45:29.423Z"
@@ -2169,11 +2174,12 @@
             "amount": 4362
           }
         ],
-        "slots": 2,
+        "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
         "paused_reason": "",
+        "position": null,
         "queued_at": null,
         "berth_until": null
       }
@@ -2250,9 +2256,15 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",

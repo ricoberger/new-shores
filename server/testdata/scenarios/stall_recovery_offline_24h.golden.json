@@ -10,11 +10,11 @@
         "lost": 0
       },
       "planks": {
-        "produced": 299000,
+        "produced": 294000,
         "consumed": 0,
         "lost": 0,
         "spent": 129000,
-        "granted": 130000
+        "granted": 135000
       },
       "sails": {
         "produced": 0,
@@ -23,8 +23,8 @@
         "granted": 10000
       },
       "wood": {
-        "produced": 599000,
-        "consumed": 299000,
+        "produced": 594000,
+        "consumed": 294000,
         "lost": 0
       },
       "wool": {
@@ -160,7 +160,7 @@
       "inventory": {
         "start": {
           "planks": {
-            "stock": 51000,
+            "stock": 56000,
             "in_transit": 0
           },
           "sails": {
@@ -186,7 +186,7 @@
       "inventory": {
         "start": {
           "planks": {
-            "stock": 1000,
+            "stock": 6000,
             "in_transit": 0
           },
           "sails": {
@@ -253,6 +253,10 @@
     }
   ],
   "quests": [
+    {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
     {
       "id": "intro_first_road",
       "completed_at": "2026-01-01T00:00:00.000Z"
@@ -1747,6 +1751,7 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks",
         "intro_houses",
@@ -1755,6 +1760,11 @@
         "intro_wool"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",

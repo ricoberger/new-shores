@@ -39,6 +39,7 @@ const (
 	cmdAssignShip      = "assign_ship"
 	cmdUnassignShip    = "unassign_ship"
 	cmdManualShipment  = "manual_shipment"
+	cmdSailShip        = "sail_ship"
 	cmdFoundIsland     = "found_island"
 
 	cmdClaimQuest = "claim_quest"
@@ -185,6 +186,12 @@ type manualShipmentJSON struct {
 	Cargo      []cargoJSON `json:"cargo"`
 }
 
+type sailShipJSON struct {
+	Type       string  `json:"type"`
+	ShipID     *int64  `json:"ship_id"`
+	ToIslandID *string `json:"to_island_id"`
+}
+
 type claimQuestJSON struct {
 	Type     string  `json:"type"`
 	QuestID  *string `json:"quest_id"`
@@ -273,6 +280,8 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeAssignShip(raw)
 	case cmdManualShipment:
 		cmd, err = decodeManualShipment(raw)
+	case cmdSailShip:
+		cmd, err = decodeSailShip(raw)
 	case cmdFoundIsland:
 		cmd, err = decodeFoundIsland(raw)
 	case cmdClaimQuest:
@@ -636,6 +645,20 @@ func decodeAssignShip(raw json.RawMessage) (sim.Command, error) {
 		return nil, missing("route_id")
 	}
 	return sim.AssignShip{ShipID: *c.ShipID, RouteID: *c.RouteID}, nil
+}
+
+func decodeSailShip(raw json.RawMessage) (sim.Command, error) {
+	var c sailShipJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	switch {
+	case c.ShipID == nil:
+		return nil, missing("ship_id")
+	case c.ToIslandID == nil:
+		return nil, missing("to_island_id")
+	}
+	return sim.SailShip{ShipID: *c.ShipID, ToIslandID: *c.ToIslandID}, nil
 }
 
 func decodeManualShipment(raw json.RawMessage) (sim.Command, error) {

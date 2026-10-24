@@ -111,3 +111,66 @@ The rules are in docs/DECISIONS.md D-051 and docs/MECHANICS.md §2, §5, §8,
   adds the rest of the API (start at sea).
 - `manual_shipment_excess` gained a final 20 s step (the unloading at the
   berth) and a 10 s longer return leg.
+
+## Step 3 — start at sea
+
+- A ship can be idle **at sea** (`Ship.AtSea`, archipelago tiles; display
+  `position`). `sail_ship {ship_id, to_island_id}` (new sim and API
+  command) sends an idle ship with its cargo from its island or its sea
+  position to an island, departing at once (legs from the sea carry
+  `from_position`). The arrival is a manual arrival: unloading at a berth on
+  a settled island, everything stays aboard at an unsettled one. An at-sea
+  ship can be assigned to a route (positioning leg from the sea).
+- New worlds (`devworld.New`/`NewDev`, every player world) start with the
+  start sloop at sea at (30, 48) — about a minute from both dev islands —
+  carrying the starting planks/sails, the gold on the balance, nothing
+  settled. Founding is the client's two-step flow (`sail_ship`, then
+  `found_island` on arrival; step 6).
+- **Content (balance) changes, before → after:** `start.json` gold
+  800 → 1 000 and planks 130 → 150 (the starting stock now pays the Trading
+  Post that used to be free: 1 000 − 200 = 800 gold and 150 − 15 = 135
+  planks after founding); sloop slots 2 → 4 (the start ship must carry 150
+  planks + 10 sails = 4 slots; a 2-slot sloop holds at most 100 units of
+  two goods); Trading Post planks 20 → 15 (the bootstrap reference game
+  needs ~0.5 planks more because founding now happens after the opening
+  voyage, see below). The sails stay in the starting stock: the intro quest
+  `intro_shipyard` now asks for a second sloop (`ship_count` 2), which they
+  pay for.
+- Quests: new first quest `intro_home_island` ("Choose your home island",
+  `island_settled` 1, 25 gold); the rest of the chain follows unchanged
+  except texts (Trading Post instead of warehouse), `intro_shipyard`
+  (ship_count 1 → 2) and `intro_tools` (the `island: start` restriction is
+  dropped — the home island is the player's choice; ten tools in any
+  Trading Post).
+- Scenario runner: `seed.ship {type?, x, y}` launches the start ship at
+  sea; `seed.start` puts the starting goods aboard it, or — without a seed
+  ship but with a seeded Trading Post — grants the starting stock minus the
+  Trading Post's cost (the state right after founding, without the ship),
+  which keeps the non-reference scenarios on their previous numbers. New
+  step `sail_ship`.
+- Reference games get the sail-and-found opening (`sail_ship`, a 1 min
+  advance — the tests require advances of at least a minute — and
+  `found_island` at the old seed site; the quest game also claims
+  `intro_home_island`); the shipyard-built sloop is now ship 2. In
+  `bootstrap_citizens` the first wait after founding is 1 min shorter
+  (4 → 3 min) to absorb the voyage minute; with the Trading Post at 15
+  planks the plan holds. The quest game keeps its 4 min (it has slack).
+- **Timings, before (main) → after:**
+
+  | Game | Island 2 | Citizens unlocked | First Citizen house | Tools home |
+  |---|---|---|---|---|
+  | `bootstrap_citizens` | 60 → 60 | 80 → 80 | 100 → 100 | 139 → 139 |
+  | `bootstrap_citizens_quests` | 42 → 43 | 63 → 64 | 72 → 73 | 120 → 125 |
+  | `bootstrap_settlers` | — | 110 → 111 | — | — |
+
+  Trading Post load on the reference start island 772 ‰ (unchanged),
+  `citizens_island_load` level 2 821 ‰ (unchanged).
+- Dev fixtures: `seafaring` = the start state (at sea); `default` = the start
+  island founded from the start ship at the standard site (Trading Post at
+  (2, 0); history 1 min for the voyage); `town`/`settled` build on
+  `default` (+1 min history). In `settled` the shipyard-built sloop is ship
+  2 and the start sloop idles at the start island.
+- Tests that build on a settled start island (API, integration, events)
+  start from the `default` fixture; the multi-instance test founds its
+  guests' worlds by replacing them with the fixture before the credits, and
+  sends `sail_ship` as its push command.
