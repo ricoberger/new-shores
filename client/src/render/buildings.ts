@@ -428,7 +428,8 @@ export class BuildingLayer {
     for (const it of this.risingItems) {
       let start = this.rising.get(it.b.id);
       if (start === undefined) continue;
-      if (start === null) this.rising.set(it.b.id, (start = nowMs));
+      // A clock that went back (a server-offset correction, an unfrozen test clock) restarts it.
+      if (start === null || nowMs < start) this.rising.set(it.b.id, (start = nowMs));
       const stage = stagesReady && !it.def.field;
       if (nowMs - start >= (stage ? VISUAL_BUILD_MS : RISE_MS)) {
         this.rising.delete(it.b.id);

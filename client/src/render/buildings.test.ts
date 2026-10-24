@@ -181,8 +181,11 @@ describe("BuildingLayer with models", () => {
     expect(layer.stageCounts()).toEqual({ stage_b: 2, stage_scaffolding: 1 });
     layer.frame(1000 + VISUAL_BUILD_MS - 1);
     expect(layer.stageCounts()).toEqual({ stage_c: 2, stage_scaffolding: 1 });
-    expect(layer.frame(1000 + VISUAL_BUILD_MS + 1)).toBe(true);
-    layer.frame(1000 + VISUAL_BUILD_MS + 2);
+    // A clock that goes back (an unfrozen test clock, an offset correction) restarts the stages.
+    layer.frame(500);
+    expect(layer.stageCounts()).toEqual({ stage_a: 2, stage_scaffolding: 1 });
+    expect(layer.frame(500 + VISUAL_BUILD_MS + 1)).toBe(true);
+    layer.frame(500 + VISUAL_BUILD_MS + 2);
     expect(layer.stageCounts()).toEqual({});
     expect(layer.modelled().has(3)).toBe(true);
     scene.dispose();
