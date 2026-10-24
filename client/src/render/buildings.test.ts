@@ -5,12 +5,13 @@ import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator";
 import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent";
-import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
-import { BuildingLayer, RISE_MS, VISUAL_BUILD_MS } from "./buildings";
-import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./models";
+import { BuildingLayer, RISE_MS, STAGE_SIZE, STAGES, stageMatrix, VISUAL_BUILD_MS } from "./buildings";
+import { rotatedFootprint } from "../display/geometry";
+import { type ModelData, type ModelManifest, ModelRegistry, parseGlb, placement } from "./models";
 
 // The building layer headless (NullEngine) with the committed models: a
 // fake fetch serves public/models, so the registry runs as in the browser.
@@ -242,5 +243,44 @@ describe("BuildingLayer with models", () => {
     expect(shadows.getShadowMap()!.renderList).toContain(merged);
     expect(shadows.getShadowMap()!.renderList).not.toContain(first);
     scene.dispose();
+  });
+});
+
+describe("stageMatrix", () => {
+  // A non-square footprint (3 × 2) shows whether a stage turns with the building.
+  const def = { id: "sawmill", width: 3, height: 2, category: "production" } as unknown as ContentBuilding;
+  const entry = manifest.models.sawmill!;
+  const rotationOf = (m: Matrix) => {
+    const q = new Quaternion();
+    m.decompose(undefined, q, undefined);
+    return q;
+  };
+
+  for (const rotation of [0, 90, 180, 270] as const) {
+    it(`turns the stages and the scaffolding with the building at ${rotation}°`, () => {
+      const b = { x: 4, y: 6, rotation };
+      const p = placement(entry, def, b);
+      const final = Matrix.Scaling(p.sx, 1, p.sz).multiply(Matrix.RotationY(p.yaw)).multiply(Matrix.Translation(p.cx, 0, p.cz));
+      for (let k = 0; k <= STAGES; k++) {
+        const q = rotationOf(stageMatrix(k, entry, def, b));
+        // Same orientation as the final model (q and −q are the same rotation).
+        expect(Math.abs(Quaternion.Dot(q, rotationOf(final)))).toBeCloseTo(1, 6);
+      }
+      // A stage covers the rotated footprint, centred on it.
+      const [w, h] = rotatedFootprint(def.width, def.height, rotation);
+      const m = stageMatrix(0, entry, def, b);
+      const pts = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => Vector3.TransformCoordinates(new Vector3((sx * STAGE_SIZE) / 2, 0, (sz * STAGE_SIZE) / 2), m)));
+      const xs = pts.map((v) => v.x);
+      const zs = pts.map((v) => v.z);
+      expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(w, 6);
+      expect(Math.max(...zs) - Math.min(...zs)).toBeCloseTo(h, 6);
+      expect((Math.max(...xs) + Math.min(...xs)) / 2).toBeCloseTo(p.cx, 6);
+      expect((Math.max(...zs) + Math.min(...zs)) / 2).toBeCloseTo(p.cz, 6);
+    });
+  }
+
+  it("differs between rotations (the stage is not world-fixed)", () => {
+    const at = (rotation: 0 | 90) => rotationOf(stageMatrix(1, entry, def, { x: 0, y: 0, rotation }));
+    expect(Math.abs(Quaternion.Dot(at(0), at(90)))).toBeLessThan(0.9);
   });
 });

@@ -52,7 +52,7 @@ export const STAGES = 3;
 /** Footprint side (tiles, both sides) from which scaffolding stands beside the stages. */
 export const SCAFFOLD_MIN = 3;
 /** Width of the stage models (tiles at scale 1: the KayKit stages at the recipe's scale). */
-const STAGE_SIZE = 1.4;
+export const STAGE_SIZE = 1.4;
 const SCAFFOLD_SIZE = 2.6;
 const STAGE_MAX_Y = 1.6;
 const WHITE = [1, 1, 1, 1] as const;
@@ -188,6 +188,23 @@ export function riseScale(t: number): number {
   if (t >= 1) return 1;
   const u = t - 1;
   return 1 + 2.2 * u * u * u + 1.2 * u * u;
+}
+
+/**
+ * World matrix of construction stage k (0..STAGES-1; STAGES: the
+ * scaffolding) of a building: like the final model, scaled in model space
+ * to the unrotated footprint, turned by the building's rotation and
+ * placed at the footprint centre, so a stage faces where the building
+ * will face.
+ */
+export function stageMatrix(k: number, entry: ModelEntry, def: ContentBuilding, b: Pick<BuildingDisplay, "x" | "y" | "rotation">): Matrix {
+  const p = placement(entry, def, b);
+  const side = Math.min(def.width, def.height);
+  const scale =
+    k < STAGES
+      ? Matrix.Scaling(def.width / STAGE_SIZE, Math.min(STAGE_MAX_Y, side / STAGE_SIZE), def.height / STAGE_SIZE)
+      : Matrix.Scaling(side / SCAFFOLD_SIZE, side / SCAFFOLD_SIZE, side / SCAFFOLD_SIZE);
+  return scale.multiply(Matrix.RotationY(p.yaw)).multiply(Matrix.Translation(p.cx, 0, p.cz));
 }
 
 export class BuildingLayer {
@@ -507,13 +524,7 @@ export class BuildingLayer {
       if (!inst) return;
       inst.resize(items.length);
       items.forEach((it, i) => {
-        const p = placement(it.entry, it.def, it.b);
-        const [w, h] = rotatedFootprint(it.def.width, it.def.height, it.b.rotation);
-        const m =
-          k < STAGES
-            ? Matrix.Scaling(w / STAGE_SIZE, Math.min(STAGE_MAX_Y, Math.min(w, h) / STAGE_SIZE), h / STAGE_SIZE)
-            : Matrix.Scaling(Math.min(w, h) / SCAFFOLD_SIZE, Math.min(w, h) / SCAFFOLD_SIZE, Math.min(w, h) / SCAFFOLD_SIZE).multiply(Matrix.RotationY(p.yaw));
-        m.multiply(Matrix.Translation(p.cx, 0, p.cz)).copyToArray(inst.matrices, i * 16);
+        stageMatrix(k, it.entry, it.def, it.b).copyToArray(inst.matrices, i * 16);
         inst.setColor(i, tintOf(it.b));
       });
       inst.commit();
