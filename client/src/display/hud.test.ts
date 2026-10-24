@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { Content, ContentBuilding, DisplayState, Island } from "../api/client";
 import { constructionGoods, islandResources, tierRows, workforceText, worstNeedText } from "./hud";
+import { needLabel } from "./needs";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -53,9 +54,12 @@ describe("top-bar aggregates", () => {
     // 4 houses at 100 %, 7 at 70 % (8 residents each): 809 ‰.
     expect(settlers!.satisfactionPermille).toBe(809);
     expect(settlers!.worst).toMatchObject({ id: "settlers_market_small", fulfilmentPermille: 364, reason: "out_of_range" });
-    expect(worstNeedText(settlers!.worst, (id) => (id === "market_small" ? "Small market" : id))).toBe("Worst unmet need: Small market 36 % (out of range)");
+    // The need's content name (needLabel), not its ID or the building's name.
+    const needs = { needs: [{ id: "settlers_market_small", name: "Market" }], buildings: [{ id: "market_small", name: "Small market" }] } as unknown as Content;
+    expect(worstNeedText(settlers!.worst, (n) => needLabel(needs, n))).toBe("Worst unmet need: Market 36 % (out of range)");
+    expect(worstNeedText(settlers!.worst, (n) => needLabel(null, n))).toBe("Worst unmet need: market_small 36 % (out of range)");
     expect(citizens).toMatchObject({ employed: 22_000, total: 40_000, satisfactionPermille: 1000, worst: null });
-    expect(worstNeedText(null, (id) => id)).toBe("All needs met");
+    expect(worstNeedText(null, (n) => n.id)).toBe("All needs met");
   });
 
   it("has no satisfaction without residents (unsettled island)", () => {

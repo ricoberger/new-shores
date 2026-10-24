@@ -7,6 +7,7 @@
 import type { BuildingDisplay, Content, ContentBuilding, Island, IslandDisplay, NeedDisplay } from "../api/client";
 import { depositCounts } from "./archipelago";
 import { units } from "./format";
+import type { NeedRef } from "./needs";
 import { blockedTiles } from "./scatter";
 
 /** An island's resources: fertility tags, deposit kinds with tile counts, and its coast tiles (all, and free of buildings and roads). */
@@ -115,10 +116,10 @@ const REASONS: Record<NeedDisplay["reason"], string> = {
   paused: "paused",
 };
 
-/** "Worst unmet need: food 40 % (short supply)" or "All needs met" (the satisfaction tooltip). */
-export function worstNeedText(w: WorstNeed | null, buildingName: (id: string) => string): string {
+/** "Worst unmet need: Food 40 % (short supply)" or "All needs met" (the satisfaction tooltip); label names the need (display/needs needLabel). */
+export function worstNeedText(w: WorstNeed | null, label: (n: NeedRef) => string): string {
   if (!w) return "All needs met";
-  const name = w.category ?? (w.building ? buildingName(w.building) : w.id);
+  const name = label(w);
   return `Worst unmet need: ${name} ${Math.round(w.fulfilmentPermille / 10)} % (${REASONS[w.reason]})`;
 }
 

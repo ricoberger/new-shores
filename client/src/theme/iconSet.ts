@@ -12,8 +12,13 @@ export function goodIcon(id: string): string {
   return path(`good:${id}`, "good:_fallback");
 }
 
-/** Icon of a need: its goods category (food, drink, clothing) or the public building it asks for. */
-export function needIcon(need: { category?: string; building?: string }): string {
+/**
+ * Icon of a need: the HUD icon key its category names in content
+ * (need_categories[].icon) when the set has it, else its goods category
+ * (food, drink, clothing) or the public building it asks for.
+ */
+export function needIcon(need: { category?: string; building?: string }, iconKey?: string): string {
+  if (iconKey && ICON_PATHS[iconKey]) return ICON_PATHS[iconKey];
   const key = need.category ? `need:${need.category}` : need.building ? `need:${need.building}` : "";
   return path(key, "need:_fallback");
 }

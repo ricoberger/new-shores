@@ -3,6 +3,7 @@ import { percent, perMin, seconds, units } from "../display/format";
 import { countdown, orderTiming } from "../display/ships";
 import { fieldBuildingOf } from "../display/fields";
 import { workforceText } from "../display/hud";
+import { needCategory, needLabel } from "../display/needs";
 import { fieldsPlural, STATUS_STYLES, statusKey, statusText } from "../display/status";
 import { goodIcon, needIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
@@ -306,10 +307,10 @@ export function InfoPanel({
           <div className={styles.section}>
             <div className={styles.sectionTitle}>Needs</div>
             {(b.needs ?? []).map((n) => (
-              <div key={n.id} style={{ marginBottom: 4 }}>
+              <div key={n.id} style={{ marginBottom: 4 }} data-testid={`house-need-${n.id}`}>
                 <div className={`${styles.small} ${styles.withIcon}`}>
-                  <Icon path={needIcon(n)} />
-                  {n.category ? n.category : n.building ? (content.buildings.find((d) => d.id === n.building)?.name ?? n.building) : n.id}{" "}
+                  <Icon path={needIcon(n, n.category ? needCategory(content, n.category).icon : undefined)} />
+                  {needLabel(content, n)}{" "}
                   {percent(n.fulfilment_permille)} {NEED_REASONS[n.reason] ? `— ${NEED_REASONS[n.reason]}` : ""}
                 </div>
                 <Bar permille={n.fulfilment_permille} />
