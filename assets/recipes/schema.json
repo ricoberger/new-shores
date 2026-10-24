@@ -77,7 +77,7 @@
       "additionalProperties": false,
       "properties": {
         "name": { "type": "string", "description": "Label in error messages (default: file or prim and the index)." },
-        "kit": { "enum": ["medieval", "pirate", "kaykit_hexagon", "kaykit_forest"] },
+        "kit": { "enum": ["kaykit_hexagon", "kaykit_forest"] },
         "kit_building": { "type": "string", "description": "A whole kit building by name (KIT_BUILDINGS in assets/build/nsassets/config.py, e.g. home_A, church, lumbermill, windmill, scaffolding) — the kit piece turned so its front faces +y; replaces kit + file and takes the kit-piece options (roles, drop, crop, exaggerate, simplify) and transforms." },
         "file": { "type": "string", "description": "Kit-relative path as listed in assets/kits/MANIFEST.json." },
         "prim": { "enum": ["box", "cylinder", "wedge", "sail", "lathe", "rock"] },

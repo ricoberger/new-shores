@@ -114,7 +114,8 @@ export const TOUCH_PASTURE_TO = { x: 33, y: 6 };
 export const TOUCH_PASTURE_VALID = 5;
 
 // Camera rotation (archipelago.spec.ts): one settler house (2 × 2, 10
-// planks) placed by a click in each of the four camera rotation steps,
+// planks) placed by a click at each of four camera headings (0°, 45°,
+// 135°, 225° from the default),
 // with building rotation step × 90°, on free grass of the start island
 // (x 12..19, y 23..24) reserved for this test; no other spec builds there.
 export const ROTATION_HOUSES = [

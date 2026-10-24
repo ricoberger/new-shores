@@ -1,7 +1,9 @@
 import type { Content, DisplayState, Island } from "../api/client";
-import { depositCounts, foundingShips, islandSummary, shipsAt } from "../display/archipelago";
+import { foundingShips, islandSummary, shipsAt } from "../display/archipelago";
 import { units } from "../display/format";
+import { islandResources } from "../display/hud";
 import styles from "./hud.module.css";
+import { ResourceBadges } from "./ResourceBadges";
 
 interface Props {
   islandId: string;
@@ -30,7 +32,8 @@ export function IslandCard({ islandId, model, content, statics, nowMs, onGoTo, o
   const shipType = (type: string) => content.ships.find((t) => t.id === type)?.name ?? type;
   // Idle ships here whose cargo covers the warehouse (a content lookup).
   const founders = foundingShips(model, content, is.id);
-  const deposits = depositCounts(statics);
+  const defs = new Map(content.buildings.map((b) => [b.id, b]));
+  const resources = statics && statics.id === is.id ? islandResources(statics, is, defs) : null;
   return (
     <div className={`${styles.panel} ${styles.infoPanel}`} data-testid="island-card">
       <div className={styles.row}>
@@ -64,11 +67,15 @@ export function IslandCard({ islandId, model, content, statics, nowMs, onGoTo, o
       <div className={styles.section}>
         <div className={styles.sectionTitle}>Fertilities</div>
         <div className={styles.small} data-testid="island-card-fertilities">
-          {statics ? (statics.fertilities.length > 0 ? statics.fertilities.join(", ") : "none") : "…"}
+          {resources ? <ResourceBadges resources={resources} prefix="island-card" only={["fertilities"]} /> : "…"}
         </div>
         <div className={styles.sectionTitle}>Deposits</div>
         <div className={styles.small} data-testid="island-card-deposits">
-          {statics ? (deposits.length > 0 ? deposits.map((d) => `${d.kind} (${d.tiles} tiles)`).join(", ") : "none") : "…"}
+          {resources ? <ResourceBadges resources={resources} prefix="island-card" only={["deposits"]} /> : "…"}
+        </div>
+        <div className={styles.sectionTitle}>Coast</div>
+        <div className={styles.small} data-testid="island-card-coast">
+          {resources ? <ResourceBadges resources={resources} prefix="island-card" only={["coast"]} /> : "…"}
         </div>
       </div>
       <div className={styles.section}>

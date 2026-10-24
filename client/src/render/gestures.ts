@@ -7,7 +7,9 @@
 //
 // One pointer: tap, drag (start/move/end), long-press (touch only).
 // Two touch pointers: pinch (centre, scale and translation per update) and
-// rotate (accumulated angle, emitted per crossing of ROTATE_STEP_RAD). A
+// rotate (accumulated angle; `steps` per crossing of ROTATE_STEP_RAD for
+// the ghost, and a continuous `delta` once the twist passed
+// TWIST_START_RAD, for the camera). A
 // second finger cancels the first finger's press or drag; after a
 // two-finger gesture nothing else is recognised until every finger is up.
 
@@ -31,6 +33,8 @@ export const LONG_PRESS_MS = 450;
 export const PINCH_START_PX = 8;
 /** Twist (radians) per rotate step: every crossing of a multiple emits one step. */
 export const ROTATE_STEP_RAD = Math.PI / 4;
+/** Twist (radians) before the continuous rotation starts (a pinch's own wobble does not turn the camera). */
+export const TWIST_START_RAD = (12 * Math.PI) / 180;
 
 export type GestureEvent =
   | { type: "tap"; p: Point; button: number; kind: PointerKind }
@@ -44,8 +48,13 @@ export type GestureEvent =
    * pinch update (> 1: fingers apart, zoom in).
    */
   | { type: "pinch"; centre: Point; translation: Point; scale: number }
-  /** Two fingers twisted: `angle` accumulated (radians, clockwise on screen), `steps` new threshold crossings (signed). */
-  | { type: "rotate"; angle: number; steps: number }
+  /**
+   * Two fingers twisted: `angle` accumulated (radians, clockwise on
+   * screen), `steps` new ROTATE_STEP_RAD crossings (signed, may be 0),
+   * `delta` the continuous twist since the last event once past
+   * TWIST_START_RAD (0 before), and `centre` the fingers' midpoint.
+   */
+  | { type: "rotate"; angle: number; steps: number; delta: number; centre: Point }
   /** A press, drag or two-finger gesture ended without a release (pointercancel or cancel()). */
   | { type: "cancel" }
   /** The mouse or pen moved (null: it left the canvas). Touch never hovers. */
@@ -70,6 +79,9 @@ interface Multi {
   angle: number;
   steps: number;
   pinching: boolean;
+  /** The continuous twist started (|angle| passed TWIST_START_RAD); `turned` is what has been emitted as delta. */
+  twisting: boolean;
+  turned: number;
 }
 
 type Mode = "idle" | "press" | "drag" | "longPressed" | "multi" | "consumed";
@@ -142,6 +154,8 @@ export class GestureRecognizer {
       angle: 0,
       steps: 0,
       pinching: false,
+      twisting: false,
+      turned: 0,
     };
     this.mode = "multi";
     return true;
@@ -200,9 +214,16 @@ export class GestureRecognizer {
     m.angle += angleDelta(m.prevAngle, ang);
     m.prevAngle = ang;
     const steps = Math.trunc(m.angle / ROTATE_STEP_RAD);
-    if (steps !== m.steps) {
-      this.emit({ type: "rotate", angle: m.angle, steps: steps - m.steps });
+    if (!m.twisting && Math.abs(m.angle) > TWIST_START_RAD) {
+      m.twisting = true;
+      // Continue from the dead zone's edge: no jump by the dead zone itself.
+      m.turned = Math.sign(m.angle) * TWIST_START_RAD;
+    }
+    const delta = m.twisting ? m.angle - m.turned : 0;
+    if (steps !== m.steps || delta !== 0) {
+      this.emit({ type: "rotate", angle: m.angle, steps: steps - m.steps, delta, centre: c });
       m.steps = steps;
+      m.turned = m.angle;
     }
   }
 

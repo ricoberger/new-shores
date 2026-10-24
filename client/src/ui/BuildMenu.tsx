@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
 import { buildMenuOrder } from "../display/fields";
 import { perMin, units } from "../display/format";
-import { fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
+import { depositText, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
 import { categoryIcon, goodIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
@@ -36,6 +36,11 @@ interface Props {
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 
 /** Tier numeral (I, II, …) of a tier's position in the content tiers. */
+/** URL of a content ID's build-card thumbnail: 128 px PNGs rendered by the asset build (assets/build, `make assets`). */
+export function thumbUrl(id: string): string {
+  return `/models/thumbs/${id}.png`;
+}
+
 export function tierNumeral(index: number): string {
   return ROMAN[index] ?? String(index + 1);
 }
@@ -114,6 +119,19 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
                     <span className={styles.srOnly}>, {tierName}</span>
                   </span>
                 )}
+                {/* The model's thumbnail from the asset build (decorative: the name is the label); hidden when it has none. */}
+                <img
+                  className={styles.itemThumb}
+                  src={thumbUrl(b.id)}
+                  alt=""
+                  width={64}
+                  height={64}
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => {
+                    e.currentTarget.hidden = true;
+                  }}
+                />
                 <span className={styles.itemName}>{b.name}</span>
                 <span className={styles.small}>
                   {units(b.cost.gold)} gold · upkeep {perMin(b.upkeep_per_min)}/min
@@ -134,7 +152,7 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
                 )}
                 {b.requires_deposit && (
                   <span className={styles.small} data-testid={`build-deposit-${b.id}`}>
-                    Must cover a {b.requires_deposit} deposit
+                    {depositText(b.requires_deposit)}
                   </span>
                 )}
                 {locked && (

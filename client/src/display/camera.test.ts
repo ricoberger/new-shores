@@ -10,8 +10,11 @@ import {
   groundFootprint,
   MIN_HALF_HEIGHT,
   NEAR_DEFAULT_HALF_HEIGHT,
+  isSnapped,
   normRotation,
+  rotationDelta,
   screenAxes,
+  snapRotation,
   seaMargin,
   targetBounds,
   zoomRange,
@@ -43,6 +46,7 @@ describe("clamping", () => {
   it("clamps the target to the bounds plus the margin and the zoom to the range", () => {
     const aspect = 412 / 915;
     const v = clampView({ x: -500, y: 500, half: 1, rotation: 5 }, DEV, aspect);
+    expect(clampView({ x: 0, y: 0, half: 18, rotation: -0.75 }, DEV, aspect).rotation).toBeCloseTo(3.25, 12);
     expect(v).toEqual({ x: -BOUNDS_MARGIN, y: 114 + BOUNDS_MARGIN, half: MIN_HALF_HEIGHT, rotation: 1 });
     const far = clampView({ x: 50, y: 50, half: 10_000, rotation: -1 }, DEV, aspect);
     expect(far.half).toBeCloseTo(fitHalfHeight(112, 114, aspect), 6);
@@ -50,10 +54,45 @@ describe("clamping", () => {
     expect(clampView({ x: 10, y: 20, half: 18, rotation: 0 }, DEV, aspect)).toEqual({ x: 10, y: 20, half: 18, rotation: 0 });
   });
 
-  it("normalises rotation steps", () => {
+  it("normalises rotations continuously to [0, 4)", () => {
     expect([-5, -1, 0, 3, 4, 9].map(normRotation)).toEqual([3, 3, 0, 3, 0, 1]);
+    expect(normRotation(-0.5)).toBe(3.5);
+    expect(normRotation(1.3)).toBeCloseTo(1.3, 12);
+    expect(normRotation(3.9999999999)).toBe(0);
+    expect(normRotation(NaN)).toBe(0);
     expect(azimuthOf(0)).toBeCloseTo(Math.PI / 4, 9);
     expect(azimuthOf(2)).toBeCloseTo((5 * Math.PI) / 4, 9);
+    expect(azimuthOf(0.5)).toBeCloseTo(Math.PI / 2, 9);
+  });
+
+  it("snaps to the nearest 45° and measures the shortest way round", () => {
+    expect([0.2, 0.26, 1.74, 3.8, -0.1].map(snapRotation)).toEqual([0, 0.5, 1.5, 0, 0]);
+    expect(isSnapped(1.5)).toBe(true);
+    expect(isSnapped(1.4)).toBe(false);
+    expect(rotationDelta(3.75, 0.25)).toBeCloseTo(0.5, 12);
+    expect(rotationDelta(0.25, 3.75)).toBeCloseTo(-0.5, 12);
+    expect(rotationDelta(1, 3)).toBe(2);
+  });
+
+  it("the fit holds at every azimuth: the rectangle's corners stay in the viewport", () => {
+    const aspect = 412 / 915;
+    const half = fitHalfHeight(112, 40, aspect);
+    for (let rotation = 0; rotation < 4; rotation += 0.125) {
+      const { right, up } = screenAxes(rotation);
+      for (const [x, y] of [
+        [-56, -20],
+        [56, -20],
+        [56, 20],
+        [-56, 20],
+      ] as const) {
+        // Screen coordinates (ortho units) of a ground offset: solve x·right + y'·up.
+        const det = right.x * up.y - right.y * up.x;
+        const u = (x * up.y - y * up.x) / det;
+        const w = (right.x * y - right.y * x) / det;
+        expect(Math.abs(u)).toBeLessThanOrEqual(half * aspect);
+        expect(Math.abs(w)).toBeLessThanOrEqual(half);
+      }
+    }
   });
 });
 
@@ -67,7 +106,7 @@ describe("ground footprint", () => {
     const cy = fp.reduce((s, p) => s + p.y, 0) / 4;
     expect(cx).toBeCloseTo(40, 9);
     expect(cy).toBeCloseTo(30, 9);
-    for (let r = 0; r < 4; r++) {
+    for (let r = 0; r < 4; r += 0.25) {
       const { right, up } = screenAxes(r);
       expect(right.x * up.x + right.y * up.y).toBeCloseTo(0, 9);
       expect(Math.hypot(right.x, right.y)).toBeCloseTo(1, 9);
@@ -94,7 +133,7 @@ describe("ground footprint", () => {
   });
 
   it("the viewport centre is the target in every rotation", () => {
-    for (let r = 0; r < 4; r++) expect(groundAtNdc({ ...view, rotation: r }, aspect, 0, 0)).toEqual({ x: 40, y: 30 });
+    for (let r = 0; r < 4; r += 0.5) expect(groundAtNdc({ ...view, rotation: r }, aspect, 0, 0)).toEqual({ x: 40, y: 30 });
   });
 });
 
@@ -103,7 +142,7 @@ describe("sea extent", () => {
     [1280, 800],
     [360, 640],
   ] as const) {
-    it(`${w} × ${h}: the sea covers the viewport at every clamped target at the maximum zoom in every rotation`, () => {
+    it(`${w} × ${h}: the sea covers the viewport at every clamped target at the maximum zoom at every azimuth`, () => {
       const aspect = w / h;
       const m = seaMargin(DEV, aspect);
       const sea = { minX: DEV.minX - m, minY: DEV.minY - m, maxX: DEV.maxX + m, maxY: DEV.maxY + m };
@@ -111,7 +150,7 @@ describe("sea extent", () => {
       const half = zoomRange(DEV, aspect).max;
       for (const x of [t.minX, t.maxX]) {
         for (const y of [t.minY, t.maxY]) {
-          for (let rotation = 0; rotation < 4; rotation++) {
+          for (let rotation = 0; rotation < 4; rotation += 0.125) {
             for (const p of groundFootprint({ x, y, half, rotation }, aspect)) {
               expect(p.x).toBeGreaterThanOrEqual(sea.minX);
               expect(p.x).toBeLessThanOrEqual(sea.maxX);

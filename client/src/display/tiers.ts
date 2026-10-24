@@ -70,3 +70,8 @@ export function missingFertilityText(fertility: string, fertilities: readonly st
   const have = fertilities && fertilities.length > 0 ? fertilities.join(", ") : "none";
   return `Needs ${fertility} fertility — this island has ${have}`;
 }
+
+/** "Must cover a stone deposit" / "Must cover an iron deposit" (the article follows the deposit's name). */
+export function depositText(kind: string): string {
+  return `Must cover ${/^[aeiou]/i.test(kind) ? "an" : "a"} ${kind} deposit`;
+}

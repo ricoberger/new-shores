@@ -265,7 +265,7 @@ test("a touch gesture begun during a jump stays ignored after it, also when a dr
   // add a second finger (the recogniser promotes the drag to a pinch with
   // a cancel).
   await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1_000);
-  await page.evaluate(() => (document.querySelector('[data-testid="island-tab-dense2"]') as HTMLElement).click());
+  await page.evaluate(() => window.__newShores!.jumpToIsland("dense2"));
   await touch.raw(
     { type: "start", fingers: [{ ...c, id: 1 }] },
     { type: "move", fingers: [{ x: c.x + 40, y: c.y, id: 1 }] },
@@ -309,10 +309,19 @@ test("two-finger twist turns the camera without a tool and the ghost with a ghos
   const before = await camera(page);
   await touch.twist(await freeCanvasPoint(page), 180, Math.PI / 3);
   await expect.poll(async () => (await camera(page)).rotation).not.toBe(before.rotation);
+  // The twist (60°) turns the camera freely; on release it eases to a 45° step (either way round), the zoom kept.
+  await expect.poll(async () => {
+    const r = (await camera(page)).rotation;
+    return Math.abs(r * 2 - Math.round(r * 2)) < 1e-9;
+  }).toBe(true);
   const after = await camera(page);
-  // One step (either way round), about the same target and zoom.
-  expect([(before.rotation + 1) % 4, (before.rotation + 3) % 4]).toContain(after.rotation);
+  expect([0.5, 1, 3, 3.5]).toContain(after.rotation);
   expect(after.half).toBeCloseTo(before.half, 3);
+  // A tap on the compass (on the minimap, or next to its toggle while collapsed) returns to the default heading, and back.
+  await page.getByTestId("camera-compass").tap();
+  await expect.poll(async () => (await camera(page)).rotation).toBe(0);
+  await touch.twist(await freeCanvasPoint(page), 180, Math.PI / 3);
+  await expect.poll(async () => (await camera(page)).rotation).toBe(after.rotation);
   // With a build tool the twist turns the ghost; the camera stays.
   await page.getByTestId("build-tab-production").tap();
   await page.getByTestId("build-lumberjack").tap();

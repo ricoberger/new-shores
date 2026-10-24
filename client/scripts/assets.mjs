@@ -67,7 +67,7 @@ function main() {
     const lines = (rest + chunk.toString()).split("\n");
     rest = lines.pop() ?? "";
     for (const line of lines) {
-      if (/\| INFO: |^Blender quit$|^Read prefs|^\s*$/.test(line)) continue;
+      if (/\| INFO: |^Blender quit$|^Read prefs|^\s*$|render +\| Saved: /.test(line)) continue;
       console.log(line);
     }
   });

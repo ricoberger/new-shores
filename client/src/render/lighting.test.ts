@@ -30,9 +30,9 @@ describe("sun", () => {
     const { rig, lighting } = setup();
     const d0 = lighting.sun.direction.clone();
     expect(d0.equalsWithEpsilon(SUN_DIRECTION, 1e-9)).toBe(true);
-    for (let step = 1; step <= 4; step++) {
-      rig.rotate(1);
-      expect(rig.view().rotation).toBe(step % 4);
+    for (let step = 1; step <= 8; step++) {
+      rig.rotateBy(0.5);
+      expect(rig.view().rotation).toBe((step / 2) % 4);
       expect(lighting.sun.direction.equalsWithEpsilon(d0, 1e-9)).toBe(true);
     }
   });

@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Content, DisplayState } from "../api/client";
 import { cargoCoversWarehouse, depositCounts, foundingShips, islandSummary, shipsAt } from "./archipelago";
 import { serverTimeMs } from "./extrapolate";
-import { createdRouteId, draftFromRoute, signedUnits, stopsFromDraft } from "./routes";
+import { createdRouteId, draftFromRoute, ribbonsShown, signedUnits, stopsFromDraft } from "./routes";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -63,5 +63,32 @@ describe("route drafts", () => {
     expect(signedUnits(0)).toBe("0");
     expect(createdRouteId([r], [r, { ...r, id: 2 }])).toBe(2);
     expect(createdRouteId([r], [r])).toBeNull();
+  });
+});
+
+describe("route ribbons shown", () => {
+  const route = (id: number, stops: string[]) => ({ id, name: `r${id}`, stops: stops.map((island_id) => ({ island_id, load: [], unload: [] })), ship_ids: [] });
+  const routes = [route(1, ["a", "b"]), route(2, ["b", "c"])] as unknown as DisplayState["routes"];
+
+  it("draws none without a selected ship's route or the editor", () => {
+    expect(ribbonsShown(routes, null, null)).toEqual([]);
+  });
+
+  it("draws only the selected ship's route, bright", () => {
+    expect(ribbonsShown(routes, 2, null)).toEqual([{ key: "route_2", stops: ["b", "c"], colorIndex: 1, bright: true }]);
+  });
+
+  it("draws every route while the editor is open: the edited one bright, the others faint, plus the draft", () => {
+    const r = ribbonsShown(routes, 1, ["a", "b"]);
+    expect(r.map((x) => [x.key, x.bright])).toEqual([
+      ["route_1", true],
+      ["route_2", false],
+      ["draft", true],
+    ]);
+    // A new route without stops yet: every saved route faintly.
+    expect(ribbonsShown(routes, null, []).map((x) => [x.key, x.bright])).toEqual([
+      ["route_1", false],
+      ["route_2", false],
+    ]);
   });
 });

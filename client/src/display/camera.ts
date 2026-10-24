@@ -1,5 +1,6 @@
 // Camera math of the continuous world (D-048), framework-free: the fixed
-// elevation, the four azimuth steps, the zoom range, target clamping and
+// elevation, the free azimuth (D-051: continuous, snapping to 45°), the
+// zoom range, target clamping and
 // the camera's ground footprint (the viewport corners on the ground plane).
 // Scene coordinates are archipelago coordinates: archipelago tile (x, y)
 // is world (x, 0, −y). The Babylon rig (render/camera.ts) uses these
@@ -12,10 +13,14 @@ export const FAR_REACH_HALF = FAR_ENTER_HALF * 1.1;
 
 /** Elevation of the camera above the ground plane (30°). */
 export const ELEVATION = Math.PI / 6;
-/** Azimuth of rotation step 0 (45°, the iso view of PR #10). */
+/** Azimuth of rotation 0 (45°, the iso view of PR #10): the default heading ("north" of the compass). */
 export const BASE_AZIMUTH = Math.PI / 4;
-/** Number of 90° rotation steps. */
+/** Rotation is measured in quarter turns (90°); a full turn is this many. */
 export const ROTATION_STEPS = 4;
+/** Rotations snap to multiples of this (quarter turns): 45° (D-051). */
+export const ROTATION_SNAP = 0.5;
+/** Longest ease (ms) of the camera to the nearest 45° after a free rotation, and of a Q/E step. */
+export const ROTATION_EASE_MS = 250;
 
 /**
  * Smallest vertical ortho half extent (most zoomed in): a 2 × 2 building
@@ -31,7 +36,11 @@ export const BOUNDS_MARGIN = 30;
 /** Duration of camera jumps (tabs, island card, Enter, founding, warnings, minimap). */
 export const JUMP_MS = 350;
 
-/** Camera target (archipelago tiles), vertical half extent and rotation step 0–3. */
+/**
+ * Camera target (archipelago tiles), vertical half extent and rotation in
+ * quarter turns, continuous in [0, 4): 0 is the default heading (azimuth
+ * 45°), 0.5 one 45° step, 2 the opposite view.
+ */
 export interface CameraView {
   x: number;
   y: number;
@@ -47,24 +56,51 @@ export interface Rect {
   maxY: number;
 }
 
-/** Rotation step normalised to 0–3. */
-export function normRotation(step: number): number {
-  return ((Math.round(step) % ROTATION_STEPS) + ROTATION_STEPS) % ROTATION_STEPS;
+/** Tolerance (quarter turns) within which a rotation counts as on a 45° step. */
+const SNAP_EPS = 1e-6;
+
+/** Rotation normalised to [0, 4) (values within SNAP_EPS of a 45° step land exactly on it). */
+export function normRotation(r: number): number {
+  if (!Number.isFinite(r)) return 0;
+  const snapped = Math.round(r / ROTATION_SNAP) * ROTATION_SNAP;
+  const v = Math.abs(r - snapped) < SNAP_EPS ? snapped : r;
+  const n = ((v % ROTATION_STEPS) + ROTATION_STEPS) % ROTATION_STEPS;
+  return n >= ROTATION_STEPS - SNAP_EPS / 2 ? 0 : n;
 }
 
-/** Azimuth (radians) of a rotation step: 45°, 135°, 225°, 315°. */
-export function azimuthOf(step: number): number {
-  return BASE_AZIMUTH + normRotation(step) * (Math.PI / 2);
+/** The nearest 45° step of a rotation (normalised). */
+export function snapRotation(r: number): number {
+  return normRotation(Math.round(r / ROTATION_SNAP) * ROTATION_SNAP);
+}
+
+/** Whether a rotation lies on a 45° step. */
+export function isSnapped(r: number): boolean {
+  return Math.abs(r / ROTATION_SNAP - Math.round(r / ROTATION_SNAP)) < SNAP_EPS / ROTATION_SNAP;
+}
+
+/** Signed shortest difference to - from (quarter turns, in (−2, 2]). */
+export function rotationDelta(from: number, to: number): number {
+  let d = (to - from) % ROTATION_STEPS;
+  if (d > ROTATION_STEPS / 2) d -= ROTATION_STEPS;
+  if (d <= -ROTATION_STEPS / 2) d += ROTATION_STEPS;
+  return d;
+}
+
+/** Azimuth (radians) of a rotation: 45° at 0, +90° per quarter turn, continuous. */
+export function azimuthOf(r: number): number {
+  return BASE_AZIMUTH + normRotation(r) * (Math.PI / 2);
 }
 
 /**
  * Vertical half extent at which a ground rectangle of w × h tiles fits the
- * viewport (with 10 % margin). The same in all four rotations (every step
- * is a 45° diagonal view).
+ * viewport (with 10 % margin) at every azimuth: the rectangle's screen
+ * width w·|cos a| + h·|sin a| is at most its diagonal, so the zoom range
+ * does not change while the camera turns (at the 45° diagonal headings of
+ * a square it is exact).
  */
 export function fitHalfHeight(w: number, h: number, aspect: number): number {
-  const across = (w + h) / Math.SQRT2; // screen width of the rectangle
-  const tall = across * Math.sin(ELEVATION); // screen height of the rectangle
+  const across = Math.hypot(w, h); // widest screen extent of the rectangle over all azimuths
+  const tall = across * Math.sin(ELEVATION); // tallest screen extent
   return Math.max(tall / 2, across / 2 / Math.max(0.1, aspect)) * 1.1;
 }
 
@@ -139,8 +175,8 @@ export function groundFootprint(v: CameraView, aspect: number): [ArchPoint, Arch
 
 /**
  * Screen width (fraction of the viewport width) of a w × h footprint at a
- * zoom: its diagonal extent across the screen, 2√2 tiles for a 2 × 2
- * building in every rotation.
+ * zoom at the default heading: its diagonal extent across the screen, 2√2
+ * tiles for a 2 × 2 building (the widest it gets at any azimuth).
  */
 export function footprintScreenFraction(w: number, h: number, half: number, aspect: number): number {
   return (w + h) / Math.SQRT2 / (2 * half * aspect);

@@ -2,6 +2,7 @@ import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../a
 import { percent, perMin, seconds, units } from "../display/format";
 import { countdown, orderTiming } from "../display/ships";
 import { fieldBuildingOf } from "../display/fields";
+import { workforceText } from "../display/hud";
 import { fieldsPlural, STATUS_STYLES, statusKey, statusText } from "../display/status";
 import { goodIcon, needIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
@@ -253,7 +254,7 @@ export function InfoPanel({
                 <tr>
                   <td>Workers</td>
                   <td>
-                    {units(b.workforce.required)} {tierName(b.workforce.tier)} ({percent(b.workforce_factor_permille ?? 1000)})
+                    <span data-testid="info-workforce">{workforceText(b, island, tierName)}</span>
                   </td>
                 </tr>
               )}

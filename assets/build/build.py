@@ -11,7 +11,8 @@ Without Blender (stdlib Python ≥ 3.11):
     python3 assets/build/build.py validate   (recipes against schema, content, kit manifest, palette)
     python3 assets/build/build.py pin        (writes the sha256 of every kit file the recipes use into MANIFEST.json)
 
-Options: --out DIR (GLBs + manifest), --sheets DIR, --recipes DIR, --only id,id, --no-sheets, --check.
+Options: --out DIR (GLBs + manifest), --sheets DIR, --thumbs DIR (build-card PNGs), --recipes DIR, --only id,id,
+--no-sheets, --no-thumbs, --check (GLBs, manifest and thumbnails).
 """
 
 import argparse
@@ -39,7 +40,9 @@ def parse(argv):
     p.add_argument("--sheets", default=config.SHEETS_DIR)
     p.add_argument("--recipes", default=config.RECIPES_DIR)
     p.add_argument("--only", default="")
+    p.add_argument("--thumbs", default=config.THUMBS_DIR)
     p.add_argument("--no-sheets", action="store_true")
+    p.add_argument("--no-thumbs", action="store_true")
     p.add_argument("--check", action="store_true", help="build into a temporary directory and compare with --out")
     return p.parse_args(argv)
 
@@ -132,15 +135,45 @@ def cmd_build(args):
         tmp = tempfile.mkdtemp(prefix="ns-assets-check-")
         try:
             write_outputs(tmp, written, manifest_bytes)
-            return compare(tmp, args.out)
+            code = compare(tmp, args.out)
+            if not args.no_thumbs:
+                thumbs = os.path.join(tmp, "thumbs")
+                write_thumbs(thumbs, sheet_items, set(content_mod.required_ids(content)), only, blender_ops, quiet=True)
+                code = compare(thumbs, args.thumbs, ".png") or code
+            return code
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
     write_outputs(args.out, written, manifest_bytes)
     total = sum(len(d) for d in written.values()) + len(manifest_bytes)
     log(f"assets: wrote {len(written)} GLB(s) + manifest.json to {args.out} ({total} bytes)")
+    if not args.no_thumbs:
+        write_thumbs(args.thumbs, sheet_items, set(content_mod.required_ids(content)), only, blender_ops)
     if not args.no_sheets:
         write_sheets(args.sheets, sheet_items, blender_ops)
     return 0
+
+
+def write_thumbs(out, items, content_ids, only, blender_ops, quiet=False):
+    """One 128 px PNG per content ID with a model (buildings and ships; decor has no card); stale PNGs are removed on a full build."""
+    os.makedirs(out, exist_ok=True)
+    wanted = set()
+    for cid, files, roles in items:
+        if cid not in content_ids:
+            continue
+        name = pipeline.thumb_file(files)
+        mesh = next((f[2] for f in files if f[0] == name), None)
+        if mesh is None:
+            continue
+        points = [p for t in mesh.tris for p in t[:3]]
+        frame = lambda right, up, pts=points: pipeline.thumb_frame(pts, right, up)
+        blender_ops.render_thumb(os.path.join(out, f"{cid}.png"), mesh.tris, _colors(roles, mesh), config.THUMB_PX, SKY, SUN, frame)
+        wanted.add(f"{cid}.png")
+    if only is None:
+        for f in sorted(os.listdir(out)):
+            if f.endswith(".png") and f not in wanted:
+                os.remove(os.path.join(out, f))
+    if not quiet:
+        log(f"assets: {len(wanted)} thumbnail(s) in {out}")
 
 
 def write_outputs(out, written, manifest_bytes):
@@ -155,19 +188,19 @@ def write_outputs(out, written, manifest_bytes):
         f.write(manifest_bytes)
 
 
-def _digests(d):
+def _digests(d, ext=".glb"):
     if not os.path.isdir(d):
         return {}
     out = {}
     for f in sorted(os.listdir(d)):
-        if f.endswith(".glb") or f == "manifest.json":
+        if f.endswith(ext) or (ext == ".glb" and f == "manifest.json"):
             with open(os.path.join(d, f), "rb") as fh:
                 out[f] = hashlib.sha256(fh.read()).hexdigest()
     return out
 
 
-def compare(built, committed):
-    a, b = _digests(built), _digests(committed)
+def compare(built, committed, ext=".glb"):
+    a, b = _digests(built, ext), _digests(committed, ext)
     diff = sorted(f for f in set(a) | set(b) if a.get(f) != b.get(f))
     if diff:
         log(f"assets-check: {len(diff)} file(s) differ from {committed} (run `make assets` and commit):")

@@ -12,7 +12,6 @@ import bpy
 from mathutils import Matrix, Vector
 
 from . import atlas, config, geometry
-from .palette import hex_rgb
 
 _SUFFIX = re.compile(r"\.\d{3}$")
 
@@ -43,7 +42,6 @@ class KitLoader:
     def __init__(self, files_of):
         self.files_of = files_of  # (kit, rel) -> absolute path
         self.cache = {}
-        self.atlas_pixels = {}
 
     def __call__(self, kit, rel, simplify):
         key = (kit, rel, tuple(sorted((simplify or {}).items())))
@@ -60,7 +58,6 @@ class KitLoader:
         bpy.context.view_layer.update()
         dg = bpy.context.evaluated_depsgraph_get()
         tris = []
-        swatches = config.KIT_ATLAS_SWATCHES.get(kit)
         cells = config.KIT_ATLAS_CELLS.get(kit)
         for obj in sorted((o for o in bpy.context.scene.objects if o.type == "MESH"), key=lambda o: o.name):
             ev = obj.evaluated_get(dg)
@@ -73,36 +70,11 @@ class KitLoader:
                 mname = _SUFFIX.sub("", slot.name) if slot else "-"
                 if cells is not None:
                     mname = atlas.classify(cells, [tuple(uv[i].uv) for i in t.loops]) if uv is not None else f"Atlas/{cells['default'][0]}@1"
-                elif swatches is not None:
-                    mname = "Atlas/" + self._swatch(slot, uv, t, swatches)
                 pts = [tuple(mw @ me.vertices[v].co) for v in t.vertices]
                 tris.append((pts[0], pts[1], pts[2], mname))
             ev.to_mesh_clear()
         _clear_scene()
         return tris
-
-    def _swatch(self, material, uv, tri, swatches):
-        img = None
-        if material and material.node_tree:
-            for n in material.node_tree.nodes:
-                if n.type == "TEX_IMAGE" and n.image:
-                    img = n.image
-                    break
-        if img is None or uv is None:
-            return swatches[0][0]
-        key = img.name
-        if key not in self.atlas_pixels:
-            self.atlas_pixels[key] = (img.size[0], img.size[1], img.pixels[:])
-        w, h, px = self.atlas_pixels[key]
-        u = sum(uv[i].uv[0] for i in tri.loops) / 3
-        v = sum(uv[i].uv[1] for i in tri.loops) / 3
-        x = int(math.floor(u * w)) % w
-        y = int(math.floor(v * h)) % h
-        i = (y * w + x) * 4
-        rgb = (px[i], px[i + 1], px[i + 2])
-        best = min(swatches, key=lambda s: sum((a - b) ** 2 for a, b in zip(rgb, hex_rgb(s[1]))))
-        return best[0]
-
 
     def occlusion(self, tris, ground):
         """
@@ -344,6 +316,55 @@ def render_sheet(path, cells, cols, rows, cell_tiles, px, sky, sun, background):
         _render_object(f"cell{i}", tris, corners, k, centre - up * (cell_tiles * 0.12), sky, sun)
         if label:
             _text(label, centre - up * (cell_tiles * 0.42), rot.to_euler(), cell_tiles * 0.07)
+    scene.render.filepath = path
+    bpy.ops.render.render(write_still=True)
+    _clear_scene()
+
+
+def render_thumb(path, tris, corners, px, sky, sun, frame):
+    """
+    Renders one model as a build-card thumbnail: the game's camera
+    (orthographic, 30° elevation, azimuth 45°), flat vertex colours with
+    the contact sheets' ink outline, transparent background, px × px.
+    frame(right, up) returns the model's centre in the view plane and the
+    ortho scale (pipeline.thumb_frame).
+    """
+    _clear_scene()
+    scene = bpy.context.scene
+    scene.render.engine = "BLENDER_WORKBENCH"
+    shading = scene.display.shading
+    shading.light = "FLAT"
+    shading.color_type = "VERTEX"
+    shading.show_object_outline = True
+    shading.object_outline_color = (0.12, 0.09, 0.06)
+    scene.view_settings.view_transform = "Standard"
+    scene.render.film_transparent = True
+    scene.render.resolution_x = px
+    scene.render.resolution_y = px
+    scene.render.resolution_percentage = 100
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.image_settings.color_mode = "RGBA"
+    scene.render.image_settings.color_depth = "8"
+    scene.render.image_settings.compression = 100
+    # No metadata (date, time, render time, file name…): rebuilds are byte-identical.
+    for attr in dir(scene.render):
+        if attr.startswith("use_stamp"):
+            setattr(scene.render, attr, False)
+    cam_data = bpy.data.cameras.get("thumb") or bpy.data.cameras.new("thumb")
+    cam_data.type = "ORTHO"
+    cam = bpy.data.objects.new("thumb_cam", cam_data)
+    scene.collection.objects.link(cam)
+    scene.camera = cam
+    back = Vector((math.sin(BASE_AZIMUTH) * math.cos(ELEVATION), math.cos(BASE_AZIMUTH) * math.cos(ELEVATION), math.sin(ELEVATION)))
+    rot = (-back).to_track_quat("-Z", "Y")
+    cam.rotation_euler = rot.to_euler()
+    m = rot.to_matrix()
+    right, up = m.col[0], m.col[1]
+    (cx, cy), scale = frame(tuple(right), tuple(up))
+    cam_data.ortho_scale = scale
+    cam.location = back * 200.0 + right * cx + up * cy
+    cam_data.clip_end = 400.0
+    _render_object("thumb", tris, corners, 0, Vector((0.0, 0.0, 0.0)), sky, sun)
     scene.render.filepath = path
     bpy.ops.render.render(write_still=True)
     _clear_scene()

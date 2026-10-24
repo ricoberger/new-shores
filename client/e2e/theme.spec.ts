@@ -58,11 +58,43 @@ test("the grid overlay shows for placement tools only", async ({ page }) => {
   await expect.poll(() => gridVisible(page)).toBe(false);
 });
 
+test("the placement ghost is the building's model, rotated and tinted by validity", async ({ page }) => {
+  await page.goto("/?fixture=showcase");
+  await worldReady(page, "showcase");
+  await setCamera(page, { x: 22, y: 21, half: 6, rotation: 0 });
+  const ghost = () => page.evaluate(() => ({ kind: window.__newShores!.ghostKind(), validity: window.__newShores!.ghostValidity(), tile: window.__newShores!.ghostTile() }));
+  const hover = async (x: number, y: number) => {
+    const p = await page.evaluate(([tx, ty]) => window.__newShores!.tileToScreen("showcase", tx as number, ty as number), [x, y]);
+    await page.mouse.move(p.x, p.y);
+  };
+  await page.getByTestId("build-tab-production").click();
+  await page.getByTestId("build-sawmill").click();
+  // Touching the paved road below the showcase's south road row: neutral.
+  await hover(20, 18);
+  await expect.poll(ghost, { timeout: 15_000 }).toEqual({ kind: "model", validity: "ok", tile: { x: 20, y: 18 } });
+  // Away from every road: yellow.
+  await hover(23, 22);
+  await expect.poll(ghost).toEqual({ kind: "model", validity: "no_road", tile: { x: 23, y: 22 } });
+  await page.keyboard.press("r");
+  await page.waitForTimeout(200);
+  expect((await ghost()).kind).toBe("model");
+  await page.keyboard.press("Escape");
+  await expect.poll(() => page.evaluate(() => window.__newShores!.ghostKind())).toBeNull();
+  // A quarry on plain grass covers no stone deposit: red, with the reason.
+  await page.getByTestId("build-quarry").click();
+  await hover(23, 21);
+  await hover(23, 22);
+  await expect.poll(ghost, { timeout: 15_000 }).toEqual({ kind: "model", validity: "invalid", tile: { x: 23, y: 22 } });
+  await expect(page.getByTestId("tool-hint-reason")).toHaveText("Must cover a stone deposit");
+});
+
 test("the grid overlay shows for the found tool", async ({ page }) => {
   // archipelago-8x20: ship 14 lies idle at the unsettled Isle 8.
   await page.goto("/?fixture=archipelago-8x20");
   await expect.poll(() => page.evaluate(() => window.__newShores?.getServer() != null)).toBe(true);
-  await page.getByTestId("island-tab-isle8").click();
+  await page.evaluate(() => window.__newShores!.jumpToIsland("isle8"));
+  await expect(page.getByTestId("hud-island")).toHaveAttribute("data-island", "isle8");
+  await expect(page.getByTestId("hud-island-unsettled")).toBeVisible();
   await expect(page.getByTestId("found-settlement-14")).toBeVisible();
   await page.getByTestId("found-settlement-14").click();
   await expect.poll(() => gridVisible(page)).toBe(true);

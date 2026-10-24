@@ -1,8 +1,8 @@
 // Babylon engine and scene of the game view. Created once per canvas and
 // disposed once (React Strict Mode safe: the owner disposes in its effect
 // cleanup). One continuous world (D-048): every island at its archipelago
-// position with sea between, one free camera (pan, continuous zoom, four
-// 90° rotation steps), zoom-based LOD and frustum culling per island.
+// position with sea between, one free camera (pan, continuous zoom, free
+// rotation easing to 45° steps, D-051), zoom-based LOD and frustum culling per island.
 // Fixed golden-hour light with blob shadows everywhere and, at "high"
 // quality (desktop layout), a sun shadow map, warm grading and FXAA
 // (render/lighting.ts). Scene coordinates are archipelago coordinates: island
@@ -10,23 +10,20 @@
 // (position.x + x, 0, −(position.y + y)).
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { EngineStore } from "@babylonjs/core/Engines/engineStore";
-import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color4 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
-import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
-import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { SyncSnapshot } from "../api/sync";
-import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin } from "../display/camera";
+import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "../display/fields";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
-import { buildingAt, lPath, missingDepositHint, missingRoadHint, rotatedFootprint, type TilePos, tileKey } from "../display/geometry";
+import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import { type Quality, softwareRenderer } from "../display/quality";
 import type { ArchPoint } from "../display/ships";
-import { fertilityNeed, missingFertilityText } from "../display/tiers";
+import { depositText, fertilityNeed, missingFertilityText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
 import { ArchipelagoLayer, type ArchSelection } from "./archipelago";
@@ -34,13 +31,14 @@ import { CameraRig } from "./camera";
 import { footprintBox } from "./coords";
 import { farmRing, FieldLayer, type FieldRing } from "./fields";
 import { islandBerths } from "./harbour";
+import { PlacementGhost } from "./ghost";
 import { GridOverlay } from "./grid";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type AssetsStatus, type Detail, ModelRegistry } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
-import { type Effects, SceneLighting, skyFill } from "./lighting";
+import { type Effects, SceneLighting } from "./lighting";
 import { RoadPreview } from "./roads";
 import type { ShipStyle } from "./shipmesh";
 
@@ -52,6 +50,8 @@ import type { ShipStyle } from "./shipmesh";
 export const MAX_RENDER_DPR = 1.5;
 /** Pick radius of ships (CSS pixels). */
 const SHIP_PICK_PX = 18;
+/** Right-drag rotation: quarter turns per CSS pixel of horizontal movement (45° per 120 px). */
+const DRAG_TURN_PER_PX = 0.5 / 120;
 const LABEL_Y = 0.4;
 
 /** Where the camera starts: an island (default: the first) at the near default zoom, or the whole archipelago. */
@@ -62,6 +62,7 @@ export interface CameraInfo {
   /** The focused island: under the camera target, else the nearest (UI only). */
   focus: string;
   lod: Lod;
+  /** The rotation's nearest 45° step (quarter turns; reported on change only, not every frame of a free turn). */
   rotation: number;
 }
 
@@ -83,7 +84,7 @@ export interface RendererEvents {
    * unconfirmed field rectangle is dropped (the preview follows the pointer).
    */
   unpend(): void;
-  /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed). */
+  /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed; one per 45° of twist). */
   rotateGhost(steps: number): void;
   move(at: IslandTile): void;
   found(at: IslandTile): void;
@@ -170,10 +171,11 @@ export class GameRenderer {
   private fieldPreviewKey = "";
   private fieldRectShown: { from: TilePos; to: TilePos } | null = null;
   private ringKey = "";
-  private readonly ghost: Mesh;
-  private readonly ghostMaterial: StandardMaterial;
+  private readonly ghost: PlacementGhost;
   private lookups = new Map<string, IslandLookups>();
   private lastGhostHint: string | null = null;
+  /** Validity the placement ghost was drawn with in the last frame (null: hidden). */
+  private ghostValid: "ok" | "no_road" | "invalid" | null = null;
   /** The last pointer was a mouse or pen (the ghost follows it, not a touch-pending tile). */
   private precise = false;
   private ghostAt: TilePos | null = null;
@@ -194,6 +196,8 @@ export class GameRenderer {
   private visible = new Set<string>();
   private viewKey = "";
   private info: CameraInfo = { focus: "", lod: "near", rotation: 0 };
+  /** Rotation the status icons face (follows every frame of a turn). */
+  private iconRotation = 0;
   /** The island whose HTML name label is at a client (viewport CSS) position, or null (set by the overlay). */
   private labelAt: ((clientX: number, clientY: number) => string | null) | null = null;
   private readonly frameListeners = new Set<() => void>();
@@ -241,24 +245,22 @@ export class GameRenderer {
     this.roadPreview = new RoadPreview(this.scene);
     this.grid = new GridOverlay(this.scene);
 
-    this.ghost = CreateBox("ghost", { size: 1 }, this.scene);
-    this.ghostMaterial = skyFill(new StandardMaterial("ghost", this.scene));
-    this.ghostMaterial.diffuseColor = GHOST;
-    this.ghostMaterial.alpha = 0.45;
-    this.ghost.material = this.ghostMaterial;
-    this.ghost.isPickable = false;
-    this.ghost.setEnabled(false);
+    this.ghost = new PlacementGhost(this.scene, this.models);
 
     this.input = new PointerInput(canvas, () => this.ratio(), {
       pointerDown: (kind, first) => this.onPointerDown(kind, first),
-      released: () => this.latch.released(),
+      released: () => {
+        this.latch.released();
+        // A free turn (right-drag or twist) ends: ease to the nearest 45°.
+        this.rig.snap();
+      },
       tap: (p, button, kind) => this.onTap(p, button, kind),
       longPress: (p) => this.onLongPress(p),
       dragStart: (p, button, kind) => this.onDragStart(p, button, kind),
       dragMove: (prev, cur, button) => this.onDragMove(prev, cur, button),
       dragEnd: (p, button) => this.onDragEnd(p, button),
       pinch: (centre, prev, scale) => this.onPinch(centre, prev, scale),
-      rotate: (steps) => this.onRotate(steps),
+      rotate: (steps, delta, centre) => this.onRotate(steps, delta, centre),
       cancel: () => this.onPointerCancel(),
       hover: (p) => this.onHover(p),
       wheel: (p, dy) => this.onWheel(p, dy),
@@ -491,9 +493,30 @@ export class GameRenderer {
     return this.rig.footprint();
   }
 
-  /** Turns the camera by 90° steps about its target (positive: clockwise orbit seen from above); target and zoom stay. */
+  /** Turns the camera by 45° steps about its target, eased (positive: clockwise orbit seen from above; Q/E); target and zoom stay. */
   rotateCamera(steps: number): void {
-    this.rig.rotate(steps);
+    this.rig.step(steps);
+  }
+
+  /** Turns the camera freely by quarter turns about its target (compass drag); settleCamera() ends the turn. */
+  turnCamera(quarters: number): void {
+    if (this.rig.animating()) return;
+    this.rig.rotateBy(quarters);
+  }
+
+  /** A free turn ended: ease to the nearest 45°. */
+  settleCamera(): void {
+    this.rig.snap();
+  }
+
+  /** Eases the camera back to the default heading (rotation 0; the compass's "north"). */
+  faceDefaultHeading(): void {
+    this.rig.face(0);
+  }
+
+  /** The camera moves on its own: a jump or a rotation ease runs (projected positions are NaN meanwhile). */
+  private moving(): boolean {
+    return this.rig.animating() || this.rig.turning();
   }
 
   /** Jumps to an island's centre (zooms in to the near default if farther out). */
@@ -566,10 +589,15 @@ export class GameRenderer {
     for (const id of this.visible) if (!islands.some((is) => is.id === id)) this.visible.delete(id);
     this.lod = lod;
     if (changed) this.applyView();
+    if (v.rotation !== this.iconRotation) {
+      // Status icons face the camera at every azimuth.
+      this.iconRotation = v.rotation;
+      for (const d of this.details.values()) d.setRotation(v.rotation);
+    }
     const focus = focusedIsland(islands, v);
-    if (focus !== this.info.focus || lod !== this.info.lod || v.rotation !== this.info.rotation) {
-      if (v.rotation !== this.info.rotation) for (const d of this.details.values()) d.setRotation(v.rotation);
-      this.info = { focus, lod, rotation: v.rotation };
+    const heading = snapRotation(v.rotation);
+    if (focus !== this.info.focus || lod !== this.info.lod || heading !== this.info.rotation) {
+      this.info = { focus, lod, rotation: heading };
       this.events.camera(this.info);
     }
   }
@@ -722,7 +750,7 @@ export class GameRenderer {
   /** CSS-pixel viewport position of the centre of an island tile, any island at any LOD (NaN for unknown islands and during a camera animation). */
   tileToScreen(islandId: string, x: number, y: number): { x: number; y: number } {
     const p = this.arch.placement(islandId);
-    if (this.rig.animating() || !p) return { x: NaN, y: NaN };
+    if (this.moving() || !p) return { x: NaN, y: NaN };
     return this.worldToClient(new Vector3(p.position.x + x + 0.5, 0, -(p.position.y + y + 0.5)));
   }
 
@@ -733,7 +761,7 @@ export class GameRenderer {
    */
   islandToScreen(id: string, x?: number, y?: number): { x: number; y: number } {
     const p = this.arch.placement(id);
-    if (this.rig.animating() || !p) return { x: NaN, y: NaN };
+    if (this.moving() || !p) return { x: NaN, y: NaN };
     if (x !== undefined && y !== undefined) return this.tileToScreen(id, x, y);
     return this.worldToClient(new Vector3(p.position.x + p.width / 2, LABEL_Y, -(p.position.y + p.height / 2)));
   }
@@ -741,7 +769,7 @@ export class GameRenderer {
   /** Viewport position of a ship drawn in the last frame (NaN when not drawn or during a camera animation). */
   shipToScreen(id: number): { x: number; y: number } {
     const p = this.arch.shipPoint(id);
-    if (this.rig.animating() || !p) return { x: NaN, y: NaN };
+    if (this.moving() || !p) return { x: NaN, y: NaN };
     return this.worldToClient(new Vector3(p.x, this.shipPickY(), -p.y));
   }
 
@@ -889,6 +917,16 @@ export class GameRenderer {
     if ((isGhostTool(tool) || tool.kind === "field") && tool.pending) this.events.unpend();
   }
 
+  /** What the placement ghost drew in the last frame: the building's model, the footprint box (no model yet) or null (hidden). */
+  ghostKind(): "model" | "box" | null {
+    return this.ghost.kind();
+  }
+
+  /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
+  ghostValidity(): "ok" | "no_road" | "invalid" | null {
+    return this.ghostValid;
+  }
+
   /** Tile the placement ghost was drawn on in the last frame (local to its island; null: hidden). */
   ghostTile(): TilePos | null {
     return this.ghostAt;
@@ -907,14 +945,17 @@ export class GameRenderer {
   }
 
   /**
-   * Two-finger twist: with a ghost tool it rotates the ghost; otherwise one
-   * step turns the camera by 90° so that the world follows the fingers
-   * (a clockwise twist turns the map clockwise on screen).
+   * Two-finger twist: with a ghost tool every 45° of twist rotates the
+   * ghost by a quarter turn; otherwise the camera turns continuously about
+   * the fingers' midpoint so that the world follows the fingers (a
+   * clockwise twist turns the map clockwise on screen) and eases to the
+   * nearest 45° when the fingers lift.
    */
-  private onRotate(steps: number): void {
+  private onRotate(steps: number, delta: number, centre: Point): void {
     if (this.blocked()) return;
-    if (isGhostTool(this.tool())) this.events.rotateGhost(steps);
-    else this.rig.rotate(-steps);
+    if (isGhostTool(this.tool())) {
+      if (steps !== 0) this.events.rotateGhost(steps);
+    } else if (delta !== 0) this.rig.rotateBy(-delta / (Math.PI / 2), centre);
   }
 
   /**
@@ -1012,8 +1053,9 @@ export class GameRenderer {
     }
   }
 
+  /** The middle button pans, and the left one without a tool; the right button turns the camera (right-drag). */
   private pans(button: number): boolean {
-    return button === 1 || button === 2 || (button === 0 && this.tool().kind === "none");
+    return button === 1 || (button === 0 && this.tool().kind === "none");
   }
 
   private onDragStart(p: Point, button: number, kind: PointerKind): void {
@@ -1059,11 +1101,17 @@ export class GameRenderer {
       if (t) this.fieldEnd = t;
       return;
     }
+    // Right-drag turns the camera about its target: dragging right turns the map counter-clockwise on screen.
+    if (button === 2) {
+      this.rig.rotateBy(((cur.x - prev.x) / this.ratio()) * DRAG_TURN_PER_PX);
+      return;
+    }
     if (this.pans(button)) this.rig.pan(prev, cur);
   }
 
-  /** The pointer's press or drag was cancelled: drop any ship drag, road or field preview. */
+  /** The pointer's press or drag was cancelled: drop any ship drag, road or field preview; a free turn eases to 45°. */
   private onPointerCancel(): void {
+    this.rig.snap();
     this.roadStart = null;
     this.roadPreview.set([]);
     this.fieldStart = null;
@@ -1092,6 +1140,7 @@ export class GameRenderer {
   }
 
   private onDragEnd(p: Point, button: number): void {
+    if (button === 2) this.rig.snap();
     if (this.blocked()) {
       this.onPointerCancel();
       return;
@@ -1232,7 +1281,8 @@ export class GameRenderer {
 
   /**
    * Placement/move ghost under the pointer, on the island whose rectangle
-   * it is over. It turns red when that island lacks the building's
+   * it is over: the building's model, translucent and tinted (render/
+   * ghost.ts), at the tool's rotation. It turns red when that island lacks the building's
    * fertility or the footprint covers no deposit of the required kind
    * (lookups of the island's static data, with the reason as hint text),
    * and yellow when the building requires a road and none of the server's
@@ -1250,25 +1300,27 @@ export class GameRenderer {
     const pl = t ? this.arch.placement(t.island) : undefined;
     this.ghostAt = t && pl ? { x: t.x, y: t.y } : null;
     if (!ghostTool || !def || !t || !pl) {
-      this.ghost.setEnabled(false);
+      this.ghost.hide();
+      this.ghostValid = null;
       // The field tool owns the hint (updateFieldPreview).
       if (tool.kind !== "field") this.setGhostHint(null);
       return;
     }
-    const [w, h] = rotatedFootprint(def.width, def.height, tool.rotation);
-    this.ghost.scaling.set(w, 0.6, h);
-    this.ghost.position.set(pl.position.x + t.x + w / 2, 0.3, -(pl.position.y + t.y + h / 2));
     const fertilities = l?.statics?.fertilities ?? [];
     const fertility = fertilityNeed(def, fertilities);
     let hint: string | null = null;
     if (fertility && !fertility.present) {
       hint = missingFertilityText(fertility.fertility, fertilities);
     } else if (missingDepositHint(def, l?.deposits ?? new Map(), t.x, t.y, tool.rotation)) {
-      hint = `Must cover a ${def.requires_deposit ?? ""} deposit`;
+      hint = depositText(def.requires_deposit ?? "");
     }
-    const color = hint ? GHOST_INVALID : missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation) ? GHOST_NO_ROAD : GHOST;
-    if (this.ghostMaterial.diffuseColor !== color) this.ghostMaterial.diffuseColor = color;
-    this.ghost.setEnabled(true);
+    this.ghostValid = hint ? "invalid" : missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation) ? "no_road" : "ok";
+    const color = this.ghostValid === "invalid" ? GHOST_INVALID : this.ghostValid === "no_road" ? GHOST_NO_ROAD : GHOST;
+    const moved = tool.kind === "move" ? this.findBuilding(tool.buildingId)?.b : undefined;
+    this.ghost.show(
+      { def, island: pl.position, x: t.x, y: t.y, rotation: tool.rotation, ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}) },
+      color,
+    );
     this.setGhostHint(hint);
   }
 

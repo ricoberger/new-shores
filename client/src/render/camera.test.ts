@@ -2,7 +2,7 @@ import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { afterEach, describe, expect, it } from "vitest";
-import { BOUNDS_MARGIN, groundFootprint, MIN_HALF_HEIGHT, NEAR_DEFAULT_HALF_HEIGHT, type Rect, seaMargin, targetBounds } from "../display/camera";
+import { BOUNDS_MARGIN, groundFootprint, MIN_HALF_HEIGHT, NEAR_DEFAULT_HALF_HEIGHT, type Rect, ROTATION_EASE_MS, seaMargin, targetBounds } from "../display/camera";
 import { buildDenseArchipelagoFixture } from "../dev/fixture";
 import { CameraRig, easeInOut } from "./camera";
 
@@ -65,7 +65,7 @@ describe("CameraRig", () => {
     });
   }
 
-  it("rotate keeps target and zoom; +1 orbits the camera clockwise seen from above (the map turns counter-clockwise on screen)", () => {
+  it("rotateBy keeps target and zoom; +1 orbits the camera clockwise seen from above (the map turns counter-clockwise on screen)", () => {
     const r = rig(1280, 800);
     r.setCamera({ x: 40, y: 30, half: 20, rotation: 0 });
     const east = () => r.project(new Vector3(50, 0, -30));
@@ -76,7 +76,7 @@ describe("CameraRig", () => {
       return Math.atan2(p.y - centre.y, p.x - centre.x);
     };
     const a0 = angle();
-    r.rotate(1);
+    r.rotateBy(1);
     expect(r.view()).toMatchObject({ x: 40, y: 30, half: 20, rotation: 1 });
     const a1 = angle();
     let d = a1 - a0;
@@ -84,10 +84,55 @@ describe("CameraRig", () => {
     while (d > Math.PI) d -= 2 * Math.PI;
     // Counter-clockwise on screen (negative in y-down screen angles); not exactly 90° (the ground is tilted).
     expect(d).toBeLessThan(0);
-    r.rotate(-1);
+    r.rotateBy(-1);
     expect(r.view().rotation).toBe(0);
-    r.rotate(-1);
+    r.rotateBy(-1);
     expect(r.view().rotation).toBe(3);
+    // Free: any angle in between.
+    r.rotateBy(0.3);
+    expect(r.view().rotation).toBeCloseTo(3.3, 12);
+  });
+
+  it("eases a free turn to the nearest 45° within 250 ms, the short way round", () => {
+    const r = rig(1280, 800);
+    r.setCamera({ x: 40, y: 30, half: 20, rotation: 0 });
+    r.tick(1000);
+    r.rotateBy(-0.2);
+    expect(r.view().rotation).toBeCloseTo(3.8, 12);
+    r.snap();
+    expect(r.turning()).toBe(true);
+    r.tick(1100);
+    const mid = r.view().rotation;
+    expect(mid > 3.8 || mid < 0.01).toBe(true);
+    r.tick(1000 + ROTATION_EASE_MS);
+    expect(r.turning()).toBe(false);
+    expect(r.view().rotation).toBe(0);
+    expect(r.view()).toMatchObject({ x: 40, y: 30, half: 20 });
+    // A small way is quicker.
+    r.rotateBy(0.05);
+    r.snap();
+    r.tick(1000 + ROTATION_EASE_MS + 60);
+    expect(r.view().rotation).toBe(0);
+    // Already on a step: nothing to ease.
+    r.snap();
+    expect(r.turning()).toBe(false);
+  });
+
+  it("steps by 45° (Q/E), adding up from a running ease's destination", () => {
+    const r = rig(1280, 800);
+    r.setCamera({ x: 40, y: 30, half: 20, rotation: 0 });
+    r.tick(2000);
+    r.step(1);
+    r.step(1);
+    r.tick(2000 + ROTATION_EASE_MS);
+    expect(r.view().rotation).toBe(1);
+    r.step(-3);
+    r.tick(3000);
+    expect(r.view().rotation).toBe(3.5);
+    // A free turn interrupts an ease.
+    r.step(1);
+    r.rotateBy(0.1);
+    expect(r.turning()).toBe(false);
   });
 
   it("clamps the target to the bounds plus margin and the zoom to the range", () => {
@@ -107,7 +152,7 @@ describe("CameraRig", () => {
 
   it("pan keeps the ground point under the pointer in every rotation", () => {
     const r = rig(1280, 800);
-    for (let step = 0; step < 4; step++) {
+    for (let step = 0; step < 4; step += 0.3) {
       r.setCamera({ x: 40, y: 30, half: 20, rotation: step });
       const g = r.groundAt(300, 300)!;
       r.pan({ x: 300, y: 300 }, { x: 420, y: 350 });
@@ -157,7 +202,7 @@ describe("CameraRig clip range", () => {
         { x: t.minX, y: t.maxY },
       ];
       for (const at of targets) {
-        for (let rotation = 0; rotation < 4; rotation++) {
+        for (let rotation = 0; rotation < 4; rotation += 0.25) {
           r.setCamera({ ...at, half: 100_000, rotation });
           const v = r.view();
           expect(v.half).toBeCloseTo(r.zoomRange().max, 6);

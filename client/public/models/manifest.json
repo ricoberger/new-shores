@@ -37,7 +37,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Bush_1_A_Color1.gltf"
+            "Assets/gltf/Color1/Bush_1_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -79,7 +79,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Bush_2_A_Color1.gltf"
+            "Assets/gltf/Color1/Bush_2_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -379,7 +379,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Rock_1_A_Color1.gltf"
+            "Assets/gltf/Color1/Rock_1_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -421,7 +421,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Rock_2_A_Color1.gltf"
+            "Assets/gltf/Color1/Rock_2_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -589,7 +589,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Tree_1_A_Color1.gltf"
+            "Assets/gltf/Color1/Tree_1_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -631,7 +631,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Tree_1_B_Color1.gltf"
+            "Assets/gltf/Color1/Tree_1_B_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -673,7 +673,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Tree_4_A_Color1.gltf"
+            "Assets/gltf/Color1/Tree_4_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -715,7 +715,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Tree_3_A_Color1.gltf"
+            "Assets/gltf/Color1/Tree_3_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -757,7 +757,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Grass_1_A_Singlesided_Color1.gltf"
+            "Assets/gltf/Color1/Grass_1_A_Singlesided_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -799,22 +799,18 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Grass_2_A_Singlesided_Color1.gltf"
+            "Assets/gltf/Color1/Grass_2_A_Singlesided_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
       ]
     }
   },
-  "file_scale": {
-    "pirate:glTF/Ship_Small.gltf": 0.35
-  },
+  "file_scale": {},
   "generator": "new-shores assets build",
   "kit_scale": {
     "kaykit_forest": 0.3,
-    "kaykit_hexagon": 2.3,
-    "medieval": 0.25,
-    "pirate": 0.25
+    "kaykit_hexagon": 2.3
   },
   "missing_recipes": [],
   "models": {
@@ -1149,31 +1145,31 @@
       },
       "bounds": {
         "max": [
-          1.2449,
+          1.2158,
           1.3262,
-          1.2389
+          0.99
         ],
         "min": [
           -0.95,
-          -0.1535,
-          -1.2564
+          -0.12,
+          -1.0949
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.2449,
+            1.2158,
             1.3262,
-            1.2389
+            0.99
           ],
           "min": [
             -0.95,
-            -0.1535,
-            -1.2564
+            -0.12,
+            -1.0949
           ]
         },
         "budget": 6000,
-        "bytes": 105108,
+        "bytes": 101768,
         "lite": {
           "bounds": {
             "max": [
@@ -1184,18 +1180,18 @@
             "min": [
               -0.95,
               0.0,
-              -1.1216
+              -1.1046
             ]
           },
           "budget": 1500,
-          "bytes": 25928,
+          "bytes": 26204,
           "path": "fisher.lite.glb",
-          "sha256": "485e4776930fd8dcf71c6d0b4320bd78835b5d26775410e3e7e891644eb26aa6",
-          "triangles": 277
+          "sha256": "de34a9de8b3b844190c18aa57cdd6f51511d28c479cded22b895f697b57033c6",
+          "triangles": 285
         },
         "path": "fisher.glb",
-        "sha256": "6f4e7f35b8e2c450ecc6f8f15af73826dfd2adf5dc039650507afcccaefc4337",
-        "triangles": 1441
+        "sha256": "80ac1dbdec3629731a3206b84fe6d1f259bab4aa23c2690c9202dc18070f1f3b",
+        "triangles": 1495
       },
       "footprint": {
         "h": 2,
@@ -1205,18 +1201,12 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_home_A_blue.gltf"
+            "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
+            "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/boat.gltf",
+            "Assets/gltf/decoration/props/bucket_water.gltf"
           ],
           "kit": "kaykit_hexagon"
-        },
-        {
-          "files": [
-            "glTF/Environment_Dock.gltf",
-            "glTF/Prop_Barrel.gltf",
-            "glTF/Prop_Bucket_Fishes.gltf",
-            "glTF/Ship_Small.gltf"
-          ],
-          "kit": "pirate"
         }
       ]
     },
@@ -2116,7 +2106,7 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/Tree_3_A_Color1.gltf"
+            "Assets/gltf/Color1/Tree_3_A_Color1.gltf"
           ],
           "kit": "kaykit_forest"
         }
@@ -2508,7 +2498,7 @@
         ],
         "min": [
           -2.6469,
-          -0.1535,
+          -0.12,
           -1.95
         ]
       },
@@ -2521,12 +2511,12 @@
           ],
           "min": [
             -2.6469,
-            -0.1535,
+            -0.12,
             -1.95
           ]
         },
         "budget": 6000,
-        "bytes": 324956,
+        "bytes": 320740,
         "lite": {
           "bounds": {
             "max": [
@@ -2547,8 +2537,8 @@
           "triangles": 1071
         },
         "path": "shipyard.glb",
-        "sha256": "2f473d75010a1cf07f4ea6f661ab876f22367d53ace46fab749c3aa4e7be5012",
-        "triangles": 4797
+        "sha256": "da48bc07df933449054dad18749cc48f610b9202bdbf9e94d1fd68de1626b74b",
+        "triangles": 4757
       },
       "footprint": {
         "h": 4,
@@ -2560,19 +2550,13 @@
           "files": [
             "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
             "Assets/gltf/buildings/neutral/building_scaffolding.gltf",
+            "Assets/gltf/decoration/props/barrel.gltf",
             "Assets/gltf/decoration/props/crate_A_big.gltf",
             "Assets/gltf/decoration/props/crate_long_empty.gltf",
             "Assets/gltf/decoration/props/pallet.gltf",
             "Assets/gltf/decoration/props/resource_lumber.gltf"
           ],
           "kit": "kaykit_hexagon"
-        },
-        {
-          "files": [
-            "glTF/Environment_Dock.gltf",
-            "glTF/Prop_Barrel.gltf"
-          ],
-          "kit": "pirate"
         }
       ]
     },
@@ -2580,7 +2564,7 @@
       "anchors": {
         "status": [
           0.0,
-          1.86,
+          2.0807,
           0.0
         ]
       },
@@ -2588,66 +2572,68 @@
         "cargo": {
           "bounds": {
             "max": [
-              0.485,
-              0.32,
-              0.1449
+              -0.2145,
+              0.4576,
+              0.2055
             ],
             "min": [
-              -0.5,
-              0.041,
-              -0.13
+              -0.7028,
+              0.2,
+              -0.2128
             ]
           },
           "budget": 150,
-          "bytes": 6540,
+          "bytes": 12212,
           "path": "sloop.cargo.glb",
-          "sha256": "f3dd277c75c2cebd3dee79ed356696ac90c1dbef83e323af4e240d1ad977311b",
-          "triangles": 80
+          "sha256": "a9c4f327b4840aebb7faf430f7b06c4a700758a4173864abf10815cac672f7aa",
+          "triangles": 132
         }
       },
       "bounds": {
         "max": [
-          1.0654,
-          1.61,
-          0.3046
+          1.1147,
+          1.8307,
+          0.4444
         ],
         "min": [
-          -0.855,
-          -0.1693,
-          -0.2956
+          -0.8855,
+          -0.15,
+          -0.4444
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.0654,
-            1.61,
-            0.3046
+            1.1147,
+            1.8307,
+            0.4444
           ],
           "min": [
-            -0.855,
-            -0.1693,
-            -0.2956
+            -0.8855,
+            -0.15,
+            -0.4444
           ]
         },
         "budget": 1500,
-        "bytes": 17804,
+        "bytes": 115528,
         "path": "sloop.glb",
-        "sha256": "5bb17caf49a8334978fba9af3244d203e3740d3c5623db5c063e3b861a55d3cc",
-        "triangles": 230
+        "sha256": "1f02a5eef200cefa76cab7d801e8df6ad77270a954a8e4d3096979a1fceef92d",
+        "triangles": 1488
       },
       "kind": "ship",
       "kit_sources": [
         {
           "files": [
-            "glTF/Ship_Small.gltf"
+            "Assets/gltf/decoration/props/crate_A_small.gltf",
+            "Assets/gltf/decoration/props/crate_B_small.gltf",
+            "Assets/gltf/units/blue/ship_blue_accent.gltf"
           ],
-          "kit": "pirate"
+          "kit": "kaykit_hexagon"
         }
       ],
       "ship": {
         "length_tiles": 2.0,
-        "masts": 1,
+        "masts": 3,
         "sail_scale": 1.0
       }
     },

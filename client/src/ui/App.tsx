@@ -26,7 +26,6 @@ import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
 import hud from "./hud.module.css";
 import { BuildMenu } from "./BuildMenu";
-import { CameraControls } from "./CameraControls";
 import { type ConfirmRequest, ConfirmDialog } from "./Dialogs";
 import { GameCanvas } from "./GameCanvas";
 import { InfoPanel } from "./InfoPanel";
@@ -67,10 +66,10 @@ export interface TestHook {
   lod(): Lod;
   /**
    * Camera target in world coordinates (x, z = −archipelago y; y is the
-   * archipelago y for convenience), ortho half extent and rotation step 0–3.
+   * archipelago y for convenience), ortho half extent and rotation in quarter turns, continuous in [0, 4) (0.5 = 45°).
    */
   camera(): { x: number; z: number; y: number; half: number; rotation: number };
-  /** Sets parts of the camera (target x/z or y, half extent, rotation step), clamped like user input. */
+  /** Sets parts of the camera (target x/z or y, half extent, rotation in quarter turns), clamped like user input. */
   setCamera(c: { x?: number; z?: number; y?: number; half?: number; rotation?: number }): void;
   /** The focused island (under the camera target, else the nearest). */
   focusedIsland(): string;
@@ -100,6 +99,12 @@ export interface TestHook {
   landmarks(): number;
   /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
   ghostTile(): { x: number; y: number } | null;
+  /** Jumps the camera to an island (the island card's "Go to island"; tests trigger jumps without a visible card). */
+  jumpToIsland(id: string): void;
+  /** What the placement ghost drew in the last frame: the building's model, the footprint box (no model yet) or null (hidden). */
+  ghostKind(): "model" | "box" | null;
+  /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
+  ghostValidity(): "ok" | "no_road" | "invalid" | null;
   /** Rectangle the field tool's preview showed in the last frame (null: none). */
   fieldPreview(): { from: { x: number; y: number }; to: { x: number; y: number } } | null;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
@@ -494,7 +499,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   useEffect(() => renderer?.setArchState(archSel, highlight, draftStops));
 
   // Keyboard: Esc steps back one thing per press, Enter jumps to the
-  // selected island, Q / E turn the camera, R rotates the ghost.
+  // selected island, Q / E turn the camera by 45°, R rotates the ghost.
   const latest = useRef({ tool, confirm, dialog: vs.dialog, panel, sheets, selection: vs.selection });
   useEffect(() => {
     latest.current = { tool, confirm, dialog: vs.dialog, panel, sheets, selection: vs.selection };
@@ -564,6 +569,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         carts: () => rendererRef.current?.cartCount() ?? 0,
         landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
+        ghostKind: () => rendererRef.current?.ghostKind() ?? null,
+        jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
+        ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
         gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
@@ -862,7 +870,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             model={model}
             content={content}
             islandId={focusId}
-            onSelectIsland={goTo}
+            statics={staticFocused}
+            onOpenIsland={() => focusId && dispatch({ type: "selectIsland", id: focusId })}
             onShips={() => setPanel((p) => (p === "ships" ? "none" : "ships"))}
             onRoutes={() => setPanel((p) => (p === "routes" ? "none" : "routes"))}
             onQuests={() => setPanel((p) => (p === "quests" ? "none" : "quests"))}
@@ -900,8 +909,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
               viewport={{ width: layout.width, height: layout.height }}
               collapsible={phone}
               initiallyCollapsed={layout.mode === "phone-portrait"}
+              heading={cam.rotation}
             />
-            <CameraControls onRotate={(steps) => renderer?.rotateCamera(steps)} />
           </div>
         )}
         {rightSlot}

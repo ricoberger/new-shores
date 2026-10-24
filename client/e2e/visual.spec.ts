@@ -161,6 +161,21 @@ test("every model on the showcase island, two camera rotations (desktop)", async
   skipIfWritten(info);
 });
 
+test("the red placement ghost: a quarry off its deposit (desktop)", async ({ page }, info) => {
+  await open(page, "showcase", "", "showcase");
+  await setCamera(page, { x: 22, y: 21, half: 6, rotation: 0 });
+  await settle(page);
+  await page.getByTestId("build-tab-production").click();
+  await page.getByTestId("build-quarry").click();
+  const p = await page.evaluate(() => window.__newShores!.tileToScreen("showcase", 23, 22));
+  await page.mouse.move(p.x, p.y);
+  await expect.poll(() => page.evaluate(() => window.__newShores!.ghostValidity())).toBe("invalid");
+  await settle(page);
+  expect(await page.evaluate(() => window.__newShores!.ghostKind())).toBe("model");
+  await compare(page, info, "ghost-invalid-desktop.png");
+  skipIfWritten(info);
+});
+
 test("a sloop on a leg (desktop)", async ({ page }, info) => {
   await open(page, "dense-2x400");
   await setCamera(page, { half: 7 });

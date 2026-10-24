@@ -1,11 +1,11 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { Content, DisplayState } from "../api/client";
-import { BuildMenu } from "./BuildMenu";
+import { BuildMenu, thumbUrl } from "./BuildMenu";
 import { InfoPanel } from "./InfoPanel";
 import { NO_TOOL } from "./tools";
 
@@ -59,6 +59,16 @@ describe("fields in the HUD (D-049)", () => {
     const order = [...html.matchAll(/data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "menu" && !id?.startsWith("tab-"));
     expect(order).toEqual(["lumberjack", "sheep_farm", "pasture", "weaver_wool"]);
     expect(html).toContain('data-testid="build-tab-production"');
+    // Every card carries its model thumbnail from the asset build (decorative).
+    expect(html.match(/<img [^>]*src="\/models\/thumbs\/sheep_farm.png"[^>]*>/)?.[0]).toContain('alt=""');
+  });
+
+  it("has a committed thumbnail for every building with a model", () => {
+    const dir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "public", "models");
+    const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")) as { models: Record<string, unknown> };
+    const ids = Object.keys(manifest.models).filter((id) => !id.startsWith("decor_"));
+    expect(ids.length).toBeGreaterThan(20);
+    for (const id of ids) expect(existsSync(join(dir, thumbUrl(id).replace("/models/", ""))), id).toBe(true);
   });
 
   it("shows the farm's field count and a place button, and a field's farm", () => {
