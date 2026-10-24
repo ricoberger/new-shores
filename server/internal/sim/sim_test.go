@@ -64,16 +64,17 @@ func islandFromRows(id string, rows ...string) *Island {
 	return NewIsland(id, len(rows[0]), len(rows), tiles)
 }
 
-// testWorld is a 20x10 island with a seeded warehouse at (1,1) whose
-// footprint (x 1..4, y 1..3) touches a road row y=4 from x=2 to x=17,
-// plenty of gold and planks.
+// testWorld is a 20x10 island with a seeded Trading Post at (1,0) whose
+// footprint (x 1..4, y 0..3; rows 0..1 on water) touches a road row y=4
+// from x=2 to x=17, plenty of gold and planks. The fisher site (16,2) has
+// its front row on water.
 func testWorld(t testing.TB, c *content.Catalogue) *World {
 	t.Helper()
 	w := NewWorld(t0)
 	w.Islands = []*Island{islandFromRows("main",
 		"~~~~~~~~~~~~~~~~~~~~",
-		"~ccccffffffffcccccm~",
-		"~....ffffffffcccccm~",
+		"~~~~~ffffffffcccccm~",
+		"~....ffffffffccc~~m~",
 		"~....ffffffff.....m~",
 		"~..................~",
 		"~....ffffffff......~",
@@ -82,7 +83,7 @@ func testWorld(t testing.TB, c *content.Catalogue) *World {
 		"~..................~",
 		"~~~~~~~~~~~~~~~~~~~~",
 	)}
-	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
 	var road []Pos
@@ -207,8 +208,9 @@ func TestApplyLeavesWorldUnchangedOnError(t *testing.T) {
 		{"mountain", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 17, Y: 2}, ErrTerrain},
 		{"occupied by building", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 3, Y: 2}, ErrOccupied},
 		{"occupied by road", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 3}, ErrOccupied},
-		{"not coastal", PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 5}, ErrNotCoastal},
-		{"no work area", PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 16, Y: 2}, ErrNoWorkArea},
+		{"not on water", PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 5}, ErrNotOnWater},
+		{"water-edge land row on water", PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2, Rotation: 180}, ErrTerrain},
+		{"no work area", PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 16, Y: 7}, ErrNoWorkArea},
 		{"bad rotation", PlaceBuilding{IslandID: "main", Type: "sawmill", X: 14, Y: 2, Rotation: 45}, ErrInvalidCommand},
 		{"road on road", PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{1, 7}, {2, 4}}}, ErrOccupied},
 		{"road on water", PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{1, 7}, {0, 7}}}, ErrTerrain},
@@ -285,19 +287,19 @@ func TestPlaceChargesWorldGoldAndIslandMaterials(t *testing.T) {
 func TestPlaceZeroCostRoadWithEmptyInventoryAndNoGold(t *testing.T) {
 	c := catalogue(t)
 	w := NewWorld(t0)
-	w.Islands = []*Island{islandFromRows("main", "cccc", "....", "....", "....", "....")}
+	w.Islands = []*Island{islandFromRows("main", "~~~~", "~~~~", "....", "....", "....", "....")}
 	// Unsettled island: even a zero-cost road is rejected (R-34).
-	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{0, 3}}}); !errors.Is(err, ErrIslandNotSettled) {
+	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{0, 4}}}); !errors.Is(err, ErrIslandNotSettled) {
 		t.Fatalf("road on an unsettled island: %v", err)
 	}
-	if err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "road_dirt", X: 0, Y: 3}); !errors.Is(err, ErrIslandNotSettled) {
+	if err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "road_dirt", X: 0, Y: 4}); !errors.Is(err, ErrIslandNotSettled) {
 		t.Fatalf("road building on an unsettled island: %v", err)
 	}
-	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 0, Y: 0}, nil); err != nil {
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 0, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
-	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{0, 3}, {1, 3}}})
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "road_dirt", X: 2, Y: 3})
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{0, 4}, {1, 4}}})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "road_dirt", X: 2, Y: 4})
 	if w.Gold != 0 || len(w.Islands[0].Roads) != 3 || w.Islands[0].Inventory.Stock != nil {
 		t.Errorf("gold %d roads %v stock %v", w.Gold, w.Islands[0].Roads, w.Islands[0].Inventory.Stock)
 	}
@@ -363,23 +365,27 @@ func TestDemolishWarehouseSurplus(t *testing.T) {
 	w := testWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})
 	mustAdvance(t, w, c, time.Minute)
-	// The last warehouse cannot go while another building stands (R-35).
+	// The Trading Post cannot go while another building stands (R-35).
 	if err := Apply(w, c, Demolish{IslandID: "main", BuildingID: 1, AcceptSurplusLoss: true}); !errors.Is(err, ErrLastWarehouse) {
 		t.Fatalf("err = %v", err)
 	}
-	// With a second warehouse, demolishing the first one keeps the fisher
-	// connected (no surplus: one warehouse's capacity covers the stock).
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 12, Y: 1})
-	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: 1})
+	// An inland Warehouse next to the fisher's road collects its output
+	// (nearest collector); demolishing it leaves the capacity unchanged
+	// (no surplus) and hands the fisher back to the Trading Post.
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 16, Y: 5})
 	if b := w.Islands[0].Building(2); b.AssignedWarehouseID != 3 {
-		t.Errorf("fisher assigned to %d, want the second warehouse", b.AssignedWarehouseID)
+		t.Errorf("fisher assigned to %d, want the warehouse", b.AssignedWarehouseID)
+	}
+	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: 3})
+	if b := w.Islands[0].Building(2); b.AssignedWarehouseID != 1 {
+		t.Errorf("fisher assigned to %d, want the Trading Post", b.AssignedWarehouseID)
 	}
 	mustAdvance(t, w, c, time.Minute)
 	// The fisher goes; its goods in transit are delivered.
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: 2})
-	// Only the warehouse is left: demolishing it unsettles the island, the
-	// stock above the new capacity 0 follows the surplus-loss rule.
-	if err := Apply(w, c, Demolish{IslandID: "main", BuildingID: 3}); !errors.Is(err, ErrSurplusLoss) {
+	// Only the Trading Post is left: demolishing it unsettles the island,
+	// the stock above the new capacity 0 follows the surplus-loss rule.
+	if err := Apply(w, c, Demolish{IslandID: "main", BuildingID: 1}); !errors.Is(err, ErrSurplusLoss) {
 		t.Fatalf("err = %v", err)
 	}
 	l := NewLedger()
@@ -388,21 +394,21 @@ func TestDemolishWarehouseSurplus(t *testing.T) {
 	if fish == 0 {
 		t.Fatal("no fish to lose")
 	}
-	if err := ApplyWithLedger(w, c, Demolish{IslandID: "main", BuildingID: 3, AcceptSurplusLoss: true}, l); err != nil {
+	if err := ApplyWithLedger(w, c, Demolish{IslandID: "main", BuildingID: 1, AcceptSurplusLoss: true}, l); err != nil {
 		t.Fatal(err)
 	}
 	is := w.Islands[0]
 	if is.Inventory.Stock != nil || settled(is, c) || len(is.Roads) == 0 {
-		t.Errorf("stock %v after losing the only warehouse (roads %d)", is.Inventory.Stock, len(is.Roads))
+		t.Errorf("stock %v after losing the Trading Post (roads %d)", is.Inventory.Stock, len(is.Roads))
 	}
 	// Planks: stock lost plus the whole refund (no capacity left).
-	if f := l.Flow("main", "planks"); f.Lost != planks+refundAmount(material(c.BuildingByID["warehouse"].Cost, "planks"))*SubPerMilli {
+	if f := l.Flow("main", "planks"); f.Lost != planks+refundAmount(material(c.BuildingByID["trading_post"].Cost, "planks"))*SubPerMilli {
 		t.Errorf("planks flow = %+v", f)
 	}
 	if f := l.Flow("main", "fish"); f.Lost != fish {
 		t.Errorf("fish flow = %+v, want lost %d", f, fish)
 	}
-	if err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 2}); !errors.Is(err, ErrIslandNotSettled) {
+	if err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2}); !errors.Is(err, ErrIslandNotSettled) {
 		t.Errorf("placement on the unsettled island: %v", err)
 	}
 }
@@ -410,7 +416,7 @@ func TestDemolishWarehouseSurplus(t *testing.T) {
 func TestPauseAndResume(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 2})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})
 	mustApply(t, w, c, SetPaused{IslandID: "main", BuildingID: 2, Paused: true})
 	mustAdvance(t, w, c, 10*time.Minute)
 	ds := display(t, w, c)
@@ -426,8 +432,8 @@ func TestPauseAndResume(t *testing.T) {
 		t.Errorf("resumed = %+v", b)
 	}
 	mustAdvance(t, w, c, 10*time.Minute)
-	// 1.5 fish/min for 10 min minus the 21 s transfer delay.
-	if got := display(t, w, c).Islands[0].Inventory["fish"].Stock; got != (600-21)*1000/40 {
+	// 1.5 fish/min for 10 min minus the 23 s transfer delay.
+	if got := display(t, w, c).Islands[0].Inventory["fish"].Stock; got != (600-23)*1000/40 {
 		t.Errorf("fish = %d", got)
 	}
 
@@ -445,7 +451,7 @@ func TestStarvationSharesInflow(t *testing.T) {
 	// Lumberjack with 18 forest tiles: efficiency 750 -> 1.5 wood/min.
 	w.Islands = []*Island{islandFromRows("main",
 		"~~~~~~~~~~~~~~~~~~~~",
-		"~cccc...............",
+		"~~~~~...............",
 		"~.......ffffff......",
 		"~.......ffffff......",
 		"~...................",
@@ -453,7 +459,7 @@ func TestStarvationSharesInflow(t *testing.T) {
 		"~.......ffffff......",
 		"~...................",
 	)}
-	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
 	w.Gold = 1_000_000
@@ -615,7 +621,7 @@ func TestAdvanceTimeRules(t *testing.T) {
 	if bs, err := Advance(w, c, t0); err != nil || bs != nil || !bytes.Equal(before, encode(t, w)) {
 		t.Errorf("no-op advance changed the world: %v %v", bs, err)
 	}
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 14, Y: 2})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})
 	gold := w.Gold
 	mustAdvance(t, w, c, 2*time.Hour)
 	// Upkeep of the fisher (1/min; the warehouse has none), no houses, no
@@ -694,8 +700,8 @@ func TestDisplayFieldsAndNextChange(t *testing.T) {
 		b := b.(map[string]any)
 		requireKeys(t, b["type"].(string), b, common...)
 		switch b["type"] {
-		case "warehouse":
-			requireKeys(t, "warehouse", b, "level", "capacity", "throughput_per_min", "load_permille")
+		case "trading_post":
+			requireKeys(t, "trading_post", b, "level", "capacity", "throughput_per_min", "load_permille")
 		case "house_settlers":
 			requireKeys(t, "house", b, "residents")
 		default:
@@ -776,7 +782,7 @@ func TestRoadAdjacencyEveryEdge(t *testing.T) {
 		case 0, 19:
 			rows[y] = strings.Repeat("~", 24)
 		case 1:
-			rows[y] = "~" + strings.Repeat("c", 22) + "~"
+			rows[y] = "~~~~~" + strings.Repeat("c", 18) + "~"
 		default:
 			rows[y] = "~" + strings.Repeat(".", 22) + "~"
 		}
@@ -784,7 +790,7 @@ func TestRoadAdjacencyEveryEdge(t *testing.T) {
 	for _, rot := range []int{0, 90, 180, 270} {
 		w := NewWorld(t0)
 		w.Islands = []*Island{islandFromRows("main", rows...)}
-		if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+		if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 			t.Fatal(err)
 		}
 		const bx, by = 10, 9
@@ -842,16 +848,16 @@ func TestRoadDistanceOneSharedTile(t *testing.T) {
 	w := NewWorld(t0)
 	w.Islands = []*Island{islandFromRows("main",
 		"~~~~~~~~~~~~",
-		"~cccc......~",
+		"~~~~~......~",
 		"~..........~",
 		"~..........~",
 		"~..........~",
 		"~~~~~~~~~~~~",
 	)}
-	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
-	// (5,3) touches the warehouse (x 1..4, y 1..3) and the sawmill
+	// (5,3) touches the Trading Post (x 1..4, y 0..3) and the sawmill
 	// (x 6..7, y 2..3).
 	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{5, 3}}})
 	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 6, Y: 2}, nil); err != nil {
@@ -908,8 +914,8 @@ func TestMoveBuildingErrorsLeaveWorldUnchanged(t *testing.T) {
 		{"terrain", MoveBuilding{IslandID: "main", BuildingID: 3, X: 17, Y: 2}, ErrTerrain},
 		{"occupied by building", MoveBuilding{IslandID: "main", BuildingID: 3, X: 9, Y: 2}, ErrOccupied},
 		{"occupied by road", MoveBuilding{IslandID: "main", BuildingID: 3, X: 14, Y: 3}, ErrOccupied},
-		{"warehouse not coastal", MoveBuilding{IslandID: "main", BuildingID: 1, X: 1, Y: 5}, ErrNotCoastal},
-		{"no work area", MoveBuilding{IslandID: "main", BuildingID: 2, X: 16, Y: 2}, ErrNoWorkArea},
+		{"trading post not on water", MoveBuilding{IslandID: "main", BuildingID: 1, X: 1, Y: 5}, ErrNotOnWater},
+		{"no work area", MoveBuilding{IslandID: "main", BuildingID: 2, X: 16, Y: 7}, ErrNoWorkArea},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1054,25 +1060,26 @@ func TestMoveBuildingKeepsBuffer(t *testing.T) {
 	}
 }
 
-// TestMoveWarehouseReassignsProducers: moving a warehouse closer to a
-// producer re-assigns it by the normal rule; capacity and stock are
-// unchanged.
+// TestMoveWarehouseReassignsProducers: moving a Warehouse closer to a
+// producer re-assigns it from the Trading Post by the normal rule
+// (nearest collector); capacity and stock are unchanged.
 func TestMoveWarehouseReassignsProducers(t *testing.T) {
 	c := catalogue(t)
 	w := NewWorld(t0)
 	w.Islands = []*Island{islandFromRows("main",
 		"~~~~~~~~~~~~~~~~~~~~~~~~~~",
-		"~cccccccccccccccccccccccc~",
+		"~~~~~cccccccccccccccccccc~",
 		"~........................~",
 		"~........................~",
 		"~........................~",
 		"~........................~",
 		"~~~~~~~~~~~~~~~~~~~~~~~~~~",
 	)}
-	for _, x := range []int{1, 20} {
-		if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: x, Y: 1}, nil); err != nil {
-			t.Fatal(err)
-		}
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
+		t.Fatal(err)
+	}
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 20, Y: 2}, nil); err != nil {
+		t.Fatal(err)
 	}
 	var road []Pos
 	for x := 1; x <= 24; x++ {
@@ -1091,7 +1098,7 @@ func TestMoveWarehouseReassignsProducers(t *testing.T) {
 		t.Fatalf("before: %+v", sm)
 	}
 	capBefore, stock := capacityFine(is, c), maps.Clone(is.Inventory.Stock)
-	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 10, Y: 1})
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: 2, X: 10, Y: 2})
 	if sm.AssignedWarehouseID != 2 || sm.RoadDistance != 2 {
 		t.Errorf("after: assigned %d distance %d", sm.AssignedWarehouseID, sm.RoadDistance)
 	}
@@ -1166,13 +1173,13 @@ func TestAddStockRejectsOversizedGrants(t *testing.T) {
 // full -> lumberjack stopped) do not count towards the warehouse load.
 func TestThroughputSharedOnlyAmongRunningProducers(t *testing.T) {
 	base := catalogue(t)
-	whDef := *base.BuildingByID["warehouse"]
-	wh := *whDef.Warehouse
-	wh.Levels = []content.WarehouseLevel{{Capacity: 300_000, ThroughputPerMin: 3_000}}
-	whDef.Warehouse = &wh
+	whDef := *base.BuildingByID["trading_post"]
+	wh := *whDef.TradingPost
+	wh.Levels = []content.TradingPostLevel{{Capacity: 300_000, ThroughputPerMin: 3_000, Berths: 1}}
+	whDef.TradingPost = &wh
 	c := *base
 	c.BuildingByID = maps.Clone(base.BuildingByID)
-	c.BuildingByID["warehouse"] = &whDef
+	c.BuildingByID["trading_post"] = &whDef
 
 	w := testWorld(t, &c)
 	mustApply(t, w, &c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 8, Y: 2})

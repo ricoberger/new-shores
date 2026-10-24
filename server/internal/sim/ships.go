@@ -139,15 +139,11 @@ func lookupShip(w *World, id int64) (*Ship, error) {
 	return s, nil
 }
 
-// settled reports whether an island has at least one warehouse (derived,
-// R-15). Unsettled islands have capacity 0.
+// settled reports whether an island has a Trading Post (derived, D-051).
+// Unsettled islands have capacity 0.
 func settled(is *Island, c *content.Catalogue) bool {
-	for _, b := range is.Buildings {
-		if def := c.BuildingByID[b.Type]; def != nil && def.Warehouse != nil {
-			return true
-		}
-	}
-	return false
+	tp, _ := tradingPost(is, c)
+	return tp != nil
 }
 
 // isqrt returns floor(sqrt(n)).
@@ -263,13 +259,22 @@ func freeMilli(is *Island, c *content.Catalogue, good string, now int64) Qty {
 	return max(capacityFine(is, c)-committedFine(is, good, now), 0) / SubPerMilli
 }
 
+// handlingMs is the time a ship occupies a berth for moving the given
+// milli-units (unloaded plus loaded): ship_handling_base_seconds +
+// ship_handling_seconds_per_unit x units, rounded up to whole milliseconds
+// (MECHANICS §9.2, D-051).
+func handlingMs(c *content.Catalogue, moved Qty) int64 {
+	r := c.Region.Rules
+	return r.ShipHandlingBaseMs + ceilDiv(r.ShipHandlingMsPerUnit*max(moved, 0), content.MilliPerUnit)
+}
+
 // unloadGood moves up to the amount aboard of good into the island
 // inventory, limited by the free committed capacity; the excess stays
-// aboard.
-func unloadGood(is *Island, c *content.Catalogue, amounts map[string]Qty, good string, now int64, l *Ledger) {
+// aboard. It returns the unloaded milli-units.
+func unloadGood(is *Island, c *content.Catalogue, amounts map[string]Qty, good string, now int64, l *Ledger) Qty {
 	take := min(amounts[good], freeMilli(is, c, good, now))
 	if take <= 0 {
-		return
+		return 0
 	}
 	is.Inventory.setFine(good, is.Inventory.fine(good)+take*SubPerMilli)
 	amounts[good] -= take
@@ -277,6 +282,7 @@ func unloadGood(is *Island, c *content.Catalogue, amounts map[string]Qty, good s
 		delete(amounts, good)
 	}
 	l.flow(is.ID, good).Unloaded += take * SubPerMilli
+	return take
 }
 
 // unloadAll unloads every good aboard into the ship's island (R-23).
@@ -331,10 +337,11 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 		return
 	}
 	stop := r.Stops[matched]
+	var moved Qty
 	if is, def := w.Island(island), c.ShipByID[s.Type]; is != nil && def != nil {
 		amounts := cargoAmounts(s)
 		for _, g := range stop.Unload {
-			unloadGood(is, c, amounts, g, now, l)
+			moved += unloadGood(is, c, amounts, g, now, l)
 		}
 		for _, lr := range stop.Load {
 			want := lr.MaxAmount - amounts[lr.Good]
@@ -344,6 +351,7 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 			}
 			is.Inventory.setFine(lr.Good, is.Inventory.fine(lr.Good)-take*SubPerMilli)
 			amounts[lr.Good] += take
+			moved += take
 			l.flow(is.ID, lr.Good).Loaded += take * SubPerMilli
 		}
 		setCargo(s, def.SlotSize, amounts)
@@ -351,7 +359,7 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 	}
 	s.StopIndex = (matched + 1) % n
 	to := r.Stops[s.StopIndex].IslandID
-	dep := now + c.Region.Rules.ShipHandlingMs
+	dep := now + handlingMs(c, moved)
 	depart(s, Leg{FromIsland: island, ToIsland: to, DepartAtMs: dep, ArriveAtMs: dep + shipTravel(w, c, s, island, to)}, now)
 }
 
@@ -587,8 +595,8 @@ type CancelShipOrder struct {
 	BuildingID int64
 }
 
-// FoundIsland settles an unsettled island with a warehouse built from the
-// cargo of an idle ship there (R-33).
+// FoundIsland settles an unsettled island with a Trading Post built from
+// the cargo of an idle ship there (R-33, D-051).
 type FoundIsland struct {
 	ShipID       int64
 	IslandID     string
@@ -733,8 +741,8 @@ func foundIsland(w *World, c *content.Catalogue, cmd FoundIsland, l *Ledger) err
 	if def == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownBuilding, cmd.BuildingType)
 	}
-	if def.Warehouse == nil {
-		return fmt.Errorf("%w: %s has no warehouse block", ErrInvalidCommand, def.ID)
+	if def.TradingPost == nil {
+		return fmt.Errorf("%w: %s has no trading_post block", ErrInvalidCommand, def.ID)
 	}
 	if !TierUnlocked(w, c, def.Tier) {
 		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
@@ -866,13 +874,15 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 	}
 
 	now := w.LastEvaluatedAt.UnixMilli()
+	var moved Qty
 	for _, ca := range cmd.Cargo {
 		from.Inventory.setFine(ca.Good, from.Inventory.fine(ca.Good)-ca.Amount*SubPerMilli)
 		l.flow(from.ID, ca.Good).Loaded += ca.Amount * SubPerMilli
+		moved += ca.Amount
 	}
 	setCargo(s, ship.SlotSize, amounts)
 	s.State = ShipManualLeg
-	dep := now + c.Region.Rules.ShipHandlingMs
+	dep := now + handlingMs(c, moved)
 	depart(s, Leg{FromIsland: from.ID, ToIsland: to.ID, DepartAtMs: dep, ArriveAtMs: dep + travelMs(c, ship.SpeedPermille, from, to)}, now)
 	clearRegimes(from)
 	return nil

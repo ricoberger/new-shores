@@ -17,7 +17,7 @@ func fieldsWorld(t *testing.T, c *content.Catalogue) (*World, int64) {
 	w := NewWorld(t0)
 	w.Islands = []*Island{islandFromRows("main",
 		"~~~~~~~~~~~~~~~~~~~~~~~~",
-		"~cccccccccccccccccccccc~",
+		"~~~~~cccccccccccccccccc~",
 		"~......................~",
 		"~......................~",
 		"~......................~",
@@ -31,7 +31,7 @@ func fieldsWorld(t *testing.T, c *content.Catalogue) (*World, int64) {
 		"~......................~",
 		"~~~~~~~~~~~~~~~~~~~~~~~~",
 	)}
-	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
 	w.Gold = 10_000_000

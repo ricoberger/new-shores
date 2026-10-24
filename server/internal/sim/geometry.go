@@ -24,6 +24,28 @@ func footprint(def *content.Building, rotation int) (int, int) {
 
 func validRotation(r int) bool { return r == 0 || r == 90 || r == 180 || r == 270 }
 
+// WaterTile reports whether tile (tx, ty) lies in the water rows of a
+// water-edge building (content water_tiles, D-051) placed at (x, y) with
+// the given rotation. The water rows are the front rows: at rotation 0 the
+// top rows (smallest y), at 90 the rightmost columns, at 180 the bottom
+// rows and at 270 the leftmost columns. False for other buildings.
+func WaterTile(def *content.Building, x, y, rotation, tx, ty int) bool {
+	n := def.WaterTiles
+	if n <= 0 {
+		return false
+	}
+	w, h := footprint(def, rotation)
+	switch rotation {
+	case 90:
+		return tx >= x+w-n
+	case 180:
+		return ty >= y+h-n
+	case 270:
+		return tx < x+n
+	}
+	return ty < y+n
+}
+
 // neighbours returns the offsets of the four 4-adjacent tiles.
 func neighbours() [4]Pos { return [4]Pos{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} }
 

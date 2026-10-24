@@ -14,7 +14,7 @@ func fieldsScenario(t *testing.T, steps string) (*Report, error) {
 		"name": "fields", "start": "2026-01-01T00:00:00Z",
 		"island": {"rows": [
 			"~~~~~~~~~~~~~~",
-			"~cccccccccccc~",
+			"~~~~~cccccccc~",
 			"~............~",
 			"~............~",
 			"~............~",
@@ -25,7 +25,7 @@ func fieldsScenario(t *testing.T, steps string) (*Report, error) {
 			"~............~",
 			"~~~~~~~~~~~~~~"
 		]},
-		"seed": {"warehouse": {"x": 1, "y": 1}, "gold": 10000, "stock": {"planks": 100}},
+		"seed": {"trading_post": {"x": 1, "y": 0}, "gold": 10000, "stock": {"planks": 100}},
 		"steps": [{"place": {"type": "sheep_farm", "x": 4, "y": 4}}` + steps + `]
 	}`))
 	if err != nil {

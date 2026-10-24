@@ -316,7 +316,7 @@ def lite_ratios(n, house=False):
     return out + [max(r, config.LITE_MIN_TRIS / n) for r in config.LITE_RATIOS]
 
 
-def decimate(mesh, kit_loader, footprint=None, house=False):
+def decimate(mesh, kit_loader, footprint=None, house=False, ground=config.GROUND_RANGE):
     """
     The lite mesh: decimated (when the loader can, i.e. Blender) to the first
     of lite_ratios whose result still fits and covers the footprint (w, h)
@@ -331,7 +331,7 @@ def decimate(mesh, kit_loader, footprint=None, house=False):
         if r >= 1.0:
             return mesh
         out = fn(mesh, r)
-        if footprint is None or not (validate.footprint_fit(out, *footprint) or validate.ground_contact(out)):
+        if footprint is None or not (validate.footprint_fit(out, *footprint) or validate.ground_contact(out, ground)):
             return out
     return mesh
 
@@ -360,7 +360,7 @@ def _check_file(recipe, content, roles, fname, key, mesh, declared, limit):
     elif recipe["kind"] in ("building", "field"):
         w, h = content_mod.footprint(content, cid)
         problems += [f"{fname}: footprint fit: {p}" for p in validate.footprint_fit(mesh, w, h)]
-        problems += [f"{fname}: {p}" for p in validate.ground_contact(mesh)]
+        problems += [f"{fname}: {p}" for p in validate.ground_contact(mesh, content_mod.ground_range(content, cid))]
     elif key is None:
         problems += [f"{fname}: {p}" for p in validate.ship_length(mesh, recipe["ship"]["length_tiles"])]
     problems += validate.palette_check(mesh, roles, declared, fname)
@@ -393,7 +393,7 @@ def build_recipe(recipe, content, roles, kit_loader):
             if has_lite:
                 lite = _assemble(cid, groups, kit_loader, kit_used, "lite", roles)
                 house = content_mod.is_house(content, cid)
-                lite = (decimate(lite[0], kit_loader, content_mod.footprint(content, cid), house), lite[1])
+                lite = (decimate(lite[0], kit_loader, content_mod.footprint(content, cid), house, content_mod.ground_range(content, cid)), lite[1])
             bake(mesh, recipe, kit_loader)
             if lite is not None:
                 bake(lite[0], recipe, kit_loader)

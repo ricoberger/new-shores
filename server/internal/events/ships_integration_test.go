@@ -85,7 +85,7 @@ func shippingWorld(t *testing.T, created time.Time) *sim.World {
 	for y := 4; y <= 33; y++ {
 		tiles = append(tiles, sim.Pos{X: 2, Y: y})
 	}
-	for x := 3; x <= 13; x++ {
+	for x := 3; x <= 14; x++ {
 		tiles = append(tiles, sim.Pos{X: x, Y: 33})
 	}
 	if err := sim.AddStock(w, cat, "start", "sails", 10_000, nil); err != nil {
@@ -98,8 +98,8 @@ func shippingWorld(t *testing.T, created time.Time) *sim.World {
 	}
 	for _, cmd := range []sim.Command{
 		sim.PlaceRoad{IslandID: "start", Type: "road_dirt", Tiles: tiles},
-		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 5, Y: 34},
-		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 14, Y: 33},
+		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 5, Y: 34, Rotation: 180},
+		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 14, Y: 34, Rotation: 180},
 	} {
 		if err := sim.Apply(w, cat, cmd); err != nil {
 			t.Fatalf("%#v: %v", cmd, err)
@@ -196,7 +196,7 @@ func TestShipEventsWithTwoWorkers(t *testing.T) {
 	advance(2 * time.Minute)
 	apply(sim.ManualShipment{ShipID: 1, ToIslandID: "island2", Cargo: []sim.CargoAmount{{Good: "planks", Amount: 50_000}}})
 	advance(2*time.Minute + 20*time.Second)
-	apply(sim.FoundIsland{ShipID: 1, IslandID: "island2", BuildingType: "warehouse", X: 2, Y: 1})
+	apply(sim.FoundIsland{ShipID: 1, IslandID: "island2", BuildingType: "trading_post", X: 2, Y: 0})
 	apply(sim.CreateRoute{Stops: []sim.Stop{
 		{IslandID: "start", Load: []sim.LoadRule{{Good: "planks", MaxAmount: 20_000}}},
 		{IslandID: "island2", Unload: []string{"planks"}},

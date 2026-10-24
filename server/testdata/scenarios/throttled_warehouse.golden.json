@@ -1,6 +1,6 @@
 {
   "name": "throttled_warehouse",
-  "content_version": "old_coast-0.6.0",
+  "content_version": "old_coast-0.7.0",
   "boundary_count": 32,
   "totals": {
     "main": {
@@ -807,9 +807,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 2,
+            "y": 1,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",

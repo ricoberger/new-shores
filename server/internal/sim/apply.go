@@ -343,7 +343,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	}
 	b := &Building{ID: w.NextBuildingID, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Efficiency: 1000}
 	w.NextBuildingID++
-	if def.Warehouse != nil {
+	if def.Collector() {
 		b.Level = 1
 	}
 	if def.House != nil {
@@ -358,7 +358,8 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 
 // checkSite validates a building site, in this order: the footprint is on
 // the island, on buildable terrain (a deposit building may also cover
-// mountain tiles) and free (per occ and roads); a coastal building touches
+// mountain tiles) and free (per occ and roads) except the front rows of a
+// water-edge building, which must be free water tiles; a coastal building touches
 // the coast; a deposit building covers at least one tile with a deposit of
 // its kind; the island has the fertility of a work-area building; and,
 // with workArea set, a work-area building without a fields block has
@@ -376,13 +377,28 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 		return fmt.Errorf("%w: %s footprint at (%d,%d)", ErrOutOfBounds, def.ID, x, y)
 	}
 	tiles := make([]Pos, 0, fw*fh)
+	var water []Pos
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
+			if WaterTile(def, x, y, rotation, tx, ty) {
+				water = append(water, Pos{tx, ty})
+				continue
+			}
 			tiles = append(tiles, Pos{tx, ty})
 		}
 	}
 	if err := checkTiles(is, occ, tiles, def.RequiresDeposit != ""); err != nil {
 		return err
+	}
+	// Water-edge buildings (D-051): the front rows stand on free water.
+	for _, p := range water {
+		i := is.index(p.X, p.Y)
+		if is.Tiles[i].Terrain != content.TerrainWater {
+			return fmt.Errorf("%w: %s at (%d,%d): front tile (%d,%d) is %s", ErrNotOnWater, def.ID, x, y, p.X, p.Y, is.Tiles[i].Terrain)
+		}
+		if occ[i] != 0 {
+			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+		}
 	}
 	if def.Coastal {
 		coastal := false
@@ -548,25 +564,18 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	}
 	now := w.LastEvaluatedAt.UnixMilli()
 
-	// The last warehouse may only go when nothing but roads remains: it
-	// unsettles the island (R-35).
-	if def.Warehouse != nil && len(is.Buildings) > 1 {
-		warehouses := 0
-		for _, ob := range is.Buildings {
-			if odef := c.BuildingByID[ob.Type]; odef != nil && odef.Warehouse != nil {
-				warehouses++
-			}
-		}
-		if warehouses == 1 {
-			return fmt.Errorf("%w: %q has %d other buildings", ErrLastWarehouse, is.ID, len(is.Buildings)-1)
-		}
+	// The Trading Post may only go when nothing but roads remains: it
+	// unsettles the island (R-35, D-051).
+	if def.TradingPost != nil && len(is.Buildings) > 1 {
+		return fmt.Errorf("%w: %q has %d other buildings", ErrLastWarehouse, is.ID, len(is.Buildings)-1)
 	}
 
-	// Capacity after demolition. The demolished building's own in-transit
-	// goods are delivered, which leaves committed quantities unchanged.
+	// Capacity after demolition: only the Trading Post holds capacity. The
+	// demolished building's own in-transit goods are delivered, which
+	// leaves committed quantities unchanged.
 	newCap := capacityFine(is, c)
-	if def.Warehouse != nil {
-		newCap -= warehouseLevel(def, b).Capacity * SubPerMilli
+	if def.TradingPost != nil {
+		newCap = 0
 	}
 	var surplus []string
 	for _, good := range goodsOnIsland(is) {
@@ -603,12 +612,11 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 		}
 	}
 	refund(is, c, def.Cost, 1, l, now)
-	// An upgraded warehouse also refunds the paid levels (D-019).
-	if def.Warehouse != nil {
-		for i := 1; i < b.Level && i < len(def.Warehouse.Levels); i++ {
-			if lc := def.Warehouse.Levels[i].Cost; lc != nil {
-				refund(is, c, *lc, 1, l, now)
-			}
+	// An upgraded Trading Post or Warehouse also refunds the paid levels
+	// (D-019).
+	for lvl := 2; lvl <= b.Level; lvl++ {
+		if lc := def.LevelCost(lvl); lc != nil {
+			refund(is, c, *lc, 1, l, now)
 		}
 	}
 	if b.Order != nil {
@@ -743,14 +751,14 @@ func upgradeWarehouse(w *World, c *content.Catalogue, cmd UpgradeWarehouse, l *L
 		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
 	}
 	def := c.BuildingByID[b.Type]
-	if def == nil || def.Warehouse == nil {
+	if def == nil || !def.Collector() {
 		return fmt.Errorf("%w: %s is not a warehouse", ErrUpgradeUnavailable, b.Type)
 	}
 	level := max(b.Level, 1)
-	if level >= len(def.Warehouse.Levels) {
+	if level >= def.LevelCount() {
 		return fmt.Errorf("%w: %s is at its last level %d", ErrUpgradeUnavailable, def.ID, level)
 	}
-	cost := def.Warehouse.Levels[level].Cost
+	cost := def.LevelCost(level + 1)
 	if cost == nil {
 		return fmt.Errorf("%w: level %d of %s has no cost", ErrUpgradeUnavailable, level+1, def.ID)
 	}

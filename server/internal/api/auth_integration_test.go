@@ -224,7 +224,7 @@ func TestGuestRegisterLoginFlow(t *testing.T) {
 	if v2 != v1 || len(d2) == 0 || len(d1) == 0 {
 		t.Fatalf("version after register %d, want %d", v2, v1)
 	}
-	if bs := buildingIDs(t, d2, "warehouse"); len(bs) != 1 {
+	if bs := buildingIDs(t, d2, "trading_post"); len(bs) != 1 {
 		t.Fatalf("warehouses %v", bs)
 	}
 	// Registering again is already_registered; the email is taken for others.

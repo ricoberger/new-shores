@@ -1,12 +1,12 @@
 {
   "name": "bootstrap_settlers",
-  "description": "Tier-1 bootstrap from the content starting stock only (start.json after the free first warehouse): fisher, wood chain, market and eight houses first, then more houses from produced planks, the wool chain and the chapel as gold allows, until Citizens unlock (CONTENT §12 bootstrap check). Insolvency pauses are allowed; gold never goes negative.",
+  "description": "Tier-1 bootstrap from the content starting stock only (start.json after the free first Trading Post): fisher, wood chain, market and eight houses first, then more houses from produced planks, the wool chain and the chapel as gold allows, until Citizens unlock (CONTENT §12 bootstrap check). Insolvency pauses are allowed; gold never goes negative.",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
     "rows": [
       "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-      "~cccccccc..............................~",
+      "~~~~~c~~c..............................~",
       "~......................................~",
       "~......................................~",
       "~......................................~",
@@ -22,9 +22,9 @@
     ]
   },
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 1,
+      "y": 0,
       "rotation": 0
     },
     "start": true

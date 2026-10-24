@@ -159,7 +159,7 @@ KIT_BUILDINGS = {
     **{
         name: ("kaykit_hexagon", f"{_HEX_BUILDINGS}blue/building_{name}_blue.gltf", 180.0)
         for name in (
-            "archeryrange", "barracks", "blacksmith", "castle", "church", "home_A", "home_B", "lumbermill",
+            "archeryrange", "barracks", "blacksmith", "castle", "church", "docks", "home_A", "home_B", "lumbermill",
             "market", "mine", "tavern", "tower_A", "tower_B", "tower_base", "tower_catapult", "watermill",
             "well", "windmill",
         )
@@ -204,13 +204,17 @@ LITE_HOUSE_TRIS = 120
 LITE_HOUSE_STEP = 1.25
 LITE_FACTOR = 0.25
 #: Buildings that may declare a budget_exception (×2).
-EXCEPTION_ALLOWED = ("warehouse", "shipyard", "chapel", "market_small")
+EXCEPTION_ALLOWED = ("trading_post", "warehouse", "shipyard", "chapel", "market_small")
 
 #: Footprint fit tolerance (tiles) and ship length tolerance.
 FOOTPRINT_TOLERANCE = 0.3
 SHIP_LENGTH_TOLERANCE = 0.1
 #: The lowest point of a building or field must lie this close to the ground (tiles).
 GROUND_RANGE = (-0.3, 0.05)
+#: Water-edge buildings (content water_tiles, D-051) stand with their front
+#: rows over the sea (0.6 tiles below the ground): their piles reach into
+#: the water (the opaque sea hides what lies below its surface).
+GROUND_RANGE_WATER_EDGE = (-2.0, 0.05)
 
 #: Palette check tolerance per channel.
 COLOR_TOLERANCE = 1.0 / 255.0

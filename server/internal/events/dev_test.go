@@ -63,7 +63,7 @@ func devShipyardWorld(t *testing.T, c *content.Catalogue, at time.Time) *sim.Wor
 	for y := 4; y <= 33; y++ {
 		tiles = append(tiles, sim.Pos{X: 2, Y: y})
 	}
-	for x := 3; x <= 13; x++ {
+	for x := 3; x <= 14; x++ {
 		tiles = append(tiles, sim.Pos{X: x, Y: 33})
 	}
 	if err := sim.AddStock(w, c, "start", "sails", 10_000, nil); err != nil {
@@ -71,8 +71,8 @@ func devShipyardWorld(t *testing.T, c *content.Catalogue, at time.Time) *sim.Wor
 	}
 	for _, cmd := range []sim.Command{
 		sim.PlaceRoad{IslandID: "start", Type: "road_dirt", Tiles: tiles},
-		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 5, Y: 34},
-		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 14, Y: 33},
+		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 5, Y: 34, Rotation: 180},
+		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 14, Y: 34, Rotation: 180},
 	} {
 		if err := sim.Apply(w, c, cmd); err != nil {
 			t.Fatalf("%#v: %v", cmd, err)

@@ -94,7 +94,7 @@ func recomputeConnectivity(is *Island, c *content.Catalogue) {
 	var whs []wh
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
-		if def == nil || def.Warehouse == nil {
+		if def == nil || !def.Collector() {
 			continue
 		}
 		start := is.buildingRoads(def, b)

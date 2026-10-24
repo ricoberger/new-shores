@@ -21,7 +21,9 @@ func townRows() []string {
 			case x == 0 || y == 0 || x == 29 || y == 13:
 				row[x] = '~'
 			case y == 1 && x <= 8:
-				row[x] = 'c'
+				// The bay of the Trading Post (1,0) and the fisher (6,1):
+				// their front rows stand on water (D-051).
+				row[x] = '~'
 			default:
 				row[x] = '.'
 			}
@@ -45,7 +47,7 @@ func newTown(t testing.TB, c *content.Catalogue, gold Qty) *World {
 	t.Helper()
 	w := NewWorld(t0)
 	w.Islands = []*Island{islandFromRows("main", townRows()...)}
-	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
 	road := []Pos{{6, 3}}

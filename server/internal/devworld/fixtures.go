@@ -214,7 +214,7 @@ func town(f *fixture) {
 func settle(f *fixture) {
 	f.road(startIsland, 2, 4, 2, 34)
 	f.road(startIsland, 3, 34, 4, 34)
-	f.place(startIsland, "shipyard", 5, 34, 0)
+	f.place(startIsland, "shipyard", 5, 34, 180)
 	if f.err != nil {
 		return
 	}
@@ -228,7 +228,7 @@ func settle(f *fixture) {
 	ship := f.w.Ships[len(f.w.Ships)-1].ID
 	f.apply(sim.ManualShipment{ShipID: ship, ToIslandID: island2, Cargo: []sim.CargoAmount{{Good: "planks", Amount: 60_000}}})
 	f.advance(2*time.Minute + 30*time.Second)
-	f.apply(sim.FoundIsland{ShipID: ship, IslandID: island2, BuildingType: "warehouse", X: 2, Y: 1})
+	f.apply(sim.FoundIsland{ShipID: ship, IslandID: island2, BuildingType: "trading_post", X: 2, Y: 0})
 	f.road(island2, 2, 4, 20, 4)
 	f.place(island2, "house_settlers", 8, 5, 0)
 	f.place(island2, "house_settlers", 10, 5, 0)

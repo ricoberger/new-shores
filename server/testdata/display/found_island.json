@@ -1,9 +1,9 @@
 {
   "scenario": "found_island",
   "base": {
-    "evaluated_at": "2026-01-01T00:08:20.000Z",
-    "next_change_at": "2026-01-01T00:09:33.000Z",
-    "gold": 906293,
+    "evaluated_at": "2026-01-01T00:08:30.000Z",
+    "next_change_at": "2026-01-01T00:09:43.000Z",
+    "gold": 906126,
     "balance_rate_per_min": -1200,
     "tax_rate_per_min": 800,
     "upkeep_rate_per_min": 2000,
@@ -297,9 +297,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 2,
+            "y": 1,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -533,9 +533,9 @@
         "buildings": [
           {
             "id": 3,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -749,15 +749,15 @@
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:03:20.000Z"
+    "last_seen_at": "2026-01-01T00:03:30.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T00:08:20.250Z",
-        "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 906288,
+        "evaluated_at": "2026-01-01T00:08:30.250Z",
+        "next_change_at": "2026-01-01T00:09:43.000Z",
+        "gold": 906121,
         "balance_rate_per_min": -1200,
         "tax_rate_per_min": 800,
         "upkeep_rate_per_min": 2000,
@@ -1051,9 +1051,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -1287,9 +1287,9 @@
             "buildings": [
               {
                 "id": 3,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -1503,15 +1503,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:03:20.000Z"
+        "last_seen_at": "2026-01-01T00:03:30.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T00:08:21.000Z",
-        "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 906273,
+        "evaluated_at": "2026-01-01T00:08:31.000Z",
+        "next_change_at": "2026-01-01T00:09:43.000Z",
+        "gold": 906106,
         "balance_rate_per_min": -1200,
         "tax_rate_per_min": 800,
         "upkeep_rate_per_min": 2000,
@@ -1805,9 +1805,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -2041,9 +2041,9 @@
             "buildings": [
               {
                 "id": 3,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -2257,15 +2257,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:03:20.000Z"
+        "last_seen_at": "2026-01-01T00:03:30.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T00:08:25.000Z",
-        "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 906193,
+        "evaluated_at": "2026-01-01T00:08:35.000Z",
+        "next_change_at": "2026-01-01T00:09:43.000Z",
+        "gold": 906026,
         "balance_rate_per_min": -1200,
         "tax_rate_per_min": 800,
         "upkeep_rate_per_min": 2000,
@@ -2559,9 +2559,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -2795,9 +2795,9 @@
             "buildings": [
               {
                 "id": 3,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -3011,15 +3011,15 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:03:20.000Z"
+        "last_seen_at": "2026-01-01T00:03:30.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T00:08:50.000Z",
-        "next_change_at": "2026-01-01T00:09:33.000Z",
-        "gold": 905693,
+        "evaluated_at": "2026-01-01T00:09:00.000Z",
+        "next_change_at": "2026-01-01T00:09:43.000Z",
+        "gold": 905526,
         "balance_rate_per_min": -1200,
         "tax_rate_per_min": 800,
         "upkeep_rate_per_min": 2000,
@@ -3313,9 +3313,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -3549,9 +3549,9 @@
             "buildings": [
               {
                 "id": 3,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -3765,7 +3765,7 @@
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T00:03:20.000Z"
+        "last_seen_at": "2026-01-01T00:03:30.000Z"
       }
     }
   ]

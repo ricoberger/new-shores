@@ -121,7 +121,7 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
     if "levels" in recipe:
         want = {str(i) for i in range(1, levels + 1)}
         if set(recipe["levels"]) != want:
-            errors.append(f"{name}: levels must be {sorted(want)} (the content's warehouse levels)")
+            errors.append(f"{name}: levels must be {sorted(want)} (the content's Trading Post or Warehouse levels)")
     if "variants" in recipe and "levels" in recipe:
         errors.append(f"{name}: variants and levels cannot be combined")
     if kind == "ship":

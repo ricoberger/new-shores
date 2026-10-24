@@ -1,6 +1,6 @@
 {
   "name": "route_loop",
-  "content_version": "old_coast-0.6.0",
+  "content_version": "old_coast-0.7.0",
   "boundary_count": 9,
   "totals": {
     "island2": {
@@ -17,7 +17,7 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "unloaded": 74250
+        "unloaded": 296000
       }
     },
     "start": {
@@ -38,11 +38,11 @@
         "granted": 10000
       },
       "wood": {
-        "produced": 17000,
+        "produced": 19700,
         "consumed": 0,
         "lost": 0,
-        "granted": 60000,
-        "loaded": 74250
+        "granted": 280000,
+        "loaded": 296000
       }
     }
   },
@@ -69,7 +69,7 @@
             "in_transit": 0
           },
           "wood": {
-            "stock": 62250,
+            "stock": 282250,
             "in_transit": 750
           }
         }
@@ -103,7 +103,7 @@
             "in_transit": 0
           },
           "wood": {
-            "stock": 64250,
+            "stock": 284250,
             "in_transit": 750
           }
         }
@@ -130,7 +130,7 @@
     },
     {
       "step": 11,
-      "at": "2026-01-01T00:06:00.000Z",
+      "at": "2026-01-01T00:06:36.000Z",
       "boundaries": 2,
       "inventory": {
         "island2": {
@@ -139,7 +139,7 @@
             "in_transit": 0
           },
           "wood": {
-            "stock": 66250,
+            "stock": 100000,
             "in_transit": 0
           }
         },
@@ -149,7 +149,7 @@
             "in_transit": 0
           },
           "wood": {
-            "stock": 2000,
+            "stock": 189150,
             "in_transit": 750
           }
         }
@@ -157,7 +157,7 @@
       "statuses": {
         "low_efficiency": 1
       },
-      "gold": 915000,
+      "gold": 913800,
       "balance_rate_per_min": -2000,
       "population": {},
       "unlocked_tiers": [
@@ -177,7 +177,7 @@
     },
     {
       "step": 12,
-      "at": "2026-01-01T00:08:40.000Z",
+      "at": "2026-01-01T00:09:52.000Z",
       "boundaries": 2,
       "inventory": {
         "island2": {
@@ -186,7 +186,7 @@
             "in_transit": 0
           },
           "wood": {
-            "stock": 70250,
+            "stock": 200000,
             "in_transit": 0
           }
         },
@@ -196,7 +196,7 @@
             "in_transit": 0
           },
           "wood": {
-            "stock": 2000,
+            "stock": 94050,
             "in_transit": 750
           }
         }
@@ -204,7 +204,7 @@
       "statuses": {
         "low_efficiency": 1
       },
-      "gold": 909666,
+      "gold": 907266,
       "balance_rate_per_min": -2000,
       "population": {},
       "unlocked_tiers": [
@@ -224,12 +224,12 @@
     },
     {
       "step": 13,
-      "at": "2026-01-01T00:11:20.000Z",
+      "at": "2026-01-01T00:13:08.000Z",
       "boundaries": 2,
       "inventory": {
         "island2": {
           "wood": {
-            "stock": 74250,
+            "stock": 296000,
             "in_transit": 0
           }
         },
@@ -239,7 +239,7 @@
             "in_transit": 0
           },
           "wood": {
-            "stock": 2000,
+            "stock": 2950,
             "in_transit": 750
           }
         }
@@ -247,7 +247,7 @@
       "statuses": {
         "low_efficiency": 1
       },
-      "gold": 904333,
+      "gold": 900733,
       "balance_rate_per_min": -2000,
       "population": {},
       "unlocked_tiers": [
@@ -273,9 +273,9 @@
     }
   ],
   "final": {
-    "evaluated_at": "2026-01-01T00:11:20.000Z",
-    "next_change_at": "2026-01-01T00:11:40.000Z",
-    "gold": 904333,
+    "evaluated_at": "2026-01-01T00:13:08.000Z",
+    "next_change_at": "2026-01-01T00:13:18.400Z",
+    "gold": 900733,
     "balance_rate_per_min": -2000,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 2000,
@@ -406,7 +406,7 @@
             "rate_per_min": 0
           },
           "wood": {
-            "stock": 2000,
+            "stock": 2950,
             "capacity": 300000,
             "in_transit": 750,
             "rate_per_min": 1500
@@ -569,9 +569,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 2,
+            "y": 1,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -614,7 +614,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 0,
+            "cycle_progress_permille": 700,
             "transfer_delay_ms": 30000,
             "assigned_warehouse_id": 1,
             "road_distance": 20,
@@ -737,7 +737,7 @@
             "rate_per_min": 0
           },
           "wood": {
-            "stock": 74250,
+            "stock": 296000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -759,9 +759,9 @@
         "buildings": [
           {
             "id": 4,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -789,8 +789,8 @@
         "leg": {
           "from_island_id": "island2",
           "to_island_id": "start",
-          "depart_at": "2026-01-01T00:11:40.000Z",
-          "arrive_at": "2026-01-01T00:12:40.000Z"
+          "depart_at": "2026-01-01T00:13:18.400Z",
+          "arrive_at": "2026-01-01T00:14:18.400Z"
         },
         "cargo": [
           {
@@ -838,31 +838,31 @@
         "ship_ids": [
           1
         ],
-        "loop_ms": 160000,
+        "loop_ms": 140000,
         "effects": [
           {
             "island_id": "start",
             "good": "planks",
             "per_loop": 40000,
-            "per_min": 15000
+            "per_min": 17142
           },
           {
             "island_id": "start",
             "good": "wood",
             "per_loop": -100000,
-            "per_min": -37500
+            "per_min": -42857
           },
           {
             "island_id": "island2",
             "good": "planks",
             "per_loop": -40000,
-            "per_min": -15000
+            "per_min": -17142
           },
           {
             "island_id": "island2",
             "good": "wood",
             "per_loop": 100000,
-            "per_min": 37500
+            "per_min": 42857
           }
         ]
       }

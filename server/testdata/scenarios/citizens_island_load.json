@@ -1,6 +1,6 @@
 {
   "name": "citizens_island_load",
-  "description": "Warehouse level-2 load of a representative Citizens island (balancing evidence, free seed): fifteen settler houses unlock Citizens, the warehouse is upgraded to level 2, then the balanced Citizens chain set for 400 Citizens (4 wheat farms, 2 mills, 4 bakeries, 4 orchards, 2 cideries, 2 hemp farms, 2 linen weavers) and the Settler support set of the reference game's start island (3 plank chains, 3 fishers, 3 wool chains, 2 quarries) run on seeded workforce; the warehouse load is measured once every chain delivers.",
+  "description": "Trading Post level-2 load of a representative Citizens island (balancing evidence, free seed): fifteen settler houses unlock Citizens, the Trading Post is upgraded to level 2, then the balanced Citizens chain set for 400 Citizens (4 wheat farms, 2 mills, 4 bakeries, 4 orchards, 2 cideries, 2 hemp farms, 2 linen weavers) and the Settler support set of the reference game's start island (3 plank chains, 3 fishers, 3 wool chains, 2 quarries) run on seeded workforce; the warehouse load is measured once every chain delivers.",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
@@ -11,7 +11,7 @@
     ],
     "rows": [
       "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-      "~cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc~",
+      "~~~~~ccccccccccccccccccccccccccccccccccc~~c~~c~~ccccccccccccccc~",
       "~..............................................................~",
       "~..............................................................~",
       "~..............................................................~",
@@ -53,9 +53,9 @@
     ]
   },
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 1,
+      "y": 0,
       "rotation": 0
     },
     "gold": "20000",

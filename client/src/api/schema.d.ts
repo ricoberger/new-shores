@@ -390,7 +390,9 @@ export interface components {
          *       `unknown_island`, `building_not_found`, `ship_not_found`,
          *       `route_not_found`, `quest_not_found`;
          *     - 405: `method_not_allowed`;
-         *     - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`
+         *     - 409: `occupied`, `terrain`, `not_coastal`, `not_on_water` (a
+         *       water-edge building's front rows are not on water, D-051),
+         *       `no_work_area`
          *       (lumberjack only: no matching tile in its work area; farms with
          *       fields are placed at 0 fields),
          *       `no_fertility` (the island lacks the work area's or the field's
@@ -426,8 +428,8 @@ export interface components {
          *     `move_building` can fail with 400 `bad_request`, `invalid_command`
          *     (also for a road or an invalid rotation), `out_of_bounds`; 404
          *     `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-         *     `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`,
-         *     `no_farm_in_range` (a field moved outside every accepting farm's
+         *     `not_coastal`, `not_on_water`, `no_work_area`, `no_fertility`,
+         *     `no_deposit`, `no_farm_in_range` (a field moved outside every accepting farm's
          *     radius). Moving is free: it never fails for
          *     gold, materials or tier. Placement never requires a road (D-042).
          *
@@ -456,7 +458,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_warehouse" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "no_farm_in_range" | "field_type_mismatch" | "not_a_field" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_warehouse" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "no_farm_in_range" | "field_type_mismatch" | "not_a_field" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -1808,9 +1810,14 @@ export interface components {
             auto_resume_upkeep_ms: number;
             /**
              * Format: int64
-             * @description Time a ship spends at a stop before departing (ms).
+             * @description Fixed part of the time a ship occupies a berth to unload and load (ms).
              */
-            ship_handling_ms: number;
+            ship_handling_base_ms: number;
+            /**
+             * Format: int64
+             * @description Additional handling time per unit (1000 milli-units) of goods moved at a stop (ms per unit).
+             */
+            ship_handling_ms_per_unit: number;
             /**
              * Format: int64
              * @description Archipelago distance a ship of speed 1.0 covers per minute (milli-tiles per minute).
@@ -1878,9 +1885,11 @@ export interface components {
             tier: string;
             /**
              * @description Build-menu group derived by the server from the capability
-             *     blocks: house → houses, recipe or field → production, service →
-             *     public, warehouse or shipyard → harbour, road → roads; other for
-             *     none of these.
+             *     blocks: house → houses, recipe, field or warehouse →
+             *     production, service → public, trading_post or shipyard →
+             *     harbour, road → roads; other for none of these. The Trading
+             *     Post is placed only by `found_island`, never from the build
+             *     menu.
              * @enum {string}
              */
             category: "houses" | "production" | "public" | "harbour" | "roads" | "other";
@@ -1889,6 +1898,14 @@ export interface components {
             /** @description Footprint height at rotation 0 (tiles). */
             height: number;
             coastal: boolean;
+            /**
+             * @description Water-edge footprint (D-051): the number of front rows (tiles)
+             *     that must lie on water; at rotation 0 the top rows (smallest
+             *     y), at 90 the rightmost columns, at 180 the bottom rows, at 270
+             *     the leftmost columns. The other rows stand on buildable land.
+             *     0 for every other building.
+             */
+            water_tiles: number;
             requires_road: boolean;
             cost: {
                 /**
@@ -1919,7 +1936,12 @@ export interface components {
             house?: {
                 tier: string;
             };
-            warehouse?: {
+            /**
+             * @description The Trading Post (D-051): one per island, placed by founding;
+             *     its level sets the island's capacity per good, its collector
+             *     throughput and the berths of its pier.
+             */
+            trading_post?: {
                 levels: {
                     /**
                      * Format: int64
@@ -1928,7 +1950,35 @@ export interface components {
                     capacity: number;
                     /**
                      * Format: int64
-                     * @description Throughput (milli-units per minute).
+                     * @description Collector throughput (milli-units per minute).
+                     */
+                    throughput_per_min: number;
+                    /** @description Ships that can load or unload at once (count). */
+                    berths: number;
+                    /**
+                     * @description Upgrade cost into this level (`upgrade_warehouse`);
+                     *     absent on the first level, which the building cost
+                     *     places.
+                     */
+                    cost?: {
+                        /**
+                         * Format: int64
+                         * @description Gold cost (milli-gold).
+                         */
+                        gold: number;
+                        /** @description Material cost per good (milli-units). */
+                        materials: {
+                            [key: string]: number;
+                        };
+                    };
+                }[];
+            };
+            /** @description An inland collector (D-051): throughput only, never capacity. */
+            warehouse?: {
+                levels: {
+                    /**
+                     * Format: int64
+                     * @description Collector throughput (milli-units per minute).
                      */
                     throughput_per_min: number;
                     /**

@@ -100,29 +100,26 @@ func capacityFine(is *Island, c *content.Catalogue) int64 {
 	return capacityMilli(is, c) * SubPerMilli
 }
 
-// capacityMilli returns the per-good capacity in milli-units: the sum of the
-// level capacities of all warehouses on the island (0 without one).
+// capacityMilli returns the per-good capacity in milli-units: the level
+// capacity of the island's Trading Post (0 without one, MECHANICS §5).
+// Warehouses never add capacity.
 func capacityMilli(is *Island, c *content.Catalogue) Qty {
-	var total Qty
-	for _, b := range is.Buildings {
-		def := c.BuildingByID[b.Type]
-		if def == nil || def.Warehouse == nil {
-			continue
-		}
-		total += warehouseLevel(def, b).Capacity
+	if tp, def := tradingPost(is, c); tp != nil {
+		return def.TradingPostLevelAt(tp.Level).Capacity
 	}
-	return total
+	return 0
 }
 
-func warehouseLevel(def *content.Building, b *Building) content.WarehouseLevel {
-	lvl := b.Level
-	if lvl < 1 {
-		lvl = 1
+// tradingPost returns the island's Trading Post and its definition (nil
+// when the island is not settled). There is at most one: only founding
+// places one (MECHANICS §8).
+func tradingPost(is *Island, c *content.Catalogue) (*Building, *content.Building) {
+	for _, b := range is.Buildings {
+		if def := c.BuildingByID[b.Type]; def != nil && def.TradingPost != nil {
+			return b, def
+		}
 	}
-	if lvl > len(def.Warehouse.Levels) {
-		lvl = len(def.Warehouse.Levels)
-	}
-	return def.Warehouse.Levels[lvl-1]
+	return nil, nil
 }
 
 // transitFine returns the amount of a good still in transit at time now.

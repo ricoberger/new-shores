@@ -297,9 +297,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 2,
+            "y": 1,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -314,7 +314,7 @@
           {
             "id": 3,
             "type": "market_small",
-            "x": 9,
+            "x": 16,
             "y": 1,
             "rotation": 0,
             "paused": false,
@@ -570,7 +570,7 @@
                 "kind": "required",
                 "building": "market_small",
                 "fulfilment_permille": 0,
-                "reason": "not_connected"
+                "reason": "out_of_range"
               }
             ]
           },
@@ -1131,9 +1131,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -1148,7 +1148,7 @@
               {
                 "id": 3,
                 "type": "market_small",
-                "x": 9,
+                "x": 16,
                 "y": 1,
                 "rotation": 0,
                 "paused": false,
@@ -1404,7 +1404,7 @@
                     "kind": "required",
                     "building": "market_small",
                     "fulfilment_permille": 0,
-                    "reason": "not_connected"
+                    "reason": "out_of_range"
                   }
                 ]
               },
@@ -1965,9 +1965,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -1982,7 +1982,7 @@
               {
                 "id": 3,
                 "type": "market_small",
-                "x": 9,
+                "x": 16,
                 "y": 1,
                 "rotation": 0,
                 "paused": false,
@@ -2238,7 +2238,7 @@
                     "kind": "required",
                     "building": "market_small",
                     "fulfilment_permille": 0,
-                    "reason": "not_connected"
+                    "reason": "out_of_range"
                   }
                 ]
               },
@@ -2799,9 +2799,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -2816,7 +2816,7 @@
               {
                 "id": 3,
                 "type": "market_small",
-                "x": 9,
+                "x": 16,
                 "y": 1,
                 "rotation": 0,
                 "paused": false,
@@ -3072,7 +3072,7 @@
                     "kind": "required",
                     "building": "market_small",
                     "fulfilment_permille": 0,
-                    "reason": "not_connected"
+                    "reason": "out_of_range"
                   }
                 ]
               },
@@ -3633,9 +3633,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -3650,7 +3650,7 @@
               {
                 "id": 3,
                 "type": "market_small",
-                "x": 9,
+                "x": 16,
                 "y": 1,
                 "rotation": 0,
                 "paused": false,
@@ -3906,7 +3906,7 @@
                     "kind": "required",
                     "building": "market_small",
                     "fulfilment_permille": 0,
-                    "reason": "not_connected"
+                    "reason": "out_of_range"
                   }
                 ]
               },
@@ -4467,9 +4467,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -4484,7 +4484,7 @@
               {
                 "id": 3,
                 "type": "market_small",
-                "x": 9,
+                "x": 16,
                 "y": 1,
                 "rotation": 0,
                 "paused": false,
@@ -4740,7 +4740,7 @@
                     "kind": "required",
                     "building": "market_small",
                     "fulfilment_permille": 0,
-                    "reason": "not_connected"
+                    "reason": "out_of_range"
                   }
                 ]
               },

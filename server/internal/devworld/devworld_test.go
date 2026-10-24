@@ -61,8 +61,8 @@ func TestNewSeedsTheStartIsland(t *testing.T) {
 			t.Errorf("island has no %s", want)
 		}
 	}
-	if len(is.Buildings) != 1 || c.BuildingByID[is.Buildings[0].Type].Warehouse == nil {
-		t.Fatalf("buildings = %+v, want one warehouse", is.Buildings)
+	if len(is.Buildings) != 1 || c.BuildingByID[is.Buildings[0].Type].TradingPost == nil {
+		t.Fatalf("buildings = %+v, want one trading post", is.Buildings)
 	}
 	if w.Gold != c.Start.Gold {
 		t.Errorf("gold = %d, want %d", w.Gold, c.Start.Gold)
@@ -308,7 +308,7 @@ func TestShippingLayoutFoundsIsland2(t *testing.T) {
 	place(t, w, c, "sawmill", 20, 5, 180)
 	road(t, w, c, 2, 4, 2, 34)
 	road(t, w, c, 3, 34, 4, 34)
-	yard := place(t, w, c, "shipyard", 5, 34, 0)
+	yard := place(t, w, c, "shipyard", 5, 34, 180)
 	if yard.AssignedWarehouseID == 0 {
 		t.Fatal("shipyard not connected")
 	}
@@ -330,8 +330,8 @@ func TestShippingLayoutFoundsIsland2(t *testing.T) {
 		t.Fatalf("ships = %+v", w.Ships)
 	}
 	apply(sim.ManualShipment{ShipID: 1, ToIslandID: "island2", Cargo: []sim.CargoAmount{{Good: "planks", Amount: 60_000}}})
-	advance(2*time.Minute + 20*time.Second)
-	apply(sim.FoundIsland{ShipID: 1, IslandID: "island2", BuildingType: "warehouse", X: 2, Y: 1})
+	advance(2*time.Minute + 30*time.Second)
+	apply(sim.FoundIsland{ShipID: 1, IslandID: "island2", BuildingType: "trading_post", X: 2, Y: 0})
 	var tiles []sim.Pos
 	for x := 2; x <= 20; x++ {
 		tiles = append(tiles, sim.Pos{X: x, Y: 4})
@@ -366,7 +366,7 @@ func TestShippingLayoutFoundsIsland2(t *testing.T) {
 
 	// Balance: the flow's construction costs against the starting stock.
 	var gold, planks int64
-	for _, id := range []string{"lumberjack", "sawmill", "house_settlers", "shipyard", "warehouse", "house_settlers", "house_settlers", "fisher"} {
+	for _, id := range []string{"lumberjack", "sawmill", "house_settlers", "shipyard", "trading_post", "house_settlers", "house_settlers", "fisher"} {
 		gold += c.BuildingByID[id].Cost.Gold
 		for _, m := range c.BuildingByID[id].Cost.Materials {
 			if m.Good == "planks" {

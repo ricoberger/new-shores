@@ -87,7 +87,9 @@ function WarehouseUpgrade({
   content: Content;
   onUpgrade: () => void;
 }) {
-  const levels = content.buildings.find((d) => d.id === b.type)?.warehouse?.levels ?? [];
+  const def = content.buildings.find((d) => d.id === b.type);
+  const levels: { capacity?: number; throughput_per_min: number; cost?: { gold: number; materials: Record<string, number> } }[] =
+    def?.trading_post?.levels ?? def?.warehouse?.levels ?? [];
   const next = b.level !== undefined ? levels[b.level] : undefined;
   if (!next) return null;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
@@ -98,7 +100,7 @@ function WarehouseUpgrade({
         <Icon path={toolIcon("upgrade")} /> Upgrade to level {(b.level ?? 0) + 1}
       </button>
       <div className={styles.small}>
-        Capacity {units(next.capacity)} per good · throughput {perMin(next.throughput_per_min)}/min
+        {next.capacity !== undefined && <>Capacity {units(next.capacity)} per good · </>}throughput {perMin(next.throughput_per_min)}/min
       </div>
       <div className={styles.small} data-testid="warehouse-upgrade-cost">
         <span className={cost.gold > model.gold ? styles.warn : undefined}>
@@ -383,7 +385,7 @@ export function InfoPanel({
       {b.level !== undefined && (
         <div className={styles.section}>
           <div className={styles.sectionTitle} data-testid="warehouse-level">
-            Warehouse level {b.level} of {def?.warehouse?.levels.length ?? b.level}
+            Warehouse level {b.level} of {(def?.trading_post ?? def?.warehouse)?.levels.length ?? b.level}
           </div>
           <div className={styles.small}>
             Capacity {units(b.capacity ?? 0)} per good · throughput {perMin(b.throughput_per_min ?? 0)}/min ·{" "}

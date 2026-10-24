@@ -87,7 +87,7 @@ func TestSentinelsCoverSim(t *testing.T) {
 
 const tier2Island = `{"id": "main", "fertilities": ["wheat"], "rows": [
 	"~~~~~~~~~~~~~~~~~~~~",
-	"~cccc.......mmmmmm.~",
+	"~~~~~.......mmmmmm.~",
 	"~...........mSSmII.~",
 	"~...........mSSmII.~",
 	"~...........mmmmmm.~",
@@ -98,7 +98,7 @@ const tier2Island = `{"id": "main", "fertilities": ["wheat"], "rows": [
 func tier2Scenario(t *testing.T, steps string) *Scenario {
 	t.Helper()
 	s, err := Parse([]byte(`{"name": "t2", "start": "2026-01-01T00:00:00Z", "island": ` + tier2Island + `,
-		"seed": {"warehouse": {"x": 1, "y": 1}, "gold": 100000, "stock": {"planks": 200, "stone": 100}},
+		"seed": {"trading_post": {"x": 1, "y": 0}, "gold": 100000, "stock": {"planks": 200, "stone": 100, "tools": 10}},
 		"steps": ` + steps + `}`))
 	if err != nil {
 		t.Fatal(err)
@@ -131,6 +131,8 @@ func TestTierTwoSteps(t *testing.T) {
 		{"place": {"type": "house_citizens", "x": 6, "y": 5}, "expect_error": "upgrade_only"},
 		{"place": {"type": "quarry", "x": 6, "y": 4}, "expect_error": "tier_locked"},
 		{"upgrade_warehouse": {"x": 1, "y": 1}},
+		{"upgrade_warehouse": {"x": 1, "y": 1}},
+		{"upgrade_warehouse": {"x": 1, "y": 1}},
 		{"upgrade_warehouse": {"x": 1, "y": 1}, "expect_error": "upgrade_unavailable"},
 		{"advance": {"duration": "1s"}}
 	]`)
@@ -139,12 +141,12 @@ func TestTierTwoSteps(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(rep.ExpectedErrors) != 3 || rep.ExpectedErrors[0].Error != "upgrade_only" || rep.ExpectedErrors[0].Step != 0 ||
-		rep.ExpectedErrors[2].Error != "upgrade_unavailable" || rep.ExpectedErrors[2].Step != 3 || rep.ExpectedErrors[1].Message == "" {
+		rep.ExpectedErrors[2].Error != "upgrade_unavailable" || rep.ExpectedErrors[2].Step != 5 || rep.ExpectedErrors[1].Message == "" {
 		t.Errorf("expected errors = %+v", rep.ExpectedErrors)
 	}
 	for _, b := range rep.Final.Islands[0].Buildings {
-		if b.Type == "warehouse" && (*b.Level != 2 || *b.Capacity != 500_000) {
-			t.Errorf("warehouse level %d capacity %d", *b.Level, *b.Capacity)
+		if b.Type == "trading_post" && (*b.Level != 4 || *b.Capacity != 1_200_000) {
+			t.Errorf("trading post level %d capacity %d", *b.Level, *b.Capacity)
 		}
 	}
 

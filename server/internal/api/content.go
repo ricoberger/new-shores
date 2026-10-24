@@ -94,7 +94,8 @@ type rulesJSON struct {
 	GrowthThresholdPpm         int64 `json:"growth_satisfaction_threshold"`
 	OptionalTaxBonusPpm        int64 `json:"optional_tax_bonus"`
 	AutoResumeUpkeepDurationMs int64 `json:"auto_resume_upkeep_ms"`
-	ShipHandlingMs             int64 `json:"ship_handling_ms"`
+	ShipHandlingBaseMs         int64 `json:"ship_handling_base_ms"`
+	ShipHandlingMsPerUnit      int64 `json:"ship_handling_ms_per_unit"`
 	ShipSpeedMilliTilesPerMin  int64 `json:"ship_speed_milli_tiles_per_min"`
 	AwaySummaryMs              int64 `json:"away_summary_ms"`
 	TrialResumeUpkeepMs        int64 `json:"trial_resume_upkeep_ms"`
@@ -143,8 +144,19 @@ type houseJSON struct {
 	Tier string `json:"tier"`
 }
 
-type warehouseLevelJSON struct {
+type tradingPostLevelJSON struct {
 	Capacity         int64 `json:"capacity"`
+	ThroughputPerMin int64 `json:"throughput_per_min"`
+	Berths           int   `json:"berths"`
+	// Cost is the upgrade cost into the level (absent on the first level).
+	Cost *costJSON `json:"cost,omitempty"`
+}
+
+type tradingPostJSON struct {
+	Levels []tradingPostLevelJSON `json:"levels"`
+}
+
+type warehouseLevelJSON struct {
 	ThroughputPerMin int64 `json:"throughput_per_min"`
 	// Cost is the upgrade cost into the level (absent on the first level).
 	Cost *costJSON `json:"cost,omitempty"`
@@ -195,12 +207,14 @@ type buildingJSON struct {
 	Width         int              `json:"width"`
 	Height        int              `json:"height"`
 	Coastal       bool             `json:"coastal"`
+	WaterTiles    int              `json:"water_tiles"`
 	RequiresRoad  bool             `json:"requires_road"`
 	Cost          costJSON         `json:"cost"`
 	UpkeepPerMin  int64            `json:"upkeep_per_min"`
 	PauseCategory string           `json:"pause_category"`
 	Recipe        *recipeJSON      `json:"recipe,omitempty"`
 	House         *houseJSON       `json:"house,omitempty"`
+	TradingPost   *tradingPostJSON `json:"trading_post,omitempty"`
 	Warehouse     *warehouseJSON   `json:"warehouse,omitempty"`
 	Road          *roadJSON        `json:"road,omitempty"`
 	Service       *serviceJSON     `json:"service,omitempty"`
@@ -246,12 +260,13 @@ func buildingCategory(b *content.Building) string {
 	switch {
 	case b.House != nil:
 		return categoryHouses
-	case b.Recipe != nil, b.Field != nil:
-		// Fields sit next to the farms that accept them (D-049).
+	case b.Recipe != nil, b.Field != nil, b.Warehouse != nil:
+		// Fields sit next to the farms that accept them (D-049); the
+		// inland Warehouse next to the producers it collects from (D-051).
 		return categoryProduction
 	case b.Service != nil:
 		return categoryPublic
-	case b.Warehouse != nil, b.Shipyard != nil:
+	case b.TradingPost != nil, b.Shipyard != nil:
 		return categoryHarbour
 	case b.Road != nil:
 		return categoryRoads
@@ -278,8 +293,9 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 				GrowthPerMin: r.GrowthPerMin, DeclinePerMin: r.DeclinePerMin,
 				GrowthThresholdPpm: r.GrowthThreshold, OptionalTaxBonusPpm: r.OptionalTaxBonus,
 				AutoResumeUpkeepDurationMs: r.AutoResumeMs,
-				ShipHandlingMs:             r.ShipHandlingMs, ShipSpeedMilliTilesPerMin: r.ShipSpeedMilliTilesPerMin,
-				AwaySummaryMs: r.AwaySummaryMs, TrialResumeUpkeepMs: r.TrialResumeMs,
+				ShipHandlingBaseMs:         r.ShipHandlingBaseMs, ShipHandlingMsPerUnit: r.ShipHandlingMsPerUnit,
+				ShipSpeedMilliTilesPerMin: r.ShipSpeedMilliTilesPerMin,
+				AwaySummaryMs:             r.AwaySummaryMs, TrialResumeUpkeepMs: r.TrialResumeMs,
 			},
 		},
 		Tiers: []tierJSON{}, Goods: []goodJSON{}, Buildings: []buildingJSON{}, Needs: []needJSON{}, NeedCategories: []needCategoryJSON{}, Ships: []shipJSONOut{},
@@ -350,7 +366,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 func newBuildingJSON(b *content.Building) buildingJSON {
 	bj := buildingJSON{
 		ID: b.ID, Name: b.Name, Tier: b.Tier, Category: buildingCategory(b),
-		Width: b.Width, Height: b.Height, Coastal: b.Coastal, RequiresRoad: b.RequiresRoad,
+		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterTiles: b.WaterTiles, RequiresRoad: b.RequiresRoad,
 		Cost:         newCostJSON(b.Cost),
 		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit,
 	}
@@ -360,10 +376,21 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 	if h := b.House; h != nil {
 		bj.House = &houseJSON{Tier: h.Tier}
 	}
+	if tp := b.TradingPost; tp != nil {
+		bj.TradingPost = &tradingPostJSON{Levels: []tradingPostLevelJSON{}}
+		for _, l := range tp.Levels {
+			lj := tradingPostLevelJSON{Capacity: l.Capacity, ThroughputPerMin: l.ThroughputPerMin, Berths: l.Berths}
+			if l.Cost != nil {
+				cost := newCostJSON(*l.Cost)
+				lj.Cost = &cost
+			}
+			bj.TradingPost.Levels = append(bj.TradingPost.Levels, lj)
+		}
+	}
 	if wh := b.Warehouse; wh != nil {
 		bj.Warehouse = &warehouseJSON{Levels: []warehouseLevelJSON{}}
 		for _, l := range wh.Levels {
-			lj := warehouseLevelJSON{Capacity: l.Capacity, ThroughputPerMin: l.ThroughputPerMin}
+			lj := warehouseLevelJSON{ThroughputPerMin: l.ThroughputPerMin}
 			if l.Cost != nil {
 				cost := newCostJSON(*l.Cost)
 				lj.Cost = &cost

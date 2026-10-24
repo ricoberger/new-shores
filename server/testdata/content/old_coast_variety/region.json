@@ -12,7 +12,8 @@
     "growth_satisfaction_threshold": 0.5,
     "optional_tax_bonus": 0.25,
     "auto_resume_upkeep_minutes": 5,
-    "ship_handling_seconds": 20,
+    "ship_handling_base_seconds": 10,
+    "ship_handling_seconds_per_unit": 0.2,
     "ship_speed_tiles_per_min": 60,
     "away_summary_minutes": 15,
     "trial_resume_upkeep_minutes": 30

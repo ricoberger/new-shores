@@ -216,7 +216,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const selectedBuilding = selectedOwner?.buildings.find((b) => b.id === selected);
   const selectedShipId = vs.selection.kind === "ship" ? vs.selection.id : null;
   const selectedShip = selectedShipId === null ? undefined : model?.ships.find((s) => s.id === selectedShipId);
-  const warehouseType = content?.buildings.find((b) => b.warehouse)?.id ?? "";
+  const warehouseType = content?.buildings.find((b) => b.trading_post)?.id ?? "";
 
   const toast = useCallback((text: string) => {
     const id = ++toastId.current;

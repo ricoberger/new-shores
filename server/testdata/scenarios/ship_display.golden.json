@@ -1,6 +1,6 @@
 {
   "name": "ship_display",
-  "content_version": "old_coast-0.6.0",
+  "content_version": "old_coast-0.7.0",
   "boundary_count": 1,
   "totals": {
     "start": {
@@ -390,9 +390,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 2,
+            "y": 1,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",

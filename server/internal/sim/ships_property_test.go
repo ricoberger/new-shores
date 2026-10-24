@@ -31,8 +31,8 @@ func (p *propCase) shipPropWorld(recovery bool) {
 	w := p.w
 	isle := islandFromRows("isle",
 		"~~~~~~~~~~~~~~~~~~~~~~~~",
-		"~cccccccccccccccccccccc~",
-		"~cccccccccccccccccccccc~",
+		"~~~~~~~~~~~~~~~~~~~~~~~~",
+		"~~~~~~~~~~~~~~~~~~~~~~~~",
 		"~......................~",
 		"~......................~",
 		"~......................~",
@@ -42,15 +42,15 @@ func (p *propCase) shipPropWorld(recovery bool) {
 	isle.X, isle.Y = 3+p.rng.IntN(10), 4+p.rng.IntN(10)
 	wild := islandFromRows("wild",
 		"~~~~~~~~~~~~",
-		"~cccccccccc~",
+		"~~~~~~~~~~~~",
 		"~cccccccccc~",
 		"~..........~",
 		"~~~~~~~~~~~~",
 	)
 	wild.X, wild.Y = -5-p.rng.IntN(10), 2+p.rng.IntN(10)
 	w.Islands = append(w.Islands, isle, wild)
-	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "isle", Type: "warehouse", X: 1, Y: 2}, p.l); err != nil {
-		p.fail("isle warehouse: %v", err)
+	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "isle", Type: "trading_post", X: 1, Y: 1}, p.l); err != nil {
+		p.fail("isle trading post: %v", err)
 	}
 	var road []Pos
 	for x := 1; x <= 20; x++ {
@@ -154,7 +154,7 @@ func (p *propCase) randomShipCommand() Command {
 		}
 		return ManualShipment{ShipID: shipID, ToIslandID: islands[p.rng.IntN(len(islands))], Cargo: cargo}
 	case r < 92:
-		return FoundIsland{ShipID: shipID, IslandID: "wild", BuildingType: "warehouse", X: 1 + p.rng.IntN(2), Y: 1}
+		return FoundIsland{ShipID: shipID, IslandID: "wild", BuildingType: "trading_post", X: 1 + p.rng.IntN(2), Y: 0}
 	default:
 		return ScrapShip{ShipID: shipID}
 	}
@@ -190,7 +190,7 @@ func TestPropertyShips(t *testing.T) {
 	base := catalogue(t)
 	// Without the upkeep of never-pausable buildings, towns recover from
 	// insolvency, so that ships are resumed as well.
-	cheap := withUpkeep(base, map[string]Qty{"warehouse": 0, "shipyard": 0})
+	cheap := withUpkeep(base, map[string]Qty{"trading_post": 0, "shipyard": 0})
 	kinds := map[string]int{}
 	splitKinds := map[string]int{}
 	states := map[string]int{}

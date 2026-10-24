@@ -367,9 +367,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -2032,9 +2032,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -3697,9 +3697,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -5362,9 +5362,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -7027,9 +7027,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -8692,9 +8692,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",

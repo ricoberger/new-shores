@@ -52,7 +52,7 @@ func TestFixtures(t *testing.T) {
 				}
 			}
 			if name == FixtureSettled {
-				if at(w, "island2", 2, 1) != "warehouse" || at(w, "island2", 12, 2) != "fisher" {
+				if at(w, "island2", 2, 1) != "trading_post" || at(w, "island2", 12, 2) != "fisher" {
 					t.Errorf("island 2 not settled with its fisher")
 				}
 				// The archipelago spec builds four settler houses (10 planks each) at once.

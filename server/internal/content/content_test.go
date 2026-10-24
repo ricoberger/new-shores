@@ -2,6 +2,7 @@ package content
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -36,7 +37,8 @@ func TestLoadOldCoast(t *testing.T) {
 	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.GrowthThreshold != 500_000 || rules.OptionalTaxBonus != 250_000 || rules.AutoResumeMs != 300_000 {
 		t.Errorf("rules = %+v", rules)
 	}
-	if rules.ShipHandlingMs != 20_000 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 || rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.6.0" {
+	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.7.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 
@@ -56,7 +58,7 @@ func TestLoadOldCoast(t *testing.T) {
 	for _, b := range c.Buildings {
 		ids = append(ids, b.ID)
 	}
-	wantIDs("buildings", ids, "house_settlers", "road_dirt", "warehouse", "market_small", "chapel",
+	wantIDs("buildings", ids, "house_settlers", "road_dirt", "trading_post", "warehouse", "market_small", "chapel",
 		"lumberjack", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
 		"house_citizens", "road_paved", "tavern", "wheat_farm", "wheat_field", "mill", "bakery", "orchard", "orchard_plot",
 		"cidery", "hemp_farm", "hemp_field", "weaver_linen", "sailmaker", "quarry", "iron_mine", "charcoal_burner", "smelter", "toolmaker")
@@ -82,7 +84,7 @@ func TestLoadOldCoast(t *testing.T) {
 	// Balance (CONTENT §12): at 120 Settlers with the balanced tier-1 set,
 	// taxes cover upkeep with at least 20 % margin.
 	var upkeep int64
-	for _, id := range []string{"warehouse", "fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "market_small", "chapel"} {
+	for _, id := range []string{"trading_post", "fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "market_small", "chapel"} {
 		upkeep += c.BuildingByID[id].UpkeepPerMin
 	}
 	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 6_000 || tax*10 < upkeep*12 {
@@ -127,7 +129,8 @@ func TestLoadOldCoast(t *testing.T) {
 	want := map[string]costs{
 		"house_settlers": {0, 10_000, 0, 2, 2, "never"},
 		"road_dirt":      {0, 0, 0, 1, 1, "never"},
-		"warehouse":      {200_000, 20_000, 0, 4, 3, "never"},
+		"trading_post":   {200_000, 20_000, 0, 4, 4, "never"},
+		"warehouse":      {100_000, 10_000, 0, 2, 2, "never"},
 		"market_small":   {225_000, 15_000, 0, 3, 3, "never"},
 		"chapel":         {275_000, 15_000, 0, 2, 2, "never"},
 		"lumberjack":     {50_000, 5_000, 1_000, 2, 2, "intermediate"},
@@ -162,7 +165,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("sloop = %+v", sloop)
 	}
 	sy := c.BuildingByID["shipyard"]
-	if sy.Shipyard == nil || strings.Join(sy.Shipyard.Ships, ",") != "sloop" || sy.Width != 5 || sy.Height != 4 || !sy.Coastal || !sy.RequiresRoad ||
+	if sy.Shipyard == nil || strings.Join(sy.Shipyard.Ships, ",") != "sloop" || sy.Width != 5 || sy.Height != 4 || sy.WaterTiles != 2 || sy.Coastal || !sy.RequiresRoad ||
 		sy.Cost.Gold != 225_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 25_000}) ||
 		sy.UpkeepPerMin != 0 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
 		t.Errorf("shipyard = %+v", sy)
@@ -180,12 +183,24 @@ func TestLoadOldCoast(t *testing.T) {
 	if lj.WorkArea == nil || lj.WorkArea.Radius != 4 || lj.WorkArea.RequiredTiles != 24 || !lj.WorkArea.MatchesTerrain("forest") {
 		t.Errorf("lumberjack work area = %+v", lj.WorkArea)
 	}
-	if c.BuildingByID["fisher"].Recipe.CycleMs != 40_000 || !c.BuildingByID["fisher"].Coastal {
-		t.Error("fisher recipe/coastal mismatch")
+	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || f.WaterTiles != 1 || f.Coastal {
+		t.Error("fisher recipe/water-edge mismatch")
 	}
-	wh := c.BuildingByID["warehouse"].Warehouse
-	if wh == nil || wh.Levels[0] != (WarehouseLevel{Capacity: 300_000, ThroughputPerMin: 30_000}) {
-		t.Errorf("warehouse = %+v", wh)
+	tp := c.BuildingByID["trading_post"]
+	if tp.TradingPost == nil || tp.WaterTiles != 2 || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 30_000, Berths: 1}) {
+		t.Errorf("trading post = %+v", tp.TradingPost)
+	}
+	var berths []int
+	for _, l := range tp.TradingPost.Levels {
+		berths = append(berths, l.Berths)
+	}
+	if fmt.Sprint(berths) != "[1 2 3 4]" {
+		t.Errorf("trading post berths = %v", berths)
+	}
+	wh := c.BuildingByID["warehouse"]
+	if wh.Warehouse == nil || wh.WaterTiles != 0 || wh.Coastal || wh.Tier != "settlers" || wh.Warehouse.Levels[0] != (WarehouseLevel{ThroughputPerMin: 30_000}) ||
+		len(wh.Warehouse.Levels) != 3 || wh.Warehouse.Levels[2].ThroughputPerMin != 80_000 {
+		t.Errorf("warehouse = %+v", wh.Warehouse)
 	}
 	if c.BuildingByID["road_dirt"].Road.MsPerTile != 1000 {
 		t.Error("road_dirt seconds_per_tile")
@@ -426,6 +441,28 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
     "upkeep_per_min": 0,`, `"cost": { "gold": 225, "planks": 15 },
     "upkeep_per_min": 3,`},
 			[]string{FileBuildings, `building "market_small"`, "upkeep_per_min", "must be 0 for pause_category never"},
+		},
+		{
+			"water rows cover the whole footprint", FileBuildings,
+			[]string{`"water_tiles": 1,`, `"water_tiles": 2,`},
+			[]string{FileBuildings, `building "fisher"`, "water_tiles", "at least one land row"},
+		},
+		{
+			"water-edge building also coastal", FileBuildings,
+			[]string{`"water_tiles": 1,
+    "coastal": false,`, `"water_tiles": 1,
+    "coastal": true,`},
+			[]string{FileBuildings, `building "fisher"`, "water_tiles", "not also coastal"},
+		},
+		{
+			"trading post without water rows", FileBuildings,
+			[]string{`"water_tiles": 2,
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 200, "planks": 20 },`, `"coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 200, "planks": 20 },`},
+			[]string{FileBuildings, `building "trading_post"`, "water_tiles", "water-edge building"},
 		},
 		{
 			"quest unknown building", FileQuests,
@@ -783,5 +820,18 @@ func TestNeedCategoryIconsInHUDSet(t *testing.T) {
 	}
 	if bad := unknownHUDIcons(t, c, manifest); strings.Join(bad, ",") != "drink=need:grog" {
 		t.Errorf("unknown icons = %v, want [drink=need:grog]", bad)
+	}
+}
+
+// TestCheckRequiresTradingPost: every world settles by founding a Trading
+// Post (D-051), so content without one is rejected.
+func TestCheckRequiresTradingPost(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.BuildingByID["trading_post"].TradingPost = nil
+	if err := checkReferences(c); err == nil || !strings.Contains(err.Error(), "no building with a trading_post block") {
+		t.Errorf("err = %v", err)
 	}
 }

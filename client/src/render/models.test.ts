@@ -88,7 +88,8 @@ describe("committed models are consistent with the manifest (Blender-free)", () 
     for (const id of [...want, "sloop"]) expect(manifest.models[id], id).toBeDefined();
     expect(manifest.models.house_settlers?.variants).toHaveLength(3);
     expect(manifest.models.house_citizens?.variants).toHaveLength(3);
-    expect(Object.keys(manifest.models.warehouse?.levels ?? {})).toEqual(["1", "2"]);
+    expect(Object.keys(manifest.models.warehouse?.levels ?? {})).toEqual(["1", "2", "3"]);
+    expect(Object.keys(manifest.models.trading_post?.levels ?? {})).toEqual(["1", "2", "3", "4"]);
     expect(manifest.models.sloop?.attachments?.cargo).toBeDefined();
   });
 });
@@ -216,12 +217,12 @@ describe("variants and levels", () => {
 
 describe("orientation and anchors", () => {
   const house = manifest.models.house_settlers as ModelEntry;
-  const warehouse = manifest.models.warehouse as ModelEntry;
+  const warehouse = manifest.models.trading_post as ModelEntry;
 
   it("puts the model front (door anchor) on frontOffset's edge at all four rotations", () => {
     for (const [entry, d] of [
       [house, def("house_settlers", 2, 2)],
-      [warehouse, def("warehouse", 4, 3)],
+      [warehouse, def("trading_post", 4, 4)],
     ] as const) {
       for (const rotation of [0, 90, 180, 270] as const) {
         const box = footprintBox(10, 20, d.width, d.height, rotation);
@@ -235,10 +236,10 @@ describe("orientation and anchors", () => {
   });
 
   it("rotates and places the model bounds like the footprint", () => {
-    const d = def("warehouse", 4, 3);
+    const d = def("trading_post", 4, 4);
     for (const rotation of [0, 90, 180, 270] as const) {
       const p = placement(warehouse, d, { x: 3, y: 4, rotation });
-      const box = footprintBox(3, 4, 4, 3, rotation);
+      const box = footprintBox(3, 4, 4, 4, rotation);
       expect(p.cx).toBe(box.cx);
       expect(p.cz).toBe(box.cz);
       expect(p.yaw).toBeCloseTo(rotationYaw(rotation));

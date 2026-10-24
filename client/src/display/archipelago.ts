@@ -48,7 +48,7 @@ export function shipsAt(ships: readonly ShipDisplay[], islandId: string, nowMs: 
  * rule (the server validates found_island).
  */
 export function cargoCoversWarehouse(cargo: readonly CargoDisplay[], content: Content): boolean {
-  const wh = content.buildings.find((b) => b.warehouse);
+  const wh = content.buildings.find((b) => b.trading_post);
   if (!wh) return false;
   const aboard = cargoTotals(cargo);
   return Object.entries(wh.cost.materials).every(([good, need]) => (aboard[good] ?? 0) >= need);

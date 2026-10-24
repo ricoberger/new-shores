@@ -676,7 +676,9 @@ components:
           `unknown_island`, `building_not_found`, `ship_not_found`,
           `route_not_found`, `quest_not_found`;
         - 405: `method_not_allowed`;
-        - 409: `occupied`, `terrain`, `not_coastal`, `no_work_area`
+        - 409: `occupied`, `terrain`, `not_coastal`, `not_on_water` (a
+          water-edge building's front rows are not on water, D-051),
+          `no_work_area`
           (lumberjack only: no matching tile in its work area; farms with
           fields are placed at 0 fields),
           `no_fertility` (the island lacks the work area's or the field's
@@ -712,8 +714,8 @@ components:
         `move_building` can fail with 400 `bad_request`, `invalid_command`
         (also for a road or an invalid rotation), `out_of_bounds`; 404
         `unknown_island`, `building_not_found`; 409 `occupied`, `terrain`,
-        `not_coastal`, `no_work_area`, `no_fertility`, `no_deposit`,
-        `no_farm_in_range` (a field moved outside every accepting farm's
+        `not_coastal`, `not_on_water`, `no_work_area`, `no_fertility`,
+        `no_deposit`, `no_farm_in_range` (a field moved outside every accepting farm's
         radius). Moving is free: it never fails for
         gold, materials or tier. Placement never requires a road (D-042).
 
@@ -753,6 +755,7 @@ components:
         - occupied
         - terrain
         - not_coastal
+        - not_on_water
         - no_work_area
         - no_fertility
         - no_deposit
@@ -2606,7 +2609,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, optional_tax_bonus, auto_resume_upkeep_ms, ship_handling_ms, ship_speed_milli_tiles_per_min, away_summary_ms, trial_resume_upkeep_ms]
+        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, optional_tax_bonus, auto_resume_upkeep_ms, ship_handling_base_ms, ship_handling_ms_per_unit, ship_speed_milli_tiles_per_min, away_summary_ms, trial_resume_upkeep_ms]
       properties:
         transfer_base_ms:
           type: integer
@@ -2643,10 +2646,14 @@ components:
           type: integer
           format: int64
           description: Gold reserve for auto-resume, as a duration of the building's or ship's upkeep (ms).
-        ship_handling_ms:
+        ship_handling_base_ms:
           type: integer
           format: int64
-          description: Time a ship spends at a stop before departing (ms).
+          description: Fixed part of the time a ship occupies a berth to unload and load (ms).
+        ship_handling_ms_per_unit:
+          type: integer
+          format: int64
+          description: Additional handling time per unit (1000 milli-units) of goods moved at a stop (ms per unit).
         ship_speed_milli_tiles_per_min:
           type: integer
           format: int64
@@ -2735,7 +2742,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        [id, name, tier, category, width, height, coastal, requires_road, cost, upkeep_per_min, pause_category]
+        [id, name, tier, category, width, height, coastal, water_tiles, requires_road, cost, upkeep_per_min, pause_category]
       properties:
         id:
           type: string
@@ -2748,9 +2755,11 @@ components:
           enum: [houses, production, public, harbour, roads, other]
           description: |
             Build-menu group derived by the server from the capability
-            blocks: house → houses, recipe or field → production, service →
-            public, warehouse or shipyard → harbour, road → roads; other for
-            none of these.
+            blocks: house → houses, recipe, field or warehouse →
+            production, service → public, trading_post or shipyard →
+            harbour, road → roads; other for none of these. The Trading
+            Post is placed only by `found_island`, never from the build
+            menu.
         width:
           type: integer
           description: Footprint width at rotation 0 (tiles).
@@ -2759,6 +2768,14 @@ components:
           description: Footprint height at rotation 0 (tiles).
         coastal:
           type: boolean
+        water_tiles:
+          type: integer
+          description: |
+            Water-edge footprint (D-051): the number of front rows (tiles)
+            that must lie on water; at rotation 0 the top rows (smallest
+            y), at 90 the rightmost columns, at 180 the bottom rows, at 270
+            the leftmost columns. The other rows stand on buildable land.
+            0 for every other building.
         requires_road:
           type: boolean
         cost:
@@ -2807,17 +2824,21 @@ components:
           properties:
             tier:
               type: string
-        warehouse:
+        trading_post:
           type: object
           additionalProperties: false
           required: [levels]
+          description: |
+            The Trading Post (D-051): one per island, placed by founding;
+            its level sets the island's capacity per good, its collector
+            throughput and the berths of its pier.
           properties:
             levels:
               type: array
               items:
                 type: object
                 additionalProperties: false
-                required: [capacity, throughput_per_min]
+                required: [capacity, throughput_per_min, berths]
                 properties:
                   capacity:
                     type: integer
@@ -2826,7 +2847,48 @@ components:
                   throughput_per_min:
                     type: integer
                     format: int64
-                    description: Throughput (milli-units per minute).
+                    description: Collector throughput (milli-units per minute).
+                  berths:
+                    type: integer
+                    description: Ships that can load or unload at once (count).
+                  cost:
+                    type: object
+                    additionalProperties: false
+                    required: [gold, materials]
+                    description: |
+                      Upgrade cost into this level (`upgrade_warehouse`);
+                      absent on the first level, which the building cost
+                      places.
+                    properties:
+                      gold:
+                        type: integer
+                        format: int64
+                        description: Gold cost (milli-gold).
+                      materials:
+                        type: object
+                        description: Material cost per good (milli-units).
+                        additionalProperties:
+                          type: integer
+                          format: int64
+                          description: Amount (milli-units).
+        warehouse:
+          type: object
+          additionalProperties: false
+          required: [levels]
+          description: |
+            An inland collector (D-051): throughput only, never capacity.
+          properties:
+            levels:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required: [throughput_per_min]
+                properties:
+                  throughput_per_min:
+                    type: integer
+                    format: int64
+                    description: Collector throughput (milli-units per minute).
                   cost:
                     type: object
                     additionalProperties: false

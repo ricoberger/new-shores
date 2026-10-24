@@ -1,6 +1,6 @@
 {
   "name": "manual_shipment_excess",
-  "content_version": "old_coast-0.6.0",
+  "content_version": "old_coast-0.7.0",
   "boundary_count": 4,
   "totals": {
     "island2": {
@@ -160,7 +160,7 @@
     },
     {
       "step": 12,
-      "at": "2026-01-01T00:05:59.999Z",
+      "at": "2026-01-01T00:06:09.999Z",
       "boundaries": 0,
       "inventory": {
         "island2": {
@@ -185,7 +185,7 @@
         }
       },
       "statuses": {},
-      "gold": 671000,
+      "gold": 670833,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -204,7 +204,7 @@
     },
     {
       "step": 13,
-      "at": "2026-01-01T00:06:00.000Z",
+      "at": "2026-01-01T00:06:10.000Z",
       "boundaries": 1,
       "inventory": {
         "island2": {
@@ -229,7 +229,7 @@
         }
       },
       "statuses": {},
-      "gold": 671000,
+      "gold": 670833,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -255,9 +255,9 @@
     }
   ],
   "final": {
-    "evaluated_at": "2026-01-01T00:06:00.000Z",
+    "evaluated_at": "2026-01-01T00:06:10.000Z",
     "next_change_at": "2026-01-01T11:17:00.000Z",
-    "gold": 671000,
+    "gold": 670833,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 1000,
@@ -551,9 +551,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 2,
+            "y": 1,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -706,9 +706,9 @@
         "buildings": [
           {
             "id": 3,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",

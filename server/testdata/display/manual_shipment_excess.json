@@ -1,9 +1,9 @@
 {
   "scenario": "manual_shipment_excess",
   "base": {
-    "evaluated_at": "2026-01-01T00:06:00.000Z",
+    "evaluated_at": "2026-01-01T00:06:10.000Z",
     "next_change_at": "2026-01-01T11:17:00.000Z",
-    "gold": 671000,
+    "gold": 670833,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 1000,
@@ -297,9 +297,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 2,
+            "y": 1,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -452,9 +452,9 @@
         "buildings": [
           {
             "id": 3,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -544,9 +544,9 @@
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T00:06:00.250Z",
+        "evaluated_at": "2026-01-01T00:06:10.250Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 670995,
+        "gold": 670829,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -840,9 +840,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -995,9 +995,9 @@
             "buildings": [
               {
                 "id": 3,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -1087,9 +1087,9 @@
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T00:06:01.000Z",
+        "evaluated_at": "2026-01-01T00:06:11.000Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 670983,
+        "gold": 670816,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -1383,9 +1383,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -1538,9 +1538,9 @@
             "buildings": [
               {
                 "id": 3,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -1630,9 +1630,9 @@
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T00:06:05.000Z",
+        "evaluated_at": "2026-01-01T00:06:15.000Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 670916,
+        "gold": 670750,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -1926,9 +1926,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -2081,9 +2081,9 @@
             "buildings": [
               {
                 "id": 3,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -2173,9 +2173,9 @@
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T00:06:30.000Z",
+        "evaluated_at": "2026-01-01T00:06:40.000Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 670500,
+        "gold": 670333,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -2469,9 +2469,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -2624,9 +2624,9 @@
             "buildings": [
               {
                 "id": 3,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -2716,9 +2716,9 @@
     {
       "offset_ms": 300000,
       "display": {
-        "evaluated_at": "2026-01-01T00:11:00.000Z",
+        "evaluated_at": "2026-01-01T00:11:10.000Z",
         "next_change_at": "2026-01-01T11:17:00.000Z",
-        "gold": 666000,
+        "gold": 665833,
         "balance_rate_per_min": -1000,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 1000,
@@ -3012,9 +3012,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 2,
+                "y": 1,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -3167,9 +3167,9 @@
             "buildings": [
               {
                 "id": 3,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",

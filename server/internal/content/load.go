@@ -230,7 +230,8 @@ type rawRegion struct {
 		GrowthThreshold        json.Number `json:"growth_satisfaction_threshold"`
 		OptionalTaxBonus       json.Number `json:"optional_tax_bonus"`
 		AutoResumeMinutes      json.Number `json:"auto_resume_upkeep_minutes"`
-		ShipHandlingSeconds    json.Number `json:"ship_handling_seconds"`
+		ShipHandlingBase       json.Number `json:"ship_handling_base_seconds"`
+		ShipHandlingPerUnit    json.Number `json:"ship_handling_seconds_per_unit"`
 		ShipSpeedTilesPerMin   json.Number `json:"ship_speed_tiles_per_min"`
 		AwaySummaryMinutes     int64       `json:"away_summary_minutes"`
 		TrialResumeMinutes     json.Number `json:"trial_resume_upkeep_minutes"`
@@ -271,6 +272,7 @@ type rawBuilding struct {
 	Tier          string                 `json:"tier"`
 	Footprint     []int                  `json:"footprint"`
 	Coastal       bool                   `json:"coastal"`
+	WaterTiles    int                    `json:"water_tiles"`
 	RequiresRoad  bool                   `json:"requires_road"`
 	Cost          map[string]json.Number `json:"cost"`
 	Upkeep        json.Number            `json:"upkeep_per_min"`
@@ -280,10 +282,17 @@ type rawBuilding struct {
 		Outputs      []rawGoodAmount `json:"outputs"`
 		CycleSeconds json.Number     `json:"cycle_seconds"`
 	} `json:"recipe"`
-	House     *House `json:"house"`
-	Warehouse *struct {
+	House       *House `json:"house"`
+	TradingPost *struct {
 		Levels []struct {
 			Capacity   json.Number            `json:"capacity"`
+			Throughput json.Number            `json:"throughput_per_min"`
+			Berths     int                    `json:"berths"`
+			Cost       map[string]json.Number `json:"cost"`
+		} `json:"levels"`
+	} `json:"trading_post"`
+	Warehouse *struct {
+		Levels []struct {
 			Throughput json.Number            `json:"throughput_per_min"`
 			Cost       map[string]json.Number `json:"cost"`
 		} `json:"levels"`
@@ -498,9 +507,10 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			GrowthThreshold:  col.fixed(FileRegion, ent, "rules.growth_satisfaction_threshold", region.Rules.GrowthThreshold, 3) * 1000,
 			OptionalTaxBonus: col.fixed(FileRegion, ent, "rules.optional_tax_bonus", region.Rules.OptionalTaxBonus, 3) * 1000,
 			// Minutes with 3 decimal places are milli-minutes; x60 gives ms.
-			AutoResumeMs:   col.fixed(FileRegion, ent, "rules.auto_resume_upkeep_minutes", region.Rules.AutoResumeMinutes, 3) * 60,
-			TrialResumeMs:  col.fixed(FileRegion, ent, "rules.trial_resume_upkeep_minutes", region.Rules.TrialResumeMinutes, 3) * 60,
-			ShipHandlingMs: col.fixed(FileRegion, ent, "rules.ship_handling_seconds", region.Rules.ShipHandlingSeconds, 3),
+			AutoResumeMs:          col.fixed(FileRegion, ent, "rules.auto_resume_upkeep_minutes", region.Rules.AutoResumeMinutes, 3) * 60,
+			TrialResumeMs:         col.fixed(FileRegion, ent, "rules.trial_resume_upkeep_minutes", region.Rules.TrialResumeMinutes, 3) * 60,
+			ShipHandlingBaseMs:    col.fixed(FileRegion, ent, "rules.ship_handling_base_seconds", region.Rules.ShipHandlingBase, 3),
+			ShipHandlingMsPerUnit: col.fixed(FileRegion, ent, "rules.ship_handling_seconds_per_unit", region.Rules.ShipHandlingPerUnit, 3),
 			// Tiles per minute with 3 decimal places are milli-tiles per minute.
 			ShipSpeedMilliTilesPerMin: col.fixed(FileRegion, ent, "rules.ship_speed_tiles_per_min", region.Rules.ShipSpeedTilesPerMin, 3),
 			AwaySummaryMs:             col.whole(FileRegion, ent, "rules.away_summary_minutes", region.Rules.AwaySummaryMinutes) * 60_000,
@@ -680,6 +690,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		Region:        rb.Region,
 		Tier:          rb.Tier,
 		Coastal:       rb.Coastal,
+		WaterTiles:    rb.WaterTiles,
 		RequiresRoad:  rb.RequiresRoad,
 		UpkeepPerMin:  col.fixed(file, ent, "upkeep_per_min", rb.Upkeep, 3),
 		PauseCategory: rb.PauseCategory,
@@ -722,11 +733,29 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		}
 		b.Recipe = rec
 	}
+	if tp := rb.TradingPost; tp != nil {
+		t := &TradingPost{}
+		for i, l := range tp.Levels {
+			lvl := TradingPostLevel{
+				Capacity:         col.fixed(file, ent, fmt.Sprintf("trading_post.levels[%d].capacity", i), l.Capacity, 3),
+				ThroughputPerMin: col.fixed(file, ent, fmt.Sprintf("trading_post.levels[%d].throughput_per_min", i), l.Throughput, 3),
+				Berths:           l.Berths,
+			}
+			if l.Cost != nil {
+				cost := decodeCost(col, file, ent, l.Cost, goods)
+				lvl.Cost = &cost
+			}
+			t.Levels = append(t.Levels, lvl)
+		}
+		if len(t.Levels) == 0 {
+			col.add(file, ent, "trading_post.levels", "must not be empty")
+		}
+		b.TradingPost = t
+	}
 	if w := rb.Warehouse; w != nil {
 		wh := &Warehouse{}
 		for i, l := range w.Levels {
 			lvl := WarehouseLevel{
-				Capacity:         col.fixed(file, ent, fmt.Sprintf("warehouse.levels[%d].capacity", i), l.Capacity, 3),
 				ThroughputPerMin: col.fixed(file, ent, fmt.Sprintf("warehouse.levels[%d].throughput_per_min", i), l.Throughput, 3),
 			}
 			if l.Cost != nil {

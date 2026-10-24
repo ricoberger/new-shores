@@ -261,7 +261,7 @@ func TestAwaySummaryCoversWorkerEvents(t *testing.T) {
 		tiles += fmt.Sprintf(`{"x":2,"y":%d},`, y)
 	}
 	ss.mustCommand(`{"type":"place_road","island_id":"start","road_type":"road_dirt","tiles":[` + tiles + `{"x":3,"y":34},{"x":4,"y":34}]}`)
-	w := ss.mustCommand(`{"type":"place_building","island_id":"start","building_type":"shipyard","x":5,"y":34,"rotation":0}`)
+	w := ss.mustCommand(`{"type":"place_building","island_id":"start","building_type":"shipyard","x":5,"y":34,"rotation":180}`)
 	shipyard := buildingIDs(t, w.Display, "shipyard")[0]
 	ordered := ss.mustCommand(fmt.Sprintf(`{"type":"order_ship","island_id":"start","building_id":%d,"ship_type":"sloop"}`, shipyard))
 	cmdAt := questDisplay(t, ordered.Display).LastSeenAt

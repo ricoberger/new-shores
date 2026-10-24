@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log/slog"
 	"strings"
@@ -324,10 +323,11 @@ func TestConcurrentAdvancesNeverGoBackwards(t *testing.T) {
 	}
 }
 
-// TestLockWorldLogsFieldShortfall (D-049): a stored schema-2 world whose
-// farm cannot keep its efficiency after the fields migration decodes,
-// saves at the current schema and logs the shortfall with the world ID.
-func TestLockWorldLogsFieldShortfall(t *testing.T) {
+// TestLockWorldRejectsOldSchema (D-051): a stored world of schema 3 (before
+// the Trading Post) has no migration path; loading it fails with
+// ErrSchemaVersion and is logged with the world ID, and the stored world
+// is left untouched (never reset).
+func TestLockWorldRejectsOldSchema(t *testing.T) {
 	_, pool := testenv.Database(t)
 	var logs bytes.Buffer
 	st := postgres.New(pool, catalogue(t), slog.New(slog.NewTextHandler(&logs, nil)))
@@ -337,36 +337,32 @@ func TestLockWorldLogsFieldShortfall(t *testing.T) {
 	if err := pool.QueryRow(ctx, "SELECT state FROM worlds WHERE id = $1", string(id)).Scan(&state); err != nil {
 		t.Fatal(err)
 	}
-	w, cv, _, err := sim.Decode(state, catalogue(t))
+	var env map[string]json.RawMessage
+	if err := json.Unmarshal(state, &env); err != nil {
+		t.Fatal(err)
+	}
+	env["schema_version"] = json.RawMessage("3")
+	old, err := json.Marshal(env)
 	if err != nil {
 		t.Fatal(err)
 	}
-	// A sheep farm deep in the forest of the start island: no free grass
-	// for pastures, although the stored schema-2 efficiency is 1000.
-	farm := w.NextBuildingID
-	if err := sim.PlaceFree(w, catalogue(t), sim.PlaceBuilding{IslandID: "start", Type: "sheep_farm", X: 42, Y: 8}, nil); err != nil {
+	if _, err := pool.Exec(ctx, "UPDATE worlds SET state = $2, schema_version = 3 WHERE id = $1", string(id), old); err != nil {
 		t.Fatal(err)
 	}
-	w.Island("start").Building(farm).Efficiency = 1000
-	enc, err := sim.Encode(w, cv)
-	if err != nil {
+	if err := pool.QueryRow(ctx, "SELECT state FROM worlds WHERE id = $1", string(id)).Scan(&old); err != nil {
 		t.Fatal(err)
 	}
-	enc = bytes.Replace(enc, []byte(fmt.Sprintf(`"schema_version":%d`, sim.SchemaVersion)), []byte(`"schema_version":2`), 1)
-	if _, err := pool.Exec(ctx, "UPDATE worlds SET state = $2, schema_version = 2 WHERE id = $1", string(id), enc); err != nil {
-		t.Fatal(err)
+	_, err = st.Update(ctx, id, func(*sim.World, int64, time.Time) (bool, error) { return true, nil })
+	if !errors.Is(err, sim.ErrSchemaVersion) {
+		t.Fatalf("err = %v, want ErrSchemaVersion", err)
 	}
-	if _, err := st.Update(ctx, id, func(*sim.World, int64, time.Time) (bool, error) { return true, nil }); err != nil {
-		t.Fatal(err)
-	}
-	for _, want := range []string{"level=WARN", "world_id=" + string(id), "island_id=start", fmt.Sprintf("building_id=%d", farm),
-		"fields_placed=0", "fields_required=16", "old_efficiency_permille=1000", "new_efficiency_permille=0"} {
+	for _, want := range []string{"level=ERROR", "world_id=" + string(id), "unsupported schema version"} {
 		if !strings.Contains(logs.String(), want) {
 			t.Errorf("log %q lacks %q", logs.String(), want)
 		}
 	}
-	var schema int
-	if err := pool.QueryRow(ctx, "SELECT schema_version FROM worlds WHERE id = $1", string(id)).Scan(&schema); err != nil || schema != sim.SchemaVersion {
-		t.Errorf("saved schema %d (%v)", schema, err)
+	var stored []byte
+	if err := pool.QueryRow(ctx, "SELECT state FROM worlds WHERE id = $1", string(id)).Scan(&stored); err != nil || !bytes.Equal(stored, old) {
+		t.Errorf("stored world changed (%v)", err)
 	}
 }

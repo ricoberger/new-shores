@@ -17,6 +17,7 @@ interface ContentJson {
   house?: unknown;
   road?: unknown;
   warehouse?: unknown;
+  trading_post?: unknown;
   shipyard?: unknown;
   service?: unknown;
   recipe?: unknown;
@@ -27,9 +28,9 @@ const content = JSON.parse(readFileSync(join(CONTENT, "buildings.json"), "utf8")
 /** The server's category rule (openapi ContentBuilding.category). */
 function category(b: ContentJson): string {
   if (b.house) return "houses";
-  if (b.recipe || b.field) return "production";
+  if (b.recipe || b.field || b.warehouse) return "production";
   if (b.service) return "public";
-  if (b.warehouse || b.shipyard) return "harbour";
+  if (b.trading_post || b.shipyard) return "harbour";
   if (b.road) return "roads";
   return "other";
 }
@@ -73,11 +74,11 @@ describe("fixtures use the real content", () => {
     const defs = new Map(f.content.buildings.map((b) => [b.id, b]));
     const dense = f.server.display.islands[0]!;
     expect(dense.buildings.length).toBeGreaterThanOrEqual(380);
-    expect(dense.buildings.length).toBeLessThanOrEqual(420);
+    expect(dense.buildings.length).toBeLessThanOrEqual(425);
     const delivering = dense.buildings.filter((b) => (b.assigned_warehouse_id ?? 0) > 0 && Object.values(b.rates?.outputs ?? {}).some((r) => r > 0));
     expect(delivering.length).toBeGreaterThanOrEqual(60);
     const types = new Set(dense.buildings.map((b) => b.type));
-    for (const t of ["house_settlers", "lumberjack", "sawmill", "fisher", "chapel", "warehouse", "shipyard", "pasture", "wheat_field"]) expect(types, t).toContain(t);
+    for (const t of ["house_settlers", "lumberjack", "sawmill", "fisher", "chapel", "trading_post", "warehouse", "shipyard", "pasture", "wheat_field"]) expect(types, t).toContain(t);
     expect(dense.roads.every((r) => r.type === "road_dirt")).toBe(true);
     for (const is of f.server.display.islands) expect(overlaps(is.buildings, defs), is.id).toEqual([]);
     // Every building lies on the island and off the roads.
@@ -95,7 +96,7 @@ describe("fixtures use the real content", () => {
     for (const is of f.server.display.islands) expect(overlaps(is.buildings, defs), is.id).toEqual([]);
   });
 
-  it("the showcase places every model ID with all variants, both warehouse levels, a paused building and the three sloop styles", () => {
+  it("the showcase places every model ID with all variants, every Trading Post and Warehouse level, a paused building and the three sloop styles", () => {
     const f = buildShowcaseFixture(T);
     const defs = new Map(f.content.buildings.map((b) => [b.id, b]));
     const is = f.server.display.islands[0]!;
@@ -103,7 +104,8 @@ describe("fixtures use the real content", () => {
     for (const b of content.filter((c) => (c.tier === "settlers" || c.tier === "citizens") && !c.road)) expect(types, b.id).toContain(b.id);
     expect(is.buildings.filter((b) => b.type === "house_settlers").length).toBeGreaterThanOrEqual(6);
     expect(is.buildings.filter((b) => b.type === "house_citizens").length).toBeGreaterThanOrEqual(6);
-    expect(new Set(is.buildings.filter((b) => b.type === "warehouse").map((b) => b.level))).toEqual(new Set([1, 2]));
+    expect(new Set(is.buildings.filter((b) => b.type === "trading_post").map((b) => b.level))).toEqual(new Set([1, 2, 3, 4]));
+    expect(new Set(is.buildings.filter((b) => b.type === "warehouse").map((b) => b.level))).toEqual(new Set([1, 2, 3]));
     expect(is.buildings.some((b) => b.paused)).toBe(true);
     expect(overlaps(is.buildings, defs)).toEqual([]);
     const ships = f.server.display.ships;

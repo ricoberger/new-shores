@@ -55,7 +55,9 @@ class SchemaTest(unittest.TestCase):
         house = {"id": "house_settlers", "kind": "building", "parts": [], "variants": [[], []]}
         self.assertTrue(any("exactly 3 variants" in e for e in check(house)))
         wh = {"id": "warehouse", "kind": "building", "parts": [], "levels": {"1": []}}
-        self.assertTrue(any("levels must be ['1', '2']" in e for e in check(wh)))
+        self.assertTrue(any("levels must be ['1', '2', '3']" in e for e in check(wh)))
+        tp = {"id": "trading_post", "kind": "building", "parts": [], "levels": {"1": [], "2": []}}
+        self.assertTrue(any("levels must be ['1', '2', '3', '4']" in e for e in check(tp)))
         self.assertTrue(any("budget_exception is only allowed" in e for e in check({"id": "sawmill", "kind": "building", "parts": [], "budget_exception": {"reason": "a long enough reason"}})))
         ship = {"id": "sloop", "kind": "ship", "parts": []}
         self.assertTrue(any("ships need a ship block" in e for e in check(ship)))

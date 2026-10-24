@@ -1,9 +1,9 @@
 {
   "scenario": "bootstrap_citizens_quests",
   "base": {
-    "evaluated_at": "2026-01-01T02:00:00.000Z",
-    "next_change_at": "2026-01-01T02:01:40.000Z",
-    "gold": 1768021,
+    "evaluated_at": "2026-01-01T02:04:00.000Z",
+    "next_change_at": "2026-01-01T02:05:01.655Z",
+    "gold": 1944901,
     "balance_rate_per_min": 40720,
     "tax_rate_per_min": 77720,
     "upkeep_rate_per_min": 37000,
@@ -68,7 +68,7 @@
             "rate_per_min": 0
           },
           "fish": {
-            "stock": 97871,
+            "stock": 101151,
             "capacity": 300000,
             "in_transit": 2325,
             "rate_per_min": 820
@@ -104,7 +104,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 4000,
+            "stock": 7730,
             "capacity": 300000,
             "in_transit": 3900,
             "rate_per_min": 6000
@@ -116,13 +116,13 @@
             "rate_per_min": 0
           },
           "stone": {
-            "stock": 1779,
+            "stock": 3436,
             "capacity": 300000,
             "in_transit": 2467,
             "rate_per_min": 2666
           },
           "tools": {
-            "stock": 13083,
+            "stock": 12912,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -146,7 +146,7 @@
             "rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 13693,
+            "stock": 14333,
             "capacity": 300000,
             "in_transit": 1700,
             "rate_per_min": 160
@@ -1162,9 +1162,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 2,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -3063,7 +3063,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 666,
+            "cycle_progress_permille": 333,
             "transfer_delay_ms": 39000,
             "assigned_warehouse_id": 1,
             "road_distance": 29,
@@ -3408,7 +3408,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 333,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 51000,
             "assigned_warehouse_id": 1,
             "road_distance": 41,
@@ -3755,7 +3755,7 @@
               }
             },
             "cycle_seconds": 45,
-            "cycle_progress_permille": 333,
+            "cycle_progress_permille": 666,
             "transfer_delay_ms": 54000,
             "assigned_warehouse_id": 1,
             "road_distance": 44,
@@ -3784,7 +3784,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 666,
+            "cycle_progress_permille": 333,
             "transfer_delay_ms": 47000,
             "assigned_warehouse_id": 1,
             "road_distance": 37,
@@ -4027,7 +4027,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 666,
+            "cycle_progress_permille": 333,
             "transfer_delay_ms": 53000,
             "assigned_warehouse_id": 1,
             "road_distance": 43,
@@ -4056,7 +4056,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 0,
+            "cycle_progress_permille": 666,
             "transfer_delay_ms": 53000,
             "assigned_warehouse_id": 1,
             "road_distance": 43,
@@ -4350,7 +4350,7 @@
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 333,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 49000,
             "assigned_warehouse_id": 1,
             "road_distance": 39,
@@ -4459,7 +4459,7 @@
               }
             },
             "cycle_seconds": 45,
-            "cycle_progress_permille": 0,
+            "cycle_progress_permille": 333,
             "transfer_delay_ms": 57000,
             "assigned_warehouse_id": 1,
             "road_distance": 47,
@@ -4818,7 +4818,7 @@
             "rate_per_min": 0
           },
           "charcoal": {
-            "stock": 23800,
+            "stock": 27133,
             "capacity": 300000,
             "in_transit": 533,
             "rate_per_min": 333
@@ -4830,7 +4830,7 @@
             "rate_per_min": 0
           },
           "fish": {
-            "stock": 47508,
+            "stock": 52308,
             "capacity": 300000,
             "in_transit": 300,
             "rate_per_min": 1100
@@ -4848,13 +4848,13 @@
             "rate_per_min": 0
           },
           "iron": {
-            "stock": 0,
+            "stock": 1567,
             "capacity": 300000,
             "in_transit": 433,
             "rate_per_min": 0
           },
           "iron_ore": {
-            "stock": 7583,
+            "stock": 9583,
             "capacity": 300000,
             "in_transit": 417,
             "rate_per_min": 0
@@ -4866,7 +4866,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 89900,
+            "stock": 110380,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -4878,13 +4878,13 @@
             "rate_per_min": 0
           },
           "stone": {
-            "stock": 65644,
+            "stock": 74746,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
           },
           "tools": {
-            "stock": 3000,
+            "stock": 3605,
             "capacity": 300000,
             "in_transit": 483,
             "rate_per_min": 1000
@@ -4896,7 +4896,7 @@
             "rate_per_min": 0
           },
           "wood": {
-            "stock": 27500,
+            "stock": 30167,
             "capacity": 300000,
             "in_transit": 1167,
             "rate_per_min": 666
@@ -5119,9 +5119,9 @@
         "buildings": [
           {
             "id": 41,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 2,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -5466,7 +5466,7 @@
               }
             },
             "cycle_seconds": 45,
-            "cycle_progress_permille": 333,
+            "cycle_progress_permille": 666,
             "transfer_delay_ms": 24000,
             "assigned_warehouse_id": 41,
             "road_distance": 14,
@@ -5558,7 +5558,7 @@
               }
             },
             "cycle_seconds": 60,
-            "cycle_progress_permille": 566,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 29000,
             "assigned_warehouse_id": 41,
             "road_distance": 19,
@@ -5593,17 +5593,17 @@
         "leg": {
           "from_island_id": "start",
           "to_island_id": "island2",
-          "depart_at": "2026-01-01T01:59:40.000Z",
-          "arrive_at": "2026-01-01T02:01:40.000Z"
+          "depart_at": "2026-01-01T02:03:01.655Z",
+          "arrive_at": "2026-01-01T02:05:01.655Z"
         },
         "cargo": [
           {
             "good": "planks",
-            "amount": 28000
+            "amount": 27790
           },
           {
             "good": "stone",
-            "amount": 12444
+            "amount": 12351
           }
         ],
         "slots": 2,
@@ -5651,43 +5651,43 @@
         "ship_ids": [
           1
         ],
-        "loop_ms": 280000,
+        "loop_ms": 260000,
         "effects": [
           {
             "island_id": "start",
             "good": "planks",
             "per_loop": -50000,
-            "per_min": -10714
+            "per_min": -11538
           },
           {
             "island_id": "start",
             "good": "stone",
             "per_loop": -50000,
-            "per_min": -10714
+            "per_min": -11538
           },
           {
             "island_id": "start",
             "good": "tools",
             "per_loop": 50000,
-            "per_min": 10714
+            "per_min": 11538
           },
           {
             "island_id": "island2",
             "good": "planks",
             "per_loop": 50000,
-            "per_min": 10714
+            "per_min": 11538
           },
           {
             "island_id": "island2",
             "good": "stone",
             "per_loop": 50000,
-            "per_min": 10714
+            "per_min": 11538
           },
           {
             "island_id": "island2",
             "good": "tools",
             "per_loop": -50000,
-            "per_min": -10714
+            "per_min": -11538
           }
         ]
       }
@@ -5754,26 +5754,26 @@
         },
         {
           "id": "intro_tools",
-          "completed_at": "2026-01-01T01:59:20.000Z",
+          "completed_at": "2026-01-01T02:02:42.700Z",
           "claimed": true
         },
         {
           "id": "intro_citizen_house",
-          "completed_at": "2026-01-01T01:59:20.000Z",
+          "completed_at": "2026-01-01T02:02:42.700Z",
           "claimed": true
         }
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T02:00:00.000Z"
+    "last_seen_at": "2026-01-01T02:04:00.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T02:00:00.250Z",
-        "next_change_at": "2026-01-01T02:01:40.000Z",
-        "gold": 1768191,
+        "evaluated_at": "2026-01-01T02:04:00.250Z",
+        "next_change_at": "2026-01-01T02:05:01.655Z",
+        "gold": 1945071,
         "balance_rate_per_min": 40720,
         "tax_rate_per_min": 77720,
         "upkeep_rate_per_min": 37000,
@@ -5838,7 +5838,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 97874,
+                "stock": 101154,
                 "capacity": 300000,
                 "in_transit": 2325,
                 "rate_per_min": 820
@@ -5874,7 +5874,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 4025,
+                "stock": 7755,
                 "capacity": 300000,
                 "in_transit": 3900,
                 "rate_per_min": 6000
@@ -5886,13 +5886,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 1790,
+                "stock": 3447,
                 "capacity": 300000,
                 "in_transit": 2467,
                 "rate_per_min": 2666
               },
               "tools": {
-                "stock": 13083,
+                "stock": 12912,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -5916,7 +5916,7 @@
                 "rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 13693,
+                "stock": 14333,
                 "capacity": 300000,
                 "in_transit": 1700,
                 "rate_per_min": 160
@@ -6932,9 +6932,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 2,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -8833,7 +8833,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 669,
+                "cycle_progress_permille": 336,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
@@ -9178,7 +9178,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 336,
+                "cycle_progress_permille": 2,
                 "transfer_delay_ms": 51000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 41,
@@ -9525,7 +9525,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 338,
+                "cycle_progress_permille": 672,
                 "transfer_delay_ms": 54000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 44,
@@ -9554,7 +9554,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 669,
+                "cycle_progress_permille": 336,
                 "transfer_delay_ms": 47000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 37,
@@ -9797,7 +9797,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 669,
+                "cycle_progress_permille": 336,
                 "transfer_delay_ms": 53000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 43,
@@ -9826,7 +9826,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 2,
+                "cycle_progress_permille": 669,
                 "transfer_delay_ms": 53000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 43,
@@ -10120,7 +10120,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 336,
+                "cycle_progress_permille": 2,
                 "transfer_delay_ms": 49000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 39,
@@ -10229,7 +10229,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 5,
+                "cycle_progress_permille": 338,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -10588,7 +10588,7 @@
                 "rate_per_min": 0
               },
               "charcoal": {
-                "stock": 23801,
+                "stock": 27135,
                 "capacity": 300000,
                 "in_transit": 533,
                 "rate_per_min": 333
@@ -10600,7 +10600,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 47513,
+                "stock": 52313,
                 "capacity": 300000,
                 "in_transit": 300,
                 "rate_per_min": 1100
@@ -10618,13 +10618,13 @@
                 "rate_per_min": 0
               },
               "iron": {
-                "stock": 0,
+                "stock": 1567,
                 "capacity": 300000,
                 "in_transit": 433,
                 "rate_per_min": 0
               },
               "iron_ore": {
-                "stock": 7583,
+                "stock": 9583,
                 "capacity": 300000,
                 "in_transit": 417,
                 "rate_per_min": 0
@@ -10636,7 +10636,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 89900,
+                "stock": 110380,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -10648,13 +10648,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 65644,
+                "stock": 74746,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
               },
               "tools": {
-                "stock": 3005,
+                "stock": 3609,
                 "capacity": 300000,
                 "in_transit": 483,
                 "rate_per_min": 1000
@@ -10666,7 +10666,7 @@
                 "rate_per_min": 0
               },
               "wood": {
-                "stock": 27503,
+                "stock": 30169,
                 "capacity": 300000,
                 "in_transit": 1167,
                 "rate_per_min": 666
@@ -10889,9 +10889,9 @@
             "buildings": [
               {
                 "id": 41,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 2,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -11236,7 +11236,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 338,
+                "cycle_progress_permille": 672,
                 "transfer_delay_ms": 24000,
                 "assigned_warehouse_id": 41,
                 "road_distance": 14,
@@ -11328,7 +11328,7 @@
                   }
                 },
                 "cycle_seconds": 60,
-                "cycle_progress_permille": 570,
+                "cycle_progress_permille": 4,
                 "transfer_delay_ms": 29000,
                 "assigned_warehouse_id": 41,
                 "road_distance": 19,
@@ -11363,17 +11363,17 @@
             "leg": {
               "from_island_id": "start",
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T01:59:40.000Z",
-              "arrive_at": "2026-01-01T02:01:40.000Z"
+              "depart_at": "2026-01-01T02:03:01.655Z",
+              "arrive_at": "2026-01-01T02:05:01.655Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 28000
+                "amount": 27790
               },
               {
                 "good": "stone",
-                "amount": 12444
+                "amount": 12351
               }
             ],
             "slots": 2,
@@ -11421,43 +11421,43 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 280000,
+            "loop_ms": 260000,
             "effects": [
               {
                 "island_id": "start",
                 "good": "planks",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               },
               {
                 "island_id": "start",
                 "good": "stone",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               },
               {
                 "island_id": "start",
                 "good": "tools",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "planks",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "stone",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "tools",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               }
             ]
           }
@@ -11524,26 +11524,26 @@
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T01:59:20.000Z",
+              "completed_at": "2026-01-01T02:02:42.700Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T01:59:20.000Z",
+              "completed_at": "2026-01-01T02:02:42.700Z",
               "claimed": true
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T02:00:00.000Z"
+        "last_seen_at": "2026-01-01T02:04:00.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T02:00:01.000Z",
-        "next_change_at": "2026-01-01T02:01:40.000Z",
-        "gold": 1768700,
+        "evaluated_at": "2026-01-01T02:04:01.000Z",
+        "next_change_at": "2026-01-01T02:05:01.655Z",
+        "gold": 1945580,
         "balance_rate_per_min": 40720,
         "tax_rate_per_min": 77720,
         "upkeep_rate_per_min": 37000,
@@ -11608,7 +11608,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 97885,
+                "stock": 101165,
                 "capacity": 300000,
                 "in_transit": 2325,
                 "rate_per_min": 820
@@ -11644,7 +11644,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 4100,
+                "stock": 7830,
                 "capacity": 300000,
                 "in_transit": 3900,
                 "rate_per_min": 6000
@@ -11656,13 +11656,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 1823,
+                "stock": 3481,
                 "capacity": 300000,
                 "in_transit": 2467,
                 "rate_per_min": 2666
               },
               "tools": {
-                "stock": 13083,
+                "stock": 12912,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -11686,7 +11686,7 @@
                 "rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 13695,
+                "stock": 14335,
                 "capacity": 300000,
                 "in_transit": 1700,
                 "rate_per_min": 160
@@ -12702,9 +12702,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 2,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -14603,7 +14603,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 677,
+                "cycle_progress_permille": 344,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
@@ -14948,7 +14948,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 344,
+                "cycle_progress_permille": 11,
                 "transfer_delay_ms": 51000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 41,
@@ -15295,7 +15295,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 355,
+                "cycle_progress_permille": 688,
                 "transfer_delay_ms": 54000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 44,
@@ -15324,7 +15324,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 677,
+                "cycle_progress_permille": 344,
                 "transfer_delay_ms": 47000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 37,
@@ -15567,7 +15567,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 677,
+                "cycle_progress_permille": 344,
                 "transfer_delay_ms": 53000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 43,
@@ -15596,7 +15596,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 11,
+                "cycle_progress_permille": 677,
                 "transfer_delay_ms": 53000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 43,
@@ -15890,7 +15890,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 344,
+                "cycle_progress_permille": 11,
                 "transfer_delay_ms": 49000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 39,
@@ -15999,7 +15999,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 22,
+                "cycle_progress_permille": 355,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -16358,7 +16358,7 @@
                 "rate_per_min": 0
               },
               "charcoal": {
-                "stock": 23806,
+                "stock": 27139,
                 "capacity": 300000,
                 "in_transit": 533,
                 "rate_per_min": 333
@@ -16370,7 +16370,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 47526,
+                "stock": 52326,
                 "capacity": 300000,
                 "in_transit": 300,
                 "rate_per_min": 1100
@@ -16388,13 +16388,13 @@
                 "rate_per_min": 0
               },
               "iron": {
-                "stock": 0,
+                "stock": 1567,
                 "capacity": 300000,
                 "in_transit": 433,
                 "rate_per_min": 0
               },
               "iron_ore": {
-                "stock": 7583,
+                "stock": 9583,
                 "capacity": 300000,
                 "in_transit": 417,
                 "rate_per_min": 0
@@ -16406,7 +16406,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 89900,
+                "stock": 110380,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -16418,13 +16418,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 65644,
+                "stock": 74746,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
               },
               "tools": {
-                "stock": 3017,
+                "stock": 3621,
                 "capacity": 300000,
                 "in_transit": 483,
                 "rate_per_min": 1000
@@ -16436,7 +16436,7 @@
                 "rate_per_min": 0
               },
               "wood": {
-                "stock": 27511,
+                "stock": 30178,
                 "capacity": 300000,
                 "in_transit": 1167,
                 "rate_per_min": 666
@@ -16659,9 +16659,9 @@
             "buildings": [
               {
                 "id": 41,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 2,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -17006,7 +17006,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 355,
+                "cycle_progress_permille": 688,
                 "transfer_delay_ms": 24000,
                 "assigned_warehouse_id": 41,
                 "road_distance": 14,
@@ -17098,7 +17098,7 @@
                   }
                 },
                 "cycle_seconds": 60,
-                "cycle_progress_permille": 583,
+                "cycle_progress_permille": 16,
                 "transfer_delay_ms": 29000,
                 "assigned_warehouse_id": 41,
                 "road_distance": 19,
@@ -17133,17 +17133,17 @@
             "leg": {
               "from_island_id": "start",
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T01:59:40.000Z",
-              "arrive_at": "2026-01-01T02:01:40.000Z"
+              "depart_at": "2026-01-01T02:03:01.655Z",
+              "arrive_at": "2026-01-01T02:05:01.655Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 28000
+                "amount": 27790
               },
               {
                 "good": "stone",
-                "amount": 12444
+                "amount": 12351
               }
             ],
             "slots": 2,
@@ -17191,43 +17191,43 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 280000,
+            "loop_ms": 260000,
             "effects": [
               {
                 "island_id": "start",
                 "good": "planks",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               },
               {
                 "island_id": "start",
                 "good": "stone",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               },
               {
                 "island_id": "start",
                 "good": "tools",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "planks",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "stone",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "tools",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               }
             ]
           }
@@ -17294,26 +17294,26 @@
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T01:59:20.000Z",
+              "completed_at": "2026-01-01T02:02:42.700Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T01:59:20.000Z",
+              "completed_at": "2026-01-01T02:02:42.700Z",
               "claimed": true
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T02:00:00.000Z"
+        "last_seen_at": "2026-01-01T02:04:00.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T02:00:05.000Z",
-        "next_change_at": "2026-01-01T02:01:40.000Z",
-        "gold": 1771415,
+        "evaluated_at": "2026-01-01T02:04:05.000Z",
+        "next_change_at": "2026-01-01T02:05:01.655Z",
+        "gold": 1948295,
         "balance_rate_per_min": 40720,
         "tax_rate_per_min": 77720,
         "upkeep_rate_per_min": 37000,
@@ -17378,7 +17378,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 97939,
+                "stock": 101219,
                 "capacity": 300000,
                 "in_transit": 2325,
                 "rate_per_min": 820
@@ -17414,7 +17414,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 4500,
+                "stock": 8230,
                 "capacity": 300000,
                 "in_transit": 3900,
                 "rate_per_min": 6000
@@ -17426,13 +17426,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 2001,
+                "stock": 3659,
                 "capacity": 300000,
                 "in_transit": 2467,
                 "rate_per_min": 2666
               },
               "tools": {
-                "stock": 13083,
+                "stock": 12912,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -17456,7 +17456,7 @@
                 "rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 13706,
+                "stock": 14346,
                 "capacity": 300000,
                 "in_transit": 1700,
                 "rate_per_min": 160
@@ -18472,9 +18472,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 2,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -20373,7 +20373,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 722,
+                "cycle_progress_permille": 388,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
@@ -20718,7 +20718,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 388,
+                "cycle_progress_permille": 55,
                 "transfer_delay_ms": 51000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 41,
@@ -21065,7 +21065,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 444,
+                "cycle_progress_permille": 777,
                 "transfer_delay_ms": 54000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 44,
@@ -21094,7 +21094,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 722,
+                "cycle_progress_permille": 388,
                 "transfer_delay_ms": 47000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 37,
@@ -21337,7 +21337,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 722,
+                "cycle_progress_permille": 388,
                 "transfer_delay_ms": 53000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 43,
@@ -21366,7 +21366,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 55,
+                "cycle_progress_permille": 722,
                 "transfer_delay_ms": 53000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 43,
@@ -21660,7 +21660,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 388,
+                "cycle_progress_permille": 55,
                 "transfer_delay_ms": 49000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 39,
@@ -21769,7 +21769,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 111,
+                "cycle_progress_permille": 444,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -22128,7 +22128,7 @@
                 "rate_per_min": 0
               },
               "charcoal": {
-                "stock": 23828,
+                "stock": 27161,
                 "capacity": 300000,
                 "in_transit": 533,
                 "rate_per_min": 333
@@ -22140,7 +22140,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 47600,
+                "stock": 52400,
                 "capacity": 300000,
                 "in_transit": 300,
                 "rate_per_min": 1100
@@ -22158,13 +22158,13 @@
                 "rate_per_min": 0
               },
               "iron": {
-                "stock": 0,
+                "stock": 1567,
                 "capacity": 300000,
                 "in_transit": 433,
                 "rate_per_min": 0
               },
               "iron_ore": {
-                "stock": 7583,
+                "stock": 9583,
                 "capacity": 300000,
                 "in_transit": 417,
                 "rate_per_min": 0
@@ -22176,7 +22176,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 89900,
+                "stock": 110380,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -22188,13 +22188,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 65644,
+                "stock": 74746,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
               },
               "tools": {
-                "stock": 3084,
+                "stock": 3688,
                 "capacity": 300000,
                 "in_transit": 483,
                 "rate_per_min": 1000
@@ -22206,7 +22206,7 @@
                 "rate_per_min": 0
               },
               "wood": {
-                "stock": 27556,
+                "stock": 30222,
                 "capacity": 300000,
                 "in_transit": 1167,
                 "rate_per_min": 666
@@ -22429,9 +22429,9 @@
             "buildings": [
               {
                 "id": 41,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 2,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -22776,7 +22776,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 444,
+                "cycle_progress_permille": 777,
                 "transfer_delay_ms": 24000,
                 "assigned_warehouse_id": 41,
                 "road_distance": 14,
@@ -22868,7 +22868,7 @@
                   }
                 },
                 "cycle_seconds": 60,
-                "cycle_progress_permille": 650,
+                "cycle_progress_permille": 83,
                 "transfer_delay_ms": 29000,
                 "assigned_warehouse_id": 41,
                 "road_distance": 19,
@@ -22903,17 +22903,17 @@
             "leg": {
               "from_island_id": "start",
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T01:59:40.000Z",
-              "arrive_at": "2026-01-01T02:01:40.000Z"
+              "depart_at": "2026-01-01T02:03:01.655Z",
+              "arrive_at": "2026-01-01T02:05:01.655Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 28000
+                "amount": 27790
               },
               {
                 "good": "stone",
-                "amount": 12444
+                "amount": 12351
               }
             ],
             "slots": 2,
@@ -22961,43 +22961,43 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 280000,
+            "loop_ms": 260000,
             "effects": [
               {
                 "island_id": "start",
                 "good": "planks",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               },
               {
                 "island_id": "start",
                 "good": "stone",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               },
               {
                 "island_id": "start",
                 "good": "tools",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "planks",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "stone",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "tools",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               }
             ]
           }
@@ -23064,26 +23064,26 @@
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T01:59:20.000Z",
+              "completed_at": "2026-01-01T02:02:42.700Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T01:59:20.000Z",
+              "completed_at": "2026-01-01T02:02:42.700Z",
               "claimed": true
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T02:00:00.000Z"
+        "last_seen_at": "2026-01-01T02:04:00.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T02:00:30.000Z",
-        "next_change_at": "2026-01-01T02:01:40.000Z",
-        "gold": 1788381,
+        "evaluated_at": "2026-01-01T02:04:30.000Z",
+        "next_change_at": "2026-01-01T02:05:01.655Z",
+        "gold": 1965261,
         "balance_rate_per_min": 40720,
         "tax_rate_per_min": 77720,
         "upkeep_rate_per_min": 37000,
@@ -23148,7 +23148,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 98281,
+                "stock": 101561,
                 "capacity": 300000,
                 "in_transit": 2325,
                 "rate_per_min": 820
@@ -23184,7 +23184,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 7000,
+                "stock": 10730,
                 "capacity": 300000,
                 "in_transit": 3900,
                 "rate_per_min": 6000
@@ -23196,13 +23196,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 3112,
+                "stock": 4770,
                 "capacity": 300000,
                 "in_transit": 2467,
                 "rate_per_min": 2666
               },
               "tools": {
-                "stock": 13083,
+                "stock": 12912,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -23226,7 +23226,7 @@
                 "rate_per_min": 0
               },
               "wool_garments": {
-                "stock": 13773,
+                "stock": 14413,
                 "capacity": 300000,
                 "in_transit": 1700,
                 "rate_per_min": 160
@@ -24242,9 +24242,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 2,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -26143,7 +26143,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 0,
+                "cycle_progress_permille": 666,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
@@ -26488,7 +26488,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 666,
+                "cycle_progress_permille": 333,
                 "transfer_delay_ms": 51000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 41,
@@ -26835,7 +26835,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 0,
+                "cycle_progress_permille": 333,
                 "transfer_delay_ms": 54000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 44,
@@ -26864,7 +26864,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 0,
+                "cycle_progress_permille": 666,
                 "transfer_delay_ms": 47000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 37,
@@ -27107,7 +27107,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 0,
+                "cycle_progress_permille": 666,
                 "transfer_delay_ms": 53000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 43,
@@ -27136,7 +27136,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 333,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 53000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 43,
@@ -27430,7 +27430,7 @@
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 666,
+                "cycle_progress_permille": 333,
                 "transfer_delay_ms": 49000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 39,
@@ -27539,7 +27539,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 666,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -27898,7 +27898,7 @@
                 "rate_per_min": 0
               },
               "charcoal": {
-                "stock": 23967,
+                "stock": 27300,
                 "capacity": 300000,
                 "in_transit": 533,
                 "rate_per_min": 333
@@ -27910,7 +27910,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 48058,
+                "stock": 52858,
                 "capacity": 300000,
                 "in_transit": 300,
                 "rate_per_min": 1100
@@ -27928,13 +27928,13 @@
                 "rate_per_min": 0
               },
               "iron": {
-                "stock": 0,
+                "stock": 1567,
                 "capacity": 300000,
                 "in_transit": 433,
                 "rate_per_min": 0
               },
               "iron_ore": {
-                "stock": 7583,
+                "stock": 9583,
                 "capacity": 300000,
                 "in_transit": 417,
                 "rate_per_min": 0
@@ -27946,7 +27946,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 89900,
+                "stock": 110380,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -27958,13 +27958,13 @@
                 "rate_per_min": 0
               },
               "stone": {
-                "stock": 65644,
+                "stock": 74746,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
               },
               "tools": {
-                "stock": 3500,
+                "stock": 4105,
                 "capacity": 300000,
                 "in_transit": 483,
                 "rate_per_min": 1000
@@ -27976,7 +27976,7 @@
                 "rate_per_min": 0
               },
               "wood": {
-                "stock": 27833,
+                "stock": 30500,
                 "capacity": 300000,
                 "in_transit": 1167,
                 "rate_per_min": 666
@@ -28199,9 +28199,9 @@
             "buildings": [
               {
                 "id": 41,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 2,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -28546,7 +28546,7 @@
                   }
                 },
                 "cycle_seconds": 45,
-                "cycle_progress_permille": 0,
+                "cycle_progress_permille": 333,
                 "transfer_delay_ms": 24000,
                 "assigned_warehouse_id": 41,
                 "road_distance": 14,
@@ -28638,7 +28638,7 @@
                   }
                 },
                 "cycle_seconds": 60,
-                "cycle_progress_permille": 66,
+                "cycle_progress_permille": 500,
                 "transfer_delay_ms": 29000,
                 "assigned_warehouse_id": 41,
                 "road_distance": 19,
@@ -28673,17 +28673,17 @@
             "leg": {
               "from_island_id": "start",
               "to_island_id": "island2",
-              "depart_at": "2026-01-01T01:59:40.000Z",
-              "arrive_at": "2026-01-01T02:01:40.000Z"
+              "depart_at": "2026-01-01T02:03:01.655Z",
+              "arrive_at": "2026-01-01T02:05:01.655Z"
             },
             "cargo": [
               {
                 "good": "planks",
-                "amount": 28000
+                "amount": 27790
               },
               {
                 "good": "stone",
-                "amount": 12444
+                "amount": 12351
               }
             ],
             "slots": 2,
@@ -28731,43 +28731,43 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 280000,
+            "loop_ms": 260000,
             "effects": [
               {
                 "island_id": "start",
                 "good": "planks",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               },
               {
                 "island_id": "start",
                 "good": "stone",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               },
               {
                 "island_id": "start",
                 "good": "tools",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "planks",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "stone",
                 "per_loop": 50000,
-                "per_min": 10714
+                "per_min": 11538
               },
               {
                 "island_id": "island2",
                 "good": "tools",
                 "per_loop": -50000,
-                "per_min": -10714
+                "per_min": -11538
               }
             ]
           }
@@ -28834,18 +28834,18 @@
             },
             {
               "id": "intro_tools",
-              "completed_at": "2026-01-01T01:59:20.000Z",
+              "completed_at": "2026-01-01T02:02:42.700Z",
               "claimed": true
             },
             {
               "id": "intro_citizen_house",
-              "completed_at": "2026-01-01T01:59:20.000Z",
+              "completed_at": "2026-01-01T02:02:42.700Z",
               "claimed": true
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T02:00:00.000Z"
+        "last_seen_at": "2026-01-01T02:04:00.000Z"
       }
     }
   ]

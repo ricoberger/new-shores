@@ -11,7 +11,7 @@ const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
 
 const content = {
-  buildings: [{ id: "warehouse", warehouse: { levels: [] }, cost: { gold: 200_000, materials: { planks: 20_000 } } }],
+  buildings: [{ id: "trading_post", trading_post: { levels: [] }, cost: { gold: 200_000, materials: { planks: 20_000 } } }],
 } as unknown as Content;
 
 describe("island summary", () => {

@@ -1,6 +1,6 @@
 {
   "name": "dev_archipelago",
-  "description": "Hand-written archipelago of the --dev server and of new player worlds: the start island (seeded warehouse and the content starting stock, start.json; wheat and apple fertility, stone deposits on the edge of its mountains) and the unsettled island 2 (hemp fertility; coast, grass, forest, iron-deposit mountains; settled by a ship carrying the warehouse cost). Positions are archipelago tiles: 120 tiles apart, 2 min per sloop leg at the region's reference speed. The --dev world has no bonus since the balancing pass (an optional dev_bonus would be granted only by devworld.NewDev). The scenario runner builds the islands; the document has no steps.",
+  "description": "Hand-written archipelago of the --dev server and of new player worlds: the start island (seeded Trading Post and the content starting stock, start.json; wheat and apple fertility, stone deposits on the edge of its mountains) and the unsettled island 2 (hemp fertility; coast, grass, forest, iron-deposit mountains; settled by a ship carrying the Trading Post cost). Positions are archipelago tiles: 120 tiles apart, 2 min per sloop leg at the region's reference speed. The --dev world has no bonus since the balancing pass (an optional dev_bonus would be granted only by devworld.NewDev). The scenario runner builds the islands; the document has no steps.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {
@@ -11,7 +11,7 @@
       "fertilities": ["wheat", "apple"],
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-        "~ccccccccccccccccccccccc~~~~~~~~ccccccccccccccccccccccc~",
+        "~c~~~~~~~~~~~~~~~~cccccc~~~~~~~~ccccccccccccccccccccccc~",
         "~c......................cccccccc......................c~",
         "~c....................................................c~",
         "~c....................................................c~",
@@ -46,8 +46,8 @@
         "~c....................................................c~",
         "~c....................................................c~",
         "~c....................................................c~",
-        "~c............ccccccc..............ccccccc............c~",
-        "~ccccccccccccc~~~~~~~cccccccccccccc~~~~~~~ccccccccccccc~",
+        "~c...~~~~~....~~~~~cc..............ccccccc............c~",
+        "~cccc~~~~~cccc~~~~~~~cccccccccccccc~~~~~~~ccccccccccccc~",
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
       ]
@@ -60,8 +60,8 @@
       "fertilities": ["hemp"],
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-        "~ccccccccccccccccccccc~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~c~~~~cccccc~~cccccccc~~~~~~~~~~~~~~~~~~",
+        "~ccccccccccc~~ccccccccccccccccccccccccc~",
         "~c....................................c~",
         "~c....................................c~",
         "~c.......................ffffffffffff.c~",
@@ -81,9 +81,9 @@
     }
   ],
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 2,
-      "y": 1,
+      "y": 0,
       "rotation": 0
     },
     "start": true

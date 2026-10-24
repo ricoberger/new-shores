@@ -623,15 +623,17 @@ func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) Island
 				bd.ShipOrder.Order = &ShipOrderDisplay{Type: o.Type, OrderedAt: formatMs(o.OrderedAtMs), DueAt: formatMs(o.DueAtMs)}
 			}
 		}
-		if def.Warehouse != nil {
-			lvl := warehouseLevel(def, b)
-			level := max(b.Level, 1)
+		if def.Collector() {
+			level := min(max(b.Level, 1), def.LevelCount())
 			load := r.loads[b.ID]
 			var permille int64
 			if load.t > 0 {
 				permille = load.r * 1000 / load.t
 			}
-			bd.Level, bd.Capacity, bd.ThroughputPerMin, bd.LoadPermille = &level, ptr(lvl.Capacity), ptr(lvl.ThroughputPerMin), &permille
+			bd.Level, bd.ThroughputPerMin, bd.LoadPermille = &level, ptr(def.ThroughputAt(level)), &permille
+			if def.TradingPost != nil {
+				bd.Capacity = ptr(def.TradingPostLevelAt(level).Capacity)
+			}
 		}
 		if h := houses[b.ID]; h != nil {
 			displayHouse(&bd, h)

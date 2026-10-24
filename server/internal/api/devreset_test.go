@@ -96,7 +96,7 @@ func TestDevReset(t *testing.T) {
 	if ids := buildingIDs(t, w.Display, "lumberjack"); len(ids) != 0 {
 		t.Errorf("lumberjacks after reset: %v", ids)
 	}
-	if ids := buildingIDs(t, w.Display, "warehouse"); len(ids) != 1 {
+	if ids := buildingIDs(t, w.Display, "trading_post"); len(ids) != 1 {
 		t.Errorf("warehouses after reset: %v (want the seeded one)", ids)
 	}
 	if p := ts.mem.Pending(); len(p) != 0 {

@@ -92,7 +92,8 @@ func (p *propCase) randomWorld() *World {
 			switch {
 			case x == 0 || y == 0 || x == width-1 || y == height-1:
 			case y == 1:
-				terrain = content.TerrainCoast
+				// A bay row: the Trading Post (1,0) and fishers stand with
+				// their front rows on it (D-051).
 			case x <= 4 && y <= 3, y == 4:
 				terrain = content.TerrainGrass
 			default:
@@ -110,7 +111,7 @@ func (p *propCase) randomWorld() *World {
 	}
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
 	w.Islands = []*Island{NewIsland("main", width, height, tiles)}
-	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, p.l); err != nil {
+	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, p.l); err != nil {
 		p.fail("seed warehouse: %v", err)
 	}
 	// Most cases are rich; some start poor so that insolvency pauses and
@@ -168,7 +169,7 @@ func (p *propCase) townWorld() *World {
 			case x == 0 || y == 0 || x == 29 || y == 13:
 				row[x] = '~'
 			case y == 1 && x <= 8:
-				row[x] = 'c'
+				row[x] = '~'
 			default:
 				row[x] = '.'
 			}
@@ -187,7 +188,7 @@ func (p *propCase) townWorld() *World {
 			p.fail("town %s: %v", typ, err)
 		}
 	}
-	free("warehouse", 1, 1, 0)
+	free("trading_post", 1, 0, 0)
 	var road []Pos
 	for x := 2; x <= 28; x++ {
 		road = append(road, Pos{x, 4})
@@ -303,7 +304,7 @@ func (p *propCase) randomCommand() Command {
 		// stone or at the last level.
 		var whs []*Building
 		for _, b := range is.Buildings {
-			if def := p.c.BuildingByID[b.Type]; def != nil && def.Warehouse != nil {
+			if def := p.c.BuildingByID[b.Type]; def != nil && def.Collector() {
 				whs = append(whs, b)
 			}
 		}
@@ -673,7 +674,7 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 			}
 			// Inside the handling time after an arrival (before the
 			// departure) and at the departure itself.
-			if h := p.c.Region.Rules.ShipHandlingMs; b.Kind == BoundaryShipArrived && h > 1 {
+			if h := p.c.Region.Rules.ShipHandlingBaseMs; b.Kind == BoundaryShipArrived && h > 1 {
 				for _, at := range []time.Time{b.At.Add(time.Duration(1+p.rng.Int64N(h-1)) * time.Millisecond), b.At.Add(time.Duration(h) * time.Millisecond)} {
 					if at.After(start) && at.Before(to) {
 						splits = append(splits, split{at, "handling"})
@@ -816,7 +817,7 @@ func TestPropertyConservationAndBounds(t *testing.T) {
 			}
 			// Content with a second warehouse level must exercise the
 			// upgrade's material charges (conservation via Spent).
-			if wh := c.BuildingByID["warehouse"]; len(wh.Warehouse.Levels) > 1 && upgrades == 0 {
+			if wh := c.BuildingByID["trading_post"]; len(wh.TradingPost.Levels) > 1 && upgrades == 0 {
 				t.Error("no successful warehouse upgrade")
 			}
 			t.Logf("successful warehouse upgrades: %d", upgrades)
@@ -901,7 +902,7 @@ func (p *propCase) recoveryWorld() *World {
 			p.fail("recovery %s: %v", typ, err)
 		}
 	}
-	free("warehouse", 1, 1, 0)
+	free("trading_post", 1, 0, 0)
 	road := []Pos{{6, 3}}
 	for x := 2; x <= 28; x++ {
 		road = append(road, Pos{x, 4})
@@ -1046,7 +1047,7 @@ func TestPropertyPauseResumeInterplay(t *testing.T) {
 				p.fail("%s: %v", typ, err)
 			}
 		}
-		free("warehouse", 1, 1, 0)
+		free("trading_post", 1, 0, 0)
 		road := []Pos{{6, 3}}
 		for x := 2; x <= 28; x++ {
 			road = append(road, Pos{x, 4})
@@ -1119,7 +1120,7 @@ func TestPropertyResumeEligibility(t *testing.T) {
 			}
 			return id
 		}
-		free("warehouse", 1, 1, 0)
+		free("trading_post", 1, 0, 0)
 		road := []Pos{{6, 3}}
 		for x := 2; x <= 28; x++ {
 			road = append(road, Pos{x, 4})

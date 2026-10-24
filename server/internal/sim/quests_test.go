@@ -60,7 +60,7 @@ func TestQuestPredicates(t *testing.T) {
 		{"road tiles short", obj(content.ObjectiveBuildingCount, func(o *content.Objective) { o.Building, o.Min = "road_dirt", 29 }), false, 28, nil},
 		{"houses", obj(content.ObjectiveBuildingCount, func(o *content.Objective) { o.Building, o.Min = "house_settlers", 2 }), true, 2, nil},
 		{"houses on another island", obj(content.ObjectiveBuildingCount, func(o *content.Objective) { o.Building, o.Island = "house_settlers", "elsewhere" }), false, 0, nil},
-		{"warehouse connected", obj(content.ObjectiveConnected, func(o *content.Objective) { o.Building = "warehouse" }), true, 1, nil},
+		{"trading post connected", obj(content.ObjectiveConnected, func(o *content.Objective) { o.Building = "trading_post" }), true, 1, nil},
 		{"fisher not connected", obj(content.ObjectiveConnected, func(o *content.Objective) { o.Building = "fisher" }), false, 0, nil},
 		{"population", obj(content.ObjectivePopulation, func(o *content.Objective) { o.Tier, o.Min = "settlers", 4_000 }), true, 4_000, nil},
 		{"population short", obj(content.ObjectivePopulation, func(o *content.Objective) { o.Tier, o.Min = "settlers", 5_000 }), false, 4_000, nil},
@@ -132,7 +132,7 @@ func TestQuestRouteShipAndIslands(t *testing.T) {
 	}
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 30_000}}})
 	mustAdvance(t, w, c, 30*time.Second)
-	mustApply(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 1})
+	mustApply(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0})
 	if !QuestCompleted(w, "islands") || completedAt(t, w, "islands") != w.LastEvaluatedAt {
 		t.Fatalf("after founding: %v", w.Quests)
 	}

@@ -43,12 +43,12 @@ export function harbourBerths(island: Pick<Island, "width" | "height" | "terrain
 
 /**
  * Harbour berths of an island (local tiles): water tiles next to the coast
- * nearest the harbour building (shipyard, else warehouse, else the island
+ * nearest the harbour building (shipyard, else Trading Post, else the island
  * centre). Ships at the island lie there; the first berth anchors its legs
  * and route ribbons.
  */
 export function islandBerths(island: IslandDisplay, statics: Island, defs: ReadonlyMap<string, ContentBuilding>): TilePos[] {
-  const harbour = island.buildings.find((b) => defs.get(b.type)?.shipyard) ?? island.buildings.find((b) => defs.get(b.type)?.warehouse);
+  const harbour = island.buildings.find((b) => defs.get(b.type)?.shipyard) ?? island.buildings.find((b) => defs.get(b.type)?.trading_post);
   let near = { x: statics.width / 2, y: statics.height / 2 };
   if (harbour) {
     const def = defs.get(harbour.type);

@@ -1,12 +1,12 @@
 {
   "name": "chain_planks",
-  "description": "Warehouse, lumberjack (road distance 5) and sawmill (road distance 11) on one dirt road, advanced 10 minutes in steps.",
+  "description": "Trading Post, lumberjack (road distance 5) and sawmill (road distance 11) on one dirt road, advanced 10 minutes in steps.",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
     "rows": [
       "~~~~~~~~~~~~~~~~~~~~",
-      "~ccccffffffff......~",
+      "~~~~~ffffffff......~",
       "~....ffffffff......~",
       "~....ffffffff......~",
       "~..................~",
@@ -18,9 +18,9 @@
     ]
   },
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 1,
+      "y": 0,
       "rotation": 0
     },
     "gold": 201,

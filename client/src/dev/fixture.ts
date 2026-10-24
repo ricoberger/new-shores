@@ -292,16 +292,36 @@ type FixtureDef = [id: string, name: string, tier: string, category: string, wid
 const FIXTURE_DEFS: FixtureDef[] = [
   ["house_settlers", "Settler house", "settlers", "houses", 2, 2, { house: { tier: "settlers" } }],
   ["road_dirt", "Dirt road", "settlers", "roads", 1, 1, { road: { ms_per_tile: 500 } }],
-  ["warehouse", "Warehouse", "settlers", "harbour", 4, 3, { coastal: true, warehouse: { levels: [{ capacity: 300_000, throughput_per_min: 30_000 }, { capacity: 500_000, throughput_per_min: 55_000 }] } }],
+  [
+    "trading_post",
+    "Trading Post",
+    "settlers",
+    "harbour",
+    4,
+    4,
+    {
+      requires_road: false,
+      water_tiles: 2,
+      trading_post: {
+        levels: [
+          { capacity: 300_000, throughput_per_min: 30_000, berths: 1 },
+          { capacity: 500_000, throughput_per_min: 55_000, berths: 2 },
+          { capacity: 800_000, throughput_per_min: 80_000, berths: 3 },
+          { capacity: 1_200_000, throughput_per_min: 110_000, berths: 4 },
+        ],
+      },
+    },
+  ],
+  ["warehouse", "Warehouse", "settlers", "production", 2, 2, { requires_road: false, warehouse: { levels: [{ throughput_per_min: 30_000 }, { throughput_per_min: 55_000 }, { throughput_per_min: 80_000 }] } }],
   ["market_small", "Small market", "settlers", "public", 3, 3, { service: { radius: 10 } }],
   ["chapel", "Chapel", "settlers", "public", 2, 2, { service: { radius: 10 } }],
   ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { work_area: { radius: 4, terrain: ["forest"] } }],
   ["sawmill", "Sawmill", "settlers", "production", 2, 2],
-  ["fisher", "Fisher", "settlers", "production", 2, 2, { coastal: true }],
+  ["fisher", "Fisher", "settlers", "production", 2, 2, { water_tiles: 1 }],
   ["sheep_farm", "Sheep farm", "settlers", "production", 3, 3, { work_area: { radius: 4 }, fields: { type: "pasture", required: 4 } }],
   ["pasture", "Pasture", "settlers", "production", 1, 1, { requires_road: false, field: { type: "pasture", terrain: ["grass"] } }],
   ["weaver_wool", "Wool weaver", "settlers", "production", 2, 2],
-  ["shipyard", "Shipyard", "settlers", "harbour", 5, 4, { coastal: true, shipyard: {} }],
+  ["shipyard", "Shipyard", "settlers", "harbour", 5, 4, { water_tiles: 2, shipyard: {} }],
   ["house_citizens", "Citizen house", "citizens", "houses", 2, 2, { house: { tier: "citizens" } }],
   ["road_paved", "Paved road", "citizens", "roads", 1, 1, { road: { ms_per_tile: 350 } }],
   ["tavern", "Tavern", "citizens", "public", 3, 3, { service: { radius: 10 } }],
@@ -333,11 +353,12 @@ export function fixtureDefs(): { id: string; tier: string; category: string; wid
     width,
     height,
     coastal: false,
+    water_tiles: 0,
     requires_road: category !== "houses" && category !== "roads",
     cost: { gold: 50_000, materials: { planks: 2_000 } },
     upkeep_per_min: category === "houses" || category === "roads" ? 0 : 1_000,
     pause_category: category === "houses" ? "never" : "production",
-    ...(category === "production" && !("field" in extra) ? { recipe: { inputs: [], outputs: [{ good: "planks", amount: 1_000 }], cycle_ms: 20_000 } } : {}),
+    ...(category === "production" && !("field" in extra) && !("warehouse" in extra) ? { recipe: { inputs: [], outputs: [{ good: "planks", amount: 1_000 }], cycle_ms: 20_000 } } : {}),
     ...extra,
   }));
 }
@@ -405,9 +426,9 @@ function denseIsland(id: string, name: string, width: number, height: number, co
   };
   const upper = (p: { y: number }) => roadRows.includes(p.y - 1);
   // Warehouses and shipyards: the first upper-row slot from a target index on whose covered slots are free.
-  const big = new Map<number, "warehouse" | "shipyard">();
-  const targets: [number, "warehouse" | "shipyard"][] = [
-    [0, "warehouse"],
+  const big = new Map<number, "trading_post" | "warehouse" | "shipyard">();
+  const targets: [number, "trading_post" | "warehouse" | "shipyard"][] = [
+    [0, "trading_post"],
     [Math.floor(n / 3), "warehouse"],
     [Math.floor((2 * n) / 3), "warehouse"],
     [Math.max(0, n - 40), "warehouse"],
@@ -418,7 +439,7 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     for (let j = target; j < n; j++) {
       const p = chosen[j] as { x: number; y: number };
       if (!upper(p) || big.has(j) || taken.has(key(p.x, p.y))) continue;
-      if (claim(p.x, p.y, type === "warehouse" ? 4 : 6, 4)) {
+      if (claim(p.x, p.y, type === "warehouse" ? 2 : type === "trading_post" ? 4 : 6, type === "warehouse" ? 2 : 4)) {
         big.set(j, type);
         break;
       }
@@ -442,9 +463,12 @@ function denseIsland(id: string, name: string, width: number, height: number, co
       throughput_factor_permille: 1000,
     } as BuildingDisplay;
     if (kind) {
-      if (kind === "warehouse") {
+      if (kind === "trading_post") {
         lastWarehouse = bid;
-        buildings.push({ ...base, type: "warehouse", level: 1, capacity: 100_000 } as BuildingDisplay);
+        buildings.push({ ...base, type: "trading_post", level: 1, capacity: 100_000 } as BuildingDisplay);
+      } else if (kind === "warehouse") {
+        lastWarehouse = bid;
+        buildings.push({ ...base, type: "warehouse", level: 1 } as BuildingDisplay);
       } else buildings.push({ ...base, type: "shipyard" } as BuildingDisplay);
       bid++;
       return;
@@ -701,6 +725,8 @@ function showcaseTerrain(width: number, height: number): Terrain[] {
       let t: Terrain = edge === 0 ? "water" : edge === 1 ? "coast" : "grass";
       if (edge > 1 && y >= 20 && y <= 25 && x >= 3 && x <= 18) t = "forest";
       if (edge > 1 && y >= 21 && y <= 26 && x >= 30 && x <= 38) t = "mountain";
+      // The harbour bay along the south coast: the water rows of the Trading Posts, the fisher and the shipyard.
+      if (y >= height - 2 && x >= 2 && x <= 41) t = "water";
       out.push(t);
     }
   }
@@ -728,14 +754,17 @@ export function buildShowcaseFixture(nowMs: number): Built {
   for (let i = 0; i < 6; i++) placed.push(["house_citizens", 15 + 2 * i, 6, 0]);
   placed.push(["chapel", 27, 6, 0], ["market_small", 29, 5, 0], ["tavern", 32, 5, 0]);
   // South of the first road (fronts up, rotation 180): production.
-  ["lumberjack", "sawmill", "fisher", "weaver_wool", "mill", "bakery", "cidery", "weaver_linen", "sailmaker", "charcoal_burner", "toolmaker"].forEach((t, i) =>
+  ["lumberjack", "sawmill", "weaver_wool", "mill", "bakery", "cidery", "weaver_linen", "sailmaker", "charcoal_burner", "toolmaker"].forEach((t, i) =>
     placed.push([t, 3 + 2 * i, 9, 180, t === "sawmill" ? { paused: true, paused_reason: "player", status: "paused" } : {}]),
   );
   ["sheep_farm", "wheat_farm", "orchard", "hemp_farm"].forEach((t, i) => placed.push([t, 25 + 3 * i, 9, 180]));
   // North of the second road (fronts down): mining and smelting, the harbour buildings and the fields.
   placed.push(["quarry", 3, 14, 0], ["iron_mine", 6, 14, 0], ["smelter", 9, 14, 0]);
-  placed.push(["warehouse", 13, 14, 0, { level: 1 }], ["warehouse", 18, 14, 0, { level: 2 }]);
-  placed.push(["shipyard", 23, 13, 0, { ship_order: { type: "sloop", ordered_at: ts(nowMs - 60_000), due_at: ts(nowMs + 60_000) } }]);
+  placed.push(["warehouse", 13, 15, 0, { level: 1 }], ["warehouse", 16, 15, 0, { level: 2 }], ["warehouse", 19, 15, 0, { level: 3 }]);
+  // South of the second road (fronts up, rotation 180), their water rows on the bay: the Trading Post at every level, the fisher and the shipyard.
+  for (let level = 1; level <= 4; level++) placed.push(["trading_post", 2 + 5 * (level - 1), 28, 180, { level, capacity: [300_000, 500_000, 800_000, 1_200_000][level - 1] }]);
+  placed.push(["fisher", 22, 30, 180]);
+  placed.push(["shipyard", 25, 28, 180, { ship_order: { type: "sloop", ordered_at: ts(nowMs - 60_000), due_at: ts(nowMs + 60_000) } }]);
   ["pasture", "wheat_field", "orchard_plot", "hemp_field"].forEach((t, i) => {
     for (const [dx, dy] of [
       [0, 0],

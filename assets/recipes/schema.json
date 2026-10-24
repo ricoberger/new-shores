@@ -27,7 +27,8 @@
       "properties": {
         "1": { "$ref": "#/$defs/partList" },
         "2": { "$ref": "#/$defs/partList" },
-        "3": { "$ref": "#/$defs/partList" }
+        "3": { "$ref": "#/$defs/partList" },
+        "4": { "$ref": "#/$defs/partList" }
       }
     },
     "attachments": {
@@ -53,7 +54,7 @@
       "required": ["reason"],
       "additionalProperties": false,
       "properties": { "reason": { "type": "string", "minLength": 10 } },
-      "description": "Doubles the building budget; only warehouse, shipyard, chapel and market_small."
+      "description": "Doubles the building budget; only trading_post, warehouse, shipyard, chapel and market_small."
     },
     "anchors": {
       "type": "object",

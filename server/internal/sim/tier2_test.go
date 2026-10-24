@@ -19,7 +19,7 @@ func depositWorld(t *testing.T, c *content.Catalogue) *World {
 	t.Helper()
 	rows := []string{
 		"~~~~~~~~~~~~~~~~~~~~",
-		"~cccc.......mmmmmm.~",
+		"~~~~~.......mmmmmm.~",
 		"~....fffff..mSSmII.~",
 		"~....fffff..mSSmII.~",
 		"~...........mmmmmm.~",
@@ -45,7 +45,7 @@ func depositWorld(t *testing.T, c *content.Catalogue) *World {
 	}
 	w := NewWorld(t0)
 	w.Islands = []*Island{NewIsland("main", len(rows[0]), len(rows), tiles)}
-	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
 	w.Gold = 10_000_000
@@ -166,24 +166,25 @@ func TestUpgradeOnlyHouse(t *testing.T) {
 	placeFree(t, w, c, "house_citizens", 9, 5, 0)
 }
 
-// TestUpgradeWarehouse (R-13): cost, level, capacity and throughput,
-// errors leave the world unchanged, last level, demolish refund.
+// TestUpgradeWarehouse (R-13, D-051): cost, level, capacity and
+// throughput of a Trading Post upgrade, errors leave the world unchanged;
+// a Warehouse upgrade raises throughput only; the last level; the demolish
+// refund of an upgraded Warehouse.
 func TestUpgradeWarehouse(t *testing.T) {
 	c := catalogue(t)
 	w := depositWorld(t, c)
 	wh := int64(1)
 	cmd := UpgradeWarehouse{IslandID: "main", BuildingID: wh}
-	lvl2 := c.BuildingByID["warehouse"].Warehouse.Levels[1]
-	stoneCost := Qty(0)
-	planksCost := Qty(0)
-	for _, m := range lvl2.Cost.Materials {
-		switch m.Good {
-		case "stone":
-			stoneCost = m.Amount
-		case "planks":
-			planksCost = m.Amount
+	lvl2 := c.BuildingByID["trading_post"].TradingPost.Levels[1]
+	cost := func(cost *content.Cost, good string) Qty {
+		for _, m := range cost.Materials {
+			if m.Good == good {
+				return m.Amount
+			}
 		}
+		return 0
 	}
+	stoneCost, planksCost := cost(lvl2.Cost, "stone"), cost(lvl2.Cost, "planks")
 
 	expectApplyErr(t, w, c, UpgradeWarehouse{IslandID: "main", BuildingID: 99}, ErrBuildingNotFound)
 	expectApplyErr(t, w, c, UpgradeWarehouse{IslandID: "nowhere", BuildingID: wh}, ErrUnknownIsland)
@@ -208,35 +209,45 @@ func TestUpgradeWarehouse(t *testing.T) {
 		t.Fatalf("after upgrade: level %d gold %d stone %d planks %d", b.Level, w.Gold, w.Islands[0].Inventory.Stock["stone"], w.Islands[0].Inventory.Stock["planks"])
 	}
 	ds := display(t, w, c)
-	var whd BuildingDisplay
-	for _, bd := range ds.Islands[0].Buildings {
-		if bd.ID == wh {
-			whd = bd
-		}
-	}
+	whd := buildingDisplay(t, ds, wh)
 	if *whd.Level != 2 || *whd.Capacity != lvl2.Capacity || *whd.ThroughputPerMin != lvl2.ThroughputPerMin || ds.Islands[0].Inventory["planks"].Capacity != lvl2.Capacity {
 		t.Errorf("display: level %d capacity %d throughput %d inventory %+v", *whd.Level, *whd.Capacity, *whd.ThroughputPerMin, ds.Islands[0].Inventory["planks"])
 	}
 
-	// Last level reached.
-	expectApplyErr(t, w, c, cmd, ErrUpgradeUnavailable)
+	// A Warehouse: throughput only, never capacity; up to its last level.
+	whDef := c.BuildingByID["warehouse"]
+	inland := placeFree(t, w, c, "warehouse", 6, 7, 0)
+	capBefore := display(t, w, c).Islands[0].Inventory["planks"].Capacity
+	for lvl := 2; lvl <= len(whDef.Warehouse.Levels); lvl++ {
+		mustApply(t, w, c, UpgradeWarehouse{IslandID: "main", BuildingID: inland})
+	}
+	expectApplyErr(t, w, c, UpgradeWarehouse{IslandID: "main", BuildingID: inland}, ErrUpgradeUnavailable)
+	ds = display(t, w, c)
+	if d := buildingDisplay(t, ds, inland); d.Capacity != nil || *d.Level != len(whDef.Warehouse.Levels) || *d.ThroughputPerMin != whDef.Warehouse.Levels[len(whDef.Warehouse.Levels)-1].ThroughputPerMin {
+		t.Errorf("warehouse display = %+v", d)
+	}
+	if got := ds.Islands[0].Inventory["planks"].Capacity; got != capBefore {
+		t.Errorf("capacity %d -> %d: a warehouse must not add capacity", capBefore, got)
+	}
 
-	// Demolishing the upgraded warehouse (a second one keeps the island
-	// settled) refunds 50 % of the placement and the level materials, no
-	// gold (D-019).
-	placeFree(t, w, c, "warehouse", 1, 6, 0)
+	// Demolishing the upgraded Warehouse refunds 50 % of the placement and
+	// of every paid level, no gold (D-019).
 	l := NewLedger()
 	gold = w.Gold
 	planks = w.Islands[0].Inventory.Stock["planks"]
 	stone = w.Islands[0].Inventory.Stock["stone"]
-	if err := ApplyWithLedger(w, c, Demolish{IslandID: "main", BuildingID: wh}, l); err != nil {
+	if err := ApplyWithLedger(w, c, Demolish{IslandID: "main", BuildingID: inland}, l); err != nil {
 		t.Fatal(err)
 	}
-	wantPlanks := refundAmount(material(c.BuildingByID["warehouse"].Cost, "planks")) + refundAmount(planksCost)
-	if w.Gold != gold || w.Islands[0].Inventory.Stock["planks"] != planks+wantPlanks || w.Islands[0].Inventory.Stock["stone"] != stone+refundAmount(stoneCost) {
+	wantPlanks, wantStone := refundAmount(material(whDef.Cost, "planks")), Qty(0)
+	for lvl := 2; lvl <= len(whDef.Warehouse.Levels); lvl++ {
+		wantPlanks += refundAmount(cost(whDef.LevelCost(lvl), "planks"))
+		wantStone += refundAmount(cost(whDef.LevelCost(lvl), "stone"))
+	}
+	if w.Gold != gold || w.Islands[0].Inventory.Stock["planks"] != planks+wantPlanks || w.Islands[0].Inventory.Stock["stone"] != stone+wantStone {
 		t.Errorf("refund: gold %d->%d planks %d->%d stone %d->%d", gold, w.Gold, planks, w.Islands[0].Inventory.Stock["planks"], stone, w.Islands[0].Inventory.Stock["stone"])
 	}
-	if f := l.Flow("main", "stone"); f.Refunded != refundAmount(stoneCost)*SubPerMilli {
+	if f := l.Flow("main", "stone"); f.Refunded != wantStone*SubPerMilli {
 		t.Errorf("stone flow = %+v", f)
 	}
 }
@@ -265,7 +276,7 @@ func TestUpgradeWarehouseThroughput(t *testing.T) {
 	}
 	// load = R / T: the same running output over the level-2 instead of
 	// the level-1 throughput.
-	levels := c.BuildingByID["warehouse"].Warehouse.Levels
+	levels := c.BuildingByID["trading_post"].TradingPost.Levels
 	t1, t2 := levels[0].ThroughputPerMin, levels[1].ThroughputPerMin
 	if lb, la := load(before), load(after); lb <= 0 || la >= lb || la < lb*t1/t2-1 || la > lb*t1/t2+1 {
 		t.Errorf("load before %d after %d", lb, la)

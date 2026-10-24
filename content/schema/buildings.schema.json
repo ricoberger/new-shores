@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/ricoberger/new-shores/content/schema/buildings.schema.json",
   "title": "Buildings",
-  "description": "Buildings of a region (CONTENT §5, §9). Behaviour is attached through optional capability blocks: recipe, house, warehouse, road, service, shipyard, work_area, workforce, fields (a farm that needs explicit fields, D-049) and field (a 1x1 field placeable); requires_deposit ties a producer to a deposit tile.",
+  "description": "Buildings of a region (CONTENT §5, §9). Behaviour is attached through optional capability blocks: recipe, house, trading_post (the island's capacity, pier and first building, D-051), warehouse (an inland collector, D-051), road, service, shipyard, work_area, workforce, fields (a farm that needs explicit fields, D-049) and field (a 1x1 field placeable); requires_deposit ties a producer to a deposit tile; water_tiles makes a water-edge building (D-051).",
   "type": "array",
   "items": {
     "type": "object",
@@ -67,7 +67,36 @@
           "tier": { "$ref": "#/$defs/id" }
         }
       },
+      "water_tiles": {
+        "description": "Water-edge footprint (MECHANICS §2, D-051): the first n front rows (at rotation 0 the top rows, smallest y) must lie on water tiles, the remaining rows on buildable land. Less than the footprint height.",
+        "type": "integer",
+        "minimum": 1
+      },
+      "trading_post": {
+        "description": "The Trading Post (MECHANICS §5, D-051): one per island, placed only by founding; its level sets the island's capacity per good, a collector throughput and the berths of its pier.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["levels"],
+        "properties": {
+          "levels": {
+            "description": "Levels in order. The first level is placed with the building cost and has no cost; every later level is reached by an upgrade and requires its cost.",
+            "type": "array",
+            "minItems": 1,
+            "prefixItems": [
+              {
+                "$ref": "#/$defs/trading_post_level",
+                "not": { "required": ["cost"] }
+              }
+            ],
+            "items": {
+              "$ref": "#/$defs/trading_post_level",
+              "required": ["cost"]
+            }
+          }
+        }
+      },
       "warehouse": {
+        "description": "An inland collector (MECHANICS §5, D-051): adds throughput for the producers assigned to it, never capacity.",
         "type": "object",
         "additionalProperties": false,
         "required": ["levels"],
@@ -184,6 +213,9 @@
     },
     "allOf": [
       {
+        "not": { "required": ["trading_post", "warehouse"] }
+      },
+      {
         "if": { "required": ["fields"] },
         "then": {
           "required": ["work_area"],
@@ -215,7 +247,9 @@
             "anyOf": [
               { "required": ["recipe"] },
               { "required": ["house"] },
+              { "required": ["trading_post"] },
               { "required": ["warehouse"] },
+              { "required": ["water_tiles"] },
               { "required": ["road"] },
               { "required": ["service"] },
               { "required": ["shipyard"] },
@@ -232,12 +266,29 @@
   "$defs": {
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
     "terrain": { "enum": ["water", "coast", "grass", "forest", "mountain"] },
+    "trading_post_level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capacity", "throughput_per_min", "berths"],
+      "properties": {
+        "capacity": { "type": "number", "exclusiveMinimum": 0 },
+        "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 },
+        "berths": {
+          "description": "Ships that can load or unload at the pier at the same time (MECHANICS §9.3).",
+          "type": "integer",
+          "minimum": 1
+        },
+        "cost": {
+          "description": "Upgrade cost into this level (gold from the world, materials from the island).",
+          "$ref": "#/$defs/cost"
+        }
+      }
+    },
     "warehouse_level": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["capacity", "throughput_per_min"],
+      "required": ["throughput_per_min"],
       "properties": {
-        "capacity": { "type": "number", "exclusiveMinimum": 0 },
         "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 },
         "cost": {
           "description": "Upgrade cost into this level (gold from the world, materials from the island).",

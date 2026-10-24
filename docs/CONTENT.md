@@ -199,16 +199,17 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 |---|---|---|---|---|---|---|
 | `house_settlers` | 1 | 2×2 | 0 / 10 | 0 | — | R |
 | `road_dirt` | 1 | 1×1 | 0 | 0 | — | |
-| `warehouse` | 1 | 4×3 harbour slot | 200 / 20 | 0 | — | lvl 1: cap 300/good, T 30/min |
+| `trading_post` | 1 | 4×4, 2 water rows | 200 / 20 | 0 | — | founding only; lvl 1: cap 300/good, T 30/min, 1 berth |
+| `warehouse` | 1 | 2×2 inland | 100 / 10 | 0 | — | collector: lvl 1 T 30/min, no capacity |
 | `market_small` | 1 | 3×3 | 225 / 15 | 0 | — | R, radius 12 |
 | `chapel` | 1 | 2×2 | 275 / 15 | 0 | — | R, radius 16 |
 | `lumberjack` | 1 | 2×2 | 50 / 5 | 1 | 4 S | R, work radius 4 forest, 24 tiles |
 | `sawmill` | 1 | 2×2 | 80 / 8 | 2 | 4 S | R |
-| `fisher` | 1 | 2×2 harbour slot | 60 / 6 | 1 | 4 S | R |
+| `fisher` | 1 | 2×2, 1 water row | 60 / 6 | 1 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + fields | 50 / 10 | 1 | 4 S | R, work radius 4, 16 `pasture` fields, cycle 90 s |
 | `pasture` | 1 | 1×1 field | 0 | 0 | — | grass, inside an accepting farm's radius, never paused |
 | `weaver_wool` | 1 | 2×2 | 70 / 10 | 1 | 6 S | R, cycle 90 s |
-| `shipyard` | 1 | 5×4 harbour slot | 225 / 25 | 0 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
+| `shipyard` | 1 | 5×4, 2 water rows | 225 / 25 | 0 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
 | `house_citizens` | 2 | 2×2 | 150 / 15 / 10 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | 5 / – / 1 | 0 | — | |
 | `quarry` | 2 | 3×3 stone slot | 100 / 20 | 2 | 8 S | R |
@@ -238,10 +239,13 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 Tier 3–4 buildings: see the chain tables in §5 for inputs, outputs, cycles
 and workforce; costs and upkeep to be authored (cost ramp in §3).
 
-Warehouse levels (provisional): lvl 1 cap 300 / T 30; lvl 2 cap 500 / T 55
-(upgrade 300 gold / 20 planks / 10 stone); levels 3–4 below were authored
-for the old throughput scale and must be rebalanced with tier 3;
-lvl 3 cap 800 / T 130; lvl 4 cap 1 200 / T 180.
+Trading Post levels (provisional): lvl 1 cap 300 / T 30 / 1 berth; lvl 2
+cap 500 / T 55 / 2 berths (upgrade 300 gold / 20 planks / 10 stone); lvl 3
+cap 800 / T 80 / 3 berths (600 gold / 30 planks / 20 stone); lvl 4 cap
+1 200 / T 110 / 4 berths (1 200 gold / 40 planks / 30 stone / 10 tools).
+Warehouse levels (provisional, throughput only): lvl 1 T 30; lvl 2 T 55
+(150 gold / 10 planks / 5 stone); lvl 3 T 80 (300 gold / 15 planks /
+10 stone).
 
 ## 8. Ships
 
@@ -324,7 +328,8 @@ exponent notation; they are converted to fixed point at load time.
 | `optional_tax_bonus` | tax bonus at full optional-need fulfilment | §6.2 |
 | `auto_resume_upkeep_minutes` | gold reserve before an auto-paused building resumes; **strictly > 0** (0 is rejected: it removes the pause/resume hysteresis) | §7 |
 | `ship_speed_tiles_per_min` | archipelago tiles per minute at ship speed 1.0 (provisional 60) | §9.1 |
-| `ship_handling_seconds` | load/unload time per stop (provisional 20) | §9.2 |
+| `ship_handling_base_seconds` | fixed part of the berth time per stop (provisional 10) | §9.2 |
+| `ship_handling_seconds_per_unit` | berth time per unit unloaded or loaded (provisional 0.2) | §9.2 |
 | `away_summary_minutes` | minimum absence before a "while you were away" summary is produced (15) | §12b |
 | `trial_resume_upkeep_minutes` | gold reserve for a trial resume of an unpaid building; must be > `auto_resume_upkeep_minutes` (30) | §7 |
 
