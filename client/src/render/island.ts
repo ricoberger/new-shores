@@ -103,6 +103,16 @@ export class IslandDetail {
     this.root.setEnabled(false);
   }
 
+  /** Construction stages instead of the rise-in (the life layer; off with ?life=0). */
+  setStages(on: boolean): void {
+    this.buildings.stages = on;
+  }
+
+  /** Construction-stage instances drawn in the last frame (e2e). */
+  stageCounts(): Record<string, number> {
+    return this.buildings.stageCounts();
+  }
+
   /** Moves the node when the island's position changed. */
   setPosition(p: { x: number; y: number }): void {
     if (this.root.position.x === p.x && this.root.position.z === -p.y) return;

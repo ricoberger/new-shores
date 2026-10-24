@@ -394,7 +394,9 @@ export class GameRenderer {
 
   /** Life instances drawn per element class in the last frame (tests). */
   lifeCounts(): Record<string, number> {
-    return this.life.counts();
+    const out = this.life.counts();
+    for (const d of this.details.values()) for (const [k, n] of Object.entries(d.stageCounts())) out[k] = (out[k] ?? 0) + n;
+    return out;
   }
 
   /** Archipelago positions (tiles) of a life class's instances in the last frame (tests). */
@@ -659,6 +661,7 @@ export class GameRenderer {
       d = new IslandDetail(this.scene, is.id, is.position, this.models);
       d.setRotation(this.rig.view().rotation);
       d.setDetail(this.detail);
+      d.setStages(this.life.isEnabled());
       this.details.set(is.id, d);
     }
     d.setPosition(is.position);

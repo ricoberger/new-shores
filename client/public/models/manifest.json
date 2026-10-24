@@ -1086,6 +1086,134 @@
       "kind": "life",
       "kit_sources": []
     },
+    "life_stage": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.7591,
+          1.127,
+          0.6388
+        ],
+        "min": [
+          -0.5749,
+          -0.0068,
+          -0.6614
+        ]
+      },
+      "kind": "life",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/buildings/neutral/building_stage_A.gltf",
+            "Assets/gltf/buildings/neutral/building_stage_B.gltf",
+            "Assets/gltf/buildings/neutral/building_stage_C.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ],
+      "variants": [
+        {
+          "bounds": {
+            "max": [
+              0.651,
+              0.322,
+              0.6126
+            ],
+            "min": [
+              -0.5527,
+              -0.0068,
+              -0.3937
+            ]
+          },
+          "budget": 1500,
+          "bytes": 52264,
+          "path": "life_stage.v0.glb",
+          "sha256": "97314012db39e296902fc6b247fb2528bc63e841791b97c968841a9f3f4396bc",
+          "triangles": 784
+        },
+        {
+          "bounds": {
+            "max": [
+              0.6029,
+              0.7245,
+              0.6388
+            ],
+            "min": [
+              -0.5707,
+              -0.0068,
+              -0.6614
+            ]
+          },
+          "budget": 1500,
+          "bytes": 61060,
+          "path": "life_stage.v1.glb",
+          "sha256": "4c04a705da59915148e87dfe654ee4adac86b6b54e3f93cc6f4cf31298462f7a",
+          "triangles": 902
+        },
+        {
+          "bounds": {
+            "max": [
+              0.7591,
+              1.127,
+              0.6365
+            ],
+            "min": [
+              -0.5749,
+              -0.0068,
+              -0.6597
+            ]
+          },
+          "budget": 1500,
+          "bytes": 74300,
+          "path": "life_stage.v2.glb",
+          "sha256": "6ff8f39bd8b06a436260832e5e5ec98165a56e72ba07d89c167aec0aa84ec2b2",
+          "triangles": 1218
+        }
+      ]
+    },
+    "life_stage_scaffolding": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          1.1055,
+          1.4904,
+          1.1774
+        ],
+        "min": [
+          -1.0558,
+          -0.003,
+          -1.238
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.1055,
+            1.4904,
+            1.1774
+          ],
+          "min": [
+            -1.0558,
+            -0.003,
+            -1.238
+          ]
+        },
+        "budget": 1500,
+        "bytes": 102752,
+        "path": "life_stage_scaffolding.glb",
+        "sha256": "931adf4eae3e4a0cc2b6511722e3e32d65080ab9d24b000f724b2bbb110d445e",
+        "triangles": 1173
+      },
+      "kind": "life",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/buildings/neutral/building_scaffolding.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
     "life_villager_citizens": {
       "anchors": {},
       "bounds": {

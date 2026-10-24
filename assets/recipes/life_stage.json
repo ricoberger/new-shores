@@ -1,0 +1,12 @@
+{
+  "$schema": "./schema.json",
+  "id": "life_stage",
+  "kind": "life",
+  "notes": "Life layer: the three KayKit construction stages (A: foundation and posts, B: walls, C: roof frame) re-paletted, one tile wide; the client shows A → B → C over a newly placed building's visual build time, stretched to its footprint, before the building appears.",
+  "parts": [],
+  "variants": [
+    [{"name": "stage A", "kit": "kaykit_hexagon", "file": "Assets/gltf/buildings/neutral/building_stage_A.gltf", "scale": 0.5}],
+    [{"name": "stage B", "kit": "kaykit_hexagon", "file": "Assets/gltf/buildings/neutral/building_stage_B.gltf", "scale": 0.5}],
+    [{"name": "stage C", "kit": "kaykit_hexagon", "file": "Assets/gltf/buildings/neutral/building_stage_C.gltf", "scale": 0.5}]
+  ]
+}

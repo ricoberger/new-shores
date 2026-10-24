@@ -9,7 +9,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
-import { BuildingLayer, RISE_MS } from "./buildings";
+import { BuildingLayer, RISE_MS, VISUAL_BUILD_MS } from "./buildings";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./models";
 
 // The building layer headless (NullEngine) with the committed models: a
@@ -34,6 +34,7 @@ const defs = new Map<string, ContentBuilding>(
     ["house_settlers", 2, 2, "houses"],
     ["sawmill", 2, 2, "production"],
     ["temple", 2, 2, "public"],
+    ["market_small", 3, 3, "public"],
   ].map(([id, w, h, category]) => [id as string, { id, width: w, height: h, category } as unknown as ContentBuilding]),
 );
 
@@ -156,6 +157,53 @@ describe("BuildingLayer with models", () => {
     // Done: the building joined its chunk and the rising instances are gone.
     expect(scene.meshes.filter((m) => m.name.startsWith("rising_") && m.isVisible)).toHaveLength(0);
     expect(manifest.models.house_settlers).toBeDefined();
+    scene.dispose();
+  });
+
+  it("shows the construction stages A → B → C over the visual build time, scaffolding from 3×3, then merges", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const layer = new BuildingLayer(scene, null, reg);
+    layer.update([b(1, "house_settlers", 0)], defs);
+    await loaded(reg);
+    layer.refresh();
+    layer.update([b(1, "house_settlers", 0), b(2, "house_settlers", 4), b(3, "market_small", 8)], defs);
+    await loaded(reg);
+    layer.refresh();
+    // The first frame requests the stage models; once loaded the stages run from the building's start.
+    layer.frame(1000);
+    await loaded(reg);
+    layer.frame(1001);
+    expect(layer.stageCounts()).toEqual({ stage_a: 2, stage_scaffolding: 1 });
+    expect(scene.meshes.filter((m) => m.name.startsWith("rising_") && m.isVisible)).toHaveLength(0);
+    layer.frame(1000 + VISUAL_BUILD_MS / 2);
+    expect(layer.stageCounts()).toEqual({ stage_b: 2, stage_scaffolding: 1 });
+    layer.frame(1000 + VISUAL_BUILD_MS - 1);
+    expect(layer.stageCounts()).toEqual({ stage_c: 2, stage_scaffolding: 1 });
+    expect(layer.frame(1000 + VISUAL_BUILD_MS + 1)).toBe(true);
+    layer.frame(1000 + VISUAL_BUILD_MS + 2);
+    expect(layer.stageCounts()).toEqual({});
+    expect(layer.modelled().has(3)).toBe(true);
+    scene.dispose();
+  });
+
+  it("keeps the rise-in without the life layer (?life=0)", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const layer = new BuildingLayer(scene, null, reg);
+    layer.stages = false;
+    layer.update([b(1, "house_settlers", 0)], defs);
+    await loaded(reg);
+    layer.refresh();
+    layer.update([b(1, "house_settlers", 0), b(2, "house_settlers", 4)], defs);
+    await loaded(reg);
+    layer.refresh();
+    layer.frame(1000);
+    expect(layer.stageCounts()).toEqual({});
+    expect(scene.meshes.find((m) => m.name.startsWith("rising_") && m.isVisible)).toBeDefined();
+    expect(layer.frame(1000 + RISE_MS + 1)).toBe(true);
     scene.dispose();
   });
 
