@@ -132,7 +132,7 @@ function ClaimIsland({ model, content, questId, onClaim, onCancel }: ClaimIsland
             </div>
           );
         })}
-      <div className={`${styles.small} ${styles.warn}`}>Goods beyond the warehouse capacity are lost.</div>
+      <div className={`${styles.small} ${styles.warn}`}>Goods beyond the Trading Post capacity are lost.</div>
       <div className={styles.buttons}>
         <button type="button" className={styles.button} disabled={!island} onClick={() => onClaim(islandId)} data-testid="quest-claim-confirm">
           Claim

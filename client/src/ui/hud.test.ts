@@ -221,6 +221,7 @@ describe("HUD components", () => {
           onMove: noop,
           onUpgrade: noop,
           onUpgradeWarehouse: noop,
+        onUpgradeTradingPost: noop,
           onSelectBuilding: noop,
           onPlaceFields: noop,
           nowMs: 0,

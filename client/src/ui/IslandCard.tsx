@@ -1,5 +1,5 @@
 import type { Content, DisplayState, Island } from "../api/client";
-import { foundingShips, islandSummary, shipsAt } from "../display/archipelago";
+import { founderFor, islandSummary, shipsAt } from "../display/archipelago";
 import { units } from "../display/format";
 import { islandResources } from "../display/hud";
 import styles from "./hud.module.css";
@@ -14,7 +14,11 @@ interface Props {
   nowMs: number;
   /** "Go to island": the camera jumps to it. */
   onGoTo: () => void;
+  /** "Found settlement here" with the given ship (it sails there first unless it is idle here). */
   onFound: (shipId: number) => void;
+  /** The founding chained to this island (D-051): what it waits for; null when none. */
+  pendingFounding?: string | null;
+  onCancelFounding?: () => void;
   onNewRoute: () => void;
   onSelectShip: (shipId: number) => void;
   onClose: () => void;
@@ -24,14 +28,27 @@ interface Props {
  * Island card (UI.md §1/§6): a summary of the island from display numbers
  * and static data, and its actions.
  */
-export function IslandCard({ islandId, model, content, statics, nowMs, onGoTo, onFound, onNewRoute, onSelectShip, onClose }: Props) {
+export function IslandCard({
+  islandId,
+  model,
+  content,
+  statics,
+  nowMs,
+  onGoTo,
+  onFound,
+  pendingFounding = null,
+  onCancelFounding,
+  onNewRoute,
+  onSelectShip,
+  onClose,
+}: Props) {
   const is = model.islands.find((i) => i.id === islandId);
   if (!is) return null;
   const sum = islandSummary(is);
   const ships = shipsAt(model.ships, is.id, nowMs);
   const shipType = (type: string) => content.ships.find((t) => t.id === type)?.name ?? type;
-  // Idle ships here whose cargo covers the warehouse (a content lookup).
-  const founders = foundingShips(model, content, is.id);
+  // An idle ship whose cargo covers the Trading Post (a content lookup).
+  const founder = founderFor(model, content, is.id);
   const defs = new Map(content.buildings.map((b) => [b.id, b]));
   const resources = statics && statics.id === is.id ? islandResources(statics, is, defs) : null;
   return (
@@ -55,7 +72,7 @@ export function IslandCard({ islandId, model, content, statics, nowMs, onGoTo, o
             <td data-testid="island-card-population">{units(sum.population)}</td>
           </tr>
           <tr>
-            <td>Warehouse fill</td>
+            <td>Trading Post fill</td>
             <td data-testid="island-card-fill">{sum.fillPercent === null ? "—" : `${sum.fillPercent} %`}</td>
           </tr>
           <tr>
@@ -99,12 +116,29 @@ export function IslandCard({ islandId, model, content, statics, nowMs, onGoTo, o
             New route from here
           </button>
         )}
-        {founders.map((s) => (
-          <button key={s.id} type="button" className={styles.button} onClick={() => onFound(s.id)} data-testid={`island-card-found-${s.id}`}>
-            Found settlement with ship #{s.id}
+        {founder && !pendingFounding && (
+          <button type="button" className={styles.button} onClick={() => onFound(founder.id)} data-testid="island-card-found">
+            Found settlement here
           </button>
-        ))}
+        )}
       </div>
+      {founder && !pendingFounding && (
+        <div className={styles.small} data-testid="island-card-found-note">
+          {founder.island_id === is.id
+            ? `Ship #${founder.id} is here: place the Trading Post with its pier on the water.`
+            : `Ship #${founder.id} sails here with the Trading Post's materials and founds it where you place it.`}
+        </div>
+      )}
+      {pendingFounding && (
+        <div className={styles.small} data-testid="island-card-pending">
+          {pendingFounding}{" "}
+          {onCancelFounding && (
+            <button type="button" className={styles.link} onClick={onCancelFounding} data-testid="island-card-pending-cancel">
+              cancel
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

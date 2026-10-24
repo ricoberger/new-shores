@@ -1,4 +1,5 @@
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
+import { serverTimeMs } from "../display/extrapolate";
 import { units } from "../display/format";
 import { cargoTotals, countdown, legTiming } from "../display/ships";
 import styles from "./hud.module.css";
@@ -16,13 +17,23 @@ export const SHIP_STATES: Record<string, string> = {
   idle: "Idle",
   on_route: "On route",
   manual_leg: "Shipment",
+  waiting_for_berth: "Waiting for berth",
   anchored_unpaid: "Anchored (unpaid)",
   on_world_map: "World map",
 };
 
-/** Where a ship is or its countdown ("departs in" / "arrives in" from the leg timestamps). */
+/**
+ * Where a ship is or its countdown ("departs in" / "arrives in" from the
+ * leg timestamps; "unloading" until berth_until; "at sea" for the start
+ * ship before it sails).
+ */
 export function shipWhere(s: ShipDisplay, nowMs: number, islandName: (id: string) => string): string {
-  if (!s.leg) return `at ${islandName(s.island_id)}`;
+  if (!s.leg) {
+    if (!s.island_id) return s.position ? "at sea" : "";
+    if (s.state === "waiting_for_berth") return `waiting for a berth at ${islandName(s.island_id)}`;
+    if (s.berth_until) return `unloading at ${islandName(s.island_id)} (${countdown(Math.max(0, serverTimeMs(s.berth_until) - nowMs))})`;
+    return `at ${islandName(s.island_id)}`;
+  }
   const t = legTiming(s.leg, nowMs);
   return t.phase === "handling" ? `departs in ${countdown(t.departsInMs)}` : `arrives in ${countdown(t.arrivesInMs)}`;
 }

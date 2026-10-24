@@ -20,7 +20,7 @@
 // budgets of the continuous world, D-048).
 // ?fixture=showcase: one island with every building, field and ship model
 // of the asset manifest (tier 1–2 content IDs): houses of both tiers in
-// all variants, warehouse levels 1 and 2, a paused building, fields of
+// all variants, every Trading Post and Warehouse level, a paused building, fields of
 // all four types, an anchored_unpaid sloop and sloops with and without
 // cargo (the art gate's model showcase).
 //
@@ -174,7 +174,8 @@ export function buildArchipelagoFixture(nowMs: number): Built {
       route_id: 0,
       stop_index: 0,
       leg: null,
-      cargo: n % 2 === 0 ? [{ good: "planks", amount: 30_000 }] : [],
+      // Idle ships carry planks too: the one at an unsettled island can found it.
+      cargo: n % 2 === 0 || kind === 3 ? [{ good: "planks", amount: 30_000 }] : [],
       slots: 2,
       slot_size: 50_000,
       upkeep_per_min: 1000,
@@ -230,7 +231,8 @@ export function buildArchipelagoFixture(nowMs: number): Built {
     quests: [],
     tiers: [],
     goods: GOODS.map((g) => ({ id: g, name: g[0]?.toUpperCase() + g.slice(1) })),
-    buildings: [],
+    // The Trading Post's cost: the idle ships with planks can found an unsettled island.
+    buildings: fixtureDefs().filter((b) => b.id === "trading_post"),
     needs: [],
     ships: [{ id: "sloop", name: "Sloop", slots: 2, slot_size: 50_000 }],
   } as unknown as Content;
@@ -384,16 +386,22 @@ function denseContent(): Content {
 }
 
 const PRODUCERS = ["lumberjack", "sawmill", "fisher"];
-/** Every slot of a 64 × 50 dense island (448): ≈ 400 buildings once the warehouses and shipyards take theirs, plus 16 fields. */
-const DENSE_SLOTS = 1_000;
+/**
+ * 440 of the 448 slots of a 64 × 50 dense island: ≈ 410 buildings once
+ * the Trading Post and shipyards take theirs, plus 16 fields (the 2 × 2
+ * Warehouses take one slot each, so a few slots stay empty to keep the
+ * building count of the perf budget).
+ */
+const DENSE_SLOTS = 440;
 const BAD_STATUS: BuildingDisplay["status"][] = ["input_starved", "short_of_workers", "warehouse_full", "low_efficiency"];
 
 /**
  * A grid town: horizontal roads every 5 rows joined by a road column at
  * each side; buildings in two rows of 2 × 2 slots between the roads,
  * fronts toward their road (the upper row faces up, rotation 180; the
- * lower row down, rotation 0). Warehouses (4 × 3) and shipyards (5 × 4)
- * take several slots of the upper row and the one below. Warehouses
+ * lower row down, rotation 0). The Trading Post (4 × 4), Warehouses
+ * (2 × 2) and shipyards (5 × 4) take slots of the upper row (and the one
+ * below). Collectors
  * spread over the grid; producers deliver to the nearest one by slot
  * order and draw a cart each.
  */
@@ -750,9 +758,10 @@ function showcaseTerrain(width: number, height: number): Terrain[] {
  * ?fixture=showcase: every model of the manifest on one island along
  * three roads, fronts toward the roads: houses of both tiers (6 each, so
  * every variant appears), all production, public and harbour buildings,
- * the warehouse at level 1 and 2, a paused sawmill, a shipyard building a
+ * the Trading Post at levels 1–4 and Warehouses at 1–3 (the harbour ones on the south bay), a paused sawmill, a shipyard building a
  * sloop, 4 fields of each type, and three sloops at the berths (one with
- * cargo, one empty, one anchored_unpaid).
+ * cargo handling at the level-1 Trading Post's pier, one empty waiting for
+ * that berth, one anchored_unpaid).
  */
 export function buildShowcaseFixture(nowMs: number): Built {
   const width = 44;
@@ -775,7 +784,20 @@ export function buildShowcaseFixture(nowMs: number): Built {
   placed.push(["quarry", 3, 14, 0], ["iron_mine", 6, 14, 0], ["smelter", 9, 14, 0]);
   placed.push(["warehouse", 13, 15, 0, { level: 1 }], ["warehouse", 16, 15, 0, { level: 2 }], ["warehouse", 19, 15, 0, { level: 3 }]);
   // South of the second road (fronts up, rotation 180), their water rows on the bay: the Trading Post at every level, the fisher and the shipyard.
-  for (let level = 1; level <= 4; level++) placed.push(["trading_post", 2 + 5 * (level - 1), 28, 180, { level, capacity: [300_000, 500_000, 800_000, 1_200_000][level - 1] }]);
+  // The level-1 one is the island's: sloop 1 handles at its pier, sloop 2 waits for the berth.
+  for (let level = 1; level <= 4; level++) {
+    placed.push([
+      "trading_post",
+      2 + 5 * (level - 1),
+      28,
+      180,
+      {
+        level,
+        capacity: [300_000, 500_000, 800_000, 1_200_000][level - 1],
+        berths: level === 1 ? { total: 1, busy: 1, ships: [1], queue: [2] } : { total: level, busy: 0, ships: [], queue: [] },
+      },
+    ]);
+  }
   placed.push(["fisher", 22, 30, 180]);
   placed.push(["shipyard", 25, 28, 180, { ship_order: { type: "sloop", ordered_at: ts(nowMs - 60_000), due_at: ts(nowMs + 60_000) } }]);
   ["pasture", "wheat_field", "orchard_plot", "hemp_field"].forEach((t, i) => {
@@ -862,8 +884,8 @@ export function buildShowcaseFixture(nowMs: number): Built {
     ],
     islands: [island],
     ships: [
-      ship(1, { cargo: [{ good: "planks", amount: 20_000 }] }),
-      ship(2, {}),
+      ship(1, { state: "manual_leg", cargo: [{ good: "planks", amount: 20_000 }], berth_until: ts(nowMs + 600_000) }),
+      ship(2, { state: "waiting_for_berth", queued_at: ts(nowMs - 30_000) }),
       ship(3, { state: "anchored_unpaid", upkeep_per_min: 0, paused: true, paused_reason: "unpaid", cargo: [{ good: "fish", amount: 10_000 }] }),
     ],
     routes: [],

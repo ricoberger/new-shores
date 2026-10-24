@@ -221,3 +221,90 @@ The rules are in docs/DECISIONS.md D-051 and docs/MECHANICS.md §2, §5, §8,
   founding-only Trading Post, `upgrade_trading_post` vs
   `upgrade_warehouse`, `last_trading_post`, `terrain` for a water-edge land
   row on water).
+
+## Step 6 — client
+
+- **Founding is two-step in the client** (no new server command): "Found
+  settlement here" (island card, and the bottom panel of an unsettled
+  island) opens the Trading Post ghost on that island. Placing it with a
+  ship idle there sends `found_island` at once; otherwise the client sends
+  `sail_ship` and, when the ship is idle at the island, `found_island` with
+  the chosen site. The pending founding is shown (bottom panel, island
+  card, ship panel: "sails to found …, arrives in …", with cancel) and kept
+  in `localStorage` across reloads; it is dropped when the island got
+  settled, the ship is gone or heads elsewhere. If `found_island` fails on
+  arrival (the site no longer fits), the ghost reopens for a new site.
+- The ship offered is an idle ship whose cargo covers the Trading Post
+  (`founderFor`): one idle at the island first, else one at sea, else any.
+  The old per-ship buttons ("Found settlement with ship #N") became the one
+  "Found settlement here".
+- Start at sea: with nothing settled the camera opens on the start ship at
+  sea (half extent 48 tiles, both dev islands in view); the bottom panel
+  says "Choose your home island" and explains the card; the HUD's quest
+  `intro_home_island` is the first quest. Picking a destination for a ship
+  at sea with "Send to…" sends `sail_ship` (there is no island stock to
+  load from) instead of opening the shipment dialog; "Send…" is hidden for
+  a ship at sea.
+- Trading Post panel: level of 4, capacity, throughput and load, berths
+  busy/free, the ships at the pier, the queue, the producers it collects
+  for, the upgrade (`upgrade_trading_post`) and the island inventory.
+  Warehouse panel: level of 3, throughput and load, the producers it
+  collects for (links), the upgrade (`upgrade_warehouse`). A producer's
+  info row "Warehouse" became "Delivers to" (Trading Post or Warehouse).
+- Ships: state "Waiting for berth" in the list and panel (since when);
+  "unloading at …" with a countdown for a ship holding a berth after a
+  manual leg; "at sea". Ships lie at berths beside the Trading Post's pier
+  (water next to the coast nearest its water rows, never on a pier or
+  slipway tile); before, the nearest coast to a shipyard came first. The
+  far-LOD and island tooltips say "Trading Post" for the island fill.
+- Water-edge ghost: the ghost of a fisher, shipyard or Trading Post draws
+  its water rows as a foam-coloured strip and turns red with a reason
+  ("Its N front rows must stand on the water — rotate it (R) to face the
+  sea" / "Only its front rows may stand on the water") from the static
+  terrain — a lookup for the colour and text; the server decides. The
+  found tool's ghost is never yellow (founding needs no road).
+- Build menu: the Trading Post is not listed (founding only); the
+  Warehouse sits under Production (server-derived category), shipyard
+  under Harbour.
+- Fixtures: client `showcase` has the level-1 Trading Post's berth busy
+  with sloop 1 unloading and sloop 2 waiting (the berth-queue E2E and the
+  panel screenshot use it); `dense-2x400` uses 440 of 448 slots (2×2
+  Warehouses take one slot where the 4×3 warehouse took four, which would
+  have pushed the dense island above the perf spec's 420-building cap);
+  `archipelago-8x20` gives its idle ships planks and its content the
+  Trading Post so the found tool works there. Server `seafaring` fixture
+  is the E2E start state.
+- E2E: new `seafaring.spec.ts` (chromium project): the start-at-sea flow
+  through the UI (camera on the ship, hint, island card, water-edge ghost
+  red on land and its pier rows, `sail_ship` + pending founding, arrival
+  founds the island, home-island quest claimable) and the berth queue on
+  the showcase fixture (ships list, ship panel, Trading Post panel). The
+  water-edge ghost is checked there too. Smoke/voyage/archipelago/theme
+  specs follow the new content (gold falls by the start sloop's upkeep, the
+  built sloop is ship 2, shipyard rotation 180, Trading Post panel ids).
+- Visual baselines (darwin) re-recorded in a separate final commit.
+- Known limitation (not fixed, pre-existing convention): legs are straight
+  lines between berth anchors, so a leg into a bay on the far side of an
+  island crosses it and the ship is hidden under the terrain for part of
+  the voyage (visible in the start flow: the start sloop south of the
+  start island sails to the north bay). Path-finding around islands is
+  out of scope.
+- A ship idle at an unsettled island keeps "Send…" (a manual shipment of
+  its cargo from there, unchanged behaviour); only a ship at sea has no
+  "Send…".
+
+## Verification (final)
+
+- `make check`: passed. `make server-integration`: passed.
+- Full Playwright run (all projects, `npx playwright test`): 70 passed,
+  13 skipped (the existing conditional skips: TTFI and Lighthouse opt-in,
+  WebKit-only skips of touch.spec), 0 failed, 21 min.
+- Bundle (vite build, main b189b9f → this branch): main chunk
+  `index-*.js` 1 598.69 kB → 1 608.05 kB (+9.4 kB; gzip 428.10 → 430.61
+  kB, +2.5 kB); all JS 3 449 274 → 3 458 637 B (gzip 854 956 → 859 967 B);
+  models in `dist/models` 87 → 97 files, 7.2 → 8.7 MB (Trading Post levels
+  1–4, Warehouse level 3 and the jetty/slipway variants, each with a lite
+  model).
+- Screenshots (1280×800 and Pixel 5 412×915) and the contact sheets of the
+  new recipes are in `.experiment/settling/` (gitignored), made by
+  `.experiment/settling/shots.spec.ts`.

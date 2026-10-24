@@ -51,6 +51,8 @@ export function lockReason(model: DisplayState | null, content: Content, tierId:
  * them with upgrade_only), so they are not listed.
  */
 export function listedInBuildMenu(b: ContentBuilding, content: Content): boolean {
+  // The Trading Post is placed only by founding from a ship (D-051).
+  if (b.trading_post) return false;
   const first = content.tiers.find((t) => t.index === 0)?.id;
   return !b.house || b.house.tier === first;
 }
@@ -72,6 +74,12 @@ export function missingFertilityText(fertility: string, fertilities: readonly st
 }
 
 /** "Must cover a stone deposit" / "Must cover an iron deposit" (the article follows the deposit's name). */
+/** Ghost hint text of a water-edge site that does not fit (D-051): its front rows on land, or its back rows on water. */
+export function waterEdgeText(problem: "front" | "land", waterTiles: number): string {
+  const rows = waterTiles === 1 ? "front row" : `${waterTiles} front rows`;
+  return problem === "front" ? `Its ${rows} must stand on the water — rotate it (R) to face the sea` : "Only its front rows may stand on the water";
+}
+
 export function depositText(kind: string): string {
   return `Must cover ${/^[aeiou]/i.test(kind) ? "an" : "a"} ${kind} deposit`;
 }

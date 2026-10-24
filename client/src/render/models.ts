@@ -105,7 +105,7 @@ export function variantIndex(buildingId: number, n: number): number {
   return n > 0 ? stableHash(buildingId) % n : 0;
 }
 
-/** The model file of a building (variant by ID, warehouse level from the payload; above the highest available → highest). */
+/** The model file of a building (variant by ID, Trading Post or Warehouse level from the payload; above the highest available → highest). */
 export function modelFileFor(entry: ModelEntry, b: Pick<BuildingDisplay, "id" | "level">): ModelFile | undefined {
   if (entry.variants && entry.variants.length > 0) return entry.variants[variantIndex(b.id, entry.variants.length)];
   if (entry.levels) {

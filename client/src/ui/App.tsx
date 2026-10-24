@@ -11,7 +11,10 @@ import {
   type WorldResponse,
 } from "../api/client";
 import { GameSync, type SyncError, SyncStoppedError } from "../api/sync";
+import { founderFor, type PendingFounding, pendingFoundingStep } from "../display/archipelago";
+import { serverTimeMs } from "../display/extrapolate";
 import { units } from "../display/format";
+import { countdown } from "../display/ships";
 import { classifyFieldTiles, fieldTilesToSend, rectTiles } from "../display/fields";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
@@ -105,6 +108,10 @@ export interface TestHook {
   ghostKind(): "model" | "box" | null;
   /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
   ghostValidity(): "ok" | "no_road" | "invalid" | null;
+  /** Water rows (island tiles) the ghost of a water-edge building marked in the last frame (null: none, D-051). */
+  ghostWaterRows(): { x: number; y: number; w: number; h: number } | null;
+  /** Ship the camera looks at on load when no island is settled yet (null: an island). */
+  startShip(): number | null;
   /** Rectangle the field tool's preview showed in the last frame (null: none). */
   fieldPreview(): { from: { x: number; y: number }; to: { x: number; y: number } } | null;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
@@ -176,6 +183,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // id does not re-open the dialog, a new id does.
   const [closedSummaries, setClosedSummaries] = useState<ReadonlySet<number>>(() => new Set());
   const [ghostHint, setGhostHint] = useState<string | null>(null);
+  // A founding the client chains (D-051): sail_ship was sent, found_island
+  // follows when the ship is idle at the island. Kept across reloads.
+  const [storedPendingFound, setPendingFoundState] = useState<PendingFounding | null>(() => loadPendingFounding());
+  const setPendingFound = useCallback((p: PendingFounding | null) => {
+    setPendingFoundState(p);
+    savePendingFounding(p);
+  }, []);
   // The last pointer was a finger (pointerType per gesture, never the
   // device): touch gets the placement confirm step and the demolish bar.
   const [touchInput, setTouchInput] = useState(false);
@@ -208,6 +222,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // menu shows its stock and an unsettled one shows the founding panel.
   // Commands use the island of the tile or building acted on.
   const focused = model?.islands.find((is) => is.id === cam.focus) ?? model?.islands[0];
+  // The chained founding while it is still valid (dropped once the ship
+  // went elsewhere or the island got settled).
+  const pendingFound = storedPendingFound && model && pendingFoundingStep(storedPendingFound, model) !== "drop" ? storedPendingFound : null;
   const focusId = focused?.id ?? "";
   const staticFocused = snap.islands.get(focusId);
   const defs = new Map((content?.buildings ?? []).map((b) => [b.id, b]));
@@ -247,7 +264,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     if (err?.code === "surplus_loss") {
       setConfirm({
         title: "Goods would be lost",
-        body: `${err.message}. The remaining warehouses cannot hold all goods; the excess will be lost.`,
+        body: `${err.message}. Without the Trading Post the island cannot hold its goods; the excess will be lost.`,
         confirmLabel: "Demolish and lose goods",
         onConfirm: () => void demolish(islandId, b, true),
       });
@@ -276,9 +293,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   /** The camera jumps to an island (tabs, island card, Enter). */
   const goTo = (id: string) => rendererRef.current?.jumpToIsland(id);
 
-  /** Founding: the camera jumps to the ship's island with the warehouse ghost. */
-  const startFounding = (ship: ShipDisplay) => {
-    goTo(ship.island_id);
+  /**
+   * Founding (D-051): the camera jumps to the island with the Trading Post
+   * ghost; the player places it. A ship already idle there founds at once,
+   * any other sails there first (sail_ship) and founds on arrival.
+   */
+  const startFounding = (ship: ShipDisplay, islandId: string = ship.island_id) => {
+    goTo(islandId);
     dispatch({ type: "clearSelection" });
     setPanel("none");
     setTool({ kind: "found", shipId: ship.id, buildingType: warehouseType, rotation: 0 });
@@ -335,6 +356,19 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
    */
   const placeGhost = (t: GhostTool, at: IslandTile) => {
     const { island: islandId, x, y } = at;
+    if (t.kind === "found") {
+      const ship = model?.ships.find((s) => s.id === t.shipId);
+      if (ship && !(ship.state === "idle" && ship.island_id === islandId)) {
+        // Two steps: sail now, found when the ship is idle at the island.
+        void sendCommand({ type: "sail_ship", ship_id: t.shipId, to_island_id: islandId }).then(({ ok }) => {
+          if (!ok) return;
+          setPendingFound({ shipId: t.shipId, islandId, x, y, rotation: t.rotation });
+          setTool((cur) => (cur === t ? NO_TOOL : cur));
+          toast(`Ship #${t.shipId} sails to ${islandName(islandId)} and founds the Trading Post on arrival`);
+        });
+        return;
+      }
+    }
     const cmd: Command =
       t.kind === "build"
         ? { type: "place_building", island_id: islandId, building_type: t.buildingType, x, y, rotation: t.rotation }
@@ -470,6 +504,41 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     );
   };
 
+  // The chained founding (D-051): found_island as soon as the ship is idle
+  // at the island; dropped when it went elsewhere or the island got settled.
+  const foundingSent = useRef(false);
+  useEffect(() => {
+    if (storedPendingFound && model && !pendingFound) savePendingFounding(null);
+    if (!pendingFound || !model) return;
+    const step = pendingFoundingStep(pendingFound, model);
+    if (step !== "found" || foundingSent.current) return;
+    foundingSent.current = true;
+    const p = pendingFound;
+    void sendCommand({ type: "found_island", ship_id: p.shipId, island_id: p.islandId, building_type: warehouseType, x: p.x, y: p.y, rotation: p.rotation as 0 | 90 | 180 | 270 }).then(
+      ({ ok }) => {
+        foundingSent.current = false;
+        setPendingFound(null);
+        if (!ok) {
+          // The site did not fit after all: the player picks another one.
+          const s = sync.getSnapshot().model?.ships.find((x) => x.id === p.shipId);
+          if (s) startFounding(s, p.islandId);
+        }
+      },
+    );
+  });
+
+  // A ship at sea has no island stock to load from: picking a destination
+  // for it sails it there with its cargo (sail_ship) instead of opening the
+  // shipment dialog.
+  const seaDialog = vs.dialog && !vs.dialog.to ? null : vs.dialog;
+  useEffect(() => {
+    if (!seaDialog?.to) return;
+    const s = model?.ships.find((x) => x.id === seaDialog.shipId);
+    if (!s || s.island_id !== "") return;
+    dispatch({ type: "closeShipment" });
+    void send({ type: "sail_ship", ship_id: s.id, to_island_id: seaDialog.to });
+  });
+
   // Background request failures (GET world, content, island) are toasts too
   // (G.41); GameSync keeps retrying them.
   useEffect(
@@ -572,6 +641,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         ghostKind: () => rendererRef.current?.ghostKind() ?? null,
         jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
+        ghostWaterRows: () => rendererRef.current?.ghostWaterRows() ?? null,
+        startShip: () => rendererRef.current?.startShip() ?? null,
         fieldPreview: () => rendererRef.current?.fieldPreview() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
         gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
@@ -613,8 +684,16 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     dispatch({ type: "selectShip", id: ship.id });
   };
 
-  const idleShipsHere = model?.ships.filter((s) => s.state === "idle" && s.island_id === focusId) ?? [];
   const islandName = (id: string) => model?.islands.find((is) => is.id === id)?.name || id;
+  const founderHere = model && content && focused && !focused.settled ? founderFor(model, content, focused.id) : null;
+  const nothingSettled = model ? !model.islands.some((is) => is.settled) : false;
+  const pendingShip = pendingFound ? model?.ships.find((s) => s.id === pendingFound.shipId) : undefined;
+  const pendingText =
+    pendingFound && pendingShip
+      ? `Ship #${pendingShip.id} sails to ${islandName(pendingFound.islandId)} to found the Trading Post${
+          pendingShip.leg ? ` · arrives in ${countdown(Math.max(0, serverTimeMs(pendingShip.leg.arrive_at) - snap.nowMs))}` : ""
+        }`
+      : null;
   const awaySummary = model?.away_summary;
   const dismissSummary = (id: number) => {
     setClosedSummaries((s) => new Set(s).add(id));
@@ -694,6 +773,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           model={model}
           content={content}
           nowMs={snap.nowMs}
+          pendingFounding={pendingFound && pendingFound.shipId === ship.id ? islandName(pendingFound.islandId) : null}
           onAssignToRoute={() => openEditor(null, ship.id)}
           onUnassign={() => void send({ type: "unassign_ship", ship_id: ship.id })}
           onSend={() => dispatch({ type: "openShipment", shipId: ship.id, to: null })}
@@ -718,8 +798,10 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onGoTo={() => goTo(id)}
           onFound={(shipId) => {
             const s = model.ships.find((x) => x.id === shipId);
-            if (s) startFounding(s);
+            if (s) startFounding(s, id);
           }}
+          pendingFounding={pendingFound && pendingFound.islandId === id ? pendingText : null}
+          onCancelFounding={() => setPendingFound(null)}
           onNewRoute={() => openEditor(null, null, id)}
           onSelectShip={(shipId) => dispatch({ type: "selectShip", id: shipId })}
           onClose={() => dispatch({ type: "clearSelection" })}
@@ -749,6 +831,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           }
           onUpgrade={() => void send({ type: "upgrade_house", island_id: islandId, building_id: selectedBuilding.id })}
           onUpgradeWarehouse={() => void send({ type: "upgrade_warehouse", island_id: islandId, building_id: selectedBuilding.id })}
+          onUpgradeTradingPost={() => void send({ type: "upgrade_trading_post", island_id: islandId, building_id: selectedBuilding.id })}
           onSelectBuilding={focus}
           onPlaceFields={(fieldType) => setTool({ kind: "field", fieldType })}
           nowMs={snap.nowMs}
@@ -836,11 +919,16 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     <div className={phone ? styles.hintInline : styles.hint} data-testid="tool-hint">
       {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
       {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
-      {tool.kind === "found" && `Click to place the warehouse from ship #${tool.shipId} (${tool.rotation}°) · R rotate · Esc cancel`}
+      {tool.kind === "found" &&
+        `Click to place the Trading Post (its pier on the water) — ship #${tool.shipId} ${
+          model?.ships.find((s) => s.id === tool.shipId)?.state === "idle" && model?.ships.find((s) => s.id === tool.shipId)?.island_id === cam.focus
+            ? "founds it at once"
+            : "sails there and founds it on arrival"
+        } (${tool.rotation}°) · R rotate · Esc cancel`}
       {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
       {tool.kind === "field" && `Click a tile or drag a rectangle to place ${fieldPlural} · Esc / right click cancel`}
       {tool.kind === "demolish" && "Click a building, field or road to demolish · Esc / right click cancel"}
-      {ghostHint && (tool.kind === "build" || tool.kind === "move" || tool.kind === "field") && (
+      {ghostHint && (tool.kind === "build" || tool.kind === "move" || tool.kind === "found" || tool.kind === "field") && (
         <div className={styles.hintReason} data-testid="tool-hint-reason">
           {ghostHint}
         </div>
@@ -916,16 +1004,34 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         {rightSlot}
         <div className={styles.bottom}>
           {focused && !focused.settled ? (
-            <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid="unsettled-panel">
+            <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid={nothingSettled ? "seafaring-panel" : "unsettled-panel"}>
+              {nothingSettled && (
+                <div data-testid="seafaring-hint">
+                  <strong>Choose your home island.</strong> Your sloop carries the planks and sails; look at the islands&apos;
+                  fertilities and deposits (tap one for its card) and found a Trading Post where you want to start.
+                </div>
+              )}
               <div>
-                <strong>{focused.name || focused.id}</strong> is not settled. Send a ship with the warehouse materials
-                and found a settlement.
+                <strong>{focused.name || focused.id}</strong> is not settled.{" "}
+                {founderHere
+                  ? `"Found settlement here" lets you place the Trading Post with its pier on the water; ship #${founderHere.id} ${
+                      founderHere.island_id === focused.id ? "is here" : "sails there first"
+                    }.`
+                  : "Send a ship with the Trading Post's materials to found a settlement."}
               </div>
-              {idleShipsHere.map((s) => (
-                <button key={s.id} type="button" className={hud.button} onClick={() => startFounding(s)} data-testid={`found-settlement-${s.id}`}>
-                  Found settlement with ship #{s.id}
+              {pendingText && (
+                <div className={hud.small} data-testid="pending-founding">
+                  {pendingText}{" "}
+                  <button type="button" className={hud.link} onClick={() => setPendingFound(null)} data-testid="pending-founding-cancel">
+                    cancel
+                  </button>
+                </div>
+              )}
+              {founderHere && !pendingText && (
+                <button type="button" className={hud.button} onClick={() => startFounding(founderHere, focused.id)} data-testid="found-settlement-here">
+                  Found settlement here
                 </button>
-              ))}
+              )}
             </div>
           ) : (
             <BuildMenu
@@ -955,7 +1061,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       {awaySummary && content && shouldShowSummary(awaySummary, closedSummaries) && (
         <AwayDialog summary={awaySummary} content={content} islandName={islandName} onDismiss={() => dismissSummary(awaySummary.id)} />
       )}
-      {vs.dialog && dialogShip && model && content && (
+      {vs.dialog && dialogShip && model && content && dialogShip.island_id !== "" && (
         <ShipmentDialog
           key={`${dialogShip.id}-${vs.dialog.to ?? ""}`}
           ship={dialogShip}
@@ -968,4 +1074,30 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       )}
     </div>
   );
+}
+
+const PENDING_FOUNDING_KEY = "newShores.pendingFounding";
+
+/** The chained founding saved in this browser (a hint only: the next payload validates it). */
+function loadPendingFounding(): PendingFounding | null {
+  try {
+    const raw = globalThis.localStorage?.getItem(PENDING_FOUNDING_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as Partial<PendingFounding>;
+    if (typeof p.shipId !== "number" || typeof p.islandId !== "string" || typeof p.x !== "number" || typeof p.y !== "number" || typeof p.rotation !== "number") {
+      return null;
+    }
+    return { shipId: p.shipId, islandId: p.islandId, x: p.x, y: p.y, rotation: p.rotation };
+  } catch {
+    return null;
+  }
+}
+
+function savePendingFounding(p: PendingFounding | null): void {
+  try {
+    if (p) globalThis.localStorage?.setItem(PENDING_FOUNDING_KEY, JSON.stringify(p));
+    else globalThis.localStorage?.removeItem(PENDING_FOUNDING_KEY);
+  } catch {
+    // Storage unavailable (private mode): the pending founding lives in memory only.
+  }
 }

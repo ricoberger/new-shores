@@ -19,11 +19,11 @@ import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRota
 import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "../display/fields";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
-import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey } from "../display/geometry";
+import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import { type Quality, softwareRenderer } from "../display/quality";
-import type { ArchPoint } from "../display/ships";
-import { depositText, fertilityNeed, missingFertilityText } from "../display/tiers";
+import { type ArchPoint, seaPoint } from "../display/ships";
+import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
 import { ArchipelagoLayer, type ArchSelection } from "./archipelago";
@@ -56,6 +56,9 @@ const LABEL_Y = 0.4;
 
 /** Where the camera starts: an island (default: the first) at the near default zoom, or the whole archipelago. */
 export type InitialCamera = { kind: "island"; id?: string } | { kind: "fit" };
+
+/** Half extent (tiles) of the camera opening on the start ship at sea: the islands around it in view. */
+export const SEA_START_HALF_HEIGHT = 48;
 
 /** What the HUD needs to know about the camera. */
 export interface CameraInfo {
@@ -684,15 +687,33 @@ export class GameRenderer {
     this.applySelection();
   }
 
+  /** Ship the camera opened on (the start at sea), null when it opened on an island. */
+  private startShipId: number | null = null;
+
+  startShip(): number | null {
+    return this.startShipId;
+  }
+
   private placeInitialCamera(): void {
     const ic = this.initialCamera;
     if (ic.kind === "fit") {
       const b = this.arch.bounds();
       if (b) this.rig.setCamera({ x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2, half: this.rig.zoomRange().max });
     } else {
-      const islands = this.sync.getSnapshot().server?.display.islands ?? [];
-      const is = islands.find((x) => x.id === ic.id) ?? islands[0];
-      if (is) this.rig.setCamera({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2, half: NEAR_DEFAULT_HALF_HEIGHT });
+      const d = this.sync.getSnapshot().server?.display;
+      const islands = d?.islands ?? [];
+      // The start at sea (D-051): nothing settled yet and a ship at sea —
+      // the camera opens on the ship, zoomed out so the islands around it
+      // are in view for the choice of the home island.
+      const sea = ic.id === undefined && !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
+      const is = islands.find((x) => x.id === ic.id) ?? islands.find((x) => x.settled) ?? islands[0];
+      this.startShipId = sea?.position ? sea.id : null;
+      if (sea?.position) {
+        const p = seaPoint(sea.position);
+        this.rig.setCamera({ x: p.x, y: p.y, half: Math.min(this.rig.zoomRange().max, SEA_START_HALF_HEIGHT) });
+      } else if (is) {
+        this.rig.setCamera({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2, half: NEAR_DEFAULT_HALF_HEIGHT });
+      }
     }
     this.lod = initialLod(this.rig.view().half);
   }
@@ -821,7 +842,7 @@ export class GameRenderer {
     return this.detail;
   }
 
-  /** Warehouses and shipyards drawn on the islands in view at far LOD. */
+  /** Trading Posts and shipyards drawn on the islands in view at far LOD. */
   landmarkCount(): number {
     let n = 0;
     for (const d of this.details.values()) n += d.landmarks();
@@ -925,6 +946,11 @@ export class GameRenderer {
   /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
   ghostValidity(): "ok" | "no_road" | "invalid" | null {
     return this.ghostValid;
+  }
+
+  /** Water rows the placement ghost highlighted in the last frame (island tiles; null: none or hidden). */
+  ghostWaterRows(): { x: number; y: number; w: number; h: number } | null {
+    return this.ghost.waterRows();
   }
 
   /** Tile the placement ghost was drawn on in the last frame (local to its island; null: hidden). */
@@ -1313,12 +1339,27 @@ export class GameRenderer {
       hint = missingFertilityText(fertility.fertility, fertilities);
     } else if (missingDepositHint(def, l?.deposits ?? new Map(), t.x, t.y, tool.rotation)) {
       hint = depositText(def.requires_deposit ?? "");
+    } else if (l?.statics && def.water_tiles) {
+      const st = l.statics;
+      const terrain = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height ? "water" : (st.terrain[ty * st.width + tx] ?? "water"));
+      const edge = waterEdgeHint(def, terrain, t.x, t.y, tool.rotation);
+      if (edge) hint = waterEdgeText(edge, def.water_tiles);
     }
-    this.ghostValid = hint ? "invalid" : missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation) ? "no_road" : "ok";
+    // Founding needs no road (the island has none yet).
+    const noRoad = tool.kind !== "found" && missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation);
+    this.ghostValid = hint ? "invalid" : noRoad ? "no_road" : "ok";
     const color = this.ghostValid === "invalid" ? GHOST_INVALID : this.ghostValid === "no_road" ? GHOST_NO_ROAD : GHOST;
     const moved = tool.kind === "move" ? this.findBuilding(tool.buildingId)?.b : undefined;
     this.ghost.show(
-      { def, island: pl.position, x: t.x, y: t.y, rotation: tool.rotation, ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}) },
+      {
+        def,
+        island: pl.position,
+        x: t.x,
+        y: t.y,
+        rotation: tool.rotation,
+        waterRows: waterRows(def, t.x, t.y, tool.rotation),
+        ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}),
+      },
       color,
     );
     this.setGhostHint(hint);

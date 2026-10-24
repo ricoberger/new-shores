@@ -13,6 +13,8 @@ interface Props {
   onSend: () => void;
   onSendTo: () => void;
   onFound: () => void;
+  /** The island this ship sails to found (a founding chained by the client, D-051); null when none. */
+  pendingFounding?: string | null;
   onScrap: () => void;
   onClose: () => void;
 }
@@ -22,7 +24,20 @@ interface Props {
  * live countdown, route and upkeep. Actions are offered only in the states
  * the server accepts them; the server validates.
  */
-export function ShipPanel({ ship: s, model, content, nowMs, onAssignToRoute, onUnassign, onSend, onSendTo, onFound, onScrap, onClose }: Props) {
+export function ShipPanel({
+  ship: s,
+  model,
+  content,
+  nowMs,
+  onAssignToRoute,
+  onUnassign,
+  onSend,
+  onSendTo,
+  onFound,
+  pendingFounding = null,
+  onScrap,
+  onClose,
+}: Props) {
   const islandName = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
   const type = content.ships.find((t) => t.id === s.type)?.name ?? s.type;
@@ -52,6 +67,16 @@ export function ShipPanel({ ship: s, model, content, nowMs, onAssignToRoute, onU
         )}
         <span data-testid="ship-panel-eta">{shipWhere(s, nowMs, islandName)}</span>
       </div>
+      {s.state === "waiting_for_berth" && (
+        <div className={styles.small} data-testid="ship-panel-berth">
+          Waiting for a free berth at the Trading Post since {new Date(s.queued_at ?? 0).toLocaleTimeString()} — its cargo is handled when one frees.
+        </div>
+      )}
+      {pendingFounding && (
+        <div className={styles.small} data-testid="ship-panel-pending-founding">
+          Sails to found {pendingFounding}.
+        </div>
+      )}
       <div className={styles.small} data-testid="ship-panel-route">
         Route: {route ? route.name : "none"}
       </div>
@@ -75,7 +100,7 @@ export function ShipPanel({ ship: s, model, content, nowMs, onAssignToRoute, onU
             Unassign
           </button>
         )}
-        {idle && (
+        {idle && here && (
           <button type="button" className={styles.button} onClick={onSend} data-testid="ship-panel-send">
             Send…
           </button>

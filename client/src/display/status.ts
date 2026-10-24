@@ -84,10 +84,10 @@ export function statusText(b: BuildingDisplay, island: IslandDisplay, display: D
       const shipyard = content.buildings.find((d) => d.id === b.type)?.shipyard !== undefined;
       return {
         key,
-        sentence: "No road to a warehouse",
+        sentence: "No road to the Trading Post or a Warehouse",
         fix: shipyard
-          ? "Build a road next to it that leads to a warehouse; a shipyard can only order ships when connected."
-          : "Build a road next to it that leads to a warehouse.",
+          ? "Build a road next to it that leads to the Trading Post or a Warehouse; a shipyard can only order ships when connected."
+          : "Build a road next to it that leads to the Trading Post or a Warehouse.",
       };
     }
     case "input_starved": {
@@ -101,14 +101,15 @@ export function statusText(b: BuildingDisplay, island: IslandDisplay, display: D
         const inv = island.inventory[g];
         return `${goodName(content, g)} at capacity (${units(inv?.stock ?? 0)}/${units(inv?.capacity ?? 0)})`;
       });
-      return { key, sentence: parts.join(", ") || "Warehouse full", fix: "Upgrade the warehouse or consume the good." };
+      return { key, sentence: parts.join(", ") || "Trading Post full", fix: "Upgrade the Trading Post or consume the good." };
     }
     case "throttled": {
       const wh = island.buildings.find((w) => w.id === b.assigned_warehouse_id);
+      const name = wh ? (content.buildings.find((d) => d.id === wh.type)?.name ?? wh.type) : "Collector";
       return {
         key,
-        sentence: `Warehouse overloaded (${percent(wh?.load_permille ?? 0)})`,
-        fix: "Build a second warehouse nearby.",
+        sentence: `${name} overloaded (${percent(wh?.load_permille ?? 0)})`,
+        fix: "Build a Warehouse nearby or upgrade the collector.",
       };
     }
     case "short_of_workers": {

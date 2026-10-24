@@ -19,8 +19,10 @@ interface Props {
   /** Lifts the building into a move ghost (D-042). */
   onMove: () => void;
   onUpgrade: () => void;
-  /** Raises a warehouse to its next level (upgrade_warehouse). */
+  /** Raises a Warehouse to its next level (upgrade_warehouse). */
   onUpgradeWarehouse: () => void;
+  /** Raises the Trading Post to its next level (upgrade_trading_post). */
+  onUpgradeTradingPost: () => void;
   onSelectBuilding: (id: number) => void;
   /** Activates the field tool for a field building (a farm's "Place …" button, D-049). */
   onPlaceFields: (fieldType: string) => void;
@@ -70,9 +72,10 @@ export function StatusIcon({ building, seal = false }: { building: BuildingDispl
 }
 
 /**
- * Next warehouse level from content (capacity, throughput, cost with the
- * island's have/need per material); hidden at the last level. The server
- * decides whether the upgrade is affordable.
+ * Next level of a Trading Post or Warehouse from content (capacity and
+ * berths of a Trading Post, throughput, cost with the island's have/need
+ * per material); hidden at the last level. The server decides whether the
+ * upgrade is affordable.
  */
 function WarehouseUpgrade({
   building: b,
@@ -80,29 +83,33 @@ function WarehouseUpgrade({
   model,
   content,
   onUpgrade,
+  testId = "warehouse-upgrade",
 }: {
   building: BuildingDisplay;
   island: IslandDisplay;
   model: DisplayState;
   content: Content;
   onUpgrade: () => void;
+  /** Test ID prefix of the section, its button and cost. */
+  testId?: string;
 }) {
   const def = content.buildings.find((d) => d.id === b.type);
-  const levels: { capacity?: number; throughput_per_min: number; cost?: { gold: number; materials: Record<string, number> } }[] =
+  const levels: { capacity?: number; berths?: number; throughput_per_min: number; cost?: { gold: number; materials: Record<string, number> } }[] =
     def?.trading_post?.levels ?? def?.warehouse?.levels ?? [];
   const next = b.level !== undefined ? levels[b.level] : undefined;
   if (!next) return null;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
   const cost = next.cost ?? { gold: 0, materials: {} };
   return (
-    <div className={styles.section} data-testid="warehouse-upgrade">
-      <button type="button" className={styles.button} onClick={onUpgrade} data-testid="warehouse-upgrade-button">
+    <div className={styles.section} data-testid={testId}>
+      <button type="button" className={styles.button} onClick={onUpgrade} data-testid={`${testId}-button`}>
         <Icon path={toolIcon("upgrade")} /> Upgrade to level {(b.level ?? 0) + 1}
       </button>
       <div className={styles.small}>
-        {next.capacity !== undefined && <>Capacity {units(next.capacity)} per good · </>}throughput {perMin(next.throughput_per_min)}/min
+        {next.capacity !== undefined && <>Capacity {units(next.capacity)} per good · </>}
+        {next.berths !== undefined && <>{next.berths} berths · </>}throughput {perMin(next.throughput_per_min)}/min
       </div>
-      <div className={styles.small} data-testid="warehouse-upgrade-cost">
+      <div className={styles.small} data-testid={`${testId}-cost`}>
         <span className={cost.gold > model.gold ? styles.warn : undefined}>
           {units(model.gold)}/{units(cost.gold)} gold
         </span>
@@ -120,6 +127,114 @@ function WarehouseUpgrade({
   );
 }
 
+/** The producers a collector (Trading Post or Warehouse) serves: count and a link per building. */
+function AssignedProducers({
+  building: b,
+  island,
+  content,
+  onSelectBuilding,
+}: {
+  building: BuildingDisplay;
+  island: IslandDisplay;
+  content: Content;
+  onSelectBuilding: (id: number) => void;
+}) {
+  const producers = island.buildings.filter((p) => p.assigned_warehouse_id === b.id && p.rates !== undefined);
+  const name = (type: string) => content.buildings.find((d) => d.id === type)?.name ?? type;
+  return (
+    <div className={styles.small} data-testid="collector-producers">
+      {producers.length} producer{producers.length === 1 ? "" : "s"} deliver here
+      {producers.length > 0 && ": "}
+      {producers.slice(0, 8).map((p, i) => (
+        <span key={p.id}>
+          {i > 0 && ", "}
+          <button type="button" className={styles.link} onClick={() => onSelectBuilding(p.id)} data-testid={`collector-producer-${p.id}`}>
+            {name(p.type)} #{p.id}
+          </button>
+        </span>
+      ))}
+      {producers.length > 8 && ` and ${producers.length - 8} more`}
+    </div>
+  );
+}
+
+/**
+ * The Trading Post (D-051): level, the island's capacity, its collector
+ * throughput and load, the pier's berths busy and free with the ships at
+ * them and the queue (MECHANICS §9.3), the upgrade and the island's
+ * inventory. Display numbers only.
+ */
+function TradingPostSection({
+  building: b,
+  island,
+  model,
+  content,
+  levels,
+  onUpgrade,
+  onSelectBuilding,
+}: {
+  building: BuildingDisplay;
+  island: IslandDisplay;
+  model: DisplayState;
+  content: Content;
+  levels: number;
+  onUpgrade: () => void;
+  onSelectBuilding: (id: number) => void;
+}) {
+  const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
+  const shipName = (id: number) => {
+    const s = model.ships.find((x) => x.id === id);
+    return `${content.ships.find((t) => t.id === s?.type)?.name ?? "Ship"} #${id}`;
+  };
+  const berths = b.berths ?? { total: 0, busy: 0, ships: [], queue: [] };
+  return (
+    <div className={styles.section} data-testid="trading-post-panel">
+      <div className={styles.sectionTitle} data-testid="trading-post-level">
+        Trading Post level {b.level} of {levels}
+      </div>
+      <div className={styles.small} data-testid="trading-post-capacity">
+        Capacity {units(b.capacity ?? 0)} per good · throughput {perMin(b.throughput_per_min ?? 0)}/min · load {percent(b.load_permille ?? 0)}
+      </div>
+      <Bar permille={b.load_permille ?? 0} />
+      <div className={styles.small} data-testid="trading-post-berths">
+        Berths: {berths.busy} busy · {Math.max(0, berths.total - berths.busy)} free of {berths.total}
+      </div>
+      {berths.ships.length > 0 && (
+        <div className={styles.small} data-testid="trading-post-berth-ships">
+          At the pier: {berths.ships.map(shipName).join(", ")}
+        </div>
+      )}
+      <div className={styles.small} data-testid="trading-post-queue">
+        {berths.queue.length === 0 ? "No ship waiting" : `Waiting for a berth: ${berths.queue.map(shipName).join(", ")}`}
+      </div>
+      <AssignedProducers building={b} island={island} content={content} onSelectBuilding={onSelectBuilding} />
+      <WarehouseUpgrade building={b} island={island} model={model} content={content} onUpgrade={onUpgrade} testId="trading-post-upgrade" />
+      <table className={`${styles.table} ${styles.section}`}>
+        <thead>
+          <tr>
+            <th>Good</th>
+            <th>Stock</th>
+            <th>Net/min</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(island.inventory).map(([good, g]) => (
+            <tr key={good}>
+              <td>
+                <GoodName id={good} name={goodName(good)} />
+              </td>
+              <td>
+                {units(g.stock)}/{units(g.capacity)}
+              </td>
+              <td>{perMin(g.rate_per_min, true)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function InfoPanel({
   building: b,
   island,
@@ -130,6 +245,7 @@ export function InfoPanel({
   onMove,
   onUpgrade,
   onUpgradeWarehouse,
+  onUpgradeTradingPost,
   onSelectBuilding,
   onPlaceFields,
   nowMs,
@@ -262,7 +378,7 @@ export function InfoPanel({
                 </tr>
               )}
               <tr>
-                <td>Warehouse</td>
+                <td>Delivers to</td>
                 <td>
                   {warehouse ? (
                     <button type="button" className={styles.link} onClick={() => onSelectBuilding(warehouse.id)}>
@@ -382,40 +498,26 @@ export function InfoPanel({
         </div>
       )}
 
-      {b.level !== undefined && (
-        <div className={styles.section}>
+      {b.level !== undefined && def?.trading_post && (
+        <TradingPostSection building={b} island={island} model={model} content={content} levels={def.trading_post.levels.length}
+          onUpgrade={onUpgradeTradingPost}
+          onSelectBuilding={onSelectBuilding}
+        />
+      )}
+      {b.level !== undefined && def?.warehouse && (
+        <div className={styles.section} data-testid="warehouse-panel">
           <div className={styles.sectionTitle} data-testid="warehouse-level">
-            Warehouse level {b.level} of {(def?.trading_post ?? def?.warehouse)?.levels.length ?? b.level}
+            Warehouse level {b.level} of {def.warehouse.levels.length}
           </div>
           <div className={styles.small}>
-            Capacity {units(b.capacity ?? 0)} per good · throughput {perMin(b.throughput_per_min ?? 0)}/min ·{" "}
-            {island.buildings.filter((p) => p.assigned_warehouse_id === b.id).length} producers
+            Collects for the producers nearest to it by road; it adds no capacity (the Trading Post stores the goods).
           </div>
-          <div className={styles.small}>Load {percent(b.load_permille ?? 0)}</div>
+          <div className={styles.small} data-testid="warehouse-throughput">
+            Throughput {perMin(b.throughput_per_min ?? 0)}/min · load {percent(b.load_permille ?? 0)}
+          </div>
           <Bar permille={b.load_permille ?? 0} />
+          <AssignedProducers building={b} island={island} content={content} onSelectBuilding={onSelectBuilding} />
           <WarehouseUpgrade building={b} island={island} model={model} content={content} onUpgrade={onUpgradeWarehouse} />
-          <table className={`${styles.table} ${styles.section}`}>
-            <thead>
-              <tr>
-                <th>Good</th>
-                <th>Stock</th>
-                <th>Net/min</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(island.inventory).map(([good, g]) => (
-                <tr key={good}>
-                  <td>
-                    <GoodName id={good} name={goodName(good)} />
-                  </td>
-                  <td>
-                    {units(g.stock)}/{units(g.capacity)}
-                  </td>
-                  <td>{perMin(g.rate_per_min, true)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       )}
 

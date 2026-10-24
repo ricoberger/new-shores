@@ -117,6 +117,11 @@ export function spreadOffset(i: number): ArchPoint {
   return { x: Math.cos(angle) * SPREAD_RADIUS * ring, y: Math.sin(angle) * SPREAD_RADIUS * ring };
 }
 
+/** The archipelago point of a sea position (the centre of its tile). */
+export function seaPoint(p: { x: number; y: number }): ArchPoint {
+  return { x: p.x + 0.5, y: p.y + 0.5 };
+}
+
 /** Harbour berths of every island (archipelago tiles, nearest to the harbour first). */
 export type Berths = ReadonlyMap<string, readonly ArchPoint[]>;
 
@@ -145,7 +150,7 @@ export function berthAnchor(id: string, islands: ReadonlyMap<string, IslandPlace
  * island is unknown.
  */
 export function shipPlacement(
-  ship: Pick<ShipDisplay, "island_id" | "leg">,
+  ship: Pick<ShipDisplay, "island_id" | "leg"> & { position?: ShipDisplay["position"] },
   islands: ReadonlyMap<string, IslandPlacement>,
   nowMs: number,
   slot = 0,
@@ -153,7 +158,8 @@ export function shipPlacement(
 ): ShipPlacement | null {
   const leg = ship.leg;
   if (leg) {
-    const a = berthAnchor(leg.from_island_id, islands, berths);
+    // A leg from the sea (the start ship, D-051) starts at its sea position.
+    const a = leg.from_position ? seaPoint(leg.from_position) : berthAnchor(leg.from_island_id, islands, berths);
     const b = berthAnchor(leg.to_island_id, islands, berths);
     if (!a || !b) return null;
     const heading = Math.atan2(b.y - a.y, b.x - a.x);
@@ -163,6 +169,8 @@ export function shipPlacement(
     const f = Math.min(1, Math.max(0, (nowMs - depart) / Math.max(1, arrive - depart)));
     return { point: { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }, heading, atSea: f < 1 };
   }
+  // At sea without a leg: the start ship before it sails.
+  if (!ship.island_id && ship.position) return { point: seaPoint(ship.position), heading: 0, atSea: true };
   const is = islands.get(ship.island_id);
   if (!is) return null;
   const list = berths?.get(ship.island_id);
