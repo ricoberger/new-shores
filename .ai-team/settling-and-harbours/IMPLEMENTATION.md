@@ -308,3 +308,42 @@ The rules are in docs/DECISIONS.md D-051 and docs/MECHANICS.md §2, §5, §8,
 - Screenshots (1280×800 and Pixel 5 412×915) and the contact sheets of the
   new recipes are in `.experiment/settling/` (gitignored), made by
   `.experiment/settling/shots.spec.ts`.
+
+## Follow-up — Upgrade cost line (fix(client): show the upgrade cost like a build card)
+
+- The Trading Post and Warehouse panels showed the upgrade cost as
+  "have/need" pairs; on the showcase fixture, whose levels had no costs,
+  that read "5000/0 gold". The server always sent the content's costs.
+- The cost line now reads like a build card: "300 gold · 20 planks ·
+  10 stone" (good names lower-case). A part the balance or the island's
+  stock does not cover is greyed (`.unaffordable`, `data-short`), with the
+  amount on hand as its title; the button stays enabled (the server
+  decides, D-027).
+- The dev fixtures carry the shipped Trading Post and Warehouse levels and
+  upgrade costs (milli-units, as the API sends them); a fixture test
+  compares them with `content/old_coast/buildings.json`. The smoke spec
+  checks the exact text and the greyed stone.
+
+## Follow-up — Pier slots (fix(client): moor ships along the Trading Post's pier)
+
+- Ships at the pier all lay at the harbour berth nearest the pier and
+  overlapped. Now, from the payload's `berths` (client positioning only):
+  - a ship holding a berth moors at pier slot i = its index in
+    `berths.ships`: tile i of the Trading Post's front row (outermost water
+    row), one tile further out to sea;
+  - a queued ship (index j in `berths.queue`) lies one tile further out,
+    two tiles apart along the row and **between two pier slots** (along =
+    2j + 1; further rows outward, staggered, when the row is full) —
+    directly behind a pier ship the hulls overlapped;
+  - moored and queued ships point **bow out to sea** (heading along the
+    outward direction: rotation 0 −y, 90 +x, 180 +y, 270 −x), so
+    neighbours one tile apart lie side by side instead of bow to stern.
+- A route ship handling at the pier departs from its slot; idle and
+  anchored ships keep the harbour berths and no longer count the docked
+  ones in their slots; fisher and shipyard jetties hold no ships.
+- Code: `pierPoint`, `pierHeading`, `dockPoints` in
+  `client/src/display/ships.ts`; tests in `src/display/harbours.test.ts`.
+- Baselines: the showcase (desktop, rot2) and ghost-invalid screenshots
+  changed only in the minimap's sloop markers (~55 px) and were
+  re-recorded; far/mid LOD were re-recorded separately for the dense
+  fixture (3.7 % / 4.1 % of pixels before, 0 after).
