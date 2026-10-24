@@ -6,6 +6,8 @@
 #   make preview      e2e-mode build (fixtures, ?stats=1) served by `vite preview` on
 #                     :4173 against the dev server; HOST=<lan-ip> for the LAN
 #   make client-e2e   Playwright smoke test (needs `npx playwright install chromium`)
+#   make e2e-fast     the quick e2e loop: chromium + touch-chromium + visual, without
+#                     the perf project the visual one depends on (--no-deps)
 #   make up           Compose stack (postgres, redis, migrate, server x2, caddy)
 #                     on http://localhost:8000 (HTTP_PORT from deploy/.env, the
 #                     environment or `make up HTTP_PORT=…`); make logs
@@ -39,7 +41,7 @@ COMPOSE_ENV := $(if $(filter command line,$(origin HTTP_PORT)),HTTP_PORT=$(HTTP_
 DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUMES)),$(error VOLUMES must be 1 (delete the database volume) or 0/false/no/unset (keep it), got '$(VOLUMES)')))
 
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
-	client-install client-check client-lint client-typecheck client-test client-build client-e2e dev preview \
+	client-install client-check client-lint client-typecheck client-test client-build client-e2e e2e-fast dev preview \
 	server-integration client-e2e-pg up down logs makefile-test assets assets-check assets-test
 
 check: server-check content-test client-check makefile-test assets-test
@@ -80,6 +82,9 @@ client-build:
 
 client-e2e:
 	cd $(CLIENT_DIR) && npm run test:e2e
+
+e2e-fast:
+	cd $(CLIENT_DIR) && npm run test:e2e -- --project chromium --project touch-chromium --project visual --no-deps
 
 assets:
 	cd $(CLIENT_DIR) && npm run assets
