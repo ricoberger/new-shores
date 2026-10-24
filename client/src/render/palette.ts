@@ -76,12 +76,14 @@ export const GHOST_INVALID = c3(STATUS.ghost_invalid);
 export const SELECTION = c3(STATUS.selection);
 /** Water rows of a water-edge ghost (D-051): the foam colour, a light strip on the sea. */
 export const WATER_ROWS = c3(WATER.foam);
-/** Field tool preview: a tile the drag will send (D-049). */
+/** Chain outline: an active field of the selected farm (D-051 part 4). */
 export const FIELD_VALID = c3(STATUS.field_valid);
-/** Field tool preview: a free matching tile outside every accepting farm's ring (shown, not sent). */
+/** Chain outline: an inactive field (its chain is broken). */
 export const FIELD_OUT_OF_RANGE = c3(STATUS.field_out_of_range);
-/** Work-radius ring of a farm with fields. */
+/** Chain outline: the farm of the chain. */
 export const FIELD_RING = c3(STATUS.field_ring);
+/** Chain outline: the field row the farm panel hovers. */
+export const FIELD_HOVER = c3(STATUS.field_hover);
 /** Haze the sea fades into toward the edges of the world (also the scene's clear colour). */
 export const HAZE = c3(WATER.haze);
 /** Route ribbons in route order, the editor's draft and the direction arrows. */
@@ -95,5 +97,7 @@ export const ARROW_BRIGHT = colorTuple(ROUTES.arrow_bright);
  * §7 "paused/unpaid = desaturated tint"; like SHIP_UNPAID for ships).
  */
 export const PAUSED_TINT: readonly [number, number, number, number] = [0.6, 0.64, 0.74, 1];
+/** Instance colour of an inactive field (its chain to the farm is broken, D-051 part 4): a neutral grey multiplier, desaturated and dimmed. */
+export const INACTIVE_TINT: readonly [number, number, number, number] = [0.62, 0.62, 0.58, 1];
 /** Shadow tint (blob shadows). */
 export const SHADOW = c3(LIGHT.shadow);

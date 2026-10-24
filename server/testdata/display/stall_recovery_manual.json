@@ -2,8 +2,8 @@
   "scenario": "stall_recovery_manual",
   "base": {
     "evaluated_at": "2026-01-01T01:06:00.000Z",
-    "next_change_at": "2026-01-01T02:38:11.554Z",
-    "gold": 83943,
+    "next_change_at": "2026-01-01T02:38:19.801Z",
+    "gold": 83721,
     "balance_rate_per_min": 1400,
     "tax_rate_per_min": 6400,
     "upkeep_rate_per_min": 5000,
@@ -68,7 +68,7 @@
             "rate_per_min": 0
           },
           "fish": {
-            "stock": 65213,
+            "stock": 65254,
             "capacity": 300000,
             "in_transit": 1450,
             "rate_per_min": 1100
@@ -104,7 +104,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 114382,
+            "stock": 114107,
             "capacity": 300000,
             "in_transit": 1233,
             "rate_per_min": 2000
@@ -140,10 +140,10 @@
             "rate_per_min": 0
           },
           "wool": {
-            "stock": 35756,
+            "stock": 0,
             "capacity": 300000,
-            "in_transit": 433,
-            "rate_per_min": 666
+            "in_transit": 0,
+            "rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
@@ -764,7 +764,7 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 205,
+            "load_permille": 183,
             "berths": {
               "total": 1,
               "busy": 0,
@@ -815,7 +815,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 514,
+            "cycle_progress_permille": 239,
             "transfer_delay_ms": 57000,
             "assigned_warehouse_id": 1,
             "road_distance": 47,
@@ -846,7 +846,7 @@
               }
             },
             "cycle_seconds": 30,
-            "cycle_progress_permille": 614,
+            "cycle_progress_permille": 339,
             "transfer_delay_ms": 37000,
             "assigned_warehouse_id": 1,
             "road_distance": 27,
@@ -894,241 +894,34 @@
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
+            "status": "low_efficiency",
+            "efficiency_permille": 0,
             "throughput_factor_permille": 1000,
             "rates": {
               "inputs": {},
               "outputs": {
-                "wool": 666
+                "wool": 0
               }
             },
             "cycle_seconds": 90,
-            "cycle_progress_permille": 216,
+            "cycle_progress_permille": 0,
             "transfer_delay_ms": 39000,
             "assigned_warehouse_id": 1,
             "road_distance": 29,
-            "cycle_rate_permille_per_min": 666,
             "workforce_factor_permille": 1000,
             "workforce": {
               "tier": "settlers",
               "required": 4000
             },
             "fields": {
-              "assigned": 16,
-              "required": 16
+              "active": 0,
+              "required": 4,
+              "max": 8,
+              "ids": []
             }
           },
           {
-            "id": 8,
-            "type": "pasture",
-            "x": 12,
-            "y": 23,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
             "id": 9,
-            "type": "pasture",
-            "x": 13,
-            "y": 23,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 10,
-            "type": "pasture",
-            "x": 17,
-            "y": 23,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 11,
-            "type": "pasture",
-            "x": 18,
-            "y": 23,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 12,
-            "type": "pasture",
-            "x": 12,
-            "y": 24,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 13,
-            "type": "pasture",
-            "x": 13,
-            "y": 24,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 14,
-            "type": "pasture",
-            "x": 14,
-            "y": 24,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 15,
-            "type": "pasture",
-            "x": 15,
-            "y": 24,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 16,
-            "type": "pasture",
-            "x": 16,
-            "y": 24,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 17,
-            "type": "pasture",
-            "x": 17,
-            "y": 24,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 18,
-            "type": "pasture",
-            "x": 18,
-            "y": 24,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 19,
-            "type": "pasture",
-            "x": 13,
-            "y": 25,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 20,
-            "type": "pasture",
-            "x": 14,
-            "y": 25,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 21,
-            "type": "pasture",
-            "x": 15,
-            "y": 25,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 22,
-            "type": "pasture",
-            "x": 16,
-            "y": 25,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 23,
-            "type": "pasture",
-            "x": 17,
-            "y": 25,
-            "rotation": 0,
-            "paused": false,
-            "paused_reason": "",
-            "status": "ok",
-            "efficiency_permille": 1000,
-            "throughput_factor_permille": 1000,
-            "farm_id": 7
-          },
-          {
-            "id": 25,
             "type": "house_settlers",
             "x": 8,
             "y": 2,
@@ -1179,7 +972,7 @@
             ]
           },
           {
-            "id": 26,
+            "id": 10,
             "type": "house_settlers",
             "x": 10,
             "y": 2,
@@ -1230,7 +1023,7 @@
             ]
           },
           {
-            "id": 27,
+            "id": 11,
             "type": "house_settlers",
             "x": 12,
             "y": 2,
@@ -1281,7 +1074,7 @@
             ]
           },
           {
-            "id": 28,
+            "id": 12,
             "type": "house_settlers",
             "x": 14,
             "y": 2,
@@ -1332,7 +1125,7 @@
             ]
           },
           {
-            "id": 29,
+            "id": 13,
             "type": "house_settlers",
             "x": 8,
             "y": 5,
@@ -1479,8 +1272,8 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T01:06:00.250Z",
-        "next_change_at": "2026-01-01T02:38:11.554Z",
-        "gold": 83948,
+        "next_change_at": "2026-01-01T02:38:19.801Z",
+        "gold": 83727,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -1545,7 +1338,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 65217,
+                "stock": 65259,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100
@@ -1581,7 +1374,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 114390,
+                "stock": 114115,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -1617,10 +1410,10 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 35759,
+                "stock": 0,
                 "capacity": 300000,
-                "in_transit": 433,
-                "rate_per_min": 666
+                "in_transit": 0,
+                "rate_per_min": 0
               },
               "wool_garments": {
                 "stock": 0,
@@ -2241,7 +2034,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 205,
+                "load_permille": 183,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -2292,7 +2085,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 523,
+                "cycle_progress_permille": 248,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -2323,7 +2116,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 623,
+                "cycle_progress_permille": 348,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -2371,241 +2164,34 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
+                "status": "low_efficiency",
+                "efficiency_permille": 0,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 666
+                    "wool": 0
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 219,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
-                "cycle_rate_permille_per_min": 666,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
                 },
                 "fields": {
-                  "assigned": 16,
-                  "required": 16
+                  "active": 0,
+                  "required": 4,
+                  "max": 8,
+                  "ids": []
                 }
               },
               {
-                "id": 8,
-                "type": "pasture",
-                "x": 12,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
                 "id": 9,
-                "type": "pasture",
-                "x": 13,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 10,
-                "type": "pasture",
-                "x": 17,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 11,
-                "type": "pasture",
-                "x": 18,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 12,
-                "type": "pasture",
-                "x": 12,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 13,
-                "type": "pasture",
-                "x": 13,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 14,
-                "type": "pasture",
-                "x": 14,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 15,
-                "type": "pasture",
-                "x": 15,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 16,
-                "type": "pasture",
-                "x": 16,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 17,
-                "type": "pasture",
-                "x": 17,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 18,
-                "type": "pasture",
-                "x": 18,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 19,
-                "type": "pasture",
-                "x": 13,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 20,
-                "type": "pasture",
-                "x": 14,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 21,
-                "type": "pasture",
-                "x": 15,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 22,
-                "type": "pasture",
-                "x": 16,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 23,
-                "type": "pasture",
-                "x": 17,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 25,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -2656,7 +2242,7 @@
                 ]
               },
               {
-                "id": 26,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -2707,7 +2293,7 @@
                 ]
               },
               {
-                "id": 27,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -2758,7 +2344,7 @@
                 ]
               },
               {
-                "id": 28,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -2809,7 +2395,7 @@
                 ]
               },
               {
-                "id": 29,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -2956,8 +2542,8 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T01:06:01.000Z",
-        "next_change_at": "2026-01-01T02:38:11.554Z",
-        "gold": 83966,
+        "next_change_at": "2026-01-01T02:38:19.801Z",
+        "gold": 83745,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -3022,7 +2608,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 65231,
+                "stock": 65272,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100
@@ -3058,7 +2644,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 114415,
+                "stock": 114140,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -3094,10 +2680,10 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 35767,
+                "stock": 0,
                 "capacity": 300000,
-                "in_transit": 433,
-                "rate_per_min": 666
+                "in_transit": 0,
+                "rate_per_min": 0
               },
               "wool_garments": {
                 "stock": 0,
@@ -3718,7 +3304,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 205,
+                "load_permille": 183,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -3769,7 +3355,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 548,
+                "cycle_progress_permille": 273,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -3800,7 +3386,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 648,
+                "cycle_progress_permille": 373,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -3848,241 +3434,34 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
+                "status": "low_efficiency",
+                "efficiency_permille": 0,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 666
+                    "wool": 0
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 227,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
-                "cycle_rate_permille_per_min": 666,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
                 },
                 "fields": {
-                  "assigned": 16,
-                  "required": 16
+                  "active": 0,
+                  "required": 4,
+                  "max": 8,
+                  "ids": []
                 }
               },
               {
-                "id": 8,
-                "type": "pasture",
-                "x": 12,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
                 "id": 9,
-                "type": "pasture",
-                "x": 13,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 10,
-                "type": "pasture",
-                "x": 17,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 11,
-                "type": "pasture",
-                "x": 18,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 12,
-                "type": "pasture",
-                "x": 12,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 13,
-                "type": "pasture",
-                "x": 13,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 14,
-                "type": "pasture",
-                "x": 14,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 15,
-                "type": "pasture",
-                "x": 15,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 16,
-                "type": "pasture",
-                "x": 16,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 17,
-                "type": "pasture",
-                "x": 17,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 18,
-                "type": "pasture",
-                "x": 18,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 19,
-                "type": "pasture",
-                "x": 13,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 20,
-                "type": "pasture",
-                "x": 14,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 21,
-                "type": "pasture",
-                "x": 15,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 22,
-                "type": "pasture",
-                "x": 16,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 23,
-                "type": "pasture",
-                "x": 17,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 25,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -4133,7 +3512,7 @@
                 ]
               },
               {
-                "id": 26,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -4184,7 +3563,7 @@
                 ]
               },
               {
-                "id": 27,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -4235,7 +3614,7 @@
                 ]
               },
               {
-                "id": 28,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -4286,7 +3665,7 @@
                 ]
               },
               {
-                "id": 29,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -4433,8 +3812,8 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T01:06:05.000Z",
-        "next_change_at": "2026-01-01T02:38:11.554Z",
-        "gold": 84059,
+        "next_change_at": "2026-01-01T02:38:19.801Z",
+        "gold": 83838,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -4499,7 +3878,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 65305,
+                "stock": 65346,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100
@@ -4535,7 +3914,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 114548,
+                "stock": 114273,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -4571,10 +3950,10 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 35811,
+                "stock": 0,
                 "capacity": 300000,
-                "in_transit": 433,
-                "rate_per_min": 666
+                "in_transit": 0,
+                "rate_per_min": 0
               },
               "wool_garments": {
                 "stock": 0,
@@ -5195,7 +4574,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 205,
+                "load_permille": 183,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -5246,7 +4625,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 681,
+                "cycle_progress_permille": 406,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -5277,7 +4656,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 781,
+                "cycle_progress_permille": 506,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -5325,241 +4704,34 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
+                "status": "low_efficiency",
+                "efficiency_permille": 0,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 666
+                    "wool": 0
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 272,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
-                "cycle_rate_permille_per_min": 666,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
                 },
                 "fields": {
-                  "assigned": 16,
-                  "required": 16
+                  "active": 0,
+                  "required": 4,
+                  "max": 8,
+                  "ids": []
                 }
               },
               {
-                "id": 8,
-                "type": "pasture",
-                "x": 12,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
                 "id": 9,
-                "type": "pasture",
-                "x": 13,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 10,
-                "type": "pasture",
-                "x": 17,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 11,
-                "type": "pasture",
-                "x": 18,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 12,
-                "type": "pasture",
-                "x": 12,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 13,
-                "type": "pasture",
-                "x": 13,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 14,
-                "type": "pasture",
-                "x": 14,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 15,
-                "type": "pasture",
-                "x": 15,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 16,
-                "type": "pasture",
-                "x": 16,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 17,
-                "type": "pasture",
-                "x": 17,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 18,
-                "type": "pasture",
-                "x": 18,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 19,
-                "type": "pasture",
-                "x": 13,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 20,
-                "type": "pasture",
-                "x": 14,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 21,
-                "type": "pasture",
-                "x": 15,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 22,
-                "type": "pasture",
-                "x": 16,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 23,
-                "type": "pasture",
-                "x": 17,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 25,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -5610,7 +4782,7 @@
                 ]
               },
               {
-                "id": 26,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -5661,7 +4833,7 @@
                 ]
               },
               {
-                "id": 27,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -5712,7 +4884,7 @@
                 ]
               },
               {
-                "id": 28,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -5763,7 +4935,7 @@
                 ]
               },
               {
-                "id": 29,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -5910,8 +5082,8 @@
       "offset_ms": 30000,
       "display": {
         "evaluated_at": "2026-01-01T01:06:30.000Z",
-        "next_change_at": "2026-01-01T02:38:11.554Z",
-        "gold": 84643,
+        "next_change_at": "2026-01-01T02:38:19.801Z",
+        "gold": 84421,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -5976,7 +5148,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 65763,
+                "stock": 65804,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100
@@ -6012,7 +5184,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 115382,
+                "stock": 115107,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -6048,10 +5220,10 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 36089,
+                "stock": 0,
                 "capacity": 300000,
-                "in_transit": 433,
-                "rate_per_min": 666
+                "in_transit": 0,
+                "rate_per_min": 0
               },
               "wool_garments": {
                 "stock": 0,
@@ -6672,7 +5844,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 205,
+                "load_permille": 183,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -6723,7 +5895,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 514,
+                "cycle_progress_permille": 239,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -6754,7 +5926,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 614,
+                "cycle_progress_permille": 339,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -6802,241 +5974,34 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
+                "status": "low_efficiency",
+                "efficiency_permille": 0,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 666
+                    "wool": 0
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 549,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
-                "cycle_rate_permille_per_min": 666,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
                 },
                 "fields": {
-                  "assigned": 16,
-                  "required": 16
+                  "active": 0,
+                  "required": 4,
+                  "max": 8,
+                  "ids": []
                 }
               },
               {
-                "id": 8,
-                "type": "pasture",
-                "x": 12,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
                 "id": 9,
-                "type": "pasture",
-                "x": 13,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 10,
-                "type": "pasture",
-                "x": 17,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 11,
-                "type": "pasture",
-                "x": 18,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 12,
-                "type": "pasture",
-                "x": 12,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 13,
-                "type": "pasture",
-                "x": 13,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 14,
-                "type": "pasture",
-                "x": 14,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 15,
-                "type": "pasture",
-                "x": 15,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 16,
-                "type": "pasture",
-                "x": 16,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 17,
-                "type": "pasture",
-                "x": 17,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 18,
-                "type": "pasture",
-                "x": 18,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 19,
-                "type": "pasture",
-                "x": 13,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 20,
-                "type": "pasture",
-                "x": 14,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 21,
-                "type": "pasture",
-                "x": 15,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 22,
-                "type": "pasture",
-                "x": 16,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 23,
-                "type": "pasture",
-                "x": 17,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 25,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -7087,7 +6052,7 @@
                 ]
               },
               {
-                "id": 26,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -7138,7 +6103,7 @@
                 ]
               },
               {
-                "id": 27,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -7189,7 +6154,7 @@
                 ]
               },
               {
-                "id": 28,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -7240,7 +6205,7 @@
                 ]
               },
               {
-                "id": 29,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,
@@ -7387,8 +6352,8 @@
       "offset_ms": 300000,
       "display": {
         "evaluated_at": "2026-01-01T01:11:00.000Z",
-        "next_change_at": "2026-01-01T02:38:11.554Z",
-        "gold": 90943,
+        "next_change_at": "2026-01-01T02:38:19.801Z",
+        "gold": 90721,
         "balance_rate_per_min": 1400,
         "tax_rate_per_min": 6400,
         "upkeep_rate_per_min": 5000,
@@ -7453,7 +6418,7 @@
                 "rate_per_min": 0
               },
               "fish": {
-                "stock": 70713,
+                "stock": 70754,
                 "capacity": 300000,
                 "in_transit": 1450,
                 "rate_per_min": 1100
@@ -7489,7 +6454,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 124382,
+                "stock": 124107,
                 "capacity": 300000,
                 "in_transit": 1233,
                 "rate_per_min": 2000
@@ -7525,10 +6490,10 @@
                 "rate_per_min": 0
               },
               "wool": {
-                "stock": 39089,
+                "stock": 0,
                 "capacity": 300000,
-                "in_transit": 433,
-                "rate_per_min": 666
+                "in_transit": 0,
+                "rate_per_min": 0
               },
               "wool_garments": {
                 "stock": 0,
@@ -8149,7 +7114,7 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 205,
+                "load_permille": 183,
                 "berths": {
                   "total": 1,
                   "busy": 0,
@@ -8200,7 +7165,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 514,
+                "cycle_progress_permille": 239,
                 "transfer_delay_ms": 57000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 47,
@@ -8231,7 +7196,7 @@
                   }
                 },
                 "cycle_seconds": 30,
-                "cycle_progress_permille": 614,
+                "cycle_progress_permille": 339,
                 "transfer_delay_ms": 37000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 27,
@@ -8279,241 +7244,34 @@
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
+                "status": "low_efficiency",
+                "efficiency_permille": 0,
                 "throughput_factor_permille": 1000,
                 "rates": {
                   "inputs": {},
                   "outputs": {
-                    "wool": 666
+                    "wool": 0
                   }
                 },
                 "cycle_seconds": 90,
-                "cycle_progress_permille": 549,
+                "cycle_progress_permille": 0,
                 "transfer_delay_ms": 39000,
                 "assigned_warehouse_id": 1,
                 "road_distance": 29,
-                "cycle_rate_permille_per_min": 666,
                 "workforce_factor_permille": 1000,
                 "workforce": {
                   "tier": "settlers",
                   "required": 4000
                 },
                 "fields": {
-                  "assigned": 16,
-                  "required": 16
+                  "active": 0,
+                  "required": 4,
+                  "max": 8,
+                  "ids": []
                 }
               },
               {
-                "id": 8,
-                "type": "pasture",
-                "x": 12,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
                 "id": 9,
-                "type": "pasture",
-                "x": 13,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 10,
-                "type": "pasture",
-                "x": 17,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 11,
-                "type": "pasture",
-                "x": 18,
-                "y": 23,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 12,
-                "type": "pasture",
-                "x": 12,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 13,
-                "type": "pasture",
-                "x": 13,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 14,
-                "type": "pasture",
-                "x": 14,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 15,
-                "type": "pasture",
-                "x": 15,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 16,
-                "type": "pasture",
-                "x": 16,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 17,
-                "type": "pasture",
-                "x": 17,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 18,
-                "type": "pasture",
-                "x": 18,
-                "y": 24,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 19,
-                "type": "pasture",
-                "x": 13,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 20,
-                "type": "pasture",
-                "x": 14,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 21,
-                "type": "pasture",
-                "x": 15,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 22,
-                "type": "pasture",
-                "x": 16,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 23,
-                "type": "pasture",
-                "x": 17,
-                "y": 25,
-                "rotation": 0,
-                "paused": false,
-                "paused_reason": "",
-                "status": "ok",
-                "efficiency_permille": 1000,
-                "throughput_factor_permille": 1000,
-                "farm_id": 7
-              },
-              {
-                "id": 25,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 2,
@@ -8564,7 +7322,7 @@
                 ]
               },
               {
-                "id": 26,
+                "id": 10,
                 "type": "house_settlers",
                 "x": 10,
                 "y": 2,
@@ -8615,7 +7373,7 @@
                 ]
               },
               {
-                "id": 27,
+                "id": 11,
                 "type": "house_settlers",
                 "x": 12,
                 "y": 2,
@@ -8666,7 +7424,7 @@
                 ]
               },
               {
-                "id": 28,
+                "id": 12,
                 "type": "house_settlers",
                 "x": 14,
                 "y": 2,
@@ -8717,7 +7475,7 @@
                 ]
               },
               {
-                "id": 29,
+                "id": 13,
                 "type": "house_settlers",
                 "x": 8,
                 "y": 5,

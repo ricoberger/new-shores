@@ -126,7 +126,7 @@
   --ns-status-throttled: #0072B2;
   --ns-status-short-of-workers: #999999;
   --ns-status-low-efficiency: #009E73;
-  --ns-status-no-farm: #CC79A7;
+  --ns-status-not-adjacent: #CC79A7;
   --ns-status-ok: #009E73;
   --ns-status-ghost-ok: #DDDDDD;
   --ns-status-ghost-no-road: #F0C808;
@@ -134,6 +134,7 @@
   --ns-status-field-valid: #3BB273;
   --ns-status-field-out-of-range: #F0C808;
   --ns-status-field-ring: #FFF4D6;
+  --ns-status-field-hover: #DDDDDD;
   --ns-status-selection: #FFD23F;
   --ns-routes-route-1: #E69F00;
   --ns-routes-route-2: #56B4E9;

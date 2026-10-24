@@ -93,10 +93,9 @@ func TestFertility(t *testing.T) {
 		t.Fatalf("farm = %+v", b)
 	}
 	// Its fields need the fertility too.
-	field := PlaceBuilding{IslandID: "main", Type: "wheat_field", X: 5, Y: 5}
-	mustApply(t, w, c, field)
+	mustApply(t, w, c, PlaceField{IslandID: "main", FarmID: id, Type: "wheat_field", X: 5, Y: 5})
 	w.Islands[0].Fertilities = []string{"apple"}
-	expectApplyErr(t, w, c, PlaceBuilding{IslandID: "main", Type: "wheat_field", X: 5, Y: 6}, ErrNoFertility)
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: id, Type: "wheat_field", X: 5, Y: 6}, ErrNoFertility)
 	w.Islands[0].Fertilities = []string{"wheat"}
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: w.NextBuildingID - 1})
 	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: id, X: 7, Y: 5})

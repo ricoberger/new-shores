@@ -1,0 +1,334 @@
+{
+  "name": "fields_mixed",
+  "description": "Fields of different farms never chain (D-051 part 4). After the Citizens unlock (the placement_locks opening) a wheat farm and a sheep farm stand next to each other: three wheat fields chain from the wheat farm (the last one touches the sheep farm), a pasture placed from the sheep farm at a spot that touches only a wheat field is not adjacent (field_not_adjacent), a pasture touching the sheep farm is active even though it touches wheat fields, and a wheat field touching only that pasture is not adjacent either. Demolishing the first wheat field makes the other two inactive (not_adjacent) while the pasture stays active.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "start",
+      "name": "Start",
+      "x": 0,
+      "y": 0,
+      "fertilities": [
+        "wheat",
+        "apple"
+      ],
+      "rows": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~cccccccccccccccccccccccccccccccccc~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~......................................~",
+        "~...............mmmmmmm................~",
+        "~...............mmmmmmm................~",
+        "~...............mSSmSSm.......~~~~~....~",
+        "~.............................~~~~~....~",
+        "~......................................~",
+        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": "10180",
+    "stock": {
+      "planks": 290,
+      "stone": 40,
+      "sails": 10,
+      "fish": 200,
+      "wool_garments": 100
+    }
+  },
+  "steps": [
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          4
+        ],
+        "to": [
+          38,
+          4
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          2,
+          10
+        ]
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          3,
+          10
+        ],
+        "to": [
+          29,
+          10
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "market_small",
+        "x": 8,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "chapel",
+        "x": 11,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 6,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 10,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 12,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 14,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 16,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 18,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 20,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 22,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 24,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 26,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 28,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 30,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 32,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 34,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "10m"
+      }
+    },
+    {
+      "stock": {
+        "good": "planks",
+        "amount": "100"
+      }
+    },
+    {
+      "place": {
+        "type": "wheat_farm",
+        "x": 24,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "sheep_farm",
+        "x": 30,
+        "y": 5,
+        "rotation": 0
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          24,
+          5
+        ],
+        "tiles": [
+          [
+            27,
+            5
+          ],
+          [
+            28,
+            5
+          ],
+          [
+            29,
+            5
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          30,
+          5
+        ],
+        "tiles": [
+          [
+            27,
+            6
+          ]
+        ]
+      },
+      "expect_error": "field_not_adjacent"
+    },
+    {
+      "fields": {
+        "farm": [
+          30,
+          5
+        ],
+        "tiles": [
+          [
+            28,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "fields": {
+        "farm": [
+          24,
+          5
+        ],
+        "tiles": [
+          [
+            28,
+            8
+          ]
+        ]
+      },
+      "expect_error": "field_not_adjacent"
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "demolish": {
+        "x": 27,
+        "y": 5
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

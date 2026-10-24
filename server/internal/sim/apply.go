@@ -137,10 +137,8 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 		err = demolish(w, c, cmd, l)
 	case DemolishRoad:
 		err = demolishRoad(w, c, cmd, l)
-	case PlaceFields:
-		err = placeFields(w, c, cmd, l)
-	case DemolishFields:
-		err = demolishFields(w, c, cmd, l)
+	case PlaceField:
+		err = placeField(w, c, cmd, true, l)
 	case SetPaused:
 		err = setPaused(w, c, cmd)
 	case UpgradeHouse:
@@ -337,6 +335,9 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if charge && def.TradingPost != nil {
 		return fmt.Errorf("%w: a trading post is placed by found_island", ErrInvalidCommand)
 	}
+	if def.Field != nil {
+		return fmt.Errorf("%w: %s is placed from its %s (place_field)", ErrFieldNeedsFarm, def.ID, def.Field.Farm)
+	}
 	if def.Road != nil {
 		if !charge {
 			return fmt.Errorf("%w: roads cannot be placed free", ErrInvalidCommand)
@@ -386,13 +387,9 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 // the coast; a deposit building covers at least one tile with a deposit of
 // its kind; the island has the fertility of a work-area building; and,
 // with workArea set, a work-area building without a fields block has
-// efficiency > 0 (a farm with fields starts at 0 fields, D-049). A field
-// is validated by the field rule (fields.go). A road is never required
-// (D-042).
+// efficiency > 0 (a farm with fields starts at 0 fields, D-049). A road is
+// never required (D-042). Fields are not sites of this check (fields.go).
 func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Building, x, y, rotation int, workArea bool) error {
-	if def.Field != nil {
-		return checkFieldTile(is, occ, def, acceptingFarms(is, c, def.Field.Type), x, y)
-	}
 	fw, fh := footprint(def, rotation)
 	// Overflow-safe bounds check of the whole footprint before any tile
 	// arithmetic: x+fw could wrap for extreme anchors.
@@ -482,6 +479,9 @@ func moveBuilding(w *World, c *content.Catalogue, cmd MoveBuilding) error {
 	}
 	if def.Road != nil {
 		return fmt.Errorf("%w: roads cannot be moved", ErrInvalidCommand)
+	}
+	if def.Field != nil {
+		return fmt.Errorf("%w: fields cannot be moved (demolish and place again)", ErrInvalidCommand)
 	}
 	occ := is.occupancy(c)
 	for i, id := range occ {
@@ -644,6 +644,14 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	}
 	if b.Order != nil {
 		refundOrder(is, c, b.Order, l, now)
+	}
+	// Demolishing a farm demolishes its fields, one refund per field
+	// (D-043, D-051 part 4).
+	if def.Fields != nil {
+		for _, f := range farmFieldsOf(is, c, b.ID) {
+			removeBuilding(is, f.ID)
+			refund(is, c, c.BuildingByID[f.Type].Cost, 1, l, now)
+		}
 	}
 	afterChange(is, c)
 	return nil

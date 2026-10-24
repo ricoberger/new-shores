@@ -60,8 +60,6 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialCamera, qual
         found: (at) => ev().found(at),
         road: (island, a, b) => ev().road(island, a, b),
         placeField: (at) => ev().placeField(at),
-        fieldRect: (island, a, b) => ev().fieldRect(island, a, b),
-        pendFields: (island, a, b) => ev().pendFields(island, a, b),
         demolish: (at) => ev().demolish(at),
         cancelTool: () => ev().cancelTool(),
         ghostHint: (text) => ev().ghostHint(text),

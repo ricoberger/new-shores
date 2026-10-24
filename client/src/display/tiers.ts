@@ -51,8 +51,9 @@ export function lockReason(model: DisplayState | null, content: Content, tierId:
  * them with upgrade_only), so they are not listed.
  */
 export function listedInBuildMenu(b: ContentBuilding, content: Content): boolean {
-  // The Trading Post is placed only by founding from a ship (D-051).
-  if (b.trading_post) return false;
+  // The Trading Post is placed only by founding from a ship (D-051); a field
+  // only from its farm's panel (D-051 part 4).
+  if (b.trading_post || b.field) return false;
   const first = content.tiers.find((t) => t.index === 0)?.id;
   return !b.house || b.house.tier === first;
 }

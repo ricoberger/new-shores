@@ -40,7 +40,7 @@ export const WATER = { x: 0, y: 0 };
  * upkeep (1/min of world time) lowers it from there.
  */
 export const START_GOLD = 800;
-export const CONTENT_VERSION = "old_coast-0.7.0";
+export const CONTENT_VERSION = "old_coast-0.8.0";
 
 // Shipping (voyage.spec.ts; the Go test TestShippingLayoutFoundsIsland2
 // checks the same layout): a road from below the Trading Post down the west
@@ -115,21 +115,24 @@ export const TOUCH_HOUSE_WEBKIT = { x: 22, y: 12 };
 /** Grass with nothing on it (a tap there with a tool positions only). */
 export const TOUCH_EMPTY = { x: 16, y: 16 };
 
-// Fields (D-049, smoke.spec.ts and touch.spec.ts): a sheep farm below the
-// road east of the moved sawmill (x 28..30, y 5..7), its top edge on the
-// road. Its pasture disc (radius 4 around the doubled centre (59, 13))
-// covers exactly 16 free grass tiles of the rectangle (26,7)–(32,9):
-// row 7 x 26, 27, 31, 32; row 8 x 26..32; row 9 x 27..31. (26,9) and
-// (32,9) lie outside the ring (yellow, not sent).
+// Fields (D-051 part 4, smoke.spec.ts and touch.spec.ts): a sheep farm below
+// the road east of the moved sawmill (x 28..30, y 5..7), its top edge on the
+// road. Its 2 × 2 pastures chain from it: P1 at (31,5) touches the farm, P2
+// at (32,7) touches only P1, P3 at (26,5) and P4 at (28,8) touch the farm
+// (the forest starts at x = 34). (20,9) touches nothing. Demolishing P1
+// leaves P2 inactive.
 export const SHEEP_FARM = { x: 28, y: 5, rotation: 0 };
-export const PASTURE_RECT_FROM = { x: 26, y: 7 };
-export const PASTURE_RECT_TO = { x: 32, y: 9 };
-export const PASTURE_RECT_VALID = 16;
-export const PASTURE_RECT_OUTSIDE = 2;
-/** Touch project (Pixel 5): a one-finger pasture drag over (31,5)–(33,6): 5 valid tiles, (33,5) outside the ring. */
-export const TOUCH_PASTURE_FROM = { x: 31, y: 5 };
-export const TOUCH_PASTURE_TO = { x: 33, y: 6 };
-export const TOUCH_PASTURE_VALID = 5;
+export const PASTURE_CHAIN = [
+  { x: 31, y: 5 },
+  { x: 32, y: 7 },
+  { x: 26, y: 5 },
+  { x: 28, y: 8 },
+];
+export const PASTURE_NOT_ADJACENT = { x: 20, y: 9 };
+/** Touch project (Pixel 5, settled fixture: the farm has four pastures at (26,6), (31,6), (28,8), (30,8)): a fifth touching (30,8). */
+export const TOUCH_PASTURE = { x: 32, y: 8 };
+/** A grass tile touching neither the farm nor a pasture. */
+export const TOUCH_FAR = { x: 31, y: 12 };
 
 // Camera rotation (archipelago.spec.ts): one settler house (2 × 2, 10
 // planks) placed by a click at each of four camera headings (0°, 45°,

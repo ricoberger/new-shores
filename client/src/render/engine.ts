@@ -16,7 +16,7 @@ import { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { SyncSnapshot } from "../api/sync";
 import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
-import { acceptingFarms, classifyFieldTiles, fieldRectHint, rectTiles } from "../display/fields";
+import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
@@ -29,7 +29,7 @@ import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
 import { ArchipelagoLayer, type ArchSelection } from "./archipelago";
 import { CameraRig } from "./camera";
 import { footprintBox } from "./coords";
-import { farmRing, FieldLayer, type FieldRing } from "./fields";
+import { FootprintMarks, type Mark } from "./fields";
 import { islandBerths } from "./harbour";
 import { PlacementGhost } from "./ghost";
 import { GridOverlay } from "./grid";
@@ -83,8 +83,8 @@ export interface RendererEvents {
   /** Touch: a tap put the placement ghost on a tile; Confirm places it. */
   pend(at: IslandTile): void;
   /**
-   * A mouse or pen took over: the touch-pending tile of a ghost tool or the
-   * unconfirmed field rectangle is dropped (the preview follows the pointer).
+   * A mouse or pen took over: the touch-pending tile of a ghost tool is
+   * dropped (the preview follows the pointer).
    */
   unpend(): void;
   /** Two-finger twist with a ghost tool: rotate it by quarter turns (signed; one per 45° of twist). */
@@ -92,12 +92,8 @@ export interface RendererEvents {
   move(at: IslandTile): void;
   found(at: IslandTile): void;
   road(island: string, from: TilePos, to: TilePos): void;
-  /** Field tool (D-049): a mouse click on one tile. */
+  /** Field tool (D-051 part 4): a mouse click on a tile places the ghost's field there. */
   placeField(at: IslandTile): void;
-  /** Field tool: a mouse drag released over a rectangle (corners, any order). */
-  fieldRect(island: string, from: TilePos, to: TilePos): void;
-  /** Field tool on touch: a tap or one-finger drag selected a rectangle; Confirm places it. */
-  pendFields(island: string, from: TilePos, to: TilePos): void;
   demolish(at: IslandTile): void;
   cancelTool(): void;
   /**
@@ -158,7 +154,7 @@ export class GameRenderer {
   /** Model detail of the current LOD (full at near and mid, lite at far). */
   private detail: Detail = "full";
   private readonly details = new Map<string, IslandDetail>();
-  private readonly fields: FieldLayer;
+  private readonly marks: FootprintMarks;
   private readonly roadPreview: RoadPreview;
   private readonly grid: GridOverlay;
   /** Ground point of the last touch tap or drag position (archipelago tiles): the grid's centre on touch. */
@@ -166,14 +162,9 @@ export class GameRenderer {
   private gridCentre: ArchPoint | null = null;
   /** The current drag is a finger's (its moves update lastTouch). */
   private touchDrag = false;
-  /** Start and current tile of a field-tool drag (island tiles), and whether a finger drags. */
-  private fieldStart: IslandTile | null = null;
-  private fieldEnd: TilePos | null = null;
-  private fieldTouch = false;
-  /** Cache keys of the field preview and the rings (recomputed only when they change). */
-  private fieldPreviewKey = "";
-  private fieldRectShown: { from: TilePos; to: TilePos } | null = null;
-  private ringKey = "";
+  /** Cache key of the field marks (recomputed only when they change) and the building the UI hovers (a fields list row). */
+  private marksKey = "";
+  private hoverBuilding: number | null = null;
   private readonly ghost: PlacementGhost;
   private lookups = new Map<string, IslandLookups>();
   private lastGhostHint: string | null = null;
@@ -244,7 +235,7 @@ export class GameRenderer {
     void this.models.loadManifest();
     this.arch = new ArchipelagoLayer(this.scene, this.models);
     this.arch.setQuality(quality);
-    this.fields = new FieldLayer(this.scene);
+    this.marks = new FootprintMarks(this.scene);
     this.roadPreview = new RoadPreview(this.scene);
     this.grid = new GridOverlay(this.scene);
 
@@ -300,8 +291,7 @@ export class GameRenderer {
     this.arch.frame(now);
     this.updateGhost();
     this.updateGrid();
-    this.updateFieldPreview();
-    this.updateRings();
+    this.updateMarks();
     this.engine._drawCalls.fetchNewFrame();
     this.scene.render();
     this.drawCalls = this.engine._drawCalls.current;
@@ -930,13 +920,12 @@ export class GameRenderer {
   /**
    * A mouse or pen is in use: the ghost follows it at once (also before
    * the UI state drops the pending tile), so a click places exactly what
-   * the preview shows. An unconfirmed touch field rectangle is dropped the
-   * same way.
+   * the preview shows.
    */
   private takePrecisePointer(): void {
     this.precise = true;
     const tool = this.tool();
-    if ((isGhostTool(tool) || tool.kind === "field") && tool.pending) this.events.unpend();
+    if (isGhostTool(tool) && tool.pending) this.events.unpend();
   }
 
   /** What the placement ghost drew in the last frame: the building's model, the footprint box (no model yet) or null (hidden). */
@@ -959,9 +948,14 @@ export class GameRenderer {
     return this.ghostAt;
   }
 
-  /** Rectangle the field tool's preview shows (local to its island; null: none). */
-  fieldPreview(): { from: TilePos; to: TilePos } | null {
-    return this.fieldRectShown;
+  /** Footprint marks drawn in the last frame, by kind (tests and the e2e hooks). */
+  fieldMarks(): Record<Mark["kind"], number> {
+    return this.marks.counts();
+  }
+
+  /** The farm's field row the UI hovers (a building ID) is outlined; null clears it. */
+  setHoverBuilding(id: number | null): void {
+    this.hoverBuilding = id;
   }
 
   /** Two-finger pan and pinch zoom (any tool). */
@@ -1071,9 +1065,7 @@ export class GameRenderer {
         this.events.road(t.island, t, t);
         return;
       case "field":
-        // Touch: the tapped tile becomes the pending rectangle (Confirm places it).
-        if (kind === "touch") this.events.pendFields(t.island, t, t);
-        else this.events.placeField(t);
+        this.events.placeField(t);
         return;
       case "demolish":
         this.events.demolish(t);
@@ -1102,11 +1094,6 @@ export class GameRenderer {
       return;
     }
     if (tool.kind === "road") this.roadStart = this.tileAt(p);
-    if (tool.kind === "field") {
-      this.fieldStart = this.tileAt(p);
-      this.fieldEnd = this.fieldStart;
-      this.fieldTouch = kind === "touch";
-    }
   }
 
   private onDragMove(prev: Point, cur: Point, button: number): void {
@@ -1123,11 +1110,6 @@ export class GameRenderer {
       if (t && pl) this.roadPreview.set(lPath(this.roadStart, t).map((q) => ({ x: q.x + pl.position.x, y: q.y + pl.position.y })));
       return;
     }
-    if (this.fieldStart && button === 0) {
-      const t = this.tileOn(this.fieldStart.island, cur);
-      if (t) this.fieldEnd = t;
-      return;
-    }
     // Right-drag turns the camera about its target: dragging right turns the map counter-clockwise on screen.
     if (button === 2) {
       this.rig.rotateBy(((cur.x - prev.x) / this.ratio()) * DRAG_TURN_PER_PX);
@@ -1136,13 +1118,11 @@ export class GameRenderer {
     if (this.pans(button)) this.rig.pan(prev, cur);
   }
 
-  /** The pointer's press or drag was cancelled: drop any ship drag, road or field preview; a free turn eases to 45°. */
+  /** The pointer's press or drag was cancelled: drop any ship drag or road preview; a free turn eases to 45°. */
   private onPointerCancel(): void {
     this.rig.snap();
     this.roadStart = null;
     this.roadPreview.set([]);
-    this.fieldStart = null;
-    this.fieldEnd = null;
     if (this.draggingShip !== null) {
       this.draggingShip = null;
       this.arch.setDragged(null);
@@ -1185,15 +1165,6 @@ export class GameRenderer {
       this.roadPreview.set([]);
       if (t && this.tool().kind === "road") this.events.road(start.island, start, t);
     }
-    if (this.fieldStart && button === 0) {
-      const start = this.fieldStart;
-      const end = this.tileOn(start.island, p) ?? this.fieldEnd ?? start;
-      this.fieldStart = null;
-      this.fieldEnd = null;
-      if (this.tool().kind !== "field") return;
-      if (this.fieldTouch) this.events.pendFields(start.island, { x: start.x, y: start.y }, end);
-      else this.events.fieldRect(start.island, { x: start.x, y: start.y }, end);
-    }
   }
 
   // Tool previews ---------------------------------------------------------------------
@@ -1217,93 +1188,39 @@ export class GameRenderer {
   }
 
   /**
-   * The field tool's rectangle (a drag in progress, else the touch-pending
-   * rectangle, else the tile under the mouse) coloured from the client's
-   * data: green tiles are sent, yellow ones lie outside every accepting
-   * farm's ring (a hint, D-027; the server validates). The hint text counts
-   * both. Recomputed only when the rectangle or the server state changes.
+   * Outlines of a farm's chain (D-051 part 4): the farm and its fields of the
+   * selected building (a farm or one of its fields) and of the farm the field
+   * tool adds to — active fields green, inactive ones yellow, the farm blue —
+   * and the field row the UI hovers. Drawn at near LOD only; recomputed when
+   * the selection, the tool, the hover or the server state changes.
    */
-  private updateFieldPreview(): void {
-    const tool = this.tool();
-    let rect: { island: string; from: TilePos; to: TilePos } | null = null;
-    if (tool.kind === "field") {
-      // Mouse or pen: the hovered tile (also before the UI state drops a
-      // touch-pending rectangle); touch: the pending rectangle.
-      const hovered = this.precise && this.hover ? this.tileAt(this.hover) : null;
-      if (this.fieldStart && this.fieldEnd) rect = { island: this.fieldStart.island, from: this.fieldStart, to: this.fieldEnd };
-      else if (hovered) rect = { island: hovered.island, from: hovered, to: hovered };
-      else if (!this.precise && tool.pending) rect = tool.pending;
-    }
-    const def = tool.kind === "field" ? this.defs.get(tool.fieldType) : undefined;
-    const server = this.sync.getSnapshot().server;
-    const l = rect ? this.lookup(rect.island) : undefined;
-    const key =
-      rect && def ? `${def.id}|${rect.island}|${rect.from.x},${rect.from.y},${rect.to.x},${rect.to.y}|${server?.version ?? 0}|${l?.statics ? 1 : 0}` : "";
-    if (key === this.fieldPreviewKey) return;
-    this.fieldPreviewKey = key;
-    const pl = rect ? this.arch.placement(rect.island) : undefined;
-    if (!rect || !def || !l?.statics || !pl) {
-      this.fieldRectShown = null;
-      this.fields.setPreview([], []);
-      if (tool.kind === "field") this.setGhostHint(null);
-      return;
-    }
-    this.fieldRectShown = { from: { x: rect.from.x, y: rect.from.y }, to: { x: rect.to.x, y: rect.to.y } };
-    const tiles = rectTiles(rect.from, rect.to);
-    const { valid, outOfRange } = classifyFieldTiles(def, tiles, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs });
-    const world = (ts: readonly TilePos[]) => ts.map((t) => ({ x: t.x + pl.position.x, y: t.y + pl.position.y }));
-    this.fields.setPreview(world(valid), world(outOfRange));
-    this.setGhostHint(fieldRectHint(valid.length, outOfRange.length, def.name));
-  }
-
-  /**
-   * Work-radius rings: every farm accepting the field tool's type on the
-   * island the tool points at, and the selected farm with fields; each
-   * with the server's "n / required".
-   */
-  private updateRings(): void {
+  private updateMarks(): void {
     const tool = this.tool();
     const server = this.sync.getSnapshot().server;
-    const fieldType = tool.kind === "field" ? this.defs.get(tool.fieldType)?.field?.type : undefined;
-    let toolIsland = "";
-    if (fieldType) {
-      const hovered = this.hover ? this.tileAt(this.hover) : null;
-      toolIsland = this.fieldStart?.island ?? (this.precise ? hovered?.island : tool.kind === "field" ? (tool.pending?.island ?? hovered?.island) : undefined) ?? "";
-    }
-    const key = `${fieldType ?? ""}|${toolIsland}|${this.selected ?? ""}|${server?.version ?? 0}|${this.lod}`;
-    if (key === this.ringKey) return;
-    this.ringKey = key;
-    const rings: FieldRing[] = [];
+    const key = `${this.selected ?? ""}|${this.hoverBuilding ?? ""}|${tool.kind === "field" ? tool.farmId : ""}|${server?.version ?? 0}|${this.lod}`;
+    if (key === this.marksKey) return;
+    this.marksKey = key;
+    const marks: Mark[] = [];
     if (this.lod === "near") {
-      const add = (is: IslandDisplay, ids: Set<number>) => {
-        for (const b of is.buildings) {
-          if (!ids.has(b.id)) continue;
-          const r = farmRing(b, this.defs.get(b.type), is.position);
-          if (r) rings.push(r);
-        }
+      const add = (island: IslandDisplay, b: BuildingDisplay, kind: Mark["kind"]) => {
+        const def = this.defs.get(b.type);
+        if (!def) return;
+        const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
+        marks.push({ cx: cx + island.position.x, cz: cz - island.position.y, w, h, kind });
       };
-      const sel = this.selected === null ? undefined : this.findBuilding(this.selected);
-      const toolIs = toolIsland ? this.displayIsland(toolIsland) : undefined;
-      if (toolIs && fieldType) {
-        const ids = new Set(acceptingFarms(toolIs.buildings, this.defs, fieldType).map((f) => f.id));
-        if (sel && sel.island.id === toolIs.id) ids.add(sel.b.id);
-        add(toolIs, ids);
-      }
-      if (sel && sel.island.id !== toolIs?.id) add(sel.island, new Set([sel.b.id]));
+      const chainOf = (found: { b: BuildingDisplay; island: IslandDisplay } | undefined) => {
+        if (!found) return;
+        const { farm, fields } = farmChain(found.b, found.island.buildings);
+        if (!farm) return;
+        add(found.island, farm, "farm");
+        for (const f of fields) add(found.island, f, f.active === false ? "inactive" : "active");
+      };
+      if (this.selected !== null) chainOf(this.findBuilding(this.selected));
+      if (tool.kind === "field" && tool.farmId !== this.selected) chainOf(this.findBuilding(tool.farmId));
+      const hover = this.hoverBuilding === null ? undefined : this.findBuilding(this.hoverBuilding);
+      if (hover) add(hover.island, hover.b, "hover");
     }
-    this.fields.setRings(rings);
-  }
-
-  /**
-   * The rings drawn with the canvas-relative CSS position of their top
-   * edge (the "n / required" labels follow it every frame).
-   */
-  fieldRingLabels(): { farmId: number; assigned: number; required: number; x: number; y: number }[] {
-    const k = this.ratio();
-    return this.fields.ringsShown().map((r) => {
-      const s = this.rig.project(new Vector3(r.cx, 0, r.cz + r.radius));
-      return { farmId: r.farmId, assigned: r.assigned, required: r.required, x: s.x / k, y: s.y / k };
-    });
+    this.marks.set(marks);
   }
 
   /**
@@ -1329,8 +1246,7 @@ export class GameRenderer {
     if (!ghostTool || !def || !t || !pl) {
       this.ghost.hide();
       this.ghostValid = null;
-      // The field tool owns the hint (updateFieldPreview).
-      if (tool.kind !== "field") this.setGhostHint(null);
+      this.setGhostHint(null);
       return;
     }
     const fertilities = l?.statics?.fertilities ?? [];
@@ -1346,7 +1262,22 @@ export class GameRenderer {
       const edge = waterEdgeHint(def, terrain, t.x, t.y, tool.rotation);
       if (edge) hint = waterEdgeText(edge, def.water_tiles);
     }
-    // Founding needs no road (the island has none yet).
+    // A field is checked against its farm's chain (a hint; the server validates).
+    if (tool.kind === "field" && !hint) {
+      const farm = this.findBuilding(tool.farmId);
+      if (!farm || farm.island.id !== t.island) {
+        hint = "Fields are added on the island of their farm";
+      } else if (l?.statics) {
+        const h = fieldPlacementHint(farm.b, def, t.x, t.y, tool.rotation, {
+          island: l.statics,
+          buildings: l.display.buildings,
+          roads: l.display.roads,
+          defs: this.defs,
+        });
+        if (h) hint = fieldHintText(h, def.name, this.defs.get(farm.b.type)?.name ?? farm.b.type);
+      }
+    }
+    // Founding needs no road (the island has none yet); a field has none either.
     const noRoad = tool.kind !== "found" && missingRoadHint(def, l?.roads ?? new Set(), t.x, t.y, tool.rotation);
     this.ghostValid = hint ? "invalid" : noRoad ? "no_road" : "ok";
     const color = this.ghostValid === "invalid" ? GHOST_INVALID : this.ghostValid === "no_road" ? GHOST_NO_ROAD : GHOST;
@@ -1384,11 +1315,9 @@ export class GameRenderer {
     };
     const mouse = this.precise && this.hover ? this.groundPoint(this.hover) : null;
     let at: ArchPoint | null = null;
-    if (this.fieldStart && this.fieldEnd) at = toArch(this.fieldStart.island, this.fieldEnd);
-    else if (this.roadStart) at = mouse ?? (this.touchDrag ? this.lastTouch : null) ?? toArch(this.roadStart.island, this.roadStart);
+    if (this.roadStart) at = mouse ?? (this.touchDrag ? this.lastTouch : null) ?? toArch(this.roadStart.island, this.roadStart);
     else if (mouse) at = mouse;
     else if (isGhostTool(tool) && tool.pending) at = toArch(tool.pending.island, tool.pending);
-    else if (tool.kind === "field" && tool.pending) at = toArch(tool.pending.island, tool.pending.to);
     at ??= this.lastTouch ?? { x: this.rig.view().x, y: this.rig.view().y };
     this.gridCentre = at;
     this.grid.set(at);

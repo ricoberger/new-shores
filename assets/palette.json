@@ -163,7 +163,7 @@
         "throttled": "#0072B2",
         "short-of-workers": "#999999",
         "low-efficiency": "#009E73",
-        "no-farm": "#CC79A7",
+        "not-adjacent": "#CC79A7",
         "ok": "#009E73",
         "ghost-ok": "#DDDDDD",
         "ghost-no-road": "#F0C808",
@@ -171,6 +171,7 @@
         "field-valid": "#3BB273",
         "field-out-of-range": "#F0C808",
         "field-ring": "#FFF4D6",
+        "field-hover": "#DDDDDD",
         "selection": "#FFD23F"
       }
     },

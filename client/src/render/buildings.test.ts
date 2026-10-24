@@ -112,6 +112,28 @@ describe("BuildingLayer with models", () => {
     scene.dispose();
   });
 
+  it("bakes a neutral grey tint into an inactive field (not_adjacent) and leaves an active one alone", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const layer = new BuildingLayer(scene, null, reg);
+    const colours = async (active: boolean) => {
+      layer.update([b(10, "sawmill", 0, { active, farm_id: 1 })], defs);
+      await loaded(reg);
+      layer.refresh();
+      const mesh = layer.meshes().find((m) => m.name.startsWith("models_"))!;
+      return [...(mesh.getVerticesData("color") as Float32Array)];
+    };
+    const on = await colours(true);
+    const off = await colours(false);
+    expect(off.length).toBe(on.length);
+    expect(off[0]).toBeCloseTo((on[0] as number) * 0.62, 5);
+    expect(off[1]).toBeCloseTo((on[1] as number) * 0.62, 5);
+    expect(off[2]).toBeCloseTo((on[2] as number) * 0.58, 5);
+    expect(off[3]).toBe(1);
+    scene.dispose();
+  });
+
   it("raises a newly placed building over RISE_MS, then merges it; the first payload never animates", async () => {
     const scene = new Scene(engine);
     const reg = registry(scene);

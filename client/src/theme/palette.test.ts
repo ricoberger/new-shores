@@ -114,7 +114,7 @@ describe("palette values (ART_DIRECTION §2)", () => {
       throttled: "#0072B2",
       short_of_workers: "#999999",
       low_efficiency: "#009E73",
-      no_farm: "#CC79A7",
+      not_adjacent: "#CC79A7",
       ok: "#009E73",
     });
   });

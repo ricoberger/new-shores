@@ -103,6 +103,13 @@ func buildableTerrain(t string) bool {
 	return t == content.TerrainCoast || t == content.TerrainGrass || t == content.TerrainForest
 }
 
+// inRadius reports whether the centre of tile (tx, ty) lies within radius r
+// of the footprint centre of the rectangle [x, x+w) x [y, y+h).
+func inRadius(x, y, w, h, r, tx, ty int) bool {
+	dx, dy := 2*tx+1-(2*x+w), 2*ty+1-(2*y+h)
+	return dx*dx+dy*dy <= 4*r*r
+}
+
 // workAreaEfficiency computes the per-mille efficiency of a work-area
 // building placed at (x, y):
 //
@@ -143,7 +150,7 @@ func workAreaEfficiency(is *Island, occ []int64, def *content.Building, x, y, ro
 
 // recomputeEfficiency updates the efficiency of every work-area building on
 // the island (MECHANICS §2: recomputed when neighbouring tiles change) and
-// the field assignment and efficiency of every farm with fields (D-049).
+// the active fields and efficiency of every farm with fields (D-051).
 func recomputeEfficiency(is *Island, c *content.Catalogue) {
 	occ := is.occupancy(c)
 	for _, b := range is.Buildings {

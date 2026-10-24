@@ -27,7 +27,7 @@
       "y": 0,
       "rotation": 0
     },
-    "gold": 2000,
+    "gold": 2060,
     "stock": {
       "planks": 150
     }
@@ -72,13 +72,17 @@
     },
     {
       "fields": {
-        "type": "pasture",
+        "farm": [
+          24,
+          5
+        ],
         "rect": [
           22,
-          7,
+          3,
           28,
           9
-        ]
+        ],
+        "count": 4
       }
     },
     {

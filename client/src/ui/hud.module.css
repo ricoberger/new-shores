@@ -384,6 +384,20 @@
   color: var(--ns-ui-negative);
 }
 
+/* The fields of a farm in its panel (D-051 part 4): one row per field. */
+.fieldList {
+  margin: 4px 0;
+  padding: 0;
+  list-style: none;
+  max-height: 9.5em;
+  overflow-y: auto;
+}
+
+.fieldList li {
+  margin: 0;
+  padding: 1px 0;
+}
+
 .link {
   border: none;
   background: none;
@@ -1066,20 +1080,6 @@
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Farm ring labels of the field tool (D-049). */
-.ringLabel {
-  position: absolute;
-  left: 0;
-  top: 0;
-  padding: 1px 6px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--ns-ui-parchment) 90%, transparent);
-  color: var(--ns-ui-ink);
-  font-size: 12px;
-  font-weight: 600;
   white-space: nowrap;
 }
 

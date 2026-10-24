@@ -187,11 +187,14 @@ type Building struct {
 	// Efficiency in per-mille from the work area or, for a farm with
 	// fields, from its assigned fields (1000 without either).
 	Efficiency int64 `json:"efficiency"`
-	// FarmID is the farm a field is assigned to (D-049, fields.go): the
-	// nearest accepting farm whose radius contains the field; 0 for an
-	// unassigned field and for every other building. Derived state,
-	// recomputed after every placement change of the island.
+	// FarmID is the farm instance a field belongs to (D-051 part 4,
+	// fields.go): the farm it was placed from, fixed at placement; 0 for
+	// every other building.
 	FarmID int64 `json:"farm_id,omitempty"`
+	// Inactive marks a field whose chain to its farm is broken (fields.go).
+	// Derived state, recomputed after every placement change of the
+	// island; false for every other building.
+	Inactive bool `json:"inactive,omitempty"`
 	// Level of a Trading Post or Warehouse (1-based); 0 for other
 	// buildings.
 	Level int `json:"level,omitempty"`

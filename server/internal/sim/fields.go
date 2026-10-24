@@ -1,7 +1,6 @@
 package sim
 
 import (
-	"cmp"
 	"fmt"
 	"slices"
 	"strings"
@@ -9,134 +8,232 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// Fields of farms (D-049, superseding the implicit work area of MECHANICS
-// §2 for farms):
+// Fields of farms (D-049, replaced by D-051 part 4: adjacency chains):
 //
-//   - A field is a 1x1 building whose content definition has a field block.
-//     It occupies its tile like any building, has no upkeep, no recipe and
-//     no road connection, and is never paused.
-//   - A tile is a valid field site for a field type when, in this order, it
-//     is on the island, its terrain is in field.terrain, it carries neither
-//     a building nor a road, the island has field.fertility (when set), and
-//     its centre lies within the work radius of at least one farm on the
-//     island whose fields.type is the field type (paused or unconnected
-//     farms count).
-//   - The radius test is the disc rule of the work area:
-//     (2tx+1-(2x+W))^2 + (2ty+1-(2y+H))^2 <= (2r)^2 against the farm's
-//     rotated footprint (x, y, W, H).
-//   - Every field is assigned to the accepting farm whose radius contains
-//     it and whose footprint centre is nearest to the field's tile centre
-//     (exact integer squared distance of doubled coordinates); ties go to
-//     the lowest farm ID. A field without such a farm is unassigned
-//     (FarmID 0, status no_farm). The assignment is recomputed in full
-//     after every placement change of the island (afterChange).
-//   - A farm's efficiency is min(1000, assigned x 1000 / fields.required)
-//     per mille (0 without fields).
+//   - A field is a building whose content definition has a field block:
+//     a 1x1 crop tile or a 2x2 animal field. It occupies its footprint
+//     like any building, has no upkeep, no recipe and no road
+//     connection, and is never paused. Its content cost is charged on
+//     placement; demolition refunds like any building (D-019).
+//   - A field belongs to exactly one farm instance, the one it was placed
+//     from (Building.FarmID, set at placement, never derived). The farm's
+//     building type is the field's field.farm; a farm has exactly one
+//     field type, so fields of another farm type or another farm instance
+//     never chain.
+//   - A field is placed only with PlaceField (the farm panel's "Add
+//     field"), never free-standing (PlaceBuilding of a field fails with
+//     ErrFieldNeedsFarm). The footprint must be on the island, on the
+//     field's terrain, free of buildings and roads, on an island with the
+//     field's fertility, and 4-edge adjacent (they share an edge segment; a corner
+//     alone does not count) to the
+//     farm's footprint or to the footprint of one of the farm's active
+//     fields (ErrFieldNotAdjacent). A farm owns at most fields.max fields,
+//     active or not (ErrFieldMaxReached).
+//   - Active fields are computed per farm by a flood fill from the farm's
+//     footprint: a field is active when it is 4-edge adjacent to the farm or
+//     to an active field of the same farm. The chain never passes through
+//     an inactive or foreign field. A field whose chain is broken (the
+//     farm moved, an intermediate field demolished) is inactive: it
+//     stays, counts nothing and shows StatusNotAdjacent.
+//   - A farm's efficiency is min(1000, active x 1000 / fields.required)
+//     per mille (0 without active fields).
+//   - Moving a farm keeps its fields; a field itself cannot be moved
+//     (demolish and place it again). Demolishing a farm demolishes its
+//     fields, each with the refund of its own cost.
+//
+// The assignment is recomputed in full after every placement change of
+// the island (afterChange).
 
-// MaxFieldTiles bounds the tiles of one PlaceFields or DemolishFields
-// command.
-const MaxFieldTiles = 256
+// StatusNotAdjacent is the status of an inactive field: its chain to the
+// farm is broken.
+const StatusNotAdjacent = "not_adjacent"
 
-// StatusNoFarm is the status of a field outside the radius of every farm
-// that accepts its type.
-const StatusNoFarm = "no_farm"
-
-// PlaceFields places one field of the field building Type on each tile, all
-// or nothing (D-049). Fields get sequential building IDs in tile order.
-type PlaceFields struct {
+// PlaceField places one field of the field building Type from the farm
+// FarmID at (X, Y) (the top-left tile of the rotated footprint).
+type PlaceField struct {
 	IslandID string
+	FarmID   int64
 	Type     string
-	Tiles    []Pos
+	X, Y     int
+	Rotation int
 }
 
-// DemolishFields removes the fields covering the tiles, all or nothing,
-// with the demolition refund of D-019.
-type DemolishFields struct {
-	IslandID string
-	Tiles    []Pos
+func (PlaceField) isCommand() {}
+
+// rectsTouch reports whether the non-overlapping rectangles a and b are
+// 4-edge adjacent: they share an edge segment of at least one tile. Contact
+// at a corner only does not count (MECHANICS §4).
+func rectsTouch(ax, ay, aw, ah, bx, by, bw, bh int) bool {
+	overlapX := ax < bx+bw && bx < ax+aw
+	overlapY := ay < by+bh && by < ay+ah
+	return (overlapY && (ax+aw == bx || bx+bw == ax)) || (overlapX && (ay+ah == by || by+bh == ay))
 }
 
-func (PlaceFields) isCommand()    {}
-func (DemolishFields) isCommand() {}
-
-// inRadius reports whether the centre of tile (tx, ty) lies within radius r
-// of the footprint centre of the rectangle [x, x+w) x [y, y+h).
-func inRadius(x, y, w, h, r, tx, ty int) bool {
-	dx, dy := 2*tx+1-(2*x+w), 2*ty+1-(2*y+h)
-	return dx*dx+dy*dy <= 4*r*r
-}
-
-// farmSite is an accepting farm of a field type: its ID, rotated footprint
-// and work radius.
-type farmSite struct {
-	id         int64
-	x, y, w, h int
-	radius     int
-}
-
-// contains reports whether the farm's radius contains tile (tx, ty).
-func (f farmSite) contains(tx, ty int) bool { return inRadius(f.x, f.y, f.w, f.h, f.radius, tx, ty) }
-
-// dist2 is the squared distance between the doubled centres of the farm's
-// footprint and tile (tx, ty).
-func (f farmSite) dist2(tx, ty int) int {
-	dx, dy := 2*tx+1-(2*f.x+f.w), 2*ty+1-(2*f.y+f.h)
-	return dx*dx + dy*dy
-}
-
-// acceptingFarms returns the farms on the island that accept fieldType, in
-// ascending building ID.
-func acceptingFarms(is *Island, c *content.Catalogue, fieldType string) []farmSite {
-	var out []farmSite
+// farmFieldsOf returns the fields owned by the farm, in ascending ID.
+func farmFieldsOf(is *Island, c *content.Catalogue, farmID int64) []*Building {
+	var out []*Building
 	for _, b := range is.Buildings {
-		def := c.BuildingByID[b.Type]
-		if def == nil || def.Fields == nil || def.Fields.Type != fieldType || def.WorkArea == nil {
+		if b.FarmID != farmID {
 			continue
 		}
-		w, h := footprint(def, b.Rotation)
-		out = append(out, farmSite{id: b.ID, x: b.X, y: b.Y, w: w, h: h, radius: def.WorkArea.Radius})
+		if def := c.BuildingByID[b.Type]; def != nil && def.Field != nil {
+			out = append(out, b)
+		}
 	}
-	slices.SortFunc(out, func(a, b farmSite) int { return cmp.Compare(a.id, b.id) })
 	return out
 }
 
-// nearestFarm returns the ID of the farm among farms (ascending ID) whose
-// radius contains (tx, ty) and whose centre is nearest; 0 when none.
-func nearestFarm(farms []farmSite, tx, ty int) int64 {
-	var best int64
-	bestD := 0
-	for _, f := range farms {
-		if !f.contains(tx, ty) {
-			continue
-		}
-		if d := f.dist2(tx, ty); best == 0 || d < bestD {
-			best, bestD = f.id, d
+// activeFields returns the IDs of the farm's active fields: the flood fill
+// of the fields rule from the farm's footprint.
+func activeFields(is *Island, c *content.Catalogue, farm *Building, fields []*Building) map[int64]bool {
+	active := map[int64]bool{}
+	fdef := c.BuildingByID[farm.Type]
+	if fdef == nil || fdef.Fields == nil {
+		return active
+	}
+	type rect struct{ x, y, w, h int }
+	fw, fh := footprint(fdef, farm.Rotation)
+	reached := []rect{{farm.X, farm.Y, fw, fh}}
+	for grown := true; grown; {
+		grown = false
+		for _, f := range fields {
+			def := c.BuildingByID[f.Type]
+			if active[f.ID] || def == nil || def.Field == nil || def.Field.Type != fdef.Fields.Type {
+				continue
+			}
+			w, h := footprint(def, f.Rotation)
+			for _, r := range reached {
+				if rectsTouch(r.x, r.y, r.w, r.h, f.X, f.Y, w, h) {
+					active[f.ID] = true
+					reached = append(reached, rect{f.X, f.Y, w, h})
+					grown = true
+					break
+				}
+			}
 		}
 	}
-	return best
+	return active
 }
 
-// checkFieldTile validates a field site of the field building def at
-// (x, y) against occ (the occupancy to use) and the accepting farms, in
-// the order of the field rule.
-func checkFieldTile(is *Island, occ []int64, def *content.Building, farms []farmSite, x, y int) error {
-	if !is.InBounds(x, y) {
-		return fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, x, y)
+// assignFields recomputes which fields are inactive and the efficiency of
+// every farm on the island (fields rule above).
+func assignFields(is *Island, c *content.Catalogue) {
+	inactive := map[int64]bool{}
+	for _, b := range is.Buildings {
+		if def := c.BuildingByID[b.Type]; def != nil && def.Field != nil {
+			inactive[b.ID] = true
+		}
 	}
-	i := is.index(x, y)
-	if t := is.Tiles[i].Terrain; !def.Field.MatchesTerrain(t) {
-		return fmt.Errorf("%w: %s at (%d,%d) cannot stand on %s", ErrTerrain, def.ID, x, y, t)
+	for _, b := range is.Buildings {
+		def := c.BuildingByID[b.Type]
+		if def == nil || def.Fields == nil {
+			continue
+		}
+		active := activeFields(is, c, b, farmFieldsOf(is, c, b.ID))
+		for id := range active {
+			delete(inactive, id)
+		}
+		b.Efficiency = fieldEfficiency(len(active), def.Fields.Required)
 	}
-	if occ[i] != 0 || is.Roads[i] != "" {
-		return fmt.Errorf("%w: (%d,%d)", ErrOccupied, x, y)
+	for _, b := range is.Buildings {
+		b.Inactive = inactive[b.ID]
+	}
+}
+
+// fieldEfficiency is min(1000, active x 1000 / required) per mille.
+func fieldEfficiency(active, required int) int64 {
+	if required < 1 {
+		return 0
+	}
+	return min(int64(active)*1000/int64(required), 1000)
+}
+
+// FieldSummary is the field count of a farm.
+type FieldSummary struct {
+	// IDs are the farm's fields (active or not) in ascending ID.
+	IDs    []int64
+	Active int
+}
+
+// farmFieldSummaries counts the fields of every farm on the island.
+func farmFieldSummaries(is *Island, c *content.Catalogue) map[int64]*FieldSummary {
+	out := map[int64]*FieldSummary{}
+	for _, b := range is.Buildings {
+		def := c.BuildingByID[b.Type]
+		if def == nil || def.Field == nil {
+			continue
+		}
+		s := out[b.FarmID]
+		if s == nil {
+			s = &FieldSummary{}
+			out[b.FarmID] = s
+		}
+		s.IDs = append(s.IDs, b.ID)
+		if !b.Inactive {
+			s.Active++
+		}
+	}
+	return out
+}
+
+// CheckFieldSite validates a field of the field building def at (x, y)
+// (rotation r) from the farm: the field rule without tier, settlement and
+// cost checks, in this order: the farm type matches def.Field.Farm
+// (ErrFieldWrongFarm), the farm has fewer than fields.max fields
+// (ErrFieldMaxReached), the footprint is on the island, on the field's
+// terrain and free (ErrOutOfBounds, ErrTerrain, ErrOccupied), the island
+// has the fertility (ErrNoFertility) and the footprint is 4-edge adjacent to
+// the farm or one of its active fields (ErrFieldNotAdjacent). It is the
+// check behind PlaceField and the scenario runner's rectangle helper; the
+// client mirrors it for the ghost as a hint.
+func CheckFieldSite(is *Island, c *content.Catalogue, farm *Building, def *content.Building, x, y, rotation int) error {
+	fdef := c.BuildingByID[farm.Type]
+	if def == nil || def.Field == nil {
+		return fmt.Errorf("%w: not a field", ErrFieldTypeMismatch)
+	}
+	if fdef == nil || fdef.Fields == nil || def.Field.Farm != farm.Type || fdef.Fields.Type != def.Field.Type {
+		return fmt.Errorf("%w: %s belongs to %s, not %s %d", ErrFieldWrongFarm, def.ID, def.Field.Farm, farm.Type, farm.ID)
+	}
+	fields := farmFieldsOf(is, c, farm.ID)
+	if len(fields) >= fdef.Fields.Max {
+		return fmt.Errorf("%w: %s %d has %d of %d fields", ErrFieldMaxReached, farm.Type, farm.ID, len(fields), fdef.Fields.Max)
+	}
+	w, h := footprint(def, rotation)
+	if x < 0 || y < 0 || x > is.Width-w || y > is.Height-h {
+		return fmt.Errorf("%w: %s footprint at (%d,%d)", ErrOutOfBounds, def.ID, x, y)
+	}
+	occ := is.occupancy(c)
+	for ty := y; ty < y+h; ty++ {
+		for tx := x; tx < x+w; tx++ {
+			i := is.index(tx, ty)
+			if t := is.Tiles[i].Terrain; !def.Field.MatchesTerrain(t) {
+				return fmt.Errorf("%w: %s at (%d,%d) cannot stand on %s", ErrTerrain, def.ID, tx, ty, t)
+			}
+			if occ[i] != 0 || is.Roads[i] != "" {
+				return fmt.Errorf("%w: (%d,%d)", ErrOccupied, tx, ty)
+			}
+		}
 	}
 	if err := checkFertility(is, def.ID, def.Field.Fertility); err != nil {
 		return err
 	}
-	if nearestFarm(farms, x, y) == 0 {
-		return fmt.Errorf("%w: %s at (%d,%d)", ErrNoFarmInRange, def.ID, x, y)
+	fw, fh := footprint(fdef, farm.Rotation)
+	if rectsTouch(farm.X, farm.Y, fw, fh, x, y, w, h) {
+		return nil
 	}
-	return nil
+	active := activeFields(is, c, farm, fields)
+	for _, f := range fields {
+		if !active[f.ID] {
+			continue
+		}
+		if fd := c.BuildingByID[f.Type]; fd != nil {
+			ow, oh := footprint(fd, f.Rotation)
+			if rectsTouch(f.X, f.Y, ow, oh, x, y, w, h) {
+				return nil
+			}
+		}
+	}
+	return fmt.Errorf("%w: %s at (%d,%d) touches neither %s %d nor one of its active fields", ErrFieldNotAdjacent, def.ID, x, y, farm.Type, farm.ID)
 }
 
 // checkFertility fails with ErrNoFertility when tag is set and the island
@@ -152,179 +249,55 @@ func checkFertility(is *Island, id, tag string) error {
 	return fmt.Errorf("%w: %s needs %s (island %q has %s)", ErrNoFertility, id, tag, is.ID, have)
 }
 
-// ValidFieldTiles returns the tiles of a candidate list (in their order)
-// on which a field of the field building fieldType could be placed now:
-// the field rule without tier, settlement and cost checks. It is the pure
-// filter behind rectangle placement (the scenario runner's fields step;
-// the client applies the same rule to its display data as a hint). The
-// PlaceFields command stays the authority.
-func ValidFieldTiles(is *Island, c *content.Catalogue, fieldType string, tiles []Pos) []Pos {
-	def := c.BuildingByID[fieldType]
-	if is == nil || def == nil || def.Field == nil {
-		return nil
-	}
-	occ := is.occupancy(c)
-	farms := acceptingFarms(is, c, def.Field.Type)
-	var out []Pos
-	for _, p := range tiles {
-		if checkFieldTile(is, occ, def, farms, p.X, p.Y) == nil {
-			out = append(out, p)
-		}
-	}
-	return out
+// PlaceFieldFree places a field without tier, settlement and cost checks
+// (world creation and seeding only, like PlaceFree).
+func PlaceFieldFree(w *World, c *content.Catalogue, cmd PlaceField, l *Ledger) error {
+	return placeField(w, c, cmd, false, l)
 }
 
-// assignFields recomputes the farm of every field and the efficiency of
-// every farm on the island (fields rule above).
-func assignFields(is *Island, c *content.Catalogue) {
-	farms := map[string][]farmSite{}
-	assigned := map[int64]int{}
-	for _, b := range is.Buildings {
-		def := c.BuildingByID[b.Type]
-		if def == nil || def.Field == nil {
-			continue
-		}
-		fs, ok := farms[def.Field.Type]
-		if !ok {
-			fs = acceptingFarms(is, c, def.Field.Type)
-			farms[def.Field.Type] = fs
-		}
-		b.FarmID = nearestFarm(fs, b.X, b.Y)
-		if b.FarmID != 0 {
-			assigned[b.FarmID]++
-		}
-	}
-	for _, b := range is.Buildings {
-		def := c.BuildingByID[b.Type]
-		if def == nil || def.Fields == nil {
-			continue
-		}
-		b.Efficiency = fieldEfficiency(assigned[b.ID], def.Fields.Required)
-	}
-}
-
-// fieldEfficiency is min(1000, assigned x 1000 / required) per mille.
-func fieldEfficiency(assigned, required int) int64 {
-	if required < 1 {
-		return 0
-	}
-	return min(int64(assigned)*1000/int64(required), 1000)
-}
-
-// assignedFields counts the fields assigned to each farm of the island.
-func assignedFields(is *Island, c *content.Catalogue) map[int64]int {
-	out := map[int64]int{}
-	for _, b := range is.Buildings {
-		if def := c.BuildingByID[b.Type]; def != nil && def.Field != nil && b.FarmID != 0 {
-			out[b.FarmID]++
-		}
-	}
-	return out
-}
-
-func placeFields(w *World, c *content.Catalogue, cmd PlaceFields, l *Ledger) error {
+func placeField(w *World, c *content.Catalogue, cmd PlaceField, charge bool, l *Ledger) error {
 	is, err := lookupIsland(w, cmd.IslandID)
 	if err != nil {
 		return err
 	}
 	def := c.BuildingByID[cmd.Type]
-	if def == nil || def.Field == nil {
+	if def == nil {
+		return fmt.Errorf("%w: %q", ErrUnknownBuilding, cmd.Type)
+	}
+	if def.Field == nil {
 		return fmt.Errorf("%w: %q is not a field", ErrFieldTypeMismatch, cmd.Type)
 	}
-	if err := checkFieldTileList(cmd.Tiles); err != nil {
-		return err
+	farm := is.Building(cmd.FarmID)
+	if farm == nil {
+		return fmt.Errorf("%w: farm %d on island %q", ErrBuildingNotFound, cmd.FarmID, cmd.IslandID)
 	}
-	if !TierUnlocked(w, c, def.Tier) {
+	if !validRotation(cmd.Rotation) {
+		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, cmd.Rotation)
+	}
+	if charge && !TierUnlocked(w, c, def.Tier) {
 		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
 	}
-	if !settled(is, c) {
+	if charge && !settled(is, c) {
 		return fmt.Errorf("%w: %q", ErrIslandNotSettled, is.ID)
 	}
-	// Every tile is checked against the island before the command: the
-	// whole set must be free.
-	occ := is.occupancy(c)
-	farms := acceptingFarms(is, c, def.Field.Type)
-	for _, p := range cmd.Tiles {
-		if err := checkFieldTile(is, occ, def, farms, p.X, p.Y); err != nil {
+	if err := CheckFieldSite(is, c, farm, def, cmd.X, cmd.Y, cmd.Rotation); err != nil {
+		return err
+	}
+	if charge {
+		if err := checkCost(w, is, def.Cost, 1); err != nil {
 			return err
 		}
 	}
-	n := int64(len(cmd.Tiles))
-	if err := checkCost(w, is, def.Cost, n); err != nil {
-		return err
-	}
 
 	// Validation complete: mutate.
-	chargeCost(w, is, def.Cost, n, l)
+	if charge {
+		chargeCost(w, is, def.Cost, 1, l)
+	}
 	if w.NextBuildingID < 1 {
 		w.NextBuildingID = 1
 	}
-	for _, p := range cmd.Tiles {
-		is.Buildings = append(is.Buildings, &Building{ID: w.NextBuildingID, Type: def.ID, X: p.X, Y: p.Y, Efficiency: 1000})
-		w.NextBuildingID++
-	}
-	afterChange(is, c)
-	return nil
-}
-
-// checkFieldTileList validates the size of a field command's tile list
-// and that it has no duplicates.
-func checkFieldTileList(tiles []Pos) error {
-	if len(tiles) == 0 || len(tiles) > MaxFieldTiles {
-		return fmt.Errorf("%w: %d tiles (1 to %d)", ErrInvalidCommand, len(tiles), MaxFieldTiles)
-	}
-	seen := make(map[Pos]bool, len(tiles))
-	for _, p := range tiles {
-		if seen[p] {
-			return fmt.Errorf("%w: duplicate tile (%d,%d)", ErrInvalidCommand, p.X, p.Y)
-		}
-		seen[p] = true
-	}
-	return nil
-}
-
-func demolishFields(w *World, c *content.Catalogue, cmd DemolishFields, l *Ledger) error {
-	is, err := lookupIsland(w, cmd.IslandID)
-	if err != nil {
-		return err
-	}
-	if err := checkFieldTileList(cmd.Tiles); err != nil {
-		return err
-	}
-	occ := is.occupancy(c)
-	remove := map[int64]bool{}
-	count := map[string]int64{}
-	for _, p := range cmd.Tiles {
-		if !is.InBounds(p.X, p.Y) {
-			return fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, p.X, p.Y)
-		}
-		b := is.Building(occ[is.index(p.X, p.Y)])
-		if b == nil {
-			return fmt.Errorf("%w: no building at (%d,%d) on island %q", ErrBuildingNotFound, p.X, p.Y, is.ID)
-		}
-		if def := c.BuildingByID[b.Type]; def == nil || def.Field == nil {
-			return fmt.Errorf("%w: %s %d at (%d,%d)", ErrNotAField, b.Type, b.ID, p.X, p.Y)
-		}
-		remove[b.ID] = true
-		count[b.Type]++
-	}
-
-	// Validation complete: mutate. Fields have no capacity, transit or
-	// buffer, so only the refund applies.
-	now := w.LastEvaluatedAt.UnixMilli()
-	out := is.Buildings[:0]
-	for _, b := range is.Buildings {
-		if !remove[b.ID] {
-			out = append(out, b)
-		}
-	}
-	if len(out) == 0 {
-		out = nil
-	}
-	is.Buildings = out
-	for _, typ := range sortedKeys(count) {
-		refund(is, c, c.BuildingByID[typ].Cost, count[typ], l, now)
-	}
+	is.Buildings = append(is.Buildings, &Building{ID: w.NextBuildingID, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Efficiency: 1000, FarmID: farm.ID})
+	w.NextBuildingID++
 	afterChange(is, c)
 	return nil
 }

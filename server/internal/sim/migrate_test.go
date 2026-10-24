@@ -13,17 +13,18 @@ import (
 	"time"
 )
 
-// TestSchemaMigrationsRegistered: schema 4 (D-051) registers no migration:
-// envelopes of schema 1-3 (the game was not deployed), envelopes without a
-// version and newer ones fail loudly with ErrSchemaVersion.
+// TestSchemaMigrationsRegistered: schema 5 (D-051 part 4) registers no
+// migration: envelopes of schema 1-4 (the game was not deployed), envelopes
+// without a version and newer ones fail loudly with ErrSchemaVersion.
 func TestSchemaMigrationsRegistered(t *testing.T) {
 	m := SchemaMigrations(catalogue(t))
-	if SchemaVersion != 4 || len(m) != 0 {
+	if SchemaVersion != 5 || len(m) != 0 {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":5,"content_version":"x","world":{}}`,
+		`{"schema_version":6,"content_version":"x","world":{}}`,
+		`{"schema_version":4,"content_version":"old_coast-0.7.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"content_version":"x","world":{}}`,
 		`{"schema_version":1,"content_version":"x","world":{}}`,
 		`{"schema_version":2,"content_version":"x","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
@@ -31,6 +32,25 @@ func TestSchemaMigrationsRegistered(t *testing.T) {
 	} {
 		if _, _, _, err := Decode([]byte(raw), catalogue(t)); !errors.Is(err, ErrSchemaVersion) {
 			t.Errorf("%s: err = %v, want ErrSchemaVersion", raw, err)
+		}
+	}
+}
+
+// TestSchema4FixturesFailToLoad: worlds of schema 4 (radius fields) are not
+// migrated; they fail with ErrSchemaVersion and need a fresh database
+// (make down VOLUMES=1 && make up).
+func TestSchema4FixturesFailToLoad(t *testing.T) {
+	files, err := filepath.Glob(filepath.Join("testdata", "schema4_*.json"))
+	if err != nil || len(files) < 3 {
+		t.Fatalf("schema 4 fixtures %v (%v)", files, err)
+	}
+	for _, f := range files {
+		data, err := os.ReadFile(f) // #nosec G304 -- test fixture path.
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, _, _, err := Decode(data, catalogue(t)); !errors.Is(err, ErrSchemaVersion) {
+			t.Errorf("%s: err = %v, want ErrSchemaVersion", f, err)
 		}
 	}
 }

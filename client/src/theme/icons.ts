@@ -104,7 +104,7 @@ export const ICON_PATHS: Readonly<Record<string, string>> = {
   "need:tavern": P[24],
   "status:input_starved": P[30],
   "status:low_efficiency": P[33],
-  "status:no_farm": P[34],
+  "status:not_adjacent": P[34],
   "status:not_connected": P[28],
   "status:ok": P[35],
   "status:paused_player": P[26],

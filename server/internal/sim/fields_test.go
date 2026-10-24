@@ -1,8 +1,9 @@
 package sim
 
 import (
+	"errors"
 	"maps"
-	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -49,19 +50,6 @@ func fieldsWorld(t *testing.T, c *content.Catalogue) (*World, int64) {
 	return w, farm
 }
 
-// validTiles returns the valid field tiles of fieldType on the first
-// island in row-major order.
-func validTiles(w *World, c *content.Catalogue, fieldType string) []Pos {
-	is := w.Islands[0]
-	var cand []Pos
-	for y := range is.Height {
-		for x := range is.Width {
-			cand = append(cand, Pos{x, y})
-		}
-	}
-	return ValidFieldTiles(is, c, fieldType, cand)
-}
-
 func fieldDisplay(t *testing.T, w *World, c *content.Catalogue, id int64) BuildingDisplay {
 	t.Helper()
 	ds, err := Display(w, c, w.LastEvaluatedAt)
@@ -77,56 +65,6 @@ func fieldDisplay(t *testing.T, w *World, c *content.Catalogue, id int64) Buildi
 	}
 	t.Fatalf("building %d not displayed", id)
 	return BuildingDisplay{}
-}
-
-// TestFieldEfficiency (R-9, R-12): a farm starts at 0 fields with
-// efficiency 0 and status low_efficiency; 8 of 16 fields give 500, 16
-// give 1000 and status ok, more stay at 1000. Fields display their farm.
-func TestFieldEfficiency(t *testing.T) {
-	c := catalogue(t)
-	w, farm := fieldsWorld(t, c)
-	fd := fieldDisplay(t, w, c, farm)
-	if fd.EfficiencyPermille != 0 || fd.Status != StatusLowEfficiency || fd.Fields == nil || *fd.Fields != (FieldsDisplay{0, 16}) || fd.FarmID != nil {
-		t.Fatalf("farm without fields: %+v %+v", fd, fd.Fields)
-	}
-	if fd.Rates.Outputs["wool"] != 0 {
-		t.Errorf("wool rate %d without fields", fd.Rates.Outputs["wool"])
-	}
-	tiles := validTiles(w, c, "pasture")
-	if len(tiles) < 20 {
-		t.Fatalf("only %d valid pasture tiles", len(tiles))
-	}
-	for _, step := range []struct {
-		n    int
-		eff  int64
-		stat string
-	}{{8, 500, StatusLowEfficiency}, {16, 1000, StatusOK}, {20, 1000, StatusOK}} {
-		have := len(fieldsOf(w, c))
-		mustApply(t, w, c, PlaceFields{IslandID: "main", Type: "pasture", Tiles: tiles[have:step.n]})
-		fd := fieldDisplay(t, w, c, farm)
-		if fd.EfficiencyPermille != step.eff || fd.Status != step.stat || *fd.Fields != (FieldsDisplay{step.n, 16}) {
-			t.Errorf("%d fields: efficiency %d status %s fields %+v", step.n, fd.EfficiencyPermille, fd.Status, fd.Fields)
-		}
-	}
-	for _, f := range fieldsOf(w, c) {
-		d := fieldDisplay(t, w, c, f.ID)
-		if d.FarmID == nil || *d.FarmID != farm || d.Status != StatusOK || d.Fields != nil || d.Rates != nil || d.AssignedWarehouseID != nil || d.Residents != nil {
-			t.Errorf("field %d display %+v", f.ID, d)
-		}
-	}
-	// Sequential IDs in tile order.
-	fs := fieldsOf(w, c)
-	for i, f := range fs {
-		if f.X != tiles[i].X || f.Y != tiles[i].Y || (i > 0 && f.ID != fs[i-1].ID+1) {
-			t.Fatalf("field %d = %+v", i, f)
-		}
-	}
-	// A field cannot be paused, has no upkeep and never needs a road.
-	expectApplyErr(t, w, c, SetPaused{IslandID: "main", BuildingID: fs[0].ID, Paused: true}, ErrNotPausable)
-	ds, _ := Display(w, c, w.LastEvaluatedAt)
-	if ds.UpkeepRatePerMin != c.BuildingByID["sheep_farm"].UpkeepPerMin {
-		t.Errorf("upkeep %d", ds.UpkeepRatePerMin)
-	}
 }
 
 func fieldsOf(w *World, c *content.Catalogue) []*Building {
@@ -154,90 +92,345 @@ func withCost(base *content.Catalogue, id string, cost content.Cost) *content.Ca
 	return &c
 }
 
-// TestPlaceFieldsErrors (R-6, R-11): every rule of the field site in its
-// order, the command shape and cost; a failing command (also with valid
-// tiles before the failing one) leaves the world byte-identical and
-// returns the first failing tile's error.
-func TestPlaceFieldsErrors(t *testing.T) {
+// putField places a field of the farm at (x, y) and returns its ID.
+func putField(t *testing.T, w *World, c *content.Catalogue, farm int64, typ string, x, y int) int64 {
+	t.Helper()
+	id := w.NextBuildingID
+	mustApply(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: typ, X: x, Y: y})
+	return id
+}
+
+// TestFieldEfficiency: a farm starts at 0 fields with efficiency 0 and
+// status low_efficiency; every active field adds 1/required (4 pastures)
+// to the efficiency, status ok at the requirement, more fields up to the
+// maximum stay at 1000. Fields display their farm and whether they are
+// active; the farm displays active/required/max and its field IDs.
+func TestFieldEfficiency(t *testing.T) {
 	c := catalogue(t)
-	w, _ := fieldsWorld(t, c)
-	ok := Pos{7, 8} // valid pasture tile
-	place := func(typ string, tiles ...Pos) PlaceFields {
-		return PlaceFields{IslandID: "main", Type: typ, Tiles: tiles}
+	w, farm := fieldsWorld(t, c)
+	fd := fieldDisplay(t, w, c, farm)
+	if fd.EfficiencyPermille != 0 || fd.Status != StatusLowEfficiency || fd.Fields == nil || fd.Fields.Active != 0 || fd.Fields.Required != 4 ||
+		fd.Fields.Max != 8 || len(fd.Fields.IDs) != 0 || fd.Fields.IDs == nil || fd.FarmID != nil || fd.Active != nil {
+		t.Fatalf("farm without fields: %+v %+v", fd, fd.Fields)
 	}
-	many := make([]Pos, MaxFieldTiles+1)
-	for i := range many {
-		many[i] = Pos{i % 24, i / 24}
+	if fd.Rates.Outputs["wool"] != 0 {
+		t.Errorf("wool rate %d without fields", fd.Rates.Outputs["wool"])
+	}
+	spots := [][2]int{{11, 5}, {11, 7}, {13, 5}, {13, 7}, {15, 5}, {15, 7}, {8, 8}, {10, 9}}
+	var ids []int64
+	for i, p := range spots {
+		ids = append(ids, putField(t, w, c, farm, "pasture", p[0], p[1]))
+		fd := fieldDisplay(t, w, c, farm)
+		n := i + 1
+		wantEff, wantStat := int64(min(n, 4)*250), StatusLowEfficiency
+		if n >= 4 {
+			wantStat = StatusOK
+		}
+		if fd.EfficiencyPermille != wantEff || fd.Status != wantStat || fd.Fields.Active != n || len(fd.Fields.IDs) != n {
+			t.Errorf("%d fields: efficiency %d status %s fields %+v", n, fd.EfficiencyPermille, fd.Status, fd.Fields)
+		}
+	}
+	if fd := fieldDisplay(t, w, c, farm); !slices.Equal(fd.Fields.IDs, ids) {
+		t.Errorf("ids %v, want %v", fd.Fields.IDs, ids)
+	}
+	for _, id := range ids {
+		d := fieldDisplay(t, w, c, id)
+		if d.FarmID == nil || *d.FarmID != farm || d.Active == nil || !*d.Active || d.Status != StatusOK || d.Fields != nil || d.Rates != nil ||
+			d.AssignedWarehouseID != nil || d.Residents != nil {
+			t.Errorf("field %d display %+v", id, d)
+		}
+	}
+	// A field cannot be paused, has no upkeep and never needs a road.
+	expectApplyErr(t, w, c, SetPaused{IslandID: "main", BuildingID: ids[0], Paused: true}, ErrNotPausable)
+	ds, _ := Display(w, c, w.LastEvaluatedAt)
+	if ds.UpkeepRatePerMin != c.BuildingByID["sheep_farm"].UpkeepPerMin {
+		t.Errorf("upkeep %d", ds.UpkeepRatePerMin)
+	}
+}
+
+// TestFieldChain: farm -> f1 -> f2 is a chain; demolishing f1 leaves f2
+// inactive (not deleted, status not_adjacent, counts nothing, FarmID kept)
+// and a field that touches only an inactive field cannot be placed;
+// re-placing f1 reactivates f2.
+func TestFieldChain(t *testing.T) {
+	c := catalogue(t)
+	w, farm := fieldsWorld(t, c)
+	f1 := putField(t, w, c, farm, "pasture", 11, 5)
+	f2 := putField(t, w, c, farm, "pasture", 13, 5)
+	is := w.Islands[0]
+	if is.Building(farm).Efficiency != 500 || is.Building(f2).Inactive {
+		t.Fatalf("chain: efficiency %d, f2 inactive %v", is.Building(farm).Efficiency, is.Building(f2).Inactive)
+	}
+	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: f1})
+	if b := is.Building(f2); b == nil || !b.Inactive || b.FarmID != farm || is.Building(farm).Efficiency != 0 {
+		t.Fatalf("after breaking the chain: f2 %+v, efficiency %d", b, is.Building(farm).Efficiency)
+	}
+	d := fieldDisplay(t, w, c, f2)
+	if d.Status != StatusNotAdjacent || d.Active == nil || *d.Active || d.FarmID == nil || *d.FarmID != farm {
+		t.Errorf("inactive field display %+v", d)
+	}
+	if fd := fieldDisplay(t, w, c, farm); fd.Fields.Active != 0 || !slices.Equal(fd.Fields.IDs, []int64{f2}) || fd.Status != StatusLowEfficiency {
+		t.Errorf("farm display %+v %+v", fd, fd.Fields)
+	}
+	// Touching only an inactive field does not count.
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 15, Y: 5}, ErrFieldNotAdjacent)
+	// An inactive field still occupies its tiles.
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 13, Y: 6}, ErrOccupied)
+	// Re-placing the intermediate field reconnects it.
+	putField(t, w, c, farm, "pasture", 11, 5)
+	if b := is.Building(f2); b.Inactive || is.Building(farm).Efficiency != 500 {
+		t.Errorf("after reconnecting: f2 inactive %v, efficiency %d", b.Inactive, is.Building(farm).Efficiency)
+	}
+}
+
+// TestFieldAdjacencyIsFourEdge: sharing an edge segment counts; a corner
+// alone and a gap of one tile do not (MECHANICS §4).
+func TestFieldAdjacencyIsFourEdge(t *testing.T) {
+	c := catalogue(t)
+	w, farm := fieldsWorld(t, c)
+	// Farm footprint x 8..10, y 5..7.
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 12, Y: 5}, ErrFieldNotAdjacent) // gap at x=11
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 11, Y: 9}, ErrFieldNotAdjacent) // gap at y=8
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 11, Y: 8}, ErrFieldNotAdjacent) // corner (10,7)-(11,8) only
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 6, Y: 8}, ErrTerrain)           // (forest; the corner case again below)
+	putField(t, w, c, farm, "pasture", 6, 5)                                                                               // edge, west
+	putField(t, w, c, farm, "pasture", 11, 7)                                                                              // edge, east (one row overlap)
+	// A field touching a field only at a corner is not adjacent either.
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 13, Y: 9}, ErrFieldNotAdjacent) // corner of (11,7)
+	if w.Islands[0].Building(farm).Efficiency != 500 {
+		t.Errorf("efficiency %d", w.Islands[0].Building(farm).Efficiency)
+	}
+}
+
+// TestFieldMax: a farm owns at most fields.max fields; inactive fields
+// count; demolishing one frees a slot.
+func TestFieldMax(t *testing.T) {
+	c := catalogue(t)
+	w, farm := fieldsWorld(t, c)
+	var ids []int64
+	for _, p := range [][2]int{{11, 5}, {11, 7}, {13, 5}, {13, 7}, {15, 5}, {15, 7}, {8, 8}, {10, 9}} {
+		ids = append(ids, putField(t, w, c, farm, "pasture", p[0], p[1]))
+	}
+	next := PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 17, Y: 5}
+	expectApplyErr(t, w, c, next, ErrFieldMaxReached)
+	// The maximum is checked before the site: even an invalid site reports it.
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 0, Y: 0}, ErrFieldMaxReached)
+	// Inactive fields count: breaking the chain at (11,5) keeps 8 fields.
+	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: ids[0]})
+	if len(fieldsOf(w, c)) != 7 {
+		t.Fatalf("%d fields", len(fieldsOf(w, c)))
+	}
+	mustApply(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 11, Y: 5})
+	expectApplyErr(t, w, c, next, ErrFieldMaxReached)
+}
+
+// TestFieldsOfOtherFarmsDoNotChain: a field type of another farm type
+// never chains and cannot be placed from the wrong farm; fields of another
+// farm instance of the same type neither chain nor count.
+func TestFieldsOfOtherFarmsDoNotChain(t *testing.T) {
+	c := catalogue(t)
+	w, sheepA := fieldsWorld(t, c)
+	w.UnlockedTiers = []string{"citizens"}
+	w.Islands[0].Fertilities = []string{"wheat"}
+	if err := AddStock(w, c, "main", "stone", 50_000, nil); err != nil {
+		t.Fatal(err)
+	}
+	wheat := w.NextBuildingID
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "wheat_farm", X: 14, Y: 5})
+	sheepB := w.NextBuildingID
+	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sheep_farm", X: 8, Y: 9})
+	is := w.Islands[0]
+
+	// Wrong farm type: a pasture from the wheat farm, a wheat field from a
+	// sheep farm, a field from a building that is no farm.
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: wheat, Type: "pasture", X: 12, Y: 8}, ErrFieldWrongFarm)
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: sheepA, Type: "wheat_field", X: 11, Y: 6}, ErrFieldWrongFarm)
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: 1, Type: "pasture", X: 11, Y: 6}, ErrFieldWrongFarm)
+
+	// A pasture of farm A (x 11..12, y 6..7); a wheat field that touches
+	// the pasture but not the wheat farm cannot chain over it.
+	pasture := putField(t, w, c, sheepA, "pasture", 11, 6)
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: wheat, Type: "wheat_field", X: 12, Y: 8}, ErrFieldNotAdjacent)
+	// A wheat field next to the wheat farm that also touches the pasture
+	// belongs to the wheat farm only.
+	wf := putField(t, w, c, wheat, "wheat_field", 13, 6)
+	if is.Building(wf).FarmID != wheat || is.Building(pasture).FarmID != sheepA {
+		t.Fatalf("owners %d %d", is.Building(wf).FarmID, is.Building(pasture).FarmID)
+	}
+	if is.Building(sheepA).Efficiency != 250 || is.Building(wheat).Efficiency != 62 {
+		t.Errorf("efficiencies %d %d", is.Building(sheepA).Efficiency, is.Building(wheat).Efficiency)
+	}
+
+	// Another instance of the same type: B's pasture touches A's pasture
+	// but is B's own; A cannot chain from B's field.
+	bp := putField(t, w, c, sheepB, "pasture", 11, 8)
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: sheepA, Type: "pasture", X: 13, Y: 9}, ErrFieldNotAdjacent)
+	if is.Building(bp).FarmID != sheepB || is.Building(sheepB).Efficiency != 250 || is.Building(sheepA).Efficiency != 250 {
+		t.Errorf("B pasture %+v, efficiencies %d %d", is.Building(bp), is.Building(sheepA).Efficiency, is.Building(sheepB).Efficiency)
+	}
+	// Demolishing A leaves B's field active.
+	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: sheepA})
+	if is.Building(pasture) != nil || is.Building(bp).Inactive || is.Building(sheepB).Efficiency != 250 || is.Building(wf) == nil {
+		t.Errorf("after demolishing farm A")
+	}
+}
+
+// TestFieldMoveFarmKeepsFields: moving a farm keeps its fields, which
+// become inactive when the farm is no longer adjacent and active again
+// when it returns; the farm cannot move onto its own fields; a field
+// cannot be moved.
+func TestFieldMoveFarmKeepsFields(t *testing.T) {
+	c := catalogue(t)
+	w, farm := fieldsWorld(t, c)
+	f1 := putField(t, w, c, farm, "pasture", 11, 5)
+	f2 := putField(t, w, c, farm, "pasture", 13, 5)
+	is := w.Islands[0]
+	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 9, Y: 5}, ErrOccupied)
+	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: f1, X: 11, Y: 7}, ErrInvalidCommand)
+	// Away: nothing adjacent any more.
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 17, Y: 9})
+	if is.Building(f1) == nil || is.Building(f2) == nil || !is.Building(f1).Inactive || !is.Building(f2).Inactive || is.Building(farm).Efficiency != 0 {
+		t.Fatalf("after moving away: %+v %+v efficiency %d", is.Building(f1), is.Building(f2), is.Building(farm).Efficiency)
+	}
+	if is.Building(f1).FarmID != farm {
+		t.Errorf("owner %d", is.Building(f1).FarmID)
+	}
+	// Partial: the farm now touches f2 (x 13..14, y 5..6) from below but
+	// not f1; f2 alone is active.
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 13, Y: 7})
+	// f1 touches f2 (x 11..12 | 13..14), so the chain farm -> f2 -> f1 is intact.
+	if is.Building(f1).Inactive || is.Building(f2).Inactive {
+		t.Errorf("chain through f2: f1 inactive %v f2 inactive %v", is.Building(f1).Inactive, is.Building(f2).Inactive)
+	}
+	if is.Building(farm).Efficiency != 500 {
+		t.Errorf("efficiency %d", is.Building(farm).Efficiency)
+	}
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 8, Y: 5})
+	if is.Building(f1).Inactive || is.Building(f2).Inactive {
+		t.Error("fields inactive after the farm returned")
+	}
+}
+
+// TestFarmDemolishRefundsEachFieldOnce: demolishing a farm demolishes its
+// fields with the refund of each (floor of half the planks), once.
+func TestFarmDemolishRefundsEachFieldOnce(t *testing.T) {
+	c := catalogue(t)
+	w, farm := fieldsWorld(t, c)
+	putField(t, w, c, farm, "pasture", 11, 5)
+	putField(t, w, c, farm, "pasture", 13, 5)
+	putField(t, w, c, farm, "pasture", 8, 8)
+	// A field refunds half of its 2 planks; a 3-plank field would refund 1:
+	// the per-field rounding is visible with an odd cost.
+	cc := withCost(c, "pasture", content.Cost{Gold: 15_000, Materials: []content.GoodAmount{{Good: "planks", Amount: 3_000}}})
+	is := w.Islands[0]
+	planks, gold := is.Inventory.Stock["planks"], w.Gold
+	mustApply(t, w, cc, Demolish{IslandID: "main", BuildingID: farm})
+	// Farm 10 planks -> 5; three pastures at 3 planks -> 1 each (not 4 for a bulk 9/2).
+	if got := is.Inventory.Stock["planks"] - planks; got != 5_000+3*1_000 || w.Gold != gold {
+		t.Errorf("refund %d planks, %d gold", got, w.Gold-gold)
+	}
+	if len(fieldsOf(w, c)) != 0 || is.Building(farm) != nil {
+		t.Errorf("%d fields left", len(fieldsOf(w, c)))
+	}
+	// Never twice.
+	expectApplyErr(t, w, cc, Demolish{IslandID: "main", BuildingID: farm}, ErrBuildingNotFound)
+	// A single field refunds its own half (2 planks -> 1) and never gold;
+	// the shipped pasture costs gold only, so it refunds nothing.
+	for _, tc := range []struct {
+		cat  *content.Catalogue
+		want Qty
+	}{{withCost(c, "pasture", content.Cost{Gold: 15_000, Materials: []content.GoodAmount{{Good: "planks", Amount: 2_000}}}), 1_000}, {c, 0}} {
+		w2, farm2 := fieldsWorld(t, tc.cat)
+		f := putField(t, w2, tc.cat, farm2, "pasture", 11, 5)
+		p2, g2 := w2.Islands[0].Inventory.Stock["planks"], w2.Gold
+		mustApply(t, w2, tc.cat, Demolish{IslandID: "main", BuildingID: f})
+		if got := w2.Islands[0].Inventory.Stock["planks"] - p2; got != tc.want || w2.Gold != g2 {
+			t.Errorf("field refund %d planks, %d gold, want %d planks", got, w2.Gold-g2, tc.want)
+		}
+	}
+}
+
+// TestPlaceFieldErrors: every rule of the field site in its order, the
+// command shape and the cost; a failing command leaves the world
+// byte-identical.
+func TestPlaceFieldErrors(t *testing.T) {
+	c := catalogue(t)
+	w, farm := fieldsWorld(t, c)
+	place := func(typ string, x, y int) PlaceField {
+		return PlaceField{IslandID: "main", FarmID: farm, Type: typ, X: x, Y: y}
 	}
 	for _, tt := range []struct {
 		name string
 		cmd  Command
 		want error
 	}{
-		{"unknown island", PlaceFields{IslandID: "x", Type: "pasture", Tiles: []Pos{ok}}, ErrUnknownIsland},
-		{"not a field type", place("sheep_farm", ok), ErrFieldTypeMismatch},
-		{"unknown type", place("hop_field", ok), ErrFieldTypeMismatch},
-		{"no tiles", place("pasture"), ErrInvalidCommand},
-		{"too many tiles", place("pasture", many...), ErrInvalidCommand},
-		{"duplicate tile", place("pasture", ok, Pos{6, 8}, ok), ErrInvalidCommand},
-		{"out of bounds", place("pasture", ok, Pos{-1, 5}), ErrOutOfBounds},
-		{"forest", place("pasture", ok, Pos{5, 8}), ErrTerrain},
-		{"water", place("pasture", Pos{0, 6}), ErrTerrain},
-		{"coast", place("pasture", Pos{9, 1}), ErrTerrain},
-		{"road", place("pasture", Pos{9, 4}), ErrOccupied},
-		{"farm footprint", place("pasture", Pos{9, 6}), ErrOccupied},
-		{"far away", place("pasture", ok, Pos{20, 12}), ErrNoFarmInRange},
-		{"just outside the radius", place("pasture", Pos{14, 6}), ErrNoFarmInRange},
-		{"first failing tile wins", place("pasture", ok, Pos{20, 12}, Pos{5, 8}), ErrNoFarmInRange},
-		{"tier locked", place("wheat_field", ok), ErrTierLocked},
-		{"single placement out of range", PlaceBuilding{IslandID: "main", Type: "pasture", X: 20, Y: 12}, ErrNoFarmInRange},
-		{"single placement on forest", PlaceBuilding{IslandID: "main", Type: "pasture", X: 4, Y: 8}, ErrTerrain},
+		{"unknown island", PlaceField{IslandID: "x", FarmID: farm, Type: "pasture", X: 11, Y: 5}, ErrUnknownIsland},
+		{"unknown type", place("hop_field", 11, 5), ErrUnknownBuilding},
+		{"not a field type", place("sheep_farm", 11, 5), ErrFieldTypeMismatch},
+		{"unknown farm", PlaceField{IslandID: "main", FarmID: 999, Type: "pasture", X: 11, Y: 5}, ErrBuildingNotFound},
+		{"bad rotation", PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 11, Y: 5, Rotation: 45}, ErrInvalidCommand},
+		{"tier locked", place("wheat_field", 11, 5), ErrTierLocked},
+		{"out of bounds east", place("pasture", 23, 5), ErrOutOfBounds},
+		{"out of bounds negative", place("pasture", -1, 5), ErrOutOfBounds},
+		{"forest", place("pasture", 6, 8), ErrTerrain},
+		{"water", place("pasture", 0, 5), ErrTerrain},
+		{"coast", place("pasture", 8, 1), ErrTerrain},
+		{"road", place("pasture", 9, 3), ErrOccupied},
+		{"farm footprint", place("pasture", 9, 6), ErrOccupied},
+		{"not adjacent", place("pasture", 14, 8), ErrFieldNotAdjacent},
+		{"free-standing building placement", PlaceBuilding{IslandID: "main", Type: "pasture", X: 11, Y: 5}, ErrFieldNeedsFarm},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			expectApplyErr(t, w, c, tt.cmd, tt.want)
 		})
 	}
-	// The radius boundary: (13,6) is inside the disc of the farm at (8,5),
-	// (14,6) is not: (2*13+1-19)^2 + (2*6+1-13)^2 = 64 <= 64.
-	if len(ValidFieldTiles(w.Islands[0], c, "pasture", []Pos{{13, 6}, {14, 6}})) != 1 {
-		t.Error("radius boundary")
+	// Free placement of a field is refused as well.
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "pasture", X: 11, Y: 5}, nil); !errors.Is(err, ErrFieldNeedsFarm) {
+		t.Errorf("PlaceFree = %v", err)
 	}
 
-	// Fertility: the island lacks wheat.
+	// Fertility is checked before adjacency.
 	w.UnlockedTiers = []string{"citizens"}
 	if err := AddStock(w, c, "main", "stone", 50_000, nil); err != nil {
 		t.Fatal(err)
 	}
-	expectApplyErr(t, w, c, PlaceBuilding{IslandID: "main", Type: "wheat_farm", X: 16, Y: 5}, ErrNoFertility)
 	w.Islands[0].Fertilities = []string{"wheat"}
+	wheat := w.NextBuildingID
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "wheat_farm", X: 16, Y: 5})
 	w.Islands[0].Fertilities = []string{"hemp"}
-	expectApplyErr(t, w, c, place("wheat_field", Pos{17, 9}), ErrNoFertility)
-	// A pasture is not a wheat field: no farm accepts it there.
-	expectApplyErr(t, w, c, place("pasture", Pos{20, 6}), ErrNoFarmInRange)
-	// Fertility is checked before the farm range.
-	expectApplyErr(t, w, c, place("wheat_field", Pos{1, 12}), ErrNoFertility)
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: wheat, Type: "wheat_field", X: 1, Y: 12}, ErrNoFertility)
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: wheat, Type: "wheat_field", X: 15, Y: 5}, ErrNoFertility)
 
-	// Cost x n is checked and charged (gold and materials).
-	cc := withCost(c, "pasture", content.Cost{Gold: 2_000, Materials: []content.GoodAmount{{Good: "planks", Amount: 1_000}}})
+	// Cost: gold (15) is charged, checked after the site; materials are
+	// charged too when a content cost has them.
 	gold, planks := w.Gold, w.Islands[0].Inventory.Stock["planks"]
-	mustApply(t, w, cc, place("pasture", ok, Pos{7, 9}))
-	if w.Gold != gold-4_000 || w.Islands[0].Inventory.Stock["planks"] != planks-2_000 {
-		t.Errorf("gold %d planks %d", gold-w.Gold, planks-w.Islands[0].Inventory.Stock["planks"])
+	mustApply(t, w, c, place("pasture", 11, 5))
+	if gold-w.Gold != 15_000 || planks != w.Islands[0].Inventory.Stock["planks"] {
+		t.Errorf("charged %d gold, %d planks", gold-w.Gold, planks-w.Islands[0].Inventory.Stock["planks"])
 	}
-	w.Gold = 1_000
-	expectApplyErr(t, w, cc, place("pasture", Pos{8, 9}), ErrInsufficientGold)
+	w.Gold = 14_999
+	expectApplyErr(t, w, c, place("pasture", 13, 5), ErrInsufficientGold)
 	w.Gold = 10_000_000
-	w.Islands[0].Inventory.Stock["planks"] = 1_000
-	expectApplyErr(t, w, cc, place("pasture", Pos{9, 9}, Pos{10, 9}), ErrInsufficientMaterials)
+	cc := withCost(c, "pasture", content.Cost{Gold: 15_000, Materials: []content.GoodAmount{{Good: "planks", Amount: 2_000}}})
+	planks = w.Islands[0].Inventory.Stock["planks"]
+	mustApply(t, w, cc, place("pasture", 13, 5))
+	if got := planks - w.Islands[0].Inventory.Stock["planks"]; got != 2_000 {
+		t.Errorf("charged %d planks", got)
+	}
+	w.Islands[0].Inventory.Stock["planks"] = 1_999
+	expectApplyErr(t, w, cc, place("pasture", 11, 7), ErrInsufficientMaterials)
+	// A crop field costs 5 gold.
+	if c.BuildingByID["wheat_field"].Cost.Gold != 5_000 {
+		t.Errorf("wheat field cost %+v", c.BuildingByID["wheat_field"].Cost)
+	}
 	// Settlement is required.
-	w2, _ := fieldsWorld(t, c)
+	w2, farm2 := fieldsWorld(t, c)
 	w2.Islands = append(w2.Islands, islandFromRows("wild", "~~~~", "~..~", "~~~~"))
-	expectApplyErr(t, w2, c, PlaceFields{IslandID: "wild", Type: "pasture", Tiles: []Pos{{1, 1}}}, ErrIslandNotSettled)
+	expectApplyErr(t, w2, c, PlaceField{IslandID: "wild", FarmID: farm2, Type: "pasture", X: 1, Y: 1}, ErrBuildingNotFound)
 }
 
-// TestFarmPlacementWithoutWorkArea (R-7): a farm with fields is placed and
-// moved where no grass is free (no no_work_area); the lumberjack keeps it.
+// TestFarmPlacementWithoutWorkArea: a farm with fields is placed and moved
+// where no grass is free (no no_work_area); the lumberjack keeps its rule.
 func TestFarmPlacementWithoutWorkArea(t *testing.T) {
 	c := catalogue(t)
 	w := testWorld(t, c)
@@ -264,154 +457,21 @@ func TestFarmPlacementWithoutWorkArea(t *testing.T) {
 	expectApplyErr(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: 6, Y: 5}, ErrNoWorkArea)
 }
 
-// TestDemolishFields (R-10, R-11): shape errors, building_not_found,
-// not_a_field, all or nothing; demolished fields lower the efficiency and
-// refund 50 % of materials rounded down (a 1-plank field refunds nothing).
-func TestDemolishFields(t *testing.T) {
+// TestDiagonalOnlyFieldIsInactive: a farm moved so that it meets its field
+// at a corner only leaves the field inactive; an edge restores it.
+func TestDiagonalOnlyFieldIsInactive(t *testing.T) {
 	c := catalogue(t)
 	w, farm := fieldsWorld(t, c)
-	tiles := validTiles(w, c, "pasture")[:16]
-	mustApply(t, w, c, PlaceFields{IslandID: "main", Type: "pasture", Tiles: tiles})
-	demo := func(tiles ...Pos) DemolishFields { return DemolishFields{IslandID: "main", Tiles: tiles} }
-	many := make([]Pos, MaxFieldTiles+1)
-	for i := range many {
-		many[i] = Pos{i % 24, i / 24}
-	}
-	for _, tt := range []struct {
-		name string
-		cmd  DemolishFields
-		want error
-	}{
-		{"unknown island", DemolishFields{IslandID: "x", Tiles: tiles[:1]}, ErrUnknownIsland},
-		{"no tiles", demo(), ErrInvalidCommand},
-		{"too many", demo(many...), ErrInvalidCommand},
-		{"duplicate", demo(tiles[0], tiles[0]), ErrInvalidCommand},
-		{"out of bounds", demo(tiles[0], Pos{30, 1}), ErrOutOfBounds},
-		{"empty tile", demo(tiles[0], Pos{20, 12}), ErrBuildingNotFound},
-		{"road tile", demo(Pos{9, 4}), ErrBuildingNotFound},
-		{"farm", demo(tiles[0], Pos{9, 6}), ErrNotAField},
-		{"warehouse", demo(Pos{2, 2}), ErrNotAField},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			expectApplyErr(t, w, c, tt.cmd, tt.want)
-		})
-	}
-	mustApply(t, w, c, demo(tiles[:4]...))
-	if b := w.Islands[0].Building(farm); b.Efficiency != 750 || len(fieldsOf(w, c)) != 12 {
-		t.Errorf("efficiency %d with %d fields", b.Efficiency, len(fieldsOf(w, c)))
-	}
-	// Demolish by ID works too.
-	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: fieldsOf(w, c)[0].ID})
-	if b := w.Islands[0].Building(farm); b.Efficiency != 687 {
-		t.Errorf("efficiency %d", b.Efficiency)
-	}
-
-	// Refund: 1 plank refunds 0 (50 % rounded down), 4 planks refund 2.
-	for _, tc := range []struct{ cost, refund Qty }{{1_000, 0}, {4_000, 2_000}} {
-		cc := withCost(c, "pasture", content.Cost{Materials: []content.GoodAmount{{Good: "planks", Amount: tc.cost}}})
-		w, _ := fieldsWorld(t, cc)
-		ts := validTiles(w, cc, "pasture")[:3]
-		mustApply(t, w, cc, PlaceFields{IslandID: "main", Type: "pasture", Tiles: ts})
-		before, gold := w.Islands[0].Inventory.Stock["planks"], w.Gold
-		mustApply(t, w, cc, DemolishFields{IslandID: "main", Tiles: ts})
-		if got := w.Islands[0].Inventory.Stock["planks"] - before; got != 3*tc.refund || w.Gold != gold {
-			t.Errorf("cost %d: refund %d, gold %d", tc.cost, got, w.Gold-gold)
-		}
-	}
-}
-
-// TestFieldMoveAndFarmDemolish (R-8, R-10): a moved field is validated by
-// the field rule and reassigned; demolishing a farm reassigns its fields to
-// another accepting farm in range or leaves them unassigned (no_farm).
-func TestFieldMoveAndFarmDemolish(t *testing.T) {
-	c := catalogue(t)
-	w, farm := fieldsWorld(t, c)
-	mustApply(t, w, c, PlaceFields{IslandID: "main", Type: "pasture", Tiles: []Pos{{7, 8}, {12, 6}, {13, 6}}})
-	fs := fieldsOf(w, c)
-	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: fs[0].ID, X: 20, Y: 12}, ErrNoFarmInRange)
-	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: fs[0].ID, X: 5, Y: 8}, ErrTerrain)
-	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: fs[0].ID, X: 12, Y: 6}, ErrOccupied)
-	// The own tile counts as free.
-	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: fs[0].ID, X: 7, Y: 8, Rotation: 90})
-
-	// A second farm at (15,5): (13,6) is nearer to it, (12,6) to the first.
-	second := w.NextBuildingID
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "sheep_farm", X: 15, Y: 5})
+	f := putField(t, w, c, farm, "pasture", 11, 5) // x 11..12, y 5..6, touches the farm's east edge
 	is := w.Islands[0]
-	if is.BuildingAt(c, 12, 6).FarmID != farm || is.BuildingAt(c, 13, 6).FarmID != second {
-		t.Fatalf("assignment %d %d", is.BuildingAt(c, 12, 6).FarmID, is.BuildingAt(c, 13, 6).FarmID)
+	// Farm at (8,7): x 8..10, y 7..9 meets the field at the corner (10,7)-(11,6) only.
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 8, Y: 7})
+	if !is.Building(f).Inactive || is.Building(farm).Efficiency != 0 {
+		t.Fatalf("diagonal contact: inactive %v, efficiency %d", is.Building(f).Inactive, is.Building(farm).Efficiency)
 	}
-	// Moving a field next to the second farm reassigns it.
-	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: fs[0].ID, X: 18, Y: 8})
-	if fs[0].FarmID != second || is.Building(second).Efficiency != 125 || is.Building(farm).Efficiency != 62 {
-		t.Errorf("after move: field farm %d, efficiencies %d %d", fs[0].FarmID, is.Building(second).Efficiency, is.Building(farm).Efficiency)
-	}
-	// Demolishing the first farm: (12,6) is in the second farm's radius
-	// and moves over; a field only the first farm reached becomes no_farm.
-	mustApply(t, w, c, PlaceFields{IslandID: "main", Type: "pasture", Tiles: []Pos{{5, 6}}})
-	lone := is.BuildingAt(c, 5, 6)
-	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: farm})
-	if is.BuildingAt(c, 12, 6).FarmID != second || lone.FarmID != 0 || is.Building(second).Efficiency != 187 {
-		t.Errorf("after demolish: %d %d %d", is.BuildingAt(c, 12, 6).FarmID, lone.FarmID, is.Building(second).Efficiency)
-	}
-	d := fieldDisplay(t, w, c, lone.ID)
-	if d.Status != StatusNoFarm || d.FarmID != nil {
-		t.Errorf("lone field display %+v", d)
-	}
-	// It still stands and can be demolished, but not moved to its own
-	// place's neighbour without a farm in range.
-	expectApplyErr(t, w, c, MoveBuilding{IslandID: "main", BuildingID: lone.ID, X: 5, Y: 7}, ErrNoFarmInRange)
-	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: lone.ID})
-}
-
-// TestSharedPasture (R-34): on test content with sheep_farm and
-// dairy_farm (both accept pasture) the pastures between them go to the
-// nearer farm, ties to the lower ID; moving a farm recomputes it.
-func TestSharedPasture(t *testing.T) {
-	root := repoRoot(t)
-	c, err := content.LoadWithSchemas(filepath.Join(root, "server", "testdata", "content", "old_coast_dairy"), filepath.Join(root, "content", "schema"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	w, sheep := fieldsWorld(t, c)
-	// The dairy farm at (14,5): doubled centres (19,13) and (31,13).
-	dairy := w.NextBuildingID
-	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "dairy_farm", X: 14, Y: 5})
-	// Tiles of row 8 from x 11 to 13: x=11 -> d(sheep)=(23-19)^2+(17-13)^2=32,
-	// d(dairy)=(23-31)^2+16=80; x=12 -> 52 vs 52 (tie: lower ID, sheep);
-	// x=13 -> 80 vs 32.
-	mustApply(t, w, c, PlaceFields{IslandID: "main", Type: "pasture", Tiles: []Pos{{11, 8}, {12, 8}, {13, 8}}})
-	is := w.Islands[0]
-	want := map[int]int64{11: sheep, 12: sheep, 13: dairy}
-	for x, farm := range want {
-		if got := is.BuildingAt(c, x, 8).FarmID; got != farm {
-			t.Errorf("pasture (%d,8) -> %d, want %d", x, got, farm)
-		}
-	}
-	if is.Building(sheep).Efficiency != 125 || is.Building(dairy).Efficiency != 62 {
-		t.Errorf("efficiencies %d %d", is.Building(sheep).Efficiency, is.Building(dairy).Efficiency)
-	}
-	// The dairy farm moves one tile left: (12,8) is now nearer to it.
-	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: dairy, X: 13, Y: 5})
-	if got := is.BuildingAt(c, 12, 8).FarmID; got != dairy {
-		t.Errorf("after move (12,8) -> %d", got)
-	}
-	if is.Building(sheep).Efficiency != 62 || is.Building(dairy).Efficiency != 125 {
-		t.Errorf("efficiencies after move %d %d", is.Building(sheep).Efficiency, is.Building(dairy).Efficiency)
-	}
-	// A field outside the dairy farm's radius but inside the sheep farm's
-	// stays with the sheep farm although it is no tie.
-	mustApply(t, w, c, PlaceFields{IslandID: "main", Type: "pasture", Tiles: []Pos{{5, 6}}})
-	if got := is.BuildingAt(c, 5, 6).FarmID; got != sheep {
-		t.Errorf("(5,6) -> %d", got)
-	}
-	ds, err := Display(w, c, w.LastEvaluatedAt)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, b := range ds.Islands[0].Buildings {
-		if b.ID == dairy && (b.Fields == nil || b.Fields.Assigned != 2) {
-			t.Errorf("dairy display %+v", b.Fields)
-		}
+	// Farm at (8,6): x 8..10, y 6..8 shares the edge segment y = 6.
+	mustApply(t, w, c, MoveBuilding{IslandID: "main", BuildingID: farm, X: 8, Y: 6})
+	if is.Building(f).Inactive || is.Building(farm).Efficiency != 250 {
+		t.Fatalf("edge contact: inactive %v, efficiency %d", is.Building(f).Inactive, is.Building(farm).Efficiency)
 	}
 }

@@ -31,9 +31,9 @@ class LiteTest(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertEqual([f[0] for f in files], ["chapel.glb", "chapel.lite.glb"])
         self.assertEqual(entry["file"]["lite"]["triangles"], 12)
-        field = {"id": "pasture", "kind": "field", "parts": [{"prim": "box", "size": [0.9, 0.9, 0.05], "role": "pasture"}]}
+        field = {"id": "wheat_field", "kind": "field", "parts": [{"prim": "box", "size": [0.9, 0.9, 0.05], "role": "wheat"}]}
         files, _, errors = pipeline.build_recipe(field, CONTENT, ROLES, fake_loader())
-        self.assertEqual((errors, [f[0] for f in files]), ([], ["pasture.glb"]))
+        self.assertEqual((errors, [f[0] for f in files]), ([], ["wheat_field.glb"]))
 
     def test_decimation_steps_up_until_the_footprint_is_covered(self):
         # 408 small core triangles first, then 408 yard triangles (only they cover the footprint).

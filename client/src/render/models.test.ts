@@ -111,17 +111,18 @@ describe("loading through the registry", () => {
   const ok = (body: Uint8Array | string) => Promise.resolve(new Response(body as BodyInit, { status: 200 }));
 
   it("loads a committed GLB with the glTF loader into one mesh of vertex data with the manifest's triangle count and palette colours", async () => {
-    const entry = manifest.models.pasture as ModelEntry;
+    const entry = manifest.models.wheat_field as ModelEntry;
     const f = entry.file as ModelFile;
     const data = await parseGlb(new Uint8Array(readFileSync(join(MODELS, f.path))), scene);
     expect(data.indices.length / 3).toBe(f.triangles);
     expect(data.colors.length).toBe((data.positions.length / 3) * 4);
-    // The pasture slab is the palette's fields.pasture.
-    const c = Color3.FromHexString(FIELDS.pasture);
-    const rgb = [c.r, c.g, c.b];
+    // Some vertex carries the palette's fields.wheat darkened by the baked occlusion (a similar scale on every channel).
+    const c = Color3.FromHexString(FIELDS.wheat);
+    const rgb = [c.r, c.g, c.b] as const;
     let found = false;
     for (let i = 0; i < data.colors.length; i += 4) {
-      if (Math.abs((data.colors[i] as number) - (rgb[0] as number)) < 1e-3 && Math.abs((data.colors[i + 1] as number) - (rgb[1] as number)) < 1e-3) found = true;
+      const k = [0, 1, 2].map((j) => (data.colors[i + j] as number) / (rgb[j] as number));
+      if (Math.min(...k) > 0.6 && Math.max(...k) <= 1.001 && Math.max(...k) - Math.min(...k) < 0.08) found = true;
     }
     expect(found).toBe(true);
     // The loader's PBR material and nodes stay out of the scene (the layers use their own material).
