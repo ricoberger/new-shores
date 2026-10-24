@@ -106,6 +106,15 @@ export class CartLayer {
     setInstances(this.mesh, this.carts.length ? this.buffer : null);
   }
 
+  /** ?life=0 hides the carts. */
+  setEnabled(enabled: boolean): void {
+    this.mesh.setEnabled(enabled);
+  }
+
+  isEnabled(): boolean {
+    return this.mesh.isEnabled(false);
+  }
+
   /** Number of carts drawn (one per delivering producer with a road path). */
   count(): number {
     return this.carts.length;

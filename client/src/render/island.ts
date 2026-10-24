@@ -18,6 +18,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
+import { IslandLife } from "../display/lifeplan";
 import { blockedTiles, islandSeed, layerKeys, type Placed, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
 import { BuildingLayer } from "./buildings";
 import { CartLayer } from "./carts";
@@ -50,6 +51,8 @@ export class IslandDetail {
   private readonly decoration: Decoration;
   private readonly roads: RoadLayer;
   private readonly carts: CartLayer;
+  /** Life plan of this island (drawn by the renderer's life layer while shown). */
+  readonly life = new IslandLife();
   private readonly icons: IconLayer;
   private readonly construction: ConstructionLayer;
   private readonly buildingBlobs: FootprintShadows;
@@ -152,6 +155,7 @@ export class IslandDetail {
     this.buildings.update(display.buildings, defs);
     this.fields.update(this.unmodelledFields(display), defs);
     this.carts.update(display, defs);
+    this.life.update(display, defs, this.statics);
     this.icons.update(display.buildings, defs, this.statusY);
     this.construction.update(display, defs);
     const keys = layerKeys(display, defs);
@@ -357,9 +361,19 @@ export class IslandDetail {
     return this.decoration.counts();
   }
 
+  /** Island origin (archipelago tiles) while shown, for the life layer; null when hidden. */
+  lifeOrigin(): { x: number; y: number } | null {
+    return this.shown ? { x: this.root.position.x, y: -this.root.position.z } : null;
+  }
+
+  /** ?life=0: the carts are life too (hidden). */
+  setLifeEnabled(enabled: boolean): void {
+    this.carts.setEnabled(enabled);
+  }
+
   /** Carts drawn (near LOD, shown). */
   cartCount(): number {
-    return this.shown && this.lod === "near" ? this.carts.count() : 0;
+    return this.shown && this.lod === "near" && this.carts.isEnabled() ? this.carts.count() : 0;
   }
 
   /** Construction hulls drawn in the last frame (near LOD, shown). */

@@ -13,6 +13,8 @@ export interface StatsSample {
   heapBytes: number | null;
   lod: string;
   detail: string;
+  /** Life instances and particles drawn in the last frame (null: the life layer is off, ?life=0). */
+  life: { instances: number; particles: number } | null;
 }
 
 /** Whether the URL asks for the badge (?stats=1). */
@@ -28,6 +30,7 @@ export function statsLines(s: StatsSample): string[] {
     `draws ${s.drawCalls}  tris ${formatCount(s.triangles)}`,
     `heap ${heap}`,
     `lod ${s.lod}  detail ${s.detail}`,
+    s.life ? `life ${s.life.instances} inst  ${s.life.particles} pcl` : "life off",
   ];
 }
 

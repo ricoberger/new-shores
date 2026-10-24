@@ -4,7 +4,7 @@ import type { GameRenderer } from "../render/engine";
 
 const REFRESH_MS = 500;
 
-/** Dev/E2E-only overlay (?stats=1): fps, frame time, draw calls, triangles, JS heap, LOD and model detail. */
+/** Dev/E2E-only overlay (?stats=1): fps, frame time, draw calls, triangles, JS heap, LOD, model detail and the life layer's instances and particles. */
 export function StatsBadge({ renderer }: { renderer: GameRenderer | null }) {
   const [sample, setSample] = useState<StatsSample | null>(null);
   useEffect(() => {
@@ -21,6 +21,7 @@ export function StatsBadge({ renderer }: { renderer: GameRenderer | null }) {
         heapBytes: readHeapBytes(),
         lod: r.lod,
         detail: r.detail,
+        life: renderer.lifeStats(),
       });
     };
     read();

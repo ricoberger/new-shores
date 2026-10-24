@@ -21,6 +21,7 @@ import { shouldShowSummary } from "../display/summary";
 import { collapseLandscapeChrome, isPhoneLayout, isTouchLayout, usesSheets } from "../display/layout";
 import { insolvencyBanner } from "../display/insolvency";
 import type { Lod } from "../display/lod";
+import { lifeEnabled } from "../display/life";
 import { fxaaForced, type Quality, resolveQuality } from "../display/quality";
 import { blankStop, initialViewState, viewReducer } from "../display/view";
 import { type CameraInfo, type FrameStats, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
@@ -96,6 +97,8 @@ export interface TestHook {
   frameStats(windowMs?: number): FrameStats;
   /** Carts drawn (near LOD, islands in view). */
   carts(): number;
+  /** Life layer: instances and particles drawn in the last frame (null: off, ?life=0) and instances per element class. */
+  life(): { stats: { instances: number; particles: number } | null; counts: Record<string, number> };
   /** Far-LOD landmark markers drawn. */
   landmarks(): number;
   /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
@@ -198,6 +201,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const sheets = usesSheets(layout.mode, layout.width);
   const quality = resolveQuality(layout.mode, globalThis.location?.search ?? "");
   const [forceFxaa] = useState(() => fxaaForced(globalThis.location?.search ?? ""));
+  // ?life=0 renders without the life layer (A/B comparisons; read when the renderer is created).
+  const [life] = useState(() => lifeEnabled(globalThis.location?.search ?? ""));
   // Dev/E2E builds only (the constant folds to false in production): the ?stats=1 fps badge.
   const [showStats] = useState(() => (import.meta.env.DEV || import.meta.env.VITE_E2E === "1") && statsRequested(globalThis.location?.search ?? ""));
   useEffect(() => {
@@ -615,6 +620,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
         frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0, maxMs: 0 },
         carts: () => rendererRef.current?.cartCount() ?? 0,
+        life: () => ({ stats: rendererRef.current?.lifeStats() ?? null, counts: rendererRef.current?.lifeCounts() ?? {} }),
         landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,
         ghostKind: () => rendererRef.current?.ghostKind() ?? null,
@@ -957,7 +963,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {phone && unreachable}
         </div>
         {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
-        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} quality={quality} forceFxaa={forceFxaa} />
+        <GameCanvas sync={sync} tool={() => tool} events={events} onRenderer={onRenderer} initialCamera={initialCamera} quality={quality} forceFxaa={forceFxaa} life={life} />
         {showStats && <StatsBadge renderer={renderer} />}
         {model && (
           <div className={styles.mapCorner}>
