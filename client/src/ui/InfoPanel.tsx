@@ -595,9 +595,12 @@ export function InfoPanel({
             <Icon path={toolIcon("upgrade")} /> Upgrade
           </button>
         )}
-        <button type="button" className={styles.button} onClick={onMove} data-testid="info-move">
-          <Icon path={toolIcon("move")} /> Move
-        </button>
+        {/* A field cannot be moved (the server rejects it): demolish and add one again. */}
+        {!def?.field && (
+          <button type="button" className={styles.button} onClick={onMove} data-testid="info-move">
+            <Icon path={toolIcon("move")} /> Move
+          </button>
+        )}
         <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onDemolish} data-testid="info-demolish">
           <Icon path={toolIcon("demolish")} /> Demolish
         </button>

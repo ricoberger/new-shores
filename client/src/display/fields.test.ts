@@ -48,23 +48,54 @@ function world(fields: { id: number; x: number; y: number; active?: boolean; typ
 }
 
 describe("rectsTouch", () => {
-  it("is the server's 8-adjacency: edges and corners touch, a gap does not", () => {
+  it("is the server's 4-edge adjacency: a shared edge segment counts, a corner or a gap does not", () => {
     const a = { x: 8, y: 5, w: 3, h: 3 };
-    expect(rectsTouch(a, { x: 11, y: 5, w: 2, h: 2 })).toBe(true); // edge
-    expect(rectsTouch(a, { x: 11, y: 8, w: 2, h: 2 })).toBe(true); // corner
+    expect(rectsTouch(a, { x: 11, y: 5, w: 2, h: 2 })).toBe(true); // east edge
+    expect(rectsTouch(a, { x: 11, y: 7, w: 2, h: 2 })).toBe(true); // east edge, one row of overlap
+    expect(rectsTouch(a, { x: 8, y: 8, w: 1, h: 1 })).toBe(true); // south edge
+    expect(rectsTouch(a, { x: 11, y: 8, w: 2, h: 2 })).toBe(false); // corner only (south-east)
+    expect(rectsTouch(a, { x: 6, y: 3, w: 2, h: 2 })).toBe(false); // corner only (north-west)
+    expect(rectsTouch(a, { x: 11, y: 4, w: 1, h: 1 })).toBe(false); // corner only, 1x1
     expect(rectsTouch(a, { x: 12, y: 5, w: 2, h: 2 })).toBe(false); // gap at x = 11
     expect(rectsTouch(a, { x: 11, y: 9, w: 2, h: 2 })).toBe(false); // gap at y = 8
-    expect(rectsTouch(a, { x: 6, y: 3, w: 2, h: 2 })).toBe(true); // corner, north-west
   });
 });
 
 describe("fieldPlacementHint", () => {
-  it("accepts a ghost next to the farm (edge or corner) and rejects one that touches nothing", () => {
+  it("accepts a ghost that shares an edge with the farm and rejects one that touches only a corner or nothing", () => {
     const { farm, data } = world();
     expect(fieldPlacementHint(farm, pasture, 11, 5, 0, data)).toBeNull();
-    expect(fieldPlacementHint(farm, pasture, 11, 8, 0, data)).toBeNull();
+    expect(fieldPlacementHint(farm, pasture, 11, 7, 0, data)).toBeNull();
+    expect(fieldPlacementHint(farm, pasture, 11, 8, 0, data)).toBe("not_adjacent"); // corner (10,7)-(11,8) only
     expect(fieldPlacementHint(farm, pasture, 12, 5, 0, data)).toBe("not_adjacent");
     expect(fieldPlacementHint(farm, pasture, 16, 9, 0, data)).toBe("not_adjacent");
+  });
+
+  it("treats a field that meets its farm only at a corner as inactive (never as carrying the chain)", () => {
+    // The server marks such a field inactive (e.g. after the farm moved): the hint does not chain over it.
+    const diagonal = world([{ id: 2, x: 11, y: 8, active: false }]);
+    expect(fieldPlacementHint(diagonal.farm, pasture, 13, 8, 0, diagonal.data)).toBe("not_adjacent");
+    // An active field touched only at its corner does not carry the chain either.
+    const active = world([{ id: 2, x: 11, y: 5 }]);
+    expect(fieldPlacementHint(active.farm, pasture, 13, 7, 0, active.data)).toBe("not_adjacent"); // corner (12,6)-(13,7)
+    expect(fieldPlacementHint(active.farm, pasture, 13, 6, 0, active.data)).toBeNull(); // edge of the field
+    // The shared server fixtures: every active field shares an edge with its farm or an active field.
+    for (const { name, base } of fixtures) {
+      for (const is of base.islands) {
+        const size = (b: BuildingDisplay) => {
+          const d = shipped.find((x) => x.id === b.type)!;
+          const [w, h] = b.rotation === 90 || b.rotation === 270 ? [d.footprint[1], d.footprint[0]] : d.footprint;
+          return { x: b.x, y: b.y, w, h };
+        };
+        for (const f of is.buildings.filter((b) => b.farm_id !== undefined)) {
+          const farm = is.buildings.find((b) => b.id === f.farm_id)!;
+          const edgeToFarm = rectsTouch(size(farm), size(f));
+          const edgeToField = is.buildings.some((o) => o.farm_id === farm.id && o.id !== f.id && o.active && rectsTouch(size(o), size(f)));
+          expect(f.active === (edgeToFarm || edgeToField) || f.active === true, `${name}: field ${f.id}`).toBe(true);
+          if (f.active) expect(edgeToFarm || edgeToField, `${name}: active field ${f.id} shares no edge`).toBe(true);
+        }
+      }
+    }
   });
 
   it("chains over active fields only", () => {

@@ -126,6 +126,9 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(text(html)).toContain("Active: it counts for its farm");
     expect(html).not.toContain('data-testid="info-pause"');
     expect(html).toContain('data-testid="info-demolish"');
+    // A field cannot be moved: no Move button (the farm keeps its own).
+    expect(html).not.toContain('data-testid="info-move"');
+    expect(panel(farm, island, model)).toContain('data-testid="info-move"');
     const inactive = panel({ ...field, active: false, status: "not_adjacent" }, island, model);
     expect(text(inactive)).toContain("Not connected to its farm");
     expect(text(inactive)).toContain("Not adjacent: its chain to the farm is broken");

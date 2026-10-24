@@ -16,9 +16,11 @@ export function fieldBuildingOf(content: Content, farmType: string): ContentBuil
   return content.buildings.find((b) => b.field?.farm === farmType);
 }
 
-/** Whether two non-overlapping footprints touch by an edge or a corner (the server's 8-adjacency). */
+/** Whether two non-overlapping footprints share an edge segment (the server's 4-edge adjacency; a corner alone does not count). */
 export function rectsTouch(a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w: number; h: number }): boolean {
-  return a.x <= b.x + b.w && b.x <= a.x + a.w && a.y <= b.y + b.h && b.y <= a.y + a.h;
+  const overlapX = a.x < b.x + b.w && b.x < a.x + a.w;
+  const overlapY = a.y < b.y + b.h && b.y < a.y + a.h;
+  return (overlapY && (a.x + a.w === b.x || b.x + b.w === a.x)) || (overlapX && (a.y + a.h === b.y || b.y + b.h === a.y));
 }
 
 /** What the client knows about the island for the ghost hint. */

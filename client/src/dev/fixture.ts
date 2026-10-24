@@ -927,7 +927,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     for (let dy = 0; dy < h; dy++) for (let dx = 0; dx < w; dx++) taken.add(`${x + dx},${y + dy}`);
   }
   const grass = (x: number, y: number) => terrain[y * width + x] === "grass";
-  for (const farmType of ["sheep_farm", "wheat_farm", "orchard", "hemp_farm"]) {
+  for (const farmType of ["wheat_farm", "orchard", "hemp_farm", "sheep_farm"]) {
     const farmIndex = placed.findIndex((p) => p[0] === farmType);
     const farm = placed[farmIndex] as (typeof placed)[number];
     const field = FIELD_OF[farmType] as { type: string; size: number };
