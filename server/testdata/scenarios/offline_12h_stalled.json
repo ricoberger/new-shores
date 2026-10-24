@@ -1,12 +1,12 @@
 {
   "name": "offline_12h_stalled",
-  "description": "A town without market whose fisher is cut off from the warehouse (food need stalled) is left alone for 12 hours in one Advance: houses stay at their floor, gold runs out and the economy pauses instead of going negative, every good stays within capacity.",
+  "description": "A town without market whose fisher is cut off from the Trading Post (food need stalled) is left alone for 12 hours in one Advance: houses stay at their floor, gold runs out and the economy pauses instead of going negative, every good stays within capacity.",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
     "rows": [
       "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-      "~cccccccc....................~",
+      "~~~~~c~~c....................~",
       "~............................~",
       "~............................~",
       "~............................~",
@@ -22,9 +22,9 @@
     ]
   },
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 1,
+      "y": 0,
       "rotation": 0
     },
     "gold": 2000,

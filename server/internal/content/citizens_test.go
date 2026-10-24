@@ -111,11 +111,12 @@ func TestLoadCitizensContent(t *testing.T) {
 		}
 	}
 
-	wh := c.BuildingByID["warehouse"].Warehouse
-	if len(wh.Levels) != 2 || wh.Levels[0].Cost != nil || wh.Levels[1].Capacity != 500_000 || wh.Levels[1].ThroughputPerMin != 55_000 || wh.Levels[1].Cost == nil {
-		t.Fatalf("warehouse levels = %+v", wh.Levels)
+	tp := c.BuildingByID["trading_post"].TradingPost
+	if len(tp.Levels) != 4 || tp.Levels[0].Cost != nil || tp.Levels[1].Capacity != 500_000 || tp.Levels[1].ThroughputPerMin != 55_000 ||
+		tp.Levels[1].Berths != 2 || tp.Levels[1].Cost == nil {
+		t.Fatalf("trading post levels = %+v", tp.Levels)
 	}
-	if lc := wh.Levels[1].Cost; lc.Gold <= 0 || len(lc.Materials) == 0 {
+	if lc := tp.Levels[1].Cost; lc.Gold <= 0 || len(lc.Materials) == 0 {
 		t.Errorf("level 2 cost = %+v", lc)
 	}
 }
@@ -131,19 +132,19 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 	}{
 		{
 			"cost on the first level",
-			[]string{`{ "capacity": 300, "throughput_per_min": 30 }`, `{ "capacity": 300, "throughput_per_min": 30, "cost": { "gold": 1 } }`},
-			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[0]", "schema violation", "'not' failed"},
+			[]string{`{ "capacity": 300, "throughput_per_min": 30, "berths": 1 }`, `{ "capacity": 300, "throughput_per_min": 30, "berths": 1, "cost": { "gold": 1 } }`},
+			[]string{FileBuildings, `building "trading_post"`, "trading_post.levels[0]", "schema violation", "'not' failed"},
 		},
 		{
 			"missing cost on a later level",
-			[]string{`"throughput_per_min": 55,
-          "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"throughput_per_min": 55`},
-			[]string{FileBuildings, `building "warehouse"`, "warehouse.levels[1]", "schema violation", "missing property 'cost'"},
+			[]string{`"berths": 2,
+          "cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"berths": 2`},
+			[]string{FileBuildings, `building "trading_post"`, "trading_post.levels[1]", "schema violation", "missing property 'cost'"},
 		},
 		{
 			"unknown good in a level cost",
 			[]string{`"cost": { "gold": 300, "planks": 20, "stone": 10 }`, `"cost": { "gold": 300, "marble": 20 }`},
-			[]string{FileBuildings, `building "warehouse"`, "cost.marble", `unknown good "marble"`},
+			[]string{FileBuildings, `building "trading_post"`, "cost.marble", `unknown good "marble"`},
 		},
 		{
 			"deposit without recipe",
@@ -186,21 +187,22 @@ func TestLoadRejectsInvalidTierTwoFormat(t *testing.T) {
 func TestSchemaWarehouseLevelCosts(t *testing.T) {
 	schemaDir := filepath.Join(repoRoot(t), "content", "schema")
 	doc := func(levels string) []byte {
-		return []byte(`[{"id": "warehouse", "name": "Warehouse", "region": "old_coast", "tier": "settlers", "footprint": [4, 3],
-			"coastal": true, "requires_road": false, "cost": {"gold": 100}, "upkeep_per_min": 4, "pause_category": "never",
+		return []byte(`[{"id": "warehouse", "name": "Warehouse", "region": "old_coast", "tier": "settlers", "footprint": [2, 2],
+			"coastal": false, "requires_road": false, "cost": {"gold": 100}, "upkeep_per_min": 4, "pause_category": "never",
 			"warehouse": {"levels": ` + levels + `}}]`)
 	}
-	lvl1 := `{"capacity": 300, "throughput_per_min": 30}`
-	lvl2 := `{"capacity": 500, "throughput_per_min": 50, "cost": {"gold": 300, "stone": 10}}`
+	lvl1 := `{"throughput_per_min": 30}`
+	lvl2 := `{"throughput_per_min": 50, "cost": {"gold": 300, "stone": 10}}`
 	for _, ok := range []string{"[" + lvl1 + "]", "[" + lvl1 + "," + lvl2 + "]", "[" + lvl1 + "," + lvl2 + "," + lvl2 + "]"} {
 		if err := validateSchema(schemaDir, FileBuildings, doc(ok)); err != nil {
 			t.Errorf("levels %s: %v", ok, err)
 		}
 	}
 	for _, tc := range []struct{ levels, want string }{
-		{`[{"capacity": 300, "throughput_per_min": 30, "cost": {"gold": 1}}]`, "'not' failed"},
-		{"[" + lvl1 + `, {"capacity": 500, "throughput_per_min": 50}]`, "missing property 'cost'"},
-		{"[" + lvl1 + "," + lvl2 + `, {"capacity": 800, "throughput_per_min": 80}]`, "missing property 'cost'"},
+		{`[{"throughput_per_min": 30, "cost": {"gold": 1}}]`, "'not' failed"},
+		{"[" + lvl1 + `, {"throughput_per_min": 50}]`, "missing property 'cost'"},
+		{"[" + lvl1 + "," + lvl2 + `, {"throughput_per_min": 80}]`, "missing property 'cost'"},
+		{`[{"capacity": 300, "throughput_per_min": 30}]`, "additional properties 'capacity'"},
 		{"[]", "minItems"},
 	} {
 		err := validateSchema(schemaDir, FileBuildings, doc(tc.levels))

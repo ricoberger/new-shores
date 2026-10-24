@@ -57,8 +57,11 @@ func checkReferences(c *Catalogue) error {
 	if rules.TrialResumeMs <= rules.AutoResumeMs {
 		col.add(FileRegion, rent, "rules.trial_resume_upkeep_minutes", "must be greater than auto_resume_upkeep_minutes")
 	}
-	if rules.ShipHandlingMs < 0 {
-		col.add(FileRegion, rent, "rules.ship_handling_seconds", "must be >= 0")
+	if rules.ShipHandlingBaseMs < 0 {
+		col.add(FileRegion, rent, "rules.ship_handling_base_seconds", "must be >= 0")
+	}
+	if rules.ShipHandlingMsPerUnit < 0 {
+		col.add(FileRegion, rent, "rules.ship_handling_seconds_per_unit", "must be >= 0")
 	}
 	if rules.ShipSpeedMilliTilesPerMin <= 0 {
 		col.add(FileRegion, rent, "rules.ship_speed_tiles_per_min", "must be > 0")
@@ -106,6 +109,7 @@ func checkReferences(c *Catalogue) error {
 		}
 	}
 
+	tradingPosts := 0
 	for _, b := range c.Buildings {
 		ent := fmt.Sprintf("building %q", b.ID)
 		if b.Region != c.Region.ID {
@@ -150,22 +154,37 @@ func checkReferences(c *Catalogue) error {
 				col.add(FileBuildings, ent, "workforce.amount", "must be >= 1")
 			}
 		}
+		if tp := b.TradingPost; tp != nil {
+			tradingPosts++
+			for i, l := range tp.Levels {
+				if l.Capacity <= 0 || l.ThroughputPerMin <= 0 || l.Berths < 1 {
+					col.add(FileBuildings, ent, fmt.Sprintf("trading_post.levels[%d]", i), "capacity and throughput must be > 0 and berths >= 1")
+				}
+				checkLevelCost(col, ent, fmt.Sprintf("trading_post.levels[%d].cost", i), i, l.Cost)
+			}
+			if b.WaterTiles < 1 {
+				col.add(FileBuildings, ent, "water_tiles", "a trading post is a water-edge building (water_tiles >= 1)")
+			}
+			if b.Warehouse != nil {
+				col.add(FileBuildings, ent, "warehouse", "a building cannot be a trading post and a warehouse")
+			}
+		}
 		if w := b.Warehouse; w != nil {
 			for i, l := range w.Levels {
-				if l.Capacity <= 0 || l.ThroughputPerMin <= 0 {
-					col.add(FileBuildings, ent, fmt.Sprintf("warehouse.levels[%d]", i), "capacity and throughput must be > 0")
+				if l.ThroughputPerMin <= 0 {
+					col.add(FileBuildings, ent, fmt.Sprintf("warehouse.levels[%d]", i), "throughput must be > 0")
 				}
-				// The first level is placed with the building cost; every
-				// later level is reached by an upgrade with its own cost.
-				field := fmt.Sprintf("warehouse.levels[%d].cost", i)
-				switch {
-				case i == 0 && l.Cost != nil:
-					col.add(FileBuildings, ent, field, "the first level has no cost (the building cost places it)")
-				case i > 0 && l.Cost == nil:
-					col.add(FileBuildings, ent, field, "an upgrade level needs a cost")
-				case l.Cost != nil && l.Cost.Gold < 0:
-					col.add(FileBuildings, ent, field+".gold", "must be >= 0")
-				}
+				checkLevelCost(col, ent, fmt.Sprintf("warehouse.levels[%d].cost", i), i, l.Cost)
+			}
+		}
+		if b.WaterTiles != 0 {
+			switch {
+			case b.WaterTiles < 0 || b.WaterTiles >= b.Height:
+				col.add(FileBuildings, ent, "water_tiles", "must be in [1, %d] (at least one land row)", max(b.Height-1, 1))
+			case b.Coastal:
+				col.add(FileBuildings, ent, "water_tiles", "a water-edge building is not also coastal")
+			case b.RequiresDeposit != "":
+				col.add(FileBuildings, ent, "water_tiles", "a water-edge building cannot require a deposit")
 			}
 		}
 		if sy := b.Shipyard; sy != nil {
@@ -195,6 +214,12 @@ func checkReferences(c *Catalogue) error {
 		if b.Road != nil && b.Recipe != nil {
 			col.add(FileBuildings, ent, "road", "a road cannot have a recipe")
 		}
+	}
+
+	// Every world starts at sea and settles by founding a Trading Post
+	// (MECHANICS §8), so the content needs one.
+	if tradingPosts == 0 {
+		col.add(FileBuildings, "", "trading_post", "no building with a trading_post block")
 	}
 
 	checkFields(c, col)
@@ -357,5 +382,19 @@ func checkFields(c *Catalogue, col *collector) {
 		if b.Recipe != nil || b.WorkArea != nil {
 			col.add(FileBuildings, ent, "field", "a field cannot have a recipe or a work area")
 		}
+	}
+}
+
+// checkLevelCost checks the cost of the i-th (0-based) level of a Trading
+// Post or Warehouse: the first level is placed with the building cost;
+// every later level is reached by an upgrade with its own cost.
+func checkLevelCost(col *collector, ent, field string, i int, cost *Cost) {
+	switch {
+	case i == 0 && cost != nil:
+		col.add(FileBuildings, ent, field, "the first level has no cost (the building cost places it)")
+	case i > 0 && cost == nil:
+		col.add(FileBuildings, ent, field, "an upgrade level needs a cost")
+	case cost != nil && cost.Gold < 0:
+		col.add(FileBuildings, ent, field+".gold", "must be >= 0")
 	}
 }

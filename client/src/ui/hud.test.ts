@@ -119,7 +119,7 @@ describe("HUD components", () => {
     );
     expect(html).toContain('data-testid="quest-claim-intro_first_road"');
     expect(html).toContain('data-testid="quest-active-intro_fish"');
-    expect(text(html)).toContain("Fisher connected to a warehouse");
+    expect(text(html)).toContain("Fisher connected to the Trading Post or a Warehouse");
     expect(text(html)).toContain("Reward: 45 Planks");
     // Advisor prose also on quests that completed before they were shown
     // as active.
@@ -166,16 +166,16 @@ describe("HUD components", () => {
     it("renders the server's estimated effects and loop time of a saved route", () => {
       const html = editor(route.id);
       expect(text(html)).toContain("Net effect (estimated)");
-      expect(text(html)).toContain("loop time 2:40");
-      // route_loop: wood out of start (−100 per loop, 37.5/min), planks back (+40, 15.0/min).
+      expect(text(html)).toContain("loop time 2:20");
+      // route_loop: wood out of start (−100 per loop, 42.9/min), planks back (+40, 17.1/min) over the 140 s estimated loop.
       const row = (island: string, good: string) => {
         const m = html.match(new RegExp(`<tr data-testid="route-effect-${island}-${good}">(.*?)</tr>`));
         return m ? text(m[1]!) : "";
       };
-      expect(row("start", "wood")).toBe("StartWood−100−37.5");
-      expect(row("start", "planks")).toBe("StartPlanks+40+15.0");
-      expect(row("island2", "wood")).toBe("Island 2Wood+100+37.5");
-      expect(row("island2", "planks")).toBe("Island 2Planks−40−15.0");
+      expect(row("start", "wood")).toBe("StartWood−100−42.9");
+      expect(row("start", "planks")).toBe("StartPlanks+40+17.1");
+      expect(row("island2", "wood")).toBe("Island 2Wood+100+42.9");
+      expect(row("island2", "planks")).toBe("Island 2Planks−40−17.1");
       // Rows follow the server's order (first stop of the island, then good).
       expect(route.effects.map((e) => `${e.island_id}/${e.good}`)).toEqual(["start/planks", "start/wood", "island2/planks", "island2/wood"]);
       expect(html.indexOf("route-effect-start-planks")).toBeLessThan(html.indexOf("route-effect-island2-planks"));
@@ -221,6 +221,7 @@ describe("HUD components", () => {
           onMove: noop,
           onUpgrade: noop,
           onUpgradeWarehouse: noop,
+        onUpgradeTradingPost: noop,
           onSelectBuilding: noop,
           onPlaceFields: noop,
           nowMs: 0,

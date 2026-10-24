@@ -14,7 +14,7 @@
       ],
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-        "~ccccccccccccccccccccccc~~~~~~~~ccccccccccccccccccccccc~",
+        "~c~~~~~~cccccccccccccc~~~~~~~~~~ccccccccccccccccccccccc~",
         "~c......................cccccccc......................c~",
         "~c....................................................c~",
         "~c....................................................c~",
@@ -47,8 +47,8 @@
         "~c..............mmmmmmm...............................c~",
         "~c..............mSSmSSm...............................c~",
         "~c....................................................c~",
-        "~c....................................................c~",
-        "~c....................................................c~",
+        "~c...~~~~~............................................c~",
+        "~c...~~~~~....~~......................................c~",
         "~c............ccccccc..............ccccccc............c~",
         "~ccccccccccccc~~~~~~~cccccccccccccc~~~~~~~ccccccccccccc~",
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
@@ -65,8 +65,8 @@
       ],
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-        "~ccccccccccccccccccccc~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccccccccccccccccccccccccc~",
+        "~c~~~~cccccccccccccccc~~~~~~~~~~~~~~~~~~",
+        "~ccccc~~ccccccccccccccccccccccccccccccc~",
         "~c....................................c~",
         "~c....................................c~",
         "~c.......................ffffffffffff.c~",
@@ -86,14 +86,38 @@
     }
   ],
   "seed": {
-    "warehouse": {
-      "x": 2,
-      "y": 1,
-      "rotation": 0
+    "ship": {
+      "x": 30,
+      "y": 48
     },
     "start": true
   },
   "steps": [
+    {
+      "sail_ship": {
+        "ship": 1,
+        "to": "start"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "start",
+        "x": 2,
+        "y": 0,
+        "rotation": 0
+      }
+    },
+    {
+      "claim_quest": {
+        "quest": "intro_home_island"
+      }
+    },
     {
       "road": {
         "type": "road_dirt",
@@ -605,7 +629,7 @@
     },
     {
       "manual_shipment": {
-        "ship": 1,
+        "ship": 2,
         "to": "island2",
         "cargo": {
           "planks": 60
@@ -666,10 +690,10 @@
     },
     {
       "found_island": {
-        "ship": 1,
+        "ship": 2,
         "island": "island2",
         "x": 2,
-        "y": 1,
+        "y": 0,
         "rotation": 0
       }
     },
@@ -1034,7 +1058,7 @@
     },
     {
       "assign_ship": {
-        "ship": 1,
+        "ship": 2,
         "route": 1
       }
     },
@@ -1120,17 +1144,17 @@
       }
     },
     {
+      "advance": {
+        "duration": "5m"
+      }
+    },
+    {
       "place": {
         "island": "island2",
         "type": "house_settlers",
         "x": 14,
         "y": 2,
         "rotation": 0
-      }
-    },
-    {
-      "advance": {
-        "duration": "5m"
       }
     },
     {
@@ -1251,7 +1275,7 @@
     },
     {
       "advance": {
-        "duration": "8m"
+        "duration": "10m"
       }
     },
     {
@@ -1261,6 +1285,11 @@
         "x": 20,
         "y": 5,
         "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "2m"
       }
     },
     {

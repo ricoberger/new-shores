@@ -1,12 +1,12 @@
 // Harbours (UI.md §4): the berths where ships at an island lie — water
-// next to the coast nearest the harbour building (shipyard, else
-// warehouse) — and a hull rising on every shipyard with an order. Visual
+// next to the coast nearest the Trading Post's pier (D-051; a shipyard on
+// an island without one) — and a hull rising on every shipyard with an order. Visual
 // placement only; positions and progress come from the display payload.
 // The hull is the ship type's model once loaded (the placeholder before).
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
-import type { TilePos } from "../display/geometry";
+import { covers, type TilePos, waterRows } from "../display/geometry";
 import { orderTiming } from "../display/ships";
 import { footprintBox } from "./coords";
 import { type ModelRegistry, shipMeshes, shipModel } from "./models";
@@ -20,14 +20,21 @@ const CONSTRUCTION = [1, 0.62, 0.15, 1];
 /**
  * Water tiles next to the coast, nearest first to the given tile, spaced
  * at least BERTH_SPACING apart (deterministic: ties by row, then column).
+ * Tiles for which `taken` holds (a pier or slipway over the water) are
+ * skipped.
  */
-export function harbourBerths(island: Pick<Island, "width" | "height" | "terrain">, near: { x: number; y: number }, count: number): TilePos[] {
+export function harbourBerths(
+  island: Pick<Island, "width" | "height" | "terrain">,
+  near: { x: number; y: number },
+  count: number,
+  taken: (x: number, y: number) => boolean = () => false,
+): TilePos[] {
   const { width, height, terrain } = island;
   const water = (x: number, y: number) => x < 0 || y < 0 || x >= width || y >= height || terrain[y * width + x] === "water";
   const coastal: { x: number; y: number; d: number }[] = [];
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      if (!water(x, y)) continue;
+      if (!water(x, y) || taken(x, y)) continue;
       if (water(x - 1, y) && water(x + 1, y) && water(x, y - 1) && water(x, y + 1)) continue;
       coastal.push({ x, y, d: Math.hypot(x + 0.5 - near.x, y + 0.5 - near.y) });
     }
@@ -43,21 +50,32 @@ export function harbourBerths(island: Pick<Island, "width" | "height" | "terrain
 
 /**
  * Harbour berths of an island (local tiles): water tiles next to the coast
- * nearest the harbour building (shipyard, else warehouse, else the island
- * centre). Ships at the island lie there; the first berth anchors its legs
- * and route ribbons.
+ * nearest the Trading Post's pier (its water rows, D-051), else a
+ * shipyard, else the island centre, beside the buildings over the water
+ * rather than on them. Ships at the island lie there; the first berth
+ * anchors its legs and route ribbons.
  */
 export function islandBerths(island: IslandDisplay, statics: Island, defs: ReadonlyMap<string, ContentBuilding>): TilePos[] {
-  const harbour = island.buildings.find((b) => defs.get(b.type)?.shipyard) ?? island.buildings.find((b) => defs.get(b.type)?.warehouse);
+  const harbour = island.buildings.find((b) => defs.get(b.type)?.trading_post) ?? island.buildings.find((b) => defs.get(b.type)?.shipyard);
   let near = { x: statics.width / 2, y: statics.height / 2 };
   if (harbour) {
     const def = defs.get(harbour.type);
     if (def) {
-      const box = footprintBox(harbour.x, harbour.y, def.width, def.height, harbour.rotation);
-      near = { x: box.cx, y: -box.cz };
+      const pier = waterRows(def, harbour.x, harbour.y, harbour.rotation);
+      if (pier) near = { x: pier.x + pier.w / 2, y: pier.y + pier.h / 2 };
+      else {
+        const box = footprintBox(harbour.x, harbour.y, def.width, def.height, harbour.rotation);
+        near = { x: box.cx, y: -box.cz };
+      }
     }
   }
-  return harbourBerths(statics, near, MAX_BERTHS);
+  const overWater = island.buildings.filter((b) => (defs.get(b.type)?.water_tiles ?? 0) > 0);
+  const taken = (x: number, y: number) =>
+    overWater.some((b) => {
+      const def = defs.get(b.type);
+      return def !== undefined && covers(b.x, b.y, def.width, def.height, b.rotation, x, y);
+    });
+  return harbourBerths(statics, near, MAX_BERTHS, taken);
 }
 
 /** A hull rising on every shipyard with an order (near LOD, under the island's node). */

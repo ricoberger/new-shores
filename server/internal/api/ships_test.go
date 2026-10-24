@@ -11,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/events"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
@@ -26,20 +25,27 @@ type shipServer struct {
 
 func newShipServer(t *testing.T) *shipServer {
 	t.Helper()
-	ts := newTestServer(t, 1)
 	c := catalogue(t)
-	w, err := devworld.NewDev(c, testStart)
-	if err != nil {
-		t.Fatal(err)
-	}
+	w := foundedWorld(t, testStart)
+	// The ship flows start from a sloop the shipyard builds (ship 1): the
+	// start sloop of the founded world is left out of this world.
+	w.Ships, w.NextShipID = nil, 0
 	// Extra planks (formerly the dev bonus) so that a cargo larger than the
 	// sloop's slots is in stock and fails for the slots, not the stock.
-	if err := sim.AddStock(w, c, "start", "planks", 100_000, nil); err != nil {
+	if err := sim.AddStock(w, c, "start", "planks", 160_000, nil); err != nil {
 		t.Fatal(err)
 	}
+	return newShipServerFor(t, w)
+}
+
+// newShipServerFor is newShipServer on world w.
+func newShipServerFor(t *testing.T, w *sim.World) *shipServer {
+	t.Helper()
+	ts := newTestServer(t, 1)
+	c := catalogue(t)
 	now := func() time.Time { return TimeScale{Start: testStart, Scale: 1}.At(ts.clock.Now()) }
 	mem := store.NewMemory(testWorld, w, now)
-	ts.srv.cfg.Store = mem
+	ts.srv.cfg.Store, ts.mem = mem, mem
 	return &shipServer{testServer: ts, sched: &events.DevScheduler{
 		Store: mem, Registry: events.DefaultRegistry(time.Hour), Catalogue: c,
 		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)), WorldNow: now,
@@ -137,7 +143,7 @@ func TestShipCommandsOverHTTP(t *testing.T) {
 	}
 	tiles = append(tiles, `{"x":3,"y":34}`, `{"x":4,"y":34}`)
 	ss.ok(t, `{"type":"place_road","island_id":"start","road_type":"road_dirt","tiles":[`+strings.Join(tiles, ",")+`]}`)
-	ss.ok(t, `{"type":"place_building","island_id":"start","building_type":"shipyard","x":5,"y":34,"rotation":0}`)
+	ss.ok(t, `{"type":"place_building","island_id":"start","building_type":"shipyard","x":5,"y":34,"rotation":180}`)
 	v := ss.view(t)
 	yard := v.Islands[0].Buildings[1]
 	if yard.Type != "shipyard" || string(yard.ShipOrder) != "null" {
@@ -182,18 +188,18 @@ func TestShipCommandsOverHTTP(t *testing.T) {
 		stops = append(stops, `{"island_id":"start","load":[],"unload":[]}`)
 	}
 	ss.failsSpec(t, `{"type":"create_route","stops":[`+strings.Join(stops, ",")+`]}`, http.StatusBadRequest, "invalid_command", false)
-	ss.fails(t, `{"type":"manual_shipment","ship_id":1,"to_island_id":"island2","cargo":[{"good":"planks","amount":120000}]}`, http.StatusConflict, "cargo_exceeds_slots")
+	ss.fails(t, `{"type":"manual_shipment","ship_id":1,"to_island_id":"island2","cargo":[{"good":"planks","amount":220000}]}`, http.StatusConflict, "cargo_exceeds_slots")
 
 	ss.ok(t, `{"type":"manual_shipment","ship_id":1,"to_island_id":"island2","cargo":[{"good":"planks","amount":70000}]}`)
-	if s := ss.view(t).Ships[0]; s.State != "manual_leg" || s.Leg == nil || s.Leg.ArriveAt != "2026-10-19T12:05:20.000Z" {
+	if s := ss.view(t).Ships[0]; s.State != "manual_leg" || s.Leg == nil || s.Leg.ArriveAt != "2026-10-19T12:05:24.000Z" {
 		t.Fatalf("ship on leg %+v", s)
 	}
 	ss.fails(t, `{"type":"scrap_ship","ship_id":1}`, http.StatusConflict, "ship_not_idle")
-	ss.advance(2*time.Minute + 20*time.Second)
-	ss.fails(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"warehouse","x":2,"y":4,"rotation":0}`, http.StatusConflict, "not_coastal")
-	ss.ok(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"warehouse","x":2,"y":1,"rotation":0}`)
-	ss.fails(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"warehouse","x":8,"y":1,"rotation":0}`, http.StatusConflict, "island_already_settled")
-	ss.fails(t, `{"type":"demolish","island_id":"start","building_id":1}`, http.StatusConflict, "last_warehouse")
+	ss.advance(2*time.Minute + 30*time.Second)
+	ss.fails(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":2,"y":4,"rotation":0}`, http.StatusConflict, "not_on_water")
+	ss.ok(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":2,"y":0,"rotation":0}`)
+	ss.fails(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":8,"y":0,"rotation":0}`, http.StatusConflict, "island_already_settled")
+	ss.fails(t, `{"type":"demolish","island_id":"start","building_id":1}`, http.StatusConflict, "last_trading_post")
 
 	route := `"stops":[{"island_id":"island2","load":[{"good":"planks","max_amount":10000}],"unload":[]},{"island_id":"start","load":[],"unload":["planks"]}]`
 	ss.ok(t, `{"type":"create_route","name":"Planks home",`+route+`}`)
@@ -203,7 +209,7 @@ func TestShipCommandsOverHTTP(t *testing.T) {
 	ss.fails(t, `{"type":"assign_ship","ship_id":1,"route_id":1}`, http.StatusConflict, "ship_not_idle")
 	ss.fails(t, `{"type":"delete_route","route_id":1}`, http.StatusConflict, "route_in_use")
 	v = ss.view(t)
-	if len(v.Routes) != 1 || v.Routes[0].Name != "Route 1" || len(v.Routes[0].ShipIDs) != 1 || v.Routes[0].LoopMs != 2*20_000+2*120_000 {
+	if len(v.Routes) != 1 || v.Routes[0].Name != "Route 1" || len(v.Routes[0].ShipIDs) != 1 || v.Routes[0].LoopMs != 2*10_000+2*120_000 {
 		t.Fatalf("routes %+v", v.Routes)
 	}
 	if s := v.Ships[0]; s.State != "on_route" || s.RouteID != 1 || len(s.Cargo) != 1 || s.Cargo[0].Amount != 10_000 {

@@ -66,31 +66,18 @@ func (s *Store) LockWorld(ctx context.Context, tx pgx.Tx, id store.WorldID) (*Lo
 	if err != nil {
 		return nil, fmt.Errorf("lock world: %w", err)
 	}
-	w, cv, notes, err := sim.Decode(state, s.catalogue)
+	w, cv, _, err := sim.Decode(state, s.catalogue)
 	if err != nil {
 		if errors.Is(err, sim.ErrSchemaVersion) {
 			s.logger.Error("world envelope has an unsupported schema version", "world_id", string(id), "error", err)
 		}
 		return nil, fmt.Errorf("world %s: %w", id, err)
 	}
-	LogMigrationNotes(s.logger, string(id), notes)
 	if cv != s.contentVersion {
 		telemetry.ContentVersionMismatch.Inc()
 		s.logger.Debug("world content version differs from the catalogue", "world_id", string(id), "stored", cv, "loaded", s.contentVersion)
 	}
 	return &LockedWorld{ID: id, World: w, Version: version}, nil
-}
-
-// LogMigrationNotes logs what the schema migrations of a decoded world
-// reported: every farm whose efficiency the fields migration (schema 3,
-// D-049) could not keep, at warning level.
-func LogMigrationNotes(logger *slog.Logger, worldID string, notes sim.MigrationNotes) {
-	for _, f := range notes.FieldShortfalls {
-		logger.Warn("migrated farm has fewer fields than its former efficiency needs",
-			"world_id", worldID, "island_id", f.IslandID, "building_id", f.BuildingID, "type", f.Type,
-			"fields_placed", f.Placed, "fields_required", f.Required,
-			"old_efficiency_permille", f.OldEfficiency, "new_efficiency_permille", f.NewEfficiency)
-	}
 }
 
 // SaveWorld writes the locked world back and increments its version.

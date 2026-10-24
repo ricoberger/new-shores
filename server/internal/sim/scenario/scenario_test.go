@@ -172,7 +172,7 @@ func TestThrottledWarehouse(t *testing.T) {
 	// R = 32 lumberjacks x 2 wood/min = 64/min over the level-1
 	// throughput T: factor T/R, load R/T (per-mille, rounded down).
 	const r = 64_000
-	tp := loadCatalogue(t).BuildingByID["warehouse"].Warehouse.Levels[0].ThroughputPerMin
+	tp := loadCatalogue(t).BuildingByID["trading_post"].TradingPost.Levels[0].ThroughputPerMin
 	n := 0
 	for _, b := range rep.Final.Islands[0].Buildings {
 		switch b.Type {
@@ -184,7 +184,7 @@ func TestThrottledWarehouse(t *testing.T) {
 			if got := b.Rates.Outputs["wood"]; got != 2000*tp/r {
 				t.Errorf("lumberjack %d rate = %d", b.ID, got)
 			}
-		case "warehouse":
+		case "trading_post":
 			if *b.LoadPermille != r*1000/tp {
 				t.Errorf("warehouse load = %d, want %d", *b.LoadPermille, r*1000/tp)
 			}
@@ -299,8 +299,8 @@ func TestStepErrorsCarryIndex(t *testing.T) {
 func TestOversizedStockStepFails(t *testing.T) {
 	s, err := Parse([]byte(`{
 		"name": "huge", "start": "2026-01-01T00:00:00Z",
-		"island": {"rows": ["~~~~~~", "~cccc~", "~....~", "~....~", "~~~~~~"]},
-		"seed": {"warehouse": {"x": 1, "y": 1}},
+		"island": {"rows": ["~~~~~~", "~~~~~~", "~....~", "~....~", "~....~", "~~~~~~"]},
+		"seed": {"trading_post": {"x": 1, "y": 0}},
 		"steps": [{"stock": {"good": "wood", "amount": 9223372036854775.807}}]
 	}`))
 	if err != nil {
@@ -640,8 +640,10 @@ func TestBootstrapSettlers(t *testing.T) {
 	if last := rep.Snapshots[len(rep.Snapshots)-1]; !slices.Contains(last.UnlockedTiers, "citizens") {
 		t.Errorf("unlocked = %v", last.UnlockedTiers)
 	}
-	if g := rep.Totals["main"]["sails"].Granted; g != 10_000 {
-		t.Errorf("sails granted = %d", g)
+	// The starting stock comes aboard the start ship and is unloaded
+	// into the founded Trading Post (D-051).
+	if g := rep.Totals["main"]["sails"]; g.Unloaded != 10_000 || g.Granted != 0 {
+		t.Errorf("sails %+v, want 10 unloaded from the start ship", g)
 	}
 	checkGoldNonNegative(t, rep)
 }
@@ -649,8 +651,8 @@ func TestBootstrapSettlers(t *testing.T) {
 func TestSeedStartExcludesGoldAndStock(t *testing.T) {
 	s, err := Parse([]byte(`{
 		"name": "bad", "start": "2026-01-01T00:00:00Z",
-		"island": {"rows": ["~~~~~~", "~cccc~", "~....~", "~....~", "~~~~~~"]},
-		"seed": {"warehouse": {"x": 1, "y": 1}, "start": true, "gold": 5},
+		"island": {"rows": ["~~~~~~", "~~~~~~", "~....~", "~....~", "~....~", "~~~~~~"]},
+		"seed": {"trading_post": {"x": 1, "y": 0}, "start": true, "gold": 5},
 		"steps": []
 	}`))
 	if err != nil {
@@ -668,8 +670,8 @@ func TestSeedStartExcludesGoldAndStock(t *testing.T) {
 func TestWorkforceGrantSeedOnly(t *testing.T) {
 	_, err := Parse([]byte(`{
 		"name": "bad", "start": "2026-01-01T00:00:00Z",
-		"island": {"rows": ["~~~~~~", "~cccc~", "~....~", "~....~", "~~~~~~"]},
-		"seed": {"warehouse": {"x": 1, "y": 1}},
+		"island": {"rows": ["~~~~~~", "~~~~~~", "~....~", "~....~", "~....~", "~~~~~~"]},
+		"seed": {"trading_post": {"x": 1, "y": 0}},
 		"steps": [{"workforce": {"settlers": 100}}]
 	}`))
 	if err == nil || !strings.Contains(err.Error(), "workforce") {
@@ -721,8 +723,8 @@ func TestSeedWorkforceBounds(t *testing.T) {
 	build := func(n string) (*sim.World, error) {
 		t.Helper()
 		s, err := Parse([]byte(`{"name": "grant", "start": "2026-01-01T00:00:00Z",
-			"island": {"rows": ["~~~~~~", "~cccc~", "~....~", "~....~", "~~~~~~"]},
-			"seed": {"warehouse": {"x": 1, "y": 1}, "workforce": {"settlers": ` + n + `}}, "steps": []}`))
+			"island": {"rows": ["~~~~~~", "~~~~~~", "~....~", "~....~", "~....~", "~~~~~~"]},
+			"seed": {"trading_post": {"x": 1, "y": 0}, "workforce": {"settlers": ` + n + `}}, "steps": []}`))
 		if err != nil {
 			t.Fatalf("parse %s: %v", n, err)
 		}

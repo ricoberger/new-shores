@@ -20,8 +20,8 @@ func shipWorld(t testing.TB, c *content.Catalogue) *World {
 	w := NewWorld(t0)
 	a := islandFromRows("a",
 		"~~~~~~~~~~~~~~~~~~~~~~~~",
-		"~cccccccccccccccccccccc~",
-		"~cccccccccccccccccccccc~",
+		"~~~~~~~~~~~~~~~~~~~~~~~~",
+		"~~~~~~~~~~~~~~~~~~~cccc~",
 		"~......................~",
 		"~......................~",
 		"~......................~",
@@ -31,7 +31,7 @@ func shipWorld(t testing.TB, c *content.Catalogue) *World {
 	)
 	b := islandFromRows("b",
 		"~~~~~~~~~~~~",
-		"~cccccccccc~",
+		"~~~~~cccccc~",
 		"~cccccccccc~",
 		"~..........~",
 		"~..........~",
@@ -40,7 +40,7 @@ func shipWorld(t testing.TB, c *content.Catalogue) *World {
 	)
 	b.Name, b.X, b.Y = "Island B", 6, 8
 	w.Islands = []*Island{a, b}
-	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "a", Type: "warehouse", X: 1, Y: 2}, nil); err != nil {
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "a", Type: "trading_post", X: 1, Y: 1}, nil); err != nil {
 		t.Fatal(err)
 	}
 	w.Gold = 100_000_000
@@ -184,11 +184,11 @@ func TestOrderShipAndBuilt(t *testing.T) {
 		t.Fatalf("ship = %+v", s)
 	}
 	ds = display(t, w, c)
-	if len(ds.Ships) != 1 || ds.Ships[0].Slots != 2 || ds.Ships[0].SlotSize != 50_000 || ds.Ships[0].UpkeepPerMin != sloop.UpkeepPerMin || ds.Ships[0].Leg != nil {
+	if len(ds.Ships) != 1 || ds.Ships[0].Slots != 4 || ds.Ships[0].SlotSize != 50_000 || ds.Ships[0].UpkeepPerMin != sloop.UpkeepPerMin || ds.Ships[0].Leg != nil {
 		t.Errorf("ships display = %+v", ds.Ships)
 	}
 	// Upkeep counts from the build: warehouse + shipyard + sloop.
-	if ds.UpkeepRatePerMin != c.BuildingByID["warehouse"].UpkeepPerMin+c.BuildingByID["shipyard"].UpkeepPerMin+sloop.UpkeepPerMin {
+	if ds.UpkeepRatePerMin != c.BuildingByID["trading_post"].UpkeepPerMin+c.BuildingByID["shipyard"].UpkeepPerMin+sloop.UpkeepPerMin {
 		t.Errorf("upkeep = %d", ds.UpkeepRatePerMin)
 	}
 }
@@ -246,23 +246,25 @@ func TestManualShipmentAndFounding(t *testing.T) {
 	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 0}}}, ErrInvalidCommand)
 	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 1000}, {"planks", 1000}}}, ErrInvalidCommand)
 	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"fish", 1000}}}, ErrInsufficientMaterials)
-	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 60_000}, {"wood", 1000}}}, ErrCargoExceedsSlots)
+	expectErr(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 160_000}, {"wood", 1000}}}, ErrCargoExceedsSlots)
 	// Placement on the unsettled island is rejected.
-	expectErr(t, w, c, PlaceBuilding{IslandID: "b", Type: "warehouse", X: 1, Y: 1}, ErrIslandNotSettled)
+	expectErr(t, w, c, PlaceBuilding{IslandID: "b", Type: "trading_post", X: 1, Y: 0}, ErrIslandNotSettled)
 
 	planks := w.Islands[0].Inventory.Stock["planks"]
 	mustApply(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 50_000}, {"wood", 1_500}}})
-	if s.State != ShipManualLeg || s.IslandID != "a" || *s.Leg != (Leg{"a", "b", start + 20_000, start + 30_000}) ||
+	// Handling: 10 s base + 0.2 s per unit loaded (51.5 units) = 20.3 s.
+	dep := start + 20_300
+	if handlingMs(c, 51_500) != 20_300 || s.State != ShipManualLeg || s.IslandID != "a" || *s.Leg != (Leg{FromIsland: "a", ToIsland: "b", DepartAtMs: dep, ArriveAtMs: dep + 10_000}) ||
 		w.Islands[0].Inventory.Stock["planks"] != planks-50_000 {
 		t.Fatalf("ship %+v leg %+v", s, s.Leg)
 	}
 	// The display re-fetch point is the departure (the ship's location
 	// changes), then the arrival.
-	if ds := display(t, w, c); *ds.NextChangeAt != formatMs(start+20_000) || ds.Ships[0].IslandID != "a" {
+	if ds := display(t, w, c); *ds.NextChangeAt != formatMs(dep) || ds.Ships[0].IslandID != "a" {
 		t.Errorf("next change %s, ship at %q", *ds.NextChangeAt, ds.Ships[0].IslandID)
 	}
 	// At the departure the ship has left its island.
-	mustAdvance(t, w, c, 20*time.Second)
+	mustAdvance(t, w, c, 20_300*time.Millisecond)
 	if s.IslandID != "" {
 		t.Errorf("travelling ship at %q", s.IslandID)
 	}
@@ -272,21 +274,22 @@ func TestManualShipmentAndFounding(t *testing.T) {
 		t.Fatalf("after arrival: %+v", s)
 	}
 	// Founding.
-	expectErr(t, w, c, FoundIsland{ShipID: 1, IslandID: "a", BuildingType: "warehouse", X: 1, Y: 1}, ErrShipNotIdle)
+	expectErr(t, w, c, FoundIsland{ShipID: 1, IslandID: "a", BuildingType: "trading_post", X: 1, Y: 0}, ErrShipNotIdle)
 	expectErr(t, w, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "fisher", X: 1, Y: 1}, ErrInvalidCommand)
-	expectErr(t, w, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 3}, ErrNotCoastal)
+	expectErr(t, w, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 3}, ErrInvalidCommand)
+	expectErr(t, w, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "trading_post", X: 5, Y: 2}, ErrNotOnWater)
 	poor := w.Clone()
 	poor.Gold = 0
-	expectErr(t, poor, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 1}, ErrInsufficientGold)
-	whCost := c.BuildingByID["warehouse"].Cost
+	expectErr(t, poor, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0}, ErrInsufficientGold)
+	whCost := c.BuildingByID["trading_post"].Cost
 	low := w.Clone()
 	setCargo(low.Ship(1), 50_000, map[string]Qty{"planks": material(whCost, "planks") - 1_000})
-	if err := Apply(low, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 1}); !errors.Is(err, ErrCargoInsufficient) || !strings.Contains(err.Error(), "planks") {
+	if err := Apply(low, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0}); !errors.Is(err, ErrCargoInsufficient) || !strings.Contains(err.Error(), "planks") {
 		t.Errorf("err = %v", err)
 	}
 	gold := w.Gold
 	l := NewLedger()
-	if err := ApplyWithLedger(w, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 1}, l); err != nil {
+	if err := ApplyWithLedger(w, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0}, l); err != nil {
 		t.Fatal(err)
 	}
 	b := w.Island("b")
@@ -296,30 +299,40 @@ func TestManualShipmentAndFounding(t *testing.T) {
 	if f := l.Flow("b", "planks"); f.Spent != material(whCost, "planks")*SubPerMilli || f.Unloaded != 50_000*SubPerMilli {
 		t.Errorf("ledger %+v", f)
 	}
-	expectErr(t, w, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "warehouse", X: 5, Y: 1}, ErrIslandAlreadySettled)
+	expectErr(t, w, c, FoundIsland{ShipID: 1, IslandID: "b", BuildingType: "trading_post", X: 5, Y: 1}, ErrIslandAlreadySettled)
 	if ds := display(t, w, c); !ds.Islands[1].Settled || ds.Islands[1].Name != "Island B" || ds.Islands[1].Position != (PositionDisplay{6, 8}) {
 		t.Errorf("island display %+v", ds.Islands[1])
 	}
 	// Building on the new island works; the last warehouse is protected.
 	mustApply(t, w, c, PlaceBuilding{IslandID: "b", Type: "house_settlers", X: 6, Y: 3})
-	expectErr(t, w, c, Demolish{IslandID: "b", BuildingID: 3, AcceptSurplusLoss: true}, ErrLastWarehouse)
+	expectErr(t, w, c, Demolish{IslandID: "b", BuildingID: 3, AcceptSurplusLoss: true}, ErrLastTradingPost)
 }
 
 func TestManualShipmentExcessStaysAboard(t *testing.T) {
 	c := catalogue(t)
 	w := shipWorld(t, c)
 	s := builtSloop(t, w, c)
+	toArrival := func() {
+		t.Helper()
+		mustAdvance(t, w, c, time.Duration(s.Leg.ArriveAtMs-w.LastEvaluatedAt.UnixMilli())*time.Millisecond)
+	}
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 50_000}}})
-	mustAdvance(t, w, c, 30*time.Second)
-	mustApply(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 1})
+	toArrival()
+	mustApply(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0})
 	// Island b holds 20 planks of 300; bring 100 wood + fill b with wood first.
 	if err := AddStock(w, c, "b", "wood", 250_000, nil); err != nil {
 		t.Fatal(err)
 	}
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "a", Cargo: []CargoAmount{{"planks", 20_000}}})
-	mustAdvance(t, w, c, 30*time.Second)
+	toArrival()
+	// Unloading 20 planks at a's berth: 14 s, then the ship is idle.
+	if s.State != ShipManualLeg || s.BerthUntilMs != w.LastEvaluatedAt.UnixMilli()+14_000 {
+		t.Fatalf("unloading at a: %+v", s)
+	}
+	mustAdvance(t, w, c, 14*time.Second)
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"wood", 100_000}}})
-	mustAdvance(t, w, c, 30*time.Second)
+	toArrival()
+	mustAdvance(t, w, c, time.Duration(s.BerthUntilMs-w.LastEvaluatedAt.UnixMilli())*time.Millisecond)
 	if got := cargoAmounts(s)["wood"]; s.State != ShipIdle || got != 50_000 || w.Island("b").Inventory.Stock["wood"] != 300_000 {
 		t.Errorf("excess aboard %d (want 50 units), b wood %d", got, w.Island("b").Inventory.Stock["wood"])
 	}
@@ -331,8 +344,8 @@ func routeWorld(t *testing.T, c *content.Catalogue) (*World, *Ship) {
 	w := shipWorld(t, c)
 	s := builtSloop(t, w, c)
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 30_000}}})
-	mustAdvance(t, w, c, 30*time.Second)
-	mustApply(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "warehouse", X: 1, Y: 1})
+	mustAdvance(t, w, c, time.Duration(s.Leg.ArriveAtMs-w.LastEvaluatedAt.UnixMilli())*time.Millisecond)
+	mustApply(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0})
 	return w, s
 }
 
@@ -371,7 +384,7 @@ func TestRouteValidationAndCRUD(t *testing.T) {
 	expectErr(t, w, c, DeleteRoute{RouteID: 9}, ErrRouteNotFound)
 	mustApply(t, w, c, DeleteRoute{RouteID: 1})
 	ds := display(t, w, c)
-	if len(ds.Routes) != 1 || ds.Routes[0].Name != "Wood" || len(ds.Routes[0].ShipIDs) != 1 || ds.Routes[0].LoopMs != 2*20_000+2*10_000 {
+	if len(ds.Routes) != 1 || ds.Routes[0].Name != "Wood" || len(ds.Routes[0].ShipIDs) != 1 || ds.Routes[0].LoopMs != 2*10_000+2*10_000 {
 		t.Errorf("routes = %+v", ds.Routes)
 	}
 }
@@ -391,25 +404,31 @@ func TestRouteLoop(t *testing.T) {
 	}})
 	now := w.LastEvaluatedAt.UnixMilli()
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
-	// At b (stop 1): load 30 fish now, depart to a (stop 0) after 20 s.
-	if s.State != ShipOnRoute || s.StopIndex != 0 || *s.Leg != (Leg{"b", "a", now + 20_000, now + 30_000}) ||
+	// At b (stop 1): load 30 fish now, depart to a (stop 0) after the
+	// handling time (10 s + 30 units x 0.2 s = 16 s).
+	if s.State != ShipOnRoute || s.StopIndex != 0 || *s.Leg != (Leg{FromIsland: "b", ToIsland: "a", DepartAtMs: now + 16_000, ArriveAtMs: now + 26_000}) ||
 		cargoAmounts(s)["fish"] != 30_000 || w.Island("b").Inventory.Stock["fish"] != 50_000 {
 		t.Fatalf("after assign: %+v %+v cargo %v", s, s.Leg, s.Cargo)
 	}
 	expectErr(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1}, ErrShipNotIdle)
 	expectErr(t, w, c, ScrapShip{ShipID: s.ID}, ErrShipNotIdle)
-	if ev := DueEvents(w); len(ev) != 1 || ev[0].Kind != DueShipArrived || ev[0].ShipID != s.ID || ev[0].At.UnixMilli() != now+30_000 {
+	if ev := DueEvents(w); len(ev) != 1 || ev[0].Kind != DueShipArrived || ev[0].ShipID != s.ID || ev[0].At.UnixMilli() != now+26_000 {
 		t.Fatalf("due = %+v", ev)
 	}
-	// Arrival at a: unload 30 fish, load wood up to 60 (fish slot freed).
+	toArrival := func() {
+		t.Helper()
+		mustAdvance(t, w, c, time.Duration(s.Leg.ArriveAtMs-w.LastEvaluatedAt.UnixMilli())*time.Millisecond)
+	}
+	// Arrival at a: unload 30 fish, load wood up to 60 (fish slot freed);
+	// 90 units moved: 28 s of handling.
 	woodA := w.Island("a").Inventory.Stock["wood"]
-	mustAdvance(t, w, c, 30*time.Second)
+	toArrival()
 	if got := cargoAmounts(s); got["fish"] != 0 || got["wood"] != 60_000 || s.StopIndex != 1 || s.Leg.ToIsland != "b" ||
-		w.Island("a").Inventory.Stock["fish"] != 30_000 || w.Island("a").Inventory.Stock["wood"] != woodA-60_000 {
-		t.Fatalf("at a: cargo %v stop %d", got, s.StopIndex)
+		s.Leg.DepartAtMs != now+26_000+28_000 || w.Island("a").Inventory.Stock["fish"] != 30_000 || w.Island("a").Inventory.Stock["wood"] != woodA-60_000 {
+		t.Fatalf("at a: cargo %v stop %d leg %+v", got, s.StopIndex, s.Leg)
 	}
 	// Top-up: at the next visit of a only the missing wood is loaded.
-	mustAdvance(t, w, c, 30*time.Second) // at b: unload wood, load fish
+	toArrival() // at b: unload wood, load fish
 	if got := cargoAmounts(s); got["wood"] != 0 || got["fish"] != 30_000 || w.Island("b").Inventory.Stock["wood"] != 60_000 {
 		t.Fatalf("at b: cargo %v", got)
 	}
@@ -419,20 +438,26 @@ func TestRouteLoop(t *testing.T) {
 		{IslandID: "b", Unload: []string{"fish"}},
 		{IslandID: "a", Load: []LoadRule{{"planks", 10_000}}},
 	}})
-	mustAdvance(t, w, c, 30*time.Second) // arrives at a = stop 1 (cyclic search from StopIndex 0)
+	toArrival() // arrives at a = stop 1 (cyclic search from StopIndex 0)
 	if s.StopIndex != 0 || s.Leg.ToIsland != "b" || cargoAmounts(s)["planks"] != 10_000 || cargoAmounts(s)["fish"] != 30_000 {
 		t.Fatalf("after edit: stop %d leg %+v cargo %v", s.StopIndex, s.Leg, s.Cargo)
 	}
 	// Unassign mid-leg: the leg continues, the arrival unloads everything.
-	mustAdvance(t, w, c, 25*time.Second)
+	mustAdvance(t, w, c, time.Duration(s.Leg.DepartAtMs-w.LastEvaluatedAt.UnixMilli()+5_000)*time.Millisecond)
 	mustApply(t, w, c, UnassignShip{ShipID: s.ID})
 	expectErr(t, w, c, UnassignShip{ShipID: s.ID}, ErrShipNotOnRoute)
 	if s.State != ShipManualLeg || s.RouteID != 0 {
 		t.Fatalf("unassigned: %+v", s)
 	}
-	mustAdvance(t, w, c, 5*time.Second)
-	if s.State != ShipIdle || s.IslandID != "b" || len(s.Cargo) != 0 {
-		t.Fatalf("after manual arrival: %+v", s)
+	toArrival()
+	// The arrival unloads at once and holds the berth for the handling
+	// time; then the ship is idle.
+	if s.State != ShipManualLeg || s.IslandID != "b" || len(s.Cargo) != 0 || s.BerthUntilMs <= w.LastEvaluatedAt.UnixMilli() {
+		t.Fatalf("unloading after manual arrival: %+v", s)
+	}
+	mustAdvance(t, w, c, time.Duration(s.BerthUntilMs-w.LastEvaluatedAt.UnixMilli())*time.Millisecond)
+	if s.State != ShipIdle || s.BerthUntilMs != 0 {
+		t.Fatalf("after unloading: %+v", s)
 	}
 }
 
@@ -441,17 +466,17 @@ func TestRouteLoop(t *testing.T) {
 func TestAssignAwayFromRoute(t *testing.T) {
 	c := catalogue(t)
 	w, s := routeWorld(t, c)
-	b2 := islandFromRows("c", "~~~~~~", "~cccc~", "~....~", "~....~", "~~~~~~")
+	b2 := islandFromRows("c", "~~~~~~", "~~~~~~", "~....~", "~....~", "~~~~~~")
 	b2.X, b2.Y = 30, 40
 	w.Islands = append(w.Islands, b2)
-	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "c", Type: "warehouse", X: 1, Y: 1}, nil); err != nil {
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "c", Type: "trading_post", X: 1, Y: 0}, nil); err != nil {
 		t.Fatal(err)
 	}
 	mustApply(t, w, c, CreateRoute{Stops: []Stop{{IslandID: "c"}, {IslandID: "a"}}})
 	now := w.LastEvaluatedAt.UnixMilli()
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
 	want := TravelMs(6, 8, 30, 40, 1000, 60_000)
-	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{"b", "c", now, now + want}) {
+	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{FromIsland: "b", ToIsland: "c", DepartAtMs: now, ArriveAtMs: now + want}) {
 		t.Fatalf("positioning: %+v %+v", s, s.Leg)
 	}
 	// The route changes mid-leg so that c is no stop: at the arrival the
@@ -459,7 +484,7 @@ func TestAssignAwayFromRoute(t *testing.T) {
 	mustApply(t, w, c, UpdateRoute{RouteID: 1, Stops: []Stop{{IslandID: "a"}, {IslandID: "b"}}})
 	mustAdvance(t, w, c, time.Duration(want)*time.Millisecond)
 	arrive := now + want
-	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{"c", "a", arrive, arrive + TravelMs(30, 40, 0, 0, 1000, 60_000)}) {
+	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{FromIsland: "c", ToIsland: "a", DepartAtMs: arrive, ArriveAtMs: arrive + TravelMs(30, 40, 0, 0, 1000, 60_000)}) {
 		t.Fatalf("no matching stop: %+v %+v", s, s.Leg)
 	}
 }
@@ -506,10 +531,10 @@ func withUpkeep(base *content.Catalogue, upkeep map[string]Qty) *content.Catalog
 // unloading; resumes come in reverse order and a route ship handles its
 // stop and departs on resume with its cargo intact.
 func TestShipInsolvency(t *testing.T) {
-	c := withUpkeep(catalogue(t), map[string]Qty{"warehouse": 0, "shipyard": 0})
+	c := withUpkeep(catalogue(t), map[string]Qty{"trading_post": 0, "shipyard": 0})
 	w, s := routeWorld(t, c)
 	mustApply(t, w, c, PlaceBuilding{IslandID: "a", Type: "sawmill", X: 12, Y: 3})
-	mustApply(t, w, c, PlaceBuilding{IslandID: "a", Type: "fisher", X: 14, Y: 1})
+	mustApply(t, w, c, PlaceBuilding{IslandID: "a", Type: "fisher", X: 20, Y: 1})
 	if err := GrantWorkforce(w, c, "a", "settlers", 100_000); err != nil {
 		t.Fatal(err)
 	}

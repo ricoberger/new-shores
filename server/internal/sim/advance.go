@@ -289,7 +289,8 @@ func nextBoundary(w *World, c *content.Catalogue, wr *worldRates, now int64) (in
 		consider(now+1, p.boundary(BoundaryGoldTrialReserve, time.Time{}))
 	}
 
-	// Due moments: shipyard orders complete and ships arrive.
+	// Due moments: shipyard orders complete, ships arrive and berths are
+	// granted.
 	for _, e := range dueList(w) {
 		if e.atMs > now {
 			consider(e.atMs, Boundary{Kind: e.Kind, IslandID: e.IslandID, BuildingID: e.BuildingID, ShipID: e.ShipID})

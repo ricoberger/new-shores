@@ -95,8 +95,8 @@ test("the grid overlay shows for the found tool", async ({ page }) => {
   await page.evaluate(() => window.__newShores!.jumpToIsland("isle8"));
   await expect(page.getByTestId("hud-island")).toHaveAttribute("data-island", "isle8");
   await expect(page.getByTestId("hud-island-unsettled")).toBeVisible();
-  await expect(page.getByTestId("found-settlement-14")).toBeVisible();
-  await page.getByTestId("found-settlement-14").click();
+  await expect(page.getByTestId("found-settlement-here")).toBeVisible();
+  await page.getByTestId("found-settlement-here").click();
   await expect.poll(() => gridVisible(page)).toBe(true);
   await page.keyboard.press("Escape");
   await expect.poll(() => gridVisible(page)).toBe(false);

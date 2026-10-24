@@ -1,6 +1,6 @@
 {
   "name": "manual_shipment_excess",
-  "description": "(o) A sloop founds island 2 (50 planks: 30 for the warehouse, 20 unloaded), returns with 10 wood, and ships 50 planks + 50 wood to island 2 where only 20 planks and 30 wood fit: the excess (30 planks, 20 wood) stays aboard and the ship ends idle there.",
+  "description": "(o) A sloop founds island 2 (50 planks: 20 for the Trading Post, 20 unloaded), returns with 10 wood, and ships 50 planks + 50 wood to island 2 where only 20 planks and 30 wood fit: the excess (30 planks, 20 wood) stays aboard and the ship ends idle there after unloading at the berth.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {
@@ -10,8 +10,8 @@
       "y": 0,
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccccccccccccccc~",
-        "~cccccccccccccccccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
         "~............................~",
         "~............................~",
         "~............................~",
@@ -32,7 +32,7 @@
       "y": 48,
       "rows": [
         "~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccc~",
+        "~~~~~cccccccccccc~",
         "~cccccccccccccccc~",
         "~................~",
         "~................~",
@@ -43,9 +43,9 @@
     }
   ],
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 2,
+      "y": 1,
       "rotation": 0
     },
     "gold": 1200,
@@ -108,7 +108,7 @@
         "ship": 1,
         "island": "island2",
         "x": 1,
-        "y": 1,
+        "y": 0,
         "rotation": 0
       }
     },
@@ -130,7 +130,7 @@
     },
     {
       "advance": {
-        "duration": "1m20s"
+        "duration": "1m30s"
       }
     },
     {
@@ -152,12 +152,17 @@
     },
     {
       "advance": {
-        "duration": "1m19.999s"
+        "duration": "1m29.999s"
       }
     },
     {
       "advance": {
         "duration": "1ms"
+      }
+    },
+    {
+      "advance": {
+        "duration": "20s"
       }
     }
   ]

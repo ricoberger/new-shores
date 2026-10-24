@@ -44,7 +44,9 @@ func TestShipBuilt(t *testing.T) {
 // equals the capacity excess at island 2.
 func TestManualShipmentExcess(t *testing.T) {
 	rep := runScenario(t, "manual_shipment_excess")
-	before := rep.Snapshots[len(rep.Snapshots)-2]
+	// The snapshots end with: 1 ms before the arrival, the arrival, the
+	// end of unloading at the berth.
+	before := rep.Snapshots[len(rep.Snapshots)-3]
 	inv := before.Inventory["island2"]
 	free := map[string]int64{"planks": 300_000 - inv["planks"].Stock, "wood": 300_000 - inv["wood"].Stock}
 	sh := rep.Final.Ships[0]
@@ -71,7 +73,7 @@ func TestRouteLoop(t *testing.T) {
 	r := stepRunner(t, "route_loop")
 	r.runSteps(t, 0, len(r.s.Steps))
 	ds := r.mustDisplay(t)
-	if len(ds.Routes) != 1 || ds.Routes[0].LoopMs != 160_000 || !slices.Equal(ds.Routes[0].ShipIDs, []int64{1}) {
+	if len(ds.Routes) != 1 || ds.Routes[0].LoopMs != 140_000 || !slices.Equal(ds.Routes[0].ShipIDs, []int64{1}) {
 		t.Fatalf("routes %+v", ds.Routes)
 	}
 	now := r.w.LastEvaluatedAt.UnixMilli()
@@ -119,7 +121,7 @@ func TestFoundIsland(t *testing.T) {
 	var wh, fisher *sim.Building
 	for _, b := range is.Buildings {
 		switch r.c.BuildingByID[b.Type] {
-		case r.c.BuildingByID[firstWarehouseType(r.c)]:
+		case r.c.BuildingByID[firstTradingPostType(r.c)]:
 			wh = b
 		default:
 			if r.c.BuildingByID[b.Type].Recipe != nil {
@@ -144,7 +146,7 @@ func TestFoundIsland(t *testing.T) {
 		return 0
 	}
 	// Warehouse from the cargo, two houses and the fisher.
-	if f := r.l.Flow("island2", "planks"); f.Spent != (planks("warehouse")+2*planks("house_settlers")+planks("fisher"))*sim.SubPerMilli {
+	if f := r.l.Flow("island2", "planks"); f.Spent != (planks("trading_post")+2*planks("house_settlers")+planks("fisher"))*sim.SubPerMilli {
 		t.Errorf("planks spent %d", f.Spent)
 	}
 }

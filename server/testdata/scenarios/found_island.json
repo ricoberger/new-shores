@@ -1,6 +1,6 @@
 {
   "name": "found_island",
-  "description": "(q) A sloop carries 100 planks to the unsettled island 2 and founds it (warehouse from the cargo, 80 planks unloaded); two settler houses and a fisher on a road to the new warehouse make the fisher connected and staffed; fish arrives in island 2's inventory.",
+  "description": "(q) A sloop carries 100 planks to the unsettled island 2 and founds it (Trading Post from the cargo, 80 planks unloaded); two settler houses and a fisher on a road to the new Trading Post make the fisher connected and staffed; fish arrives in island 2's inventory.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {
@@ -10,8 +10,8 @@
       "y": 0,
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccccccccccccccc~",
-        "~cccccccccccccccccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
         "~............................~",
         "~............................~",
         "~............................~",
@@ -32,8 +32,8 @@
       "y": 48,
       "rows": [
         "~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccc~",
-        "~cccccccccccccccc~",
+        "~~~~~cccccccccccc~",
+        "~ccccc~~ccccccccc~",
         "~................~",
         "~................~",
         "~................~",
@@ -43,9 +43,9 @@
     }
   ],
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 2,
+      "y": 1,
       "rotation": 0
     },
     "gold": 1500,
@@ -99,7 +99,7 @@
     },
     {
       "advance": {
-        "duration": "1m20s"
+        "duration": "1m30s"
       }
     },
     {
@@ -107,7 +107,7 @@
         "ship": 1,
         "island": "island2",
         "x": 1,
-        "y": 1,
+        "y": 0,
         "rotation": 0
       }
     },

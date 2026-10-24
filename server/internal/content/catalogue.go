@@ -66,7 +66,7 @@ type Catalogue struct {
 	// earlier quests.
 	Quests    []*Quest
 	QuestByID map[string]*Quest
-	// Start is the starting stock granted after the first warehouse.
+	// Start is the starting stock of a new world (start.json).
 	Start Start
 }
 
@@ -165,9 +165,12 @@ type Rules struct {
 	// AutoResumeMs is the gold reserve, in milliseconds of a building's
 	// upkeep, required before an unpaid building is auto-resumed.
 	AutoResumeMs int64
-	// ShipHandlingMs is the time a ship spends at a stop (unload, load)
-	// before it departs (MECHANICS §9.2).
-	ShipHandlingMs int64
+	// ShipHandlingBaseMs is the fixed part of the time a ship occupies a
+	// berth to unload and load (MECHANICS §9.2, §9.3).
+	ShipHandlingBaseMs int64
+	// ShipHandlingMsPerUnit is the additional handling time per unit
+	// (1000 milli-units) of goods moved at a stop.
+	ShipHandlingMsPerUnit int64
 	// ShipSpeedMilliTilesPerMin is the archipelago distance a ship of speed
 	// 1.0 covers per minute, in milli-tiles.
 	ShipSpeedMilliTilesPerMin int64
@@ -219,25 +222,34 @@ type GoodAmount struct {
 }
 
 // Building is a building definition. Behaviour is attached through the
-// optional capability blocks (Recipe, House, Warehouse, Road, Service,
-// WorkArea, Fields, Field); the simulation never switches on building IDs.
+// optional capability blocks (Recipe, House, TradingPost, Warehouse, Road,
+// Service, WorkArea, Fields, Field); the simulation never switches on
+// building IDs.
 type Building struct {
 	ID     string
 	Name   string
 	Region string
 	Tier   string
 	// Width and Height of the footprint at rotation 0.
-	Width        int
-	Height       int
-	Coastal      bool
+	Width   int
+	Height  int
+	Coastal bool
+	// WaterTiles is the number of front rows of a water-edge building
+	// (D-051) that must lie on water (0 for every other building). At
+	// rotation 0 the front rows are the top rows (smallest y).
+	WaterTiles   int
 	RequiresRoad bool
 	Cost         Cost
 	// UpkeepPerMin is in milli-gold per minute.
 	UpkeepPerMin  Qty
 	PauseCategory string
 
-	Recipe    *Recipe
-	House     *House
+	Recipe *Recipe
+	House  *House
+	// TradingPost marks the Trading Post (D-051): the island's capacity,
+	// a collector and the pier for ships.
+	TradingPost *TradingPost
+	// Warehouse marks an inland collector (D-051): throughput only.
 	Warehouse *Warehouse
 	Road      *Road
 	Service   *Service
@@ -311,20 +323,90 @@ type House struct {
 	Tier string
 }
 
-// Warehouse describes the warehouse levels (MECHANICS §5).
+// TradingPost describes the Trading Post levels (MECHANICS §5, §9.3).
+type TradingPost struct {
+	Levels []TradingPostLevel
+}
+
+// TradingPostLevel is one Trading Post level.
+type TradingPostLevel struct {
+	// Capacity per good in milli-units.
+	Capacity Qty
+	// ThroughputPerMin in milli-units per minute (as a collector).
+	ThroughputPerMin Qty
+	// Berths is the number of ships that can handle cargo at once.
+	Berths int
+	// Cost is the upgrade cost into this level; nil for the first level
+	// (placed with the building cost), set for every later level.
+	Cost *Cost
+}
+
+// Warehouse describes the levels of an inland collector (MECHANICS §5).
 type Warehouse struct {
 	Levels []WarehouseLevel
 }
 
-// WarehouseLevel is one warehouse level.
+// WarehouseLevel is one Warehouse level.
 type WarehouseLevel struct {
-	// Capacity per good in milli-units.
-	Capacity Qty
 	// ThroughputPerMin in milli-units per minute.
 	ThroughputPerMin Qty
 	// Cost is the upgrade cost into this level; nil for the first level
 	// (placed with the building cost), set for every later level.
 	Cost *Cost
+}
+
+// Collector reports whether the building collects producer output (a
+// Trading Post or a Warehouse, MECHANICS §5).
+func (b *Building) Collector() bool { return b.TradingPost != nil || b.Warehouse != nil }
+
+// LevelCount is the number of levels of a Trading Post or Warehouse (0
+// for every other building).
+func (b *Building) LevelCount() int {
+	switch {
+	case b.TradingPost != nil:
+		return len(b.TradingPost.Levels)
+	case b.Warehouse != nil:
+		return len(b.Warehouse.Levels)
+	}
+	return 0
+}
+
+// clampLevel maps a stored level to a valid 0-based level index.
+func clampLevel(level, n int) int { return min(max(level, 1), n) - 1 }
+
+// ThroughputAt is the collector throughput (milli-units per minute) of a
+// Trading Post or Warehouse at a 1-based level (clamped to the levels);
+// 0 for every other building.
+func (b *Building) ThroughputAt(level int) Qty {
+	switch {
+	case b.TradingPost != nil:
+		return b.TradingPost.Levels[clampLevel(level, len(b.TradingPost.Levels))].ThroughputPerMin
+	case b.Warehouse != nil:
+		return b.Warehouse.Levels[clampLevel(level, len(b.Warehouse.Levels))].ThroughputPerMin
+	}
+	return 0
+}
+
+// LevelCost is the upgrade cost into a 1-based level of a Trading Post or
+// Warehouse; nil for the first level, out-of-range levels and other
+// buildings.
+func (b *Building) LevelCost(level int) *Cost {
+	if level < 2 || level > b.LevelCount() {
+		return nil
+	}
+	if b.TradingPost != nil {
+		return b.TradingPost.Levels[level-1].Cost
+	}
+	return b.Warehouse.Levels[level-1].Cost
+}
+
+// TradingPostLevelAt is the Trading Post level for a 1-based level
+// (clamped); the zero level for every other building.
+func (b *Building) TradingPostLevelAt(level int) TradingPostLevel {
+	if b.TradingPost == nil {
+		return TradingPostLevel{}
+	}
+	return b.TradingPost.Levels[clampLevel(level, len(b.TradingPost.Levels))]
 }
 
 // Road marks a road type.

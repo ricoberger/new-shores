@@ -77,7 +77,7 @@ func checkReconciled(t *testing.T, st *postgres.Store, id store.WorldID) []sim.D
 func shippingWorld(t *testing.T, created time.Time) *sim.World {
 	t.Helper()
 	cat := testenv.Catalogue(t)
-	w, err := devworld.NewDev(cat, created)
+	w, err := devworld.NewFixture(cat, devworld.FixtureDefault, created)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func shippingWorld(t *testing.T, created time.Time) *sim.World {
 	for y := 4; y <= 33; y++ {
 		tiles = append(tiles, sim.Pos{X: 2, Y: y})
 	}
-	for x := 3; x <= 13; x++ {
+	for x := 3; x <= 14; x++ {
 		tiles = append(tiles, sim.Pos{X: x, Y: 33})
 	}
 	if err := sim.AddStock(w, cat, "start", "sails", 10_000, nil); err != nil {
@@ -98,8 +98,8 @@ func shippingWorld(t *testing.T, created time.Time) *sim.World {
 	}
 	for _, cmd := range []sim.Command{
 		sim.PlaceRoad{IslandID: "start", Type: "road_dirt", Tiles: tiles},
-		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 5, Y: 34},
-		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 14, Y: 33},
+		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 5, Y: 34, Rotation: 180},
+		sim.PlaceBuilding{IslandID: "start", Type: "shipyard", X: 14, Y: 34, Rotation: 180},
 	} {
 		if err := sim.Apply(w, cat, cmd); err != nil {
 			t.Fatalf("%#v: %v", cmd, err)
@@ -196,7 +196,7 @@ func TestShipEventsWithTwoWorkers(t *testing.T) {
 	advance(2 * time.Minute)
 	apply(sim.ManualShipment{ShipID: 1, ToIslandID: "island2", Cargo: []sim.CargoAmount{{Good: "planks", Amount: 50_000}}})
 	advance(2*time.Minute + 20*time.Second)
-	apply(sim.FoundIsland{ShipID: 1, IslandID: "island2", BuildingType: "warehouse", X: 2, Y: 1})
+	apply(sim.FoundIsland{ShipID: 1, IslandID: "island2", BuildingType: "trading_post", X: 2, Y: 0})
 	apply(sim.CreateRoute{Stops: []sim.Stop{
 		{IslandID: "start", Load: []sim.LoadRule{{Good: "planks", MaxAmount: 20_000}}},
 		{IslandID: "island2", Unload: []string{"planks"}},
@@ -281,8 +281,9 @@ func TestShipEventsWithTwoWorkers(t *testing.T) {
 
 	var stored []byte
 	_, err = st.Update(context.Background(), id, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
-		if !w.LastEvaluatedAt.Equal(lastDue) || len(w.Ships) != 2 {
-			t.Errorf("stored world at %s with %d ships, want %s and 2", w.LastEvaluatedAt, len(w.Ships), lastDue)
+		// Two built sloops plus the start sloop of the founded world.
+		if !w.LastEvaluatedAt.Equal(lastDue) || len(w.Ships) != 3 {
+			t.Errorf("stored world at %s with %d ships, want %s and 3", w.LastEvaluatedAt, len(w.Ships), lastDue)
 		}
 		var err error
 		stored, err = sim.Encode(w, cat.Region.Version)
@@ -325,7 +326,7 @@ func TestRequestStopsAtShipEvent(t *testing.T) {
 		t.Fatalf("RunOnce = %d, %v", n, err)
 	}
 	_, _ = st.Update(context.Background(), id, func(w *sim.World, _ int64, now time.Time) (bool, error) {
-		if !now.After(due) || len(w.Ships) != 1 {
+		if !now.After(due) || len(w.Ships) != 2 {
 			t.Errorf("after the event: now %s ships %d", now, len(w.Ships))
 		}
 		return false, nil
@@ -367,7 +368,7 @@ func TestStaleShipEventIsNoOp(t *testing.T) {
 		t.Errorf("logs:\n%s", logs.String())
 	}
 	_, _ = st.Update(context.Background(), id, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
-		if len(w.Ships) != 0 {
+		if len(w.Ships) != 1 {
 			t.Errorf("a cancelled order built a ship")
 		}
 		return false, nil

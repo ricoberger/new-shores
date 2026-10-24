@@ -70,19 +70,39 @@ const maxPosition = 1_000_000
 
 // Seed is the initial state granted free of charge.
 type Seed struct {
-	// Warehouse is placed without cost (optional).
-	Warehouse *Placement `json:"warehouse,omitempty"`
-	// Start grants the content starting stock (start.json: gold and goods)
-	// after the warehouse; it excludes Gold and Stock.
+	// TradingPost is placed without cost (optional); Type defaults to the
+	// first building with a trading_post block.
+	TradingPost *Placement `json:"trading_post,omitempty"`
+	// Ship is the start ship, idle at a sea position (D-051, optional).
+	Ship *SeaShip `json:"ship,omitempty"`
+	// Ships are further ships idle at sea with their cargo (test seeds),
+	// launched after the start ship.
+	Ships []SeaShip `json:"ships,omitempty"`
+	// Start grants the content starting stock (start.json): the gold to
+	// the world and the goods aboard the start ship (the real start at
+	// sea), or, without a start ship, into the seeded Trading Post's
+	// island after charging the Trading Post's cost from it (as if it had
+	// been founded from the start ship). It excludes Gold and Stock.
 	Start bool `json:"start,omitempty"`
 	// Gold in units.
 	Gold json.Number `json:"gold,omitempty"`
-	// Stock in units per good (requires a warehouse for capacity).
+	// Stock in units per good (requires a Trading Post for capacity).
 	Stock map[string]json.Number `json:"stock,omitempty"`
 	// Workforce grants whole phantom residents per tier to the island's
 	// workforce pool (sim.GrantWorkforce). It is a seed-only grant, like the
-	// free warehouse: no step can grant workforce.
+	// free Trading Post: no step can grant workforce.
 	Workforce map[string]int64 `json:"workforce,omitempty"`
+}
+
+// SeaShip is a ship at a sea position (archipelago tiles); Type defaults
+// to the first ship type of the content.
+type SeaShip struct {
+	Type string `json:"type,omitempty"`
+	X    int    `json:"x"`
+	Y    int    `json:"y"`
+	// Cargo in units per good (seed.ships only; the start ship carries
+	// the starting stock).
+	Cargo map[string]json.Number `json:"cargo,omitempty"`
 }
 
 // Placement is a building position. Island defaults to the first island.
@@ -191,6 +211,12 @@ type ShipStep struct {
 	Route int64 `json:"route,omitempty"`
 }
 
+// SailStep sends ship Ship with its cargo to island To (sim.SailShip).
+type SailStep struct {
+	Ship int64  `json:"ship"`
+	To   string `json:"to"`
+}
+
 // ShipmentStep sends a ship to island To with cargo in units.
 type ShipmentStep struct {
 	Ship  int64                  `json:"ship"`
@@ -198,8 +224,8 @@ type ShipmentStep struct {
 	Cargo map[string]json.Number `json:"cargo,omitempty"`
 }
 
-// FoundStep founds Island with a warehouse (Type defaults to the first
-// warehouse building) from the cargo of Ship.
+// FoundStep founds Island with a Trading Post (Type defaults to the first
+// trading_post building) from the cargo of Ship.
 type FoundStep struct {
 	Ship     int64  `json:"ship"`
 	Island   string `json:"island"`
@@ -230,7 +256,8 @@ type ClaimStep struct {
 type Step struct {
 	ExpectError string `json:"expect_error,omitempty"`
 
-	UpgradeWarehouse *At `json:"upgrade_warehouse,omitempty"`
+	UpgradeWarehouse   *At `json:"upgrade_warehouse,omitempty"`
+	UpgradeTradingPost *At `json:"upgrade_trading_post,omitempty"`
 
 	OrderShip       *OrderShipStep `json:"order_ship,omitempty"`
 	CancelShipOrder *At            `json:"cancel_ship_order,omitempty"`
@@ -240,6 +267,7 @@ type Step struct {
 	AssignShip      *ShipStep      `json:"assign_ship,omitempty"`
 	UnassignShip    *ShipStep      `json:"unassign_ship,omitempty"`
 	ManualShipment  *ShipmentStep  `json:"manual_shipment,omitempty"`
+	SailShip        *SailStep      `json:"sail_ship,omitempty"`
 	FoundIsland     *FoundStep     `json:"found_island,omitempty"`
 	ScrapShip       *ShipStep      `json:"scrap_ship,omitempty"`
 	ClaimQuest      *ClaimStep     `json:"claim_quest,omitempty"`
@@ -273,8 +301,8 @@ func (s Step) kind() (string, error) {
 		"resume": s.Resume != nil, "upgrade": s.Upgrade != nil, "move": s.Move != nil, "fields": s.Fields != nil, "demolish_fields": s.DemolishFields != nil, "stock": s.Stock != nil, "advance": s.Advance != nil,
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
-		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "found_island": s.FoundIsland != nil,
-		"scrap_ship": s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil,
+		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
+		"scrap_ship": s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil, "upgrade_trading_post": s.UpgradeTradingPost != nil,
 		"claim_quest": s.ClaimQuest != nil, "away_summary": s.AwaySummary,
 	} {
 		if set {
@@ -361,24 +389,59 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		w.Islands = append(w.Islands, is)
 	}
 	is := w.Islands[0]
-	if wh := s.Seed.Warehouse; wh != nil {
+	if wh := s.Seed.TradingPost; wh != nil {
 		typ := wh.Type
 		if typ == "" {
-			typ = firstWarehouseType(c)
+			typ = firstTradingPostType(c)
 		}
 		if err := sim.PlaceFree(w, c, sim.PlaceBuilding{IslandID: is.ID, Type: typ, X: wh.X, Y: wh.Y, Rotation: wh.Rotation}, l); err != nil {
-			return nil, fmt.Errorf("seed warehouse: %w", err)
+			return nil, fmt.Errorf("seed trading post: %w", err)
 		}
 	}
+	var cargo map[string]int64
 	if s.Seed.Start {
 		if s.Seed.Gold != "" || len(s.Seed.Stock) > 0 {
 			return nil, errors.New("seed: start excludes gold and stock")
 		}
 		w.Gold = c.Start.Gold
-		for _, g := range c.Start.Goods {
-			if err := sim.AddStock(w, c, is.ID, g.Good, g.Amount, l); err != nil {
-				return nil, fmt.Errorf("seed start: %w", err)
+		switch {
+		case s.Seed.Ship != nil:
+			cargo = map[string]int64{}
+			for _, g := range c.Start.Goods {
+				cargo[g.Good] += g.Amount
 			}
+		case s.Seed.TradingPost != nil:
+			if err := grantStartAfterFounding(s, c, w, is.ID, l); err != nil {
+				return nil, err
+			}
+		default:
+			return nil, errors.New("seed: start needs a ship or a trading post")
+		}
+	}
+	if sh := s.Seed.Ship; sh != nil {
+		typ := sh.Type
+		if typ == "" && len(c.Ships) > 0 {
+			typ = c.Ships[0].ID
+		}
+		if _, err := sim.LaunchShipAtSea(w, c, typ, sim.Pos{X: sh.X, Y: sh.Y}, cargo); err != nil {
+			return nil, fmt.Errorf("seed ship: %w", err)
+		}
+	}
+	for i, sh := range s.Seed.Ships {
+		typ := sh.Type
+		if typ == "" && len(c.Ships) > 0 {
+			typ = c.Ships[0].ID
+		}
+		amounts := map[string]int64{}
+		for _, g := range sortedKeys(sh.Cargo) {
+			v, err := content.ParseFixed(sh.Cargo[g], 3)
+			if err != nil {
+				return nil, fmt.Errorf("seed ships[%d] cargo %s: %w", i, g, err)
+			}
+			amounts[g] = v
+		}
+		if _, err := sim.LaunchShipAtSea(w, c, typ, sim.Pos{X: sh.X, Y: sh.Y}, amounts); err != nil {
+			return nil, fmt.Errorf("seed ships[%d]: %w", i, err)
 		}
 	}
 	if s.Seed.Gold != "" {
@@ -409,6 +472,39 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		}
 	}
 	return w, nil
+}
+
+// grantStartAfterFounding grants the starting stock into the island of a
+// seeded Trading Post minus the Trading Post's cost: the state right after
+// founding from the start ship, without the ship.
+func grantStartAfterFounding(s *Scenario, c *content.Catalogue, w *sim.World, island string, l *sim.Ledger) error {
+	typ := s.Seed.TradingPost.Type
+	if typ == "" {
+		typ = firstTradingPostType(c)
+	}
+	def := c.BuildingByID[typ]
+	if def == nil {
+		return fmt.Errorf("seed start: unknown trading post %q", typ)
+	}
+	if def.Cost.Gold > w.Gold {
+		return errors.New("seed start: the starting gold does not cover the trading post")
+	}
+	w.Gold -= def.Cost.Gold
+	for _, g := range c.Start.Goods {
+		amount := g.Amount
+		for _, m := range def.Cost.Materials {
+			if m.Good == g.Good {
+				amount -= m.Amount
+			}
+		}
+		if amount < 0 {
+			return fmt.Errorf("seed start: the starting %s do not cover the trading post", g.Good)
+		}
+		if err := sim.AddStock(w, c, island, g.Good, amount, l); err != nil {
+			return fmt.Errorf("seed start: %w", err)
+		}
+	}
+	return nil
 }
 
 // RunSteps builds the scenario's world and executes its first n steps
@@ -464,10 +560,11 @@ func ApplyBonus(s *Scenario, c *content.Catalogue, w *sim.World, l *sim.Ledger) 
 	return nil
 }
 
-// firstWarehouseType returns the first building type with a warehouse block.
-func firstWarehouseType(c *content.Catalogue) string {
+// firstTradingPostType returns the first building type with a
+// trading_post block.
+func firstTradingPostType(c *content.Catalogue) string {
 	for _, b := range c.Buildings {
-		if b.Warehouse != nil {
+		if b.TradingPost != nil {
 			return b.ID
 		}
 	}
@@ -686,6 +783,12 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		return r.apply(sim.UpgradeWarehouse{IslandID: id, BuildingID: b.ID})
+	case st.UpgradeTradingPost != nil:
+		id, b, err := r.buildingAt(st.UpgradeTradingPost)
+		if err != nil {
+			return err
+		}
+		return r.apply(sim.UpgradeTradingPost{IslandID: id, BuildingID: b.ID})
 	case st.Upgrade != nil:
 		id, b, err := r.buildingAt(st.Upgrade)
 		if err != nil {
@@ -758,11 +861,13 @@ func (r *runner) step(i int, st Step) error {
 			cargo = append(cargo, sim.CargoAmount{Good: g, Amount: v})
 		}
 		return r.apply(sim.ManualShipment{ShipID: m.Ship, ToIslandID: m.To, Cargo: cargo})
+	case st.SailShip != nil:
+		return r.apply(sim.SailShip{ShipID: st.SailShip.Ship, ToIslandID: st.SailShip.To})
 	case st.FoundIsland != nil:
 		f := st.FoundIsland
 		typ := f.Type
 		if typ == "" {
-			typ = firstWarehouseType(r.c)
+			typ = firstTradingPostType(r.c)
 		}
 		return r.apply(sim.FoundIsland{ShipID: f.Ship, IslandID: f.Island, BuildingType: typ, X: f.X, Y: f.Y, Rotation: f.Rotation})
 	case st.ClaimQuest != nil:
@@ -877,7 +982,7 @@ func Sentinels() map[string]error {
 		"unknown_island": sim.ErrUnknownIsland, "unknown_building": sim.ErrUnknownBuilding,
 		"building_not_found": sim.ErrBuildingNotFound, "invalid_command": sim.ErrInvalidCommand,
 		"out_of_bounds": sim.ErrOutOfBounds, "occupied": sim.ErrOccupied, "terrain": sim.ErrTerrain,
-		"not_coastal": sim.ErrNotCoastal, "no_work_area": sim.ErrNoWorkArea, "no_fertility": sim.ErrNoFertility,
+		"not_coastal": sim.ErrNotCoastal, "not_on_water": sim.ErrNotOnWater, "no_work_area": sim.ErrNoWorkArea, "no_fertility": sim.ErrNoFertility,
 		"no_deposit": sim.ErrNoDeposit, "insufficient_gold": sim.ErrInsufficientGold,
 		"insufficient_materials": sim.ErrInsufficientMaterials, "surplus_loss": sim.ErrSurplusLoss,
 		"not_pausable": sim.ErrNotPausable, "no_road": sim.ErrNoRoad, "over_capacity": sim.ErrOverCapacity,
@@ -891,7 +996,7 @@ func Sentinels() map[string]error {
 		"route_invalid": sim.ErrRouteInvalid, "route_in_use": sim.ErrRouteInUse,
 		"island_already_settled": sim.ErrIslandAlreadySettled, "island_not_settled": sim.ErrIslandNotSettled,
 		"cargo_insufficient": sim.ErrCargoInsufficient, "cargo_exceeds_slots": sim.ErrCargoExceedsSlots,
-		"last_warehouse": sim.ErrLastWarehouse, "not_connected": sim.ErrNotConnected,
+		"last_trading_post": sim.ErrLastTradingPost, "not_connected": sim.ErrNotConnected,
 		"quest_not_found": sim.ErrQuestNotFound, "quest_not_completed": sim.ErrQuestNotCompleted,
 		"quest_already_claimed": sim.ErrQuestAlreadyClaimed,
 		"no_farm_in_range":      sim.ErrNoFarmInRange, "field_type_mismatch": sim.ErrFieldTypeMismatch,

@@ -4,7 +4,7 @@
     "name": "Sloop",
     "region": "old_coast",
     "tier": "settlers",
-    "slots": 2,
+    "slots": 4,
     "slot_size": 50,
     "speed": 1.0,
     "build_seconds": 120,

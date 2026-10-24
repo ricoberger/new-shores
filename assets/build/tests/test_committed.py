@@ -73,7 +73,8 @@ class CommittedModelsTest(unittest.TestCase):
             self.assertEqual(len(models[house]["variants"]), 3)
             for v in models[house]["variants"]:
                 self.assertLessEqual(v["triangles"], config.BUDGET_HOUSE)
-        self.assertEqual(sorted(models["warehouse"]["levels"]), ["1", "2"])
+        self.assertEqual(sorted(models["warehouse"]["levels"]), ["1", "2", "3"])
+        self.assertEqual(sorted(models["trading_post"]["levels"]), ["1", "2", "3", "4"])
         self.assertIn("cargo", models["sloop"]["attachments"])
         self.assertLessEqual(models["sloop"]["attachments"]["cargo"]["triangles"], config.BUDGET_ATTACHMENT)
         for cid in ("pasture", "wheat_field", "orchard_plot", "hemp_field"):

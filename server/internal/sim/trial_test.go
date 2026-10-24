@@ -168,7 +168,7 @@ func (p *propCase) trialWorld() *World {
 			p.fail("trial %s: %v", typ, err)
 		}
 	}
-	free("warehouse", 1, 1, 0)
+	free("trading_post", 1, 0, 0)
 	var road []Pos
 	if p.rng.IntN(3) > 0 {
 		road = append(road, Pos{6, 3})

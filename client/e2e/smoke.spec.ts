@@ -12,7 +12,7 @@ import {
   SAWMILL,
   SAWMILL_MOVED,
   START_GOLD,
-  WAREHOUSE_TILE,
+  TRADING_POST_TILE,
   WATER,
   QUEST_HOUSES,
   PASTURE_RECT_FROM,
@@ -125,11 +125,12 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await page.goto("/");
   await dismissAwayDialog(page);
 
-  // HUD: gold visible and equal to the start gold (the warehouse, never
-  // paused, has no upkeep, so nothing has been spent since the start).
+  // HUD: gold visible and at most the gold after founding; only the start
+  // sloop's upkeep (1/min of world time) has been spent since.
   const gold = page.getByTestId("hud-gold");
   await expect(gold).toBeVisible();
-  await expect.poll(async () => Number(await gold.textContent())).toBe(START_GOLD);
+  await expect.poll(async () => Number(await gold.textContent())).toBeLessThanOrEqual(START_GOLD);
+  expect(Number(await gold.textContent())).toBeGreaterThan(START_GOLD - 30);
   expect(await page.evaluate(() => window.__newShores!.engineCount())).toBe(1);
   await expect(page.getByTestId("hud-content-version")).toHaveText(CONTENT_VERSION);
 
@@ -139,7 +140,8 @@ test("place a plank chain and see planks produced", async ({ page }) => {
 
   // Tier 2 (R-30): a Citizens building is listed locked with the server's
   // unmet unlock conditions; the Citizen house is upgrade-only and not
-  // listed. The warehouse panel offers the level-2 upgrade with its cost.
+  // listed. The Trading Post panel offers the level-2 upgrade with its cost
+  // and shows its berths (D-051).
   await page.getByTestId("build-tab-production").click();
   const quarryLock = page.getByTestId("build-lock-quarry");
   await expect(quarryLock).toContainText("Needs Citizens — Settlers 0/120");
@@ -149,12 +151,15 @@ test("place a plank chain and see planks produced", async ({ page }) => {
   await page.getByTestId("build-tab-houses").click();
   await expect(page.getByTestId("build-house_settlers")).toBeVisible();
   await expect(page.getByTestId("build-house_citizens")).toHaveCount(0);
-  await clickTile(page, WAREHOUSE_TILE);
-  await expect(page.getByTestId("info-name")).toHaveText("Warehouse");
-  await expect(page.getByTestId("warehouse-level")).toContainText("level 1 of 2");
-  await expect(page.getByTestId("warehouse-upgrade-button")).toContainText("level 2");
-  await expect(page.getByTestId("warehouse-upgrade-cost")).toContainText("/300 gold");
-  await expect(page.getByTestId("warehouse-upgrade-cost")).toContainText("Stone 0/10");
+  await clickTile(page, TRADING_POST_TILE);
+  await expect(page.getByTestId("info-name")).toHaveText("Trading Post");
+  await expect(page.getByTestId("trading-post-level")).toContainText("level 1 of 4");
+  await expect(page.getByTestId("trading-post-berths")).toContainText("0 busy · 1 free of 1");
+  await expect(page.getByTestId("trading-post-upgrade-button")).toContainText("level 2");
+  // The content's level-2 cost like a build card; the stone the island lacks is greyed.
+  await expect(page.getByTestId("trading-post-upgrade-cost")).toHaveText("300 gold · 20 planks · 10 stone");
+  await expect(page.getByTestId("trading-post-upgrade-cost-stone")).toHaveAttribute("data-short", "true");
+  await expect(page.getByTestId("trading-post-upgrade-cost-planks")).not.toHaveAttribute("data-short", "true");
   await page.keyboard.press("Escape");
   await clickTile(page, WATER);
   await expect(page.getByTestId("info-panel")).toBeHidden();
@@ -285,18 +290,18 @@ async function quests(page: Page): Promise<QuestState> {
   });
 }
 
-test("complete and claim the first three quests", async ({ page }) => {
+test("complete and claim the first four quests", async ({ page }) => {
   await page.goto("/");
   await dismissAwayDialog(page);
   await worldReady(page, ISLAND);
   await wheelZoom(page, ISLAND_ZOOM_OUT_TICKS);
 
-  // The road and the connected lumberjack and sawmill of the first test
-  // completed the road and planks quests; the houses quest needs four
-  // settler houses.
-  await expect.poll(async () => (await quests(page)).claimable).toEqual(["intro_first_road", "intro_planks"]);
+  // Founding completed the home-island quest (D-051); the road and the
+  // connected lumberjack and sawmill of the first test completed the road
+  // and planks quests; the houses quest needs four settler houses.
+  await expect.poll(async () => (await quests(page)).claimable).toEqual(["intro_home_island", "intro_first_road", "intro_planks"]);
   expect((await quests(page)).active).toEqual(["intro_houses"]);
-  await expect(page.getByTestId("hud-quests-badge")).toHaveText("2");
+  await expect(page.getByTestId("hud-quests-badge")).toHaveText("3");
   await page.getByTestId("hud-quests").click();
   await expect(page.getByTestId("quest-active-intro_houses")).toContainText("1/4");
   await page.getByTestId("hud-quests").click();
@@ -305,26 +310,28 @@ test("complete and claim the first three quests", async ({ page }) => {
     await clickTile(page, h);
   }
   await page.keyboard.press("Escape");
-  await expect.poll(async () => (await quests(page)).claimable).toEqual(["intro_first_road", "intro_planks", "intro_houses"]);
-  await expect(page.getByTestId("hud-quests-badge")).toHaveText("3");
+  await expect.poll(async () => (await quests(page)).claimable).toEqual(["intro_home_island", "intro_first_road", "intro_planks", "intro_houses"]);
+  await expect(page.getByTestId("hud-quests-badge")).toHaveText("4");
 
   // Claim through the panel: gold directly, goods after choosing an island.
   await page.getByTestId("hud-quests").click();
   await expect(page.getByTestId("quests-panel")).toBeVisible();
+  await page.getByTestId("quest-claim-intro_home_island").click();
+  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_home_island"]);
   await page.getByTestId("quest-claim-intro_first_road").click();
-  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_first_road"]);
+  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_home_island", "intro_first_road"]);
 
   await page.getByTestId("quest-claim-intro_planks").click();
-  await expect(page.getByTestId("quest-claim-island")).toContainText("Goods beyond the warehouse capacity are lost.");
+  await expect(page.getByTestId("quest-claim-island")).toContainText("Goods beyond the Trading Post capacity are lost.");
   await expect(page.getByTestId("quest-claim-stock-planks")).toContainText("in stock");
   await page.getByTestId("quest-claim-island-select").selectOption(ISLAND);
   const planks = await committed(page, "planks");
   await page.getByTestId("quest-claim-confirm").click();
-  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_first_road", "intro_planks"]);
+  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_home_island", "intro_first_road", "intro_planks"]);
   expect(await committed(page, "planks")).toBeGreaterThanOrEqual(planks + 45_000);
 
   await page.getByTestId("quest-claim-intro_houses").click();
-  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_first_road", "intro_planks", "intro_houses"]);
+  await expect.poll(async () => (await quests(page)).claimed).toEqual(["intro_home_island", "intro_first_road", "intro_planks", "intro_houses"]);
   await expect(page.getByTestId("hud-quests-badge")).toHaveCount(0);
   await expect(page.getByTestId("quest-completed-intro_houses")).toContainText("claimed");
   await expect(page.getByTestId("quest-active-intro_fish")).toBeVisible();

@@ -60,6 +60,9 @@ type propCase struct {
 	// maxPieces bounds the number of pieces of a split advancement
 	// (default 4).
 	maxPieces int
+	// queued counts the observations of a ship waiting for a berth and
+	// atSea those of a ship at sea (checkInvariants).
+	queued, atSea int
 	// log of operations for failure messages
 	ops []string
 }
@@ -92,7 +95,8 @@ func (p *propCase) randomWorld() *World {
 			switch {
 			case x == 0 || y == 0 || x == width-1 || y == height-1:
 			case y == 1:
-				terrain = content.TerrainCoast
+				// A bay row: the Trading Post (1,0) and fishers stand with
+				// their front rows on it (D-051).
 			case x <= 4 && y <= 3, y == 4:
 				terrain = content.TerrainGrass
 			default:
@@ -110,7 +114,7 @@ func (p *propCase) randomWorld() *World {
 	}
 	w := NewWorld(t0.Add(time.Duration(p.rng.IntN(1_000_000)) * time.Millisecond))
 	w.Islands = []*Island{NewIsland("main", width, height, tiles)}
-	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: "warehouse", X: 1, Y: 1}, p.l); err != nil {
+	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, p.l); err != nil {
 		p.fail("seed warehouse: %v", err)
 	}
 	// Most cases are rich; some start poor so that insolvency pauses and
@@ -168,7 +172,7 @@ func (p *propCase) townWorld() *World {
 			case x == 0 || y == 0 || x == 29 || y == 13:
 				row[x] = '~'
 			case y == 1 && x <= 8:
-				row[x] = 'c'
+				row[x] = '~'
 			default:
 				row[x] = '.'
 			}
@@ -187,7 +191,7 @@ func (p *propCase) townWorld() *World {
 			p.fail("town %s: %v", typ, err)
 		}
 	}
-	free("warehouse", 1, 1, 0)
+	free("trading_post", 1, 0, 0)
 	var road []Pos
 	for x := 2; x <= 28; x++ {
 		road = append(road, Pos{x, 4})
@@ -303,7 +307,7 @@ func (p *propCase) randomCommand() Command {
 		// stone or at the last level.
 		var whs []*Building
 		for _, b := range is.Buildings {
-			if def := p.c.BuildingByID[b.Type]; def != nil && def.Warehouse != nil {
+			if def := p.c.BuildingByID[b.Type]; def != nil && def.Collector() {
 				whs = append(whs, b)
 			}
 		}
@@ -313,7 +317,11 @@ func (p *propCase) randomCommand() Command {
 		if p.c.GoodByID["stone"] != nil && p.rng.IntN(2) == 0 {
 			return addStockOp{good: "stone", qty: 20_000}
 		}
-		return UpgradeWarehouse{IslandID: "main", BuildingID: whs[p.rng.IntN(len(whs))].ID}
+		b := whs[p.rng.IntN(len(whs))]
+		if def := p.c.BuildingByID[b.Type]; def.TradingPost != nil {
+			return UpgradeTradingPost{IslandID: "main", BuildingID: b.ID}
+		}
+		return UpgradeWarehouse{IslandID: "main", BuildingID: b.ID}
 	default:
 		if len(is.Buildings) < 2 {
 			return nil
@@ -502,16 +510,33 @@ func (p *propCase) checkInvariants(stage string) {
 		if len(s.Cargo) > def.Slots || slotsUsed(cargoAmounts(s), def.SlotSize) != len(s.Cargo) {
 			p.fail("%s: ship %d cargo %+v exceeds %d slots or is not canonical", stage, s.ID, s.Cargo, def.Slots)
 		}
+		if s.AtSea != nil {
+			p.atSea++
+			// At sea only idle or anchored, at no island (D-051).
+			if s.IslandID != "" || s.Leg != nil || (s.State != ShipIdle && s.State != ShipAnchoredUnpaid) {
+				p.fail("%s: ship at sea %+v", stage, s)
+			}
+		}
 		switch s.State {
 		case ShipIdle, ShipAnchoredUnpaid:
-			if s.Leg != nil || p.w.Island(s.IslandID) == nil {
-				p.fail("%s: ship %d %s at %q with leg %+v", stage, s.ID, s.State, s.IslandID, s.Leg)
+			if s.Leg != nil || (p.w.Island(s.IslandID) == nil) == (s.AtSea == nil) || s.BerthUntilMs != 0 || s.QueuedAtMs != 0 {
+				p.fail("%s: ship %d %s at %q with leg %+v berth %d queued %d", stage, s.ID, s.State, s.IslandID, s.Leg, s.BerthUntilMs, s.QueuedAtMs)
+			}
+		case ShipWaitingForBerth:
+			p.queued++
+			// Queued at an island for a berth (D-051): no leg, no berth.
+			if s.Leg != nil || p.w.Island(s.IslandID) == nil || s.QueuedAtMs <= 0 || s.QueuedAtMs > now || s.BerthUntilMs != 0 {
+				p.fail("%s: waiting ship %+v", stage, s)
 			}
 		case ShipOnRoute, ShipManualLeg:
 			l := s.Leg
 			switch {
+			case l == nil && s.State == ShipManualLeg && s.BerthUntilMs > now && p.w.Island(s.IslandID) != nil:
+				// Unloading at a berth after a manual leg.
 			case l == nil:
 				p.fail("%s: ship %d %s without leg", stage, s.ID, s.State)
+			case s.BerthUntilMs != 0 && (s.BerthUntilMs != l.DepartAtMs || s.BerthUntilMs <= now):
+				p.fail("%s: ship %d holds a berth until %d with leg %+v at %d", stage, s.ID, s.BerthUntilMs, l, now)
 			case l.DepartAtMs > now && s.IslandID != l.FromIsland, l.DepartAtMs <= now && s.IslandID != "":
 				p.fail("%s: ship %d at %q with leg %+v at %d", stage, s.ID, s.IslandID, l, now)
 			case l.ArriveAtMs <= now || l.ArriveAtMs <= l.DepartAtMs || l.FromIsland == l.ToIsland:
@@ -520,7 +545,7 @@ func (p *propCase) checkInvariants(stage string) {
 		default:
 			p.fail("%s: ship %d state %q", stage, s.ID, s.State)
 		}
-		if s.State != ShipAnchoredUnpaid && (s.State == ShipOnRoute) != (s.RouteID != 0) {
+		if s.State != ShipAnchoredUnpaid && s.State != ShipWaitingForBerth && (s.State == ShipOnRoute) != (s.RouteID != 0) {
 			p.fail("%s: ship %d %s with route %d", stage, s.ID, s.State, s.RouteID)
 		}
 		if s.RouteID != 0 && p.w.Route(s.RouteID) == nil {
@@ -533,6 +558,17 @@ func (p *propCase) checkInvariants(stage string) {
 	for _, e := range DueEvents(p.w) {
 		if e.At.UnixMilli() <= now {
 			p.fail("%s: due moment %+v not after %d", stage, e, now)
+		}
+	}
+	// Berths (MECHANICS §9.3): never more holders than berths, none at an
+	// island without a pier; a queue only while every berth is busy.
+	for _, is := range p.w.Islands {
+		total, holders := berthTotal(is), berthHolders(p.w, is.ID, now)
+		if len(holders) > total {
+			p.fail("%s: %s has %d berth holders for %d berths", stage, is.ID, len(holders), total)
+		}
+		if q := berthQueue(p.w, is.ID); len(q) > 0 && total > 0 && len(holders) < total {
+			p.fail("%s: %s queues %d ships with %d of %d berths busy", stage, is.ID, len(q), len(holders), total)
 		}
 	}
 	for _, g := range p.c.Goods {
@@ -673,7 +709,7 @@ func (p *propCase) advance(d time.Duration, compose bool) []Boundary {
 			}
 			// Inside the handling time after an arrival (before the
 			// departure) and at the departure itself.
-			if h := p.c.Region.Rules.ShipHandlingMs; b.Kind == BoundaryShipArrived && h > 1 {
+			if h := p.c.Region.Rules.ShipHandlingBaseMs; b.Kind == BoundaryShipArrived && h > 1 {
 				for _, at := range []time.Time{b.At.Add(time.Duration(1+p.rng.Int64N(h-1)) * time.Millisecond), b.At.Add(time.Duration(h) * time.Millisecond)} {
 					if at.After(start) && at.Before(to) {
 						splits = append(splits, split{at, "handling"})
@@ -809,14 +845,14 @@ func TestPropertyConservationAndBounds(t *testing.T) {
 				p.checkInvariants("initial")
 				p.run(false)
 				for _, op := range p.ops {
-					if strings.HasPrefix(op, "sim.UpgradeWarehouse") {
+					if strings.HasPrefix(op, "sim.UpgradeWarehouse") || strings.HasPrefix(op, "sim.UpgradeTradingPost") {
 						upgrades++
 					}
 				}
 			}
 			// Content with a second warehouse level must exercise the
 			// upgrade's material charges (conservation via Spent).
-			if wh := c.BuildingByID["warehouse"]; len(wh.Warehouse.Levels) > 1 && upgrades == 0 {
+			if wh := c.BuildingByID["trading_post"]; len(wh.TradingPost.Levels) > 1 && upgrades == 0 {
 				t.Error("no successful warehouse upgrade")
 			}
 			t.Logf("successful warehouse upgrades: %d", upgrades)
@@ -901,7 +937,7 @@ func (p *propCase) recoveryWorld() *World {
 			p.fail("recovery %s: %v", typ, err)
 		}
 	}
-	free("warehouse", 1, 1, 0)
+	free("trading_post", 1, 0, 0)
 	road := []Pos{{6, 3}}
 	for x := 2; x <= 28; x++ {
 		road = append(road, Pos{x, 4})
@@ -1046,7 +1082,7 @@ func TestPropertyPauseResumeInterplay(t *testing.T) {
 				p.fail("%s: %v", typ, err)
 			}
 		}
-		free("warehouse", 1, 1, 0)
+		free("trading_post", 1, 0, 0)
 		road := []Pos{{6, 3}}
 		for x := 2; x <= 28; x++ {
 			road = append(road, Pos{x, 4})
@@ -1119,7 +1155,7 @@ func TestPropertyResumeEligibility(t *testing.T) {
 			}
 			return id
 		}
-		free("warehouse", 1, 1, 0)
+		free("trading_post", 1, 0, 0)
 		road := []Pos{{6, 3}}
 		for x := 2; x <= 28; x++ {
 			road = append(road, Pos{x, 4})

@@ -15,7 +15,7 @@ import type { ContentBuilding } from "../api/client";
 import type { ArchPoint } from "../display/ships";
 import { type Rotation, rotatedFootprint } from "../display/geometry";
 import { skyFill } from "./lighting";
-import { GHOST } from "./palette";
+import { GHOST, WATER_ROWS } from "./palette";
 import { modelFileFor, modelMesh, type ModelRegistry, placement, worldData } from "./models";
 
 /** Opacity of the box ghost and of the model ghost. */
@@ -30,8 +30,18 @@ const MODEL_ALPHA = 0.7;
 const TINT = { neutral: 0.25, warn: 0.75 };
 const LIFT = { neutral: 0.12, warn: 0.42 };
 
+/** Opacity and height (above the ground plane) of the water-rows strip of a water-edge ghost. */
+const WATER_ROWS_ALPHA = 0.55;
+const WATER_ROWS_Y = 0.03;
+
 /** What the ghost shows: the building at a tile of an island, its rotation and (move tool) the building ID. */
 export interface GhostSpec {
+  /**
+   * Water rows of a water-edge building (D-051, island tiles): drawn as a
+   * light strip under the pier part so the player sees which rows must
+   * stand on the sea.
+   */
+  waterRows?: { x: number; y: number; w: number; h: number } | null;
   def: ContentBuilding;
   /** Archipelago position of the island's tile (0, 0). */
   island: ArchPoint;
@@ -57,6 +67,8 @@ export class PlacementGhost {
   private readonly models = new Map<string, Mesh>();
   private shown: Mesh | null = null;
   private color: Color3 | null = null;
+  private readonly water: Mesh;
+  private waterShown: { x: number; y: number; w: number; h: number } | null = null;
 
   constructor(
     private readonly scene: Scene,
@@ -72,6 +84,14 @@ export class PlacementGhost {
     this.modelMaterial.specularColor = Color3.Black();
     this.modelMaterial.alpha = MODEL_ALPHA;
     this.modelMaterial.needDepthPrePass = true;
+    this.water = CreateBox("ghost_water_rows", { size: 1 }, scene);
+    const wm = skyFill(new StandardMaterial("ghost_water_rows", scene));
+    wm.diffuseColor = WATER_ROWS;
+    wm.emissiveColor = WATER_ROWS.scale(0.5);
+    wm.alpha = WATER_ROWS_ALPHA;
+    this.water.material = wm;
+    this.water.isPickable = false;
+    this.water.setEnabled(false);
   }
 
   /** Shows the ghost of a building at a tile, tinted by a validity colour. */
@@ -99,11 +119,25 @@ export class PlacementGhost {
       this.box.position.set(spec.island.x + spec.x + w / 2, 0.3, -(spec.island.y + spec.y + h / 2));
     }
     this.shown.setEnabled(true);
+    const rows = spec.waterRows ?? null;
+    this.waterShown = rows ? { x: rows.x, y: rows.y, w: rows.w, h: rows.h } : null;
+    if (rows) {
+      this.water.scaling.set(rows.w, 0.04, rows.h);
+      this.water.position.set(spec.island.x + rows.x + rows.w / 2, WATER_ROWS_Y, -(spec.island.y + rows.y + rows.h / 2));
+    }
+    this.water.setEnabled(rows !== null);
   }
 
   hide(): void {
     this.shown?.setEnabled(false);
     this.shown = null;
+    this.water.setEnabled(false);
+    this.waterShown = null;
+  }
+
+  /** The water rows the ghost highlights (island tiles; null: none or hidden; tests). */
+  waterRows(): { x: number; y: number; w: number; h: number } | null {
+    return this.waterShown;
   }
 
   /** What is drawn: "model", "box" or null (hidden; tests). */

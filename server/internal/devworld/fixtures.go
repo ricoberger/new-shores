@@ -16,33 +16,41 @@ import (
 // through sim.Apply over a short world-time history that ends at now; the
 // player was last seen at now (no "while you were away" summary).
 //
-//   - default: the dev island as NewDev builds it.
-//   - town: the smoke spec's result plus FixtureGold: a road along the north, a connected
+//   - seafaring: the start state as NewDev builds it (D-051): no island
+//     settled, the start ship at sea with the starting stock.
+//   - default: the start island founded from the start ship at the
+//     standard site (Trading Post at (2, 0)) at once; the sloop idle there.
+//   - town: default plus the smoke spec's result plus FixtureGold: a road along the north, a connected
 //     lumberjack and sawmill (both moved once), four settler houses, the
 //     quests that layout completes claimed, and a sheep farm with 16
 //     pastures.
 //   - settled: town plus the voyage spec's result: a shipyard on the south
-//     coast, the sloop, island 2 founded (warehouse, road, two houses, a
-//     fisher) and the sloop sailing the route "Fish home".
+//     coast, a second sloop (ship 2), island 2 founded by it (Trading Post,
+//     road, two houses, a fisher) and ship 2 sailing the route "Fish home";
+//     the start sloop (ship 1) idle at the start island.
 const (
-	FixtureDefault = "default"
-	FixtureTown    = "town"
-	FixtureSettled = "settled"
+	FixtureDefault   = "default"
+	FixtureSeafaring = "seafaring"
+	FixtureTown      = "town"
+	FixtureSettled   = "settled"
 )
 
 // ErrUnknownFixture reports a fixture name that NewFixture does not know.
 var ErrUnknownFixture = errors.New("unknown dev fixture")
 
 // Fixtures lists the fixture names.
-func Fixtures() []string { return []string{FixtureDefault, FixtureTown, FixtureSettled} }
+func Fixtures() []string {
+	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled}
+}
 
 // History of the fixtures before now (world time): long enough for the
 // planks, the sloop and the first fish the layouts need, and for the
 // planks the specs starting from them build with (the archipelago spec's
 // four rotation houses on settled).
 const (
-	townHistory    = 12 * time.Minute
-	settledHistory = 40 * time.Minute
+	foundHistory   = time.Minute
+	townHistory    = foundHistory + 12*time.Minute
+	settledHistory = foundHistory + 40*time.Minute
 )
 
 // FixtureGold (milli-gold) is granted to the town and settled fixtures: an
@@ -57,12 +65,18 @@ const FixtureGold = 3_000_000
 func NewFixture(c *content.Catalogue, name string, now time.Time) (*sim.World, error) {
 	now = now.UTC().Truncate(time.Millisecond)
 	switch name {
-	case "", FixtureDefault:
+	case FixtureSeafaring:
 		return NewDev(c, now)
+	case "", FixtureDefault:
+		return replay(c, now, foundHistory, foundStart)
 	case FixtureTown:
-		return replay(c, now, townHistory, town)
+		return replay(c, now, townHistory, func(f *fixture) {
+			foundStart(f)
+			town(f)
+		})
 	case FixtureSettled:
 		return replay(c, now, settledHistory, func(f *fixture) {
+			foundStart(f)
 			town(f)
 			settle(f)
 		})
@@ -180,6 +194,43 @@ func replay(c *content.Catalogue, now time.Time, history time.Duration, build fu
 	return w, nil
 }
 
+// Start site of the dev fixtures: the start island's Trading Post (its
+// water rows on the north bay).
+const (
+	startTPX = 2
+	startTPY = 0
+)
+
+// foundStart sails the start ship to the start island and founds it at
+// the standard site; the starting stock is unloaded into the Trading Post.
+func foundStart(f *fixture) {
+	if f.err != nil {
+		return
+	}
+	if len(f.w.Ships) == 0 {
+		f.err = errors.New("no start ship")
+		return
+	}
+	s := f.w.Ships[0]
+	f.apply(sim.SailShip{ShipID: s.ID, ToIslandID: startIsland})
+	if f.err != nil || s.Leg == nil {
+		f.err = cmp(f.err, errors.New("the start ship did not sail"))
+		return
+	}
+	f.advance(time.Duration(s.Leg.ArriveAtMs-f.w.LastEvaluatedAt.UnixMilli()) * time.Millisecond)
+	f.apply(sim.FoundIsland{ShipID: s.ID, IslandID: startIsland, BuildingType: tradingPostType(f.c), X: startTPX, Y: startTPY})
+}
+
+// tradingPostType is the first building with a trading_post block.
+func tradingPostType(c *content.Catalogue) string {
+	for _, b := range c.Buildings {
+		if b.TradingPost != nil {
+			return b.ID
+		}
+	}
+	return ""
+}
+
 // town replays the smoke spec (client/e2e/smoke.spec.ts, constants.ts).
 func town(f *fixture) {
 	f.w.Gold += FixtureGold
@@ -214,21 +265,21 @@ func town(f *fixture) {
 func settle(f *fixture) {
 	f.road(startIsland, 2, 4, 2, 34)
 	f.road(startIsland, 3, 34, 4, 34)
-	f.place(startIsland, "shipyard", 5, 34, 0)
+	f.place(startIsland, "shipyard", 5, 34, 180)
 	if f.err != nil {
 		return
 	}
 	yard := f.w.Island(startIsland).BuildingAt(f.c, 5, 34)
 	f.apply(sim.OrderShip{IslandID: startIsland, BuildingID: yard.ID, ShipType: "sloop"})
 	f.advance(2*time.Minute + 10*time.Second)
-	if f.err == nil && (len(f.w.Ships) != 1 || f.w.Ships[0].State != sim.ShipIdle) {
+	if f.err == nil && (len(f.w.Ships) != 2 || f.w.Ships[1].State != sim.ShipIdle) {
 		f.err = errors.New("the sloop is not idle after its build time")
 		return
 	}
 	ship := f.w.Ships[len(f.w.Ships)-1].ID
 	f.apply(sim.ManualShipment{ShipID: ship, ToIslandID: island2, Cargo: []sim.CargoAmount{{Good: "planks", Amount: 60_000}}})
 	f.advance(2*time.Minute + 30*time.Second)
-	f.apply(sim.FoundIsland{ShipID: ship, IslandID: island2, BuildingType: "warehouse", X: 2, Y: 1})
+	f.apply(sim.FoundIsland{ShipID: ship, IslandID: island2, BuildingType: tradingPostType(f.c), X: 2, Y: 0})
 	f.road(island2, 2, 4, 20, 4)
 	f.place(island2, "house_settlers", 8, 5, 0)
 	f.place(island2, "house_settlers", 10, 5, 0)

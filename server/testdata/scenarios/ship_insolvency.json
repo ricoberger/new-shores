@@ -10,8 +10,8 @@
       "y": 0,
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccccccccccccccc~",
-        "~cccccccccccccccccccccccccccc~",
+        "~~~~~c~~~~~cc~~cccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
         "~............................~",
         "~............................~",
         "~............................~",
@@ -43,9 +43,9 @@
     }
   ],
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 2,
+      "y": 1,
       "rotation": 0
     },
     "gold": 865,
@@ -115,7 +115,7 @@
     {
       "place": {
         "type": "market_small",
-        "x": 9,
+        "x": 16,
         "y": 1,
         "rotation": 0
       }

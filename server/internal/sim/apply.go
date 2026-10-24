@@ -58,10 +58,18 @@ type UpgradeHouse struct {
 	BuildingID int64
 }
 
-// UpgradeWarehouse raises a warehouse to its next level (MECHANICS §5):
-// the next level's cost is charged like a placement (gold from the world,
-// materials from the island); capacity and throughput change at once.
+// UpgradeWarehouse raises a Warehouse (inland collector) to its next level
+// (MECHANICS §5): the next level's cost is charged like a placement (gold
+// from the world, materials from the island); throughput changes at once.
 type UpgradeWarehouse struct {
+	IslandID   string
+	BuildingID int64
+}
+
+// UpgradeTradingPost raises the Trading Post to its next level (MECHANICS
+// §5, §9.3): charged like UpgradeWarehouse; capacity, throughput and berths
+// change at once (waiting ships may be granted a berth at once).
+type UpgradeTradingPost struct {
 	IslandID   string
 	BuildingID int64
 }
@@ -77,14 +85,15 @@ type MoveBuilding struct {
 	Rotation   int
 }
 
-func (PlaceBuilding) isCommand()    {}
-func (MoveBuilding) isCommand()     {}
-func (PlaceRoad) isCommand()        {}
-func (Demolish) isCommand()         {}
-func (DemolishRoad) isCommand()     {}
-func (SetPaused) isCommand()        {}
-func (UpgradeHouse) isCommand()     {}
-func (UpgradeWarehouse) isCommand() {}
+func (PlaceBuilding) isCommand()      {}
+func (MoveBuilding) isCommand()       {}
+func (PlaceRoad) isCommand()          {}
+func (Demolish) isCommand()           {}
+func (DemolishRoad) isCommand()       {}
+func (SetPaused) isCommand()          {}
+func (UpgradeHouse) isCommand()       {}
+func (UpgradeWarehouse) isCommand()   {}
+func (UpgradeTradingPost) isCommand() {}
 
 // Apply validates and executes a command at w.LastEvaluatedAt (the caller
 // advances the world first). Every command validates completely before it
@@ -137,7 +146,9 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 	case UpgradeHouse:
 		err = upgradeHouse(w, c, cmd, l)
 	case UpgradeWarehouse:
-		err = upgradeWarehouse(w, c, cmd, l)
+		err = upgradeCollector(w, c, cmd.IslandID, cmd.BuildingID, false, l)
+	case UpgradeTradingPost:
+		err = upgradeCollector(w, c, cmd.IslandID, cmd.BuildingID, true, l)
 	case OrderShip:
 		err = orderShip(w, c, cmd, l)
 	case CancelShipOrder:
@@ -152,6 +163,8 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 		err = manualShipment(w, c, cmd, l)
 	case ScrapShip:
 		err = scrapShip(w, c, cmd, l)
+	case SailShip:
+		err = sailShip(w, c, cmd)
 	case CreateRoute:
 		err = createRoute(w, c, cmd)
 	case UpdateRoute:
@@ -171,6 +184,9 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 		return err
 	}
 	now := w.LastEvaluatedAt.UnixMilli()
+	// Due moments a command creates at this instant (a berth granted to
+	// an assigned ship, a queue served by an upgraded Trading Post).
+	applyDue(w, c, now, l)
 	normalizeShips(w, now)
 	evaluateUnlocks(w, c)
 	evaluateQuests(w, c, now, nil)
@@ -310,10 +326,16 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	if charge && !TierUnlocked(w, c, def.Tier) {
 		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
 	}
-	// Only FoundIsland (and seeding) places the first warehouse of an
-	// island (MECHANICS §8).
+	// Only FoundIsland (and seeding) places the Trading Post of an island
+	// (MECHANICS §8), at most one per island.
 	if charge && !settled(is, c) {
 		return fmt.Errorf("%w: %q", ErrIslandNotSettled, is.ID)
+	}
+	if def.TradingPost != nil && settled(is, c) {
+		return fmt.Errorf("%w: %q has a trading post", ErrIslandAlreadySettled, is.ID)
+	}
+	if charge && def.TradingPost != nil {
+		return fmt.Errorf("%w: a trading post is placed by found_island", ErrInvalidCommand)
 	}
 	if def.Road != nil {
 		if !charge {
@@ -343,8 +365,9 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	}
 	b := &Building{ID: w.NextBuildingID, Type: def.ID, X: cmd.X, Y: cmd.Y, Rotation: cmd.Rotation, Efficiency: 1000}
 	w.NextBuildingID++
-	if def.Warehouse != nil {
+	if def.Collector() {
 		b.Level = 1
+		b.Berths = def.TradingPostLevelAt(1).Berths
 	}
 	if def.House != nil {
 		if tier := c.TierByID[def.House.Tier]; tier != nil {
@@ -358,7 +381,8 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 
 // checkSite validates a building site, in this order: the footprint is on
 // the island, on buildable terrain (a deposit building may also cover
-// mountain tiles) and free (per occ and roads); a coastal building touches
+// mountain tiles) and free (per occ and roads) except the front rows of a
+// water-edge building, which must be free water tiles; a coastal building touches
 // the coast; a deposit building covers at least one tile with a deposit of
 // its kind; the island has the fertility of a work-area building; and,
 // with workArea set, a work-area building without a fields block has
@@ -376,13 +400,28 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 		return fmt.Errorf("%w: %s footprint at (%d,%d)", ErrOutOfBounds, def.ID, x, y)
 	}
 	tiles := make([]Pos, 0, fw*fh)
+	var water []Pos
 	for ty := y; ty < y+fh; ty++ {
 		for tx := x; tx < x+fw; tx++ {
+			if WaterTile(def, x, y, rotation, tx, ty) {
+				water = append(water, Pos{tx, ty})
+				continue
+			}
 			tiles = append(tiles, Pos{tx, ty})
 		}
 	}
 	if err := checkTiles(is, occ, tiles, def.RequiresDeposit != ""); err != nil {
 		return err
+	}
+	// Water-edge buildings (D-051): the front rows stand on free water.
+	for _, p := range water {
+		i := is.index(p.X, p.Y)
+		if is.Tiles[i].Terrain != content.TerrainWater {
+			return fmt.Errorf("%w: %s at (%d,%d): front tile (%d,%d) is %s", ErrNotOnWater, def.ID, x, y, p.X, p.Y, is.Tiles[i].Terrain)
+		}
+		if occ[i] != 0 {
+			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+		}
 	}
 	if def.Coastal {
 		coastal := false
@@ -548,25 +587,18 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 	}
 	now := w.LastEvaluatedAt.UnixMilli()
 
-	// The last warehouse may only go when nothing but roads remains: it
-	// unsettles the island (R-35).
-	if def.Warehouse != nil && len(is.Buildings) > 1 {
-		warehouses := 0
-		for _, ob := range is.Buildings {
-			if odef := c.BuildingByID[ob.Type]; odef != nil && odef.Warehouse != nil {
-				warehouses++
-			}
-		}
-		if warehouses == 1 {
-			return fmt.Errorf("%w: %q has %d other buildings", ErrLastWarehouse, is.ID, len(is.Buildings)-1)
-		}
+	// The Trading Post may only go when nothing but roads remains: it
+	// unsettles the island (R-35, D-051).
+	if def.TradingPost != nil && len(is.Buildings) > 1 {
+		return fmt.Errorf("%w: %q has %d other buildings", ErrLastTradingPost, is.ID, len(is.Buildings)-1)
 	}
 
-	// Capacity after demolition. The demolished building's own in-transit
-	// goods are delivered, which leaves committed quantities unchanged.
+	// Capacity after demolition: only the Trading Post holds capacity. The
+	// demolished building's own in-transit goods are delivered, which
+	// leaves committed quantities unchanged.
 	newCap := capacityFine(is, c)
-	if def.Warehouse != nil {
-		newCap -= warehouseLevel(def, b).Capacity * SubPerMilli
+	if def.TradingPost != nil {
+		newCap = 0
 	}
 	var surplus []string
 	for _, good := range goodsOnIsland(is) {
@@ -603,12 +635,11 @@ func demolish(w *World, c *content.Catalogue, cmd Demolish, l *Ledger) error {
 		}
 	}
 	refund(is, c, def.Cost, 1, l, now)
-	// An upgraded warehouse also refunds the paid levels (D-019).
-	if def.Warehouse != nil {
-		for i := 1; i < b.Level && i < len(def.Warehouse.Levels); i++ {
-			if lc := def.Warehouse.Levels[i].Cost; lc != nil {
-				refund(is, c, *lc, 1, l, now)
-			}
+	// An upgraded Trading Post or Warehouse also refunds the paid levels
+	// (D-019).
+	for lvl := 2; lvl <= b.Level; lvl++ {
+		if lc := def.LevelCost(lvl); lc != nil {
+			refund(is, c, *lc, 1, l, now)
 		}
 	}
 	if b.Order != nil {
@@ -733,24 +764,31 @@ func upgradeHouse(w *World, c *content.Catalogue, cmd UpgradeHouse, l *Ledger) e
 	return nil
 }
 
-func upgradeWarehouse(w *World, c *content.Catalogue, cmd UpgradeWarehouse, l *Ledger) error {
-	is, err := lookupIsland(w, cmd.IslandID)
+// upgradeCollector upgrades a Trading Post (tradingPost set) or a
+// Warehouse; the other kind of building fails with ErrUpgradeUnavailable.
+func upgradeCollector(w *World, c *content.Catalogue, islandID string, id int64, tradingPost bool, l *Ledger) error {
+	is, err := lookupIsland(w, islandID)
 	if err != nil {
 		return err
 	}
-	b := is.Building(cmd.BuildingID)
+	b := is.Building(id)
 	if b == nil {
-		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
+		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, id, islandID)
 	}
 	def := c.BuildingByID[b.Type]
-	if def == nil || def.Warehouse == nil {
+	switch {
+	case def == nil:
+		return fmt.Errorf("%w: %q", ErrUnknownBuilding, b.Type)
+	case tradingPost && def.TradingPost == nil:
+		return fmt.Errorf("%w: %s is not a trading post", ErrUpgradeUnavailable, b.Type)
+	case !tradingPost && def.Warehouse == nil:
 		return fmt.Errorf("%w: %s is not a warehouse", ErrUpgradeUnavailable, b.Type)
 	}
 	level := max(b.Level, 1)
-	if level >= len(def.Warehouse.Levels) {
+	if level >= def.LevelCount() {
 		return fmt.Errorf("%w: %s is at its last level %d", ErrUpgradeUnavailable, def.ID, level)
 	}
-	cost := def.Warehouse.Levels[level].Cost
+	cost := def.LevelCost(level + 1)
 	if cost == nil {
 		return fmt.Errorf("%w: level %d of %s has no cost", ErrUpgradeUnavailable, level+1, def.ID)
 	}
@@ -762,6 +800,7 @@ func upgradeWarehouse(w *World, c *content.Catalogue, cmd UpgradeWarehouse, l *L
 	// the level; the next settle recomputes all rates.
 	chargeCost(w, is, *cost, 1, l)
 	b.Level = level + 1
+	b.Berths = def.TradingPostLevelAt(b.Level).Berths
 	clearRegimes(is)
 	return nil
 }

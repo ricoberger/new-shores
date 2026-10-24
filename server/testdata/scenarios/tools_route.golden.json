@@ -1,7 +1,7 @@
 {
   "name": "tools_route",
-  "content_version": "old_coast-0.6.0",
-  "boundary_count": 110,
+  "content_version": "old_coast-0.7.0",
+  "boundary_count": 111,
   "totals": {
     "island2": {
       "charcoal": {
@@ -51,7 +51,7 @@
         "produced": 28150,
         "consumed": 0,
         "lost": 0,
-        "loaded": 23083
+        "loaded": 25725
       },
       "wood": {
         "produced": 60000,
@@ -70,14 +70,14 @@
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "spent": 20000,
+        "spent": 15000,
         "unloaded": 40000
       },
       "tools": {
         "produced": 0,
         "consumed": 0,
         "lost": 0,
-        "unloaded": 23083
+        "unloaded": 21363
       }
     }
   },
@@ -244,7 +244,7 @@
             "in_transit": 0
           },
           "tools": {
-            "stock": 3001,
+            "stock": 3501,
             "in_transit": 733
           },
           "wood": {
@@ -258,11 +258,11 @@
         },
         "start": {
           "planks": {
-            "stock": 20000,
+            "stock": 25000,
             "in_transit": 0
           },
           "tools": {
-            "stock": 4416,
+            "stock": 3916,
             "in_transit": 0
           }
         }
@@ -290,7 +290,7 @@
     {
       "step": 37,
       "at": "2026-01-01T00:35:00.000Z",
-      "boundaries": 4,
+      "boundaries": 5,
       "inventory": {
         "island2": {
           "charcoal": {
@@ -318,7 +318,7 @@
             "in_transit": 0
           },
           "tools": {
-            "stock": 3667,
+            "stock": 417,
             "in_transit": 733
           },
           "wood": {
@@ -332,11 +332,11 @@
         },
         "start": {
           "planks": {
-            "stock": 20000,
+            "stock": 25000,
             "in_transit": 0
           },
           "tools": {
-            "stock": 13750,
+            "stock": 12638,
             "in_transit": 0
           }
         }
@@ -357,7 +357,11 @@
         {
           "id": 1,
           "state": "on_route",
-          "route_id": 1
+          "route_id": 1,
+          "stop_index": 1,
+          "cargo": {
+            "tools": 4362
+          }
         }
       ]
     },
@@ -392,7 +396,7 @@
             "in_transit": 0
           },
           "tools": {
-            "stock": 4334,
+            "stock": 1692,
             "in_transit": 733
           },
           "wood": {
@@ -406,11 +410,11 @@
         },
         "start": {
           "planks": {
-            "stock": 20000,
+            "stock": 25000,
             "in_transit": 0
           },
           "tools": {
-            "stock": 23083,
+            "stock": 21363,
             "in_transit": 0
           }
         }
@@ -431,12 +435,20 @@
         {
           "id": 1,
           "state": "on_route",
-          "route_id": 1
+          "route_id": 1,
+          "stop_index": 1,
+          "cargo": {
+            "tools": 4362
+          }
         }
       ]
     }
   ],
   "quests": [
+    {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
     {
       "id": "intro_first_road",
       "completed_at": "2026-01-01T00:00:00.000Z"
@@ -444,7 +456,7 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T00:45:00.000Z",
-    "next_change_at": "2026-01-01T00:45:20.000Z",
+    "next_change_at": "2026-01-01T00:45:29.423Z",
     "gold": 8596199,
     "balance_rate_per_min": 6160,
     "tax_rate_per_min": 20160,
@@ -564,7 +576,7 @@
             "rate_per_min": 0
           },
           "tools": {
-            "stock": 4334,
+            "stock": 1692,
             "capacity": 300000,
             "in_transit": 733,
             "rate_per_min": 1000
@@ -994,9 +1006,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -1006,7 +1018,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 211
+            "load_permille": 211,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -1972,6 +1990,12 @@
         },
         "population": {
           "settlers": 120000
+        },
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
         }
       },
       {
@@ -2046,7 +2070,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 20000,
+            "stock": 25000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -2064,7 +2088,7 @@
             "rate_per_min": 0
           },
           "tools": {
-            "stock": 23083,
+            "stock": 21363,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -2098,9 +2122,9 @@
         "buildings": [
           {
             "id": 20,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -2110,11 +2134,23 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 0
+            "load_permille": 0,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           }
         ],
         "workforce": {},
-        "population": {}
+        "population": {},
+        "capacity_source": {
+          "building_id": 20,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
+        }
       }
     ],
     "ships": [
@@ -2124,19 +2160,28 @@
         "state": "on_route",
         "island_id": "",
         "route_id": 1,
-        "stop_index": 0,
+        "stop_index": 1,
         "leg": {
-          "from_island_id": "start",
-          "to_island_id": "island2",
-          "depart_at": "2026-01-01T00:43:20.000Z",
-          "arrive_at": "2026-01-01T00:45:20.000Z"
+          "from_island_id": "island2",
+          "from_position": null,
+          "to_island_id": "start",
+          "depart_at": "2026-01-01T00:43:29.423Z",
+          "arrive_at": "2026-01-01T00:45:29.423Z"
         },
-        "cargo": [],
-        "slots": 2,
+        "cargo": [
+          {
+            "good": "tools",
+            "amount": 4362
+          }
+        ],
+        "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
-        "paused_reason": ""
+        "paused_reason": "",
+        "position": null,
+        "queued_at": null,
+        "berth_until": null
       }
     ],
     "routes": [
@@ -2165,19 +2210,19 @@
         "ship_ids": [
           1
         ],
-        "loop_ms": 280000,
+        "loop_ms": 260000,
         "effects": [
           {
             "island_id": "island2",
             "good": "tools",
             "per_loop": -50000,
-            "per_min": -10714
+            "per_min": -11538
           },
           {
             "island_id": "start",
             "good": "tools",
             "per_loop": 50000,
-            "per_min": 10714
+            "per_min": 11538
           }
         ]
       }
@@ -2211,9 +2256,15 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",

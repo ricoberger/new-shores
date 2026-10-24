@@ -1,0 +1,82 @@
+{
+  "name": "berth_queue_served",
+  "description": "berth_queue continued: at 26 s ship 1 has unloaded (idle) and ship 2 is granted the berth, unloading its 50 planks for 10 s + 50 x 0.2 s = 20 s; at 46 s both ships are idle and the 70 planks are in stock.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "harbour",
+      "name": "Harbour",
+      "rows": [
+        "~~~~~~~~~~~~",
+        "~~~~~ccccc~~",
+        "~..........~",
+        "~..........~",
+        "~..........~",
+        "~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "ships": [
+      {
+        "x": -12,
+        "y": 0,
+        "cargo": {
+          "planks": 20
+        }
+      },
+      {
+        "x": -13,
+        "y": 0,
+        "cargo": {
+          "planks": 50
+        }
+      }
+    ],
+    "gold": 100
+  },
+  "steps": [
+    {
+      "sail_ship": {
+        "ship": 1,
+        "to": "harbour"
+      }
+    },
+    {
+      "sail_ship": {
+        "ship": 2,
+        "to": "harbour"
+      }
+    },
+    {
+      "advance": {
+        "duration": "13s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "12.999s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1ms"
+      }
+    },
+    {
+      "advance": {
+        "duration": "19.999s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1ms"
+      }
+    }
+  ]
+}

@@ -26,18 +26,19 @@
     "road": { "seconds_per_tile": 1.0 }
   },
   {
-    "id": "warehouse",
-    "name": "Warehouse",
+    "id": "trading_post",
+    "name": "Trading Post",
     "region": "old_coast",
     "tier": "settlers",
-    "footprint": [4, 3],
-    "coastal": true,
+    "footprint": [4, 4],
+    "water_tiles": 2,
+    "coastal": false,
     "requires_road": false,
     "cost": { "gold": 300, "planks": 30 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "warehouse": {
-      "levels": [{ "capacity": 300, "throughput_per_min": 60 }]
+    "trading_post": {
+      "levels": [{ "capacity": 300, "throughput_per_min": 60, "berths": 1 }]
     }
   },
   {
@@ -109,7 +110,8 @@
     "region": "old_coast",
     "tier": "settlers",
     "footprint": [2, 2],
-    "coastal": true,
+    "water_tiles": 1,
+    "coastal": false,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },
     "upkeep_per_min": 1,

@@ -122,6 +122,62 @@ export function missingDepositHint(
   return true;
 }
 
+/**
+ * The water rows of a water-edge building (content `water_tiles`, D-051)
+ * at (x, y) and a rotation, as a tile rectangle: its front rows — at
+ * rotation 0 the top rows, at 90 the rightmost columns, at 180 the bottom
+ * rows, at 270 the leftmost columns (the server's sim.WaterTile). Null for
+ * other buildings.
+ */
+export function waterRows(
+  def: FootprintDef & { water_tiles?: number },
+  x: number,
+  y: number,
+  rotation: number,
+): { x: number; y: number; w: number; h: number } | null {
+  const n = def.water_tiles ?? 0;
+  if (n <= 0) return null;
+  const [w, h] = rotatedFootprint(def.width, def.height, rotation);
+  switch (((rotation % 360) + 360) % 360) {
+    case 90:
+      return { x: x + w - n, y, w: n, h };
+    case 180:
+      return { x, y: y + h - n, w, h: n };
+    case 270:
+      return { x, y, w: n, h };
+  }
+  return { x, y, w, h: n };
+}
+
+/**
+ * Placement ghost hint of a water-edge building (UI.md §3, D-051), from the
+ * island's static terrain: "front" when a tile of its water rows is not
+ * water, "land" when a tile of its other rows is water (outside the island
+ * counts as water); null when the site fits or for other buildings. A
+ * lookup for the ghost colour and hint text, never a validity decision.
+ */
+export function waterEdgeHint(
+  def: FootprintDef & { water_tiles?: number },
+  terrain: (x: number, y: number) => string,
+  x: number,
+  y: number,
+  rotation: number,
+): "front" | "land" | null {
+  const rows = waterRows(def, x, y, rotation);
+  if (!rows) return null;
+  const [w, h] = rotatedFootprint(def.width, def.height, rotation);
+  let land = false;
+  for (let ty = y; ty < y + h; ty++) {
+    for (let tx = x; tx < x + w; tx++) {
+      const wet = tx >= rows.x && tx < rows.x + rows.w && ty >= rows.y && ty < rows.y + rows.h;
+      const water = terrain(tx, ty) === "water";
+      if (wet && !water) return "front";
+      if (!wet && water) land = true;
+    }
+  }
+  return land ? "land" : null;
+}
+
 /** A run of road tiles drawn as one strip: from (x0, y0) to (x1, y1) inclusive, horizontal or vertical. */
 export interface Strip {
   x0: number;

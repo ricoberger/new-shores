@@ -10,7 +10,7 @@ import {
   ISLAND2_INLAND,
   ISLAND2_ROAD_FROM,
   ISLAND2_ROAD_TO,
-  ISLAND2_WAREHOUSE,
+  ISLAND2_TRADING_POST,
   SHIP_ROAD_FROM,
   SHIP_ROAD_SPUR_FROM,
   SHIP_ROAD_SPUR_TO,
@@ -18,7 +18,7 @@ import {
   SHIPMENT_PLANKS,
   SEA_BETWEEN,
   SHIPYARD,
-  WAREHOUSE_PLANKS,
+  TRADING_POST_PLANKS,
 } from "./constants";
 import { clickIsland, dragShip, expectFocused, expectHudIsland, islandPoint, jumpTo, showArchipelago, wheelZoom, worldReady } from "./archipelago";
 import { dismissAwayDialog } from "./away";
@@ -27,7 +27,7 @@ import { resetWorld } from "./world";
 // The shipping flow (R-69) through the UI only, against the dev server at
 // time scale 10: build a connected shipyard, order a sloop, wait for
 // ship_built, ship planks to island 2, found the settlement there and see
-// its warehouse. Starts from the town fixture (the smoke spec's result) and
+// its Trading Post. Starts from the town fixture (the smoke spec's result) and
 // never assumes version numbers. One continuous world (D-048): the
 // shipment is a drag and drop of the sloop with the whole archipelago in
 // view (far LOD); the founding starts from the island card there and jumps
@@ -109,7 +109,11 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
   await drag(page, ISLAND, SHIP_ROAD_FROM, SHIP_ROAD_TO);
   await drag(page, ISLAND, SHIP_ROAD_SPUR_FROM, SHIP_ROAD_SPUR_TO);
   await page.getByTestId("build-tab-harbour").click();
+  // The Trading Post is founded, never built (D-051).
+  await expect(page.getByTestId("build-trading_post")).toHaveCount(0);
   await page.getByTestId("build-shipyard").click();
+  // Facing the south bay: rotation 180 puts the slipway's rows on the water.
+  for (let r = 0; r < SHIPYARD.rotation; r += 90) await page.keyboard.press("r");
   await clickTile(page, ISLAND, SHIPYARD);
   // Connected: status ok (not_connected without the road).
   await expect
@@ -133,9 +137,10 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
     .poll(() => page.evaluate(() => window.__newShores!.constructionMarkers().map((m) => m.buildingId)))
     .toEqual([yardId]);
 
-  // ship_built arrives by push/next_change_at without a reload.
-  await expect(page.getByTestId("hud-ship-count")).toHaveText("1", { timeout: BUILD_WALL_MS });
-  const [ship] = await ships(page);
+  // ship_built arrives by push/next_change_at without a reload; the start
+  // sloop (ship 1) idles at the start island, the new one is ship 2.
+  await expect(page.getByTestId("hud-ship-count")).toHaveText("2", { timeout: BUILD_WALL_MS });
+  const ship = (await ships(page)).find((s) => s.id === 2);
   expect(ship).toMatchObject({ state: "idle", island_id: ISLAND });
   // The hull marker is gone; the idle sloop is drawn at a harbour berth.
   await expect.poll(() => page.evaluate(() => window.__newShores!.constructionMarkers().length)).toBe(0);
@@ -151,7 +156,7 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
   await expect(page.getByTestId("shipment-dialog")).toBeVisible();
   await expect(page.getByTestId("shipment-dest")).toHaveValue(ISLAND2);
   await page.getByTestId("shipment-amount-planks").fill(String(SHIPMENT_PLANKS));
-  await expect(page.getByTestId("shipment-slots")).toContainText("2/2");
+  await expect(page.getByTestId("shipment-slots")).toContainText("2/4");
   await page.getByTestId("shipment-send").click();
 
   // The ship panel (from the Ships list) counts down the leg; the ETA badge follows the ship.
@@ -166,45 +171,47 @@ test("build a sloop, ship planks to island 2 and found a settlement", async ({ p
   const first = await eta.textContent();
   await expect.poll(() => eta.textContent(), { timeout: 5_000 }).not.toBe(first);
 
-  // Arrival: the ship is idle at the unsettled island 2 with its cargo.
+  // Arrival: the ship is idle at the unsettled island 2 with its cargo (no
+  // pier there yet, so no berth to wait for).
   await expect(page.getByTestId("ship-panel-state")).toHaveText("Idle", { timeout: LEG_WALL_MS });
   await page.getByTestId("hud-ships").click();
   await expect(page.getByTestId(`ship-cargo-${ship!.id}`)).toContainText(`${SHIPMENT_PLANKS} Planks`);
   await page.getByTestId("ships-close").click();
 
   // Found the settlement from island 2's card: the camera jumps to island
-  // 2 (near zoom) with a warehouse ghost.
+  // 2 (near zoom) with a Trading Post ghost; the ship is here, it founds at once.
   await clickIsland(page, ISLAND2, ISLAND2_INLAND);
   await expect(page.getByTestId("island-card")).toBeVisible();
-  await page.getByTestId(`island-card-found-${ship!.id}`).click();
+  await expect(page.getByTestId("island-card-found-note")).toContainText(`Ship #${ship!.id} is here`);
+  await page.getByTestId("island-card-found").click();
   await expectHudIsland(page, ISLAND2);
   await expect(page.getByTestId("hud-island-unsettled")).toBeVisible();
-  await expect(page.getByTestId("tool-hint")).toContainText("warehouse");
+  await expect(page.getByTestId("tool-hint")).toContainText("Trading Post");
   await expectFocused(page, ISLAND2);
-  await expect.poll(async () => (await screen(page, ISLAND2, ISLAND2_WAREHOUSE)).x).not.toBeNaN();
-  await clickTile(page, ISLAND2, ISLAND2_WAREHOUSE);
-  await expect.poll(() => island2(page)).toEqual({ settled: true, types: ["warehouse"] });
+  await expect.poll(async () => (await screen(page, ISLAND2, ISLAND2_TRADING_POST)).x).not.toBeNaN();
+  await clickTile(page, ISLAND2, ISLAND2_TRADING_POST);
+  await expect.poll(() => island2(page)).toEqual({ settled: true, types: ["trading_post"] });
   await expect(page.getByTestId("hud-island-unsettled")).toHaveCount(0);
   await expect(page.getByTestId("hud-materials")).toBeVisible();
   await expect(page.getByTestId("unsettled-panel")).toBeHidden();
   await expect(page.getByTestId("build-menu")).toBeVisible();
 
-  // The warehouse on island 2 can be selected in the view.
+  // The Trading Post on island 2 can be selected in the view (a land tile of it).
   await page.keyboard.press("Escape");
-  await clickTile(page, ISLAND2, { x: ISLAND2_WAREHOUSE.x + 1, y: ISLAND2_WAREHOUSE.y + 1 });
-  await expect(page.getByTestId("info-name")).toHaveText("Warehouse");
-  // The remaining 40 planks were unloaded into island 2.
+  await clickTile(page, ISLAND2, { x: ISLAND2_TRADING_POST.x + 1, y: ISLAND2_TRADING_POST.y + 2 });
+  await expect(page.getByTestId("info-name")).toHaveText("Trading Post");
+  // The remaining 45 planks were unloaded into island 2.
   const planks = await page.evaluate(
     (id) => window.__newShores!.getServer()!.display.islands.find((x) => x.id === id)!.inventory.planks?.stock ?? 0,
     ISLAND2,
   );
-  expect(planks).toBe((SHIPMENT_PLANKS - WAREHOUSE_PLANKS) * 1000);
+  expect(planks).toBe((SHIPMENT_PLANKS - TRADING_POST_PLANKS) * 1000);
 });
 
 test("build on island 2 and bring fish home on a route", async ({ page }) => {
   await page.goto("/");
   await dismissAwayDialog(page);
-  await expect(page.getByTestId("hud-ship-count")).toHaveText("1");
+  await expect(page.getByTestId("hud-ship-count")).toHaveText("2");
   await jumpTo(page, ISLAND2);
   await expectHudIsland(page, ISLAND2);
   await zoomOut(page, ISLAND2);
@@ -220,7 +227,7 @@ test("build on island 2 and bring fish home on a route", async ({ page }) => {
   await page.getByTestId("build-tab-production").click();
   await page.getByTestId("build-fisher").click();
   await clickTile(page, ISLAND2, ISLAND2_FISHER);
-  await expect.poll(() => island2(page)).toEqual({ settled: true, types: ["warehouse", "house_settlers", "house_settlers", "fisher"] });
+  await expect.poll(() => island2(page)).toEqual({ settled: true, types: ["trading_post", "house_settlers", "house_settlers", "fisher"] });
   await page.keyboard.press("Escape");
 
   // Wait for the first fish on island 2 (40 s cycle plus delivery).
@@ -252,8 +259,8 @@ test("build on island 2 and bring fish home on a route", async ({ page }) => {
   await expect(page.getByTestId(`route-effect-${ISLAND2}-fish`)).toContainText("−50");
   await expect(page.getByTestId(`route-effect-${ISLAND}-fish`)).toContainText("+50");
 
-  // Assign the idle ship at island 2 from the editor: it loads the fish and sails home.
-  const [ship] = await ships(page);
+  // Assign the idle ship at island 2 (ship 2) from the editor: it loads the fish and sails home.
+  const ship = (await ships(page)).find((s) => s.island_id === ISLAND2);
   await page.getByTestId(`route-assign-${ship!.id}`).click();
   await expect(page.getByTestId(`route-unassign-${ship!.id}`)).toBeVisible();
   await page.getByTestId("hud-ships").click();

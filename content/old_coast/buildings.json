@@ -26,23 +26,62 @@
     "road": { "seconds_per_tile": 1.0 }
   },
   {
+    "id": "trading_post",
+    "name": "Trading Post",
+    "region": "old_coast",
+    "tier": "settlers",
+    "footprint": [4, 4],
+    "water_tiles": 2,
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 200, "planks": 15 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "trading_post": {
+      "levels": [
+        { "capacity": 300, "throughput_per_min": 30, "berths": 1 },
+        {
+          "capacity": 500,
+          "throughput_per_min": 55,
+          "berths": 2,
+          "cost": { "gold": 300, "planks": 20, "stone": 10 }
+        },
+        {
+          "capacity": 800,
+          "throughput_per_min": 80,
+          "berths": 3,
+          "cost": { "gold": 600, "planks": 30, "stone": 20 }
+        },
+        {
+          "capacity": 1200,
+          "throughput_per_min": 110,
+          "berths": 4,
+          "cost": { "gold": 1200, "planks": 40, "stone": 30, "tools": 10 }
+        }
+      ]
+    }
+  },
+  {
     "id": "warehouse",
     "name": "Warehouse",
     "region": "old_coast",
     "tier": "settlers",
-    "footprint": [4, 3],
-    "coastal": true,
+    "footprint": [2, 2],
+    "coastal": false,
     "requires_road": false,
-    "cost": { "gold": 200, "planks": 20 },
+    "cost": { "gold": 100, "planks": 10 },
     "upkeep_per_min": 0,
     "pause_category": "never",
     "warehouse": {
       "levels": [
-        { "capacity": 300, "throughput_per_min": 30 },
+        { "throughput_per_min": 30 },
         {
-          "capacity": 500,
           "throughput_per_min": 55,
-          "cost": { "gold": 300, "planks": 20, "stone": 10 }
+          "cost": { "gold": 150, "planks": 10, "stone": 5 }
+        },
+        {
+          "throughput_per_min": 80,
+          "cost": { "gold": 300, "planks": 15, "stone": 10 }
         }
       ]
     }
@@ -116,7 +155,8 @@
     "region": "old_coast",
     "tier": "settlers",
     "footprint": [2, 2],
-    "coastal": true,
+    "water_tiles": 1,
+    "coastal": false,
     "requires_road": true,
     "cost": { "gold": 60, "planks": 6 },
     "upkeep_per_min": 1,
@@ -185,7 +225,8 @@
     "region": "old_coast",
     "tier": "settlers",
     "footprint": [5, 4],
-    "coastal": true,
+    "water_tiles": 2,
+    "coastal": false,
     "requires_road": true,
     "cost": { "gold": 225, "planks": 25 },
     "upkeep_per_min": 0,

@@ -137,9 +137,9 @@ func roadTiles(fromX, toX, y int) string {
 func TestClaimQuestOverHTTP(t *testing.T) {
 	ts := newTestServer(t, 1)
 	c := catalogue(t)
-	road, planks := c.Quests[0], c.Quests[1]
-	if len(road.Rewards.Goods) != 0 || len(planks.Rewards.Goods) == 0 {
-		t.Fatalf("the shipped chain changed: %s %s", road.ID, planks.ID)
+	home, road, planks := c.Quests[0], c.Quests[1], c.Quests[2]
+	if len(home.Rewards.Goods) != 0 || len(road.Rewards.Goods) != 0 || len(planks.Rewards.Goods) == 0 {
+		t.Fatalf("the shipped chain changed: %s %s %s", home.ID, road.ID, planks.ID)
 	}
 	claim := func(id, island string) string {
 		if island == "" {
@@ -150,6 +150,8 @@ func TestClaimQuestOverHTTP(t *testing.T) {
 	ts.expectCode(claim("no_such_quest", ""), http.StatusNotFound, "quest_not_found")
 	ts.expectCode(claim(road.ID, ""), http.StatusConflict, "quest_not_completed")
 	ts.expectUnvalidated(`{"type":"claim_quest"}`, http.StatusBadRequest, "invalid_command")
+	// The founded start island completed the first quest (D-051).
+	ts.mustCommand(claim(home.ID, ""))
 
 	// The road from below the warehouse to the forest completes the road
 	// quest at once.
@@ -159,7 +161,7 @@ func TestClaimQuestOverHTTP(t *testing.T) {
 	}
 	gold := w.Gold
 	w = questDisplay(t, ts.mustCommand(claim(road.ID, "")).Display)
-	if w.Gold != gold+road.Rewards.Gold || len(w.Quests.Claimable) != 0 || !w.Quests.Completed[0].Claimed {
+	if w.Gold != gold+road.Rewards.Gold || len(w.Quests.Claimable) != 0 || !w.Quests.Completed[1].Claimed {
 		t.Fatalf("after claim: gold %d (was %d) %+v", w.Gold, gold, w.Quests)
 	}
 	ts.expectCode(claim(road.ID, ""), http.StatusConflict, "quest_already_claimed")
@@ -261,7 +263,7 @@ func TestAwaySummaryCoversWorkerEvents(t *testing.T) {
 		tiles += fmt.Sprintf(`{"x":2,"y":%d},`, y)
 	}
 	ss.mustCommand(`{"type":"place_road","island_id":"start","road_type":"road_dirt","tiles":[` + tiles + `{"x":3,"y":34},{"x":4,"y":34}]}`)
-	w := ss.mustCommand(`{"type":"place_building","island_id":"start","building_type":"shipyard","x":5,"y":34,"rotation":0}`)
+	w := ss.mustCommand(`{"type":"place_building","island_id":"start","building_type":"shipyard","x":5,"y":34,"rotation":180}`)
 	shipyard := buildingIDs(t, w.Display, "shipyard")[0]
 	ordered := ss.mustCommand(fmt.Sprintf(`{"type":"order_ship","island_id":"start","building_id":%d,"ship_type":"sloop"}`, shipyard))
 	cmdAt := questDisplay(t, ordered.Display).LastSeenAt
@@ -307,7 +309,8 @@ func TestAwaySummaryOfReturningCommand(t *testing.T) {
 		ts := newTestServer(t, 1)
 		start := questDisplay(t, ts.mustCommand(cmdRoad).Display)
 		v := returning(t, ts, `{"type":"place_building","island_id":"start","building_type":"lumberjack","x":35,"y":5,"rotation":180}`)
-		cost := catalogue(t).BuildingByID["lumberjack"].Cost.Gold
+		// The lumberjack's price and the start sloop's upkeep over the gap.
+		cost := catalogue(t).BuildingByID["lumberjack"].Cost.Gold + catalogue(t).ShipByID["sloop"].UpkeepPerMin*int64(gap/time.Minute)
 		if v.AwaySummary.GoldBefore != start.Gold || v.AwaySummary.GoldAfter != start.Gold-cost || v.Gold != start.Gold-cost {
 			t.Fatalf("gold %d -> %d (display %d), want %d -> %d", v.AwaySummary.GoldBefore, v.AwaySummary.GoldAfter, v.Gold, start.Gold, start.Gold-cost)
 		}
@@ -328,8 +331,8 @@ func TestAwaySummaryOfReturningCommand(t *testing.T) {
 		ts.mustCommand(`{"type":"place_road","island_id":"start","road_type":"road_dirt","tiles":[` + roadTiles(3, 36, 4) + `]}`)
 		ts.mustCommand(`{"type":"place_building","island_id":"start","building_type":"lumberjack","x":35,"y":5,"rotation":180}`)
 		w := questDisplay(t, ts.mustCommand(`{"type":"place_building","island_id":"start","building_type":"sawmill","x":20,"y":5,"rotation":180}`).Display)
-		planks := c.Quests[1]
-		if len(w.Quests.Claimable) != 2 || w.Quests.Claimable[1] != planks.ID {
+		planks := c.Quests[2]
+		if len(w.Quests.Claimable) != 3 || w.Quests.Claimable[2] != planks.ID {
 			t.Fatalf("claimable %v", w.Quests.Claimable)
 		}
 		// Fill the planks up to 10 below the capacity (a grant, not a

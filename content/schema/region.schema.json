@@ -27,7 +27,8 @@
         "growth_satisfaction_threshold",
         "optional_tax_bonus",
         "auto_resume_upkeep_minutes",
-        "ship_handling_seconds",
+        "ship_handling_base_seconds",
+        "ship_handling_seconds_per_unit",
         "ship_speed_tiles_per_min",
         "away_summary_minutes",
         "trial_resume_upkeep_minutes"
@@ -58,8 +59,13 @@
           "type": "number",
           "exclusiveMinimum": 0
         },
-        "ship_handling_seconds": {
-          "description": "Time a ship spends at a route stop (unload, then load) before it departs (MECHANICS §9.2).",
+        "ship_handling_base_seconds": {
+          "description": "Fixed part of the time a ship occupies a berth to unload and load (MECHANICS §9.2, §9.3).",
+          "type": "number",
+          "minimum": 0
+        },
+        "ship_handling_seconds_per_unit": {
+          "description": "Additional handling time per unit of goods moved (unloaded plus loaded) at a stop (MECHANICS §9.2).",
           "type": "number",
           "minimum": 0
         },

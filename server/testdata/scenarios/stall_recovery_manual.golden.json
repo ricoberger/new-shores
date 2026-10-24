@@ -1,6 +1,6 @@
 {
   "name": "stall_recovery_manual",
-  "content_version": "old_coast-0.6.0",
+  "content_version": "old_coast-0.7.0",
   "boundary_count": 54,
   "totals": {
     "start": {
@@ -15,7 +15,7 @@
         "lost": 0,
         "spent": 129000,
         "refunded": 5000,
-        "granted": 130000
+        "granted": 135000
       },
       "sails": {
         "produced": 0,
@@ -107,7 +107,7 @@
       "inventory": {
         "start": {
           "planks": {
-            "stock": 51000,
+            "stock": 56000,
             "in_transit": 0
           },
           "sails": {
@@ -137,7 +137,7 @@
             "in_transit": 482
           },
           "planks": {
-            "stock": 1000,
+            "stock": 6000,
             "in_transit": 0
           },
           "sails": {
@@ -181,7 +181,7 @@
             "in_transit": 1450
           },
           "planks": {
-            "stock": 6000,
+            "stock": 11000,
             "in_transit": 0
           },
           "sails": {
@@ -222,7 +222,7 @@
             "in_transit": 1450
           },
           "planks": {
-            "stock": 6000,
+            "stock": 11000,
             "in_transit": 0
           },
           "sails": {
@@ -263,7 +263,7 @@
             "in_transit": 1450
           },
           "planks": {
-            "stock": 6000,
+            "stock": 11000,
             "in_transit": 0
           },
           "sails": {
@@ -304,7 +304,7 @@
             "in_transit": 1450
           },
           "planks": {
-            "stock": 9382,
+            "stock": 14382,
             "in_transit": 1233
           },
           "sails": {
@@ -344,7 +344,7 @@
             "in_transit": 1450
           },
           "planks": {
-            "stock": 29382,
+            "stock": 34382,
             "in_transit": 1233
           },
           "sails": {
@@ -384,7 +384,7 @@
             "in_transit": 1450
           },
           "planks": {
-            "stock": 49382,
+            "stock": 54382,
             "in_transit": 1233
           },
           "sails": {
@@ -424,7 +424,7 @@
             "in_transit": 1450
           },
           "planks": {
-            "stock": 69382,
+            "stock": 74382,
             "in_transit": 1233
           },
           "sails": {
@@ -464,7 +464,7 @@
             "in_transit": 1450
           },
           "planks": {
-            "stock": 89382,
+            "stock": 94382,
             "in_transit": 1233
           },
           "sails": {
@@ -504,7 +504,7 @@
             "in_transit": 1450
           },
           "planks": {
-            "stock": 109382,
+            "stock": 114382,
             "in_transit": 1233
           },
           "sails": {
@@ -536,6 +536,10 @@
   ],
   "quests": [
     {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "intro_first_road",
       "completed_at": "2026-01-01T00:00:00.000Z"
     },
@@ -562,7 +566,7 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T01:06:00.000Z",
-    "next_change_at": "2026-01-01T02:40:41.554Z",
+    "next_change_at": "2026-01-01T02:38:11.554Z",
     "gold": 83943,
     "balance_rate_per_min": 1400,
     "tax_rate_per_min": 6400,
@@ -664,7 +668,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 109382,
+            "stock": 114382,
             "capacity": 300000,
             "in_transit": 1233,
             "rate_per_min": 2000
@@ -1312,9 +1316,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 2,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -1324,7 +1328,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 205
+            "load_permille": 205,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -1946,6 +1956,12 @@
         },
         "population": {
           "settlers": 40000
+        },
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
         }
       }
     ],
@@ -1973,6 +1989,7 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks",
         "intro_houses",
@@ -1981,6 +1998,11 @@
         "intro_wool"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",

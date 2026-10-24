@@ -96,14 +96,15 @@ func TestDevReset(t *testing.T) {
 	if ids := buildingIDs(t, w.Display, "lumberjack"); len(ids) != 0 {
 		t.Errorf("lumberjacks after reset: %v", ids)
 	}
-	if ids := buildingIDs(t, w.Display, "warehouse"); len(ids) != 1 {
-		t.Errorf("warehouses after reset: %v (want the seeded one)", ids)
+	if ids := buildingIDs(t, w.Display, "trading_post"); len(ids) != 1 {
+		t.Errorf("trading posts after reset: %v (want the founded one)", ids)
 	}
 	if p := ts.mem.Pending(); len(p) != 0 {
 		t.Errorf("pending events after reset: %+v", p)
 	}
 	d := decodeDisplay(t, w.Display)
-	if d["away_summary"] != nil || len(d["ships"].([]any)) != 0 {
+	// The default fixture: the start sloop idle at the founded start island.
+	if ships := d["ships"].([]any); d["away_summary"] != nil || len(ships) != 1 || ships[0].(map[string]any)["island_id"] != "start" {
 		t.Errorf("summary %v ships %v after reset", d["away_summary"], d["ships"])
 	}
 	if pub.n.Load() != 2 {
@@ -129,10 +130,7 @@ func TestDevResetAbsentByDefault(t *testing.T) {
 		t.Errorf("dev mode without DevReset: %d, want 404", res.status)
 	}
 	c := catalogue(t)
-	w, err := devworld.New(c, testStart)
-	if err != nil {
-		t.Fatal(err)
-	}
+	w := foundedWorld(t, testStart)
 	srv, err := New(Config{
 		Store: store.NewMemory(testWorld, w, func() time.Time { return testStart }), Catalogue: c, Clock: WallClock{},
 		Accounts: &fakeAccounts{}, CORSOrigins: []string{testOrigin},

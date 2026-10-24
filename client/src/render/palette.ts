@@ -74,6 +74,8 @@ export const GHOST_NO_ROAD = c3(STATUS.ghost_no_road);
  */
 export const GHOST_INVALID = c3(STATUS.ghost_invalid);
 export const SELECTION = c3(STATUS.selection);
+/** Water rows of a water-edge ghost (D-051): the foam colour, a light strip on the sea. */
+export const WATER_ROWS = c3(WATER.foam);
 /** Field tool preview: a tile the drag will send (D-049). */
 export const FIELD_VALID = c3(STATUS.field_valid);
 /** Field tool preview: a free matching tile outside every accepting farm's ring (shown, not sent). */

@@ -1,13 +1,13 @@
 {
   "name": "throttled_warehouse",
-  "description": "32 lumberjacks at 100 % (2 wood/min each, R = 64/min) share one level-1 warehouse (T = 30/min): throughput factor 30/64.",
+  "description": "32 lumberjacks at 100 % (2 wood/min each, R = 64/min) share one level-1 Trading Post (T = 30/min): throughput factor 30/64.",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
     "rows": [
       "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
       "~~~~~ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
-      "~ccccffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
+      "~~~~~ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
       "~....ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
       "~....ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff~",
       "~............................................................................~",
@@ -18,9 +18,9 @@
     ]
   },
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 2,
+      "y": 1,
       "rotation": 0
     },
     "gold": 1673,

@@ -304,8 +304,8 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 	}
 	running := func(p *producer) bool { return run[p] }
 	for _, b := range is.Buildings {
-		if def := c.BuildingByID[b.Type]; def != nil && def.Warehouse != nil {
-			r.loads[b.ID] = warehouseLoad{t: warehouseLevel(def, b).ThroughputPerMin * SubPerMilli / msPerMinute}
+		if def := c.BuildingByID[b.Type]; def != nil && def.Collector() {
+			r.loads[b.ID] = warehouseLoad{t: def.ThroughputAt(b.Level) * SubPerMilli / msPerMinute}
 		}
 	}
 	for _, p := range r.producers {

@@ -216,13 +216,14 @@ func deleteRoute(w *World, cmd DeleteRoute) error {
 	return nil
 }
 
-// routeLoopMs is the loop time of a route at reference speed 1.0: the
-// handling time of every stop plus the travel time of every leg including
+// routeLoopMs is the loop time of a route at reference speed 1.0: the base
+// handling time of every stop (the per-unit part depends on the goods
+// moved and is not estimated) plus the travel time of every leg including
 // last -> first.
 func routeLoopMs(w *World, c *content.Catalogue, r *Route) int64 {
 	var total int64
 	for i, st := range r.Stops {
-		total += c.Region.Rules.ShipHandlingMs
+		total += c.Region.Rules.ShipHandlingBaseMs
 		a, b := w.Island(st.IslandID), w.Island(r.Stops[(i+1)%len(r.Stops)].IslandID)
 		if a != nil && b != nil && a != b {
 			total += travelMs(c, 1000, a, b)

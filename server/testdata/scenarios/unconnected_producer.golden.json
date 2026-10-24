@@ -1,6 +1,6 @@
 {
   "name": "unconnected_producer",
-  "content_version": "old_coast-0.6.0",
+  "content_version": "old_coast-0.7.0",
   "boundary_count": 1,
   "totals": {
     "main": {
@@ -62,6 +62,12 @@
       "unlocked_tiers": [
         "settlers"
       ]
+    }
+  ],
+  "quests": [
+    {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
     }
   ],
   "final": {
@@ -251,9 +257,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -263,7 +269,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 0
+            "load_permille": 0,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -307,7 +319,13 @@
             "factor_permille": 1000
           }
         },
-        "population": {}
+        "population": {},
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
+        }
       }
     ],
     "ships": [],
@@ -333,8 +351,16 @@
           ]
         }
       ],
-      "claimable": [],
-      "completed": []
+      "claimable": [
+        "intro_home_island"
+      ],
+      "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        }
+      ]
     },
     "away_summary": null,
     "last_seen_at": "2026-01-01T00:00:00.000Z"

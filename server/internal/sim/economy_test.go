@@ -13,14 +13,14 @@ import (
 )
 
 // legacyUpkeep returns base with the upkeep the never-pausable buildings
-// had before it was folded into their price (warehouse 4, market 3, chapel
+// had before it was folded into their price (Trading Post 4, market 3, chapel
 // 3, shipyard 1 gold/min). Shipped content can no longer hold gold at zero
 // (a fully stalled town has no running cost), but the MECHANICS §7 rules
 // for that state still exist; the insolvency tests written against these
 // numbers keep exercising them through this code-built catalogue.
 func legacyUpkeep(base *content.Catalogue) *content.Catalogue {
 	up := map[string]Qty{}
-	for id, v := range map[string]Qty{"warehouse": 4_000, "market_small": 3_000, "chapel": 3_000, "shipyard": 1_000} {
+	for id, v := range map[string]Qty{"trading_post": 4_000, "market_small": 3_000, "chapel": 3_000, "shipyard": 1_000} {
 		if base.BuildingByID[id] != nil {
 			up[id] = v
 		}

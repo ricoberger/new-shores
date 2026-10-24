@@ -82,7 +82,8 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   test.setTimeout(180_000);
   await page.goto("/");
   await dismissAwayDialog(page);
-  await expect(page.getByTestId("hud-ship-count")).toHaveText("1");
+  // The start sloop (ship 1) and the voyage spec's sloop (ship 2).
+  await expect(page.getByTestId("hud-ship-count")).toHaveText("2");
   expect(await page.evaluate(() => window.__newShores!.engineCount())).toBe(1);
   await worldReady(page, ISLAND);
   await expectLod(page, "near");
@@ -255,9 +256,9 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   const hover = await islandPoint(page, ISLAND, ISLAND_INLAND);
   await page.mouse.move(hover.x, hover.y);
   await expect(page.getByTestId("island-tooltip")).toContainText("Start");
-  await expect(page.getByTestId("island-tooltip")).toContainText("Warehouse");
+  await expect(page.getByTestId("island-tooltip")).toContainText("Trading Post");
 
-  // Far LOD: the islands with their lite models (warehouses and shipyards counted as landmarks);
+  // Far LOD: the islands with their lite models (Trading Posts and shipyards counted as landmarks);
   // labels at every LOD: island 2's label opens its card.
   await showArchipelago(page);
   await expect.poll(() => page.evaluate(() => window.__newShores!.landmarks())).toBeGreaterThanOrEqual(3);
@@ -278,7 +279,7 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   expect(await camera(page)).toEqual(cam0);
 
   // The sloop sails "Fish home": unassign it in its ship panel and let it arrive.
-  const [sloop] = await page.evaluate(() => window.__newShores!.getServer()!.display.ships as ServerShip[]);
+  const sloop = (await page.evaluate(() => window.__newShores!.getServer()!.display.ships as ServerShip[])).find((s) => s.route_id !== 0);
   expect(sloop!.route_id).not.toBe(0);
   await page.getByTestId("hud-ships").click();
   await page.getByTestId(`ship-${sloop!.id}`).click();
@@ -286,7 +287,7 @@ test("one continuous world: pan, LOD zoom, rotation, labels, route pickers, mini
   await page.getByTestId("ship-panel-unassign").click();
   await expect(page.getByTestId("ship-panel-route")).toContainText("none");
   await expect(page.getByTestId("ship-panel-state")).toHaveText("Idle", { timeout: LEG_WALL_MS });
-  const at2 = (await page.evaluate(() => window.__newShores!.getServer()!.display.ships as ServerShip[]))[0]!.island_id;
+  const at2 = (await page.evaluate(() => window.__newShores!.getServer()!.display.ships as ServerShip[])).find((s) => s.id === sloop!.id)!.island_id;
   const other = at2 === ISLAND ? ISLAND2 : ISLAND;
 
   // Click–click shipment: "Send to…" then a tap on the target island opens the dialog preset to it.

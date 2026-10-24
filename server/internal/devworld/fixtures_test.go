@@ -35,6 +35,14 @@ func TestFixtures(t *testing.T) {
 				t.Fatalf("evaluated %s, last seen %s, summary %v; want %s and none", w.LastEvaluatedAt, w.LastSeenAt, w.PendingSummary, want)
 			}
 			switch name {
+			case FixtureSeafaring:
+				if len(w.Ships) != 1 || w.Ships[0].AtSea == nil || len(w.Island("start").Buildings) != 0 {
+					t.Errorf("seafaring: ships %+v", w.Ships)
+				}
+			case "", FixtureDefault:
+				if at(w, "start", 2, 1) != "trading_post" || len(w.Ships) != 1 || w.Ships[0].IslandID != "start" || w.Ships[0].State != sim.ShipIdle || len(w.Ships[0].Cargo) != 0 {
+					t.Errorf("default: start island not founded from the start ship: ships %+v", w.Ships)
+				}
 			case FixtureTown, FixtureSettled:
 				for _, b := range []struct {
 					x, y int
@@ -52,14 +60,15 @@ func TestFixtures(t *testing.T) {
 				}
 			}
 			if name == FixtureSettled {
-				if at(w, "island2", 2, 1) != "warehouse" || at(w, "island2", 12, 2) != "fisher" {
+				if at(w, "island2", 2, 1) != "trading_post" || at(w, "island2", 12, 2) != "fisher" {
 					t.Errorf("island 2 not settled with its fisher")
 				}
 				// The archipelago spec builds four settler houses (10 planks each) at once.
 				if p := w.Island("start").Inventory.Stock["planks"]; p < 40_000 {
 					t.Errorf("start planks %d, want >= 40 for the rotation houses", p)
 				}
-				if len(w.Ships) != 1 || w.Ships[0].RouteID == 0 || len(w.Routes) != 1 || w.Routes[0].Name != "Fish home" {
+				if len(w.Ships) != 2 || w.Ships[0].State != sim.ShipIdle || w.Ships[0].IslandID != "start" || w.Ships[1].RouteID == 0 ||
+					len(w.Routes) != 1 || w.Routes[0].Name != "Fish home" {
 					t.Errorf("ships %+v routes %+v", w.Ships, w.Routes)
 				}
 			}

@@ -39,9 +39,17 @@ def is_house(content, cid):
     return "house" in content["buildings"].get(cid, {})
 
 
+def ground_range(content, cid):
+    """The ground band of a building's lowest point: deeper for water-edge buildings (piles into the sea)."""
+    if content["buildings"].get(cid, {}).get("water_tiles", 0) > 0:
+        return config.GROUND_RANGE_WATER_EDGE
+    return config.GROUND_RANGE
+
+
 def warehouse_levels(content, cid):
-    """Number of warehouse levels (0 for other buildings)."""
-    return len(content["buildings"].get(cid, {}).get("warehouse", {}).get("levels", []))
+    """Number of levels of a Trading Post or Warehouse (0 for other buildings)."""
+    b = content["buildings"].get(cid, {})
+    return len((b.get("trading_post") or b.get("warehouse") or {}).get("levels", []))
 
 
 def required_ids(content):

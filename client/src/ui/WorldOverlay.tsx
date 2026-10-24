@@ -126,7 +126,7 @@ export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland }:
           <>
             <strong>{hovered.name || hovered.id}</strong> {hovered.settled ? "" : "(unsettled)"}
             <div className={styles.small}>Population {units(sum.population)}</div>
-            <div className={styles.small}>Warehouse {sum.fillPercent === null ? "—" : `${sum.fillPercent} %`}</div>
+            <div className={styles.small}>Trading Post {sum.fillPercent === null ? "—" : `${sum.fillPercent} %`}</div>
             <div className={styles.small}>Warnings {sum.warnings}</div>
           </>
         )}

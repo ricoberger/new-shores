@@ -10,8 +10,8 @@
       "y": 0,
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccccccccccccccc~",
-        "~cccccccccccccccccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
         "~............................~",
         "~............................~",
         "~............................~",
@@ -32,8 +32,8 @@
       "y": 96,
       "rows": [
         "~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccc~",
-        "~cccccccccccccccc~",
+        "~~~~~cccccccccccc~",
+        "~ccccc~~ccccccccc~",
         "~................~",
         "~................~",
         "~................~",
@@ -43,9 +43,9 @@
     }
   ],
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 2,
+      "y": 1,
       "rotation": 0
     },
     "gold": 20000,
@@ -126,7 +126,7 @@
     },
     {
       "advance": {
-        "duration": "2m20s"
+        "duration": "2m30s"
       }
     },
     {
@@ -134,7 +134,7 @@
         "ship": 1,
         "island": "island2",
         "x": 1,
-        "y": 1,
+        "y": 0,
         "rotation": 0
       }
     },

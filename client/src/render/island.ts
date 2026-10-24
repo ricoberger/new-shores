@@ -300,13 +300,13 @@ export class IslandDetail {
     return this.decoration.scatterTint().r < 1;
   }
 
-  /** Warehouses and shipyards drawn (shown at far LOD: the landmarks of the archipelago view). */
+  /** Trading Posts and shipyards drawn (shown at far LOD: the landmarks of the archipelago view). */
   landmarks(): number {
     const built = this.builtFrom;
     if (!this.shown || this.lod !== "far" || !built) return 0;
     return built.display.buildings.filter((b) => {
       const def = built.defs.get(b.type);
-      return def?.warehouse !== undefined || def?.shipyard !== undefined;
+      return def?.trading_post !== undefined || def?.shipyard !== undefined;
     }).length;
   }
 

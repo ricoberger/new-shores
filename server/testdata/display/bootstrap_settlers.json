@@ -1,12 +1,12 @@
 {
   "scenario": "bootstrap_settlers",
   "base": {
-    "evaluated_at": "2026-01-01T02:50:00.000Z",
-    "next_change_at": "2026-01-01T03:15:10.000Z",
-    "gold": 2300834,
-    "balance_rate_per_min": 18000,
+    "evaluated_at": "2026-01-01T02:51:00.000Z",
+    "next_change_at": "2026-01-01T03:13:40.000Z",
+    "gold": 2129834,
+    "balance_rate_per_min": 17000,
     "tax_rate_per_min": 24000,
-    "upkeep_rate_per_min": 6000,
+    "upkeep_rate_per_min": 7000,
     "tiers": [
       {
         "id": "settlers",
@@ -104,7 +104,7 @@
             "rate_per_min": 0
           },
           "planks": {
-            "stock": 248467,
+            "stock": 253467,
             "capacity": 300000,
             "in_transit": 1200,
             "rate_per_min": 2000
@@ -347,9 +347,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -359,7 +359,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 227
+            "load_permille": 227,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -1521,16 +1527,41 @@
         },
         "population": {
           "settlers": 120000
+        },
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
         }
       }
     ],
-    "ships": [],
+    "ships": [
+      {
+        "id": 1,
+        "type": "sloop",
+        "state": "idle",
+        "island_id": "main",
+        "route_id": 0,
+        "stop_index": 0,
+        "leg": null,
+        "cargo": [],
+        "slots": 4,
+        "slot_size": 50000,
+        "upkeep_per_min": 1000,
+        "paused": false,
+        "paused_reason": "",
+        "position": null,
+        "queued_at": null,
+        "berth_until": null
+      }
+    ],
     "routes": [],
     "insolvency": {
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 18000
+      "balance_if_resumed_per_min": 17000
     },
     "quests": {
       "active": [
@@ -1546,14 +1577,15 @@
             },
             {
               "kind": "ship_count",
-              "current": 0,
-              "target": 1,
+              "current": 1,
+              "target": 2,
               "met": false
             }
           ]
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks",
         "intro_houses",
@@ -1565,60 +1597,65 @@
       ],
       "completed": [
         {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:01:00.000Z",
+          "claimed": false
+        },
+        {
           "id": "intro_first_road",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": false
         },
         {
           "id": "intro_planks",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": false
         },
         {
           "id": "intro_houses",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": false
         },
         {
           "id": "intro_fish",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": false
         },
         {
           "id": "intro_market",
-          "completed_at": "2026-01-01T00:00:00.000Z",
+          "completed_at": "2026-01-01T00:01:00.000Z",
           "claimed": false
         },
         {
           "id": "intro_wool",
-          "completed_at": "2026-01-01T01:50:00.000Z",
+          "completed_at": "2026-01-01T01:51:00.000Z",
           "claimed": false
         },
         {
           "id": "intro_chapel",
-          "completed_at": "2026-01-01T01:50:00.000Z",
+          "completed_at": "2026-01-01T01:51:00.000Z",
           "claimed": false
         },
         {
           "id": "intro_settlers_120",
-          "completed_at": "2026-01-01T01:50:00.000Z",
+          "completed_at": "2026-01-01T01:51:00.000Z",
           "claimed": false
         }
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T01:50:00.000Z"
+    "last_seen_at": "2026-01-01T01:51:00.000Z"
   },
   "samples": [
     {
       "offset_ms": 250,
       "display": {
-        "evaluated_at": "2026-01-01T02:50:00.250Z",
-        "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 2300909,
-        "balance_rate_per_min": 18000,
+        "evaluated_at": "2026-01-01T02:51:00.250Z",
+        "next_change_at": "2026-01-01T03:13:40.000Z",
+        "gold": 2129905,
+        "balance_rate_per_min": 17000,
         "tax_rate_per_min": 24000,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 7000,
         "tiers": [
           {
             "id": "settlers",
@@ -1716,7 +1753,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 248475,
+                "stock": 253475,
                 "capacity": 300000,
                 "in_transit": 1200,
                 "rate_per_min": 2000
@@ -1959,9 +1996,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -1971,7 +2008,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -3133,16 +3176,41 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],
-        "ships": [],
+        "ships": [
+          {
+            "id": 1,
+            "type": "sloop",
+            "state": "idle",
+            "island_id": "main",
+            "route_id": 0,
+            "stop_index": 0,
+            "leg": null,
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          }
+        ],
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 18000
+          "balance_if_resumed_per_min": 17000
         },
         "quests": {
           "active": [
@@ -3158,14 +3226,15 @@
                 },
                 {
                   "kind": "ship_count",
-                  "current": 0,
-                  "target": 1,
+                  "current": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -3177,60 +3246,65 @@
           ],
           "completed": [
             {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:01:00.000Z",
+              "claimed": false
+            },
+            {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_planks",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_houses",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_fish",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_market",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_wool",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_chapel",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_settlers_120",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T01:50:00.000Z"
+        "last_seen_at": "2026-01-01T01:51:00.000Z"
       }
     },
     {
       "offset_ms": 1000,
       "display": {
-        "evaluated_at": "2026-01-01T02:50:01.000Z",
-        "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 2301134,
-        "balance_rate_per_min": 18000,
+        "evaluated_at": "2026-01-01T02:51:01.000Z",
+        "next_change_at": "2026-01-01T03:13:40.000Z",
+        "gold": 2130118,
+        "balance_rate_per_min": 17000,
         "tax_rate_per_min": 24000,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 7000,
         "tiers": [
           {
             "id": "settlers",
@@ -3328,7 +3402,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 248500,
+                "stock": 253500,
                 "capacity": 300000,
                 "in_transit": 1200,
                 "rate_per_min": 2000
@@ -3571,9 +3645,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -3583,7 +3657,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -4745,16 +4825,41 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],
-        "ships": [],
+        "ships": [
+          {
+            "id": 1,
+            "type": "sloop",
+            "state": "idle",
+            "island_id": "main",
+            "route_id": 0,
+            "stop_index": 0,
+            "leg": null,
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          }
+        ],
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 18000
+          "balance_if_resumed_per_min": 17000
         },
         "quests": {
           "active": [
@@ -4770,14 +4875,15 @@
                 },
                 {
                   "kind": "ship_count",
-                  "current": 0,
-                  "target": 1,
+                  "current": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -4789,60 +4895,65 @@
           ],
           "completed": [
             {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:01:00.000Z",
+              "claimed": false
+            },
+            {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_planks",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_houses",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_fish",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_market",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_wool",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_chapel",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_settlers_120",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T01:50:00.000Z"
+        "last_seen_at": "2026-01-01T01:51:00.000Z"
       }
     },
     {
       "offset_ms": 5000,
       "display": {
-        "evaluated_at": "2026-01-01T02:50:05.000Z",
-        "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 2302334,
-        "balance_rate_per_min": 18000,
+        "evaluated_at": "2026-01-01T02:51:05.000Z",
+        "next_change_at": "2026-01-01T03:13:40.000Z",
+        "gold": 2131251,
+        "balance_rate_per_min": 17000,
         "tax_rate_per_min": 24000,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 7000,
         "tiers": [
           {
             "id": "settlers",
@@ -4940,7 +5051,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 248633,
+                "stock": 253633,
                 "capacity": 300000,
                 "in_transit": 1200,
                 "rate_per_min": 2000
@@ -5183,9 +5294,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -5195,7 +5306,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -6357,16 +6474,41 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],
-        "ships": [],
+        "ships": [
+          {
+            "id": 1,
+            "type": "sloop",
+            "state": "idle",
+            "island_id": "main",
+            "route_id": 0,
+            "stop_index": 0,
+            "leg": null,
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          }
+        ],
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 18000
+          "balance_if_resumed_per_min": 17000
         },
         "quests": {
           "active": [
@@ -6382,14 +6524,15 @@
                 },
                 {
                   "kind": "ship_count",
-                  "current": 0,
-                  "target": 1,
+                  "current": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -6401,60 +6544,65 @@
           ],
           "completed": [
             {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:01:00.000Z",
+              "claimed": false
+            },
+            {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_planks",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_houses",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_fish",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_market",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_wool",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_chapel",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_settlers_120",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T01:50:00.000Z"
+        "last_seen_at": "2026-01-01T01:51:00.000Z"
       }
     },
     {
       "offset_ms": 30000,
       "display": {
-        "evaluated_at": "2026-01-01T02:50:30.000Z",
-        "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 2309834,
-        "balance_rate_per_min": 18000,
+        "evaluated_at": "2026-01-01T02:51:30.000Z",
+        "next_change_at": "2026-01-01T03:13:40.000Z",
+        "gold": 2138334,
+        "balance_rate_per_min": 17000,
         "tax_rate_per_min": 24000,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 7000,
         "tiers": [
           {
             "id": "settlers",
@@ -6552,7 +6700,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 249467,
+                "stock": 254467,
                 "capacity": 300000,
                 "in_transit": 1200,
                 "rate_per_min": 2000
@@ -6795,9 +6943,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -6807,7 +6955,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -7969,16 +8123,41 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],
-        "ships": [],
+        "ships": [
+          {
+            "id": 1,
+            "type": "sloop",
+            "state": "idle",
+            "island_id": "main",
+            "route_id": 0,
+            "stop_index": 0,
+            "leg": null,
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          }
+        ],
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 18000
+          "balance_if_resumed_per_min": 17000
         },
         "quests": {
           "active": [
@@ -7994,14 +8173,15 @@
                 },
                 {
                   "kind": "ship_count",
-                  "current": 0,
-                  "target": 1,
+                  "current": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -8013,60 +8193,65 @@
           ],
           "completed": [
             {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:01:00.000Z",
+              "claimed": false
+            },
+            {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_planks",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_houses",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_fish",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_market",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_wool",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_chapel",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_settlers_120",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T01:50:00.000Z"
+        "last_seen_at": "2026-01-01T01:51:00.000Z"
       }
     },
     {
       "offset_ms": 300000,
       "display": {
-        "evaluated_at": "2026-01-01T02:55:00.000Z",
-        "next_change_at": "2026-01-01T03:15:10.000Z",
-        "gold": 2390834,
-        "balance_rate_per_min": 18000,
+        "evaluated_at": "2026-01-01T02:56:00.000Z",
+        "next_change_at": "2026-01-01T03:13:40.000Z",
+        "gold": 2214834,
+        "balance_rate_per_min": 17000,
         "tax_rate_per_min": 24000,
-        "upkeep_rate_per_min": 6000,
+        "upkeep_rate_per_min": 7000,
         "tiers": [
           {
             "id": "settlers",
@@ -8164,7 +8349,7 @@
                 "rate_per_min": 0
               },
               "planks": {
-                "stock": 258467,
+                "stock": 263467,
                 "capacity": 300000,
                 "in_transit": 1200,
                 "rate_per_min": 2000
@@ -8407,9 +8592,9 @@
             "buildings": [
               {
                 "id": 1,
-                "type": "warehouse",
+                "type": "trading_post",
                 "x": 1,
-                "y": 1,
+                "y": 0,
                 "rotation": 0,
                 "paused": false,
                 "paused_reason": "",
@@ -8419,7 +8604,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -9581,16 +9772,41 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],
-        "ships": [],
+        "ships": [
+          {
+            "id": 1,
+            "type": "sloop",
+            "state": "idle",
+            "island_id": "main",
+            "route_id": 0,
+            "stop_index": 0,
+            "leg": null,
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          }
+        ],
         "routes": [],
         "insolvency": {
           "unpaid_buildings": 0,
           "unpaid_ships": 0,
           "unpaid_upkeep_per_min": 0,
-          "balance_if_resumed_per_min": 18000
+          "balance_if_resumed_per_min": 17000
         },
         "quests": {
           "active": [
@@ -9606,14 +9822,15 @@
                 },
                 {
                   "kind": "ship_count",
-                  "current": 0,
-                  "target": 1,
+                  "current": 1,
+                  "target": 2,
                   "met": false
                 }
               ]
             }
           ],
           "claimable": [
+            "intro_home_island",
             "intro_first_road",
             "intro_planks",
             "intro_houses",
@@ -9625,49 +9842,54 @@
           ],
           "completed": [
             {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:01:00.000Z",
+              "claimed": false
+            },
+            {
               "id": "intro_first_road",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_planks",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_houses",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_fish",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_market",
-              "completed_at": "2026-01-01T00:00:00.000Z",
+              "completed_at": "2026-01-01T00:01:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_wool",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_chapel",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             },
             {
               "id": "intro_settlers_120",
-              "completed_at": "2026-01-01T01:50:00.000Z",
+              "completed_at": "2026-01-01T01:51:00.000Z",
               "claimed": false
             }
           ]
         },
         "away_summary": null,
-        "last_seen_at": "2026-01-01T01:50:00.000Z"
+        "last_seen_at": "2026-01-01T01:51:00.000Z"
       }
     }
   ]

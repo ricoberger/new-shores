@@ -215,7 +215,7 @@ func TestEventAppliesAtDueAt(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	w, err := devworld.New(cat, created)
+	w, err := devworld.NewFixture(cat, devworld.FixtureDefault, created)
 	if err != nil {
 		t.Fatal(err)
 	}

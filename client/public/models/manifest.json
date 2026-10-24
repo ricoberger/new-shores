@@ -1139,59 +1139,59 @@
         ],
         "status": [
           0.0,
-          1.5762,
+          1.4906,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.2158,
-          1.3262,
-          0.99
+          1.2406,
+          0.88
         ],
         "min": [
           -0.95,
-          -0.12,
-          -1.0949
+          -0.6,
+          -0.9949
         ]
       },
       "file": {
         "bounds": {
           "max": [
             1.2158,
-            1.3262,
-            0.99
+            1.2406,
+            0.88
           ],
           "min": [
             -0.95,
-            -0.12,
-            -1.0949
+            -0.6,
+            -0.9949
           ]
         },
         "budget": 6000,
-        "bytes": 101768,
+        "bytes": 102476,
         "lite": {
           "bounds": {
             "max": [
               0.95,
-              1.3359,
-              0.95
+              1.2497,
+              0.81
             ],
             "min": [
               -0.95,
-              0.0,
-              -1.1046
+              -0.58,
+              -1.0046
             ]
           },
           "budget": 1500,
-          "bytes": 26204,
+          "bytes": 29792,
           "path": "fisher.lite.glb",
-          "sha256": "de34a9de8b3b844190c18aa57cdd6f51511d28c479cded22b895f697b57033c6",
-          "triangles": 285
+          "sha256": "94e3a8a7b72830d9ba903f38bee01df974e53b56e25e473ab9eebfba1aeaa207",
+          "triangles": 322
         },
         "path": "fisher.glb",
-        "sha256": "80ac1dbdec3629731a3206b84fe6d1f259bab4aa23c2690c9202dc18070f1f3b",
-        "triangles": 1495
+        "sha256": "e5e8df73a86d48330321d8b90fd4cf47cadcce1bd52a88d3e958e94369842b82",
+        "triangles": 1505
       },
       "footprint": {
         "h": 2,
@@ -2498,8 +2498,8 @@
         ],
         "min": [
           -2.6469,
-          -0.12,
-          -1.95
+          -0.62,
+          -1.955
         ]
       },
       "file": {
@@ -2511,12 +2511,12 @@
           ],
           "min": [
             -2.6469,
-            -0.12,
-            -1.95
+            -0.62,
+            -1.955
           ]
         },
         "budget": 6000,
-        "bytes": 320740,
+        "bytes": 320964,
         "lite": {
           "bounds": {
             "max": [
@@ -2527,17 +2527,17 @@
             "min": [
               -2.6369,
               -0.0538,
-              -1.95
+              -1.955
             ]
           },
           "budget": 1500,
           "bytes": 96480,
           "path": "shipyard.lite.glb",
-          "sha256": "3e299b6558eb707292879300cc6762b1c079eab67b0ba4c46ca1a776195285f3",
+          "sha256": "8ad4b3cfdcba2e2342f503bafb04a2d497e95aeb80d81c4a1bd1cd164b692d0b",
           "triangles": 1071
         },
         "path": "shipyard.glb",
-        "sha256": "da48bc07df933449054dad18749cc48f610b9202bdbf9e94d1fd68de1626b74b",
+        "sha256": "16726a60c09b6b7b05d8dedfdbcf51e07d3293bf83fbb44368dff285bac07df3",
         "triangles": 4757
       },
       "footprint": {
@@ -2890,34 +2890,235 @@
         }
       ]
     },
-    "warehouse": {
+    "trading_post": {
       "anchors": {
         "door": [
           0.0,
           0.0,
-          -1.5
+          -2.0
         ],
         "status": [
           0.0,
-          2.49,
+          2.45,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.18,
-          2.24,
-          1.8
+          1.98,
+          2.2,
+          1.96
         ],
         "min": [
-          -2.1116,
-          -0.0045,
-          -1.5115
+          -1.98,
+          -1.886,
+          -2.1353
         ]
       },
       "footprint": {
-        "h": 3,
+        "h": 4,
         "w": 4
+      },
+      "kind": "building",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/buildings/blue/building_docks_blue.gltf",
+            "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/crate_A_big.gltf",
+            "Assets/gltf/decoration/props/crate_A_small.gltf",
+            "Assets/gltf/decoration/props/crate_B_big.gltf",
+            "Assets/gltf/decoration/props/crate_long_A.gltf",
+            "Assets/gltf/decoration/props/crate_long_B.gltf",
+            "Assets/gltf/decoration/props/pallet.gltf",
+            "Assets/gltf/decoration/props/sack.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ],
+      "levels": {
+        "1": {
+          "bounds": {
+            "max": [
+              1.98,
+              1.798,
+              1.96
+            ],
+            "min": [
+              -1.98,
+              -1.886,
+              -2.1003
+            ]
+          },
+          "budget": 6000,
+          "bytes": 222112,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.98,
+                1.7892,
+                1.96
+              ],
+              "min": [
+                -1.98,
+                -1.886,
+                -2.0489
+              ]
+            },
+            "budget": 1500,
+            "bytes": 59204,
+            "path": "trading_post.l1.lite.glb",
+            "sha256": "04256cd507131d725c6450a8a1a5f9e8859e09a48e40c75ed130308c5624f61f",
+            "triangles": 653
+          },
+          "path": "trading_post.l1.glb",
+          "sha256": "868ee8eb41446529b82a15fa4d729f01bb8ce040a4a702dc6a74e0b11eaad678",
+          "triangles": 3262
+        },
+        "2": {
+          "bounds": {
+            "max": [
+              1.98,
+              1.904,
+              1.96
+            ],
+            "min": [
+              -1.98,
+              -1.886,
+              -2.1353
+            ]
+          },
+          "budget": 6000,
+          "bytes": 241368,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.98,
+                1.895,
+                1.96
+              ],
+              "min": [
+                -1.98,
+                -1.886,
+                -2.0489
+              ]
+            },
+            "budget": 1500,
+            "bytes": 55388,
+            "path": "trading_post.l2.lite.glb",
+            "sha256": "d27139d52ed55cf0bc0c0e3002705baa5e3b5bcc04250d94dd81bdea79c73ac7",
+            "triangles": 610
+          },
+          "path": "trading_post.l2.glb",
+          "sha256": "19276f5d47728ab22727d78d29ab5ccd036540329622a4ac728da578966ee142",
+          "triangles": 3610
+        },
+        "3": {
+          "bounds": {
+            "max": [
+              1.98,
+              1.904,
+              1.96
+            ],
+            "min": [
+              -1.98,
+              -1.886,
+              -2.1353
+            ]
+          },
+          "budget": 6000,
+          "bytes": 242984,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.98,
+                1.895,
+                1.96
+              ],
+              "min": [
+                -1.98,
+                -1.886,
+                -2.0489
+              ]
+            },
+            "budget": 1500,
+            "bytes": 55896,
+            "path": "trading_post.l3.lite.glb",
+            "sha256": "f7d45612fb1f80d34c9d2144dd236a0261445ff23191d98e1e21fb5eb44547b9",
+            "triangles": 615
+          },
+          "path": "trading_post.l3.glb",
+          "sha256": "02370f490c98b5f6c28b91b010ec1a757f36e001ee469976d7f34a8de4dea879",
+          "triangles": 3632
+        },
+        "4": {
+          "bounds": {
+            "max": [
+              1.98,
+              2.2,
+              1.96
+            ],
+            "min": [
+              -1.98,
+              -1.886,
+              -2.1353
+            ]
+          },
+          "budget": 6000,
+          "bytes": 245192,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.98,
+                2.2,
+                1.96
+              ],
+              "min": [
+                -1.98,
+                -1.886,
+                -2.0489
+              ]
+            },
+            "budget": 1500,
+            "bytes": 56700,
+            "path": "trading_post.l4.lite.glb",
+            "sha256": "12764aebf046bc1c3114fbf974dcfba5bad6789509ffe5178ad9255ba7caf392",
+            "triangles": 623
+          },
+          "path": "trading_post.l4.glb",
+          "sha256": "faaa7655ba12b2e2f19a57958bb55c4ebc5396e0a2d998110d1c785622d52270",
+          "triangles": 3664
+        }
+      }
+    },
+    "warehouse": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "status": [
+          0.0,
+          1.638,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.227,
+          1.388,
+          1.116
+        ],
+        "min": [
+          -1.23,
+          -0.0028,
+          -0.99
+        ]
+      },
+      "footprint": {
+        "h": 2,
+        "w": 2
       },
       "kind": "building",
       "kit_sources": [
@@ -2939,78 +3140,116 @@
         "1": {
           "bounds": {
             "max": [
-              1.988,
-              2.115,
-              1.7957
+              1.1036,
+              1.312,
+              1.1124
             ],
             "min": [
-              -2.1116,
-              -0.0045,
-              -1.471
+              -1.1802,
+              -0.0028,
+              -0.912
             ]
           },
           "budget": 6000,
-          "bytes": 158348,
+          "bytes": 158544,
           "lite": {
             "bounds": {
               "max": [
-                1.988,
-                2.1044,
-                1.7904
+                1.1036,
+                1.3053,
+                1.1093
               ],
               "min": [
-                -2.1116,
-                -0.0044,
-                -1.4257
+                -1.1802,
+                -0.0035,
+                -0.8849
               ]
             },
             "budget": 1500,
-            "bytes": 36460,
+            "bytes": 36436,
             "path": "warehouse.l1.lite.glb",
-            "sha256": "08dcbaca7082fa77d75a49c29cd59aedccf7351c4ee795c829c46e27416c8186",
+            "sha256": "347bf1584179b650989c3899931044335eef9589f814383b22ead5bb4274c6bf",
             "triangles": 396
           },
           "path": "warehouse.l1.glb",
-          "sha256": "83a9831177969a049bb5b77296fa488d84eade574152aa6605383e62284eefcc",
+          "sha256": "bca34062c7910c014821e6eb42c91d9f8bc9fbbcd2c1d0cc7d5ff1f60342ab0e",
           "triangles": 2234
         },
         "2": {
           "bounds": {
             "max": [
-              2.18,
-              2.24,
-              1.8
+              1.227,
+              1.388,
+              1.116
             ],
             "min": [
-              -2.1116,
-              -0.0045,
-              -1.5115
+              -1.1802,
+              -0.0028,
+              -0.9371
             ]
           },
           "budget": 6000,
-          "bytes": 176840,
+          "bytes": 177028,
           "lite": {
             "bounds": {
               "max": [
-                2.18,
-                2.2292,
-                1.8
+                1.227,
+                1.3812,
+                1.116
               ],
               "min": [
-                -2.1116,
-                -0.0056,
-                -1.4257
+                -1.1802,
+                -0.0035,
+                -0.8839
               ]
             },
             "budget": 1500,
-            "bytes": 32316,
+            "bytes": 32340,
             "path": "warehouse.l2.lite.glb",
-            "sha256": "046231c6413afff083d088ad2bbe2abeb16cf8c3a0ff25e9265bf5246cd64d2f",
+            "sha256": "bce33e44a06d834010c66fe12eb15b4fab37066a9448f4eda78a11cd61b61d1f",
             "triangles": 349
           },
           "path": "warehouse.l2.glb",
-          "sha256": "59f592fdcc95722768292a9ce87169fcb3e58ebf32aee3dc07ba7db8af892a79",
+          "sha256": "298e28ea55e6f1460db932657d62bef52b612d38131befe35e84a5ab5407894d",
           "triangles": 2572
+        },
+        "3": {
+          "bounds": {
+            "max": [
+              1.227,
+              1.388,
+              1.116
+            ],
+            "min": [
+              -1.23,
+              -0.0028,
+              -0.99
+            ]
+          },
+          "budget": 6000,
+          "bytes": 181428,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.227,
+                1.3812,
+                1.116
+              ],
+              "min": [
+                -1.23,
+                -0.0035,
+                -0.99
+              ]
+            },
+            "budget": 1500,
+            "bytes": 33784,
+            "path": "warehouse.l3.lite.glb",
+            "sha256": "d4fb0fd11f11e3a0d95edde99fb2e58fcdf167de91e074c8cf64c4af9518e5ed",
+            "triangles": 366
+          },
+          "path": "warehouse.l3.glb",
+          "sha256": "fe6edc28ec5dbe3776e0e19170a80bbae3cf03be25aae56915ed40331985b2b2",
+          "triangles": 2638
         }
       }
     },

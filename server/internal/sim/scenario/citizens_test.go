@@ -31,9 +31,9 @@ func TestCitizensNeeds(t *testing.T) {
 			if want := []string{"food", "drink", "clothing", "market_small", "chapel", "tavern"}; !slices.Equal(kinds, want) {
 				t.Errorf("house %d needs %v, want %v", b.ID, kinds, want)
 			}
-		case "warehouse":
-			if *b.Level != 2 || *b.Capacity != 500_000 || *b.ThroughputPerMin != loadCatalogue(t).BuildingByID["warehouse"].Warehouse.Levels[1].ThroughputPerMin || *b.LoadPermille <= 0 {
-				t.Errorf("warehouse level %d capacity %d throughput %d load %d", *b.Level, *b.Capacity, *b.ThroughputPerMin, *b.LoadPermille)
+		case "trading_post":
+			if *b.Level != 2 || *b.Capacity != 500_000 || *b.ThroughputPerMin != loadCatalogue(t).BuildingByID["trading_post"].TradingPost.Levels[1].ThroughputPerMin || *b.LoadPermille <= 0 {
+				t.Errorf("trading post level %d capacity %d throughput %d load %d", *b.Level, *b.Capacity, *b.ThroughputPerMin, *b.LoadPermille)
 			}
 		}
 	}
@@ -164,7 +164,7 @@ func TestWarehouseLoadTargets(t *testing.T) {
 			}
 			islands++
 			for _, b := range is.Buildings {
-				if b.Type != "warehouse" {
+				if b.Type != "trading_post" {
 					continue
 				}
 				warehouses++

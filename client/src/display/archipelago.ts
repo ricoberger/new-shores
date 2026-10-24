@@ -48,7 +48,7 @@ export function shipsAt(ships: readonly ShipDisplay[], islandId: string, nowMs: 
  * rule (the server validates found_island).
  */
 export function cargoCoversWarehouse(cargo: readonly CargoDisplay[], content: Content): boolean {
-  const wh = content.buildings.find((b) => b.warehouse);
+  const wh = content.buildings.find((b) => b.trading_post);
   if (!wh) return false;
   const aboard = cargoTotals(cargo);
   return Object.entries(wh.cost.materials).every(([good, need]) => (aboard[good] ?? 0) >= need);
@@ -59,4 +59,46 @@ export function foundingShips(model: DisplayState, content: Content, islandId: s
   const is = model.islands.find((i) => i.id === islandId);
   if (!is || is.settled) return [];
   return model.ships.filter((s) => s.state === "idle" && s.island_id === islandId && cargoCoversWarehouse(s.cargo, content));
+}
+
+/**
+ * The ship for "Found settlement here" on an unsettled island (D-051): an
+ * idle ship whose cargo covers the Trading Post's materials — one already
+ * at the island first, else the start ship at sea, else any other (lowest
+ * ID). Null when the island is settled or no ship qualifies. A content
+ * lookup; the server validates sail_ship and found_island.
+ */
+export function founderFor(model: DisplayState, content: Content, islandId: string): ShipDisplay | null {
+  const is = model.islands.find((i) => i.id === islandId);
+  if (!is || is.settled) return null;
+  const able = model.ships.filter((s) => s.state === "idle" && cargoCoversWarehouse(s.cargo, content));
+  return able.find((s) => s.island_id === islandId) ?? able.find((s) => s.position) ?? able[0] ?? null;
+}
+
+/**
+ * A founding chained by the client (D-051, UI.md §1): the player chose the
+ * Trading Post's site on an island the ship is not at; the client sent
+ * sail_ship and sends found_island when the ship is idle there.
+ */
+export interface PendingFounding {
+  shipId: number;
+  islandId: string;
+  x: number;
+  y: number;
+  rotation: number;
+}
+
+/**
+ * What to do with a pending founding at a new payload: "found" when the
+ * ship is idle at the island (send found_island), "wait" while it sails
+ * there (or unloads), "drop" when the island got settled, the ship is gone
+ * or it is heading elsewhere.
+ */
+export function pendingFoundingStep(p: PendingFounding, model: DisplayState): "found" | "wait" | "drop" {
+  const is = model.islands.find((i) => i.id === p.islandId);
+  const s = model.ships.find((x) => x.id === p.shipId);
+  if (!is || is.settled || !s) return "drop";
+  if (s.state === "idle" && s.island_id === p.islandId) return "found";
+  if (s.leg && s.leg.to_island_id === p.islandId) return "wait";
+  return "drop";
 }

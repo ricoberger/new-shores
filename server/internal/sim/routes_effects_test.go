@@ -127,11 +127,11 @@ func TestRouteHold(t *testing.T) {
 	w, s := routeWorld(t, c)
 	mustApply(t, w, c, CreateRoute{Stops: []Stop{{IslandID: "a"}, {IslandID: "b"}}})
 	r := w.Route(1)
-	if h, n := routeHold(w, c, r); h != 100_000 || n != 0 {
+	if h, n := routeHold(w, c, r); h != 200_000 || n != 0 {
 		t.Errorf("unassigned hold = %d, %d ships", h, n)
 	}
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
-	if h, n := routeHold(w, c, r); h != 100_000 || n != 1 {
+	if h, n := routeHold(w, c, r); h != 200_000 || n != 1 {
 		t.Errorf("assigned hold = %d, %d ships", h, n)
 	}
 }

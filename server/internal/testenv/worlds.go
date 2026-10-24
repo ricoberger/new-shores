@@ -54,7 +54,9 @@ func NewWorld(t testing.TB, st *postgres.Store, age time.Duration) (string, stor
 		if err != nil {
 			return err
 		}
-		w, err := devworld.New(Catalogue(t), now.Add(-age))
+		// The founded start island (the default dev fixture): the tests
+		// build on it.
+		w, err := devworld.NewFixture(Catalogue(t), devworld.FixtureDefault, now.Add(-age))
 		if err != nil {
 			return err
 		}

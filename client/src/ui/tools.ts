@@ -14,7 +14,7 @@ export type Tool =
   | { kind: "road"; roadType: string }
   /** Moving a placed building (D-042); the ghost uses its footprint. */
   | { kind: "move"; buildingId: number; buildingType: string; rotation: Rotation; pending?: IslandTile }
-  /** Placing the first warehouse of an unsettled island from a ship's cargo. */
+  /** Placing the Trading Post of an unsettled island from a ship's cargo (D-051): the ship sails there first unless it is idle there. */
   | { kind: "found"; shipId: number; buildingType: string; rotation: Rotation; pending?: IslandTile }
   /**
    * Placing fields of a field building (D-049): a click places one, a drag

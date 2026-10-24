@@ -13,6 +13,7 @@ var (
 	ErrOccupied              = errors.New("tile occupied")
 	ErrTerrain               = errors.New("terrain not buildable")
 	ErrNotCoastal            = errors.New("building must touch the coast")
+	ErrNotOnWater            = errors.New("front rows of a water-edge building must be on water")
 	ErrNoWorkArea            = errors.New("no usable tiles in work area")
 	ErrNoFertility           = errors.New("island lacks fertility")
 	ErrNoDeposit             = errors.New("no deposit under the footprint")
@@ -60,8 +61,8 @@ var (
 	ErrIslandNotSettled     = errors.New("island not settled")
 	ErrCargoInsufficient    = errors.New("cargo does not cover the cost")
 	ErrCargoExceedsSlots    = errors.New("cargo exceeds the ship's slots")
-	ErrLastWarehouse        = errors.New("last warehouse of an island with buildings")
-	ErrNotConnected         = errors.New("building has no road to a warehouse")
+	ErrLastTradingPost      = errors.New("trading post of an island with other buildings")
+	ErrNotConnected         = errors.New("building has no road to a trading post or warehouse")
 )
 
 // Sentinel errors of quests and the away summary.

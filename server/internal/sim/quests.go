@@ -120,7 +120,7 @@ func (e *questEnv) objectiveValue(o content.Objective) (current, target int64) {
 		def := c.BuildingByID[o.Building]
 		for _, is := range islands {
 			for _, b := range is.Buildings {
-				if b.Type == o.Building && def != nil && (def.Warehouse != nil || b.AssignedWarehouseID != 0) {
+				if b.Type == o.Building && def != nil && (def.Collector() || b.AssignedWarehouseID != 0) {
 					return 1, 1
 				}
 			}

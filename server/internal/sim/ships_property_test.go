@@ -31,8 +31,8 @@ func (p *propCase) shipPropWorld(recovery bool) {
 	w := p.w
 	isle := islandFromRows("isle",
 		"~~~~~~~~~~~~~~~~~~~~~~~~",
-		"~cccccccccccccccccccccc~",
-		"~cccccccccccccccccccccc~",
+		"~~~~~~~~~~~~~~~~~~~~~~~~",
+		"~~~~~~~~~~~~~~~~~~~~~~~~",
 		"~......................~",
 		"~......................~",
 		"~......................~",
@@ -42,15 +42,15 @@ func (p *propCase) shipPropWorld(recovery bool) {
 	isle.X, isle.Y = 3+p.rng.IntN(10), 4+p.rng.IntN(10)
 	wild := islandFromRows("wild",
 		"~~~~~~~~~~~~",
-		"~cccccccccc~",
+		"~~~~~~~~~~~~",
 		"~cccccccccc~",
 		"~..........~",
 		"~~~~~~~~~~~~",
 	)
 	wild.X, wild.Y = -5-p.rng.IntN(10), 2+p.rng.IntN(10)
 	w.Islands = append(w.Islands, isle, wild)
-	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "isle", Type: "warehouse", X: 1, Y: 2}, p.l); err != nil {
-		p.fail("isle warehouse: %v", err)
+	if err := PlaceFree(w, p.c, PlaceBuilding{IslandID: "isle", Type: "trading_post", X: 1, Y: 1}, p.l); err != nil {
+		p.fail("isle trading post: %v", err)
 	}
 	var road []Pos
 	for x := 1; x <= 20; x++ {
@@ -72,6 +72,17 @@ func (p *propCase) shipPropWorld(recovery bool) {
 		island := []string{"main", "isle"}[p.rng.IntN(2)]
 		w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: "sloop", State: ShipIdle, IslandID: island})
 		w.NextShipID++
+	}
+	// Some worlds have a ship at sea with cargo (the start ship, D-051).
+	if p.rng.IntN(2) == 0 {
+		cargo := map[string]Qty{"planks": Qty(1+p.rng.IntN(150)) * 1000}
+		if _, err := LaunchShipAtSea(w, p.c, "sloop", Pos{X: -20 + p.rng.IntN(60), Y: -20 + p.rng.IntN(60)}, cargo); err != nil {
+			p.fail("ship at sea: %v", err)
+		}
+		// Ledger: the cargo enters the world like a grant loaded at main.
+		f := p.l.flow("main", "planks")
+		f.Granted += cargo["planks"] * SubPerMilli
+		f.Loaded += cargo["planks"] * SubPerMilli
 	}
 }
 
@@ -153,8 +164,10 @@ func (p *propCase) randomShipCommand() Command {
 			}
 		}
 		return ManualShipment{ShipID: shipID, ToIslandID: islands[p.rng.IntN(len(islands))], Cargo: cargo}
+	case r < 86:
+		return SailShip{ShipID: shipID, ToIslandID: islands[p.rng.IntN(len(islands))]}
 	case r < 92:
-		return FoundIsland{ShipID: shipID, IslandID: "wild", BuildingType: "warehouse", X: 1 + p.rng.IntN(2), Y: 1}
+		return FoundIsland{ShipID: shipID, IslandID: "wild", BuildingType: "trading_post", X: 1 + p.rng.IntN(2), Y: 0}
 	default:
 		return ScrapShip{ShipID: shipID}
 	}
@@ -190,10 +203,11 @@ func TestPropertyShips(t *testing.T) {
 	base := catalogue(t)
 	// Without the upkeep of never-pausable buildings, towns recover from
 	// insolvency, so that ships are resumed as well.
-	cheap := withUpkeep(base, map[string]Qty{"warehouse": 0, "shipyard": 0})
+	cheap := withUpkeep(base, map[string]Qty{"trading_post": 0, "shipyard": 0})
 	kinds := map[string]int{}
 	splitKinds := map[string]int{}
 	states := map[string]int{}
+	queued, atSea := 0, 0
 	for seed := range uint64(propertyCases) {
 		c := base
 		if seed%2 == 1 {
@@ -217,8 +231,14 @@ func TestPropertyShips(t *testing.T) {
 		for _, s := range p.w.Ships {
 			states[s.State]++
 		}
+		queued += p.queued
+		atSea += p.atSea
 	}
-	t.Logf("boundaries %v; deliberate splits %v; final ship states %v", kinds, splitKinds, states)
+	t.Logf("boundaries %v; deliberate splits %v; final ship states %v; berth waits seen %d; ships at sea seen %d", kinds, splitKinds, states, queued, atSea)
+	// Berth queues and ships at sea actually occur (D-051).
+	if queued < propertyCases/20 || atSea < propertyCases/10 {
+		t.Errorf("berth waits seen %d, ships at sea seen %d", queued, atSea)
+	}
 	for _, k := range []string{BoundaryShipBuilt, BoundaryShipArrived, "ship_" + BoundaryAutoPause, "ship_" + BoundaryAutoResume} {
 		if kinds[k] < propertyCases/20 {
 			t.Errorf("only %d %s boundaries", kinds[k], k)

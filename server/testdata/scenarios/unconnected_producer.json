@@ -1,12 +1,12 @@
 {
   "name": "unconnected_producer",
-  "description": "A lumberjack whose road does not reach the warehouse fills its 5-unit buffer in 150 s and stops; the island stock is unchanged.",
+  "description": "A lumberjack whose road does not reach the Trading Post fills its 5-unit buffer in 150 s and stops; the island stock is unchanged.",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
     "rows": [
       "~~~~~~~~~~~~~~~~",
-      "~cccc...ffffff.~",
+      "~~~~~...ffffff.~",
       "~.......ffffff.~",
       "~.......ffffff.~",
       "~..............~",
@@ -16,9 +16,9 @@
     ]
   },
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 1,
+      "y": 0,
       "rotation": 0
     },
     "gold": 101,

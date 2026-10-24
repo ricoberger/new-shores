@@ -2,8 +2,9 @@
 // server's timestamps, no rule evaluated. Travel times, capacities and
 // slot rules are the server's; the slot count here is only a display
 // bound for the shipment dialog (the server validates).
-import type { CargoDisplay, LegDisplay, ShipDisplay, ShipOrderDisplay } from "../api/client";
+import type { BuildingDisplay, CargoDisplay, LegDisplay, ShipDisplay, ShipOrderDisplay } from "../api/client";
 import { serverTimeMs } from "./extrapolate";
+import { rotatedFootprint, waterRows } from "./geometry";
 
 export type LegPhase = "handling" | "travelling" | "arrived";
 
@@ -117,6 +118,94 @@ export function spreadOffset(i: number): ArchPoint {
   return { x: Math.cos(angle) * SPREAD_RADIUS * ring, y: Math.sin(angle) * SPREAD_RADIUS * ring };
 }
 
+/** The archipelago point of a sea position (the centre of its tile). */
+export function seaPoint(p: { x: number; y: number }): ArchPoint {
+  return { x: p.x + 0.5, y: p.y + 0.5 };
+}
+
+/**
+ * Mooring points at a Trading Post's pier (D-051, local tiles, tile
+ * centres): pier slot i is tile i of the front row (the outermost water
+ * row) one tile further out to sea; queue slot j lies one more tile out,
+ * two tiles apart along the row and between two pier slots (further rows
+ * outward, staggered, when the row is full). Rotation turns "out" with the
+ * building: rotation 0 is −y, 90 +x, 180 +y, 270 −x (the server's
+ * sim.WaterTile). Visual placement only.
+ */
+export function pierPoint(
+  def: { width: number; height: number; water_tiles?: number },
+  b: Pick<BuildingDisplay, "x" | "y" | "rotation">,
+  slot: number,
+  queued: boolean,
+): ArchPoint | null {
+  const rows = waterRows(def, b.x, b.y, b.rotation);
+  if (!rows) return null;
+  const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
+  const r = ((b.rotation % 360) + 360) % 360;
+  // Front row: its first tile, the step along it and the outward step.
+  const front =
+    r === 90
+      ? { x: b.x + w - 1, y: b.y, ax: 0, ay: 1, ox: 1, oy: 0, len: h }
+      : r === 180
+        ? { x: b.x, y: b.y + h - 1, ax: 1, ay: 0, ox: 0, oy: 1, len: w }
+        : r === 270
+          ? { x: b.x, y: b.y, ax: 0, ay: 1, ox: -1, oy: 0, len: h }
+          : { x: b.x, y: b.y, ax: 1, ay: 0, ox: 0, oy: -1, len: w };
+  const n = Math.max(0, Math.floor(slot));
+  let along: number;
+  let out: number;
+  if (queued) {
+    const perRow = Math.max(1, Math.ceil(front.len / 2));
+    const row = Math.floor(n / perRow);
+    along = Math.min(front.len - 1, ((n % perRow) * 2 + 1 - (row % 2)) % Math.max(1, front.len));
+    out = 2 + row;
+  } else {
+    along = n % front.len;
+    out = 1 + Math.floor(n / front.len);
+  }
+  return { x: front.x + front.ax * along + front.ox * out + 0.5, y: front.y + front.ay * along + front.oy * out + 0.5 };
+}
+
+/** Heading (radians, as ShipPlacement) of a ship moored at a pier: bow out to sea, so neighbours lie side by side. */
+export function pierHeading(rotation: number): number {
+  const r = ((rotation % 360) + 360) % 360;
+  const [ox, oy] = r === 90 ? [1, 0] : r === 180 ? [0, 1] : r === 270 ? [-1, 0] : [0, -1];
+  return Math.atan2(oy, ox);
+}
+
+/** Where a ship at a Trading Post's pier lies (archipelago tiles) and which way it points. */
+export interface Dock {
+  point: ArchPoint;
+  heading: number;
+}
+
+/**
+ * Archipelago points of the ships at a Trading Post's pier (D-051): a ship
+ * holding a berth at pier slot = its index among the berth's ships, a
+ * queued ship at queue slot = its place in the queue. From the payload's
+ * `berths`; fisher and shipyard jetties hold no ships.
+ */
+export function dockPoints(
+  islands: readonly Pick<IslandPlacement & { buildings: readonly BuildingDisplay[] }, "position" | "buildings">[],
+  defs: ReadonlyMap<string, { width: number; height: number; water_tiles?: number; trading_post?: unknown }>,
+): Map<number, Dock> {
+  const out = new Map<number, Dock>();
+  for (const is of islands) {
+    for (const b of is.buildings) {
+      const def = defs.get(b.type);
+      if (!def?.trading_post || !b.berths) continue;
+      const put = (ids: readonly number[], queued: boolean) =>
+        ids.forEach((id, i) => {
+          const p = pierPoint(def, b, i, queued);
+          if (p) out.set(id, { point: { x: is.position.x + p.x, y: is.position.y + p.y }, heading: pierHeading(b.rotation) });
+        });
+      put(b.berths.ships, false);
+      put(b.berths.queue, true);
+    }
+  }
+  return out;
+}
+
 /** Harbour berths of every island (archipelago tiles, nearest to the harbour first). */
 export type Berths = ReadonlyMap<string, readonly ArchPoint[]>;
 
@@ -145,15 +234,18 @@ export function berthAnchor(id: string, islands: ReadonlyMap<string, IslandPlace
  * island is unknown.
  */
 export function shipPlacement(
-  ship: Pick<ShipDisplay, "island_id" | "leg">,
+  ship: Pick<ShipDisplay, "island_id" | "leg"> & { position?: ShipDisplay["position"] },
   islands: ReadonlyMap<string, IslandPlacement>,
   nowMs: number,
   slot = 0,
   berths?: Berths,
+  dock?: Dock,
 ): ShipPlacement | null {
   const leg = ship.leg;
   if (leg) {
-    const a = berthAnchor(leg.from_island_id, islands, berths);
+    // A leg from the sea (the start ship, D-051) starts at its sea position;
+    // a ship handling at a Trading Post's pier starts at its pier slot.
+    const a = leg.from_position ? seaPoint(leg.from_position) : (dock?.point ?? berthAnchor(leg.from_island_id, islands, berths));
     const b = berthAnchor(leg.to_island_id, islands, berths);
     if (!a || !b) return null;
     const heading = Math.atan2(b.y - a.y, b.x - a.x);
@@ -163,6 +255,10 @@ export function shipPlacement(
     const f = Math.min(1, Math.max(0, (nowMs - depart) / Math.max(1, arrive - depart)));
     return { point: { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }, heading, atSea: f < 1 };
   }
+  // At sea without a leg: the start ship before it sails.
+  if (!ship.island_id && ship.position) return { point: seaPoint(ship.position), heading: 0, atSea: true };
+  // At a Trading Post's pier: unloading at its slot, or queued further out.
+  if (dock) return { point: dock.point, heading: dock.heading, atSea: false };
   const is = islands.get(ship.island_id);
   if (!is) return null;
   const list = berths?.get(ship.island_id);
@@ -178,12 +274,13 @@ export function shipPlacement(
 /**
  * Spread slot of every ship without a leg (idle, anchored_unpaid): its
  * index among those ships at the same island by ascending ID. Ships with a
- * leg get none (they are at the origin anchor while handling).
+ * leg get none (they are at the origin anchor while handling), nor do
+ * ships at a Trading Post's pier or in its queue (`docked`, dockPoints).
  */
-export function anchorSlots(ships: readonly Pick<ShipDisplay, "id" | "island_id" | "leg">[]): Map<number, number> {
+export function anchorSlots(ships: readonly Pick<ShipDisplay, "id" | "island_id" | "leg">[], docked?: ReadonlyMap<number, unknown>): Map<number, number> {
   const byIsland = new Map<string, number[]>();
   for (const s of ships) {
-    const at = s.leg ? "" : s.island_id;
+    const at = s.leg || docked?.has(s.id) ? "" : s.island_id;
     if (!at) continue;
     let list = byIsland.get(at);
     if (!list) byIsland.set(at, (list = []));

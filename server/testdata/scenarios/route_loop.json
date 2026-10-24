@@ -1,6 +1,6 @@
 {
   "name": "route_loop",
-  "description": "(p) A route carries wood from the start island (lumberjack running) to island 2 and planks back; loop time 2 x 20 s handling + 2 x 60 s travel = 160 s; three loops; goods are conserved exactly across both islands and the cargo aboard.",
+  "description": "(p) A route carries wood from the start island (lumberjack running) to island 2 and planks back; loop time 2 x 38 s handling (10 s + 140 units x 0.2 s) + 2 x 60 s travel = 196 s; three loops; goods are conserved exactly across both islands and the cargo aboard.",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {
@@ -10,8 +10,8 @@
       "y": 0,
       "rows": [
         "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccccccccccccccc~",
-        "~cccccccccccccccccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
+        "~~~~~c~~~~~cccccccccccccccccc~",
         "~............................~",
         "~............................~",
         "~............................~",
@@ -32,7 +32,7 @@
       "y": 48,
       "rows": [
         "~~~~~~~~~~~~~~~~~~",
-        "~cccccccccccccccc~",
+        "~~~~~cccccccccccc~",
         "~cccccccccccccccc~",
         "~................~",
         "~................~",
@@ -43,16 +43,16 @@
     }
   ],
   "seed": {
-    "warehouse": {
+    "trading_post": {
       "x": 1,
-      "y": 2,
+      "y": 1,
       "rotation": 0
     },
     "gold": 1500,
     "stock": {
       "planks": 200,
       "sails": 10,
-      "wood": 60
+      "wood": 280
     },
     "workforce": {
       "settlers": 100
@@ -119,7 +119,7 @@
         "ship": 1,
         "island": "island2",
         "x": 1,
-        "y": 1,
+        "y": 0,
         "rotation": 0
       }
     },
@@ -163,17 +163,17 @@
     },
     {
       "advance": {
-        "duration": "2m40s"
+        "duration": "3m16s"
       }
     },
     {
       "advance": {
-        "duration": "2m40s"
+        "duration": "3m16s"
       }
     },
     {
       "advance": {
-        "duration": "2m40s"
+        "duration": "3m16s"
       }
     }
   ]

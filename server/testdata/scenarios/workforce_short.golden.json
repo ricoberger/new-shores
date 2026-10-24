@@ -1,6 +1,6 @@
 {
   "name": "workforce_short",
-  "content_version": "old_coast-0.6.0",
+  "content_version": "old_coast-0.7.0",
   "boundary_count": 9,
   "totals": {
     "main": {
@@ -153,6 +153,10 @@
     }
   ],
   "quests": [
+    {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
     {
       "id": "intro_first_road",
       "completed_at": "2026-01-01T00:00:00.000Z"
@@ -458,9 +462,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 1,
+            "y": 0,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -470,7 +474,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 138
+            "load_permille": 138,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -1092,6 +1102,12 @@
         },
         "population": {
           "settlers": 12000
+        },
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
         }
       }
     ],
@@ -1119,11 +1135,17 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks",
         "intro_houses"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",

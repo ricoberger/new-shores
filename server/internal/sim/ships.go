@@ -79,8 +79,11 @@ type Ship struct {
 	// Type is the content ship ID.
 	Type  string `json:"type"`
 	State string `json:"state"`
-	// IslandID is where the ship is ("" while travelling).
+	// IslandID is where the ship is ("" while travelling or at sea).
 	IslandID string `json:"island_id,omitempty"`
+	// AtSea is the archipelago position (tiles) of an idle ship that is at
+	// no island: the start ship of a new world (D-051); nil otherwise.
+	AtSea *Pos `json:"at_sea,omitempty"`
 	// RouteID is the assigned route (0 when none).
 	RouteID int64 `json:"route_id,omitempty"`
 	// StopIndex is the index of the route stop the ship is heading to.
@@ -92,15 +95,27 @@ type Ship struct {
 	PausedReason string `json:"paused_reason,omitempty"`
 	PauseSeq     int64  `json:"pause_seq,omitempty"`
 	PausedAtMs   int64  `json:"paused_at_ms,omitempty"`
+	// QueuedAtMs is the time (Unix ms) the ship entered the berth queue of
+	// its island (state waiting_for_berth, berths.go); 0 otherwise.
+	QueuedAtMs int64 `json:"queued_at_ms,omitempty"`
+	// BerthUntilMs is the end (Unix ms) of the ship's handling at a berth
+	// of its island: the departure of a route ship, the end of unloading
+	// after a manual leg; 0 when the ship holds no berth.
+	BerthUntilMs int64 `json:"berth_until_ms,omitempty"`
 }
 
 // Leg is a voyage between two islands: the ship handles cargo at the origin
 // until DepartAtMs and arrives at ArriveAtMs (Unix milliseconds).
 type Leg struct {
+	// FromIsland is the origin island; "" for a leg from a sea position
+	// (From).
 	FromIsland string `json:"from_island"`
 	ToIsland   string `json:"to_island"`
 	DepartAtMs int64  `json:"depart_at_ms"`
 	ArriveAtMs int64  `json:"arrive_at_ms"`
+	// From is the archipelago origin (tiles) of a leg that starts at sea;
+	// nil for a leg from an island.
+	From *Pos `json:"from,omitempty"`
 }
 
 // Slot is one cargo slot holding Amount milli-units of Good.
@@ -113,7 +128,15 @@ func (s *Ship) clone() *Ship {
 	c := *s
 	if s.Leg != nil {
 		l := *s.Leg
+		if l.From != nil {
+			p := *l.From
+			l.From = &p
+		}
 		c.Leg = &l
+	}
+	if s.AtSea != nil {
+		p := *s.AtSea
+		c.AtSea = &p
 	}
 	if s.Cargo != nil {
 		c.Cargo = append([]Slot(nil), s.Cargo...)
@@ -139,15 +162,11 @@ func lookupShip(w *World, id int64) (*Ship, error) {
 	return s, nil
 }
 
-// settled reports whether an island has at least one warehouse (derived,
-// R-15). Unsettled islands have capacity 0.
+// settled reports whether an island has a Trading Post (derived, D-051).
+// Unsettled islands have capacity 0.
 func settled(is *Island, c *content.Catalogue) bool {
-	for _, b := range is.Buildings {
-		if def := c.BuildingByID[b.Type]; def != nil && def.Warehouse != nil {
-			return true
-		}
-	}
-	return false
+	tp, _ := tradingPost(is, c)
+	return tp != nil
 }
 
 // isqrt returns floor(sqrt(n)).
@@ -263,13 +282,22 @@ func freeMilli(is *Island, c *content.Catalogue, good string, now int64) Qty {
 	return max(capacityFine(is, c)-committedFine(is, good, now), 0) / SubPerMilli
 }
 
+// handlingMs is the time a ship occupies a berth for moving the given
+// milli-units (unloaded plus loaded): ship_handling_base_seconds +
+// ship_handling_seconds_per_unit x units, rounded up to whole milliseconds
+// (MECHANICS §9.2, D-051).
+func handlingMs(c *content.Catalogue, moved Qty) int64 {
+	r := c.Region.Rules
+	return r.ShipHandlingBaseMs + ceilDiv(r.ShipHandlingMsPerUnit*max(moved, 0), content.MilliPerUnit)
+}
+
 // unloadGood moves up to the amount aboard of good into the island
 // inventory, limited by the free committed capacity; the excess stays
-// aboard.
-func unloadGood(is *Island, c *content.Catalogue, amounts map[string]Qty, good string, now int64, l *Ledger) {
+// aboard. It returns the unloaded milli-units.
+func unloadGood(is *Island, c *content.Catalogue, amounts map[string]Qty, good string, now int64, l *Ledger) Qty {
 	take := min(amounts[good], freeMilli(is, c, good, now))
 	if take <= 0 {
-		return
+		return 0
 	}
 	is.Inventory.setFine(good, is.Inventory.fine(good)+take*SubPerMilli)
 	amounts[good] -= take
@@ -277,21 +305,25 @@ func unloadGood(is *Island, c *content.Catalogue, amounts map[string]Qty, good s
 		delete(amounts, good)
 	}
 	l.flow(is.ID, good).Unloaded += take * SubPerMilli
+	return take
 }
 
-// unloadAll unloads every good aboard into the ship's island (R-23).
-func unloadAll(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
+// unloadAll unloads every good aboard into the ship's island (R-23) and
+// returns the unloaded milli-units.
+func unloadAll(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) Qty {
 	is := w.Island(s.IslandID)
 	def := c.ShipByID[s.Type]
 	if is == nil || def == nil || len(s.Cargo) == 0 {
-		return
+		return 0
 	}
 	amounts := cargoAmounts(s)
+	var moved Qty
 	for _, g := range sortedKeys(amounts) {
-		unloadGood(is, c, amounts, g, now, l)
+		moved += unloadGood(is, c, amounts, g, now, l)
 	}
 	setCargo(s, def.SlotSize, amounts)
 	clearRegimes(is)
+	return moved
 }
 
 // depart sets the ship's leg and its location (the origin until the
@@ -331,10 +363,11 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 		return
 	}
 	stop := r.Stops[matched]
+	var moved Qty
 	if is, def := w.Island(island), c.ShipByID[s.Type]; is != nil && def != nil {
 		amounts := cargoAmounts(s)
 		for _, g := range stop.Unload {
-			unloadGood(is, c, amounts, g, now, l)
+			moved += unloadGood(is, c, amounts, g, now, l)
 		}
 		for _, lr := range stop.Load {
 			want := lr.MaxAmount - amounts[lr.Good]
@@ -344,6 +377,7 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 			}
 			is.Inventory.setFine(lr.Good, is.Inventory.fine(lr.Good)-take*SubPerMilli)
 			amounts[lr.Good] += take
+			moved += take
 			l.flow(is.ID, lr.Good).Loaded += take * SubPerMilli
 		}
 		setCargo(s, def.SlotSize, amounts)
@@ -351,12 +385,13 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 	}
 	s.StopIndex = (matched + 1) % n
 	to := r.Stops[s.StopIndex].IslandID
-	dep := now + c.Region.Rules.ShipHandlingMs
+	dep := now + handlingMs(c, moved)
 	depart(s, Leg{FromIsland: island, ToIsland: to, DepartAtMs: dep, ArriveAtMs: dep + shipTravel(w, c, s, island, to)}, now)
 }
 
 // DueEvent is a pending due moment of a world: a shipyard order completes
-// (ship_built) or a ship arrives (ship_arrived).
+// (ship_built) or a ship arrives (ship_arrived: the end of its leg, or the
+// grant of a berth to the head of an island's berth queue).
 type DueEvent struct {
 	Kind string    `json:"kind"`
 	At   time.Time `json:"at"`
@@ -386,6 +421,17 @@ func dueList(w *World) []dueEvent {
 			out = append(out, dueEvent{DueEvent{Kind: DueShipArrived, ShipID: s.ID}, s.Leg.ArriveAtMs})
 		}
 	}
+	// The head of every berth queue: its grant (berths.go).
+	queued := map[string]bool{}
+	for _, s := range w.Ships {
+		if s.State != ShipWaitingForBerth || queued[s.IslandID] {
+			continue
+		}
+		queued[s.IslandID] = true
+		if head, at, ok := berthGrantAt(w, s.IslandID); ok {
+			out = append(out, dueEvent{DueEvent{Kind: DueShipArrived, ShipID: head.ID}, at})
+		}
+	}
 	slices.SortFunc(out, func(a, b dueEvent) int {
 		return cmp.Or(cmp.Compare(a.atMs, b.atMs), cmp.Compare(a.Kind, b.Kind), cmp.Compare(a.IslandID, b.IslandID),
 			cmp.Compare(a.BuildingID, b.BuildingID), cmp.Compare(a.ShipID, b.ShipID))
@@ -397,9 +443,10 @@ func dueList(w *World) []dueEvent {
 }
 
 // DueEvents returns the pending due moments of the world sorted by (At,
-// Kind, IDs): every shipyard order (ship_built at its due time) and every
-// ship leg (ship_arrived at its arrival). After Advance(w, t) every due
-// moment is strictly after t.
+// Kind, IDs): every shipyard order (ship_built at its due time), every
+// ship leg (ship_arrived at its arrival) and the head of every berth queue
+// (ship_arrived at its berth grant). After Advance(w, t) every due moment
+// is strictly after t.
 func DueEvents(w *World) []DueEvent {
 	list := dueList(w)
 	out := make([]DueEvent, len(list))
@@ -447,11 +494,20 @@ func applyDueEvent(w *World, c *content.Catalogue, e dueEvent, now int64, l *Led
 		return true
 	case DueShipArrived:
 		s := w.Ship(e.ShipID)
-		if s == nil || s.Leg == nil || s.Leg.ArriveAtMs != e.atMs {
+		switch {
+		case s == nil:
 			return false
+		case s.Leg != nil && s.Leg.ArriveAtMs == e.atMs:
+			applyShipArrival(w, c, s, now, l)
+			return true
+		case s.State == ShipWaitingForBerth:
+			head, at, ok := berthGrantAt(w, s.IslandID)
+			if !ok || head != s || at != e.atMs {
+				return false
+			}
+			grantBerth(w, c, s, now, l)
+			return true
 		}
-		applyShipArrival(w, c, s, now, l)
-		return true
 	}
 	return false
 }
@@ -468,6 +524,7 @@ func ApplyDueEvent(w *World, c *content.Catalogue, ev DueEvent) (bool, error) {
 	now := w.LastEvaluatedAt.UnixMilli()
 	ok := applyDueEvent(w, c, dueEvent{ev, now}, now, nil)
 	if ok {
+		applyDue(w, c, now, nil)
 		normalizeShips(w, now)
 		evaluateUnlocks(w, c)
 		evaluateQuests(w, c, now, nil)
@@ -488,51 +545,59 @@ func applyShipBuilt(w *World, is *Island, b *Building) {
 	clearRegimes(is)
 }
 
-// applyShipArrival ends the ship's leg at its destination (R-22 – R-24).
+// applyShipArrival ends the ship's leg at its destination (R-22 – R-24):
+// a paused ship anchors; every other ship handles there (arriveAt: queue
+// for a berth, or depart at once without a matching route stop).
 func applyShipArrival(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
 	dest := s.Leg.ToIsland
 	w.Away.addArrival(s, dest, now)
 	s.Leg = nil
 	s.IslandID = dest
-	var r *Route
-	if s.RouteID != 0 {
-		r = w.Route(s.RouteID)
-	}
-	switch {
-	case s.Paused:
-		s.State = ShipAnchoredUnpaid
-	case r != nil:
-		handleStop(w, c, s, r, dest, now, l)
-	default:
+	if s.RouteID != 0 && w.Route(s.RouteID) == nil {
 		s.RouteID, s.StopIndex = 0, 0
-		s.State = ShipIdle
-		unloadAll(w, c, s, now, l)
+	}
+	if s.Paused {
+		s.State = ShipAnchoredUnpaid
+	} else {
+		arriveAt(w, c, s, dest, now, l)
 	}
 	if is := w.Island(dest); is != nil {
 		clearRegimes(is)
 	}
 }
 
-// normalizeShips applies departures: a ship whose handling time is over
-// has left its island.
+// normalizeShips applies departures and berth releases: a ship whose
+// handling time is over has left its island (with a leg) or, after the
+// unloading of a manual leg, is idle there (anchored when paused).
 func normalizeShips(w *World, now int64) {
 	for _, s := range w.Ships {
 		if s.Leg != nil && s.Leg.DepartAtMs <= now {
 			s.IslandID = ""
+			s.BerthUntilMs = 0
+		}
+		if s.Leg == nil && s.BerthUntilMs > 0 && s.BerthUntilMs <= now {
+			s.BerthUntilMs = 0
+			if s.State == ShipManualLeg {
+				s.State = ShipIdle
+				if s.Paused {
+					s.State = ShipAnchoredUnpaid
+				}
+			}
 		}
 	}
 }
 
 // resumeShip resumes an unpaid ship at now (R-29): an anchored ship with a
-// route handles its stop and departs; without a route it becomes idle; a
-// ship on a leg simply continues.
+// route handles its stop (queueing for a berth) and departs; without a
+// route it becomes idle; a ship on a leg, waiting or handling simply
+// continues.
 func resumeShip(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
 	s.Paused, s.PausedReason, s.PauseSeq, s.PausedAtMs = false, "", 0, 0
 	if s.State != ShipAnchoredUnpaid {
 		return
 	}
 	if r := w.Route(s.RouteID); s.RouteID != 0 && r != nil {
-		handleStop(w, c, s, r, s.IslandID, now, l)
+		arriveAt(w, c, s, s.IslandID, now, l)
 		return
 	}
 	s.RouteID, s.StopIndex = 0, 0
@@ -587,8 +652,8 @@ type CancelShipOrder struct {
 	BuildingID int64
 }
 
-// FoundIsland settles an unsettled island with a warehouse built from the
-// cargo of an idle ship there (R-33).
+// FoundIsland settles an unsettled island with a Trading Post built from
+// the cargo of an idle ship there (R-33, D-051).
 type FoundIsland struct {
 	ShipID       int64
 	IslandID     string
@@ -627,6 +692,16 @@ type ScrapShip struct {
 	ShipID int64
 }
 
+// SailShip sends an idle ship with its cargo (nothing is loaded) from its
+// island or its sea position to another island (D-051: the start ship
+// sails to the island the player chooses). It arrives like a manual
+// shipment: at a settled island it unloads at a berth; at an unsettled one
+// everything stays aboard (for found_island).
+type SailShip struct {
+	ShipID     int64
+	ToIslandID string
+}
+
 func (OrderShip) isCommand()       {}
 func (CancelShipOrder) isCommand() {}
 func (FoundIsland) isCommand()     {}
@@ -634,6 +709,7 @@ func (AssignShip) isCommand()      {}
 func (UnassignShip) isCommand()    {}
 func (ManualShipment) isCommand()  {}
 func (ScrapShip) isCommand()       {}
+func (SailShip) isCommand()        {}
 
 func shipyardBuilding(w *World, c *content.Catalogue, islandID string, id int64) (*Island, *Building, *content.Building, error) {
 	is, err := lookupIsland(w, islandID)
@@ -733,8 +809,8 @@ func foundIsland(w *World, c *content.Catalogue, cmd FoundIsland, l *Ledger) err
 	if def == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownBuilding, cmd.BuildingType)
 	}
-	if def.Warehouse == nil {
-		return fmt.Errorf("%w: %s has no warehouse block", ErrInvalidCommand, def.ID)
+	if def.TradingPost == nil {
+		return fmt.Errorf("%w: %s has no trading_post block", ErrInvalidCommand, def.ID)
 	}
 	if !TierUnlocked(w, c, def.Tier) {
 		return fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
@@ -797,7 +873,19 @@ func assignShip(w *World, c *content.Catalogue, cmd AssignShip, l *Ledger) error
 	now := w.LastEvaluatedAt.UnixMilli()
 	s.RouteID = r.ID
 	s.StopIndex = 0 // first occurrence of the island
-	handleStop(w, c, s, r, s.IslandID, now, l)
+	if p := s.AtSea; p != nil && s.IslandID == "" {
+		// From the sea: a positioning leg to stop 0.
+		to := w.Island(r.Stops[0].IslandID)
+		def := c.ShipByID[s.Type]
+		if to == nil || def == nil {
+			return fmt.Errorf("%w: route %d", ErrRouteInvalid, r.ID)
+		}
+		s.State, s.AtSea = ShipOnRoute, nil
+		depart(s, Leg{From: &Pos{p.X, p.Y}, ToIsland: to.ID, DepartAtMs: now,
+			ArriveAtMs: now + TravelMs(p.X, p.Y, to.X, to.Y, def.SpeedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)}, now)
+		return nil
+	}
+	arriveAt(w, c, s, s.IslandID, now, l)
 	return nil
 }
 
@@ -866,15 +954,87 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 	}
 
 	now := w.LastEvaluatedAt.UnixMilli()
+	var moved Qty
 	for _, ca := range cmd.Cargo {
 		from.Inventory.setFine(ca.Good, from.Inventory.fine(ca.Good)-ca.Amount*SubPerMilli)
 		l.flow(from.ID, ca.Good).Loaded += ca.Amount * SubPerMilli
+		moved += ca.Amount
 	}
 	setCargo(s, ship.SlotSize, amounts)
 	s.State = ShipManualLeg
-	dep := now + c.Region.Rules.ShipHandlingMs
+	dep := now + handlingMs(c, moved)
 	depart(s, Leg{FromIsland: from.ID, ToIsland: to.ID, DepartAtMs: dep, ArriveAtMs: dep + travelMs(c, ship.SpeedPermille, from, to)}, now)
 	clearRegimes(from)
+	return nil
+}
+
+// LaunchShipAtSea adds an idle ship of the given type at a sea position
+// (archipelago tiles) with the given cargo (milli-units per good, at most
+// its slots) and returns it. Like PlaceFree it is meant for world creation
+// (the start ship of a new world, D-051), never for player commands.
+func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo map[string]Qty) (*Ship, error) {
+	def := c.ShipByID[typ]
+	if def == nil {
+		return nil, fmt.Errorf("%w: %q", ErrUnknownShipType, typ)
+	}
+	if at.X < -maxCoord || at.X > maxCoord || at.Y < -maxCoord || at.Y > maxCoord {
+		return nil, fmt.Errorf("%w: sea position (%d,%d)", ErrOutOfBounds, at.X, at.Y)
+	}
+	amounts := map[string]Qty{}
+	for _, g := range sortedKeys(cargo) {
+		switch {
+		case c.GoodByID[g] == nil:
+			return nil, fmt.Errorf("%w: unknown good %q", ErrInvalidCommand, g)
+		case cargo[g] < 0:
+			return nil, fmt.Errorf("%w: negative cargo of %s", ErrInvalidCommand, g)
+		case cargo[g] > 0:
+			amounts[g] = cargo[g]
+		}
+	}
+	if used := slotsUsed(amounts, def.SlotSize); used > def.Slots {
+		return nil, fmt.Errorf("%w: needs %d of %d slots", ErrCargoExceedsSlots, used, def.Slots)
+	}
+	if w.NextShipID < 1 {
+		w.NextShipID = 1
+	}
+	s := &Ship{ID: w.NextShipID, Type: def.ID, State: ShipIdle, AtSea: &Pos{at.X, at.Y}}
+	setCargo(s, def.SlotSize, amounts)
+	w.NextShipID++
+	w.Ships = append(w.Ships, s)
+	return s, nil
+}
+
+func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
+	s, err := idleShip(w, cmd.ShipID)
+	if err != nil {
+		return err
+	}
+	to := w.Island(cmd.ToIslandID)
+	if to == nil {
+		return fmt.Errorf("%w: unknown destination %q", ErrRouteInvalid, cmd.ToIslandID)
+	}
+	if to.ID == s.IslandID {
+		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)
+	}
+	ship := c.ShipByID[s.Type]
+	if ship == nil {
+		return fmt.Errorf("%w: %q", ErrUnknownShipType, s.Type)
+	}
+	now := w.LastEvaluatedAt.UnixMilli()
+	leg := Leg{FromIsland: s.IslandID, ToIsland: to.ID, DepartAtMs: now}
+	switch from := w.Island(s.IslandID); {
+	case from != nil:
+		leg.ArriveAtMs = now + travelMs(c, ship.SpeedPermille, from, to)
+	case s.AtSea != nil:
+		p := *s.AtSea
+		leg.From = &p
+		leg.ArriveAtMs = now + TravelMs(p.X, p.Y, to.X, to.Y, ship.SpeedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)
+	default:
+		return fmt.Errorf("%w: ship %d has no position", ErrShipNotIdle, s.ID)
+	}
+	s.State = ShipManualLeg
+	s.AtSea = nil
+	depart(s, leg, now)
 	return nil
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "ship_insolvency",
-  "content_version": "old_coast-0.6.0",
+  "content_version": "old_coast-0.7.0",
   "boundary_count": 33,
   "totals": {
     "start": {
@@ -180,7 +180,7 @@
     {
       "step": 5,
       "at": "2026-01-01T00:03:20.000Z",
-      "boundaries": 1,
+      "boundaries": 0,
       "inventory": {
         "island2": {},
         "start": {
@@ -208,8 +208,7 @@
       "ships": [
         {
           "id": 1,
-          "state": "idle",
-          "island_id": "island2",
+          "state": "manual_leg",
           "cargo": {
             "planks": 50000,
             "wood": 50000
@@ -220,7 +219,7 @@
     {
       "step": 16,
       "at": "2026-01-01T00:04:20.000Z",
-      "boundaries": 10,
+      "boundaries": 11,
       "inventory": {
         "island2": {},
         "start": {
@@ -538,6 +537,10 @@
   ],
   "quests": [
     {
+      "id": "intro_home_island",
+      "completed_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
       "id": "intro_first_road",
       "completed_at": "2026-01-01T00:00:00.000Z"
     },
@@ -843,9 +846,9 @@
         "buildings": [
           {
             "id": 1,
-            "type": "warehouse",
+            "type": "trading_post",
             "x": 1,
-            "y": 2,
+            "y": 1,
             "rotation": 0,
             "paused": false,
             "paused_reason": "",
@@ -855,12 +858,18 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 0
+            "load_permille": 0,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 3,
             "type": "market_small",
-            "x": 9,
+            "x": 16,
             "y": 1,
             "rotation": 0,
             "paused": false,
@@ -1116,7 +1125,7 @@
                 "kind": "required",
                 "building": "market_small",
                 "fulfilment_permille": 0,
-                "reason": "not_connected"
+                "reason": "out_of_range"
               }
             ]
           },
@@ -1181,6 +1190,12 @@
         },
         "population": {
           "settlers": 16000
+        },
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
         }
       },
       {
@@ -1306,7 +1321,8 @@
         "roads": [],
         "buildings": [],
         "workforce": {},
-        "population": {}
+        "population": {},
+        "capacity_source": null
       }
     ],
     "ships": [
@@ -1328,11 +1344,14 @@
             "amount": 50000
           }
         ],
-        "slots": 2,
+        "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
-        "paused_reason": ""
+        "paused_reason": "",
+        "position": null,
+        "queued_at": null,
+        "berth_until": null
       }
     ],
     "routes": [],
@@ -1358,10 +1377,16 @@
         }
       ],
       "claimable": [
+        "intro_home_island",
         "intro_first_road",
         "intro_planks"
       ],
       "completed": [
+        {
+          "id": "intro_home_island",
+          "completed_at": "2026-01-01T00:00:00.000Z",
+          "claimed": false
+        },
         {
           "id": "intro_first_road",
           "completed_at": "2026-01-01T00:00:00.000Z",

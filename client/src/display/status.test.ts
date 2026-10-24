@@ -46,8 +46,8 @@ describe("statusText", () => {
         for (const b of is.buildings) {
           if (b.status !== "not_connected") continue;
           const s = statusText(b, is, d, content);
-          expect(s.sentence).toBe("No road to a warehouse");
-          expect(s.fix).toBe("Build a road next to it that leads to a warehouse.");
+          expect(s.sentence).toBe("No road to the Trading Post or a Warehouse");
+          expect(s.fix).toBe("Build a road next to it that leads to the Trading Post or a Warehouse.");
           return;
         }
       }

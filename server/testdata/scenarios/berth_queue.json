@@ -1,0 +1,67 @@
+{
+  "name": "berth_queue",
+  "description": "Berths (MECHANICS \u00a79.3, D-051): two ships sail with planks to an island whose level-1 Trading Post has one berth. Ship 1 (20 planks) arrives after 12 s, takes the berth and unloads at once (10 s + 20 x 0.2 s = 14 s); ship 2 (50 planks) arrives after 13 s and waits (waiting_for_berth, its cargo aboard) until the berth frees at 26 s; the run ends 1 ms before that grant.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "harbour",
+      "name": "Harbour",
+      "rows": [
+        "~~~~~~~~~~~~",
+        "~~~~~ccccc~~",
+        "~..........~",
+        "~..........~",
+        "~..........~",
+        "~~~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "ships": [
+      {
+        "x": -12,
+        "y": 0,
+        "cargo": {
+          "planks": 20
+        }
+      },
+      {
+        "x": -13,
+        "y": 0,
+        "cargo": {
+          "planks": 50
+        }
+      }
+    ],
+    "gold": 100
+  },
+  "steps": [
+    {
+      "sail_ship": {
+        "ship": 1,
+        "to": "harbour"
+      }
+    },
+    {
+      "sail_ship": {
+        "ship": 2,
+        "to": "harbour"
+      }
+    },
+    {
+      "advance": {
+        "duration": "13s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "12.999s"
+      }
+    }
+  ]
+}
