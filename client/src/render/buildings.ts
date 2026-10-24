@@ -29,15 +29,32 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { footprintBox } from "./coords";
 import { setInstances } from "./instances";
-import { type Detail, type ModelData, type ModelEntry, type ModelFile, type ModelRegistry, atDetail, modelFileFor, placement, worldData } from "./models";
+import { type Detail, type ModelData, type ModelEntry, type ModelFile, type ModelRegistry, atDetail, lifeModel, modelFileFor, placement, worldData } from "./models";
+import { rotatedFootprint } from "../display/geometry";
 import { buildingColor, DOOR, INACTIVE_TINT, PAUSED_TINT, roofColor, SELECTION } from "./palette";
 import { skyFill } from "./lighting";
+import { addSway } from "./sway";
 import { ColoredInstances } from "./shipmesh";
 
 /** Chunk size (tiles) of the merged model meshes. */
 export const CHUNK = 16;
 /** Duration of the rise-in of a newly placed building (ms of the animation clock). */
 export const RISE_MS = 350;
+
+/**
+ * Construction stages (LIFE_LAYER §6): a newly placed building shows the
+ * KayKit stages A → B → C, a third of VISUAL_BUILD_MS each, then appears.
+ * A visual only (D-006: no construction timers; the building already
+ * works). Fields and ?life=0 keep the rise-in.
+ */
+export const VISUAL_BUILD_MS = 2400;
+export const STAGES = 3;
+/** Footprint side (tiles, both sides) from which scaffolding stands beside the stages. */
+export const SCAFFOLD_MIN = 3;
+/** Width of the stage models (tiles at scale 1: the KayKit stages at the recipe's scale). */
+export const STAGE_SIZE = 1.4;
+const SCAFFOLD_SIZE = 2.6;
+const STAGE_MAX_Y = 1.6;
 const WHITE = [1, 1, 1, 1] as const;
 
 /** Instance colour of a building: paused and unpaid ones are tinted cool grey, inactive fields (not_adjacent) neutral grey. */
@@ -173,6 +190,23 @@ export function riseScale(t: number): number {
   return 1 + 2.2 * u * u * u + 1.2 * u * u;
 }
 
+/**
+ * World matrix of construction stage k (0..STAGES-1; STAGES: the
+ * scaffolding) of a building: like the final model, scaled in model space
+ * to the unrotated footprint, turned by the building's rotation and
+ * placed at the footprint centre, so a stage faces where the building
+ * will face.
+ */
+export function stageMatrix(k: number, entry: ModelEntry, def: ContentBuilding, b: Pick<BuildingDisplay, "x" | "y" | "rotation">): Matrix {
+  const p = placement(entry, def, b);
+  const side = Math.min(def.width, def.height);
+  const scale =
+    k < STAGES
+      ? Matrix.Scaling(def.width / STAGE_SIZE, Math.min(STAGE_MAX_Y, side / STAGE_SIZE), def.height / STAGE_SIZE)
+      : Matrix.Scaling(side / SCAFFOLD_SIZE, side / SCAFFOLD_SIZE, side / SCAFFOLD_SIZE);
+  return scale.multiply(Matrix.RotationY(p.yaw)).multiply(Matrix.Translation(p.cx, 0, p.cz));
+}
+
 export class BuildingLayer {
   private readonly templates = new Map<string, Mesh>();
   private readonly material: StandardMaterial;
@@ -195,13 +229,17 @@ export class BuildingLayer {
   /** Buildings drawn with the other detail's file while the wanted one loads (last update). */
   private bridgedCount = 0;
   private risingItems: Item[] = [];
+  /** Construction-stage instances: stages 0..2, then scaffolding (null until the models load). */
+  private stageMeshes: (ColoredInstances | null)[] = [null, null, null, null];
+  /** Shows construction stages instead of the rise-in (the life layer; off with ?life=0). */
+  stages = true;
 
   constructor(
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
     private readonly registry: ModelRegistry | null = null,
   ) {
-    this.material = skyFill(new StandardMaterial("buildings", scene));
+    this.material = addSway(skyFill(new StandardMaterial("buildings", scene)));
     this.material.specularColor = Color3.Black();
     this.doors = CreateBox("doors", { width: 0.35, height: 0.3, depth: 0.12 }, scene);
     const doorMat = skyFill(new StandardMaterial("doors", scene));
@@ -396,16 +434,30 @@ export class BuildingLayer {
    * i.e. the chunk meshes (shadow casters) were replaced.
    */
   frame(nowMs: number): boolean {
-    if (this.risingItems.length === 0) return false;
+    if (this.risingItems.length === 0) {
+      for (const m of this.stageMeshes) m?.resize(0);
+      return false;
+    }
     const byFile = new Map<string, Item[]>();
+    const staged: Item[][] = [[], [], [], []];
+    const stagesReady = this.stages && this.stageModels();
     let finished = false;
     for (const it of this.risingItems) {
       let start = this.rising.get(it.b.id);
       if (start === undefined) continue;
-      if (start === null) this.rising.set(it.b.id, (start = nowMs));
-      if (nowMs - start >= RISE_MS) {
+      // A clock that went back (a server-offset correction, an unfrozen test clock) restarts it.
+      if (start === null || nowMs < start) this.rising.set(it.b.id, (start = nowMs));
+      const stage = stagesReady && !it.def.field;
+      if (nowMs - start >= (stage ? VISUAL_BUILD_MS : RISE_MS)) {
         this.rising.delete(it.b.id);
         finished = true;
+        continue;
+      }
+      if (stage) {
+        const k = Math.min(STAGES - 1, Math.floor(((nowMs - start) / VISUAL_BUILD_MS) * STAGES));
+        (staged[k] as Item[]).push(it);
+        const [w, h] = rotatedFootprint(it.def.width, it.def.height, it.b.rotation);
+        if (w >= SCAFFOLD_MIN && h >= SCAFFOLD_MIN) (staged[STAGES] as Item[]).push(it);
         continue;
       }
       let list = byFile.get(it.file.path);
@@ -437,9 +489,55 @@ export class BuildingLayer {
       });
       inst.commit();
     }
+    this.drawStages(staged);
     // Finished buildings join their chunk.
     if (finished) this.refresh();
     return finished;
+  }
+
+  /** Whether the stage models are loaded (creates their instance meshes once). */
+  private stageModels(): boolean {
+    let ready = true;
+    for (let k = 0; k <= STAGES; k++) {
+      if (this.stageMeshes[k]) continue;
+      // Every missing model is requested in the same frame.
+      const data = k < STAGES ? lifeModel(this.registry, "life_stage", k) : lifeModel(this.registry, "life_stage_scaffolding");
+      if (!data) {
+        ready = false;
+        continue;
+      }
+      const mesh = new Mesh(k < STAGES ? `stage_${"abc"[k]}` : "stage_scaffolding", this.scene);
+      mergeItems([{ data, cx: 0, cz: 0, yaw: 0, sx: 1, sz: 1, tint: WHITE }]).applyToMesh(mesh);
+      mesh.material = this.material;
+      mesh.parent = this.parent;
+      mesh.isPickable = false;
+      mesh.alwaysSelectAsActiveMesh = true;
+      this.stageMeshes[k] = new ColoredInstances(mesh);
+    }
+    return ready;
+  }
+
+  /** Stage (and scaffolding) instances stretched to each building's footprint. */
+  private drawStages(staged: Item[][]): void {
+    staged.forEach((items, k) => {
+      const inst = this.stageMeshes[k];
+      if (!inst) return;
+      inst.resize(items.length);
+      items.forEach((it, i) => {
+        stageMatrix(k, it.entry, it.def, it.b).copyToArray(inst.matrices, i * 16);
+        inst.setColor(i, tintOf(it.b));
+      });
+      inst.commit();
+    });
+  }
+
+  /** Construction-stage instances drawn in the last frame per stage (stage_a, stage_b, stage_c, stage_scaffolding; e2e). */
+  stageCounts(): Record<string, number> {
+    const out: Record<string, number> = {};
+    this.stageMeshes.forEach((m, k) => {
+      if (m && m.size() > 0) out[k < STAGES ? `stage_${"abc"[k]}` : "stage_scaffolding"] = m.size();
+    });
+    return out;
   }
 
   /** The chunks of the current detail. */

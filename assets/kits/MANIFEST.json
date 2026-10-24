@@ -34,6 +34,12 @@
         "Assets/gltf/buildings/blue/building_windmill_blue.gltf": "a98412d4bcd016ce63f66b5d7193adf664867c3649829707b04586fb73e31f38",
         "Assets/gltf/buildings/neutral/building_scaffolding.bin": "eed989f5f3c82d0e251b2dd2fc7e0cc350705160892a409a337c73b5f448fa54",
         "Assets/gltf/buildings/neutral/building_scaffolding.gltf": "1c11a7545694863a7edc58780ee60510b55676b97d6c5eee7e0dc7c256185c7a",
+        "Assets/gltf/buildings/neutral/building_stage_A.bin": "d18c8bd6cac535ea1be929f316b4dbd1367c24c49918df1980ffc29fe7322b3e",
+        "Assets/gltf/buildings/neutral/building_stage_A.gltf": "43ef26645bfab5fc2ef1a66b27173857485f0392e0e96b2243ceed53fd9043d5",
+        "Assets/gltf/buildings/neutral/building_stage_B.bin": "4878dffc475b69081778e703feca790f5c7aa39b18f11435a381beff1c6295f0",
+        "Assets/gltf/buildings/neutral/building_stage_B.gltf": "c45eec59415c78576c8488711bf0120705d08e0b50834c88c90606f590671a1b",
+        "Assets/gltf/buildings/neutral/building_stage_C.bin": "5a796b17dd2d9ff514ccccbc6018c1756827e33a2fd098e473c6644151e21d8c",
+        "Assets/gltf/buildings/neutral/building_stage_C.gltf": "9de7e1e3b336905b3eee72c7bc010b4fb803fa07b9adb91411d5aff0861e3446",
         "Assets/gltf/buildings/neutral/fence_wood_straight.bin": "fa71b68019e2fe287621f3a5b06b7e18d1dcdd74a6f1c38af7888a8fb0c0078b",
         "Assets/gltf/buildings/neutral/fence_wood_straight.gltf": "5a2af87c5a6b90875e3bc11f289a321a5d4b2459975dba52351edbc58b2132e3",
         "Assets/gltf/decoration/nature/mountain_A.bin": "7c6db7d27fba6452e31e3b534c9a60ede073e3e49828d404b0a510f2afd8082a",
@@ -86,6 +92,10 @@
         "Assets/gltf/decoration/props/wheelbarrow.gltf": "bb037662a3e5be1f4fe597ffc4927d2a6ad88d307da10388cfb178ca5fdae63d",
         "Assets/gltf/units/blue/ship_blue_accent.bin": "39e313a35b3b0ac2df569e9028013a1bd590b84e8a58405092c4ed991d2fc38b",
         "Assets/gltf/units/blue/ship_blue_accent.gltf": "9e1fd07d6c6afa94ad0f9d233559a95062685221b60a9b3bee178d83d2994287",
+        "Assets/gltf/units/neutral/cart.bin": "4516cee0db1098e8a7f670908783618ee706be773e8b3f2d5134ec15f60e7a1a",
+        "Assets/gltf/units/neutral/cart.gltf": "b68beaca12fa74140d6a8ed095fc81afbe236220cacb9267313278e08462f2a0",
+        "Assets/gltf/units/neutral/cart_merchant.bin": "3f830db9e5d84991590a5a44aaba423257f9a6c87873250e720f86983733d70c",
+        "Assets/gltf/units/neutral/cart_merchant.gltf": "63d80ab1f6d70996ef1ac6e853080c923a3880ce6f1e90c91754ed8d054780a8",
         "License.txt": "18c35a487baeffbdbe8256c0c7154a688321fe955b351c78773fab0a978cc02c"
       }
     },

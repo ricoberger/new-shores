@@ -28,6 +28,7 @@ import "@babylonjs/loaders/glTF/2.0/glTFLoader";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
 import { skyFill } from "./lighting";
+import { addSway } from "./sway";
 
 /** Manifest file entry (one GLB). */
 export interface ModelFile {
@@ -62,12 +63,23 @@ export interface DecorEntry {
   bounds: { min: [number, number, number]; max: [number, number, number] };
 }
 
+/** Manifest life-layer entry (carts, villagers, animals, boats, crates, construction stages; IDs life_*; docs/LIFE_LAYER.md). */
+export interface LifeEntry {
+  kind: "life";
+  file?: ModelFile;
+  variants?: ModelFile[];
+  bounds: { min: [number, number, number]; max: [number, number, number] };
+  /** Pivots in model space (glTF), e.g. the carts' wheel_front and wheel_rear. */
+  anchors: Record<string, [number, number, number]>;
+}
+
 export interface ModelManifest {
   version: number;
   palette_sha256: string;
   missing_recipes: string[];
   models: Record<string, ModelEntry>;
   decor?: Record<string, DecorEntry>;
+  life?: Record<string, LifeEntry>;
 }
 
 /** Vertex data of a loaded model (glTF space as in the file). */
@@ -323,9 +335,33 @@ export function decorModel(registry: ModelRegistry | null, id: string): ModelDat
   return w;
 }
 
+/**
+ * World-oriented vertex data of a life-layer element (variant n, x → −x
+ * like the buildings), or null while loading or without one (requests
+ * the file).
+ */
+const worldLife = new WeakMap<ModelData, ModelData>();
+export function lifeModel(registry: ModelRegistry | null, id: string, variant = 0): ModelData | null {
+  const entry = registry?.life(id);
+  const file = entry && (entry.variants ? entry.variants[variant] : entry.file);
+  if (!registry || !file) return null;
+  const data = registry.request(file);
+  if (!data) return null;
+  let w = worldLife.get(data);
+  if (!w) worldLife.set(data, (w = worldData("building", data)));
+  return w;
+}
+
+/** World point (tiles) of a life element's anchor, null without the entry or anchor. */
+export function lifeAnchor(registry: ModelRegistry | null, id: string, name: string): [number, number, number] | null {
+  const a = registry?.life(id)?.anchors[name];
+  return a ? toWorld("building", a) : null;
+}
+
 /** Meshes of a ship model (thin-instanced by the caller; always active, the instances move). */
 export function shipMeshes(scene: Scene, name: string, model: { hull: ModelData; cargo: ModelData | null }): { hull: Mesh; cargo: Mesh | null } {
   const hull = modelMesh(scene, name, model.hull);
+  addSway(hull.material as StandardMaterial);
   hull.alwaysSelectAsActiveMesh = true;
   let cargo: Mesh | null = null;
   if (model.cargo) {
@@ -422,6 +458,11 @@ export class ModelRegistry {
   /** The manifest entry of a decoration piece (undefined: none, the procedural fallback stays). */
   decor(id: string): DecorEntry | undefined {
     return this.manifestData?.decor?.[id];
+  }
+
+  /** The manifest entry of a life-layer element (undefined: none, the placeholder stays). */
+  life(id: string): LifeEntry | undefined {
+    return this.manifestData?.life?.[id];
   }
 
   /** Loaded data of a model file, or null (starts loading it on the first request). */

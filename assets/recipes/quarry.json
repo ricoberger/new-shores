@@ -3,6 +3,7 @@
   "id": "quarry",
   "kind": "building",
   "notes": "Quarry: the KayKit mine hill (0.5, its rock re-coloured to stone) cut open at the back, with a timber hoist lifting a block from the pit. Signature prop: the hoist and stacks of cut stone blocks, KayKit stone piles and boulders.",
+  "anchors": {"smoke": [-0.264, -1.154, 1.488], "chimney": [-0.264, -1.154, 1.438]},
   "parts": [
     {"kit_building": "mine", "position": [-0.15, -0.55, 0], "scale": [0.62, 0.5, 0.55], "roles": {"Atlas/team": "terracotta", "Atlas/rock": {"role": "stone", "shade": 0.95}}},
     {"name": "yard", "prim": "box", "size": [2.9, 2.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "dry", "shade": 0.95},

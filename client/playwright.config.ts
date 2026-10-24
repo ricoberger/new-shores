@@ -39,7 +39,7 @@ export default defineConfig({
   // town or settled): no spec depends on the order of the specs or on an
   // earlier one's leftovers, so the projects need no dependencies for it.
   projects: [
-    { name: "chromium", testMatch: /(smoke|ttfi|voyage|seafaring)\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
+    { name: "chromium", testMatch: /(smoke|ttfi|voyage|seafaring|life)\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
     { name: "archipelago", testMatch: /archipelago\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
     { name: "away", testMatch: /wait-away\.spec\.ts$/, use: { ...devices["Desktop Chrome"] } },
     // Touch alone on phone profiles; the Pixel 5 profile at 412 × 915. The

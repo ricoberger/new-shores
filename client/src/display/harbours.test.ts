@@ -165,10 +165,10 @@ describe("moorings at the Trading Post's pier", () => {
     const is = d.islands[0]!;
     const b = is.buildings.find((x) => x.type === "trading_post")!;
     expect(docks.get(1)).toEqual({ point: { x: is.position.x + b.x + 0.5, y: is.position.y + b.y - 0.5 }, heading: pierHeading(0) });
-    expect(docks.get(2)).toEqual({ point: { x: is.position.x + b.x + 1.5, y: is.position.y + b.y - 1.5 }, heading: pierHeading(0) });
+    expect(docks.get(2)).toEqual({ point: { x: is.position.x + b.x + 1.5, y: is.position.y + b.y - 1.5 }, heading: pierHeading(0), queued: true });
     const islands = new Map(d.islands.map((i) => [i.id, i]));
     const now = serverTimeMs(d.evaluated_at);
-    for (const s of d.ships) expect(shipPlacement(s, islands, now, 0, undefined, docks.get(s.id))).toEqual({ ...docks.get(s.id), atSea: false });
+    for (const s of d.ships) expect(shipPlacement(s, islands, now, 0, undefined, docks.get(s.id))).toEqual({ point: docks.get(s.id)?.point, heading: docks.get(s.id)?.heading, atSea: false });
     expect(anchorSlots(d.ships, docks).size).toBe(0);
     // Fishers and shipyards hold no ships.
     const edge = display("water_edge_placement");

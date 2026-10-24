@@ -1,0 +1,28 @@
+{
+  "$schema": "./schema.json",
+  "id": "life_villager_settlers",
+  "kind": "life",
+  "notes": "Life layer: a chunky procedural villager of the settlers tier (walkers between a producer and its collector, strollers near houses; LIFE_LAYER \u00a72): legs, a thatch tunic (the tier's roof role) with a belt, arms, a round head; three variants by building-ID hash (straw hat; hood and basket; hair, apron and a sack on the back). Faces +y; about 0.47 tiles tall.",
+  "parts": [
+    {"name": "legs", "prim": "box", "size": [0.09, 0.06, 0.14], "open": ["bottom"], "role": "timber", "shade": 0.7},
+    {"name": "tunic", "prim": "cylinder", "radius": 0.075, "radius_top": 0.055, "height": 0.2, "segments": 6, "position": [0, 0, 0.13], "role": "thatch"},
+    {"name": "belt", "prim": "cylinder", "radius": 0.068, "height": 0.025, "segments": 6, "position": [0, 0, 0.2], "role": "timber", "shade": 0.8},
+    {"name": "arms", "prim": "box", "size": [0.19, 0.045, 0.12], "open": ["bottom", "top"], "position": [0, 0, 0.19], "role": "thatch", "shade": 0.9},
+    {"name": "head", "prim": "rock", "size": [0.06, 0.06, 0.065], "position": [0, 0, 0.39], "role": "plaster", "shade": 1.0}
+  ],
+  "variants": [
+    [
+      {"name": "straw hat brim", "prim": "cylinder", "radius": 0.1, "height": 0.015, "segments": 8, "caps": true, "position": [0, 0, 0.43], "role": "thatch", "shade": 1.1},
+      {"name": "straw hat crown", "prim": "cylinder", "radius": 0.05, "radius_top": 0.03, "height": 0.06, "segments": 6, "position": [0, 0, 0.44], "role": "thatch", "shade": 1.1}
+    ],
+    [
+      {"name": "hood", "prim": "cylinder", "radius": 0.07, "radius_top": 0, "height": 0.13, "segments": 6, "position": [0, -0.01, 0.4], "role": "timber", "shade": 0.95},
+      {"name": "basket", "prim": "box", "size": [0.08, 0.07, 0.07], "position": [0.1, 0.02, 0.15], "role": "thatch", "shade": 0.9}
+    ],
+    [
+      {"name": "hair", "prim": "rock", "size": [0.062, 0.062, 0.035], "position": [0, -0.008, 0.42], "role": "timber", "shade": 0.85},
+      {"name": "apron", "prim": "box", "size": [0.1, 0.02, 0.15], "position": [0, 0.065, 0.06], "role": "canvas"},
+      {"name": "sack", "prim": "rock", "size": [0.06, 0.05, 0.07], "position": [0, -0.08, 0.27], "role": "canvas", "shade": 0.9}
+    ]
+  ]
+}

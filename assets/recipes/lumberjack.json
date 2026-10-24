@@ -3,6 +3,7 @@
   "id": "lumberjack",
   "kind": "building",
   "notes": "Lumberjack: the KayKit lumbermill (scaled to 2x2, lowered) under thatch. Signature prop: a felled-log pile and a chopping stump with split logs at the front.",
+  "anchors": {"smoke": [0.238, 0.755, 2.48], "chimney": [0.238, 0.755, 2.43]},
   "parts": [
     {"kit_building": "lumbermill", "position": [0, -0.22, 0], "scale": [0.74, 0.74, 0.62], "roles": {"Atlas/team": "thatch"}},
     {"name": "log pile", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/resource_lumber.gltf", "position": [0.55, 1.0, 0], "rotation": [0, 0, 8], "scale": 0.55},

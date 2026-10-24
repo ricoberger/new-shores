@@ -1,0 +1,10 @@
+{
+  "$schema": "./schema.json",
+  "id": "life_cart",
+  "kind": "life",
+  "notes": "Life layer: the empty cart of a delivery's return leg (LIFE_LAYER §2), the body of the neutral KayKit cart without its axle nodes (life_cart_axle spins at the wheel anchors), about a tile long, shaft toward +y (the front).",
+  "parts": [
+    {"name": "cart", "kit": "kaykit_hexagon", "file": "Assets/gltf/units/neutral/cart.gltf", "nodes": ["cart"], "rotation": [0, 0, 180], "scale": 0.35}
+  ],
+  "anchors": {"wheel_front": [0, 0.1474, 0.0969], "wheel_rear": [0, -0.1474, 0.0969]}
+}

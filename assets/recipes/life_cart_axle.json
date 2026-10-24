@@ -1,0 +1,9 @@
+{
+  "$schema": "./schema.json",
+  "id": "life_cart_axle",
+  "kind": "life",
+  "notes": "Life layer: one axle with its two wheels (the KayKit cart's front axle node, the same mesh as the rear one) centred on its pivot, so the client spins it about x at the carts' wheel_front and wheel_rear anchors. Simplified for instancing (two per cart).",
+  "parts": [
+    {"name": "axle", "kit": "kaykit_hexagon", "file": "Assets/gltf/units/neutral/cart.gltf", "nodes": ["cart_axle_front"], "position": [0, 0.1474, -0.0969], "scale": 0.35, "simplify": {"dissolve": 6, "collapse": 0.35}}
+  ]
+}

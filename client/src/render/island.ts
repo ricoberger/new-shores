@@ -1,5 +1,5 @@
 // Per-island detail of the continuous world (D-048): terrain, buildings,
-// fields, roads, carts, status icons and construction hulls of one island
+// fields, roads, status icons and construction hulls of one island
 // under a node at the island's archipelago position, so local tile (x, y)
 // is world (position.x + x, 0, −(position.y + y)). Built lazily (when the
 // island is first shown) and rebuilt on payload changes while shown. Every
@@ -7,25 +7,26 @@
 // roads, contact shadows, the kit-bashed models of buildings and fields,
 // trees and ground scatter. The level of detail only toggles pre-built
 // geometry: the full models and the full slab profile at near and mid,
-// the lite models and the coarser slab at far; carts, status icons,
-// construction hulls and foam at near only. Buildings, fields and ships
+// the lite models and the coarser slab at far; status icons,
+// construction hulls and foam at near only. The island's life plan (carts,
+// walkers, …) is drawn by the renderer's life layer (render/life.ts). Buildings, fields and ships
 // are kit-bashed models where the manifest has them (render/models.ts),
 // placeholders otherwise.
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
-import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
+import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay } from "../api/client";
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
+import { IslandLife } from "../display/lifeplan";
 import { blockedTiles, islandSeed, layerKeys, type Placed, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
 import { BuildingLayer } from "./buildings";
-import { CartLayer } from "./carts";
 import { FieldDecor, FieldTiles } from "./fields";
 import { ConstructionLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
-import { type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
+import { type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, rotateXZ, statusHeight, toWorld } from "./models";
 import { OutcropLayer } from "./outcrops";
 import { footprintTiles, PlateauLayer } from "./plateaus";
 import { RoadLayer } from "./roads";
@@ -42,14 +43,15 @@ export class IslandDetail {
   readonly root: TransformNode;
   /** The models, fields and decoration (every LOD). */
   private readonly models: TransformNode;
-  /** Carts, status icons, construction hulls and foam (near LOD). */
+  /** Status icons, construction hulls and foam (near LOD). */
   private readonly near: TransformNode;
   private readonly buildings: BuildingLayer;
   private readonly fields: FieldTiles;
   private readonly fieldDecor: FieldDecor;
   private readonly decoration: Decoration;
   private readonly roads: RoadLayer;
-  private readonly carts: CartLayer;
+  /** Life plan of this island (drawn by the renderer's life layer while shown). */
+  readonly life = new IslandLife();
   private readonly icons: IconLayer;
   private readonly construction: ConstructionLayer;
   private readonly buildingBlobs: FootprintShadows;
@@ -93,13 +95,22 @@ export class IslandDetail {
     this.fieldDecor = new FieldDecor(scene, this.models);
     this.decoration = new Decoration(scene, id, this.models, registry);
     this.roads = new RoadLayer(scene, this.root);
-    this.carts = new CartLayer(scene, this.near);
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near, registry);
     this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55);
     this.outcrops = new OutcropLayer(scene, this.root, registry);
     this.plateaus = new PlateauLayer(scene, this.root, registry);
     this.root.setEnabled(false);
+  }
+
+  /** Construction stages instead of the rise-in (the life layer; off with ?life=0). */
+  setStages(on: boolean): void {
+    this.buildings.stages = on;
+  }
+
+  /** Construction-stage instances drawn in the last frame (e2e). */
+  stageCounts(): Record<string, number> {
+    return this.buildings.stageCounts();
   }
 
   /** Moves the node when the island's position changed. */
@@ -140,7 +151,7 @@ export class IslandDetail {
 
   /**
    * Brings the layers up to date with the island's payload. The instanced
-   * layers (buildings, field tiles, carts, icons, construction) follow
+   * layers (buildings, field tiles, icons, construction) and the life plan follow
    * every payload; the merged static meshes (roads, contact
    * shadows, field decoration, trees and scatter) are rebuilt only when
    * their inputs on this island changed (layerKeys) — per island, never
@@ -151,7 +162,7 @@ export class IslandDetail {
     this.builtFrom = { display, defs };
     this.buildings.update(display.buildings, defs);
     this.fields.update(this.unmodelledFields(display), defs);
-    this.carts.update(display, defs);
+    this.life.update(display, defs, this.statics, this.smokeAnchor);
     this.icons.update(display.buildings, defs, this.statusY);
     this.construction.update(display, defs);
     const keys = layerKeys(display, defs);
@@ -328,7 +339,7 @@ export class IslandDetail {
   }
 
   /**
-   * Rising buildings (shown), carts, construction hulls and foam (near
+   * Rising buildings (shown), construction hulls and foam (near
    * LOD). Returns true when the building meshes were replaced (the shadow
    * casters need a refresh).
    */
@@ -337,7 +348,6 @@ export class IslandDetail {
     const casters = this.buildings.frame(nowMs);
     if (this.lod !== "near") return casters;
     this.foam?.frame(nowMs);
-    this.carts.frame(nowMs);
     this.construction.frame(nowMs);
     return casters;
   }
@@ -357,9 +367,20 @@ export class IslandDetail {
     return this.decoration.counts();
   }
 
-  /** Carts drawn (near LOD, shown). */
-  cartCount(): number {
-    return this.shown && this.lod === "near" ? this.carts.count() : 0;
+  /** Where a producer's smoke leaves its chimney: the model's smoke anchor (island tiles), null without a model yet. */
+  private readonly smokeAnchor = (b: BuildingDisplay, def: ContentBuilding) => {
+    const entry = this.registry?.entry(b.type);
+    const a = entry?.anchors.smoke;
+    if (!entry || !a) return null;
+    const p = placement(entry, def, b);
+    const w = toWorld(entry.kind, a);
+    const [x, z] = rotateXZ(w[0] * p.sx, w[2] * p.sz, p.yaw);
+    return { x: p.cx + x, y: -(p.cz + z), h: w[1] };
+  };
+
+  /** Island origin (archipelago tiles) while shown, for the life layer; null when hidden. */
+  lifeOrigin(): { x: number; y: number } | null {
+    return this.shown ? { x: this.root.position.x, y: -this.root.position.z } : null;
   }
 
   /** Construction hulls drawn in the last frame (near LOD, shown). */

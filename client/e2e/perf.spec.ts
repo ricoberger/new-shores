@@ -2,12 +2,13 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { type Browser, expect, type Page, test } from "@playwright/test";
+import { lifeBudget } from "../src/display/life";
 import { expectLod, modelsLoaded, setCamera, showArchipelago, worldReady } from "./archipelago";
 
 // Mobile performance budget (FIRST_PLAYABLE §3) of the continuous world
 // (D-048) under 4× CDP CPU throttling at phone viewports, per LOD:
 // near — the dense-2x400 fixture (≈ 400 buildings on the island in view,
-// ≥ 60 carts, 2 ships on legs) at the near default zoom; far — the
+// ≥ 60 delivering producers, the life layer at its budget, 2 ships on legs) at the near default zoom; far — the
 // dense-archipelago-8 fixture (8 islands, two of them dense) with the whole
 // archipelago in view; mid — the same fixture centred between its dense
 // islands at the upper end of the mid band (both in view). Every run logs
@@ -179,7 +180,15 @@ async function measure(browser: Browser, c: Config, run: Run) {
     expect(payload.routes).toBeGreaterThanOrEqual(1);
   }
   await run.setup(page);
-  if (run.lod === "near") expect(await page.evaluate(() => window.__newShores!.carts())).toBeGreaterThanOrEqual(60);
+  if (run.lod === "near") {
+    // The life layer fills the device budget (≥ 60 delivering producers
+    // above; carts are one share of it, LIFE_LAYER §1).
+    const quality = await page.evaluate(() => window.__newShores!.quality());
+    await expect
+      .poll(async () => (await page.evaluate(() => window.__newShores!.life())).stats?.instances ?? 0)
+      .toBeGreaterThanOrEqual(Math.floor(0.9 * lifeBudget(quality).instances));
+    expect(await page.evaluate(() => window.__newShores!.carts())).toBeGreaterThan(0);
+  }
   // The models in view (buildings at near LOD, ships at every LOD) have loaded: measure with them, not the placeholders.
   await modelsLoaded(page);
   if (run.lod === "near") expect(await page.evaluate(() => window.__newShores!.assets().placeholders)).toEqual([]);
@@ -207,8 +216,9 @@ async function measure(browser: Browser, c: Config, run: Run) {
   const lod = await page.evaluate(() => window.__newShores!.lod());
   const visible = await page.evaluate(() => window.__newShores!.visibleIslands());
   const assets = await page.evaluate(() => window.__newShores!.assets());
+  const life = await page.evaluate(() => window.__newShores!.life());
   await context.close();
-  return { ...payload, ttfiMs, drawCalls, triangles, frames, heapBytes, renderer, renderScale, lod, visible, glbBytes: assets.bytes, firstModelMs: assets.firstModelMs, models: assets.loaded.length };
+  return { ...payload, life, ttfiMs, drawCalls, triangles, frames, heapBytes, renderer, renderScale, lod, visible, glbBytes: assets.bytes, firstModelMs: assets.firstModelMs, models: assets.loaded.length };
 }
 
 test.describe.configure({ mode: "serial" });
@@ -239,6 +249,7 @@ for (const run of RUNS) {
           visible: r.visible,
           buildings: r.totalBuildings,
           carts: r.delivering,
+          life: r.life.stats,
           renderer: r.renderer,
           bundleGzipKB: Number((bundle.totalGzip / 1024).toFixed(1)),
           largestGzipKB: bundle.largest.map((b) => `${b.file}=${(b.gzip / 1024).toFixed(1)}`),

@@ -25,6 +25,7 @@ import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
 import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
+import { anchorBob, SAILING_ALPHA, sailing, waiting } from "./sway";
 import { type ModelRegistry, shipMeshes, shipModel } from "./models";
 import { ARROW_BRIGHT, ARROW_DIM, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION } from "./palette";
 
@@ -115,6 +116,8 @@ export class ArchipelagoLayer {
   private berths: Berths = new Map();
   /** Ships at a Trading Post's pier or in its queue: their mooring points (archipelago tiles). */
   private docks: ReadonlyMap<number, Dock> = new Map();
+  /** Waiting ships bob at anchor (the life layer; off with ?life=0). */
+  bobbing = true;
   private shipList: ShipDisplay[] = [];
   private routes: RouteDisplay[] = [];
   private draft: string[] | null = null;
@@ -431,11 +434,15 @@ export class ArchipelagoLayer {
         let point = p?.point ?? { x: 0, y: 0 };
         if (this.dragged?.shipId === s.id) point = this.dragged.point;
         this.shipPoints.set(s.id, point);
-        shipMatrix(inst.matrices, i, point.x, sy, -point.y, p?.heading ?? 0, p ? scale : 0);
+        const dock = this.docks.get(s.id);
+        const bob = p && this.bobbing && this.lod !== "far" && waiting(s, dock) ? anchorBob(s.id, nowMs) : null;
+        shipMatrix(inst.matrices, i, point.x, sy + (bob?.dy ?? 0), -point.y, p?.heading ?? 0, p ? scale : 0, bob?.rock ?? 0);
         if (blobs) blobMatrix(this.shipBlobBuffer, blob++, point.x, -point.y, p ? 1.25 * scale : 0, p ? 0.5 * scale : 0, 0.5 * scale, p?.heading ?? 0, SEA_LEVEL + 0.02);
         const style: ShipStyle = s.state === "anchored_unpaid" ? "unpaid" : "active";
         this.shipStyles.set(s.id, style);
         inst.setColor(i, shipColor(style));
+        // Sails fill while under way (the sway shader's sentinel).
+        if (sailing(s, p)) inst.colors[i * 4 + 3] = SAILING_ALPHA;
         // Crates on deck while carrying cargo, at the same matrix.
         if (cargo && s.cargo.length > 0) {
           cargo.matrices.set(inst.matrices.subarray(i * 16, i * 16 + 16), c * 16);

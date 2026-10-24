@@ -4,7 +4,7 @@
 // grass and forest.
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import type { Terrain } from "../api/client";
-import { BUILDINGS, LIGHT, ROUTES, STATUS, TERRAIN, UI, WATER } from "../theme/palette";
+import { BUILDINGS, LIGHT, ROUTES, STATUS, TERRAIN, WATER } from "../theme/palette";
 
 /** A palette hex colour as a Babylon Color3. */
 export function c3(hex: string): Color3 {
@@ -63,7 +63,6 @@ export function roofColor(id: string, category = ""): Color4 {
 }
 
 export const DOOR = c3(BUILDINGS.timber);
-export const CART = c3(UI.parchment);
 export const GHOST = c3(STATUS.ghost_ok);
 /** Ghost of a building without an adjacent road: "not connected", never red. */
 export const GHOST_NO_ROAD = c3(STATUS.ghost_no_road);

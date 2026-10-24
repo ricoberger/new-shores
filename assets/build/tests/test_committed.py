@@ -63,6 +63,16 @@ class CommittedModelsTest(unittest.TestCase):
             self.assertEqual(hashlib.sha256(data).hexdigest(), info["sha256"], info["path"])
             self.assertEqual(validate.export_profile(data, info["path"]), [])
             self.assertLessEqual(info["triangles"], config.BUDGET_DECOR, info["path"])
+        for lid, entry in self.manifest.get("life", {}).items():
+            self.assertTrue(lid.startswith(config.LIFE_PREFIX), lid)
+            for info in files_of(entry):
+                with open(os.path.join(config.MODELS_DIR, info["path"]), "rb") as f:
+                    data = f.read()
+                listed.add(info["path"])
+                total += len(data)
+                self.assertEqual(hashlib.sha256(data).hexdigest(), info["sha256"], info["path"])
+                self.assertEqual(validate.export_profile(data, info["path"]), [])
+                self.assertLessEqual(info["triangles"], info["budget"], info["path"])
         on_disk = {f for f in os.listdir(config.MODELS_DIR) if f.endswith(".glb")}
         self.assertEqual(on_disk, listed)
         self.assertLessEqual(total, 8 * 1024 * 1024)

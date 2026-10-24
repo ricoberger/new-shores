@@ -21,6 +21,8 @@ import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustu
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
+import type { LifeStats } from "../display/life";
+import { CLS } from "../display/lifeplan";
 import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, seaPoint } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
@@ -38,6 +40,8 @@ import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
 import { type AssetsStatus, type Detail, ModelRegistry } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
+import { LIFE_CLASSES, LifeLayer } from "./life";
+import { setSwayTime } from "./sway";
 import { type Effects, SceneLighting } from "./lighting";
 import { RoadPreview } from "./roads";
 import type { ShipStyle } from "./shipmesh";
@@ -154,6 +158,8 @@ export class GameRenderer {
   /** Model detail of the current LOD (full at near and mid, lite at far). */
   private detail: Detail = "full";
   private readonly details = new Map<string, IslandDetail>();
+  /** Life layer (carts, walkers, smoke, …; docs/LIFE_LAYER.md): one mesh per element class for the scene. */
+  private readonly life: LifeLayer;
   private readonly marks: FootprintMarks;
   private readonly roadPreview: RoadPreview;
   private readonly grid: GridOverlay;
@@ -214,6 +220,8 @@ export class GameRenderer {
     quality: Quality = "high",
     /** Keep FXAA at "high" also on software WebGL (?fxaa=1, the visual test of the FXAA path). */
     forceFxaa = false,
+    /** The life layer (off with ?life=0, A/B comparisons). */
+    life = true,
   ) {
     // The canvas renders at most MAX_RENDER_DPR pixels per CSS pixel (HTML
     // text and the HUD stay at the device resolution). Edges: multisampling
@@ -234,6 +242,7 @@ export class GameRenderer {
     });
     void this.models.loadManifest();
     this.arch = new ArchipelagoLayer(this.scene, this.models);
+    this.life = new LifeLayer(this.scene, LIFE_CLASSES, quality, life, this.models);
     this.arch.setQuality(quality);
     this.marks = new FootprintMarks(this.scene);
     this.roadPreview = new RoadPreview(this.scene);
@@ -288,6 +297,9 @@ export class GameRenderer {
     for (const d of this.details.values()) casters = d.frame(now) || casters;
     // Rise-ins that finished re-merged their chunks: new caster meshes.
     if (casters) this.refreshCasters();
+    this.life.frame(now, this.lifeIslands(), this.lod);
+    setSwayTime(now, this.life.isEnabled());
+    this.arch.bobbing = this.life.isEnabled();
     this.arch.frame(now);
     this.updateGhost();
     this.updateGrid();
@@ -367,11 +379,35 @@ export class GameRenderer {
     return this.labelAt(r.left + p.x / k, r.top + p.y / k);
   }
 
-  /** Carts drawn (near LOD, islands in view). */
+  /** The life plans of the islands in view with their archipelago origins. */
+  private *lifeIslands(): Generator<{ origin: { x: number; y: number }; plan: IslandDetail["life"] }> {
+    for (const d of this.details.values()) {
+      const o = d.lifeOrigin();
+      if (o) yield { origin: o, plan: d.life };
+    }
+  }
+
+  /** Life instances and particles drawn in the last frame (null: the layer is off, ?life=0). */
+  lifeStats(): LifeStats | null {
+    return this.life.isEnabled() ? this.life.lastStats() : null;
+  }
+
+  /** Life instances drawn per element class in the last frame (tests). */
+  lifeCounts(): Record<string, number> {
+    const out = this.life.counts();
+    for (const d of this.details.values()) for (const [k, n] of Object.entries(d.stageCounts())) out[k] = (out[k] ?? 0) + n;
+    return out;
+  }
+
+  /** Archipelago positions (tiles) of a life class's instances in the last frame (tests). */
+  lifePositions(cls: string): { x: number; y: number; h: number }[] {
+    return this.life.positions(cls);
+  }
+
+  /** Carts drawn in the last frame (life layer; near LOD, islands in view). */
   cartCount(): number {
-    let n = 0;
-    for (const d of this.details.values()) n += d.cartCount();
-    return n;
+    const c = this.life.counts();
+    return (c[CLS.cart] ?? 0) + (c[CLS.cartLoaded] ?? 0);
   }
 
   /**
@@ -386,6 +422,7 @@ export class GameRenderer {
   setQuality(q: Quality): void {
     this.lighting.setQuality(q);
     this.arch.setQuality(q);
+    this.life.setQuality(q);
     this.refreshCasters();
   }
 
@@ -624,6 +661,7 @@ export class GameRenderer {
       d = new IslandDetail(this.scene, is.id, is.position, this.models);
       d.setRotation(this.rig.view().rotation);
       d.setDetail(this.detail);
+      d.setStages(this.life.isEnabled());
       this.details.set(is.id, d);
     }
     d.setPosition(is.position);
