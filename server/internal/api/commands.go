@@ -27,7 +27,8 @@ const (
 	cmdUpgradeHouse  = "upgrade_house"
 	cmdMoveBuilding  = "move_building"
 
-	cmdUpgradeWarehouse = "upgrade_warehouse"
+	cmdUpgradeWarehouse   = "upgrade_warehouse"
+	cmdUpgradeTradingPost = "upgrade_trading_post"
 
 	cmdOrderShip       = "order_ship"
 	cmdCancelShipOrder = "cancel_ship_order"
@@ -254,7 +255,7 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeDemolishFields(raw)
 	case cmdSetPaused:
 		cmd, err = decodeSetPaused(raw)
-	case cmdUpgradeHouse, cmdUpgradeWarehouse:
+	case cmdUpgradeHouse, cmdUpgradeWarehouse, cmdUpgradeTradingPost:
 		cmd, err = decodeUpgrade(raw, head.Type)
 	case cmdMoveBuilding:
 		cmd, err = decodeMoveBuilding(raw)
@@ -465,8 +466,9 @@ func decodeSetPaused(raw json.RawMessage) (sim.Command, error) {
 	return sim.SetPaused{IslandID: *c.IslandID, BuildingID: *c.BuildingID, Paused: *c.Paused}, nil
 }
 
-// decodeUpgrade decodes upgrade_house and upgrade_warehouse, which share
-// their body {type, island_id, building_id}.
+// decodeUpgrade decodes upgrade_house, upgrade_warehouse and
+// upgrade_trading_post, which share their body {type, island_id,
+// building_id}.
 func decodeUpgrade(raw json.RawMessage, typ string) (sim.Command, error) {
 	var c upgradeJSON
 	if err := decodeStrict(raw, &c); err != nil {
@@ -478,8 +480,11 @@ func decodeUpgrade(raw json.RawMessage, typ string) (sim.Command, error) {
 	case c.BuildingID == nil:
 		return nil, missing("building_id")
 	}
-	if typ == cmdUpgradeWarehouse {
+	switch typ {
+	case cmdUpgradeWarehouse:
 		return sim.UpgradeWarehouse{IslandID: *c.IslandID, BuildingID: *c.BuildingID}, nil
+	case cmdUpgradeTradingPost:
+		return sim.UpgradeTradingPost{IslandID: *c.IslandID, BuildingID: *c.BuildingID}, nil
 	}
 	return sim.UpgradeHouse{IslandID: *c.IslandID, BuildingID: *c.BuildingID}, nil
 }

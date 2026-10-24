@@ -366,7 +366,7 @@ func TestDemolishWarehouseSurplus(t *testing.T) {
 	mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "fisher", X: 16, Y: 2})
 	mustAdvance(t, w, c, time.Minute)
 	// The Trading Post cannot go while another building stands (R-35).
-	if err := Apply(w, c, Demolish{IslandID: "main", BuildingID: 1, AcceptSurplusLoss: true}); !errors.Is(err, ErrLastWarehouse) {
+	if err := Apply(w, c, Demolish{IslandID: "main", BuildingID: 1, AcceptSurplusLoss: true}); !errors.Is(err, ErrLastTradingPost) {
 		t.Fatalf("err = %v", err)
 	}
 	// An inland Warehouse next to the fisher's road collects its output

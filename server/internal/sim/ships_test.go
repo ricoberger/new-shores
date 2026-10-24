@@ -305,7 +305,7 @@ func TestManualShipmentAndFounding(t *testing.T) {
 	}
 	// Building on the new island works; the last warehouse is protected.
 	mustApply(t, w, c, PlaceBuilding{IslandID: "b", Type: "house_settlers", X: 6, Y: 3})
-	expectErr(t, w, c, Demolish{IslandID: "b", BuildingID: 3, AcceptSurplusLoss: true}, ErrLastWarehouse)
+	expectErr(t, w, c, Demolish{IslandID: "b", BuildingID: 3, AcceptSurplusLoss: true}, ErrLastTradingPost)
 }
 
 func TestManualShipmentExcessStaysAboard(t *testing.T) {
@@ -325,8 +325,14 @@ func TestManualShipmentExcessStaysAboard(t *testing.T) {
 	}
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "a", Cargo: []CargoAmount{{"planks", 20_000}}})
 	toArrival()
+	// Unloading 20 planks at a's berth: 14 s, then the ship is idle.
+	if s.State != ShipManualLeg || s.BerthUntilMs != w.LastEvaluatedAt.UnixMilli()+14_000 {
+		t.Fatalf("unloading at a: %+v", s)
+	}
+	mustAdvance(t, w, c, 14*time.Second)
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"wood", 100_000}}})
 	toArrival()
+	mustAdvance(t, w, c, time.Duration(s.BerthUntilMs-w.LastEvaluatedAt.UnixMilli())*time.Millisecond)
 	if got := cargoAmounts(s)["wood"]; s.State != ShipIdle || got != 50_000 || w.Island("b").Inventory.Stock["wood"] != 300_000 {
 		t.Errorf("excess aboard %d (want 50 units), b wood %d", got, w.Island("b").Inventory.Stock["wood"])
 	}
@@ -444,8 +450,14 @@ func TestRouteLoop(t *testing.T) {
 		t.Fatalf("unassigned: %+v", s)
 	}
 	toArrival()
-	if s.State != ShipIdle || s.IslandID != "b" || len(s.Cargo) != 0 {
-		t.Fatalf("after manual arrival: %+v", s)
+	// The arrival unloads at once and holds the berth for the handling
+	// time; then the ship is idle.
+	if s.State != ShipManualLeg || s.IslandID != "b" || len(s.Cargo) != 0 || s.BerthUntilMs <= w.LastEvaluatedAt.UnixMilli() {
+		t.Fatalf("unloading after manual arrival: %+v", s)
+	}
+	mustAdvance(t, w, c, time.Duration(s.BerthUntilMs-w.LastEvaluatedAt.UnixMilli())*time.Millisecond)
+	if s.State != ShipIdle || s.BerthUntilMs != 0 {
+		t.Fatalf("after unloading: %+v", s)
 	}
 }
 

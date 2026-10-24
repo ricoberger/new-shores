@@ -61,8 +61,8 @@ var (
 	ErrIslandNotSettled     = errors.New("island not settled")
 	ErrCargoInsufficient    = errors.New("cargo does not cover the cost")
 	ErrCargoExceedsSlots    = errors.New("cargo exceeds the ship's slots")
-	ErrLastWarehouse        = errors.New("last warehouse of an island with buildings")
-	ErrNotConnected         = errors.New("building has no road to a warehouse")
+	ErrLastTradingPost      = errors.New("trading post of an island with other buildings")
+	ErrNotConnected         = errors.New("building has no road to a trading post or warehouse")
 )
 
 // Sentinel errors of quests and the away summary.

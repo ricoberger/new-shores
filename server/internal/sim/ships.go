@@ -92,6 +92,13 @@ type Ship struct {
 	PausedReason string `json:"paused_reason,omitempty"`
 	PauseSeq     int64  `json:"pause_seq,omitempty"`
 	PausedAtMs   int64  `json:"paused_at_ms,omitempty"`
+	// QueuedAtMs is the time (Unix ms) the ship entered the berth queue of
+	// its island (state waiting_for_berth, berths.go); 0 otherwise.
+	QueuedAtMs int64 `json:"queued_at_ms,omitempty"`
+	// BerthUntilMs is the end (Unix ms) of the ship's handling at a berth
+	// of its island: the departure of a route ship, the end of unloading
+	// after a manual leg; 0 when the ship holds no berth.
+	BerthUntilMs int64 `json:"berth_until_ms,omitempty"`
 }
 
 // Leg is a voyage between two islands: the ship handles cargo at the origin
@@ -285,19 +292,22 @@ func unloadGood(is *Island, c *content.Catalogue, amounts map[string]Qty, good s
 	return take
 }
 
-// unloadAll unloads every good aboard into the ship's island (R-23).
-func unloadAll(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
+// unloadAll unloads every good aboard into the ship's island (R-23) and
+// returns the unloaded milli-units.
+func unloadAll(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) Qty {
 	is := w.Island(s.IslandID)
 	def := c.ShipByID[s.Type]
 	if is == nil || def == nil || len(s.Cargo) == 0 {
-		return
+		return 0
 	}
 	amounts := cargoAmounts(s)
+	var moved Qty
 	for _, g := range sortedKeys(amounts) {
-		unloadGood(is, c, amounts, g, now, l)
+		moved += unloadGood(is, c, amounts, g, now, l)
 	}
 	setCargo(s, def.SlotSize, amounts)
 	clearRegimes(is)
+	return moved
 }
 
 // depart sets the ship's leg and its location (the origin until the
@@ -364,7 +374,8 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 }
 
 // DueEvent is a pending due moment of a world: a shipyard order completes
-// (ship_built) or a ship arrives (ship_arrived).
+// (ship_built) or a ship arrives (ship_arrived: the end of its leg, or the
+// grant of a berth to the head of an island's berth queue).
 type DueEvent struct {
 	Kind string    `json:"kind"`
 	At   time.Time `json:"at"`
@@ -394,6 +405,17 @@ func dueList(w *World) []dueEvent {
 			out = append(out, dueEvent{DueEvent{Kind: DueShipArrived, ShipID: s.ID}, s.Leg.ArriveAtMs})
 		}
 	}
+	// The head of every berth queue: its grant (berths.go).
+	queued := map[string]bool{}
+	for _, s := range w.Ships {
+		if s.State != ShipWaitingForBerth || queued[s.IslandID] {
+			continue
+		}
+		queued[s.IslandID] = true
+		if head, at, ok := berthGrantAt(w, s.IslandID); ok {
+			out = append(out, dueEvent{DueEvent{Kind: DueShipArrived, ShipID: head.ID}, at})
+		}
+	}
 	slices.SortFunc(out, func(a, b dueEvent) int {
 		return cmp.Or(cmp.Compare(a.atMs, b.atMs), cmp.Compare(a.Kind, b.Kind), cmp.Compare(a.IslandID, b.IslandID),
 			cmp.Compare(a.BuildingID, b.BuildingID), cmp.Compare(a.ShipID, b.ShipID))
@@ -405,9 +427,10 @@ func dueList(w *World) []dueEvent {
 }
 
 // DueEvents returns the pending due moments of the world sorted by (At,
-// Kind, IDs): every shipyard order (ship_built at its due time) and every
-// ship leg (ship_arrived at its arrival). After Advance(w, t) every due
-// moment is strictly after t.
+// Kind, IDs): every shipyard order (ship_built at its due time), every
+// ship leg (ship_arrived at its arrival) and the head of every berth queue
+// (ship_arrived at its berth grant). After Advance(w, t) every due moment
+// is strictly after t.
 func DueEvents(w *World) []DueEvent {
 	list := dueList(w)
 	out := make([]DueEvent, len(list))
@@ -455,11 +478,20 @@ func applyDueEvent(w *World, c *content.Catalogue, e dueEvent, now int64, l *Led
 		return true
 	case DueShipArrived:
 		s := w.Ship(e.ShipID)
-		if s == nil || s.Leg == nil || s.Leg.ArriveAtMs != e.atMs {
+		switch {
+		case s == nil:
 			return false
+		case s.Leg != nil && s.Leg.ArriveAtMs == e.atMs:
+			applyShipArrival(w, c, s, now, l)
+			return true
+		case s.State == ShipWaitingForBerth:
+			head, at, ok := berthGrantAt(w, s.IslandID)
+			if !ok || head != s || at != e.atMs {
+				return false
+			}
+			grantBerth(w, c, s, now, l)
+			return true
 		}
-		applyShipArrival(w, c, s, now, l)
-		return true
 	}
 	return false
 }
@@ -476,6 +508,7 @@ func ApplyDueEvent(w *World, c *content.Catalogue, ev DueEvent) (bool, error) {
 	now := w.LastEvaluatedAt.UnixMilli()
 	ok := applyDueEvent(w, c, dueEvent{ev, now}, now, nil)
 	if ok {
+		applyDue(w, c, now, nil)
 		normalizeShips(w, now)
 		evaluateUnlocks(w, c)
 		evaluateQuests(w, c, now, nil)
@@ -496,51 +529,59 @@ func applyShipBuilt(w *World, is *Island, b *Building) {
 	clearRegimes(is)
 }
 
-// applyShipArrival ends the ship's leg at its destination (R-22 – R-24).
+// applyShipArrival ends the ship's leg at its destination (R-22 – R-24):
+// a paused ship anchors; every other ship handles there (arriveAt: queue
+// for a berth, or depart at once without a matching route stop).
 func applyShipArrival(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
 	dest := s.Leg.ToIsland
 	w.Away.addArrival(s, dest, now)
 	s.Leg = nil
 	s.IslandID = dest
-	var r *Route
-	if s.RouteID != 0 {
-		r = w.Route(s.RouteID)
-	}
-	switch {
-	case s.Paused:
-		s.State = ShipAnchoredUnpaid
-	case r != nil:
-		handleStop(w, c, s, r, dest, now, l)
-	default:
+	if s.RouteID != 0 && w.Route(s.RouteID) == nil {
 		s.RouteID, s.StopIndex = 0, 0
-		s.State = ShipIdle
-		unloadAll(w, c, s, now, l)
+	}
+	if s.Paused {
+		s.State = ShipAnchoredUnpaid
+	} else {
+		arriveAt(w, c, s, dest, now, l)
 	}
 	if is := w.Island(dest); is != nil {
 		clearRegimes(is)
 	}
 }
 
-// normalizeShips applies departures: a ship whose handling time is over
-// has left its island.
+// normalizeShips applies departures and berth releases: a ship whose
+// handling time is over has left its island (with a leg) or, after the
+// unloading of a manual leg, is idle there (anchored when paused).
 func normalizeShips(w *World, now int64) {
 	for _, s := range w.Ships {
 		if s.Leg != nil && s.Leg.DepartAtMs <= now {
 			s.IslandID = ""
+			s.BerthUntilMs = 0
+		}
+		if s.Leg == nil && s.BerthUntilMs > 0 && s.BerthUntilMs <= now {
+			s.BerthUntilMs = 0
+			if s.State == ShipManualLeg {
+				s.State = ShipIdle
+				if s.Paused {
+					s.State = ShipAnchoredUnpaid
+				}
+			}
 		}
 	}
 }
 
 // resumeShip resumes an unpaid ship at now (R-29): an anchored ship with a
-// route handles its stop and departs; without a route it becomes idle; a
-// ship on a leg simply continues.
+// route handles its stop (queueing for a berth) and departs; without a
+// route it becomes idle; a ship on a leg, waiting or handling simply
+// continues.
 func resumeShip(w *World, c *content.Catalogue, s *Ship, now int64, l *Ledger) {
 	s.Paused, s.PausedReason, s.PauseSeq, s.PausedAtMs = false, "", 0, 0
 	if s.State != ShipAnchoredUnpaid {
 		return
 	}
 	if r := w.Route(s.RouteID); s.RouteID != 0 && r != nil {
-		handleStop(w, c, s, r, s.IslandID, now, l)
+		arriveAt(w, c, s, s.IslandID, now, l)
 		return
 	}
 	s.RouteID, s.StopIndex = 0, 0
@@ -805,7 +846,7 @@ func assignShip(w *World, c *content.Catalogue, cmd AssignShip, l *Ledger) error
 	now := w.LastEvaluatedAt.UnixMilli()
 	s.RouteID = r.ID
 	s.StopIndex = 0 // first occurrence of the island
-	handleStop(w, c, s, r, s.IslandID, now, l)
+	arriveAt(w, c, s, s.IslandID, now, l)
 	return nil
 }
 

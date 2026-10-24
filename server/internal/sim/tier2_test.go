@@ -174,7 +174,7 @@ func TestUpgradeWarehouse(t *testing.T) {
 	c := catalogue(t)
 	w := depositWorld(t, c)
 	wh := int64(1)
-	cmd := UpgradeWarehouse{IslandID: "main", BuildingID: wh}
+	cmd := UpgradeTradingPost{IslandID: "main", BuildingID: wh}
 	lvl2 := c.BuildingByID["trading_post"].TradingPost.Levels[1]
 	cost := func(cost *content.Cost, good string) Qty {
 		for _, m := range cost.Materials {
@@ -186,10 +186,12 @@ func TestUpgradeWarehouse(t *testing.T) {
 	}
 	stoneCost, planksCost := cost(lvl2.Cost, "stone"), cost(lvl2.Cost, "planks")
 
-	expectApplyErr(t, w, c, UpgradeWarehouse{IslandID: "main", BuildingID: 99}, ErrBuildingNotFound)
-	expectApplyErr(t, w, c, UpgradeWarehouse{IslandID: "nowhere", BuildingID: wh}, ErrUnknownIsland)
+	expectApplyErr(t, w, c, UpgradeTradingPost{IslandID: "main", BuildingID: 99}, ErrBuildingNotFound)
+	expectApplyErr(t, w, c, UpgradeTradingPost{IslandID: "nowhere", BuildingID: wh}, ErrUnknownIsland)
 	h := placeFree(t, w, c, "house_settlers", 6, 5, 0)
-	expectApplyErr(t, w, c, UpgradeWarehouse{IslandID: "main", BuildingID: h}, ErrUpgradeUnavailable)
+	expectApplyErr(t, w, c, UpgradeTradingPost{IslandID: "main", BuildingID: h}, ErrUpgradeUnavailable)
+	// The two upgrades do not mix: a Trading Post is no Warehouse.
+	expectApplyErr(t, w, c, UpgradeWarehouse{IslandID: "main", BuildingID: wh}, ErrUpgradeUnavailable)
 
 	// Insufficient gold or materials: unchanged world.
 	gold := w.Gold
@@ -210,13 +212,16 @@ func TestUpgradeWarehouse(t *testing.T) {
 	}
 	ds := display(t, w, c)
 	whd := buildingDisplay(t, ds, wh)
-	if *whd.Level != 2 || *whd.Capacity != lvl2.Capacity || *whd.ThroughputPerMin != lvl2.ThroughputPerMin || ds.Islands[0].Inventory["planks"].Capacity != lvl2.Capacity {
+	if *whd.Level != 2 || *whd.Capacity != lvl2.Capacity || *whd.ThroughputPerMin != lvl2.ThroughputPerMin || ds.Islands[0].Inventory["planks"].Capacity != lvl2.Capacity ||
+		whd.Berths == nil || whd.Berths.Total != lvl2.Berths || w.Islands[0].Building(wh).Berths != lvl2.Berths ||
+		ds.Islands[0].CapacitySource == nil || ds.Islands[0].CapacitySource.Level != 2 || ds.Islands[0].CapacitySource.Capacity != lvl2.Capacity {
 		t.Errorf("display: level %d capacity %d throughput %d inventory %+v", *whd.Level, *whd.Capacity, *whd.ThroughputPerMin, ds.Islands[0].Inventory["planks"])
 	}
 
 	// A Warehouse: throughput only, never capacity; up to its last level.
 	whDef := c.BuildingByID["warehouse"]
 	inland := placeFree(t, w, c, "warehouse", 6, 7, 0)
+	expectApplyErr(t, w, c, UpgradeTradingPost{IslandID: "main", BuildingID: inland}, ErrUpgradeUnavailable)
 	capBefore := display(t, w, c).Islands[0].Inventory["planks"].Capacity
 	for lvl := 2; lvl <= len(whDef.Warehouse.Levels); lvl++ {
 		mustApply(t, w, c, UpgradeWarehouse{IslandID: "main", BuildingID: inland})
@@ -264,7 +269,7 @@ func TestUpgradeWarehouseThroughput(t *testing.T) {
 		mustApply(t, w, c, PlaceBuilding{IslandID: "main", Type: "lumberjack", X: x, Y: 5})
 	}
 	before := display(t, w, c)
-	mustApply(t, w, c, UpgradeWarehouse{IslandID: "main", BuildingID: 1})
+	mustApply(t, w, c, UpgradeTradingPost{IslandID: "main", BuildingID: 1})
 	after := display(t, w, c)
 	load := func(ds DisplayState) int64 {
 		for _, b := range ds.Islands[0].Buildings {

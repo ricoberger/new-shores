@@ -1941,7 +1941,13 @@
             "level": 2,
             "capacity": 500000,
             "throughput_per_min": 55000,
-            "load_permille": 821
+            "load_permille": 821,
+            "berths": {
+              "total": 2,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -6614,6 +6620,12 @@
         },
         "population": {
           "settlers": 120000
+        },
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 2,
+          "capacity": 500000
         }
       }
     ],

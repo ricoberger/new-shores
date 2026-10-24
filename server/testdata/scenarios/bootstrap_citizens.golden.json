@@ -4471,7 +4471,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 772
+            "load_permille": 772,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -8089,6 +8095,12 @@
         "population": {
           "citizens": 5000,
           "settlers": 368000
+        },
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
         }
       },
       {
@@ -8428,7 +8440,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 261
+            "load_permille": 261,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 114,
@@ -8876,6 +8894,12 @@
         },
         "population": {
           "settlers": 40000
+        },
+        "capacity_source": {
+          "building_id": 41,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
         }
       }
     ],
@@ -8903,7 +8927,9 @@
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
-        "paused_reason": ""
+        "paused_reason": "",
+        "queued_at": null,
+        "berth_until": null
       }
     ],
     "routes": [

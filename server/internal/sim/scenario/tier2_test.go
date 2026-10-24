@@ -130,10 +130,10 @@ func TestTierTwoSteps(t *testing.T) {
 	s = tier2Scenario(t, `[
 		{"place": {"type": "house_citizens", "x": 6, "y": 5}, "expect_error": "upgrade_only"},
 		{"place": {"type": "quarry", "x": 6, "y": 4}, "expect_error": "tier_locked"},
-		{"upgrade_warehouse": {"x": 1, "y": 1}},
-		{"upgrade_warehouse": {"x": 1, "y": 1}},
-		{"upgrade_warehouse": {"x": 1, "y": 1}},
-		{"upgrade_warehouse": {"x": 1, "y": 1}, "expect_error": "upgrade_unavailable"},
+		{"upgrade_trading_post": {"x": 1, "y": 1}},
+		{"upgrade_trading_post": {"x": 1, "y": 1}},
+		{"upgrade_trading_post": {"x": 1, "y": 1}},
+		{"upgrade_trading_post": {"x": 1, "y": 1}, "expect_error": "upgrade_unavailable"},
 		{"advance": {"duration": "1s"}}
 	]`)
 	rep, err := Run(s, c)
@@ -154,7 +154,7 @@ func TestTierTwoSteps(t *testing.T) {
 		steps, want string
 	}{
 		// A step that succeeds although an error is expected.
-		{`[{"upgrade_warehouse": {"x": 1, "y": 1}, "expect_error": "no_deposit"}]`, "step succeeded"},
+		{`[{"upgrade_trading_post": {"x": 1, "y": 1}, "expect_error": "no_deposit"}]`, "step succeeded"},
 		// A different error than expected.
 		{`[{"place": {"type": "house_citizens", "x": 6, "y": 5}, "expect_error": "no_deposit"}]`, "expected no_deposit, got"},
 		{`[{"place": {"type": "fisher", "x": 1, "y": 1}, "expect_error": "nonsense"}]`, "unknown sentinel"},

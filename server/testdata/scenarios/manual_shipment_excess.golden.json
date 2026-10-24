@@ -119,7 +119,7 @@
     },
     {
       "step": 9,
-      "at": "2026-01-01T00:04:40.000Z",
+      "at": "2026-01-01T00:04:50.000Z",
       "boundaries": 1,
       "inventory": {
         "island2": {
@@ -144,7 +144,7 @@
         }
       },
       "statuses": {},
-      "gold": 672333,
+      "gold": 672166,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -160,7 +160,7 @@
     },
     {
       "step": 12,
-      "at": "2026-01-01T00:06:09.999Z",
+      "at": "2026-01-01T00:06:19.999Z",
       "boundaries": 0,
       "inventory": {
         "island2": {
@@ -185,7 +185,7 @@
         }
       },
       "statuses": {},
-      "gold": 670833,
+      "gold": 670666,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -204,7 +204,7 @@
     },
     {
       "step": 13,
-      "at": "2026-01-01T00:06:10.000Z",
+      "at": "2026-01-01T00:06:20.000Z",
       "boundaries": 1,
       "inventory": {
         "island2": {
@@ -229,7 +229,52 @@
         }
       },
       "statuses": {},
-      "gold": 670833,
+      "gold": 670666,
+      "balance_rate_per_min": -1000,
+      "population": {},
+      "unlocked_tiers": [
+        "settlers"
+      ],
+      "ships": [
+        {
+          "id": 1,
+          "state": "manual_leg",
+          "island_id": "island2",
+          "cargo": {
+            "planks": 40000,
+            "wood": 20000
+          }
+        }
+      ]
+    },
+    {
+      "step": 14,
+      "at": "2026-01-01T00:06:40.000Z",
+      "boundaries": 0,
+      "inventory": {
+        "island2": {
+          "planks": {
+            "stock": 300000,
+            "in_transit": 0
+          },
+          "wood": {
+            "stock": 300000,
+            "in_transit": 0
+          }
+        },
+        "start": {
+          "planks": {
+            "stock": 55000,
+            "in_transit": 0
+          },
+          "wood": {
+            "stock": 60000,
+            "in_transit": 0
+          }
+        }
+      },
+      "statuses": {},
+      "gold": 670333,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -255,9 +300,9 @@
     }
   ],
   "final": {
-    "evaluated_at": "2026-01-01T00:06:10.000Z",
+    "evaluated_at": "2026-01-01T00:06:40.000Z",
     "next_change_at": "2026-01-01T11:17:00.000Z",
-    "gold": 670833,
+    "gold": 670333,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 1000,
@@ -563,7 +608,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 0
+            "load_permille": 0,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -580,7 +631,13 @@
           }
         ],
         "workforce": {},
-        "population": {}
+        "population": {},
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
+        }
       },
       {
         "id": "island2",
@@ -718,11 +775,23 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 0
+            "load_permille": 0,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           }
         ],
         "workforce": {},
-        "population": {}
+        "population": {},
+        "capacity_source": {
+          "building_id": 3,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
+        }
       }
     ],
     "ships": [
@@ -748,7 +817,9 @@
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
-        "paused_reason": ""
+        "paused_reason": "",
+        "queued_at": null,
+        "berth_until": null
       }
     ],
     "routes": [],
@@ -792,6 +863,6 @@
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:04:40.000Z"
+    "last_seen_at": "2026-01-01T00:04:50.000Z"
   }
 }

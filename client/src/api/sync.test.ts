@@ -23,6 +23,7 @@ function world(version: number, evaluatedAt: string, nextChangeAt: string | null
       buildings: [],
       workforce: {},
       population: {},
+      capacity_source: null,
     })),
     ships: [],
     routes: [],

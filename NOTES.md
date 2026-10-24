@@ -69,3 +69,45 @@ The rules are in docs/DECISIONS.md D-051 and docs/MECHANICS.md §2, §5, §8,
   §11 still shows `ship_handling_seconds` (not a table row; docs sync).
 - E2E specs are verified at the end of the session (step 6); the commits of
   steps 1–5 keep `make check` green but do not re-run Playwright.
+
+## Step 2 — simulation
+
+- **Berths** (`server/internal/sim/berths.go`): an arriving ship that
+  handles cargo (a route ship at a matching stop, every ship ending a
+  manual leg) joins the island's berth queue (`waiting_for_berth`); the
+  queue head's grant is its `ship_arrived` due moment (no new event kind):
+  at its arrival when a berth is free, else when the earliest held berth
+  frees. FIFO by arrival time, then ship ID. The arrival effects
+  (unload/load) apply at the grant; the berth is held for the handling time
+  (base + per unit moved): a route ship until its departure, a ship ending
+  a manual leg for its unloading (state `manual_leg` without a leg, then
+  `idle`).
+- Smallest consistent readings logged here: loading for a manual shipment
+  happens at the ship's mooring when commanded and holds no berth (berths
+  gate *arrivals*); an island without a Trading Post has no pier, so ships
+  handle there at once (founding voyages, a route stop whose Trading Post
+  was demolished); a route ship without a matching stop departs at once and
+  never queues; a paused ship anchors at its grant and loses its place
+  (resuming queues it again); `assign_ship` and the resume of an anchored
+  route ship queue like an arrival.
+- The berth count is stored on the Trading Post (`Building.Berths`, set at
+  placement and upgrade from the content) so that `sim.DueEvents` and the
+  scheduled-event plumbing need no catalogue.
+- Commands now apply the due moments they create at the same instant
+  (a berth granted to an assigned ship, a queue served after an upgrade).
+- `upgrade_trading_post` (new command) upgrades the Trading Post;
+  `upgrade_warehouse` only Warehouses. Placing a building with a
+  `trading_post` block is rejected (`invalid_command`: founding only;
+  `island_already_settled` when the island has one); seeding (`PlaceFree`)
+  may place one per island. `last_warehouse` became `last_trading_post`.
+- Route loop times (display) use the base handling per stop; the per-unit
+  part depends on the goods moved and is not estimated.
+- Display: Trading Post `berths {total, busy, ships[], queue[]}` (`ships`
+  added: the holders, for the panel), ships `queued_at` and `berth_until`,
+  islands `capacity_source {building_id, type, level, capacity}`; a ship's
+  end of unloading is a `next_change_at`.
+- The API command and the display/openapi additions needed by these sim
+  changes went into this commit (the openapi tests require it); step 5
+  adds the rest of the API (start at sea).
+- `manual_shipment_excess` gained a final 20 s step (the unloading at the
+  berth) and a 10 s longer return leg.

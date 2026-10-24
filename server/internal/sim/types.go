@@ -192,8 +192,13 @@ type Building struct {
 	// unassigned field and for every other building. Derived state,
 	// recomputed after every placement change of the island.
 	FarmID int64 `json:"farm_id,omitempty"`
-	// Level of a warehouse (1-based); 0 for other buildings.
+	// Level of a Trading Post or Warehouse (1-based); 0 for other
+	// buildings.
 	Level int `json:"level,omitempty"`
+	// Berths of a Trading Post at its level (content, set at placement and
+	// upgrade); 0 for every other building. Stored so that the due moments
+	// of berth queues need no catalogue.
+	Berths int `json:"berths,omitempty"`
 
 	// AssignedWarehouseID is the warehouse a producer delivers to (public
 	// buildings and houses: the warehouse their road connection leads to);

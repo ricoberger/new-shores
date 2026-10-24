@@ -416,8 +416,8 @@ export interface components {
          *       `island_already_settled`, `island_not_settled` (placement on an
          *       island without warehouse; found it with a ship),
          *       `cargo_insufficient` (founding: the cargo lacks the warehouse
-         *       materials), `cargo_exceeds_slots`, `last_warehouse` (the last
-         *       warehouse of an island with other buildings), `not_connected`
+         *       materials), `cargo_exceeds_slots`, `last_trading_post` (the
+         *       Trading Post of an island with other buildings; roads may stay), `not_connected`
          *       (a shipyard without a road to a warehouse cannot order),
          *       `quest_not_completed`, `quest_already_claimed` (rewards are
          *       credited once), `email_taken`, `already_registered`;
@@ -458,7 +458,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_warehouse" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "no_farm_in_range" | "field_type_mismatch" | "not_a_field" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "no_farm_in_range" | "field_type_mismatch" | "not_a_field" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -527,7 +527,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -693,11 +693,12 @@ export interface components {
             building_id: number;
         };
         /**
-         * @description Raise a warehouse to its next level (MECHANICS §5): the next level's
-         *     `cost` (content `warehouse.levels[i].cost`) is charged like a
-         *     placement (gold from the world, materials from the island);
-         *     capacity and throughput change at once. `upgrade_unavailable` for
-         *     other buildings and at the last level.
+         * @description Raise a Warehouse (inland collector, D-051) to its next level
+         *     (MECHANICS §5): the next level's `cost` (content
+         *     `warehouse.levels[i].cost`) is charged like a placement (gold from
+         *     the world, materials from the island); its throughput changes at
+         *     once. `upgrade_unavailable` for every other building (the Trading
+         *     Post has `upgrade_trading_post`) and at the last level.
          */
         UpgradeWarehouseCommand: {
             /**
@@ -705,6 +706,27 @@ export interface components {
              * @enum {string}
              */
             type: "upgrade_warehouse";
+            island_id: string;
+            /**
+             * Format: int64
+             * @description Building ID (unscaled integer identifier, from BuildingDisplay.id).
+             */
+            building_id: number;
+        };
+        /**
+         * @description Raise the island's Trading Post (D-051) to its next level
+         *     (MECHANICS §5, §9.3): the next level's `cost` (content
+         *     `trading_post.levels[i].cost`) is charged like a placement;
+         *     capacity, throughput and berths change at once (ships waiting for
+         *     a berth may be granted one at once). `upgrade_unavailable` for
+         *     every other building and at the last level.
+         */
+        UpgradeTradingPostCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "upgrade_trading_post";
             island_id: string;
             /**
              * Format: int64
@@ -1244,10 +1266,15 @@ export interface components {
         };
         /**
          * @description A ship. `state`: `idle` (at `island_id`), `on_route`, `manual_leg`
-         *     (both with a `leg`), `anchored_unpaid` (paused for insolvency at
+         *     (both with a `leg`; `manual_leg` without a leg while unloading at a
+         *     berth after a manual leg, until `berth_until`),
+         *     `waiting_for_berth` (queued at `island_id`'s Trading Post since
+         *     `queued_at`, D-051: the arrival's unloading and loading wait for a
+         *     free berth), `anchored_unpaid` (paused for insolvency at
          *     `island_id`; on a leg it anchors at arrival); `on_world_map` is
          *     reserved. While handling cargo before `leg.depart_at` the ship is
-         *     at the leg's origin, afterwards `island_id` is empty.
+         *     at the leg's origin, holding a berth until `berth_until`;
+         *     afterwards `island_id` is empty.
          */
         ShipDisplay: {
             /**
@@ -1258,7 +1285,7 @@ export interface components {
             /** @description Content ship ID. */
             type: string;
             /** @enum {string} */
-            state: "idle" | "on_route" | "manual_leg" | "anchored_unpaid" | "on_world_map";
+            state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map";
             /** @description Island where the ship is; empty while travelling. */
             island_id: string;
             /**
@@ -1289,6 +1316,10 @@ export interface components {
              * @enum {string}
              */
             paused_reason: "" | "unpaid";
+            /** @description When the ship joined the berth queue (RFC 3339, UTC, ms); null unless waiting_for_berth. The queue is FIFO by this time, then ship ID. */
+            queued_at: string | null;
+            /** @description End of the ship's handling at a berth of `island_id` (RFC 3339, UTC, ms) — the departure of a route ship, the end of unloading after a manual leg; null when it holds no berth. */
+            berth_until: string | null;
         };
         /** @description The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between. */
         LegDisplay: {
@@ -1385,7 +1416,7 @@ export interface components {
             id: string;
             /** @description Display name (may be empty). */
             name: string;
-            /** @description The island has a warehouse (capacity > 0); unsettled islands accept only found_island. */
+            /** @description The island has a Trading Post (capacity > 0); unsettled islands accept only found_island. */
             settled: boolean;
             /** @description Archipelago position. */
             position: {
@@ -1413,6 +1444,24 @@ export interface components {
             population: {
                 [key: string]: number;
             };
+            /** @description The building that sets the island's capacity per good (the Trading Post, D-051); null when the island is not settled (capacity 0). Warehouses never add capacity. */
+            capacity_source: components["schemas"]["CapacitySourceDisplay"] | null;
+        };
+        CapacitySourceDisplay: {
+            /**
+             * Format: int64
+             * @description Building ID of the Trading Post (unscaled integer identifier).
+             */
+            building_id: number;
+            /** @description Content building ID. */
+            type: string;
+            /** @description Trading Post level (1-based). */
+            level: number;
+            /**
+             * Format: int64
+             * @description Capacity per good at that level (milli-units).
+             */
+            capacity: number;
         };
         GoodDisplay: {
             /**
@@ -1514,9 +1563,11 @@ export interface components {
         };
         /**
          * @description A building. Producer fields are present for buildings with a
-         *     recipe, warehouse fields for warehouses, house fields for houses,
-         *     `fields` for farms with fields and `farm_id` for assigned fields
-         *     (D-049).
+         *     recipe, collector fields (`level`, `throughput_per_min`,
+         *     `load_permille`) for the Trading Post and Warehouses, `capacity`
+         *     and `berths` for the Trading Post only (D-051), house fields for
+         *     houses, `fields` for farms with fields and `farm_id` for assigned
+         *     fields (D-049).
          */
         BuildingDisplay: {
             /**
@@ -1576,7 +1627,7 @@ export interface components {
             transfer_delay_ms?: number;
             /**
              * Format: int64
-             * @description Building ID of the assigned warehouse; 0 when not connected.
+             * @description Building ID of the assigned collector (the Trading Post or a Warehouse, nearest by road); 0 when not connected.
              */
             assigned_warehouse_id?: number;
             /** @description Road distance to the assigned warehouse (tiles). */
@@ -1593,23 +1644,34 @@ export interface components {
              */
             workforce_factor_permille?: number;
             workforce?: components["schemas"]["BuildingWorkforce"];
-            /** @description Warehouse level (1-based). */
+            /** @description Trading Post or Warehouse level (1-based). */
             level?: number;
             /**
              * Format: int64
-             * @description Warehouse capacity per good (milli-units).
+             * @description Trading Post only — the island's capacity per good at this level (milli-units).
              */
             capacity?: number;
             /**
              * Format: int64
-             * @description Warehouse throughput (milli-units per minute).
+             * @description Collector throughput of the Trading Post or Warehouse (milli-units per minute).
              */
             throughput_per_min?: number;
             /**
              * Format: int64
-             * @description Warehouse load R/T (permille; above 1000 = overloaded).
+             * @description Collector load R/T of the producers assigned to it (permille; above 1000 = overloaded).
              */
             load_permille?: number;
+            /** @description Trading Post only — its pier (MECHANICS §9.3). */
+            berths?: {
+                /** @description Berths at the current level (count). */
+                total: number;
+                /** @description Berths held by a handling ship (count). */
+                busy: number;
+                /** @description Ship IDs holding a berth (ascending; unscaled identifiers). */
+                ships: number[];
+                /** @description Ship IDs waiting for a berth in FIFO order (unscaled identifiers). */
+                queue: number[];
+            };
             /**
              * Format: int64
              * @description Residents (milli-residents, whole residents).

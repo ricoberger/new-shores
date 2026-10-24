@@ -314,7 +314,11 @@ func (p *propCase) randomCommand() Command {
 		if p.c.GoodByID["stone"] != nil && p.rng.IntN(2) == 0 {
 			return addStockOp{good: "stone", qty: 20_000}
 		}
-		return UpgradeWarehouse{IslandID: "main", BuildingID: whs[p.rng.IntN(len(whs))].ID}
+		b := whs[p.rng.IntN(len(whs))]
+		if def := p.c.BuildingByID[b.Type]; def.TradingPost != nil {
+			return UpgradeTradingPost{IslandID: "main", BuildingID: b.ID}
+		}
+		return UpgradeWarehouse{IslandID: "main", BuildingID: b.ID}
 	default:
 		if len(is.Buildings) < 2 {
 			return nil
@@ -505,14 +509,23 @@ func (p *propCase) checkInvariants(stage string) {
 		}
 		switch s.State {
 		case ShipIdle, ShipAnchoredUnpaid:
-			if s.Leg != nil || p.w.Island(s.IslandID) == nil {
-				p.fail("%s: ship %d %s at %q with leg %+v", stage, s.ID, s.State, s.IslandID, s.Leg)
+			if s.Leg != nil || p.w.Island(s.IslandID) == nil || s.BerthUntilMs != 0 || s.QueuedAtMs != 0 {
+				p.fail("%s: ship %d %s at %q with leg %+v berth %d queued %d", stage, s.ID, s.State, s.IslandID, s.Leg, s.BerthUntilMs, s.QueuedAtMs)
+			}
+		case ShipWaitingForBerth:
+			// Queued at an island for a berth (D-051): no leg, no berth.
+			if s.Leg != nil || p.w.Island(s.IslandID) == nil || s.QueuedAtMs <= 0 || s.QueuedAtMs > now || s.BerthUntilMs != 0 {
+				p.fail("%s: waiting ship %+v", stage, s)
 			}
 		case ShipOnRoute, ShipManualLeg:
 			l := s.Leg
 			switch {
+			case l == nil && s.State == ShipManualLeg && s.BerthUntilMs > now && p.w.Island(s.IslandID) != nil:
+				// Unloading at a berth after a manual leg.
 			case l == nil:
 				p.fail("%s: ship %d %s without leg", stage, s.ID, s.State)
+			case s.BerthUntilMs != 0 && (s.BerthUntilMs != l.DepartAtMs || s.BerthUntilMs <= now):
+				p.fail("%s: ship %d holds a berth until %d with leg %+v at %d", stage, s.ID, s.BerthUntilMs, l, now)
 			case l.DepartAtMs > now && s.IslandID != l.FromIsland, l.DepartAtMs <= now && s.IslandID != "":
 				p.fail("%s: ship %d at %q with leg %+v at %d", stage, s.ID, s.IslandID, l, now)
 			case l.ArriveAtMs <= now || l.ArriveAtMs <= l.DepartAtMs || l.FromIsland == l.ToIsland:
@@ -521,7 +534,7 @@ func (p *propCase) checkInvariants(stage string) {
 		default:
 			p.fail("%s: ship %d state %q", stage, s.ID, s.State)
 		}
-		if s.State != ShipAnchoredUnpaid && (s.State == ShipOnRoute) != (s.RouteID != 0) {
+		if s.State != ShipAnchoredUnpaid && s.State != ShipWaitingForBerth && (s.State == ShipOnRoute) != (s.RouteID != 0) {
 			p.fail("%s: ship %d %s with route %d", stage, s.ID, s.State, s.RouteID)
 		}
 		if s.RouteID != 0 && p.w.Route(s.RouteID) == nil {
@@ -534,6 +547,17 @@ func (p *propCase) checkInvariants(stage string) {
 	for _, e := range DueEvents(p.w) {
 		if e.At.UnixMilli() <= now {
 			p.fail("%s: due moment %+v not after %d", stage, e, now)
+		}
+	}
+	// Berths (MECHANICS §9.3): never more holders than berths, none at an
+	// island without a pier; a queue only while every berth is busy.
+	for _, is := range p.w.Islands {
+		total, holders := berthTotal(is), berthHolders(p.w, is.ID, now)
+		if len(holders) > total {
+			p.fail("%s: %s has %d berth holders for %d berths", stage, is.ID, len(holders), total)
+		}
+		if q := berthQueue(p.w, is.ID); len(q) > 0 && total > 0 && len(holders) < total {
+			p.fail("%s: %s queues %d ships with %d of %d berths busy", stage, is.ID, len(q), len(holders), total)
 		}
 	}
 	for _, g := range p.c.Goods {
@@ -810,7 +834,7 @@ func TestPropertyConservationAndBounds(t *testing.T) {
 				p.checkInvariants("initial")
 				p.run(false)
 				for _, op := range p.ops {
-					if strings.HasPrefix(op, "sim.UpgradeWarehouse") {
+					if strings.HasPrefix(op, "sim.UpgradeWarehouse") || strings.HasPrefix(op, "sim.UpgradeTradingPost") {
 						upgrades++
 					}
 				}

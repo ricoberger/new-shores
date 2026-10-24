@@ -145,6 +145,7 @@ describe("extrapolate", () => {
         roads: [],
         workforce: {},
         population: {},
+        capacity_source: null,
         inventory: {
           up: { stock: 900, capacity: 1000, in_transit: 0, rate_per_min: 600 },
           down: { stock: 100, capacity: 1000, in_transit: 0, rate_per_min: -600 },

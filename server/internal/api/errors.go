@@ -129,7 +129,7 @@ var simErrors = []simError{
 	{sim.ErrIslandNotSettled, "island_not_settled", http.StatusConflict},
 	{sim.ErrCargoInsufficient, "cargo_insufficient", http.StatusConflict},
 	{sim.ErrCargoExceedsSlots, "cargo_exceeds_slots", http.StatusConflict},
-	{sim.ErrLastWarehouse, "last_warehouse", http.StatusConflict},
+	{sim.ErrLastTradingPost, "last_trading_post", http.StatusConflict},
 	{sim.ErrNotConnected, "not_connected", http.StatusConflict},
 	{sim.ErrQuestNotCompleted, "quest_not_completed", http.StatusConflict},
 	{sim.ErrQuestAlreadyClaimed, "quest_already_claimed", http.StatusConflict},

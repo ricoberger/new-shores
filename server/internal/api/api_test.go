@@ -326,7 +326,7 @@ func TestCommandsOfEveryType(t *testing.T) {
 	// start island yet): 409 insufficient_*, world unchanged; a house is
 	// not a warehouse: upgrade_unavailable.
 	wh := buildingIDs(t, w.Display, "trading_post")[0]
-	res = ts.command(fmt.Sprintf(`{"type":"upgrade_warehouse","island_id":"start","building_id":%d}`, wh), nil)
+	res = ts.command(fmt.Sprintf(`{"type":"upgrade_trading_post","island_id":"start","building_id":%d}`, wh), nil)
 	if code := errorCode(t, res); res.status != http.StatusConflict || (code != "insufficient_materials" && code != "insufficient_gold") {
 		t.Fatalf("upgrade_warehouse without stone: %d %s", res.status, res.body)
 	}
@@ -348,7 +348,7 @@ func TestCommandsOfEveryType(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-	res = ts.command(fmt.Sprintf(`{"type":"upgrade_warehouse","island_id":"start","building_id":%d}`, wh), nil)
+	res = ts.command(fmt.Sprintf(`{"type":"upgrade_trading_post","island_id":"start","building_id":%d}`, wh), nil)
 	if res.status != http.StatusOK {
 		t.Fatalf("upgrade_warehouse: %d %s", res.status, res.body)
 	}

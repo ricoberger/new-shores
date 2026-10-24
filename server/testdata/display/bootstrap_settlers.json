@@ -359,7 +359,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 227
+            "load_permille": 227,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -1521,6 +1527,12 @@
         },
         "population": {
           "settlers": 120000
+        },
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
         }
       }
     ],
@@ -1971,7 +1983,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -3133,6 +3151,12 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],
@@ -3583,7 +3607,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -4745,6 +4775,12 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],
@@ -5195,7 +5231,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -6357,6 +6399,12 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],
@@ -6807,7 +6855,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -7969,6 +8023,12 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],
@@ -8419,7 +8479,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 227
+                "load_permille": 227,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -9581,6 +9647,12 @@
             },
             "population": {
               "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
             }
           }
         ],

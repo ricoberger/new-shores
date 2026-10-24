@@ -309,7 +309,13 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 50
+            "load_permille": 50,
+            "berths": {
+              "total": 1,
+              "busy": 0,
+              "ships": [],
+              "queue": []
+            }
           },
           {
             "id": 2,
@@ -361,7 +367,13 @@
             "factor_permille": 1000
           }
         },
-        "population": {}
+        "population": {},
+        "capacity_source": {
+          "building_id": 1,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
+        }
       },
       {
         "id": "island2",
@@ -499,11 +511,25 @@
             "level": 1,
             "capacity": 300000,
             "throughput_per_min": 30000,
-            "load_permille": 0
+            "load_permille": 0,
+            "berths": {
+              "total": 1,
+              "busy": 1,
+              "ships": [
+                1
+              ],
+              "queue": []
+            }
           }
         ],
         "workforce": {},
-        "population": {}
+        "population": {},
+        "capacity_source": {
+          "building_id": 4,
+          "type": "trading_post",
+          "level": 1,
+          "capacity": 300000
+        }
       }
     ],
     "ships": [
@@ -530,7 +556,9 @@
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
-        "paused_reason": ""
+        "paused_reason": "",
+        "queued_at": null,
+        "berth_until": "2026-01-01T00:13:18.400Z"
       }
     ],
     "routes": [
@@ -949,7 +977,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 50
+                "load_permille": 50,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -1001,7 +1035,13 @@
                 "factor_permille": 1000
               }
             },
-            "population": {}
+            "population": {},
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
+            }
           },
           {
             "id": "island2",
@@ -1139,11 +1179,25 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 0
+                "load_permille": 0,
+                "berths": {
+                  "total": 1,
+                  "busy": 1,
+                  "ships": [
+                    1
+                  ],
+                  "queue": []
+                }
               }
             ],
             "workforce": {},
-            "population": {}
+            "population": {},
+            "capacity_source": {
+              "building_id": 4,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
+            }
           }
         ],
         "ships": [
@@ -1170,7 +1224,9 @@
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
-            "paused_reason": ""
+            "paused_reason": "",
+            "queued_at": null,
+            "berth_until": "2026-01-01T00:13:18.400Z"
           }
         ],
         "routes": [
@@ -1589,7 +1645,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 50
+                "load_permille": 50,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -1641,7 +1703,13 @@
                 "factor_permille": 1000
               }
             },
-            "population": {}
+            "population": {},
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
+            }
           },
           {
             "id": "island2",
@@ -1779,11 +1847,25 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 0
+                "load_permille": 0,
+                "berths": {
+                  "total": 1,
+                  "busy": 1,
+                  "ships": [
+                    1
+                  ],
+                  "queue": []
+                }
               }
             ],
             "workforce": {},
-            "population": {}
+            "population": {},
+            "capacity_source": {
+              "building_id": 4,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
+            }
           }
         ],
         "ships": [
@@ -1810,7 +1892,9 @@
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
-            "paused_reason": ""
+            "paused_reason": "",
+            "queued_at": null,
+            "berth_until": "2026-01-01T00:13:18.400Z"
           }
         ],
         "routes": [
@@ -2229,7 +2313,13 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 50
+                "load_permille": 50,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
               },
               {
                 "id": 2,
@@ -2281,7 +2371,13 @@
                 "factor_permille": 1000
               }
             },
-            "population": {}
+            "population": {},
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
+            }
           },
           {
             "id": "island2",
@@ -2419,11 +2515,25 @@
                 "level": 1,
                 "capacity": 300000,
                 "throughput_per_min": 30000,
-                "load_permille": 0
+                "load_permille": 0,
+                "berths": {
+                  "total": 1,
+                  "busy": 1,
+                  "ships": [
+                    1
+                  ],
+                  "queue": []
+                }
               }
             ],
             "workforce": {},
-            "population": {}
+            "population": {},
+            "capacity_source": {
+              "building_id": 4,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
+            }
           }
         ],
         "ships": [
@@ -2450,7 +2560,9 @@
             "slot_size": 50000,
             "upkeep_per_min": 1000,
             "paused": false,
-            "paused_reason": ""
+            "paused_reason": "",
+            "queued_at": null,
+            "berth_until": "2026-01-01T00:13:18.400Z"
           }
         ],
         "routes": [

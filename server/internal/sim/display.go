@@ -142,6 +142,13 @@ type ShipDisplay struct {
 	UpkeepPerMin Qty    `json:"upkeep_per_min"`
 	Paused       bool   `json:"paused"`
 	PausedReason string `json:"paused_reason"`
+	// QueuedAt is when a ship waiting for a berth (state
+	// waiting_for_berth) joined its island's queue; null otherwise.
+	QueuedAt *string `json:"queued_at"`
+	// BerthUntil is the end of the ship's handling at a berth of its island
+	// (a route ship's departure, the end of unloading after a manual leg);
+	// null when it holds no berth.
+	BerthUntil *string `json:"berth_until"`
 }
 
 // LegDisplay is a ship's current voyage (RFC 3339 timestamps with ms): the
@@ -283,8 +290,8 @@ type IslandDisplay struct {
 	ID string `json:"id"`
 	// Name is the display name (may be empty).
 	Name string `json:"name"`
-	// Settled is true when the island has a warehouse; unsettled islands
-	// have capacity 0 and accept only FoundIsland.
+	// Settled is true when the island has a Trading Post; unsettled
+	// islands have capacity 0 and accept only FoundIsland.
 	Settled bool `json:"settled"`
 	// Position in the archipelago (tiles).
 	Position  PositionDisplay        `json:"position"`
@@ -297,6 +304,9 @@ type IslandDisplay struct {
 	Workforce map[string]WorkforceDisplay `json:"workforce"`
 	// Population per tier (milli-residents).
 	Population map[string]Qty `json:"population"`
+	// CapacitySource is the island's Trading Post; null when the island is
+	// not settled (capacity 0).
+	CapacitySource *CapacitySourceDisplay `json:"capacity_source"`
 }
 
 // GoodDisplay is the inventory line of one good.
@@ -385,11 +395,34 @@ type BuildingDisplay struct {
 	// ShipOrder is set for shipyards: the pending order or null.
 	ShipOrder OptionalShipOrder `json:"ship_order,omitzero"`
 
+	// Berths is set for the Trading Post (MECHANICS §9.3).
+	Berths *BerthsDisplay `json:"berths,omitempty"`
+
 	// Fields is set for farms with a fields block (D-049).
 	Fields *FieldsDisplay `json:"fields,omitempty"`
 	// FarmID is set for an assigned field: the ID of its farm (omitted
 	// when the field is unassigned, status no_farm).
 	FarmID *int64 `json:"farm_id,omitempty"`
+}
+
+// BerthsDisplay is the pier of a Trading Post: its berths (count), the
+// berths in use, the ships holding them (by ID) and the ships waiting for
+// one in FIFO order (arrival, then ship ID).
+type BerthsDisplay struct {
+	Total int     `json:"total"`
+	Busy  int     `json:"busy"`
+	Ships []int64 `json:"ships"`
+	Queue []int64 `json:"queue"`
+}
+
+// CapacitySourceDisplay names the building that sets an island's capacity
+// per good (the Trading Post, D-051) with its level and capacity
+// (milli-units).
+type CapacitySourceDisplay struct {
+	BuildingID int64  `json:"building_id"`
+	Type       string `json:"type"`
+	Level      int    `json:"level"`
+	Capacity   Qty    `json:"capacity"`
 }
 
 // FieldsDisplay is the field count of a farm: the fields assigned to it
@@ -425,6 +458,10 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		if s.Leg != nil && s.Leg.DepartAtMs > nowMs {
 			at = min(at, s.Leg.DepartAtMs)
 		}
+		// The end of unloading after a manual leg: the ship becomes idle.
+		if s.BerthUntilMs > nowMs {
+			at = min(at, s.BerthUntilMs)
+		}
 	}
 	if at != math.MaxInt64 {
 		s := time.UnixMilli(at).UTC().Format(timeLayout)
@@ -443,7 +480,7 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		ds.Tiers = append(ds.Tiers, td)
 	}
 	for i, is := range cw.Islands {
-		ds.Islands = append(ds.Islands, displayIsland(is, c, wr.islands[i], nowMs))
+		ds.Islands = append(ds.Islands, displayIsland(cw, is, c, wr.islands[i], nowMs))
 	}
 	for _, s := range cw.Ships {
 		ds.Ships = append(ds.Ships, displayShip(s, c))
@@ -527,6 +564,12 @@ func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
 	if l := s.Leg; l != nil {
 		d.Leg = &LegDisplay{FromIslandID: l.FromIsland, ToIslandID: l.ToIsland, DepartAt: formatMs(l.DepartAtMs), ArriveAt: formatMs(l.ArriveAtMs)}
 	}
+	if s.State == ShipWaitingForBerth {
+		d.QueuedAt = ptr(formatMs(s.QueuedAtMs))
+	}
+	if s.BerthUntilMs > 0 {
+		d.BerthUntil = ptr(formatMs(s.BerthUntilMs))
+	}
 	for _, sl := range s.Cargo {
 		d.Cargo = append(d.Cargo, CargoDisplay(sl))
 	}
@@ -557,7 +600,7 @@ func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
 	return d
 }
 
-func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) IslandDisplay {
+func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int64) IslandDisplay {
 	d := IslandDisplay{
 		ID: is.ID, Name: is.Name, Settled: settled(is, c), Position: PositionDisplay{X: is.X, Y: is.Y},
 		Width: is.Width, Height: is.Height,
@@ -566,6 +609,10 @@ func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) Island
 	}
 	for tier, p := range r.workforce {
 		d.Workforce[tier] = WorkforceDisplay{Available: p.available, Required: p.required, FactorPermille: p.factorPermille()}
+	}
+	if tp, def := tradingPost(is, c); tp != nil {
+		level := min(max(tp.Level, 1), def.LevelCount())
+		d.CapacitySource = &CapacitySourceDisplay{BuildingID: tp.ID, Type: tp.Type, Level: level, Capacity: def.TradingPostLevelAt(level).Capacity}
 	}
 	capMilli := capacityMilli(is, c)
 	for _, g := range c.Goods {
@@ -633,6 +680,14 @@ func displayIsland(is *Island, c *content.Catalogue, r *rates, now int64) Island
 			bd.Level, bd.ThroughputPerMin, bd.LoadPermille = &level, ptr(def.ThroughputAt(level)), &permille
 			if def.TradingPost != nil {
 				bd.Capacity = ptr(def.TradingPostLevelAt(level).Capacity)
+				bd.Berths = &BerthsDisplay{Total: berthTotal(is), Ships: []int64{}, Queue: []int64{}}
+				for _, s := range berthHolders(w, is.ID, now) {
+					bd.Berths.Ships = append(bd.Berths.Ships, s.ID)
+				}
+				bd.Berths.Busy = len(bd.Berths.Ships)
+				for _, s := range berthQueue(w, is.ID) {
+					bd.Berths.Queue = append(bd.Berths.Queue, s.ID)
+				}
 			}
 		}
 		if h := houses[b.ID]; h != nil {

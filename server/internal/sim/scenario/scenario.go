@@ -231,7 +231,8 @@ type ClaimStep struct {
 type Step struct {
 	ExpectError string `json:"expect_error,omitempty"`
 
-	UpgradeWarehouse *At `json:"upgrade_warehouse,omitempty"`
+	UpgradeWarehouse   *At `json:"upgrade_warehouse,omitempty"`
+	UpgradeTradingPost *At `json:"upgrade_trading_post,omitempty"`
 
 	OrderShip       *OrderShipStep `json:"order_ship,omitempty"`
 	CancelShipOrder *At            `json:"cancel_ship_order,omitempty"`
@@ -275,7 +276,7 @@ func (s Step) kind() (string, error) {
 		"order_ship": s.OrderShip != nil, "cancel_ship_order": s.CancelShipOrder != nil, "create_route": s.CreateRoute != nil,
 		"update_route": s.UpdateRoute != nil, "delete_route": s.DeleteRoute != nil, "assign_ship": s.AssignShip != nil,
 		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "found_island": s.FoundIsland != nil,
-		"scrap_ship": s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil,
+		"scrap_ship": s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil, "upgrade_trading_post": s.UpgradeTradingPost != nil,
 		"claim_quest": s.ClaimQuest != nil, "away_summary": s.AwaySummary,
 	} {
 		if set {
@@ -688,6 +689,12 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		return r.apply(sim.UpgradeWarehouse{IslandID: id, BuildingID: b.ID})
+	case st.UpgradeTradingPost != nil:
+		id, b, err := r.buildingAt(st.UpgradeTradingPost)
+		if err != nil {
+			return err
+		}
+		return r.apply(sim.UpgradeTradingPost{IslandID: id, BuildingID: b.ID})
 	case st.Upgrade != nil:
 		id, b, err := r.buildingAt(st.Upgrade)
 		if err != nil {
@@ -893,7 +900,7 @@ func Sentinels() map[string]error {
 		"route_invalid": sim.ErrRouteInvalid, "route_in_use": sim.ErrRouteInUse,
 		"island_already_settled": sim.ErrIslandAlreadySettled, "island_not_settled": sim.ErrIslandNotSettled,
 		"cargo_insufficient": sim.ErrCargoInsufficient, "cargo_exceeds_slots": sim.ErrCargoExceedsSlots,
-		"last_warehouse": sim.ErrLastWarehouse, "not_connected": sim.ErrNotConnected,
+		"last_trading_post": sim.ErrLastTradingPost, "not_connected": sim.ErrNotConnected,
 		"quest_not_found": sim.ErrQuestNotFound, "quest_not_completed": sim.ErrQuestNotCompleted,
 		"quest_already_claimed": sim.ErrQuestAlreadyClaimed,
 		"no_farm_in_range":      sim.ErrNoFarmInRange, "field_type_mismatch": sim.ErrFieldTypeMismatch,

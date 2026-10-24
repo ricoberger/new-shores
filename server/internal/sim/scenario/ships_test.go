@@ -44,7 +44,9 @@ func TestShipBuilt(t *testing.T) {
 // equals the capacity excess at island 2.
 func TestManualShipmentExcess(t *testing.T) {
 	rep := runScenario(t, "manual_shipment_excess")
-	before := rep.Snapshots[len(rep.Snapshots)-2]
+	// The snapshots end with: 1 ms before the arrival, the arrival, the
+	// end of unloading at the berth.
+	before := rep.Snapshots[len(rep.Snapshots)-3]
 	inv := before.Inventory["island2"]
 	free := map[string]int64{"planks": 300_000 - inv["planks"].Stock, "wood": 300_000 - inv["wood"].Stock}
 	sh := rep.Final.Ships[0]

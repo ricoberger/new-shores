@@ -131,6 +131,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
       buildings: [],
       workforce: {},
       population: settled ? { settlers: (i + 1) * 12_000 } : {},
+      capacity_source: null,
     });
     statics.set(id, {
       id,
@@ -179,6 +180,8 @@ export function buildArchipelagoFixture(nowMs: number): Built {
       upkeep_per_min: 1000,
       paused: false,
       paused_reason: "",
+      queued_at: null,
+      berth_until: null,
     };
     if (kind <= 2) {
       const route = routes[n % routes.length] as RouteDisplay;
@@ -540,6 +543,7 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     buildings,
     workforce: {},
     population: { settlers: buildings.filter((b) => b.type === "house_settlers").length * 8_000 },
+    capacity_source: null,
   } as IslandDisplay;
   const statics: Island = { id, width, height, revision: "fixture", terrain, fertilities: ["wheat"], deposits: denseDeposits(width, height) };
   return { display, statics };
@@ -570,6 +574,8 @@ export function buildDenseFixture(nowMs: number): Built {
     upkeep_per_min: 1_000,
     paused: false,
     paused_reason: "",
+    queued_at: null,
+    berth_until: null,
   });
   const display = {
     evaluated_at: ts(nowMs),
@@ -638,6 +644,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
       buildings: [],
       workforce: {},
       population: {},
+      capacity_source: null,
     } as IslandDisplay);
     statics.set(sp.id, { id: sp.id, width: sp.w, height: sp.h, revision: "fixture", terrain: terrain(sp.w, sp.h, 31 + i), fertilities: ["wheat"], deposits: [] });
   });
@@ -675,6 +682,8 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
       upkeep_per_min: 1_000,
       paused: false,
       paused_reason: "",
+      queued_at: null,
+      berth_until: null,
     };
     if (n % 4 === 3) {
       ships.push({ ...base, island_id: ids[n % ids.length] as string });
@@ -802,6 +811,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     buildings,
     workforce: {},
     population: { settlers: 48_000, citizens: 30_000 },
+    capacity_source: null,
   } as IslandDisplay;
   const statics: Island = {
     id: SHOWCASE_ISLAND,
@@ -830,6 +840,8 @@ export function buildShowcaseFixture(nowMs: number): Built {
     upkeep_per_min: 1_000,
     paused: false,
     paused_reason: "",
+    queued_at: null,
+    berth_until: null,
     ...extra,
   });
   const display = {

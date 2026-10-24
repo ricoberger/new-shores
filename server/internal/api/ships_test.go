@@ -193,7 +193,7 @@ func TestShipCommandsOverHTTP(t *testing.T) {
 	ss.fails(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":2,"y":4,"rotation":0}`, http.StatusConflict, "not_on_water")
 	ss.ok(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":2,"y":0,"rotation":0}`)
 	ss.fails(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":8,"y":0,"rotation":0}`, http.StatusConflict, "island_already_settled")
-	ss.fails(t, `{"type":"demolish","island_id":"start","building_id":1}`, http.StatusConflict, "last_warehouse")
+	ss.fails(t, `{"type":"demolish","island_id":"start","building_id":1}`, http.StatusConflict, "last_trading_post")
 
 	route := `"stops":[{"island_id":"island2","load":[{"good":"planks","max_amount":10000}],"unload":[]},{"island_id":"start","load":[],"unload":["planks"]}]`
 	ss.ok(t, `{"type":"create_route","name":"Planks home",`+route+`}`)
