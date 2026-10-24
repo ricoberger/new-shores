@@ -22,7 +22,7 @@ import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import { type Quality, softwareRenderer } from "../display/quality";
-import { type ArchPoint, seaPoint } from "../display/ships";
+import { type ArchPoint, dockPoints, seaPoint } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
@@ -672,7 +672,8 @@ export class GameRenderer {
         islandBerths(is, st, this.defs).map((t) => ({ x: is.position.x + t.x + 0.5, y: is.position.y + t.y + 0.5 })),
       );
     }
-    this.arch.update(d.islands, snap.islands, d.ships, d.routes, berths);
+    // Ships at a Trading Post's pier and in its queue moor along its front row (D-051).
+    this.arch.update(d.islands, snap.islands, d.ships, d.routes, berths, dockPoints(d.islands, this.defs));
     this.lookups.clear();
     this.rig.setIslandBounds(this.arch.bounds());
     this.layoutSea();

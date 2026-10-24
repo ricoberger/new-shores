@@ -7,7 +7,7 @@ import { shipWhere } from "../ui/ShipsPanel";
 import { founderFor, pendingFoundingStep } from "./archipelago";
 import { serverTimeMs } from "./extrapolate";
 import { waterEdgeHint, waterRows } from "./geometry";
-import { islandAnchor, shipPlacement } from "./ships";
+import { anchorSlots, dockPoints, islandAnchor, pierHeading, pierPoint, shipPlacement } from "./ships";
 
 // The harbour displays of D-051 against the shared fixtures: water-edge
 // ghosts (the scenario's island rows and the shipped water_tiles), ships
@@ -25,7 +25,9 @@ const shipped = JSON.parse(readFileSync(join(root, "content", "old_coast", "buil
   footprint: [number, number];
   water_tiles?: number;
 }[];
-const defs = new Map(shipped.map((b) => [b.id, { width: b.footprint[0], height: b.footprint[1], water_tiles: b.water_tiles }]));
+const defs = new Map(
+  shipped.map((b) => [b.id, { width: b.footprint[0], height: b.footprint[1], water_tiles: b.water_tiles, ...(b.id === "trading_post" ? { trading_post: {} } : {}) }]),
+);
 
 describe("water-edge footprints", () => {
   it("marks the front rows at every rotation (the server's sim.WaterTile)", () => {
@@ -125,5 +127,51 @@ describe("founding from the island card", () => {
     expect(pendingFoundingStep({ ...p, islandId: "other" }, d)).toBe("drop");
     expect(pendingFoundingStep(p, { ...arrived, islands: arrived.islands.map((i) => ({ ...i, settled: true })) })).toBe("drop");
     expect(pendingFoundingStep({ ...p, shipId: 99 }, d)).toBe("drop");
+  });
+});
+
+describe("moorings at the Trading Post's pier", () => {
+  const tp = defs.get("trading_post")!;
+
+  it("puts pier slot i at tile i of the front row one tile out, the queue one tile further and spaced", () => {
+    const at0 = { x: 2, y: 0, rotation: 0 as const };
+    expect([0, 1, 2, 3].map((i) => pierPoint(tp, at0, i, false))).toEqual([
+      { x: 2.5, y: -0.5 },
+      { x: 3.5, y: -0.5 },
+      { x: 4.5, y: -0.5 },
+      { x: 5.5, y: -0.5 },
+    ]);
+    // Between two pier slots, two tiles apart; the next row staggered back.
+    expect([0, 1, 2, 3].map((i) => pierPoint(tp, at0, i, true))).toEqual([
+      { x: 3.5, y: -1.5 },
+      { x: 5.5, y: -1.5 },
+      { x: 2.5, y: -2.5 },
+      { x: 4.5, y: -2.5 },
+    ]);
+    // Rotated: out is +x at 90, +y at 180, −x at 270.
+    expect(pierPoint(tp, { x: 0, y: 0, rotation: 90 }, 1, false)).toEqual({ x: 4.5, y: 1.5 });
+    expect(pierPoint(tp, { x: 2, y: 28, rotation: 180 }, 0, false)).toEqual({ x: 2.5, y: 32.5 });
+    expect(pierPoint(tp, { x: 6, y: 3, rotation: 270 }, 2, true)).toEqual({ x: 3.5, y: 3.5 });
+    // Moored ships point out to sea.
+    expect(pierHeading(0)).toBeCloseTo(-Math.PI / 2);
+    expect(pierHeading(180)).toBeCloseTo(Math.PI / 2);
+    // Not a water-edge building: no pier.
+    expect(pierPoint(defs.get("house_settlers")!, at0, 0, false)).toBeNull();
+  });
+
+  it("moors the unloading ship at the pier and the waiting one in the queue, both off the idle berths", () => {
+    const d = display("berth_queue");
+    const docks = dockPoints(d.islands, defs);
+    const is = d.islands[0]!;
+    const b = is.buildings.find((x) => x.type === "trading_post")!;
+    expect(docks.get(1)).toEqual({ point: { x: is.position.x + b.x + 0.5, y: is.position.y + b.y - 0.5 }, heading: pierHeading(0) });
+    expect(docks.get(2)).toEqual({ point: { x: is.position.x + b.x + 1.5, y: is.position.y + b.y - 1.5 }, heading: pierHeading(0) });
+    const islands = new Map(d.islands.map((i) => [i.id, i]));
+    const now = serverTimeMs(d.evaluated_at);
+    for (const s of d.ships) expect(shipPlacement(s, islands, now, 0, undefined, docks.get(s.id))).toEqual({ ...docks.get(s.id), atSea: false });
+    expect(anchorSlots(d.ships, docks).size).toBe(0);
+    // Fishers and shipyards hold no ships.
+    const edge = display("water_edge_placement");
+    expect([...dockPoints(edge.islands, defs).keys()]).toEqual([]);
   });
 });

@@ -20,7 +20,7 @@ import type { Rect } from "../display/camera";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
 import { ribbonsShown } from "../display/routes";
-import { anchorSlots, type ArchPoint, berthAnchor, type Berths, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
+import { anchorSlots, type ArchPoint, berthAnchor, type Berths, type Dock, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
 import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
@@ -113,6 +113,8 @@ export class ArchipelagoLayer {
   private shipBlobBuffer = new Float32Array(0);
   private placements = new Map<string, IslandPlacement>();
   private berths: Berths = new Map();
+  /** Ships at a Trading Post's pier or in its queue: their mooring points (archipelago tiles). */
+  private docks: ReadonlyMap<number, Dock> = new Map();
   private shipList: ShipDisplay[] = [];
   private routes: RouteDisplay[] = [];
   private draft: string[] | null = null;
@@ -186,9 +188,11 @@ export class ArchipelagoLayer {
     ships: readonly ShipDisplay[],
     routes: readonly RouteDisplay[],
     berths: Berths,
+    docks: ReadonlyMap<number, Dock> = new Map(),
   ): void {
     this.placements = new Map(islands.map((is) => [is.id, { position: is.position, width: is.width, height: is.height }]));
     this.berths = berths;
+    this.docks = docks;
     // The sea's shallows follow the islands' land (recomputed only when it moved or changed).
     const land = islands.flatMap((is) => {
       const st = statics.get(is.id);
@@ -391,7 +395,7 @@ export class ArchipelagoLayer {
   /** Positions ships, the selection ring and the sea at server time nowMs (every frame). */
   frame(nowMs: number): void {
     this.sea.frame(nowMs);
-    const slots = anchorSlots(this.shipList);
+    const slots = anchorSlots(this.shipList, this.docks);
     const byType = new Map<string, ShipDisplay[]>();
     for (const s of this.shipList) {
       let list = byType.get(s.type);
@@ -423,7 +427,7 @@ export class ArchipelagoLayer {
       cargo?.resize(loaded);
       let c = 0;
       list.forEach((s, i) => {
-        const p = shipPlacement(s, this.placements, nowMs, slots.get(s.id) ?? 0, this.berths);
+        const p = shipPlacement(s, this.placements, nowMs, slots.get(s.id) ?? 0, this.berths, this.docks.get(s.id));
         let point = p?.point ?? { x: 0, y: 0 };
         if (this.dragged?.shipId === s.id) point = this.dragged.point;
         this.shipPoints.set(s.id, point);
