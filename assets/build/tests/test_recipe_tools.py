@@ -109,10 +109,6 @@ class ExaggerateTest(unittest.TestCase):
         self.assertEqual(same, [low])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class DecorTest(unittest.TestCase):
     def test_decor_recipes_build_without_content_ids_or_lite(self):
         r = {"id": "decor_rock", "kind": "decor", "parts": [{"prim": "rock", "size": [0.2, 0.2, 0.15], "role": "mountain"}]}
@@ -137,3 +133,47 @@ class DecorTest(unittest.TestCase):
         m = _json.loads(doc)
         self.assertEqual(sorted(m["decor"]), ["decor_rock"])
         self.assertEqual(sorted(m["models"]), ["chapel"])
+
+
+class LifeTest(unittest.TestCase):
+    def test_life_recipes_build_with_variants_and_anchors_without_lite(self):
+        body = {"prim": "box", "size": [0.1, 0.1, 0.3], "role": "canvas"}
+        r = {
+            "id": "life_walker",
+            "kind": "life",
+            "parts": [body],
+            "variants": [[{"prim": "box", "size": [0.12, 0.12, 0.05], "position": [0, 0, 0.3], "role": "thatch"}], []],
+            "anchors": {"wheel_front": [0.0, 0.2, 0.1]},
+        }
+        self.assertEqual(recipes.check_recipe(r, "recipes/life_walker.json", SCHEMA, CONTENT, KIT_FILES, ROLES), [])
+        files, entry, errors = pipeline.build_recipe(r, CONTENT, ROLES, fake_loader())
+        self.assertEqual(errors, [])
+        self.assertEqual([f[0] for f in files], ["life_walker.v0.glb", "life_walker.v1.glb"])
+        self.assertEqual(entry["kind"], "life")
+        self.assertEqual(entry["variants"][0]["budget"], config.BUDGET_LIFE)
+        # Recipe space (z up, +y front) → glTF (y up, −z front).
+        self.assertEqual(entry["anchors"], {"wheel_front": [0.0, 0.1, -0.2]})
+        self.assertNotIn("footprint", entry)
+
+    def test_life_ids_need_the_prefix_and_no_content_options(self):
+        r = {"id": "walker", "kind": "life", "parts": [{"prim": "box", "size": [0.1, 0.1, 0.3], "role": "canvas"}], "levels": {"1": []}}
+        errs = recipes.check_recipe(r, "recipes/walker.json", SCHEMA, CONTENT, KIT_FILES, ROLES)
+        self.assertTrue(any("start with 'life_'" in e for e in errs), errs)
+        self.assertTrue(any("levels is not for life-layer elements" in e for e in errs), errs)
+
+    def test_construction_stages_take_the_stage_budget(self):
+        r = {"id": "life_stage_a", "kind": "life", "parts": [{"prim": "box", "size": [1, 1, 0.3], "role": "timber"}]}
+        _, entry, errors = pipeline.build_recipe(r, CONTENT, ROLES, fake_loader())
+        self.assertEqual(errors, [])
+        self.assertEqual(entry["file"]["budget"], config.BUDGET_LIFE_STAGE)
+
+    def test_manifest_lists_life_apart_from_content_models(self):
+        import json as _json
+
+        m = _json.loads(pipeline.manifest({"life_cart": {"kind": "life", "file": {}}, "chapel": {"kind": "building"}}, "x", "5.2", []))
+        self.assertEqual(sorted(m["life"]), ["life_cart"])
+        self.assertEqual(sorted(m["models"]), ["chapel"])
+
+
+if __name__ == "__main__":
+    unittest.main()

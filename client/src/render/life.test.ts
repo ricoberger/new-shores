@@ -1,10 +1,26 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { Matrix } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { LifeAtLod, LifeBudget, LifePlan, LifeSink } from "../display/life";
-import { LifeLayer, writeMatrix } from "./life";
+import { CLS } from "../display/lifeplan";
+import { LIFE_CLASSES, LifeLayer, writeMatrix } from "./life";
+import { type ModelData, ModelRegistry, parseGlb } from "./models";
+
+const MODELS = join(__dirname, "..", "..", "public", "models");
+
+function registry(scene: Scene): ModelRegistry {
+  return new ModelRegistry(scene, {
+    fetch: (url) => {
+      const path = url.endsWith("manifest.json") ? "manifest.json" : (url.replace("/models/", "").split("?")[0] as string);
+      return Promise.resolve(new Response(new Uint8Array(readFileSync(join(MODELS, path))), { status: 200 }));
+    },
+    parse: (bytes, s): Promise<ModelData> => parseGlb(bytes, s),
+  });
+}
 
 const engine = new NullEngine();
 afterAll(() => engine.dispose());
@@ -64,10 +80,10 @@ describe("LifeLayer", () => {
     expect(off.isEnabled()).toBe(false);
   });
 
-  it("writes Scaling · RotationY · Translation like Babylon", () => {
+  it("writes Scaling · RotationX · RotationY · Translation like Babylon", () => {
     const out = new Float32Array(32);
-    writeMatrix(out, 1, 3, 0.5, -7, 0.7, 2, 3, 4);
-    const want = Matrix.Scaling(2, 3, 4).multiply(Matrix.RotationY(0.7)).multiply(Matrix.Translation(3, 0.5, -7)).asArray();
+    writeMatrix(out, 1, 3, 0.5, -7, 0.7, 2, 1.3);
+    const want = Matrix.Scaling(2, 2, 2).multiply(Matrix.RotationX(1.3)).multiply(Matrix.RotationY(0.7)).multiply(Matrix.Translation(3, 0.5, -7)).asArray();
     for (let i = 0; i < 16; i++) expect(out[16 + i]).toBeCloseTo(want[i] as number, 5);
   });
 
@@ -77,5 +93,35 @@ describe("LifeLayer", () => {
     life.frame(0, [{ origin: { x: 10, y: 20 }, plan: plan(1) }], "near");
     const m = life.classMesh("box")?.mesh.thinInstanceGetWorldMatrices()[0];
     expect(m?.getTranslation().asArray()).toEqual([10, 0, -20]);
+  });
+});
+
+describe("LifeLayer with models", () => {
+  it("draws placeholders, then swaps in the models of the classes in use without creating meshes", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const life = new LifeLayer(scene, LIFE_CLASSES, "high", true, reg);
+    const meshes = scene.meshes.length;
+    const p: LifePlan = {
+      frame(_now, sink) {
+        sink.add(CLS.cart, 1, 0, 1, 0);
+        sink.add(CLS.axle, 1, 0.1, 1.2, 0, 1, undefined, 0.5);
+        return { instances: 2, particles: 0 };
+      },
+    };
+    const placeholderVerts = life.classMesh(CLS.cart)?.mesh.getTotalVertices();
+    life.frame(0, [{ origin: { x: 0, y: 0 }, plan: p }], "near");
+    for (let i = 0; i < 200 && reg.status().pending.length > 0; i++) await new Promise((r) => setTimeout(r, 5));
+    life.frame(0, [{ origin: { x: 0, y: 0 }, plan: p }], "near");
+    expect(reg.status().loaded).toEqual(["life_cart.glb", "life_cart_axle.glb"]);
+    expect(life.classMesh(CLS.cart)?.modelled).toBe(true);
+    expect(life.classMesh(CLS.cartLoaded)?.modelled).toBe(false);
+    expect(life.classMesh(CLS.cart)?.mesh.getTotalVertices()).not.toBe(placeholderVerts);
+    expect(life.counts()).toEqual({ [CLS.cart]: 1, [CLS.axle]: 1 });
+    expect(life.classMesh(CLS.cart)?.mesh.thinInstanceCount).toBe(1);
+    // No attribute of the placeholder survives with its vertex count (it would break the draw).
+    expect(life.classMesh(CLS.cart)?.mesh.getVerticesDataKinds()).not.toContain("uv");
+    expect(scene.meshes.length).toBe(meshes);
   });
 });

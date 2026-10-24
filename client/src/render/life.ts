@@ -7,41 +7,50 @@
 // instances through a LifeSink within the per-island budget of the device
 // class; the buffers grow (doubling) but are never reallocated per frame.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Color3, type Color4 } from "@babylonjs/core/Maths/math.color";
+import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
 import type { Scene } from "@babylonjs/core/scene";
 import { lifeAtLod, lifeBudget, type LifePlan, type LifeSink, type LifeStats } from "../display/life";
+import { CLS, VILLAGER_VARIANTS } from "../display/lifeplan";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
+import { BUILDINGS } from "../theme/palette";
 import { skyFill } from "./lighting";
-import type { ModelData } from "./models";
+import { lifeModel, type ModelData, type ModelRegistry } from "./models";
+import { c4 } from "./palette";
 
 const WHITE = [1, 1, 1, 1] as const;
 
-/** Writes Scaling(sx, sy, sz) · RotationY(yaw) · Translation(x, y, z) (Babylon row-major) at index i. */
-export function writeMatrix(out: Float32Array, i: number, x: number, y: number, z: number, yaw: number, sx: number, sy: number, sz: number): void {
+/** Writes Scaling(k) · RotationX(roll) · RotationY(yaw) · Translation(x, y, z) (Babylon row-major) at index i. */
+export function writeMatrix(out: Float32Array, i: number, x: number, y: number, z: number, yaw: number, k: number, roll = 0): void {
   const c = Math.cos(yaw);
   const s = Math.sin(yaw);
+  const cr = Math.cos(roll);
+  const sr = Math.sin(roll);
   const o = i * 16;
-  out[o] = c * sx;
+  out[o] = c * k;
   out[o + 1] = 0;
-  out[o + 2] = -s * sx;
+  out[o + 2] = -s * k;
   out[o + 3] = 0;
-  out[o + 4] = 0;
-  out[o + 5] = sy;
-  out[o + 6] = 0;
+  out[o + 4] = sr * s * k;
+  out[o + 5] = cr * k;
+  out[o + 6] = sr * c * k;
   out[o + 7] = 0;
-  out[o + 8] = s * sz;
-  out[o + 9] = 0;
-  out[o + 10] = c * sz;
+  out[o + 8] = cr * s * k;
+  out[o + 9] = -sr * k;
+  out[o + 10] = cr * c * k;
   out[o + 11] = 0;
   out[o + 12] = x;
   out[o + 13] = y;
   out[o + 14] = z;
   out[o + 15] = 1;
 }
+
+/** Vertex attributes a model swap keeps (thin-instance buffers) or sets anew. */
+const KEEP_KINDS = new Set(["position", "normal", "color", "world0", "world1", "world2", "world3", "instanceColor"]);
 
 /** One element class: a mesh drawn with thin instances (matrix + colour), refilled every frame. */
 export class LifeMesh {
@@ -50,6 +59,8 @@ export class LifeMesh {
   private cap = 0;
   private n = 0;
   private uploaded = -1;
+  /** Whether the model replaced the placeholder geometry. */
+  modelled = false;
 
   constructor(readonly mesh: Mesh) {
     mesh.isPickable = false;
@@ -62,9 +73,9 @@ export class LifeMesh {
     this.n = 0;
   }
 
-  push(x: number, y: number, z: number, yaw: number, sx: number, sy: number, sz: number, color: readonly number[]): void {
+  push(x: number, y: number, z: number, yaw: number, k: number, color: readonly number[], roll: number): void {
     if (this.n >= this.cap) this.grow();
-    writeMatrix(this.matrices, this.n, x, y, z, yaw, sx, sy, sz);
+    writeMatrix(this.matrices, this.n, x, y, z, yaw, k, roll);
     this.colors.set(color, this.n * 4);
     this.n++;
   }
@@ -101,8 +112,17 @@ export class LifeMesh {
     return Math.max(0, this.uploaded);
   }
 
+  /** Archipelago positions (tiles: x, y = −world z) and heights of the instances drawn in the last frame. */
+  positions(): { x: number; y: number; h: number }[] {
+    const out: { x: number; y: number; h: number }[] = [];
+    for (let i = 0; i < this.count(); i++) out.push({ x: this.matrices[i * 16 + 12] as number, y: -(this.matrices[i * 16 + 14] as number), h: this.matrices[i * 16 + 13] as number });
+    return out;
+  }
+
   /** Replaces the geometry (a model loaded) in place: no new mesh. */
   setGeometry(data: ModelData): void {
+    // The placeholder's other attributes (uv) would outlive it with the wrong vertex count.
+    for (const kind of this.mesh.getVerticesDataKinds()) if (!KEEP_KINDS.has(kind)) this.mesh.removeVerticesData(kind);
     const vd = new VertexData();
     vd.positions = data.positions;
     vd.normals = data.normals;
@@ -115,9 +135,10 @@ export class LifeMesh {
 /** Builds the placeholder geometry of a class (procedural, until or without a model). */
 export type LifeGeometry = (scene: Scene, name: string) => Mesh;
 
-/** A class: its placeholder and the classes that count as particles. */
+/** A class: its placeholder, its model (manifest life entry and variant) and whether it counts as particles. */
 export interface LifeClassDef {
   geometry: LifeGeometry;
+  model?: { id: string; variant?: number };
   particle?: boolean;
 }
 
@@ -128,6 +149,7 @@ export interface LifeClassDef {
 export class LifeLayer {
   private readonly classes = new Map<string, LifeMesh>();
   private readonly particleClasses = new Set<string>();
+  private readonly models = new Map<string, { id: string; variant?: number }>();
   private readonly material: StandardMaterial;
   private quality: Quality;
   private enabled: boolean;
@@ -140,6 +162,7 @@ export class LifeLayer {
     defs: Readonly<Record<string, LifeClassDef>>,
     quality: Quality,
     enabled = true,
+    private readonly registry: ModelRegistry | null = null,
   ) {
     this.quality = quality;
     this.enabled = enabled;
@@ -147,8 +170,8 @@ export class LifeLayer {
     this.material.specularColor = Color3.Black();
     for (const [id, def] of Object.entries(defs)) this.define(id, def);
     this.sink = {
-      add: (cls, x, h, y, yaw, sx, sy = sx, sz = sx, color = WHITE) => {
-        this.classes.get(cls)?.push(this.origin.x + x, h, -(this.origin.y + y), yaw, sx, sy, sz, color);
+      add: (cls, x, h, y, yaw, k = 1, color = WHITE, roll = 0) => {
+        this.classes.get(cls)?.push(this.origin.x + x, h, -(this.origin.y + y), yaw, k, color, roll);
       },
     };
   }
@@ -158,6 +181,20 @@ export class LifeLayer {
     if (!mesh.material) mesh.material = this.material;
     this.classes.set(id, new LifeMesh(mesh));
     if (def.particle) this.particleClasses.add(id);
+    if (def.model) this.models.set(id, def.model);
+  }
+
+  /** Replaces the placeholder of the classes drawn with their model once it has loaded (requested on first use). */
+  private swapModels(): void {
+    if (!this.registry) return;
+    for (const [id, m] of this.models) {
+      const c = this.classes.get(id) as LifeMesh;
+      if (c.modelled || c.count() === 0) continue;
+      const data = lifeModel(this.registry, m.id, m.variant);
+      if (!data) continue;
+      c.setGeometry(data);
+      c.modelled = true;
+    }
   }
 
   /** The mesh of a class (tests; model swaps). */
@@ -194,6 +231,7 @@ export class LifeLayer {
       }
     }
     for (const c of this.classes.values()) c.commit();
+    this.swapModels();
     this.stats = { instances, particles };
   }
 
@@ -209,11 +247,45 @@ export class LifeLayer {
     return out;
   }
 
+  /** Archipelago positions of a class's instances in the last frame (tests, e2e). */
+  positions(id: string): { x: number; y: number; h: number }[] {
+    return this.classes.get(id)?.positions() ?? [];
+  }
+
   /** Whether a class counts as particles. */
   isParticle(id: string): boolean {
     return this.particleClasses.has(id);
   }
 }
 
-/** The element classes of the life layer (filled by the element steps). */
-export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {};
+/** A box placeholder (until the model has loaded) standing on y = 0 or centred, in one colour. */
+function box(w: number, h: number, d: number, color: Color4, centred = false): LifeGeometry {
+  return (scene, name) => {
+    const m = CreateBox(name, { width: w, height: h, depth: d, faceColors: new Array(6).fill(color) }, scene);
+    if (!centred) {
+      m.position.y = h / 2;
+      m.bakeCurrentTransformIntoVertices();
+    }
+    return m;
+  };
+}
+
+const TIMBER = c4(BUILDINGS.timber);
+const CANVAS = c4(BUILDINGS.canvas);
+
+function villagers(tier: "settlers" | "citizens", color: Color4): Record<string, LifeClassDef> {
+  const out: Record<string, LifeClassDef> = {};
+  for (let v = 0; v < VILLAGER_VARIANTS; v++) {
+    out[CLS.villager(tier, v)] = { geometry: box(0.16, 0.46, 0.12, color), model: { id: `life_villager_${tier}`, variant: v } };
+  }
+  return out;
+}
+
+/** The element classes of the life layer: placeholder and model (assets/recipes/life_*.json). */
+export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
+  [CLS.cart]: { geometry: box(0.46, 0.45, 1.0, TIMBER), model: { id: "life_cart" } },
+  [CLS.cartLoaded]: { geometry: box(0.46, 0.7, 1.0, CANVAS), model: { id: "life_cart_merchant" } },
+  [CLS.axle]: { geometry: box(0.57, 0.18, 0.18, TIMBER, true), model: { id: "life_cart_axle" } },
+  ...villagers("settlers", c4(BUILDINGS.thatch)),
+  ...villagers("citizens", c4(BUILDINGS.terracotta)),
+};

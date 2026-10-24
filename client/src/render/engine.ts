@@ -22,6 +22,7 @@ import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
+import { CLS } from "../display/lifeplan";
 import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, seaPoint } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
@@ -240,7 +241,7 @@ export class GameRenderer {
     });
     void this.models.loadManifest();
     this.arch = new ArchipelagoLayer(this.scene, this.models);
-    this.life = new LifeLayer(this.scene, LIFE_CLASSES, quality, life);
+    this.life = new LifeLayer(this.scene, LIFE_CLASSES, quality, life, this.models);
     this.arch.setQuality(quality);
     this.marks = new FootprintMarks(this.scene);
     this.roadPreview = new RoadPreview(this.scene);
@@ -393,11 +394,15 @@ export class GameRenderer {
     return this.life.counts();
   }
 
-  /** Carts drawn (near LOD, islands in view). */
+  /** Archipelago positions (tiles) of a life class's instances in the last frame (tests). */
+  lifePositions(cls: string): { x: number; y: number; h: number }[] {
+    return this.life.positions(cls);
+  }
+
+  /** Carts drawn in the last frame (life layer; near LOD, islands in view). */
   cartCount(): number {
-    let n = 0;
-    for (const d of this.details.values()) n += d.cartCount();
-    return n;
+    const c = this.life.counts();
+    return (c[CLS.cart] ?? 0) + (c[CLS.cartLoaded] ?? 0);
   }
 
   /**
@@ -649,7 +654,6 @@ export class GameRenderer {
     let d = this.details.get(is.id);
     if (!d) {
       d = new IslandDetail(this.scene, is.id, is.position, this.models);
-      d.setLifeEnabled(this.life.isEnabled());
       d.setRotation(this.rig.view().rotation);
       d.setDetail(this.detail);
       this.details.set(is.id, d);

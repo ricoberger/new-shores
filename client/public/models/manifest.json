@@ -812,6 +812,311 @@
     "kaykit_forest": 0.3,
     "kaykit_hexagon": 2.3
   },
+  "life": {
+    "life_cart": {
+      "anchors": {
+        "wheel_front": [
+          0.0,
+          0.0969,
+          -0.1474
+        ],
+        "wheel_rear": [
+          0.0,
+          0.0969,
+          0.1474
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.2285,
+          0.6215,
+          0.3539
+        ],
+        "min": [
+          -0.2285,
+          0.1304,
+          -0.6991
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.2285,
+            0.6215,
+            0.3539
+          ],
+          "min": [
+            -0.2285,
+            0.1304,
+            -0.6991
+          ]
+        },
+        "budget": 600,
+        "bytes": 25248,
+        "path": "life_cart.glb",
+        "sha256": "bab2dcd6776eaebf24bd005ad1030adc85724ec9f3a932d9565c1bebdf0d4b39",
+        "triangles": 362
+      },
+      "kind": "life",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/units/neutral/cart.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "life_cart_axle": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.2852,
+          0.0894,
+          0.0937
+        ],
+        "min": [
+          -0.2851,
+          -0.0887,
+          -0.0886
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.2852,
+            0.0894,
+            0.0937
+          ],
+          "min": [
+            -0.2851,
+            -0.0887,
+            -0.0886
+          ]
+        },
+        "budget": 600,
+        "bytes": 16644,
+        "path": "life_cart_axle.glb",
+        "sha256": "2c2e5e4e07ad286e409cbef62eb1ff85bb352de95697864f7f5ecc3d37314c55",
+        "triangles": 176
+      },
+      "kind": "life",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/units/neutral/cart.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "life_cart_merchant": {
+      "anchors": {
+        "wheel_front": [
+          0.0,
+          0.0969,
+          -0.1474
+        ],
+        "wheel_rear": [
+          0.0,
+          0.0969,
+          0.1474
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.2294,
+          0.8578,
+          0.4261
+        ],
+        "min": [
+          -0.2294,
+          0.1304,
+          -0.6991
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.2294,
+            0.8578,
+            0.4261
+          ],
+          "min": [
+            -0.2294,
+            0.1304,
+            -0.6991
+          ]
+        },
+        "budget": 600,
+        "bytes": 50444,
+        "path": "life_cart_merchant.glb",
+        "sha256": "dac3fd021344f42bcd67252683ae6b5adb4e29f42d60de1f459b54d12a18a2be",
+        "triangles": 558
+      },
+      "kind": "life",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/units/neutral/cart_merchant.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "life_villager_citizens": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.14,
+          0.53,
+          0.1274
+        ],
+        "min": [
+          -0.095,
+          0.0,
+          -0.0924
+        ]
+      },
+      "kind": "life",
+      "kit_sources": [],
+      "variants": [
+        {
+          "bounds": {
+            "max": [
+              0.095,
+              0.5,
+              0.0924
+            ],
+            "min": [
+              -0.095,
+              0.0,
+              -0.0924
+            ]
+          },
+          "budget": 600,
+          "bytes": 8592,
+          "path": "life_villager_citizens.v0.glb",
+          "sha256": "b4e13f544b9e71c4227b9471293069c0a5b2361daa100d4e0d17c1b831bfe34d",
+          "triangles": 114
+        },
+        {
+          "bounds": {
+            "max": [
+              0.14,
+              0.53,
+              0.08
+            ],
+            "min": [
+              -0.095,
+              0.0,
+              -0.075
+            ]
+          },
+          "budget": 600,
+          "bytes": 7296,
+          "path": "life_villager_citizens.v1.glb",
+          "sha256": "c8efcecc952c43b23637c66402a6b1c9295d5486cdda6bc60a0b5dc3f012a18c",
+          "triangles": 88
+        },
+        {
+          "bounds": {
+            "max": [
+              0.095,
+              0.4549,
+              0.1274
+            ],
+            "min": [
+              -0.095,
+              0.0,
+              -0.075
+            ]
+          },
+          "budget": 600,
+          "bytes": 10328,
+          "path": "life_villager_citizens.v2.glb",
+          "sha256": "6c97d902aec18a3f55b1039bf9bc79562ab4fcda31e3e106b756760d6ba33cb1",
+          "triangles": 122
+        }
+      ]
+    },
+    "life_villager_settlers": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.14,
+          0.53,
+          0.125
+        ],
+        "min": [
+          -0.095,
+          0.0,
+          -0.0924
+        ]
+      },
+      "kind": "life",
+      "kit_sources": [],
+      "variants": [
+        {
+          "bounds": {
+            "max": [
+              0.095,
+              0.5,
+              0.0924
+            ],
+            "min": [
+              -0.095,
+              0.0,
+              -0.0924
+            ]
+          },
+          "budget": 600,
+          "bytes": 8592,
+          "path": "life_villager_settlers.v0.glb",
+          "sha256": "03ed38071f1e4e54baf3f470365dca2b811556632c6bf9d5afae046ba4f5123a",
+          "triangles": 114
+        },
+        {
+          "bounds": {
+            "max": [
+              0.14,
+              0.53,
+              0.08
+            ],
+            "min": [
+              -0.095,
+              0.0,
+              -0.075
+            ]
+          },
+          "budget": 600,
+          "bytes": 7296,
+          "path": "life_villager_settlers.v1.glb",
+          "sha256": "99335f1c40999dfc1b313c6cdc696bb953a3c5ac85d768feae22617483ba0a67",
+          "triangles": 88
+        },
+        {
+          "bounds": {
+            "max": [
+              0.095,
+              0.4517,
+              0.125
+            ],
+            "min": [
+              -0.095,
+              0.0,
+              -0.075
+            ]
+          },
+          "budget": 600,
+          "bytes": 10412,
+          "path": "life_villager_settlers.v2.glb",
+          "sha256": "d1f40c18a3f04b028e57c3a1d377b813c2993ffa63ce8253b14f696adc0b945c",
+          "triangles": 122
+        }
+      ]
+    }
+  },
   "missing_recipes": [],
   "models": {
     "bakery": {

@@ -8,8 +8,8 @@
   "additionalProperties": false,
   "properties": {
     "$schema": { "type": "string" },
-    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Content ID (content/old_coast/buildings.json or ships.json), or decor_<name> for decoration." },
-    "kind": { "enum": ["building", "field", "ship", "decor"], "description": "decor: island decoration (trees, bushes, rocks, tufts, stumps, outcrops) with an id starting decor_, not a content ID; listed under the manifest's decor key." },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Content ID (content/old_coast/buildings.json or ships.json), decor_<name> for decoration or life_<name> for the life layer." },
+    "kind": { "enum": ["building", "field", "ship", "decor", "life"], "description": "decor: island decoration (trees, bushes, rocks, tufts, stumps, outcrops) with an id starting decor_, not a content ID; listed under the manifest's decor key. life: an element of the life layer (docs/LIFE_LAYER.md: carts, villagers, animals, boats, crates, construction stages) with an id starting life_, drawn with thin instances; listed under the manifest's life key with its anchors; may have variants." },
     "notes": { "type": "string", "description": "What the model shows; production buildings name their signature prop." },
     "shading": { "enum": ["flat", "smooth"], "description": "flat (default): one normal per face; smooth: corner normals averaged over the faces of the same role sharing a position (rounded kit trees and bushes)." },
     "ao": { "enum": ["full", "crevices"], "description": "Baked ambient occlusion: full (default) or crevices (only the strongest levels, shifted down, so small decoration keeps its palette colour and darkens only in its crevices)." },
@@ -63,7 +63,9 @@
         "door": { "$ref": "#/$defs/vec3" },
         "chimney": { "$ref": "#/$defs/vec3" },
         "smoke": { "$ref": "#/$defs/vec3" },
-        "status": { "$ref": "#/$defs/vec3" }
+        "status": { "$ref": "#/$defs/vec3" },
+        "wheel_front": { "$ref": "#/$defs/vec3", "description": "life carts: pivot of the front axle (wheels spin about x through it)." },
+        "wheel_rear": { "$ref": "#/$defs/vec3", "description": "life carts: pivot of the rear axle." }
       }
     }
   },
@@ -147,6 +149,11 @@
             "collapse": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "Edge-collapse ratio of the remaining triangles." }
           },
           "description": "Mesh simplification of a kit piece (dissolve first, then collapse)."
+        },
+        "nodes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Kit pieces: only these mesh nodes of the file (glTF node names), e.g. a cart body without its axles; an unknown name fails the build."
         },
         "crop": {
           "type": "object",

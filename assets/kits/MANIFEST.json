@@ -86,6 +86,10 @@
         "Assets/gltf/decoration/props/wheelbarrow.gltf": "bb037662a3e5be1f4fe597ffc4927d2a6ad88d307da10388cfb178ca5fdae63d",
         "Assets/gltf/units/blue/ship_blue_accent.bin": "39e313a35b3b0ac2df569e9028013a1bd590b84e8a58405092c4ed991d2fc38b",
         "Assets/gltf/units/blue/ship_blue_accent.gltf": "9e1fd07d6c6afa94ad0f9d233559a95062685221b60a9b3bee178d83d2994287",
+        "Assets/gltf/units/neutral/cart.bin": "4516cee0db1098e8a7f670908783618ee706be773e8b3f2d5134ec15f60e7a1a",
+        "Assets/gltf/units/neutral/cart.gltf": "b68beaca12fa74140d6a8ed095fc81afbe236220cacb9267313278e08462f2a0",
+        "Assets/gltf/units/neutral/cart_merchant.bin": "3f830db9e5d84991590a5a44aaba423257f9a6c87873250e720f86983733d70c",
+        "Assets/gltf/units/neutral/cart_merchant.gltf": "63d80ab1f6d70996ef1ac6e853080c923a3880ce6f1e90c91754ed8d054780a8",
         "License.txt": "18c35a487baeffbdbe8256c0c7154a688321fe955b351c78773fab0a978cc02c"
       }
     },

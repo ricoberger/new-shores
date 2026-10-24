@@ -99,6 +99,8 @@ export interface TestHook {
   carts(): number;
   /** Life layer: instances and particles drawn in the last frame (null: off, ?life=0) and instances per element class. */
   life(): { stats: { instances: number; particles: number } | null; counts: Record<string, number> };
+  /** Archipelago positions (tiles) and heights of a life class's instances in the last frame. */
+  lifePositions(cls: string): { x: number; y: number; h: number }[];
   /** Far-LOD landmark markers drawn. */
   landmarks(): number;
   /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
@@ -620,6 +622,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
         frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0, maxMs: 0 },
         carts: () => rendererRef.current?.cartCount() ?? 0,
+        lifePositions: (cls) => rendererRef.current?.lifePositions(cls) ?? [],
         life: () => ({ stats: rendererRef.current?.lifeStats() ?? null, counts: rendererRef.current?.lifeCounts() ?? {} }),
         landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
         ghostTile: () => rendererRef.current?.ghostTile() ?? null,

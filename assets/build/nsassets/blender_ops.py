@@ -43,23 +43,31 @@ class KitLoader:
         self.files_of = files_of  # (kit, rel) -> absolute path
         self.cache = {}
 
-    def __call__(self, kit, rel, simplify):
-        key = (kit, rel, tuple(sorted((simplify or {}).items())))
+    def __call__(self, kit, rel, simplify, nodes=None):
+        key = (kit, rel, tuple(sorted((simplify or {}).items())), tuple(nodes or ()))
         if key not in self.cache:
-            raw = self._import(kit, rel)
+            raw = self._import(kit, rel, nodes)
             if simplify:
                 raw = _simplify(raw, simplify)
             self.cache[key] = raw
         return self.cache[key]
 
-    def _import(self, kit, rel):
+    def _import(self, kit, rel, nodes=None):
         _clear_scene()
         bpy.ops.import_scene.gltf(filepath=self.files_of(kit, rel), loglevel=50)
         bpy.context.view_layer.update()
         dg = bpy.context.evaluated_depsgraph_get()
         tris = []
         cells = config.KIT_ATLAS_CELLS.get(kit)
-        for obj in sorted((o for o in bpy.context.scene.objects if o.type == "MESH"), key=lambda o: o.name):
+        objs = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+        if nodes:
+            # Node names of the file (Blender's .001 suffixes stripped); unknown names fail the build.
+            names = {_SUFFIX.sub("", o.name) for o in objs}
+            missing = sorted(set(nodes) - names)
+            if missing:
+                raise ValueError(f"{rel}: no mesh node(s) {missing} (has {sorted(names)})")
+            objs = [o for o in objs if _SUFFIX.sub("", o.name) in nodes]
+        for obj in sorted(objs, key=lambda o: o.name):
             ev = obj.evaluated_get(dg)
             me = ev.to_mesh()
             me.calc_loop_triangles()

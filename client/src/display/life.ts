@@ -134,10 +134,11 @@ export interface LifeSink {
   /**
    * An instance of a class at island-local tile coordinates (x, height h,
    * y), turned by yaw (radians: the class's local +x axis points along the
-   * tile direction (cos yaw, sin yaw)) and scaled; the colour multiplies
-   * the vertex colours (default white).
+   * tile direction (cos yaw, sin yaw)), uniformly scaled and first rolled
+   * about its local x axis (radians; wheels); the colour multiplies the
+   * vertex colours (default white).
    */
-  add(cls: string, x: number, h: number, y: number, yaw: number, sx: number, sy?: number, sz?: number, color?: readonly number[]): void;
+  add(cls: string, x: number, h: number, y: number, yaw: number, scale?: number, color?: readonly number[], roll?: number): void;
 }
 
 /** The life plan of one island: writes its instances for a frame within the budget. */

@@ -17,7 +17,7 @@ PRIM_PARAMS = {
 for _req, _opt in PRIM_PARAMS.values():
     _opt.add("bevel")
 ALL_PRIM_PARAMS = set().union(*(req | opt for req, opt in PRIM_PARAMS.values()))
-KIT_ONLY = {"roles", "simplify", "crop", "drop", "exaggerate"}
+KIT_ONLY = {"roles", "simplify", "crop", "drop", "exaggerate", "nodes"}
 
 
 class RecipeError(Exception):
@@ -96,7 +96,15 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
         return errors
     recipe = expand(recipe)
     cid = recipe["id"]
-    kind = "decor" if recipe["kind"] == "decor" else content_mod.kind_of(content, cid)
+    kind = recipe["kind"] if recipe["kind"] in ("decor", "life") else content_mod.kind_of(content, cid)
+    if kind == "life":
+        if not cid.startswith(config.LIFE_PREFIX):
+            errors.append(f"{name}: life-layer IDs start with {config.LIFE_PREFIX!r} (they are not content IDs)")
+        if content_mod.kind_of(content, cid) is not None:
+            errors.append(f"{name}: id {cid!r} is a content ID; a life-layer element needs its own")
+        for k in ("levels", "ship", "attachments", "budget_exception"):
+            if k in recipe:
+                errors.append(f"{name}: {k} is not for life-layer elements")
     if kind == "decor":
         if not cid.startswith(config.DECOR_PREFIX):
             errors.append(f"{name}: decoration IDs start with {config.DECOR_PREFIX!r} (they are not content IDs)")
@@ -112,7 +120,7 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
         errors.append(f"{name}: file name must be {cid}.json")
     if kind == "road":
         errors.append(f"{name}: roads have no model (they stay strips)")
-    elif kind != "decor" and recipe["kind"] != kind:
+    elif kind not in ("decor", "life") and recipe["kind"] != kind:
         errors.append(f"{name}: kind {recipe['kind']!r} does not match the content ({kind})")
     is_house = content_mod.is_house(content, cid)
     if is_house and len(recipe.get("variants", [])) != 3:
@@ -127,7 +135,7 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
     if kind == "ship":
         if "ship" not in recipe:
             errors.append(f"{name}: ships need a ship block")
-    elif kind != "decor":
+    elif kind not in ("decor", "life"):
         for k in ("ship", "attachments"):
             if k in recipe:
                 errors.append(f"{name}: {k} is only for ships")

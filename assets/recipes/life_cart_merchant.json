@@ -1,0 +1,10 @@
+{
+  "$schema": "./schema.json",
+  "id": "life_cart_merchant",
+  "kind": "life",
+  "notes": "Life layer: the loaded cart of a delivery's outbound leg (LIFE_LAYER §2), the body of the neutral KayKit merchant cart (canvas cover, crates and barrels) without its axle nodes, at the scale of life_cart, shaft toward +y, simplified for instancing. The wheel anchors match life_cart.",
+  "parts": [
+    {"name": "cart", "kit": "kaykit_hexagon", "file": "Assets/gltf/units/neutral/cart_merchant.gltf", "nodes": ["cart_merchant"], "rotation": [0, 0, 180], "scale": 0.35, "simplify": {"dissolve": 4, "collapse": 0.33}}
+  ],
+  "anchors": {"wheel_front": [0, 0.1474, 0.0969], "wheel_rear": [0, -0.1474, 0.0969]}
+}

@@ -148,7 +148,10 @@ def part_mesh(recipe_id, group, index, part, kit_loader, roles=None):
     if "kit" in part:
         kit_file = (part["kit"], part["file"])
         f = kit_scale(part["kit"], part["file"])
-        raw = kit_loader(part["kit"], part["file"], part.get("simplify"))
+        if "nodes" in part:
+            raw = kit_loader(part["kit"], part["file"], part.get("simplify"), part["nodes"])
+        else:
+            raw = kit_loader(part["kit"], part["file"], part.get("simplify"))
         crop = part.get("crop")
         drop = set(part.get("drop", ()))
         local = []
@@ -216,6 +219,8 @@ def budget_of(recipe, content, key):
         return config.BUDGET_SHIP
     if kind == "decor":
         return config.BUDGET_DECOR
+    if kind == "life":
+        return config.BUDGET_LIFE_STAGE if cid.startswith(config.LIFE_STAGE_PREFIX) else config.BUDGET_LIFE
     if kind == "field":
         return config.BUDGET_FIELD
     if content_mod.is_house(content, cid):
@@ -357,11 +362,12 @@ def _check_file(recipe, content, roles, fname, key, mesh, declared, limit):
     problems = validate.budget(mesh, limit, fname)
     if recipe["kind"] == "decor":
         problems += [f"{fname}: {p}" for p in validate.ground_contact(mesh)]
+    # Life-layer elements float (boats, gulls) or stand: no footprint or ground rule.
     elif recipe["kind"] in ("building", "field"):
         w, h = content_mod.footprint(content, cid)
         problems += [f"{fname}: footprint fit: {p}" for p in validate.footprint_fit(mesh, w, h)]
         problems += [f"{fname}: {p}" for p in validate.ground_contact(mesh, content_mod.ground_range(content, cid))]
-    elif key is None:
+    elif key is None and recipe["kind"] == "ship":
         problems += [f"{fname}: {p}" for p in validate.ship_length(mesh, recipe["ship"]["length_tiles"])]
     problems += validate.palette_check(mesh, roles, declared, fname)
     colors = file_colors(roles, declared, mesh.ao)
@@ -475,6 +481,10 @@ def manifest_entry(recipe, content, files, meta, kit_used):
         union.extend(m)
     mn, mx = gltf_bounds(union)
     entry["bounds"] = {"min": _vec(mn), "max": _vec(mx)}
+    if recipe["kind"] == "life":
+        entry["anchors"] = {k: _vec(glb.to_gltf(v)) for k, v in sorted(recipe.get("anchors", {}).items())}
+        entry["kit_sources"] = [{"kit": k, "files": sorted(v)} for k, v in sorted(kit_used.items())]
+        return entry
     if recipe["kind"] != "ship":
         w, h = content_mod.footprint(content, cid)
         entry["footprint"] = {"w": w, "h": h}
@@ -501,9 +511,11 @@ def manifest_entry(recipe, content, files, meta, kit_used):
 
 def manifest(entries, palette_sha, blender_version, missing):
     decor = {k: v for k, v in entries.items() if v["kind"] == "decor"}
-    entries = {k: v for k, v in entries.items() if v["kind"] != "decor"}
+    life = {k: v for k, v in entries.items() if v["kind"] == "life"}
+    entries = {k: v for k, v in entries.items() if v["kind"] not in ("decor", "life")}
     doc = {
         "decor": dict(sorted(decor.items())),
+        "life": dict(sorted(life.items())),
         "version": config.MANIFEST_VERSION,
         "generator": config.GENERATOR,
         "blender": blender_version,

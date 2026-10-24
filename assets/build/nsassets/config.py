@@ -183,6 +183,15 @@ BUDGET_ATTACHMENT = 150
 BUDGET_DECOR = 300
 #: Decoration recipe IDs start with this prefix (they are not content IDs).
 DECOR_PREFIX = "decor_"
+#: Life-layer elements (kind "life": carts, villagers, animals, boats,
+#: crates, construction stages; docs/LIFE_LAYER.md) are thin-instanced by
+#: the dozen per island every frame: small budgets, their IDs start with
+#: LIFE_PREFIX. Construction stages and scaffolding stand in for a building
+#: for a few seconds only and take the larger LIFE_STAGE budget.
+BUDGET_LIFE = 600
+BUDGET_LIFE_STAGE = 1500
+LIFE_PREFIX = "life_"
+LIFE_STAGE_PREFIX = "life_stage"
 #: Lite models (drawn at the near-LOD default zoom, full ones at a half
 #: extent ≤ 10) are generated, not authored: every building's model
 #: without its lod-"full" parts is decimated by Blender's edge collapse to
