@@ -98,6 +98,9 @@ describe("extrapolate against server fixtures", () => {
 
   for (const fx of fixtures) {
     describe(fx.scenario, () => {
+      // A fixture that ends right before its next change (e.g. a berth
+      // grant 1 ms later) has no sample; its base is still a valid payload.
+      if (fx.samples.length === 0) it("ends right before its next change", () => expect(fx.base.next_change_at).not.toBeNull());
       for (const s of fx.samples) {
         it(`+${s.offset_ms} ms`, () => {
           const tol = 1 + Math.ceil(s.offset_ms / 60_000);

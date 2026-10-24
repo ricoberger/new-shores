@@ -75,6 +75,9 @@ type Seed struct {
 	TradingPost *Placement `json:"trading_post,omitempty"`
 	// Ship is the start ship, idle at a sea position (D-051, optional).
 	Ship *SeaShip `json:"ship,omitempty"`
+	// Ships are further ships idle at sea with their cargo (test seeds),
+	// launched after the start ship.
+	Ships []SeaShip `json:"ships,omitempty"`
 	// Start grants the content starting stock (start.json): the gold to
 	// the world and the goods aboard the start ship (the real start at
 	// sea), or, without a start ship, into the seeded Trading Post's
@@ -97,6 +100,9 @@ type SeaShip struct {
 	Type string `json:"type,omitempty"`
 	X    int    `json:"x"`
 	Y    int    `json:"y"`
+	// Cargo in units per good (seed.ships only; the start ship carries
+	// the starting stock).
+	Cargo map[string]json.Number `json:"cargo,omitempty"`
 }
 
 // Placement is a building position. Island defaults to the first island.
@@ -419,6 +425,23 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		}
 		if _, err := sim.LaunchShipAtSea(w, c, typ, sim.Pos{X: sh.X, Y: sh.Y}, cargo); err != nil {
 			return nil, fmt.Errorf("seed ship: %w", err)
+		}
+	}
+	for i, sh := range s.Seed.Ships {
+		typ := sh.Type
+		if typ == "" && len(c.Ships) > 0 {
+			typ = c.Ships[0].ID
+		}
+		amounts := map[string]int64{}
+		for _, g := range sortedKeys(sh.Cargo) {
+			v, err := content.ParseFixed(sh.Cargo[g], 3)
+			if err != nil {
+				return nil, fmt.Errorf("seed ships[%d] cargo %s: %w", i, g, err)
+			}
+			amounts[g] = v
+		}
+		if _, err := sim.LaunchShipAtSea(w, c, typ, sim.Pos{X: sh.X, Y: sh.Y}, amounts); err != nil {
+			return nil, fmt.Errorf("seed ships[%d]: %w", i, err)
 		}
 	}
 	if s.Seed.Gold != "" {

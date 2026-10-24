@@ -1,0 +1,141 @@
+{
+  "name": "start_at_sea",
+  "description": "Start at sea (MECHANICS \u00a78, D-051): the start sloop waits at sea at (20, 20) with the starting planks and sails aboard, the starting gold on the balance and no island settled. It cannot found from the sea (ship_not_idle), sails to Home (about 28 s), where nothing can be built before founding (island_not_settled) and a Trading Post needs its front rows on water (not_on_water). Founding places the Trading Post from the cargo and the gold, unloads the rest and completes the first quest, which is claimed; a road and two houses follow.",
+  "start": "2026-01-01T00:00:00Z",
+  "islands": [
+    {
+      "id": "home",
+      "name": "Home",
+      "x": 0,
+      "y": 0,
+      "fertilities": [
+        "wheat"
+      ],
+      "rows": [
+        "~~~~~~~~~~~~~~~~",
+        "~~~~~ccccccccc~~",
+        "~..............~",
+        "~..............~",
+        "~....ffffff....~",
+        "~....ffffff....~",
+        "~..............~",
+        "~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "other",
+      "name": "Other",
+      "x": 40,
+      "y": 0,
+      "rows": [
+        "~~~~~~~~~~",
+        "~~~~~ccc~~",
+        "~........~",
+        "~........~",
+        "~~~~~~~~~~"
+      ]
+    }
+  ],
+  "seed": {
+    "ship": {
+      "x": 20,
+      "y": 20
+    },
+    "start": true
+  },
+  "steps": [
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "home",
+        "x": 1,
+        "y": 0,
+        "rotation": 0
+      },
+      "expect_error": "ship_not_idle"
+    },
+    {
+      "sail_ship": {
+        "ship": 1,
+        "to": "home"
+      }
+    },
+    {
+      "advance": {
+        "duration": "28s"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1s"
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 6,
+        "y": 2,
+        "rotation": 0
+      },
+      "expect_error": "island_not_settled"
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "home",
+        "x": 1,
+        "y": 2,
+        "rotation": 0
+      },
+      "expect_error": "not_on_water"
+    },
+    {
+      "found_island": {
+        "ship": 1,
+        "island": "home",
+        "x": 1,
+        "y": 0,
+        "rotation": 0
+      }
+    },
+    {
+      "claim_quest": {
+        "quest": "intro_home_island"
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          1,
+          4
+        ],
+        "to": [
+          14,
+          4
+        ]
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 6,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "house_settlers",
+        "x": 8,
+        "y": 2,
+        "rotation": 0
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

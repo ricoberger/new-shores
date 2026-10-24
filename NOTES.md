@@ -174,3 +174,33 @@ The rules are in docs/DECISIONS.md D-051 and docs/MECHANICS.md §2, §5, §8,
   start from the `default` fixture; the multi-instance test founds its
   guests' worlds by replacing them with the fixture before the credits, and
   sends `sail_ship` as its push command.
+
+## Step 4 — tests
+
+- New goldens: `berth_queue` (two ships, one berth, per-unit handling; ends
+  1 ms before the grant, so its display fixture shows the queue to the
+  client), `berth_queue_served` (the grant and both unloadings),
+  `collector_warehouse` (nearest collector by road with a Warehouse, its
+  throttling and level-2 upgrade, capacity from the Trading Post only),
+  `water_edge_placement` (all four rotations; `not_on_water`, `terrain`,
+  `island_already_settled` failures leave the world unchanged),
+  `start_at_sea` and `start_voyage` (start-at-sea founding; the voyage
+  fixture is for the client). Each has Go assertions in
+  `scenario/harbours_test.go`; `sim/berths_test.go` covers FIFO by ship ID,
+  an upgrade granting at once, composition across the grant, a paused ship
+  at its grant, the pier-less unsettled island and `sail_ship`.
+- Scenario seed `ships: [{x, y, cargo}]` (test-only ships at sea with
+  cargo) next to the start `ship`.
+- Property tests: the ship worlds may hold a ship at sea with cargo and use
+  `sail_ship`; new invariants (at-sea ships idle/anchored at no island,
+  waiting ships without leg or berth, never more berth holders than berths,
+  a queue only while every berth is busy, a held berth equals a route
+  ship's departure) and a check that berth waits and ships at sea occur
+  (berth waits are observed at the property checkpoints only, so the floor
+  is propertyCases/20).
+- Schema fixtures: `internal/sim/testdata/schema4_{bootstrap_citizens,
+  berth_queue,start_voyage}.json`, written and compared by the scenario
+  package's `TestSchemaFixtures` (`-update`), decoded/round-tripped/advanced
+  by `sim.TestSchemaFixturesDecode` (the template for the next migration).
+- The client's extrapolation test accepts a display fixture without samples
+  (one that ends right before its next change).

@@ -60,6 +60,9 @@ type propCase struct {
 	// maxPieces bounds the number of pieces of a split advancement
 	// (default 4).
 	maxPieces int
+	// queued counts the observations of a ship waiting for a berth and
+	// atSea those of a ship at sea (checkInvariants).
+	queued, atSea int
 	// log of operations for failure messages
 	ops []string
 }
@@ -507,12 +510,20 @@ func (p *propCase) checkInvariants(stage string) {
 		if len(s.Cargo) > def.Slots || slotsUsed(cargoAmounts(s), def.SlotSize) != len(s.Cargo) {
 			p.fail("%s: ship %d cargo %+v exceeds %d slots or is not canonical", stage, s.ID, s.Cargo, def.Slots)
 		}
+		if s.AtSea != nil {
+			p.atSea++
+			// At sea only idle or anchored, at no island (D-051).
+			if s.IslandID != "" || s.Leg != nil || (s.State != ShipIdle && s.State != ShipAnchoredUnpaid) {
+				p.fail("%s: ship at sea %+v", stage, s)
+			}
+		}
 		switch s.State {
 		case ShipIdle, ShipAnchoredUnpaid:
-			if s.Leg != nil || p.w.Island(s.IslandID) == nil || s.BerthUntilMs != 0 || s.QueuedAtMs != 0 {
+			if s.Leg != nil || (p.w.Island(s.IslandID) == nil) == (s.AtSea == nil) || s.BerthUntilMs != 0 || s.QueuedAtMs != 0 {
 				p.fail("%s: ship %d %s at %q with leg %+v berth %d queued %d", stage, s.ID, s.State, s.IslandID, s.Leg, s.BerthUntilMs, s.QueuedAtMs)
 			}
 		case ShipWaitingForBerth:
+			p.queued++
 			// Queued at an island for a berth (D-051): no leg, no berth.
 			if s.Leg != nil || p.w.Island(s.IslandID) == nil || s.QueuedAtMs <= 0 || s.QueuedAtMs > now || s.BerthUntilMs != 0 {
 				p.fail("%s: waiting ship %+v", stage, s)

@@ -1,0 +1,129 @@
+{
+  "name": "water_edge_placement",
+  "description": "Water-edge footprints (MECHANICS \u00a72, D-051): fishers (1 water row of 2) at all four rotations with their front row on the sea, a shipyard (2 water rows of 4) in a notch of the north coast; the failures leave the world unchanged: a fisher whose front row is land (not_on_water), a fisher whose land row is water (terrain), a shipyard reaching only one water row (not_on_water) and a second Trading Post on the settled island (island_already_settled).",
+  "start": "2026-01-01T00:00:00Z",
+  "island": {
+    "id": "main",
+    "rows": [
+      "~~~~~~~~~~~~~~~~~~~~",
+      "~~~~~cc~~~~~ccccccc~",
+      "~..................~",
+      "~..................~",
+      "~..................~",
+      "~..................~",
+      "~..................~",
+      "~..................~",
+      "~..................~",
+      "~..................~",
+      "~cccccccccccccccccc~",
+      "~~~~~~~~~~~~~~~~~~~~"
+    ]
+  },
+  "seed": {
+    "trading_post": {
+      "x": 1,
+      "y": 0,
+      "rotation": 0
+    },
+    "gold": 5000,
+    "stock": {
+      "planks": 250
+    }
+  },
+  "steps": [
+    {
+      "place": {
+        "type": "fisher",
+        "x": 10,
+        "y": 5,
+        "rotation": 0
+      },
+      "expect_error": "not_on_water"
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 15,
+        "y": 0,
+        "rotation": 180
+      },
+      "expect_error": "terrain"
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 7,
+        "y": 1,
+        "rotation": 0
+      },
+      "expect_error": "not_on_water"
+    },
+    {
+      "place": {
+        "type": "trading_post",
+        "x": 12,
+        "y": 0,
+        "rotation": 0
+      },
+      "expect_error": "island_already_settled"
+    },
+    {
+      "place": {
+        "type": "shipyard",
+        "x": 7,
+        "y": 0,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 13,
+        "y": 0,
+        "rotation": 0
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 18,
+        "y": 4,
+        "rotation": 90
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 5,
+        "y": 10,
+        "rotation": 180
+      }
+    },
+    {
+      "place": {
+        "type": "fisher",
+        "x": 0,
+        "y": 6,
+        "rotation": 270
+      }
+    },
+    {
+      "road": {
+        "type": "road_dirt",
+        "from": [
+          2,
+          4
+        ],
+        "to": [
+          17,
+          4
+        ]
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    }
+  ]
+}

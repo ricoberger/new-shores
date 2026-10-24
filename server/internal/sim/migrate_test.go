@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -105,5 +106,39 @@ func TestMigrationHookIsCoveredByPurity(t *testing.T) {
 	files := parseNonTest(t, simDir(t))
 	if _, ok := files[filepath.Join(simDir(t), "migrate.go")]; !ok {
 		t.Fatal("migrate.go is not among the files checked by TestPurity")
+	}
+}
+
+// TestSchemaFixturesDecode is the template for the next schema migration:
+// every committed envelope of the current schema (testdata/schema<N>_*.json,
+// written by the scenario package's TestSchemaFixtures) decodes, re-encodes
+// byte for byte, and Advance and Display work on it.
+func TestSchemaFixturesDecode(t *testing.T) {
+	c := catalogue(t)
+	files, err := filepath.Glob(filepath.Join("testdata", fmt.Sprintf("schema%d_*.json", SchemaVersion)))
+	if err != nil || len(files) < 3 {
+		t.Fatalf("schema fixtures %v (%v)", files, err)
+	}
+	for _, f := range files {
+		t.Run(filepath.Base(f), func(t *testing.T) {
+			data, err := os.ReadFile(f) // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			w, cv, _, err := Decode(data, c)
+			if err != nil || cv != c.Region.Version {
+				t.Fatalf("decode: %v, content %q", err, cv)
+			}
+			if got, err := Encode(w, cv); err != nil || !bytes.Equal(append(got, '\n'), data) {
+				t.Fatal("the envelope does not round-trip")
+			}
+			end := w.LastEvaluatedAt.Add(time.Hour)
+			if _, err := Advance(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := Display(w, c, end); err != nil {
+				t.Fatal(err)
+			}
+		})
 	}
 }
