@@ -299,6 +299,7 @@ export class GameRenderer {
     if (casters) this.refreshCasters();
     this.life.frame(now, this.lifeIslands(), this.lod);
     setSwayTime(now, this.life.isEnabled());
+    this.arch.bobbing = this.life.isEnabled();
     this.arch.frame(now);
     this.updateGhost();
     this.updateGrid();

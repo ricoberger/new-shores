@@ -271,6 +271,52 @@ function box(w: number, h: number, d: number, color: Color4, centred = false): L
   };
 }
 
+/**
+ * A gull: two wing quads in a V (span along x, chord along z) and a small
+ * body, both windings so it reads from above and below; `lift` raises the
+ * wing tips (up stroke) or lowers them (down stroke).
+ */
+function gull(lift: number): LifeGeometry {
+  return (scene, name) => {
+    const span = 0.2;
+    const chord = 0.07;
+    const tip = 0.03;
+    const p: number[] = [];
+    const quad = (sx: number) => {
+      // Root front, root back, tip back, tip front (tips swept back a little).
+      p.push(0, 0, chord, 0, 0, -chord, sx * span, lift, -chord - tip, sx * span, lift, chord * 0.3 - tip);
+    };
+    quad(1);
+    quad(-1);
+    // Body: a thin diamond along z.
+    p.push(0, 0.015, 0.12, 0.025, 0, 0, 0, 0.015, -0.1, -0.025, 0, 0);
+    // Both sides: the quads again with their own vertices (separate normals) and the reverse winding.
+    p.push(...p);
+    const idx: number[] = [];
+    for (let q = 0; q < 3; q++) {
+      const o = q * 4;
+      const r = 12 + o;
+      idx.push(o, o + 1, o + 2, o, o + 2, o + 3, r, r + 2, r + 1, r, r + 3, r + 2);
+    }
+    const c: number[] = [];
+    for (let i = 0; i < 24; i++) {
+      const v = i % 12;
+      const col = v >= 8 ? GULL_BODY : v % 4 >= 2 ? GULL_TIP : GULL_WING;
+      c.push(col.r, col.g, col.b, 1);
+    }
+    const m = new Mesh(name, scene);
+    const vd = new VertexData();
+    vd.positions = p;
+    vd.indices = idx;
+    vd.colors = c;
+    const normals: number[] = [];
+    VertexData.ComputeNormals(p, idx, normals);
+    vd.normals = normals;
+    vd.applyToMesh(m);
+    return m;
+  };
+}
+
 /** A low-poly puff (unit diameter, flat-shaded) in one colour: smoke. */
 function puff(color: Color4): LifeGeometry {
   return (scene, name) => {
@@ -283,6 +329,9 @@ function puff(color: Color4): LifeGeometry {
 const TIMBER = c4(BUILDINGS.timber);
 /** Smoke grey: between the stone role and the foam white (no palette entry of its own). */
 const SMOKE = mix(BUILDINGS.stone, WATER.foam, 0.7).toColor4(1);
+const GULL_WING = c4(WATER.foam);
+const GULL_TIP = mix(BUILDINGS.stone, WATER.foam, 0.2).toColor4(1);
+const GULL_BODY = mix(BUILDINGS.stone, WATER.foam, 0.8).toColor4(1);
 const CANVAS = c4(BUILDINGS.canvas);
 
 function villagers(tier: "settlers" | "citizens", color: Color4): Record<string, LifeClassDef> {
@@ -301,4 +350,8 @@ export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
   ...villagers("settlers", c4(BUILDINGS.thatch)),
   ...villagers("citizens", c4(BUILDINGS.terracotta)),
   [CLS.smoke]: { geometry: puff(SMOKE), particle: true },
+  [CLS.boat]: { geometry: box(0.3, 0.12, 0.8, TIMBER), model: { id: "life_boat" } },
+  [CLS.crate]: { geometry: box(0.24, 0.24, 0.24, TIMBER), model: { id: "life_crate" } },
+  [CLS.gullUp]: { geometry: gull(0.07) },
+  [CLS.gullDown]: { geometry: gull(-0.06) },
 };

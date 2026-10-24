@@ -813,6 +813,49 @@
     "kaykit_hexagon": 2.3
   },
   "life": {
+    "life_boat": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.1552,
+          0.1242,
+          0.3105
+        ],
+        "min": [
+          -0.1553,
+          0.0,
+          -0.3105
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.1552,
+            0.1242,
+            0.3105
+          ],
+          "min": [
+            -0.1553,
+            0.0,
+            -0.3105
+          ]
+        },
+        "budget": 600,
+        "bytes": 9436,
+        "path": "life_boat.glb",
+        "sha256": "2fd88dd196efe0cbb06cf56cbaf5a07dc56205782fc89d2d8abea2e045ea4051",
+        "triangles": 132
+      },
+      "kind": "life",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/props/boat.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
     "life_cart": {
       "anchors": {
         "wheel_front": [
@@ -959,6 +1002,49 @@
         {
           "files": [
             "Assets/gltf/units/neutral/cart_merchant.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "life_crate": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.0805,
+          0.161,
+          0.0805
+        ],
+        "min": [
+          -0.0805,
+          0.0,
+          -0.0805
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.0805,
+            0.161,
+            0.0805
+          ],
+          "min": [
+            -0.0805,
+            0.0,
+            -0.0805
+          ]
+        },
+        "budget": 600,
+        "bytes": 6664,
+        "path": "life_crate.glb",
+        "sha256": "bfbbcf613eb209006fb07c3f7024089f963e5da62254df78ae1ff9b381760bf7",
+        "triangles": 66
+      },
+      "kind": "life",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/props/crate_A_small.gltf"
           ],
           "kit": "kaykit_hexagon"
         }

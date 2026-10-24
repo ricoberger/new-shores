@@ -4,7 +4,7 @@ import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
-import { addSway, SAILING_ALPHA, sailing, setSwayTime, SwayPlugin, swayClock } from "./sway";
+import { addSway, anchorBob, SAILING_ALPHA, sailing, setSwayTime, SwayPlugin, swayClock, waiting } from "./sway";
 
 const engine = new NullEngine();
 const scene = new Scene(engine);
@@ -41,6 +41,18 @@ describe("cloth sway", () => {
     expect(sailing({ leg: {} }, { atSea: false })).toBe(false);
     expect(sailing({}, { atSea: true })).toBe(false);
     expect(sailing({ leg: {} }, null)).toBe(false);
+  });
+
+  it("bobs ships waiting at anchor, deterministically, not those on a leg or moored", () => {
+    expect(waiting({}, undefined)).toBe(true);
+    expect(waiting({ leg: {} }, undefined)).toBe(false);
+    expect(waiting({}, { queued: true })).toBe(true);
+    expect(waiting({}, {})).toBe(false);
+    const a = { ...anchorBob(3, 12_345) };
+    expect(anchorBob(3, 12_345)).toEqual(a);
+    expect(anchorBob(4, 12_345)).not.toEqual(a);
+    expect(Math.abs(a.dy)).toBeLessThanOrEqual(0.03);
+    expect(Math.abs(a.rock)).toBeLessThanOrEqual(0.05);
   });
 
   it("adds the plugin once and moves only masked vertices", () => {

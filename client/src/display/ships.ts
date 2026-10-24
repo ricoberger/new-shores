@@ -177,6 +177,8 @@ export function pierHeading(rotation: number): number {
 export interface Dock {
   point: ArchPoint;
   heading: number;
+  /** Waiting in the Trading Post's queue (not moored at the pier). */
+  queued?: boolean;
 }
 
 /**
@@ -197,7 +199,7 @@ export function dockPoints(
       const put = (ids: readonly number[], queued: boolean) =>
         ids.forEach((id, i) => {
           const p = pierPoint(def, b, i, queued);
-          if (p) out.set(id, { point: { x: is.position.x + p.x, y: is.position.y + p.y }, heading: pierHeading(b.rotation) });
+          if (p) out.set(id, { point: { x: is.position.x + p.x, y: is.position.y + p.y }, heading: pierHeading(b.rotation), ...(queued ? { queued } : {}) });
         });
       put(b.berths.ships, false);
       put(b.berths.queue, true);

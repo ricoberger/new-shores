@@ -6,9 +6,10 @@ import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { LifeAtLod, LifeBudget, LifePlan, LifeSink } from "../display/life";
-import { CLS } from "../display/lifeplan";
+import { CLS, SEA_H } from "../display/lifeplan";
 import { LIFE_CLASSES, LifeLayer, writeMatrix } from "./life";
 import { type ModelData, ModelRegistry, parseGlb } from "./models";
+import { SEA_LEVEL } from "./terrain";
 
 const MODELS = join(__dirname, "..", "..", "public", "models");
 
@@ -123,5 +124,11 @@ describe("LifeLayer with models", () => {
     // No attribute of the placeholder survives with its vertex count (it would break the draw).
     expect(life.classMesh(CLS.cart)?.mesh.getVerticesDataKinds()).not.toContain("uv");
     expect(scene.meshes.length).toBe(meshes);
+  });
+});
+
+describe("life constants", () => {
+  it("floats boats on the render layer's sea", () => {
+    expect(SEA_H).toBe(SEA_LEVEL);
   });
 });

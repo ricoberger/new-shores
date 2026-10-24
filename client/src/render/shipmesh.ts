@@ -65,8 +65,9 @@ const scratchM = new Matrix();
  * `scale`, turned to `heading` (radians in archipelago tiles: x right, y
  * down; world Z is −y) and placed at world (x, y, z).
  */
-export function shipMatrix(out: Float32Array, index: number, x: number, y: number, z: number, heading: number, scale: number): void {
-  Quaternion.RotationYawPitchRollToRef(heading, 0, 0, scratchQ);
+export function shipMatrix(out: Float32Array, index: number, x: number, y: number, z: number, heading: number, scale: number, rock = 0): void {
+  // rock: rolling about the hull's long axis (local x), radians.
+  Quaternion.RotationYawPitchRollToRef(heading, rock, 0, scratchQ);
   scratchS.set(scale, scale, scale);
   scratchT.set(x, y, z);
   Matrix.ComposeToRef(scratchS, scratchQ, scratchT, scratchM);

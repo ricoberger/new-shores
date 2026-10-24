@@ -10,6 +10,7 @@
 import type { Material } from "@babylonjs/core/Materials/material";
 import { MaterialPluginBase } from "@babylonjs/core/Materials/materialPluginBase";
 import type { UniformBuffer } from "@babylonjs/core/Materials/uniformBuffer";
+import { hash01 } from "../display/life";
 import { WIND } from "../display/lifeplan";
 
 /** Shared sway clock: seconds (wrapped) and amplitude (0 with ?life=0). */
@@ -26,6 +27,22 @@ export const SAILING_ALPHA = 0.5;
 /** Whether a ship's sails fill: under way on a leg (not handling, not arrived, not waiting at sea). */
 export function sailing(ship: { leg?: unknown }, placement: { atSea: boolean } | null): boolean {
   return !!ship.leg && !!placement?.atSea;
+}
+
+/** Whether a ship waits at anchor (idle or unpaid without a leg, or queued at a Trading Post): it bobs. */
+export function waiting(ship: { leg?: unknown }, dock: { queued?: boolean } | undefined): boolean {
+  return dock ? !!dock.queued : !ship.leg;
+}
+
+const bobOut = { dy: 0, rock: 0 };
+
+/** Bob of a ship at anchor at time nowMs: heave (world y) and roll (radians), seeded by the ship ID. */
+export function anchorBob(id: number, nowMs: number): { dy: number; rock: number } {
+  const s = hash01(id, "bob") * Math.PI * 2;
+  const t = nowMs / 1000;
+  bobOut.dy = Math.sin(t * 1.3 + s) * 0.03;
+  bobOut.rock = Math.sin(t * 0.9 + s * 1.7) * 0.05;
+  return bobOut;
 }
 
 /** Sets the sway clock from the frame's time (ms). */

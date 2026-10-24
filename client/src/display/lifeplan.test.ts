@@ -10,6 +10,10 @@ import {
   CLS,
   deliveryRoutes,
   delivers,
+  BOAT_LOOP_MS,
+  CRATES_PER_SHIP,
+  GULLS_MAX,
+  GULLS_MIN,
   IslandLife,
   MAX_CARTS,
   SMOKE_LIFE_MS,
@@ -233,6 +237,72 @@ describe("chimney smoke", () => {
     const { n } = puffs(many, 50_000, NEAR, { instances: 150, particles: 64 });
     expect(n).toBeLessThanOrEqual(64);
     expect(n).toBeGreaterThan(40);
+  });
+});
+
+describe("harbour life", () => {
+  const harbourDefs = new Map<string, ContentBuilding>([
+    ...defs,
+    ["fisher", { id: "fisher", width: 2, height: 2, tier: "settlers", category: "production", water_tiles: 1, recipe: {} } as unknown as ContentBuilding],
+    ["trading_post", { id: "trading_post", width: 4, height: 4, tier: "settlers", category: "harbour", water_tiles: 2, trading_post: {} } as unknown as ContentBuilding],
+  ]);
+  const fisher = (status = "ok") => ({ id: 7, type: "fisher", x: 20, y: 0, rotation: 0, paused: false, paused_reason: "", status }) as unknown as BuildingDisplay;
+  const post = (ships: number[] = []) =>
+    ({ id: 8, type: "trading_post", x: 30, y: 0, rotation: 0, paused: false, paused_reason: "", status: "ok", berths: { ships, queue: [] } }) as unknown as BuildingDisplay;
+  const run = (b: BuildingDisplay[], now = 10_000, at = NEAR, id = "isle") => {
+    const life = new IslandLife();
+    life.update({ ...island(b), id } as IslandDisplay, harbourDefs, null);
+    const s = record();
+    const stats = life.frame(now, s, at, BIG);
+    return { s, stats, n: (c: string) => s.by.get(c)?.length ?? 0 };
+  };
+  const gulls = (r: { n: (c: string) => number }) => r.n(CLS.gullUp) + r.n(CLS.gullDown);
+
+  it("rows the fisher's boat on a loop out to sea only while the fisher is ok", () => {
+    expect(run([fisher()]).n(CLS.boat)).toBe(1);
+    for (const st of ["paused", "warehouse_full", "short_of_workers"]) expect(run([fisher(st)]).n(CLS.boat)).toBe(0);
+    // Rotation 0: the sea is −y; the boat stays seaward of the jetty and comes back to the same place each loop.
+    const pts = Array.from({ length: 12 }, (_, i) => run([fisher()], (i * BOAT_LOOP_MS) / 12).s.by.get(CLS.boat)?.[0] as { x: number; y: number });
+    for (const p of pts) expect(p.y).toBeLessThan(0);
+    const at = (t: number) => run([fisher()], t).s.by.get(CLS.boat)?.[0] as { x: number; y: number };
+    expect(at(5000).x).toBeCloseTo(at(5000 + BOAT_LOOP_MS).x);
+    expect(at(5000).y).toBeCloseTo(at(5000 + BOAT_LOOP_MS).y);
+    expect(run([fisher()], 5000, { moving: false, smoke: true, props: true }).n(CLS.boat)).toBe(0);
+  });
+
+  it("circles 3–5 gulls over an island with a fisher or Trading Post, none elsewhere", () => {
+    expect(gulls(run([producer(1, 2)]))).toBe(0);
+    const seen = new Set<number>();
+    for (const id of ["a", "b", "c", "d", "e", "f", "g", "h"]) {
+      const n = gulls(run([post()], 10_000, NEAR, id));
+      expect(n).toBeGreaterThanOrEqual(GULLS_MIN);
+      expect(n).toBeLessThanOrEqual(GULLS_MAX);
+      seen.add(n);
+      // A paused fisher still has gulls (the harbour is there).
+      expect(gulls(run([fisher("paused")], 10_000, NEAR, id))).toBe(n);
+    }
+    expect(seen.size).toBeGreaterThan(1);
+    // Flying: they move between frames, and flap (up and down strokes both occur).
+    const a = run([post()], 10_000).s;
+    const b = run([post()], 11_000).s;
+    expect([...(a.by.get(CLS.gullUp) ?? []), ...(a.by.get(CLS.gullDown) ?? [])]).not.toEqual([...(b.by.get(CLS.gullUp) ?? []), ...(b.by.get(CLS.gullDown) ?? [])]);
+    let up = 0;
+    let down = 0;
+    for (let t = 0; t < 20_000; t += 137) {
+      const r = run([post()], t);
+      up += r.n(CLS.gullUp);
+      down += r.n(CLS.gullDown);
+    }
+    expect(up).toBeGreaterThan(0);
+    expect(down).toBeGreaterThan(0);
+  });
+
+  it("stacks crates on the quay while a ship handles at the pier, at near and mid", () => {
+    expect(run([post()]).n(CLS.crate)).toBe(0);
+    expect(run([post([5])]).n(CLS.crate)).toBe(CRATES_PER_SHIP);
+    expect(run([post([5, 6])]).n(CLS.crate)).toBe(2 * CRATES_PER_SHIP);
+    expect(run([post([5])], 10_000, { moving: false, smoke: true, props: true }).n(CLS.crate)).toBe(CRATES_PER_SHIP);
+    expect(run([post([5])], 10_000, { moving: false, smoke: false, props: false }).n(CLS.crate)).toBe(0);
   });
 });
 

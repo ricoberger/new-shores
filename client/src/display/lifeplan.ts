@@ -11,6 +11,7 @@ import type { TilePos } from "./geometry";
 import { allocate, hash01, lifeHash, type LifeAtLod, type LifeBudget, type LifePlan, type LifeSink, type LifeStats, loopPhase, spreadPhase } from "./life";
 import { alongPath, footprintRoads, roadPath } from "./roadpath";
 import { tileKey } from "./geometry";
+import { pierHeading, pierPoint } from "./ships";
 
 /**
  * Visual cart capacity (output milli-units per minute one cart carries):
@@ -51,7 +52,60 @@ export const CLS = {
   axle: "cart_axle",
   villager: (tier: string, variant: number) => `villager_${tier === "settlers" ? "settlers" : "citizens"}_${variant}`,
   smoke: "smoke",
+  boat: "boat",
+  crate: "crate",
+  gullUp: "gull_up",
+  gullDown: "gull_down",
 } as const;
+
+/** Sea surface height (world y; render/terrain SEA_LEVEL, checked by a test). */
+export const SEA_H = -0.6;
+
+/**
+ * Harbour life (LIFE_LAYER §4). The fisher's boat rows an ellipse that
+ * starts at the jetty's mooring point and reaches BOAT_OUT tiles out to
+ * sea, one loop per BOAT_LOOP_MS, while the fisher's status is ok.
+ */
+export const BOAT_LOOP_MS = 48_000;
+const BOAT_ALONG = 1.6;
+const BOAT_OUT = 1.7;
+const BOAT_SCALE = 1.3;
+/** Gulls per island with a fisher or Trading Post: 3–5 (hash of the island). */
+export const GULLS_MIN = 3;
+export const GULLS_MAX = 5;
+const GULL_FLAP_HZ = 1.6;
+/** Crates stacked on the quay beside each ship handling at a Trading Post's pier. */
+export const CRATES_PER_SHIP = 3;
+const QUAY_H = 0.02;
+/** How far back from the mooring point (toward land) the crates stand: on the pier deck beside the hull. */
+const QUAY_BACK = 1.0;
+
+interface Boat {
+  /** Loop centre (island tiles), along-coast and outward unit axes. */
+  cx: number;
+  cy: number;
+  ax: number;
+  ay: number;
+  ox: number;
+  oy: number;
+  seed: number;
+}
+
+interface Gull {
+  x: number;
+  y: number;
+  radius: number;
+  h: number;
+  /** rad/s, signed (direction of the circle). */
+  speed: number;
+  phase: number;
+  flap: number;
+}
+
+/** Whether a building is a fisher: a water-edge producer (not a Trading Post). */
+function isFisher(def: ContentBuilding | undefined): boolean {
+  return !!def && !!def.water_tiles && !!def.recipe && !def.trading_post;
+}
 
 /**
  * Chimney smoke (LIFE_LAYER §3): puffs per second at full throughput and
@@ -162,6 +216,10 @@ export class IslandLife implements LifePlan {
   private carts: { route: Route; index: number }[] = [];
   private smokers: Smoker[] = [];
   private smokeAnchor: SmokeAnchor | null = null;
+  private boats: Boat[] = [];
+  private gulls: Gull[] = [];
+  /** Crate positions (island tiles), yaw. */
+  private crates: { x: number; y: number; h: number; yaw: number }[] = [];
 
   /** Rebuilds the plan from the island's payload (content for footprints and tiers; static data for paths and water). */
   update(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>, _statics: Island | null, smokeAnchor: SmokeAnchor | null = null): void {
@@ -176,6 +234,56 @@ export class IslandLife implements LifePlan {
       const rate = smokeRate(b) / 1000;
       if (def && rate > 0) this.smokers.push({ b, def, rate, seed: hash01(b.id, "smoke"), anchor: null });
     }
+    this.updateHarbour(display, defs);
+  }
+
+  private updateHarbour(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
+    this.boats = [];
+    this.crates = [];
+    const coast: { x: number; y: number }[] = [];
+    for (const b of display.buildings) {
+      const def = defs.get(b.type);
+      if (!def || !(isFisher(def) || def.trading_post)) continue;
+      const moor = pierPoint(def, b, 0, false);
+      if (!moor) continue;
+      const h = pierHeading(b.rotation);
+      const ox = Math.cos(h);
+      const oy = Math.sin(h);
+      coast.push({ x: moor.x, y: moor.y });
+      if (isFisher(def) && b.status === "ok") {
+        this.boats.push({ cx: moor.x + ox * BOAT_OUT, cy: moor.y + oy * BOAT_OUT, ax: -oy, ay: ox, ox, oy, seed: hash01(b.id, "boat") });
+      }
+      // Crates on the quay beside every ship handling at the pier: back from the mooring point toward land.
+      if (def.trading_post) {
+        (b.berths?.ships ?? []).forEach((ship, i) => {
+          const p = pierPoint(def, b, i, false);
+          if (!p) return;
+          for (let k = 0; k < CRATES_PER_SHIP; k++) {
+            const side = k === 1 ? 0.3 : 0;
+            const yaw = (hash01(ship, k, "crate") - 0.5) * 0.8;
+            this.crates.push({ x: p.x - ox * QUAY_BACK - oy * (0.45 + side), y: p.y - oy * QUAY_BACK + ox * (0.45 + side), h: QUAY_H + (k === 2 ? 0.26 : 0), yaw });
+          }
+        });
+      }
+    }
+    // Gulls circle over the island's fishers and Trading Posts, a little out to sea.
+    this.gulls = [];
+    if (coast.length > 0) {
+      const n = GULLS_MIN + (lifeHash(display.id, "gulls") % (GULLS_MAX - GULLS_MIN + 1));
+      for (let i = 0; i < n; i++) {
+        const c = coast[i % coast.length] as { x: number; y: number };
+        const r = (k: string) => hash01(display.id, i, k);
+        this.gulls.push({
+          x: c.x + (r("x") - 0.5) * 2,
+          y: c.y + (r("y") - 0.5) * 2,
+          radius: 1.4 + r("r") * 1.8,
+          h: 1.6 + r("h") * 1.2,
+          speed: (0.35 + r("s") * 0.25) * (r("d") < 0.5 ? -1 : 1),
+          phase: r("p") * Math.PI * 2,
+          flap: r("f"),
+        });
+      }
+    }
   }
 
   /** Routes of the plan (tests). */
@@ -186,12 +294,49 @@ export class IslandLife implements LifePlan {
   /** Writes the island's instances at server time nowMs within the budget, only what the LOD shows. */
   frame(nowMs: number, sink: LifeSink, lod: LifeAtLod, budget: LifeBudget): LifeStats {
     const particles = lod.smoke ? this.drawSmoke(nowMs, sink, budget.particles) : 0;
-    if (!lod.moving) return { instances: 0, particles };
-    const [cartInst = 0, walkers = 0] = allocate([this.carts.length * CART_INSTANCES, this.routes.length], budget.instances);
+    const moving = lod.moving;
+    const [cartInst = 0, walkers = 0, boats = 0, crates = 0, gulls = 0] = allocate(
+      [moving ? this.carts.length * CART_INSTANCES : 0, moving ? this.routes.length : 0, moving ? this.boats.length : 0, lod.props ? this.crates.length : 0, moving ? this.gulls.length : 0],
+      budget.instances,
+    );
     const nCarts = Math.floor(cartInst / CART_INSTANCES);
     for (let i = 0; i < nCarts; i++) this.drawCart(this.carts[i] as { route: Route; index: number }, nowMs, sink);
     for (let i = 0; i < walkers; i++) this.drawWalker(this.routes[i] as Route, nowMs, sink);
-    return { instances: nCarts * CART_INSTANCES + walkers, particles };
+    for (let i = 0; i < boats; i++) this.drawBoat(this.boats[i] as Boat, nowMs, sink);
+    for (let i = 0; i < crates; i++) {
+      const c = this.crates[i] as { x: number; y: number; h: number; yaw: number };
+      sink.add(CLS.crate, c.x, c.h, c.y, c.yaw, 1);
+    }
+    for (let i = 0; i < gulls; i++) this.drawGull(this.gulls[i] as Gull, nowMs, sink);
+    return { instances: nCarts * CART_INSTANCES + walkers + boats + crates + gulls, particles };
+  }
+
+  private drawBoat(b: Boat, nowMs: number, sink: LifeSink): void {
+    // θ = −π/2 is the mooring point; the loop runs out along the coast and back.
+    const th = 2 * Math.PI * (loopPhase(nowMs, -b.seed * BOAT_LOOP_MS, BOAT_LOOP_MS) - 0.25);
+    const c = Math.cos(th);
+    const s = Math.sin(th);
+    const x = b.cx + b.ax * BOAT_ALONG * c + b.ox * BOAT_OUT * s;
+    const y = b.cy + b.ay * BOAT_ALONG * c + b.oy * BOAT_OUT * s;
+    const dx = -b.ax * BOAT_ALONG * s + b.ox * BOAT_OUT * c;
+    const dy = -b.ay * BOAT_ALONG * s + b.oy * BOAT_OUT * c;
+    const bob = Math.sin(nowMs / 700 + b.seed * 6) * 0.015;
+    sink.add(CLS.boat, x, SEA_H + bob, y, facing(Math.atan2(dy, dx)), BOAT_SCALE, undefined, Math.sin(nowMs / 900 + b.seed * 9) * 0.05); // pitching gently
+  }
+
+  private drawGull(g: Gull, nowMs: number, sink: LifeSink): void {
+    const t = nowMs / 1000;
+    const a = g.phase + g.speed * t;
+    const x = g.x + Math.cos(a) * g.radius;
+    const y = g.y + Math.sin(a) * g.radius;
+    // Tangent of the circle: the direction of flight.
+    const heading = Math.atan2(Math.cos(a) * g.speed, -Math.sin(a) * g.speed);
+    // Flapping in bursts: wings up and down for half of every flap cycle, gliding (up) between bursts.
+    const cycle = t * GULL_FLAP_HZ + g.flap * 7;
+    const burst = Math.sin(cycle * 0.37 + g.flap * 5) > -0.2;
+    const up = !burst || cycle % 1 < 0.5;
+    const h = g.h + Math.sin(t * 0.8 + g.phase) * 0.12;
+    sink.add(up ? CLS.gullUp : CLS.gullDown, x, h, y, facing(heading), 1);
   }
 
   /**
