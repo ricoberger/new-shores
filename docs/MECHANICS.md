@@ -140,21 +140,29 @@ handlers only.
   - **Farms** (D-049, D-051) have **fields**: placeables of the farm's
     `fields.type` — crops (`wheat_field`, `hemp_field`, `orchard_plot`,
     `meadow`, later hop/woad/vineyard) are **1×1**, animal **pastures**
-    (sheep, dairy, cattle) and **pig pens** are **2×2**. A field costs
-    nothing, has no upkeep, needs no road, is never auto-paused and is
-    placed **from the farm's panel only** (not the build menu). A field
-    is valid where its footprint is on matching terrain (and the island
-    has the fertility), free, and **4-edge-adjacent to the farm's
-    footprint or to a field already belonging to that farm** — ownership
-    follows the chain, no radius and no nearest-farm rule. Removing a
-    field that disconnects others leaves them **orphaned** (`no_farm`,
-    not counted) until reconnected or moved. Farm `efficiency = min(1,
-    owned_fields / required)`; provisional `required`: 16 one-tile crop
-    fields, 12 meadows, 4 pastures (16 tiles), 3 pig pens (12 tiles). A
-    farm may stand with zero fields (`low_efficiency`, "n / required").
-    `place_fields` / `demolish_fields` take up to 256 fields and are
-    all-or-nothing; the rectangle drag places as many whole fields as fit
-    and connect; the server stays the authority.
+    (sheep, dairy, cattle) and **pig pens** are **2×2**. Exactly one
+    field type per farm type (`field.farm`), never shared. A field costs
+    a little (crop 5 gold, animal field 15 gold; provisional), has no
+    upkeep, needs no road, is never auto-paused and is placed **from the
+    farm's panel only** (`place_field {farm_id, …}`; `place_building`
+    rejects field types with `field_needs_farm`). A field **belongs to
+    the farm instance it was placed from** (`farm_id`). It is valid where
+    its footprint is on matching terrain (and the island has the
+    fertility), free, below the farm's `fields.max`
+    (`field_max_reached`), and **shares at least one tile edge with the
+    farm's footprint or with an *active* field of that farm**
+    (`field_not_adjacent`; corner contact does not count). A field is
+    **active** when the chain of edge-adjacent fields of its farm reaches
+    the farm footprint (flood fill per farm; a chain never passes through
+    an inactive or foreign field). Inactive fields count nothing and show
+    `not_adjacent` ("Not connected to its farm"); they are not deleted and
+    become active again when the chain is rebuilt. Farm `efficiency =
+    min(1, active / required)`; provisional `required`: 16 one-tile crop
+    fields (max 20), 4 pastures (max 8), 3 pig pens. A farm may stand with
+    zero fields (`low_efficiency`, "n / required"). Fields **cannot be
+    moved** (demolish and place again); moving the farm keeps its fields
+    (they may become inactive); demolishing the farm demolishes its fields
+    with one refund each (D-043).
   - Assignment and efficiency are recomputed for every work-area building
     after each placement, move, demolition or road change; they may drop
     for an existing building.

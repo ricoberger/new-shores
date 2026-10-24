@@ -142,6 +142,9 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **Fields v2 (D-051 part 4) — done (PR #20):** edge-adjacent chains
+  from the farm panel, fields bound to a farm instance, 2×2 pastures
+  with sheep, inactive fields on chain break, schema 5. D-051 complete.
 - **Settling and harbours (D-051 parts 1, 2, 3, 5) — done (PR #19):**
   start at sea and found from the island card, Trading Post with levels
   and berth queues vs inland Warehouse, water-edge fisher/shipyard,

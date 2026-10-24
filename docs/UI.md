@@ -138,17 +138,15 @@ UI shows the same numbers the server uses.
   house may come out as a different variant than the ghost showed (variant
   by building ID; follow-up: a server-side preview hint).
 - Roads: drag to draw; auto-connect; cost preview.
-- **Fields** (D-049): the field tool (build menu under Production, or the
-  farm panel's "Place pastures n / 16") places one field per click/tap;
-  dragging a rectangle previews every valid free tile inside it (green =
-  will be placed; yellow = outside every accepting farm's radius, not
-  sent) and places them with one command on release (touch: via the
-  placement bar's Confirm). A server rejection shows the error and
-  refreshes — never a partial placement. The accepting farms' radius rings
-  show "n / required" while the tool is active; the farm panel shows the
-  assigned count and efficiency; demolish mode removes fields like
-  buildings.
-- Farms show their work radius and fertile-tile fraction while placing.
+- **Fields** (D-051 part 4): fields are not in the build menu. The farm
+  panel has a fields row (active / required / max, the list highlights
+  on hover) and **"Add field"**, which enters a field tool bound to that
+  farm: one field per click/tap, the ghost valid only edge-adjacent to
+  the farm or one of its active fields (client hint; the server decides),
+  the tool stays active until max or Esc/right-click. Inactive fields
+  are drawn desaturated with the `not_adjacent` status; selecting a field
+  highlights its farm and chain; a field panel offers Demolish only (no
+  Move).
 - Public buildings show their radius; houses in range highlight.
 - Confirm on click/tap; the server validates and responds; the ghost becomes
   the building when the response arrives (round-trip ≈ 100 ms; show a brief

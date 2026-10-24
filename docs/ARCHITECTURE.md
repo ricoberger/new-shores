@@ -246,9 +246,9 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `cancel_ship_order`, `found_island`, `manual_shipment`, `assign_ship`,
   `unassign_ship`, `scrap_ship`, `create_route`, `update_route`,
   `delete_route` (list bounds: ≤ 8 stops, ≤ 32 load/unload entries per
-  stop, ≤ 16 cargo entries), `claim_quest`, `ack_summary`, `place_fields` /
-  `demolish_fields` (≤ 256 tiles, all-or-nothing), returning `{version,
-  display}`; the display
+  stop, ≤ 16 cargo entries), `claim_quest`, `ack_summary`, `place_field` (bound to a
+  `farm_id`), `sail_ship`, `found_island`, `upgrade_trading_post`,
+  `upgrade_warehouse`, returning `{version, display}`; the display
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,
   `settled`, `position`, `quests`, `away_summary`, `insolvency`; `GET /world/islands/{id}` → `{id, width, height, revision,

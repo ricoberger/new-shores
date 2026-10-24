@@ -681,9 +681,11 @@ specs isolate through a dev-only world reset endpoint.
   deployed and old worlds fail to load; reference games re-verified with
   the sail-and-found opening, new e2e fixture `seafaring`; D-049's
   `required` becomes a field count.
-- *Status:* parts 1, 2, 3, 5 (settling, Trading Post/Warehouse,
-  water_tiles, berths) shipped in PR #19; parts 6, 7 in PR #17; part 4
-  (fields v2) open. As built: founding from afar is two commands
+- *Status:* **all parts shipped** — 1, 2, 3, 5 in PR #19; 6, 7 in PR
+  #17; 4 (fields v2) in PR #20 (schema 5; edge adjacency, fields bound to
+  a farm instance, unmovable, small gold cost; pasture 15 gold / 0 planks
+  because 2 planks missed the §12 reference targets; `cattle_pasture`,
+  `pig_pen`, `meadow` reserved until their farms get recipes). As built: founding from afar is two commands
   (`sail_ship`, then `found_island` on arrival); berths gate arrivals only
   (loading holds no berth; an island without a Trading Post has no pier
   and handles at once); ship legs are straight and may cross land

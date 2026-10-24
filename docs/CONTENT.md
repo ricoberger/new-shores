@@ -207,7 +207,7 @@ workforce as `amount tier` (S = Settlers, C = Citizens).
 | `sawmill` | 1 | 2×2 | 80 / 8 | 2 | 4 S | R |
 | `fisher` | 1 | 2×2, 1 water row | 60 / 6 | 1 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + fields | 50 / 10 | 1 | 4 S | R, 4 `pasture` fields required (max 8), cycle 90 s |
-| `pasture` | 1 | 2×2 field | 15 gold | 0 | — | sheep_farm only; grass; 8-adjacent to the farm or an active field; never paused (planks 0: with 2 planks the reference game misses its §12 targets) |
+| `pasture` | 1 | 2×2 field | 15 gold | 0 | — | sheep_farm only; grass; edge-adjacent to the farm or an active field; never paused (planks 0: with 2 planks the reference game misses its §12 targets) |
 | `weaver_wool` | 1 | 2×2 | 70 / 10 | 1 | 6 S | R, cycle 90 s |
 | `shipyard` | 1 | 5×4, 2 water rows | 225 / 25 | 0 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
 | `house_citizens` | 2 | 2×2 | 150 / 15 / 10 | 0 | — | upgrade only |
@@ -367,8 +367,8 @@ it carries:
 | `road` | `seconds_per_tile` (building must be 1×1) | roads |
 | `service` | `radius` | public buildings |
 | `work_area` | `radius`, `fertility?` (island-wide tag the island must carry, else `no_fertility`); harvesters also `terrain[]`, `required_tiles` | farms (radius only), lumberjack, gatherers |
-| `fields` | `type` (a field building's `field.type`), `required` (16) | farms (D-049) |
-| `field` | `type`, `terrain[]`, `fertility?` — a 1×1 field placeable, cost `{gold: 0}`, no upkeep, `pause_category: never`, `requires_road: false`; validation requires at least one farm accepting the type | pasture, wheat_field, orchard_plot, hemp_field (pig_pen, meadow, hop/woad/vineyard rows with their tiers) |
+| `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4) |
+| `field` | `type`, `farm` (the one farm type that owns it), `terrain[]`, `fertility?` — 1×1 (crops) or 2×2 (animals), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires exactly one farm whose `fields.type` matches | pasture, wheat_field, orchard_plot, hemp_field (reserved: pig_pen, meadow, cattle_pasture; later hop/woad/vineyard) |
 | `workforce` | `tier`, `amount` | producers only (D-035) |
 | `requires_deposit` | deposit type; the footprint must cover ≥ 1 tile with that deposit (`no_deposit`) and may cover mountain tiles | mines, quarries |
 | `slot` | typed deposit/harbour slots (D-036) — not yet implemented; `requires_deposit` is the interim rule | — |
