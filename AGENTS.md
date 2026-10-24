@@ -45,7 +45,8 @@ the referenced documents before changing anything.
   validate all inputs in Go against content and state; never log emails,
   tokens or payment details; never commit secrets.
 - **Out of scope unless a decision says otherwise:** WASM builds of the sim,
-  NPC traders, pause/speed controls, save/load, free camera rotation.
+  NPC traders, pause/speed controls, save/load, free camera elevation
+  (azimuth rotation is in, D-051).
 
 ## 3. Working conventions
 
