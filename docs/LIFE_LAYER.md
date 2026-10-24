@@ -1,6 +1,6 @@
 # New Shores — Life Layer brief (art task 4)
 
-Status: **design groundwork for art task 4**; follows ART_DIRECTION §5
+Status: **shipped in PR #21** (as-built deviations in §7); follows ART_DIRECTION §5
 ("life carries the feeling", "every animation encodes a game state") and
 D-050. Nothing here changes rules or state: every element below is
 derived on the client from the display payload (rates, timers, statuses,
@@ -92,3 +92,31 @@ Not in scope: weather, day/night (D-048), combat units, horses as traffic.
 crates, barrels, sacks, `flag_*`; `buildings/neutral`:
 `building_stage_A/B/C`, `building_scaffolding`, `building_destroyed`.
 No skinned animations in the pack — all motion is procedural.
+
+## 7. As built (PR #21)
+
+- Module `client/src/render/life*`; one thin-instance class per element;
+  budgets 150 / 64 (phones, tablets) and 400 / 160 (desktop) per island,
+  split by fixed proportions before priority so dense towns keep a mix;
+  the whole island counts, not only the visible part (open).
+- Carts: `cart` on the empty leg, `cart_merchant` loaded; count from a
+  client density constant (1 unit/min per cart, cap 3) — a visual knob,
+  not a rule. No cart/walker for paused, unconnected, starved or
+  warehouse-full producers.
+- Smoke: solid low-poly puffs instead of particle quads (fits D-050);
+  only for `status == ok`; every producer recipe must declare
+  `anchors.smoke` or `chimney` (recipe test).
+- Sway: sails, ship canvas and `flag_*` only — sacks, bales and aprons
+  stay rigid; shadows do not sway.
+- Harbour: fisher boat loop may cross land (same follow-up as ship
+  legs); crates only at Trading Post piers; gulls by presence of a fisher
+  or Trading Post, not by status; waiting ships bob at anchor.
+- Pasture: the recipe's static sheep were removed; 2 instanced sheep per
+  pasture wander inside it; "inactive" = field inactive or farm paused →
+  sheep stand still, tinted.
+- Construction: stages A→B→C over 2.4 s of server time (0.24 s in e2e's
+  10× clock), scaffolding on footprints ≥ 3×3, turned with the building;
+  fields and `?life=0` keep the rise-in.
+- e2e: `life.spec.ts` (presence/absence by status, stages, `?life=0`);
+  visual baselines with the life clock frozen; `make e2e-fast` =
+  chromium + touch-chromium + visual without perf.

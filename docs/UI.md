@@ -317,4 +317,6 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   (first playable budget; see FIRST_PLAYABLE.md). Measures taken in M3:
   render DPR capped at 1.5, status icons as thin instances (one draw call
   per status), allocation-free cart updates; the dense fixture
-  (`?fixture=dense-2x400`, dev/e2e builds only) runs at 27 draw calls.
+  (`?fixture=dense-2x400`, dev/e2e builds only) runs at 27 draw calls
+  (36 with the life layer; `?life=0` disables it, `?stats=1` shows live
+  instance and particle counts).

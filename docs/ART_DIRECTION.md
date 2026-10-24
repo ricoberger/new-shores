@@ -122,15 +122,25 @@ detail does not** (D-048, refined by D-050):
   eases to the nearest 45°; the sun stays world-fixed; a compass on the
   minimap shows the heading and resets the view. Continuous zoom from
   "one house" to "whole archipelago".
-- **Life layer, in priority order:** carts on roads; **walkers** between a
-  producer and its warehouse (spawned from the transfer timers — no new
-  state); **smoke** from chimneys of running producers; **flags and sails**
-  waving; **gulls** over coasts and **fishing boats** near fishers;
-  inhabitants strolling near houses in proportion to residents.
+- **Life layer (shipped, PR #21; brief and as-built notes in
+  `docs/LIFE_LAYER.md`):** carts (`cart`/`cart_merchant`) and **walkers**
+  between a producer and its collector, spawned from the transfer timers;
+  **smoke** (solid low-poly puffs) from chimneys of producers with status
+  ok, density ∝ throughput × efficiency; **flags and sails** swaying;
+  **gulls** and **fishing boats** at harbours and fishers; **strollers**
+  (1 per 8 residents) on nearby roads; **sheep** wandering in active
+  pastures; **quay crates** while a ship is handling; **construction
+  stages** A→B→C with scaffolding on ≥ 3×3 footprints replacing the
+  rise-in. `?life=0` switches it off (A/B), `?stats=1` shows instance and
+  particle counts.
 - **Rule: every animation encodes a game state.** No smoke = not running,
-  no walkers = not connected, no boats = no fisher, desaturated = paused.
-- **Budget:** ≤ 150 animated instances per visible island on phones, ≤ 400
-  on desktop; the dense-fixture perf guard enforces it.
+  no walkers/carts = not connected, starved, full or paused, no boats =
+  no fisher, tinted = paused/inactive.
+- **Budget:** ≤ 150 animated instances / 64 particles per island on
+  phones and tablets, ≤ 400 / 160 on desktop, shared by fixed proportions
+  across element classes; near LOD only (mid: smoke and static props;
+  far: ships only); the perf project checks the budget is filled on the
+  dense fixture and the fps floors hold.
 
 ## 6. HUD — themed-flat Anno
 
@@ -213,9 +223,9 @@ detail does not** (D-048, refined by D-050):
   stone, ornament, towers. Houses get 3 variants per tier by building-ID
   hash. One readable **signature prop** per production building; farms
   show a fenced yard and their field type.
-- **States:** place = short rise-in (thin instance during the animation);
-  paused/unpaid = desaturated tint; not_connected/starved keep the status
-  icon and lose smoke/walkers (life layer).
+- **States:** place = construction stages over 2.4 s (rise-in remains
+  for fields and with `?life=0`); paused/unpaid = desaturated tint;
+  not_connected/starved keep the status icon and lose smoke/walkers.
 - **Ships:** sloop from the KayKit `ship` (team colour → canvas sails,
   hull in timber tones, ≈ 1 500 tris); cargo from KayKit crates when the
   cargo list is non-empty; the large KayKit ship and sail recolours give
@@ -286,11 +296,11 @@ detail does not** (D-048, refined by D-050):
    tier 1–2 recipes + fields + sloop from KayKit/Pirate, slab/plateau/
    scatter islands, real models at every zoom (lite at far), device-
    validated perf floors, dev reset endpoint for e2e isolation.
-4. **Life layer and dressing** — brief in `docs/LIFE_LAYER.md`: carts
-   and walkers from transfer timers, smoke from running producers, sails
-   and flags, fishing boats, gulls, strollers from residents, pasture
-   animals, construction stages; all state-derived, deterministic,
-   near-LOD only, budgets validated on the baseline device.
+4. **Life layer and dressing — done (PR #21):** everything in
+   `docs/LIFE_LAYER.md` §2 except horses/cattle; 36 draw calls at near on
+   the dense fixture (was 26), bundle +7 kB gzip, models 7.55 MB. Open:
+   fisher-boat loops and ship legs crossing land, stage models for
+   fields, budget per *visible* island.
 
 Each task ships screenshots at the gate; the reviewer compares against
 this document and the reference board (to be added under
