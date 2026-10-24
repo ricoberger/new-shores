@@ -74,6 +74,23 @@ export function allocate(demands: readonly number[], budget: number): number[] {
   });
 }
 
+/**
+ * Grants a budget by shares, then by priority: first every demand gets up
+ * to floor(share × budget), then what is left goes to the demands still
+ * short in priority order. A dense town keeps a mix of elements instead
+ * of spending everything on the first class.
+ */
+export function allocateShares(demands: readonly number[], shares: readonly number[], budget: number): number[] {
+  const total = Math.max(0, Math.floor(budget));
+  const first = demands.map((d, i) => Math.min(Math.max(0, Math.floor(d)), Math.floor((shares[i] ?? 0) * total)));
+  const used = first.reduce((a, b) => a + b, 0);
+  const more = allocate(
+    demands.map((d, i) => Math.max(0, Math.floor(d)) - (first[i] as number)),
+    total - used,
+  );
+  return first.map((g, i) => g + (more[i] as number));
+}
+
 /** x mod m in [0, m) (also for negative x). */
 export function mod(x: number, m: number): number {
   const r = x % m;

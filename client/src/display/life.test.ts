@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allocate, hash01, LIFE_BUDGETS, lifeAtLod, lifeBudget, lifeEnabled, lifeHash, loopPhase, mod, pingPong, spreadPhase } from "./life";
+import { allocate, allocateShares, hash01, LIFE_BUDGETS, lifeAtLod, lifeBudget, lifeEnabled, lifeHash, loopPhase, mod, pingPong, spreadPhase } from "./life";
 
 describe("life budgets", () => {
   it("follows the device class: phones 150 instances / 64 particles, desktop 400", () => {
@@ -14,6 +14,15 @@ describe("life budgets", () => {
     expect(allocate([1, 2, 3], 100)).toEqual([1, 2, 3]);
     expect(allocate([5, 5], 0)).toEqual([0, 0]);
     expect(allocate([2.7, -1, 4], 5)).toEqual([2, 0, 3]);
+  });
+
+  it("allocates by shares first, then the rest in priority order", () => {
+    // Shares 50/50 of 100: the first class is capped at 50 while the second wants some.
+    expect(allocateShares([400, 30], [0.5, 0.5], 100)).toEqual([70, 30]);
+    expect(allocateShares([400, 80], [0.5, 0.5], 100)).toEqual([50, 50]);
+    expect(allocateShares([10, 10], [0.5, 0.5], 100)).toEqual([10, 10]);
+    expect(allocateShares([400, 400, 400], [0.2, 0.2, 0.2], 100)).toEqual([60, 20, 20]);
+    expect(allocateShares([5, 5], [0.5, 0.5], 0)).toEqual([0, 0]);
   });
 
   it("draws by LOD: everything at near, smoke and props at mid, nothing at far", () => {

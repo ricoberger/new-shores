@@ -14,8 +14,15 @@ import {
   CRATES_PER_SHIP,
   GULLS_MAX,
   GULLS_MIN,
+  INACTIVE_TINT,
   IslandLife,
+  MARKET_PAUSE_MS,
   MAX_CARTS,
+  pastureActive,
+  RESIDENTS_PER_STROLLER,
+  SHEEP_PER_PASTURE,
+  SHEEP_STEP_MS,
+  strollers,
   SMOKE_LIFE_MS,
   SMOKE_PER_S,
   type SmokeAnchor,
@@ -303,6 +310,85 @@ describe("harbour life", () => {
     expect(run([post([5, 6])]).n(CLS.crate)).toBe(2 * CRATES_PER_SHIP);
     expect(run([post([5])], 10_000, { moving: false, smoke: true, props: true }).n(CLS.crate)).toBe(CRATES_PER_SHIP);
     expect(run([post([5])], 10_000, { moving: false, smoke: false, props: false }).n(CLS.crate)).toBe(0);
+  });
+});
+
+describe("inhabitants and animals", () => {
+  const townDefs = new Map<string, ContentBuilding>([
+    ...defs,
+    ["house_settlers", { id: "house_settlers", width: 2, height: 2, tier: "settlers", category: "housing", house: {} } as unknown as ContentBuilding],
+    ["market_small", { id: "market_small", width: 3, height: 3, tier: "settlers", category: "public", service: { radius: 12 } } as unknown as ContentBuilding],
+    ["sheep_farm", { id: "sheep_farm", width: 3, height: 3, tier: "settlers", category: "production", fields: {} } as unknown as ContentBuilding],
+    ["pasture", { id: "pasture", width: 2, height: 2, tier: "settlers", category: "production", field: { type: "pasture", farm: "sheep_farm" } } as unknown as ContentBuilding],
+  ]);
+  const house = (id: number, x: number, residents: number) => ({ id, type: "house_settlers", x, y: -1, rotation: 0, status: "ok", residents: residents * 1000 }) as unknown as BuildingDisplay;
+  const market = { id: 50, type: "market_small", x: 4, y: 2, rotation: 0, status: "ok" } as unknown as BuildingDisplay;
+  const farm = (status = "ok") => ({ id: 60, type: "sheep_farm", x: 20, y: 2, rotation: 0, status }) as unknown as BuildingDisplay;
+  const pasture = (id: number, active = true) => ({ id, type: "pasture", x: 23, y: 2 + (id - 61) * 2, rotation: 0, status: active ? "ok" : "not_adjacent", active, farm_id: 60 }) as unknown as BuildingDisplay;
+  const frame = (b: BuildingDisplay[], now = 10_000, at = NEAR) => {
+    const life = new IslandLife();
+    life.update(island(b), townDefs, null);
+    const s = record();
+    life.frame(now, s, at, BIG);
+    return s;
+  };
+  const villagers = (s: ReturnType<typeof record>) => [0, 1, 2].reduce((n, v) => n + (s.by.get(CLS.villager("settlers", v))?.length ?? 0), 0);
+
+  it("sends floor(residents / 8) strollers per house onto the nearby roads", () => {
+    expect(villagers(frame([house(1, 2, RESIDENTS_PER_STROLLER - 1)]))).toBe(0);
+    expect(villagers(frame([house(1, 2, RESIDENTS_PER_STROLLER)]))).toBe(1);
+    expect(villagers(frame([house(1, 2, 2 * RESIDENTS_PER_STROLLER + 3), house(2, 6, RESIDENTS_PER_STROLLER)]))).toBe(3);
+    // Without an adjacent road (y far from the road at y = 1): none.
+    expect(villagers(frame([{ ...house(1, 2, 16), y: 8 } as BuildingDisplay]))).toBe(0);
+    // On the road (y = 1 ± side offset), never beyond the radius.
+    for (let t = 0; t < 60_000; t += 1700) {
+      for (const p of frame([house(1, 2, 16)], t).by.values()) for (const q of p) expect(Math.abs(q.y - 1.5)).toBeLessThan(0.3);
+    }
+  });
+
+  it("pauses strollers at the market", () => {
+    const st = strollers(island([house(1, 2, 80), market]), townDefs);
+    const toMarket = st.filter((s) => s.pauseMs === MARKET_PAUSE_MS);
+    expect(toMarket.length).toBeGreaterThan(0);
+    for (const s of toMarket) expect(s.path.at(-1)?.y).toBe(1);
+    expect(strollers(island([house(1, 2, 80)]), townDefs).every((s) => s.pauseMs !== MARKET_PAUSE_MS)).toBe(true);
+  });
+
+  it("wanders two sheep per active pasture inside the field; inactive ones stand still, greyed", () => {
+    expect(pastureActive({ active: true }, { status: "ok" })).toBe(true);
+    expect(pastureActive({ active: false }, { status: "ok" })).toBe(false);
+    expect(pastureActive({ active: true }, { status: "paused" })).toBe(false);
+    expect(pastureActive({ active: true }, undefined)).toBe(false);
+    const sheepAt = (b: BuildingDisplay[], t: number, at = NEAR) => {
+      const life = new IslandLife();
+      life.update(island(b), townDefs, null);
+      const out: { x: number; y: number; color?: readonly number[] }[] = [];
+      life.frame(t, { add: (cls, x, _h, y, _yaw, _k, color) => cls === CLS.sheep && out.push({ x, y, ...(color ? { color } : {}) }) }, at, BIG);
+      return out;
+    };
+    const herd = [farm(), pasture(61), pasture(62)];
+    const a = sheepAt(herd, 10_000);
+    expect(a).toHaveLength(2 * SHEEP_PER_PASTURE);
+    for (let t = 0; t < 5 * SHEEP_STEP_MS; t += 1300) {
+      for (const p of sheepAt(herd, t)) {
+        expect(p.x).toBeGreaterThan(23);
+        expect(p.x).toBeLessThan(25);
+        expect(p.y).toBeGreaterThan(2);
+        expect(p.y).toBeLessThan(6);
+        expect(p.color).toBeUndefined();
+      }
+    }
+    expect(sheepAt(herd, 10_000 + SHEEP_STEP_MS)).not.toEqual(a);
+    // Inactive (chain broken, or the farm paused): still and grey.
+    for (const still of [[farm(), pasture(61, false)], [farm("paused"), pasture(61)]]) {
+      const s0 = sheepAt(still, 10_000);
+      expect(s0).toHaveLength(SHEEP_PER_PASTURE);
+      expect(sheepAt(still, 10_000 + 3 * SHEEP_STEP_MS)).toEqual(s0);
+      for (const p of s0) expect(p.color).toEqual(INACTIVE_TINT);
+    }
+    // Mid LOD: standing (props), far: none.
+    expect(sheepAt(herd, 10_000, { moving: false, smoke: true, props: true })).toEqual(sheepAt(herd, 99_000, { moving: false, smoke: true, props: true }));
+    expect(sheepAt(herd, 10_000, { moving: false, smoke: false, props: false })).toHaveLength(0);
   });
 });
 

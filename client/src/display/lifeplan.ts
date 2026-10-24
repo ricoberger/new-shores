@@ -8,9 +8,9 @@
 // element before any gets a second.
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay } from "../api/client";
 import type { TilePos } from "./geometry";
-import { allocate, hash01, lifeHash, type LifeAtLod, type LifeBudget, type LifePlan, type LifeSink, type LifeStats, loopPhase, spreadPhase } from "./life";
+import { allocateShares, hash01, lifeHash, type LifeAtLod, type LifeBudget, type LifePlan, type LifeSink, type LifeStats, loopPhase, spreadPhase } from "./life";
 import { alongPath, footprintRoads, roadPath } from "./roadpath";
-import { tileKey } from "./geometry";
+import { rotatedFootprint, tileKey } from "./geometry";
 import { pierHeading, pierPoint } from "./ships";
 
 /**
@@ -56,7 +56,128 @@ export const CLS = {
   crate: "crate",
   gullUp: "gull_up",
   gullDown: "gull_down",
+  sheep: "sheep",
 } as const;
+
+/**
+ * Inhabitants (LIFE_LAYER §5): floor(residents / RESIDENTS_PER_STROLLER)
+ * strollers per house walk from the house's road tile to a road tile
+ * within STROLL_RADIUS (picked by hash) or, for about half of them when a
+ * market is within MARKET_RADIUS, to the market, pause there and walk
+ * back, then rest at home.
+ */
+export const RESIDENTS_PER_STROLLER = 8;
+const STROLL_RADIUS = 6;
+const MARKET_RADIUS = 12;
+const STROLL_SPEED = 0.45;
+export const MARKET_PAUSE_MS = 8000;
+const STOP_PAUSE_MS = 2000;
+const HOME_PAUSE_MS = 4000;
+const STROLLER_SIDE = 0.2;
+
+/**
+ * Sheep (LIFE_LAYER §5): SHEEP_PER_PASTURE wander inside each pasture: in
+ * every SHEEP_STEP_MS a sheep walks for SHEEP_WALK of the step to a new
+ * hashed spot, then grazes. An inactive pasture's sheep stand still and
+ * greyed (the unpaid-ship multiplier).
+ */
+export const SHEEP_PER_PASTURE = 2;
+export const SHEEP_STEP_MS = 9000;
+const SHEEP_WALK = 0.35;
+const SHEEP_MARGIN = 0.32;
+const FIELD_H = 0;
+export const INACTIVE_TINT: readonly [number, number, number, number] = [0.6, 0.68, 0.8, 1];
+
+interface Stroller {
+  path: TilePos[];
+  tier: string;
+  variant: number;
+  side: number;
+  /** Walk time of one leg, pause at the far end, round trip period (ms). */
+  walkMs: number;
+  pauseMs: number;
+  periodMs: number;
+  startMs: number;
+}
+
+interface Sheep {
+  /** Field interior (island tiles). */
+  x0: number;
+  y0: number;
+  w: number;
+  h: number;
+  key: string;
+  active: boolean;
+}
+
+/** Whether a building is a market (strollers pause there). */
+function isMarket(def: ContentBuilding | undefined): boolean {
+  return !!def?.service && def.id.startsWith("market");
+}
+
+/** Whether a field's animals graze: the field is active (chain intact) and its farm is not paused. */
+export function pastureActive(field: Pick<BuildingDisplay, "active">, farm: Pick<BuildingDisplay, "status"> | undefined): boolean {
+  return field.active !== false && !!farm && farm.status !== "paused";
+}
+
+/** Strollers of the island's houses: home road tile → hashed stop or the market and back. */
+export function strollers(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>, limit = Infinity): Stroller[] {
+  const roads = new Set(display.roads.map(tileKey));
+  const markets: { b: BuildingDisplay; tiles: TilePos[] }[] = [];
+  for (const b of display.buildings) {
+    const def = defs.get(b.type);
+    if (isMarket(def)) markets.push({ b, tiles: footprintRoads(roads, b, def as ContentBuilding) });
+  }
+  const out: Stroller[] = [];
+  for (const b of display.buildings) {
+    const def = defs.get(b.type);
+    if (!def?.house) continue;
+    const n = Math.floor((b.residents ?? 0) / 1000 / RESIDENTS_PER_STROLLER);
+    if (n <= 0) continue;
+    const home = footprintRoads(roads, b, def);
+    if (home.length === 0) continue;
+    const h0 = home[0] as TilePos;
+    const near = display.roads.filter((r) => Math.max(Math.abs(r.x - h0.x), Math.abs(r.y - h0.y)) <= STROLL_RADIUS);
+    const market = markets.find((m) => m.tiles.some((t) => Math.max(Math.abs(t.x - h0.x), Math.abs(t.y - h0.y)) <= MARKET_RADIUS));
+    for (let i = 0; i < n && out.length < limit; i++) {
+      const toMarket = !!market && market.tiles.length > 0 && hash01(b.id, i, "market") < 0.5;
+      const goal = toMarket ? (market as { tiles: TilePos[] }).tiles : [near[lifeHash(b.id, i, "stop") % Math.max(1, near.length)] as TilePos];
+      if (!goal[0]) continue;
+      const path = roadPath(roads, home, goal);
+      if (!path || path.length < 2) continue;
+      const walkMs = ((path.length - 1) / STROLL_SPEED) * 1000;
+      const pauseMs = toMarket ? MARKET_PAUSE_MS : STOP_PAUSE_MS;
+      const periodMs = 2 * walkMs + pauseMs + HOME_PAUSE_MS;
+      out.push({
+        path,
+        tier: def.tier,
+        variant: lifeHash(b.id, i, "variant") % VILLAGER_VARIANTS,
+        side: (hash01(b.id, i, "side") < 0.5 ? -1 : 1) * STROLLER_SIDE,
+        walkMs,
+        pauseMs,
+        periodMs,
+        startMs: -hash01(b.id, i, "phase") * periodMs,
+      });
+    }
+  }
+  return out;
+}
+
+/** The sheep of the island's pastures (SHEEP_PER_PASTURE each). */
+export function pastureSheep(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): Sheep[] {
+  const byId = new Map(display.buildings.map((b) => [b.id, b]));
+  const out: Sheep[] = [];
+  for (const b of display.buildings) {
+    const def = defs.get(b.type);
+    if (!def?.field || def.id !== "pasture") continue;
+    const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
+    const active = pastureActive(b, byId.get(b.farm_id as number));
+    for (let i = 0; i < SHEEP_PER_PASTURE; i++) {
+      out.push({ x0: b.x + SHEEP_MARGIN, y0: b.y + SHEEP_MARGIN, w: w - 2 * SHEEP_MARGIN, h: h - 2 * SHEEP_MARGIN, key: `${b.id}:${i}`, active });
+    }
+  }
+  return out;
+}
 
 /** Sea surface height (world y; render/terrain SEA_LEVEL, checked by a test). */
 export const SEA_H = -0.6;
@@ -67,6 +188,14 @@ export const SEA_H = -0.6;
  * sea, one loop per BOAT_LOOP_MS, while the fisher's status is ok.
  */
 export const BOAT_LOOP_MS = 48_000;
+/**
+ * Budget shares of carts (instances), walkers, boats, crates, sheep,
+ * gulls and strollers; what a class leaves unused goes to the others in
+ * that priority order.
+ */
+const SHARES = [0.45, 0.1, 0.02, 0.04, 0.1, 0.04, 0.25];
+/** Most strollers an island plans (above any instance budget). */
+const MAX_STROLLERS = 400;
 const BOAT_ALONG = 1.6;
 const BOAT_OUT = 1.7;
 const BOAT_SCALE = 1.3;
@@ -220,6 +349,8 @@ export class IslandLife implements LifePlan {
   private gulls: Gull[] = [];
   /** Crate positions (island tiles), yaw. */
   private crates: { x: number; y: number; h: number; yaw: number }[] = [];
+  private strollers: Stroller[] = [];
+  private sheep: Sheep[] = [];
 
   /** Rebuilds the plan from the island's payload (content for footprints and tiers; static data for paths and water). */
   update(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>, _statics: Island | null, smokeAnchor: SmokeAnchor | null = null): void {
@@ -235,6 +366,8 @@ export class IslandLife implements LifePlan {
       if (def && rate > 0) this.smokers.push({ b, def, rate, seed: hash01(b.id, "smoke"), anchor: null });
     }
     this.updateHarbour(display, defs);
+    this.strollers = strollers(display, defs, MAX_STROLLERS);
+    this.sheep = pastureSheep(display, defs);
   }
 
   private updateHarbour(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
@@ -295,8 +428,17 @@ export class IslandLife implements LifePlan {
   frame(nowMs: number, sink: LifeSink, lod: LifeAtLod, budget: LifeBudget): LifeStats {
     const particles = lod.smoke ? this.drawSmoke(nowMs, sink, budget.particles) : 0;
     const moving = lod.moving;
-    const [cartInst = 0, walkers = 0, boats = 0, crates = 0, gulls = 0] = allocate(
-      [moving ? this.carts.length * CART_INSTANCES : 0, moving ? this.routes.length : 0, moving ? this.boats.length : 0, lod.props ? this.crates.length : 0, moving ? this.gulls.length : 0],
+    const [cartInst = 0, walkers = 0, boats = 0, crates = 0, sheep = 0, gulls = 0, strollers = 0] = allocateShares(
+      [
+        moving ? this.carts.length * CART_INSTANCES : 0,
+        moving ? this.routes.length : 0,
+        moving ? this.boats.length : 0,
+        lod.props ? this.crates.length : 0,
+        lod.props ? this.sheep.length : 0,
+        moving ? this.gulls.length : 0,
+        moving ? this.strollers.length : 0,
+      ],
+      SHARES,
       budget.instances,
     );
     const nCarts = Math.floor(cartInst / CART_INSTANCES);
@@ -307,8 +449,55 @@ export class IslandLife implements LifePlan {
       const c = this.crates[i] as { x: number; y: number; h: number; yaw: number };
       sink.add(CLS.crate, c.x, c.h, c.y, c.yaw, 1);
     }
+    for (let i = 0; i < sheep; i++) this.drawSheep(this.sheep[i] as Sheep, moving ? nowMs : null, sink);
     for (let i = 0; i < gulls; i++) this.drawGull(this.gulls[i] as Gull, nowMs, sink);
-    return { instances: nCarts * CART_INSTANCES + walkers + boats + crates + gulls, particles };
+    for (let i = 0; i < strollers; i++) this.drawStroller(this.strollers[i] as Stroller, nowMs, sink);
+    return { instances: nCarts * CART_INSTANCES + walkers + boats + crates + sheep + gulls + strollers, particles };
+  }
+
+  private drawStroller(s: Stroller, nowMs: number, sink: LifeSink): void {
+    const t = loopPhase(nowMs, s.startMs, s.periodMs) * s.periodMs;
+    let f: number;
+    let back = false;
+    let walking = true;
+    if (t < s.walkMs) f = t / s.walkMs;
+    else if (t < s.walkMs + s.pauseMs) {
+      f = 1;
+      walking = false;
+    } else if (t < 2 * s.walkMs + s.pauseMs) {
+      f = 1 - (t - s.walkMs - s.pauseMs) / s.walkMs;
+      back = true;
+    } else {
+      f = 0;
+      walking = false;
+      back = true;
+    }
+    alongPath(s.path, f, at);
+    if (back) at.heading += Math.PI;
+    const x = at.x - Math.sin(at.heading) * s.side;
+    const y = at.y + Math.cos(at.heading) * s.side;
+    const step = (f * (s.path.length - 1)) / STRIDE;
+    const bob = walking ? Math.abs(Math.sin(step * Math.PI)) * BOB : 0;
+    sink.add(CLS.villager(s.tier, s.variant), x, ROAD_H + bob, y, facing(at.heading), VILLAGER_SCALE);
+  }
+
+  /** A sheep at time nowMs (null: standing at its first spot, the mid LOD), walking then grazing in each step. */
+  private drawSheep(s: Sheep, nowMs: number | null, sink: LifeSink): void {
+    const spot = (k: number) => ({ x: s.x0 + hash01(s.key, k, "x") * s.w, y: s.y0 + hash01(s.key, k, "y") * s.h });
+    if (!s.active || nowMs === null) {
+      const p = spot(0);
+      sink.add(CLS.sheep, p.x, FIELD_H, p.y, hash01(s.key, "yaw") * Math.PI * 2, 1, s.active ? undefined : INACTIVE_TINT);
+      return;
+    }
+    const u = (nowMs + hash01(s.key, "phase") * SHEEP_STEP_MS) / SHEEP_STEP_MS;
+    const k = Math.floor(u);
+    const a = spot(k - 1);
+    const b = spot(k);
+    const f = Math.min(1, (u - k) / SHEEP_WALK);
+    const e = f * f * (3 - 2 * f);
+    const heading = Math.atan2(b.y - a.y, b.x - a.x);
+    // Head down while grazing: a slight forward pitch.
+    sink.add(CLS.sheep, a.x + (b.x - a.x) * e, FIELD_H, a.y + (b.y - a.y) * e, facing(heading), 1, undefined, f >= 1 ? 0.12 : 0);
   }
 
   private drawBoat(b: Boat, nowMs: number, sink: LifeSink): void {

@@ -1,0 +1,11 @@
+{
+  "$schema": "./schema.json",
+  "id": "life_sheep",
+  "kind": "life",
+  "notes": "Life layer: one chunky sheep (the pasture's former static sheep: wool body, dark head and legs) facing +y, so the client walks it inside its pasture and greys it while the pasture is inactive.",
+  "parts": [
+    {"name": "sheep", "prim": "rock", "size": [0.11, 0.16, 0.1], "position": [0, 0, 0.13], "role": "canvas", "shade": 1.05},
+    {"name": "sheep head", "prim": "box", "size": [0.07, 0.08, 0.08], "position": [0, 0.114, 0.14], "role": "timber", "shade": 0.6},
+    {"name": "sheep legs", "prim": "box", "size": [0.09, 0.16, 0.07], "open": ["bottom", "top"], "position": [0, 0, 0.025], "role": "timber", "shade": 0.6}
+  ]
+}

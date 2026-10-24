@@ -1050,6 +1050,42 @@
         }
       ]
     },
+    "life_sheep": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.087,
+          0.22,
+          0.1189
+        ],
+        "min": [
+          -0.1009,
+          0.025,
+          -0.154
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.087,
+            0.22,
+            0.1189
+          ],
+          "min": [
+            -0.1009,
+            0.025,
+            -0.154
+          ]
+        },
+        "budget": 600,
+        "bytes": 4244,
+        "path": "life_sheep.glb",
+        "sha256": "a19d356471e37b33b890545cb851cfe75905b2ab0931a432237cc0a922ac45c5",
+        "triangles": 40
+      },
+      "kind": "life",
+      "kit_sources": []
+    },
     "life_villager_citizens": {
       "anchors": {},
       "bounds": {
@@ -2627,10 +2663,10 @@
           ]
         },
         "budget": 300,
-        "bytes": 20940,
+        "bytes": 14776,
         "path": "pasture.glb",
-        "sha256": "276299b91aedaef4791e365f1b53d2d094fdc4210e621bccf4d006c6f7d7bc5f",
-        "triangles": 262
+        "sha256": "cb9c7eed85fb04789193684bd019f8f9b752de5888602f2141b3b36ba4bd6f2f",
+        "triangles": 182
       },
       "footprint": {
         "h": 2,
