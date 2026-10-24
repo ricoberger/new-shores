@@ -15,3 +15,6 @@ __pycache__/
 
 # Local experiments and scratch notes (renders, exploration scripts).
 .experiment/
+
+# Local AI team notes (specifications, implementation notes).
+.ai-team/
