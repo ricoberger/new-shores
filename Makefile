@@ -19,6 +19,15 @@
 #   make assets       rebuild the models (Blender 5.2 + the CC0 kits, see README "Asset build")
 #   make assets-check rebuild into a temp dir and compare with client/public/models (skips without Blender)
 #   make assets-test  asset build unit tests (stdlib Python ≥ 3.11; part of `make check`)
+#   make shots        PNGs of the game in .experiment/shots/<set>/ (fixtures showcase,
+#                     settled, dense-2x400 × near/mid/far × desktop/phone, fixed camera and
+#                     clock; 25–40 s). Needs the Playwright browsers, free ports 18080/4174.
+#                     Parameters FIXTURE, VIEW, DEVICE (lists or all), ROTATION, ISLAND, ZOOM,
+#                     X Y, OUT, SET, HUD=0, PRESET (info-panel, sheet, ghost, sloop, all):
+#                     make shots FIXTURE=showcase VIEW=near DEVICE=desktop ROTATION=2
+#   make model-sheet  contact sheets of single recipes in .experiment/sheets (committed models
+#                     untouched; Blender 5.2 + NEW_SHORES_KITS_DIR); without RECIPE it lists
+#                     the recipe IDs: make model-sheet RECIPE=sawmill,sloop
 #
 # TIME_SCALE sets world seconds per wall-clock second for `make dev`
 # (server --time-scale and client VITE_TIME_SCALE).
@@ -42,7 +51,7 @@ DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUM
 
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
 	client-install client-check client-lint client-typecheck client-test client-build client-e2e e2e-fast dev preview \
-	server-integration client-e2e-pg up down logs makefile-test assets assets-check assets-test
+	server-integration client-e2e-pg up down logs makefile-test assets assets-check assets-test shots model-sheet
 
 check: server-check content-test client-check makefile-test assets-test
 
@@ -91,6 +100,31 @@ assets:
 
 assets-check:
 	cd $(CLIENT_DIR) && npm run --silent assets -- --check
+
+# Screenshots of the game for polish work, see the header. The parameters
+# (FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SET)
+# reach the script as environment variables; unknown values fail with the allowed list.
+shots:
+	cd $(CLIENT_DIR) && npm run --silent shots
+
+# Contact sheet of single models without touching the committed ones: --only
+# rewrites the output directory (it would drop the other GLBs and shrink
+# manifest.json), so the GLBs go to .experiment/sheets/models and only the
+# sheets (<id>.png per recipe, all.png) are of interest (paths are relative to
+# the repository root, where the build runs). Unlike `make assets`
+# the sheets are not written to assets/build/out (the default of the build).
+RECIPE_IDS := $(sort $(basename $(notdir $(filter-out %/schema.json,$(wildcard assets/recipes/*.json)))))
+SHEETS_OUT := .experiment/sheets
+
+model-sheet:
+ifeq ($(strip $(RECIPE)),)
+	@echo "usage: make model-sheet RECIPE=<id>[,<id>]   (sheets in $(SHEETS_OUT))"; echo "recipe IDs:"; printf '  %s\n' $(RECIPE_IDS)
+else
+	@for id in $(subst $(comma), ,$(RECIPE)); do \
+		case " $(RECIPE_IDS) " in *" $$id "*) ;; *) echo "model-sheet: unknown recipe '$$id'; run \`make model-sheet\` for the list"; exit 2;; esac; \
+	done
+	cd $(CLIENT_DIR) && npm run --silent assets -- --only $(RECIPE) --no-thumbs --out $(SHEETS_OUT)/models --sheets $(SHEETS_OUT)
+endif
 
 assets-test:
 	python3 -m unittest discover -s assets/build/tests -t assets/build/tests
