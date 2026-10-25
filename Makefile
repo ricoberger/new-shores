@@ -19,6 +19,15 @@
 #   make assets       rebuild the models (Blender 5.2 + the CC0 kits, see README "Asset build")
 #   make assets-check rebuild into a temp dir and compare with client/public/models (skips without Blender)
 #   make assets-test  asset build unit tests (stdlib Python ≥ 3.11; part of `make check`)
+#   make shots        PNGs of the game in .experiment/shots/<set>/ (fixtures showcase,
+#                     settled, dense-2x400 × near/mid/far × desktop/phone, fixed camera and
+#                     clock; 25–40 s). Needs the Playwright browsers, free ports 18080/4174.
+#                     Parameters FIXTURE, VIEW, DEVICE (lists or all), ROTATION, ISLAND, ZOOM,
+#                     X Y, OUT, SET, HUD=0, PRESET (info-panel, sheet, ghost, sloop, all):
+#                     make shots FIXTURE=showcase VIEW=near DEVICE=desktop ROTATION=2
+#   make model-sheet  contact sheets of single recipes in .experiment/sheets (committed models
+#                     untouched; Blender 5.2 + NEW_SHORES_KITS_DIR); without RECIPE it lists
+#                     the recipe IDs: make model-sheet RECIPE=sawmill,sloop
 #
 # TIME_SCALE sets world seconds per wall-clock second for `make dev`
 # (server --time-scale and client VITE_TIME_SCALE).

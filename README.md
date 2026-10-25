@@ -293,6 +293,20 @@ palette or the build.
   the determinism test needs Blender and the kits and is skipped with a
   notice otherwise). `python3 assets/build/build.py validate` checks the
   recipes without Blender.
+- **Looking at the result** (git-ignored, under `.experiment/`):
+  `make model-sheet RECIPE=sawmill,sloop` builds the named recipes into
+  `.experiment/sheets/` (contact sheets per recipe and `all.png`; the
+  committed models and thumbnails stay untouched; without `RECIPE` it lists
+  the recipe IDs). `make shots` writes `<fixture>-<view>-<device>.png` into
+  `.experiment/shots/default/` with a fixed camera and clock: fixtures
+  `showcase`, `settled`, `dense-2x400`, views `near`, `mid`, `far`, devices
+  `desktop` (1280×800) and `phone` (412×915, DPR 2.625). Narrow it with
+  `FIXTURE=`, `VIEW=`, `DEVICE=` (comma lists or `all`) and move the camera
+  with `ROTATION=0..3`, `ISLAND=`, `ZOOM=` (half extent), `X= Y=`; `HUD=0`
+  hides the HUD, `OUT=` sets the directory. `make shots PRESET=all` takes
+  the HUD states instead (`info-panel`, `sheet`, `ghost`, `sloop`). The
+  scene has no screenshot baselines; the visual e2e spec only guards the
+  HUD layout.
 
 ## Tech stack at a glance
 
