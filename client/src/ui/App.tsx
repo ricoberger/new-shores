@@ -50,7 +50,7 @@ import { InsolvencyBanner } from "./InsolvencyBanner";
 import { QuestsPanel } from "./QuestsPanel";
 import { TopBar } from "./TopBar";
 import { warningEntries, WarningsPanel } from "./WarningsPanel";
-import { SideDock } from "./SideDock";
+import { SideDock, type DockPanel } from "./SideDock";
 import { claimableCount } from "../display/quests";
 import { WorldOverlay } from "./WorldOverlay";
 import { StatsBadge } from "./StatsBadge";
@@ -380,7 +380,21 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const rotateTool = (steps: number) =>
     setTool((t) => (isGhostTool(t) ? { ...t, rotation: rotateSteps(t.rotation, steps) } : t));
 
-  /** A tap on island land or its label: the reducer appends a stop, picks a destination, selects the island or (near LOD) a building. */
+  /**
+   * Opens a list panel (or closes it when it is open). Opening one deselects
+   * the current building, ship or island, so closing the list does not bring
+   * its details back; `onlyOpen` never closes.
+   */
+  const togglePanel = (p: DockPanel, onlyOpen = false) => {
+    if (panel === p && !onlyOpen) {
+      setPanel("none");
+      return;
+    }
+    dispatch({ type: "clearSelection" });
+    setPanel(p);
+  };
+
+  /** A tap on island land or its label: the reducer selects the island or (near LOD) a building. */
   const tapIsland = (id: string, building?: number | null) => {
     // Opening an island card or a building's info closes a list panel (it would take precedence).
     if ((building === undefined || typeof building === "number") && vs.editor.kind === "closed") setPanel("none");
@@ -875,7 +889,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
             compact={layout.mode === "phone-portrait" ? "portrait" : compactHud ? "landscape" : null}
           />
-          <InsolvencyBanner model={model} onOpenWarnings={() => setPanel("warnings")} compact={phone} oneLine={tightLandscape} />
+          <InsolvencyBanner model={model} onOpenWarnings={() => togglePanel("warnings", true)} compact={phone} oneLine={tightLandscape} />
           {placementBar && isGhostTool(tool) && (
             <PlacementBar tool={tool} hint={ghostHint} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
           )}
@@ -950,7 +964,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         {model && content && (
           <SideDock
             active={panel}
-            onToggle={(p) => setPanel((cur) => (cur === p ? "none" : p))}
+            onToggle={(p) => togglePanel(p)}
             buildOpen={buildOpen}
             onToggleBuild={toggleBuild}
             counts={{ warnings: warningEntries(model, content).length, quests: claimableCount(model), ships: model.ships.length, routes: model.routes.length }}

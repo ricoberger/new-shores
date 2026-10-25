@@ -125,7 +125,9 @@ UI shows the same numbers the server uses.
   badge shows above zero (quests: rewards to claim). A click opens that
   panel in the right-hand slot (a sheet on phones), a second click closes
   it; they are mutually exclusive with each other and with the info,
-  island, ship and route-editor panels. Details-in-place is a later task.
+  island, ship and route-editor panels. Opening one deselects the current
+  building, ship or island (closing the list does not bring its details
+  back). Details-in-place is a later task.
 - **Phone (compact):** same content; portrait puts the island on a second
   row below gold / population / materials and the menu icon. The minimap
   collapses to its toggle (portrait starts collapsed); the compass shows
