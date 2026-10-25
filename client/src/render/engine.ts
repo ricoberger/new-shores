@@ -9,7 +9,6 @@
 // tile (x, y) of an island at `position` is world
 // (position.x + x, 0, −(position.y + y)).
 import { Engine } from "@babylonjs/core/Engines/engine";
-import { EngineStore } from "@babylonjs/core/Engines/engineStore";
 import { Color4 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
@@ -22,7 +21,6 @@ import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
-import { CLS } from "../display/lifeplan";
 import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, seaPoint } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
@@ -42,9 +40,8 @@ import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
 import { LIFE_CLASSES, LifeLayer } from "./life";
 import { setSwayTime } from "./sway";
-import { type Effects, SceneLighting } from "./lighting";
+import { SceneLighting } from "./lighting";
 import { RoadPreview } from "./roads";
-import type { ShipStyle } from "./shipmesh";
 
 /**
  * Render resolution cap (render pixels per CSS pixel). High-DPR phones
@@ -165,7 +162,6 @@ export class GameRenderer {
   private readonly grid: GridOverlay;
   /** Ground point of the last touch tap or drag position (archipelago tiles): the grid's centre on touch. */
   private lastTouch: ArchPoint | null = null;
-  private gridCentre: ArchPoint | null = null;
   /** The current drag is a finger's (its moves update lastTouch). */
   private touchDrag = false;
   /** Cache key of the field marks (recomputed only when they change) and the building the UI hovers (a fields list row). */
@@ -178,7 +174,6 @@ export class GameRenderer {
   private ghostValid: "ok" | "no_road" | "invalid" | null = null;
   /** The last pointer was a mouse or pen (the ghost follows it, not a touch-pending tile). */
   private precise = false;
-  private ghostAt: TilePos | null = null;
   private readonly input: PointerInput;
   private readonly unsubscribe: () => void;
   private lastServer: WorldResponse | null = null;
@@ -326,11 +321,6 @@ export class GameRenderer {
     this.engine.dispose();
   }
 
-  /** Number of live Babylon engines (Strict Mode check). */
-  static engineCount(): number {
-    return EngineStore.Instances.length;
-  }
-
   /** Called after every rendered frame (HTML overlays follow the camera). */
   onFrame(l: () => void): () => void {
     this.frameListeners.add(l);
@@ -392,24 +382,6 @@ export class GameRenderer {
     return this.life.isEnabled() ? this.life.lastStats() : null;
   }
 
-  /** Life instances drawn per element class in the last frame (tests). */
-  lifeCounts(): Record<string, number> {
-    const out = this.life.counts();
-    for (const d of this.details.values()) for (const [k, n] of Object.entries(d.stageCounts())) out[k] = (out[k] ?? 0) + n;
-    return out;
-  }
-
-  /** Archipelago positions (tiles) of a life class's instances in the last frame (tests). */
-  lifePositions(cls: string): { x: number; y: number; h: number }[] {
-    return this.life.positions(cls);
-  }
-
-  /** Carts drawn in the last frame (life layer; near LOD, islands in view). */
-  cartCount(): number {
-    const c = this.life.counts();
-    return (c[CLS.cart] ?? 0) + (c[CLS.cartLoaded] ?? 0);
-  }
-
   /**
    * Pins the animation time (sea ripples, foam, carts, ships) to a server
    * time in ms, or releases it with null — deterministic screenshots.
@@ -428,11 +400,6 @@ export class GameRenderer {
 
   quality(): Quality {
     return this.lighting.quality();
-  }
-
-  /** Which quality-dependent effects exist (tests). */
-  effects(): Effects {
-    return this.lighting.effects();
   }
 
   /** Shadow-map casters: the islands shown at near LOD. */
@@ -505,17 +472,6 @@ export class GameRenderer {
   /** Sets (parts of) the camera at once, clamped like user input (tests, perf check). */
   setCamera(v: Partial<CameraView>): void {
     this.rig.setCamera(v);
-  }
-
-  /** IDs of the islands in the camera's footprint (rendered), in payload order. */
-  visibleIslandIds(): string[] {
-    const islands = this.sync.getSnapshot().server?.display.islands ?? [];
-    return islands.filter((is) => this.visible.has(is.id)).map((is) => is.id);
-  }
-
-  /** The focused island (UI only). */
-  focusedIsland(): string {
-    return this.info.focus;
   }
 
   /** The camera's ground footprint (archipelago tiles). */
@@ -716,13 +672,6 @@ export class GameRenderer {
     this.applySelection();
   }
 
-  /** Ship the camera opened on (the start at sea), null when it opened on an island. */
-  private startShipId: number | null = null;
-
-  startShip(): number | null {
-    return this.startShipId;
-  }
-
   private placeInitialCamera(): void {
     const ic = this.initialCamera;
     if (ic.kind === "fit") {
@@ -736,7 +685,6 @@ export class GameRenderer {
       // are in view for the choice of the home island.
       const sea = ic.id === undefined && !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
       const is = islands.find((x) => x.id === ic.id) ?? islands.find((x) => x.settled) ?? islands[0];
-      this.startShipId = sea?.position ? sea.id : null;
       if (sea?.position) {
         const p = seaPoint(sea.position);
         this.rig.setCamera({ x: p.x, y: p.y, half: Math.min(this.rig.zoomRange().max, SEA_START_HALF_HEIGHT) });
@@ -804,18 +752,6 @@ export class GameRenderer {
     return this.worldToClient(new Vector3(p.position.x + x + 0.5, 0, -(p.position.y + y + 0.5)));
   }
 
-  /**
-   * Viewport position of an island's centre (label height), or of the
-   * centre of one of its tiles when x and y are given (NaN for unknown
-   * islands and during a camera animation).
-   */
-  islandToScreen(id: string, x?: number, y?: number): { x: number; y: number } {
-    const p = this.arch.placement(id);
-    if (this.moving() || !p) return { x: NaN, y: NaN };
-    if (x !== undefined && y !== undefined) return this.tileToScreen(id, x, y);
-    return this.worldToClient(new Vector3(p.position.x + p.width / 2, LABEL_Y, -(p.position.y + p.height / 2)));
-  }
-
   /** Viewport position of a ship drawn in the last frame (NaN when not drawn or during a camera animation). */
   shipToScreen(id: number): { x: number; y: number } {
     const p = this.arch.shipPoint(id);
@@ -826,18 +762,6 @@ export class GameRenderer {
   /** Height ships are picked and projected at (their hull). */
   private shipPickY(): number {
     return this.lod === "far" ? 0.6 : 0.2;
-  }
-
-  /** Instance style a ship was drawn with in the last frame ("unpaid" is the greyed anchored_unpaid style); null when not drawn. */
-  shipStyle(id: number): ShipStyle | null {
-    return this.arch.shipStyle(id) ?? null;
-  }
-
-  /** Shipyard construction hulls drawn in the last frame (near LOD, islands in view). */
-  constructionMarkers(): { buildingId: number; scale: number }[] {
-    const out: { buildingId: number; scale: number }[] = [];
-    for (const d of this.details.values()) out.push(...d.constructionMarkers());
-    return out;
   }
 
   /** Archipelago position of a ship in the last frame. */
@@ -864,18 +788,6 @@ export class GameRenderer {
       bridged += d.bridged();
     }
     return { ...this.models.status(), placeholders: [...placeholders].sort(), bridged };
-  }
-
-  /** Model detail drawn (full at near and mid, lite at far). */
-  modelDetail(): Detail {
-    return this.detail;
-  }
-
-  /** Trading Posts and shipyards drawn on the islands in view at far LOD. */
-  landmarkCount(): number {
-    let n = 0;
-    for (const d of this.details.values()) n += d.landmarks();
-    return n;
   }
 
   // Picking ----------------------------------------------------------------------
@@ -966,29 +878,9 @@ export class GameRenderer {
     if (isGhostTool(tool) && tool.pending) this.events.unpend();
   }
 
-  /** What the placement ghost drew in the last frame: the building's model, the footprint box (no model yet) or null (hidden). */
-  ghostKind(): "model" | "box" | null {
-    return this.ghost.kind();
-  }
-
   /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
   ghostValidity(): "ok" | "no_road" | "invalid" | null {
     return this.ghostValid;
-  }
-
-  /** Water rows the placement ghost highlighted in the last frame (island tiles; null: none or hidden). */
-  ghostWaterRows(): { x: number; y: number; w: number; h: number } | null {
-    return this.ghost.waterRows();
-  }
-
-  /** Tile the placement ghost was drawn on in the last frame (local to its island; null: hidden). */
-  ghostTile(): TilePos | null {
-    return this.ghostAt;
-  }
-
-  /** Footprint marks drawn in the last frame, by kind (tests and the e2e hooks). */
-  fieldMarks(): Record<Mark["kind"], number> {
-    return this.marks.counts();
   }
 
   /** The farm's field row the UI hovers (a building ID) is outlined; null clears it. */
@@ -1280,7 +1172,6 @@ export class GameRenderer {
     const t = !ghostTool || !def ? null : this.precise ? hovered : (tool.pending ?? hovered);
     const l = t ? this.lookup(t.island) : undefined;
     const pl = t ? this.arch.placement(t.island) : undefined;
-    this.ghostAt = t && pl ? { x: t.x, y: t.y } : null;
     if (!ghostTool || !def || !t || !pl) {
       this.ghost.hide();
       this.ghostValid = null;
@@ -1357,18 +1248,7 @@ export class GameRenderer {
     else if (mouse) at = mouse;
     else if (isGhostTool(tool) && tool.pending) at = toArch(tool.pending.island, tool.pending);
     at ??= this.lastTouch ?? { x: this.rig.view().x, y: this.rig.view().y };
-    this.gridCentre = at;
     this.grid.set(at);
-  }
-
-  /** Archipelago point the grid overlay was centred on in the last frame (null: hidden). */
-  gridAt(): ArchPoint | null {
-    return this.grid.visible() ? this.gridCentre : null;
-  }
-
-  /** The grid overlay was drawn in the last frame. */
-  gridVisible(): boolean {
-    return this.grid.visible();
   }
 
   /** Trees and ground scatter items built on the islands with detail (near-LOD decoration). */

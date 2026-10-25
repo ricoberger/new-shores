@@ -383,8 +383,4 @@ export class IslandDetail {
     return this.shown ? { x: this.root.position.x, y: -this.root.position.z } : null;
   }
 
-  /** Construction hulls drawn in the last frame (near LOD, shown). */
-  constructionMarkers(): { buildingId: number; scale: number }[] {
-    return this.shown && this.lod === "near" ? this.construction.constructionMarkers() : [];
-  }
 }

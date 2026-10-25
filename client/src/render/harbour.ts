@@ -142,8 +142,4 @@ export class ConstructionLayer {
     this.construction.commit();
   }
 
-  /** Construction hulls drawn in the last frame: shipyard building ID and hull scale. */
-  constructionMarkers(): { buildingId: number; scale: number }[] {
-    return [...this.markers.entries()].map(([buildingId, scale]) => ({ buildingId, scale }));
-  }
 }
