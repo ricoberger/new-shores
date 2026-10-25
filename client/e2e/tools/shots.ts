@@ -250,6 +250,30 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.getByTestId("build-menu").waitFor({ state: "visible" });
     },
   },
+  // The warnings panel open (desktop).
+  warnings: {
+    fixture: "dense-2x400",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("dock-warnings").click();
+      await page.getByTestId("warnings-panel").waitFor({ state: "visible" });
+      // Scrolled: the title stays, the entries move beneath it.
+      await page.evaluate(() => {
+        const body = document.querySelector('[data-testid="warnings-panel"] > :last-child');
+        if (body) body.scrollTop = 240;
+      });
+    },
+  },
+  // A ship selected from the Ships list: its panel and the selection ring (desktop).
+  "ship-panel": {
+    fixture: "dense-2x400",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("dock-ships").click();
+      await page.getByTestId("ship-1").click();
+      await page.getByTestId("ship-panel").waitFor({ state: "visible" });
+    },
+  },
   // A sloop on a leg (desktop), camera centred on ship 2.
   sloop: {
     fixture: "dense-2x400",

@@ -45,6 +45,7 @@ const text = (html: string) => html.replace(/<[^>]+>/g, "");
 const panel = (building: BuildingDisplay, island: IslandDisplay, model: DisplayState) =>
   renderToStaticMarkup(
     createElement(InfoPanel, {
+      onClose: () => {},
       building,
       island,
       model,

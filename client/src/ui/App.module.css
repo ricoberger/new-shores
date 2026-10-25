@@ -156,9 +156,17 @@
   margin-right: max(6px, env(safe-area-inset-right));
 }
 
+.rightNarrow {
+  display: flex;
+  flex-direction: column;
+}
+
+/* A detail panel takes at most the column's height; its body scrolls under the title. */
 .rightNarrow > * {
   width: 100%;
   max-height: none;
+  min-height: 0;
+  flex: 0 1 auto;
 }
 
 /* Hints and banners of the phone layout stack below the top bar. */

@@ -1,6 +1,7 @@
 import type { Content, DisplayState } from "../api/client";
 import { statusText } from "../display/status";
 import { StatusIcon } from "./InfoPanel";
+import { CloseButton } from "./CloseButton";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -18,24 +19,24 @@ export function WarningsPanel({ model, content, onFocus, onClose }: Props) {
       <div className={styles.row}>
         <h2 className={styles.title}>Warnings</h2>
         <div className={styles.spacer} />
-        <button type="button" className={styles.link} onClick={onClose} data-testid="warnings-close">
-          close
-        </button>
+        <CloseButton onClick={onClose} testId="warnings-close" />
       </div>
-      {entries.length === 0 && <p className={styles.small}>No warnings.</p>}
-      <ul className={styles.trayList}>
-        {entries.map(({ b, text }) => (
-          <li key={b.id}>
-            <button type="button" className={styles.trayEntry} onClick={() => onFocus(b.id)} data-testid="warning-entry">
-              <StatusIcon building={b} />
-              <span>
-                {content.buildings.find((d) => d.id === b.type)?.name ?? b.type}: {text.sentence}
-                {text.fix && <span className={styles.fix}> — {text.fix}</span>}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className={styles.panelBody}>
+        {entries.length === 0 && <p className={styles.small}>No warnings.</p>}
+        <ul className={styles.trayList}>
+          {entries.map(({ b, text }) => (
+            <li key={b.id} className={styles.shipEntry}>
+              <button type="button" className={styles.trayEntry} onClick={() => onFocus(b.id)} data-testid="warning-entry">
+                <StatusIcon building={b} />
+                <span>
+                  {content.buildings.find((d) => d.id === b.type)?.name ?? b.type}: {text.sentence}
+                  {text.fix && <span className={styles.fix}> — {text.fix}</span>}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

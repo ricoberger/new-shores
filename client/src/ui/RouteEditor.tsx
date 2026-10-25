@@ -4,6 +4,7 @@ import { draftChanged, effectRows } from "../display/routes";
 import { countdown } from "../display/ships";
 import type { Draft, DraftStop } from "../display/view";
 import { toolIcon } from "../theme/iconSet";
+import { CloseButton } from "./CloseButton";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
 
@@ -22,6 +23,8 @@ interface Props {
   onRemoveStop: (index: number) => void;
   onMoveStop: (index: number, delta: -1 | 1) => void;
   onSave: () => void;
+  /** Deletes the saved route (offered while no ship is assigned). */
+  onDelete: () => void;
   onClose: () => void;
   onAssign: (shipId: number, routeId: number) => void;
   onUnassign: (shipId: number) => void;
@@ -68,256 +71,261 @@ export function RouteEditor(p: Props) {
           {routeId === null ? "New route" : `Route #${routeId}`}
         </h2>
         <div className={styles.spacer} />
-        <button type="button" className={styles.link} onClick={p.onClose} data-testid="route-editor-close">
-          close
-        </button>
+        <CloseButton onClick={p.onClose} testId="route-editor-close" />
       </div>
-      {picking && (
-        <div className={`${styles.small} ${styles.stop}`} data-testid="route-pick-ship">
-          Assigning {shipName(picking)}:{" "}
-          {routeId === null ? "build the route and save it, or pick a saved route below." : "save, then assign it below."}
-          {model.routes.length > 0 && routeId === null && (
-            <div className={styles.row}>
-              {model.routes.map((r) => (
-                <button
-                  key={r.id}
-                  type="button"
-                  className={styles.button}
-                  onClick={() => p.onAssign(picking.id, r.id)}
-                  data-testid={`route-pick-assign-${r.id}`}
-                >
-                  {r.name}
-                </button>
-              ))}
-            </div>
-          )}
-          <button type="button" className={styles.link} onClick={p.onCancelPick}>
-            cancel
-          </button>
-        </div>
-      )}
-      <div className={styles.row}>
-        <label htmlFor="route-name">Name</label>
-        <input
-          id="route-name"
-          className={styles.input}
-          maxLength={40}
-          value={draft.name}
-          onChange={(e) => p.onChange({ ...draft, name: e.target.value })}
-          data-testid="route-name"
-        />
-      </div>
-      <div className={styles.small}>Pick islands below or click them in the world to add stops.</div>
-      {draft.stops.map((s, i) => (
-        <div key={i} className={styles.stop} data-testid={`route-stop-${i}`}>
-          <div className={styles.row}>
-            <strong data-testid={`route-stop-name-${i}`}>
-              {i + 1}. {islandName(s.island)}
-            </strong>
-            <div className={styles.spacer} />
-            <button type="button" className={styles.link} disabled={i === 0} onClick={() => p.onMoveStop(i, -1)} aria-label={`Move stop ${i + 1} up`} data-testid={`route-stop-up-${i}`}>
-              ↑
+      <div className={styles.panelBody}>
+        {picking && (
+          <div className={`${styles.small} ${styles.stop}`} data-testid="route-pick-ship">
+            Assigning {shipName(picking)}:{" "}
+            {routeId === null ? "build the route and save it, or pick a saved route below." : "save, then assign it below."}
+            {model.routes.length > 0 && routeId === null && (
+              <div className={styles.row}>
+                {model.routes.map((r) => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    className={styles.button}
+                    onClick={() => p.onAssign(picking.id, r.id)}
+                    data-testid={`route-pick-assign-${r.id}`}
+                  >
+                    {r.name}
+                  </button>
+                ))}
+              </div>
+            )}
+            <button type="button" className={styles.link} onClick={p.onCancelPick}>
+              cancel
             </button>
+          </div>
+        )}
+        <div className={styles.row}>
+          <label htmlFor="route-name">Name</label>
+          <input
+            id="route-name"
+            className={styles.input}
+            maxLength={40}
+            value={draft.name}
+            onChange={(e) => p.onChange({ ...draft, name: e.target.value })}
+            data-testid="route-name"
+          />
+        </div>
+        <div className={styles.small}>Pick the islands of the route below.</div>
+        {draft.stops.map((s, i) => (
+          <div key={i} className={styles.stop} data-testid={`route-stop-${i}`}>
+            <div className={styles.row}>
+              <strong data-testid={`route-stop-name-${i}`}>
+                {i + 1}. {islandName(s.island)}
+              </strong>
+              <div className={styles.spacer} />
+              <button type="button" className={styles.link} disabled={i === 0} onClick={() => p.onMoveStop(i, -1)} aria-label={`Move stop ${i + 1} up`} data-testid={`route-stop-up-${i}`}>
+                ↑
+              </button>
+              <button
+                type="button"
+                className={styles.link}
+                disabled={i === draft.stops.length - 1}
+                onClick={() => p.onMoveStop(i, 1)}
+                aria-label={`Move stop ${i + 1} down`}
+                data-testid={`route-stop-down-${i}`}
+              >
+                ↓
+              </button>
+              <button type="button" className={styles.link} onClick={() => p.onRemoveStop(i)} aria-label={`Remove stop ${i + 1}`} data-testid={`route-stop-remove-${i}`}>
+                remove
+              </button>
+            </div>
+            <select
+              className={styles.input}
+              value={s.island}
+              onChange={(e) => e.target.value && setStop(i, { island: e.target.value })}
+              aria-label={`Stop ${i + 1}: island`}
+              data-testid={`route-stop-island-${i}`}
+            >
+              {model.islands.map((is) => (
+                <option key={is.id} value={is.id}>
+                  {is.name || is.id}
+                  {is.settled ? "" : " (unsettled)"} · {pickerStock(is.id, s)}
+                </option>
+              ))}
+            </select>
+            <div className={styles.small}>Load (top up to this many aboard)</div>
+            {s.load.map((l, j) => (
+              <div key={j} className={styles.row}>
+                <select
+                  className={styles.input}
+                  value={l.good}
+                  onChange={(e) => setStop(i, { load: s.load.map((x, k) => (k === j ? { ...x, good: e.target.value } : x)) })}
+                  aria-label={`Stop ${i + 1}: good to load`}
+                  data-testid={`route-load-good-${i}-${j}`}
+                >
+                  {content.goods.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  className={`${styles.input} ${styles.number}`}
+                  value={l.max}
+                  onChange={(e) =>
+                    setStop(i, { load: s.load.map((x, k) => (k === j ? { ...x, max: Math.max(1, Math.floor(Number(e.target.value) || 0)) } : x)) })
+                  }
+                  aria-label={`Stop ${i + 1}: top up to (units)`}
+                  data-testid={`route-load-max-${i}-${j}`}
+                />
+                <span className={styles.small} data-testid={`route-load-stock-${i}-${j}`}>
+                  stock {stock(s.island, l.good)}
+                </span>
+                <button type="button" className={styles.link} onClick={() => setStop(i, { load: s.load.filter((_, k) => k !== j) })} aria-label="Remove load">
+                  <Icon path={toolIcon("close")} />
+                </button>
+              </div>
+            ))}
             <button
               type="button"
               className={styles.link}
-              disabled={i === draft.stops.length - 1}
-              onClick={() => p.onMoveStop(i, 1)}
-              aria-label={`Move stop ${i + 1} down`}
-              data-testid={`route-stop-down-${i}`}
+              onClick={() => setStop(i, { load: [...s.load, { good: firstGood, max: 50 }] })}
+              data-testid={`route-load-add-${i}`}
             >
-              ↓
+              + load
             </button>
-            <button type="button" className={styles.link} onClick={() => p.onRemoveStop(i)} aria-label={`Remove stop ${i + 1}`} data-testid={`route-stop-remove-${i}`}>
-              remove
+            <div className={styles.small}>Unload</div>
+            {s.unload.map((g, j) => (
+              <div key={j} className={styles.row}>
+                <select
+                  className={styles.input}
+                  value={g}
+                  onChange={(e) => setStop(i, { unload: s.unload.map((x, k) => (k === j ? e.target.value : x)) })}
+                  aria-label={`Stop ${i + 1}: good to unload`}
+                  data-testid={`route-unload-good-${i}-${j}`}
+                >
+                  {content.goods.map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.name}
+                    </option>
+                  ))}
+                </select>
+                <span className={styles.small} data-testid={`route-unload-stock-${i}-${j}`}>
+                  stock {stock(s.island, g)}
+                </span>
+                <button type="button" className={styles.link} onClick={() => setStop(i, { unload: s.unload.filter((_, k) => k !== j) })} aria-label="Remove unload">
+                  <Icon path={toolIcon("close")} />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              className={styles.link}
+              onClick={() => setStop(i, { unload: [...s.unload, firstGood] })}
+              data-testid={`route-unload-add-${i}`}
+            >
+              + unload
             </button>
           </div>
+        ))}
+        <div className={styles.row}>
           <select
             className={styles.input}
-            value={s.island}
-            onChange={(e) => e.target.value && setStop(i, { island: e.target.value })}
-            aria-label={`Stop ${i + 1}: island`}
-            data-testid={`route-stop-island-${i}`}
+            value=""
+            onChange={(e) => e.target.value && p.onAddStop(e.target.value)}
+            aria-label="Add a stop"
+            data-testid="route-stop-add"
           >
+            <option value="">+ stop…</option>
             {model.islands.map((is) => (
               <option key={is.id} value={is.id}>
                 {is.name || is.id}
-                {is.settled ? "" : " (unsettled)"} · {pickerStock(is.id, s)}
+                {is.settled ? "" : " (unsettled)"}
               </option>
             ))}
           </select>
-          <div className={styles.small}>Load (top up to this many aboard)</div>
-          {s.load.map((l, j) => (
-            <div key={j} className={styles.row}>
-              <select
-                className={styles.input}
-                value={l.good}
-                onChange={(e) => setStop(i, { load: s.load.map((x, k) => (k === j ? { ...x, good: e.target.value } : x)) })}
-                aria-label={`Stop ${i + 1}: good to load`}
-                data-testid={`route-load-good-${i}-${j}`}
-              >
-                {content.goods.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="number"
-                min={1}
-                step={1}
-                className={`${styles.input} ${styles.number}`}
-                value={l.max}
-                onChange={(e) =>
-                  setStop(i, { load: s.load.map((x, k) => (k === j ? { ...x, max: Math.max(1, Math.floor(Number(e.target.value) || 0)) } : x)) })
-                }
-                aria-label={`Stop ${i + 1}: top up to (units)`}
-                data-testid={`route-load-max-${i}-${j}`}
-              />
-              <span className={styles.small} data-testid={`route-load-stock-${i}-${j}`}>
-                stock {stock(s.island, l.good)}
-              </span>
-              <button type="button" className={styles.link} onClick={() => setStop(i, { load: s.load.filter((_, k) => k !== j) })} aria-label="Remove load">
-                <Icon path={toolIcon("close")} />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            className={styles.link}
-            onClick={() => setStop(i, { load: [...s.load, { good: firstGood, max: 50 }] })}
-            data-testid={`route-load-add-${i}`}
-          >
-            + load
-          </button>
-          <div className={styles.small}>Unload</div>
-          {s.unload.map((g, j) => (
-            <div key={j} className={styles.row}>
-              <select
-                className={styles.input}
-                value={g}
-                onChange={(e) => setStop(i, { unload: s.unload.map((x, k) => (k === j ? e.target.value : x)) })}
-                aria-label={`Stop ${i + 1}: good to unload`}
-                data-testid={`route-unload-good-${i}-${j}`}
-              >
-                {content.goods.map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.name}
-                  </option>
-                ))}
-              </select>
-              <span className={styles.small} data-testid={`route-unload-stock-${i}-${j}`}>
-                stock {stock(s.island, g)}
-              </span>
-              <button type="button" className={styles.link} onClick={() => setStop(i, { unload: s.unload.filter((_, k) => k !== j) })} aria-label="Remove unload">
-                <Icon path={toolIcon("close")} />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            className={styles.link}
-            onClick={() => setStop(i, { unload: [...s.unload, firstGood] })}
-            data-testid={`route-unload-add-${i}`}
-          >
-            + unload
-          </button>
         </div>
-      ))}
-      <div className={styles.row}>
-        <select
-          className={styles.input}
-          value=""
-          onChange={(e) => e.target.value && p.onAddStop(e.target.value)}
-          aria-label="Add a stop"
-          data-testid="route-stop-add"
-        >
-          <option value="">+ stop…</option>
-          {model.islands.map((is) => (
-            <option key={is.id} value={is.id}>
-              {is.name || is.id}
-              {is.settled ? "" : " (unsettled)"}
-            </option>
-          ))}
-        </select>
-      </div>
-      {error && (
-        <div className={`${styles.small} ${styles.warn}`} data-testid="route-error">
-          {error}
-        </div>
-      )}
-      <div className={styles.section}>
-        <div className={styles.sectionTitle}>Loop time</div>
-        <div className={styles.small} data-testid="route-loop">
-          {route ? `loop time ${countdown(route.loop_ms)}${dirty ? " (saved version)" : ""}` : "Save to compute"}
-        </div>
-      </div>
-      <div className={styles.section} data-testid="route-effects">
-        <div className={styles.sectionTitle}>Net effect (estimated)</div>
-        {!route ? (
-          <div className={styles.small}>Save to compute</div>
-        ) : route.effects.length === 0 ? (
-          <div className={styles.small}>estimated: the route moves no goods</div>
-        ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Island</th>
-                <th>Good</th>
-                <th>per loop</th>
-                <th>per min</th>
-              </tr>
-            </thead>
-            <tbody>
-              {effectRows(route, model, content).map((e) => (
-                <tr key={`${e.island}-${e.good}`} data-testid={`route-effect-${e.island}-${e.good}`}>
-                  <td>{e.islandName}</td>
-                  <td>{e.goodName}</td>
-                  <td>{e.perLoop}</td>
-                  <td>{e.perMin}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        {route && (
-          <div className={styles.small}>
-            estimated at the reference speed with full stocks{route.ship_ids.length === 0 ? "; per minute needs an assigned ship" : ""}
-            {dirty ? " (saved version)" : ""}
+        {error && (
+          <div className={`${styles.small} ${styles.warn}`} data-testid="route-error">
+            {error}
           </div>
         )}
-      </div>
-      {route && (
-        <div className={styles.section} data-testid="route-ships">
-          <div className={styles.sectionTitle}>Ships</div>
-          {route.ship_ids.length === 0 && <div className={styles.small}>none assigned</div>}
-          {route.ship_ids.map((id) => {
-            const s = model.ships.find((x) => x.id === id);
-            return (
-              <div key={id} className={styles.row}>
-                <span>{s ? shipName(s) : `#${id}`}</span>
-                <button type="button" className={styles.button} onClick={() => p.onUnassign(id)} data-testid={`route-unassign-${id}`}>
-                  Unassign
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Loop time</div>
+          <div className={styles.small} data-testid="route-loop">
+            {route ? `loop time ${countdown(route.loop_ms)}${dirty ? " (saved version)" : ""}` : "Save to compute"}
+          </div>
+        </div>
+        <div className={styles.section} data-testid="route-effects">
+          <div className={styles.sectionTitle}>Net effect (estimated)</div>
+          {!route ? (
+            <div className={styles.small}>Save to compute</div>
+          ) : route.effects.length === 0 ? (
+            <div className={styles.small}>estimated: the route moves no goods</div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Island</th>
+                  <th>Good</th>
+                  <th>per loop</th>
+                  <th>per min</th>
+                </tr>
+              </thead>
+              <tbody>
+                {effectRows(route, model, content).map((e) => (
+                  <tr key={`${e.island}-${e.good}`} data-testid={`route-effect-${e.island}-${e.good}`}>
+                    <td>{e.islandName}</td>
+                    <td>{e.goodName}</td>
+                    <td>{e.perLoop}</td>
+                    <td>{e.perMin}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {route && (
+            <div className={styles.small}>
+              estimated at the reference speed with full stocks{route.ship_ids.length === 0 ? "; per minute needs an assigned ship" : ""}
+              {dirty ? " (saved version)" : ""}
+            </div>
+          )}
+        </div>
+        {route && (
+          <div className={styles.section} data-testid="route-ships">
+            <div className={styles.sectionTitle}>Ships</div>
+            {route.ship_ids.length === 0 && <div className={styles.small}>none assigned</div>}
+            {route.ship_ids.map((id) => {
+              const s = model.ships.find((x) => x.id === id);
+              return (
+                <div key={id} className={styles.row}>
+                  <span>{s ? shipName(s) : `#${id}`}</span>
+                  <button type="button" className={styles.button} onClick={() => p.onUnassign(id)} data-testid={`route-unassign-${id}`}>
+                    Unassign
+                  </button>
+                </div>
+              );
+            })}
+            {idleShips.map((s) => (
+              <div key={s.id} className={styles.row}>
+                <span>
+                  {shipName(s)} at {islandName(s.island_id)}
+                </span>
+                <button type="button" className={styles.button} onClick={() => p.onAssign(s.id, route.id)} data-testid={`route-assign-${s.id}`}>
+                  Assign
                 </button>
               </div>
-            );
-          })}
-          {idleShips.map((s) => (
-            <div key={s.id} className={styles.row}>
-              <span>
-                {shipName(s)} at {islandName(s.island_id)}
-              </span>
-              <button type="button" className={styles.button} onClick={() => p.onAssign(s.id, route.id)} data-testid={`route-assign-${s.id}`}>
-                Assign
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
+        )}
+        <div className={styles.buttons}>
+          <button type="button" className={styles.button} onClick={p.onSave} data-testid="route-save">
+            Save
+          </button>
+          {route && route.ship_ids.length === 0 && (
+            <button type="button" className={`${styles.button} ${styles.danger}`} onClick={p.onDelete} data-testid="route-delete">
+              Delete
+            </button>
+          )}
         </div>
-      )}
-      <div className={styles.buttons}>
-        <button type="button" className={styles.button} onClick={p.onSave} data-testid="route-save">
-          Save
-        </button>
       </div>
     </div>
   );

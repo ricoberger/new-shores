@@ -106,9 +106,6 @@ export interface RendererEvents {
   inspectBuilding(id: number): void;
   inspectShip(id: number): void;
   inspectIsland(id: string): void;
-  /** An idle ship is dragged from its island; dropShip ends the drag (island null: the sea). */
-  dragShip(shipId: number, from: string): void;
-  dropShip(island: string | null): void;
   /** The focused island, the LOD or the rotation changed. */
   camera(info: CameraInfo): void;
 }
@@ -184,7 +181,6 @@ export class GameRenderer {
   private roadStart: IslandTile | null = null;
   private selected: number | null = null;
   private placedInitially = false;
-  private draggingShip: number | null = null;
   /** Presses that began during a camera jump are ignored until all their pointers are up. */
   private readonly latch = new JumpLatch();
   private lod: Lod = "near";
@@ -329,8 +325,7 @@ export class GameRenderer {
 
   /**
    * The island under the pointer at mid and far LOD with the pointer's
-   * canvas-relative CSS position (null when none, at near LOD or while a
-   * ship is dragged).
+   * canvas-relative CSS position (null when none or at near LOD).
    */
   onHoverIsland(l: (island: string | null, at: { x: number; y: number } | null) => void): () => void {
     this.hoverListeners.add(l);
@@ -343,7 +338,7 @@ export class GameRenderer {
     if (this.hoverListeners.size === 0) return;
     let id: string | null = null;
     let at: { x: number; y: number } | null = null;
-    if (p && this.lod === "far" && this.draggingShip === null) {
+    if (p && this.lod === "far") {
       id = this.islandUnder(p);
       const k = this.ratio();
       at = { x: p.x / k, y: p.y / k };
@@ -1019,27 +1014,13 @@ export class GameRenderer {
     if (kind === "touch") this.lastTouch = this.groundPoint(p);
     const tool = this.tool();
     if (button !== 0) return;
-    if (tool.kind === "none") {
-      const id = this.shipUnder(p);
-      const ship = id === null ? undefined : this.sync.getSnapshot().server?.display.ships.find((s) => s.id === id);
-      // Only an idle ship can be sent; dragging any other ship pans.
-      if (ship && ship.state === "idle" && ship.island_id) {
-        this.draggingShip = ship.id;
-        this.events.dragShip(ship.id, ship.island_id);
-      }
-      return;
-    }
+    if (tool.kind === "none") return;
     if (tool.kind === "road") this.roadStart = this.tileAt(p);
   }
 
   private onDragMove(prev: Point, cur: Point, button: number): void {
     if (this.blocked()) return;
     if (this.touchDrag) this.lastTouch = this.groundPoint(cur) ?? this.lastTouch;
-    if (this.draggingShip !== null) {
-      const g = this.groundPoint(cur);
-      if (g) this.arch.setDragged({ shipId: this.draggingShip, point: g });
-      return;
-    }
     if (this.roadStart && button === 0) {
       const t = this.tileOn(this.roadStart.island, cur);
       const pl = this.arch.placement(this.roadStart.island);
@@ -1054,44 +1035,17 @@ export class GameRenderer {
     if (this.pans(button)) this.rig.pan(prev, cur);
   }
 
-  /** The pointer's press or drag was cancelled: drop any ship drag or road preview; a free turn eases to 45°. */
+  /** The pointer's press or drag was cancelled: drop any road preview; a free turn eases to 45°. */
   private onPointerCancel(): void {
     this.rig.snap();
     this.roadStart = null;
     this.roadPreview.set([]);
-    if (this.draggingShip !== null) {
-      this.draggingShip = null;
-      this.arch.setDragged(null);
-      this.events.dropShip(null);
-    }
-  }
-
-  /**
-   * Cancels a ship drag from outside (Esc): the ship returns to its place
-   * and the held pointer neither drags nor pans any more.
-   */
-  cancelShipDrag(): void {
-    if (this.draggingShip === null) return;
-    this.input.cancel();
-    this.draggingShip = null;
-    this.arch.setDragged(null);
-  }
-
-  /** A ship is being dragged. */
-  draggingShipId(): number | null {
-    return this.draggingShip;
   }
 
   private onDragEnd(p: Point, button: number): void {
     if (button === 2) this.rig.snap();
     if (this.blocked()) {
       this.onPointerCancel();
-      return;
-    }
-    if (this.draggingShip !== null) {
-      this.draggingShip = null;
-      this.arch.setDragged(null);
-      this.events.dropShip(this.islandUnder(p));
       return;
     }
     if (this.roadStart && button === 0) {

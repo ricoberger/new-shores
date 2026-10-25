@@ -1,6 +1,6 @@
 // View state of the client (UI only, D-027: it chooses what to look at and
 // edits drafts; no game rule). Pure and framework-free: a reducer over the
-// selection, the route editor and the manual-shipment interaction. There
+// selection and the route editor (plus the shipment dialog). There
 // is one continuous world (D-048): no view mode; where the camera looks
 // is the renderer's state.
 
@@ -47,17 +47,9 @@ export type Editor =
       error: string | null;
     };
 
-export type Shipment =
-  | { kind: "none" }
-  /** An idle ship is being dragged from island `from`. */
-  | { kind: "dragging"; shipId: number; from: string }
-  /** "Send to…": the next tap on an island is the destination. */
-  | { kind: "awaitingTarget"; shipId: number; from: string };
-
 export interface ViewState {
   selection: Selection;
   editor: Editor;
-  shipment: Shipment;
   /** The shipment dialog (destination preset, still changeable), or null. */
   dialog: { shipId: number; to: string | null } | null;
   /** Last editor session number handed out. */
@@ -92,10 +84,6 @@ export type ViewAction =
   | { type: "clearPickingShip"; session: number }
   | { type: "resumeEditor" }
   | { type: "closeEditor" }
-  | { type: "dragShip"; shipId: number; from: string }
-  /** The dragged ship was dropped on an island (null: the sea). */
-  | { type: "dropShip"; island: string | null }
-  | { type: "sendTo"; shipId: number; from: string }
   | { type: "openShipment"; shipId: number; to: string | null }
   | { type: "closeShipment" }
   | { type: "escape" };
@@ -104,7 +92,6 @@ export function initialViewState(): ViewState {
   return {
     selection: { kind: "none" },
     editor: { kind: "closed" },
-    shipment: { kind: "none" },
     dialog: null,
     editorSessions: 0,
   };
@@ -134,23 +121,13 @@ export function blankStop(island: string): DraftStop {
 export function viewReducer(s: ViewState, a: ViewAction): ViewState {
   switch (a.type) {
     case "tapIsland": {
-      const sh = s.shipment;
-      if (sh.kind === "awaitingTarget") {
-        const dialog = a.id === sh.from ? null : { shipId: sh.shipId, to: a.id };
-        return { ...s, shipment: { kind: "none" }, dialog };
-      }
-      if (s.editor.kind === "open" && s.editor.active) {
-        return withStops(s, (stops) => [...stops, blankStop(a.id)]);
-      }
       // Near LOD: the building under the tap, or nothing (deselects).
       if (a.building !== undefined) return select(s, a.building === null ? { kind: "none" } : { kind: "building", id: a.building });
       return select(s, { kind: "island", id: a.id });
     }
     case "tapShip":
-      if (s.shipment.kind !== "none") return { ...s, shipment: { kind: "none" } };
       return select(s, { kind: "ship", id: a.id });
     case "tapSea":
-      if (s.shipment.kind !== "none") return { ...s, shipment: { kind: "none" } };
       if (s.editor.kind === "open" && s.editor.active) return s;
       return s.selection.kind === "none" ? s : select(s, { kind: "none" });
     case "selectBuilding":
@@ -165,7 +142,6 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
       const session = s.editorSessions + 1;
       return {
         ...s,
-        shipment: { kind: "none" },
         editorSessions: session,
         editor: { kind: "open", session, active: true, routeId: a.routeId, draft: a.draft, pickingShip: a.pickingShip ?? null, error: null },
       };
@@ -201,26 +177,14 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
     }
     case "closeEditor":
       return s.editor.kind === "closed" ? s : { ...s, editor: { kind: "closed" } };
-    case "dragShip":
-      return { ...s, shipment: { kind: "dragging", shipId: a.shipId, from: a.from } };
-    case "dropShip": {
-      const sh = s.shipment;
-      if (sh.kind !== "dragging") return s;
-      const dialog = a.island === null || a.island === sh.from ? null : { shipId: sh.shipId, to: a.island };
-      return { ...s, shipment: { kind: "none" }, dialog };
-    }
-    case "sendTo":
-      return { ...s, shipment: { kind: "awaitingTarget", shipId: a.shipId, from: a.from } };
     case "openShipment":
-      return { ...s, shipment: { kind: "none" }, dialog: { shipId: a.shipId, to: a.to } };
+      return { ...s, dialog: { shipId: a.shipId, to: a.to } };
     case "closeShipment":
       return s.dialog === null ? s : { ...s, dialog: null };
     case "escape":
-      // One step per press: the shipment interaction, then the editor's
-      // pick mode (a pending ship pick first, then the editor itself),
+      // One step per press: the editor's pick mode (a pending ship pick first, then the editor itself),
       // then the selection. A suspended editor comes back when the
       // selection that suspended it is cleared.
-      if (s.shipment.kind !== "none") return { ...s, shipment: { kind: "none" } };
       if (s.editor.kind === "open" && s.editor.active) {
         if (s.editor.pickingShip !== null) return { ...s, editor: { ...s.editor, pickingShip: null } };
         return { ...s, editor: { kind: "closed" } };

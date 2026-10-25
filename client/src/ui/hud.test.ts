@@ -13,6 +13,7 @@ import { IslandCard } from "./IslandCard";
 import { draftFromRoute } from "../display/routes";
 import { QuestsPanel } from "./QuestsPanel";
 import { RouteEditor } from "./RouteEditor";
+import { RoutesPanel } from "./RoutesPanel";
 import { units } from "../display/format";
 import { tierRows } from "../display/hud";
 import { SideDock } from "./SideDock";
@@ -160,6 +161,9 @@ describe("HUD components", () => {
     const html = renderToStaticMarkup(createElement(WarningsPanel, { model, content, onFocus: () => {}, onClose: () => {} }));
     expect(html).toContain('data-testid="warnings-panel"');
     expect(html.match(/data-testid="warning-entry"/g)).toHaveLength(entries.length);
+    // Panels close with an icon button, not a text link.
+    expect(html).toMatch(/<button[^>]*aria-label="Close"[^>]*data-testid="warnings-close"/);
+    expect(html).not.toMatch(/>\s*close\s*</i);
   });
 
   it("renders the insolvency banner from a fixture with unpaid buildings", () => {
@@ -217,12 +221,49 @@ describe("HUD components", () => {
           onRemoveStop: noop,
           onMoveStop: noop,
           onSave: noop,
+          onDelete: noop,
           onClose: noop,
           onAssign: noop,
           onUnassign: noop,
           onCancelPick: noop,
         }),
       );
+
+    it("lists a route as name, stops with loop time and ship count; it opens the editor", () => {
+      const html = renderToStaticMarkup(createElement(RoutesPanel, { model, onEdit: noop, onClose: noop }));
+      const name = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
+      const stops = route.stops.map((st) => name(st.island_id)).join(" → ");
+      expect(text(html)).toContain(`${route.name}${stops} (2:20 min)Ships: ${route.ship_ids.length}`);
+      expect(html).toMatch(new RegExp(`<button[^>]*data-testid="route-${route.id}"`));
+      expect(html).not.toContain("route-delete");
+    });
+
+    it("offers Delete in the editor of a saved route only while no ship is assigned", () => {
+      const withModel = (routes: DisplayState["routes"]) =>
+        renderToStaticMarkup(
+          createElement(RouteEditor, {
+            model: { ...model, routes },
+            content: content,
+            routeId: route.id,
+            draft: draftFromRoute(route),
+            pickingShip: null,
+            error: null,
+            onChange: noop,
+            onAddStop: noop,
+            onRemoveStop: noop,
+            onMoveStop: noop,
+            onSave: noop,
+            onDelete: noop,
+            onClose: noop,
+            onAssign: noop,
+            onUnassign: noop,
+            onCancelPick: noop,
+          }),
+        );
+      expect(withModel([{ ...route, ship_ids: [] }])).toContain('data-testid="route-delete"');
+      expect(withModel([{ ...route, ship_ids: [7] }])).not.toContain('data-testid="route-delete"');
+      expect(editor(null)).not.toContain('data-testid="route-delete"');
+    });
 
     it("renders the server's estimated effects and loop time of a saved route", () => {
       const html = editor(route.id);
@@ -273,6 +314,7 @@ describe("HUD components", () => {
       const noop = () => {};
       return renderToStaticMarkup(
         createElement(InfoPanel, {
+          onClose: () => {},
           building: { id: 7, type: "shipyard", x: 1, y: 1, rotation: 0, paused: false, paused_reason: "", status: "ok", efficiency_permille: 1000, throughput_factor_permille: 1000, ...b } as BuildingDisplay,
           island,
           model,

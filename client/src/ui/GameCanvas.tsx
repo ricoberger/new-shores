@@ -69,8 +69,6 @@ export function GameCanvas({ sync, tool, events, onRenderer, initialCamera, qual
         inspectBuilding: (id) => ev().inspectBuilding(id),
         inspectShip: (id) => ev().inspectShip(id),
         inspectIsland: (id) => ev().inspectIsland(id),
-        dragShip: (id, from) => ev().dragShip(id, from),
-        dropShip: (island) => ev().dropShip(island),
         camera: (info) => ev().camera(info),
       },
       cameraRef.current,

@@ -29,6 +29,7 @@ import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
 import hud from "./hud.module.css";
 import { BuildMenu } from "./BuildMenu";
+import { CloseButton } from "./CloseButton";
 import { type ConfirmRequest, ConfirmDialog } from "./Dialogs";
 import { GameCanvas } from "./GameCanvas";
 import { InfoPanel } from "./InfoPanel";
@@ -389,8 +390,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   /** A tap on island land or its label: the reducer appends a stop, picks a destination, selects the island or (near LOD) a building. */
   const tapIsland = (id: string, building?: number | null) => {
-    // Opening an island card closes a list panel (it would take precedence).
-    if (building === undefined && vs.editor.kind === "closed" && vs.shipment.kind === "none") setPanel("none");
+    // Opening an island card or a building's info closes a list panel (it would take precedence).
+    if ((building === undefined || typeof building === "number") && vs.editor.kind === "closed") setPanel("none");
     dispatch({ type: "tapIsland", id, building });
   };
 
@@ -450,8 +451,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       setPanel("none");
       dispatch({ type: "selectIsland", id });
     },
-    dragShip: (shipId: number, from: string) => dispatch({ type: "dragShip", shipId, from }),
-    dropShip: (to: string | null) => dispatch({ type: "dropShip", island: to }),
     camera: (info: CameraInfo) => setCam(info),
   };
 
@@ -483,18 +482,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     );
   });
 
-  // A ship at sea has no island stock to load from: picking a destination
-  // for it sails it there with its cargo (sail_ship) instead of opening the
-  // shipment dialog.
-  const seaDialog = vs.dialog && !vs.dialog.to ? null : vs.dialog;
-  useEffect(() => {
-    if (!seaDialog?.to) return;
-    const s = model?.ships.find((x) => x.id === seaDialog.shipId);
-    if (!s || s.island_id !== "") return;
-    dispatch({ type: "closeShipment" });
-    void send({ type: "sail_ship", ship_id: s.id, to_island_id: seaDialog.to });
-  });
-
   // Background request failures (GET world, content, island) are toasts too
   // (G.41); GameSync keeps retrying them.
   useEffect(
@@ -508,13 +495,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   }, []);
 
   useEffect(() => renderer?.setSelected(selected), [renderer, selected, snap.server]);
-
-  // A ship drag ends in the renderer too when the view state ends it (Esc):
-  // the ship returns to its place and stops following the pointer.
-  const shipmentKind = vs.shipment.kind;
-  useEffect(() => {
-    if (shipmentKind !== "dragging") renderer?.cancelShipDrag();
-  }, [renderer, shipmentKind]);
 
   // Selection ring, highlighted route and the editor's live draft.
   const archSel = vs.selection.kind === "ship" || vs.selection.kind === "island" ? vs.selection : ({ kind: "none" } as const);
@@ -668,7 +648,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         <RoutesPanel
           model={model}
           onEdit={(r) => openEditor(r)}
-          onDelete={(id) => void send({ type: "delete_route", route_id: id })}
           onClose={() => setPanel("none")}
         />
       );
@@ -689,6 +668,15 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onRemoveStop={(index) => dispatch({ type: "removeStop", index })}
           onMoveStop={(index, delta) => dispatch({ type: "moveStop", index, delta })}
           onSave={() => void saveEditor()}
+          onDelete={() => {
+            const id = editor.routeId;
+            if (id === null) return;
+            void sendCommand({ type: "delete_route", route_id: id }).then(({ ok }) => {
+              if (!ok) return;
+              dispatch({ type: "closeEditor" });
+              setPanel("routes");
+            });
+          }}
           onClose={() => dispatch({ type: "closeEditor" })}
           onAssign={(shipId, routeId) => void assign(shipId, routeId)}
           onUnassign={(shipId) => void send({ type: "unassign_ship", ship_id: shipId })}
@@ -702,15 +690,19 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       rightClose = () => dispatch({ type: "clearSelection" });
       right = (
         <ShipPanel
+          key={ship.id}
           ship={ship}
           model={model}
           content={content}
           nowMs={snap.nowMs}
           pendingFounding={pendingFound && pendingFound.shipId === ship.id ? islandName(pendingFound.islandId) : null}
-          onAssignToRoute={() => openEditor(null, ship.id)}
+          onAssign={(routeId) => void assign(ship.id, routeId)}
+          onOpenRoutes={() => {
+            dispatch({ type: "clearSelection" });
+            setPanel("routes");
+          }}
           onUnassign={() => void send({ type: "unassign_ship", ship_id: ship.id })}
           onSend={() => dispatch({ type: "openShipment", shipId: ship.id, to: null })}
-          onSendTo={() => dispatch({ type: "sendTo", shipId: ship.id, from: ship.island_id })}
           onFound={() => startFounding(ship)}
           onScrap={() => scrap(ship)}
           onClose={() => dispatch({ type: "clearSelection" })}
@@ -748,6 +740,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       rightClose = () => dispatch({ type: "clearSelection" });
       right = (
         <InfoPanel
+          onClose={() => dispatch({ type: "clearSelection" })}
           building={selectedBuilding}
           island={island}
           model={model}
@@ -785,14 +778,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const placementBar = touchUI && isGhostTool(tool);
   const demolishBar = touchUI && tool.kind === "demolish";
   const roadBar = touchUI && tool.kind === "road";
-  const verb = touchUI ? "Tap" : "Click";
 
-  // Interaction hints (shipment target, ship drag, editor picks).
-  let archHint = "";
-  const sh = vs.shipment;
-  if (sh.kind === "awaitingTarget") archHint = `${verb} the destination island for ship #${sh.shipId} · Esc cancels`;
-  else if (sh.kind === "dragging") archHint = `Drop ship #${sh.shipId} on an island to send it · the sea cancels`;
-  else if (editor?.active) archHint = `${verb} islands to add stops · Esc closes the editor`;
 
   const resumeBar = editor && !editor.active && (
     <div className={`${hud.panel} ${hud.resumeBar}`}>
@@ -809,6 +795,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       >
         Back to route editor
       </button>
+      <CloseButton onClick={() => dispatch({ type: "closeEditor" })} testId="route-editor-paused-close" />
     </div>
   );
   if (resumeBar && !right) {
@@ -840,7 +827,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   // Short landscape phones: the side panel keeps a usable height; the hint
   // bar is hidden and the insolvency banner keeps one line.
-  const hintShown = archHint !== "" || (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar);
+  const hintShown = (tool.kind !== "none" && !placementBar && !demolishBar && !roadBar);
   const tightLandscape = collapseLandscapeChrome({
     mode: layout.mode,
     sheets,
@@ -868,11 +855,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {ghostHint}
         </div>
       )}
-    </div>
-  );
-  const archHintEl = !tightLandscape && archHint !== "" && (
-    <div className={phone ? styles.hintInline : styles.hint} data-testid="arch-hint">
-      {archHint}
     </div>
   );
   const unreachable = snap.unreachable && (
@@ -904,7 +886,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           {demolishBar && <DemolishBar onDone={() => setTool(NO_TOOL)} />}
           {roadBar && <RoadBar onDone={() => setTool(NO_TOOL)} />}
           {phone && toolHint}
-          {phone && archHintEl}
           {phone && unreachable}
         </div>
         {/* In the overlay after the top bar: focus order top bar → canvas → panel → build bar. */}
@@ -980,7 +961,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           />
         )}
       </div>
-      {!phone && archHintEl}
       {!phone && toolHint}
       {!phone && unreachable}
       <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((t) => t.id !== id))} phone={phone} />

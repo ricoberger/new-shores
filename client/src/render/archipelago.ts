@@ -27,7 +27,7 @@ import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { anchorBob, SAILING_ALPHA, sailing, waiting } from "./sway";
 import { type ModelRegistry, shipMeshes, shipModel } from "./models";
-import { ARROW_BRIGHT, ARROW_DIM, DRAFT_COLOR, HAZE, ROUTE_COLORS, SELECTION } from "./palette";
+import { ARROW_BRIGHT, ARROW_DIM, HAZE, SELECTION } from "./palette";
 
 /** Top of the islands' ground (every LOD draws the island detail). */
 const GROUND_TOP = 0;
@@ -40,7 +40,6 @@ const SHIP_Y = 0;
 export const SHIP_SCALE = 5;
 export const SHIP_SCALE_FAR = 4;
 const ROUTE_Y = GROUND_TOP + 0.25;
-const ROUTE_WIDTH = 0.8;
 /** The haze starts this far (tiles) outside the islands' bounding box. */
 const HAZE_INNER = 30;
 
@@ -131,7 +130,6 @@ export class ArchipelagoLayer {
   private readonly shipPoints = new Map<number, ArchPoint>();
   /** Instance style of every ship drawn in the last frame. */
   private readonly shipStyles = new Map<number, ShipStyle>();
-  private dragged: { shipId: number; point: ArchPoint } | null = null;
   private seaKey = "";
   private landKey = "";
   private seaMargin = 400;
@@ -258,13 +256,11 @@ export class ArchipelagoLayer {
 
   /** Level of detail (the sea and the ships follow it). */
   show(lod: Lod): void {
+    const changed = lod !== this.lod;
     this.lod = lod;
     this.sea.setLod(lod);
-  }
-
-  /** A dragged ship is drawn at the pointer (null: none). */
-  setDragged(d: { shipId: number; point: ArchPoint } | null): void {
-    this.dragged = d;
+    // The selected ship's route ribbon is as wide as the selection ring, which follows the LOD.
+    if (changed) this.rebuildRoutes();
   }
 
   /** Anchor point of an island's legs and route ribbons (its first berth, else its centre). */
@@ -273,33 +269,34 @@ export class ArchipelagoLayer {
   }
 
   private rebuildRoutes(): void {
-    const lines = ribbonsShown(this.routes, this.highlight, this.draft).map((r) => ({
-      ...r,
-      color: r.colorIndex < 0 ? DRAFT_COLOR : (ROUTE_COLORS[r.colorIndex % ROUTE_COLORS.length] as Color3),
-    }));
+    // Every ribbon is the selection's yellow, as wide as the selection ring: the selected ship's
+    // route, or in the editor the edited route and the draft at full strength and the other routes translucent.
+    const width = this.ringWidth();
+    const lines = ribbonsShown(this.routes, this.highlight, this.draft).map((r) => ({ ...r, color: SELECTION }));
     const keep = new Set<string>();
     const arrows: { x: number; y: number; heading: number; bright: boolean }[] = [];
-    const anyBright = lines.some((l) => l.bright);
+    // In the editor every route but the edited one (and the draft) is translucent, also before the first stop is added.
+    const editing = this.draft !== null;
     for (const l of lines) {
       const pts = l.stops.map((id) => this.anchor(id)).filter((p): p is ArchPoint => p !== null);
       if (pts.length < 2) continue;
       keep.add(l.key);
-      const geomKey = JSON.stringify(pts);
+      const geomKey = JSON.stringify([pts, width]);
       let line = this.routeLines.get(l.key);
       if (!line || line.key !== geomKey) {
         line?.mesh.dispose();
         line?.material.dispose();
         const material = new StandardMaterial(l.key, this.scene);
         material.disableLighting = true;
-        const mesh = this.buildLine(l.key, pts);
+        const mesh = this.buildLine(l.key, pts, width);
         mesh.material = material;
         line = { mesh, material, key: geomKey, color: l.color };
         this.routeLines.set(l.key, line);
       }
       line.color = l.color;
-      // The highlighted route is bright, the others (editor open) faint.
-      const dim = anyBright && !l.bright;
-      line.material.emissiveColor = dim ? l.color.scale(0.45) : l.color;
+      // The highlighted route is opaque, the others (editor open) translucent.
+      const dim = editing && !l.bright;
+      line.material.emissiveColor = l.color;
       line.material.alpha = dim ? 0.45 : 1;
       for (let i = 0; i < pts.length; i++) {
         const a = pts[i] as ArchPoint;
@@ -324,11 +321,11 @@ export class ArchipelagoLayer {
   }
 
   /** A closed polyline of flat quads (archipelago coordinates). */
-  private buildLine(name: string, pts: readonly ArchPoint[]): Mesh {
+  private buildLine(name: string, pts: readonly ArchPoint[], width: number): Mesh {
     const positions: number[] = [];
     const indices: number[] = [];
     const normals: number[] = [];
-    const h = ROUTE_WIDTH / 2;
+    const h = width / 2;
     for (let i = 0; i < pts.length; i++) {
       const a = pts[i] as ArchPoint;
       const b = pts[(i + 1) % pts.length] as ArchPoint;
@@ -390,6 +387,11 @@ export class ArchipelagoLayer {
     return [...this.ships.entries()].filter(([, s]) => !s.model && s.inst.size() > 0).map(([t]) => t);
   }
 
+  /** Width of the selection ring's tube (and of the highlighted route's ribbon), the same at every diameter. */
+  private ringWidth(): number {
+    return 0.06 * 1.6 * this.shipScale();
+  }
+
   /** Ship instance scale at the current LOD. */
   shipScale(): number {
     return this.lod === "far" ? SHIP_SCALE_FAR : SHIP_SCALE;
@@ -431,8 +433,7 @@ export class ArchipelagoLayer {
       let c = 0;
       list.forEach((s, i) => {
         const p = shipPlacement(s, this.placements, nowMs, slots.get(s.id) ?? 0, this.berths, this.docks.get(s.id));
-        let point = p?.point ?? { x: 0, y: 0 };
-        if (this.dragged?.shipId === s.id) point = this.dragged.point;
+        const point = p?.point ?? { x: 0, y: 0 };
         this.shipPoints.set(s.id, point);
         const dock = this.docks.get(s.id);
         const bob = p && this.bobbing && this.lod !== "far" && waiting(s, dock) ? anchorBob(s.id, nowMs) : null;
@@ -486,7 +487,7 @@ export class ArchipelagoLayer {
       return;
     }
     // Every ring has the width of a ship's, whatever its diameter; the tube stays as flat as a ship's.
-    const width = 0.06 * 1.6 * this.shipScale();
+    const width = this.ringWidth();
     if (this.ringShape.size !== size || this.ringShape.width !== width) {
       this.ring.dispose();
       this.ring = this.makeRing(size, width);

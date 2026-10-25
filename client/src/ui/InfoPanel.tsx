@@ -6,6 +6,7 @@ import { workforceText } from "../display/hud";
 import { needCategory, needLabel } from "../display/needs";
 import { STATUS_STYLES, statusKey, statusText } from "../display/status";
 import { goodIcon, needIcon, statusIcon, toolIcon } from "../theme/iconSet";
+import { CloseButton } from "./CloseButton";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
 
@@ -14,6 +15,7 @@ interface Props {
   island: IslandDisplay;
   model: DisplayState;
   content: Content;
+  onClose: () => void;
   onSetPaused: (paused: boolean) => void;
   onDemolish: () => void;
   /** Lifts the building into a move ghost (D-042). */
@@ -265,6 +267,7 @@ export function InfoPanel({
   nowMs,
   onOrderShip,
   onCancelShipOrder,
+  onClose,
 }: Props) {
   const def = content.buildings.find((d) => d.id === b.type);
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
@@ -276,334 +279,340 @@ export function InfoPanel({
 
   return (
     <div className={`${styles.panel} ${styles.infoPanel}`} data-testid="info-panel">
-      <h2 className={styles.title} data-testid="info-name">
-        {def?.name ?? b.type}
-      </h2>
-      <div className={styles.small}>{def ? tierName(def.tier) : ""}</div>
-      <div className={styles.statusRow}>
-        <StatusIcon building={b} seal />
-        <div>
-          <div data-testid="info-status">{status.sentence}</div>
-          {status.fix && <div className={styles.fix}>{status.fix}</div>}
-        </div>
+      <div className={styles.row}>
+        <h2 className={styles.title} data-testid="info-name">
+          {def?.name ?? b.type}
+        </h2>
+        <div className={styles.spacer} />
+        <CloseButton onClick={onClose} testId="info-close" />
       </div>
+      <div className={styles.panelBody}>
+        <div className={styles.small}>{def ? tierName(def.tier) : ""}</div>
+        <div className={styles.statusRow}>
+          <StatusIcon building={b} seal />
+          <div>
+            <div data-testid="info-status">{status.sentence}</div>
+            {status.fix && <div className={styles.fix}>{status.fix}</div>}
+          </div>
+        </div>
 
-      {b.fields && def?.fields && (
-        <div className={styles.section} data-testid="farm-fields">
-          <div className={styles.sectionTitle} data-testid="farm-fields-count">
-            Fields {b.fields.active} / {b.fields.required}
+        {b.fields && def?.fields && (
+          <div className={styles.section} data-testid="farm-fields">
+            <div className={styles.sectionTitle} data-testid="farm-fields-count">
+              Fields {b.fields.active} / {b.fields.required}
+            </div>
+            <Bar permille={Math.min(1000, (b.fields.active * 1000) / Math.max(1, b.fields.required))} />
+            <div className={styles.small} data-testid="farm-fields-max">
+              {b.fields.ids.length} of at most {b.fields.max} placed
+            </div>
+            {b.fields.ids.length > 0 && (
+              <ul className={styles.fieldList} data-testid="farm-field-list" onMouseLeave={() => onHoverBuilding(null)}>
+                {b.fields.ids.map((id) => {
+                  const f = island.buildings.find((x) => x.id === id);
+                  if (!f) return null;
+                  const name = content.buildings.find((d) => d.id === f.type)?.name ?? f.type;
+                  return (
+                    <li key={id}>
+                      <button
+                        type="button"
+                        className={styles.link}
+                        onClick={() => onSelectBuilding(id)}
+                        onMouseEnter={() => onHoverBuilding(id)}
+                        onFocus={() => onHoverBuilding(id)}
+                        onBlur={() => onHoverBuilding(null)}
+                        data-testid={`farm-field-${id}`}
+                        data-active={f.active === false ? "false" : "true"}
+                      >
+                        <StatusIcon building={f} /> {name} #{id}
+                        {f.active === false ? " · not adjacent" : ""}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {(() => {
+              const field = fieldBuildingOf(content, b.type);
+              if (!field) return null;
+              const full = b.fields.ids.length >= b.fields.max;
+              return (
+                <div className={styles.buttons}>
+                  <button type="button" className={styles.button} onClick={() => onAddField(field.id)} disabled={full} data-testid="farm-add-field">
+                    Add {field.name.toLowerCase()}
+                    {field.cost.gold > 0 ? ` (${units(field.cost.gold)} gold)` : ""}
+                  </button>
+                </div>
+              );
+            })()}
           </div>
-          <Bar permille={Math.min(1000, (b.fields.active * 1000) / Math.max(1, b.fields.required))} />
-          <div className={styles.small} data-testid="farm-fields-max">
-            {b.fields.ids.length} of at most {b.fields.max} placed
-          </div>
-          {b.fields.ids.length > 0 && (
-            <ul className={styles.fieldList} data-testid="farm-field-list" onMouseLeave={() => onHoverBuilding(null)}>
-              {b.fields.ids.map((id) => {
-                const f = island.buildings.find((x) => x.id === id);
-                if (!f) return null;
-                const name = content.buildings.find((d) => d.id === f.type)?.name ?? f.type;
-                return (
-                  <li key={id}>
-                    <button
-                      type="button"
-                      className={styles.link}
-                      onClick={() => onSelectBuilding(id)}
-                      onMouseEnter={() => onHoverBuilding(id)}
-                      onFocus={() => onHoverBuilding(id)}
-                      onBlur={() => onHoverBuilding(null)}
-                      data-testid={`farm-field-${id}`}
-                      data-active={f.active === false ? "false" : "true"}
-                    >
-                      <StatusIcon building={f} /> {name} #{id}
-                      {f.active === false ? " · not adjacent" : ""}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          {(() => {
-            const field = fieldBuildingOf(content, b.type);
-            if (!field) return null;
-            const full = b.fields.ids.length >= b.fields.max;
-            return (
-              <div className={styles.buttons}>
-                <button type="button" className={styles.button} onClick={() => onAddField(field.id)} disabled={full} data-testid="farm-add-field">
-                  Add {field.name.toLowerCase()}
-                  {field.cost.gold > 0 ? ` (${units(field.cost.gold)} gold)` : ""}
+        )}
+
+        {def?.field && (
+          <div className={styles.section} data-testid="field-farm">
+            <div className={styles.sectionTitle}>Farm</div>
+            {(() => {
+              const farm = b.farm_id !== undefined ? island.buildings.find((f) => f.id === b.farm_id) : undefined;
+              if (!farm) return <div className={styles.small}>Its farm is gone</div>;
+              const name = content.buildings.find((d) => d.id === farm.type)?.name ?? farm.type;
+              return (
+                <button
+                  type="button"
+                  className={styles.link}
+                  onClick={() => onSelectBuilding(farm.id)}
+                  onMouseEnter={() => onHoverBuilding(farm.id)}
+                  onMouseLeave={() => onHoverBuilding(null)}
+                  data-testid="field-farm-link"
+                >
+                  {name} #{farm.id}
                 </button>
-              </div>
-            );
-          })()}
-        </div>
-      )}
-
-      {def?.field && (
-        <div className={styles.section} data-testid="field-farm">
-          <div className={styles.sectionTitle}>Farm</div>
-          {(() => {
-            const farm = b.farm_id !== undefined ? island.buildings.find((f) => f.id === b.farm_id) : undefined;
-            if (!farm) return <div className={styles.small}>Its farm is gone</div>;
-            const name = content.buildings.find((d) => d.id === farm.type)?.name ?? farm.type;
-            return (
-              <button
-                type="button"
-                className={styles.link}
-                onClick={() => onSelectBuilding(farm.id)}
-                onMouseEnter={() => onHoverBuilding(farm.id)}
-                onMouseLeave={() => onHoverBuilding(null)}
-                data-testid="field-farm-link"
-              >
-                {name} #{farm.id}
-              </button>
-            );
-          })()}
-          <div className={styles.small} data-testid="field-active">
-            {b.active === false ? "Not adjacent: its chain to the farm is broken" : "Active: it counts for its farm"}
+              );
+            })()}
+            <div className={styles.small} data-testid="field-active">
+              {b.active === false ? "Not adjacent: its chain to the farm is broken" : "Active: it counts for its farm"}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {b.rates && (
-        <>
-          {Object.keys(b.rates.inputs).length > 0 && (
+        {b.rates && (
+          <>
+            {Object.keys(b.rates.inputs).length > 0 && (
+              <div className={styles.section}>
+                <div className={styles.sectionTitle}>Inputs</div>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Good</th>
+                      <th>Stock</th>
+                      <th>Use/min</th>
+                      <th>Net/min</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(b.rates.inputs).map(([good, rate]) => (
+                      <tr key={good}>
+                        <td>
+                          <GoodName id={good} name={goodName(good)} />
+                        </td>
+                        <td>{units(island.inventory[good]?.stock ?? 0)}</td>
+                        <td>{perMin(rate)}</td>
+                        <td>{perMin(island.inventory[good]?.rate_per_min ?? 0, true)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Inputs</div>
+              <div className={styles.sectionTitle}>Output</div>
               <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Good</th>
-                    <th>Stock</th>
-                    <th>Use/min</th>
-                    <th>Net/min</th>
-                  </tr>
-                </thead>
                 <tbody>
-                  {Object.entries(b.rates.inputs).map(([good, rate]) => (
+                  {Object.entries(b.rates.outputs).map(([good, rate]) => (
                     <tr key={good}>
                       <td>
                         <GoodName id={good} name={goodName(good)} />
                       </td>
-                      <td>{units(island.inventory[good]?.stock ?? 0)}</td>
-                      <td>{perMin(rate)}</td>
-                      <td>{perMin(island.inventory[good]?.rate_per_min ?? 0, true)}</td>
+                      <td data-testid={`rate-output-${good}`}>{perMin(rate)}</td>
+                      <td>/min</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          )}
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>Output</div>
-            <table className={styles.table}>
+            <div className={styles.section}>
+              <div className={styles.sectionTitle}>Cycle {b.cycle_seconds !== undefined ? `(${b.cycle_seconds} s)` : ""}</div>
+              <Bar permille={b.cycle_progress_permille ?? 0} testId="cycle-bar" />
+            </div>
+            <table className={`${styles.table} ${styles.section}`}>
               <tbody>
-                {Object.entries(b.rates.outputs).map(([good, rate]) => (
-                  <tr key={good}>
-                    <td>
-                      <GoodName id={good} name={goodName(good)} />
-                    </td>
-                    <td data-testid={`rate-output-${good}`}>{perMin(rate)}</td>
-                    <td>/min</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>Cycle {b.cycle_seconds !== undefined ? `(${b.cycle_seconds} s)` : ""}</div>
-            <Bar permille={b.cycle_progress_permille ?? 0} testId="cycle-bar" />
-          </div>
-          <table className={`${styles.table} ${styles.section}`}>
-            <tbody>
-              <tr>
-                <td>Efficiency</td>
-                <td>{percent(b.efficiency_permille)}</td>
-              </tr>
-              <tr>
-                <td>Throughput factor</td>
-                <td>{percent(b.throughput_factor_permille)}</td>
-              </tr>
-              {b.workforce && (
                 <tr>
-                  <td>Workers</td>
+                  <td>Efficiency</td>
+                  <td>{percent(b.efficiency_permille)}</td>
+                </tr>
+                <tr>
+                  <td>Throughput factor</td>
+                  <td>{percent(b.throughput_factor_permille)}</td>
+                </tr>
+                {b.workforce && (
+                  <tr>
+                    <td>Workers</td>
+                    <td>
+                      <span data-testid="info-workforce">{workforceText(b, island, tierName)}</span>
+                    </td>
+                  </tr>
+                )}
+                <tr>
+                  <td>Delivers to</td>
                   <td>
-                    <span data-testid="info-workforce">{workforceText(b, island, tierName)}</span>
+                    {warehouse ? (
+                      <button type="button" className={styles.link} onClick={() => onSelectBuilding(warehouse.id)}>
+                        {warehouseName} #{warehouse.id}
+                      </button>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 </tr>
-              )}
-              <tr>
-                <td>Delivers to</td>
-                <td>
-                  {warehouse ? (
-                    <button type="button" className={styles.link} onClick={() => onSelectBuilding(warehouse.id)}>
-                      {warehouseName} #{warehouse.id}
-                    </button>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-              </tr>
-              {warehouse && (
-                <tr>
-                  <td>Transfer delay</td>
-                  <td>{seconds(b.transfer_delay_ms ?? 0)}</td>
-                </tr>
-              )}
-              {b.buffer &&
-                Object.entries(b.buffer.stock).map(([good, stock]) => (
-                  <tr key={good}>
-                    <td>
-                      Buffer <GoodName id={good} name={goodName(good)} />
-                    </td>
-                    <td>
-                      {units(stock)}/{units(b.buffer?.capacity ?? 0)}
-                    </td>
+                {warehouse && (
+                  <tr>
+                    <td>Transfer delay</td>
+                    <td>{seconds(b.transfer_delay_ms ?? 0)}</td>
                   </tr>
-                ))}
-            </tbody>
-          </table>
-        </>
-      )}
+                )}
+                {b.buffer &&
+                  Object.entries(b.buffer.stock).map(([good, stock]) => (
+                    <tr key={good}>
+                      <td>
+                        Buffer <GoodName id={good} name={goodName(good)} />
+                      </td>
+                      <td>
+                        {units(stock)}/{units(b.buffer?.capacity ?? 0)}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </>
+        )}
 
-      {b.residents !== undefined && (
-        <>
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>Residents</div>
-            <div data-testid="house-residents">
-              {units(b.residents_floor ?? 0)} – <strong>{units(b.residents)}</strong> – {units(b.residents_max ?? 0)}{" "}
-              {(b.growth_rate_per_min ?? 0) > 0 ? "↑" : (b.growth_rate_per_min ?? 0) < 0 ? "↓" : "→"}
+        {b.residents !== undefined && (
+          <>
+            <div className={styles.section}>
+              <div className={styles.sectionTitle}>Residents</div>
+              <div data-testid="house-residents">
+                {units(b.residents_floor ?? 0)} – <strong>{units(b.residents)}</strong> – {units(b.residents_max ?? 0)}{" "}
+                {(b.growth_rate_per_min ?? 0) > 0 ? "↑" : (b.growth_rate_per_min ?? 0) < 0 ? "↓" : "→"}
+              </div>
+              <Bar permille={Math.abs(b.growth_progress_permille ?? 0)} />
+              <div className={styles.small}>Satisfaction {percent(b.satisfaction_permille ?? 0)}</div>
             </div>
-            <Bar permille={Math.abs(b.growth_progress_permille ?? 0)} />
-            <div className={styles.small}>Satisfaction {percent(b.satisfaction_permille ?? 0)}</div>
-          </div>
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>Needs</div>
-            {(b.needs ?? []).map((n) => (
-              <div key={n.id} style={{ marginBottom: 4 }} data-testid={`house-need-${n.id}`}>
-                <div className={`${styles.small} ${styles.withIcon}`}>
-                  <Icon path={needIcon(n, n.category ? needCategory(content, n.category).icon : undefined)} />
-                  {needLabel(content, n)}{" "}
-                  {percent(n.fulfilment_permille)} {NEED_REASONS[n.reason] ? `— ${NEED_REASONS[n.reason]}` : ""}
+            <div className={styles.section}>
+              <div className={styles.sectionTitle}>Needs</div>
+              {(b.needs ?? []).map((n) => (
+                <div key={n.id} style={{ marginBottom: 4 }} data-testid={`house-need-${n.id}`}>
+                  <div className={`${styles.small} ${styles.withIcon}`}>
+                    <Icon path={needIcon(n, n.category ? needCategory(content, n.category).icon : undefined)} />
+                    {needLabel(content, n)}{" "}
+                    {percent(n.fulfilment_permille)} {NEED_REASONS[n.reason] ? `— ${NEED_REASONS[n.reason]}` : ""}
+                  </div>
+                  <Bar permille={n.fulfilment_permille} />
                 </div>
-                <Bar permille={n.fulfilment_permille} />
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+              ))}
+            </div>
+          </>
+        )}
 
-      {def?.shipyard && (
-        <div className={styles.section} data-testid="shipyard">
-          <div className={styles.sectionTitle}>Shipyard</div>
-          {b.ship_order ? (
-            <>
-              <div className={styles.small} data-testid="shipyard-order">
-                Building a {content.ships.find((t) => t.id === b.ship_order?.type)?.name ?? b.ship_order.type} · ready in{" "}
-                {countdown(orderTiming(b.ship_order, nowMs).remainingMs)}
-              </div>
-              <Bar permille={orderTiming(b.ship_order, nowMs).progressPermille} testId="shipyard-progress" />
-              <div className={styles.buttons}>
-                <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onCancelShipOrder} data-testid="shipyard-cancel">
-                  Cancel order (50 % materials back)
-                </button>
-              </div>
-            </>
-          ) : (
-            def.shipyard.ships.map((id) => {
-              const t = content.ships.find((x) => x.id === id);
-              if (!t) return null;
-              const missingGoods = Object.entries(t.cost.materials).filter(([g, n]) => (island.inventory[g]?.stock ?? 0) < n);
-              const missingGold = t.cost.gold > model.gold;
-              return (
-                <div key={id} className={styles.shipEntry}>
-                  <div className={styles.row}>
-                    <button type="button" className={styles.button} onClick={() => onOrderShip(id)} data-testid={`shipyard-order-${id}`}>
-                      Order {t.name}
-                    </button>
-                    <span className={styles.small}>
-                      {t.slots}×{units(t.slot_size)} · {countdown(t.build_ms)} · upkeep {perMin(t.upkeep_per_min)}/min
-                    </span>
-                  </div>
-                  <div className={styles.small}>
-                    {units(t.cost.gold)} gold
-                    {Object.entries(t.cost.materials).map(([g, n]) => (
-                      <span key={g}>
-                        {" "}
-                        · <GoodName id={g} name={goodName(g)} /> {units(island.inventory[g]?.stock ?? 0)}/{units(n)}
+        {def?.shipyard && (
+          <div className={styles.section} data-testid="shipyard">
+            <div className={styles.sectionTitle}>Shipyard</div>
+            {b.ship_order ? (
+              <>
+                <div className={styles.small} data-testid="shipyard-order">
+                  Building a {content.ships.find((t) => t.id === b.ship_order?.type)?.name ?? b.ship_order.type} · ready in{" "}
+                  {countdown(orderTiming(b.ship_order, nowMs).remainingMs)}
+                </div>
+                <Bar permille={orderTiming(b.ship_order, nowMs).progressPermille} testId="shipyard-progress" />
+                <div className={styles.buttons}>
+                  <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onCancelShipOrder} data-testid="shipyard-cancel">
+                    Cancel order (50 % materials back)
+                  </button>
+                </div>
+              </>
+            ) : (
+              def.shipyard.ships.map((id) => {
+                const t = content.ships.find((x) => x.id === id);
+                if (!t) return null;
+                const missingGoods = Object.entries(t.cost.materials).filter(([g, n]) => (island.inventory[g]?.stock ?? 0) < n);
+                const missingGold = t.cost.gold > model.gold;
+                return (
+                  <div key={id} className={styles.shipEntry}>
+                    <div className={styles.row}>
+                      <button type="button" className={styles.button} onClick={() => onOrderShip(id)} data-testid={`shipyard-order-${id}`}>
+                        Order {t.name}
+                      </button>
+                      <span className={styles.small}>
+                        {t.slots}×{units(t.slot_size)} · {countdown(t.build_ms)} · upkeep {perMin(t.upkeep_per_min)}/min
                       </span>
-                    ))}
-                  </div>
-                  {(missingGold || missingGoods.length > 0) && (
-                    <div className={`${styles.small} ${styles.warn}`} data-testid={`shipyard-missing-${id}`}>
-                      Missing:{" "}
-                      {missingGold && `${units(t.cost.gold - model.gold)} gold${missingGoods.length > 0 ? ", " : ""}`}
-                      {missingGoods.map(([g, n], i) => (
+                    </div>
+                    <div className={styles.small}>
+                      {units(t.cost.gold)} gold
+                      {Object.entries(t.cost.materials).map(([g, n]) => (
                         <span key={g}>
-                          {i > 0 && ", "}
-                          {units(n - (island.inventory[g]?.stock ?? 0))} <GoodName id={g} name={goodName(g)} />
+                          {" "}
+                          · <GoodName id={g} name={goodName(g)} /> {units(island.inventory[g]?.stock ?? 0)}/{units(n)}
                         </span>
                       ))}
                     </div>
-                  )}
-                </div>
-              );
-            })
-          )}
-        </div>
-      )}
-
-      {b.level !== undefined && def?.trading_post && (
-        <TradingPostSection building={b} island={island} model={model} content={content} levels={def.trading_post.levels.length}
-          onUpgrade={onUpgradeTradingPost}
-          onSelectBuilding={onSelectBuilding}
-        />
-      )}
-      {b.level !== undefined && def?.warehouse && (
-        <div className={styles.section} data-testid="warehouse-panel">
-          <div className={styles.sectionTitle} data-testid="warehouse-level">
-            Warehouse level {b.level} of {def.warehouse.levels.length}
-          </div>
-          <div className={styles.small}>
-            Collects for the producers nearest to it by road; it adds no capacity (the Trading Post stores the goods).
-          </div>
-          <div className={styles.small} data-testid="warehouse-throughput">
-            Throughput {perMin(b.throughput_per_min ?? 0)}/min · load {percent(b.load_permille ?? 0)}
-          </div>
-          <Bar permille={b.load_permille ?? 0} />
-          <AssignedProducers building={b} island={island} content={content} onSelectBuilding={onSelectBuilding} />
-          <WarehouseUpgrade building={b} island={island} model={model} content={content} onUpgrade={onUpgradeWarehouse} />
-        </div>
-      )}
-
-      <div className={styles.buttons}>
-        {(canPause || b.paused) && (
-          <button type="button" className={styles.button} onClick={() => onSetPaused(!b.paused)} data-testid="info-pause">
-            {b.paused ? (
-              <>
-                <Icon path={toolIcon("resume")} /> Resume
-              </>
-            ) : (
-              <>
-                <Icon path={statusIcon("paused_player")} /> Pause
-              </>
+                    {(missingGold || missingGoods.length > 0) && (
+                      <div className={`${styles.small} ${styles.warn}`} data-testid={`shipyard-missing-${id}`}>
+                        Missing:{" "}
+                        {missingGold && `${units(t.cost.gold - model.gold)} gold${missingGoods.length > 0 ? ", " : ""}`}
+                        {missingGoods.map(([g, n], i) => (
+                          <span key={g}>
+                            {i > 0 && ", "}
+                            {units(n - (island.inventory[g]?.stock ?? 0))} <GoodName id={g} name={goodName(g)} />
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
-          </button>
+          </div>
         )}
-        {b.residents !== undefined && (
-          <button type="button" className={styles.button} onClick={onUpgrade} data-testid="info-upgrade">
-            <Icon path={toolIcon("upgrade")} /> Upgrade
-          </button>
+
+        {b.level !== undefined && def?.trading_post && (
+          <TradingPostSection building={b} island={island} model={model} content={content} levels={def.trading_post.levels.length}
+            onUpgrade={onUpgradeTradingPost}
+            onSelectBuilding={onSelectBuilding}
+          />
         )}
-        {/* A field cannot be moved (the server rejects it): demolish and add one again. */}
-        {!def?.field && (
-          <button type="button" className={styles.button} onClick={onMove} data-testid="info-move">
-            <Icon path={toolIcon("move")} /> Move
-          </button>
+        {b.level !== undefined && def?.warehouse && (
+          <div className={styles.section} data-testid="warehouse-panel">
+            <div className={styles.sectionTitle} data-testid="warehouse-level">
+              Warehouse level {b.level} of {def.warehouse.levels.length}
+            </div>
+            <div className={styles.small}>
+              Collects for the producers nearest to it by road; it adds no capacity (the Trading Post stores the goods).
+            </div>
+            <div className={styles.small} data-testid="warehouse-throughput">
+              Throughput {perMin(b.throughput_per_min ?? 0)}/min · load {percent(b.load_permille ?? 0)}
+            </div>
+            <Bar permille={b.load_permille ?? 0} />
+            <AssignedProducers building={b} island={island} content={content} onSelectBuilding={onSelectBuilding} />
+            <WarehouseUpgrade building={b} island={island} model={model} content={content} onUpgrade={onUpgradeWarehouse} />
+          </div>
         )}
-        <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onDemolish} data-testid="info-demolish">
-          <Icon path={toolIcon("demolish")} /> Demolish
-        </button>
+
+        <div className={styles.buttons}>
+          {(canPause || b.paused) && (
+            <button type="button" className={styles.button} onClick={() => onSetPaused(!b.paused)} data-testid="info-pause">
+              {b.paused ? (
+                <>
+                  <Icon path={toolIcon("resume")} /> Resume
+                </>
+              ) : (
+                <>
+                  <Icon path={statusIcon("paused_player")} /> Pause
+                </>
+              )}
+            </button>
+          )}
+          {b.residents !== undefined && (
+            <button type="button" className={styles.button} onClick={onUpgrade} data-testid="info-upgrade">
+              <Icon path={toolIcon("upgrade")} /> Upgrade
+            </button>
+          )}
+          {/* A field cannot be moved (the server rejects it): demolish and add one again. */}
+          {!def?.field && (
+            <button type="button" className={styles.button} onClick={onMove} data-testid="info-move">
+              <Icon path={toolIcon("move")} /> Move
+            </button>
+          )}
+          <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onDemolish} data-testid="info-demolish">
+            <Icon path={toolIcon("demolish")} /> Demolish
+          </button>
+        </div>
       </div>
     </div>
   );

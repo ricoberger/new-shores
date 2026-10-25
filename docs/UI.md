@@ -50,9 +50,7 @@ UI shows the same numbers the server uses.
   a haze colour toward the edge; the clear colour is the haze.
 - **Labels** are keyboard buttons with the island name and badge, hidden
   near the canvas edge; pointer taps resolve **ship → label → land**. A
-  label tap is an island tap at every LOD: it appends a stop when the route
-  editor is open, picks the destination for an awaiting shipment, otherwise
-  opens the **island card** (population, Trading Post fill, warnings
+  label tap is an island tap at every LOD: it opens the **island card** (population, Trading Post fill, warnings
   count, fertilities, deposits, coast; **"Found settlement here"** on an
   unsettled island when a ship carries the Trading Post cost — the ship
   sails there first (`sail_ship`), the founding is pending (shown on the
@@ -62,8 +60,10 @@ UI shows the same numbers the server uses.
   ("Choose your home island") as the hint.
   Hover shows a lightweight tooltip only; nothing is hover-only.
 - **Route ribbons** are drawn only for the selected ship's route or while
-  the route editor is open (all routes faint, the edited one bright);
-  ships are always drawn.
+  the route editor is open. All ribbons are the selection yellow and as
+  wide as the selection ring; in the editor the edited route and the
+  draft are opaque and the other routes translucent. Ships are always
+  drawn.
 - **Ships** are low-poly instances: with a leg, lerped between the two
   islands' pier anchors by `(now − depart_at) / (arrive_at − depart_at)`.
   A ship handling at the Trading Post sits at **pier slot i** (tile i of
@@ -72,9 +72,8 @@ UI shows the same numbers the server uses.
   take the island's harbour berths; `anchored_unpaid` ships greyed. Legs and ribbons are straight lines and may cross land
   (dressing task). Route ribbons carry direction arrows; the selected ship
   shows its route and ETA.
-- **Manual shipment:** drag an idle ship onto another island (drop on sea
-  or its own island cancels; dragging a non-idle ship pans), or "Send to…"
-  then tap the target island; both open the cargo dialog.
+- **Manual shipment:** only through the ship panel's "Send…" dialog; the
+  destination is chosen in its dropdown (no drag and drop, no map pick).
 - **Focused island** = the island under the camera centre, else the
   nearest; it drives the build-menu stock display, the highlighted tab and
   the unsettled-island panel, never a command.
@@ -214,22 +213,27 @@ UI shows the same numbers the server uses.
 
 **Ship** (ship info panel; the Ships list only selects)
 
-- Type, state (incl. "waiting for berth" with the position in the queue
-  and "handling until"), cargo slots, current leg with ETA, route
-  assignment, pending founding, upkeep.
-- Buttons: "Assign to route…" (opens the editor with the ship pending;
-  pick a saved route or save a new one to assign), unassign, "Send…"
-  (manual shipment dialog), "Send to… (pick island)", found settlement,
+- Status line shared with the list ("On route: name · arrives in …",
+  "Shipment · …", "Idle · at …"), the from → to islands of a leg, upkeep,
+  slot capacity, one box per cargo slot (good icon, amount / slot size),
+  pending founding and berth-wait notes.
+- Buttons: "Assign to route…" (an inline picker of the saved routes; routes
+  are created only in the Routes list, the picker links there when there
+  are none), unassign, "Send…" (manual shipment dialog), found settlement,
   scrap; later: send on expedition (Harbourmaster).
 
-**Route editor** (panel; the Routes list opens it and may delete)
+**Routes list** (panel): per route its name, then "Island 1 → Island 2
+(15:00 min)" (the loop time), then "Ships: n". Clicking a route opens it in
+the route editor, which has Delete next to Save while no ship is assigned.
+"+ New route" ends the list. The ship panel's route picker shows the same
+three lines per route.
 
-- Opened from the Routes list, a ship's "Assign to route…" or an island
-  card; stays open while the camera moves.
+**Route editor** (panel; the Routes list opens it)
+
+- Opened from the Routes list or an island card; stays open while the camera moves.
 - Stops are chosen from **island pickers** (each option shows the island
-  name, settled state and the relevant goods' stock/capacity); clicking an
-  island or its label in the world while the editor is open also appends
-  it. Per stop a load list with
+  name, settled state and the relevant goods' stock/capacity); stops are
+  added only there, never by clicking an island in the world. Per stop a load list with
   "top up to" amounts and an unload list, with the island's current stock
   inline; assigned ships. Server errors (e.g. consecutive stops on one
   island, `route_invalid`) are shown as toast and inline.
@@ -238,10 +242,10 @@ UI shows the same numbers the server uses.
   saved version, labelled "estimated"; per-minute values are 0 until a
   ship is assigned.
 - Selecting a ship or island while the editor is open **suspends** it:
-  their panel shows, island clicks select instead of adding stops, and a
+  their panel shows, and a
   "Back to route editor" bar resumes it as the only side panel; the draft
   survives. Esc steps back one level per press (dialogs → island tool →
-  drag/pick → pending ship → editor → selection).
+  pick → pending ship → editor → selection).
 
 ## 5. World map screen
 
@@ -260,7 +264,11 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   ship, island card, route editor and its resume bar, lists, quests): one
   sheet at a time, `role="dialog"`, drag handle with snap points at 20 /
   50 / 90 % of the area below the top bar (opens at half; tap or Enter on
-  the handle cycles; dragging below the peek closes), focus moved in,
+  the handle cycles; dragging below the peek closes). A sheet has no header
+  of its own: the panel's title (underlined) and its icon-only close
+  button are the same as on the desktop side panel; the title row stays in
+  place and the panel's content scrolls beneath it (every panel has a close button,
+  including the building info panel). Focus moves in,
   Tab trapped, focus returned to the opener on close. Wider landscape
   phones get a narrow side panel; if it would be shorter than ≈ 240 px the
   hint bar hides and the insolvency banner is limited to one line.

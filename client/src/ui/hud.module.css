@@ -407,13 +407,13 @@
 .infoPanel {
   width: 320px;
   max-height: calc(100vh - 220px);
-  overflow-y: auto;
 }
 
 /* Panel header: display serif over a brass rule. */
 .title {
   font-family: var(--ns-font-display);
   font-size: 17px;
+  line-height: 22px; /* the close button in the header row is 22px, aligned with this line */
   font-weight: 700;
   margin: 0 0 4px;
   padding-bottom: 3px;
@@ -550,6 +550,37 @@
 .fieldList li {
   margin: 0;
   padding: 1px 0;
+}
+
+/* Icon-only close button in a panel's header row: top-aligned with the title's
+   text line (not centred on the underlined title box, whose padding and border
+   sit below the text). */
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  color: var(--ns-ui-ink);
+  padding: 0;
+  font-size: 15px;
+}
+
+/* Touch: the same 22px box (beating the global 44px minimum for buttons) with
+   a larger invisible hit area. */
+[data-touch="true"] .closeButton {
+  min-width: 0;
+  min-height: 0;
+}
+
+[data-touch="true"] .closeButton::after {
+  content: "";
+  position: absolute;
+  inset: -11px;
 }
 
 .link {
@@ -697,12 +728,83 @@
 .shipsPanel {
   width: 380px;
   max-height: calc(100vh - 220px);
+}
+
+/* Detail panels: the header (title row) stays put and the rest scrolls beneath it. */
+.infoPanel,
+.shipsPanel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panelBody {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 .shipEntry {
   border-top: 1px solid var(--ns-ui-parchment-dark);
   padding: 6px 0;
+}
+
+/* A divider between list entries, not between the title row and the first one. */
+.panelBody > .shipEntry:first-child,
+.panelBody > .trayList > .shipEntry:first-child {
+  border-top: none;
+}
+
+/* The action row closing a list (Routes: + New route): divided like an entry, no extra gap above the divider. */
+.shipEntry.buttons {
+  margin-top: 0;
+}
+
+.block {
+  display: block;
+}
+
+/* A route to pick in the ship panel. */
+.routeChoice {
+  padding: 4px 0;
+}
+
+/* A clickable entry inside a divided list item (warnings). */
+.shipEntry > .trayEntry {
+  padding: 0;
+}
+
+/* Ship cargo: one box per slot, the good's icon over "amount / slot size". */
+.slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 64px;
+  min-height: 56px;
+  padding: 4px 6px;
+  border: 1px solid var(--ns-ui-parchment-edge);
+  border-radius: 6px;
+  background: var(--ns-ui-parchment-light);
+}
+
+.slot .glyph {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.slotEmpty {
+  border-style: dashed;
+  background: transparent;
 }
 
 .row {
