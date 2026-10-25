@@ -711,7 +711,8 @@ export class GameRenderer {
     const found = this.selected === null ? undefined : this.findBuilding(this.selected);
     for (const [islandId, d] of this.details) {
       const b = found && found.island.id === islandId ? found.b : undefined;
-      d.select(b, b ? this.defs.get(b.type) : undefined);
+      const chain = b && found ? farmChain(b, found.island.buildings) : null;
+      d.select(b, b ? this.defs.get(b.type) : undefined, chain?.farm ? [chain.farm.id, ...chain.fields.map((f) => f.id)] : []);
     }
     // Tinting rebuilds the chunk meshes, which are the shadow casters.
     this.refreshCasters();
@@ -1080,7 +1081,9 @@ export class GameRenderer {
   /**
    * Outlines of a farm's chain (D-051 part 4): the farm and its fields of the
    * selected building (a farm or one of its fields) and of the farm the field
-   * tool adds to — active fields green, inactive ones yellow, the farm blue —
+   * tool adds to — active fields green, inactive ones yellow, the farm blue
+   * (the selected chain is tinted green like the selected building instead:
+   * only its inactive fields keep a mark) —
    * and the field row the UI hovers. Drawn at near LOD only; recomputed when
    * the selection, the tool, the hover or the server state changes.
    */
@@ -1098,14 +1101,18 @@ export class GameRenderer {
         const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
         marks.push({ cx: cx + island.position.x, cz: cz - island.position.y, w, h, kind });
       };
-      const chainOf = (found: { b: BuildingDisplay; island: IslandDisplay } | undefined) => {
+      const chainOf = (found: { b: BuildingDisplay; island: IslandDisplay } | undefined, selection = false) => {
         if (!found) return;
         const { farm, fields } = farmChain(found.b, found.island.buildings);
         if (!farm) return;
-        add(found.island, farm, "farm");
-        for (const f of fields) add(found.island, f, f.active === false ? "inactive" : "active");
+        // The selected chain is tinted green like the building; only the inactive fields keep a (yellow) mark.
+        if (!selection) add(found.island, farm, "farm");
+        for (const f of fields) {
+          if (f.active === false) add(found.island, f, "inactive");
+          else if (!selection) add(found.island, f, "active");
+        }
       };
-      if (this.selected !== null) chainOf(this.findBuilding(this.selected));
+      if (this.selected !== null) chainOf(this.findBuilding(this.selected), true);
       if (tool.kind === "field" && tool.farmId !== this.selected) chainOf(this.findBuilding(tool.farmId));
       const hover = this.hoverBuilding === null ? undefined : this.findBuilding(this.hoverBuilding);
       if (hover) add(hover.island, hover.b, "hover");

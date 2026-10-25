@@ -163,8 +163,9 @@ UI shows the same numbers the server uses.
   farm: one field per click/tap, the ghost valid only edge-adjacent to
   the farm or one of its active fields (client hint; the server decides),
   the tool stays active until max or Esc/right-click. Inactive fields
-  are drawn desaturated with the `not_adjacent` status; selecting a field
-  highlights its farm and chain; a field panel offers Demolish only (no
+  are drawn desaturated with the `not_adjacent` status (and a yellow mark);
+  selecting a farm or a field tints its farm and fields green like a
+  selected building; the field ghost is the field's translucent model; a field panel offers Demolish only (no
   Move).
 - Public buildings show their radius; houses in range highlight.
 - Confirm on click/tap; the server validates and responds; the ghost becomes

@@ -196,6 +196,17 @@ async function tileAt(page: Page, island: string, x: number, y: number): Promise
   return page.evaluate(([id, tx, ty]) => window.__newShores!.tileToScreen(id as string, tx as number, ty as number), [island, x, y] as const);
 }
 
+/** The first farm of a type (default: sheep farm) of the loaded world (island ID and tile). */
+async function farmOf(page: Page, type = "sheep_farm"): Promise<{ island: string; x: number; y: number }> {
+  return page.evaluate((t) => {
+    for (const is of window.__newShores!.getServer()!.display.islands) {
+      const b = is.buildings.find((x) => x.type === t);
+      if (b) return { island: is.id, x: b.x, y: b.y };
+    }
+    throw new Error(`no ${t}`);
+  }, type);
+}
+
 const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> }> = {
   // The HUD with the info panel of a building that is not running (desktop).
   "info-panel": {
@@ -224,6 +235,57 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.getByTestId("sheet").waitFor({ state: "visible" });
       // The sheet takes focus on open; a neutral focus keeps the shot stable.
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+    },
+  },
+  // A sheep farm selected: its pastures are tinted like the farm (desktop).
+  "farm-selected": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const f = await farmOf(page);
+      await setCamera(page, { x: f.x + 1, y: f.y + 1, half: 6, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, f.island, f.x + 1, f.y + 1);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  // A hemp farm selected: its fields are tinted like the farm (desktop).
+  "hemp-farm-selected": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const f = await farmOf(page, "hemp_farm");
+      await setCamera(page, { x: f.x + 1, y: f.y + 1, half: 6, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, f.island, f.x + 1, f.y + 1);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  // The field tool of a sheep farm: the pasture ghost next to the farm (desktop).
+  "field-ghost": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const f = await farmOf(page);
+      await setCamera(page, { x: f.x + 1, y: f.y + 1, half: 6, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, f.island, f.x + 1, f.y + 1);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("farm-add-field").click();
+      // The first tile around the farm where the server would accept a pasture.
+      for (let dy = -3; dy <= 6; dy++) {
+        for (let dx = -3; dx <= 6; dx++) {
+          const q = await tileAt(page, f.island, f.x + dx, f.y + dy);
+          await page.mouse.move(q.x, q.y);
+          await page.waitForTimeout(60);
+          if ((await page.evaluate(() => window.__newShores!.ghostValidity())) === "ok") return;
+        }
+      }
+      throw new Error("no valid pasture tile");
     },
   },
   // The red placement ghost: a quarry off its deposit (desktop).

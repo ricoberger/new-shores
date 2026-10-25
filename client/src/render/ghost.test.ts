@@ -64,6 +64,19 @@ describe("PlacementGhost", () => {
     scene.dispose();
   });
 
+  it("draws a field's model too (pasture)", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const ghost = new PlacementGhost(scene, reg);
+    const spec = { def: { id: "pasture", width: 2, height: 2, category: "production" } as unknown as ContentBuilding, island: { x: 0, y: 0 }, x: 2, y: 2, rotation: 0 as const };
+    ghost.show(spec, GHOST);
+    await loaded(reg);
+    ghost.show(spec, GHOST);
+    expect(ghost.kind()).toBe("model");
+    scene.dispose();
+  });
+
   it("keeps the box for content IDs without a model and without a registry", async () => {
     const scene = new Scene(engine);
     const reg = registry(scene);
