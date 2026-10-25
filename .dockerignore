@@ -4,7 +4,5 @@
 deploy/.env
 **/node_modules
 client/dist
-client/dist-pg
-client/playwright-report*
 client/test-results*
 docs

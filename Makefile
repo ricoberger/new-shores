@@ -5,9 +5,6 @@
 #                     `make dev HOST=<lan-ip>` serves both on the LAN (phone testing)
 #   make preview      e2e-mode build (fixtures, ?stats=1) served by `vite preview` on
 #                     :4173 against the dev server; HOST=<lan-ip> for the LAN
-#   make client-e2e   Playwright smoke test (needs `npx playwright install chromium`)
-#   make e2e-fast     the quick e2e loop: chromium + touch-chromium + visual, without
-#                     the perf project the visual one depends on (--no-deps)
 #   make up           Compose stack (postgres, redis, migrate, server x2, caddy)
 #                     on http://localhost:8000 (HTTP_PORT from deploy/.env, the
 #                     environment or `make up HTTP_PORT=…`); make logs
@@ -15,7 +12,6 @@
 #                     database volume (0/false/no/unset keep it)
 #   make makefile-test  dry-run checks of the up/down targets
 #   make server-integration  Go integration tests (PostgreSQL + Redis)
-#   make client-e2e-pg       Playwright persistence test (default-mode server)
 #   make assets       rebuild the models (Blender 5.2 + the CC0 kits, see README "Asset build")
 #   make assets-check rebuild into a temp dir and compare with client/public/models (skips without Blender)
 #   make assets-test  asset build unit tests (stdlib Python ≥ 3.11; part of `make check`)
@@ -50,8 +46,8 @@ COMPOSE_ENV := $(if $(filter command line,$(origin HTTP_PORT)),HTTP_PORT=$(HTTP_
 DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUMES)),$(error VOLUMES must be 1 (delete the database volume) or 0/false/no/unset (keep it), got '$(VOLUMES)')))
 
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
-	client-install client-check client-lint client-typecheck client-test client-build client-e2e e2e-fast dev preview \
-	server-integration client-e2e-pg up down logs makefile-test assets assets-check assets-test shots model-sheet
+	client-install client-check client-lint client-typecheck client-test client-build dev preview \
+	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet
 
 check: server-check content-test client-check makefile-test assets-test
 
@@ -88,12 +84,6 @@ client-test:
 
 client-build:
 	cd $(CLIENT_DIR) && npm run build
-
-client-e2e:
-	cd $(CLIENT_DIR) && npm run test:e2e
-
-e2e-fast:
-	cd $(CLIENT_DIR) && npm run test:e2e -- --project chromium --project touch-chromium --project visual --no-deps
 
 assets:
 	cd $(CLIENT_DIR) && npm run assets
@@ -133,10 +123,6 @@ assets-test:
 # skipped otherwise (failed when CI is set).
 server-integration:
 	cd $(SERVER_DIR) && go test -tags 'integration testevents' -count=1 ./...
-
-# Needs E2E_DATABASE_URL and E2E_REDIS_URL.
-client-e2e-pg:
-	cd $(CLIENT_DIR) && npm run test:e2e:pg
 
 up:
 	$(COMPOSE_ENV)$(COMPOSE) up -d --build

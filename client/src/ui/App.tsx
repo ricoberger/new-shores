@@ -24,7 +24,7 @@ import type { Lod } from "../display/lod";
 import { lifeEnabled } from "../display/life";
 import { fxaaForced, type Quality, resolveQuality } from "../display/quality";
 import { blankStop, initialViewState, viewReducer } from "../display/view";
-import { type CameraInfo, type FrameStats, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
+import { type CameraInfo, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
 import hud from "./hud.module.css";
@@ -61,9 +61,7 @@ const TOAST_MS = 5000;
 export interface TestHook {
   /** Viewport position of the centre of an island tile, any island at any LOD (NaN for unknown islands and during a camera animation). */
   tileToScreen(islandId: string, x: number, y: number): { x: number; y: number };
-  getDisplay(): unknown;
   getServer(): WorldResponse | null;
-  engineCount(): number;
   /** The level of detail of the last frame. */
   lod(): Lod;
   /**
@@ -73,12 +71,6 @@ export interface TestHook {
   camera(): { x: number; z: number; y: number; half: number; rotation: number };
   /** Sets parts of the camera (target x/z or y, half extent, rotation in quarter turns), clamped like user input. */
   setCamera(c: { x?: number; z?: number; y?: number; half?: number; rotation?: number }): void;
-  /** The focused island (under the camera target, else the nearest). */
-  focusedIsland(): string;
-  /** Islands in the camera's footprint (rendered), in payload order. */
-  visibleIslands(): string[];
-  /** Viewport position of an island's centre, or of one of its tiles (NaN for unknown islands and during a camera animation). */
-  islandToScreen(id: string, x?: number, y?: number): { x: number; y: number };
   /** Viewport position of a ship drawn in the last frame (NaN during a camera animation). */
   shipToScreen(id: number): { x: number; y: number };
   /** Viewport position of an archipelago point (tiles), also during a camera animation. */
@@ -89,44 +81,14 @@ export interface TestHook {
   meshesCreated(): number;
   /** Triangles drawn in the last frame (shadow passes included). */
   triangles(): number;
-  /** Instance style a ship was drawn with in the last frame ("active" / "unpaid"), null if not drawn. */
-  shipStyle(id: number): "active" | "unpaid" | null;
-  /** Shipyard construction hulls drawn in the last frame (near LOD). */
-  constructionMarkers(): { buildingId: number; scale: number }[];
-  /** Frame times over the last windowMs (default 5 s). */
-  frameStats(windowMs?: number): FrameStats;
-  /** Carts drawn (near LOD, islands in view). */
-  carts(): number;
-  /** Life layer: instances and particles drawn in the last frame (null: off, ?life=0) and instances per element class. */
-  life(): { stats: { instances: number; particles: number } | null; counts: Record<string, number> };
-  /** Archipelago positions (tiles) and heights of a life class's instances in the last frame. */
-  lifePositions(cls: string): { x: number; y: number; h: number }[];
-  /** Far-LOD landmark markers drawn. */
-  landmarks(): number;
-  /** Tile the placement ghost was drawn on in the last frame (null: hidden). */
-  ghostTile(): { x: number; y: number } | null;
   /** Jumps the camera to an island (the island card's "Go to island"; tests trigger jumps without a visible card). */
   jumpToIsland(id: string): void;
-  /** What the placement ghost drew in the last frame: the building's model, the footprint box (no model yet) or null (hidden). */
-  ghostKind(): "model" | "box" | null;
   /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
   ghostValidity(): "ok" | "no_road" | "invalid" | null;
-  /** Water rows (island tiles) the ghost of a water-edge building marked in the last frame (null: none, D-051). */
-  ghostWaterRows(): { x: number; y: number; w: number; h: number } | null;
-  /** Ship the camera looks at on load when no island is settled yet (null: an island). */
-  startShip(): number | null;
-  /** Footprint outlines of the selected/edited farm's chain drawn in the last frame, by kind. */
-  fieldMarks(): Record<"farm" | "active" | "inactive" | "hover", number>;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
   freezeTime(ms: number | null): void;
-  /** The grid overlay was drawn in the last frame (only while a placement tool is active). */
-  gridOverlayVisible(): boolean;
-  /** Archipelago point the grid overlay was centred on in the last frame (null: hidden). */
-  gridAt(): { x: number; y: number } | null;
-  /** Which quality-dependent effects exist (FXAA is skipped on software WebGL, see `software`). */
-  effects(): { quality: Quality; shadowMap: boolean; grading: boolean; fxaa: boolean; vignette: boolean; software: boolean } | null;
   /**
    * Model loading (render/models.ts): manifest loaded; model files (GLB
    * paths) loaded, pending and failed; GLB bytes fetched; the time of the
@@ -136,8 +98,6 @@ export interface TestHook {
    * one has swapped in (bridged).
    */
   assets(): { manifest: boolean; loaded: string[]; pending: string[]; failed: string[]; placeholders: string[]; bridged: number; bytes: number; firstModelMs: number | null };
-  /** Model detail at near LOD ("lite" at the default zoom, "full" zoomed in). */
-  modelDetail(): "full" | "lite";
 }
 
 declare global {
@@ -593,9 +553,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       const nan = { x: NaN, y: NaN };
       window.__newShores = {
         tileToScreen: (id, x, y) => rendererRef.current?.tileToScreen(id, x, y) ?? nan,
-        getDisplay: () => sync.getSnapshot().model,
         getServer: () => sync.getSnapshot().server,
-        engineCount: () => GameRenderer.engineCount(),
         lod: () => rendererRef.current?.currentLod() ?? "near",
         camera: () => {
           const v = rendererRef.current?.cameraView() ?? { x: NaN, y: NaN, half: NaN, rotation: 0 };
@@ -610,45 +568,17 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             ...(c.rotation === undefined ? {} : { rotation: c.rotation }),
           });
         },
-        focusedIsland: () => rendererRef.current?.focusedIsland() ?? "",
-        visibleIslands: () => rendererRef.current?.visibleIslandIds() ?? [],
-        islandToScreen: (id, x, y) => rendererRef.current?.islandToScreen(id, x, y) ?? nan,
         shipToScreen: (id) => rendererRef.current?.shipToScreen(id) ?? nan,
         archToScreen: (x, y) => rendererRef.current?.archToClient({ x, y }) ?? nan,
         drawCalls: () => rendererRef.current?.lastDrawCalls() ?? 0,
         meshesCreated: () => rendererRef.current?.meshesCreated() ?? 0,
         triangles: () => rendererRef.current?.renderStats().triangles ?? 0,
-        shipStyle: (id) => rendererRef.current?.shipStyle(id) ?? null,
-        constructionMarkers: () => rendererRef.current?.constructionMarkers() ?? [],
-        frameStats: (windowMs) => rendererRef.current?.frameStats(windowMs) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0, maxMs: 0 },
-        carts: () => rendererRef.current?.cartCount() ?? 0,
-        lifePositions: (cls) => rendererRef.current?.lifePositions(cls) ?? [],
-        life: () => ({ stats: rendererRef.current?.lifeStats() ?? null, counts: rendererRef.current?.lifeCounts() ?? {} }),
-        landmarks: () => rendererRef.current?.landmarkCount() ?? 0,
-        ghostTile: () => rendererRef.current?.ghostTile() ?? null,
-        ghostKind: () => rendererRef.current?.ghostKind() ?? null,
         jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
-        ghostWaterRows: () => rendererRef.current?.ghostWaterRows() ?? null,
-        startShip: () => rendererRef.current?.startShip() ?? null,
-        fieldMarks: () => rendererRef.current?.fieldMarks() ?? { farm: 0, active: 0, inactive: 0, hover: 0 },
         quality: () => rendererRef.current?.quality() ?? "low",
-        gridOverlayVisible: () => rendererRef.current?.gridVisible() ?? false,
-        gridAt: () => rendererRef.current?.gridAt() ?? null,
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>
           rendererRef.current?.assets() ?? { manifest: false, loaded: [], pending: [], failed: [], placeholders: [], bridged: 0, bytes: 0, firstModelMs: null },
-        modelDetail: () => rendererRef.current?.modelDetail() ?? "lite",
-        effects: () => {
-          const e = rendererRef.current?.effects();
-          return e
-            ? {
-                ...e,
-                grading: document.querySelector('[data-testid="grading"]') !== null,
-                vignette: document.querySelector('[data-testid="vignette"]') !== null,
-              }
-            : null;
-        },
       };
     }
   }, [sync]);

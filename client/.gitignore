@@ -1,8 +1,3 @@
 node_modules/
 dist/
-playwright-report/
 test-results/
-blob-report/
-dist-pg
-playwright-report-pg
-test-results-pg

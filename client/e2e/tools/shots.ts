@@ -1,6 +1,6 @@
 // `make shots`: PNGs of the game with one command, identical camera and
 // clock in every session (see the Makefile header and README). Not a test:
-// it starts the e2e servers (the commands of playwright.config.ts) itself,
+// it starts the e2e servers (the commands of constants.ts) itself,
 // drives the page through the window.__newShores hook and writes
 // .experiment/shots/<set>/<fixture>-<view>-<device>.png (presets:
 // <fixture>-<preset>-<device>.png). Run through `npm run shots`.

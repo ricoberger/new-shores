@@ -4,7 +4,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "dist-pg", "playwright-report", "playwright-report-pg", "test-results", "test-results-pg", "src/api/schema.d.ts"] },
+  { ignores: ["dist", "test-results", "src/api/schema.d.ts"] },
   {
     files: ["**/*.{ts,tsx}"],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],

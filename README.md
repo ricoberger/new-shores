@@ -121,9 +121,8 @@ in as the fixed player "Developer". The API is at
   `{"fixture": "default" | "town" | "settled"}`, see
   `server/internal/devworld/fixtures.go`): pending events, the last-seen
   time and the away summary start over, the version increases and
-  `world_changed` is published. It exists for the E2E specs, which reset
-  the world in `beforeAll` (`client/e2e/world.ts`) instead of depending
-  on each other's leftovers. It is mounted only with `--dev` (404 in
+  `world_changed` is published. It exists for `make shots`, which resets
+  the world before each fixture. It is mounted only with `--dev` (404 in
   default mode) and is not part of the public API (`openapi.yaml`).
 
 ### Server configuration (default mode)
@@ -159,16 +158,20 @@ service before the servers start.
 ### Checks and tests
 
 - `make check` (server, content and client: gofmt, vet, golangci-lint,
-  `go test`, eslint, typecheck, Vitest). Browser tests against the dev
-  server: `cd client && npx playwright install chromium webkit`, then
-  `make client-e2e` (all Playwright projects, see "Mobile" below).
+  `go test`, eslint, typecheck, Vitest). Go tests cover the simulation, API
+  and store; Vitest covers the client's display logic.
+- `make shots` writes screenshots of the game (fixed camera and clock) and
+  `make model-sheet RECIPE=<id>` a contact sheet of a model, see "Asset
+  build" for both; they are the review tools of the polish phase (needs
+  `cd client && npx playwright install chromium` once for `make shots`).
+- The Playwright e2e, visual and perf tests are suspended during the polish
+  phase: flows and performance are validated by playing on the baseline
+  device (removed in PR #23, available in git history).
 - PostgreSQL/Redis integration tests (store, events worker, auth,
   two-instance test): `make server-integration`. They use
   `TEST_DATABASE_URL` (a server where the tests may create databases) and
   `TEST_REDIS_URL`, or start containers with testcontainers when Docker is
   available; otherwise they are skipped (in CI a skip fails).
-- Persistence e2e against the default-mode server:
-  `E2E_DATABASE_URL=… E2E_REDIS_URL=… make client-e2e-pg`.
 - **CI runs on demand only** (cost control for a private repository):
   add the `ci` label to a pull request to run all jobs once; the workflow
   removes the label when it finishes, so after pushing new commits add it
@@ -202,51 +205,11 @@ service before the servers start.
   (desktop: high — shadow map, grading, FXAA, the latter not on software
   WebGL such as headless Chromium unless `?fxaa=1` forces it; touch
   layouts: low).
-- **Playwright projects** (`npm run test:e2e` runs all of them):
-  `chromium`, `archipelago` and `away` (desktop, shared dev world), then
-  `touch-chromium` (Pixel 5 profile at 412 × 915, incl. the PWA
-  installability check) and `touch-webkit` (iPhone 12; needs
-  `npx playwright install webkit`), and `perf` (the dense fixtures at
-  near, mid and far LOD under 4× CPU throttling; logs fps, frame times,
-  draw calls, JS heap, WebGL renderer and bundle size and asserts an fps
-  floor per LOD: the `PERF_MIN_FPS` environment variable for every LOD,
-  else the per-LOD defaults in `client/e2e/perf.spec.ts`), and `visual` (screenshot baselines of the
-  fixtures on desktop and a Pixel 5, per platform: a missing baseline is
-  written and its test skipped with a notice; plus the grid overlay,
-  palette, render quality and credits rules). `perf` and `visual` run
-  last, after the shared-world projects. Single projects:
-  `npx playwright test --project=perf --no-deps` (`--no-deps` skips the
-  projects a project depends on). Headless Chromium renders
-  with SwiftShader (software); `PERF_GPU=1` runs the perf project with
-  hardware WebGL flags for comparison (its fps threshold is not asserted).
-- **Perf floors:** a floor is a regression tripwire relative to a
-  device-validated build, not a target. Per LOD it is
-  `floor(0.8 × software fps of the device-validated build)` (median of
-  three runs of the floored 412 × 915 line on an Apple M4 Pro); the
-  build, the device baseline (model, readings, date) and the medians are
-  recorded at `DEFAULT_PERF_MIN_FPS` in `client/e2e/perf.spec.ts`.
-  Software WebGL fps are a proxy only: the device decides, so never thin
-  the look to raise them. When a new build is validated on the device,
-  re-measure and reset the floors. The other runs (each LOD on both dense
-  fixtures) and the zoom sweep (no geometry built on zoom; worst frame)
-  are measured and logged.
 - **fps validation is manual, on the baseline device:** at each art gate
   the dense fixtures are checked on an iPhone 15 Pro Max (Safari) at near,
   mid and far LOD (`make preview HOST=<lan ip>`, `&stats=1` for the fps
   badge). Baseline 2026-10-23: 60 fps at near, mid and far on both
   `dense-2x400` and `dense-archipelago-8`.
-- **CI's fps check is a render sanity check only:** the CI runner renders
-  in software at 1–6 fps, which measures nothing meaningful, so the e2e
-  step sets `PERF_MIN_FPS=1` ("it renders at all") in
-  `.github/workflows/ci.yaml`. The real CI perf assertions are the JS heap
-  and draw-call ceilings of every run and the zoom sweep (no geometry
-  built on zoom). Locally, on a slower machine, set `PERF_MIN_FPS` the
-  same way rather than disabling the check.
-- **Opt-in measurements:** `MEASURE_TTFI=1 npx playwright test e2e/ttfi.spec.ts`
-  (time to first interaction) and
-  `MEASURE_LIGHTHOUSE=1 npx playwright test e2e/lighthouse.spec.ts`
-  (Lighthouse accessibility of the dense fixture, desktop and 412 × 915,
-  with the project-local `lighthouse` devDependency).
 - **PWA:** production builds register a service worker that caches the
   app shell only (installable, starts fast); the game itself always needs
   connectivity and `/api/` is never cached. A new version shows an
@@ -305,8 +268,7 @@ palette or the build.
   with `ROTATION=0..3`, `ISLAND=`, `ZOOM=` (half extent), `X= Y=`; `HUD=0`
   hides the HUD, `OUT=` sets the directory. `make shots PRESET=all` takes
   the HUD states instead (`info-panel`, `sheet`, `ghost`, `sloop`). The
-  scene has no screenshot baselines; the visual e2e spec only guards the
-  HUD layout.
+  scene has no screenshot baselines.
 
 ## Tech stack at a glance
 
