@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { API_PORT, E2E_TIME_SCALE, WEB_PORT } from "./e2e/constants";
+import { API_PORT, API_SERVER_COMMAND, E2E_TIME_SCALE, WEB_PORT, WEB_SERVER_COMMAND } from "./e2e/constants";
 
 // The smoke test runs against the Go dev server (in-memory world) and a
 // production build of the client with the test hook enabled. Separate ports
@@ -66,7 +66,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: `go run ./cmd/server --dev --content ../content/old_coast --addr :${API_PORT} --cors-origin http://localhost:${WEB_PORT} --time-scale ${E2E_TIME_SCALE}`,
+      command: API_SERVER_COMMAND,
       cwd: "../server",
       url: `http://localhost:${API_PORT}/healthz`,
       reuseExistingServer: false,
@@ -75,7 +75,7 @@ export default defineConfig({
       stderr: "pipe",
     },
     {
-      command: `npx vite build && npx vite preview --port ${WEB_PORT} --strictPort`,
+      command: WEB_SERVER_COMMAND,
       url: `http://localhost:${WEB_PORT}`,
       env,
       reuseExistingServer: false,

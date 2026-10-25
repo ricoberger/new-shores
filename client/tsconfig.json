@@ -15,6 +15,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "types": ["vite/client", "node"]
   },
   "include": ["src", "e2e", "e2e-pg", "vite.config.ts", "playwright.config.ts", "playwright.pg.config.ts"]

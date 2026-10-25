@@ -66,7 +66,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 1500,
   },
   test: {
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "e2e/tools/**/*.test.ts"],
     environment: "node",
   },
 });

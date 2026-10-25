@@ -42,7 +42,7 @@ DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUM
 
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
 	client-install client-check client-lint client-typecheck client-test client-build client-e2e e2e-fast dev preview \
-	server-integration client-e2e-pg up down logs makefile-test assets assets-check assets-test
+	server-integration client-e2e-pg up down logs makefile-test assets assets-check assets-test shots
 
 check: server-check content-test client-check makefile-test assets-test
 
@@ -91,6 +91,12 @@ assets:
 
 assets-check:
 	cd $(CLIENT_DIR) && npm run --silent assets -- --check
+
+# Screenshots of the game for polish work, see the header. The parameters
+# (FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SET)
+# reach the script as environment variables; unknown values fail with the allowed list.
+shots:
+	cd $(CLIENT_DIR) && npm run --silent shots
 
 assets-test:
 	python3 -m unittest discover -s assets/build/tests -t assets/build/tests
