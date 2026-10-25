@@ -64,7 +64,14 @@ describe("top-bar aggregates", () => {
 
   it("has no satisfaction without residents (unsettled island)", () => {
     const island = { ...fixture("citizens_needs").islands[0]!, buildings: [], population: {}, workforce: {} };
-    expect(tierRows(island, content, defs)[0]).toEqual({ tier: "settlers", name: "Settlers", employed: 0, total: 0, satisfactionPermille: null, worst: null });
+    expect(tierRows(island, content, defs)[0]).toEqual({ tier: "settlers", name: "Settlers", employed: 0, total: 0, required: 0, short: 0, satisfactionPermille: null, worst: null });
+  });
+
+  it("reports the jobs the residents cannot fill", () => {
+    const island = fixture("citizens_needs").islands[0]!;
+    const short = { ...island, workforce: { ...island.workforce, settlers: { required: 100_000, available: 88_000 } as never } };
+    expect(tierRows(short, content, defs)[0]).toMatchObject({ employed: 88_000, total: 88_000, required: 100_000, short: 12_000 });
+    expect(tierRows(island, content, defs)[0]).toMatchObject({ short: 0 });
   });
 });
 

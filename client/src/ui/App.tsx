@@ -879,10 +879,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             islandId={focusId}
             statics={staticFocused}
             onOpenIsland={() => focusId && dispatch({ type: "selectIsland", id: focusId })}
-            onShips={() => setPanel((p) => (p === "ships" ? "none" : "ships"))}
-            onRoutes={() => setPanel((p) => (p === "routes" ? "none" : "routes"))}
-            onQuests={() => setPanel((p) => (p === "quests" ? "none" : "quests"))}
-            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} compact={compactHud} />}
+            account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
             compact={layout.mode === "phone-portrait" ? "portrait" : compactHud ? "landscape" : null}
           />
           <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} compact={phone} oneLine={tightLandscape} />

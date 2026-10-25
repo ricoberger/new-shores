@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Player } from "../api/client";
 import { authErrorText, logout } from "../api/auth";
 import styles from "./account.module.css";
@@ -16,17 +16,32 @@ interface Props {
   /** The guest registered (same world, updated player). */
   onRegistered: (player: Player) => void;
   onLoggedOut: () => void;
-  /** Phone top bar: an icon button (the name is in its label and the menu). */
-  compact?: boolean;
 }
 
-/** HUD account menu: display name, "Register" (guests), "Install app", "Credits", "Log out". */
-export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false }: Props) {
+/** HUD account menu (the top bar's right end): icon and name, then "Register" (guests), "Install app", "Credits", "Log out". */
+export function AccountMenu({ player, onRegistered, onLoggedOut }: Props) {
   const [open, setOpen] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [credits, setCredits] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const canInstall = useInstallAvailable();
+  const root = useRef<HTMLDivElement>(null);
+  // A press anywhere else (another top-bar menu, the island button, the world) or Escape closes the menu.
+  useEffect(() => {
+    if (!open) return;
+    const down = (e: PointerEvent) => {
+      if (!root.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", down);
+    document.addEventListener("keydown", key);
+    return () => {
+      document.removeEventListener("pointerdown", down);
+      document.removeEventListener("keydown", key);
+    };
+  }, [open]);
 
   const name = `${player.display_name}${player.guest ? " (guest)" : ""}`;
 
@@ -41,26 +56,20 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
   };
 
   return (
-    <div className={styles.menu}>
+    <div ref={root} className={styles.menu}>
       <button
         type="button"
         className={styles.menuButton}
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        aria-label={compact ? `Account: ${name}` : undefined}
         data-testid="account-menu"
       >
-        {compact ? (
-          <Icon path={toolIcon("menu")} />
-        ) : (
-          <>
-            <Icon path={toolIcon("account")} /> {name} ▾
-          </>
-        )}
+        <Icon path={toolIcon("account")} />
+        <span className={styles.menuName}>{player.display_name}</span>
       </button>
       {open && (
         <div className={styles.dropdown} data-testid="account-dropdown">
-          {compact && <span className={styles.status}>{name}</span>}
+          <strong className={styles.dropdownTitle}>{name}</strong>
           {player.email && <span className={styles.status}>{player.email}</span>}
           {player.guest && (
             <button
@@ -71,7 +80,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
               }}
               data-testid="account-register"
             >
-              Register (keeps your island)
+              <Icon path={toolIcon("register")} /> Register (keeps your island)
             </button>
           )}
           {canInstall && (
@@ -97,7 +106,7 @@ export function AccountMenu({ player, onRegistered, onLoggedOut, compact = false
             <Icon path={toolIcon("credits")} /> Credits
           </button>
           <button type="button" onClick={() => void doLogout()} data-testid="account-logout">
-            Log out
+            <Icon path={toolIcon("logout")} /> Log out
           </button>
           {error && <span className={styles.error}>{error}</span>}
         </div>

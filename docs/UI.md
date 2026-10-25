@@ -90,8 +90,7 @@ UI shows the same numbers the server uses.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ ISLAND NAME ⌂⌂ 🌾🍎 ⛏1 📦1 ⚓140 │ 🪵 40 │ gold 5000 ▲ +12.0/min │        │
-│ Settlers 0/48 · Citizens 0/30 │ ⚠3 │ ⛵ 12 │ 🗺 2 │ Quests │ account ▾     │
+│ 🪙 5000  🏠 32 │ 🪵 40 🔨 0 📦 0      ISLAND NAME 🌾🍎 ⛏1 📦1 ⚓140      ☰ │
 ├──────────────────────────────────────────────────────────────────────────┤
 │ ┌minimap+compass┐                                           ┌ panel ┐   │
 │ └───────────────┘             3D canvas                     └───────┘   │
@@ -101,21 +100,27 @@ UI shows the same numbers the server uses.
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Focused island** = the island under the camera centre. The top bar
-  shows its **name** (opens the island card; unsettled islands show a
-  dashed "unsettled" chip and resources only), its **resources** as icon
-  badges (fertilities, deposits; the island card adds a Coast row), its
-  **construction-material stocks** with net rate, **gold and balance**, and
-  its **population per tier as employed / total** (workforce pool, D-035;
-  tiers without residents are hidden except the first) with a popover
-  showing capacity, satisfaction and the worst unmet need. Warnings, ships
-  and routes are icon chips with counts; Quests and the account menu are
-  pinned right. There are no island tabs — islands are reached via the
-  island name, the island card, the minimap and the Ships/Routes lists.
-- **Phone (compact):** island chip (name → details + "Island card"),
-  materials chip (first material + count → list), population chip (total →
-  tier rows); gold stays visible; the compass sits next to the minimap
-  toggle while collapsed.
+- **Focused island** = the island under the camera centre. The top bar has
+  three regions. **Left**, icons and numbers only: group 1 is **gold**
+  and the island's **residents** (summed over the tiers); group 2 is the
+  island's **construction-material stocks**. Each group opens a small
+  popup on mouse hover and toggles it on click or tap (a press elsewhere
+  or Escape closes it): gold shows two lines, the current amount
+  and the balance per minute (▲ / ▼ and number, coloured); population shows per tier employed / total (workforce pool,
+  D-035), the satisfaction, a red "short of workers" line when the
+  residents cannot fill the jobs and the worst unmet need (tiers without
+  residents or open jobs are hidden except the first); materials show stock of
+  capacity. A negative balance colours the gold number red, and so does a tier short of workers for the population number. **Middle**: the
+  focused island's **name** with its **resources** as icon badges
+  (fertilities, deposits, free coast) as one button that opens the island
+  card; unsettled islands show resources only and no materials. **Right**:
+  the menu icon (account: register, install, credits, log out). There are
+  no island tabs — islands are reached via the island name, the island
+  card, the minimap and the lists. Ships, Routes and Quests leave the top
+  bar for a sidebar on the left.
+- **Phone (compact):** same content; portrait puts the island on a second
+  row below gold / population / materials and the menu icon. The compass
+  sits next to the minimap toggle while collapsed.
 - **Build menu:** categories → items with cost, upkeep, lock reason and a
   128 px model **thumbnail**; items are never disabled for cost.
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood
@@ -248,9 +253,8 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   Tab trapped, focus returned to the opener on close. Wider landscape
   phones get a narrow side panel; if it would be shorter than ≈ 240 px the
   hint bar hides and the insolvency banner is limited to one line.
-- Compact top bar: gold, balance and a population chip (tap expands the
-  per-tier list), quests and account pinned; island tabs, Archipelago,
-  Ships and Routes in a horizontally scrolling row. Build menu: category
+- Compact top bar: see §2 (icons and numbers, island on a second row in
+  portrait; popups open on tap). Build menu: category
   chips and ≥ 44 px item cards in one horizontal scroller (Demolish at the
   end); landscape shares one row. Hints and banners stack below the top
   bar; toasts below the top bar; warnings tray ≤ 25 vh.

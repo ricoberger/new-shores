@@ -62,6 +62,10 @@ export interface TierRow {
   employed: number;
   /** Residents of the tier on the island (milli-residents). */
   total: number;
+  /** Workers the island's buildings want of the tier (milli-residents). */
+  required: number;
+  /** Jobs the residents cannot fill: max(0, required − available) (milli-residents). */
+  short: number;
   /** Resident-weighted mean satisfaction of the tier's houses (permille), null without residents. */
   satisfactionPermille: number | null;
   /** The need with the lowest resident-weighted fulfilment below 100 %, null when every need is met. */
@@ -79,6 +83,8 @@ export function tierRows(island: IslandDisplay, content: Pick<Content, "tiers">,
     const pool = island.workforce[t.id];
     const total = island.population[t.id] ?? 0;
     const employed = pool ? Math.min(pool.required, pool.available) : 0;
+    const required = pool?.required ?? 0;
+    const short = pool ? Math.max(0, pool.required - pool.available) : 0;
     let weight = 0;
     let sat = 0;
     const needs = new Map<string, { n: NeedDisplay; weight: number; sum: number; reasons: Map<NeedDisplay["reason"], number> }>();
@@ -103,7 +109,7 @@ export function tierRows(island: IslandDisplay, content: Pick<Content, "tiers">,
       const reason = [...acc.reasons.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? "short_supply";
       worst = { id, fulfilmentPermille: f, reason, ...(acc.n.category ? { category: acc.n.category } : {}), ...(acc.n.building ? { building: acc.n.building } : {}) };
     }
-    return { tier: t.id, name: t.name, employed, total, satisfactionPermille: weight > 0 ? Math.round(sat / weight) : null, worst };
+    return { tier: t.id, name: t.name, employed, total, required, short, satisfactionPermille: weight > 0 ? Math.round(sat / weight) : null, worst };
   });
 }
 

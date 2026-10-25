@@ -416,6 +416,13 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/save-arrow.svg",
       "sha256": "0d5bdb1d8611b54845afb51be9866435e7584cf3455831994bad2a24bfe69d06"
     },
+    "tool:gold": {
+      "file": "two-coins.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/two-coins.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/two-coins.svg",
+      "sha256": "6d43f41723a0c0776bba4489ecf9fc8f51062247efb3153718a9fe5b0ef3f0ed"
+    },
     "tool:population": {
       "file": "village.svg",
       "author": "Delapouite",
@@ -436,6 +443,20 @@
       "page": "https://game-icons.net/1x1/delapouite/scroll-quill.html",
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/scroll-quill.svg",
       "sha256": "152e01493acfbf39eb1ae708042f7310bdefc04620c2477093bf88bbb811fd3c"
+    },
+    "tool:register": {
+      "file": "id-card.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/id-card.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/id-card.svg",
+      "sha256": "7156eb05b2336d6d449fac0c18f71a244d748043fd92aa513df1bc53b92899d2"
+    },
+    "tool:logout": {
+      "file": "exit-door.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/exit-door.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/exit-door.svg",
+      "sha256": "e5ef03c2f7fa3ed0a6aca4d9a89b6adcf28b35714757e7e16f1aacede50f89c6"
     },
     "tool:resume": {
       "file": "play-button.svg",

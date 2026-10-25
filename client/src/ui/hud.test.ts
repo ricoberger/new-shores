@@ -13,7 +13,9 @@ import { IslandCard } from "./IslandCard";
 import { draftFromRoute } from "../display/routes";
 import { QuestsPanel } from "./QuestsPanel";
 import { RouteEditor } from "./RouteEditor";
-import { TopBar } from "./TopBar";
+import { units } from "../display/format";
+import { tierRows } from "../display/hud";
+import { GoldDetails, PopulationDetails, TopBar } from "./TopBar";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -62,22 +64,56 @@ describe("HUD components", () => {
       deposits: [{ x: 1, y: 0, kind: "iron" }],
       revision: "r",
     };
-    const props = { model, content: tbContent, islandId: island.id, statics, onOpenIsland: () => {}, onShips: () => {}, onRoutes: () => {}, onQuests: () => {} } as const;
+    const props = { model, content: tbContent, islandId: island.id, statics, onOpenIsland: () => {} } as const;
+    const rows = tierRows(island, tbContent, new Map(tbContent.buildings.map((b) => [b.id, b])));
 
-    it("shows the focused island with its resources, materials, employed / total and satisfaction; no island tabs", () => {
+    it("shows icons and numbers for the focused island: gold, residents, materials, and the island in the middle; no island tabs", () => {
       const html = renderToStaticMarkup(createElement(TopBar, props as never));
       expect(html).not.toContain("island-tab-");
       expect(html).toContain(`data-island="${island.id}"`);
+      expect(html).toContain('data-testid="hud-gold"');
+      expect(html).toContain('data-testid="hud-population-chip"');
       expect(html).toContain('data-testid="hud-fertility-wheat"');
       expect(html).toContain('data-testid="hud-deposit-iron"');
-      expect(text(html)).toContain("Free coast: 1 of 1 tiles");
       expect(html).toContain('data-testid="hud-material-planks"');
       expect(html).toContain('data-testid="hud-material-stone"');
       expect(html).not.toContain('data-testid="hud-material-fish"');
+      // Details stay in the popups until opened; the bar has no tier rows, satisfaction or balance.
+      for (const id of ["hud-gold-chip-details", "hud-population-chip-details", "hud-tier-settlers", "hud-satisfaction-settlers", "hud-balance", "hud-ships", "hud-routes", "hud-quests"]) {
+        expect(html).not.toContain(`data-testid="${id}"`);
+      }
+      expect(text(html)).not.toContain("unsettled");
+      expect(text(html)).toContain(`${units(rows.reduce((n, r) => n + r.total, 0))}Residents`);
+    });
+
+    it("shows the population details per tier: employed / total, satisfaction and the worst unmet need", () => {
+      const html = renderToStaticMarkup(createElement(PopulationDetails, { rows, content: tbContent, islandName: "Start" }));
       expect(text(html)).toContain("18 / 88");
       expect(text(html)).toContain("81 %");
-      expect(html).toContain('title="Worst unmet need: Small market 36 % (out of range)"');
+      expect(text(html)).toContain("Worst unmet need: Small market 36 % (out of range)");
       expect(text(html)).toContain("22 / 40");
+    });
+
+    it("marks a tier short of workers in the population details and turns the number red", () => {
+      const short = { ...model, islands: [{ ...island, workforce: { ...island.workforce, settlers: { required: 100_000, available: 88_000 } } }, ...model.islands.slice(1)] };
+      const shortRows = tierRows(short.islands[0] as never, tbContent, new Map(tbContent.buildings.map((b) => [b.id, b])));
+      const details = text(renderToStaticMarkup(createElement(PopulationDetails, { rows: shortRows, content: tbContent, islandName: "Start" })));
+      expect(details).toContain("Short of workers: 12 jobs unfilled (100 needed)");
+      // Between the tier's numbers and its worst unmet need.
+      expect(details.indexOf("Short of workers")).toBeLessThan(details.indexOf("Worst unmet need"));
+      expect(text(renderToStaticMarkup(createElement(PopulationDetails, { rows, content: tbContent, islandName: "Start" })))).not.toContain("Short of workers");
+      const bar = (m: typeof model) => renderToStaticMarkup(createElement(TopBar, { ...props, model: m } as never));
+      expect(bar(short as never)).toMatch(/negative[^"]*"[^>]*data-testid="hud-population"/);
+      expect(bar(model)).not.toMatch(/negative[^"]*"[^>]*data-testid="hud-population"/);
+    });
+
+    it("shows the current gold and the coloured balance on one line each", () => {
+      const gold = (balance: number) => renderToStaticMarkup(createElement(GoldDetails, { model: { ...model, gold: 5_000, balance_rate_per_min: balance } as never }));
+      expect(text(gold(12_000))).toContain("Current5");
+      expect(text(gold(12_000))).toContain("Balance▲ +12.0/min");
+      expect(text(gold(-4_500))).toContain("Balance▼ −4.5/min");
+      expect(text(gold(0))).toContain("Balance0.0/min");
+      expect(text(gold(-4_500))).not.toMatch(/taxes|shrinking|rising/);
     });
 
     it("shows the island's resources on the island card", () => {
@@ -94,10 +130,9 @@ describe("HUD components", () => {
       expect(text(card(undefined))).toContain("Fertilities…");
     });
 
-    it("collapses into chips on a phone", () => {
+    it("keeps the same stats on a phone, with the island on its own row", () => {
       const html = renderToStaticMarkup(createElement(TopBar, { ...props, compact: "portrait" } as never));
-      for (const id of ["hud-island-chip", "hud-materials-chip", "hud-population-chip", "hud-gold", "hud-balance", "hud-ships", "hud-routes"]) expect(html).toContain(`data-testid="${id}"`);
-      expect(html).not.toContain('data-testid="hud-island-details"');
+      for (const id of ["hud-gold-chip", "hud-population-chip", "hud-materials-chip", "hud-island-name"]) expect(html).toContain(`data-testid="${id}"`);
     });
   });
 

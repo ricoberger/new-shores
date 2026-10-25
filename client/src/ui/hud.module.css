@@ -14,10 +14,15 @@
   padding: 9px 10px 8px;
 }
 
+/* Three regions: stats left, the focused island in the middle (centred on
+   the screen), the account menu right. Portrait phones put the island on a
+   second row. */
 .topBar {
   position: relative;
-  display: flex;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: "left middle right";
+  gap: 4px 14px;
   align-items: center;
   padding: 6px 14px;
   padding-top: max(6px, env(safe-area-inset-top));
@@ -26,6 +31,144 @@
   color: var(--ns-ui-parchment-light);
   background: var(--ns-ui-dark-wood);
   border-bottom: 2px solid var(--ns-ui-brass);
+}
+
+.topBarPortrait {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "left right"
+    "middle middle";
+  padding-left: max(8px, env(safe-area-inset-left));
+  padding-right: max(8px, env(safe-area-inset-right));
+}
+
+.hudLeft {
+  grid-area: left;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.hudGroup {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.hudGroup + .hudGroup {
+  padding-left: 10px;
+  border-left: 1px solid var(--ns-ui-wood-light);
+}
+
+.hudMiddle {
+  grid-area: middle;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.hudRight {
+  grid-area: right;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Icon and number; the details open in a popover (hover, click or tap). */
+.hudStat {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--ns-ui-parchment-light);
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.hudStat:hover {
+  background: color-mix(in srgb, var(--ns-ui-parchment-light) 12%, transparent);
+}
+
+.hudStat:focus-visible,
+.hudIslandButton:focus-visible {
+  outline: 3px solid var(--ns-ui-focus);
+}
+
+.hudStat .negative {
+  color: var(--ns-ui-negative-light);
+}
+
+.hudMaterial {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.hudChipWrap {
+  position: relative;
+}
+
+.hudPopover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 190px;
+  max-width: min(320px, calc(100vw - 16px));
+}
+
+.hudPopover .stat {
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hudPopover .noWrap {
+  white-space: nowrap;
+}
+
+.hudPopover .tierStat {
+  flex-wrap: wrap;
+}
+
+/* The focused island: name and resource icons as one button (the island card). */
+.hudIslandButton {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  max-width: 100%;
+  color: var(--ns-ui-parchment-light);
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.hudIslandButton:hover {
+  background: color-mix(in srgb, var(--ns-ui-parchment-light) 12%, transparent);
+}
+
+.hudIslandName {
+  color: var(--ns-ui-brass-light);
+  font-family: var(--ns-font-display, serif);
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.hudIslandButton .resourceBadges {
+  flex-wrap: nowrap;
+  flex: none;
 }
 
 /* Ornament at the top bar's ends only: brass caps with a diamond stud. */
@@ -49,28 +192,8 @@
 }
 
 /* Brass icons on the dark wood. */
-.topBar > .stat .glyph,
-.compactStats > .stat .glyph {
-  color: var(--ns-ui-brass);
-}
-
 /* Stats on the dark-wood bar: light text (the population popover is a
    parchment panel and keeps the panel colours). */
-.topBar > .stat .label,
-.compactStats > .stat .label {
-  color: var(--ns-ui-parchment-dark);
-}
-
-.topBar > .stat .positive,
-.compactStats > .stat .positive {
-  color: var(--ns-ui-positive-light);
-}
-
-.topBar > .stat .negative,
-.compactStats > .stat .negative {
-  color: var(--ns-ui-negative-light);
-}
-
 .stat {
   display: flex;
   gap: 6px;
@@ -97,11 +220,6 @@
 
 .spacer {
   flex: 1;
-}
-
-.version {
-  color: var(--ns-ui-parchment-dark);
-  font-size: 12px;
 }
 
 .buildMenu {
@@ -481,54 +599,7 @@
   overflow-y: auto;
 }
 
-/* The focused island in the top bar (D-051 part 7): its name, resources,
-   materials and per-tier workforce and satisfaction; nothing wraps. */
-.topBar:not(.compactTop) > *:not(.spacer) {
-  flex: none;
-  white-space: nowrap;
-}
-
-.topBar:not(.compactTop) .resourceBadges {
-  flex-wrap: nowrap;
-}
-
-.hudIsland {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  min-width: 0;
-}
-
-.hudIslandName {
-  color: var(--ns-ui-brass-light);
-  font-family: var(--ns-font-display, serif);
-  font-size: 17px;
-  font-weight: 700;
-  background: none;
-  border: 0;
-  border-bottom: 1px dotted var(--ns-ui-brass);
-  padding: 0 2px;
-  cursor: pointer;
-  white-space: nowrap;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: none;
-}
-
-.hudIslandName:focus-visible {
-  outline: 3px solid var(--ns-ui-focus);
-}
-
-.hudBadge {
-  font-size: 11px;
-  color: var(--ns-ui-parchment-light);
-  border: 1px solid var(--ns-ui-brass);
-  border-radius: 8px;
-  padding: 0 6px;
-  white-space: nowrap;
-}
-
+/* Resource badges (top bar, island card, popovers). */
 .resourceBadges {
   display: flex;
   flex-wrap: wrap;
@@ -550,22 +621,8 @@
 }
 
 .resourceShort svg,
-.material svg {
+.hudStat svg {
   color: var(--ns-ui-brass);
-}
-
-.materials {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 0 10px;
-  border-left: 1px solid var(--ns-ui-wood-light);
-  border-right: 1px solid var(--ns-ui-wood-light);
-}
-
-.material {
-  align-items: center;
-  gap: 4px;
 }
 
 .tierStat {
@@ -574,12 +631,18 @@
 
 .satisfaction {
   font-size: 12px;
-  color: var(--ns-ui-brass-light);
+  color: var(--ns-ui-ink-soft);
   font-variant-numeric: tabular-nums;
 }
 
-.populationPopover .satisfaction {
-  color: var(--ns-ui-ink-soft);
+.shortOfWorkers {
+  flex-basis: 100%;
+  font-size: 12px;
+  color: var(--ns-ui-negative);
+}
+
+.shortOfWorkers .glyph {
+  margin-right: 4px;
 }
 
 .worstNeed {
@@ -590,42 +653,6 @@
 
 .worstNeed .glyph {
   margin-right: 4px;
-}
-
-.populationPopover .tierStat {
-  flex-wrap: wrap;
-}
-
-.islandChip {
-  max-width: 34vw;
-}
-
-.islandChipName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 700;
-}
-
-/* An unsettled island's chip: dashed (shape, not colour alone; its name says "unsettled"). */
-.islandChipUnsettled {
-  border-style: dashed;
-}
-
-.materialsPopover {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: max(8px, env(safe-area-inset-left));
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 180px;
-}
-
-.materialsPopover .stat {
-  justify-content: space-between;
-  gap: 12px;
 }
 
 .badge {
@@ -890,83 +917,6 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
-}
-
-/* Phone top bar: stats and quests/account pinned, navigation scrolls
-   (a second row in portrait). */
-.compactTop {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-areas: "stats nav end";
-  gap: 4px 10px;
-  padding-left: max(8px, env(safe-area-inset-left));
-  padding-right: max(8px, env(safe-area-inset-right));
-  padding-top: max(4px, env(safe-area-inset-top));
-  padding-bottom: 4px;
-}
-
-.compactPortrait {
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "stats end"
-    "nav nav";
-}
-
-.compactStats {
-  grid-area: stats;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  min-width: 0;
-}
-
-.compactNav {
-  grid-area: nav;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-
-.compactNav > * {
-  flex: none;
-}
-
-.compactEnd {
-  grid-area: end;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.compactTop .stat {
-  flex-direction: column;
-  gap: 0;
-  line-height: 1.15;
-}
-
-.populationChipWrap {
-  position: relative;
-}
-
-.populationPopover {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 160px;
-}
-
-.populationPopover .stat {
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 10px;
 }
 
 /* Phone build bar: categories as a scrolling chip row, items as compact
