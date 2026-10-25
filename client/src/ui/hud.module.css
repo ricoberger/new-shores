@@ -692,7 +692,12 @@
 }
 
 .tierStat {
-  align-items: baseline;
+  align-items: center;
+}
+
+/* A popup row (population tier, construction material): icon, name, value and satisfaction share one centre line. */
+.popupStat {
+  align-items: center;
 }
 
 .satisfaction {

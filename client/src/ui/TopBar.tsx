@@ -142,8 +142,8 @@ export function MaterialsDetails({ goods, island, goodName }: { goods: string[];
     <>
       <strong>Construction materials</strong>
       {goods.map((g) => (
-        <div key={g} className={styles.stat} data-testid={`hud-material-${g}-detail`}>
-          <span className={styles.withIcon}>
+        <div key={g} className={`${styles.stat} ${styles.popupStat}`} data-testid={`hud-material-${g}-detail`}>
+          <span className={`${styles.label} ${styles.withIcon}`}>
             <Icon path={goodIcon(g)} />
             {goodName(g)}
           </span>

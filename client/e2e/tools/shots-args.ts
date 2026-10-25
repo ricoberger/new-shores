@@ -4,7 +4,7 @@
 export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelago-8", "archipelago-8x20", "town"] as const;
 export const VIEWS = ["near", "mid", "far"] as const;
 export const DEVICES = ["desktop", "phone"] as const;
-export const PRESETS = ["info-panel", "sheet", "ghost", "sloop", "build-menu", "warnings", "ship-panel", "route-editor", "route-paused", "island-card"] as const;
+export const PRESETS = ["info-panel", "sheet", "ghost", "sloop", "build-menu", "warnings", "ship-panel", "route-editor", "route-paused", "island-card", "top-bar-popups"] as const;
 
 export type Fixture = (typeof FIXTURES)[number];
 export type View = (typeof VIEWS)[number];

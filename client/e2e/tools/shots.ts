@@ -317,6 +317,16 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.getByTestId("island-card").waitFor({ state: "visible" });
     },
   },
+  // The top bar's population popup, pinned open (desktop).
+  "top-bar-popups": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("hud-population-chip").click();
+      await page.getByTestId("hud-tier-settlers").waitFor({ state: "visible" });
+
+    },
+  },
   // A sloop on a leg (desktop), camera centred on ship 2.
   sloop: {
     fixture: "dense-2x400",
