@@ -912,8 +912,8 @@ export class GameRenderer {
   }
 
   /**
-   * Long-press inspects: a ship, a building (near LOD) or an island (mid
-   * and far LOD) under the finger is selected and its panel opens; the
+   * Long-press inspects: a ship, a building (near and mid LOD) or an island (far
+   * LOD) under the finger is selected and its panel opens; the
    * active tool stays and nothing is placed or demolished.
    */
   private onLongPress(p: Point): void {
@@ -928,7 +928,7 @@ export class GameRenderer {
       this.events.inspectIsland(label);
       return;
     }
-    if (this.lod !== "near") {
+    if (this.lod === "far") {
       const id = this.islandUnder(p);
       if (id) this.events.inspectIsland(id);
       return;
@@ -954,7 +954,7 @@ export class GameRenderer {
         this.events.tapShip(ship);
         return;
       }
-      // A name label means its island (the island card) at every LOD.
+      // A name label (far LOD only) means its island (the island card).
       const label = this.labelUnder(p);
       if (label) {
         this.events.tapIsland(label);
@@ -965,7 +965,7 @@ export class GameRenderer {
         this.events.tapSea();
         return;
       }
-      if (this.lod !== "near") {
+      if (this.lod === "far") {
         this.events.tapIsland(id);
         return;
       }
