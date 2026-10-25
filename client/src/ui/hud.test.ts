@@ -123,14 +123,18 @@ describe("HUD components", () => {
       const noop = () => {};
       const card = (st: typeof statics | undefined) =>
         renderToStaticMarkup(
-          createElement(IslandCard, { islandId: island.id, model, content: tbContent, statics: st as never, nowMs: 0, onGoTo: noop, onFound: noop, onNewRoute: noop, onSelectShip: noop, onClose: noop }),
+          createElement(IslandCard, { islandId: island.id, model, content: tbContent, statics: st as never, onClose: noop }),
         );
       const html = card(statics);
       expect(html).toContain('data-testid="island-card-fertility-wheat"');
       expect(text(html)).toContain("Iron deposit (1 tile)");
       expect(text(html)).toContain("Free coast: 1 of 1 tiles");
-      expect(text(card({ ...statics, fertilities: [], deposits: [] }))).toMatch(/Fertilities.*none.*Deposits.*none/);
-      expect(text(card(undefined))).toContain("Fertilities…");
+      expect(text(card({ ...statics, fertilities: [], deposits: [] }))).toContain("No fertility or deposit");
+      expect(text(card(undefined))).toContain("Resources…");
+      // Population of every tier; no status, fill, warnings, ships or buttons.
+      for (const t of tbContent.tiers) expect(html).toContain(`data-testid="island-card-population-${t.id}"`);
+      expect(html).not.toMatch(/<button[^>]*data-testid="island-card-(enter|new-route|found)/);
+      expect(text(html)).not.toMatch(/Settled|Trading Post fill|Warnings|Ships here/);
     });
 
     it("keeps the same stats on a phone, with the island on its own row", () => {

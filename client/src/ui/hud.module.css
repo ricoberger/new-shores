@@ -667,6 +667,12 @@
   align-items: center;
 }
 
+.resourceStacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
 .resourceBadge {
   display: inline-flex;
   gap: 4px;

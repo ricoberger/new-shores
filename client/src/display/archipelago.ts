@@ -2,7 +2,6 @@
 // card (D-027): sums and ratios of server display numbers and lookups of
 // static island data and content — no game rule.
 import type { CargoDisplay, Content, DisplayState, Island, IslandDisplay, ShipDisplay } from "../api/client";
-import { serverTimeMs } from "./extrapolate";
 import { cargoTotals } from "./ships";
 
 export interface IslandSummary {
@@ -35,11 +34,6 @@ export function depositCounts(island: Pick<Island, "deposits"> | undefined): { k
   const counts = new Map<string, number>();
   for (const d of island?.deposits ?? []) counts.set(d.kind, (counts.get(d.kind) ?? 0) + 1);
   return [...counts.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([kind, tiles]) => ({ kind, tiles }));
-}
-
-/** Ships at an island at server time nowMs: without a leg there, or on a leg from there before departure. */
-export function shipsAt(ships: readonly ShipDisplay[], islandId: string, nowMs: number): ShipDisplay[] {
-  return ships.filter((s) => (s.leg ? s.leg.from_island_id === islandId && nowMs < serverTimeMs(s.leg.depart_at) : s.island_id === islandId));
 }
 
 /**

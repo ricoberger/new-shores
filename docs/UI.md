@@ -28,7 +28,7 @@ UI shows the same numbers the server uses.
   the real heading on the north-up map; drag the ring to turn, tap/Enter
   = "Reset view" (default heading, which looks north-east). No separate
   rotate buttons. Building rotation stays fixed to the world (D-042).
-  **Jumps** (island tabs, island card "Go to island", Enter, founding,
+  **Jumps** (island tabs, Enter, founding,
   warnings panel) move the camera in ≤ 350 ms and zoom in to 18 only when
   the camera is farther out; minimap taps keep the zoom. A gesture in
   progress when a jump starts is cancelled without its release action; a
@@ -50,13 +50,15 @@ UI shows the same numbers the server uses.
   a haze colour toward the edge; the clear colour is the haze.
 - **Labels** are keyboard buttons with the island name and badge, hidden
   near the canvas edge; pointer taps resolve **ship → label → land**. A
-  label tap is an island tap at every LOD: it opens the **island card** (population, Trading Post fill, warnings
-  count, fertilities, deposits, coast; **"Found settlement here"** on an
-  unsettled island when a ship carries the Trading Post cost — the ship
-  sails there first (`sail_ship`), the founding is pending (shown on the
-  card and the ship panel, cancellable, survives a reload) and the
-  Trading Post ghost opens on arrival; "New route from here"; "Go to
-  island"). The world opens on the start sloop at sea with the first quest
+  label tap is an island tap at every LOD: it opens the **island card**
+  (a read-only overview: the population of every tier (with the top bar's population icon) and the island's
+  resources as icon badges, one per line: fertilities, deposits with their tile counts
+  and the free coast; no actions, ships or warnings). Founding is started
+  from the ship panel's "Found settlement" or the unsettled-island panel's
+  "Found settlement here" when a ship carries the Trading Post cost: the
+  ship sails there first (`sail_ship`), the founding is pending (shown on
+  that panel and the ship panel, cancellable, survives a reload) and the
+  Trading Post ghost opens on arrival. The world opens on the start sloop at sea with the first quest
   ("Choose your home island") as the hint.
   Hover shows a lightweight tooltip only; nothing is hover-only.
 - **Route ribbons** are drawn only for the selected ship's route or while
@@ -232,7 +234,7 @@ three lines per route.
 
 **Route editor** (panel; the Routes list opens it)
 
-- Opened from the Routes list or an island card; stays open while the camera moves.
+- Opened from the Routes list; stays open while the camera moves.
 - The title is the route name (typed live; "New route" while empty), then
   a name input. Stops are chosen from **island pickers** (each option shows
   the island name and "(unsettled)" where it applies; the stock is

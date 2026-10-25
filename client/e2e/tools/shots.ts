@@ -305,6 +305,18 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.getByTestId("route-editor-resume").waitFor({ state: "visible" });
     },
   },
+  // The island card, opened from an island label at far LOD (desktop).
+  "island-card": {
+    fixture: "dense-2x400",
+    device: "desktop",
+    run: async (page) => {
+      await setCamera(page, { half: 100_000, rotation: 0 });
+      // The canvas takes the tap (labels are resolved by the renderer), so click at the label's position.
+      const box = await page.locator('[data-testid^="island-label-"]').first().boundingBox();
+      await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
+      await page.getByTestId("island-card").waitFor({ state: "visible" });
+    },
+  },
   // A sloop on a leg (desktop), camera centred on ship 2.
   sloop: {
     fixture: "dense-2x400",

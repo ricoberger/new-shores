@@ -23,7 +23,7 @@ import { insolvencyBanner } from "../display/insolvency";
 import type { Lod } from "../display/lod";
 import { lifeEnabled } from "../display/life";
 import { fxaaForced, type Quality, resolveQuality } from "../display/quality";
-import { blankStop, initialViewState, viewReducer } from "../display/view";
+import { initialViewState, viewReducer } from "../display/view";
 import { type CameraInfo, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
 import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
@@ -278,12 +278,12 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     setTool({ kind: "found", shipId: ship.id, buildingType: warehouseType, rotation: 0 });
   };
 
-  const openEditor = (route: RouteDisplay | null, from?: string) => {
+  const openEditor = (route: RouteDisplay | null) => {
     setPanel("none");
     dispatch({
       type: "openEditor",
       routeId: route?.id ?? null,
-      draft: route ? draftFromRoute(route) : { name: "", stops: from ? [blankStop(from)] : [] },
+      draft: route ? draftFromRoute(route) : { name: "", stops: [] },
     });
   };
 
@@ -723,16 +723,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           model={model}
           content={content}
           statics={snap.islands.get(id)}
-          nowMs={snap.nowMs}
-          onGoTo={() => goTo(id)}
-          onFound={(shipId) => {
-            const s = model.ships.find((x) => x.id === shipId);
-            if (s) startFounding(s, id);
-          }}
-          pendingFounding={pendingFound && pendingFound.islandId === id ? pendingText : null}
-          onCancelFounding={() => setPendingFound(null)}
-          onNewRoute={() => openEditor(null, id)}
-          onSelectShip={(shipId) => dispatch({ type: "selectShip", id: shipId })}
           onClose={() => dispatch({ type: "clearSelection" })}
         />
       );
