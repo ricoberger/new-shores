@@ -41,8 +41,6 @@ export type Editor =
       /** The saved route being edited, null for a new (unsaved) route. */
       routeId: number | null;
       draft: Draft;
-      /** A ship to assign once the route is saved ("Assign to route…" from the ship panel). */
-      pickingShip: number | null;
       /** The last save error (server message), shown inline. */
       error: string | null;
     };
@@ -73,7 +71,7 @@ export type ViewAction =
   | { type: "selectShip"; id: number }
   | { type: "selectIsland"; id: string }
   | { type: "clearSelection" }
-  | { type: "openEditor"; routeId: number | null; draft: Draft; pickingShip?: number | null }
+  | { type: "openEditor"; routeId: number | null; draft: Draft }
   | { type: "setDraft"; draft: Draft }
   | { type: "appendStop"; island: string }
   | { type: "removeStop"; index: number }
@@ -81,7 +79,6 @@ export type ViewAction =
   /** Save results and the pending ship's assignment, for the editor session that saved. */
   | { type: "saveFailed"; session: number; error: string }
   | { type: "saved"; session: number; routeId: number }
-  | { type: "clearPickingShip"; session: number }
   | { type: "resumeEditor" }
   | { type: "closeEditor" }
   | { type: "openShipment"; shipId: number; to: string | null }
@@ -143,7 +140,7 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
       return {
         ...s,
         editorSessions: session,
-        editor: { kind: "open", session, active: true, routeId: a.routeId, draft: a.draft, pickingShip: a.pickingShip ?? null, error: null },
+        editor: { kind: "open", session, active: true, routeId: a.routeId, draft: a.draft, error: null },
       };
     }
     case "resumeEditor":
@@ -171,10 +168,6 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
       const ed = sessionEditor(s, a.session);
       return ed ? { ...s, editor: { ...ed, routeId: a.routeId, error: null } } : s;
     }
-    case "clearPickingShip": {
-      const ed = sessionEditor(s, a.session);
-      return ed ? { ...s, editor: { ...ed, pickingShip: null } } : s;
-    }
     case "closeEditor":
       return s.editor.kind === "closed" ? s : { ...s, editor: { kind: "closed" } };
     case "openShipment":
@@ -182,11 +175,9 @@ export function viewReducer(s: ViewState, a: ViewAction): ViewState {
     case "closeShipment":
       return s.dialog === null ? s : { ...s, dialog: null };
     case "escape":
-      // One step per press: the editor's pick mode (a pending ship pick first, then the editor itself),
-      // then the selection. A suspended editor comes back when the
-      // selection that suspended it is cleared.
+      // One step per press: the editor, then the selection. A suspended
+      // editor comes back when the selection that suspended it is cleared.
       if (s.editor.kind === "open" && s.editor.active) {
-        if (s.editor.pickingShip !== null) return { ...s, editor: { ...s.editor, pickingShip: null } };
         return { ...s, editor: { kind: "closed" } };
       }
       return s.selection.kind === "none" ? s : select(s, { kind: "none" });

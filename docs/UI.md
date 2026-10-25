@@ -231,21 +231,31 @@ three lines per route.
 **Route editor** (panel; the Routes list opens it)
 
 - Opened from the Routes list or an island card; stays open while the camera moves.
-- Stops are chosen from **island pickers** (each option shows the island
-  name, settled state and the relevant goods' stock/capacity); stops are
-  added only there, never by clicking an island in the world. Per stop a load list with
-  "top up to" amounts and an unload list, with the island's current stock
-  inline; assigned ships. Server errors (e.g. consecutive stops on one
+- The title is the route name (typed live; "New route" while empty), then
+  a name input. Stops are chosen from **island pickers** (each option shows
+  the island name and "(unsettled)" where it applies; the stock is
+  shown per good below);
+  a stop is one card: number, island picker, move up/down and remove, then
+  one list of goods: good | Load / Unload | amount ("top up to" for a
+  load, "all" for an unload) | the island's current stock | remove, and a
+  "+ good" link (loads and unloads are still separate rules in the route). A "+ first stop…" / "+ stop…" picker adds stops, never a click
+  on an island in the world. Server errors (e.g. consecutive stops on one
   island, `route_invalid`) are shown as toast and inline.
-- Loop time and per-island **effects** (MECHANICS §9.2) show "Save to
-  compute" until the route is saved, then the server's numbers for the
-  saved version, labelled "estimated"; per-minute values are 0 until a
-  ship is assigned.
+- Nothing is shown for effects before the first save. A saved
+  route shows the per-island **net effect** (MECHANICS §9.2): the
+  server's numbers for the saved version, labelled "estimated";
+  per-minute values are 0 until a ship is assigned. The loop time is shown
+  in the Routes list only. The effects and the ships are set off by dividers;
+  the assigned ships are listed with a remove (✕) button that unassigns,
+  and a "+ assign…" dropdown of the idle ships assigns one (the ship
+  panel can assign too).
+- Save (and Delete while no ship is assigned) are pinned below the
+  scrolling body.
 - Selecting a ship or island while the editor is open **suspends** it:
   their panel shows, and a
   "Back to route editor" bar resumes it as the only side panel; the draft
   survives. Esc steps back one level per press (dialogs → island tool →
-  pick → pending ship → editor → selection).
+  editor → selection).
 
 ## 5. World map screen
 

@@ -214,7 +214,6 @@ describe("HUD components", () => {
           content,
           routeId,
           draft: draftFromRoute(route),
-          pickingShip: null,
           error: null,
           onChange: noop,
           onAddStop: noop,
@@ -223,9 +222,8 @@ describe("HUD components", () => {
           onSave: noop,
           onDelete: noop,
           onClose: noop,
-          onAssign: noop,
           onUnassign: noop,
-          onCancelPick: noop,
+          onAssign: noop,
         }),
       );
 
@@ -246,7 +244,6 @@ describe("HUD components", () => {
             content: content,
             routeId: route.id,
             draft: draftFromRoute(route),
-            pickingShip: null,
             error: null,
             onChange: noop,
             onAddStop: noop,
@@ -255,9 +252,8 @@ describe("HUD components", () => {
             onSave: noop,
             onDelete: noop,
             onClose: noop,
-            onAssign: noop,
             onUnassign: noop,
-            onCancelPick: noop,
+            onAssign: noop,
           }),
         );
       expect(withModel([{ ...route, ship_ids: [] }])).toContain('data-testid="route-delete"');
@@ -265,10 +261,10 @@ describe("HUD components", () => {
       expect(editor(null)).not.toContain('data-testid="route-delete"');
     });
 
-    it("renders the server's estimated effects and loop time of a saved route", () => {
+    it("renders the server's estimated effects of a saved route", () => {
       const html = editor(route.id);
       expect(text(html)).toContain("Net effect (estimated)");
-      expect(text(html)).toContain("loop time 2:20");
+      expect(html).not.toContain("route-loop");
       // route_loop: wood out of start (−100 per loop, 42.9/min), planks back (+40, 17.1/min) over the 140 s estimated loop.
       const row = (island: string, good: string) => {
         const m = html.match(new RegExp(`<tr data-testid="route-effect-${island}-${good}">(.*?)</tr>`));
@@ -285,9 +281,37 @@ describe("HUD components", () => {
       expect(html).toContain(`data-testid="route-unassign-${route.ship_ids[0]}"`);
     });
 
-    it('shows "Save to compute" before the route is saved', () => {
+    it("offers idle ships in a '+ assign…' dropdown of a saved route only", () => {
+      const idle = { ...model.ships[0]!, id: 99, state: "idle", route_id: 0, leg: null, island_id: model.islands[0]!.id } as (typeof model.ships)[number];
+      const withIdle = { ...model, ships: [...model.ships, idle] };
+      const render = (m: typeof model, routeId: number | null) =>
+        renderToStaticMarkup(
+          createElement(RouteEditor, {
+            model: m,
+            content,
+            routeId,
+            draft: draftFromRoute(route),
+            error: null,
+            onChange: noop,
+            onAddStop: noop,
+            onRemoveStop: noop,
+            onMoveStop: noop,
+            onSave: noop,
+            onDelete: noop,
+            onClose: noop,
+            onAssign: noop,
+            onUnassign: noop,
+          }),
+        );
+      expect(render(withIdle, route.id)).toContain('data-testid="route-assign-add"');
+      expect(render(withIdle, route.id)).toContain('value="99"');
+      expect(render(withIdle, null)).not.toContain("route-assign-add");
+      expect(render({ ...model, ships: model.ships.filter((s) => s.state !== "idle") }, route.id)).not.toContain("route-assign-add");
+    });
+
+    it("shows no effects or ships before the route is saved", () => {
       const html = editor(null);
-      expect(text(html)).toContain("Save to compute");
+      expect(html).not.toContain("route-effects");
       expect(html).not.toContain("route-effect-");
       expect(html).not.toContain("route-unassign-");
     });

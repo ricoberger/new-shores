@@ -57,8 +57,8 @@ describe("selection", () => {
 
 describe("route editor", () => {
   it("opens anywhere, appends picked islands (also repeated ones), removes and reorders stops", () => {
-    let s = run(fresh(), { type: "openEditor", routeId: null, draft, pickingShip: 1 });
-    expect(s.editor).toMatchObject({ kind: "open", routeId: null, pickingShip: 1 });
+    let s = run(fresh(), { type: "openEditor", routeId: null, draft });
+    expect(s.editor).toMatchObject({ kind: "open", routeId: null });
     s = run(s, { type: "appendStop", island: "a" }, { type: "appendStop", island: "b" }, { type: "appendStop", island: "b" }, { type: "appendStop", island: "c" });
     const stops = () => (s.editor.kind === "open" ? s.editor.draft.stops.map((x) => x.island) : []);
     expect(stops()).toEqual(["a", "b", "b", "c"]);
@@ -91,7 +91,7 @@ describe("route editor", () => {
     const routeA = { name: "A", stops: [{ island: "a", load: [], unload: [] }] };
     const routeB = { name: "B", stops: [{ island: "b", load: [], unload: [] }] };
     // Save route A (pending), then open route B before A's response arrives.
-    let s = run(fresh(), { type: "openEditor", routeId: 1, draft: routeA, pickingShip: 7 });
+    let s = run(fresh(), { type: "openEditor", routeId: 1, draft: routeA });
     const sessionA = s.editor.kind === "open" ? s.editor.session : -1;
     s = run(s, { type: "openEditor", routeId: 2, draft: routeB });
     const sessionB = s.editor.kind === "open" ? s.editor.session : -1;
@@ -100,7 +100,6 @@ describe("route editor", () => {
       s,
       { type: "saved", session: sessionA, routeId: 1 },
       { type: "saveFailed", session: sessionA, error: "late" },
-      { type: "clearPickingShip", session: sessionA },
     );
     expect(late).toBe(s);
     expect(late.editor).toMatchObject({ kind: "open", session: sessionB, routeId: 2, draft: routeB, error: null });
@@ -130,9 +129,6 @@ describe("route editor", () => {
       // "Back to route editor" resumes it and closes the ship panel.
       expect(run(s, { type: "resumeEditor" })).toMatchObject({ selection: { kind: "none" }, editor: { active: true } });
     }
-    // "Assign to route…" opens the editor active with the ship still selected.
-    const assign = run(fresh(), { type: "selectShip", id: 5 }, { type: "openEditor", routeId: null, draft, pickingShip: 5 });
-    expect(assign.editor).toMatchObject({ kind: "open", active: true, pickingShip: 5 });
   });
 });
 
@@ -146,15 +142,8 @@ describe("manual shipment", () => {
 });
 
 describe("Esc", () => {
-  it("closes the editor's pick, then the editor, then the selection — one step per press", () => {
-    let s = run(
-      fresh(),
-      { type: "selectShip", id: 1 },
-      { type: "openEditor", routeId: null, draft, pickingShip: 1 },
-    );
-    expect(s.editor).toMatchObject({ kind: "open", pickingShip: 1 });
-    s = run(s, { type: "escape" });
-    expect(s.editor).toMatchObject({ kind: "open", pickingShip: null });
+  it("closes the editor, then the selection — one step per press", () => {
+    let s = run(fresh(), { type: "selectShip", id: 1 }, { type: "openEditor", routeId: null, draft });
     s = run(s, { type: "escape" });
     expect(s.editor.kind).toBe("closed");
     expect(s.selection).toEqual({ kind: "ship", id: 1 });

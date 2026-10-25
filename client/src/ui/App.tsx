@@ -278,20 +278,16 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     setTool({ kind: "found", shipId: ship.id, buildingType: warehouseType, rotation: 0 });
   };
 
-  const openEditor = (route: RouteDisplay | null, pickingShip: number | null = null, from?: string) => {
+  const openEditor = (route: RouteDisplay | null, from?: string) => {
     setPanel("none");
     dispatch({
       type: "openEditor",
       routeId: route?.id ?? null,
       draft: route ? draftFromRoute(route) : { name: "", stops: from ? [blankStop(from)] : [] },
-      pickingShip,
     });
   };
 
-  const assign = async (shipId: number, routeId: number) => {
-    const { ok } = await sendCommand({ type: "assign_ship", ship_id: shipId, route_id: routeId });
-    if (ok && vs.editor.kind === "open" && vs.editor.pickingShip === shipId) dispatch({ type: "clearPickingShip", session: vs.editor.session });
-  };
+  const assign = (shipId: number, routeId: number) => sendCommand({ type: "assign_ship", ship_id: shipId, route_id: routeId });
 
   /**
    * Saves the editor's draft; the editor stays open on the saved route. The
@@ -315,10 +311,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     const id = ed.routeId ?? createdRouteId(before, r.res.display.routes);
     if (id === null) return;
     dispatch({ type: "saved", session: ed.session, routeId: id });
-    if (ed.pickingShip !== null) {
-      const a = await sendCommand({ type: "assign_ship", ship_id: ed.pickingShip, route_id: id });
-      if (a.ok) dispatch({ type: "clearPickingShip", session: ed.session });
-    }
   };
 
   /**
@@ -661,7 +653,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           content={content}
           routeId={editor.routeId}
           draft={editor.draft}
-          pickingShip={editor.pickingShip}
           error={editor.error}
           onChange={(draft) => dispatch({ type: "setDraft", draft })}
           onAddStop={(is) => dispatch({ type: "appendStop", island: is })}
@@ -678,9 +669,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             });
           }}
           onClose={() => dispatch({ type: "closeEditor" })}
-          onAssign={(shipId, routeId) => void assign(shipId, routeId)}
           onUnassign={(shipId) => void send({ type: "unassign_ship", ship_id: shipId })}
-          onCancelPick={() => dispatch({ type: "clearPickingShip", session: editor.session })}
+          onAssign={(shipId, routeId) => void assign(shipId, routeId)}
         />
       );
     } else if (selectedShip) {
@@ -727,7 +717,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           }}
           pendingFounding={pendingFound && pendingFound.islandId === id ? pendingText : null}
           onCancelFounding={() => setPendingFound(null)}
-          onNewRoute={() => openEditor(null, null, id)}
+          onNewRoute={() => openEditor(null, id)}
           onSelectShip={(shipId) => dispatch({ type: "selectShip", id: shipId })}
           onClose={() => dispatch({ type: "clearSelection" })}
         />
@@ -782,7 +772,14 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const resumeBar = editor && !editor.active && (
     <div className={`${hud.panel} ${hud.resumeBar}`}>
-      <span className={hud.small}>Route editor paused ({editor.routeId === null ? "new route" : `route #${editor.routeId}`})</span>
+      <div className={hud.row}>
+        <h2 className={`${hud.title} ${hud.resumeTitle}`} data-testid="route-editor-paused-title">
+          {editor.draft.name.trim() || (editor.routeId === null ? "New route" : `Route #${editor.routeId}`)}
+        </h2>
+        <div className={hud.spacer} />
+        <CloseButton onClick={() => dispatch({ type: "closeEditor" })} testId="route-editor-paused-close" />
+      </div>
+      <span className={hud.small}>Route editor paused</span>
       <button
         type="button"
         className={hud.button}
@@ -795,7 +792,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       >
         Back to route editor
       </button>
-      <CloseButton onClick={() => dispatch({ type: "closeEditor" })} testId="route-editor-paused-close" />
     </div>
   );
   if (resumeBar && !right) {

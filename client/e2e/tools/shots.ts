@@ -274,6 +274,37 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.getByTestId("ship-panel").waitFor({ state: "visible" });
     },
   },
+  // A new route with two stops and a load line, in the route editor (desktop).
+  "route-editor": {
+    fixture: "dense-2x400",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("dock-routes").click();
+      await page.getByTestId("route-new").click();
+      await page.getByTestId("route-name").fill("Timber run");
+      for (let i = 0; i < 2; i++) {
+        const options = await page.getByTestId("route-stop-add").locator("option").evaluateAll((o) => o.map((x) => (x as HTMLOptionElement).value).filter(Boolean));
+        await page.getByTestId("route-stop-add").selectOption(options[i]!);
+      }
+      await page.getByTestId("route-good-add-0").click();
+      await page.getByTestId("route-good-add-1").click();
+      await page.getByTestId("route-mode-1-load-0").selectOption("unload");
+      await page.getByTestId("route-name").focus();
+    },
+  },
+  // The route editor paused by selecting a ship: the "Route editor paused" bar above the ship panel (desktop).
+  "route-paused": {
+    fixture: "dense-2x400",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("dock-routes").click();
+      await page.getByTestId("route-new").click();
+      await page.getByTestId("route-name").fill("Timber run");
+      await page.getByTestId("dock-ships").click();
+      await page.getByTestId("ship-1").click();
+      await page.getByTestId("route-editor-resume").waitFor({ state: "visible" });
+    },
+  },
   // A sloop on a leg (desktop), camera centred on ship 2.
   sloop: {
     fixture: "dense-2x400",

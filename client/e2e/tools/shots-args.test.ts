@@ -36,7 +36,7 @@ describe("parseShotArgs", () => {
     expect(() => parseShotArgs({ FIXTURE: "showcase,nope" })).toThrow(/FIXTURE: unknown value 'nope'; allowed: showcase, settled, dense-2x400.*, all/);
     expect(() => parseShotArgs({ VIEW: "close" })).toThrow(/VIEW: unknown value 'close'; allowed: near, mid, far, all/);
     expect(() => parseShotArgs({ DEVICE: "tablet" })).toThrow(ShotArgError);
-    expect(() => parseShotArgs({ PRESET: "x" })).toThrow(/PRESET: unknown value 'x'; allowed: info-panel, sheet, ghost, sloop, build-menu, warnings, ship-panel, all/);
+    expect(() => parseShotArgs({ PRESET: "x" })).toThrow(/PRESET: unknown value 'x'; allowed: info-panel, sheet, ghost, sloop, build-menu, warnings, ship-panel, route-editor, route-paused, all/);
   });
 
   it("validates ROTATION, HUD and the numbers", () => {

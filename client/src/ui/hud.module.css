@@ -337,7 +337,9 @@
   border-radius: 7px;
   padding: 6px 8px;
   background: var(--ns-ui-parchment-light);
-  box-shadow: inset 0 0 0 2px var(--ns-ui-parchment), inset 0 0 0 3px var(--ns-ui-parchment-edge);
+  box-shadow:
+    inset 0 0 0 2px var(--ns-ui-parchment),
+    inset 0 0 0 3px var(--ns-ui-parchment-edge);
 }
 
 /* Room for the model thumbnail in the card's bottom-right corner. */
@@ -441,7 +443,8 @@
   color: var(--ns-ui-ink);
   /* The seal's pressed ring and lower shade at list size (the world badges draw the same). */
   box-shadow:
-    inset 0 0 0 2px color-mix(in srgb, var(--ns-ui-parchment-light) 40%, transparent),
+    inset 0 0 0 2px
+      color-mix(in srgb, var(--ns-ui-parchment-light) 40%, transparent),
     inset 0 -2px 3px color-mix(in srgb, var(--ns-ui-ink) 30%, transparent);
 }
 
@@ -457,7 +460,8 @@
   height: 40px;
   border: 2px solid color-mix(in srgb, var(--ns-ui-ink) 75%, transparent);
   box-shadow:
-    inset 0 0 0 3px color-mix(in srgb, var(--ns-ui-parchment-light) 40%, transparent),
+    inset 0 0 0 3px
+      color-mix(in srgb, var(--ns-ui-parchment-light) 40%, transparent),
     inset 0 -3px 4px color-mix(in srgb, var(--ns-ui-ink) 30%, transparent),
     0 1px 3px color-mix(in srgb, var(--ns-ui-ink) 45%, transparent);
 }
@@ -474,6 +478,12 @@
 
 .section {
   margin-top: 10px;
+}
+
+/* A section set off by a divider (route editor: net effect, ships). */
+.divided {
+  border-top: 1px solid var(--ns-ui-parchment-dark);
+  padding-top: 8px;
 }
 
 .sectionTitle {
@@ -826,6 +836,15 @@
   width: 70px;
 }
 
+/* An input or select that takes the width of its row (or of the panel). */
+.grow {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .warn {
   color: var(--ns-ui-negative);
 }
@@ -834,6 +853,43 @@
 .unaffordable {
   color: var(--ns-ui-ink-soft);
   opacity: 0.6;
+}
+
+/* Save / Delete stay visible below the scrolling body of a panel. */
+.panelFooter {
+  flex: 0 0 auto;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ns-ui-parchment-dark);
+}
+
+/* One good of a stop: good | load or unload | amount | stock | remove. */
+.goodRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.goodRow select {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+}
+
+.amount {
+  flex: 0 0 56px;
+  width: 56px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.goodRow > .small {
+  white-space: nowrap;
+}
+
+.addStop {
+  margin-top: 8px;
 }
 
 .stop {
@@ -967,9 +1023,19 @@
 
 .resumeBar {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   margin-bottom: 6px;
+}
+
+/* The route name of the paused editor: one line, its close button is aligned like a panel header. */
+.resumeTitle {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Touch tool bars (placement confirm, demolish mode): below the top bar,
