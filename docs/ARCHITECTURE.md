@@ -18,7 +18,7 @@ PocketBase/client-authoritative draft entirely.
 | Payments | Stripe (web); store IAP via Capacitor later; provider-agnostic ledger |
 | Delivery | Static client on a CDN; server + Postgres + Redis via Docker Compose, later Kubernetes |
 | Observability | OpenTelemetry traces, Prometheus metrics, structured logs (slog) |
-| Testing | `go test` (sim golden fixtures, API, concurrency), Vitest, Playwright |
+| Testing | `go test` (sim golden fixtures, API, concurrency), Vitest; looks reviewed with `make shots` (D-052) |
 
 ```
  Browser / Capacitor app
@@ -72,7 +72,7 @@ new-shores/
 │   ├── src/display/            extrapolation + display model
 │   ├── src/render/             Babylon scene, chunks, instancing, pickers
 │   ├── src/ui/                 React HUD, panels, build menu, world map
-│   └── e2e/                    Playwright
+│   └── e2e/tools/              `make shots` script (Playwright as a library)
 ├── content/
 │   ├── schema/                 JSON Schema per entity
 │   └── old_coast/              tiers, goods, buildings, needs, ships, quests, islands, decorations
@@ -355,28 +355,17 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   `npm run gen:palette` writes `client/src/theme/palette.{ts,css}` and CI
   fails on drift (like `schema.d.ts`). Fonts and icons are pinned files
   under `assets/` with licences and checksums; nothing is loaded from a
-  CDN. A `visual` Playwright project keeps a **guard set** of three
-  per-platform HUD layout baselines (`hud-desktop`, `phone-portrait`,
-  `phone-sheet`; 2 % tolerance; a missing baseline is written and the
-  comparison skipped, so a new platform needs two runs). Scene looks are
-  not asserted: `make shots` (fixed camera and clock, desktop + phone,
-  fixtures and presets → `.experiment/shots/`) and `make model-sheet
-  RECIPE=<id>` (single-recipe contact sheet → `.experiment/sheets/`) are
-  the review tools; their PNGs go into PR reports.
-- **Perf guard:** a Playwright `perf` project renders the dense fixtures
-  under 4× CPU throttling at 412 × 915 on software WebGL. Per-LOD fps
-  floors are 0.8 × the software fps of the **device-validated** build
-  (iPhone 15 Pro Max at 60 fps; currently near 4, mid 1, far 4) — a
-  regression tripwire, not a target; `PERF_MIN_FPS` overrides them and CI
-  sets it to 1 (render sanity). The real automated assertions are the JS
-  heap ceiling (400 MB), the draw-call ceilings and "zero meshes created
-  during a zoom sweep". fps are validated manually on the baseline device
-  at each art gate (ART_DIRECTION §8).
+  CDN. Looks are not asserted automatically (D-052): `make shots`
+  (fixed camera and clock, desktop + phone, fixtures and presets →
+  `.experiment/shots/`) and `make model-sheet RECIPE=<id>`
+  (single-recipe contact sheet → `.experiment/sheets/`) are the review
+  tools; their PNGs go into PR reports.
+- **Performance** is validated on the baseline device at each art gate
+  (ART_DIRECTION §8, `?stats=1`); there is no CI perf guard (D-052).
 - **Dev reset:** `POST /api/v1/dev/reset` (dev mode only; 404 otherwise;
   not in the OpenAPI contract) reseeds the in-memory world from a named
   fixture (`default`, `town`, `settled`), clears pending dev events and
-  publishes; every e2e spec that mutates the world calls it in
-  `beforeAll`, so specs are independent of order and runner speed.
+  publishes; `make shots` uses it for the server fixtures.
 
 ## 5a. Asset pipeline (art task 3)
 
@@ -453,11 +442,12 @@ absent and runs the Python tests instead.
 | Store/API | `go test` with a real Postgres (testcontainers) | ownership denial, row-lock serialisation, event idempotency, retries, two-world locking |
 | Multi-instance | integration test running 2 server processes | same event never processed twice; commands from both instances serialise |
 | Client display | Vitest | extrapolation matches server fixtures at sampled times |
-| Client e2e | Playwright | desktop flows; touch projects (Pixel 5 Chromium, iPhone 12 WebKit — WebKit cannot emulate multi-touch, so pinch/rotate run on Chromium only); perf project; PWA checks; opt-in Lighthouse |
+| Client flows, looks, perf | playtest on the baseline device + `make shots` (D-052) | start → found → build → route, touch, fps, heat |
 | Devices | manual | mid-range Android + iPhone: fps, memory, resume, thermal |
 
 CI runs `gofmt`, `go vet`, `golangci-lint` (config in repo), `go test ./...`,
-`tsc`, `eslint`, Vitest and a Playwright smoke test on every PR.
+`tsc`, `eslint`, Vitest, the client build and `assets-check` on every
+labelled PR.
 
 ## 11. Alternatives considered
 

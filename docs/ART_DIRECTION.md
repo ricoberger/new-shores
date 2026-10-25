@@ -44,7 +44,7 @@ detail does not** (D-048, refined by D-050):
   call; thin instances cost ≈ 3× on software WebGL); a 1024 px PCF sun
   shadow map on **high** quality only, redrawn only when casters change.
   **Quality** follows the layout mode (desktop → high; tablets and phones →
-  low), overridable with `?quality=` for tests. Both inside the perf guard.
+  low), overridable with `?quality=`.
 - **Palette v1** (single source `assets/palette.json`; Blender re-palette,
   terrain materials and CSS variables all read it):
 
@@ -139,8 +139,8 @@ detail does not** (D-048, refined by D-050):
 - **Budget:** ≤ 150 animated instances / 64 particles per island on
   phones and tablets, ≤ 400 / 160 on desktop, shared by fixed proportions
   across element classes; near LOD only (mid: smoke and static props;
-  far: ships only); the perf project checks the budget is filled on the
-  dense fixture and the fps floors hold.
+  far: ships only); `?stats=1` shows the counts, the device check is the
+  gate (D-052).
 
 ## 6. HUD — themed-flat Anno
 
@@ -159,7 +159,7 @@ detail does not** (D-048, refined by D-050):
   under `assets/fonts/`.
 - **Rules:** no information in decoration; ornaments are CSS only (never
   images with text); contrast ≥ 4.5:1; every panel keeps its structure and
-  test IDs so the e2e suites stay green; bottom sheets use the same theme.
+  test IDs (used by `make shots`); bottom sheets use the same theme.
 
 ## 7. Building and ship models — kit-bash by recipe (D-050, PR #15/#16)
 
@@ -265,15 +265,9 @@ detail does not** (D-048, refined by D-050):
   plus an M4 Pro MacBook — 60 fps at near, mid and far on both dense
   fixtures (2026-10-23). Each art gate re-checks on the device via
   `make preview HOST=<lan-ip>` with the `?stats=1` badge.
-- The Playwright perf project on software WebGL is a **regression
-  tripwire**, not a target: per-LOD floors are 0.8 × the median of three
-  software runs of the device-validated build (currently near 4, mid 1,
-  far 4 fps); heap and draw-call ceilings and the "zero meshes created in
-  a zoom sweep" assertion are the real automated checks. CI runs with
-  `PERF_MIN_FPS=1` (render sanity only).
-- Test isolation: the dev server exposes `POST /api/v1/dev/reset`
-  (dev-only, 404 otherwise) to reseed the in-memory world from a named
-  fixture; every e2e spec that mutates the world resets in `beforeAll`.
+- There is no automated perf guard (D-052): the device check above is
+  the gate, with the life layer's `?stats=1` counts and `?life=0` for
+  A/B. `make shots` renders the standard views for the PR report.
 
 ## 9. Task breakdown
 
@@ -295,7 +289,7 @@ detail does not** (D-048, refined by D-050):
    Blender build with deterministic GLB writer, AO/two-tone bake, all
    tier 1–2 recipes + fields + sloop from KayKit/Pirate, slab/plateau/
    scatter islands, real models at every zoom (lite at far), device-
-   validated perf floors, dev reset endpoint for e2e isolation.
+   validated perf floors, dev reset endpoint for fixtures.
 4. **Life layer and dressing — done (PR #21):** everything in
    `docs/LIFE_LAYER.md` §2 except horses/cattle; 36 draw calls at near on
    the dense fixture (was 26), bundle +7 kB gzip, models 7.55 MB. Open:

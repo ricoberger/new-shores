@@ -64,6 +64,9 @@ the referenced documents before changing anything.
 - **Tests are required** for behaviour changes: sim rules → golden fixture or
   property test; API/store → integration test against real Postgres;
   client display → Vitest against shared fixtures in `server/testdata`.
+  There are no e2e, visual or perf suites (D-052); a change that alters
+  the look attaches `make shots` PNGs (and `make model-sheet` for models)
+  to its report instead.
 - Keep `docs/` in sync: a mechanic change updates `MECHANICS.md`; a new
   decision appends to `DECISIONS.md` (never rewrite an accepted entry;
   supersede it).

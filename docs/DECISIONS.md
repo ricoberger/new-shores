@@ -693,3 +693,31 @@ specs isolate through a dev-only world reset endpoint.
 - *Rejected:* a pre-settled tutorial island (contradicts the brief);
   warehouses adding capacity (storage spam); island-wide satisfaction
   (kills the public-building radius puzzle); rotation without snapping.
+
+## D-052 Flows and performance are validated by playtest; automated e2e, visual and perf suites suspended
+
+**Decision:** during the polish and content phase the owner validates
+client flows and performance by playing on the baseline device (iPhone
+15 Pro Max, `make preview HOST=<lan-ip>`, `?stats=1`) and on the desktop.
+The Playwright suites (flows, touch, PWA, visual baselines, perf
+tripwire, Lighthouse, ttfi) were removed in PR #23 and stay in git
+history. `make shots` and `make model-sheet` are the review instruments:
+their PNGs go into every PR report that changes the look. The dev reset
+endpoint, the dev fixtures and the `window.__newShores` hook remain for
+them.
+
+- *Why:* the suites' catch record was small compared with their cost —
+  every art change broke the scene baselines by design, the full run
+  took 20 minutes per agent session, and the perf floors on software
+  WebGL only ever confirmed what the device already showed. Reviewer
+  rounds and goldens found the real bugs. Agent sessions must iterate
+  cheaply now.
+- *Still binding:* Go goldens, property tests, `TestPurity`, the API and
+  store integration tests, Vitest for display and render maths, the
+  asset build checks. D-050's perf requirement stands — it is checked on
+  the device at each art gate, not in CI.
+- *Revisit:* before the first public deployment, restore a small core
+  flow set (start at sea → found → build → route; touch sheet) in CI;
+  the removed specs are the starting point.
+- *Supersedes:* the perf-guard and e2e consequences of D-050 and the
+  M3 acceptance text in FIRST_PLAYABLE §3.

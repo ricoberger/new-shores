@@ -1,8 +1,8 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after PR #22
-(polish tooling).
+docs sync; details live in the linked documents. Last update: after PR #23
+(e2e/visual/perf suites removed, D-052).
 
 ## What exists
 
@@ -11,9 +11,9 @@ docs sync; details live in the linked documents. Last update: after PR #22
 | Simulation (pure Go, lazy, deterministic) | tiers 1–2 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary; schema 5 | `server/internal/sim`, MECHANICS.md |
 | Content | `old_coast` 0.8.0: tier 1 + 2 goods, buildings incl. Trading Post / Warehouse / water-edge fisher + shipyard, fields (1×1 crops, 2×2 pastures), sloop (4 slots), need names, 13 intro quests | `content/old_coast`, CONTENT.md |
 | Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store and `POST /api/v1/dev/reset` | `server/internal/*`, ARCHITECTURE.md |
-| Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA, perf guard, three HUD visual guards; `make shots` / `make model-sheet` for looking at the result | `client/`, UI.md |
+| Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052) | `client/`, UI.md |
 | Art | KayKit SOURCE kits only; recipe-driven Blender build (`npm run assets`), AO/two-tone vertex colours, diorama islands; recipes + decor; thumbnails; life layer (carts, walkers, smoke, sails, boats, gulls, strollers, sheep, construction stages) with device budgets | `assets/`, ART_DIRECTION.md |
-| CI | label-gated (`ci`), server/client/e2e/integration jobs; perf fps floors are device-validated tripwires | `.github/workflows/ci.yaml` |
+| CI | label-gated (`ci`): server (fmt/vet/lint/test), client (lint/typecheck/Vitest/build/assets-check), integration (Postgres + Redis) | `.github/workflows/ci.yaml` |
 
 ## Binding rules in one breath
 
@@ -28,6 +28,8 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 - **D-050** chunky stylised flat-shaded look, KayKit lead, real models at
   every zoom, device-validated perf.
+- **D-052** flows and perf validated by playtest on the device; no
+  e2e/visual/perf suites; `make shots` PNGs in every look-changing PR.
 - **D-051**: complete — start at sea, Trading Post (capacity, berths) vs
   Warehouse (collector), water-edge footprints, fields v2 (edge-adjacent
   chains from the farm panel, bound to a farm instance), berths with
@@ -67,11 +69,8 @@ of writing ad-hoc screenshot scripts.
 
 **Check loop by change type** (CI runs everything on the `ci` label):
 - client UI / art / render: `cd client && npm run lint && npm run
-  typecheck && npm test`, then `make shots` for the affected view; run
-  only the Playwright spec whose flow changed; re-record the three HUD
-  guards when the HUD changed (`make e2e-fast` once before a PR that
-  changed a flow).
+  typecheck && npm test`, then `make shots` for the affected view
+  (attach the PNGs to the report). There are no e2e, visual or perf
+  suites (D-052); flows and fps are the owner's playtest.
 - content / sim / server: `make check`; `make server-integration` when
   API or store code changed.
-- never locally: the `perf`, `lighthouse`, `ttfi`, `touch-webkit`
-  projects.

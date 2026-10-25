@@ -103,12 +103,14 @@ login, GLB assets, sound.
   road drawing, ship drag), tap-then-confirm placement with a placement
   bar, demolish and road mode bars, phone layouts with bottom sheets and a
   compact HUD, PWA shell (manifest, service worker, update toast,
-  install), accessibility baseline, dense-fixture perf guard. Numbers in
+  install), accessibility baseline, dense-fixture perf guard (removed
+  again in PR #23, D-052). Numbers in
   §3 (emulated). Open: real-phone verification by the user; initial camera
   should centre on the warehouse on first load.
-- Acceptance: Playwright scripts place a chain and see production; touch
-  emulation pans/zooms/places without gesture conflicts; extrapolated numbers
-  match server fixtures within rounding at sampled times.
+- Acceptance (D-052): the owner plays the loop on the baseline device
+  and the desktop; extrapolated numbers match server fixtures within
+  rounding at sampled times (Vitest). The former Playwright acceptance
+  suites were removed in PR #23.
 
 ### M4 — Slice complete and measured
 
@@ -147,7 +149,7 @@ login, GLB assets, sound.
 - **Life layer (art task 4) — done (PR #21):** carts, walkers, smoke,
   sails/flags, fisher boats, gulls, strollers, pasture sheep, quay
   crates, construction stages; `?life=0`; budgets per device class;
-  `make e2e-fast`.
+  `make e2e-fast` (removed again in PR #23).
 - **Fields v2 (D-051 part 4) — done (PR #20):** edge-adjacent chains
   from the farm panel, fields bound to a farm instance, 2×2 pastures
   with sheep, inactive fields on chain break, schema 5. D-051 complete.
