@@ -56,10 +56,13 @@ export const STAGE_SIZE = 1.4;
 const SCAFFOLD_SIZE = 2.6;
 const STAGE_MAX_Y = 1.6;
 const WHITE = [1, 1, 1, 1] as const;
+/** Multiplied onto the colours of the selected building (it turns green). */
+const SELECTED_TINT = [0.5, 1, 0.5, 1] as const;
 
 /** Instance colour of a building: paused and unpaid ones are tinted cool grey, inactive fields (not_adjacent) neutral grey. */
-function tintOf(b: BuildingDisplay): readonly number[] {
-  return b.paused ? PAUSED_TINT : b.active === false ? INACTIVE_TINT : WHITE;
+function tintOf(b: BuildingDisplay, selectedId: number | null = null): readonly number[] {
+  const base = b.paused ? PAUSED_TINT : b.active === false ? INACTIVE_TINT : WHITE;
+  return b.id === selectedId ? base.map((v, i) => v * (SELECTED_TINT[i] as number)) : base;
 }
 
 function faces(c: Color4, n: number): Color4[] {
@@ -212,6 +215,8 @@ export class BuildingLayer {
   private readonly material: StandardMaterial;
   private readonly doors: Mesh;
   private readonly selection: Mesh;
+  /** The selected building drawn as a model: tinted instead of framed. */
+  private selectedId: number | null = null;
   /** Merged model chunks per detail level in use (chunk key → signature and mesh). */
   private readonly chunks = new Map<Detail, Map<string, { key: string; mesh: Mesh | null }>>();
   /** Detail levels whose chunks are built (both, or only full when the lite tier is off: then full is drawn at every zoom). */
@@ -408,14 +413,14 @@ export class BuildingLayer {
       chunks.delete(key);
     }
     for (const [key, items] of byChunk) {
-      const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}:${it.b.paused ? 1 : 0}${it.b.active === false ? "i" : ""}:${it.def.width}x${it.def.height}`).join(";");
+      const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}:${it.b.paused ? 1 : 0}${it.b.active === false ? "i" : ""}${it.b.id === this.selectedId ? "s" : ""}:${it.def.width}x${it.def.height}`).join(";");
       const old = chunks.get(key);
       if (old?.key === sig) continue;
       old?.mesh?.dispose();
       const data = mergeItems(
         items.map((it) => {
           const p = placement(it.entry, it.def, it.b);
-          return { data: it.data, cx: p.cx, cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b) };
+          return { data: it.data, cx: p.cx, cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b, this.selectedId) };
         }),
       );
       const mesh = new Mesh(`models_${key}`, this.scene);
@@ -485,7 +490,7 @@ export class BuildingLayer {
           .multiply(Matrix.RotationY(p.yaw))
           .multiply(Matrix.Translation(p.cx, 0, p.cz))
           .copyToArray(inst.matrices, i * 16);
-        inst.setColor(i, tintOf(it.b));
+        inst.setColor(i, tintOf(it.b, this.selectedId));
       });
       inst.commit();
     }
@@ -525,7 +530,7 @@ export class BuildingLayer {
       inst.resize(items.length);
       items.forEach((it, i) => {
         stageMatrix(k, it.entry, it.def, it.b).copyToArray(inst.matrices, i * 16);
-        inst.setColor(i, tintOf(it.b));
+        inst.setColor(i, tintOf(it.b, this.selectedId));
       });
       inst.commit();
     });
@@ -580,7 +585,12 @@ export class BuildingLayer {
   }
 
   select(b: BuildingDisplay | undefined, def: ContentBuilding | undefined): void {
-    if (!b || !def) {
+    const id = b && def ? b.id : null;
+    if (id !== this.selectedId) {
+      this.selectedId = id;
+      this.refresh();
+    }
+    if (!b || !def || this.modelIds.has(b.id)) {
       this.selection.setEnabled(false);
       return;
     }

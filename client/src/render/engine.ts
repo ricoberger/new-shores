@@ -714,6 +714,8 @@ export class GameRenderer {
       const b = found && found.island.id === islandId ? found.b : undefined;
       d.select(b, b ? this.defs.get(b.type) : undefined);
     }
+    // Tinting rebuilds the chunk meshes, which are the shadow casters.
+    this.refreshCasters();
   }
 
   /** Selection ring, highlighted route and the edited route's draft stops. */
