@@ -58,10 +58,10 @@ export default defineConfig({
       testMatch: /(perf|lighthouse)\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"], launchOptions: { args: gpuArgs } },
     },
-    // Visual foundation (art task 2) on the fixtures: screenshot baselines
-    // per platform (desktop and a Pixel 5 context; a missing baseline is
-    // written and its test skipped) and the grid, palette, quality and
-    // credits rules.
+    // Layout guard on the dense fixture: HUD screenshot baselines per
+    // platform (desktop and a Pixel 5 context; a missing baseline is
+    // written and its test skipped; the scene has none, see `make shots`)
+    // and the grid, palette, quality and credits rules (theme.spec.ts).
     { name: "visual", testMatch: /(visual|theme)\.spec\.ts$/, dependencies: ["perf"], use: { ...devices["Desktop Chrome"] } },
   ],
   webServer: [
