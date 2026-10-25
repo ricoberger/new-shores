@@ -37,7 +37,7 @@ export const SEA_LEVEL = TERRAIN_SEA_LEVEL;
 const SHIP_Y_FAR = GROUND_TOP + 0.05;
 const SHIP_Y = 0;
 /** Ship instance scale at near/mid LOD and at far LOD (≥ 1.5×, so ships stay visible zoomed out). */
-export const SHIP_SCALE = 2;
+export const SHIP_SCALE = 5;
 export const SHIP_SCALE_FAR = 4;
 const ROUTE_Y = GROUND_TOP + 0.25;
 const ROUTE_WIDTH = 0.8;
