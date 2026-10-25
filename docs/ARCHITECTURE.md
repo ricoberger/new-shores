@@ -355,9 +355,14 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   `npm run gen:palette` writes `client/src/theme/palette.{ts,css}` and CI
   fails on drift (like `schema.d.ts`). Fonts and icons are pinned files
   under `assets/` with licences and checksums; nothing is loaded from a
-  CDN. A `visual` Playwright project keeps per-platform screenshot
-  baselines (2 % tolerance; a missing baseline is written and the
-  comparison skipped, so a new platform needs two runs).
+  CDN. A `visual` Playwright project keeps a **guard set** of three
+  per-platform HUD layout baselines (`hud-desktop`, `phone-portrait`,
+  `phone-sheet`; 2 % tolerance; a missing baseline is written and the
+  comparison skipped, so a new platform needs two runs). Scene looks are
+  not asserted: `make shots` (fixed camera and clock, desktop + phone,
+  fixtures and presets → `.experiment/shots/`) and `make model-sheet
+  RECIPE=<id>` (single-recipe contact sheet → `.experiment/sheets/`) are
+  the review tools; their PNGs go into PR reports.
 - **Perf guard:** a Playwright `perf` project renders the dense fixtures
   under 4× CPU throttling at 412 × 915 on software WebGL. Per-LOD fps
   floors are 0.8 × the software fps of the **device-validated** build

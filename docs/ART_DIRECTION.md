@@ -254,7 +254,7 @@ detail does not** (D-048, refined by D-050):
   canvas, below labels and HUD, because per-material image processing cost
   ≈ 5 ms/frame on the phone probe; FXAA at high on hardware WebGL (skipped
   on software rasterisers so headless runs stay fast; `?fxaa=1` forces it
-  and a dedicated screenshot baseline covers that path). No bloom, SSAO or
+  and `make shots` can show it). No bloom, SSAO or
   depth of field.
 - Sound is a separate later task (ambient sea/gulls, UI clicks, build and
   completion chimes).

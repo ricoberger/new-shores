@@ -142,6 +142,8 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **Polish tooling — done (PR #22):** `make shots`, `make model-sheet`,
+  scene baselines retired in favour of a three-shot HUD guard set.
 - **Life layer (art task 4) — done (PR #21):** carts, walkers, smoke,
   sails/flags, fisher boats, gulls, strollers, pasture sheep, quay
   crates, construction stages; `?life=0`; budgets per device class;
