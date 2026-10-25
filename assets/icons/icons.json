@@ -416,6 +416,13 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/save-arrow.svg",
       "sha256": "0d5bdb1d8611b54845afb51be9866435e7584cf3455831994bad2a24bfe69d06"
     },
+    "tool:build": {
+      "file": "hammer-nails.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/hammer-nails.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/hammer-nails.svg",
+      "sha256": "59af3882e563f5430c9c7e5de384b49841ce1f88a806315ae4ffbc8f8d701f5f"
+    },
     "tool:gold": {
       "file": "two-coins.svg",
       "author": "Delapouite",

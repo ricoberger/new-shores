@@ -140,14 +140,16 @@ describe("HUD components", () => {
 
   it("shows the side dock with counts only above zero and marks the open panel", () => {
     const dock = (active: "none" | "ships", counts: Record<"warnings" | "quests" | "ships" | "routes", number>) =>
-      renderToStaticMarkup(createElement(SideDock, { active, onToggle: () => {}, counts }));
+      renderToStaticMarkup(createElement(SideDock, { active, onToggle: () => {}, counts, buildOpen: false, onToggleBuild: () => {} }));
     const html = dock("ships", { warnings: 25, quests: 0, ships: 2, routes: 0 });
-    for (const id of ["warnings", "quests", "ships", "routes"]) expect(html).toContain(`data-testid="dock-${id}"`);
+    for (const id of ["build", "warnings", "quests", "ships", "routes"]) expect(html).toContain(`data-testid="dock-${id}"`);
     expect(html).toContain('data-testid="dock-warnings-count"');
     expect(html).toContain('data-testid="dock-ships-count"');
     expect(html).not.toContain('data-testid="dock-quests-count"');
     expect(html).not.toContain('data-testid="dock-routes-count"');
     expect(html.match(/aria-pressed="true"/g)).toHaveLength(1);
+    const open = renderToStaticMarkup(createElement(SideDock, { active: "none", onToggle: () => {}, counts: { warnings: 0, quests: 0, ships: 0, routes: 0 }, buildOpen: true, onToggleBuild: () => {} }));
+    expect(open.match(/aria-pressed="true"/g)).toHaveLength(1);
     expect(dock("none", { warnings: 0, quests: 0, ships: 0, routes: 0 })).not.toContain('aria-pressed="true"');
   });
 

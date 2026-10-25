@@ -233,6 +233,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
     run: async (page) => {
       await setCamera(page, { x: 22, y: 21, half: 6, rotation: 0 });
       await settle(page);
+      await page.getByTestId("dock-build").click();
       await page.getByTestId("build-tab-production").click();
       await page.getByTestId("build-quarry").click();
       const p = await tileAt(page, "showcase", 23, 22);

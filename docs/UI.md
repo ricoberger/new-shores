@@ -94,7 +94,7 @@ UI shows the same numbers the server uses.
 ├──────────────────────────────────────────────────────────────────────────┤
 │ ┌minimap+compass┐                                           ┌ panel ┐   │
 │ └───────────────┘             3D canvas                     └───────┘   │
-│ ⚠2 / 📜 / ⛵2 / 🗺  (side dock, vertically centred)                       │
+│ 🔨 / ⚠2 / 📜 / ⛵2 / 🗺  (side dock, vertically centred)                   │
 ├──────────────────────────────────────────────────────────────────────────┤
 │ [Houses] [Production] [Public] [Harbour] [Roads]      build cards w/ thumbs │
 └──────────────────────────────────────────────────────────────────────────┘
@@ -117,8 +117,12 @@ UI shows the same numbers the server uses.
   the menu icon (account: register, install, credits, log out). There are
   no island tabs — islands are reached via the island name, the island
   card, the minimap and the lists.
-- **Side dock:** four icon buttons stacked down the left edge, vertically
-  centred, with no backing panel: Warnings, Quests, Ships, Routes. A count
+- **Side dock:** icon buttons stacked down the left edge, vertically
+  centred between the top bar and the screen's bottom edge (it does not move when the build bar shows or hides), with no backing panel: Build menu, Warnings, Quests, Ships,
+  Routes. The first toggles the build menu at the bottom (closed by
+  default, the choice is remembered in the browser; hiding it ends an
+  active build, road or demolish tool; the founding panel of an unsettled
+  island stays); it is independent of the panels below. A count
   badge shows above zero (quests: rewards to claim). A click opens that
   panel in the right-hand slot (a sheet on phones), a second click closes
   it; they are mutually exclusive with each other and with the info,

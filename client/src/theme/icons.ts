@@ -115,6 +115,7 @@ export const ICON_PATHS: Readonly<Record<string, string>> = {
   "status:throttled": P[31],
   "status:warehouse_full": P[29],
   "tool:account": P[51],
+  "tool:build": P[17],
   "tool:camera-left": P[46],
   "tool:camera-right": P[44],
   "tool:cancel": P[45],

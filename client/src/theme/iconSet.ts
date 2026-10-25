@@ -54,6 +54,7 @@ export type ToolIcon =
   | "install"
   | "population"
   | "gold"
+  | "build"
   | "warnings"
   | "credits"
   | "register"

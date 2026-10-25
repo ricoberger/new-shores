@@ -10,6 +10,9 @@ interface Props {
   /** Opens the panel, or closes it when it is open. */
   onToggle: (panel: DockPanel) => void;
   counts: Record<DockPanel, number>;
+  /** Whether the build menu at the bottom is shown, and its toggle (independent of the panels). */
+  buildOpen: boolean;
+  onToggleBuild: () => void;
 }
 
 const ITEMS: { id: DockPanel; label: string; icon: ToolIcon }[] = [
@@ -20,13 +23,25 @@ const ITEMS: { id: DockPanel; label: string; icon: ToolIcon }[] = [
 ];
 
 /**
- * Icon buttons down the left edge (no backing panel): warnings, quests,
- * ships and routes, each with a count badge when it is above zero (quests:
- * rewards to claim). A click opens that panel, a second one closes it.
+ * Icon buttons down the left edge (no backing panel): the build menu
+ * toggle, then warnings, quests, ships and routes, each with a count badge when it is above zero (quests:
+ * rewards to claim). A click opens that panel, a second one closes it; the
+ * build toggle is independent of them.
  */
-export function SideDock({ active, onToggle, counts }: Props) {
+export function SideDock({ active, onToggle, counts, buildOpen, onToggleBuild }: Props) {
   return (
     <nav className={styles.dock} aria-label="Lists" data-testid="side-dock">
+      <button
+        type="button"
+        className={`${styles.dockButton} ${buildOpen ? styles.dockActive : ""}`}
+        aria-pressed={buildOpen}
+        aria-label="Build menu"
+        title="Build menu"
+        onClick={onToggleBuild}
+        data-testid="dock-build"
+      >
+        <Icon path={toolIcon("build")} />
+      </button>
       {ITEMS.map(({ id, label, icon }) => (
         <button
           key={id}

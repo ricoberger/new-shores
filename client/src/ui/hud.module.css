@@ -1104,10 +1104,12 @@
   fill: var(--ns-ui-brass);
 }
 
-/* Side dock: icon buttons down the left edge, vertically centred, with no
-   backing panel; a count badge sits on each icon. */
+/* Side dock: icon buttons down the left edge, vertically centred below the
+   top bar, with no backing panel; a count badge sits on each icon. */
 .dock {
-  grid-area: left;
+  /* Spans the map row and the build-bar row: the centre only depends on the
+     top bar, so the dock stays put when the build menu is shown or hidden. */
+  grid-area: 2 / 1 / 4 / 2;
   align-self: center;
   justify-self: start;
   display: flex;

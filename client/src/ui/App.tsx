@@ -140,6 +140,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const [vs, dispatch] = useReducer(viewReducer, undefined, initialViewState);
   const [tool, setTool] = useState<Tool>(NO_TOOL);
+  const [buildOpen, setBuildOpen] = useState(loadBuildOpen);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
   const [panel, setPanel] = useState<"none" | "ships" | "routes" | "quests" | "warnings">("none");
@@ -373,6 +374,14 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const confirmPlacement = () => {
     if (isGhostTool(tool) && tool.pending) placeGhost(tool, tool.pending);
+  };
+
+  /** Shows or hides the build menu (remembered); hiding it ends the tools it offers (build, road, demolish). */
+  const toggleBuild = () => {
+    const next = !buildOpen;
+    setBuildOpen(next);
+    saveBuildOpen(next);
+    if (!next) setTool((t) => (t.kind === "build" || t.kind === "road" || t.kind === "demolish" ? NO_TOOL : t));
   };
 
   const rotateTool = (steps: number) =>
@@ -947,23 +956,27 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
               )}
             </div>
           ) : (
-            <BuildMenu
-              content={content}
-              model={model}
-              islandId={focusId}
-              fertilities={staticFocused?.fertilities}
-              tool={tool}
-              onSelect={selectBuildItem}
-              onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
-              compact={compactHud}
-              singleRow={layout.mode === "phone-landscape"}
-            />
+            buildOpen && (
+              <BuildMenu
+                content={content}
+                model={model}
+                islandId={focusId}
+                fertilities={staticFocused?.fertilities}
+                tool={tool}
+                onSelect={selectBuildItem}
+                onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
+                compact={compactHud}
+                singleRow={layout.mode === "phone-landscape"}
+              />
+            )
           )}
         </div>
         {model && content && (
           <SideDock
             active={panel}
             onToggle={(p) => setPanel((cur) => (cur === p ? "none" : p))}
+            buildOpen={buildOpen}
+            onToggleBuild={toggleBuild}
             counts={{ warnings: warningEntries(model, content).length, quests: claimableCount(model), ships: model.ships.length, routes: model.routes.length }}
           />
         )}
@@ -989,6 +1002,25 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       )}
     </div>
   );
+}
+
+const BUILD_OPEN_KEY = "newShores.buildMenu";
+
+/** Whether the build menu was left open in this browser (closed by default). */
+function loadBuildOpen(): boolean {
+  try {
+    return globalThis.localStorage?.getItem(BUILD_OPEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function saveBuildOpen(open: boolean): void {
+  try {
+    globalThis.localStorage?.setItem(BUILD_OPEN_KEY, open ? "1" : "0");
+  } catch {
+    // Storage unavailable (private mode): the choice lasts for this session.
+  }
 }
 
 const PENDING_FOUNDING_KEY = "newShores.pendingFounding";
