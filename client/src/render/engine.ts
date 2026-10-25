@@ -343,7 +343,7 @@ export class GameRenderer {
     if (this.hoverListeners.size === 0) return;
     let id: string | null = null;
     let at: { x: number; y: number } | null = null;
-    if (p && this.lod !== "near" && this.draggingShip === null) {
+    if (p && this.lod === "far" && this.draggingShip === null) {
       id = this.islandUnder(p);
       const k = this.ratio();
       at = { x: p.x / k, y: p.y / k };
@@ -574,7 +574,11 @@ export class GameRenderer {
     }
     for (const id of this.visible) if (!islands.some((is) => is.id === id)) this.visible.delete(id);
     this.lod = lod;
-    if (changed) this.applyView();
+    if (changed) {
+      this.applyView();
+      // The hover tooltip is far-LOD only: drop or show it without waiting for a pointer move.
+      if (this.hover) this.onHover(this.hover);
+    }
     if (v.rotation !== this.iconRotation) {
       // Status icons face the camera at every azimuth.
       this.iconRotation = v.rotation;
