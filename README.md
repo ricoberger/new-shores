@@ -166,7 +166,7 @@ service before the servers start.
   `cd client && npx playwright install chromium` once for `make shots`).
 - The Playwright e2e, visual and perf tests are suspended during the polish
   phase: flows and performance are validated by playing on the baseline
-  device (removed in 545b5f9, available in git history).
+  device (removed in PR #23, available in git history).
 - PostgreSQL/Redis integration tests (store, events worker, auth,
   two-instance test): `make server-integration`. They use
   `TEST_DATABASE_URL` (a server where the tests may create databases) and
