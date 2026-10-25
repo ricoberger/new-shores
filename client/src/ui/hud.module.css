@@ -524,23 +524,6 @@
   padding: 0;
 }
 
-.tray {
-  width: 340px;
-  max-width: 100%;
-  max-height: 40vh;
-  overflow-y: auto;
-}
-
-.trayHeader {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  border: none;
-  background: none;
-  font-weight: 700;
-  padding: 0;
-}
-
 .trayList {
   list-style: none;
   margin: 6px 0 0;
@@ -1049,6 +1032,13 @@
   touch-action: none;
 }
 
+/* Phones: the toggle button with the expanded minimap to its right. */
+.minimapRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
 /* The minimap canvas with the compass in its top-right corner (D-051). */
 .minimapView {
   position: relative;
@@ -1112,4 +1102,67 @@
 
 .compassHub {
   fill: var(--ns-ui-brass);
+}
+
+/* Side dock: icon buttons down the left edge, vertically centred, with no
+   backing panel; a count badge sits on each icon. */
+.dock {
+  grid-area: left;
+  align-self: center;
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px;
+  margin-left: max(8px, env(safe-area-inset-left));
+}
+
+.dockButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--ns-ui-ink);
+  background: var(--ns-ui-parchment-light);
+  border: 1px solid var(--ns-ui-brass);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ns-ui-ink) 35%, transparent);
+  cursor: pointer;
+}
+
+[data-touch="true"] .dockButton {
+  width: 44px;
+  height: 44px;
+}
+
+.dockButton:focus-visible {
+  outline: 3px solid var(--ns-ui-focus);
+}
+
+.dockActive {
+  color: var(--ns-ui-parchment-light);
+  background: var(--ns-ui-dark-wood);
+}
+
+.dockCount {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  color: var(--ns-ui-parchment-light);
+  background: var(--ns-ui-dark-wood);
+  border: 1px solid var(--ns-ui-brass);
+  border-radius: 9px;
+}
+
+.dockActive .dockCount {
+  background: var(--ns-ui-ink);
 }

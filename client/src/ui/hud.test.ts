@@ -15,7 +15,9 @@ import { QuestsPanel } from "./QuestsPanel";
 import { RouteEditor } from "./RouteEditor";
 import { units } from "../display/format";
 import { tierRows } from "../display/hud";
+import { SideDock } from "./SideDock";
 import { GoldDetails, PopulationDetails, TopBar } from "./TopBar";
+import { warningEntries, WarningsPanel } from "./WarningsPanel";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -134,6 +136,28 @@ describe("HUD components", () => {
       const html = renderToStaticMarkup(createElement(TopBar, { ...props, compact: "portrait" } as never));
       for (const id of ["hud-gold-chip", "hud-population-chip", "hud-materials-chip", "hud-island-name"]) expect(html).toContain(`data-testid="${id}"`);
     });
+  });
+
+  it("shows the side dock with counts only above zero and marks the open panel", () => {
+    const dock = (active: "none" | "ships", counts: Record<"warnings" | "quests" | "ships" | "routes", number>) =>
+      renderToStaticMarkup(createElement(SideDock, { active, onToggle: () => {}, counts }));
+    const html = dock("ships", { warnings: 25, quests: 0, ships: 2, routes: 0 });
+    for (const id of ["warnings", "quests", "ships", "routes"]) expect(html).toContain(`data-testid="dock-${id}"`);
+    expect(html).toContain('data-testid="dock-warnings-count"');
+    expect(html).toContain('data-testid="dock-ships-count"');
+    expect(html).not.toContain('data-testid="dock-quests-count"');
+    expect(html).not.toContain('data-testid="dock-routes-count"');
+    expect(html.match(/aria-pressed="true"/g)).toHaveLength(1);
+    expect(dock("none", { warnings: 0, quests: 0, ships: 0, routes: 0 })).not.toContain('aria-pressed="true"');
+  });
+
+  it("lists the warnings in a panel", () => {
+    const model = fixture("away_summary_12h");
+    const entries = warningEntries(model, content);
+    expect(entries.length).toBeGreaterThan(0);
+    const html = renderToStaticMarkup(createElement(WarningsPanel, { model, content, onFocus: () => {}, onClose: () => {} }));
+    expect(html).toContain('data-testid="warnings-panel"');
+    expect(html.match(/data-testid="warning-entry"/g)).toHaveLength(entries.length);
   });
 
   it("renders the insolvency banner from a fixture with unpaid buildings", () => {

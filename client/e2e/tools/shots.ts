@@ -220,7 +220,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
     fixture: "dense-2x400",
     device: "phone",
     run: async (page) => {
-      await page.getByTestId("hud-ships").click();
+      await page.getByTestId("dock-ships").click();
       await page.getByTestId("sheet").waitFor({ state: "visible" });
       // The sheet takes focus on open; a neutral focus keeps the shot stable.
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());

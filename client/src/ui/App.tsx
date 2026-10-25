@@ -48,7 +48,9 @@ import { AwayDialog } from "./AwayDialog";
 import { InsolvencyBanner } from "./InsolvencyBanner";
 import { QuestsPanel } from "./QuestsPanel";
 import { TopBar } from "./TopBar";
-import { WarningsTray } from "./WarningsTray";
+import { warningEntries, WarningsPanel } from "./WarningsPanel";
+import { SideDock } from "./SideDock";
+import { claimableCount } from "../display/quests";
 import { WorldOverlay } from "./WorldOverlay";
 import { StatsBadge } from "./StatsBadge";
 import { statsRequested } from "../dev/stats";
@@ -140,8 +142,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const [tool, setTool] = useState<Tool>(NO_TOOL);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
-  const [panel, setPanel] = useState<"none" | "ships" | "routes" | "quests">("none");
-  const [warningsOpen, setWarningsOpen] = useState(false);
+  const [panel, setPanel] = useState<"none" | "ships" | "routes" | "quests" | "warnings">("none");
   // Summaries the player closed in this session: a re-fetch with the same
   // id does not re-open the dialog, a new id does.
   const [closedSummaries, setClosedSummaries] = useState<ReadonlySet<number>>(() => new Set());
@@ -626,7 +627,12 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   let rightTitle = "";
   let rightClose = () => {};
   if (model && content) {
-    if (panel === "ships") {
+    if (panel === "warnings") {
+      rightKey = "warnings";
+      rightTitle = "Warnings";
+      rightClose = () => setPanel("none");
+      right = <WarningsPanel model={model} content={content} onFocus={focus} onClose={() => setPanel("none")} />;
+    } else if (panel === "ships") {
       rightKey = "ships";
       rightTitle = "Ships";
       rightClose = () => setPanel("none");
@@ -882,7 +888,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             account={<AccountMenu player={player} onRegistered={onPlayerChange} onLoggedOut={onLoggedOut} />}
             compact={layout.mode === "phone-portrait" ? "portrait" : compactHud ? "landscape" : null}
           />
-          <InsolvencyBanner model={model} onOpenWarnings={() => setWarningsOpen(true)} compact={phone} oneLine={tightLandscape} />
+          <InsolvencyBanner model={model} onOpenWarnings={() => setPanel("warnings")} compact={phone} oneLine={tightLandscape} />
           {placementBar && isGhostTool(tool) && (
             <PlacementBar tool={tool} hint={ghostHint} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
           )}
@@ -954,11 +960,13 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             />
           )}
         </div>
-        <div className={styles.left}>
-          {model && content && (
-            <WarningsTray model={model} content={content} onFocus={focus} open={warningsOpen} onOpenChange={setWarningsOpen} />
-          )}
-        </div>
+        {model && content && (
+          <SideDock
+            active={panel}
+            onToggle={(p) => setPanel((cur) => (cur === p ? "none" : p))}
+            counts={{ warnings: warningEntries(model, content).length, quests: claimableCount(model), ships: model.ships.length, routes: model.routes.length }}
+          />
+        )}
       </div>
       {!phone && archHintEl}
       {!phone && toolHint}

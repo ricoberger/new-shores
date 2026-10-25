@@ -24,12 +24,12 @@ UI shows the same numbers the server uses.
   (with a ghost tool the twist rotates the ghost instead), `Q`/`E` in 45°
   steps; on release the azimuth eases (≤ 250 ms) to the nearest 45°; the
   sun stays world-fixed; the ease never blocks input. The **compass** in
-  the minimap's corner (next to the toggle when collapsed on phones) shows
+  the expanded minimap's corner (hidden while the minimap is collapsed on phones) shows
   the real heading on the north-up map; drag the ring to turn, tap/Enter
   = "Reset view" (default heading, which looks north-east). No separate
   rotate buttons. Building rotation stays fixed to the world (D-042).
   **Jumps** (island tabs, island card "Go to island", Enter, founding,
-  warnings tray) move the camera in ≤ 350 ms and zoom in to 18 only when
+  warnings panel) move the camera in ≤ 350 ms and zoom in to 18 only when
   the camera is farther out; minimap taps keep the zoom. A gesture in
   progress when a jump starts is cancelled without its release action; a
   press begun during a jump is ignored until all fingers lift; wheel and
@@ -94,7 +94,7 @@ UI shows the same numbers the server uses.
 ├──────────────────────────────────────────────────────────────────────────┤
 │ ┌minimap+compass┐                                           ┌ panel ┐   │
 │ └───────────────┘             3D canvas                     └───────┘   │
-│ ⚠ n warnings ▸                                                           │
+│ ⚠2 / 📜 / ⛵2 / 🗺  (side dock, vertically centred)                       │
 ├──────────────────────────────────────────────────────────────────────────┤
 │ [Houses] [Production] [Public] [Harbour] [Roads]      build cards w/ thumbs │
 └──────────────────────────────────────────────────────────────────────────┘
@@ -116,19 +116,26 @@ UI shows the same numbers the server uses.
   card; unsettled islands show resources only and no materials. **Right**:
   the menu icon (account: register, install, credits, log out). There are
   no island tabs — islands are reached via the island name, the island
-  card, the minimap and the lists. Ships, Routes and Quests leave the top
-  bar for a sidebar on the left.
+  card, the minimap and the lists.
+- **Side dock:** four icon buttons stacked down the left edge, vertically
+  centred, with no backing panel: Warnings, Quests, Ships, Routes. A count
+  badge shows above zero (quests: rewards to claim). A click opens that
+  panel in the right-hand slot (a sheet on phones), a second click closes
+  it; they are mutually exclusive with each other and with the info,
+  island, ship and route-editor panels. Details-in-place is a later task.
 - **Phone (compact):** same content; portrait puts the island on a second
-  row below gold / population / materials and the menu icon. The compass
-  sits next to the minimap toggle while collapsed.
+  row below gold / population / materials and the menu icon. The minimap
+  collapses to its toggle (portrait starts collapsed); the compass shows
+  with the expanded minimap only.
 - **Build menu:** categories → items with cost, upkeep, lock reason and a
   128 px model **thumbnail**; items are never disabled for cost.
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood
   edge (10 px radius; build cards 7 px); status badges as wax seals (ink
   bands, parchment ring). Producer panels show workforce as "needs 4
   Settlers · 16 available on this island (working at n %)".
-- **Warnings tray:** collapsible list of bottleneck messages from
-  MECHANICS §14, each clickable to focus the building.
+- **Warnings panel:** list of bottleneck messages from MECHANICS §14
+  (opened from the side dock or the insolvency banner), each clickable to
+  focus the building.
 - **"While you were away" dialog** after ≥ 15 min absence (see §4 and
   MECHANICS §12b); **Quests button** with a badge; **insolvency banner**
   whenever anything is unpaid.
@@ -163,7 +170,7 @@ UI shows the same numbers the server uses.
   colours; click/tap places it, Esc cancels and the building stays. Free;
   no confirmation. Roads cannot be moved.
 - Buildings may be placed without a road; the ghost shows yellow ("not
-  connected") rather than red, and the warnings tray lists the building
+  connected") rather than red, and the warnings panel lists the building
   until a road reaches it. The ghost is red with the reason for the
   server-side hard failures the client can know from content and island
   data without rules: missing fertility tag, no deposit under the
@@ -257,7 +264,7 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   portrait; popups open on tap). Build menu: category
   chips and ≥ 44 px item cards in one horizontal scroller (Demolish at the
   end); landscape shares one row. Hints and banners stack below the top
-  bar; toasts below the top bar; warnings tray ≤ 25 vh.
+  bar; toasts below the top bar.
 - **Gestures** (one pointer-event recogniser; input type decides per
   gesture, pen = mouse): one-finger drag pans, draws a road with the road
   tool, or drags an idle ship in the archipelago; pinch pans by its centre
