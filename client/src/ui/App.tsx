@@ -965,8 +965,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
                 tool={tool}
                 onSelect={selectBuildItem}
                 onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}
-                compact={compactHud}
-                singleRow={layout.mode === "phone-landscape"}
+                dense={layout.mode === "phone-landscape"}
               />
             )
           )}

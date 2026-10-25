@@ -171,23 +171,27 @@
   flex: none;
 }
 
-/* Ornament at the top bar's ends only: brass caps with a diamond stud. */
+/* The ends of the top bar and the build menu: a 2px brass line like their horizontal border. */
 .topBar::before,
-.topBar::after {
+.topBar::after,
+.buildMenu::before,
+.buildMenu::after {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 5px;
-  background: linear-gradient(var(--ns-ui-brass-light), var(--ns-ui-brass) 45%, var(--ns-ui-wood-light));
+  width: 2px;
+  background: var(--ns-ui-brass);
   pointer-events: none;
 }
 
-.topBar::before {
+.topBar::before,
+.buildMenu::before {
   left: 0;
 }
 
-.topBar::after {
+.topBar::after,
+.buildMenu::after {
   right: 0;
 }
 
@@ -223,6 +227,7 @@
 }
 
 .buildMenu {
+  position: relative;
   display: flex;
   flex-direction: column;
   background: var(--ns-ui-dark-wood);
@@ -232,10 +237,25 @@
   padding-right: env(safe-area-inset-right);
 }
 
+/* Category tabs (scrolling sideways when they do not fit) with Demolish
+   pinned at the right end. The same look on every device. */
+.tabBar {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding: 4px 8px 0;
+}
+
 .tabs {
   display: flex;
   gap: 4px;
-  padding: 4px 8px 0;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs > * {
+  flex: none;
 }
 
 .tab {
@@ -291,12 +311,17 @@
   line-height: 1;
 }
 
+/* Inset from the bar's edges so scrolled cards are clipped before the brass
+   border (6px) and keep the bar's 8px start (2px inner padding). */
 .items {
   display: flex;
   gap: 6px;
-  padding: 6px 8px 8px;
+  margin: 0 6px;
+  padding: 6px 2px 8px;
   overflow-x: auto;
   min-height: 88px;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
 }
 
 .item {
@@ -355,8 +380,19 @@
   font-weight: 600;
 }
 
-.toolButton {
+/* A divider like the top bar's between the tabs and Demolish; it carries the auto margin that pins Demolish right. */
+.tabDivider {
+  flex: none;
+  align-self: center;
+  width: 1px;
+  height: 24px;
   margin-left: auto;
+  background: var(--ns-ui-wood-light);
+}
+
+.toolButton {
+  flex: none;
+  align-self: center;
   color: var(--ns-ui-ink);
   border: 1px solid var(--ns-ui-brass);
   border-radius: 6px;
@@ -902,50 +938,39 @@
   border: 0;
 }
 
-/* Phone build bar: categories as a scrolling chip row, items as compact
-   cards in one scrolling row. */
-.buildMenuCompact .tabs {
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 4px 6px 0;
+/* Touch layouts: bigger hit areas for the tabs and Demolish. */
+[data-touch="true"] .tab,
+[data-touch="true"] .toolButton {
+  min-height: 44px;
 }
 
-.buildMenuCompact .tabs > * {
-  flex: none;
+[data-touch="true"] .toolButton {
+  min-width: 44px;
 }
 
-.buildMenuCompact .tab {
-  border-radius: 16px;
-  border-bottom: 1px solid var(--ns-ui-parchment-edge);
+[data-touch="true"] .item {
+  min-height: 44px;
 }
 
-.buildMenuCompact .toolButton {
-  margin-left: 0;
-}
-
-.buildMenuCompact .items {
-  padding: 4px 6px 6px;
+/* Short landscape phones: the same menu, tighter cards and thumbnails. */
+.buildMenuDense .items {
+  padding: 4px 2px 6px;
   min-height: 0;
-  touch-action: pan-x;
-  overscroll-behavior-x: contain;
 }
 
-.buildMenuCompact .item {
+.buildMenuDense .item {
   min-width: 132px;
   max-width: 180px;
-  min-height: 44px;
-  flex: none;
   padding: 4px 6px;
 }
 
-/* Touch layouts: a smaller thumbnail, the card a little wider than without. */
-.buildMenuCompact .item:has(.itemThumb:not([hidden])) {
+.buildMenuDense .item:has(.itemThumb:not([hidden])) {
   min-width: 180px;
   max-width: 220px;
   padding-right: 46px;
 }
 
-.buildMenuCompact .itemThumb {
+.buildMenuDense .itemThumb {
   width: 40px;
   height: 40px;
   right: 3px;
@@ -974,22 +999,6 @@
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
-}
-
-.buildMenuRow {
-  flex-direction: row;
-  align-items: center;
-}
-
-.buildMenuRow .tabs {
-  flex: 0 1 auto;
-  max-width: 45%;
-  padding: 4px 6px;
-}
-
-.buildMenuRow .items {
-  flex: 1;
-  min-width: 0;
 }
 
 .updateToast {

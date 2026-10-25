@@ -26,10 +26,8 @@ interface Props {
   tool: Tool;
   onSelect: (b: ContentBuilding) => void;
   onDemolishTool: () => void;
-  /** Phone layouts: categories as a scrollable chip row, items as compact cards in one scrolling row. */
-  compact?: boolean;
-  /** Landscape phones: categories and items share one row. */
-  singleRow?: boolean;
+  /** Short landscape phones: the same menu with a tighter density (smaller cards and thumbnails). */
+  dense?: boolean;
 }
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
@@ -53,7 +51,7 @@ export function tierNumeral(index: number): string {
  * Fertility and deposit requirements are shown with a lookup of the
  * island's static data.
  */
-export function BuildMenu({ content, model, islandId, fertilities, tool, onSelect, onDemolishTool, compact = false, singleRow = false }: Props) {
+export function BuildMenu({ content, model, islandId, fertilities, tool, onSelect, onDemolishTool, dense = false }: Props) {
   const [category, setCategory] = useState<ContentBuilding["category"]>("houses");
   if (!content) return null;
   // Fields are not listed: they are added from their farm's panel (D-051 part 4).
@@ -66,31 +64,33 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
   const activeId = tool.kind === "build" ? tool.buildingType : tool.kind === "road" ? tool.roadType : null;
 
   return (
-    <div
-      className={`${styles.buildMenu} ${compact ? styles.buildMenuCompact : ""} ${singleRow ? styles.buildMenuRow : ""}`}
-      data-testid="build-menu"
-    >
-      <div className={styles.tabs} role="group" aria-label="Build categories">
-        {present.map((c) => (
-          <button
-            key={c.id}
-            type="button"
-            aria-pressed={c.id === shown}
-            className={`${styles.tab} ${c.id === shown ? styles.tabActive : ""}`}
-            onClick={() => setCategory(c.id)}
-            data-testid={`build-tab-${c.id}`}
-          >
-            <Icon path={categoryIcon(c.id)} /> {c.label}
-          </button>
-        ))}
+    <div className={`${styles.buildMenu} ${dense ? styles.buildMenuDense : ""}`} data-testid="build-menu">
+      <div className={styles.tabBar}>
+        <div className={styles.tabs} role="group" aria-label="Build categories">
+          {present.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              aria-pressed={c.id === shown}
+              className={`${styles.tab} ${c.id === shown ? styles.tabActive : ""}`}
+              onClick={() => setCategory(c.id)}
+              data-testid={`build-tab-${c.id}`}
+            >
+              <Icon path={categoryIcon(c.id)} /> {c.label}
+            </button>
+          ))}
+        </div>
+        <span className={styles.tabDivider} aria-hidden="true" />
         <button
           type="button"
           className={`${styles.toolButton} ${tool.kind === "demolish" ? styles.itemActive : ""}`}
           onClick={onDemolishTool}
           aria-pressed={tool.kind === "demolish"}
+          aria-label="Demolish"
+          title="Demolish"
           data-testid="tool-demolish"
         >
-          <Icon path={toolIcon("demolish")} /> Demolish
+          <Icon path={toolIcon("demolish")} />
         </button>
       </div>
       <div className={styles.items}>

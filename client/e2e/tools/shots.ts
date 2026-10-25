@@ -241,6 +241,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "invalid", undefined, { timeout: 10_000 });
     },
   },
+  // The build menu open (phone portrait).
+  "build-menu": {
+    fixture: "showcase",
+    device: "phone",
+    run: async (page) => {
+      await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+    },
+  },
   // A sloop on a leg (desktop), camera centred on ship 2.
   sloop: {
     fixture: "dense-2x400",

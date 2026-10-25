@@ -265,9 +265,10 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   phones get a narrow side panel; if it would be shorter than ≈ 240 px the
   hint bar hides and the insolvency banner is limited to one line.
 - Compact top bar: see §2 (icons and numbers, island on a second row in
-  portrait; popups open on tap). Build menu: category
-  chips and ≥ 44 px item cards in one horizontal scroller (Demolish at the
-  end); landscape shares one row. Hints and banners stack below the top
+  portrait; popups open on tap). Build menu: the
+  desktop look (folder tabs, parchment cards, an icon-only Demolish button
+  pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
+  phones keep the stacked layout with smaller cards and thumbnails. Hints and banners stack below the top
   bar; toasts below the top bar.
 - **Gestures** (one pointer-event recogniser; input type decides per
   gesture, pen = mouse): one-finger drag pans, draws a road with the road
