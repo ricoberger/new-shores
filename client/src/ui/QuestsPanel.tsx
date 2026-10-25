@@ -13,10 +13,9 @@ interface Props {
   onClose: () => void;
 }
 
-/** Active, claimable and completed quests (server state only). */
+/** Claimable and active quests (server state only); claimed quests are not listed. */
 export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
   const [choosing, setChoosing] = useState<string | null>(null);
-  const claimed = new Set(model.quests.completed.filter((q) => q.claimed).map((q) => q.id));
   return (
     <div className={`${styles.panel} ${styles.shipsPanel}`} data-testid="quests-panel">
       <div className={styles.row}>
@@ -65,6 +64,7 @@ export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
             <div key={aq.id} className={styles.shipEntry} data-testid={`quest-active-${aq.id}`}>
               <strong>{questTitle(content, aq.id)}</strong>
               {q && <p className={styles.small}>{q.text}</p>}
+              {q && <div className={styles.small}>Reward: {rewardText(q, content)}</div>}
               <ul className={styles.trayList}>
                 {aq.objectives.map((o, i) => (
                   <li key={i} data-testid="quest-objective">
@@ -73,22 +73,11 @@ export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
                   </li>
                 ))}
               </ul>
-              {q && <div className={styles.small}>Reward: {rewardText(q, content)}</div>}
             </div>
           );
         })}
         {model.quests.active.length === 0 && model.quests.claimable.length === 0 && (
           <div className={styles.small}>No open quests.</div>
-        )}
-        {model.quests.completed.length > 0 && (
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>Completed</div>
-            {model.quests.completed.map((q) => (
-              <div key={q.id} className={styles.small} data-testid={`quest-completed-${q.id}`}>
-                {questTitle(content, q.id)} {claimed.has(q.id) ? "· claimed" : "· reward waiting"}
-              </div>
-            ))}
-          </div>
         )}
       </div>
     </div>
