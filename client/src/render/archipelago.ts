@@ -108,7 +108,10 @@ export class ArchipelagoLayer {
   private readonly ships = new Map<string, { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean }>();
   private readonly arrows: ColoredInstances;
   private readonly routeLines = new Map<string, RouteLine>();
-  private readonly ring: Mesh;
+  private ring: Mesh;
+  private readonly ringMat: StandardMaterial;
+  /** Diameter and tube width the ring mesh was built for. */
+  private ringShape = { size: 0, width: 0 };
   /** Blob shadows of the ships at near and mid LOD (matrices rewritten every frame). */
   private readonly shipBlobs: BlobLayer;
   private shipBlobBuffer = new Float32Array(0);
@@ -155,13 +158,10 @@ export class ArchipelagoLayer {
     this.shipBlobs = new BlobLayer(scene, "blob_ships", null, 0.45);
     this.shipBlobs.mesh.alwaysSelectAsActiveMesh = true;
 
-    this.ring = CreateTorus("arch_selection", { diameter: 1, thickness: 0.06, tessellation: 32 }, scene);
-    const ringMat = new StandardMaterial("arch_selection", scene);
-    ringMat.disableLighting = true;
-    ringMat.emissiveColor = SELECTION;
-    this.ring.material = ringMat;
-    this.ring.isPickable = false;
-    this.ring.setEnabled(false);
+    this.ringMat = new StandardMaterial("arch_selection", scene);
+    this.ringMat.disableLighting = true;
+    this.ringMat.emissiveColor = SELECTION;
+    this.ring = this.makeRing(1, 0.06);
   }
 
   /** Bounding box of all islands (archipelago tiles), or null without islands. */
@@ -457,6 +457,16 @@ export class ArchipelagoLayer {
     this.placeRing();
   }
 
+  /** A ring of diameter 1 whose tube is `thickness` wide once scaled to its final size (the mesh is built unit-sized). */
+  private makeRing(size: number, width: number): Mesh {
+    const ring = CreateTorus("arch_selection", { diameter: 1, thickness: width / size, tessellation: 32 }, this.scene);
+    ring.material = this.ringMat;
+    ring.isPickable = false;
+    ring.setEnabled(false);
+    this.ringShape = { size, width };
+    return ring;
+  }
+
   private placeRing(): void {
     const sel = this.selection;
     let at: ArchPoint | null = null;
@@ -475,8 +485,14 @@ export class ArchipelagoLayer {
       this.ring.setEnabled(false);
       return;
     }
+    // Every ring has the width of a ship's, whatever its diameter; the tube stays as flat as a ship's.
+    const width = 0.06 * 1.6 * this.shipScale();
+    if (this.ringShape.size !== size || this.ringShape.width !== width) {
+      this.ring.dispose();
+      this.ring = this.makeRing(size, width);
+    }
+    this.ring.scaling.set(size, (0.06 * size) / width, size);
     this.ring.position.set(at.x, this.lod === "far" ? SHIP_Y_FAR : SHIP_Y + 0.05, -at.y);
-    this.ring.scaling.set(size, 1, size);
     this.ring.setEnabled(true);
   }
 
