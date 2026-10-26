@@ -137,13 +137,13 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	want := map[string]costs{
 		"house_settlers": {0, 5_000, 0, 3, 3, "never"},
-		"road_dirt":      {2_000, 0, 0, 1, 1, "never"},
+		"road_dirt":      {1_000, 0, 0, 1, 1, "never"},
 		"trading_post":   {200_000, 15_000, 0, 6, 9, "never"},
 		"warehouse":      {50_000, 6_000, 0, 6, 6, "never"},
 		"market_small":   {250_000, 15_000, 0, 5, 6, "never"},
 		"chapel":         {100_000, 6_000, 0, 3, 3, "never"},
-		"lumberjack":     {100_000, 6_000, 1_000, 3, 3, "intermediate"},
-		"sawmill":        {250_000, 9_000, 2_000, 4, 6, "intermediate"},
+		"lumberjack":     {60_000, 6_000, 1_000, 3, 3, "intermediate"},
+		"sawmill":        {120_000, 9_000, 2_000, 4, 6, "intermediate"},
 		"fisher":         {60_000, 6_000, 2_000, 3, 8, "food_basic"},
 		"sheep_farm":     {60_000, 6_000, 1_000, 3, 3, "intermediate"},
 		"weaver_wool":    {60_000, 6_000, 2_000, 3, 4, "need_goods"},
@@ -175,7 +175,7 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	sy := c.BuildingByID["shipyard"]
 	if sy.Shipyard == nil || strings.Join(sy.Shipyard.Ships, ",") != "sloop" || sy.Width != 8 || sy.Height != 12 || sy.WaterTiles != 4 || sy.Coastal || !sy.RequiresRoad ||
-		sy.Cost.Gold != 1_000_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 45_000}) ||
+		sy.Cost.Gold != 300_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 45_000}) ||
 		sy.UpkeepPerMin != 0 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
 		t.Errorf("shipyard = %+v", sy)
 	}

@@ -200,9 +200,10 @@ named in the reference column ("… class" = the nearest same-role Latium
 building; no Albion sizes). Materials are Anno's counts × 3 with the
 ladder planks → planks, bricks → stone, concrete → bricks, marble → glass,
 clamped to the building's tier (a material above the tier is added to the
-tier's top material); at least 5 planks where Anno charges planks. Gold is
-Anno's where Anno charges gold (public and harbour buildings), otherwise
-10 × (planks + 2 stone + 3 bricks + 4 glass). Upkeep is Anno's denarii / 4
+tier's top material); at least 5 planks where Anno charges planks. Gold: Anno
+gold ÷ 3 for producers and harbour buildings; public buildings keep
+Anno's gold; where Anno charges no gold, 10 × (planks + 2 stone + 3
+bricks + 4 glass). Upkeep is Anno's denarii / 4
 (min 1 for producers). Workforce and cycle times are ours (§5). Fields:
 Anno's tile counts and per-tile prices; animal farms use pasture modules
 (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7); `max = required`.
@@ -220,15 +221,15 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `warehouse` | 1 | 6×6 | Warehouse 6×6 | 50 / 6 | 0 | — | collector; radius and throughput per level |
 | `market_small` | 1 | 5×6 | Market | 250 / 15 | 0 | — | R, radius 12 |
 | `chapel` | 1 | 3×3 | Shrine 3×3 | 100 / 6 | 0 | — | R, radius 16; the 6×10 church is tier 3 |
-| `lumberjack` | 1 | 3×3 | Woodcutter | 100 / 6 | 1 | 4 S | R, work radius 4 forest |
-| `sawmill` | 1 | 4×6 | Sawmill | 250 / 9 | 2 | 4 S | R |
+| `lumberjack` | 1 | 3×3 | Woodcutter | 60 / 6 | 1 | 4 S | R, work radius 4 forest |
+| `sawmill` | 1 | 4×6 | Sawmill | 120 / 9 | 2 | 4 S | R |
 | `fisher` | 1 | 3×8, 3 water rows | Fishing Hut | 60 / 6 | 2 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + 3 `pasture` | Sheep Farm | 60 / 6 | 1 | 4 S | R, cycle 90 s |
 | `pasture` | 1 | 3×3 field | pasture module | 15 g / 1 plank | 0 | — | sheep_farm only; grass; edge-adjacent chain |
 | `weaver_wool` | 1 | 3×4 | Spinner | 60 / 6 | 2 | 6 S | R, cycle 90 s |
-| `shipyard` | 1 | 8×12, 4 water rows | Shipyard | 1000 / 45 | 0 | — | R, never auto-paused |
+| `shipyard` | 1 | 8×12, 4 water rows | Shipyard | 300 / 45 | 0 | — | R, never auto-paused |
 | `house_citizens` | 2 | 3×3 | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
-| `road_paved` | 2 | 1×1 | road | see text | 0 | — | 5 gold / 1 stone |
+| `road_paved` | 2 | 1×1 | road | see text | 0 | — | 3 gold / 1 stone |
 | `quarry` | 2 | 3×8 on a stone slot | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
 | `iron_mine` | 2 | 3×8 on an iron slot | Iron Mine | 180 / 6 / 6 | 2 | 10 S | R |
 | `charcoal_burner` | 2 | 5×6 | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |
@@ -314,7 +315,7 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `studio` | 4 | 5×5 | Gilder | 680 / 5 / 6 / 9 / 6 | 4 | 6 P | R |
 | `luthier` | 4 | 5×5 | Lythier | 870 / 6 / 9 / 9 / 9 | 8 | 8 P | R |
 
-Roads: `road_dirt` 2 gold; `road_paved` 5 gold / 1 stone. Trading Post
+Roads: `road_dirt` 1 gold; `road_paved` 3 gold / 1 stone. Trading Post
 founding cost 200 gold / 15 planks (start stock, D-051) — the levels below.
 
 Trading Post levels (provisional): lvl 1 cap 300 / T 30 / 1 berth; lvl 2
@@ -564,6 +565,6 @@ See MECHANICS §6.2 for the semantics.
   goods aboard the start sloop, 800 gold and 135 planks left after founding
   the Trading Post for 200 gold / 15 planks) must allow: 8 settler houses + fisher +
   lumberjack + sawmill + market + ~40 road tiles, and cover the early
-  deficit for ≥ 15 min of upkeep (currently ≈ 96 min: 385 gold left at
-  4 gold/min of upkeep).
+  deficit for ≥ 15 min of upkeep (currently ≈ 54 min: 270 gold left at
+  5 gold/min of upkeep).
 - Verify with headless scenarios before touching any client code.
