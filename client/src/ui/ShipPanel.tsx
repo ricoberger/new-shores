@@ -47,7 +47,8 @@ export function ShipPanel({
 }: Props) {
   const islandName = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
-  const type = content.ships.find((t) => t.id === s.type)?.name ?? s.type;
+  const shipType = content.ships.find((t) => t.id === s.type);
+  const type = shipType?.name ?? s.type;
   const idle = s.state === "idle";
   const [choosing, setChoosing] = useState(false);
   const here = model.islands.find((i) => i.id === s.island_id);
@@ -77,6 +78,11 @@ export function ShipPanel({
           </div>
         )}
         <div className={styles.small}>Upkeep {perMin(s.upkeep_per_min)} $/min</div>
+        {shipType && (
+          <div className={styles.small} data-testid="ship-panel-speed">
+            Speed {(shipType.speed_permille / 1000).toFixed(1)}×
+          </div>
+        )}
         <div className={styles.small} data-testid="ship-panel-capacity">
           Capacity {s.slots} slots of {units(s.slot_size)} each
         </div>
