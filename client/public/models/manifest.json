@@ -1371,86 +1371,101 @@
   "models": {
     "bakery": {
       "anchors": {
+        "cart": [
+          1.0,
+          0.0,
+          -2.0
+        ],
         "chimney": [
-          0.75,
-          0.9,
-          -0.25
+          1.25,
+          1.1,
+          1.2
         ],
         "door": [
           0.0,
           0.0,
-          -1.0
+          -2.5
         ],
         "smoke": [
-          0.75,
-          0.95,
-          -0.25
+          1.25,
+          1.15,
+          1.2
         ],
         "status": [
           0.0,
-          2.0753,
+          3.0468,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          0.95,
-          1.8253,
-          1.0681
+          1.98,
+          2.7968,
+          2.48
         ],
         "min": [
-          -0.95,
-          -0.0023,
-          -0.95
+          -1.985,
+          -0.0596,
+          -2.485
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.95,
-            1.8253,
-            1.0681
+            1.98,
+            2.7968,
+            2.48
           ],
           "min": [
-            -0.95,
-            -0.0023,
-            -0.95
+            -1.985,
+            -0.0596,
+            -2.485
           ]
         },
-        "budget": 6000,
-        "bytes": 103272,
+        "budget": 30000,
+        "bytes": 173588,
         "lite": {
           "bounds": {
             "max": [
-              0.95,
-              1.835,
-              1.0843
+              1.98,
+              2.7903,
+              2.48
             ],
             "min": [
-              -0.95,
-              0.0,
-              -0.95
+              -1.985,
+              -0.0416,
+              -2.485
             ]
           },
-          "budget": 1500,
-          "bytes": 33588,
+          "budget": 7500,
+          "bytes": 49664,
           "path": "bakery.lite.glb",
-          "sha256": "43904cbe57b93139fc4af49a2e1a12a8d4ab51a8b41589d837b7b2e4e5a76cab",
-          "triangles": 367
+          "sha256": "6696024756ec27bf5404cc8ee969ac1c882d0614743032d6cf598dc6703938cf",
+          "triangles": 549
         },
         "path": "bakery.glb",
-        "sha256": "17c4c6b2c9d8809d9403f09593a34c54ca6ae17e4ae30602dad301205db0c352",
-        "triangles": 1545
+        "sha256": "990a240fded2c19f8a771509d0f13dc3f93836acad6815964a203254e558d0cd",
+        "triangles": 2368
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 5,
+        "w": 4
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_home_B_blue.gltf"
+            "Assets/gltf/Color1/Tree_3_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        },
+        {
+          "files": [
+            "Assets/gltf/buildings/blue/building_home_B_blue.gltf",
+            "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/crate_A_small.gltf",
+            "Assets/gltf/decoration/props/resource_lumber.gltf",
+            "Assets/gltf/decoration/props/sack.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -1461,417 +1476,63 @@
         "door": [
           0.0,
           0.0,
-          -1.0
-        ],
-        "status": [
-          0.0,
-          3.466,
-          0.0
-        ]
-      },
-      "bounds": {
-        "max": [
-          1.2664,
-          3.216,
-          1.1348
-        ],
-        "min": [
-          -1.0058,
-          -0.0633,
-          -1.1733
-        ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            1.2664,
-            3.216,
-            1.1348
-          ],
-          "min": [
-            -1.0058,
-            -0.0633,
-            -1.1733
-          ]
-        },
-        "budget": 6000,
-        "bytes": 120264,
-        "lite": {
-          "bounds": {
-            "max": [
-              1.0058,
-              3.1887,
-              1.1348
-            ],
-            "min": [
-              -1.0058,
-              0.0,
-              -1.0845
-            ]
-          },
-          "budget": 1500,
-          "bytes": 36448,
-          "path": "chapel.lite.glb",
-          "sha256": "9de28cdd0d55169c5e7dbc0bbcb405abc1704235414c7e1e6e3c76a3e73201c6",
-          "triangles": 400
-        },
-        "path": "chapel.glb",
-        "sha256": "0bd69bd0ad3db7a3967929bb8fe548e6a4708dfe3449761b9304a646b468eb4b",
-        "triangles": 1857
-      },
-      "footprint": {
-        "h": 2,
-        "w": 2
-      },
-      "kind": "building",
-      "kit_sources": [
-        {
-          "files": [
-            "Assets/gltf/buildings/blue/building_church_blue.gltf",
-            "Assets/gltf/buildings/neutral/fence_wood_straight.gltf",
-            "Assets/gltf/decoration/nature/rock_single_D.gltf"
-          ],
-          "kit": "kaykit_hexagon"
-        }
-      ]
-    },
-    "charcoal_burner": {
-      "anchors": {
-        "chimney": [
-          0.2,
-          0.55,
-          0.25
-        ],
-        "door": [
-          0.0,
-          0.0,
-          -1.0
-        ],
-        "smoke": [
-          0.2,
-          0.6,
-          0.25
-        ],
-        "status": [
-          0.0,
-          0.8692,
-          0.0
-        ]
-      },
-      "bounds": {
-        "max": [
-          0.95,
-          0.6192,
-          1.0439
-        ],
-        "min": [
-          -1.025,
-          0.0,
-          -1.0048
-        ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            0.95,
-            0.6192,
-            1.0439
-          ],
-          "min": [
-            -1.025,
-            0.0,
-            -1.0048
-          ]
-        },
-        "budget": 6000,
-        "bytes": 46420,
-        "lite": {
-          "bounds": {
-            "max": [
-              0.95,
-              0.595,
-              1.0378
-            ],
-            "min": [
-              -1.025,
-              0.0,
-              -0.9817
-            ]
-          },
-          "budget": 1500,
-          "bytes": 14260,
-          "path": "charcoal_burner.lite.glb",
-          "sha256": "5a553a8bea12b332a1ffec3f4f3d724bf6bfd4f1d51de40031fd46c71b23947a",
-          "triangles": 150
-        },
-        "path": "charcoal_burner.glb",
-        "sha256": "b7c9939b9441d628fb847d0e0e703a31ca91f81c6bf8483139005cab55e22a2c",
-        "triangles": 632
-      },
-      "footprint": {
-        "h": 2,
-        "w": 2
-      },
-      "kind": "building",
-      "kit_sources": [
-        {
-          "files": [
-            "Assets/gltf/decoration/props/resource_lumber.gltf"
-          ],
-          "kit": "kaykit_hexagon"
-        }
-      ]
-    },
-    "cidery": {
-      "anchors": {
-        "chimney": [
-          -0.543,
-          1.766,
-          0.93
-        ],
-        "door": [
-          0.0,
-          0.0,
-          -1.0
-        ],
-        "smoke": [
-          -0.543,
-          1.816,
-          0.93
-        ],
-        "status": [
-          0.0,
-          2.0164,
-          0.0
-        ]
-      },
-      "bounds": {
-        "max": [
-          0.95,
-          1.7664,
-          1.0933
-        ],
-        "min": [
-          -0.9519,
-          0.0,
-          -0.95
-        ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            0.95,
-            1.7664,
-            1.0933
-          ],
-          "min": [
-            -0.9519,
-            0.0,
-            -0.95
-          ]
-        },
-        "budget": 6000,
-        "bytes": 174440,
-        "lite": {
-          "bounds": {
-            "max": [
-              0.95,
-              1.7623,
-              1.109
-            ],
-            "min": [
-              -0.9676,
-              -0.0038,
-              -0.95
-            ]
-          },
-          "budget": 1500,
-          "bytes": 54220,
-          "path": "cidery.lite.glb",
-          "sha256": "ab3202b3746472e3a0b68778fd49011f5f0d2f1d6db00c7b685daa9248c814cb",
-          "triangles": 608
-        },
-        "path": "cidery.glb",
-        "sha256": "d82a7dfdec01d2bb1e44d5ce3bfc873b1be3cc6b0230e281ce55553a6a306c41",
-        "triangles": 2674
-      },
-      "footprint": {
-        "h": 2,
-        "w": 2
-      },
-      "kind": "building",
-      "kit_sources": [
-        {
-          "files": [
-            "Assets/gltf/buildings/blue/building_home_B_blue.gltf",
-            "Assets/gltf/decoration/props/barrel.gltf"
-          ],
-          "kit": "kaykit_hexagon"
-        }
-      ]
-    },
-    "fisher": {
-      "anchors": {
-        "chimney": [
-          -0.35,
-          1.241,
-          0.017
-        ],
-        "door": [
-          0.0,
-          0.0,
-          -1.0
-        ],
-        "smoke": [
-          -0.35,
-          1.291,
-          0.017
-        ],
-        "status": [
-          0.0,
-          1.4906,
-          0.0
-        ]
-      },
-      "bounds": {
-        "max": [
-          1.2158,
-          1.2406,
-          0.88
-        ],
-        "min": [
-          -0.95,
-          -0.6,
-          -0.9949
-        ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            1.2158,
-            1.2406,
-            0.88
-          ],
-          "min": [
-            -0.95,
-            -0.6,
-            -0.9949
-          ]
-        },
-        "budget": 6000,
-        "bytes": 102476,
-        "lite": {
-          "bounds": {
-            "max": [
-              0.95,
-              1.2497,
-              0.81
-            ],
-            "min": [
-              -0.95,
-              -0.58,
-              -1.0046
-            ]
-          },
-          "budget": 1500,
-          "bytes": 29792,
-          "path": "fisher.lite.glb",
-          "sha256": "94e3a8a7b72830d9ba903f38bee01df974e53b56e25e473ab9eebfba1aeaa207",
-          "triangles": 322
-        },
-        "path": "fisher.glb",
-        "sha256": "e5e8df73a86d48330321d8b90fd4cf47cadcce1bd52a88d3e958e94369842b82",
-        "triangles": 1505
-      },
-      "footprint": {
-        "h": 2,
-        "w": 2
-      },
-      "kind": "building",
-      "kit_sources": [
-        {
-          "files": [
-            "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
-            "Assets/gltf/decoration/props/barrel.gltf",
-            "Assets/gltf/decoration/props/boat.gltf",
-            "Assets/gltf/decoration/props/bucket_water.gltf"
-          ],
-          "kit": "kaykit_hexagon"
-        }
-      ]
-    },
-    "hemp_farm": {
-      "anchors": {
-        "chimney": [
-          0.8,
-          1.497,
-          1.313
-        ],
-        "door": [
-          0.0,
-          0.0,
           -1.5
         ],
-        "smoke": [
-          0.8,
-          1.547,
-          1.313
-        ],
         "status": [
           0.0,
-          1.7473,
+          4.0336,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.45,
-          1.4973,
-          1.5045
+          1.485,
+          3.7836,
+          1.485
         ],
         "min": [
-          -1.45,
-          -0.0345,
-          -1.45
+          -1.485,
+          -0.1298,
+          -1.485
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.45,
-            1.4973,
-            1.5045
+            1.485,
+            3.7836,
+            1.485
           ],
           "min": [
-            -1.45,
-            -0.0345,
-            -1.45
+            -1.485,
+            -0.1298,
+            -1.485
           ]
         },
-        "budget": 6000,
-        "bytes": 100564,
+        "budget": 13500,
+        "bytes": 122036,
         "lite": {
           "bounds": {
             "max": [
-              1.45,
-              1.5082,
-              1.5228
+              1.485,
+              3.7836,
+              1.485
             ],
             "min": [
-              -1.45,
-              -0.0033,
-              -1.45
+              -1.485,
+              -0.129,
+              -1.485
             ]
           },
-          "budget": 1500,
-          "bytes": 27492,
-          "path": "hemp_farm.lite.glb",
-          "sha256": "3ea6e3de7400a5436ee48bf8966289776e3155bc4cab9a9de2f03ef794c86ce7",
-          "triangles": 297
+          "budget": 3375,
+          "bytes": 41032,
+          "path": "chapel.lite.glb",
+          "sha256": "2a072e52fea5438204af378769a0fb2a9806046b4eb2acb639e896f770ebcc88",
+          "triangles": 450
         },
-        "path": "hemp_farm.glb",
-        "sha256": "2600f35eaa2bc6baf3477652f26debcb5d38663366873f61c43b6e8b02341b6e",
-        "triangles": 1518
+        "path": "chapel.glb",
+        "sha256": "4b33fced5e9b0c661cb6735b91ace7209fda4f921ac570c9af947ff5ff09975e",
+        "triangles": 1877
       },
       "footprint": {
         "h": 3,
@@ -1881,8 +1542,402 @@
       "kit_sources": [
         {
           "files": [
+            "Assets/gltf/buildings/blue/building_church_blue.gltf",
+            "Assets/gltf/decoration/nature/rock_single_D.gltf",
+            "Assets/gltf/decoration/nature/tree_single_A.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "charcoal_burner": {
+      "anchors": {
+        "cart": [
+          0.0,
+          0.0,
+          -2.6
+        ],
+        "chimney": [
+          -1.1,
+          0.98,
+          1.4
+        ],
+        "door": [
+          0.0,
+          0.0,
+          -3.0
+        ],
+        "smoke": [
+          -1.1,
+          1.03,
+          1.4
+        ],
+        "status": [
+          0.0,
+          1.7595,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          2.48,
+          1.5095,
+          2.98
+        ],
+        "min": [
+          -2.48,
+          -0.207,
+          -2.98
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            2.48,
+            1.5095,
+            2.98
+          ],
+          "min": [
+            -2.48,
+            -0.207,
+            -2.98
+          ]
+        },
+        "budget": 45000,
+        "bytes": 99068,
+        "lite": {
+          "bounds": {
+            "max": [
+              2.48,
+              1.5095,
+              2.98
+            ],
+            "min": [
+              -2.48,
+              -0.2069,
+              -2.98
+            ]
+          },
+          "budget": 11250,
+          "bytes": 19352,
+          "path": "charcoal_burner.lite.glb",
+          "sha256": "c9050ede514562b8be40719fbceb07235d9000dae1bc8d2106a76668c771295e",
+          "triangles": 204
+        },
+        "path": "charcoal_burner.glb",
+        "sha256": "450ca4bb6eeefaad8c50d0746177bc3b2e40704553f3f746a5f85238c10aa0b1",
+        "triangles": 1248
+      },
+      "footprint": {
+        "h": 6,
+        "w": 5
+      },
+      "kind": "building",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/nature/tree_single_A.gltf",
+            "Assets/gltf/decoration/nature/tree_single_B_cut.gltf",
+            "Assets/gltf/decoration/props/resource_lumber.gltf",
+            "Assets/gltf/decoration/props/wheelbarrow.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "cidery": {
+      "anchors": {
+        "cart": [
+          1.0,
+          0.0,
+          -2.2
+        ],
+        "chimney": [
+          -1.172,
+          2.943,
+          2.017
+        ],
+        "door": [
+          0.0,
+          0.0,
+          -3.0
+        ],
+        "smoke": [
+          -1.172,
+          2.993,
+          2.017
+        ],
+        "status": [
+          0.0,
+          3.1871,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          2.48,
+          2.9371,
+          2.98
+        ],
+        "min": [
+          -2.48,
+          -0.0745,
+          -2.98
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            2.48,
+            2.9371,
+            2.98
+          ],
+          "min": [
+            -2.48,
+            -0.0745,
+            -2.98
+          ]
+        },
+        "budget": 45000,
+        "bytes": 209172,
+        "lite": {
+          "bounds": {
+            "max": [
+              2.48,
+              2.9358,
+              2.98
+            ],
+            "min": [
+              -2.48,
+              -0.052,
+              -2.98
+            ]
+          },
+          "budget": 11250,
+          "bytes": 42724,
+          "path": "cidery.lite.glb",
+          "sha256": "ecceffafffaa9d1294a51c355e1ce8a989ed2d9ca1297bc5bcd51d9653ef71d3",
+          "triangles": 470
+        },
+        "path": "cidery.glb",
+        "sha256": "12bb96e71dfb9708ad472197cf1cebdf2d1eda01de8df84adcc56c0cf1a02c09",
+        "triangles": 2553
+      },
+      "footprint": {
+        "h": 6,
+        "w": 5
+      },
+      "kind": "building",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/Color1/Tree_3_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        },
+        {
+          "files": [
+            "Assets/gltf/buildings/blue/building_home_B_blue.gltf",
+            "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/crate_long_C.gltf",
+            "Assets/gltf/decoration/props/crate_open.gltf",
+            "Assets/gltf/units/neutral/cart.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "fisher": {
+      "anchors": {
+        "boat": [
+          -0.45,
+          0.05,
+          2.6
+        ],
+        "cart": [
+          0.2,
+          0.0,
+          -3.6
+        ],
+        "chimney": [
+          -0.45,
+          1.818,
+          -0.066
+        ],
+        "door": [
+          0.0,
+          0.0,
+          -4.0
+        ],
+        "smoke": [
+          -0.45,
+          1.868,
+          -0.066
+        ],
+        "status": [
+          0.0,
+          2.0682,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.48,
+          1.8182,
+          4.005
+        ],
+        "min": [
+          -1.48,
+          -0.62,
+          -3.99
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.48,
+            1.8182,
+            4.005
+          ],
+          "min": [
+            -1.48,
+            -0.62,
+            -3.99
+          ]
+        },
+        "budget": 36000,
+        "bytes": 127084,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.48,
+              1.8123,
+              4.005
+            ],
+            "min": [
+              -1.48,
+              -0.62,
+              -3.99
+            ]
+          },
+          "budget": 9000,
+          "bytes": 36332,
+          "path": "fisher.lite.glb",
+          "sha256": "cc50efae1e128dfe4ce2512659c565309d01781198b4d686efec197c35a0f27c",
+          "triangles": 399
+        },
+        "path": "fisher.glb",
+        "sha256": "dee945a2d456307e5b33829e681a38c00a75dc89aed9b3788e64a7b50b08c1d9",
+        "triangles": 1841
+      },
+      "footprint": {
+        "h": 8,
+        "w": 3
+      },
+      "kind": "building",
+      "kit_sources": [
+        {
+          "files": [
             "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
-            "Assets/gltf/buildings/neutral/fence_wood_straight.gltf"
+            "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/boat.gltf",
+            "Assets/gltf/decoration/props/boatrack.gltf",
+            "Assets/gltf/decoration/props/bucket_water.gltf",
+            "Assets/gltf/decoration/props/crate_A_small.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "hemp_farm": {
+      "anchors": {
+        "cart": [
+          0.2,
+          0.0,
+          -1.5
+        ],
+        "chimney": [
+          0.5,
+          1.711,
+          1.494
+        ],
+        "door": [
+          0.0,
+          0.0,
+          -2.0
+        ],
+        "smoke": [
+          0.5,
+          1.761,
+          1.494
+        ],
+        "status": [
+          0.0,
+          1.9612,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.485,
+          1.7112,
+          1.98
+        ],
+        "min": [
+          -1.485,
+          -0.0036,
+          -1.98
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.485,
+            1.7112,
+            1.98
+          ],
+          "min": [
+            -1.485,
+            -0.0036,
+            -1.98
+          ]
+        },
+        "budget": 18000,
+        "bytes": 99092,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.485,
+              1.7237,
+              1.98
+            ],
+            "min": [
+              -1.485,
+              0.0,
+              -1.98
+            ]
+          },
+          "budget": 4500,
+          "bytes": 32040,
+          "path": "hemp_farm.lite.glb",
+          "sha256": "8a2d53297da242fce19d3d0a796ad9ff413d00491a86e637d51e29d61499a683",
+          "triangles": 351
+        },
+        "path": "hemp_farm.glb",
+        "sha256": "8fe6c6ee8447f29f5205f0d42326ec3b9da68220ea8a420385e190700f1c5dd2",
+        "triangles": 1464
+      },
+      "footprint": {
+        "h": 4,
+        "w": 3
+      },
+      "kind": "building",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
+            "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/crate_long_C.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -1944,35 +1999,36 @@
         "door": [
           0.0,
           0.0,
-          -1.0
+          -1.5
         ],
         "status": [
           0.0,
-          3.0105,
+          3.66,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.1872,
-          2.7605,
-          1.0995
+          1.48,
+          3.41,
+          1.48
         ],
         "min": [
-          -1.1832,
-          -0.0039,
-          -1.1448
+          -1.48,
+          -0.118,
+          -1.48
         ]
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 3,
+        "w": 3
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
             "Assets/gltf/buildings/blue/building_home_B_blue.gltf",
+            "Assets/gltf/decoration/nature/tree_single_A.gltf",
             "Assets/gltf/decoration/props/barrel.gltf",
             "Assets/gltf/decoration/props/bucket_water.gltf",
             "Assets/gltf/decoration/props/crate_A_small.gltf",
@@ -1987,116 +2043,116 @@
         {
           "bounds": {
             "max": [
-              1.1158,
-              2.5024,
-              1.0031
+              1.48,
+              3.0912,
+              1.48
             ],
             "min": [
-              -1.1085,
-              0.0,
-              -1.1448
+              -1.48,
+              -0.118,
+              -1.48
             ]
           },
-          "budget": 2500,
-          "bytes": 114932,
+          "budget": 5625,
+          "bytes": 110316,
           "lite": {
             "bounds": {
               "max": [
-                1.1059,
-                2.5292,
-                0.9656
+                1.48,
+                3.1243,
+                1.48
               ],
               "min": [
-                -0.8211,
-                -0.014,
-                -1.0079
+                -1.48,
+                -0.1131,
+                -1.48
               ]
             },
-            "budget": 625,
-            "bytes": 11820,
+            "budget": 1406,
+            "bytes": 11752,
             "path": "house_citizens.v0.lite.glb",
-            "sha256": "3abe987a5e2e7fc8e67f991b76326bccde2ad3e70b1653917dcf40d50fdce170",
-            "triangles": 120
-          },
-          "path": "house_citizens.v0.glb",
-          "sha256": "81a1bdc932ab25fc915ad9fc17b1bf62d1eefdc62d7ddb0da4f119d7aef382da",
-          "triangles": 1765
-        },
-        {
-          "bounds": {
-            "max": [
-              1.105,
-              2.7605,
-              1.0995
-            ],
-            "min": [
-              -1.0466,
-              0.0,
-              -1.1448
-            ]
-          },
-          "budget": 2500,
-          "bytes": 107536,
-          "lite": {
-            "bounds": {
-              "max": [
-                1.0769,
-                2.7917,
-                1.1124
-              ],
-              "min": [
-                -0.9032,
-                -0.014,
-                -1.0079
-              ]
-            },
-            "budget": 625,
-            "bytes": 11728,
-            "path": "house_citizens.v1.lite.glb",
-            "sha256": "23acb4b3c3f07e644bf4b6cd8c3feb42f26d51b779f3a8a0ffad75eb1064f2c7",
+            "sha256": "4bf80f381da026c92d3aa717b217c576cafc7c5cb2776370bd69e678e7aab743",
             "triangles": 119
           },
-          "path": "house_citizens.v1.glb",
-          "sha256": "5ed16ef33be4e8f3ba625c26c46f2d7fdd192459ee78475b6ba5641a0f95448a",
-          "triangles": 1653
+          "path": "house_citizens.v0.glb",
+          "sha256": "3e7bb33f4a20cb8bed81dd4e01f3ce0cfd893f9df19321b6d78f06fd5a5fd075",
+          "triangles": 1606
         },
         {
           "bounds": {
             "max": [
-              1.1872,
-              2.2374,
-              1.0031
+              1.48,
+              3.41,
+              1.48
             ],
             "min": [
-              -1.1832,
-              -0.0039,
-              -1.1448
+              -1.48,
+              -0.118,
+              -1.48
             ]
           },
-          "budget": 2500,
-          "bytes": 122248,
+          "budget": 5625,
+          "bytes": 109940,
           "lite": {
             "bounds": {
               "max": [
-                0.9467,
-                2.2646,
-                0.9646
+                1.48,
+                3.4486,
+                1.486
               ],
               "min": [
-                -1.1497,
-                -0.0151,
-                -1.0079
+                -1.48,
+                -0.1131,
+                -1.48
               ]
             },
-            "budget": 625,
-            "bytes": 11876,
+            "budget": 1406,
+            "bytes": 11844,
+            "path": "house_citizens.v1.lite.glb",
+            "sha256": "74190c21262d7d8163b20eb350b010f171856bab6e23396157694b1f63218a58",
+            "triangles": 120
+          },
+          "path": "house_citizens.v1.glb",
+          "sha256": "aa5b29efacdca9b9e1213c707e11ad9c7d17c03c7b028766282d0827f7ced593",
+          "triangles": 1641
+        },
+        {
+          "bounds": {
+            "max": [
+              1.48,
+              2.7968,
+              1.48
+            ],
+            "min": [
+              -1.48,
+              -0.0044,
+              -1.48
+            ]
+          },
+          "budget": 5625,
+          "bytes": 114552,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.48,
+                2.8306,
+                1.48
+              ],
+              "min": [
+                -1.48,
+                -0.0187,
+                -1.48
+              ]
+            },
+            "budget": 1406,
+            "bytes": 11844,
             "path": "house_citizens.v2.lite.glb",
-            "sha256": "d53814b198a273ca83d10a7cc822ff08e048f2c3540f73ed6ffb2741bc261a93",
+            "sha256": "b19b25a8474c9fbb6205c7cd683d38b002a1d5d9f376fa515c8d4bcdb64a8ddf",
             "triangles": 120
           },
           "path": "house_citizens.v2.glb",
-          "sha256": "9684c7a8fe8ad62345c41c826387a1d8e7db099bc48cf2ee4e875bb9158c9736",
-          "triangles": 1881
+          "sha256": "2ebd57648748133b7e8979d16d4bde00d47c97139cac933c8ab8267056fa2ccb",
+          "triangles": 1649
         }
       ]
     },
@@ -2105,29 +2161,29 @@
         "door": [
           0.0,
           0.0,
-          -1.0
+          -1.5
         ],
         "status": [
           0.0,
-          2.7288,
+          3.1006,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.2909,
-          2.4788,
-          1.1035
+          1.485,
+          2.8506,
+          1.48
         ],
         "min": [
-          -1.2902,
-          -0.0575,
-          -1.1959
+          -1.485,
+          -0.0322,
+          -1.48
         ]
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 3,
+        "w": 3
       },
       "kind": "building",
       "kit_sources": [
@@ -2139,6 +2195,7 @@
             "Assets/gltf/decoration/props/bucket_water.gltf",
             "Assets/gltf/decoration/props/crate_A_big.gltf",
             "Assets/gltf/decoration/props/crate_A_small.gltf",
+            "Assets/gltf/decoration/props/haybale.gltf",
             "Assets/gltf/decoration/props/resource_lumber.gltf",
             "Assets/gltf/decoration/props/wheelbarrow.gltf"
           ],
@@ -2149,125 +2206,224 @@
         {
           "bounds": {
             "max": [
-              1.2727,
-              2.139,
-              0.9779
+              1.485,
+              2.4599,
+              1.48
             ],
             "min": [
-              -1.0659,
-              0.0,
-              -1.0658
+              -1.485,
+              -0.0036,
+              -1.48
             ]
           },
-          "budget": 2500,
-          "bytes": 98272,
+          "budget": 5625,
+          "bytes": 95536,
           "lite": {
             "bounds": {
               "max": [
-                1.2632,
-                2.1546,
-                0.9338
+                1.48,
+                2.4778,
+                1.48
               ],
               "min": [
-                -0.8538,
-                -0.0212,
-                -0.9855
+                -1.48,
+                -0.0244,
+                -1.48
               ]
             },
-            "budget": 625,
-            "bytes": 11876,
+            "budget": 1406,
+            "bytes": 11636,
             "path": "house_settlers.v0.lite.glb",
-            "sha256": "bd5a620ee71a2368aaff08d91ee403a0f673f4fed31ffae7e9fe2daecf1c31a0",
-            "triangles": 120
+            "sha256": "5c98889ec7bd23708d6f5f693e7966133ebabbb92666f82b2f2cc84e80170cb6",
+            "triangles": 118
           },
           "path": "house_settlers.v0.glb",
-          "sha256": "19873f462dd1c4ab00a625ecb36fe3757d14c7a4beccb523a1db645f3fa215ca",
-          "triangles": 1471
+          "sha256": "e81662dfb48563dfbe0ac2789efb375d21a1efe09772c9376a005e31c3bbc5d8",
+          "triangles": 1350
         },
         {
           "bounds": {
             "max": [
-              1.02,
-              2.4788,
-              1.1035
+              1.48,
+              2.8506,
+              1.48
             ],
             "min": [
-              -1.02,
-              -0.0575,
-              -1.1959
+              -1.48,
+              -0.0322,
+              -1.48
             ]
           },
-          "budget": 2500,
-          "bytes": 88568,
+          "budget": 5625,
+          "bytes": 92528,
           "lite": {
             "bounds": {
               "max": [
-                0.9563,
-                2.4973,
-                1.1035
+                1.48,
+                2.8719,
+                1.48
               ],
               "min": [
-                -0.9563,
-                -0.0575,
-                -1.1183
+                -1.48,
+                -0.0322,
+                -1.48
               ]
             },
-            "budget": 625,
-            "bytes": 11876,
+            "budget": 1406,
+            "bytes": 11872,
             "path": "house_settlers.v1.lite.glb",
-            "sha256": "4e1713924dcc90365b300ad29fcc2791cc7ff4d3fec33514d5bcd0cce1b95ee8",
+            "sha256": "74342229dfc301f72ca1caec24d6cc079bacd3d2dff4a521148f00c88f963c37",
             "triangles": 120
           },
           "path": "house_settlers.v1.glb",
-          "sha256": "af26a5804dbcb2722ff686a49ba642774d070fd9ebcd8809d174047616a7ab3b",
-          "triangles": 1351
+          "sha256": "94989073000c6ff70f975ab8bea37e827c0a84b86d688d148b4cc97b21f93cdf",
+          "triangles": 1362
         },
         {
           "bounds": {
             "max": [
-              1.2909,
-              2.246,
-              1.0279
+              1.485,
+              2.5668,
+              1.48
             ],
             "min": [
-              -1.2902,
-              0.0,
-              -1.0304
+              -1.485,
+              -0.0005,
+              -1.48
             ]
           },
-          "budget": 2500,
-          "bytes": 104932,
+          "budget": 5625,
+          "bytes": 107668,
           "lite": {
             "bounds": {
               "max": [
-                0.9563,
-                2.2625,
-                0.9822
+                1.48,
+                2.5858,
+                1.48
               ],
               "min": [
-                -1.2506,
-                -0.0213,
-                -0.9355
+                -1.48,
+                -0.0247,
+                -1.48
               ]
             },
-            "budget": 625,
-            "bytes": 11820,
+            "budget": 1406,
+            "bytes": 11732,
             "path": "house_settlers.v2.lite.glb",
-            "sha256": "12cfa99f26e0338a0172c68749e63cdd9c37ab6adf25f4b2b31fb0c514089d05",
+            "sha256": "88944a9950fa9479520a89dedd813589dd4f259376c4e30c7051b704eb6af6b3",
             "triangles": 120
           },
           "path": "house_settlers.v2.glb",
-          "sha256": "2e2d150cfcc6d47a8fb3340417961245fe3e7f6c5f55c0b853eb433f060211cf",
-          "triangles": 1671
+          "sha256": "cf2c48a7944154783d9a53d0d743c6c50d1a515dd9b5c2bc6ed158f2fcbd9aa7",
+          "triangles": 1495
         }
       ]
     },
     "iron_mine": {
       "anchors": {
+        "cart": [
+          -0.6,
+          0.0,
+          -3.4
+        ],
         "chimney": [
-          -0.214,
-          1.438,
-          1.114
+          -0.147,
+          1.621,
+          3.149
+        ],
+        "door": [
+          0.0,
+          0.0,
+          -4.0
+        ],
+        "smoke": [
+          -0.147,
+          1.671,
+          3.149
+        ],
+        "status": [
+          0.0,
+          2.3528,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.5028,
+          2.1028,
+          4.0
+        ],
+        "min": [
+          -1.48,
+          -0.0002,
+          -4.0
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.5028,
+            2.1028,
+            4.0
+          ],
+          "min": [
+            -1.48,
+            -0.0002,
+            -4.0
+          ]
+        },
+        "budget": 36000,
+        "bytes": 127900,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.5448,
+              2.1028,
+              3.9872
+            ],
+            "min": [
+              -1.5156,
+              -0.0098,
+              -4.0
+            ]
+          },
+          "budget": 9000,
+          "bytes": 35752,
+          "path": "iron_mine.lite.glb",
+          "sha256": "ea7aa73419f35e1dcd794bc11dae84cc3536d962425697d2d6dc1018c5addd04",
+          "triangles": 396
+        },
+        "path": "iron_mine.glb",
+        "sha256": "212df4ec60bda98d0af29ca480bd31009cff3f3b3e4c7ebf8fe541bcde17c303",
+        "triangles": 1796
+      },
+      "footprint": {
+        "h": 8,
+        "w": 3
+      },
+      "kind": "building",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/buildings/blue/building_mine_blue.gltf",
+            "Assets/gltf/decoration/props/resource_lumber.gltf",
+            "Assets/gltf/units/neutral/cart.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "lumberjack": {
+      "anchors": {
+        "cart": [
+          0.55,
+          0.0,
+          -1.2
+        ],
+        "chimney": [
+          0.42,
+          3.135,
+          -0.807
         ],
         "door": [
           0.0,
@@ -2275,65 +2431,65 @@
           -1.5
         ],
         "smoke": [
-          -0.214,
-          1.488,
-          1.114
+          0.42,
+          3.185,
+          -0.807
         ],
         "status": [
           0.0,
-          1.6877,
+          3.386,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.45,
-          1.4377,
-          1.74
+          1.48,
+          3.136,
+          1.48
         ],
         "min": [
-          -1.45,
-          -0.2095,
-          -1.45
+          -1.48,
+          -0.253,
+          -1.48
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.45,
-            1.4377,
-            1.74
+            1.48,
+            3.136,
+            1.48
           ],
           "min": [
-            -1.45,
-            -0.2095,
-            -1.45
+            -1.48,
+            -0.253,
+            -1.48
           ]
         },
-        "budget": 6000,
-        "bytes": 86576,
+        "budget": 13500,
+        "bytes": 192792,
         "lite": {
           "bounds": {
             "max": [
-              1.45,
-              1.4413,
-              1.74
+              1.48,
+              3.0943,
+              1.48
             ],
             "min": [
-              -1.45,
-              -0.2248,
-              -1.45
+              -1.48,
+              -0.2528,
+              -1.48
             ]
           },
-          "budget": 1500,
-          "bytes": 28912,
-          "path": "iron_mine.lite.glb",
-          "sha256": "a1be430c02fbf95f98fff18824f90a892ef421b8f1706f68547732709c2febbc",
-          "triangles": 319
+          "budget": 3375,
+          "bytes": 54816,
+          "path": "lumberjack.lite.glb",
+          "sha256": "4b9d34ad8bcfabcf8aa383d687b1665efe943c093f23682134d94bdd61af80f1",
+          "triangles": 604
         },
-        "path": "iron_mine.glb",
-        "sha256": "9416f8146bb0ac4ce8d1261e6f1ea9b699b16b05824d73940098d170a53d461e",
-        "triangles": 1282
+        "path": "lumberjack.glb",
+        "sha256": "64d40819a9c03dc02d5434791374c0c3ca99ea0bb43576475b6bf18b86ed6813",
+        "triangles": 2566
       },
       "footprint": {
         "h": 3,
@@ -2343,94 +2499,8 @@
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_mine_blue.gltf"
-          ],
-          "kit": "kaykit_hexagon"
-        }
-      ]
-    },
-    "lumberjack": {
-      "anchors": {
-        "chimney": [
-          0.238,
-          2.43,
-          -0.755
-        ],
-        "door": [
-          0.0,
-          0.0,
-          -1.0
-        ],
-        "smoke": [
-          0.238,
-          2.48,
-          -0.755
-        ],
-        "status": [
-          0.0,
-          2.6804,
-          0.0
-        ]
-      },
-      "bounds": {
-        "max": [
-          1.1678,
-          2.4304,
-          1.0017
-        ],
-        "min": [
-          -1.1588,
-          -0.253,
-          -1.262
-        ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            1.1678,
-            2.4304,
-            1.0017
-          ],
-          "min": [
-            -1.1588,
-            -0.253,
-            -1.262
-          ]
-        },
-        "budget": 6000,
-        "bytes": 240612,
-        "lite": {
-          "bounds": {
-            "max": [
-              1.1714,
-              2.3979,
-              1.0015
-            ],
-            "min": [
-              -1.1386,
-              -0.253,
-              -1.2589
-            ]
-          },
-          "budget": 1500,
-          "bytes": 76572,
-          "path": "lumberjack.lite.glb",
-          "sha256": "f8b93e42f38406b018f9fb16af787c7c36d8e45643196b19f1248f26f6e4b89b",
-          "triangles": 856
-        },
-        "path": "lumberjack.glb",
-        "sha256": "bb0318299623b083e6fe3d2a2a2e83d3cc8116f580b98476a38b860e85649b3e",
-        "triangles": 3648
-      },
-      "footprint": {
-        "h": 2,
-        "w": 2
-      },
-      "kind": "building",
-      "kit_sources": [
-        {
-          "files": [
             "Assets/gltf/buildings/blue/building_lumbermill_blue.gltf",
+            "Assets/gltf/decoration/nature/tree_single_A.gltf",
             "Assets/gltf/decoration/nature/tree_single_B_cut.gltf",
             "Assets/gltf/decoration/props/resource_lumber.gltf"
           ],
@@ -2443,77 +2513,81 @@
         "door": [
           0.0,
           0.0,
-          -1.5
+          -3.0
         ],
         "status": [
           0.0,
-          2.0458,
+          2.6744,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.6585,
-          1.7958,
-          1.4358
+          2.48,
+          2.4244,
+          2.98
         ],
         "min": [
-          -1.6523,
-          -0.0104,
-          -1.4575
+          -2.48,
+          -0.014,
+          -2.98
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.6585,
-            1.7958,
-            1.4358
+            2.48,
+            2.4244,
+            2.98
           ],
           "min": [
-            -1.6523,
-            -0.0104,
-            -1.4575
+            -2.48,
+            -0.014,
+            -2.98
           ]
         },
-        "budget": 6000,
-        "bytes": 251696,
+        "budget": 45000,
+        "bytes": 239808,
         "lite": {
           "bounds": {
             "max": [
-              1.6369,
-              1.7958,
-              1.3886
+              2.48,
+              2.4244,
+              2.98
             ],
             "min": [
-              -1.6591,
-              -0.0066,
-              -1.4477
+              -2.48,
+              -0.012,
+              -2.98
             ]
           },
-          "budget": 1500,
-          "bytes": 77724,
+          "budget": 11250,
+          "bytes": 67424,
           "path": "market_small.lite.glb",
-          "sha256": "def124d84b8bbe565493017b76783ea3a2fb3aa9790b6057013c96fca642afef",
-          "triangles": 870
+          "sha256": "2cb77c0949234ab6d297397956d8ff50e3852ec94428f39ac4b390e361dfc26e",
+          "triangles": 744
         },
         "path": "market_small.glb",
-        "sha256": "dfb913d6daccfae646835941c52d9df00cc5124bdf3071db1e43abfca374e4e3",
-        "triangles": 3721
+        "sha256": "8a6bef3c6a06a788f01f570d1fe34f784be7bd55c16ac31ddf462ef76b94a3ce",
+        "triangles": 3164
       },
       "footprint": {
-        "h": 3,
-        "w": 3
+        "h": 6,
+        "w": 5
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
             "Assets/gltf/buildings/blue/building_market_blue.gltf",
+            "Assets/gltf/buildings/blue/building_well_blue.gltf",
             "Assets/gltf/decoration/props/barrel.gltf",
             "Assets/gltf/decoration/props/crate_A_big.gltf",
-            "Assets/gltf/decoration/props/crate_B_small.gltf",
-            "Assets/gltf/decoration/props/sack.gltf"
+            "Assets/gltf/decoration/props/crate_A_small.gltf",
+            "Assets/gltf/decoration/props/crate_B_big.gltf",
+            "Assets/gltf/decoration/props/pallet.gltf",
+            "Assets/gltf/decoration/props/sack.gltf",
+            "Assets/gltf/decoration/props/tent.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -2521,86 +2595,97 @@
     },
     "mill": {
       "anchors": {
-        "chimney": [
+        "cart": [
+          -0.9,
           0.0,
-          2.537,
-          0.1
+          -2.3
+        ],
+        "chimney": [
+          0.35,
+          3.171,
+          1.6
         ],
         "door": [
           0.0,
           0.0,
-          -1.0
+          -3.0
         ],
         "smoke": [
-          0.0,
-          2.587,
-          0.1
+          0.35,
+          3.221,
+          1.6
         ],
         "status": [
           0.0,
-          2.9325,
+          3.6031,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.0265,
-          2.6825,
-          0.95
+          1.985,
+          3.3531,
+          2.985
         ],
         "min": [
-          -1.0449,
-          -0.006,
-          -0.95
+          -1.985,
+          -0.1416,
+          -2.985
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.0265,
-            2.6825,
-            0.95
+            1.985,
+            3.3531,
+            2.985
           ],
           "min": [
-            -1.0449,
-            -0.006,
-            -0.95
+            -1.985,
+            -0.1416,
+            -2.985
           ]
         },
-        "budget": 6000,
-        "bytes": 181148,
+        "budget": 36000,
+        "bytes": 227380,
         "lite": {
           "bounds": {
             "max": [
-              0.9974,
-              2.6825,
-              0.95
+              1.985,
+              3.3531,
+              2.985
             ],
             "min": [
-              -1.0278,
-              -0.0058,
-              -0.95
+              -1.985,
+              -0.1398,
+              -2.985
             ]
           },
-          "budget": 1500,
-          "bytes": 58860,
+          "budget": 9000,
+          "bytes": 53660,
           "path": "mill.lite.glb",
-          "sha256": "b2bfa7d6c382e26ee59b56ab66cbe3521288befffe5d405bdfcf8c8752ba5396",
-          "triangles": 667
+          "sha256": "fb00940bbb84bb9a6ebb4cbe79b04bfbb7df8a0ec74d77b9cd7f941125aee7a6",
+          "triangles": 614
         },
         "path": "mill.glb",
-        "sha256": "ef793866a45b6b5eb76ebf4d9642b82ba20913804d2e68dc3e415ec73d6430fb",
-        "triangles": 2745
+        "sha256": "527d548a2a62d48e1406d171262848763fb3fe92da0fd504bc63c1bf6662e40c",
+        "triangles": 2948
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 6,
+        "w": 4
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_windmill_blue.gltf"
+            "Assets/gltf/buildings/blue/building_windmill_blue.gltf",
+            "Assets/gltf/decoration/nature/tree_single_A.gltf",
+            "Assets/gltf/decoration/props/crate_A_big.gltf",
+            "Assets/gltf/decoration/props/haybale.gltf",
+            "Assets/gltf/decoration/props/pallet.gltf",
+            "Assets/gltf/decoration/props/sack.gltf",
+            "Assets/gltf/units/neutral/cart.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -2608,87 +2693,100 @@
     },
     "orchard": {
       "anchors": {
+        "cart": [
+          0.4,
+          0.0,
+          -1.6
+        ],
         "chimney": [
-          -0.8,
-          1.497,
-          1.313
+          -0.6,
+          1.818,
+          1.684
         ],
         "door": [
           0.0,
           0.0,
-          -1.5
+          -2.0
         ],
         "smoke": [
-          -0.8,
-          1.547,
-          1.313
+          -0.6,
+          1.868,
+          1.684
         ],
         "status": [
           0.0,
-          1.7473,
+          2.0682,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.45,
-          1.4973,
-          1.5045
+          1.985,
+          1.8182,
+          1.98
         ],
         "min": [
-          -1.45,
-          -0.0345,
-          -1.45
+          -1.985,
+          -0.082,
+          -1.98
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.45,
-            1.4973,
-            1.5045
+            1.985,
+            1.8182,
+            1.98
           ],
           "min": [
-            -1.45,
-            -0.0345,
-            -1.45
+            -1.985,
+            -0.082,
+            -1.98
           ]
         },
-        "budget": 6000,
-        "bytes": 104620,
+        "budget": 24000,
+        "bytes": 168472,
         "lite": {
           "bounds": {
             "max": [
-              1.45,
-              1.5082,
-              1.5228
+              1.985,
+              1.8314,
+              1.98
             ],
             "min": [
-              -1.45,
-              0.0,
-              -1.45
+              -1.985,
+              -0.0701,
+              -1.98
             ]
           },
-          "budget": 1500,
-          "bytes": 29232,
+          "budget": 6000,
+          "bytes": 36504,
           "path": "orchard.lite.glb",
-          "sha256": "c3875ff3d4ab44cd5a17740c58722bc6bf64417db3607729a925fb978111cd96",
-          "triangles": 314
+          "sha256": "7bacabe397c966935d823dd5481d49274ac3024280069965514917211c678aa3",
+          "triangles": 399
         },
         "path": "orchard.glb",
-        "sha256": "f6f8ef9141429a3320f2122e8ca2a6d3383c1190fe571b3ff9ff083d8ef58fc4",
-        "triangles": 1545
+        "sha256": "56bd39e375786fcc1b935c408a51fd57fbdb9b8fb71de10f5ed9c54de562b3ae",
+        "triangles": 2219
       },
       "footprint": {
-        "h": 3,
-        "w": 3
+        "h": 4,
+        "w": 4
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
+            "Assets/gltf/Color1/Tree_3_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        },
+        {
+          "files": [
             "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
-            "Assets/gltf/buildings/neutral/fence_wood_straight.gltf"
+            "Assets/gltf/decoration/props/crate_open.gltf",
+            "Assets/gltf/decoration/props/ladder.gltf",
+            "Assets/gltf/decoration/props/wheelbarrow.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -2757,136 +2855,169 @@
         "door": [
           0.0,
           0.0,
-          -1.0
+          -1.5
+        ],
+        "gate": [
+          0.0,
+          0.0,
+          -1.42
+        ],
+        "sheep_1": [
+          -0.6,
+          0.0,
+          0.3
+        ],
+        "sheep_2": [
+          0.65,
+          0.0,
+          -0.05
+        ],
+        "sheep_3": [
+          -0.1,
+          0.0,
+          -0.75
         ],
         "status": [
           0.0,
-          0.49,
+          0.59,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          0.97,
-          0.24,
-          0.97
+          1.47,
+          0.34,
+          1.47
         ],
         "min": [
-          -0.97,
-          0.0,
-          -0.97
+          -1.47,
+          -0.0004,
+          -1.47
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.97,
-            0.24,
-            0.97
+            1.47,
+            0.34,
+            1.47
           ],
           "min": [
-            -0.97,
-            0.0,
-            -0.97
+            -1.47,
+            -0.0004,
+            -1.47
           ]
         },
-        "budget": 300,
-        "bytes": 14776,
+        "budget": 675,
+        "bytes": 27788,
         "path": "pasture.glb",
-        "sha256": "cb9c7eed85fb04789193684bd019f8f9b752de5888602f2141b3b36ba4bd6f2f",
-        "triangles": 182
+        "sha256": "79bc1ba43ac6f1157559b6e0ce0adf00574619c674b9d18e498d930ea9d1c14e",
+        "triangles": 379
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 3,
+        "w": 3
       },
       "kind": "field",
-      "kit_sources": []
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/props/trough_long.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
     },
     "quarry": {
       "anchors": {
+        "cart": [
+          -0.6,
+          0.0,
+          -3.1
+        ],
         "chimney": [
-          -0.264,
-          1.438,
-          1.154
+          1.05,
+          1.0,
+          -2.0
         ],
         "door": [
           0.0,
           0.0,
-          -1.5
+          -4.0
         ],
         "smoke": [
-          -0.264,
-          1.488,
-          1.154
+          1.05,
+          1.05,
+          -2.0
         ],
         "status": [
           0.0,
-          1.6877,
+          2.3062,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.4529,
-          1.4377,
-          1.7227
+          1.48,
+          2.0562,
+          4.0
         ],
         "min": [
-          -1.6572,
-          -0.0002,
-          -1.45
+          -1.48,
+          0.0,
+          -4.0
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.4529,
-            1.4377,
-            1.7227
+            1.48,
+            2.0562,
+            4.0
           ],
           "min": [
-            -1.6572,
-            -0.0002,
-            -1.45
+            -1.48,
+            0.0,
+            -4.0
           ]
         },
-        "budget": 6000,
-        "bytes": 116244,
+        "budget": 36000,
+        "bytes": 76384,
         "lite": {
           "bounds": {
             "max": [
-              1.45,
-              1.4403,
-              1.7227
+              1.48,
+              2.0562,
+              3.9934
             ],
             "min": [
-              -1.5963,
-              -0.0181,
-              -1.45
+              -1.48,
+              -0.0195,
+              -4.0
             ]
           },
-          "budget": 1500,
-          "bytes": 33052,
+          "budget": 9000,
+          "bytes": 14384,
           "path": "quarry.lite.glb",
-          "sha256": "ce9741bc7004ad329fb47ebda6b56b3fa62131516d0e4c3e656d8fba1386aae3",
-          "triangles": 370
+          "sha256": "797da2b7d8c5c132379db9b16dd9ff99d000b147ab704cf4075f360e5781c461",
+          "triangles": 150
         },
         "path": "quarry.glb",
-        "sha256": "8a0719fcb26cec52d4d4c6df00188598d737506b8b87018c5b3567fff96bb039",
-        "triangles": 1742
+        "sha256": "bd3ee3b0b48344ea8535c4bbf47f1d896a407b96677c4f284579b0562aa5a891",
+        "triangles": 918
       },
       "footprint": {
-        "h": 3,
+        "h": 8,
         "w": 3
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_mine_blue.gltf",
-            "Assets/gltf/decoration/nature/rock_single_B.gltf",
-            "Assets/gltf/decoration/props/resource_stone.gltf"
+            "Assets/gltf/decoration/props/crate_A_small.gltf",
+            "Assets/gltf/decoration/props/ladder.gltf",
+            "Assets/gltf/decoration/props/resource_stone.gltf",
+            "Assets/gltf/units/neutral/cart.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -2894,86 +3025,93 @@
     },
     "sailmaker": {
       "anchors": {
+        "cart": [
+          0.6,
+          0.0,
+          -3.5
+        ],
         "chimney": [
-          -0.1,
-          1.326,
-          1.033
+          1.25,
+          1.6,
+          3.2
         ],
         "door": [
           0.0,
           0.0,
-          -1.0
+          -4.0
         ],
         "smoke": [
-          -0.1,
-          1.376,
-          1.033
+          1.25,
+          1.65,
+          3.2
         ],
         "status": [
           0.0,
-          1.5762,
+          1.85,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.3,
-          1.3262,
-          1.1967
+          2.0,
+          1.6,
+          3.98
         ],
         "min": [
-          -0.95,
-          0.0,
-          -0.95
+          -1.98,
+          -0.0036,
+          -3.98
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.3,
-            1.3262,
-            1.1967
+            2.0,
+            1.6,
+            3.98
           ],
           "min": [
-            -0.95,
-            0.0,
-            -0.95
+            -1.98,
+            -0.0036,
+            -3.98
           ]
         },
-        "budget": 6000,
-        "bytes": 76620,
+        "budget": 48000,
+        "bytes": 170724,
         "lite": {
           "bounds": {
             "max": [
-              0.95,
-              1.3214,
-              1.215
+              2.0,
+              1.6,
+              3.98
             ],
             "min": [
-              -0.95,
-              0.0,
-              -0.95
+              -1.98,
+              -0.0138,
+              -3.98
             ]
           },
-          "budget": 1500,
-          "bytes": 25136,
+          "budget": 12000,
+          "bytes": 48928,
           "path": "sailmaker.lite.glb",
-          "sha256": "211006b076a23dce07a38d2aede4603f9e2447d7f55abdbe6e52b90ef6643306",
-          "triangles": 270
+          "sha256": "d73ec8db75e026f029015f14212413667dcdd2e5ac7926c301c04c7928b49135",
+          "triangles": 534
         },
         "path": "sailmaker.glb",
-        "sha256": "45a05c8947e17ca0cc95a469bd116e21e219284d813518e71ff03e36f594519d",
-        "triangles": 1173
+        "sha256": "8e30f910df6157229e6d6bfb17b7e96959b3dd2ecb463e97fab2192525c86a69",
+        "triangles": 2151
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 8,
+        "w": 4
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_home_A_blue.gltf"
+            "Assets/gltf/buildings/blue/building_stables_blue.gltf",
+            "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/crate_long_C.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -2981,80 +3119,85 @@
     },
     "sawmill": {
       "anchors": {
+        "cart": [
+          -1.0,
+          0.0,
+          -2.6
+        ],
         "chimney": [
-          -0.238,
-          2.43,
-          -0.755
+          -0.522,
+          3.331,
+          0.232
         ],
         "door": [
           0.0,
           0.0,
-          -1.0
+          -3.0
         ],
         "smoke": [
-          -0.238,
-          2.48,
-          -0.755
+          -0.522,
+          3.381,
+          0.232
         ],
         "status": [
           0.0,
-          2.6804,
+          3.5819,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.1588,
-          2.4304,
-          1.0017
+          1.98,
+          3.3319,
+          2.98
         ],
         "min": [
-          -1.1678,
-          -0.005,
-          -1.2523
+          -1.98,
+          -0.0068,
+          -2.98
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.1588,
-            2.4304,
-            1.0017
+            1.98,
+            3.3319,
+            2.98
           ],
           "min": [
-            -1.1678,
-            -0.005,
-            -1.2523
+            -1.98,
+            -0.0068,
+            -2.98
           ]
         },
-        "budget": 6000,
-        "bytes": 231112,
+        "budget": 36000,
+        "bytes": 232600,
         "lite": {
           "bounds": {
             "max": [
-              1.1386,
-              2.4228,
-              1.0015
+              1.98,
+              3.2521,
+              2.98
             ],
             "min": [
-              -1.1714,
-              -0.0125,
-              -1.2667
+              -1.98,
+              -0.025,
+              -2.98
             ]
           },
-          "budget": 1500,
-          "bytes": 77852,
+          "budget": 9000,
+          "bytes": 59140,
           "path": "sawmill.lite.glb",
-          "sha256": "1550e28350fd8fcce89586be072cecabe11f0c15bd4ee399910821e9f8227088",
-          "triangles": 874
+          "sha256": "65c3d359f751fa27f6126110eaeca2f87765f51b0710ff7b74940176f06c068b",
+          "triangles": 653
         },
         "path": "sawmill.glb",
-        "sha256": "bee3c5ce9cd46711014e30b52eebfef936d3dffb355f6e4e81d4924e9d6c3d4e",
-        "triangles": 3540
+        "sha256": "8cb3eecef317b35578cc4011191d30d15b3d75ab8e9cf681968a28ff0c7aa267",
+        "triangles": 3088
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 6,
+        "w": 4
       },
       "kind": "building",
       "kit_sources": [
@@ -3063,7 +3206,8 @@
             "Assets/gltf/buildings/blue/building_lumbermill_blue.gltf",
             "Assets/gltf/decoration/props/crate_long_empty.gltf",
             "Assets/gltf/decoration/props/pallet.gltf",
-            "Assets/gltf/decoration/props/resource_lumber.gltf"
+            "Assets/gltf/decoration/props/resource_lumber.gltf",
+            "Assets/gltf/units/neutral/cart.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -3071,10 +3215,15 @@
     },
     "sheep_farm": {
       "anchors": {
+        "cart": [
+          0.2,
+          0.0,
+          -1.2
+        ],
         "chimney": [
-          -0.6,
-          1.604,
-          1.354
+          -0.55,
+          1.668,
+          1.228
         ],
         "door": [
           0.0,
@@ -3082,65 +3231,65 @@
           -1.5
         ],
         "smoke": [
-          -0.6,
-          1.654,
-          1.354
+          -0.55,
+          1.718,
+          1.228
         ],
         "status": [
           0.0,
-          1.8543,
+          1.9184,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.45,
-          1.6043,
-          1.5584
+          1.485,
+          1.6684,
+          1.485
         ],
         "min": [
-          -1.45,
-          -0.1418,
-          -1.45
+          -1.485,
+          -0.0012,
+          -1.48
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.45,
-            1.6043,
-            1.5584
+            1.485,
+            1.6684,
+            1.485
           ],
           "min": [
-            -1.45,
-            -0.1418,
-            -1.45
+            -1.485,
+            -0.0012,
+            -1.48
           ]
         },
-        "budget": 6000,
-        "bytes": 135828,
+        "budget": 13500,
+        "bytes": 99224,
         "lite": {
           "bounds": {
             "max": [
-              1.45,
-              1.616,
-              1.578
+              1.485,
+              1.6806,
+              1.485
             ],
             "min": [
-              -1.45,
-              -0.1418,
-              -1.45
+              -1.485,
+              0.0,
+              -1.48
             ]
           },
-          "budget": 1500,
-          "bytes": 25828,
+          "budget": 3375,
+          "bytes": 31796,
           "path": "sheep_farm.lite.glb",
-          "sha256": "de858640082a157a6adf29e26092141a6a656e71342741b282b50d0aefcf13ad",
-          "triangles": 277
+          "sha256": "1c66660ba9ee15922ea51bfba6dc675eaa5387877926ffd1304891a8d9f16839",
+          "triangles": 348
         },
         "path": "sheep_farm.glb",
-        "sha256": "503d896564222769f437c84f9c0f014d0dea894e494e6e54f877714875f4b992",
-        "triangles": 2013
+        "sha256": "d6ab8688b894f848602a709849a7da349c44bd0b47fd79c068f9baea023c218c",
+        "triangles": 1457
       },
       "footprint": {
         "h": 3,
@@ -3151,7 +3300,8 @@
         {
           "files": [
             "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
-            "Assets/gltf/buildings/neutral/fence_wood_straight.gltf"
+            "Assets/gltf/decoration/props/haybale.gltf",
+            "Assets/gltf/decoration/props/trough_long.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -3162,79 +3312,83 @@
         "door": [
           0.0,
           0.0,
-          -2.0
+          -6.0
         ],
         "status": [
           0.0,
-          1.95,
+          3.27,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          2.45,
-          1.7,
-          2.0936
+          3.98,
+          3.02,
+          5.9
         ],
         "min": [
-          -2.6469,
-          -0.62,
-          -1.955
+          -3.98,
+          -0.72,
+          -5.99
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            2.45,
-            1.7,
-            2.0936
+            3.98,
+            3.02,
+            5.9
           ],
           "min": [
-            -2.6469,
-            -0.62,
-            -1.955
+            -3.98,
+            -0.72,
+            -5.99
           ]
         },
-        "budget": 6000,
-        "bytes": 320964,
+        "budget": 72000,
+        "bytes": 466396,
         "lite": {
           "bounds": {
             "max": [
-              2.45,
-              1.7,
-              2.0964
+              3.98,
+              2.9344,
+              5.9
             ],
             "min": [
-              -2.6369,
-              -0.0538,
-              -1.955
+              -3.98,
+              -0.72,
+              -5.99
             ]
           },
-          "budget": 1500,
-          "bytes": 96480,
+          "budget": 18000,
+          "bytes": 119916,
           "path": "shipyard.lite.glb",
-          "sha256": "8ad4b3cfdcba2e2342f503bafb04a2d497e95aeb80d81c4a1bd1cd164b692d0b",
-          "triangles": 1071
+          "sha256": "7db286bad9eba7b251577c05a16733319e9ae8104f4ccd90d715358f6c7e2327",
+          "triangles": 1327
         },
         "path": "shipyard.glb",
-        "sha256": "16726a60c09b6b7b05d8dedfdbcf51e07d3293bf83fbb44368dff285bac07df3",
-        "triangles": 4757
+        "sha256": "53f03702e86318456867391cf4b4302b920536286a3f47c8d2809375f0ce8706",
+        "triangles": 5793
       },
       "footprint": {
-        "h": 4,
-        "w": 5
+        "h": 12,
+        "w": 8
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
-            "Assets/gltf/buildings/neutral/building_scaffolding.gltf",
+            "Assets/gltf/buildings/blue/building_shipyard_blue.gltf",
+            "Assets/gltf/buildings/blue/building_workshop_blue.gltf",
+            "Assets/gltf/decoration/props/anchor.gltf",
             "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/boat.gltf",
             "Assets/gltf/decoration/props/crate_A_big.gltf",
+            "Assets/gltf/decoration/props/crate_A_small.gltf",
             "Assets/gltf/decoration/props/crate_long_empty.gltf",
-            "Assets/gltf/decoration/props/pallet.gltf",
-            "Assets/gltf/decoration/props/resource_lumber.gltf"
+            "Assets/gltf/decoration/props/resource_lumber.gltf",
+            "Assets/gltf/decoration/props/resource_stone.gltf",
+            "Assets/gltf/units/blue/ship_blue_accent.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -3319,86 +3473,92 @@
     },
     "smelter": {
       "anchors": {
+        "cart": [
+          -0.3,
+          0.0,
+          -2.55
+        ],
         "chimney": [
-          0.85,
-          2.02,
-          0.85
+          1.2,
+          2.5,
+          -0.4
         ],
         "door": [
           0.0,
           0.0,
-          -1.5
+          -3.0
         ],
         "smoke": [
-          0.85,
-          2.05,
-          0.85
+          1.2,
+          2.55,
+          -0.4
         ],
         "status": [
           0.0,
-          2.27,
+          2.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.45,
-          2.02,
-          1.45
+          1.98,
+          2.5,
+          2.98
         ],
         "min": [
-          -1.589,
-          -0.2099,
-          -1.45
+          -1.98,
+          -0.0117,
+          -2.98
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.45,
-            2.02,
-            1.45
+            1.98,
+            2.5,
+            2.98
           ],
           "min": [
-            -1.589,
-            -0.2099,
-            -1.45
+            -1.98,
+            -0.0117,
+            -2.98
           ]
         },
-        "budget": 6000,
-        "bytes": 183704,
+        "budget": 36000,
+        "bytes": 158828,
         "lite": {
           "bounds": {
             "max": [
-              1.45,
-              2.0,
-              1.45
+              1.98,
+              2.5019,
+              2.98
             ],
             "min": [
-              -1.5942,
-              -0.2059,
-              -1.45
+              -1.98,
+              -0.0147,
+              -2.98
             ]
           },
-          "budget": 1500,
-          "bytes": 57848,
+          "budget": 9000,
+          "bytes": 42516,
           "path": "smelter.lite.glb",
-          "sha256": "787302e36bb95fb9c836e0575c0c2f499ee305c775b6cedab12e5d4808386a6f",
-          "triangles": 654
+          "sha256": "ae3628d1740b9cd115153ea2687a8c7820b3bae9dd472446ea1e35f05116173b",
+          "triangles": 468
         },
         "path": "smelter.glb",
-        "sha256": "5de671b00739ccccfe29ed0b07d53ea95b9e332361d2e012d329a00d3db4b34b",
-        "triangles": 2672
+        "sha256": "efc25a9fa8a6d1a46f352e1fe18d8a69e4c85d045482189c31e611cfdbcf525b",
+        "triangles": 2107
       },
       "footprint": {
-        "h": 3,
-        "w": 3
+        "h": 6,
+        "w": 4
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_blacksmith_blue.gltf"
+            "Assets/gltf/buildings/blue/building_blacksmith_blue.gltf",
+            "Assets/gltf/units/neutral/cart.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -3409,75 +3569,75 @@
         "door": [
           0.0,
           0.0,
-          -1.5
+          -3.0
         ],
         "status": [
           0.0,
-          2.9804,
+          3.6194,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.4474,
-          2.7304,
-          1.373
+          1.98,
+          3.3694,
+          2.9961
         ],
         "min": [
-          -1.415,
-          0.0,
-          -1.2317
+          -1.98,
+          -0.1416,
+          -2.98
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.4474,
-            2.7304,
-            1.373
+            1.98,
+            3.3694,
+            2.9961
           ],
           "min": [
-            -1.415,
-            0.0,
-            -1.2317
+            -1.98,
+            -0.1416,
+            -2.98
           ]
         },
-        "budget": 6000,
-        "bytes": 274800,
+        "budget": 36000,
+        "bytes": 208976,
         "lite": {
           "bounds": {
             "max": [
-              1.4245,
-              2.7296,
-              1.3778
+              1.98,
+              3.3718,
+              2.9925
             ],
             "min": [
-              -1.415,
-              -0.0026,
-              -1.2317
+              -1.98,
+              -0.1398,
+              -2.98
             ]
           },
-          "budget": 1500,
-          "bytes": 83636,
+          "budget": 9000,
+          "bytes": 57484,
           "path": "tavern.lite.glb",
-          "sha256": "6df16eb3fac0d51ba67cf7369c1c1d1842cda4f4d37ebc920a1ec22db1815297",
-          "triangles": 937
+          "sha256": "8617adb21c7cdb8c6a10585b0da3143353697c925d4b3f60965996f1c4892c47",
+          "triangles": 630
         },
         "path": "tavern.glb",
-        "sha256": "d70fa638ad72ba9a223d0070152f9cade30098192baa56bf3307dd18a87660fe",
-        "triangles": 3994
+        "sha256": "da843a4bc1a645ead12f5c47d1e901704aa23c74569a50d793404fac6d1cac20",
+        "triangles": 2693
       },
       "footprint": {
-        "h": 3,
-        "w": 3
+        "h": 6,
+        "w": 4
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
             "Assets/gltf/buildings/blue/building_tavern_blue.gltf",
-            "Assets/gltf/decoration/props/barrel.gltf",
-            "Assets/gltf/decoration/props/crate_long_A.gltf"
+            "Assets/gltf/decoration/nature/tree_single_A.gltf",
+            "Assets/gltf/decoration/props/barrel.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -3485,86 +3645,94 @@
     },
     "toolmaker": {
       "anchors": {
+        "cart": [
+          0.3,
+          0.0,
+          -1.6
+        ],
         "chimney": [
-          -0.39,
-          1.35,
-          0.62
+          -0.659,
+          2.137,
+          0.957
         ],
         "door": [
           0.0,
           0.0,
-          -1.0
+          -2.0
         ],
         "smoke": [
-          -0.39,
-          1.4,
-          0.62
+          -0.659,
+          2.187,
+          0.957
         ],
         "status": [
           0.0,
-          1.6024,
+          2.3913,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          0.95,
-          1.3524,
-          1.0728
+          1.98,
+          2.1413,
+          1.98
         ],
         "min": [
-          -1.0075,
-          -0.007,
-          -0.95
+          -1.98,
+          -0.0111,
+          -1.98
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.95,
-            1.3524,
-            1.0728
+            1.98,
+            2.1413,
+            1.98
           ],
           "min": [
-            -1.0075,
-            -0.007,
-            -0.95
+            -1.98,
+            -0.0111,
+            -1.98
           ]
         },
-        "budget": 6000,
-        "bytes": 173040,
+        "budget": 24000,
+        "bytes": 149596,
         "lite": {
           "bounds": {
             "max": [
-              0.95,
-              1.3495,
-              1.0531
+              1.98,
+              2.1545,
+              1.98
             ],
             "min": [
-              -1.0118,
-              -0.0175,
-              -0.95
+              -1.98,
+              -0.014,
+              -1.98
             ]
           },
-          "budget": 1500,
-          "bytes": 56344,
+          "budget": 6000,
+          "bytes": 43284,
           "path": "toolmaker.lite.glb",
-          "sha256": "8a47c4f2469cc63d2dcf7fca44a2fbc38604c4bc6d9868965356c6317a594d6d",
-          "triangles": 629
+          "sha256": "ba5dfb12cd5e0f7053489b6f5b0e941b82293def07a88ef11f217a3eaf2b2551",
+          "triangles": 474
         },
         "path": "toolmaker.glb",
-        "sha256": "ef049092a3a66ae7ff843de76db1e9af23fe8c547e63895ce10d06519a20075f",
-        "triangles": 2522
+        "sha256": "7d5c150d736bd3ebdd039b0162f326a660c09bb21c470fe68abb14474a681ce2",
+        "triangles": 1966
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 4,
+        "w": 4
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_blacksmith_blue.gltf"
+            "Assets/gltf/buildings/blue/building_blacksmith_blue.gltf",
+            "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/crate_A_big.gltf",
+            "Assets/gltf/decoration/props/crate_A_small.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -3572,32 +3740,57 @@
     },
     "trading_post": {
       "anchors": {
+        "berth_1": [
+          -2.1,
+          0.06,
+          4.2
+        ],
+        "berth_2": [
+          -0.7,
+          0.06,
+          4.2
+        ],
+        "berth_3": [
+          0.7,
+          0.06,
+          4.2
+        ],
+        "berth_4": [
+          2.1,
+          0.06,
+          4.2
+        ],
+        "cart": [
+          -1.9,
+          0.05,
+          -3.3
+        ],
         "door": [
           0.0,
           0.0,
-          -2.0
+          -4.5
         ],
         "status": [
           0.0,
-          2.45,
+          3.0109,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.98,
-          2.2,
-          1.96
+          2.98,
+          2.7609,
+          4.485
         ],
         "min": [
-          -1.98,
-          -1.886,
-          -2.1353
+          -2.98,
+          -1.84,
+          -4.5
         ]
       },
       "footprint": {
-        "h": 4,
-        "w": 4
+        "h": 9,
+        "w": 6
       },
       "kind": "building",
       "kit_sources": [
@@ -3610,8 +3803,11 @@
             "Assets/gltf/decoration/props/crate_B_big.gltf",
             "Assets/gltf/decoration/props/crate_long_A.gltf",
             "Assets/gltf/decoration/props/crate_long_B.gltf",
+            "Assets/gltf/decoration/props/crate_long_C.gltf",
+            "Assets/gltf/decoration/props/flag_blue.gltf",
             "Assets/gltf/decoration/props/pallet.gltf",
-            "Assets/gltf/decoration/props/sack.gltf"
+            "Assets/gltf/decoration/props/sack.gltf",
+            "Assets/gltf/units/neutral/cart.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -3620,185 +3816,190 @@
         "1": {
           "bounds": {
             "max": [
-              1.98,
-              1.798,
-              1.96
+              2.98,
+              2.6076,
+              4.485
             ],
             "min": [
-              -1.98,
-              -1.886,
-              -2.1003
+              -2.98,
+              -1.84,
+              -4.5
             ]
           },
-          "budget": 6000,
-          "bytes": 222112,
+          "budget": 72000,
+          "bytes": 209252,
           "lite": {
             "bounds": {
               "max": [
-                1.98,
-                1.7892,
-                1.96
+                2.98,
+                2.5948,
+                4.485
               ],
               "min": [
-                -1.98,
-                -1.886,
-                -2.0489
+                -2.98,
+                -1.84,
+                -4.4995
               ]
             },
-            "budget": 1500,
-            "bytes": 59204,
+            "budget": 18000,
+            "bytes": 48816,
             "path": "trading_post.l1.lite.glb",
-            "sha256": "04256cd507131d725c6450a8a1a5f9e8859e09a48e40c75ed130308c5624f61f",
-            "triangles": 653
+            "sha256": "979f484fdf4779c368a7d54b697c67a31df3a9d697b8dc82c6757eae7fced185",
+            "triangles": 532
           },
           "path": "trading_post.l1.glb",
-          "sha256": "868ee8eb41446529b82a15fa4d729f01bb8ce040a4a702dc6a74e0b11eaad678",
-          "triangles": 3262
+          "sha256": "d14f555884e3449ed0bb67ca860b954e6bf0e2a54cfac6165dbbbb3967d0e5ce",
+          "triangles": 2524
         },
         "2": {
           "bounds": {
             "max": [
-              1.98,
-              1.904,
-              1.96
+              2.98,
+              2.7609,
+              4.485
             ],
             "min": [
-              -1.98,
-              -1.886,
-              -2.1353
+              -2.98,
+              -1.84,
+              -4.5
             ]
           },
-          "budget": 6000,
-          "bytes": 241368,
+          "budget": 72000,
+          "bytes": 196964,
           "lite": {
             "bounds": {
               "max": [
-                1.98,
-                1.895,
-                1.96
+                2.98,
+                2.7455,
+                4.485
               ],
               "min": [
-                -1.98,
-                -1.886,
-                -2.0489
+                -2.98,
+                -1.84,
+                -4.4995
               ]
             },
-            "budget": 1500,
-            "bytes": 55388,
+            "budget": 18000,
+            "bytes": 45324,
             "path": "trading_post.l2.lite.glb",
-            "sha256": "d27139d52ed55cf0bc0c0e3002705baa5e3b5bcc04250d94dd81bdea79c73ac7",
-            "triangles": 610
+            "sha256": "4200e269247c4e57c436fe261011e63ceee03dd575f682555e7d93f3e4ec3c4a",
+            "triangles": 496
           },
           "path": "trading_post.l2.glb",
-          "sha256": "19276f5d47728ab22727d78d29ab5ccd036540329622a4ac728da578966ee142",
-          "triangles": 3610
+          "sha256": "0f9e8207c9dc84865e5a6f2ab4c113829062374647d2b904f5d6aedc4374b8c6",
+          "triangles": 2380
         },
         "3": {
           "bounds": {
             "max": [
-              1.98,
-              1.904,
-              1.96
+              2.98,
+              2.7609,
+              4.485
             ],
             "min": [
-              -1.98,
-              -1.886,
-              -2.1353
+              -2.98,
+              -1.84,
+              -4.5
             ]
           },
-          "budget": 6000,
-          "bytes": 242984,
+          "budget": 72000,
+          "bytes": 204568,
           "lite": {
             "bounds": {
               "max": [
-                1.98,
-                1.895,
-                1.96
+                2.98,
+                2.7455,
+                4.485
               ],
               "min": [
-                -1.98,
-                -1.886,
-                -2.0489
+                -2.98,
+                -1.84,
+                -4.4995
               ]
             },
-            "budget": 1500,
-            "bytes": 55896,
+            "budget": 18000,
+            "bytes": 45664,
             "path": "trading_post.l3.lite.glb",
-            "sha256": "f7d45612fb1f80d34c9d2144dd236a0261445ff23191d98e1e21fb5eb44547b9",
-            "triangles": 615
+            "sha256": "20407deecfeee214b691621de621fc46cb6f91a5d182a7161ebef6c485ee3120",
+            "triangles": 501
           },
           "path": "trading_post.l3.glb",
-          "sha256": "02370f490c98b5f6c28b91b010ec1a757f36e001ee469976d7f34a8de4dea879",
-          "triangles": 3632
+          "sha256": "1f750ec6ee7f96b2896b2305e2c4306740fa6a1181c27e448af70424df139fee",
+          "triangles": 2476
         },
         "4": {
           "bounds": {
             "max": [
-              1.98,
-              2.2,
-              1.96
+              2.98,
+              2.7609,
+              4.485
             ],
             "min": [
-              -1.98,
-              -1.886,
-              -2.1353
+              -2.98,
+              -1.84,
+              -4.5
             ]
           },
-          "budget": 6000,
-          "bytes": 245192,
+          "budget": 72000,
+          "bytes": 208528,
           "lite": {
             "bounds": {
               "max": [
-                1.98,
-                2.2,
-                1.96
+                2.98,
+                2.7455,
+                4.485
               ],
               "min": [
-                -1.98,
-                -1.886,
-                -2.0489
+                -2.98,
+                -1.84,
+                -4.4995
               ]
             },
-            "budget": 1500,
-            "bytes": 56700,
+            "budget": 18000,
+            "bytes": 46956,
             "path": "trading_post.l4.lite.glb",
-            "sha256": "9d9717a0f5ded8b91d3ac4bd875e1ca8cc7ee9b5dba61ff2f8a900d59b105ef5",
-            "triangles": 623
+            "sha256": "b857932e9e992df6cb4408472e2592e7c8a5ecd887150f66d7dd74e32bbeae2d",
+            "triangles": 516
           },
           "path": "trading_post.l4.glb",
-          "sha256": "1901f53c8f29c7700a7b96b08c0f6e8f002fc1f6ab3a299de79f9b22f56ae671",
-          "triangles": 3664
+          "sha256": "fdda12e8ed6b47bc70fe8125e5833b8ec835521801093636e0b158e97703d51f",
+          "triangles": 2534
         }
       }
     },
     "warehouse": {
       "anchors": {
+        "cart": [
+          1.75,
+          0.0,
+          -1.7
+        ],
         "door": [
           0.0,
           0.0,
-          -1.0
+          -3.0
         ],
         "status": [
           0.0,
-          1.638,
+          2.8179,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          1.227,
-          1.388,
-          1.116
+          2.98,
+          2.5679,
+          3.0045
         ],
         "min": [
-          -1.23,
-          -0.0028,
-          -0.99
+          -2.985,
+          -0.0051,
+          -2.989
         ]
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 6,
+        "w": 6
       },
       "kind": "building",
       "kit_sources": [
@@ -3811,7 +4012,10 @@
             "Assets/gltf/decoration/props/crate_long_A.gltf",
             "Assets/gltf/decoration/props/crate_long_B.gltf",
             "Assets/gltf/decoration/props/pallet.gltf",
-            "Assets/gltf/decoration/props/sack.gltf"
+            "Assets/gltf/decoration/props/resource_lumber.gltf",
+            "Assets/gltf/decoration/props/resource_stone.gltf",
+            "Assets/gltf/decoration/props/sack.gltf",
+            "Assets/gltf/units/neutral/cart.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -3820,201 +4024,214 @@
         "1": {
           "bounds": {
             "max": [
-              1.1036,
-              1.312,
-              1.1124
+              2.98,
+              2.4269,
+              2.9979
             ],
             "min": [
-              -1.1802,
-              -0.0028,
-              -0.912
+              -2.985,
+              -0.0051,
+              -2.989
             ]
           },
-          "budget": 6000,
-          "bytes": 158544,
+          "budget": 54000,
+          "bytes": 217520,
           "lite": {
             "bounds": {
               "max": [
-                1.1036,
-                1.3053,
-                1.1093
+                2.98,
+                2.4146,
+                2.992
               ],
               "min": [
-                -1.1802,
-                -0.0035,
-                -0.8849
+                -2.985,
+                -0.0166,
+                -2.989
               ]
             },
-            "budget": 1500,
-            "bytes": 36436,
+            "budget": 13500,
+            "bytes": 40776,
             "path": "warehouse.l1.lite.glb",
-            "sha256": "347bf1584179b650989c3899931044335eef9589f814383b22ead5bb4274c6bf",
-            "triangles": 396
+            "sha256": "f909a3dcb37f38df6c0fba465699ad700c05b37cc52d5583ef6c17cecc800bc2",
+            "triangles": 444
           },
           "path": "warehouse.l1.glb",
-          "sha256": "bca34062c7910c014821e6eb42c91d9f8bc9fbbcd2c1d0cc7d5ff1f60342ab0e",
-          "triangles": 2234
+          "sha256": "f34a96a325d5805dd3685ba4605598c54df31d7d83c6bda4a15cbb2afb9932ed",
+          "triangles": 2600
         },
         "2": {
           "bounds": {
             "max": [
-              1.227,
-              1.388,
-              1.116
+              2.98,
+              2.5679,
+              3.0045
             ],
             "min": [
-              -1.1802,
-              -0.0028,
-              -0.9371
+              -2.985,
+              -0.0051,
+              -2.989
             ]
           },
-          "budget": 6000,
-          "bytes": 177028,
+          "budget": 54000,
+          "bytes": 205272,
           "lite": {
             "bounds": {
               "max": [
-                1.227,
-                1.3812,
-                1.116
+                2.98,
+                2.5553,
+                3.0045
               ],
               "min": [
-                -1.1802,
-                -0.0035,
-                -0.8839
+                -2.985,
+                -0.0165,
+                -2.989
               ]
             },
-            "budget": 1500,
-            "bytes": 32340,
+            "budget": 13500,
+            "bytes": 37256,
             "path": "warehouse.l2.lite.glb",
-            "sha256": "bce33e44a06d834010c66fe12eb15b4fab37066a9448f4eda78a11cd61b61d1f",
-            "triangles": 349
+            "sha256": "e508290da7d9e5e77ab7693a12d06e7c66ab12225329a7446366631edf4c57d4",
+            "triangles": 407
           },
           "path": "warehouse.l2.glb",
-          "sha256": "298e28ea55e6f1460db932657d62bef52b612d38131befe35e84a5ab5407894d",
-          "triangles": 2572
+          "sha256": "5abc8d69daff317dcee904e16c0fc4e07ea0d1a0648e158a70e7bee59666b2e2",
+          "triangles": 2458
         },
         "3": {
           "bounds": {
             "max": [
-              1.227,
-              1.388,
-              1.116
+              2.98,
+              2.5679,
+              3.0045
             ],
             "min": [
-              -1.23,
-              -0.0028,
-              -0.99
+              -2.985,
+              -0.0051,
+              -2.989
             ]
           },
-          "budget": 6000,
-          "bytes": 181428,
+          "budget": 54000,
+          "bytes": 210064,
           "lite": {
             "bounds": {
               "max": [
-                1.227,
-                1.3812,
-                1.116
+                2.98,
+                2.5553,
+                3.0045
               ],
               "min": [
-                -1.23,
-                -0.0035,
-                -0.99
+                -2.985,
+                -0.0165,
+                -2.989
               ]
             },
-            "budget": 1500,
-            "bytes": 33784,
+            "budget": 13500,
+            "bytes": 38700,
             "path": "warehouse.l3.lite.glb",
-            "sha256": "3a11739f2ef2f59c94fca141fc865db865be5e4d92170782cfa4d2a91d7c0a34",
-            "triangles": 366
+            "sha256": "ccd38854c00340df216e675436244081b287bd36c04f0ae95a3409bdb8a61719",
+            "triangles": 424
           },
           "path": "warehouse.l3.glb",
-          "sha256": "cfa69ed196c0485e3ec5d603d477f6bec94683bf169d84aea731d681c7e28b0e",
-          "triangles": 2638
+          "sha256": "6bfa7c92b750644ff4341fe81e886773305ece3f3d48176da77ddb491e31987d",
+          "triangles": 2524
         }
       }
     },
     "weaver_linen": {
       "anchors": {
+        "cart": [
+          1.2,
+          0.0,
+          -2.2
+        ],
         "chimney": [
-          -0.193,
-          1.766,
-          1.08
+          -0.856,
+          2.796,
+          1.918
         ],
         "door": [
           0.0,
           0.0,
-          -1.0
+          -2.5
         ],
         "smoke": [
-          -0.193,
-          1.816,
-          1.08
+          -0.856,
+          2.846,
+          1.918
         ],
         "status": [
           0.0,
-          2.0164,
+          3.0468,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          0.95,
-          1.7664,
-          1.2433
+          1.985,
+          2.7968,
+          2.48
         ],
         "min": [
-          -0.95,
-          0.0,
-          -0.95
+          -1.985,
+          -0.0596,
+          -2.485
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.95,
-            1.7664,
-            1.2433
+            1.985,
+            2.7968,
+            2.48
           ],
           "min": [
-            -0.95,
-            0.0,
-            -0.95
+            -1.985,
+            -0.0596,
+            -2.485
           ]
         },
-        "budget": 6000,
-        "bytes": 99660,
+        "budget": 30000,
+        "bytes": 135664,
         "lite": {
           "bounds": {
             "max": [
-              0.95,
-              1.7758,
-              1.259
+              1.985,
+              2.8116,
+              2.48
             ],
             "min": [
-              -0.95,
-              -0.002,
-              -0.95
+              -1.985,
+              -0.0416,
+              -2.485
             ]
           },
-          "budget": 1500,
-          "bytes": 33684,
+          "budget": 7500,
+          "bytes": 41948,
           "path": "weaver_linen.lite.glb",
-          "sha256": "02b6705df0d54675cbdb439ac44945a1482b059969cf3e7bbf0bf44bca0a2a01",
-          "triangles": 370
+          "sha256": "6de466b82f2504210a3b031e6bf227519c78f79a134a26d049724598f8b9f289",
+          "triangles": 465
         },
         "path": "weaver_linen.glb",
-        "sha256": "17dd0c9b9fb60564f1c8ec9c5957e7eb9be6d2c0fea97292b1752b95e243f197",
-        "triangles": 1521
+        "sha256": "22e109f5d1f26f90406bd723bae0beda741d21d4668017cd60031a044f65d902",
+        "triangles": 1995
       },
       "footprint": {
-        "h": 2,
-        "w": 2
+        "h": 5,
+        "w": 4
       },
       "kind": "building",
       "kit_sources": [
         {
           "files": [
-            "Assets/gltf/buildings/blue/building_home_B_blue.gltf"
+            "Assets/gltf/Color1/Tree_3_A_Color1.gltf"
+          ],
+          "kit": "kaykit_forest"
+        },
+        {
+          "files": [
+            "Assets/gltf/buildings/blue/building_home_B_blue.gltf",
+            "Assets/gltf/decoration/props/crate_A_big.gltf",
+            "Assets/gltf/decoration/props/crate_long_C.gltf"
           ],
           "kit": "kaykit_hexagon"
         }
@@ -4022,166 +4239,84 @@
     },
     "weaver_wool": {
       "anchors": {
-        "chimney": [
+        "cart": [
+          0.4,
           0.0,
-          1.326,
-          0.949
+          -1.7
+        ],
+        "chimney": [
+          -0.35,
+          1.754,
+          1.26
         ],
         "door": [
           0.0,
           0.0,
-          -1.0
+          -2.0
         ],
         "smoke": [
-          0.0,
-          1.376,
-          0.949
+          -0.35,
+          1.804,
+          1.26
         ],
         "status": [
           0.0,
-          1.5762,
+          2.004,
           0.0
         ]
       },
       "bounds": {
         "max": [
-          0.95,
-          1.3262,
-          1.1183
+          1.48,
+          1.754,
+          1.98
         ],
         "min": [
-          -0.95,
-          -0.0067,
-          -0.95
+          -1.48,
+          0.0,
+          -1.98
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            0.95,
-            1.3262,
-            1.1183
+            1.48,
+            1.754,
+            1.98
           ],
           "min": [
-            -0.95,
-            -0.0067,
-            -0.95
+            -1.48,
+            0.0,
+            -1.98
           ]
         },
-        "budget": 6000,
-        "bytes": 75120,
+        "budget": 18000,
+        "bytes": 80304,
         "lite": {
           "bounds": {
             "max": [
-              0.95,
-              1.3359,
-              1.1345
+              1.48,
+              1.7668,
+              1.98
             ],
             "min": [
-              -0.95,
+              -1.48,
               0.0,
-              -0.95
+              -1.98
             ]
           },
-          "budget": 1500,
-          "bytes": 25688,
+          "budget": 4500,
+          "bytes": 26520,
           "path": "weaver_wool.lite.glb",
-          "sha256": "c92b87bbb862372e7f516ac03dadba9b0c8380425c6315c7ee4db384231c02c8",
-          "triangles": 277
+          "sha256": "a53d54f63816f47d5ae2b98856b6e5ae3ae12610fea992396a248cb185de96b0",
+          "triangles": 290
         },
         "path": "weaver_wool.glb",
-        "sha256": "abfa5925dda21f4e96977014f61465affe537027151949f9ca19c4f239115fd3",
-        "triangles": 1149
+        "sha256": "1533f611f6293975cc5995d7db1af1a48a6d013f96c0f9793491b0d071d65773",
+        "triangles": 1245
       },
       "footprint": {
-        "h": 2,
-        "w": 2
-      },
-      "kind": "building",
-      "kit_sources": [
-        {
-          "files": [
-            "Assets/gltf/buildings/blue/building_home_A_blue.gltf"
-          ],
-          "kit": "kaykit_hexagon"
-        }
-      ]
-    },
-    "wheat_farm": {
-      "anchors": {
-        "chimney": [
-          -0.8,
-          1.497,
-          1.313
-        ],
-        "door": [
-          0.0,
-          0.0,
-          -1.5
-        ],
-        "smoke": [
-          -0.8,
-          1.547,
-          1.313
-        ],
-        "status": [
-          0.0,
-          1.7473,
-          0.0
-        ]
-      },
-      "bounds": {
-        "max": [
-          1.45,
-          1.4973,
-          1.5045
-        ],
-        "min": [
-          -1.45,
-          -0.0345,
-          -1.45
-        ]
-      },
-      "file": {
-        "bounds": {
-          "max": [
-            1.45,
-            1.4973,
-            1.5045
-          ],
-          "min": [
-            -1.45,
-            -0.0345,
-            -1.45
-          ]
-        },
-        "budget": 6000,
-        "bytes": 86824,
-        "lite": {
-          "bounds": {
-            "max": [
-              1.45,
-              1.5082,
-              1.5228
-            ],
-            "min": [
-              -1.45,
-              -0.0122,
-              -1.45
-            ]
-          },
-          "budget": 1500,
-          "bytes": 25032,
-          "path": "wheat_farm.lite.glb",
-          "sha256": "a8796f1df1ba842525155cfa096ad7c7406b25704ed69bade4308e1ead257aa8",
-          "triangles": 270
-        },
-        "path": "wheat_farm.glb",
-        "sha256": "263a975071f9c53c51578a395f33ff88e7ef3f2a023518d6b44ad99676e33127",
-        "triangles": 1304
-      },
-      "footprint": {
-        "h": 3,
+        "h": 4,
         "w": 3
       },
       "kind": "building",
@@ -4189,7 +4324,101 @@
         {
           "files": [
             "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
-            "Assets/gltf/buildings/neutral/fence_wood_straight.gltf"
+            "Assets/gltf/decoration/props/crate_A_small.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
+    "wheat_farm": {
+      "anchors": {
+        "cart": [
+          0.0,
+          0.0,
+          -1.5
+        ],
+        "chimney": [
+          -0.55,
+          1.711,
+          1.494
+        ],
+        "door": [
+          0.0,
+          0.0,
+          -2.0
+        ],
+        "smoke": [
+          -0.55,
+          1.761,
+          1.494
+        ],
+        "status": [
+          0.0,
+          1.9612,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.485,
+          1.7112,
+          1.98
+        ],
+        "min": [
+          -1.485,
+          -0.0005,
+          -1.98
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.485,
+            1.7112,
+            1.98
+          ],
+          "min": [
+            -1.485,
+            -0.0005,
+            -1.98
+          ]
+        },
+        "budget": 18000,
+        "bytes": 113860,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.485,
+              1.7237,
+              1.98
+            ],
+            "min": [
+              -1.485,
+              0.0,
+              -1.98
+            ]
+          },
+          "budget": 4500,
+          "bytes": 29100,
+          "path": "wheat_farm.lite.glb",
+          "sha256": "93d80e9079532a5d2c97f256349d1d0da62198088bc0ad518f10c7a93fc727bf",
+          "triangles": 319
+        },
+        "path": "wheat_farm.glb",
+        "sha256": "1b9bada890fa6b4c3614181f2ce9d4960f718261bcea621c5784f17b873c1ed0",
+        "triangles": 1619
+      },
+      "footprint": {
+        "h": 4,
+        "w": 3
+      },
+      "kind": "building",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/buildings/blue/building_home_A_blue.gltf",
+            "Assets/gltf/decoration/props/haybale.gltf",
+            "Assets/gltf/decoration/props/wheelbarrow.gltf"
           ],
           "kit": "kaykit_hexagon"
         }

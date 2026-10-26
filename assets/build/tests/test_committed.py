@@ -6,7 +6,7 @@ import os
 import unittest
 
 from helpers import LIVE_CONTENT, PALETTE_SHA
-from nsassets import config, content, glb, validate
+from nsassets import config, content, glb, pipeline, validate
 
 
 def files_of(entry):
@@ -89,8 +89,70 @@ class CommittedModelsTest(unittest.TestCase):
         self.assertLessEqual(models["sloop"]["attachments"]["cargo"]["triangles"], config.BUDGET_ATTACHMENT)
         for cid in ("pasture", "wheat_field", "orchard_plot", "hemp_field"):
             self.assertEqual(models[cid]["kind"], "field")
-            self.assertLessEqual(models[cid]["file"]["triangles"], config.BUDGET_FIELD)
+            w, h = content.footprint(LIVE_CONTENT, cid)
+            limit = pipeline.area_budget(config.BUDGET_FIELD, config.BUDGET_FIELD_PER_TILE, w * h)
+            self.assertLessEqual(models[cid]["file"]["triangles"], limit, cid)
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipUnless(os.path.isfile(os.path.join(config.MODELS_DIR, "manifest.json")), "no committed models yet")
+class CommittedFootprintTest(unittest.TestCase):
+    """D-054: every building and field fills its content footprint, within its area budget, with its life anchors."""
+
+    @classmethod
+    def setUpClass(cls):
+        with open(os.path.join(config.MODELS_DIR, "manifest.json"), encoding="utf-8") as f:
+            cls.manifest = json.load(f)
+
+    def placed(self):
+        for cid, entry in sorted(self.manifest["models"].items()):
+            if content.kind_of(LIVE_CONTENT, cid) in ("building", "field"):
+                yield cid, entry
+
+    def test_footprint_and_area_budget(self):
+        for cid, entry in self.placed():
+            w, h = content.footprint(LIVE_CONTENT, cid)
+            self.assertEqual(entry["footprint"], {"w": w, "h": h}, cid)
+            if content.kind_of(LIVE_CONTENT, cid) == "field":
+                flat, per_tile = config.BUDGET_FIELD, config.BUDGET_FIELD_PER_TILE
+            elif content.is_house(LIVE_CONTENT, cid):
+                flat, per_tile = config.BUDGET_HOUSE, config.BUDGET_HOUSE_PER_TILE
+            else:
+                flat, per_tile = config.BUDGET_BUILDING, config.BUDGET_BUILDING_PER_TILE
+            limit = pipeline.area_budget(flat, per_tile, w * h)
+            for info in [entry.get("file")] + entry.get("variants", []) + list(entry.get("levels", {}).values()):
+                if not info:
+                    continue
+                self.assertLessEqual(info["triangles"], info["budget"], f"{cid} {info['path']}")
+                self.assertIn(info["budget"], (limit, pipeline.area_budget(flat, per_tile, w * h, config.BUDGET_EXCEPTION_FACTOR)), cid)
+                if "lite" in info:
+                    self.assertLessEqual(info["lite"]["triangles"], int(info["budget"] * config.LITE_FACTOR), f"{cid} {info['path']}")
+
+    def test_model_fills_its_footprint_and_touches_the_ground(self):
+        tol = config.FOOTPRINT_TOLERANCE
+        for cid, entry in self.placed():
+            w, h = content.footprint(LIVE_CONTENT, cid)
+            mn, mx = entry["bounds"]["min"], entry["bounds"]["max"]
+            # glTF axes: x, z = −y of recipe space
+            self.assertLessEqual(mx[0], w / 2 + tol, cid)
+            self.assertGreaterEqual(mn[0], -w / 2 - tol, cid)
+            self.assertLessEqual(mx[2], h / 2 + tol, cid)
+            self.assertGreaterEqual(mn[2], -h / 2 - tol, cid)
+            self.assertGreaterEqual(mx[0] - mn[0], w - tol, cid)
+            self.assertGreaterEqual(mx[2] - mn[2], h - tol, cid)
+            self.assertLessEqual(mn[1], 0.05, cid)
+
+    def test_life_anchors_inside_the_footprint(self):
+        for cid, entry in self.placed():
+            w, h = content.footprint(LIVE_CONTENT, cid)
+            anchors = entry.get("anchors", {})
+            for k in content.life_anchors(LIVE_CONTENT, cid):
+                self.assertIn(k, anchors, cid)
+            for k, v in anchors.items():
+                if k == "status":
+                    continue
+                self.assertLessEqual(abs(v[0]), w / 2, f"{cid} {k}")
+                self.assertLessEqual(abs(v[2]), h / 2, f"{cid} {k}")
