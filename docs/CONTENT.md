@@ -551,8 +551,8 @@ See MECHANICS §6.2 for the semantics.
   Patricians. Checked by a generic content test over every tier with a
   house and by the goldens `bootstrap_settlers` and `bootstrap_citizens`
   (the tier 1–2 reference game from the starting stock: island 2 settled
-  at 60 min, Citizens unlocked by 80 min, the first Citizen house at
-  99 min, tools from island 2 on the home island by 136 min — on the
+  at 59 min, Citizens unlocked by 62 min, the first Citizen house at
+  88 min, tools from island 2 on the home island by 141 min — on the
   generated dev archipelago, seed 1053001, since PR #25; before, on the
   hand-made islands: 100 / 139).
 - Warehouse throughput at each level must cover a "typical" island at that

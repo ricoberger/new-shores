@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
 // TestSchemaMigrationsRegistered: schema 7 (D-054) registers no
@@ -139,7 +141,13 @@ func TestMigrationHookIsCoveredByPurity(t *testing.T) {
 // package's TestSchemaFixtures) decodes, re-encodes byte for byte (state
 // and terrain), and Advance and Display work on it.
 func TestSchemaFixturesDecode(t *testing.T) {
-	c := catalogue(t)
+	// Fixtures of the pinned pre-D-054 content and of the shipped content
+	// (the reference games); each decodes with the catalogue of its
+	// content version.
+	catalogues := map[string]*content.Catalogue{}
+	for _, c := range []*content.Catalogue{catalogue(t), shippedCatalogue(t)} {
+		catalogues[c.Region.Version] = c
+	}
 	files, err := filepath.Glob(filepath.Join("testdata", fmt.Sprintf("schema%d_*.json", SchemaVersion)))
 	if err != nil || len(files) < 3 {
 		t.Fatalf("schema fixtures %v (%v)", files, err)
@@ -153,6 +161,15 @@ func TestSchemaFixturesDecode(t *testing.T) {
 			terrain, err := os.ReadFile(strings.TrimSuffix(f, ".json") + ".terrain.gz") // #nosec G304 -- test fixture path.
 			if err != nil {
 				t.Fatal(err)
+			}
+			var c *content.Catalogue
+			for key, cat := range catalogues {
+				if bytes.Contains(data, []byte(`"content_version":"`+key+`"`)) {
+					c = cat
+				}
+			}
+			if c == nil {
+				t.Fatal("no catalogue for the fixture's content version")
 			}
 			w, cv, _, err := DecodeState(data, terrain, c)
 			if err != nil || cv != c.Region.Version {

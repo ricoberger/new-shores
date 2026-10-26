@@ -37,7 +37,24 @@ var (
 	catOnce sync.Once
 	cat     *content.Catalogue
 	catErr  error
+
+	shippedOnce sync.Once
+	shipped     *content.Catalogue
+	shippedErr  error
 )
+
+// shippedCatalogue is the shipped content (content/old_coast) of the
+// reference games on the generated dev archipelago.
+func shippedCatalogue(t testing.TB) *content.Catalogue {
+	t.Helper()
+	shippedOnce.Do(func() {
+		shipped, shippedErr = content.LoadWithSchemas(filepath.Join(repoRoot(t), "content", "old_coast"), filepath.Join(repoRoot(t), "content", "schema"))
+	})
+	if shippedErr != nil {
+		t.Fatal(shippedErr)
+	}
+	return shipped
+}
 
 func catalogue(t testing.TB) *content.Catalogue {
 	t.Helper()
@@ -109,7 +126,12 @@ func foundedWorld(t *testing.T, start time.Time) *sim.World {
 // clock starts at start, which is world time start (scaled by scale).
 func newTestServerFor(t *testing.T, w *sim.World, start time.Time, scale float64) *testServer {
 	t.Helper()
-	c := catalogue(t)
+	return newTestServerWith(t, w, start, scale, catalogue(t))
+}
+
+// newTestServerWith is newTestServerFor with catalogue c.
+func newTestServerWith(t *testing.T, w *sim.World, start time.Time, scale float64, c *content.Catalogue) *testServer {
+	t.Helper()
 	clock := &fakeClock{now: start}
 	logs := &bytes.Buffer{}
 	mem := store.NewMemory(testWorld, w, func() time.Time { return TimeScale{Start: start, Scale: scale}.At(clock.Now()) })

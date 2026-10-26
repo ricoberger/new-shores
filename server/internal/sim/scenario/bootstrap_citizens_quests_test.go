@@ -116,7 +116,10 @@ func TestBootstrapCitizensQuests(t *testing.T) {
 	}
 
 	// Every quest of the chain is completed and claimed.
-	c := loadCatalogue(t)
+	c, err := s.LoadContent(repoRoot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
 	claimed := map[string]bool{}
 	for _, q := range rep.Quests {
 		if q.ClaimedAt != "" {
