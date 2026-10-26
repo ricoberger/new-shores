@@ -16,6 +16,7 @@ import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResp
 import type { SyncSnapshot } from "../api/sync";
 import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
+import { servedRelated } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
@@ -712,7 +713,9 @@ export class GameRenderer {
     for (const [islandId, d] of this.details) {
       const b = found && found.island.id === islandId ? found.b : undefined;
       const chain = b && found ? farmChain(b, found.island.buildings) : null;
-      d.select(b, b ? this.defs.get(b.type) : undefined, chain?.farm ? [chain.farm.id, ...chain.fields.map((f) => f.id)] : []);
+      const def = b ? this.defs.get(b.type) : undefined;
+      const related = b && found ? servedRelated(b, found.island.buildings, def) : [];
+      d.select(b, def, chain?.farm ? [chain.farm.id, ...chain.fields.map((f) => f.id), ...related] : related);
     }
     // Tinting rebuilds the chunk meshes, which are the shadow casters.
     this.refreshCasters();
