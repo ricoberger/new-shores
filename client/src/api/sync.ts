@@ -88,6 +88,11 @@ export class SyncStoppedError extends Error {
 const defaultSocketFactory: SocketFactory = (handlers) =>
   typeof WebSocket === "undefined" ? null : new WorldSocket(wsUrl(), handlers);
 
+/** Same generated archipelago (seed and roll); hand-made worlds have seed 0. */
+function sameArchipelago(a: DisplayState["archipelago"] | undefined, b: DisplayState["archipelago"] | undefined): boolean {
+  return a?.seed === b?.seed && a?.roll === b?.roll;
+}
+
 export class GameSync {
   private snapshot: SyncSnapshot = { server: null, model: null, nowMs: 0, content: null, islands: new Map(), unreachable: false };
   private offsetMs = 0;
@@ -104,6 +109,12 @@ export class GameSync {
   private retries = new Map<string, { timer: ReturnType<typeof setTimeout>; delayMs: number }>();
   private modelTimer: ReturnType<typeof setInterval> | undefined;
   private islandRequests = new Set<string>();
+  /**
+   * Incremented whenever the island cache is dropped (reset world or a
+   * rerolled archipelago): island responses of an earlier epoch are
+   * ignored, since a reroll keeps the island IDs.
+   */
+  private islandEpoch = 0;
   private contentRequest = false;
   private stopped = true;
   /** Incremented by stop(): queued jobs of an earlier generation never run. */
@@ -305,18 +316,19 @@ export class GameSync {
   private async loadIsland(id: string): Promise<void> {
     if (this.snapshot.islands.has(id) || this.islandRequests.has(id) || this.stopped) return;
     const generation = this.generation;
+    const epoch = this.islandEpoch;
     this.islandRequests.add(id);
     try {
       const island = await getIsland(id);
-      if (generation !== this.generation) return;
+      if (generation !== this.generation || epoch !== this.islandEpoch) return;
       const islands = new Map(this.snapshot.islands);
       islands.set(id, island);
       this.set({ islands });
       this.succeeded(`island ${id}`);
     } catch (err) {
-      if (generation === this.generation) this.failed(`island ${id}`, err, () => void this.loadIsland(id));
+      if (generation === this.generation && epoch === this.islandEpoch) this.failed(`island ${id}`, err, () => void this.loadIsland(id));
     } finally {
-      if (generation === this.generation) this.islandRequests.delete(id);
+      if (generation === this.generation && epoch === this.islandEpoch) this.islandRequests.delete(id);
     }
   }
 
@@ -361,6 +373,20 @@ export class GameSync {
     // a reset world (dev-server restart): drop the island cache and reload
     // the content, which may have changed with the restart.
     const reset = cur !== null && res.version < cur.version;
+    // A reroll replaces the islands under the same IDs (D-053): drop the
+    // island cache as well.
+    const rerolled = cur !== null && !sameArchipelago(cur.display.archipelago, res.display.archipelago);
+    const dropIslands = reset || rerolled;
+    if (dropIslands) {
+      this.islandEpoch++;
+      this.islandRequests.clear();
+      for (const [key, r] of this.retries) {
+        if (key.startsWith("island ")) {
+          clearTimeout(r.timer);
+          this.retries.delete(key);
+        }
+      }
+    }
     this.accepted++;
     this.offsetMs = clockOffsetMs(res.display, receivedAtMs);
     this.receivedAtMs = receivedAtMs;
@@ -369,7 +395,7 @@ export class GameSync {
       server: res,
       model: extrapolate(res.display, nowMs),
       nowMs,
-      ...(reset ? { islands: new Map<string, Island>() } : {}),
+      ...(dropIslands ? { islands: new Map<string, Island>() } : {}),
     });
     if (reset || (!this.snapshot.content && !this.retries.has("content"))) void this.loadContent();
     this.armNextChange(res);

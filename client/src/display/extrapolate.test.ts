@@ -137,10 +137,13 @@ describe("extrapolate", () => {
     quests: { active: [], claimable: [], completed: [] },
     away_summary: null,
     last_seen_at: "2026-01-01T00:00:00.000Z",
+    archipelago: { seed: 0, roll: 0, rerollable: false, bounds: { x: 0, y: 0, width: 0, height: 0 } },
     islands: [
       {
         id: "a",
         name: "",
+        size_class: "",
+        rock: false,
         settled: true,
         position: { x: 0, y: 0 },
         width: 1,

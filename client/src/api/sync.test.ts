@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Command, DisplayState, WorldResponse } from "./client";
 import { GameSync, type SyncError, SyncStoppedError } from "./sync";
 
-function world(version: number, evaluatedAt: string, nextChangeAt: string | null, islands: string[] = []): WorldResponse {
+function world(version: number, evaluatedAt: string, nextChangeAt: string | null, islands: string[] = [], roll = 0): WorldResponse {
   const display: DisplayState = {
     evaluated_at: evaluatedAt,
     next_change_at: nextChangeAt,
@@ -11,9 +11,12 @@ function world(version: number, evaluatedAt: string, nextChangeAt: string | null
     tax_rate_per_min: 0,
     upkeep_rate_per_min: 0,
     tiers: [],
+    archipelago: { seed: 7, roll, rerollable: roll < 2, bounds: { x: 0, y: 0, width: 1, height: 1 } },
     islands: islands.map((id) => ({
       id,
       name: "",
+      size_class: "large",
+      rock: false,
       settled: true,
       position: { x: 0, y: 0 },
       width: 1,
@@ -217,6 +220,50 @@ describe("GameSync", () => {
     const before = gets();
     await vi.advanceTimersByTimeAsync(10_100);
     expect(gets()).toBe(before + 1);
+    stop();
+  });
+
+  it("drops and reloads the island cache after a reroll (same IDs, new archipelago)", async () => {
+    worldHandler = () => json(world(1, "2026-01-01T00:00:00.000Z", null, ["isle-01"]));
+    const sync = new GameSync();
+    const stop = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const islandCalls = () => calls.filter((c) => c.path === "/api/v1/world/islands/isle-01").length;
+    expect(islandCalls()).toBe(1);
+    expect(sync.getSnapshot().islands.get("isle-01")?.revision).toBe("v");
+
+    // An unchanged archipelago keeps the cache.
+    worldHandler = () => json(world(2, "2026-01-01T00:00:01.000Z", null, ["isle-01"]));
+    window.dispatchEvent(new Event("focus"));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(islandCalls()).toBe(1);
+
+    // The reroll: same ID, the next roll; the island is fetched again.
+    islandHandler = () => json({ ...ISLAND, id: "isle-01", revision: "v-7-1" });
+    worldHandler = () => json(world(3, "2026-01-01T00:00:02.000Z", null, ["isle-01"], 1));
+    await sync.send({ type: "reroll_archipelago" });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(islandCalls()).toBe(2);
+    expect(sync.getSnapshot().islands.get("isle-01")?.revision).toBe("v-7-1");
+    stop();
+  });
+
+  it("ignores an island response of the archipelago before a reroll", async () => {
+    worldHandler = () => json(world(1, "2026-01-01T00:00:00.000Z", null, ["isle-01"]));
+    let releaseOld: (r: Response) => void = () => undefined;
+    islandHandler = () => new Promise<Response>((resolve) => (releaseOld = resolve));
+    const sync = new GameSync();
+    const stop = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+
+    // The reroll lands while the old island is still loading.
+    islandHandler = () => json({ ...ISLAND, id: "isle-01", revision: "v-7-1" });
+    worldHandler = () => json(world(2, "2026-01-01T00:00:01.000Z", null, ["isle-01"], 1));
+    await sync.send({ type: "reroll_archipelago" });
+    await vi.advanceTimersByTimeAsync(0);
+    releaseOld(json({ ...ISLAND, id: "isle-01", revision: "v" }));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(sync.getSnapshot().islands.get("isle-01")?.revision).toBe("v-7-1");
     stop();
   });
 

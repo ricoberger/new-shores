@@ -99,7 +99,9 @@ export interface paths {
         /**
          * Static data of an island (terrain, fertilities, deposits).
          * @description Static per island; clients cache it by `revision` and fetch it once
-         *     per island. Unsettled islands are served as well. `fertilities` and
+         *     per island and archipelago (`display.archipelago` seed and roll: a
+         *     reroll replaces the islands under the same IDs). Unsettled islands
+         *     are served as well. `fertilities` and
          *     `deposits` are siblings of `terrain`.
          */
         get: operations["getIsland"];
@@ -381,7 +383,9 @@ export interface components {
          *       missing fields, malformed email or display name),
          *       `invalid_command` (also more than 8 route stops, 32 load or
          *       unload entries per stop or 16 cargo entries),
-         *       `unknown_building`, `out_of_bounds`, `route_invalid` (route
+         *       `unknown_building`, `out_of_bounds`, `invalid_name` (an island
+         *       name that is not 1–24 printable characters after trimming),
+         *       `route_invalid` (route
          *       rules: 2–8 stops at settled islands, consecutive stops differ,
          *       known goods without duplicates, whole-unit maximums, name ≤ 40
          *       characters; or a shipment to an unknown island or the ship's own
@@ -429,7 +433,10 @@ export interface components {
          *       (a shipyard without a road to the Trading Post or a Warehouse
          *       cannot order),
          *       `quest_not_completed`, `quest_already_claimed` (rewards are
-         *       credited once), `email_taken`, `already_registered`;
+         *       credited once), `reroll_not_allowed` (`reroll_archipelago` after
+         *       an island was settled, while a ship is under way, or on a world
+         *       without a generated archipelago), `email_taken`,
+         *       `already_registered`;
          *     - 429: `rate_limited` (with `Retry-After` in seconds);
          *     - 500: `internal`;
          *     - 503: `service_unavailable` (the database does not answer).
@@ -463,6 +470,11 @@ export interface components {
          *     `quest_already_claimed`, `island_not_settled`. `ack_summary` never
          *     fails for a well-formed body.
          *
+         *     `reroll_archipelago` (D-053) can fail with 400 `bad_request`; 409
+         *     `reroll_not_allowed`. `rename_island` can fail with 400
+         *     `bad_request`, `invalid_command` (missing field), `invalid_name`;
+         *     404 `unknown_island`; 409 `island_not_settled`.
+         *
          *     **Internal-only codes** (HTTP 500, never caused by a client command;
          *     clients should treat them like `internal` and not handle them
          *     specifically): `over_capacity`, `time_backwards`, `schema_version`,
@@ -472,7 +484,7 @@ export interface components {
          *     before the world's last evaluation.
          * @enum {string}
          */
-        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
+        ErrorCode: "bad_request" | "not_found" | "method_not_allowed" | "internal" | "invalid_command" | "unknown_building" | "out_of_bounds" | "unknown_island" | "building_not_found" | "occupied" | "terrain" | "not_coastal" | "not_on_water" | "no_work_area" | "no_fertility" | "no_deposit" | "insufficient_gold" | "insufficient_materials" | "surplus_loss" | "not_pausable" | "no_road" | "tier_locked" | "not_a_house" | "upgrade_unavailable" | "house_not_full" | "needs_unmet" | "upgrade_only" | "route_invalid" | "ship_not_found" | "route_not_found" | "shipyard_busy" | "not_a_shipyard" | "unknown_ship_type" | "no_ship_order" | "ship_not_idle" | "ship_not_on_route" | "route_in_use" | "island_already_settled" | "island_not_settled" | "cargo_insufficient" | "cargo_exceeds_slots" | "last_trading_post" | "not_connected" | "quest_not_found" | "quest_not_completed" | "quest_already_claimed" | "field_type_mismatch" | "field_not_adjacent" | "field_max_reached" | "field_wrong_farm" | "field_needs_farm" | "invalid_name" | "reroll_not_allowed" | "over_capacity" | "time_backwards" | "schema_version" | "display_time" | "unauthorized" | "invalid_credentials" | "csrf_rejected" | "rate_limited" | "email_taken" | "already_registered" | "invalid_token" | "weak_password" | "service_unavailable";
         /**
          * @description Session transport: `cookie` (default; HttpOnly cookie, token not in
          *     the body) or `bearer` (token in `session_token`, sent as
@@ -541,7 +553,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -574,6 +586,34 @@ export interface components {
              * @description The `id` of the summary (its end time in Unix milliseconds).
              */
             summary_id: number;
+        };
+        /**
+         * @description Replace the generated archipelago by the next one of the world's
+         *     seed (D-053; `archipelago.roll` + 1): new islands under the same
+         *     IDs, every ship back at the new spawn near the centre with its
+         *     cargo. Only while `archipelago.rerollable`: no island settled and
+         *     no ship under way.
+         */
+        RerollArchipelagoCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "reroll_archipelago";
+        };
+        /**
+         * @description Rename a settled island. The name is trimmed and must then have 1
+         *     to 24 printable characters (`invalid_name`).
+         */
+        RenameIslandCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "rename_island";
+            island_id: string;
+            /** @description The new display name. */
+            name: string;
         };
         Tile: {
             /** @description Column (tiles). */
@@ -1022,9 +1062,9 @@ export interface components {
             /** @description Rows (tiles). */
             height: number;
             /**
-             * @description Identity of the static island data for caching. Currently the
-             *     world's content version; island generation (M4) will give it
-             *     its own identity.
+             * @description Identity of the static island data for caching: the world's
+             *     content version and, for a generated archipelago (D-053), its
+             *     seed and roll.
              */
             revision: string;
             /** @description Terrain ID per tile, row-major (index = y × width + x). */
@@ -1081,6 +1121,7 @@ export interface components {
             upkeep_rate_per_min: number;
             /** @description Tiers in progression order. */
             tiers: components["schemas"]["TierDisplay"][];
+            archipelago: components["schemas"]["ArchipelagoDisplay"];
             islands: components["schemas"]["IslandDisplay"][];
             /** @description Ships by ascending ID. */
             ships: components["schemas"]["ShipDisplay"][];
@@ -1460,10 +1501,37 @@ export interface components {
              */
             need: number;
         };
+        /** @description The generated archipelago (D-053). */
+        ArchipelagoDisplay: {
+            /**
+             * Format: int64
+             * @description World seed (53 bits); 0 for a hand-made archipelago.
+             */
+            seed: number;
+            /** @description Number of rerolls; seed and roll identify the archipelago. */
+            roll: number;
+            /** @description `reroll_archipelago` is allowed: a generated archipelago, no island settled, no ship under way. */
+            rerollable: boolean;
+            /** @description Bounding box of the islands (archipelago tiles). */
+            bounds: {
+                /** @description Left column (archipelago tiles). */
+                x: number;
+                /** @description Top row (archipelago tiles). */
+                y: number;
+                /** @description Columns (archipelago tiles). */
+                width: number;
+                /** @description Rows (archipelago tiles). */
+                height: number;
+            };
+        };
         IslandDisplay: {
             id: string;
-            /** @description Display name (may be empty). */
+            /** @description Display name (may be empty); generated islands draw it from the region's word list, `rename_island` renames a settled one. */
             name: string;
+            /** @description Content size class of a generated island (`islands.json`), "" for a hand-made one. */
+            size_class: string;
+            /** @description The island is a resource rock (mines only, no houses). */
+            rock: boolean;
             /** @description The island has a Trading Post (capacity > 0); unsettled islands accept only found_island. */
             settled: boolean;
             /** @description Archipelago position. */
