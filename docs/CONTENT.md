@@ -183,12 +183,13 @@ Infrastructure: `trading_post` lvl 4, `market_large`, `theatre`, `university`,
 Mandatory chains for one player to reach Patricians with one good per
 category: ~14. Everything else is variety bonus and trade material.
 
-## 7. Buildings — reference table (D-054 target)
+## 7. Buildings — reference table (D-054)
 
-**Status:** this table is the D-054 target for every planned building.
-`content/old_coast/` still carries the pre-D-054 values (2×2 houses,
-16-tile farms, 4 pastures) until the footprint task lands; MECHANICS keeps
-describing the implemented numbers until then.
+**Status:** tiers 1–2 (the shipped set, content `old_coast-0.10.0`,
+PR #27/#28) are implemented exactly as listed; tiers 3–4 and the
+reserved tier-2 alternatives are the target for the content-depth tasks.
+The pre-D-054 numbers survive only in `server/testdata/content/
+old_coast_pre_d054` for the hand-made scenarios and mechanics tests.
 
 Every building entry carries: `footprint`, `coastal`/`slot` requirement,
 `requires_road`, `cost`, `upkeep_per_min`, `workforce {tier, amount}`,
@@ -322,10 +323,10 @@ Trading Post levels (provisional): lvl 1 cap 300 / T 30 / 1 berth; lvl 2
 cap 500 / T 55 / 2 berths (upgrade 300 gold / 20 planks / 10 stone); lvl 3
 cap 800 / T 80 / 3 berths (600 gold / 30 planks / 20 stone); lvl 4 cap
 1 200 / T 110 / 4 berths (1 200 gold / 40 planks / 30 stone / 10 tools).
-Warehouse levels (provisional): lvl 1 T 30, radius 12; lvl 2 T 55, radius
-16 (150 gold / 10 planks / 5 stone); lvl 3 T 80, radius 20 (300 gold /
-15 planks / 10 stone) — a 6×6 hub earns its size with reach and
-throughput (D-054).
+Warehouse levels (provisional, throughput only — collectors have no
+radius rule in the sim): lvl 1 T 30; lvl 2 T 55 (150 gold / 10 planks /
+5 stone); lvl 3 T 80 (300 gold / 15 planks / 10 stone). A 6×6 hub earns
+its size with throughput (D-054); a reach rule would be a new decision.
 
 ## 8. Ships
 
@@ -553,8 +554,12 @@ See MECHANICS §6.2 for the semantics.
   (the tier 1–2 reference game from the starting stock: island 2 settled
   at 59 min, Citizens unlocked by 62 min, the first Citizen house at
   88 min, tools from island 2 on the home island by 141 min — on the
-  generated dev archipelago, seed 1053001, since PR #25; before, on the
-  hand-made islands: 100 / 139).
+  generated dev archipelago, seed 1053001, with the D-054 content since
+  PR #27; PR #25: 60 / 80 / 99 / 136; the hand-made islands: 100 / 139).
+  The island-2 margin (59 of 60; quests exactly 15 min earlier) is
+  deliberately tight: a change that slows the first hour must say so.
+  If a later change needs room, the first lever is the sloop's reference
+  speed (legs are 3.4–4.3 min on the dev seed), not the targets.
 - Warehouse throughput at each level must cover a "typical" island at that
   tier with one warehouse ≈ 80 % load.
 - Tax income at each tier's unlock population must cover upkeep of the

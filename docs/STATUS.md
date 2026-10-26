@@ -1,15 +1,15 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after PR #26
-(client scaling: lazy tiles, chunks, zoom cap).
+docs sync; details live in the linked documents. Last update: after PR #27/#28
+(D-054 footprints, costs, painted fields on the server; re-fitted models).
 
 ## What exists
 
 | Area | State | Where |
 |---|---|---|
-| Simulation (pure Go, lazy, deterministic) | tiers 1–2 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename; schema 6 | `server/internal/sim`, MECHANICS.md |
-| Content | `old_coast` 0.9.0: `camera.max_half_extent`, generator rules (`islands.json`, 12 islands + 0–2 rocks) and 48 island names, tier 1 + 2 goods, buildings incl. Trading Post / Warehouse / water-edge fisher + shipyard, fields (1×1 crops, 2×2 pastures), sloop (4 slots), need names, 13 intro quests | `content/old_coast`, CONTENT.md |
+| Simulation (pure Go, lazy, deterministic) | tiers 1–2 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename, batch field placement, terrain table; schema 7 | `server/internal/sim`, MECHANICS.md |
+| Content | `old_coast` 0.10.0: D-054 footprints/costs/fields for tiers 1–2, islands 192/112/64/16, `camera.max_half_extent`, generator rules (`islands.json`, 12 islands + 0–2 rocks) and 48 island names, tier 1 + 2 goods, buildings incl. Trading Post / Warehouse / water-edge fisher + shipyard, fields (1×1 crops, 2×2 pastures), sloop (4 slots), need names, 13 intro quests | `content/old_coast`, CONTENT.md |
 | Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store and `POST /api/v1/dev/reset` | `server/internal/*`, ARCHITECTURE.md |
 | Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052) | `client/`, UI.md |
 | Art | KayKit SOURCE kits only; recipe-driven Blender build (`npm run assets`), AO/two-tone vertex colours, diorama islands; recipes + decor; thumbnails; life layer (carts, walkers, smoke, sails, boats, gulls, strollers, sheep, construction stages) with device budgets | `assets/`, ART_DIRECTION.md |
@@ -37,11 +37,13 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Next tasks (in order)
 
-1. **D-054 footprints, costs and painted fields** (Opus): CONTENT §7
-   table into content, recipes re-fitted, `place_fields` + rectangle
-   painting, pasture modules, fixtures/goldens/reference games
-   regenerated; the final `islands.json` sizes (large ≈ 192), terrain in
-   its own compressed column and the generator time in the same PR.
+1. **D-054 client (session B2, Opus):** "structure, not slab" pass on
+   shipyard, trading post, warehouse, sailmaker, tavern, smelter (models
+   folder limit raised); pier/berth spacing for 6×9 and 8×12; rectangle
+   painting and demolish of fields with per-tile ghost validity
+   (`place_fields`); info cards for the new numbers; camera targets of
+   the dev fixtures; then the owner's real-device check at the final
+   sizes (mid zoom fps).
 2. **Polish round 3** (interactive, after a real-device check of mid zoom
    on the final sizes): mid-zoom budget (far trees / no scatter above a
    threshold if the phone drops below 60 fps), landmarks on mask-drawn
@@ -68,7 +70,10 @@ in the sync after a task unless the task says otherwise; nobody adds the
   loading if first load bothers on phones.
 - API, store and event tests still run on the old hand-made two-island
   world (fine: they test the store, not the map).
-- Local dev databases older than schema 6 must be recreated (`make down
+- Dev seed 1053001 (`--seed`); the pre-D-054 content lives in
+  `server/testdata/content/old_coast_pre_d054` (hand-made scenarios,
+  mechanics tests, two client tests) — see the PR #27 notes.
+- Local dev databases older than schema 7 must be recreated (`make down
   VOLUMES=1 && make up`).
 
 ## How to run

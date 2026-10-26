@@ -174,9 +174,11 @@ UI shows the same numbers the server uses.
 - **Fields** (D-051 part 4): fields are not in the build menu. The farm
   card has a fields block (active / required with a bar, placed and max, a
   warning line when fields are not connected; no field list) and **"Add field"**, which enters a field tool bound to that
-  farm: one field per click/tap, the ghost valid only edge-adjacent to
-  the farm or one of its active fields (client hint; the server decides),
-  the tool stays active until max or Esc/right-click. Inactive fields
+  farm: one field per click/tap today, **rectangle painting is the next
+  client task (D-054, session B2)** — `place_fields` is in the API; the
+  ghost valid only edge-adjacent to the farm or one of its active fields
+  (client hint; the server decides), the tool stays active until max or
+  Esc/right-click. Inactive fields
   are drawn desaturated with the `not_adjacent` status (and a yellow mark);
   selecting a farm or a field tints its farm and fields green like a
   selected building; the field ghost is the field's translucent model; a field card says "Counts for its farm" (an inactive one keeps "Not connected to its farm" and its fix) and offers Demolish only (no

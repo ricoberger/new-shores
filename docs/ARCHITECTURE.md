@@ -171,10 +171,11 @@ return Display(w, now)
 - JSONB size budget: measured in PR #26 — 289 kB (7 kB gzip) for the
   committed 48/32/20 archipelago, **2.25 MB** (27 kB gzip) at the D-054
   target sizes, almost all of it tile rows; generation 52 ms vs 1.38 s.
-  Planned with the D-054 task: terrain (immutable per seed/roll) moves
-  to its own compressed `bytea` column loaded with the state, so the
-  JSONB keeps only buildings, ships and events; generation time
-  optimised if it stays above ~1 s (reroll latency).
+  Done in PR #27 (schema 7): terrain (immutable per seed/roll) lives in
+  the `world_terrain` table (gzip, keyed by world and seed/roll), loaded
+  with the state; at the final sizes (large 192) the state is ≈ 2.2 kB
+  and the terrain ≈ 6.9 kB gzipped per world (≈ 2.8 MB decoded in
+  memory); generation 65 ms average, 275 ms worst over 200 seeds.
 
 ### 4.3 Scheduled events worker
 
@@ -250,8 +251,9 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `cancel_ship_order`, `found_island`, `manual_shipment`, `assign_ship`,
   `unassign_ship`, `scrap_ship`, `create_route`, `update_route`,
   `delete_route` (list bounds: ≤ 8 stops, ≤ 32 load/unload entries per
-  stop, ≤ 16 cargo entries), `claim_quest`, `ack_summary`, `place_field` (bound to a
-  `farm_id`), `sail_ship`, `found_island`, `upgrade_trading_post`,
+  stop, ≤ 16 cargo entries), `claim_quest`, `ack_summary`, `place_fields` / `demolish_fields`
+  (batch, bound to a `farm_id`, per-tile results; `place_field` one-tile
+  alias), `sail_ship`, `found_island`, `upgrade_trading_post`,
   `upgrade_warehouse`, returning `{version, display}`; the display
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,

@@ -142,10 +142,16 @@ handlers only.
     `meadow`, later hop/woad/vineyard) are **1×1**, animal **pastures**
     (sheep, dairy, cattle) and **pig pens** are **2×2**. Exactly one
     field type per farm type (`field.farm`), never shared. A field costs
-    a little (crop 5 gold, animal field 15 gold; provisional), has no
-    upkeep, needs no road, is never auto-paused and is placed **from the
-    farm's panel only** (`place_field {farm_id, …}`; `place_building`
-    rejects field types with `field_needs_farm`). A field **belongs to
+    a little (D-054: wheat 3, hemp 2, orchard 1 gold per tile; a 3×3
+    pasture 15 gold + 1 plank), has no upkeep, needs no road, is never
+    auto-paused and is placed **from the farm's panel only**
+    (`place_fields {farm_id, tiles[]}` — ≤ 512 tiles, every tile
+    validated with the rules below, the valid ones applied atomically in
+    one state change, per-tile `{x, y, ok, reason}` in the response, 200
+    with every tile `ok: false` and an unchanged version when none is
+    valid; `place_field` is the one-tile alias; `demolish_fields`
+    likewise; `place_building` rejects field types with
+    `field_needs_farm`). A field **belongs to
     the farm instance it was placed from** (`farm_id`). It is valid where
     its footprint is on matching terrain (and the island has the
     fertility), free, below the farm's `fields.max`
@@ -157,8 +163,10 @@ handlers only.
     an inactive or foreign field). Inactive fields count nothing and show
     `not_adjacent` ("Not connected to its farm"); they are not deleted and
     become active again when the chain is rebuilt. Farm `efficiency =
-    min(1, active / required)`; provisional `required`: 16 one-tile crop
-    fields (max 16), 4 pastures (max 4), 3 pig pens. A farm may stand with
+    min(1, active / required)`; `required` = `max` (D-051/D-054):
+    wheat 140, hemp 60, orchard 160 one-tile fields, 3 pastures of 3×3
+    (planned: 5 pig pens 3×4, 5 cattle pastures 4×7, 100 meadow tiles,
+    CONTENT §7). A farm may stand with
     zero fields (`low_efficiency`, "n / required"). Fields **cannot be
     moved** (demolish and place again); moving the farm keeps its fields
     (they may become inactive); demolishing the farm demolishes its fields

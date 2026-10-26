@@ -830,3 +830,21 @@ deposit slot (we have no rivers). The full table is CONTENT §7.
 - *Rejected:* footprint classes (a second table for a number already in
   the row); Anno's absolute rates and costs (tuned for a real-time game;
   our pacing is D-006/D-009); 1:1 copy of Albion sizes.
+- *As built (PR #27 server/content, PR #28 models):* content
+  `old_coast-0.10.0`, schema 7. Gold rule corrected: Anno's gold ÷ 3 for
+  producers and harbour buildings (shipyard 300 g / 45 planks, lumberjack
+  60, sawmill 120), public buildings keep Anno's gold; roads 1 g / 3 g +
+  1 stone; upkeep 0 for never-pausing buildings (D-046); quarry costs no
+  stone. Fields 140/60/160 and 3 pastures 3×3, `max = required`;
+  `place_fields`/`demolish_fields` batch commands. Islands 192/112/64/16,
+  area target 91 000 (**provisional until the tier-3/4 populations are
+  known; raise by adding mediums, not by enlarging**), spacing 100/300,
+  dev seed 1053001 (87 797 buildable). Reference games hold all §12
+  targets (59/62/88/141; quests 44/70). Terrain in `world_terrain`,
+  generator 65 ms. Models: triangle budgets scale with footprint area
+  (1 500 tris per tile for buildings, 625 for houses, 75 for fields; cap
+  72 000), all 30 recipes re-fitted with life anchors (carts, berths 1–4,
+  boat, gate + sheep positions); the models folder (8 MiB) was the
+  binding limit, so the large footprints are mostly yards around a
+  modest structure — a "structure, not slab" pass is the first item of
+  the client follow-up (B2).
