@@ -946,7 +946,10 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [],
+        "deposits": [],
+        "terrain_mask": "wggggggwgggggggwgggggggwwwwwwwww"
       }
     ],
     "ships": [],
@@ -1948,7 +1951,10 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [],
+            "deposits": [],
+            "terrain_mask": "wggggggwgggggggwgggggggwwwwwwwww"
           }
         ],
         "ships": [],
@@ -2950,7 +2956,10 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [],
+            "deposits": [],
+            "terrain_mask": "wggggggwgggggggwgggggggwwwwwwwww"
           }
         ],
         "ships": [],
@@ -3952,7 +3961,10 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [],
+            "deposits": [],
+            "terrain_mask": "wggggggwgggggggwgggggggwwwwwwwww"
           }
         ],
         "ships": [],
@@ -4954,7 +4966,10 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [],
+            "deposits": [],
+            "terrain_mask": "wggggggwgggggggwgggggggwwwwwwwww"
           }
         ],
         "ships": [],
@@ -5956,7 +5971,10 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [],
+            "deposits": [],
+            "terrain_mask": "wggggggwgggggggwgggggggwwwwwwwww"
           }
         ],
         "ships": [],

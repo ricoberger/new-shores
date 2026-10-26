@@ -1,0 +1,70 @@
+import { describe, expect, it } from "vitest";
+import { decodeMask, encodeMask } from "../display/mask";
+import { maskMeshData, mergeParts } from "./farmesh";
+import { SEA_LEVEL } from "./terrain";
+
+const NAMES: Record<string, string> = { w: "water", c: "coast", g: "grass", f: "forest", m: "mountain" };
+
+/** A fixture island from rows of terrain letters, its mask built from the rows (as the server does). */
+function fixtureMask(...rows: string[]) {
+  const island = { width: rows[0]!.length, height: rows.length, terrain: rows.flatMap((r) => [...r].map((c) => NAMES[c]!)) };
+  return decodeMask(encodeMask(island), island.width, island.height);
+}
+
+function ys(b: { positions: number[] }): number[] {
+  return b.positions.filter((_, i) => i % 3 === 1);
+}
+
+describe("mask mesh", () => {
+  // 16 × 12 tiles: a 4 × 3 mask, land in the middle two columns of every row.
+  const rows = Array.from({ length: 12 }, () => "wwwwggggffffwwww");
+  const mask = fixtureMask(...rows);
+
+  it("builds ground at height 0 over the land cells and the slab down below the sea", () => {
+    expect(mask.width).toBe(4);
+    expect(mask.height).toBe(3);
+    const b = maskMeshData(mask, 7);
+    expect(b.indices.length).toBeGreaterThan(0);
+    expect(b.indices.length % 3).toBe(0);
+    for (const v of b.positions) expect(Number.isFinite(v)).toBe(true);
+    const y = ys(b);
+    // Ground and rim at ~0, the cliff foot under the sea surface.
+    expect(Math.max(...y)).toBeLessThan(0.05);
+    expect(Math.min(...y)).toBeLessThan(SEA_LEVEL);
+    // The land spans tiles 4…12 in x (cells 1 and 2), the slab reaching a little beyond.
+    const xs = b.positions.filter((_, i) => i % 3 === 0);
+    expect(Math.min(...xs)).toBeGreaterThan(3);
+    expect(Math.max(...xs)).toBeLessThan(13);
+    // Island-local z is −y: every vertex lies at or above the island's top edge's mirror.
+    const zs = b.positions.filter((_, i) => i % 3 === 2);
+    expect(Math.max(...zs)).toBeLessThanOrEqual(0.5);
+    expect(Math.min(...zs)).toBeGreaterThan(-12.5);
+  });
+
+  it("colours the cells by their terrain band and desaturates an unsettled island", () => {
+    const settled = maskMeshData(mask, 7);
+    const muted = maskMeshData(mask, 7, false);
+    expect(muted.positions).toEqual(settled.positions);
+    const spread = (cols: number[]) => {
+      let s = 0;
+      for (let i = 0; i < cols.length; i += 4) s += Math.max(cols[i]!, cols[i + 1]!, cols[i + 2]!) - Math.min(cols[i]!, cols[i + 1]!, cols[i + 2]!);
+      return s;
+    };
+    expect(spread(muted.colors)).toBeLessThan(spread(settled.colors));
+  });
+
+  it("is empty for an all-water mask and merges islands at their positions", () => {
+    expect(maskMeshData(fixtureMask("wwww", "wwww"), 1).indices).toHaveLength(0);
+    const a = maskMeshData(mask, 7);
+    const merged = mergeParts([
+      { data: a, x: 0, y: 0 },
+      { data: a, x: 100, y: 50 },
+    ]);
+    const n = a.positions.length / 3;
+    expect(merged.positions.length).toBe(a.positions.length * 2);
+    expect(merged.indices.length).toBe(a.indices.length * 2);
+    expect(merged.positions[n * 3]).toBeCloseTo(a.positions[0]! + 100, 5);
+    expect(merged.positions[n * 3 + 2]).toBeCloseTo(a.positions[2]! - 50, 5);
+    expect(Math.max(...merged.indices)).toBe(2 * n - 1);
+  });
+});

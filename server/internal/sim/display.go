@@ -321,6 +321,31 @@ type IslandDisplay struct {
 	// CapacitySource is the island's Trading Post; null when the island is
 	// not settled (capacity 0).
 	CapacitySource *CapacitySourceDisplay `json:"capacity_source"`
+	// Fertilities are the island-wide fertility tags (MECHANICS §2).
+	Fertilities []string `json:"fertilities"`
+	// Deposits are the tiles carrying a deposit, sorted by tile index.
+	Deposits []DepositDisplay `json:"deposits"`
+	// TerrainMask is the terrain downsampled 1:4 (TerrainMask) for the far
+	// view and the minimap; the full rows are served per island.
+	TerrainMask string `json:"terrain_mask"`
+}
+
+// DepositDisplay is a tile with a deposit (infinite, D-036).
+type DepositDisplay struct {
+	X    int    `json:"x"`
+	Y    int    `json:"y"`
+	Kind string `json:"kind"`
+}
+
+// IslandDeposits lists the island's deposit tiles sorted by tile index.
+func IslandDeposits(is *Island) []DepositDisplay {
+	out := []DepositDisplay{}
+	for i, t := range is.Tiles {
+		if t.Deposit != nil {
+			out = append(out, DepositDisplay{X: i % is.Width, Y: i / is.Width, Kind: t.Deposit.Kind})
+		}
+	}
+	return out
 }
 
 // ArchipelagoDisplay is the generated archipelago (D-053): the world
@@ -668,6 +693,7 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int
 		Width: is.Width, Height: is.Height,
 		Inventory: map[string]GoodDisplay{}, Roads: []RoadDisplay{}, Buildings: []BuildingDisplay{},
 		Workforce: map[string]WorkforceDisplay{}, Population: islandPopulation(is, c),
+		Fertilities: append([]string{}, is.Fertilities...), Deposits: IslandDeposits(is), TerrainMask: TerrainMask(is),
 	}
 	if sc := c.Islands.SizeClassByID[is.SizeClass]; sc != nil {
 		d.Rock = sc.Rock

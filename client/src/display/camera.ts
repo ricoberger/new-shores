@@ -106,13 +106,17 @@ export function fitHalfHeight(w: number, h: number, aspect: number): number {
 
 /**
  * Zoom range: the minimum is fixed, the maximum fits the whole archipelago
- * (the near default without islands), never below FAR_REACH_HALF (a small world can
- * still be zoomed out to its far-LOD overview).
+ * (the near default without islands) up to the region's cap
+ * (`region.camera.max_half_extent`, null while the content loads), never
+ * below FAR_REACH_HALF (a small world can still be zoomed out to its
+ * far-LOD overview, and a cap below it is lifted to it). A large
+ * archipelago is overviewed on the minimap.
  */
-export function zoomRange(bounds: Rect | null, aspect: number): { min: number; max: number } {
+export function zoomRange(bounds: Rect | null, aspect: number, cap: number | null = null): { min: number; max: number } {
   if (!bounds) return { min: MIN_HALF_HEIGHT, max: NEAR_DEFAULT_HALF_HEIGHT };
   const fit = fitHalfHeight(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY, aspect);
-  return { min: MIN_HALF_HEIGHT, max: Math.max(NEAR_DEFAULT_HALF_HEIGHT, FAR_REACH_HALF, fit) };
+  const capped = cap !== null && Number.isFinite(cap) && cap > 0 ? Math.min(fit, cap) : fit;
+  return { min: MIN_HALF_HEIGHT, max: Math.max(NEAR_DEFAULT_HALF_HEIGHT, FAR_REACH_HALF, capped) };
 }
 
 /** The archipelago's bounding box of the display (D-053), null while it has no extent. */
@@ -132,9 +136,9 @@ export function targetBounds(bounds: Rect): Rect {
   };
 }
 
-/** A camera view with the target inside the target bounds, the zoom inside the range and the rotation normalised. */
-export function clampView(v: CameraView, bounds: Rect | null, aspect: number): CameraView {
-  const r = zoomRange(bounds, aspect);
+/** A camera view with the target inside the target bounds, the zoom inside the range (with the region's cap) and the rotation normalised. */
+export function clampView(v: CameraView, bounds: Rect | null, aspect: number, cap: number | null = null): CameraView {
+  const r = zoomRange(bounds, aspect, cap);
   const half = Math.min(r.max, Math.max(r.min, Number.isFinite(v.half) ? v.half : NEAR_DEFAULT_HALF_HEIGHT));
   if (!bounds) return { x: v.x, y: v.y, half, rotation: normRotation(v.rotation) };
   const t = targetBounds(bounds);
@@ -196,8 +200,8 @@ export function footprintScreenFraction(w: number, h: number, half: number, aspe
  * distance from the target (half × √(aspect² + 1/sin² ELEVATION)), plus a
  * little more.
  */
-export function seaMargin(bounds: Rect | null, aspect: number): number {
-  const max = zoomRange(bounds, aspect).max;
+export function seaMargin(bounds: Rect | null, aspect: number, cap: number | null = null): number {
+  const max = zoomRange(bounds, aspect, cap).max;
   return BOUNDS_MARGIN + max * Math.hypot(aspect, 1 / Math.sin(ELEVATION)) + 10;
 }
 

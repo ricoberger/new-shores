@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -166,7 +167,7 @@ func New(cfg Config) (*Server, error) {
 		"/api/v1/world":                       {http.MethodGet: {s.getWorld, requireSession}},
 		"/api/v1/world/commands":              {http.MethodPost: {s.postCommand, requireSession}},
 		"/api/v1/content":                     {http.MethodGet: {s.getContent, public}},
-		islandPathPrefix + "{island_id}":      {http.MethodGet: {s.getIsland, requireSession}},
+		tilesRoute:                            {http.MethodGet: {s.getIslandTiles, requireSession}},
 		"/api/v1/ws":                          {http.MethodGet: {s.getWS, requireSession}},
 		"/api/v1/auth/guest":                  {http.MethodPost: {s.postGuest, optionalSession}},
 		"/api/v1/auth/register":               {http.MethodPost: {s.postRegister, optionalSession}},
@@ -293,8 +294,10 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	path := r.URL.Path
-	if strings.HasPrefix(path, islandPathPrefix) && len(path) > len(islandPathPrefix) {
-		path = islandPathPrefix + "{island_id}"
+	if rest, ok := strings.CutPrefix(path, islandPathPrefix); ok {
+		if id, ok := strings.CutSuffix(rest, tilesPathSuffix); ok && id != "" && !strings.Contains(id, "/") {
+			path = tilesRoute
+		}
 	}
 	methods, ok := s.routes[path]
 	if !ok {
@@ -473,40 +476,74 @@ func islandRevision(c *content.Catalogue, w *sim.World) string {
 	return fmt.Sprintf("%s-%d-%d", c.Region.Version, w.Seed, w.ArchipelagoRoll)
 }
 
-// islandPathPrefix is the prefix of GET /api/v1/world/islands/{island_id}.
-const islandPathPrefix = "/api/v1/world/islands/"
+// islandPathPrefix and tilesPathSuffix frame GET
+// /api/v1/world/islands/{island_id}/tiles.
+const (
+	islandPathPrefix = "/api/v1/world/islands/"
+	tilesPathSuffix  = "/tiles"
+	tilesRoute       = islandPathPrefix + "{island_id}" + tilesPathSuffix
+)
 
-// islandResponse is the static data of an island: its terrain, row-major
-// (index y*width + x), as terrain IDs. Revision identifies the data for
-// client caching (islandRevision). Fertilities are the island-wide
-// fertility tags; Deposits the tiles with a deposit, sorted by tile index.
-type islandResponse struct {
-	ID          string           `json:"id"`
-	Width       int              `json:"width"`
-	Height      int              `json:"height"`
-	Revision    string           `json:"revision"`
-	Terrain     []string         `json:"terrain"`
-	Fertilities []string         `json:"fertilities"`
-	Deposits    []depositOutJSON `json:"deposits"`
+// tilesCacheControl lets the browser keep an island's rows for good: the
+// terrain only changes on a reroll, which changes the ETag and — through
+// the client's `v` cache key — the URL.
+const tilesCacheControl = "private, max-age=31536000, immutable"
+
+// tilesResponse is the full terrain of an island, row-major (index
+// y*width + x), as terrain IDs. Revision identifies the data for client
+// decoration seeds (islandRevision). Fertilities and deposits are part of
+// the island's display payload.
+type tilesResponse struct {
+	ID       string   `json:"id"`
+	Width    int      `json:"width"`
+	Height   int      `json:"height"`
+	Revision string   `json:"revision"`
+	Terrain  []string `json:"terrain"`
 }
 
-// depositOutJSON is a tile with a deposit (infinite, D-036).
-type depositOutJSON struct {
-	X    int    `json:"x"`
-	Y    int    `json:"y"`
-	Kind string `json:"kind"`
+// tilesETag is the strong validator of an island's rows: terrain changes
+// only with the archipelago's seed and roll (D-053), so these and the
+// island ID identify it.
+func tilesETag(seed uint64, roll int, island string) string {
+	sum := sha256.Sum256(fmt.Appendf(nil, "%d|%d|%s", seed, roll, island))
+	return `"` + hex.EncodeToString(sum[:12]) + `"`
 }
 
-// getIsland serves the static data of an island. Like every world request it
-// advances the world to the current world time first.
-func (s *Server) getIsland(w http.ResponseWriter, r *http.Request) {
-	islandID := strings.TrimPrefix(r.URL.Path, islandPathPrefix)
+// tilesKey is the client's cache key of an archipelago (`?v=`): seed and
+// roll.
+func tilesKey(seed uint64, roll int) string { return fmt.Sprintf("%d-%d", seed, roll) }
+
+// etagMatches reports whether an If-None-Match header lists the ETag (or
+// is "*"); weak comparison as RFC 9110 prescribes for If-None-Match.
+func etagMatches(header, etag string) bool {
+	for part := range strings.SplitSeq(header, ",") {
+		p := strings.TrimPrefix(strings.TrimSpace(part), "W/")
+		if p == "*" || p == etag {
+			return true
+		}
+	}
+	return false
+}
+
+// getIslandTiles serves the full terrain rows of an island of the
+// session's world. Like every world request it advances the world to the
+// current world time first. The response is cacheable for good (ETag from
+// seed, roll and island ID; 304 on a matching If-None-Match) unless the
+// client's cache key `v` names another roll than the world's: then it is
+// answered no-store, so a race with a reroll never caches the new rows
+// under the old key.
+func (s *Server) getIslandTiles(w http.ResponseWriter, r *http.Request) {
+	islandID := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, islandPathPrefix), tilesPathSuffix)
 	id, err := s.worldID(r)
 	if err != nil {
 		s.writeError(w, r, err)
 		return
 	}
-	var resp islandResponse
+	var (
+		resp tilesResponse
+		etag string
+		key  string
+	)
 	_, err = s.cfg.Store.Update(r.Context(), id, func(world *sim.World, _ int64, now time.Time) (bool, error) {
 		// Every world request advances first (read-only: no new version).
 		if err := s.advance(world, now); err != nil {
@@ -516,16 +553,13 @@ func (s *Server) getIsland(w http.ResponseWriter, r *http.Request) {
 		if is == nil {
 			return false, fmt.Errorf("%w: %q", sim.ErrUnknownIsland, islandID)
 		}
-		resp = islandResponse{
+		etag, key = tilesETag(world.Seed, world.ArchipelagoRoll, is.ID), tilesKey(world.Seed, world.ArchipelagoRoll)
+		resp = tilesResponse{
 			ID: is.ID, Width: is.Width, Height: is.Height,
 			Revision: islandRevision(s.cfg.Catalogue, world), Terrain: make([]string, len(is.Tiles)),
-			Fertilities: append([]string{}, is.Fertilities...), Deposits: []depositOutJSON{},
 		}
 		for i, t := range is.Tiles {
 			resp.Terrain[i] = t.Terrain
-			if t.Deposit != nil {
-				resp.Deposits = append(resp.Deposits, depositOutJSON{X: i % is.Width, Y: i / is.Width, Kind: t.Deposit.Kind})
-			}
 		}
 		return false, nil
 	})
@@ -533,7 +567,25 @@ func (s *Server) getIsland(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, r, err)
 		return
 	}
-	s.writeJSON(w, http.StatusOK, resp)
+	cacheControl := tilesCacheControl
+	if v := r.URL.Query().Get("v"); v != "" && v != key {
+		cacheControl = "no-store"
+	}
+	w.Header().Set("ETag", etag)
+	if inm := r.Header.Get("If-None-Match"); inm != "" && etagMatches(inm, etag) {
+		w.Header().Set("Cache-Control", cacheControl)
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+	body, err := json.Marshal(resp)
+	if err != nil {
+		s.writeError(w, r, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", cacheControl)
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(append(body, '\n'))
 }
 
 func (s *Server) getContent(w http.ResponseWriter, _ *http.Request) {

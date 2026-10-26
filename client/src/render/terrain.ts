@@ -11,8 +11,8 @@
 // band heights and offsets wander with noise along the coast. Every LOD
 // draws this diorama ground: the full slab profile with the full models
 // (near and mid LOD), the five-ring one with the lite models (far). One mesh per
-// CHUNK × CHUNK tiles (the whole island for the current content): draw
-// calls, not vertices, are the phone budget. The foam line (FoamLine) is a
+// chunk (display/chunks.ts, CHUNK × CHUNK tiles; the slab's segments go to
+// the chunk of their coast point), culled per chunk. The foam line (FoamLine) is a
 // separate animated strip at the cliff foot at near LOD.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
@@ -23,13 +23,13 @@ import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { Island, Terrain } from "../api/client";
+import { chunkAt } from "../display/chunks";
 import { type CoastLoop, outwardNormal } from "../display/coastline";
 import { fbm } from "../display/noise";
 import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 
-export const CHUNK = 64;
 /**
  * The slab at far LOD (with the lite models): the same bands merged to
  * five rings (rim, contour, the upper cliff's top, the ledge, the foot) —
@@ -263,7 +263,7 @@ export interface ProfileRing {
  * the outward normal, heights wandering with noise along the loop
  * (deterministic per seed), flat-shaded quads between consecutive points.
  */
-export function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: Color3) => Color3, profile: readonly ProfileRing[] = PROFILE, topRings = 2): void {
+export function slabStrip(target: Builder | ((x: number, y: number) => Builder), loop: CoastLoop, seed: number, tint: (c: Color3) => Color3, profile: readonly ProfileRing[] = PROFILE, topRings = 2): void {
   const n = loop.length;
   if (n < 3) return;
   const rings: { pts: [number, number, number][] }[] = [];
@@ -344,6 +344,9 @@ export function slabStrip(b: Builder, loop: CoastLoop, seed: number, tint: (c: C
   };
   for (let k = 0; k < n; k++) {
     const k2 = (k + 1) % n;
+    // Each segment goes to the builder of its coast point (a chunk), or the one builder.
+    const lp = loop[k] as CoastLoop[number];
+    const b = typeof target === "function" ? target(lp.x, lp.y) : target;
     const a = rings[k] as (typeof rings)[number];
     const c = rings[k2] as (typeof rings)[number];
     for (let s = 0; s + 1 < profile.length; s++) {
@@ -369,8 +372,9 @@ export function unsettledTint(c: Color3): Color3 {
 }
 
 /**
- * The island's ground and slab, one mesh per chunk under `parent`, with
- * the given colours and material (default: a lit terrain material).
+ * The island's ground and slab with the given colours and material: one
+ * mesh per chunk (display/chunks.ts) when `parent` gives each chunk's
+ * node, else one mesh for the whole island under `parent`.
  */
 export function buildIslandMeshes(
   scene: Scene,
@@ -379,14 +383,15 @@ export function buildIslandMeshes(
   seed: number,
   colors: GroundColors,
   material: StandardMaterial,
-  parent: TransformNode | null,
+  /** The parent node, or the parent of each chunk's mesh by chunk key. */
+  parent: TransformNode | null | ((chunk: string) => TransformNode),
   name: string,
   profile: readonly ProfileRing[] = PROFILE,
 ): Mesh[] {
   const meshes: Mesh[] = [];
   const chunks = new Map<string, Builder>();
   const chunk = (x: number, y: number) => {
-    const k = `${Math.max(0, Math.floor(x / CHUNK))},${Math.max(0, Math.floor(y / CHUNK))}`;
+    const k = typeof parent === "function" ? chunkAt(x, y, island.width, island.height) : "all";
     let b = chunks.get(k);
     if (!b) chunks.set(k, (b = new Builder()));
     return b;
@@ -394,13 +399,11 @@ export function buildIslandMeshes(
   for (let j = -1; j < island.height; j++) {
     for (let i = -1; i < island.width; i++) groundCell(chunk(i + 1, j + 1), island, i, j, colors);
   }
-  for (const loop of loops) {
-    const p = loop[0];
-    if (p) slabStrip(chunk(p.x, p.y), loop, seed, colors.slab, profile);
-  }
+  for (const loop of loops) slabStrip(chunk, loop, seed, colors.slab, profile);
   for (const [k, b] of chunks) {
-    const mesh = b.mesh(`${name}_${island.id}_${k}`, scene, material, parent);
+    const mesh = b.mesh(`${name}_${island.id}_${k}`, scene, material, typeof parent === "function" ? parent(k) : parent);
     if (!mesh) continue;
+    if (typeof parent === "function") mesh.metadata = { chunk: k };
     mesh.freezeWorldMatrix();
     meshes.push(mesh);
   }
@@ -409,8 +412,10 @@ export function buildIslandMeshes(
 
 /**
  * The island's terrain in two details, both built once: `lite` with the
- * five-ring slab profile (far LOD, with the lite models) and `full` with
- * the full profile (near and mid LOD, with the full models). The ground
+ * five-ring slab profile (far LOD, with the lite models; one mesh for the
+ * island under `liteParent`, the far view shows whole islands) and `full`
+ * with the full profile (near and mid LOD, with the full models; per
+ * chunk under `parent`'s chunk nodes). The ground
  * fill is in both; exactly one set is enabled at a time. An unsettled
  * island's `lite` set is desaturated (unsettledTint).
  */
@@ -419,15 +424,16 @@ export function buildTerrain(
   island: Island,
   loops: readonly CoastLoop[],
   seed: number,
-  parent: TransformNode | null = null,
+  parent: TransformNode | null | ((chunk: string) => TransformNode) = null,
   settled = true,
+  liteParent: TransformNode | null = typeof parent === "function" ? null : parent,
 ): { lite: Mesh[]; full: Mesh[] } {
   const material = skyFill(new StandardMaterial("terrain", scene));
   material.specularColor = Color3.Black();
   material.backFaceCulling = false;
   const colors = terrainColors(seed);
   return {
-    lite: buildIslandMeshes(scene, island, loops, seed, settled ? colors : terrainColors(seed, unsettledTint), material, parent, "terrain_lite", NEAR_PROFILE),
+    lite: buildIslandMeshes(scene, island, loops, seed, settled ? colors : terrainColors(seed, unsettledTint), material, liteParent, "terrain_lite", NEAR_PROFILE),
     full: buildIslandMeshes(scene, island, loops, seed, colors, material, parent, "terrain", PROFILE),
   };
 }

@@ -6978,7 +6978,35 @@
           "type": "trading_post",
           "level": 2,
           "capacity": 500000
-        }
+        },
+        "fertilities": [
+          "wheat",
+          "apple",
+          "hemp"
+        ],
+        "deposits": [
+          {
+            "x": 5,
+            "y": 28,
+            "kind": "stone"
+          },
+          {
+            "x": 6,
+            "y": 28,
+            "kind": "stone"
+          },
+          {
+            "x": 9,
+            "y": 28,
+            "kind": "stone"
+          },
+          {
+            "x": 10,
+            "y": 28,
+            "kind": "stone"
+          }
+        ],
+        "terrain_mask": "wggggggggggggggwgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggmmgggggggggggggggggggggggfffffgggggggggggffffffggggggggggfffffw"
       }
     ],
     "ships": [],

@@ -152,6 +152,9 @@ describe("extrapolate", () => {
         workforce: {},
         population: {},
         capacity_source: null,
+        fertilities: [],
+        deposits: [],
+        terrain_mask: "g",
         inventory: {
           up: { stock: 900, capacity: 1000, in_transit: 0, rate_per_min: 600 },
           down: { stock: 100, capacity: 1000, in_transit: 0, rate_per_min: -600 },

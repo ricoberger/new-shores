@@ -39,6 +39,7 @@ import type {
   WorldResponse,
 } from "../api/client";
 import { rectsTouch } from "../display/fields";
+import { encodeMask } from "../display/mask";
 import { rotatedFootprint } from "../display/geometry";
 import type { InitialCamera } from "../render/engine";
 import { extrapolate } from "../display/extrapolate";
@@ -107,6 +108,25 @@ interface Built {
 
 const ts = (ms: number) => new Date(ms).toISOString();
 
+/** Placeholders of the static display fields; fillStatics sets them from the rows. */
+const NO_STATICS = { fertilities: [], deposits: [], terrain_mask: "" } satisfies Pick<IslandDisplay, "fertilities" | "deposits" | "terrain_mask">;
+
+/**
+ * Sets the static display fields of a fixture's islands as the server
+ * does: fertilities and deposits from the island's static data, the 1:4
+ * terrain mask from its rows.
+ */
+function fillStatics(built: Built): Built {
+  for (const is of built.server.display.islands) {
+    const st = built.islands.get(is.id);
+    if (!st) continue;
+    is.fertilities = [...st.fertilities];
+    is.deposits = st.deposits.map((d) => ({ ...d }));
+    is.terrain_mask = encodeMask(st);
+  }
+  return built;
+}
+
 /** The display archipelago of a hand-made fixture: no seed, the islands' bounds (as the server computes them). */
 function handMadeArchipelago(islands: readonly Pick<IslandDisplay, "position" | "width" | "height">[]): DisplayState["archipelago"] {
   const x0 = Math.min(...islands.map((is) => is.position.x));
@@ -151,6 +171,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
       capacity_source: null,
       size_class: "",
       rock: false,
+      ...NO_STATICS,
     });
     statics.set(id, {
       id,
@@ -247,7 +268,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
     last_seen_at: ts(nowMs),
   } as DisplayState;
   const content = {
-    region: { id: "fixture", name: "Fixture", version: "fixture" },
+    region: { id: "fixture", name: "Fixture", version: "fixture", camera: { max_half_extent: 120 } },
     quests: [],
     tiers: [],
     goods: GOODS.map((g) => ({ id: g, name: g[0]?.toUpperCase() + g.slice(1) })),
@@ -256,7 +277,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
     needs: [],
     ships: FIXTURE_SHIPS,
   } as unknown as Content;
-  return { server: { version: 1, display }, islands: statics, content };
+  return fillStatics({ server: { version: 1, display }, islands: statics, content });
 }
 
 /** The (first) dense island of dense-2x400 and dense-archipelago-8. */
@@ -463,7 +484,7 @@ export function fixtureDefs(): { id: string; tier: string; category: string; wid
 /** Content of the dense and showcase fixtures. */
 function denseContent(): Content {
   return {
-    region: { id: "fixture", name: "Fixture", version: "fixture" },
+    region: { id: "fixture", name: "Fixture", version: "fixture", camera: { max_half_extent: 120 } },
     quests: [],
     tiers: [
       { id: "settlers", name: "Settlers" },
@@ -688,6 +709,7 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     capacity_source: null,
     size_class: "",
     rock: false,
+    ...NO_STATICS,
   } as IslandDisplay;
   const statics: Island = { id, width, height, revision: "fixture", terrain, fertilities: ["wheat"], deposits: denseDeposits(width, height) };
   return { display, statics };
@@ -740,14 +762,14 @@ export function buildDenseFixture(nowMs: number): Built {
     archipelago: handMadeArchipelago([a.display, b.display]),
     last_seen_at: ts(nowMs),
   } as unknown as DisplayState;
-  return {
+  return fillStatics({
     server: { version: 1, display },
     islands: new Map([
       [a.statics.id, a.statics],
       [b.statics.id, b.statics],
     ]),
     content: denseContent(),
-  };
+  });
 }
 
 /** The second dense island of dense-archipelago-8. */
@@ -794,6 +816,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
       capacity_source: null,
       size_class: "",
       rock: false,
+      ...NO_STATICS,
     } as IslandDisplay);
     statics.set(sp.id, { id: sp.id, width: sp.w, height: sp.h, revision: "fixture", terrain: terrain(sp.w, sp.h, 31 + i), fertilities: ["wheat"], deposits: [] });
   });
@@ -870,7 +893,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
     archipelago: handMadeArchipelago(displays),
     last_seen_at: ts(nowMs),
   } as unknown as DisplayState;
-  return { server: { version: 1, display }, islands: statics, content: denseContent() };
+  return fillStatics({ server: { version: 1, display }, islands: statics, content: denseContent() });
 }
 
 /** The showcase island. */
@@ -1010,6 +1033,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     capacity_source: null,
     size_class: "",
     rock: false,
+    ...NO_STATICS,
   } as IslandDisplay;
   const statics: Island = {
     id: SHOWCASE_ISLAND,
@@ -1068,7 +1092,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     archipelago: handMadeArchipelago([island]),
     last_seen_at: ts(nowMs),
   } as unknown as DisplayState;
-  return { server: { version: 1, display }, islands: new Map([[SHOWCASE_ISLAND, statics]]), content: denseContent() };
+  return fillStatics({ server: { version: 1, display }, islands: new Map([[SHOWCASE_ISLAND, statics]]), content: denseContent() });
 }
 
 /** A read-only data source with a fixture; commands are rejected. */

@@ -89,7 +89,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/world/islands/{island_id}": {
+    "/api/v1/world/islands/{island_id}/tiles": {
         parameters: {
             query?: never;
             header?: never;
@@ -97,14 +97,20 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Static data of an island (terrain, fertilities, deposits).
-         * @description Static per island; clients cache it by `revision` and fetch it once
-         *     per island and archipelago (`display.archipelago` seed and roll: a
-         *     reroll replaces the islands under the same IDs). Unsettled islands
-         *     are served as well. `fertilities` and
-         *     `deposits` are siblings of `terrain`.
+         * Full terrain rows of an island.
+         * @description The island's terrain at full resolution. The world payload carries
+         *     each island's bounds, fertilities, deposits and a 1:4
+         *     `terrain_mask` only; clients load the rows per island when they
+         *     need them (the island in view first). Terrain changes only with a
+         *     reroll (D-053), so the response is cacheable for good: the `ETag`
+         *     derives from the archipelago's seed and roll and the island ID,
+         *     `Cache-Control` is `private, max-age=31536000, immutable`, and a
+         *     matching `If-None-Match` answers 304. Clients pass the
+         *     archipelago's `<seed>-<roll>` as `v`, so a reroll changes the URL;
+         *     when `v` names another roll than the world's, the response is
+         *     `no-store`. Unsettled islands are served as well.
          */
-        get: operations["getIsland"];
+        get: operations["getIslandTiles"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1055,40 +1061,29 @@ export interface components {
              */
             rotation: 0 | 90 | 180 | 270;
         };
-        Island: {
+        IslandTiles: {
             id: string;
             /** @description Columns (tiles). */
             width: number;
             /** @description Rows (tiles). */
             height: number;
             /**
-             * @description Identity of the static island data for caching: the world's
-             *     content version and, for a generated archipelago (D-053), its
-             *     seed and roll.
+             * @description Identity of the static island data (decoration seeds): the
+             *     world's content version and, for a generated archipelago
+             *     (D-053), its seed and roll.
              */
             revision: string;
             /** @description Terrain ID per tile, row-major (index = y × width + x). */
             terrain: ("water" | "coast" | "grass" | "forest" | "mountain")[];
-            /**
-             * @description Island-wide fertility tags (MECHANICS §2); a building whose
-             *     `work_area.fertility` is missing here cannot be placed
-             *     (`no_fertility`).
-             */
-            fertilities: string[];
-            /**
-             * @description Tiles carrying a deposit (infinite), sorted by tile index
-             *     (y × width + x). A building with `requires_deposit` must cover
-             *     at least one tile of its kind (`no_deposit`) and may stand on
-             *     mountain tiles.
-             */
-            deposits: {
-                /** @description Column (tiles). */
-                x: number;
-                /** @description Row (tiles). */
-                y: number;
-                /** @description Deposit kind, e.g. stone or iron. */
-                kind: string;
-            }[];
+        };
+        /** @description A tile carrying a deposit (infinite, D-036). */
+        DepositDisplay: {
+            /** @description Column (tiles). */
+            x: number;
+            /** @description Row (tiles). */
+            y: number;
+            /** @description Deposit kind, e.g. stone or iron. */
+            kind: string;
         };
         /**
          * @description Authoritative state at `evaluated_at` plus the rates the client
@@ -1562,6 +1557,28 @@ export interface components {
             };
             /** @description The building that sets the island's capacity per good (the Trading Post, D-051); null when the island is not settled (capacity 0). Warehouses never add capacity. */
             capacity_source: components["schemas"]["CapacitySourceDisplay"] | null;
+            /**
+             * @description Island-wide fertility tags (MECHANICS §2); a building whose
+             *     `work_area.fertility` is missing here cannot be placed
+             *     (`no_fertility`).
+             */
+            fertilities: string[];
+            /**
+             * @description Tiles carrying a deposit, sorted by tile index (y × width + x).
+             *     A building with `requires_deposit` must cover at least one tile
+             *     of its kind (`no_deposit`) and may stand on mountain tiles.
+             */
+            deposits: components["schemas"]["DepositDisplay"][];
+            /**
+             * @description The terrain downsampled 1:4 for the far view and the minimap:
+             *     one character per 4 × 4 block of tiles, row-major over
+             *     ceil(width / 4) × ceil(height / 4) blocks, the block's majority
+             *     terrain — `w` water, `c` coast, `m` mountain, `f` forest, `g`
+             *     grass; ties go to the earlier letter in that order (water wins
+             *     every tie); edge blocks count only the tiles inside the island.
+             *     The full rows: `GET /api/v1/world/islands/{island_id}/tiles`.
+             */
+            terrain_mask: string;
         };
         CapacitySourceDisplay: {
             /**
@@ -1959,6 +1976,11 @@ export interface components {
             /** @description Content version (e.g. old_coast-0.3.0). */
             version: string;
             rules: components["schemas"]["ContentRules"];
+            /** @description Client view constants of the region (render only, no rule reads them). */
+            camera: {
+                /** @description Largest camera half-extent in tiles (the zoom-out cap); clients never cap below their far-LOD reach. */
+                max_half_extent: number;
+            };
         };
         ContentRules: {
             /**
@@ -2461,10 +2483,16 @@ export interface operations {
             };
         };
     };
-    getIsland: {
+    getIslandTiles: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: {
+                /** @description Cache key of the archipelago, `<seed>-<roll>` of `display.archipelago`. */
+                v?: string;
+            };
+            header?: {
+                /** @description ETag of a cached response. */
+                "If-None-Match"?: string;
+            };
             path: {
                 island_id: string;
             };
@@ -2472,14 +2500,27 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The island. */
+            /** @description The island's terrain rows. */
             200: {
                 headers: {
+                    /** @description Strong validator from the archipelago's seed and roll and the island ID. */
+                    ETag?: string;
+                    /** @description `private, max-age=31536000, immutable`, or `no-store` when `v` names another roll. */
+                    "Cache-Control"?: string;
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Island"];
+                    "application/json": components["schemas"]["IslandTiles"];
                 };
+            };
+            /** @description Not modified (If-None-Match matched the ETag). */
+            304: {
+                headers: {
+                    /** @description The current validator. */
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             401: components["responses"]["Error"];
             404: components["responses"]["Error"];

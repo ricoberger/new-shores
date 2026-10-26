@@ -84,6 +84,10 @@ export interface TestHook {
   meshesCreated(): number;
   /** Triangles drawn in the last frame (shadow passes included). */
   triangles(): number;
+  /** The last frame's active meshes grouped by layer (name prefix): meshes and triangles (make shots STATS=2). */
+  activeLayers(): Record<string, { meshes: number; tris: number }>;
+  /** Load milestones (first frame, first frame with the focused island's full tiles) and their marks in ms since navigation start (null: not yet, or a faked clock). */
+  timing(): { firstFrame: boolean; focusTiles: boolean; firstFrameMs: number | null; focusTilesMs: number | null };
   /** Jumps the camera to an island (the island card's "Go to island"; tests trigger jumps without a visible card). */
   jumpToIsland(id: string): void;
   /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
@@ -569,6 +573,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         drawCalls: () => rendererRef.current?.lastDrawCalls() ?? 0,
         meshesCreated: () => rendererRef.current?.meshesCreated() ?? 0,
         triangles: () => rendererRef.current?.renderStats().triangles ?? 0,
+        activeLayers: () => rendererRef.current?.activeLayers() ?? {},
+        timing: () => rendererRef.current?.timing() ?? { firstFrame: false, focusTiles: false, firstFrameMs: null, focusTilesMs: null },
         jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
         quality: () => rendererRef.current?.quality() ?? "low",
@@ -914,7 +920,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             <Minimap
               renderer={renderer}
               model={model}
-              statics={snap.islands}
               viewport={{ width: layout.width, height: layout.height }}
               collapsible={phone}
               initiallyCollapsed={layout.mode === "phone-portrait"}
@@ -928,8 +933,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid={nothingSettled ? "seafaring-panel" : "unsettled-panel"}>
               {nothingSettled && (
                 <div data-testid="seafaring-hint">
-                  <strong>Choose your home island.</strong> Your sloop carries the planks and sails; look at the islands&apos;
-                  fertilities and deposits (tap one for its card) and found a Trading Post where you want to start.
+                  <strong>Choose your home island.</strong> Your sloop carries the planks and sails. Use the minimap to
+                  see the whole archipelago and tap it to look around; look at the islands&apos; fertilities and deposits (tap one for its
+                  card) and found a Trading Post where you want to start.
                 </div>
               )}
               <div>
@@ -970,6 +976,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
                 model={model}
                 islandId={focusId}
                 fertilities={staticFocused?.fertilities}
+                loading={!staticFocused}
                 tool={tool}
                 onSelect={selectBuildItem}
                 onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}

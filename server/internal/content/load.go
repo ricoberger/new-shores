@@ -238,6 +238,9 @@ type rawRegion struct {
 		AwaySummaryMinutes     int64       `json:"away_summary_minutes"`
 		TrialResumeMinutes     json.Number `json:"trial_resume_upkeep_minutes"`
 	} `json:"rules"`
+	Camera struct {
+		MaxHalfExtent int `json:"max_half_extent"`
+	} `json:"camera"`
 }
 
 type rawTier struct {
@@ -521,6 +524,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			ShipSpeedMilliTilesPerMin: col.fixed(FileRegion, ent, "rules.ship_speed_tiles_per_min", region.Rules.ShipSpeedTilesPerMin, 3),
 			AwaySummaryMs:             col.whole(FileRegion, ent, "rules.away_summary_minutes", region.Rules.AwaySummaryMinutes) * 60_000,
 		},
+		Camera: Camera{MaxHalfExtent: region.Camera.MaxHalfExtent},
 	}
 
 	for i, t := range tiers {

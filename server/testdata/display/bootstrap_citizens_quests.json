@@ -4212,7 +4212,34 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [
+          "wheat",
+          "apple"
+        ],
+        "deposits": [
+          {
+            "x": 33,
+            "y": 32,
+            "kind": "stone"
+          },
+          {
+            "x": 28,
+            "y": 33,
+            "kind": "stone"
+          },
+          {
+            "x": 29,
+            "y": 33,
+            "kind": "stone"
+          },
+          {
+            "x": 33,
+            "y": 33,
+            "kind": "stone"
+          }
+        ],
+        "terrain_mask": "wwwwwwwwwwwwwwcgggwwwwwwwwggggggwwwwwwgggggggwwwwwggggggggwwwwggffggggwwwggffffgmgwwwgfffffmmcwwwggffffmfwwwwwcfffffcwwwwwwwwwwwwwwwwwwwwwwwwwww"
       },
       {
         "id": "isle-02",
@@ -5053,7 +5080,25 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [
+          "wheat",
+          "hops",
+          "woad"
+        ],
+        "deposits": [
+          {
+            "x": 36,
+            "y": 11,
+            "kind": "iron"
+          },
+          {
+            "x": 36,
+            "y": 12,
+            "kind": "iron"
+          }
+        ],
+        "terrain_mask": "wwwwwwwwwwwwwwwgggwwwffwwwwgggggggfffwwwggggggfgmffwwwggggfffmffwwwggggfffffcwwwggmgffffwwwwwwmmgfffwwwwwwwgggggwwwwwwwwcgggcwwwwwwwwwggwwwwwwwwwwwwwwwwwwww"
       },
       {
         "id": "isle-03",
@@ -5181,7 +5226,13 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "apple",
+          "grapes"
+        ],
+        "deposits": [],
+        "terrain_mask": "wwwwwwwwwwwwwwgggggwwwwcgfgggggwwwggfgggggwwwggffgggggwwggfffgmmgwwggffgffggwwwgggmffgcwwwwwggffwwwwwwwwwwwwww"
       },
       {
         "id": "isle-04",
@@ -5309,7 +5360,14 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "hemp",
+          "hops",
+          "woad"
+        ],
+        "deposits": [],
+        "terrain_mask": "wwwwwwwwwwwwwwgfwwwwwggfffmgcwwggffffmgwwwwgfgggwwwwwggggwwwwwwwwgwwwwwwwwwwwwww"
       },
       {
         "id": "isle-05",
@@ -5437,7 +5495,24 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "apple",
+          "grapes"
+        ],
+        "deposits": [
+          {
+            "x": 20,
+            "y": 22,
+            "kind": "stone"
+          },
+          {
+            "x": 20,
+            "y": 23,
+            "kind": "stone"
+          }
+        ],
+        "terrain_mask": "wwwwwwwwwwwwwffwwwwwwgffgwwwwwggggwwwwcgfmgwwwggffmgwwwgggfgwwwwwgwwwwwwwwwwwwwww"
       },
       {
         "id": "isle-06",
@@ -5565,7 +5640,24 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "hemp",
+          "hops"
+        ],
+        "deposits": [
+          {
+            "x": 12,
+            "y": 13,
+            "kind": "stone"
+          },
+          {
+            "x": 12,
+            "y": 14,
+            "kind": "stone"
+          }
+        ],
+        "terrain_mask": "wwwwwwwwwwwffwwwwggffgcwwggmgffwwggggffwwcgggfwwwwggcwwwwwwwwwww"
       },
       {
         "id": "isle-07",
@@ -5693,7 +5785,13 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "hemp",
+          "woad"
+        ],
+        "deposits": [],
+        "terrain_mask": "wwwwwwwwwwwwggggcwwwwggggggcwwwgmgggggwwwwgffffgwwwwwfwwfwwwwwwwwwwwww"
       },
       {
         "id": "isle-08",
@@ -5821,7 +5919,13 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "wheat",
+          "apple"
+        ],
+        "deposits": [],
+        "terrain_mask": "wwwwwwwwwwwcggcwwwwwffgggwwwgfmmggwwwggggfgwwwgggfffwwwgggggwwwwwwwwwwwwwwwwwwwww"
       },
       {
         "id": "isle-09",
@@ -5949,7 +6053,24 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "hemp",
+          "woad"
+        ],
+        "deposits": [
+          {
+            "x": 10,
+            "y": 8,
+            "kind": "iron"
+          },
+          {
+            "x": 11,
+            "y": 8,
+            "kind": "iron"
+          }
+        ],
+        "terrain_mask": "wwwwwwwgmgwwwfgfgwwwggcwwwwgwwwwwfwwwwwwww"
       },
       {
         "id": "isle-10",
@@ -6077,7 +6198,13 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "wheat",
+          "hops"
+        ],
+        "deposits": [],
+        "terrain_mask": "wwwwwwwwwwgwwwwffgcwwwgggfwwwwcgcwwwwwwwww"
       },
       {
         "id": "isle-11",
@@ -6205,7 +6332,13 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "woad",
+          "grapes"
+        ],
+        "deposits": [],
+        "terrain_mask": "wwwwwwwcffgwwggggwwgfgwwwwcwwwwwwwww"
       },
       {
         "id": "isle-12",
@@ -6333,7 +6466,14 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [
+          "wheat",
+          "hemp",
+          "grapes"
+        ],
+        "deposits": [],
+        "terrain_mask": "wwwwwwwwcgwwwwwfmgcwwwcgggwwwwgwwwwwwwwwww"
       },
       {
         "id": "isle-13",
@@ -6461,7 +6601,41 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [],
+        "deposits": [
+          {
+            "x": 5,
+            "y": 5,
+            "kind": "iron"
+          },
+          {
+            "x": 5,
+            "y": 6,
+            "kind": "iron"
+          },
+          {
+            "x": 11,
+            "y": 6,
+            "kind": "stone"
+          },
+          {
+            "x": 11,
+            "y": 7,
+            "kind": "stone"
+          },
+          {
+            "x": 7,
+            "y": 11,
+            "kind": "iron"
+          },
+          {
+            "x": 8,
+            "y": 11,
+            "kind": "iron"
+          }
+        ],
+        "terrain_mask": "wwwwwmmwwmmwwwww"
       }
     ],
     "ships": [
@@ -10891,7 +11065,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 33,
+                "y": 32,
+                "kind": "stone"
+              },
+              {
+                "x": 28,
+                "y": 33,
+                "kind": "stone"
+              },
+              {
+                "x": 29,
+                "y": 33,
+                "kind": "stone"
+              },
+              {
+                "x": 33,
+                "y": 33,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwwwwcgggwwwwwwwwggggggwwwwwwgggggggwwwwwggggggggwwwwggffggggwwwggffffgmgwwwgfffffmmcwwwggffffmfwwwwwcfffffcwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-02",
@@ -11732,7 +11933,25 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "hops",
+              "woad"
+            ],
+            "deposits": [
+              {
+                "x": 36,
+                "y": 11,
+                "kind": "iron"
+              },
+              {
+                "x": 36,
+                "y": 12,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwwwwwgggwwwffwwwwgggggggfffwwwggggggfgmffwwwggggfffmffwwwggggfffffcwwwggmgffffwwwwwwmmgfffwwwwwwwgggggwwwwwwwwcgggcwwwwwwwwwggwwwwwwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-03",
@@ -11860,7 +12079,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "apple",
+              "grapes"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwwwwgggggwwwwcgfgggggwwwggfgggggwwwggffgggggwwggfffgmmgwwggffgffggwwwgggmffgcwwwwwggffwwwwwwwwwwwwww"
           },
           {
             "id": "isle-04",
@@ -11988,7 +12213,14 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "hops",
+              "woad"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwwwwgfwwwwwggfffmgcwwggffffmgwwwwgfgggwwwwwggggwwwwwwwwgwwwwwwwwwwwwww"
           },
           {
             "id": "isle-05",
@@ -12116,7 +12348,24 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "apple",
+              "grapes"
+            ],
+            "deposits": [
+              {
+                "x": 20,
+                "y": 22,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 23,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwwwffwwwwwwgffgwwwwwggggwwwwcgfmgwwwggffmgwwwgggfgwwwwwgwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-06",
@@ -12244,7 +12493,24 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "hops"
+            ],
+            "deposits": [
+              {
+                "x": 12,
+                "y": 13,
+                "kind": "stone"
+              },
+              {
+                "x": 12,
+                "y": 14,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwffwwwwggffgcwwggmgffwwggggffwwcgggfwwwwggcwwwwwwwwwww"
           },
           {
             "id": "isle-07",
@@ -12372,7 +12638,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "woad"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwwggggcwwwwggggggcwwwgmgggggwwwwgffffgwwwwwfwwfwwwwwwwwwwwww"
           },
           {
             "id": "isle-08",
@@ -12500,7 +12772,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwcggcwwwwwffgggwwwgfmmggwwwggggfgwwwgggfffwwwgggggwwwwwwwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-09",
@@ -12628,7 +12906,24 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "woad"
+            ],
+            "deposits": [
+              {
+                "x": 10,
+                "y": 8,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 8,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wwwwwwwgmgwwwfgfgwwwggcwwwwgwwwwwfwwwwwwww"
           },
           {
             "id": "isle-10",
@@ -12756,7 +13051,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "wheat",
+              "hops"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwgwwwwffgcwwwgggfwwwwcgcwwwwwwwww"
           },
           {
             "id": "isle-11",
@@ -12884,7 +13185,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "woad",
+              "grapes"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwcffgwwggggwwgfgwwwwcwwwwwwwww"
           },
           {
             "id": "isle-12",
@@ -13012,7 +13319,14 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "wheat",
+              "hemp",
+              "grapes"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwcgwwwwwfmgcwwwcgggwwwwgwwwwwwwwwww"
           },
           {
             "id": "isle-13",
@@ -13140,7 +13454,41 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [],
+            "deposits": [
+              {
+                "x": 5,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 5,
+                "y": 6,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 6,
+                "kind": "stone"
+              },
+              {
+                "x": 11,
+                "y": 7,
+                "kind": "stone"
+              },
+              {
+                "x": 7,
+                "y": 11,
+                "kind": "iron"
+              },
+              {
+                "x": 8,
+                "y": 11,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wwwwwmmwwmmwwwww"
           }
         ],
         "ships": [
@@ -17570,7 +17918,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 33,
+                "y": 32,
+                "kind": "stone"
+              },
+              {
+                "x": 28,
+                "y": 33,
+                "kind": "stone"
+              },
+              {
+                "x": 29,
+                "y": 33,
+                "kind": "stone"
+              },
+              {
+                "x": 33,
+                "y": 33,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwwwwcgggwwwwwwwwggggggwwwwwwgggggggwwwwwggggggggwwwwggffggggwwwggffffgmgwwwgfffffmmcwwwggffffmfwwwwwcfffffcwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-02",
@@ -18411,7 +18786,25 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "hops",
+              "woad"
+            ],
+            "deposits": [
+              {
+                "x": 36,
+                "y": 11,
+                "kind": "iron"
+              },
+              {
+                "x": 36,
+                "y": 12,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwwwwwgggwwwffwwwwgggggggfffwwwggggggfgmffwwwggggfffmffwwwggggfffffcwwwggmgffffwwwwwwmmgfffwwwwwwwgggggwwwwwwwwcgggcwwwwwwwwwggwwwwwwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-03",
@@ -18539,7 +18932,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "apple",
+              "grapes"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwwwwgggggwwwwcgfgggggwwwggfgggggwwwggffgggggwwggfffgmmgwwggffgffggwwwgggmffgcwwwwwggffwwwwwwwwwwwwww"
           },
           {
             "id": "isle-04",
@@ -18667,7 +19066,14 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "hops",
+              "woad"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwwwwgfwwwwwggfffmgcwwggffffmgwwwwgfgggwwwwwggggwwwwwwwwgwwwwwwwwwwwwww"
           },
           {
             "id": "isle-05",
@@ -18795,7 +19201,24 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "apple",
+              "grapes"
+            ],
+            "deposits": [
+              {
+                "x": 20,
+                "y": 22,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 23,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwwwffwwwwwwgffgwwwwwggggwwwwcgfmgwwwggffmgwwwgggfgwwwwwgwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-06",
@@ -18923,7 +19346,24 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "hops"
+            ],
+            "deposits": [
+              {
+                "x": 12,
+                "y": 13,
+                "kind": "stone"
+              },
+              {
+                "x": 12,
+                "y": 14,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwffwwwwggffgcwwggmgffwwggggffwwcgggfwwwwggcwwwwwwwwwww"
           },
           {
             "id": "isle-07",
@@ -19051,7 +19491,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "woad"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwwggggcwwwwggggggcwwwgmgggggwwwwgffffgwwwwwfwwfwwwwwwwwwwwww"
           },
           {
             "id": "isle-08",
@@ -19179,7 +19625,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwcggcwwwwwffgggwwwgfmmggwwwggggfgwwwgggfffwwwgggggwwwwwwwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-09",
@@ -19307,7 +19759,24 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "woad"
+            ],
+            "deposits": [
+              {
+                "x": 10,
+                "y": 8,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 8,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wwwwwwwgmgwwwfgfgwwwggcwwwwgwwwwwfwwwwwwww"
           },
           {
             "id": "isle-10",
@@ -19435,7 +19904,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "wheat",
+              "hops"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwgwwwwffgcwwwgggfwwwwcgcwwwwwwwww"
           },
           {
             "id": "isle-11",
@@ -19563,7 +20038,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "woad",
+              "grapes"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwcffgwwggggwwgfgwwwwcwwwwwwwww"
           },
           {
             "id": "isle-12",
@@ -19691,7 +20172,14 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "wheat",
+              "hemp",
+              "grapes"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwcgwwwwwfmgcwwwcgggwwwwgwwwwwwwwwww"
           },
           {
             "id": "isle-13",
@@ -19819,7 +20307,41 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [],
+            "deposits": [
+              {
+                "x": 5,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 5,
+                "y": 6,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 6,
+                "kind": "stone"
+              },
+              {
+                "x": 11,
+                "y": 7,
+                "kind": "stone"
+              },
+              {
+                "x": 7,
+                "y": 11,
+                "kind": "iron"
+              },
+              {
+                "x": 8,
+                "y": 11,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wwwwwmmwwmmwwwww"
           }
         ],
         "ships": [
@@ -24249,7 +24771,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 33,
+                "y": 32,
+                "kind": "stone"
+              },
+              {
+                "x": 28,
+                "y": 33,
+                "kind": "stone"
+              },
+              {
+                "x": 29,
+                "y": 33,
+                "kind": "stone"
+              },
+              {
+                "x": 33,
+                "y": 33,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwwwwcgggwwwwwwwwggggggwwwwwwgggggggwwwwwggggggggwwwwggffggggwwwggffffgmgwwwgfffffmmcwwwggffffmfwwwwwcfffffcwwwwwwwwwwwwwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-02",
@@ -25090,7 +25639,25 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "hops",
+              "woad"
+            ],
+            "deposits": [
+              {
+                "x": 36,
+                "y": 11,
+                "kind": "iron"
+              },
+              {
+                "x": 36,
+                "y": 12,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwwwwwgggwwwffwwwwgggggggfffwwwggggggfgmffwwwggggfffmffwwwggggfffffcwwwggmgffffwwwwwwmmgfffwwwwwwwgggggwwwwwwwwcgggcwwwwwwwwwggwwwwwwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-03",
@@ -25218,7 +25785,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "apple",
+              "grapes"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwwwwgggggwwwwcgfgggggwwwggfgggggwwwggffgggggwwggfffgmmgwwggffgffggwwwgggmffgcwwwwwggffwwwwwwwwwwwwww"
           },
           {
             "id": "isle-04",
@@ -25346,7 +25919,14 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "hops",
+              "woad"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwwwwgfwwwwwggfffmgcwwggffffmgwwwwgfgggwwwwwggggwwwwwwwwgwwwwwwwwwwwwww"
           },
           {
             "id": "isle-05",
@@ -25474,7 +26054,24 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "apple",
+              "grapes"
+            ],
+            "deposits": [
+              {
+                "x": 20,
+                "y": 22,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 23,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwwwffwwwwwwgffgwwwwwggggwwwwcgfmgwwwggffmgwwwgggfgwwwwwgwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-06",
@@ -25602,7 +26199,24 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "hops"
+            ],
+            "deposits": [
+              {
+                "x": 12,
+                "y": 13,
+                "kind": "stone"
+              },
+              {
+                "x": 12,
+                "y": 14,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wwwwwwwwwwwffwwwwggffgcwwggmgffwwggggffwwcgggfwwwwggcwwwwwwwwwww"
           },
           {
             "id": "isle-07",
@@ -25730,7 +26344,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "woad"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwwggggcwwwwggggggcwwwgmgggggwwwwgffffgwwwwwfwwfwwwwwwwwwwwww"
           },
           {
             "id": "isle-08",
@@ -25858,7 +26478,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwwcggcwwwwwffgggwwwgfmmggwwwggggfgwwwgggfffwwwgggggwwwwwwwwwwwwwwwwwwwww"
           },
           {
             "id": "isle-09",
@@ -25986,7 +26612,24 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "hemp",
+              "woad"
+            ],
+            "deposits": [
+              {
+                "x": 10,
+                "y": 8,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 8,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wwwwwwwgmgwwwfgfgwwwggcwwwwgwwwwwfwwwwwwww"
           },
           {
             "id": "isle-10",
@@ -26114,7 +26757,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "wheat",
+              "hops"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwwwgwwwwffgcwwwgggfwwwwcgcwwwwwwwww"
           },
           {
             "id": "isle-11",
@@ -26242,7 +26891,13 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "woad",
+              "grapes"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwcffgwwggggwwgfgwwwwcwwwwwwwww"
           },
           {
             "id": "isle-12",
@@ -26370,7 +27025,14 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [
+              "wheat",
+              "hemp",
+              "grapes"
+            ],
+            "deposits": [],
+            "terrain_mask": "wwwwwwwwcgwwwwwfmgcwwwcgggwwwwgwwwwwwwwwww"
           },
           {
             "id": "isle-13",
@@ -26498,7 +27160,41 @@
             "buildings": [],
             "workforce": {},
             "population": {},
-            "capacity_source": null
+            "capacity_source": null,
+            "fertilities": [],
+            "deposits": [
+              {
+                "x": 5,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 5,
+                "y": 6,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 6,
+                "kind": "stone"
+              },
+              {
+                "x": 11,
+                "y": 7,
+                "kind": "stone"
+              },
+              {
+                "x": 7,
+                "y": 11,
+                "kind": "iron"
+              },
+              {
+                "x": 8,
+                "y": 11,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wwwwwmmwwmmwwwww"
           }
         ],
         "ships": [

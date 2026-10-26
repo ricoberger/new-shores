@@ -2,7 +2,8 @@
 // Playwright and the browser so a Vitest covers it.
 
 export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelago-8", "archipelago-8x20", "town", "seafaring"] as const;
-export const VIEWS = ["near", "mid", "far"] as const;
+/** Camera views; "start" is the opening camera as the game places it (no camera move). */
+export const VIEWS = ["near", "mid", "far", "start"] as const;
 export const DEVICES = ["desktop", "phone"] as const;
 export const PRESETS = ["info-panel", "producer-inputs", "house-card", "service-card", "warehouse-card", "trading-post-card", "shipyard-idle", "shipyard-building", "served-houses", "serving-buildings", "sheet", "ghost", "sloop", "build-menu", "warnings", "ship-panel", "route-editor", "route-paused", "island-card", "top-bar-popups", "farm-selected", "hemp-farm-selected", "field-selected", "field-ghost", "archipelago-far", "reroll", "rename"] as const;
 
@@ -12,6 +13,7 @@ export type Device = (typeof DEVICES)[number];
 export type Preset = (typeof PRESETS)[number];
 
 export const DEFAULT_FIXTURES: Fixture[] = ["showcase", "settled", "dense-2x400"];
+export const DEFAULT_VIEWS: View[] = ["near", "mid", "far"];
 
 /** Fixtures served by the dev server's reset endpoint (the page loads `/`) rather than by `?fixture=`. */
 export const SERVER_FIXTURES: readonly Fixture[] = ["settled", "town", "seafaring"];
@@ -39,6 +41,8 @@ export interface ShotArgs {
   presets: Preset[];
   /** Archipelago seed of the dev server (--seed); undefined: the dev seed. */
   seed?: number;
+  /** Content directory of the dev server (--content), relative to the repository root unless absolute; undefined: the committed content. */
+  content?: string;
 }
 
 export class ShotArgError extends Error {}
@@ -70,7 +74,7 @@ function parseNumber(name: string, raw: string | undefined, min?: number): numbe
   return n;
 }
 
-/** Parses FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED and SET from an environment. */
+/** Parses FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED, CONTENT and SET from an environment. */
 export function parseShotArgs(env: Env): ShotArgs {
   const presets = parseList("PRESET", env.PRESET, PRESETS, []);
   const rotationText = env.ROTATION?.trim();
@@ -86,7 +90,7 @@ export function parseShotArgs(env: Env): ShotArgs {
   if ((x === undefined) !== (y === undefined)) throw new ShotArgError("X and Y set the camera target together; give both");
   const args: ShotArgs = {
     fixtures: parseList("FIXTURE", env.FIXTURE, FIXTURES, DEFAULT_FIXTURES),
-    views: parseList("VIEW", env.VIEW, VIEWS, VIEWS),
+    views: parseList("VIEW", env.VIEW, VIEWS, DEFAULT_VIEWS),
     devices: parseList("DEVICE", env.DEVICE, DEVICES, DEVICES),
     rotation,
     out: env.OUT?.trim() || `.experiment/shots/${env.SET?.trim() || (presets.length > 0 ? "presets" : "default")}`,
@@ -101,6 +105,8 @@ export function parseShotArgs(env: Env): ShotArgs {
     args.x = x;
     args.y = y;
   }
+  const content = env.CONTENT?.trim();
+  if (content) args.content = content;
   const seedText = env.SEED?.trim();
   if (seedText) {
     const seed = Number(seedText);

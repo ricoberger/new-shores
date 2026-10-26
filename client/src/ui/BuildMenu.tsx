@@ -23,6 +23,8 @@ interface Props {
   islandId: string;
   /** Fertility tags of the island shown (static island data). */
   fertilities: readonly string[] | undefined;
+  /** The island's full tiles are still loading: every card is locked ("Loading island…"). */
+  loading?: boolean;
   tool: Tool;
   onSelect: (b: ContentBuilding) => void;
   onDemolishTool: () => void;
@@ -51,7 +53,7 @@ export function tierNumeral(index: number): string {
  * Fertility and deposit requirements are shown with a lookup of the
  * island's static data.
  */
-export function BuildMenu({ content, model, islandId, fertilities, tool, onSelect, onDemolishTool, dense = false }: Props) {
+export function BuildMenu({ content, model, islandId, fertilities, loading = false, tool, onSelect, onDemolishTool, dense = false }: Props) {
   const [category, setCategory] = useState<ContentBuilding["category"]>("houses");
   if (!content) return null;
   // Fields are not listed: they are added from their farm's panel (D-051 part 4).
@@ -97,7 +99,8 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
         {listed
           .filter((b) => b.category === shown)
           .map((b) => {
-            const locked = !tierUnlocked(model, b.tier);
+            const tierLocked = !tierUnlocked(model, b.tier);
+            const locked = tierLocked || loading;
             const fertility = fertilityNeed(b, fertilities);
             const tierIndex = content.tiers.findIndex((t) => t.id === b.tier);
             const tierName = content.tiers[tierIndex]?.name ?? b.tier;
@@ -155,7 +158,7 @@ export function BuildMenu({ content, model, islandId, fertilities, tool, onSelec
                 )}
                 {locked && (
                   <span className={styles.lock} data-testid={`build-lock-${b.id}`}>
-                    {lockReason(model, content, b.tier)}
+                    {loading ? "Loading island…" : lockReason(model, content, b.tier)}
                   </span>
                 )}
               </button>

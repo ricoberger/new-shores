@@ -9,6 +9,7 @@
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay } from "../api/client";
 import type { TilePos } from "./geometry";
 import { allocateShares, hash01, lifeHash, type LifeAtLod, type LifeBudget, type LifePlan, type LifeSink, type LifeStats, loopPhase, spreadPhase } from "./life";
+import { chunkAt } from "./chunks";
 import { alongPath, footprintRoads, roadPath } from "./roadpath";
 import { rotatedFootprint, tileKey } from "./geometry";
 import { pierHeading, pierPoint } from "./ships";
@@ -351,10 +352,14 @@ export class IslandLife implements LifePlan {
   private crates: { x: number; y: number; h: number; yaw: number }[] = [];
   private strollers: Stroller[] = [];
   private sheep: Sheep[] = [];
+  /** Bumped by update(): the in-view lists are cached per chunk set and plan version. */
+  private version = 0;
+  private viewCache: { chunks: ReadonlySet<string>; version: number; lists: ReturnType<IslandLife["inView"]> } | null = null;
 
   /** Rebuilds the plan from the island's payload (content for footprints and tiers; static data for paths and water). */
   update(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>, _statics: Island | null, smokeAnchor: SmokeAnchor | null = null): void {
     void _statics;
+    this.version++;
     this.routes = deliveryRoutes(display, defs);
     this.carts = [];
     for (let i = 0; i < MAX_CARTS; i++) for (const route of this.routes) if (i < route.carts) this.carts.push({ route, index: i });
@@ -424,34 +429,66 @@ export class IslandLife implements LifePlan {
     return this.routes;
   }
 
-  /** Writes the island's instances at server time nowMs within the budget, only what the LOD shows. */
-  frame(nowMs: number, sink: LifeSink, lod: LifeAtLod, budget: LifeBudget): LifeStats {
-    const particles = lod.smoke ? this.drawSmoke(nowMs, sink, budget.particles) : 0;
+  /**
+   * The agents that spawn in the chunks in view (null: all): a route or
+   * stroller whose path touches one, a smoker, crate or pasture inside
+   * one. Gulls and fishing boats are not chunked. Cached per chunk set.
+   */
+  private inView(chunks: ReadonlySet<string> | null): {
+    routes: Route[];
+    carts: { route: Route; index: number }[];
+    smokers: Smoker[];
+    crates: { x: number; y: number; h: number; yaw: number }[];
+    strollers: Stroller[];
+    sheep: Sheep[];
+  } {
+    const all = { routes: this.routes, carts: this.carts, smokers: this.smokers, crates: this.crates, strollers: this.strollers, sheep: this.sheep };
+    if (chunks === null) return all;
+    if (this.viewCache?.chunks === chunks && this.viewCache.version === this.version) return this.viewCache.lists;
+    const at = (x: number, y: number) => chunks.has(chunkAt(x, y));
+    const touches = (path: readonly TilePos[]) => path.some((p) => at(p.x, p.y));
+    const routes = new Set(this.routes.filter((r) => touches(r.path)));
+    const lists = {
+      routes: [...routes],
+      carts: this.carts.filter((c) => routes.has(c.route)),
+      smokers: this.smokers.filter((s) => at(s.b.x, s.b.y)),
+      crates: this.crates.filter((c) => at(c.x, c.y)),
+      strollers: this.strollers.filter((s) => touches(s.path)),
+      sheep: this.sheep.filter((s) => at(s.x0, s.y0) || at(s.x0 + s.w, s.y0 + s.h)),
+    };
+    this.viewCache = { chunks, version: this.version, lists };
+    return lists;
+  }
+
+  /** Writes the island's instances at server time nowMs within the budget, only what the LOD shows, spawned in the chunks in view. */
+  frame(nowMs: number, sink: LifeSink, lod: LifeAtLod, budget: LifeBudget, chunks: ReadonlySet<string> | null = null): LifeStats {
+    const v = this.inView(chunks);
+    const particles = lod.smoke ? this.drawSmoke(nowMs, sink, budget.particles, v.smokers) : 0;
     const moving = lod.moving;
     const [cartInst = 0, walkers = 0, boats = 0, crates = 0, sheep = 0, gulls = 0, strollers = 0] = allocateShares(
       [
-        moving ? this.carts.length * CART_INSTANCES : 0,
-        moving ? this.routes.length : 0,
+        moving ? v.carts.length * CART_INSTANCES : 0,
+        moving ? v.routes.length : 0,
         moving ? this.boats.length : 0,
-        lod.props ? this.crates.length : 0,
-        lod.props ? this.sheep.length : 0,
+        lod.props ? v.crates.length : 0,
+        lod.props ? v.sheep.length : 0,
         moving ? this.gulls.length : 0,
-        moving ? this.strollers.length : 0,
+        moving ? v.strollers.length : 0,
       ],
       SHARES,
       budget.instances,
     );
     const nCarts = Math.floor(cartInst / CART_INSTANCES);
-    for (let i = 0; i < nCarts; i++) this.drawCart(this.carts[i] as { route: Route; index: number }, nowMs, sink);
-    for (let i = 0; i < walkers; i++) this.drawWalker(this.routes[i] as Route, nowMs, sink);
+    for (let i = 0; i < nCarts; i++) this.drawCart(v.carts[i] as { route: Route; index: number }, nowMs, sink);
+    for (let i = 0; i < walkers; i++) this.drawWalker(v.routes[i] as Route, nowMs, sink);
     for (let i = 0; i < boats; i++) this.drawBoat(this.boats[i] as Boat, nowMs, sink);
     for (let i = 0; i < crates; i++) {
-      const c = this.crates[i] as { x: number; y: number; h: number; yaw: number };
+      const c = v.crates[i] as { x: number; y: number; h: number; yaw: number };
       sink.add(CLS.crate, c.x, c.h, c.y, c.yaw, 1);
     }
-    for (let i = 0; i < sheep; i++) this.drawSheep(this.sheep[i] as Sheep, moving ? nowMs : null, sink);
+    for (let i = 0; i < sheep; i++) this.drawSheep(v.sheep[i] as Sheep, moving ? nowMs : null, sink);
     for (let i = 0; i < gulls; i++) this.drawGull(this.gulls[i] as Gull, nowMs, sink);
-    for (let i = 0; i < strollers; i++) this.drawStroller(this.strollers[i] as Stroller, nowMs, sink);
+    for (let i = 0; i < strollers; i++) this.drawStroller(v.strollers[i] as Stroller, nowMs, sink);
     return { instances: nCarts * CART_INSTANCES + walkers + boats + crates + sheep + gulls + strollers, particles };
   }
 
@@ -534,16 +571,16 @@ export class IslandLife implements LifePlan {
    * alone. Over the particle budget every producer's rate thins by the
    * same factor (density stays proportional).
    */
-  private drawSmoke(nowMs: number, sink: LifeSink, budget: number): number {
-    if (this.smokers.length === 0 || budget <= 0) return 0;
+  private drawSmoke(nowMs: number, sink: LifeSink, budget: number, smokers: readonly Smoker[]): number {
+    if (smokers.length === 0 || budget <= 0) return 0;
     let demand = 0;
-    for (const s of this.smokers) {
+    for (const s of smokers) {
       s.anchor ??= this.smokeAnchor?.(s.b, s.def) ?? null;
       if (s.anchor) demand += s.rate * SMOKE_LIFE_MS + 1;
     }
     const thin = demand > budget ? budget / demand : 1;
     let drawn = 0;
-    for (const s of this.smokers) {
+    for (const s of smokers) {
       const a = s.anchor;
       if (!a) continue;
       const rate = s.rate * thin;

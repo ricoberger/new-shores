@@ -194,7 +194,30 @@ export class ModelMerger {
   }
 }
 
-/** Trees, stumps, their blob shadows and the ground scatter of one island (under its near node). */
+/** The materials of a Decoration: shared by the chunks of an island (setMuted tints them all). */
+export interface DecorMaterials {
+  material: StandardMaterial;
+  scatterMaterial: StandardMaterial;
+  shadowMaterial: StandardMaterial;
+}
+
+/** Tints a ground scatter material down (unsettled islands at far LOD) or back. */
+export function muteScatter(m: StandardMaterial, on: boolean): void {
+  m.diffuseColor = on ? MUTED : Color3.White();
+  m.ambientColor = on ? MUTED : Color3.White();
+}
+
+/** A Decoration's materials (one set per island, shared by its chunks). */
+export function decorMaterials(scene: Scene, name: string): DecorMaterials {
+  const shadowMaterial = new StandardMaterial(`tree_shadows_${name}`, scene);
+  shadowMaterial.diffuseColor = Color3.White();
+  shadowMaterial.specularColor = Color3.Black();
+  shadowMaterial.disableLighting = true;
+  shadowMaterial.backFaceCulling = false;
+  return { material: decorMaterial(scene, `decor_${name}`), scatterMaterial: decorMaterial(scene, `scatter_${name}`), shadowMaterial };
+}
+
+/** Trees, stumps, their blob shadows and the ground scatter of one island or island chunk. */
 export class Decoration {
   private readonly material: StandardMaterial;
   /** The ground scatter's own material: tinted down on unsettled islands at far LOD (setMuted). */
@@ -207,6 +230,8 @@ export class Decoration {
   /** Index counts of the trees and their shadows: kept at far LOD (FAR_TREE_STRIDE) and all. */
   private ranges = { trees: { kept: 0, all: 0 }, shadows: { kept: 0, all: 0 } };
   private thinned = false;
+  /** Far LOD (setFar): the meshes are not drawn. */
+  private far = false;
   /** The last build used a fallback for a decor model that has loaded since (or might load): rebuild on the next model refresh. */
   private fallback = false;
 
@@ -215,14 +240,19 @@ export class Decoration {
     private readonly name: string,
     private readonly parent: TransformNode | null,
     private readonly registry: ModelRegistry | null = null,
+    materials: DecorMaterials = decorMaterials(scene, name),
   ) {
-    this.material = decorMaterial(scene, `decor_${name}`);
-    this.scatterMaterial = decorMaterial(scene, `scatter_${name}`);
-    this.shadowMaterial = new StandardMaterial(`tree_shadows_${name}`, scene);
-    this.shadowMaterial.diffuseColor = Color3.White();
-    this.shadowMaterial.specularColor = Color3.Black();
-    this.shadowMaterial.disableLighting = true;
-    this.shadowMaterial.backFaceCulling = false;
+    this.material = materials.material;
+    this.scatterMaterial = materials.scatterMaterial;
+    this.shadowMaterial = materials.shadowMaterial;
+  }
+
+  /** Disposes the meshes (the materials may be shared and stay). */
+  dispose(): void {
+    this.trees?.dispose();
+    this.shadows?.dispose();
+    this.scatter?.dispose();
+    this.trees = this.shadows = this.scatter = null;
   }
 
   /** A decor model by ID (null: not available yet; marks the build as a fallback when the manifest lists it). */
@@ -300,17 +330,29 @@ export class Decoration {
     const all = (m: Mesh | null) => m?.getTotalIndices() ?? 0;
     this.ranges = { trees: { kept: keptTrees, all: all(this.trees) }, shadows: { kept: keptShadows, all: all(this.shadows) } };
     this.applyThinning();
+    this.setFar(this.far);
   }
 
   /** Tints the ground scatter down (unsettled islands at far LOD): a material colour, no rebuild. */
   setMuted(on: boolean): void {
-    this.scatterMaterial.diffuseColor = on ? MUTED : Color3.White();
-    this.scatterMaterial.ambientColor = on ? MUTED : Color3.White();
+    muteScatter(this.scatterMaterial, on);
   }
 
   /** The scatter's material colour (tests). */
   scatterTint(): Color3 {
     return this.scatterMaterial.diffuseColor;
+  }
+
+  /**
+   * Far LOD: the island's FarTrees stand in for the trees, and the ground
+   * scatter and tree shadows (sub-pixel there) are not drawn — toggles,
+   * no rebuild.
+   */
+  setFar(on: boolean): void {
+    this.trees?.setEnabled(!on);
+    this.shadows?.setEnabled(!on);
+    this.scatter?.setEnabled(!on);
+    this.far = on;
   }
 
   /** Far LOD: draw only the kept trees (and their shadows) — a toggle of the drawn index range. */
@@ -357,5 +399,97 @@ function blob(b: TriBuilder, x: number, z: number, r: number): void {
     const a0 = (i / n) * Math.PI * 2;
     const a1 = ((i + 1) / n) * Math.PI * 2;
     b.raw([x, BLOB_Y, z], [x + Math.cos(a0) * r, BLOB_Y, z + Math.sin(a0) * r], [x + Math.cos(a1) * r, BLOB_Y, z + Math.sin(a1) * r], SHADOW, [0.5, 0, 0]);
+  }
+}
+
+/**
+ * The far-LOD trees of one island: every tree as a four-sided crown
+ * (8 triangles) in its model's crown colour, one merged mesh per island
+ * (the far view shows whole islands: one draw call). Built with the
+ * decoration (cheap), so a zoom only toggles it.
+ */
+export class FarTrees {
+  private mesh: Mesh | null = null;
+  private trees: readonly Placed[] = [];
+  private shown = false;
+  /** Crown shape per tree variant: colour, radius and heights (from the decor model when loaded). */
+  private readonly shapes = new Map<number, Tri[]>();
+
+  constructor(
+    private readonly scene: Scene,
+    private readonly name: string,
+    private readonly parent: TransformNode | null,
+    private readonly material: StandardMaterial,
+    private readonly registry: ModelRegistry | null = null,
+  ) {}
+
+  /** The island's trees (rebuilds the mesh). */
+  setTrees(trees: readonly Placed[]): void {
+    this.trees = trees;
+    this.shapes.clear();
+    this.build();
+  }
+
+  /** Shown at far LOD. */
+  setShown(on: boolean): void {
+    this.shown = on;
+    this.mesh?.setEnabled(on);
+  }
+
+  /** Triangles of the built mesh (tests). */
+  triangles(): number {
+    return this.mesh ? this.mesh.getTotalIndices() / 3 : 0;
+  }
+
+  dispose(): void {
+    this.mesh?.dispose();
+    this.mesh = null;
+  }
+
+  private shape(variant: number): Tri[] {
+    let s = this.shapes.get(variant);
+    if (s) return s;
+    const m = decorModel(this.registry, TREE_MODELS[variant % TREE_MODELS.length] as string);
+    let color = CROWN;
+    let r = 0.32;
+    let top = 1;
+    if (m) {
+      // The model's crown: its upper vertices' mean colour, its height and reach.
+      let maxY = 0;
+      for (let i = 1; i < m.positions.length; i += 3) maxY = Math.max(maxY, m.positions[i] as number);
+      let n = 0;
+      let cr = 0;
+      let cg = 0;
+      let cb = 0;
+      let reach = 0;
+      for (let v = 0; v < m.positions.length / 3; v++) {
+        if ((m.positions[v * 3 + 1] as number) < maxY * 0.4) continue;
+        n++;
+        cr += m.colors[v * 4] as number;
+        cg += m.colors[v * 4 + 1] as number;
+        cb += m.colors[v * 4 + 2] as number;
+        reach = Math.max(reach, Math.hypot(m.positions[v * 3] as number, m.positions[v * 3 + 2] as number));
+      }
+      if (n > 0 && maxY > 0) {
+        color = new Color3(cr / n, cg / n, cb / n);
+        r = reach * 0.85;
+        top = maxY;
+      }
+    }
+    s = bipyramid(4, r, top * 0.3, top * 0.55, top, color, variant * 0.7);
+    this.shapes.set(variant, s);
+    return s;
+  }
+
+  private build(): void {
+    this.mesh?.dispose();
+    const b = new TriBuilder();
+    for (const p of this.trees) {
+      const shade = 0.92 + 0.16 * ((p.yaw / (Math.PI * 2)) % 1);
+      for (const tri of this.shape(p.variant)) b.add(tri, p.x, 0, -p.y, p.scale, p.yaw, shade);
+    }
+    this.mesh = b.build(`far_trees_${this.name}`, this.scene, this.material, this.parent);
+    if (this.mesh) this.mesh.receiveShadows = false;
+    this.mesh?.setEnabled(this.shown);
   }
 }

@@ -110,6 +110,13 @@ async function settle(page: Page): Promise<void> {
   await page.waitForTimeout(100);
 }
 
+/** Load timing of a page (ms since navigation on this script's clock; null: did not happen). */
+interface Timing {
+  firstFrameMs: number | null;
+  focusTilesMs: number | null;
+}
+const timings = new WeakMap<Page, Timing>();
+
 async function open(browser: Browser, device: Device, fixture: Fixture, hud: boolean): Promise<{ page: Page; close: () => Promise<void> }> {
   if (SERVER_FIXTURES.includes(fixture)) {
     const res = await fetch(`http://localhost:${API_PORT}/api/v1/dev/reset`, {
@@ -123,8 +130,32 @@ async function open(browser: Browser, device: Device, fixture: Fixture, hud: boo
   const page = await context.newPage();
   page.on("pageerror", (e) => console.error(`page error (${fixture}, ${device}): ${e.message}`));
   await page.clock.setFixedTime(T);
-  await page.goto(SERVER_FIXTURES.includes(fixture) ? "/" : `/?fixture=${fixture}`);
+  // HOLD_TILES=n lets the first n island tile requests through and holds the
+  // rest (never answered): the lazy-loading look, islands drawn from masks.
+  const hold = process.env.HOLD_TILES?.trim();
+  if (hold) {
+    let passed = 0;
+    await page.route("**/api/v1/world/islands/*/tiles*", (route) => {
+      if (passed++ < Number(hold)) void route.continue();
+    });
+  }
+  const t0 = Date.now();
+  // QUERY adds URL parameters (e.g. farmask=0, life=0) for A/B measurements.
+  const params = new URLSearchParams(SERVER_FIXTURES.includes(fixture) ? "" : `fixture=${fixture}`);
+  for (const [k, v] of new URLSearchParams(process.env.QUERY?.trim() ?? "")) params.set(k, v);
+  const query = params.toString();
+  await page.goto(query === "" ? "/" : `/?${query}`);
   await page.waitForFunction(() => Number.isFinite(window.__newShores?.camera().x ?? NaN) && window.__newShores!.getServer() !== null, undefined, { timeout: 30_000 });
+  // Load timing on the wall clock of this script (the page's performance clock is faked with the fixed time).
+  const timing: Timing = { firstFrameMs: null, focusTilesMs: null };
+  if (process.env.STATS?.trim() === "1") {
+    await page.waitForFunction(() => window.__newShores!.timing().firstFrame, undefined, { timeout: 30_000, polling: 10 });
+    timing.firstFrameMs = Date.now() - t0;
+    if (await page.waitForFunction(() => window.__newShores!.timing().focusTiles, undefined, { timeout: 60_000, polling: 10 }).then(() => true, () => false)) {
+      timing.focusTilesMs = Date.now() - t0;
+    }
+  }
+  timings.set(page, timing);
   await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
   await page.addStyleTag({ content: "*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }" });
   if (!hud) await page.addStyleTag({ content: "body * { visibility: hidden !important; } body canvas { visibility: visible !important; }" });
@@ -173,8 +204,16 @@ async function shoot(page: Page, file: string, written: string[]): Promise<void>
   const name = relative(process.cwd(), file) || file;
   if (process.env.STATS?.trim() === "1") {
     // Perf sanity (polish rounds): the renderer's counters of the shot's frame.
+    // Load timing of the page (ms since navigation): first frame, focused island with its full tiles.
     const s = await page.evaluate(() => ({ draws: window.__newShores!.drawCalls(), tris: window.__newShores!.triangles(), meshes: window.__newShores!.meshesCreated() }));
-    console.log(`${name}  draws ${s.draws}  tris ${s.tris}  meshes ${s.meshes}`);
+    const t = timings.get(page);
+    const ms = (v: number | null | undefined) => (v === null || v === undefined ? "-" : `${Math.round(v)} ms`);
+    console.log(`${name}  draws ${s.draws}  tris ${s.tris}  meshes ${s.meshes}  first-frame ${ms(t?.firstFrameMs)}  focus-tiles ${ms(t?.focusTilesMs)}`);
+  } else if (process.env.STATS?.trim() === "2") {
+    // The active meshes by layer (where the draws and triangles go).
+    const layers = await page.evaluate(() => window.__newShores!.activeLayers());
+    const rows = Object.entries(layers).sort((a, b) => b[1].tris - a[1].tris);
+    console.log(`${name}\n${rows.map(([k, v]) => `  ${k.padEnd(28)} meshes ${String(v.meshes).padStart(3)}  tris ${v.tris}`).join("\n")}`);
   } else {
     console.log(name);
   }
@@ -186,6 +225,12 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
   const info = FIXTURE_INFO[fixture];
   const here = await islandCentre(page, info.island, args.island);
   for (const view of args.views) {
+    if (view === "start") {
+      // The opening camera as the game placed it (before any other view moves it).
+      await settle(page);
+      await shoot(page, resolve(dir, `${fixture}-${view}-${device}.png`), written);
+      continue;
+    }
     if (view === "far" && args.zoom === undefined && args.x === undefined) {
       await showArchipelago(page, args.rotation);
     } else {
@@ -695,7 +740,9 @@ async function main(): Promise<number> {
       VITE_API_BASE: `http://localhost:${API_PORT}`,
       VITE_TIME_SCALE: String(E2E_TIME_SCALE),
     };
-    const apiCommand = args.seed === undefined ? API_SERVER_COMMAND : `${API_SERVER_COMMAND} --seed ${args.seed}`;
+    // CONTENT: another content directory (e.g. a local variant with larger islands for measurements).
+    const base = args.content === undefined ? API_SERVER_COMMAND : API_SERVER_COMMAND.replace("--content ../content/old_coast", `--content '${resolve(REPO, args.content)}'`);
+    const apiCommand = args.seed === undefined ? base : `${base} --seed ${args.seed}`;
     servers.push(await start(apiCommand, resolve(REPO, "server"), `http://localhost:${API_PORT}/healthz`, process.env));
     servers.push(await start(WEB_SERVER_COMMAND, CLIENT_DIR, `http://localhost:${WEB_PORT}`, env));
     const tReady = Date.now();

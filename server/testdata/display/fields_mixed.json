@@ -1490,7 +1490,34 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [
+          "wheat",
+          "apple"
+        ],
+        "deposits": [
+          {
+            "x": 17,
+            "y": 9,
+            "kind": "stone"
+          },
+          {
+            "x": 18,
+            "y": 9,
+            "kind": "stone"
+          },
+          {
+            "x": 20,
+            "y": 9,
+            "kind": "stone"
+          },
+          {
+            "x": 21,
+            "y": 9,
+            "kind": "stone"
+          }
+        ],
+        "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
       }
     ],
     "ships": [],
@@ -3036,7 +3063,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           }
         ],
         "ships": [],
@@ -4582,7 +4636,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           }
         ],
         "ships": [],
@@ -6128,7 +6209,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           }
         ],
         "ships": [],
@@ -7674,7 +7782,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           }
         ],
         "ships": [],
@@ -9220,7 +9355,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           }
         ],
         "ships": [],

@@ -1,6 +1,6 @@
 // Roads (ART_DIRECTION §4): the road tiles of an island as continuous
 // strips with proper joins and a light border, dirt and paved distinct,
-// one static mesh per island (near and mid LOD), and the translucent
+// one static mesh per island chunk, and the translucent
 // preview of a road drag (thin-instance slabs, world coordinates).
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
@@ -66,18 +66,19 @@ export class RoadLayer {
   constructor(
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
+    material: StandardMaterial | null = null,
   ) {
-    this.material = skyFill(new StandardMaterial("roads", scene));
-    this.material.specularColor = Color3.Black();
-    this.material.backFaceCulling = false;
+    this.material = material ?? roadMaterial(scene);
   }
 
-  update(tiles: readonly RoadTile[]): void {
-    this.mesh?.dispose();
-    this.mesh = null;
+  /** Draws these road tiles; `has` (default: these tiles) tells the joins, also across a chunk's edge. */
+  update(tiles: readonly RoadTile[], has: ((x: number, y: number) => boolean) | null = null): void {
+    this.dispose();
     if (tiles.length === 0) return;
-    const set = new Set(tiles.map((t) => `${t.x},${t.y}`));
-    const has = (x: number, y: number) => set.has(`${x},${y}`);
+    if (!has) {
+      const set = new Set(tiles.map((t) => `${t.x},${t.y}`));
+      has = (x: number, y: number) => set.has(`${x},${y}`);
+    }
     const positions: number[] = [];
     const colors: number[] = [];
     const normals: number[] = [];
@@ -110,6 +111,20 @@ export class RoadLayer {
     mesh.freezeWorldMatrix();
     this.mesh = mesh;
   }
+
+  /** Disposes the mesh (the material may be shared and stays). */
+  dispose(): void {
+    this.mesh?.dispose();
+    this.mesh = null;
+  }
+}
+
+/** The roads' material (one per island, shared by its chunks). */
+export function roadMaterial(scene: Scene): StandardMaterial {
+  const m = skyFill(new StandardMaterial("roads", scene));
+  m.specularColor = Color3.Black();
+  m.backFaceCulling = false;
+  return m;
 }
 
 /** Preview of a road drag (tiles in world, i.e. archipelago, coordinates). */

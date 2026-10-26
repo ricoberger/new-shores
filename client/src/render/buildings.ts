@@ -5,7 +5,7 @@
 // edge (purely visual; rotation has no gameplay effect, D-042). Also the
 // selection frame.
 //
-// Models are merged per island chunk (CHUNK × CHUNK tiles) into static
+// Models are merged per island chunk (display/chunks.ts) into static
 // meshes — one draw call per chunk without thin instances, which software
 // renderers pay per vertex (the phone perf budget; ART_DIRECTION §2), and
 // chunks outside the view are culled. The paused tint is baked into the
@@ -35,9 +35,8 @@ import { buildingColor, DOOR, INACTIVE_TINT, PAUSED_TINT, roofColor, SELECTION }
 import { skyFill } from "./lighting";
 import { addSway } from "./sway";
 import { ColoredInstances } from "./shipmesh";
+import { chunkAt } from "../display/chunks";
 
-/** Chunk size (tiles) of the merged model meshes. */
-export const CHUNK = 16;
 /** Duration of the rise-in of a newly placed building (ms of the animation clock). */
 export const RISE_MS = 350;
 
@@ -221,6 +220,8 @@ export class BuildingLayer {
   private selectedId: number | null = null;
   /** The selected building and the farm and fields of its chain: tinted green. */
   private tinted: ReadonlySet<number> = NONE;
+  /** The island chunks in view (null: all). */
+  private visibleChunks: ReadonlySet<string> | null = null;
   /** Merged model chunks per detail level in use (chunk key → signature and mesh). */
   private readonly chunks = new Map<Detail, Map<string, { key: string; mesh: Mesh | null }>>();
   /** Detail levels whose chunks are built (both, or only full when the lite tier is off: then full is drawn at every zoom). */
@@ -301,7 +302,17 @@ export class BuildingLayer {
 
   private applyDetail(): void {
     const drawn = this.drawn();
-    for (const [d, set] of this.chunks) for (const c of set.values()) c.mesh?.setEnabled(d === drawn);
+    for (const [d, set] of this.chunks) for (const [k, c] of set) c.mesh?.setEnabled(d === drawn && this.chunkShown(k));
+  }
+
+  /** The island chunks in view (null: all): the merged model meshes of the others are not drawn. */
+  setVisibleChunks(keys: ReadonlySet<string> | null): void {
+    this.visibleChunks = keys;
+    this.applyDetail();
+  }
+
+  private chunkShown(key: string): boolean {
+    return this.visibleChunks === null || this.visibleChunks.has(key);
   }
 
   /** Redraws the last payload (a model finished loading or the detail changed). */
@@ -357,7 +368,7 @@ export class BuildingLayer {
           continue;
         }
         const p = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-        const key = `${Math.floor(p.cx / CHUNK)},${Math.floor(-p.cz / CHUNK)}`;
+        const key = chunkAt(p.cx, -p.cz);
         for (const [d, it] of items) {
           if (!it) continue;
           const set = byChunk.get(d) as Map<string, Item[]>;
@@ -432,7 +443,7 @@ export class BuildingLayer {
       mesh.material = this.material;
       mesh.parent = this.parent;
       mesh.isPickable = false;
-      mesh.setEnabled(enabled);
+      mesh.setEnabled(enabled && this.chunkShown(key));
       chunks.set(key, { key: sig, mesh });
     }
   }

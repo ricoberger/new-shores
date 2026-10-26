@@ -1880,7 +1880,34 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [
+          "wheat",
+          "apple"
+        ],
+        "deposits": [
+          {
+            "x": 17,
+            "y": 32,
+            "kind": "stone"
+          },
+          {
+            "x": 18,
+            "y": 32,
+            "kind": "stone"
+          },
+          {
+            "x": 20,
+            "y": 32,
+            "kind": "stone"
+          },
+          {
+            "x": 21,
+            "y": 32,
+            "kind": "stone"
+          }
+        ],
+        "terrain_mask": "wgggggwwgggggwwggggggggffffwwgggggggfffffwggggggggffffffwffgggggffffffwffgggggffffffwfggggggfffffwwgggmmgggffffwggggggggggggggwwwwwwwwwwwwww"
       }
     ],
     "ships": [],

@@ -18,6 +18,10 @@ import { archipelagoRect, type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, se
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
 import { servedRelated } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
+import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
+import { visibleChunks } from "../display/chunks";
+import { islandSeed } from "../display/scatter";
+import { type MaskIsland, MaskLayer } from "./farmesh";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
@@ -114,6 +118,8 @@ export interface RenderSource {
   subscribe(l: () => void): () => void;
   getSnapshot(): SyncSnapshot;
   serverNowMs(): number;
+  /** The lazy tile loads' priorities: the island under the camera, then those in view (nearest first). */
+  setTilePriority?(focus: string | null, inView: readonly string[]): void;
 }
 
 export interface FrameStats {
@@ -200,6 +206,18 @@ export class GameRenderer {
   private lastFrameAt = 0;
   private drawCalls = 0;
   private firstFrameMarked = false;
+  /** The focused island was first drawn with its full tiles (the "ns-focus-tiles" mark). */
+  private focusTilesMarked = false;
+  /** Islands drawn from their 1:4 masks (no tiles yet; at far LOD all but the focused one). */
+  private readonly mask: MaskLayer;
+  /** The tile priorities last sent to the sync (focus and islands in view). */
+  private priorityKey = "";
+  /** The focused island at far LOD when the view was last applied (null at near and mid). */
+  private maskFocus: string | null = null;
+  /** Whether far LOD draws the islands other than the focused one from their masks. */
+  private readonly farMask: boolean;
+  /** Decoded masks by island ID. */
+  private readonly masks = new Map<string, { raw: string; mask: DecodedMask }>();
   /** Animation time pinned by a test (server ms; null: live). */
   private frozenAt: number | null = null;
 
@@ -234,6 +252,9 @@ export class GameRenderer {
     });
     void this.models.loadManifest();
     this.arch = new ArchipelagoLayer(this.scene, this.models);
+    this.mask = new MaskLayer(this.scene);
+    // Measurement switch: ?farmask=0 keeps the full detail of every island in view at far LOD.
+    this.farMask = new URLSearchParams(globalThis.location?.search ?? "").get("farmask") !== "0";
     this.life = new LifeLayer(this.scene, LIFE_CLASSES, quality, life, this.models);
     this.arch.setQuality(quality);
     this.marks = new FootprintMarks(this.scene);
@@ -305,6 +326,10 @@ export class GameRenderer {
       this.firstFrameMarked = true;
       performance.mark("ns-first-frame");
     }
+    if (!this.focusTilesMarked && this.info.focus !== "" && this.details.get(this.info.focus)?.hasTiles()) {
+      this.focusTilesMarked = true;
+      performance.mark("ns-focus-tiles");
+    }
   }
 
   dispose(): void {
@@ -366,10 +391,11 @@ export class GameRenderer {
   }
 
   /** The life plans of the islands in view with their archipelago origins. */
-  private *lifeIslands(): Generator<{ origin: { x: number; y: number }; plan: IslandDetail["life"] }> {
+  /** The shown islands' life plans, with the chunks in view (life spawns only there). */
+  private *lifeIslands(): Generator<{ origin: { x: number; y: number }; plan: IslandDetail["life"]; chunks: ReadonlySet<string> | null }> {
     for (const d of this.details.values()) {
       const o = d.lifeOrigin();
-      if (o) yield { origin: o, plan: d.life };
+      if (o) yield { origin: o, plan: d.life, chunks: d.chunksInView() };
     }
   }
 
@@ -405,6 +431,18 @@ export class GameRenderer {
     this.lighting.setCasters(out);
   }
 
+  /**
+   * Load milestones: the first rendered frame with the camera placed and
+   * the first frame that drew the focused island with its full tiles,
+   * with their performance marks (ms since navigation start; null until
+   * then or under a faked clock, where `make shots STATS=1` times the
+   * flags itself).
+   */
+  timing(): { firstFrame: boolean; focusTiles: boolean; firstFrameMs: number | null; focusTilesMs: number | null } {
+    const at = (name: string) => performance.getEntriesByName?.(name, "mark")[0]?.startTime ?? null;
+    return { firstFrame: this.firstFrameMarked, focusTiles: this.focusTilesMarked, firstFrameMs: at("ns-first-frame"), focusTilesMs: at("ns-focus-tiles") };
+  }
+
   /** Draw calls of the last frame. */
   lastDrawCalls(): number {
     return this.drawCalls;
@@ -413,6 +451,21 @@ export class GameRenderer {
   /** Meshes created since start (a zoom must not create any: LOD changes only toggle pre-built geometry). */
   meshesCreated(): number {
     return this.meshCount;
+  }
+
+  /** The last frame's active meshes grouped by layer (the name up to its first "_" or digit): meshes and triangles (perf notes). */
+  activeLayers(): Record<string, { meshes: number; tris: number }> {
+    const out: Record<string, { meshes: number; tris: number }> = {};
+    const meshes = this.scene.getActiveMeshes();
+    for (let i = 0; i < meshes.length; i++) {
+      const m = meshes.data[i];
+      if (!m) continue;
+      const layer = m.name.replace(/^(island|models|trees|tree_shadows|scatter|terrain_lite|terrain|roads|field_decor|field|mask_terrain|blob_buildings|decor)[_].*$/, "$1");
+      const e = (out[layer] ??= { meshes: 0, tris: 0 });
+      e.meshes++;
+      for (const sm of m.subMeshes ?? []) e.tris += Math.round(sm.indexCount / 3);
+    }
+    return out;
   }
 
   /** Draw calls, triangles (the scene's active indices of the last frame ÷ 3; shadow passes included) and the current LOD and model detail (the fps badge). */
@@ -569,6 +622,12 @@ export class GameRenderer {
       }
     }
     for (const id of this.visible) if (!islands.some((is) => is.id === id)) this.visible.delete(id);
+    // At far LOD only the focused island keeps its detail: a new focus swaps it with the mask.
+    const maskFocus = lod === "far" ? focusedIsland(islands, v) : null;
+    if (maskFocus !== this.maskFocus) {
+      this.maskFocus = maskFocus;
+      changed = true;
+    }
     this.lod = lod;
     if (changed) {
       this.applyView();
@@ -581,6 +640,18 @@ export class GameRenderer {
       for (const d of this.details.values()) d.setRotation(v.rotation);
     }
     const focus = focusedIsland(islands, v);
+    this.cullChunks(islands);
+    // Tile priorities: the focused island, then the islands in view by distance from the view's centre.
+    const dist = (is: IslandDisplay) => Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y);
+    const inView = islands
+      .filter((is) => this.visible.has(is.id))
+      .sort((a, b) => dist(a) - dist(b))
+      .map((is) => is.id);
+    const priorityKey = `${focus}|${inView.join(",")}`;
+    if (priorityKey !== this.priorityKey) {
+      this.priorityKey = priorityKey;
+      this.sync.setTilePriority?.(focus, inView);
+    }
     const heading = snapRotation(v.rotation);
     if (focus !== this.info.focus || lod !== this.info.lod || heading !== this.info.rotation) {
       this.info = { focus, lod, rotation: heading };
@@ -589,22 +660,53 @@ export class GameRenderer {
   }
 
   /**
-   * Shows the layers of the current LOD for the islands in view. Every
+   * Shows the layers of the current LOD for the islands in view. An
    * island's detail (both model details, both slab profiles) is built the
-   * first time it is seen in the payload, also out of view, so zooming and
-   * panning only toggle pre-built geometry; an island in view is brought
-   * up to date with its payload.
+   * first time it is in view with its tiles, so zooming and panning
+   * afterwards only toggle pre-built geometry; an island in view is
+   * brought up to date with its payload. An island without its tiles yet
+   * is drawn from its 1:4 mask (render/farmesh.ts), and so is every island
+   * but the focused one at far LOD (?farmask=0 turns that off for
+   * measurements).
    */
   private applyView(): void {
     this.arch.show(this.lod);
     const snap = this.sync.getSnapshot();
-    for (const is of snap.server?.display.islands ?? []) {
+    const d0 = snap.server?.display;
+    const islands = d0?.islands ?? [];
+    const v = this.rig.view();
+    const focus = islands.length > 0 ? focusedIsland(islands, v) : null;
+    const masked: MaskIsland[] = [];
+    for (const is of islands) {
       const shown = this.visible.has(is.id);
       let d = this.details.get(is.id);
-      if (shown || !d) d = this.ensureDetail(is, snap);
-      d?.setShown(shown, this.lod);
+      if (shown) d = this.ensureDetail(is, snap);
+      const farMasked = this.farMask && this.lod === "far" && is.id !== focus;
+      const useMask = !d?.hasTiles() || farMasked;
+      d?.setShown(shown && !useMask, this.lod);
+      if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), settled: is.settled });
     }
+    this.mask.show(masked);
+    this.cullChunks(islands);
     this.refreshCasters();
+  }
+
+  /** Per-chunk culling: the chunks of each shown island in the camera's ground footprint. */
+  private cullChunks(islands: readonly IslandDisplay[]): void {
+    const fp = this.rig.footprint();
+    for (const is of islands) {
+      if (!this.visible.has(is.id)) continue;
+      this.details.get(is.id)?.setVisibleChunks(visibleChunks(is, fp));
+    }
+  }
+
+  /** The decoded mask of an island (cached per mask string). */
+  private maskOf(is: IslandDisplay): DecodedMask {
+    const c = this.masks.get(is.id);
+    if (c && c.raw === is.terrain_mask && c.mask.width === Math.ceil(is.width / MASK_BLOCK)) return c.mask;
+    const mask = decodeMask(is.terrain_mask, is.width, is.height);
+    this.masks.set(is.id, { raw: is.terrain_mask, mask });
+    return mask;
   }
 
   /** The detail of an island, created and brought up to date with its payload (null without content or statics). */
@@ -631,7 +733,7 @@ export class GameRenderer {
 
   private layoutSea(): void {
     const b = this.arch.bounds();
-    if (b) this.arch.setSeaMargin(seaMargin(b, this.rig.aspect()));
+    if (b) this.arch.setSeaMargin(seaMargin(b, this.rig.aspect(), this.rig.zoomCap()));
   }
 
   // Data ----------------------------------------------------------------------
@@ -640,6 +742,8 @@ export class GameRenderer {
     if (snap.content !== this.lastContent && snap.content) {
       this.lastContent = snap.content;
       this.defs = new Map(snap.content.buildings.map((b) => [b.id, b]));
+      // The zoom-out cap of the region (an older server sends none: no cap).
+      this.rig.setZoomCap((snap.content.region.camera as { max_half_extent?: number } | undefined)?.max_half_extent ?? null);
       this.lastServer = null; // rebuild with the new definitions
     }
     if (!snap.server || (snap.server === this.lastServer && snap.islands === this.lastIslands)) return;
@@ -657,7 +761,7 @@ export class GameRenderer {
       );
     }
     // Ships at a Trading Post's pier and in its queue moor along its front row (D-051).
-    this.arch.update(d.islands, snap.islands, d.ships, d.routes, berths, dockPoints(d.islands, this.defs));
+    this.arch.update(d.islands, d.ships, d.routes, berths, dockPoints(d.islands, this.defs));
     this.lookups.clear();
     // The payload's bounds (D-053) cover every island, also those whose static data is still loading.
     this.rig.setIslandBounds(archipelagoRect(d.archipelago) ?? this.arch.bounds());

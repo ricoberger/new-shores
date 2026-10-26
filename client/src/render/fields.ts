@@ -99,7 +99,15 @@ export class FieldTiles {
   constructor(
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
+    /** Materials per field type, shared by an island's chunks. */
+    private readonly materials = new Map<string, StandardMaterial>(),
   ) {}
+
+  /** Disposes the meshes (the materials may be shared and stay). */
+  dispose(): void {
+    for (const m of this.meshes.values()) m.dispose();
+    this.meshes.clear();
+  }
 
   /** Draws the fields among the buildings (buildings with a field block). */
   update(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
@@ -115,9 +123,13 @@ export class FieldTiles {
       let mesh = this.meshes.get(id);
       if (!mesh) {
         mesh = CreateBox(`field_${id}`, { width: 0.96, height: 0.03, depth: 0.96 }, this.scene);
-        const mat = skyFill(new StandardMaterial(`field_${id}`, this.scene));
-        mat.diffuseTexture = patternTexture(this.scene, id);
-        mat.specularColor = Color3.Black();
+        let mat = this.materials.get(id);
+        if (!mat) {
+          mat = skyFill(new StandardMaterial(`field_${id}`, this.scene));
+          mat.diffuseTexture = patternTexture(this.scene, id);
+          mat.specularColor = Color3.Black();
+          this.materials.set(id, mat);
+        }
         mesh.material = mat;
         mesh.isPickable = false;
         mesh.parent = this.parent;
@@ -263,10 +275,15 @@ export class FieldDecor {
   constructor(
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
+    material: StandardMaterial | null = null,
   ) {
-    this.material = skyFill(new StandardMaterial("field_decor", scene));
-    this.material.specularColor = Color3.Black();
-    this.material.backFaceCulling = false;
+    this.material = material ?? fieldDecorMaterial(scene);
+  }
+
+  /** Disposes the mesh (the material may be shared and stays). */
+  dispose(): void {
+    this.mesh?.dispose();
+    this.mesh = null;
   }
 
   update(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): void {
@@ -278,4 +295,12 @@ export class FieldDecor {
     }
     this.mesh = b.build("field_decor", this.scene, this.material, this.parent);
   }
+}
+
+/** The field decoration's material (one per island, shared by its chunks). */
+export function fieldDecorMaterial(scene: Scene): StandardMaterial {
+  const m = skyFill(new StandardMaterial("field_decor", scene));
+  m.specularColor = Color3.Black();
+  m.backFaceCulling = false;
+  return m;
 }

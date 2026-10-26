@@ -2030,7 +2030,41 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [],
+        "deposits": [
+          {
+            "x": 12,
+            "y": 7,
+            "kind": "iron"
+          },
+          {
+            "x": 13,
+            "y": 7,
+            "kind": "iron"
+          },
+          {
+            "x": 11,
+            "y": 8,
+            "kind": "iron"
+          },
+          {
+            "x": 12,
+            "y": 8,
+            "kind": "iron"
+          },
+          {
+            "x": 13,
+            "y": 8,
+            "kind": "iron"
+          },
+          {
+            "x": 14,
+            "y": 8,
+            "kind": "iron"
+          }
+        ],
+        "terrain_mask": "wgggggggggwggggggggfffgggmggggffggggggwgggggwwwwwwwwwww"
       },
       {
         "id": "start",
@@ -2186,7 +2220,10 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [],
+        "deposits": [],
+        "terrain_mask": "wggwgggw"
       }
     ],
     "ships": [

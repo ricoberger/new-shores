@@ -217,16 +217,16 @@ export class LifeLayer {
    * island's instances within the budget of the device class, only what
    * the LOD shows.
    */
-  frame(nowMs: number, islands: Iterable<{ origin: { x: number; y: number }; plan: LifePlan }>, lod: Lod): void {
+  frame(nowMs: number, islands: Iterable<{ origin: { x: number; y: number }; plan: LifePlan; chunks?: ReadonlySet<string> | null }>, lod: Lod): void {
     for (const c of this.classes.values()) c.begin();
     let instances = 0;
     let particles = 0;
     const at = lifeAtLod(lod);
     if (this.enabled && (at.moving || at.smoke || at.props)) {
       const budget = lifeBudget(this.quality);
-      for (const { origin, plan } of islands) {
+      for (const { origin, plan, chunks = null } of islands) {
         this.origin = origin;
-        const s = plan.frame(nowMs, this.sink, at, budget);
+        const s = plan.frame(nowMs, this.sink, at, budget, chunks);
         instances += s.instances;
         particles += s.particles;
       }

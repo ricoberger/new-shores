@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { DisplayState, Island } from "../api/client";
+import type { DisplayState } from "../api/client";
 import { archipelagoRect, type Rect } from "../display/camera";
+import { decodeMask, MASK_BLOCK, MASK_WATER } from "../display/mask";
 import { fromMinimap, islandsBounds, minimapLandKey, minimapProjection, minimapSize, toMinimap } from "../display/minimap";
 import type { GameRenderer } from "../render/engine";
 import { toolIcon } from "../theme/iconSet";
@@ -12,8 +13,6 @@ import styles from "./hud.module.css";
 interface Props {
   renderer: GameRenderer | null;
   model: DisplayState;
-  /** Static island data (land tiles), by island ID. */
-  statics: ReadonlyMap<string, Island>;
   viewport: { width: number; height: number };
   /** Phone layouts: a toggle collapses the minimap; `collapsed` is its initial state. */
   collapsible: boolean;
@@ -32,7 +31,7 @@ const VIEW = UI.map_view;
 
 /**
  * Minimap (D-048): a north-up 2D canvas of the islands' land (settled vs
- * unsettled tint), ship dots and the camera's ground footprint (which
+ * unsettled tint) from their 1:4 terrain masks (no tiles needed), ship dots and the camera's ground footprint (which
  * turns with the camera), with the compass (D-051) in its top-right
  * corner (on phones a toggle button like the side dock's opens it to its
  * right; collapsed, only the toggle shows, so the compass shows with the
@@ -41,15 +40,15 @@ const VIEW = UI.map_view;
  * A click or tap pans the camera there (zoom kept). Pointer events stay on
  * the minimap (a HUD element, never the game canvas).
  */
-export function Minimap({ renderer, model, statics, viewport, collapsible, initiallyCollapsed, heading }: Props) {
+export function Minimap({ renderer, model, viewport, collapsible, initiallyCollapsed, heading }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [collapsedState, setCollapsed] = useState(initiallyCollapsed);
   // Only phone layouts can collapse it: on a larger layout (e.g. after a
   // resize or rotation) the minimap shows, whatever the phone state was.
   const collapsed = collapsible && collapsedState;
   const islands = model.islands;
-  // The land layer and the bounds are keyed by geometry and settlement
-  // (and static data), not by the model object that every extrapolated
+  // The land layer and the bounds are keyed by geometry, settlement and
+  // the terrain masks, not by the model object that every extrapolated
   // update replaces.
   const landKey = minimapLandKey(islands);
   // The payload's archipelago bounds (D-053); the islands' own for an older payload without extent.
@@ -72,24 +71,25 @@ export function Minimap({ renderer, model, statics, viewport, collapsible, initi
     ctx.fillRect(0, 0, c.width, c.height);
     for (const is of islands) {
       ctx.fillStyle = is.settled ? SETTLED : UNSETTLED;
-      const st = statics.get(is.id);
-      if (!st) {
-        const a = toMinimap(m, is.position);
-        ctx.fillRect(a.x, a.y, is.width * m.scale, is.height * m.scale);
-        continue;
-      }
-      const cell = Math.max(1, m.scale);
-      for (let y = 0; y < st.height; y++) {
-        for (let x = 0; x < st.width; x++) {
-          if (st.terrain[y * st.width + x] === "water") continue;
+      const mask = decodeMask(is.terrain_mask, is.width, is.height);
+      // One mask cell covers MASK_BLOCK × MASK_BLOCK tiles (clipped at the island's edge).
+      for (let my = 0; my < mask.height; my++) {
+        for (let mx = 0; mx < mask.width; mx++) {
+          if (mask.cells[my * mask.width + mx] === MASK_WATER) continue;
+          const x = mx * MASK_BLOCK;
+          const y = my * MASK_BLOCK;
+          // Whole pixels, so neighbouring cells meet without anti-aliased seams.
           const p = toMinimap(m, { x: is.position.x + x, y: is.position.y + y });
-          ctx.fillRect(p.x, p.y, cell, cell);
+          const q = toMinimap(m, { x: is.position.x + Math.min(is.width, x + MASK_BLOCK), y: is.position.y + Math.min(is.height, y + MASK_BLOCK) });
+          const x0 = Math.floor(p.x);
+          const y0 = Math.floor(p.y);
+          ctx.fillRect(x0, y0, Math.max(1, Math.ceil(q.x) - x0), Math.max(1, Math.ceil(q.y) - y0));
         }
       }
     }
     return { canvas: c, dpr };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- landKey stands for the islands' geometry and settlement
-  }, [landKey, statics, bounds, size.width, size.height, collapsed]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- landKey stands for the islands' geometry, settlement and masks
+  }, [landKey, bounds, size.width, size.height, collapsed]);
 
   useEffect(() => {
     const el = canvas.current;

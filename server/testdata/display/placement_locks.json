@@ -1692,7 +1692,34 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [
+          "wheat",
+          "apple"
+        ],
+        "deposits": [
+          {
+            "x": 17,
+            "y": 9,
+            "kind": "stone"
+          },
+          {
+            "x": 18,
+            "y": 9,
+            "kind": "stone"
+          },
+          {
+            "x": 20,
+            "y": 9,
+            "kind": "stone"
+          },
+          {
+            "x": 21,
+            "y": 9,
+            "kind": "stone"
+          }
+        ],
+        "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
       },
       {
         "id": "island2",
@@ -2135,7 +2162,43 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [
+          "hemp"
+        ],
+        "deposits": [
+          {
+            "x": 10,
+            "y": 4,
+            "kind": "iron"
+          },
+          {
+            "x": 11,
+            "y": 4,
+            "kind": "iron"
+          },
+          {
+            "x": 9,
+            "y": 5,
+            "kind": "iron"
+          },
+          {
+            "x": 10,
+            "y": 5,
+            "kind": "iron"
+          },
+          {
+            "x": 11,
+            "y": 5,
+            "kind": "iron"
+          },
+          {
+            "x": 12,
+            "y": 5,
+            "kind": "iron"
+          }
+        ],
+        "terrain_mask": "wgggwggmggwwwww"
       }
     ],
     "ships": [
@@ -3902,7 +3965,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           },
           {
             "id": "island2",
@@ -4345,7 +4435,43 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "hemp"
+            ],
+            "deposits": [
+              {
+                "x": 10,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 10,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 12,
+                "y": 5,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wgggwggmggwwwww"
           }
         ],
         "ships": [
@@ -6112,7 +6238,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           },
           {
             "id": "island2",
@@ -6555,7 +6708,43 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "hemp"
+            ],
+            "deposits": [
+              {
+                "x": 10,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 10,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 12,
+                "y": 5,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wgggwggmggwwwww"
           }
         ],
         "ships": [
@@ -8322,7 +8511,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           },
           {
             "id": "island2",
@@ -8765,7 +8981,43 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "hemp"
+            ],
+            "deposits": [
+              {
+                "x": 10,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 10,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 12,
+                "y": 5,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wgggwggmggwwwww"
           }
         ],
         "ships": [
@@ -10532,7 +10784,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           },
           {
             "id": "island2",
@@ -10975,7 +11254,43 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "hemp"
+            ],
+            "deposits": [
+              {
+                "x": 10,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 10,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 12,
+                "y": 5,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wgggwggmggwwwww"
           }
         ],
         "ships": [
@@ -12742,7 +13057,34 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "wheat",
+              "apple"
+            ],
+            "deposits": [
+              {
+                "x": 17,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 18,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 20,
+                "y": 9,
+                "kind": "stone"
+              },
+              {
+                "x": 21,
+                "y": 9,
+                "kind": "stone"
+              }
+            ],
+            "terrain_mask": "wggggggggwggggggggggggggmgggggwwwwwwwwww"
           },
           {
             "id": "island2",
@@ -13185,7 +13527,43 @@
               "type": "trading_post",
               "level": 1,
               "capacity": 300000
-            }
+            },
+            "fertilities": [
+              "hemp"
+            ],
+            "deposits": [
+              {
+                "x": 10,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 4,
+                "kind": "iron"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 10,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 5,
+                "kind": "iron"
+              },
+              {
+                "x": 12,
+                "y": 5,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wgggwggmggwwwww"
           }
         ],
         "ships": [

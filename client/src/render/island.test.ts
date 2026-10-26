@@ -111,6 +111,48 @@ describe("per-island merged-layer rebuilds", () => {
   });
 });
 
+describe("chunked static layers", () => {
+  const road = (x: number, y: number) => ({ x, y, type: "road" }) as IslandDisplay["roads"][number];
+
+  it("rebuild exactly the chunks a change touches (also a road join across a chunk's edge)", () => {
+    const w = world();
+    w.show(w.islands);
+    // isle3: 40 × 30 tiles, chunks 0,0 (x 0–31) and 1,0 (x 32–39); no roads or buildings yet.
+    const d = w.details.get("isle3")!;
+    const st = buildDenseArchipelagoFixture(0).islands.get("isle3")!;
+    // A forest tile well inside chunk 1,0: its trees give way to the road.
+    let forest: { x: number; y: number } | null = null;
+    for (let y = 4; y < st.height - 4 && !forest; y++) {
+      for (let x = 34; x < st.width - 2 && !forest; x++) if (st.terrain[y * st.width + x] === "forest") forest = { x, y };
+    }
+    expect(forest).not.toBeNull();
+    const one = next(w.islands, (is) => is.id === "isle3" && is.roads.push(road(forest!.x, forest!.y)));
+    w.show(one);
+    expect(d.chunkRebuilds.roads).toEqual(["1,0"]);
+    expect(d.chunkRebuilds.decoration).toEqual(["1,0"]);
+    // A road at x 31 next to one at x 32: the tile across the edge gains its arm, so both chunks rebuild.
+    const two = next(one, (is) => is.id === "isle3" && is.roads.push(road(32, 20)));
+    w.show(two);
+    expect(d.chunkRebuilds.roads).toEqual(["1,0"]);
+    w.show(next(two, (is) => is.id === "isle3" && is.roads.push(road(31, 20))));
+    expect([...d.chunkRebuilds.roads].sort()).toEqual(["0,0", "1,0"]);
+    // Other islands rebuilt nothing.
+    expect(w.details.get("isle4")!.rebuilds).toEqual({ roads: 1, layout: 1, decoration: 1 });
+  });
+
+  it("culls per chunk: only the chunk nodes in view are enabled", () => {
+    const w = world();
+    w.show(w.islands);
+    const d = w.details.get("dense1")!;
+    const nodes = () => d.root.getChildTransformNodes(true).filter((n) => n.name.includes("_chunk_"));
+    expect(nodes().map((n) => n.name.split("_chunk_")[1]).sort()).toEqual(["0,0", "0,1", "1,0", "1,1"]);
+    d.setVisibleChunks(new Set(["1,1"]));
+    expect(nodes().filter((n) => n.isEnabled(false)).map((n) => n.name.split("_chunk_")[1])).toEqual(["1,1"]);
+    d.setVisibleChunks(null);
+    expect(nodes().every((n) => n.isEnabled(false))).toBe(true);
+  });
+});
+
 describe("shadow casters with models", () => {
   it("lists the re-merged chunk meshes after a rise-in finishes (frame() reports the change)", async () => {
     engine = new NullEngine({ renderWidth: 320, renderHeight: 200, textureSize: 64, deterministicLockstep: false, lockstepMaxSteps: 1 });

@@ -203,7 +203,7 @@ func code(t *testing.T, rec *httptest.ResponseRecorder) string {
 func TestSessionRequired(t *testing.T) {
 	srv, _ := newSessionServer(t, nil)
 	for _, c := range []struct{ method, path string }{
-		{http.MethodGet, "/api/v1/world"}, {http.MethodGet, "/api/v1/world/islands/start"},
+		{http.MethodGet, "/api/v1/world"}, {http.MethodGet, "/api/v1/world/islands/start/tiles"},
 		{http.MethodPost, "/api/v1/world/commands"}, {http.MethodGet, "/api/v1/auth/me"},
 		{http.MethodPost, "/api/v1/auth/logout"}, {http.MethodGet, "/api/v1/ws"},
 	} {

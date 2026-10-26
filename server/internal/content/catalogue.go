@@ -142,6 +142,15 @@ type Region struct {
 	Name    string
 	Version string
 	Rules   Rules
+	Camera  Camera
+}
+
+// Camera holds the client view constants of a region. Render data only:
+// no rule reads them; they reach the client with the content payload.
+type Camera struct {
+	// MaxHalfExtent is the largest camera half-extent in tiles (the
+	// zoom-out cap).
+	MaxHalfExtent int
 }
 
 // Rules are region-wide simulation constants (MECHANICS §1.1, §3).

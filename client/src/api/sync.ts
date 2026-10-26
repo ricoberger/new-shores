@@ -13,6 +13,7 @@
 // world state too) arrived first. Because responses are therefore applied in request order, a
 // response with a lower version than the current state means the world was
 // reset (dev-server restart) and replaces the state.
+import { type TileFailure, TileQueue } from "./tiles";
 import { clockOffsetMs, extrapolate, serverTimeMs } from "../display/extrapolate";
 import {
   ApiError,
@@ -20,7 +21,9 @@ import {
   type Content,
   type DisplayState,
   getContent,
-  getIsland,
+  getIslandTiles,
+  islandStatics,
+  tilesKey,
   getWorld,
   type Island,
   isUnauthorized,
@@ -108,7 +111,11 @@ export class GameSync {
   private nextChangeTimer: ReturnType<typeof setTimeout> | undefined;
   private retries = new Map<string, { timer: ReturnType<typeof setTimeout>; delayMs: number }>();
   private modelTimer: ReturnType<typeof setInterval> | undefined;
-  private islandRequests = new Set<string>();
+  /** The lazy full-tile loads (api/tiles.ts). */
+  private readonly tiles = new TileQueue(
+    (id) => this.loadIsland(id),
+    (f) => this.tilesGaveUp(f),
+  );
   /**
    * Incremented whenever the island cache is dropped (reset world or a
    * rerolled archipelago): island responses of an earlier epoch are
@@ -159,7 +166,7 @@ export class GameSync {
     // start -> stop -> start on the same instance).
     this.lastGet = null;
     this.contentRequest = false;
-    this.islandRequests.clear();
+    this.tiles.clear();
     this.socket?.stop();
     this.socket = null;
     clearInterval(this.modelTimer);
@@ -313,23 +320,46 @@ export class GameSync {
     }
   }
 
+  /** Fetches and stores one island's full tiles (the tile queue's loader; rejects on failure). */
   private async loadIsland(id: string): Promise<void> {
-    if (this.snapshot.islands.has(id) || this.islandRequests.has(id) || this.stopped) return;
+    if (this.snapshot.islands.has(id) || this.stopped) return;
+    const display = this.snapshot.server?.display;
+    if (!display) return;
     const generation = this.generation;
     const epoch = this.islandEpoch;
-    this.islandRequests.add(id);
+    let tiles;
     try {
-      const island = await getIsland(id);
-      if (generation !== this.generation || epoch !== this.islandEpoch) return;
-      const islands = new Map(this.snapshot.islands);
-      islands.set(id, island);
-      this.set({ islands });
-      this.succeeded(`island ${id}`);
+      tiles = await getIslandTiles(id, tilesKey(display.archipelago));
     } catch (err) {
-      if (generation === this.generation && epoch === this.islandEpoch) this.failed(`island ${id}`, err, () => void this.loadIsland(id));
-    } finally {
-      if (generation === this.generation && epoch === this.islandEpoch) this.islandRequests.delete(id);
+      if (generation !== this.generation || epoch !== this.islandEpoch) return;
+      if (isUnauthorized(err)) this.unauthorized();
+      throw err;
     }
+    if (generation !== this.generation || epoch !== this.islandEpoch) return;
+    // Fertilities and deposits are static per roll like the rows: take them from the latest payload.
+    const is = (this.snapshot.server?.display ?? display).islands.find((i) => i.id === id);
+    if (!is) return;
+    const islands = new Map(this.snapshot.islands);
+    islands.set(id, islandStatics(tiles, is));
+    this.set({ islands });
+  }
+
+  /**
+   * An island's tiles failed twice this payload: API errors are reported
+   * (toasts); a network error is the world request's banner. The island
+   * stays drawn from its mask until the next payload retries it.
+   */
+  private tilesGaveUp({ id, error }: TileFailure): void {
+    if (this.stopped || !(error instanceof ApiError) || isUnauthorized(error)) return;
+    for (const l of this.errorListeners) l({ what: `island ${id}`, error });
+  }
+
+  /**
+   * The renderer's tile priorities: the island under the camera first,
+   * then the islands in view, then the rest.
+   */
+  setTilePriority(focus: string | null, inView: Iterable<string>): void {
+    this.tiles.setPriority(focus, inView);
   }
 
   private succeeded(key: string): void {
@@ -379,13 +409,7 @@ export class GameSync {
     const dropIslands = reset || rerolled;
     if (dropIslands) {
       this.islandEpoch++;
-      this.islandRequests.clear();
-      for (const [key, r] of this.retries) {
-        if (key.startsWith("island ")) {
-          clearTimeout(r.timer);
-          this.retries.delete(key);
-        }
-      }
+      this.tiles.clear();
     }
     this.accepted++;
     this.offsetMs = clockOffsetMs(res.display, receivedAtMs);
@@ -399,9 +423,9 @@ export class GameSync {
     });
     if (reset || (!this.snapshot.content && !this.retries.has("content"))) void this.loadContent();
     this.armNextChange(res);
-    for (const is of res.display.islands) {
-      if (!this.retries.has(`island ${is.id}`)) void this.loadIsland(is.id);
-    }
+    // The tiles load lazily (api/tiles.ts): the renderer set its priorities on the snapshot above.
+    for (const id of this.snapshot.islands.keys()) this.tiles.markLoaded(id);
+    this.tiles.reset(res.display.islands.map((is) => is.id));
   }
 
   private armNextChange(res: WorldResponse): void {
