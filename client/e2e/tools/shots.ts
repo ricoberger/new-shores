@@ -29,8 +29,8 @@ const DEVICE_OPTIONS = {
 /** The island each fixture opens on and per-view camera targets of the visual spec. */
 const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<Record<View, { x: number; y: number; half?: number }>> }> = {
   showcase: { island: "showcase", targets: { near: { x: 22, y: 13, half: 10 } } },
-  settled: { island: "start" },
-  town: { island: "start" },
+  settled: { island: "isle-01" }, // the home island of every generated archipelago (D-053)
+  town: { island: "isle-01" },
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
   "archipelago-8x20": { island: null },

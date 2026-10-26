@@ -75,7 +75,7 @@ func encodeStep(t *testing.T, st Step) string {
 // checkStallRestrictions: start stock only, no grants, no workforce.
 func checkStallRestrictions(t *testing.T, s *Scenario) {
 	t.Helper()
-	if !s.Seed.Start || s.Seed.Gold != "" || len(s.Seed.Stock) != 0 || len(s.Seed.Workforce) != 0 || s.DevBonus != nil {
+	if !s.Seed.Start || s.Seed.Gold != "" || len(s.Seed.Stock) != 0 || len(s.Seed.Workforce) != 0 {
 		t.Fatalf("seed = %+v, want the content starting stock only", s.Seed)
 	}
 	for _, st := range s.Steps {

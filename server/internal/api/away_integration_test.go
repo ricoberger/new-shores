@@ -16,12 +16,12 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/events"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
 	"github.com/ricoberger/new-shores/server/internal/testenv"
+	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
 
 // pgInstance is an API instance in front of the shared PostgreSQL store
@@ -110,7 +110,7 @@ func TestAwaySummaryAcrossWorkerEvent(t *testing.T) {
 	t0 := dbNow(t, st).Add(-12 * time.Hour).Truncate(time.Millisecond)
 
 	// The player's last commands at T0: a plank chain on the dev island.
-	w, err := devworld.NewFixture(c, devworld.FixtureDefault, t0)
+	w, err := testworld.Founded(c, t0)
 	if err != nil {
 		t.Fatal(err)
 	}

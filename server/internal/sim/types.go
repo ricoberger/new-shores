@@ -65,6 +65,12 @@ const (
 // World is the complete simulation state of one player.
 type World struct {
 	Islands []*Island `json:"islands"`
+	// Seed is the archipelago seed of a generated world (D-053), 0 for a
+	// hand-made one (scenarios). ArchipelagoRoll counts the re-rolls
+	// (reroll_archipelago): the current islands are generated from
+	// archipelago.RollSeed(Seed, ArchipelagoRoll).
+	Seed            uint64 `json:"seed,omitempty"`
+	ArchipelagoRoll int    `json:"archipelago_roll,omitempty"`
 	// Gold in milli-gold. World-level, shared by all islands.
 	Gold Qty `json:"gold"`
 	// GoldSub is the gold remainder in [0, GoldSubPerMilli).

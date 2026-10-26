@@ -19,9 +19,9 @@ import (
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
+	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
 
 func repoRoot(t testing.TB) string {
@@ -94,7 +94,7 @@ func newTestServer(t *testing.T, scale float64) *testServer {
 // build on. A new player world starts at sea (TestGetWorldInitialState).
 func foundedWorld(t *testing.T, start time.Time) *sim.World {
 	t.Helper()
-	w, err := devworld.NewFixture(catalogue(t), devworld.FixtureDefault, start)
+	w, err := testworld.Founded(catalogue(t), start)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -249,7 +249,7 @@ func buildingIDs(t *testing.T, display json.RawMessage, typ string) []int64 {
 // settled, the start ship idle at its sea position with the starting stock
 // aboard, the gold on the balance.
 func TestGetWorldInitialState(t *testing.T) {
-	sea, err := devworld.New(catalogue(t), testStart)
+	sea, err := testworld.Sea(catalogue(t), testStart)
 	if err != nil {
 		t.Fatal(err)
 	}

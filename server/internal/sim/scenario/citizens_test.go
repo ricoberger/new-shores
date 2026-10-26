@@ -152,7 +152,7 @@ func TestWarehouseLoadTargets(t *testing.T) {
 		scenario, island string
 		level            int
 	}{
-		{"bootstrap_citizens", "start", 1},
+		{"bootstrap_citizens", "isle-01", 1}, // the home island of the dev seed
 		{"citizens_island_load", "main", 2},
 	} {
 		rep := runScenario(t, tc.scenario)

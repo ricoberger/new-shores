@@ -19,6 +19,7 @@ import (
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 )
 
 // DefaultContent is the content directory used when a scenario names none,
@@ -33,22 +34,15 @@ type Scenario struct {
 	Content string    `json:"content,omitempty"`
 	Start   time.Time `json:"start"`
 	// Island is the single-island form; Islands the archipelago form.
-	// Exactly one of the two is set in a document; after Parse, Islands
-	// holds the islands of both forms (the first island is the default of
-	// every step and carries the seed).
+	// Exactly one of the two, or seed.archipelago (the generated
+	// archipelago, D-053), is set in a document; after Parse, Islands
+	// holds the islands of both hand-made forms. The first island of the
+	// world (a generated archipelago: the home candidate) is the default of
+	// every step and carries the seed.
 	Island  *Island  `json:"island,omitempty"`
 	Islands []Island `json:"islands,omitempty"`
 	Seed    Seed     `json:"seed"`
-	// DevBonus is extra gold and goods granted only to the dev server's
-	// world (devworld.NewDev); BuildWorld ignores it.
-	DevBonus *Bonus `json:"dev_bonus,omitempty"`
-	Steps    []Step `json:"steps"`
-}
-
-// Bonus is gold and goods (units) granted on top of the seed.
-type Bonus struct {
-	Gold  json.Number            `json:"gold,omitempty"`
-	Goods map[string]json.Number `json:"goods,omitempty"`
+	Steps   []Step   `json:"steps"`
 }
 
 // Island is an ASCII island: one string per row, one character per tile
@@ -70,6 +64,11 @@ const maxPosition = 1_000_000
 
 // Seed is the initial state granted free of charge.
 type Seed struct {
+	// Archipelago generates the islands from this archipelago seed
+	// (archipelago.Generate, D-053) instead of hand-made ones; the world
+	// carries the seed. With start and no ship, the start ship is
+	// launched at the archipelago's spawn.
+	Archipelago uint64 `json:"archipelago,omitempty"`
 	// TradingPost is placed without cost (optional); Type defaults to the
 	// first building with a trading_post block.
 	TradingPost *Placement `json:"trading_post,omitempty"`
@@ -333,6 +332,12 @@ func Parse(data []byte) (*Scenario, error) {
 		s.Content = DefaultContent
 	}
 	switch {
+	case s.Seed.Archipelago != 0 && (s.Island != nil || len(s.Islands) > 0):
+		return nil, errors.New("parse scenario: seed.archipelago generates the islands; set no island or islands")
+	case s.Seed.Archipelago > archipelago.MaxSeed:
+		return nil, fmt.Errorf("parse scenario: seed.archipelago above %d", archipelago.MaxSeed)
+	case s.Seed.Archipelago != 0:
+		return &s, nil
 	case s.Island != nil && len(s.Islands) > 0:
 		return nil, errors.New("parse scenario: set either island or islands, not both")
 	case s.Island != nil:
@@ -372,10 +377,22 @@ func (s *Scenario) LoadContent(repoRoot string) (*content.Catalogue, error) {
 
 // BuildWorld creates the scenario's initial world (island and seed).
 func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, error) {
-	if len(s.Islands) == 0 {
+	if len(s.Islands) == 0 && s.Seed.Archipelago == 0 {
 		return nil, errors.New("scenario has no island (use Parse)")
 	}
 	w := sim.NewWorld(s.Start)
+	ship := s.Seed.Ship
+	if seed := s.Seed.Archipelago; seed != 0 {
+		a, err := archipelago.Generate(seed, c)
+		if err != nil {
+			return nil, err
+		}
+		w.Seed = seed
+		w.Islands = a.Islands
+		if ship == nil && s.Seed.Start && s.Seed.TradingPost == nil {
+			ship = &SeaShip{X: a.Ship.X, Y: a.Ship.Y}
+		}
+	}
 	for _, spec := range s.Islands {
 		is, err := parseIsland(spec)
 		if err != nil {
@@ -400,7 +417,7 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 		}
 		w.Gold = c.Start.Gold
 		switch {
-		case s.Seed.Ship != nil:
+		case ship != nil:
 			cargo = map[string]int64{}
 			for _, g := range c.Start.Goods {
 				cargo[g.Good] += g.Amount
@@ -413,7 +430,7 @@ func BuildWorld(s *Scenario, c *content.Catalogue, l *sim.Ledger) (*sim.World, e
 			return nil, errors.New("seed: start needs a ship or a trading post")
 		}
 	}
-	if sh := s.Seed.Ship; sh != nil {
+	if sh := ship; sh != nil {
 		typ := sh.Type
 		if typ == "" && len(c.Ships) > 0 {
 			typ = c.Ships[0].ID
@@ -527,32 +544,6 @@ func RunSteps(s *Scenario, c *content.Catalogue, n int) (*sim.World, error) {
 		}
 	}
 	return w, nil
-}
-
-// ApplyBonus grants the dev bonus of a scenario (gold and goods on the first
-// island). Gold adds to the seeded gold.
-func ApplyBonus(s *Scenario, c *content.Catalogue, w *sim.World, l *sim.Ledger) error {
-	b := s.DevBonus
-	if b == nil {
-		return nil
-	}
-	if b.Gold != "" {
-		gold, err := content.ParseFixed(b.Gold, 3)
-		if err != nil || gold < 0 {
-			return fmt.Errorf("dev bonus gold: %v", err)
-		}
-		w.Gold += gold
-	}
-	for _, good := range sortedKeys(b.Goods) {
-		qty, err := content.ParseFixed(b.Goods[good], 3)
-		if err != nil {
-			return fmt.Errorf("dev bonus %s: %w", good, err)
-		}
-		if err := sim.AddStock(w, c, w.Islands[0].ID, good, qty, l); err != nil {
-			return fmt.Errorf("dev bonus: %w", err)
-		}
-	}
-	return nil
 }
 
 // firstTradingPostType returns the first building type with a
@@ -676,12 +667,12 @@ func Run(s *Scenario, c *content.Catalogue) (*Report, error) {
 // islandID resolves a step's island ("" = the first island).
 func (r *runner) islandID(id string) string {
 	if id == "" {
-		return r.s.Islands[0].ID
+		return r.w.Islands[0].ID
 	}
 	return id
 }
 
-func (r *runner) island() *sim.Island { return r.w.Island(r.s.Islands[0].ID) }
+func (r *runner) island() *sim.Island { return r.w.Islands[0] }
 
 func (r *runner) buildingAt(at *At) (string, *sim.Building, error) {
 	id := r.islandID(at.Island)

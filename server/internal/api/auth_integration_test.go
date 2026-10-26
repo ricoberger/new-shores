@@ -16,10 +16,10 @@ import (
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/auth"
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
 	"github.com/ricoberger/new-shores/server/internal/testenv"
+	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
 
 // mailbox records mails (the test reads tokens from it).
@@ -79,7 +79,7 @@ func newPGEnv(t *testing.T, limiter auth.Limiter) *pgEnv {
 	accts2, err := auth.NewService(auth.Config{
 		// The account flows build on a founded start island (the default
 		// dev fixture); a new player's world at sea is TestGetWorldInitialState's.
-		Store: st, NewWorld: func(now time.Time) (*sim.World, error) { return devworld.NewFixture(c, devworld.FixtureDefault, now) },
+		Store: st, NewWorld: func(now time.Time) (*sim.World, error) { return testworld.Founded(c, now) },
 		Region: c.Region.ID, Freshness: time.Hour, SessionTTL: 30 * 24 * time.Hour, Argon2: auth.DefaultArgon2,
 		Mailer: teeMailer{mail, auth.LogMailer{Logger: logger}}, PublicURL: "http://localhost:8000", Logger: logger,
 	})

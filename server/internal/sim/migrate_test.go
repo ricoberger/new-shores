@@ -13,17 +13,18 @@ import (
 	"time"
 )
 
-// TestSchemaMigrationsRegistered: schema 5 (D-051 part 4) registers no
-// migration: envelopes of schema 1-4 (the game was not deployed), envelopes
+// TestSchemaMigrationsRegistered: schema 6 (D-053) registers no
+// migration: envelopes of schema 1-5 (the game was not deployed), envelopes
 // without a version and newer ones fail loudly with ErrSchemaVersion.
 func TestSchemaMigrationsRegistered(t *testing.T) {
 	m := SchemaMigrations(catalogue(t))
-	if SchemaVersion != 5 || len(m) != 0 {
+	if SchemaVersion != 6 || len(m) != 0 {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":6,"content_version":"x","world":{}}`,
+		`{"schema_version":7,"content_version":"x","world":{}}`,
+		`{"schema_version":5,"content_version":"old_coast-0.8.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"schema_version":4,"content_version":"old_coast-0.7.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"content_version":"x","world":{}}`,
 		`{"schema_version":1,"content_version":"x","world":{}}`,
@@ -36,12 +37,13 @@ func TestSchemaMigrationsRegistered(t *testing.T) {
 	}
 }
 
-// TestSchema4FixturesFailToLoad: worlds of schema 4 (radius fields) are not
-// migrated; they fail with ErrSchemaVersion and need a fresh database
-// (make down VOLUMES=1 && make up).
-func TestSchema4FixturesFailToLoad(t *testing.T) {
-	files, err := filepath.Glob(filepath.Join("testdata", "schema4_*.json"))
-	if err != nil || len(files) < 3 {
+// TestOldSchemaFixturesFailToLoad: worlds of schema 4 (radius fields) and
+// 5 (the hand-made dev archipelago) are not migrated; they fail with
+// ErrSchemaVersion and need a fresh database (make down VOLUMES=1 && make
+// up).
+func TestOldSchemaFixturesFailToLoad(t *testing.T) {
+	files, err := filepath.Glob(filepath.Join("testdata", "schema[45]_*.json"))
+	if err != nil || len(files) < 7 {
 		t.Fatalf("schema 4 fixtures %v (%v)", files, err)
 	}
 	for _, f := range files {

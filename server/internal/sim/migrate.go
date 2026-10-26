@@ -32,8 +32,8 @@ type MigrationNotes struct{}
 
 // SchemaMigrations returns the registered schema migrations; c is the
 // content catalogue of the binary for migrations that need content. None
-// is registered since schema 5 (D-051 part 4, adjacency fields): the game
-// was not deployed, so worlds of schema 1-4 are not migrated but fail to
+// is registered since schema 6 (D-053, generated archipelago): the game
+// was not deployed, so worlds of schema 1-5 are not migrated but fail to
 // load with ErrSchemaVersion (a fresh database is required).
 //
 // Adding the next migration (docs/ARCHITECTURE.md §4.1):

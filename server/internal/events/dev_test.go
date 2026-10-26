@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
+	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
 
 func devCatalogue(t *testing.T) *content.Catalogue {
@@ -55,7 +55,7 @@ func (p *countingPublisher) count() int {
 // shipping layout of devworld's tests).
 func devShipyardWorld(t *testing.T, c *content.Catalogue, at time.Time) *sim.World {
 	t.Helper()
-	w, err := devworld.NewFixture(c, devworld.FixtureDefault, at)
+	w, err := testworld.Founded(c, at)
 	if err != nil {
 		t.Fatal(err)
 	}

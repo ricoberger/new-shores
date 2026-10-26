@@ -1,61 +1,40 @@
-// Package devworld builds new worlds from an embedded scenario document:
-// the single in-memory world of the --dev server (NewDev) and the world of
-// every new player in default mode (New). It reuses the scenario runner's
-// island parser and seeding (scenario.Parse and scenario.BuildWorld); the
-// document is a two-island archipelago, both islands unsettled, with the
-// start ship at sea carrying the starting stock (D-051), and has no steps.
+// Package devworld builds new worlds on the seeded archipelago (D-053):
+// the single in-memory world of the --dev server and the world of every
+// new player in default mode (New), plus the dev fixtures (NewFixture).
+// A new world has no island settled and the start ship at sea at the
+// archipelago's centre carrying the starting stock (D-051).
 package devworld
 
 import (
-	_ "embed"
-	"errors"
-	"fmt"
+	"crypto/rand"
+	"encoding/binary"
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
-	"github.com/ricoberger/new-shores/server/internal/sim/scenario"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 )
 
-//go:embed island.json
-var islandJSON []byte
+// DevSeed is the archipelago seed of the --dev server (flag --seed) and of
+// the dev fixtures by default.
+const DevSeed uint64 = 1_053_001
 
-// IslandJSON returns the embedded scenario document of the archipelago.
-func IslandJSON() []byte { return append([]byte(nil), islandJSON...) }
-
-// New builds a new player world evaluated at start (truncated to
-// milliseconds): the archipelago with no island settled and the start ship
+// New builds a new player world on the archipelago of seed, evaluated at
+// start (truncated to milliseconds): no island settled and the start ship
 // at sea carrying the content starting stock (start.json; the gold on the
 // balance).
-func New(c *content.Catalogue, start time.Time) (*sim.World, error) {
-	return build(c, start, false)
+func New(c *content.Catalogue, seed uint64, start time.Time) (*sim.World, error) {
+	return archipelago.NewWorld(c, seed, start.UTC().Truncate(time.Millisecond))
 }
 
-// NewDev builds the --dev server's world: like New plus the document's
-// optional dev-only bonus of gold and goods. Since the tier 1-2 balancing
-// pass the document carries no bonus (the starting stock covers the first
-// settlement flow), so NewDev equals New.
-func NewDev(c *content.Catalogue, start time.Time) (*sim.World, error) {
-	return build(c, start, true)
-}
-
-func build(c *content.Catalogue, start time.Time, dev bool) (*sim.World, error) {
-	s, err := scenario.Parse(islandJSON)
-	if err != nil {
-		return nil, fmt.Errorf("dev island: %w", err)
-	}
-	if len(s.Steps) > 0 {
-		return nil, errors.New("dev island: the document must not contain steps")
-	}
-	s.Start = start.UTC().Truncate(time.Millisecond)
-	w, err := scenario.BuildWorld(s, c, nil)
-	if err != nil {
-		return nil, fmt.Errorf("dev island: %w", err)
-	}
-	if dev {
-		if err := scenario.ApplyBonus(s, c, w, nil); err != nil {
-			return nil, fmt.Errorf("dev island: %w", err)
+// RandomSeed returns a random archipelago seed in 1..archipelago.MaxSeed
+// for a new player world.
+func RandomSeed() uint64 {
+	var b [8]byte
+	for {
+		_, _ = rand.Read(b[:]) // crypto/rand.Read never fails (Go 1.24+)
+		if s := binary.LittleEndian.Uint64(b[:]) & archipelago.MaxSeed; s != 0 {
+			return s
 		}
 	}
-	return w, nil
 }
