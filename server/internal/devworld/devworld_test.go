@@ -34,7 +34,7 @@ var start = time.Date(2026, 10, 19, 12, 0, 0, 123_456_789, time.UTC)
 func TestNewIsTheSeededArchipelago(t *testing.T) {
 	// The archipelago goldens (sim/archipelago/testdata) and the
 	// reference games are pinned to this seed.
-	if DevSeed != 1_053_003 {
+	if DevSeed != 1_053_001 {
 		t.Fatalf("DevSeed = %d: update the goldens and reference games together", DevSeed)
 	}
 	c := catalogue(t)

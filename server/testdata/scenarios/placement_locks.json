@@ -1,6 +1,7 @@
 {
   "name": "placement_locks",
   "description": "Placement locks of tier-2 content (golden w, free seed): after the Citizens unlock, placing a Citizen house directly fails (upgrade_only), an iron mine on the start island's stone deposits and a quarry on mountain without a deposit fail (no_deposit), a sawmill stays off mountains (terrain), a wheat farm on island 2 (hemp only) fails (no_fertility); a quarry on the stone deposits, a wheat farm with 15 of its 16 wheat fields chained from it on the start island and a hemp farm with 16 hemp fields on island 2 succeed; wheat fields not touching the farm or an active field (field_not_adjacent), on mountain (terrain) or on a road (occupied), a farm type as field type (field_type_mismatch), a pasture from a wheat farm (field_wrong_farm), a field placed free-standing (field_needs_farm) fail while the farm is one field short of its maximum; the 16th field (the maximum equals the requirement) succeeds and a 17th fails (field_max_reached). Every failed step leaves the world byte-identical.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

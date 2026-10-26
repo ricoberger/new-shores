@@ -19,7 +19,10 @@ import (
 func devCatalogue(t *testing.T) *content.Catalogue {
 	t.Helper()
 	_, file, _, _ := runtime.Caller(0)
-	c, err := content.Load(filepath.Join(filepath.Dir(file), "..", "..", "..", "content", "old_coast"))
+	// The pre-D-054 content: the test world's hand-made islands fit its
+	// footprints.
+	root := filepath.Join(filepath.Dir(file), "..", "..", "..")
+	c, err := content.LoadWithSchemas(filepath.Join(root, "server", "testdata", "content", "old_coast_pre_d054"), filepath.Join(root, "content", "schema"))
 	if err != nil {
 		t.Fatal(err)
 	}

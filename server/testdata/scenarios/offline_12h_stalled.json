@@ -1,6 +1,7 @@
 {
   "name": "offline_12h_stalled",
   "description": "A town without market whose fisher is cut off from the Trading Post (food need stalled) is left alone for 12 hours in one Advance: houses stay at their floor, gold runs out and the economy pauses instead of going negative, every good stays within capacity.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

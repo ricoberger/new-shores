@@ -1,6 +1,7 @@
 {
   "name": "place_then_road",
   "description": "A lumberjack is placed without any road (D-042): it is not connected and fills its buffer. Then a road from the Trading Post reaches the west edge of its footprint: it is assigned to the Trading Post and the buffer leaves with its output stream; nothing is lost.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

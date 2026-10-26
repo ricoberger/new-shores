@@ -412,7 +412,7 @@ func grow(r *rng, g *grid, start, size int, ok func(int) bool) []int {
 // elsewhere (rocks: a two-tile coast band around a mountain core). It
 // returns nil when the attempt does not fit (land outside the area
 // window, no room for the slots); the caller retries with a new sub-seed.
-func shape(r *rng, sc *content.SizeClass, deposits []string, s *scratch) *grid {
+func shape(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scratch) *grid {
 	g := landMass(r, sc.Size, sc.Rock, s)
 	land := g.landCount()
 	area := sc.Size * sc.Size
@@ -486,7 +486,7 @@ func shape(r *rng, sc *content.SizeClass, deposits []string, s *scratch) *grid {
 			return nil
 		}
 	}
-	if !g.placeSlots(r, deposits) {
+	if !g.placeSlots(r, deposits, gap) {
 		return nil
 	}
 	return g
@@ -620,9 +620,10 @@ func (g *grid) edgeMountain(i int) bool {
 }
 
 // placeSlots places one slot per entry of kinds: two 4-adjacent edge
-// mountain tiles, at Chebyshev distance >= 3 from every tile of another
-// slot (no 3x3 footprint covers two slots).
-func (g *grid) placeSlots(r *rng, kinds []string) bool {
+// mountain tiles, at Chebyshev distance >= gap from every tile of another
+// slot (gap is the longest side of a deposit building, so no footprint
+// covers two slots: a mine occupies exactly one, MECHANICS §2).
+func (g *grid) placeSlots(r *rng, kinds []string, gap int) bool {
 	type pair struct{ a, b int }
 	var cands []pair
 	for i := range g.t {
@@ -639,7 +640,7 @@ func (g *grid) placeSlots(r *rng, kinds []string) bool {
 	}
 	r.shuffle(len(cands), func(i, j int) { cands[i], cands[j] = cands[j], cands[i] })
 	far := func(a, b int) bool {
-		return max(abs(a%g.n-b%g.n), abs(a/g.n-b/g.n)) >= 3
+		return max(abs(a%g.n-b%g.n), abs(a/g.n-b/g.n)) >= gap
 	}
 	for _, kind := range kinds {
 		placed := false

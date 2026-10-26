@@ -1,6 +1,7 @@
 {
   "name": "fields_mixed",
   "description": "Fields of different farms never chain (D-051 part 4). After the Citizens unlock (the placement_locks opening) a wheat farm and a sheep farm stand next to each other: three wheat fields chain from the wheat farm (the last one touches the sheep farm), a pasture placed from the sheep farm at a spot that touches only a wheat field is not adjacent (field_not_adjacent), a pasture touching the sheep farm is active even though it touches wheat fields, and a wheat field touching only that pasture is not adjacent either. Demolishing the first wheat field makes the other two inactive (not_adjacent) while the pasture stays active.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

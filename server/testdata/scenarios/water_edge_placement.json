@@ -1,6 +1,7 @@
 {
   "name": "water_edge_placement",
   "description": "Water-edge footprints (MECHANICS \u00a72, D-051): fishers (1 water row of 2) at all four rotations with their front row on the sea, a shipyard (2 water rows of 4) in a notch of the north coast; the failures leave the world unchanged: a fisher whose front row is land (not_on_water), a fisher whose land row is water (terrain), a shipyard reaching only one water row (not_on_water) and a second Trading Post on the settled island (island_already_settled).",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

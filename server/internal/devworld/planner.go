@@ -297,7 +297,7 @@ func (f *fixture) placeOnce(island, typ string, anchor sim.Pos, then func(id int
 	chk := sim.NewSiteChecker(is, f.c)
 	for _, s := range f.candidates(is, def, anchor) {
 		w, h := dims(def, s.rot)
-		if !touches(is, reach, s.x, s.y, w, h) || (f.spareForest && coversForest(is, s.x, s.y, w, h)) || chk.Check(def, s.x, s.y, s.rot) != nil {
+		if !touches(is, reach, s.x, s.y, w, h) || (f.spareForest && coversForest(is, s.x, s.y, w, h)) || !chk.Valid(def, s.x, s.y, s.rot) {
 			continue
 		}
 		if tried++; tried > maxCandidates {
@@ -368,40 +368,54 @@ func (f *fixture) moveOnce(island, typ string) {
 	f.err = fmt.Errorf("move: no site for %s on %s", typ, island)
 }
 
-// tryFields places n fields of the type for the farm, nearest first, and
-// reports whether all fit (the world keeps the fields placed).
-func (f *fixture) tryFields(island string, farmID int64, typ string, n int) bool {
-	is := f.w.Island(island)
-	var farm *sim.Building
-	for _, b := range is.Buildings {
-		if b.ID == farmID {
-			farm = b
-		}
+// paintFields paints the farm's fields with one place_fields drag (D-054)
+// over the largest square ring around the farm that fits MaxFieldTiles,
+// nearest anchors first, and reports whether n fields were placed (the
+// world keeps them; a drag that places fewer leaves no trace).
+func (f *fixture) paintFields(island string, farmID int64, typ string, n int) bool {
+	if f.err != nil {
+		return false
 	}
+	is := f.w.Island(island)
+	farm := is.Building(farmID)
 	if farm == nil {
 		return false
 	}
-	placed := 0
-	for r := 1; r <= 8 && placed < n; r++ {
-		for y := farm.Y - r; y <= farm.Y+r && placed < n; y++ {
-			for x := farm.X - r; x <= farm.X+r && placed < n; x++ {
-				if max(abs(x-farm.X), abs(y-farm.Y)) != r {
-					continue
-				}
-				if f.try(sim.PlaceField{IslandID: island, FarmID: farmID, Type: typ, X: x, Y: y}) {
-					placed++
-				}
+	fw, fh := dims(f.c.BuildingByID[farm.Type], farm.Rotation)
+	r := 1
+	for (fw+2*(r+1))*(fh+2*(r+1)) <= sim.MaxFieldTiles {
+		r++
+	}
+	cx, cy := 2*farm.X+fw, 2*farm.Y+fh // doubled centre
+	var tiles []sim.Pos
+	for y := farm.Y - r; y < farm.Y+fh+r; y++ {
+		for x := farm.X - r; x < farm.X+fw+r; x++ {
+			if is.InBounds(x, y) && (x < farm.X || x >= farm.X+fw || y < farm.Y || y >= farm.Y+fh) {
+				tiles = append(tiles, sim.Pos{X: x, Y: y})
 			}
 		}
 	}
-	return placed == n
-}
-
-func abs(v int) int {
-	if v < 0 {
-		return -v
+	dist := func(p sim.Pos) int {
+		dx, dy := 2*p.X+1-cx, 2*p.Y+1-cy
+		return dx*dx + dy*dy
 	}
-	return v
+	slices.SortStableFunc(tiles, func(a, b sim.Pos) int { return dist(a) - dist(b) })
+	w := f.w.Clone()
+	res, err := sim.ApplyWithResult(w, f.c, sim.PlaceFields{IslandID: island, FarmID: farmID, Type: typ, Tiles: tiles}, nil)
+	if err != nil {
+		return false
+	}
+	placed := 0
+	for _, t := range res.Tiles {
+		if t.Err == nil {
+			placed++
+		}
+	}
+	if placed != n {
+		return false
+	}
+	f.w = w
+	return true
 }
 
 // roadPath returns the free tiles of the shortest road from the island's

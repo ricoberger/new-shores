@@ -47,7 +47,7 @@ func TestFixtures(t *testing.T) {
 					t.Errorf("default: home island not founded from the start ship: ships %+v", w.Ships)
 				}
 			case FixtureTown, FixtureSettled:
-				for typ, n := range map[string]int{"lumberjack": 1, "sawmill": 1, "house_settlers": 4, "sheep_farm": 1, "pasture": 4} {
+				for typ, n := range map[string]int{"lumberjack": 1, "sawmill": 1, "house_settlers": 4, "sheep_farm": 1, "pasture": 3} {
 					if got := count(w, home, typ); got != n {
 						t.Errorf("%s: %d %s, want %d", home, got, typ, n)
 					}

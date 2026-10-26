@@ -42,7 +42,7 @@ func sites(sc *sim.SiteChecker, is *sim.Island, def *content.Building) []Rect {
 				if def.WaterTiles > 0 && !waterEdgeHint(is, def, x, y, w, h, rot) {
 					continue
 				}
-				if sc.Check(def, x, y, rot) == nil {
+				if sc.Valid(def, x, y, rot) {
 					out = append(out, Rect{x, y, w, h, rot})
 				}
 			}
@@ -61,7 +61,7 @@ func hasSite(chk *sim.SiteChecker, is *sim.Island, def *content.Building) bool {
 				if def.WaterTiles > 0 && !waterEdgeHint(is, def, x, y, w, h, rot) {
 					continue
 				}
-				if chk.Check(def, x, y, rot) == nil {
+				if chk.Valid(def, x, y, rot) {
 					return true
 				}
 			}
@@ -119,6 +119,7 @@ var (
 	ErrShipyardSite     = errors.New("no shipyard site")
 	ErrMineUnreachable  = errors.New("a deposit building footprint has no road neighbour")
 	ErrRockMines        = errors.New("a rock's deposits cannot be mined next to its trading post")
+	ErrSlotUnminable    = errors.New("a deposit slot has no valid site of its deposit building")
 )
 
 // verifyIsland checks the rules of one island on its own grid (D-053
@@ -126,7 +127,8 @@ var (
 // Trading Post sites and a shipyard site; a rock has a Trading Post site
 // that leaves a mine site on every deposit slot; every footprint of a
 // deposit building that covers its deposit touches buildable land (roads
-// never go on mountains).
+// never go on mountains); every deposit slot of a habitable island has a
+// valid site of its deposit building.
 func verifyIsland(is *sim.Island, c *content.Catalogue) error {
 	sc := c.Islands.SizeClassByID[is.SizeClass]
 	if sc == nil {
@@ -145,6 +147,12 @@ func verifyIsland(is *sim.Island, c *content.Catalogue) error {
 		}
 	}
 	if !sc.Rock {
+		for _, s := range depositSlots(is) {
+			def := firstBuilding(c, func(b *content.Building) bool { return b.RequiresDeposit == s.kind })
+			if def != nil && !mineSiteNear(chk, def, s.tiles, Rect{}) {
+				return fmt.Errorf("%w: %s slot at (%d,%d)", ErrSlotUnminable, s.kind, s.tiles[0].X, s.tiles[0].Y)
+			}
+		}
 		if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil && !hasSite(chk, is, yard) {
 			return ErrShipyardSite
 		}
@@ -183,7 +191,7 @@ func mineSiteNear(chk *sim.SiteChecker, def *content.Building, tiles []sim.Pos, 
 			for y := t.Y - h + 1; y <= t.Y; y++ {
 				for x := t.X - w + 1; x <= t.X; x++ {
 					r := Rect{x, y, w, h, rot}
-					if !r.overlaps(avoid) && chk.Check(def, x, y, rot) == nil {
+					if !r.overlaps(avoid) && chk.Valid(def, x, y, rot) {
 						return true
 					}
 				}

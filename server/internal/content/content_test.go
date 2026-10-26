@@ -38,7 +38,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.9.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.10.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 120 {
@@ -85,12 +85,14 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 
 	// Balance (CONTENT §12): at 120 Settlers with the balanced tier-1 set,
-	// taxes cover upkeep with at least 20 % margin.
+	// taxes cover upkeep with at least 20 % margin (D-054 upkeep: fisher 2,
+	// lumberjack 1, sawmill 2, sheep farm 1, weaver 2; the never-pausable
+	// Trading Post, market and chapel carry none, D-046).
 	var upkeep int64
 	for _, id := range []string{"trading_post", "fisher", "lumberjack", "sawmill", "sheep_farm", "weaver_wool", "market_small", "chapel"} {
 		upkeep += c.BuildingByID[id].UpkeepPerMin
 	}
-	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 6_000 || tax*10 < upkeep*12 {
+	if tax := 120 * settlers.TaxPerResidentPerMin; upkeep != 8_000 || tax*10 < upkeep*12 {
 		t.Errorf("tax %d vs upkeep %d milli-gold/min: margin below 20 %%", tax, upkeep)
 	}
 
@@ -134,17 +136,17 @@ func TestLoadOldCoast(t *testing.T) {
 		pause                string
 	}
 	want := map[string]costs{
-		"house_settlers": {0, 10_000, 0, 2, 2, "never"},
-		"road_dirt":      {0, 0, 0, 1, 1, "never"},
-		"trading_post":   {200_000, 15_000, 0, 4, 4, "never"},
-		"warehouse":      {100_000, 10_000, 0, 2, 2, "never"},
-		"market_small":   {225_000, 15_000, 0, 3, 3, "never"},
-		"chapel":         {275_000, 15_000, 0, 2, 2, "never"},
-		"lumberjack":     {50_000, 5_000, 1_000, 2, 2, "intermediate"},
-		"sawmill":        {80_000, 8_000, 2_000, 2, 2, "intermediate"},
-		"fisher":         {60_000, 6_000, 1_000, 2, 2, "food_basic"},
-		"sheep_farm":     {50_000, 10_000, 1_000, 3, 3, "intermediate"},
-		"weaver_wool":    {70_000, 10_000, 1_000, 2, 2, "need_goods"},
+		"house_settlers": {0, 5_000, 0, 3, 3, "never"},
+		"road_dirt":      {2_000, 0, 0, 1, 1, "never"},
+		"trading_post":   {200_000, 15_000, 0, 6, 9, "never"},
+		"warehouse":      {50_000, 6_000, 0, 6, 6, "never"},
+		"market_small":   {250_000, 15_000, 0, 5, 6, "never"},
+		"chapel":         {100_000, 6_000, 0, 3, 3, "never"},
+		"lumberjack":     {100_000, 6_000, 1_000, 3, 3, "intermediate"},
+		"sawmill":        {250_000, 9_000, 2_000, 4, 6, "intermediate"},
+		"fisher":         {60_000, 6_000, 2_000, 3, 8, "food_basic"},
+		"sheep_farm":     {60_000, 6_000, 1_000, 3, 3, "intermediate"},
+		"weaver_wool":    {60_000, 6_000, 2_000, 3, 4, "need_goods"},
 	}
 	for id, w := range want {
 		b := c.BuildingByID[id]
@@ -172,8 +174,8 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("sloop = %+v", sloop)
 	}
 	sy := c.BuildingByID["shipyard"]
-	if sy.Shipyard == nil || strings.Join(sy.Shipyard.Ships, ",") != "sloop" || sy.Width != 5 || sy.Height != 4 || sy.WaterTiles != 2 || sy.Coastal || !sy.RequiresRoad ||
-		sy.Cost.Gold != 225_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 25_000}) ||
+	if sy.Shipyard == nil || strings.Join(sy.Shipyard.Ships, ",") != "sloop" || sy.Width != 8 || sy.Height != 12 || sy.WaterTiles != 4 || sy.Coastal || !sy.RequiresRoad ||
+		sy.Cost.Gold != 1_000_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 45_000}) ||
 		sy.UpkeepPerMin != 0 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
 		t.Errorf("shipyard = %+v", sy)
 	}
@@ -190,11 +192,11 @@ func TestLoadOldCoast(t *testing.T) {
 	if lj.WorkArea == nil || lj.WorkArea.Radius != 4 || lj.WorkArea.RequiredTiles != 24 || !lj.WorkArea.MatchesTerrain("forest") {
 		t.Errorf("lumberjack work area = %+v", lj.WorkArea)
 	}
-	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || f.WaterTiles != 1 || f.Coastal {
+	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || f.WaterTiles != 3 || f.Coastal {
 		t.Error("fisher recipe/water-edge mismatch")
 	}
 	tp := c.BuildingByID["trading_post"]
-	if tp.TradingPost == nil || tp.WaterTiles != 2 || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 30_000, Berths: 1}) {
+	if tp.TradingPost == nil || tp.WaterTiles != 3 || tp.TradingPost.Levels[0] != (TradingPostLevel{Capacity: 300_000, ThroughputPerMin: 30_000, Berths: 1}) {
 		t.Errorf("trading post = %+v", tp.TradingPost)
 	}
 	var berths []int
@@ -444,26 +446,36 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"never-pausable building with upkeep", FileBuildings,
-			[]string{`"cost": { "gold": 225, "planks": 15 },
-    "upkeep_per_min": 0,`, `"cost": { "gold": 225, "planks": 15 },
+			[]string{`"cost": { "gold": 250, "planks": 15 },
+    "upkeep_per_min": 0,`, `"cost": { "gold": 250, "planks": 15 },
     "upkeep_per_min": 3,`},
 			[]string{FileBuildings, `building "market_small"`, "upkeep_per_min", "must be 0 for pause_category never"},
 		},
 		{
 			"water rows cover the whole footprint", FileBuildings,
-			[]string{`"water_tiles": 1,`, `"water_tiles": 2,`},
+			[]string{`"water_tiles": 3,
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 60, "planks": 6 },`, `"water_tiles": 8,
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 60, "planks": 6 },`},
 			[]string{FileBuildings, `building "fisher"`, "water_tiles", "at least one land row"},
 		},
 		{
 			"water-edge building also coastal", FileBuildings,
-			[]string{`"water_tiles": 1,
-    "coastal": false,`, `"water_tiles": 1,
-    "coastal": true,`},
+			[]string{`"water_tiles": 3,
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 60, "planks": 6 },`, `"water_tiles": 3,
+    "coastal": true,
+    "requires_road": true,
+    "cost": { "gold": 60, "planks": 6 },`},
 			[]string{FileBuildings, `building "fisher"`, "water_tiles", "not also coastal"},
 		},
 		{
 			"trading post without water rows", FileBuildings,
-			[]string{`"water_tiles": 2,
+			[]string{`"water_tiles": 3,
     "coastal": false,
     "requires_road": false,
     "cost": { "gold": 200, "planks": 15 },`, `"coastal": false,

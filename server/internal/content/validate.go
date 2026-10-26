@@ -343,7 +343,8 @@ func checkReferences(c *Catalogue) error {
 // fields.type names a field type declared by exactly one field building,
 // that field building names the farm (field.farm) and a farm has exactly
 // one field type, no work radius and no terrain rule; a field is a
-// building without a recipe or a work area whose footprint is 1x1 or 2x2.
+// building without a recipe or a work area (any footprint: crop tiles are
+// 1x1, pasture modules 3x3 and larger, D-054).
 // The schema enforces the other shape rules of both blocks.
 func checkFields(c *Catalogue, col *collector) {
 	declared := map[string]string{}
@@ -385,9 +386,6 @@ func checkFields(c *Catalogue, col *collector) {
 			col.add(FileBuildings, ent, "field.farm", "farm %q already has the field building %q", f.Farm, other)
 		} else {
 			farmField[f.Farm] = b.ID
-		}
-		if b.Width != b.Height || b.Width > 2 {
-			col.add(FileBuildings, ent, "footprint", "field buildings must be 1x1 or 2x2")
 		}
 		if b.Recipe != nil || b.WorkArea != nil {
 			col.add(FileBuildings, ent, "field", "a field cannot have a recipe or a work area")

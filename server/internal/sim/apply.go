@@ -419,8 +419,8 @@ func CheckSite(is *Island, c *content.Catalogue, def *content.Building, x, y, ro
 }
 
 // SiteChecker is CheckSite for many sites of one unchanged island: the
-// occupancy is computed once (the archipelago generator checks every
-// anchor of an island, D-053).
+// occupancy is computed once (the archipelago generator and the dev
+// fixture planner scan every anchor of an island, D-053).
 type SiteChecker struct {
 	is  *Island
 	c   *content.Catalogue
@@ -433,12 +433,36 @@ func NewSiteChecker(is *Island, c *content.Catalogue) *SiteChecker {
 	return &SiteChecker{is: is, c: c, occ: is.occupancy(c)}
 }
 
-// Check is CheckSite on the checker's island.
-func (s *SiteChecker) Check(def *content.Building, x, y, rotation int) error {
+// Valid reports whether CheckSite accepts the site. Footprints that fail
+// on bounds, terrain or occupancy are rejected by a scan without
+// allocation (most anchors of a scan); the others get the full check.
+func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
 	if !validRotation(rotation) {
-		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, rotation)
+		return false
 	}
-	return checkSite(s.is, s.c, s.occ, def, x, y, rotation, true)
+	is := s.is
+	fw, fh := footprint(def, rotation)
+	if fw < 1 || fh < 1 || x < 0 || y < 0 || x > is.Width-fw || y > is.Height-fh {
+		return false
+	}
+	mountain := def.RequiresDeposit != ""
+	for ty := y; ty < y+fh; ty++ {
+		for tx := x; tx < x+fw; tx++ {
+			i := is.index(tx, ty)
+			t := is.Tiles[i].Terrain
+			switch {
+			case s.occ[i] != 0:
+				return false
+			case WaterTile(def, x, y, rotation, tx, ty):
+				if t != content.TerrainWater {
+					return false
+				}
+			case is.Roads[i] != "" || (!buildableTerrain(t) && (!mountain || t != content.TerrainMountain)):
+				return false
+			}
+		}
+	}
+	return checkSite(is, s.c, s.occ, def, x, y, rotation, true) == nil
 }
 
 // checkSite validates a building site, in this order: the footprint is on

@@ -16,11 +16,8 @@ import (
 )
 
 // DevSeed is the archipelago seed of the --dev server (flag --seed) and of
-// the dev fixtures by default: since the D-054 island sizes the first seed
-// from 1 053 001 on whose home island the start ship reaches, and from
-// which a sloop reaches the nearest neighbour, in 1-5 minutes (R-18;
-// 1 053 001 itself needs 6 minutes from the spawn).
-const DevSeed uint64 = 1_053_003
+// the dev fixtures by default.
+const DevSeed uint64 = 1_053_001
 
 // New builds a new player world on the archipelago of seed, evaluated at
 // start (truncated to milliseconds): no island settled and the start ship

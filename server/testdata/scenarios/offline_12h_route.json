@@ -1,6 +1,7 @@
 {
   "name": "offline_12h_route",
   "description": "(s) The dev-archipelago distance (120 tiles, 2 min per leg) with a running route: planks from the start island's chain out, fish from island 2's fisher back. One 12-hour Advance: stocks end at their caps, the ship keeps looping in a consistent state; boundary count and Advance time are recorded.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

@@ -1,6 +1,7 @@
 {
   "name": "bootstrap_citizens_quests",
   "description": "Tier-1/2 reference game with the intro quests (golden y): the plan of bootstrap_citizens in the same order, with a claim_quest step as soon as a quest of the intro chain is completed (goods to the start island) and every wait shortened to the whole minutes the plan needs. The quest rewards are the only change; island 2 is founded at minute 44 and the first Citizen house stands at minute 73.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

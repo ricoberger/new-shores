@@ -1,6 +1,7 @@
 {
   "name": "chain_planks",
   "description": "Trading Post, lumberjack (road distance 5) and sawmill (road distance 11) on one dirt road, advanced 10 minutes in steps.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

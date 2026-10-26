@@ -20,7 +20,9 @@ const scenario = (name: string) =>
     island: { rows: string[] };
     steps: { place?: { type: string; x: number; y: number; rotation: number }; expect_error?: string }[];
   };
-const shipped = JSON.parse(readFileSync(join(root, "content", "old_coast", "buildings.json"), "utf8")) as {
+// The hand-made scenarios run on the pre-D-054 content (their "content"),
+// so the footprints and water rows below are that content's.
+const shipped = JSON.parse(readFileSync(join(root, "server", "testdata", "content", "old_coast_pre_d054", "buildings.json"), "utf8")) as {
   id: string;
   footprint: [number, number];
   water_tiles?: number;

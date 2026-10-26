@@ -1,6 +1,7 @@
 {
   "name": "insolvency",
   "description": "Upkeep exceeds taxes with little gold: buildings are auto-paused in MECHANICS §7 order (weaver; lumberjack and sheep farm at the lowest upkeep, then sawmill; fisher) because two houses at their floor pay less than the fisher's upkeep. The growing houses and demolished upkeep let them auto-resume in reverse order, each once gold covers 5 minutes of its upkeep.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

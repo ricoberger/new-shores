@@ -5,7 +5,10 @@ import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
 import { buildDenseArchipelagoFixture, buildDenseFixture, buildShowcaseFixture, fixtureDefs } from "./fixture";
 
-const CONTENT = join(__dirname, "..", "..", "..", "content", "old_coast");
+// The dense and showcase fixtures are laid out for the pre-D-054
+// footprints, which the current models (assets/build) still have; they
+// follow the shipped content (D-054 sizes) with the client scaling task.
+const CONTENT = join(__dirname, "..", "..", "..", "server", "testdata", "content", "old_coast_pre_d054");
 const T = Date.parse("2026-10-21T16:00:00Z");
 
 interface ContentJson {

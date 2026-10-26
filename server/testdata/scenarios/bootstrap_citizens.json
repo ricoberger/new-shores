@@ -1,6 +1,7 @@
 {
   "name": "bootstrap_citizens",
   "description": "Tier-1/2 reference game (balancing pass, golden t) on the dev archipelago of seed 1053001 as the pre-D-054 generator drew it (frozen until the reference games are re-laid on the D-054 islands, D-053; island 2 is the nearest island with iron) from the content starting stock only, the start sloop sailing from the archipelago centre: a settler town grown house by house from three plank chains, a shipyard and a sloop settling island 2, wool and a chapel for the Citizens unlock, a quarry on the start island's stone deposits for the first Citizen house, and the Settler-staffed tool chain on island 2 (iron deposits) supplied by a route that brings stone and planks out and tools home. The player builds in plan order as soon as gold and materials allow (waiting in whole minutes; buildings at the nearest site a road reaches, off the forest), keeps planks for the next planned building, and fills the remaining planks with settler houses; no pauses, demolitions or micro-timing.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

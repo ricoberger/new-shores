@@ -1,6 +1,7 @@
 {
   "name": "start_voyage",
   "description": "The opening of start_at_sea for the client: the start sloop sailing from its sea position (20, 20) to Home with the starting stock aboard, 10 s into its 28 s voyage; nothing is settled yet and the first quest (choose your home island) is active.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

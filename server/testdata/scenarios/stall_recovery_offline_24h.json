@@ -1,6 +1,7 @@
 {
   "name": "stall_recovery_offline_24h",
   "description": "Stall recovery, 24-hour offline variant (golden x): the world of stall_recovery_no_transit (houses after the gold ran out, nothing in stock or in transit), one minute to observe the stalled tax rate, then a single 24-hour advance as for a player who is away. The number of trial resumes is bounded by ceil(24 h / trial window); the town recovers without commands.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

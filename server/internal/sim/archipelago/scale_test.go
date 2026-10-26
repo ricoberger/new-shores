@@ -14,7 +14,7 @@ import (
 // compress (zstd) once the state grows past ~1 MB.
 func TestEncodedStateSize(t *testing.T) {
 	c := catalogue(t)
-	w, err := NewWorld(c, 1053003, time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC))
+	w, err := NewWorld(c, 1053001, time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC))
 	if err != nil {
 		t.Fatal(err)
 	}

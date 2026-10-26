@@ -1,6 +1,7 @@
 {
   "name": "start_at_sea",
   "description": "Start at sea (MECHANICS \u00a78, D-051): the start sloop waits at sea at (20, 20) with the starting planks and sails aboard, the starting gold on the balance and no island settled. It cannot found from the sea (ship_not_idle), sails to Home (about 28 s), where nothing can be built before founding (island_not_settled) and a Trading Post needs its front rows on water (not_on_water). Founding places the Trading Post from the cargo and the gold, unloads the rest and completes the first quest, which is claimed; a road and two houses follow.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

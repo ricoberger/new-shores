@@ -29,7 +29,24 @@ func repoRoot(t testing.TB) string {
 	return filepath.Join(filepath.Dir(file), "..", "..", "..")
 }
 
+// catalogue loads the pre-D-054 content (server/testdata/content): the
+// mechanics tests pin its footprints and costs (2x2 houses, 4x4 Trading
+// Post, 2x2 pastures); the shipped content's numbers are checked by the
+// content tests and the reference games.
 func catalogue(t testing.TB) *content.Catalogue {
+	t.Helper()
+	root := repoRoot(t)
+	c, err := content.LoadWithSchemas(filepath.Join(root, "server", "testdata", "content", "old_coast_pre_d054"), filepath.Join(root, "content", "schema"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return c
+}
+
+// shippedCatalogue loads the shipped content (content/old_coast, D-054
+// footprints): for the tests of rules whose shape it changes (3x3
+// pastures, 1x1 crop fields painted by the hundred).
+func shippedCatalogue(t testing.TB) *content.Catalogue {
 	t.Helper()
 	c, err := content.Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {

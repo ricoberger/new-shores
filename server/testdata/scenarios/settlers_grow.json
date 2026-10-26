@@ -1,6 +1,7 @@
 {
   "name": "settlers_grow",
   "description": "Eight settler houses with a fisher, the wool chain and a small market in range: every house reaches satisfaction 1 and 8 residents, gold never runs out and the balance ends positive.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

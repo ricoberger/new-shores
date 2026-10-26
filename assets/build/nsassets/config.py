@@ -15,7 +15,10 @@ SCHEMA_PATH = os.path.join(RECIPES_DIR, "schema.json")
 PALETTE_PATH = os.path.join(ASSETS_DIR, "palette.json")
 KITS_MANIFEST_PATH = os.path.join(ASSETS_DIR, "kits", "MANIFEST.json")
 KITS_README = "assets/kits/README.md"
-CONTENT_DIR = os.path.join(REPO_ROOT, "content", "old_coast")
+#: The content the models are fitted to: the pre-D-054 footprints (2×2
+#: houses, …) until the recipes are re-fitted to the D-054 sizes of
+#: content/old_coast; the IDs are the same.
+CONTENT_DIR = os.path.join(REPO_ROOT, "server", "testdata", "content", "old_coast_pre_d054")
 MODELS_DIR = os.path.join(REPO_ROOT, "client", "public", "models")
 SHEETS_DIR = os.path.join(BUILD_DIR, "out")
 #: Build-card thumbnails (client/public/models/thumbs/<content id>.png), committed.

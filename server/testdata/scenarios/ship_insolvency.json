@@ -1,6 +1,7 @@
 {
   "name": "ship_insolvency",
   "description": "(r) A sloop waits idle at the unsettled island 2 with 50 planks and 50 wood aboard (nothing can unload there). Upkeep exceeds taxes (two houses at their floor pay less than the fisher's upkeep): the cascade pauses the weaver (need goods), the intermediate chain (lumberjack, sheep farm, sawmill), then the ship (step 4, anchored_unpaid, cargo aboard), then the fisher (tier-1 food). Growing houses and demolished upkeep resume them in reverse order; the ship is idle again with identical cargo.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

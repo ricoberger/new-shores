@@ -41,7 +41,11 @@ var (
 
 func catalogue(t testing.TB) *content.Catalogue {
 	t.Helper()
-	catOnce.Do(func() { cat, catErr = content.Load(filepath.Join(repoRoot(t), "content", "old_coast")) })
+	// The pre-D-054 content: the test world's hand-made islands (testworld)
+	// and the coordinates of these tests fit its footprints.
+	catOnce.Do(func() {
+		cat, catErr = content.LoadWithSchemas(filepath.Join(repoRoot(t), "server", "testdata", "content", "old_coast_pre_d054"), filepath.Join(repoRoot(t), "content", "schema"))
+	})
 	if catErr != nil {
 		t.Fatal(catErr)
 	}

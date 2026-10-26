@@ -217,19 +217,19 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `house_settlers` | 1 | 3×3 | Residence | 0 / 5 | 0 | — | R; all houses 3×3, upgrade in place |
 | `road_dirt` | 1 | 1×1 | road | see text | 0 | — |  |
 | `trading_post` | 1 | 6×9, 3 water rows | Trading Pier 6×9 | see text | 0 | — | founding only; levels as below |
-| `warehouse` | 1 | 6×6 | Warehouse 6×6 | 50 / 6 | 2 | — | collector; radius and throughput per level |
-| `market_small` | 1 | 5×6 | Market | 250 / 15 | 2 | — | R, radius 12 |
-| `chapel` | 1 | 3×3 | Shrine 3×3 | 100 / 6 | 4 | — | R, radius 16; the 6×10 church is tier 3 |
+| `warehouse` | 1 | 6×6 | Warehouse 6×6 | 50 / 6 | 0 | — | collector; radius and throughput per level |
+| `market_small` | 1 | 5×6 | Market | 250 / 15 | 0 | — | R, radius 12 |
+| `chapel` | 1 | 3×3 | Shrine 3×3 | 100 / 6 | 0 | — | R, radius 16; the 6×10 church is tier 3 |
 | `lumberjack` | 1 | 3×3 | Woodcutter | 100 / 6 | 1 | 4 S | R, work radius 4 forest |
 | `sawmill` | 1 | 4×6 | Sawmill | 250 / 9 | 2 | 4 S | R |
 | `fisher` | 1 | 3×8, 3 water rows | Fishing Hut | 60 / 6 | 2 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + 3 `pasture` | Sheep Farm | 60 / 6 | 1 | 4 S | R, cycle 90 s |
-| `pasture` | 1 | 3×3 field | pasture module | 15 g / 5 planks | 0 | — | sheep_farm only; grass; edge-adjacent chain |
+| `pasture` | 1 | 3×3 field | pasture module | 15 g / 1 plank | 0 | — | sheep_farm only; grass; edge-adjacent chain |
 | `weaver_wool` | 1 | 3×4 | Spinner | 60 / 6 | 2 | 6 S | R, cycle 90 s |
-| `shipyard` | 1 | 8×12, 4 water rows | Shipyard | 1000 / 45 | 4 | — | R, never auto-paused |
+| `shipyard` | 1 | 8×12, 4 water rows | Shipyard | 1000 / 45 | 0 | — | R, never auto-paused |
 | `house_citizens` | 2 | 3×3 | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | road | see text | 0 | — | 5 gold / 1 stone |
-| `quarry` | 2 | 3×8 on a stone slot | Limestone Quarry | 120 / 6 / 3 | 3 | 8 S | R; strip into the mountain |
+| `quarry` | 2 | 3×8 on a stone slot | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
 | `iron_mine` | 2 | 3×8 on an iron slot | Iron Mine | 180 / 6 / 6 | 2 | 10 S | R |
 | `charcoal_burner` | 2 | 5×6 | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |
 | `smelter` | 2 | 4×6 | Furnace | 290 / 5 / 12 | 2 | 8 S | R |
@@ -451,7 +451,7 @@ it carries:
 | `service` | `radius` | public buildings |
 | `work_area` | `radius`, `fertility?` (island-wide tag the island must carry, else `no_fertility`); harvesters also `terrain[]`, `required_tiles` | farms (radius only), lumberjack, gatherers |
 | `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4) |
-| `field` | `type`, `farm` (the one farm type that owns it), `terrain[]`, `fertility?` — 1×1 (crops) or 2×2 (animals), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires exactly one farm whose `fields.type` matches | pasture, wheat_field, orchard_plot, hemp_field (reserved: pig_pen, meadow, cattle_pasture; later hop/woad/vineyard) |
+| `field` | `type`, `farm` (the one farm type that owns it), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires exactly one farm whose `fields.type` matches | pasture, wheat_field, orchard_plot, hemp_field (reserved: pig_pen, meadow, cattle_pasture; later hop/woad/vineyard) |
 | `workforce` | `tier`, `amount` | producers only (D-035) |
 | `requires_deposit` | deposit type; the footprint must cover ≥ 1 tile with that deposit (`no_deposit`) and may cover mountain tiles | mines, quarries |
 | `slot` | typed deposit/harbour slots (D-036) — not yet implemented; `requires_deposit` is the interim rule | — |

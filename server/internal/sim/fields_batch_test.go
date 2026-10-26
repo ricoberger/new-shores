@@ -3,6 +3,7 @@ package sim
 import (
 	"bytes"
 	"errors"
+	"math/rand/v2"
 	"testing"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -233,12 +234,19 @@ func sequentialFields(w *World, c *content.Catalogue, cmd PlaceFields) int {
 // none, the farm stays within fields.max; and demolish_fields of a random
 // rectangle equals demolishing the covered fields one by one.
 func TestPropertyPlaceFields(t *testing.T) {
-	for name, c := range propertyCatalogues(t) {
+	cats := propertyCatalogues(t)
+	cats["shipped"] = shippedCatalogue(t)
+	for name, c := range cats {
 		c := withoutQuests(c)
 		t.Run(name, func(t *testing.T) {
 			batches, partial, failed := 0, 0, 0
 			for seed := range uint64(propertyCases) {
-				p := moveWorld(t, c, 310_000+seed)
+				var p *propCase
+				if name == "shipped" {
+					p = shippedFieldsCase(t, c, 310_000+seed)
+				} else {
+					p = moveWorld(t, c, 310_000+seed)
+				}
 				for range 6 {
 					cmd, ok := p.randomFieldBatch()
 					if !ok {
@@ -311,6 +319,10 @@ func (p *propCase) randomFieldBatch() (PlaceFields, bool) {
 		return PlaceFields{}, false
 	}
 	w, h := 1+p.rng.IntN(9), 1+p.rng.IntN(9)
+	if p.rng.IntN(4) == 0 {
+		// A large drag of one-tile crops (up to 22x22 = 484 <= MaxFieldTiles).
+		w, h = 1+p.rng.IntN(22), 1+p.rng.IntN(22)
+	}
 	tiles := rectTiles(cmd.X, cmd.Y, cmd.X+w-1, cmd.Y+h-1, p.rng.IntN(2) == 0)
 	if p.rng.IntN(3) == 0 {
 		p.rng.Shuffle(len(tiles), func(i, j int) { tiles[i], tiles[j] = tiles[j], tiles[i] })
@@ -319,6 +331,68 @@ func (p *propCase) randomFieldBatch() (PlaceFields, bool) {
 		p.w.Gold = def.Cost.Gold * int64(p.rng.IntN(4))
 	}
 	return PlaceFields{IslandID: cmd.IslandID, FarmID: cmd.FarmID, Type: cmd.Type, Tiles: tiles}, true
+}
+
+// shippedFieldsCase is a property case on the shipped content (D-054
+// sizes): a 64x44 island with random forest and mountain tiles, a 6x9
+// Trading Post on a three-row bay, the Citizens unlocked, the fertilities
+// of the crop farms, plenty of gold and planks, and the four farms
+// (sheep, wheat, orchard, hemp) on cleared ground.
+func shippedFieldsCase(t *testing.T, c *content.Catalogue, seed uint64) *propCase {
+	t.Helper()
+	p := &propCase{t: t, c: c, types: propertyTypes(c), rng: rand.New(rand.NewPCG(seed, 0x5eed)), l: NewLedger(), splitKinds: map[string]int{}} // #nosec G404 -- deterministic test data
+	const width, height = 64, 44
+	farms := []struct {
+		typ  string
+		x, y int
+	}{{"sheep_farm", 12, 10}, {"wheat_farm", 40, 10}, {"orchard", 12, 30}, {"hemp_farm", 44, 30}}
+	cleared := func(x, y int) bool {
+		if x <= 8 && y <= 9 {
+			return true // the Trading Post and its bay
+		}
+		for _, f := range farms {
+			if x >= f.x-1 && x <= f.x+4 && y >= f.y-1 && y <= f.y+4 {
+				return true
+			}
+		}
+		return false
+	}
+	tiles := make([]Tile, width*height)
+	for y := range height {
+		for x := range width {
+			terrain := content.TerrainGrass
+			switch r := p.rng.IntN(100); {
+			case x == 0 || y == 0 || x == width-1 || y == height-1, x <= 8 && y <= 2:
+				terrain = content.TerrainWater
+			case cleared(x, y):
+			case r < 8:
+				terrain = content.TerrainForest
+			case r < 11:
+				terrain = content.TerrainMountain
+			}
+			tiles[y*width+x] = Tile{Terrain: terrain}
+		}
+	}
+	w := NewWorld(t0)
+	w.Islands = []*Island{NewIsland("main", width, height, tiles)}
+	w.Islands[0].Fertilities = []string{"wheat", "apple", "hemp"}
+	w.UnlockedTiers = []string{"citizens"}
+	if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: "trading_post", X: 1, Y: 0}, p.l); err != nil {
+		t.Fatalf("seed %d: trading post: %v", seed, err)
+	}
+	w.Gold = 100_000_000
+	for _, g := range []string{"planks", "stone"} {
+		if err := AddStock(w, c, "main", g, 40_000, nil); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, f := range farms {
+		if err := PlaceFree(w, c, PlaceBuilding{IslandID: "main", Type: f.typ, X: f.x, Y: f.y}, p.l); err != nil {
+			t.Fatalf("seed %d: %s: %v", seed, f.typ, err)
+		}
+	}
+	p.w = w
+	return p
 }
 
 // checkDemolishFields demolishes a random rectangle of the farm's fields

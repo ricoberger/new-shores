@@ -1,6 +1,7 @@
 {
   "name": "collector_warehouse",
   "description": "Collectors (MECHANICS \u00a75, D-051): the 32 lumberjacks of throttled_warehouse along one road, plus an inland Warehouse at (60, 6) south of the road. Each lumberjack delivers to the nearest collector by road (Trading Post in the west, Warehouse in the east), each collector throttles its own share at its throughput (30/min at level 1); upgrading the Warehouse to level 2 (55/min) lifts its producers' throttling. The island's capacity stays the Trading Post's 300 per good throughout: Warehouses never add capacity.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",
