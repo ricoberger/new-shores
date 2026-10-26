@@ -170,7 +170,14 @@ async function shoot(page: Page, file: string, written: string[]): Promise<void>
   mkdirSync(dirname(file), { recursive: true });
   await page.screenshot({ path: file, timeout: 90_000, animations: "disabled", caret: "hide" });
   written.push(file);
-  console.log(relative(process.cwd(), file) || file);
+  const name = relative(process.cwd(), file) || file;
+  if (process.env.STATS?.trim() === "1") {
+    // Perf sanity (polish rounds): the renderer's counters of the shot's frame.
+    const s = await page.evaluate(() => ({ draws: window.__newShores!.drawCalls(), tris: window.__newShores!.triangles(), meshes: window.__newShores!.meshesCreated() }));
+    console.log(`${name}  draws ${s.draws}  tris ${s.tris}  meshes ${s.meshes}`);
+  } else {
+    console.log(name);
+  }
 }
 
 // ---------------------------------------------------------------- matrix
