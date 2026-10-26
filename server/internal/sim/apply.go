@@ -418,6 +418,29 @@ func CheckSite(is *Island, c *content.Catalogue, def *content.Building, x, y, ro
 	return checkSite(is, c, is.occupancy(c), def, x, y, rotation, true)
 }
 
+// SiteChecker is CheckSite for many sites of one unchanged island: the
+// occupancy is computed once (the archipelago generator checks every
+// anchor of an island, D-053).
+type SiteChecker struct {
+	is  *Island
+	c   *content.Catalogue
+	occ []int64
+}
+
+// NewSiteChecker returns a checker of the island in its current state; it
+// must not be used after the island changed.
+func NewSiteChecker(is *Island, c *content.Catalogue) *SiteChecker {
+	return &SiteChecker{is: is, c: c, occ: is.occupancy(c)}
+}
+
+// Check is CheckSite on the checker's island.
+func (s *SiteChecker) Check(def *content.Building, x, y, rotation int) error {
+	if !validRotation(rotation) {
+		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, rotation)
+	}
+	return checkSite(s.is, s.c, s.occ, def, x, y, rotation, true)
+}
+
 // checkSite validates a building site, in this order: the footprint is on
 // the island, on buildable terrain (a deposit building may also cover
 // mountain tiles) and free (per occ and roads) except the front rows of a

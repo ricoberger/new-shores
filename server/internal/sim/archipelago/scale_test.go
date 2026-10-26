@@ -22,11 +22,11 @@ import (
 // content in a temporary directory (the schema's size maximum raised to
 // fit), so the measurements below need no committed content change.
 var (
-	targetSizes   = map[string]int{"large": 160, "medium": 100, "small": 56, "rock": 16}
+	targetSizes   = map[string]int{"large": 192, "medium": 112, "small": 64, "rock": 16}
 	targetOnce    sync.Once
 	targetCat     *content.Catalogue
 	targetCatErr  error
-	targetArea    = 72000
+	targetArea    = 91000
 	targetSpacing = map[string]int{"min": 100, "nearest_max": 300}
 )
 

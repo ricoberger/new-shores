@@ -1,53 +1,50 @@
-seed 1053001 home isle-01 ship (195,172) bounds (0,0)-(391,345)
+seed 1053001 home isle-01 ship (183,220) bounds (0,0)-(367,440)
 
-isle-01 "Gull Rest" large at (229,22) 45x45 fertilities [wheat apple] slots iron 0 stone 2
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~ccccccccc~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~ccc.......ccc~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~ccc...........cc~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~cc..............cc~~~~~~~~~~~~~~~~~~~
-~~~~~~~cc................ccc~~~~~~~~~~~~~~~~~
-~~~~~~~c...................ccc~~~~~~~~~~~~~~~
-~~~~~~cc.....................ccccc~~~~~~~~~~~
-~~~~~~c..........................ccc~~~~~~~~~
-~~~~~~c............................cc~~~~~~~~
-~~~~~~c.............................c~~~~~~~~
-~~~~~~c.............................cc~~~~~~~
-~~~~~~cc.............................cc~~~~~~
-~~~~~~~c..............................c~~~~~~
-~~~~~~~c..............................c~~~~~~
-~~~~~~cc..............................cc~~~~~
-~~~~~~c................................c~~~~~
-~~~~~~c................................c~~~~~
-~~~~~~c...........f....................cc~~~~
-~~~~~~c...........f.f..f................c~~~~
-~~~~~~c.........fffff.ffff..............c~~~~
-~~~~~~c.........fffffff.ff..............cc~~~
-~~~~~cc.....f.....ffffffffffff..........cc~~~
-~~~~~c......f....fffffffffff...mmmm.....c~~~~
-~~~~cc......fff..ffffffffff....mmmm.....c~~~~
-~~~~c.....ffffffffffffffffffffmmmmm....cc~~~~
-~~~~c.....fffffff..fffffffffmmmmmmm....c~~~~~
-~~~~c....fffffffffffffffffmffmmmmmm...cc~~~~~
-~~~cc....fffffffffffffffffm.fmmmmm...cc~~~~~~
-~~~c.....fffffffffffffffffmmmmmmmmm.cc~~~~~~~
-~~~cc.....ffffffffffffffffmmmmmmmS..c~~~~~~~~
-~~~~c.....ffffffffffffffffmfSSmmmS.cc~~~~~~~~
-~~~~cc.......ffffffffffffffffffffffc~~~~~~~~~
-~~~~~cc......ffffffffffffffffffffffc~~~~~~~~~
-~~~~~~ccc...ffffffffffffffffffffffcc~~~~~~~~~
-~~~~~~~~cc..fffffffffffffffffffffcc~~~~~~~~~~
-~~~~~~~~~cc..fffffffffffffffffffcc~~~~~~~~~~~
-~~~~~~~~~~cccffffffffffffffffffcc~~~~~~~~~~~~
-~~~~~~~~~~~~cccf.ccccccccccccccc~~~~~~~~~~~~~
-~~~~~~~~~~~~~~cccc~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+isle-01 "Gull Rest" large at (182,130) 52x42 fertilities [wheat apple] slots iron 0 stone 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~ccccccccccc~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~cccccccccccc.........cccc~~~~~~~~~~~~~~~~~~~~
+~~~~~~cc...fffff...............cccc~~~~~~~~~~~~~~~~~
+~~~~~~c.....ffff..................ccc~~~~~~~~~~~~~~~
+~~~~~cc...ffffffffff................cc~~~~~~~~~~~~~~
+~~~~~c...ffffffffff..................cc~~~~~~~~~~~~~
+~~~~~c...fffffffff....................cc~~~~~~~~~~~~
+~~~~cc...fffffffffff...................c~~~~~~~~~~~~
+~~~~c...fffffffffffff..................cc~~~~~~~~~~~
+~~~~c...ffffffffffff....................c~~~~~~~~~~~
+~~~~c....fffffff.ff..........m..........cc~~~~~~~~~~
+~~~~c....f.fffff............mmm..........cc~~~~~~~~~
+~~~cc......ff...............mm............c~~~~~~~~~
+~~~c.......f................mmm...........cc~~~~~~~~
+~~~c.........................mmmmSS........cc~~~~~~~
+~~~c.........................mmmmm..........c~~~~~~~
+~~~cc......................mmmmmm...........c~~~~~~~
+~~~~c......................mmmmmmmm.........c~~~~~~~
+~~~~cc.....................mmmmmmmmm........c~~~~~~~
+~~~~~cc.....................m..mSS..........c~~~~~~~
+~~~~~~cc....................................c~~~~~~~
+~~~~~~~ccc......................f...........c~~~~~~~
+~~~~~~~~~cc....................ff.fff.......cc~~~~~~
+~~~~~~~~~~cccc................f.f.ff.f.ffffffcc~~~~~
+~~~~~~~~~~~~~cccc.............fff.fffffffffff.cc~~~~
+~~~~~~~~~~~~~~~~cccc.........ffff.fffffffffff..cc~~~
+~~~~~~~~~~~~~~~~~~~cc........ffffffffffffffff...c~~~
+~~~~~~~~~~~~~~~~~~~~ccc.....ffffffffffffffffff..c~~~
+~~~~~~~~~~~~~~~~~~~~~~ccccc..fffffffffffffffff..c~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~c..fffffffffffffffffffc~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~c..fffffffffffffffffffc~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~cc...ffffffffffffffffcc~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~cc..f.fffffffffffffcc~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~cc.f..fffffffffffcc~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~cccccccfffffffccc~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ccccccccc~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-02 "Oyster Bank" large at (236,135) 52x47 fertilities [wheat hops woad] slots iron 1 stone 0
+isle-02 "Oyster Bank" large at (122,23) 52x47 fertilities [wheat hops woad] slots iron 1 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,7 +93,7 @@ isle-02 "Oyster Bank" large at (236,135) 52x47 fertilities [wheat hops woad] slo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-03 "Merrow's Cradle" large at (119,125) 44x40 fertilities [apple grapes] slots iron 0 stone 0
+isle-03 "Merrow's Cradle" large at (273,0) 44x40 fertilities [apple grapes] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -138,7 +135,7 @@ isle-03 "Merrow's Cradle" large at (119,125) 44x40 fertilities [apple grapes] sl
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-04 "Pewter Cove" medium at (118,0) 38x30 fertilities [hemp hops woad] slots iron 0 stone 0
+isle-04 "Pewter Cove" medium at (310,185) 38x30 fertilities [hemp hops woad] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -170,7 +167,7 @@ isle-04 "Pewter Cove" medium at (118,0) 38x30 fertilities [hemp hops woad] slots
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-05 "Tarred Keel" medium at (151,235) 33x34 fertilities [apple grapes] slots iron 0 stone 1
+isle-05 "Tarred Keel" medium at (189,236) 33x34 fertilities [apple grapes] slots iron 0 stone 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,7 +203,7 @@ isle-05 "Tarred Keel" medium at (151,235) 33x34 fertilities [apple grapes] slots
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-06 "Mistle Haven" medium at (0,85) 31x32 fertilities [hemp hops] slots iron 0 stone 1
+isle-06 "Mistle Haven" medium at (0,289) 31x32 fertilities [hemp hops] slots iron 0 stone 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -240,7 +237,7 @@ isle-06 "Mistle Haven" medium at (0,85) 31x32 fertilities [hemp hops] slots iron
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-07 "Cobbler's Reach" medium at (18,210) 37x28 fertilities [hemp woad] slots iron 0 stone 0
+isle-07 "Cobbler's Reach" medium at (302,312) 37x28 fertilities [hemp woad] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -270,7 +267,7 @@ isle-07 "Cobbler's Reach" medium at (18,210) 37x28 fertilities [hemp woad] slots
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-08 "Larkspur Holm" medium at (246,278) 33x33 fertilities [wheat apple] slots iron 0 stone 0
+isle-08 "Larkspur Holm" medium at (93,212) 33x33 fertilities [wheat apple] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -305,7 +302,7 @@ isle-08 "Larkspur Holm" medium at (246,278) 33x33 fertilities [wheat apple] slot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-09 "Hollow Tor" small at (368,231) 23x26 fertilities [hemp woad] slots iron 1 stone 0
+isle-09 "Hollow Tor" small at (6,131) 23x26 fertilities [hemp woad] slots iron 1 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -333,7 +330,7 @@ isle-09 "Hollow Tor" small at (368,231) 23x26 fertilities [hemp woad] slots iron
 ~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-10 "Grey Mantle" small at (351,133) 25x24 fertilities [wheat hops] slots iron 0 stone 0
+isle-10 "Grey Mantle" small at (123,331) 25x24 fertilities [wheat hops] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -359,7 +356,7 @@ isle-10 "Grey Mantle" small at (351,133) 25x24 fertilities [wheat hops] slots ir
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-11 "Brine Water" small at (39,314) 24x22 fertilities [woad grapes] slots iron 0 stone 0
+isle-11 "Brine Water" small at (213,394) 24x22 fertilities [woad grapes] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -383,7 +380,7 @@ isle-11 "Brine Water" small at (39,314) 24x22 fertilities [woad grapes] slots ir
 ~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-12 "Fogbell Isle" small at (343,51) 25x22 fertilities [wheat hemp grapes] slots iron 0 stone 0
+isle-12 "Fogbell Isle" small at (342,96) 25x22 fertilities [wheat hemp grapes] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -407,7 +404,7 @@ isle-12 "Fogbell Isle" small at (343,51) 25x22 fertilities [wheat hemp grapes] s
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-13 "Shepherd's Holm" rock at (131,329) 16x16 fertilities [] slots iron 2 stone 1
+isle-13 "Shepherd's Holm" rock at (132,424) 16x16 fertilities [] slots iron 2 stone 1
 ~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~

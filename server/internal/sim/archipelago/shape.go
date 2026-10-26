@@ -22,9 +22,34 @@ type grid struct {
 	n int // width = height
 	t []byte
 	// dep holds the deposit slot (1-based index into slots) per tile, 0 for
-	// none.
+	// none; nil until placeSlots places one.
 	dep   []int
 	slots []slot
+	s     *scratch
+}
+
+// scratch holds the work buffers of the shape attempts of one island,
+// reused from attempt to attempt (the attempts of the large islands
+// dominate the generator's time, D-054). Reuse never changes a result:
+// every buffer is cleared before use.
+type scratch struct {
+	t     []byte
+	comp  []int
+	dist  []int
+	stack []int
+	in    []bool
+	out   []int
+	front []int
+}
+
+// ints returns buf resized to n and zeroed.
+func ints(buf []int, n int) []int {
+	if cap(buf) < n {
+		return make([]int, n)
+	}
+	buf = buf[:n]
+	clear(buf)
+	return buf
 }
 
 // slot is one deposit slot: two 4-adjacent mountain tiles on the edge of
@@ -34,7 +59,19 @@ type slot struct {
 	tiles [2]int
 }
 
-func newGrid(n int) *grid { return &grid{n: n, t: make([]byte, n*n), dep: make([]int, n*n)} }
+// newGrid returns an all-water grid of n x n tiles on the scratch buffers
+// (nil: fresh buffers).
+func newGrid(n int, s *scratch) *grid {
+	if s == nil {
+		s = &scratch{}
+	}
+	if cap(s.t) < n*n {
+		s.t = make([]byte, n*n)
+	}
+	s.t = s.t[:n*n]
+	clear(s.t)
+	return &grid{n: n, t: s.t, s: s}
+}
 
 func (g *grid) in(x, y int) bool { return x >= 0 && y >= 0 && x < g.n && y < g.n }
 func (g *grid) at(x, y int) byte {
@@ -43,7 +80,6 @@ func (g *grid) at(x, y int) byte {
 	}
 	return g.t[y*g.n+x]
 }
-func (g *grid) land(x, y int) bool { return g.at(x, y) != tWater }
 
 func buildable(t byte) bool { return t == tCoast || t == tGrass || t == tForest }
 
@@ -89,9 +125,9 @@ func (e ellipse) field(x, y int) int {
 // landMass draws 2-4 overlapping ellipses (rocks 1-2) inside the land
 // extent size, perturbs them with value noise, keeps the largest
 // 4-connected land component and fills enclosed water (no lakes).
-func landMass(r *rng, size int, rock bool) *grid {
+func landMass(r *rng, size int, rock bool, s *scratch) *grid {
 	n := size + 2*margin
-	g := newGrid(n)
+	g := newGrid(n, s)
 	half := size / 2
 	centre := margin + half
 	k := r.between(2, 4)
@@ -152,13 +188,14 @@ func (g *grid) smooth() {
 		changed := false
 		for y := margin; y < g.n-margin; y++ {
 			for x := margin; x < g.n-margin; x++ {
+				i := y*g.n + x
+				// Inside the margin every neighbour is on the grid.
 				n := 0
-				for _, d := range dirs4() {
-					if g.land(x+d[0], y+d[1]) {
+				for _, j := range [4]int{i - g.n, i + 1, i + g.n, i - 1} {
+					if g.t[j] != tWater {
 						n++
 					}
 				}
-				i := y*g.n + x
 				switch {
 				case g.t[i] != tWater && n < 2:
 					g.t[i] = tWater
@@ -178,7 +215,8 @@ func (g *grid) smooth() {
 // keepLargest keeps the largest 4-connected land component (the first in
 // row-major order on ties).
 func (g *grid) keepLargest() {
-	comp := make([]int, len(g.t))
+	g.s.comp = ints(g.s.comp, len(g.t))
+	comp := g.s.comp
 	best, bestSize := 0, 0
 	id := 0
 	for i := range g.t {
@@ -200,7 +238,8 @@ func (g *grid) keepLargest() {
 
 // fillLakes turns water not 4-connected to the grid border into land.
 func (g *grid) fillLakes() {
-	comp := make([]int, len(g.t))
+	g.s.comp = ints(g.s.comp, len(g.t))
+	comp := g.s.comp
 	water := func(j int) bool { return g.t[j] == tWater }
 	for i := range g.t {
 		x, y := i%g.n, i/g.n
@@ -218,59 +257,94 @@ func (g *grid) fillLakes() {
 // flood marks the 4-connected component of start (tiles passing ok) with
 // id and returns its size. Iterative, in a fixed order.
 func (g *grid) flood(start, id int, comp []int, ok func(int) bool) int {
-	stack := []int{start}
+	stack := append(g.s.stack[:0], start)
 	comp[start] = id
 	size := 0
+	visit := func(j int) {
+		if comp[j] == 0 && ok(j) {
+			comp[j] = id
+			stack = append(stack, j)
+		}
+	}
 	for len(stack) > 0 {
 		i := stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
 		size++
 		x, y := i%g.n, i/g.n
-		for _, d := range dirs4() {
-			nx, ny := x+d[0], y+d[1]
-			if !g.in(nx, ny) {
-				continue
-			}
-			j := ny*g.n + nx
-			if comp[j] == 0 && ok(j) {
-				comp[j] = id
-				stack = append(stack, j)
-			}
+		// dirs4 order: up, right, down, left.
+		if y > 0 {
+			visit(i - g.n)
+		}
+		if x < g.n-1 {
+			visit(i + 1)
+		}
+		if y < g.n-1 {
+			visit(i + g.n)
+		}
+		if x > 0 {
+			visit(i - 1)
 		}
 	}
+	g.s.stack = stack[:0]
 	return size
 }
 
 // waterDistance returns the Chebyshev distance of every tile to the
-// nearest water tile (0 on water), capped at limit.
+// nearest water tile (0 on water; tiles off the grid count as water),
+// capped at limit: a breadth-first search over the 8-neighbourhood from
+// all water tiles at once.
 func (g *grid) waterDistance(limit int) []int {
-	d := make([]int, len(g.t))
-	for i := range g.t {
-		if g.t[i] == tWater {
+	g.s.dist = ints(g.s.dist, len(g.t))
+	d := g.s.dist
+	queue := g.s.stack[:0]
+	for i, t := range g.t {
+		x, y := i%g.n, i/g.n
+		switch {
+		case t == tWater:
+		case x == 0 || y == 0 || x == g.n-1 || y == g.n-1:
+			d[i] = 1
+			queue = append(queue, i)
+		default:
+			d[i] = -1
+		}
+	}
+	for i, t := range g.t {
+		if t != tWater {
 			continue
 		}
 		x, y := i%g.n, i/g.n
-		best := limit
-		for r := 1; r < best; r++ {
-			found := false
-			for dy := -r; dy <= r && !found; dy++ {
-				for dx := -r; dx <= r; dx++ {
-					if max(abs(dx), abs(dy)) != r {
-						continue
-					}
-					if !g.land(x+dx, y+dy) {
-						found = true
-						break
-					}
+		for dy := -1; dy <= 1; dy++ {
+			for dx := -1; dx <= 1; dx++ {
+				nx, ny := x+dx, y+dy
+				if g.in(nx, ny) && d[ny*g.n+nx] == -1 {
+					d[ny*g.n+nx] = 1
+					queue = append(queue, ny*g.n+nx)
 				}
 			}
-			if found {
-				best = r
-				break
+		}
+	}
+	for head := 0; head < len(queue); head++ {
+		i := queue[head]
+		if d[i] >= limit {
+			continue
+		}
+		x, y := i%g.n, i/g.n
+		for dy := -1; dy <= 1; dy++ {
+			for dx := -1; dx <= 1; dx++ {
+				nx, ny := x+dx, y+dy
+				if g.in(nx, ny) && d[ny*g.n+nx] == -1 {
+					d[ny*g.n+nx] = d[i] + 1
+					queue = append(queue, ny*g.n+nx)
+				}
 			}
 		}
-		d[i] = best
 	}
+	for i := range d {
+		if d[i] == -1 || d[i] > limit {
+			d[i] = limit
+		}
+	}
+	g.s.stack = queue[:0]
 	return d
 }
 
@@ -292,12 +366,18 @@ func (g *grid) landCount() int {
 }
 
 // grow grows a blob of up to size tiles from start over tiles passing ok,
-// picking a random frontier tile each step; it returns the tiles.
+// picking a random frontier tile each step; it returns the tiles (valid
+// until the next grow).
 func grow(r *rng, g *grid, start, size int, ok func(int) bool) []int {
-	in := make([]bool, len(g.t))
+	if cap(g.s.in) < len(g.t) {
+		g.s.in = make([]bool, len(g.t))
+	}
+	in := g.s.in[:len(g.t)]
+	clear(in)
 	in[start] = true
-	out := []int{start}
-	frontier := []int{}
+	out := append(g.s.out[:0], start)
+	frontier := g.s.front[:0]
+	defer func() { g.s.out, g.s.front = out[:0], frontier[:0] }()
 	push := func(i int) {
 		x, y := i%g.n, i/g.n
 		for _, d := range dirs4() {
@@ -332,8 +412,8 @@ func grow(r *rng, g *grid, start, size int, ok func(int) bool) []int {
 // elsewhere (rocks: a two-tile coast band around a mountain core). It
 // returns nil when the attempt does not fit (land outside the area
 // window, no room for the slots); the caller retries with a new sub-seed.
-func shape(r *rng, sc *content.SizeClass, deposits []string) *grid {
-	g := landMass(r, sc.Size, sc.Rock)
+func shape(r *rng, sc *content.SizeClass, deposits []string, s *scratch) *grid {
+	g := landMass(r, sc.Size, sc.Rock, s)
 	land := g.landCount()
 	area := sc.Size * sc.Size
 	lo, hi := area*landMinPct/100, area*landMaxPct/100
@@ -371,19 +451,20 @@ func shape(r *rng, sc *content.SizeClass, deposits []string) *grid {
 			if m == 0 {
 				size += total % mountains
 			}
-			var seeds []int
-			for i, t := range g.t {
-				if t == tGrass && dist[i] >= 4 {
-					seeds = append(seeds, i)
-				}
-			}
-			if len(seeds) == 0 {
+			seed, ok := g.pick(r, func(i int) bool { return g.t[i] == tGrass && dist[i] >= 4 })
+			if !ok {
 				return nil
 			}
-			tiles := grow(r, g, seeds[r.intn(len(seeds))], size, func(j int) bool { return g.t[j] == tGrass && dist[j] >= 3 })
+			tiles := grow(r, g, seed, size, func(j int) bool { return g.t[j] == tGrass && dist[j] >= 3 })
 			for _, i := range tiles {
 				g.t[i] = tMountain
 			}
+		}
+		// Pockets of buildable land the mountains cut off become mountain
+		// (roads cannot reach them); forests only turn grass into forest,
+		// so the buildable land's connectivity is final here.
+		if !g.fillPockets(total) {
+			return nil
 		}
 		patches := r.between(1, 3)
 		forest := land * r.between(forestMinPct, forestMaxPct) / 100
@@ -392,21 +473,16 @@ func shape(r *rng, sc *content.SizeClass, deposits []string) *grid {
 			if p == 0 {
 				size += forest % patches
 			}
-			var seeds []int
-			for i, t := range g.t {
-				if t == tGrass {
-					seeds = append(seeds, i)
-				}
-			}
-			if len(seeds) == 0 {
+			seed, ok := g.pick(r, func(i int) bool { return g.t[i] == tGrass })
+			if !ok {
 				return nil
 			}
-			tiles := grow(r, g, seeds[r.intn(len(seeds))], size, func(j int) bool { return g.t[j] == tGrass })
+			tiles := grow(r, g, seed, size, func(j int) bool { return g.t[j] == tGrass })
 			for _, i := range tiles {
 				g.t[i] = tForest
 			}
 		}
-		if !g.buildableConnected() || !g.has(tGrass) || !g.has(tForest) {
+		if !g.has(tGrass) || !g.has(tForest) {
 			return nil
 		}
 	}
@@ -464,6 +540,30 @@ const (
 	forestMaxPct   = 30
 )
 
+// pick returns the k-th tile in row-major order passing ok, k drawn
+// uniformly from their count (one draw, like indexing a list of them).
+func (g *grid) pick(r *rng, ok func(int) bool) (int, bool) {
+	n := 0
+	for i := range g.t {
+		if ok(i) {
+			n++
+		}
+	}
+	if n == 0 {
+		return 0, false
+	}
+	k := r.intn(n)
+	for i := range g.t {
+		if ok(i) {
+			if k == 0 {
+				return i, true
+			}
+			k--
+		}
+	}
+	return 0, false
+}
+
 func (g *grid) has(t byte) bool {
 	for _, v := range g.t {
 		if v == t {
@@ -473,23 +573,35 @@ func (g *grid) has(t byte) bool {
 	return false
 }
 
-// buildableConnected reports whether the buildable land forms one
-// 4-connected component (mountains never cut an island in two: roads
-// cannot cross them).
-func (g *grid) buildableConnected() bool {
-	comp := make([]int, len(g.t))
+// fillPockets turns every 4-connected component of buildable land but the
+// largest (the first in row-major order on ties) into mountain, unless
+// they hold more than limit tiles together: then the mountains cut the
+// island in two and it reports false.
+func (g *grid) fillPockets(limit int) bool {
+	g.s.comp = ints(g.s.comp, len(g.t))
+	comp := g.s.comp
 	ok := func(j int) bool { return buildable(g.t[j]) }
-	n := 0
+	best, bestSize, total, id := 0, 0, 0, 0
 	for i := range g.t {
-		if ok(i) && comp[i] == 0 {
-			n++
-			if n > 1 {
-				return false
-			}
-			g.flood(i, n, comp, ok)
+		if !ok(i) || comp[i] != 0 {
+			continue
+		}
+		id++
+		size := g.flood(i, id, comp, ok)
+		total += size
+		if size > bestSize {
+			best, bestSize = id, size
 		}
 	}
-	return n == 1
+	if total-bestSize > limit {
+		return false
+	}
+	for i := range g.t {
+		if comp[i] != 0 && comp[i] != best {
+			g.t[i] = tMountain
+		}
+	}
+	return true
 }
 
 // edgeMountain reports whether tile i is a mountain 4-adjacent to
@@ -542,6 +654,9 @@ func (g *grid) placeSlots(r *rng, kinds []string) bool {
 			}
 			if ok {
 				g.slots = append(g.slots, slot{kind: kind, tiles: [2]int{c.a, c.b}})
+				if g.dep == nil {
+					g.dep = make([]int, len(g.t))
+				}
 				g.dep[c.a], g.dep[c.b] = len(g.slots), len(g.slots)
 				placed = true
 				break

@@ -9267,7 +9267,7 @@
       }
     ],
     "archipelago": {
-      "seed": 1053001,
+      "seed": 0,
       "roll": 0,
       "rerollable": false,
       "bounds": {
@@ -9281,7 +9281,7 @@
       {
         "id": "isle-01",
         "name": "Gull Rest",
-        "size_class": "large",
+        "size_class": "",
         "rock": false,
         "settled": true,
         "position": {
@@ -13479,7 +13479,7 @@
       {
         "id": "isle-02",
         "name": "Oyster Bank",
-        "size_class": "large",
+        "size_class": "",
         "rock": false,
         "settled": true,
         "position": {
@@ -14338,7 +14338,7 @@
       {
         "id": "isle-03",
         "name": "Merrow's Cradle",
-        "size_class": "large",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -14472,7 +14472,7 @@
       {
         "id": "isle-04",
         "name": "Pewter Cove",
-        "size_class": "medium",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -14607,7 +14607,7 @@
       {
         "id": "isle-05",
         "name": "Tarred Keel",
-        "size_class": "medium",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -14752,7 +14752,7 @@
       {
         "id": "isle-06",
         "name": "Mistle Haven",
-        "size_class": "medium",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -14897,7 +14897,7 @@
       {
         "id": "isle-07",
         "name": "Cobbler's Reach",
-        "size_class": "medium",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -15031,7 +15031,7 @@
       {
         "id": "isle-08",
         "name": "Larkspur Holm",
-        "size_class": "medium",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -15165,7 +15165,7 @@
       {
         "id": "isle-09",
         "name": "Hollow Tor",
-        "size_class": "small",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -15310,7 +15310,7 @@
       {
         "id": "isle-10",
         "name": "Grey Mantle",
-        "size_class": "small",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -15444,7 +15444,7 @@
       {
         "id": "isle-11",
         "name": "Brine Water",
-        "size_class": "small",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -15578,7 +15578,7 @@
       {
         "id": "isle-12",
         "name": "Fogbell Isle",
-        "size_class": "small",
+        "size_class": "",
         "rock": false,
         "settled": false,
         "position": {
@@ -15713,8 +15713,8 @@
       {
         "id": "isle-13",
         "name": "Shepherd's Holm",
-        "size_class": "rock",
-        "rock": true,
+        "size_class": "",
+        "rock": false,
         "settled": false,
         "position": {
           "x": 131,

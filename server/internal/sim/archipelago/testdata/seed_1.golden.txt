@@ -1,6 +1,6 @@
-seed 1 home isle-01 ship (189,228) bounds (0,0)-(379,457)
+seed 1 home isle-01 ship (197,190) bounds (0,0)-(395,380)
 
-isle-01 "Pewter Cove" large at (13,253) 49x51 fertilities [wheat hops] slots iron 0 stone 1
+isle-01 "Pewter Cove" large at (220,119) 49x51 fertilities [wheat hops] slots iron 0 stone 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,7 +53,7 @@ isle-01 "Pewter Cove" large at (13,253) 49x51 fertilities [wheat hops] slots iro
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-02 "Grey Mantle" large at (134,134) 49x40 fertilities [hops grapes] slots iron 0 stone 0
+isle-02 "Grey Mantle" large at (341,0) 49x40 fertilities [hops grapes] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -95,7 +95,7 @@ isle-02 "Grey Mantle" large at (134,134) 49x40 fertilities [hops grapes] slots i
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-03 "Kelp Stone" large at (128,291) 47x46 fertilities [hops woad] slots iron 0 stone 0
+isle-03 "Kelp Stone" large at (335,157) 47x46 fertilities [hops woad] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -143,79 +143,67 @@ isle-03 "Kelp Stone" large at (128,291) 47x46 fertilities [hops woad] slots iron
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-04 "Hearth Isle" medium at (250,221) 33x35 fertilities [wheat apple] slots iron 1 stone 0
+isle-04 "Hearth Isle" medium at (362,320) 33x28 fertilities [wheat apple] slots iron 1 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~ccccc~~~~~~~~~~~~~~~~~~~~~~
-~~~~~cc...cc~~~~~~~~~~~~~~~~~~~~~
-~~~~~c.....c~~~~~~~~~~~~~~~~~~~~~
-~~~~cc.....cc~~~~~~~~~~~~~~~~~~~~
-~~~~c.......c~~~~~~~ccccc~~~~~~~~
-~~~~c.......ccccccccc...ccc~~~~~~
-~~~cc.....................ccc~~~~
-~~~cc.............m.........cc~~~
-~~~~c...f.......mmmmm........c~~~
-~~~~cc..ff.f...mmm.m.........c~~~
-~~~~~c..ffff....m............c~~~
-~~~~~cc.fffffff..............c~~~
-~~~~~~ccffffff...............c~~~
-~~~~~~~cffffff...............c~~~
-~~~~~~~cfffff................c~~~
-~~~~~~~cffffffff.............c~~~
-~~~~~~~ccfffff...............c~~~
-~~~~~~~~cffffffff............c~~~
-~~~~~~~~cfffff.fff...........c~~~
-~~~~~~~~cfffffff............cc~~~
-~~~~~~~~cfffff.............cc~~~~
-~~~~~~~~c.fffff..m.......ccc~~~~~
-~~~~~~~~ccffffffmmIm...ccc~~~~~~~
-~~~~~~~~~cffffff.mIm..cc~~~~~~~~~
-~~~~~~~~~cffffffmm....c~~~~~~~~~~
-~~~~~~~~~ccffff......cc~~~~~~~~~~
-~~~~~~~~~~cc..f.....cc~~~~~~~~~~~
-~~~~~~~~~~~ccc....ccc~~~~~~~~~~~~
-~~~~~~~~~~~~~cccccc~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~cccccccc~~~~~~~~~~~
+~~~~~~~~~~~cccc......ccc~~~~~~~~~
+~~~~~~~~~ccc...........ccc~~~~~~~
+~~~~~~cccc.........mmm...cc~~~~~~
+~~~~~cc..........mmmmmmm..cc~~~~~
+~~~~cc...........mmmmmmmm..cc~~~~
+~~~~c............mmmmmmmm..fc~~~~
+~~~~c..........fmmIImmmmf.ffcc~~~
+~~~cc..........fffff.mmffffffc~~~
+~~~c..........ffffff.mmmffffcc~~~
+~~~c..........ffffffffffffffc~~~~
+~~~c...........fffffffffff.cc~~~~
+~~~cc.........fffff..f..ff.c~~~~~
+~~~~c...........f.f......fcc~~~~~
+~~~~cc........f.f.........c~~~~~~
+~~~~~c........ff.........cc~~~~~~
+~~~~~cc.....ff.ff.......cc~~~~~~~
+~~~~~~cc...fffff.......cc~~~~~~~~
+~~~~~~~c.fffffff..f..ccc~~~~~~~~~
+~~~~~~~cc..ffffffff.cc~~~~~~~~~~~
+~~~~~~~~ccccccfff..cc~~~~~~~~~~~~
+~~~~~~~~~~~~~ccccccc~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-05 "Bramble Reach" medium at (48,380) 33x33 fertilities [wheat hops grapes] slots iron 0 stone 2
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~cccccc~~~~~
-~~~~~~~~~~~~~~~~~~~~~cc....cc~~~~
-~~~~~~~~~~~~~~~~~ccccc......c~~~~
-~~~~~~~~~~~~cccccc..........cc~~~
-~~~~~~~~~cccc................c~~~
-~~~~~~~cccff.................c~~~
-~~~~~~ccffffff.f............cc~~~
-~~~~ccc.fffff.ff............c~~~~
-~~~ccfffffffffff............c~~~~
-~~~c.ffffffffffff...........c~~~~
-~~~c.fffffffffff............c~~~~
-~~~cffffffffffff...........cc~~~~
-~~~cfffffffffmff...........c~~~~~
-~~~cfffffffffmf............c~~~~~
-~~~cfffffffffmmmm..........cc~~~~
-~~~cfffffffffmmmm...........c~~~~
-~~~cfffffffffmm.............cc~~~
-~~~cffffffffmmmSS............c~~~
-~~~ccfffffffmmmmm............c~~~
-~~~~cfffffmSmmmmm............c~~~
-~~~~ccffff.Smm.............ccc~~~
-~~~~~ccff..m.m............cc~~~~~
-~~~~~~cc................ccc~~~~~~
-~~~~~~~ccc.............cc~~~~~~~~
-~~~~~~~~~ccc.........ccc~~~~~~~~~
-~~~~~~~~~~~cccc....ccc~~~~~~~~~~~
-~~~~~~~~~~~~~~cccccc~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+isle-05 "Bramble Reach" medium at (112,76) 38x28 fertilities [wheat hops grapes] slots iron 0 stone 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~cccccc~~~~~~~~~~~~~~~
+~~~~~~~cccccccccccffffccccccc~~~~~~~~~
+~~~~~ccc....ffffffffffffffffccc~~~~~~~
+~~~~~c..fffffffffffffffffffff.cc~~~~~~
+~~~~cc....ffffffffffffffffff...cc~~~~~
+~~~cc.....ffffffffffffffffff....cc~~~~
+~~~c......ffffffffffffSSffff.....cc~~~
+~~~c......fffffffffffmmmffff......c~~~
+~~~cc.......ffffffffmmmmffff......c~~~
+~~~~c........fffffffmmmmmmmmm.....c~~~
+~~~~cc......ffffffff..mmmmm.......c~~~
+~~~~~cc........fffff..mmmmm.......c~~~
+~~~~~~c........fffff..mmmSSm......c~~~
+~~~~~~cccc........fff.............c~~~
+~~~~~~~~~c........fff............cc~~~
+~~~~~~~~~cc.......f..............c~~~~
+~~~~~~~~~~ccc....ff..............c~~~~
+~~~~~~~~~~~~cc..................cc~~~~
+~~~~~~~~~~~~~cc................cc~~~~~
+~~~~~~~~~~~~~~cc...............c~~~~~~
+~~~~~~~~~~~~~~~ccc...........ccc~~~~~~
+~~~~~~~~~~~~~~~~~ccccccccccccc~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-06 "Driftwood Isle" medium at (293,107) 28x35 fertilities [wheat hemp] slots iron 1 stone 1
+isle-06 "Driftwood Isle" medium at (112,192) 28x35 fertilities [wheat hemp] slots iron 1 stone 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -252,7 +240,7 @@ isle-06 "Driftwood Isle" medium at (293,107) 28x35 fertilities [wheat hemp] slot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-07 "Thornreed Holm" medium at (0,137) 36x35 fertilities [wheat apple hemp] slots iron 0 stone 0
+isle-07 "Thornreed Holm" medium at (207,3) 36x35 fertilities [wheat apple hemp] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -289,7 +277,7 @@ isle-07 "Thornreed Holm" medium at (0,137) 36x35 fertilities [wheat apple hemp] 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-08 "Cinder Skerry" medium at (288,349) 30x35 fertilities [apple grapes] slots iron 0 stone 0
+isle-08 "Cinder Skerry" medium at (228,259) 30x35 fertilities [apple grapes] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -326,7 +314,7 @@ isle-08 "Cinder Skerry" medium at (288,349) 30x35 fertilities [apple grapes] slo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-09 "Larkspur Holm" small at (80,58) 24x23 fertilities [apple hemp woad] slots iron 0 stone 0
+isle-09 "Larkspur Holm" small at (28,229) 24x23 fertilities [apple hemp woad] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -351,7 +339,7 @@ isle-09 "Larkspur Holm" small at (80,58) 24x23 fertilities [apple hemp woad] slo
 ~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-isle-10 "Wrack Line" small at (357,215) 22x21 fertilities [apple hemp woad grapes] slots iron 0 stone 1
+isle-10 "Wrack Line" small at (0,126) 22x21 fertilities [apple hemp woad grapes] slots iron 0 stone 1
 ~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -374,7 +362,7 @@ isle-10 "Wrack Line" small at (357,215) 22x21 fertilities [apple hemp woad grape
 ~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~
 
-isle-11 "Cormorant Rock" small at (193,434) 22x23 fertilities [hops woad grapes] slots iron 0 stone 0
+isle-11 "Cormorant Rock" small at (139,327) 22x23 fertilities [hops woad grapes] slots iron 0 stone 0
 ~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -399,7 +387,7 @@ isle-11 "Cormorant Rock" small at (193,434) 22x23 fertilities [hops woad grapes]
 ~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~
 
-isle-12 "Tarred Keel" small at (279,0) 21x22 fertilities [hemp woad] slots iron 1 stone 0
+isle-12 "Tarred Keel" small at (254,358) 21x22 fertilities [hemp woad] slots iron 1 stone 0
 ~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~
@@ -423,7 +411,7 @@ isle-12 "Tarred Keel" small at (279,0) 21x22 fertilities [hemp woad] slots iron 
 ~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~
 
-isle-13 "Whitesail Isle" rock at (183,36) 16x16 fertilities [] slots iron 1 stone 1
+isle-13 "Whitesail Isle" rock at (39,354) 16x16 fertilities [] slots iron 1 stone 1
 ~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~
