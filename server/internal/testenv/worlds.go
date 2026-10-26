@@ -26,10 +26,13 @@ var (
 	catErr  error
 )
 
-// Catalogue loads content/old_coast once.
+// Catalogue loads the pre-D-054 content (server/testdata/content) once:
+// the test world's hand-made islands (testworld) fit its footprints.
 func Catalogue(t testing.TB) *content.Catalogue {
 	t.Helper()
-	catOnce.Do(func() { cat, catErr = content.Load(filepath.Join(RepoRoot(), "content", "old_coast")) })
+	catOnce.Do(func() {
+		cat, catErr = content.LoadWithSchemas(filepath.Join(RepoRoot(), "server", "testdata", "content", "old_coast_pre_d054"), filepath.Join(RepoRoot(), "content", "schema"))
+	})
 	if catErr != nil {
 		t.Fatal(catErr)
 	}

@@ -227,30 +227,37 @@ func TestStartAtSea(t *testing.T) {
 }
 
 // TestSchemaFixtures writes (with -update) or compares the schema fixtures
-// of internal/sim/testdata (schema<N>_<scenario>.json): the end state of a
-// scenario encoded by the current binary, for the migration template of
-// the next schema version (sim.TestSchemaFixturesDecode).
+// of internal/sim/testdata: the end state of a scenario encoded by the
+// current binary as the store writes it (sim.EncodeState, D-054): the
+// state envelope schema<N>_<scenario>.json and its terrain
+// schema<N>_<scenario>.terrain.gz, for the migration template of the next
+// schema version (sim.TestSchemaFixturesDecode).
 func TestSchemaFixtures(t *testing.T) {
 	for _, name := range []string{"bootstrap_citizens", "berth_queue", "start_voyage", "fields_mixed"} {
 		t.Run(name, func(t *testing.T) {
 			c, w := runToEnd(t, name)
-			data, err := sim.Encode(w, c.Region.Version)
+			state, terrain, err := sim.EncodeState(w, c.Region.Version)
 			if err != nil {
 				t.Fatal(err)
 			}
-			path := filepath.Join(repoRoot(t), "server", "internal", "sim", "testdata", fmt.Sprintf("schema%d_%s.json", sim.SchemaVersion, name))
-			if *update {
-				if err := os.WriteFile(path, append(data, '\n'), 0o600); err != nil {
-					t.Fatal(err)
+			base := filepath.Join(repoRoot(t), "server", "internal", "sim", "testdata", fmt.Sprintf("schema%d_%s", sim.SchemaVersion, name))
+			for _, f := range []struct {
+				path string
+				data []byte
+			}{{base + ".json", append(state, '\n')}, {base + ".terrain.gz", terrain}} {
+				if *update {
+					if err := os.WriteFile(f.path, f.data, 0o600); err != nil {
+						t.Fatal(err)
+					}
+					continue
 				}
-				return
-			}
-			want, err := os.ReadFile(path) // #nosec G304 -- test fixture path.
-			if err != nil {
-				t.Fatalf("read fixture (run with -update): %v", err)
-			}
-			if !bytes.Equal(append(data, '\n'), want) {
-				t.Errorf("%s differs from the current encoding (run with -update)", path)
+				want, err := os.ReadFile(f.path) // #nosec G304 -- test fixture path.
+				if err != nil {
+					t.Fatalf("read fixture (run with -update): %v", err)
+				}
+				if !bytes.Equal(f.data, want) {
+					t.Errorf("%s differs from the current encoding (run with -update)", f.path)
+				}
 			}
 		})
 	}

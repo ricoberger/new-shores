@@ -1,6 +1,7 @@
 {
   "name": "citizens_unlock",
   "description": "Fifteen settler houses with fish, wool garments, a small market and a chapel grow in step from 7 to 8 residents at 6 minutes: Citizens unlock exactly when the population reaches 120. Demolishing the chapel afterwards does not revoke the unlock.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

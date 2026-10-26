@@ -28,7 +28,8 @@ import (
 //   - town: default plus FixtureGold, a street inland from the Trading
 //     Post, a connected lumberjack and sawmill, four settler houses (one
 //     house and the sawmill moved once), the quests that layout completes
-//     claimed, and a sheep farm with four 2x2 pastures.
+//     claimed, and a sheep farm with its three 3x3 pastures painted in
+//     one place_fields drag (D-054).
 //   - settled: town plus a shipyard on the coast, a second sloop (ship 2),
 //     the nearest habitable island founded by it (Trading Post, street,
 //     two houses, a fisher) and ship 2 sailing the route "Fish home"; the
@@ -178,7 +179,7 @@ func town(f *fixture) {
 		}
 	}
 	f.placeNearThen(home, "sheep_farm", f.streetEnd(home), func(farm int64) bool {
-		return f.tryFields(home, farm, "pasture", 4)
+		return f.paintFields(home, farm, "pasture", f.requiredFields("sheep_farm"))
 	})
 	f.advance(time.Minute)
 }
@@ -298,6 +299,14 @@ func (f *fixture) ship(id int64) *sim.Ship {
 		}
 	}
 	return nil
+}
+
+// requiredFields is the field count a farm type needs for full efficiency.
+func (f *fixture) requiredFields(farm string) int {
+	if def := f.c.BuildingByID[farm]; def != nil && def.Fields != nil {
+		return def.Fields.Required
+	}
+	return 0
 }
 
 // home is the archipelago's home candidate (its first island).

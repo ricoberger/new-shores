@@ -11,19 +11,22 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// TestSchemaMigrationsRegistered: schema 6 (D-053) registers no
-// migration: envelopes of schema 1-5 (the game was not deployed), envelopes
+// TestSchemaMigrationsRegistered: schema 7 (D-054) registers no
+// migration: envelopes of schema 1-6 (the game was not deployed), envelopes
 // without a version and newer ones fail loudly with ErrSchemaVersion.
 func TestSchemaMigrationsRegistered(t *testing.T) {
 	m := SchemaMigrations(catalogue(t))
-	if SchemaVersion != 6 || len(m) != 0 {
+	if SchemaVersion != 7 || len(m) != 0 {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":7,"content_version":"x","world":{}}`,
+		`{"schema_version":8,"content_version":"x","world":{}}`,
+		`{"schema_version":6,"content_version":"old_coast-0.9.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"schema_version":5,"content_version":"old_coast-0.8.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"schema_version":4,"content_version":"old_coast-0.7.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"content_version":"x","world":{}}`,
@@ -37,13 +40,14 @@ func TestSchemaMigrationsRegistered(t *testing.T) {
 	}
 }
 
-// TestOldSchemaFixturesFailToLoad: worlds of schema 4 (radius fields) and
-// 5 (the hand-made dev archipelago) are not migrated; they fail with
+// TestOldSchemaFixturesFailToLoad: worlds of schema 4 (radius fields), 5
+// (the hand-made dev archipelago) and 6 (tiles in the state, before D-054)
+// are not migrated; they fail with
 // ErrSchemaVersion and need a fresh database (make down VOLUMES=1 && make
 // up).
 func TestOldSchemaFixturesFailToLoad(t *testing.T) {
-	files, err := filepath.Glob(filepath.Join("testdata", "schema[45]_*.json"))
-	if err != nil || len(files) < 7 {
+	files, err := filepath.Glob(filepath.Join("testdata", "schema[456]_*.json"))
+	if err != nil || len(files) < 11 {
 		t.Fatalf("schema 4 fixtures %v (%v)", files, err)
 	}
 	for _, f := range files {
@@ -132,11 +136,18 @@ func TestMigrationHookIsCoveredByPurity(t *testing.T) {
 }
 
 // TestSchemaFixturesDecode is the template for the next schema migration:
-// every committed envelope of the current schema (testdata/schema<N>_*.json,
-// written by the scenario package's TestSchemaFixtures) decodes, re-encodes
-// byte for byte, and Advance and Display work on it.
+// every committed state envelope of the current schema with its terrain
+// (testdata/schema<N>_*.json and .terrain.gz, written by the scenario
+// package's TestSchemaFixtures) decodes, re-encodes byte for byte (state
+// and terrain), and Advance and Display work on it.
 func TestSchemaFixturesDecode(t *testing.T) {
-	c := catalogue(t)
+	// Fixtures of the pinned pre-D-054 content and of the shipped content
+	// (the reference games); each decodes with the catalogue of its
+	// content version.
+	catalogues := map[string]*content.Catalogue{}
+	for _, c := range []*content.Catalogue{catalogue(t), shippedCatalogue(t)} {
+		catalogues[c.Region.Version] = c
+	}
 	files, err := filepath.Glob(filepath.Join("testdata", fmt.Sprintf("schema%d_*.json", SchemaVersion)))
 	if err != nil || len(files) < 3 {
 		t.Fatalf("schema fixtures %v (%v)", files, err)
@@ -147,12 +158,29 @@ func TestSchemaFixturesDecode(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			w, cv, _, err := Decode(data, c)
+			terrain, err := os.ReadFile(strings.TrimSuffix(f, ".json") + ".terrain.gz") // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			var c *content.Catalogue
+			for key, cat := range catalogues {
+				if bytes.Contains(data, []byte(`"content_version":"`+key+`"`)) {
+					c = cat
+				}
+			}
+			if c == nil {
+				t.Fatal("no catalogue for the fixture's content version")
+			}
+			w, cv, _, err := DecodeState(data, terrain, c)
 			if err != nil || cv != c.Region.Version {
 				t.Fatalf("decode: %v, content %q", err, cv)
 			}
-			if got, err := Encode(w, cv); err != nil || !bytes.Equal(append(got, '\n'), data) {
-				t.Fatal("the envelope does not round-trip")
+			if bytes.Contains(data, []byte(`"tiles"`)) {
+				t.Error("the state envelope carries tiles")
+			}
+			state, terrain2, err := EncodeState(w, cv)
+			if err != nil || !bytes.Equal(append(state, '\n'), data) || !bytes.Equal(terrain2, terrain) {
+				t.Fatalf("the envelope does not round-trip (%v)", err)
 			}
 			end := w.LastEvaluatedAt.Add(time.Hour)
 			if _, err := Advance(w, c, end); err != nil {

@@ -1,6 +1,7 @@
 {
   "name": "tools_route",
   "description": "Tool chain on island 2 (golden v, free seed): fifteen settler houses on seeded fish and wool garments unlock Citizens and staff the chain; a shipyard's sloop founds the start island, then the iron mine (on iron deposits), charcoal burner, smelter and toolmaker run on Settler workforce and a looping route carries the tools to the start island.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

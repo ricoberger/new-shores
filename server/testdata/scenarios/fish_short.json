@@ -1,6 +1,7 @@
 {
   "name": "fish_short",
   "description": "Twenty-four settler houses grow to 192 residents with two markets and a fisher. Without the markets satisfaction is 0.5 x food: once the fish stock is used up, the fisher's 1.5 fish/min cover only part of the 1.92 fish/min demand (food fulfilment between 0 and 1, satisfaction below 0.5) and residents decline. Then the fisher is demolished: no fish at all, residents decline to the floor of 2 and stay there over a long advance (D-009); no other building is destroyed.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

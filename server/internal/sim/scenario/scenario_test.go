@@ -40,9 +40,15 @@ func scenarioDir(t testing.TB) string {
 	return filepath.Join(repoRoot(t), "server", "testdata", "scenarios")
 }
 
+// preD054Content is the content of the hand-made scenarios: the shipped
+// content before the D-054 footprints, frozen so that their coordinates
+// stay valid (the reference games run on the shipped content).
+const preD054Content = "server/testdata/content/old_coast_pre_d054"
+
+// loadCatalogue loads the content of the hand-made scenarios.
 func loadCatalogue(t testing.TB) *content.Catalogue {
 	t.Helper()
-	c, err := content.Load(filepath.Join(repoRoot(t), DefaultContent))
+	c, err := content.LoadWithSchemas(filepath.Join(repoRoot(t), filepath.FromSlash(preD054Content)), filepath.Join(repoRoot(t), "content", "schema"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -705,10 +711,10 @@ func TestWorkforceGrantSeedOnly(t *testing.T) {
 		})
 	}
 
-	// The legacy scenarios use the shipped content plus the seed grant.
+	// The legacy scenarios use the pre-D-054 content plus the seed grant.
 	for _, name := range []string{"chain_planks", "chain_planks_12h", "throttled_warehouse", "unconnected_producer", "warehouse_full"} {
 		s := loadScenario(t, name)
-		if s.Content != DefaultContent || s.Seed.Workforce["settlers"] != 1000 {
+		if s.Content != preD054Content || s.Seed.Workforce["settlers"] != 1000 {
 			t.Errorf("%s: content %s workforce %v", name, s.Content, s.Seed.Workforce)
 		}
 	}

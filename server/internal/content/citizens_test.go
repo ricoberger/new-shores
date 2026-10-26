@@ -57,7 +57,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	}
 
 	hc := c.BuildingByID["house_citizens"]
-	if hc.House == nil || hc.House.Tier != "citizens" || hc.Width != 2 || hc.Height != 2 || hc.PauseCategory != "never" || hc.UpkeepPerMin != 0 {
+	if hc.House == nil || hc.House.Tier != "citizens" || hc.Width != 3 || hc.Height != 3 || hc.PauseCategory != "never" || hc.UpkeepPerMin != 0 {
 		t.Errorf("house_citizens = %+v", hc)
 	}
 	if r := c.BuildingByID["road_paved"]; r.Road == nil || r.Road.MsPerTile != 600 || r.Tier != "citizens" {

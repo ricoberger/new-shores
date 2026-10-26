@@ -1,6 +1,7 @@
 {
   "name": "fields_chain",
   "description": "Adjacency chains of fields (D-051 part 4): a sheep farm at (8,5) with two 2x2 pastures in a chain (farm -> f1 -> f2, 50 % of the 4 required); demolishing f1 leaves f2 inactive and the farm at 0 %; a pasture touching only the inactive f2 is not adjacent; re-placing f1 reconnects f2; moving the farm away keeps both pastures (inactive) and moving it back reactivates them; two more fields up to the farm's maximum of 4 succeed and a fifth fails (field_max_reached); a field type that is no field (field_type_mismatch) and a free-standing pasture (field_needs_farm) fail; demolishing the farm demolishes all its fields (one refund per field).",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "rows": [

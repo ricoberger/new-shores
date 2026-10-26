@@ -362,7 +362,7 @@ func TestAwaySummaryOfReturningCommand(t *testing.T) {
 // returning command moves residents between tiers inside the interval; the
 // summary reports both tiers as they were at the last command.
 func TestAwaySummaryOfReturningUpgrade(t *testing.T) {
-	c := catalogue(t)
+	c := shippedCatalogue(t)
 	s, err := scenario.Load(os.DirFS(filepath.Join(repoRoot(t), "server", "testdata", "scenarios")), "bootstrap_citizens.json")
 	if err != nil {
 		t.Fatal(err)
@@ -382,7 +382,7 @@ func TestAwaySummaryOfReturningUpgrade(t *testing.T) {
 	for _, is := range ds.Islands {
 		settlers += is.Population["settlers"]
 	}
-	ts := newTestServerFor(t, w, w.LastEvaluatedAt, 1)
+	ts := newTestServerWith(t, w, w.LastEvaluatedAt, 1, c)
 	ts.clock.Add(time.Duration(c.Region.Rules.AwaySummaryMs) * time.Millisecond)
 	v := questDisplay(t, ts.mustCommand(fmt.Sprintf(`{"type":"upgrade_house","island_id":%q,"building_id":%d}`, w.Islands[0].ID, house.ID)).Display)
 	if v.AwaySummary == nil {

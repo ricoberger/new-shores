@@ -1,6 +1,7 @@
 {
   "name": "citizens_needs",
   "description": "Citizens in play (golden u, free seed): fifteen settler houses grow on seeded fish and wool garments next to a market and a chapel until Citizens unlock; then a tavern, the bread, cider and linen chains (fertilities wheat, apple and hemp), a paved road segment and the warehouse upgrade to level 2 are built and four full houses next to the market are upgraded to Citizen houses. Seeded bread, cider and linen garments bridge the start of the chains: every Citizens need is met, the houses grow and pay Citizens tax.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

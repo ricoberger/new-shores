@@ -143,7 +143,8 @@ paths:
       summary: Advance the world to now and apply one command.
       description: |
         Commands (`command.type`): `place_building`, `place_road`,
-        `demolish`, `demolish_road`, `place_field`,
+        `demolish`, `demolish_road`, `place_field`, `place_fields`,
+        `demolish_fields`,
         `set_paused`, `upgrade_house`, `upgrade_trading_post`,
         `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
         `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
@@ -679,6 +680,34 @@ components:
           description: World version (count of committed commands).
         display:
           $ref: "#/components/schemas/DisplayState"
+        tile_results:
+          type: array
+          description: |
+            Per-tile outcome of a batch command (`place_fields`,
+            `demolish_fields`, D-054), one entry per request tile in
+            request order; absent for every other command.
+          items:
+            $ref: "#/components/schemas/TileResult"
+    TileResult:
+      type: object
+      additionalProperties: false
+      required: [x, y, ok]
+      properties:
+        x:
+          type: integer
+          description: Column of the request tile (tiles).
+        y:
+          type: integer
+          description: Row of the request tile (tiles).
+        ok:
+          type: boolean
+          description: The tile was applied (a field placed or demolished).
+        reason:
+          # Only when `ok` is false: the error code the tile alone would
+          # fail with after the accepted tiles (e.g. `occupied`,
+          # `field_not_adjacent`, `insufficient_gold`; `field_max_reached`
+          # first once the farm is full, as for `place_field`).
+          $ref: "#/components/schemas/ErrorCode"
     ErrorResponse:
       type: object
       additionalProperties: false
@@ -783,6 +812,21 @@ components:
         `no_fertility`, `insufficient_gold`, `insufficient_materials`.
         Fields are demolished with `demolish` (refund of the field's own
         cost); demolishing a farm demolishes its fields, one refund each.
+
+        `place_fields` and `demolish_fields` (D-054) are the batch forms
+        for painted rectangles (at most 512 tiles). Every tile is checked
+        with the single-tile rules; the valid ones are applied in one
+        state change (one new version) and `tile_results` reports each
+        tile. They fail as a whole (world unchanged) with 400
+        `bad_request`, `invalid_command` (no tiles, more than 512,
+        duplicates, invalid rotation), 404 `unknown_island`,
+        `unknown_building`, `building_not_found` (no such farm), 409
+        `field_type_mismatch`, `field_wrong_farm`, `tier_locked`,
+        `island_not_settled`. A `place_fields` without a valid tile is
+        not an error: 200 with every tile `ok: false` and its reason, the
+        unchanged version, no state change and no event. A
+        `demolish_fields` without a valid tile fails with the code of
+        its first tile.
 
         `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
         or no `island_id` for a quest that rewards goods), 404
@@ -1002,6 +1046,8 @@ components:
         - $ref: "#/components/schemas/DemolishCommand"
         - $ref: "#/components/schemas/DemolishRoadCommand"
         - $ref: "#/components/schemas/PlaceFieldCommand"
+        - $ref: "#/components/schemas/PlaceFieldsCommand"
+        - $ref: "#/components/schemas/DemolishFieldsCommand"
         - $ref: "#/components/schemas/SetPausedCommand"
         - $ref: "#/components/schemas/UpgradeHouseCommand"
         - $ref: "#/components/schemas/UpgradeWarehouseCommand"
@@ -1030,6 +1076,8 @@ components:
           demolish: "#/components/schemas/DemolishCommand"
           demolish_road: "#/components/schemas/DemolishRoadCommand"
           place_field: "#/components/schemas/PlaceFieldCommand"
+          place_fields: "#/components/schemas/PlaceFieldsCommand"
+          demolish_fields: "#/components/schemas/DemolishFieldsCommand"
           set_paused: "#/components/schemas/SetPausedCommand"
           upgrade_house: "#/components/schemas/UpgradeHouseCommand"
           upgrade_warehouse: "#/components/schemas/UpgradeWarehouseCommand"
@@ -1204,7 +1252,7 @@ components:
       description: |
         Place one field of `building_type` from the farm `farm_id` at
         (`x`, `y`), the top-left tile of the rotated footprint (D-051
-        part 4). The footprint (1×1 crop tile, 2×2 animal field) must be
+        part 4). The footprint (the field type's content footprint) must be
         on the island, on the field's terrain, free of buildings and
         roads, on an island with the field's fertility and 4-edge adjacent
         (sharing an edge segment, not only a corner) to the farm or to one of the farm's active
@@ -1235,6 +1283,75 @@ components:
           type: integer
           enum: [0, 90, 180, 270]
           description: Optional, default 0.
+    FieldTileList:
+      type: array
+      minItems: 1
+      maxItems: 512
+      description: Tiles of a field batch, without duplicates.
+      items:
+        $ref: "#/components/schemas/Tile"
+    PlaceFieldsCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Place fields of `building_type` from the farm `farm_id` at every
+        valid anchor of `tiles` (D-054 painting): each tile is the
+        top-left tile of one field footprint (a 1×1 crop field: the tile
+        itself) and is checked with the rules of `place_field` against
+        the island plus the fields accepted before it, the cost
+        cumulatively (a tile is valid only while gold and materials cover
+        it). The tiles are taken in order, in passes repeated while one
+        accepts a tile, so a rectangle grows from the farm whatever its
+        order; placement stops at the farm's `fields.max`. The valid
+        tiles are placed in one state change; `tile_results` reports
+        every tile. Without a valid tile the command answers 200 with
+        every tile rejected and the unchanged version (no state change,
+        no event).
+      required: [type, island_id, farm_id, building_type, tiles]
+      properties:
+        type:
+          type: string
+          enum: [place_fields]
+        island_id:
+          type: string
+        farm_id:
+          type: integer
+          format: int64
+          description: Building ID of the owning farm (BuildingDisplay.id).
+        building_type:
+          type: string
+          description: Content building ID with a field block whose `field.farm` is the farm's type.
+        tiles:
+          $ref: "#/components/schemas/FieldTileList"
+        rotation:
+          type: integer
+          enum: [0, 90, 180, 270]
+          description: Optional, default 0; applies to every field.
+    DemolishFieldsCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Demolish the fields of the farm `farm_id` covering `tiles`
+        (D-054): each field once, however many of its tiles are listed,
+        with the refund of its own cost (50 % of the materials, rounded
+        down, no gold). A tile without a field of the farm is rejected
+        (`building_not_found`, or `out_of_bounds`). The valid tiles are
+        applied in one state change; `tile_results` reports every tile.
+        Without a valid tile the command fails with the first tile's
+        code.
+      required: [type, island_id, farm_id, tiles]
+      properties:
+        type:
+          type: string
+          enum: [demolish_fields]
+        island_id:
+          type: string
+        farm_id:
+          type: integer
+          format: int64
+          description: Building ID of the owning farm (BuildingDisplay.id).
+        tiles:
+          $ref: "#/components/schemas/FieldTileList"
     SetPausedCommand:
       type: object
       additionalProperties: false

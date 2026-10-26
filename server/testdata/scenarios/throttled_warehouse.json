@@ -1,6 +1,7 @@
 {
   "name": "throttled_warehouse",
   "description": "32 lumberjacks at 100 % (2 wood/min each, R = 64/min) share one level-1 Trading Post (T = 30/min): throughput factor 30/64.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

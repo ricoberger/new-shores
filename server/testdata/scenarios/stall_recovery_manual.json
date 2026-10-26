@@ -1,6 +1,7 @@
 {
   "name": "stall_recovery_manual",
   "description": "Stall recovery (golden x, manual shortcut): the world of stall_recovery_auto up to the fully stalled state; at minute 7, when the fisher's first catch has landed, the player resumes the unpaid fisher manually instead of waiting for its 5-gold reserve and demolishes the unpaid wool weaver (1 gold/min of upkeep less to earn back). The rest of the chain resumes automatically.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

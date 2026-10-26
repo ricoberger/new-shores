@@ -44,7 +44,7 @@
         "properties": {
           "id": { "$ref": "#/$defs/id" },
           "name": { "type": "string", "minLength": 1, "maxLength": 32 },
-          "size": { "description": "Land extent in tiles (the island is about size x size).", "type": "integer", "minimum": 8, "maximum": 128 },
+          "size": { "description": "Land extent in tiles (the island is about size x size).", "type": "integer", "minimum": 8, "maximum": 256 },
           "rock": { "description": "Resource rock: mountain and coast only, no fertility.", "type": "boolean" },
           "count": { "$ref": "#/$defs/range", "description": "Islands of the class per archipelago." },
           "fertilities": { "$ref": "#/$defs/range", "description": "Fertility tags per island." },

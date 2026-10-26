@@ -1,6 +1,7 @@
 {
   "name": "stall_recovery_auto",
   "description": "Stall recovery (golden x, automatic): the tier-1 opening of the reference game from the starting stock on the dev start island. At minute 0 the player builds the market, a shipyard, the wood chain, the wool chain (the sheep farm stands without fields: pastures cost 15 gold each and the opening has no gold to spare, D-051 part 4) and a fisher on the far east coast (760 of 800 gold); the five settler houses (the remaining planks) follow at minute 6 with 4 gold left. Upkeep 6 gold/min against 0.6 gold/min of floor taxes (market only, no food yet) empties the treasury at 6:44, before the fisher's first catch (60 s on the road) lands: the cascade pauses every pausable building. Nothing that still runs has upkeep, so gold grows again; the landed fish lifts satisfaction to 0.8, the houses grow and the auto-resume chain restarts on its own. No command after the opening.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

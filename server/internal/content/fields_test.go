@@ -134,19 +134,6 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 			[]string{FileBuildings, `building "lumberjack"`, "schema violation"},
 		},
 		{
-			"field 3x3",
-			[]string{`"id": "orchard_plot",
-    "name": "Orchard plot",
-    "region": "old_coast",
-    "tier": "citizens",
-    "footprint": [1, 1],`, `"id": "orchard_plot",
-    "name": "Orchard plot",
-    "region": "old_coast",
-    "tier": "citizens",
-    "footprint": [3, 3],`},
-			[]string{FileBuildings, `building "orchard_plot"`, "schema violation"},
-		},
-		{
 			"field with upkeep",
 			[]string{`"upkeep_per_min": 0,
     "pause_category": "never",
@@ -233,12 +220,12 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 	}
 }
 
-// TestShippedFields: the shipped farms need their own fields (CONTENT §7):
-// 4 pastures (2x2, 15 gold, no planks: the reference games' plank budget,
-// CONTENT §12) for the sheep farm, 16 crop tiles
-// (1x1, 5 gold) for the wheat, orchard and hemp farms, at most required + 4;
-// each field type belongs to exactly one farm; pig_pen, cattle_pasture and
-// meadow are reserved (their farms are not shipped).
+// TestShippedFields: the shipped farms need their own fields (CONTENT §7,
+// D-054): 3 pastures (3x3, 15 gold and 1 plank) for the sheep farm, 140
+// wheat tiles (3 gold), 160 orchard plots (1 gold) and 60 hemp tiles (2
+// gold), all 1x1; max equals required; each field type belongs to exactly
+// one farm; pig_pen, cattle_pasture and meadow are reserved (their farms
+// are not shipped). Field footprints are free (pasture modules).
 func TestShippedFields(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
@@ -247,10 +234,12 @@ func TestShippedFields(t *testing.T) {
 	type want struct {
 		field, tier, fertility string
 		required, size         int
+		gold                   int64
+		planks                 int
 	}
 	wants := map[string]want{
-		"sheep_farm": {"pasture", "settlers", "", 4, 2}, "wheat_farm": {"wheat_field", "citizens", "wheat", 16, 1},
-		"orchard": {"orchard_plot", "citizens", "apple", 16, 1}, "hemp_farm": {"hemp_field", "citizens", "hemp", 16, 1},
+		"sheep_farm": {"pasture", "settlers", "", 3, 3, 15_000, 1}, "wheat_farm": {"wheat_field", "citizens", "wheat", 140, 1, 3_000, 0},
+		"orchard": {"orchard_plot", "citizens", "apple", 160, 1, 1_000, 0}, "hemp_farm": {"hemp_field", "citizens", "hemp", 60, 1, 2_000, 0},
 	}
 	farms := 0
 	for _, b := range c.Buildings {
@@ -271,10 +260,7 @@ func TestShippedFields(t *testing.T) {
 			continue
 		}
 		f := c.FieldByType[b.Fields.Type]
-		wantGold, wantPlanks := int64(5_000), 0
-		if w.size == 2 {
-			wantGold = 15_000
-		}
+		wantGold, wantPlanks := w.gold, w.planks
 		if f == nil || f.ID != w.field || f.Tier != w.tier || f.Field.Farm != b.ID || f.Field.Fertility != w.fertility || strings.Join(f.Field.Terrain, ",") != "grass" ||
 			f.Width != w.size || f.Height != w.size || f.Cost.Gold != wantGold || len(f.Cost.Materials) != min(wantPlanks, 1) ||
 			(wantPlanks > 0 && f.Cost.Materials[0].Amount != int64(wantPlanks)*1000) {

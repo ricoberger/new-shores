@@ -11,13 +11,20 @@ const fixtures = readdirSync(fixtureDir)
   .filter((f) => f.endsWith(".json"))
   .map((f) => ({ name: f, base: (JSON.parse(readFileSync(join(fixtureDir, f), "utf8")) as { base: DisplayState }).base }));
 
-/** The shipped content file (footprints and the farm of each field). */
-const shipped = JSON.parse(readFileSync(join(root, "content", "old_coast", "buildings.json"), "utf8")) as {
+type BuildingJson = {
   id: string;
   footprint: [number, number];
   fields?: { type: string; required: number; max: number };
   field?: { type: string; farm: string };
-}[];
+};
+const buildingsOf = (dir: string) => JSON.parse(readFileSync(join(root, dir, "buildings.json"), "utf8")) as BuildingJson[];
+/** The shipped content file (footprints and the farm of each field). */
+const shipped = buildingsOf(join("content", "old_coast"));
+/** The content a display fixture was built with: its scenario's "content" (default the shipped one). */
+const fixtureBuildings = (fixture: string) => {
+  const sc = JSON.parse(readFileSync(join(root, "server", "testdata", "scenarios", fixture), "utf8")) as { content?: string };
+  return buildingsOf(sc.content ?? join("content", "old_coast"));
+};
 
 const def = (id: string, w: number, h: number, extra: Partial<ContentBuilding> = {}) =>
   ({ id, name: id, width: w, height: h, category: "production", ...extra }) as ContentBuilding;
@@ -81,9 +88,10 @@ describe("fieldPlacementHint", () => {
     expect(fieldPlacementHint(active.farm, pasture, 13, 6, 0, active.data)).toBeNull(); // edge of the field
     // The shared server fixtures: every active field shares an edge with its farm or an active field.
     for (const { name, base } of fixtures) {
+      const defs = fixtureBuildings(name);
       for (const is of base.islands) {
         const size = (b: BuildingDisplay) => {
-          const d = shipped.find((x) => x.id === b.type)!;
+          const d = defs.find((x) => x.id === b.type)!;
           const [w, h] = b.rotation === 90 || b.rotation === 270 ? [d.footprint[1], d.footprint[0]] : d.footprint;
           return { x: b.x, y: b.y, w, h };
         };
@@ -157,7 +165,7 @@ describe("fieldBuildingOf", () => {
   it("finds the one field building of each shipped farm", () => {
     const content = { buildings: shipped.map((b) => ({ ...def(b.id, b.footprint[0], b.footprint[1]), fields: b.fields, field: b.field })) } as unknown as Content;
     for (const [farm, field, size] of [
-      ["sheep_farm", "pasture", 2],
+      ["sheep_farm", "pasture", 3],
       ["wheat_farm", "wheat_field", 1],
       ["orchard", "orchard_plot", 1],
       ["hemp_farm", "hemp_field", 1],
@@ -174,11 +182,12 @@ describe("the shared display fixtures", () => {
   it("show every field with its farm, an active flag and the farm's field list", () => {
     let checked = 0;
     for (const { name, base } of fixtures) {
+      const defs = fixtureBuildings(name);
       for (const is of base.islands) {
         for (const f of is.buildings) {
           if (f.farm_id === undefined) continue;
           const farm = is.buildings.find((b) => b.id === f.farm_id);
-          const fd = shipped.find((d) => d.id === farm?.type);
+          const fd = defs.find((d) => d.id === farm?.type);
           expect(farm && fd?.fields, `${name}: farm ${f.farm_id}`).toBeTruthy();
           expect(farm?.fields?.ids, `${name}: farm ${f.farm_id} lists field ${f.id}`).toContain(f.id);
           expect(typeof f.active, `${name}: field ${f.id}`).toBe("boolean");
@@ -191,9 +200,10 @@ describe("the shared display fixtures", () => {
 
   it("agree with the client's chain hint: every active field touches its farm or an active field of it", () => {
     for (const { name, base } of fixtures) {
+      const defs = fixtureBuildings(name);
       for (const is of base.islands) {
         const size = (b: BuildingDisplay) => {
-          const d = shipped.find((x) => x.id === b.type)!;
+          const d = defs.find((x) => x.id === b.type)!;
           const [w, h] = b.rotation === 90 || b.rotation === 270 ? [d.footprint[1], d.footprint[0]] : d.footprint;
           return { x: b.x, y: b.y, w, h };
         };

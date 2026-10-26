@@ -1,6 +1,7 @@
 {
   "name": "away_summary_12h",
   "description": "(z) \"While you were away\" over a 12-hour gap after the last command: a plank chain fills the start island's planks to capacity, four settler houses grown on the seeded fish starve once it is eaten and decline, the shrinking taxes no longer cover the upkeep so the producers and the sloop are paused for insolvency, and the sloop sent with planks to (unsettled) island 2 by the last command arrives inside the gap. The away_summary step stores the summary as the pending one and reports it.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

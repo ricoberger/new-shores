@@ -1,9 +1,11 @@
 package archipelago
 
 import (
+	"bytes"
 	"fmt"
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
@@ -55,6 +57,7 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 		t.Helper()
 		t.Errorf("seed %d: %s", seed, fmt.Sprintf(format, args...))
 	}
+	checkTerrainRoundTrip(t, c, a)
 	perClass := map[string]int{}
 	fertilities := map[string]int{}
 	deposits := map[string]int{}
@@ -193,4 +196,27 @@ func landWithin(islands []*sim.Island, p sim.Pos, d int) bool {
 		}
 	}
 	return false
+}
+
+// checkTerrainRoundTrip: the world of the archipelago stored as state and
+// terrain (sim.EncodeState, D-054) decodes to the same world.
+func checkTerrainRoundTrip(t *testing.T, c *content.Catalogue, a *Archipelago) {
+	t.Helper()
+	w := sim.NewWorld(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC))
+	w.Seed, w.Islands = a.Seed, a.Islands
+	state, terrain, err := sim.EncodeState(w, c.Region.Version)
+	if err != nil {
+		t.Fatalf("seed %d: encode state: %v", a.Seed, err)
+	}
+	if bytes.Contains(state, []byte(`"tiles"`)) {
+		t.Errorf("seed %d: the state carries tiles", a.Seed)
+	}
+	got, _, _, err := sim.DecodeState(state, terrain, c)
+	if err != nil {
+		t.Fatalf("seed %d: decode state: %v", a.Seed, err)
+	}
+	want, _ := sim.Encode(w, c.Region.Version)
+	if again, _ := sim.Encode(got, c.Region.Version); !bytes.Equal(again, want) {
+		t.Errorf("seed %d: the terrain does not round-trip", a.Seed)
+	}
 }

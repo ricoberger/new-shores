@@ -1,6 +1,7 @@
 {
   "name": "move_with_transit",
   "description": "A connected lumberjack (road distance 5) runs for 30 s, so that wood is in transit, and is then moved for free to the other side of the road and rotated (road distance 6, D-042): it keeps its ID, cycle progress and the goods in transit, which still arrive in full.",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "island": {
     "id": "main",

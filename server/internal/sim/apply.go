@@ -108,10 +108,28 @@ func Apply(w *World, c *content.Catalogue, cmd Command) error {
 // also go into the away summary accumulator (World.Away), so that a summary
 // produced right after a command still reports the state at LastSeenAt.
 func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) error {
+	_, err := ApplyWithResult(w, c, cmd, l)
+	return err
+}
+
+// Result is the outcome of a successful command beyond the world change:
+// the per-tile results of a batch command (PlaceFields, DemolishFields;
+// nil for every other command). Unchanged is set when the command
+// succeeded without changing the world (a PlaceFields without a valid
+// tile): there is nothing to commit or publish.
+type Result struct {
+	Tiles     []TileResult
+	Unchanged bool
+}
+
+// ApplyWithResult is ApplyWithLedger that also returns the command's
+// result (the per-tile outcome of batch commands).
+func ApplyWithResult(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Result, error) {
 	gold, pop := w.goldFine(), worldPopulation(w, c)
 	inner := NewLedger()
-	if err := applyCommand(w, c, cmd, inner); err != nil {
-		return err
+	res, err := applyCommand(w, c, cmd, inner)
+	if err != nil {
+		return Result{}, err
 	}
 	w.Away.GoldDeltaSub += w.goldFine() - gold
 	delta := worldPopulation(w, c)
@@ -121,11 +139,14 @@ func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) err
 	w.Away.addPopulation(delta)
 	w.Away.addLedger(inner)
 	l.merge(inner)
-	return nil
+	return res, nil
 }
 
-func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error {
-	var err error
+func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Result, error) {
+	var (
+		err error
+		res Result
+	)
 	switch cmd := cmd.(type) {
 	case PlaceBuilding:
 		err = placeBuilding(w, c, cmd, true, l)
@@ -139,6 +160,11 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 		err = demolishRoad(w, c, cmd, l)
 	case PlaceField:
 		err = placeField(w, c, cmd, true, l)
+	case PlaceFields:
+		res.Tiles, err = placeFields(w, c, cmd, true, l)
+		res.Unchanged = err == nil && noTileApplied(res.Tiles)
+	case DemolishFields:
+		res.Tiles, err = demolishFields(w, c, cmd, l)
 	case SetPaused:
 		err = setPaused(w, c, cmd)
 	case UpgradeHouse:
@@ -178,12 +204,12 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 	case RenameIsland:
 		err = renameIsland(w, c, cmd)
 	case nil:
-		return fmt.Errorf("%w: nil command", ErrInvalidCommand)
+		return res, fmt.Errorf("%w: nil command", ErrInvalidCommand)
 	default:
-		return fmt.Errorf("%w: %T", ErrInvalidCommand, cmd)
+		return res, fmt.Errorf("%w: %T", ErrInvalidCommand, cmd)
 	}
 	if err != nil {
-		return err
+		return Result{}, err
 	}
 	now := w.LastEvaluatedAt.UnixMilli()
 	// Due moments a command creates at this instant (a berth granted to
@@ -192,7 +218,7 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 	normalizeShips(w, now)
 	evaluateUnlocks(w, c)
 	evaluateQuests(w, c, now, nil)
-	return nil
+	return res, nil
 }
 
 // PlaceFree places a building without charging its cost. It is meant for
@@ -394,6 +420,53 @@ func CheckSite(is *Island, c *content.Catalogue, def *content.Building, x, y, ro
 		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, rotation)
 	}
 	return checkSite(is, c, is.occupancy(c), def, x, y, rotation, true)
+}
+
+// SiteChecker is CheckSite for many sites of one unchanged island: the
+// occupancy is computed once (the archipelago generator and the dev
+// fixture planner scan every anchor of an island, D-053).
+type SiteChecker struct {
+	is  *Island
+	c   *content.Catalogue
+	occ []int64
+}
+
+// NewSiteChecker returns a checker of the island in its current state; it
+// must not be used after the island changed.
+func NewSiteChecker(is *Island, c *content.Catalogue) *SiteChecker {
+	return &SiteChecker{is: is, c: c, occ: is.occupancy(c)}
+}
+
+// Valid reports whether CheckSite accepts the site. Footprints that fail
+// on bounds, terrain or occupancy are rejected by a scan without
+// allocation (most anchors of a scan); the others get the full check.
+func (s *SiteChecker) Valid(def *content.Building, x, y, rotation int) bool {
+	if !validRotation(rotation) {
+		return false
+	}
+	is := s.is
+	fw, fh := footprint(def, rotation)
+	if fw < 1 || fh < 1 || x < 0 || y < 0 || x > is.Width-fw || y > is.Height-fh {
+		return false
+	}
+	mountain := def.RequiresDeposit != ""
+	for ty := y; ty < y+fh; ty++ {
+		for tx := x; tx < x+fw; tx++ {
+			i := is.index(tx, ty)
+			t := is.Tiles[i].Terrain
+			switch {
+			case s.occ[i] != 0:
+				return false
+			case WaterTile(def, x, y, rotation, tx, ty):
+				if t != content.TerrainWater {
+					return false
+				}
+			case is.Roads[i] != "" || (!buildableTerrain(t) && (!mountain || t != content.TerrainMountain)):
+				return false
+			}
+		}
+	}
+	return checkSite(is, s.c, s.occ, def, x, y, rotation, true) == nil
 }
 
 // checkSite validates a building site, in this order: the footprint is on

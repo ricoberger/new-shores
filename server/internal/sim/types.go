@@ -129,8 +129,9 @@ type Island struct {
 	Y      int `json:"y,omitempty"`
 	Width  int `json:"width"`
 	Height int `json:"height"`
-	// Tiles in row-major order (index = y*Width + x).
-	Tiles []Tile `json:"tiles"`
+	// Tiles in row-major order (index = y*Width + x). The store keeps them
+	// apart from the state (EncodeState, D-054).
+	Tiles []Tile `json:"tiles,omitempty"`
 	// Roads maps a tile index to the road type (content ID). Tiles without a
 	// road are absent.
 	Roads map[int]string `json:"roads,omitempty"`

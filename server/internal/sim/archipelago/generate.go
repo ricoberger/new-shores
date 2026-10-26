@@ -124,9 +124,11 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 // buildIsland draws shapes for one island until one passes the island
 // checks.
 func buildIsland(seed uint64, p *plan, c *content.Catalogue) (*sim.Island, error) {
+	s := &scratch{}
+	gap := slotGap(c)
 	for attempt := range maxShapeAttempts {
 		r := newRNG(derive(seed, uint64(attempt))) // #nosec G115 -- attempt >= 0
-		g := shape(r, p.class, p.deposits)
+		g := shape(r, p.class, p.deposits, gap, s)
 		if g == nil {
 			continue
 		}
@@ -170,7 +172,7 @@ func (g *grid) island(p *plan) *sim.Island {
 			case tMountain:
 				tile.Terrain = content.TerrainMountain
 			}
-			if s := g.dep[i]; s > 0 {
+			if s := g.depAt(i); s > 0 {
 				tile.Deposit = &sim.Deposit{Kind: g.slots[s-1].kind, Quantity: -1}
 			}
 			tiles = append(tiles, tile)
@@ -182,6 +184,27 @@ func (g *grid) island(p *plan) *sim.Island {
 		is.Fertilities = slices.Clone(p.fertilities)
 	}
 	return is
+}
+
+// slotGap is the minimum Chebyshev distance between the tiles of two
+// deposit slots: the longest footprint side of any deposit building, at
+// least 3 (D-054: quarries and mines are 3x8 strips).
+func slotGap(c *content.Catalogue) int {
+	gap := 3
+	for _, b := range c.Buildings {
+		if b.RequiresDeposit != "" {
+			gap = max(gap, b.Width, b.Height)
+		}
+	}
+	return gap
+}
+
+// depAt returns the deposit slot of tile i (0: none).
+func (g *grid) depAt(i int) int {
+	if g.dep == nil {
+		return 0
+	}
+	return g.dep[i]
 }
 
 // buildableArea counts the buildable tiles (coast, grass, forest).

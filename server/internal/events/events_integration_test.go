@@ -463,7 +463,7 @@ func TestProcessingTimeReadAfterWorldLocks(t *testing.T) {
 	for {
 		var waiting int
 		if err := st.Pool().QueryRow(ctx, `SELECT count(*) FROM pg_stat_activity
-WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%FROM worlds WHERE id = $1 FOR UPDATE%'`).Scan(&waiting); err != nil {
+WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%FROM worlds w%FOR UPDATE OF w%'`).Scan(&waiting); err != nil {
 			t.Fatal(err)
 		}
 		if waiting > 0 {

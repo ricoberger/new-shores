@@ -27,9 +27,22 @@ func dims(def *content.Building, rot int) (int, int) {
 	return def.Width, def.Height
 }
 
+// view is a snapshot of an island's occupancy for the planner's tile
+// scans; the island must not change while it is used.
+type view struct {
+	f   *fixture
+	is  *sim.Island
+	occ []int64
+}
+
+func (f *fixture) view(is *sim.Island) *view {
+	return &view{f: f, is: is, occ: is.Occupancy(f.c)}
+}
+
 // open reports whether a tile is buildable land without a building or road.
-func (f *fixture) open(is *sim.Island, x, y int) bool {
-	if !is.InBounds(x, y) || is.RoadAt(x, y) != "" || is.BuildingAt(f.c, x, y) != nil {
+func (v *view) open(x, y int) bool {
+	is := v.is
+	if !is.InBounds(x, y) || is.RoadAt(x, y) != "" || v.occ[y*is.Width+x] != 0 {
 		return false
 	}
 	t := is.Tile(x, y).Terrain
@@ -38,8 +51,8 @@ func (f *fixture) open(is *sim.Island, x, y int) bool {
 
 // free is open, minus forest while the planner spares it (lumberjacks
 // lose efficiency with every forest tile built over).
-func (f *fixture) free(is *sim.Island, x, y int) bool {
-	return f.open(is, x, y) && (!f.spareForest || is.Tile(x, y).Terrain != content.TerrainForest)
+func (v *view) free(x, y int) bool {
+	return v.open(x, y) && (!v.f.spareForest || v.is.Tile(x, y).Terrain != content.TerrainForest)
 }
 
 // coversForest reports whether a footprint covers a forest tile.
@@ -63,6 +76,7 @@ func (f *fixture) tradingPostSite(island string) (archipelago.Rect, bool) {
 		return archipelago.Rect{}, false
 	}
 	best, bestScore := archipelago.Rect{}, -1
+	v := f.view(is)
 	for _, s := range archipelago.Sites(is, f.c, def) {
 		cx, cy := s.X+s.W/2, s.Y+s.H/2
 		dx, dy := inland(s.Rotation)
@@ -70,7 +84,7 @@ func (f *fixture) tradingPostSite(island string) (archipelago.Rect, bool) {
 		score := 0
 		for y := cy - 6; y <= cy+6; y++ {
 			for x := cx - 6; x <= cx+6; x++ {
-				if f.free(is, x, y) {
+				if v.free(x, y) {
 					score++
 				}
 			}
@@ -147,7 +161,8 @@ func (f *fixture) street(island string, n int) {
 		x = tp.X - 1
 	}
 	var tiles []sim.Pos
-	for len(tiles) < n && f.free(is, x, y) {
+	v := f.view(is)
+	for len(tiles) < n && v.free(x, y) {
 		tiles = append(tiles, sim.Pos{X: x, Y: y})
 		x, y = x+dx, y+dy
 	}
@@ -171,13 +186,14 @@ func (f *fixture) streetEnd(island string) sim.Pos { return f.ends[island] }
 // none.
 func (f *fixture) grassAnchor(island string, from sim.Pos) sim.Pos {
 	is := f.w.Island(island)
+	v := f.view(is)
 	best, bestD := from, -1
 	for y := range is.Height {
 		for x := range is.Width {
 			n := 0
 			for ty := y - 4; ty <= y+4; ty++ {
 				for tx := x - 4; tx <= x+4; tx++ {
-					if f.open(is, tx, ty) && is.Tile(tx, ty).Terrain != content.TerrainForest {
+					if v.open(tx, ty) && is.Tile(tx, ty).Terrain != content.TerrainForest {
 						n++
 					}
 				}
@@ -198,13 +214,14 @@ func (f *fixture) grassAnchor(island string, from sim.Pos) sim.Pos {
 // lumberjack works at full efficiency; from itself when there is none.
 func (f *fixture) forestAnchor(island string, from sim.Pos) sim.Pos {
 	is := f.w.Island(island)
+	v := f.view(is)
 	best, bestD := from, -1
 	for y := range is.Height {
 		for x := range is.Width {
 			n := 0
 			for ty := y - 4; ty <= y+4; ty++ {
 				for tx := x - 4; tx <= x+4; tx++ {
-					if is.InBounds(tx, ty) && is.Tile(tx, ty).Terrain == content.TerrainForest && f.open(is, tx, ty) {
+					if is.InBounds(tx, ty) && is.Tile(tx, ty).Terrain == content.TerrainForest && v.open(tx, ty) {
 						n++
 					}
 				}
@@ -276,9 +293,11 @@ func (f *fixture) placeOnce(island, typ string, anchor sim.Pos, then func(id int
 	}
 	tried := 0
 	reach := f.reachable(island)
+	// is stays the island before any trial: try works on a world copy.
+	chk := sim.NewSiteChecker(is, f.c)
 	for _, s := range f.candidates(is, def, anchor) {
 		w, h := dims(def, s.rot)
-		if !touches(is, reach, s.x, s.y, w, h) || (f.spareForest && coversForest(is, s.x, s.y, w, h)) || sim.CheckSite(is, f.c, def, s.x, s.y, s.rot) != nil {
+		if !touches(is, reach, s.x, s.y, w, h) || (f.spareForest && coversForest(is, s.x, s.y, w, h)) || !chk.Valid(def, s.x, s.y, s.rot) {
 			continue
 		}
 		if tried++; tried > maxCandidates {
@@ -349,40 +368,54 @@ func (f *fixture) moveOnce(island, typ string) {
 	f.err = fmt.Errorf("move: no site for %s on %s", typ, island)
 }
 
-// tryFields places n fields of the type for the farm, nearest first, and
-// reports whether all fit (the world keeps the fields placed).
-func (f *fixture) tryFields(island string, farmID int64, typ string, n int) bool {
-	is := f.w.Island(island)
-	var farm *sim.Building
-	for _, b := range is.Buildings {
-		if b.ID == farmID {
-			farm = b
-		}
+// paintFields paints the farm's fields with one place_fields drag (D-054)
+// over the largest square ring around the farm that fits MaxFieldTiles,
+// nearest anchors first, and reports whether n fields were placed (the
+// world keeps them; a drag that places fewer leaves no trace).
+func (f *fixture) paintFields(island string, farmID int64, typ string, n int) bool {
+	if f.err != nil {
+		return false
 	}
+	is := f.w.Island(island)
+	farm := is.Building(farmID)
 	if farm == nil {
 		return false
 	}
-	placed := 0
-	for r := 1; r <= 8 && placed < n; r++ {
-		for y := farm.Y - r; y <= farm.Y+r && placed < n; y++ {
-			for x := farm.X - r; x <= farm.X+r && placed < n; x++ {
-				if max(abs(x-farm.X), abs(y-farm.Y)) != r {
-					continue
-				}
-				if f.try(sim.PlaceField{IslandID: island, FarmID: farmID, Type: typ, X: x, Y: y}) {
-					placed++
-				}
+	fw, fh := dims(f.c.BuildingByID[farm.Type], farm.Rotation)
+	r := 1
+	for (fw+2*(r+1))*(fh+2*(r+1)) <= sim.MaxFieldTiles {
+		r++
+	}
+	cx, cy := 2*farm.X+fw, 2*farm.Y+fh // doubled centre
+	var tiles []sim.Pos
+	for y := farm.Y - r; y < farm.Y+fh+r; y++ {
+		for x := farm.X - r; x < farm.X+fw+r; x++ {
+			if is.InBounds(x, y) && (x < farm.X || x >= farm.X+fw || y < farm.Y || y >= farm.Y+fh) {
+				tiles = append(tiles, sim.Pos{X: x, Y: y})
 			}
 		}
 	}
-	return placed == n
-}
-
-func abs(v int) int {
-	if v < 0 {
-		return -v
+	dist := func(p sim.Pos) int {
+		dx, dy := 2*p.X+1-cx, 2*p.Y+1-cy
+		return dx*dx + dy*dy
 	}
-	return v
+	slices.SortStableFunc(tiles, func(a, b sim.Pos) int { return dist(a) - dist(b) })
+	w := f.w.Clone()
+	res, err := sim.ApplyWithResult(w, f.c, sim.PlaceFields{IslandID: island, FarmID: farmID, Type: typ, Tiles: tiles}, nil)
+	if err != nil {
+		return false
+	}
+	placed := 0
+	for _, t := range res.Tiles {
+		if t.Err == nil {
+			placed++
+		}
+	}
+	if placed != n {
+		return false
+	}
+	f.w = w
+	return true
 }
 
 // roadPath returns the free tiles of the shortest road from the island's
@@ -405,7 +438,8 @@ func (f *fixture) roadPath(island string, x, y, w, h int) ([]sim.Pos, bool) {
 			queue = append(queue, i)
 		}
 	}
-	freeAt := func(px, py int) bool { return !inRect(px, py) && f.free(is, px, py) }
+	v := f.view(is)
+	freeAt := func(px, py int) bool { return !inRect(px, py) && v.free(px, py) }
 	if len(queue) == 0 {
 		if tp := f.tradingPost(island); tp != nil {
 			tw, th := dims(f.c.BuildingByID[tp.Type], tp.Rotation)
@@ -463,6 +497,7 @@ func (f *fixture) roadPath(island string, x, y, w, h int) ([]sim.Pos, bool) {
 // tiles connected to them.
 func (f *fixture) reachable(island string) []bool {
 	is := f.w.Island(island)
+	v := f.view(is)
 	out := make([]bool, is.Width*is.Height)
 	var queue []int
 	for i := range out {
@@ -475,7 +510,7 @@ func (f *fixture) reachable(island string) []bool {
 		if tp := f.tradingPost(island); tp != nil {
 			tw, th := dims(f.c.BuildingByID[tp.Type], tp.Rotation)
 			for _, p := range ring(tp.X, tp.Y, tw, th) {
-				if f.free(is, p.X, p.Y) && !out[p.Y*is.Width+p.X] {
+				if v.free(p.X, p.Y) && !out[p.Y*is.Width+p.X] {
 					out[p.Y*is.Width+p.X] = true
 					queue = append(queue, p.Y*is.Width+p.X)
 				}
@@ -486,7 +521,7 @@ func (f *fixture) reachable(island string) []bool {
 		px, py := queue[k]%is.Width, queue[k]/is.Width
 		for _, d := range [4][2]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
 			nx, ny := px+d[0], py+d[1]
-			if f.free(is, nx, ny) && !out[ny*is.Width+nx] {
+			if v.free(nx, ny) && !out[ny*is.Width+nx] {
 				out[ny*is.Width+nx] = true
 				queue = append(queue, ny*is.Width+nx)
 			}

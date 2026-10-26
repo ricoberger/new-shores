@@ -12,10 +12,11 @@ import (
 // Warehouses, berths and the start at sea (D-051) and version 5 the
 // adjacency fields (D-051 part 4: Building.FarmID is the owning farm,
 // Building.Inactive), version 6 the generated archipelago (D-053:
-// World.Seed, World.ArchipelagoRoll, Island.SizeClass). Versions 1-5 have
-// no migration path (the game was not deployed; a fresh database is
-// needed: make down VOLUMES=1 && make up).
-const SchemaVersion = 6
+// World.Seed, World.ArchipelagoRoll, Island.SizeClass), version 7 the
+// terrain stored apart from the state (D-054: EncodeState writes islands
+// without tiles). Versions 1-6 have no migration path (the game was not
+// deployed; a fresh database is needed: make down VOLUMES=1 && make up).
+const SchemaVersion = 7
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

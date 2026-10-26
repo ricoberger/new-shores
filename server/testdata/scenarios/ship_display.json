@@ -1,6 +1,7 @@
 {
   "name": "ship_display",
   "description": "Display fixture for the client: a sloop travelling to island 2 on a manual leg (60 s) while the shipyard builds a second sloop (pending order, 2 min).",
+  "content": "server/testdata/content/old_coast_pre_d054",
   "start": "2026-01-01T00:00:00Z",
   "islands": [
     {

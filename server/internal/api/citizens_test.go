@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/sim/scenario"
 )
@@ -22,7 +23,7 @@ import (
 // upgrade is issued over HTTP. The Display payload shows the Citizen house
 // with its six needs, growth and tax rates, and Citizens in the population.
 func TestCitizensUpgradeOverHTTP(t *testing.T) {
-	c := catalogue(t)
+	c := shippedCatalogue(t)
 	s, err := scenario.Load(os.DirFS(filepath.Join(repoRoot(t), "server", "testdata", "scenarios")), "bootstrap_citizens.json")
 	if err != nil {
 		t.Fatal(err)
@@ -44,8 +45,8 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	if house == nil || house.Type != "house_settlers" {
 		t.Fatalf("no settler house at (%d,%d): %+v", at.X, at.Y, house)
 	}
-	tavernX, tavernY := roadSite(t, w, islandID, "tavern", house)
-	ts := newTestServerFor(t, w, w.LastEvaluatedAt, 1)
+	tavernX, tavernY := roadSite(t, c, w, islandID, "tavern", house)
+	ts := newTestServerWith(t, w, w.LastEvaluatedAt, 1, c)
 
 	res := ts.command(fmt.Sprintf(`{"type":"upgrade_house","island_id":%q,"building_id":%d}`, islandID, house.ID), nil)
 	if res.status != http.StatusOK {
@@ -150,9 +151,8 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 
 // roadSite returns the valid site (rotation 0) of a building type nearest
 // to building near with a road next to it.
-func roadSite(t *testing.T, w *sim.World, islandID, typ string, near *sim.Building) (int, int) {
+func roadSite(t *testing.T, c *content.Catalogue, w *sim.World, islandID, typ string, near *sim.Building) (int, int) {
 	t.Helper()
-	c := catalogue(t)
 	is := w.Island(islandID)
 	def := c.BuildingByID[typ]
 	bestX, bestY, bestD := 0, 0, -1
