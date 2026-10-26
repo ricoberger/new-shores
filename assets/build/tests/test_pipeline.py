@@ -198,3 +198,38 @@ class ThumbTest(unittest.TestCase):
         self.assertEqual(scale, 2.0)
         _, scale = pipeline.thumb_frame(pts, (1, 0, 0), (0, 1, 0), margin=0.1)
         self.assertAlmostEqual(scale, 2.4)
+
+
+class AreaBudgetBuildTest(unittest.TestCase):
+    """D-054: built entries record the area-scaled budgets and the life-layer anchors."""
+
+    def setUp(self):
+        self.content = pinned(CONTENT, {"fisher": [3, 8], "pasture": [3, 3], "trading_post": [6, 9]})
+
+    def build(self, recipe):
+        return pipeline.build_recipe(recipe, self.content, ROLES, fake_loader())
+
+    def test_a_strip_records_its_area_budget_and_lite_share(self):
+        r = {"id": "fisher", "kind": "building", "parts": [{"prim": "box", "size": [2.9, 7.9, 0.5], "role": "timber"}],
+             "anchors": {"chimney": [0, 1, 0.5], "smoke": [0, 1, 0.55], "cart": [0, 3.5, 0], "boat": [0, -3, 0.05]}}
+        _, entry, errors = self.build(r)
+        self.assertEqual(errors, [])
+        self.assertEqual(entry["footprint"], {"w": 3, "h": 8})
+        self.assertEqual(entry["file"]["budget"], 36000)
+        self.assertEqual(entry["file"]["lite"]["budget"], 9000)
+        self.assertEqual(entry["anchors"]["boat"], [0.0, 0.05, 3.0])
+
+    def test_pier_slots_and_pasture_anchors_reach_the_manifest(self):
+        berths = {f"berth_{i}": [x, -4.2, 0.06] for i, x in enumerate((-2.1, -0.7, 0.7, 2.1), 1)}
+        r = {"id": "trading_post", "kind": "building", "parts": [{"prim": "box", "size": [5.9, 8.9, 0.5], "role": "stone"}],
+             "anchors": {"cart": [0, 4, 0], **berths}}
+        _, entry, errors = self.build(r)
+        self.assertEqual(errors, [])
+        self.assertEqual([k for k in sorted(entry["anchors"]) if k.startswith("berth")], ["berth_1", "berth_2", "berth_3", "berth_4"])
+        self.assertEqual(entry["anchors"]["berth_4"], [2.1, 0.06, 4.2])
+        p = {"id": "pasture", "kind": "field", "parts": [{"prim": "box", "size": [2.9, 2.9, 0.05], "role": "pasture"}],
+             "anchors": {"gate": [0, 1.42, 0], "sheep_1": [-0.6, -0.3, 0], "sheep_2": [0.6, 0, 0], "sheep_3": [0, 0.7, 0]}}
+        _, entry, errors = self.build(p)
+        self.assertEqual(errors, [])
+        self.assertEqual(entry["file"]["budget"], 675)
+        self.assertEqual(sorted(entry["anchors"]), ["door", "gate", "sheep_1", "sheep_2", "sheep_3", "status"])
