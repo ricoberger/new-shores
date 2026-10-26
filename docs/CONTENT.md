@@ -276,6 +276,7 @@ only `sloop` is authored so far. Ship positions and legs follow MECHANICS
 | Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; stone 3–6, iron 2–4 slots per archipelago (gold exactly 1 when authored) |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
 | Spacing | ≥ 60 tiles between islands, nearest neighbour ≤ 150 |
+| Buildable area | 6550 tiles (coast, grass, forest) per archipelago ± 10 % (provisional) |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
 
 Guarantees per tier are specified in MECHANICS §10. No gating (D-051).

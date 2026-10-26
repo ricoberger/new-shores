@@ -109,8 +109,13 @@ type World struct {
 // Island is a tile grid with its buildings, roads and shared inventory.
 type Island struct {
 	ID string `json:"id"`
-	// Name is the display name of the island (optional).
+	// Name is the display name of the island (optional); generated
+	// islands draw it from the content word list, the owner may rename a
+	// settled island (D-053).
 	Name string `json:"name,omitempty"`
+	// SizeClass is the content size class of a generated island
+	// (islands.json, D-053); "" for hand-made islands.
+	SizeClass string `json:"size_class,omitempty"`
 	// X, Y is the position of the island in the archipelago, in tiles; the
 	// straight-line distance between two islands gives the ship travel time
 	// (TravelMs).

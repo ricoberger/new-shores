@@ -380,6 +380,18 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	return nil
 }
 
+// CheckSite validates a site for a building on the island as placement
+// does (rotation, bounds, terrain, occupancy, water rows, coast, deposit,
+// fertility and work area; checkSite), without cost, tier, settlement or
+// field rules. The archipelago generator uses it to verify Trading Post
+// and shipyard sites on fresh islands (D-053).
+func CheckSite(is *Island, c *content.Catalogue, def *content.Building, x, y, rotation int) error {
+	if !validRotation(rotation) {
+		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, rotation)
+	}
+	return checkSite(is, c, is.occupancy(c), def, x, y, rotation, true)
+}
+
 // checkSite validates a building site, in this order: the footprint is on
 // the island, on buildable terrain (a deposit building may also cover
 // mountain tiles) and free (per occ and roads) except the front rows of a

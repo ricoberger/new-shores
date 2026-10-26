@@ -17,7 +17,7 @@
     { "id": "stone", "count": { "min": 3, "max": 6 } },
     { "id": "iron", "count": { "min": 2, "max": 4 } }
   ],
-  "buildable_area": { "target": 6800, "tolerance": 0.1 },
+  "buildable_area": { "target": 6550, "tolerance": 0.1 },
   "spacing": { "min": 60, "nearest_max": 150 },
   "home": {
     "size_class": "large",
