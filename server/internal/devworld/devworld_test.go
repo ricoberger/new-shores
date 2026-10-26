@@ -32,6 +32,11 @@ var start = time.Date(2026, 10, 19, 12, 0, 0, 123_456_789, time.UTC)
 // ship at the archipelago's spawn carrying exactly the content starting
 // stock (start.json, the gold on the balance; D-051, D-053).
 func TestNewIsTheSeededArchipelago(t *testing.T) {
+	// The archipelago goldens (sim/archipelago/testdata) and the
+	// reference games are pinned to this seed.
+	if DevSeed != 1_053_001 {
+		t.Fatalf("DevSeed = %d: update the goldens and reference games together", DevSeed)
+	}
 	c := catalogue(t)
 	w, err := New(c, DevSeed, start)
 	if err != nil {
