@@ -2,7 +2,7 @@ import hashlib
 import json
 import unittest
 
-from helpers import A_KIT_FILE, CONTENT, PALETTE_SHA, ROLES, fake_loader
+from helpers import A_KIT_FILE, CONTENT, PALETTE_SHA, ROLES, fake_loader, pinned
 from nsassets import config, glb, pipeline, validate
 
 
@@ -117,6 +117,31 @@ class DetailTest(unittest.TestCase):
     def test_lite_budgets(self):
         self.assertEqual(pipeline.lite_budget({"id": "chapel", "kind": "building"}, CONTENT, 6000), 1500)
         self.assertEqual(pipeline.lite_budget({"id": "house_settlers", "kind": "building"}, CONTENT, 2500), 625)
+
+    def test_budgets_scale_with_the_footprint_area_up_to_the_cap(self):
+        # D-054 footprints; the 2 × 2 reference keeps the flat budgets.
+        c = pinned(CONTENT, {"fisher": [3, 8], "warehouse": [6, 6], "trading_post": [6, 9], "shipyard": [8, 12],
+                             "house_citizens": [3, 3], "pasture": [3, 3], "orchard_plot": [1, 1]})
+
+        def budget(cid, kind="building", **extra):
+            return pipeline.budget_of(dict({"id": cid, "kind": kind}, **extra), c, None)
+
+        self.assertEqual(config.BUDGET_BUILDING_PER_TILE, 1500)
+        self.assertEqual(config.BUDGET_BUILDING_CAP, 72000)
+        self.assertEqual(budget("chapel"), 6000)
+        self.assertEqual(budget("house_settlers"), 2500)
+        self.assertEqual(budget("fisher"), 6 * budget("chapel"))
+        self.assertEqual(budget("warehouse"), 54000)
+        self.assertEqual(budget("shipyard"), config.BUDGET_BUILDING_CAP)
+        self.assertEqual(budget("trading_post"), config.BUDGET_BUILDING_CAP)
+        self.assertEqual(budget("trading_post", budget_exception={"reason": "x"}), config.BUDGET_BUILDING_CAP)
+        self.assertEqual(budget("chapel", budget_exception={"reason": "x"}), 12000)
+        self.assertEqual(budget("house_citizens"), 5625)
+        self.assertEqual(budget("pasture", "field"), 675)
+        self.assertEqual(budget("orchard_plot", "field"), 300)
+        self.assertEqual(budget("sloop", "ship"), config.BUDGET_SHIP)
+        # Lite models keep their share of the area budget.
+        self.assertEqual(pipeline.lite_budget({"id": "fisher", "kind": "building"}, c, budget("fisher")), 9000)
 
     def test_sails_are_lit_from_both_sides(self):
         r = {"id": "sloop", "kind": "ship", "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0},
