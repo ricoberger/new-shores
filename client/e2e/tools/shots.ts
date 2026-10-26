@@ -223,6 +223,182 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       const p = await tileAt(page, "dense1", t.x, t.y);
       await page.mouse.click(p.x, p.y);
       await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      // The producer card's collapsed Details, opened.
+      await page.getByTestId("info-details").locator("summary").click();
+      await page.mouse.move(5, 400);
+    },
+  },
+  // A producer with inputs (a sawmill) selected, Details open (desktop).
+  "producer-inputs": {
+    fixture: "dense-2x400",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        const is = window.__newShores!.getServer()!.display.islands.find((i) => i.id === "dense1")!;
+        const b = is.buildings.find((x) => x.type === "sawmill")!;
+        return { x: b.x, y: b.y };
+      });
+      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, "dense1", t.x, t.y);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.getByTestId("info-details").locator("summary").click();
+      await page.mouse.move(5, 400);
+    },
+  },
+  // A house selected (desktop).
+  "house-card": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => (x.needs?.length ?? 0) > 0) ?? is.buildings.find((x) => x.residents !== undefined);
+          if (b) return { island: is.id, x: b.x, y: b.y };
+        }
+        throw new Error("no house");
+      });
+      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x, t.y);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  "warehouse-card": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.type === "warehouse" && x.level === 1);
+          if (b) return { island: is.id, x: b.x, y: b.y };
+        }
+        throw new Error("no chapel");
+      });
+      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x, t.y);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  "service-card": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.type === "chapel");
+          if (b) return { island: is.id, x: b.x, y: b.y };
+        }
+        throw new Error("no chapel");
+      });
+      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x, t.y);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.getByTestId("info-details").locator("summary").click();
+      await page.mouse.move(5, 400);
+    },
+  },
+  "trading-post-card": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.type === "trading_post" && x.level === 1);
+          if (b) return { island: is.id, x: b.x, y: b.y };
+        }
+        throw new Error("no trading post");
+      });
+      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x, t.y);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  "shipyard-idle": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          for (const x of is.buildings) if (x.type === "shipyard") delete (x as { ship_order?: unknown }).ship_order;
+          const b = is.buildings.find((x) => x.type === "shipyard");
+          if (b) return { island: is.id, x: b.x, y: b.y };
+        }
+        throw new Error("no chapel");
+      });
+      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x, t.y);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  "shipyard-building": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.type === "shipyard");
+          if (b) return { island: is.id, x: b.x, y: b.y };
+        }
+        throw new Error("no chapel");
+      });
+      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x, t.y);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  "served-houses": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.type === "chapel");
+          if (b) return { island: is.id, x: b.x, y: b.y };
+        }
+        throw new Error("no chapel");
+      });
+      await setCamera(page, { x: 15, y: 9, half: 13, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x, t.y);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  "serving-buildings": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.type === "house_citizens");
+          if (b) return { island: is.id, x: b.x, y: b.y };
+        }
+        throw new Error("no chapel");
+      });
+      await setCamera(page, { x: 15, y: 9, half: 13, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x, t.y);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
       await page.mouse.move(5, 400);
     },
   },
@@ -257,6 +433,20 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
     device: "desktop",
     run: async (page) => {
       const f = await farmOf(page, "hemp_farm");
+      await setCamera(page, { x: f.x + 1, y: f.y + 1, half: 6, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, f.island, f.x + 1, f.y + 1);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  // A pasture selected: its card names its farm and says it counts (desktop).
+  "field-selected": {
+    fixture: "showcase",
+    device: "desktop",
+    run: async (page) => {
+      const f = await farmOf(page, "pasture");
       await setCamera(page, { x: f.x + 1, y: f.y + 1, half: 6, rotation: 0 });
       await settle(page);
       const p = await tileAt(page, f.island, f.x + 1, f.y + 1);
