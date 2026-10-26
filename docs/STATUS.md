@@ -1,8 +1,8 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after PR #23
-(e2e/visual/perf suites removed, D-052).
+docs sync; details live in the linked documents. Last update: after PR #24
+(polish round 2).
 
 ## What exists
 
@@ -37,21 +37,32 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Next tasks (in order)
 
-1. **Owner playtest** on desktop and phone (start loop, dense fixture,
-   fps/heat with the life layer), then **polish round 2** (direct) from
-   the findings.
-2. **Content depth** (needs a design interview first): tier-2 alternatives (dairy, pigs, apiary with
-   their reserved field types), tier 3, island generation.
+1. **Island generator** (design interview first, then Opus): seeded
+   6–8 island archipelagos replacing the fixed two-island `devworld`.
+2. **Polish round 3** (interactive, after the generator): archipelago
+   scale items — ship size at far, minimap, camera fit, far LOD, legs
+   through islands.
+3. **Content depth** (design interview first): tier-2 alternatives
+   (dairy, pigs, apiary with their reserved field types), tier 3.
 
 ## Known follow-ups
 
-Ghost variant hint from the server; ship legs are straight lines and may
-cross islands (routing around land); comfort/luxury need icons (with tier
-3); fisher-boat loops cross land like ship legs (one routing task);
-life budget counts the whole island, not the visible part; stage models
-for fields; progressive island loading if first load bothers on phones.
-Local dev databases older than schema 5 must be recreated (`make down VOLUMES=1 &&
-make up`).
+- **Decision candidates** (owner + design lead): unload amounts per
+  route stop (touches D-015); a meaning for fields above `required`
+  (D-051 part 4); ship and fisher-boat routing around islands.
+- **Server tasks:** `upgrade_available` (or the blocking reason) on the
+  house display so the Upgrade button shows only when it would succeed
+  (D-027 forbids computing it in the client); `preview_variant` hint for
+  the house ghost; content validation that a building need's
+  `needs.json: radius` equals the building's `service.radius`.
+- **Client tasks:** `client/src/api/sync.test.ts` fails intermittently on
+  real timers (rewrite with fake timers end to end); landscape phone —
+  dock vs. half-open sheet and expanded minimap overlap; details-in-place
+  for the dock lists; life budget per *visible* island; stage models for
+  fields; comfort/luxury need icons (with tier 3); progressive island
+  loading if first load bothers on phones.
+- Local dev databases older than schema 5 must be recreated (`make down
+  VOLUMES=1 && make up`).
 
 ## How to run
 
@@ -63,7 +74,9 @@ make up`).
 **Looking at the result:** `make shots` (18 PNGs: showcase / settled /
 dense-2x400 × near / mid / far × desktop / phone, fixed camera and
 clock, ≈ 30 s; `FIXTURE= VIEW= DEVICE= ROTATION= ISLAND= ZOOM= HUD=0`,
-`PRESET=info-panel|sheet|ghost|sloop|all`) and `make model-sheet
+`PRESET=<name>|all`; the names are in `client/e2e/tools/shots-args.ts`,
+e.g. `info-panel`, `house-card`, `ship-panel`, `route-editor`, `build-menu`,
+`island-card`, `top-bar-popups`, `farm-selected`) and `make model-sheet
 RECIPE=sawmill` (contact sheet, 3 s). Attach these to reports instead
 of writing ad-hoc screenshot scripts.
 

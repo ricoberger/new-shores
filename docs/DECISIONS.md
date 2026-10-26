@@ -685,7 +685,9 @@ specs isolate through a dev-only world reset endpoint.
   #17; 4 (fields v2) in PR #20 (schema 5; edge adjacency, fields bound to
   a farm instance, unmovable, small gold cost; pasture 15 gold / 0 planks
   because 2 planks missed the §12 reference targets; `cattle_pasture`,
-  `pig_pen`, `meadow` reserved until their farms get recipes). As built: founding from afar is two commands
+  `pig_pen`, `meadow` reserved until their farms get recipes; PR #24 set
+  `fields.max = fields.required` for every farm until a mechanic gives
+  extra fields a meaning — open question). As built: founding from afar is two commands
   (`sail_ship`, then `found_island` on arrival); berths gate arrivals only
   (loading holds no berth; an island without a Trading Post has no pier
   and handles at once); ship legs are straight and may cross land
