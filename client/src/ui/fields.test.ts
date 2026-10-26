@@ -101,6 +101,25 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(html.match(/<img [^>]*src="\/models\/thumbs\/sheep_farm.png"[^>]*>/)?.[0]).toContain('alt=""');
   });
 
+  it("locks every card with Loading island… while the island's tiles load", () => {
+    const html = renderToStaticMarkup(
+      createElement(BuildMenu, {
+        content,
+        model: null,
+        islandId: "main",
+        fertilities: [],
+        loading: true,
+        tool: NO_TOOL,
+        onSelect: () => {},
+        onDemolishTool: () => {},
+      }),
+    );
+    for (const id of ["lumberjack", "sheep_farm", "weaver_wool"]) {
+      expect(html.match(new RegExp(`<button[^>]*data-testid="build-${id}"[^>]*>`))?.[0]).toContain("disabled");
+      expect(html).toContain(`data-testid="build-lock-${id}">Loading island…</span>`);
+    }
+  });
+
   it("has a committed thumbnail for every building with a model", () => {
     const dir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "public", "models");
     const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")) as { models: Record<string, unknown> };

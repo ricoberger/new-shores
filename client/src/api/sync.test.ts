@@ -251,6 +251,23 @@ describe("GameSync", () => {
     stop();
   });
 
+  it("loads the tiles lazily in the renderer's priority, two at a time", async () => {
+    worldHandler = () => json(world(1, "2026-01-01T00:00:00.000Z", null, ["a", "b", "c"]));
+    const release: (() => void)[] = [];
+    islandHandler = () => new Promise<Response>((resolve) => release.push(() => resolve(json(ISLAND))));
+    const sync = new GameSync();
+    // The renderer answers the first snapshot with its priorities (as the engine does).
+    sync.subscribe(() => sync.setTilePriority("c", ["b", "c"]));
+    const stop = sync.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const tileCalls = () => calls.filter((c) => c.path.endsWith("/tiles")).map((c) => c.path.split("/")[5]);
+    expect(tileCalls()).toEqual(["c", "b"]);
+    release.shift()!();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(tileCalls()).toEqual(["c", "b", "a"]);
+    stop();
+  });
+
   it("ignores an island response of the archipelago before a reroll", async () => {
     worldHandler = () => json(world(1, "2026-01-01T00:00:00.000Z", null, ["isle-01"]));
     let releaseOld: (r: Response) => void = () => undefined;
@@ -270,7 +287,7 @@ describe("GameSync", () => {
     stop();
   });
 
-  it("reports GET errors of world, content and island and recovers by retrying", async () => {
+  it("reports GET errors of world, content and island and recovers by retrying (island tiles: once, then at the next payload)", async () => {
     worldHandler = () => json(SERVER_ERROR, 500);
     contentHandler = () => json(SERVER_ERROR, 500);
     islandHandler = () => json(SERVER_ERROR, 500);
@@ -286,12 +303,25 @@ describe("GameSync", () => {
     worldHandler = () => json(world(0, "2026-01-01T00:00:01.000Z", null, ["start"]));
     await vi.advanceTimersByTimeAsync(1_000);
     expect(sync.getSnapshot().model).not.toBeNull();
-    expect(errors.map((e) => e.what)).toContain("island start");
+    const tileCalls = () => calls.filter((c) => c.path === "/api/v1/world/islands/start/tiles").length;
+    expect(tileCalls()).toBe(1);
+    // The one retry after 2 s fails too: reported once, then given up.
+    expect(errors.map((e) => e.what)).not.toContain("island start");
+    await vi.advanceTimersByTimeAsync(2_000);
+    expect(tileCalls()).toBe(2);
+    expect(errors.filter((e) => e.what === "island start")).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(tileCalls()).toBe(2);
 
     contentHandler = () => json(CONTENT);
     islandHandler = () => json(ISLAND);
     await vi.advanceTimersByTimeAsync(2_000);
     expect(sync.getSnapshot().content).not.toBeNull();
+    // The next payload loads the island again.
+    worldHandler = () => json(world(1, "2026-01-01T00:00:40.000Z", null, ["start"]));
+    window.dispatchEvent(new Event("focus"));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(tileCalls()).toBe(3);
     expect(sync.getSnapshot().islands.get("start")?.terrain).toEqual(["grass"]);
 
     // No further retries once everything loaded.

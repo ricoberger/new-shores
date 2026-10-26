@@ -130,7 +130,7 @@ describe("HUD components", () => {
       expect(text(html)).toContain("Iron deposit (1 tile)");
       expect(text(html)).toContain("Free coast: 1 of 1 tiles");
       expect(text(card({ ...statics, fertilities: [], deposits: [] }))).toContain("No fertility or deposit");
-      expect(text(card(undefined))).toContain("Resources…");
+      expect(text(card(undefined))).toContain("ResourcesLoading…");
       // Population of every tier; no status, fill, warnings, ships or buttons.
       for (const t of tbContent.tiers) expect(html).toContain(`data-testid="island-card-population-${t.id}"`);
       expect(html).not.toMatch(/<button[^>]*data-testid="island-card-(enter|new-route|found)/);

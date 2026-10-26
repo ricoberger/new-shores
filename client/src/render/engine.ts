@@ -117,6 +117,8 @@ export interface RenderSource {
   subscribe(l: () => void): () => void;
   getSnapshot(): SyncSnapshot;
   serverNowMs(): number;
+  /** The lazy tile loads' priorities: the island under the camera, then those in view (nearest first). */
+  setTilePriority?(focus: string | null, inView: readonly string[]): void;
 }
 
 export interface FrameStats {
@@ -207,6 +209,8 @@ export class GameRenderer {
   private focusTilesMarked = false;
   /** Islands drawn from their 1:4 masks (no tiles yet; at far LOD all but the focused one). */
   private readonly mask: MaskLayer;
+  /** The tile priorities last sent to the sync (focus and islands in view). */
+  private priorityKey = "";
   /** The focused island at far LOD when the view was last applied (null at near and mid). */
   private maskFocus: string | null = null;
   /** Whether far LOD draws the islands other than the focused one from their masks. */
@@ -619,6 +623,17 @@ export class GameRenderer {
       for (const d of this.details.values()) d.setRotation(v.rotation);
     }
     const focus = focusedIsland(islands, v);
+    // Tile priorities: the focused island, then the islands in view by distance from the view's centre.
+    const dist = (is: IslandDisplay) => Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y);
+    const inView = islands
+      .filter((is) => this.visible.has(is.id))
+      .sort((a, b) => dist(a) - dist(b))
+      .map((is) => is.id);
+    const priorityKey = `${focus}|${inView.join(",")}`;
+    if (priorityKey !== this.priorityKey) {
+      this.priorityKey = priorityKey;
+      this.sync.setTilePriority?.(focus, inView);
+    }
     const heading = snapRotation(v.rotation);
     if (focus !== this.info.focus || lod !== this.info.lod || heading !== this.info.rotation) {
       this.info = { focus, lod, rotation: heading };

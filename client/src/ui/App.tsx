@@ -973,6 +973,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
                 model={model}
                 islandId={focusId}
                 fertilities={staticFocused?.fertilities}
+                loading={!staticFocused}
                 tool={tool}
                 onSelect={selectBuildItem}
                 onDemolishTool={() => setTool((t) => (t.kind === "demolish" ? NO_TOOL : { kind: "demolish" }))}

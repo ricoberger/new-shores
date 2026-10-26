@@ -120,7 +120,7 @@ export function IslandCard({ islandId, model, content, statics, onClose, onRenam
         <div className={`${styles.section} ${styles.divided}`}>
           <div className={styles.sectionTitle}>Resources</div>
           <div className={styles.small} data-testid="island-card-resources-row">
-            {resources ? <ResourceBadges resources={resources} prefix="island-card" stacked /> : "…"}
+            {resources ? <ResourceBadges resources={resources} prefix="island-card" stacked /> : <span data-testid="island-card-loading">Loading…</span>}
           </div>
         </div>
       </div>
