@@ -31,8 +31,10 @@ const DEVICE_OPTIONS = {
 /** The island each fixture opens on and per-view camera targets of the visual spec. */
 const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<Record<View, { x: number; y: number; half?: number }>> }> = {
   showcase: { island: "showcase", targets: { near: { x: 22, y: 13, half: 10 } } },
-  settled: { island: "isle-01" }, // the home island of every generated archipelago (D-053)
-  town: { island: "isle-01" },
+  // The home island of every generated archipelago (D-053), isle-01 at (193, 303) on the default seed:
+  // near on the street between the Trading Post and the sheep farm, mid over the settlement (settled: with the shipyard).
+  settled: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 282, y: 316, half: 36 } } },
+  town: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } },
   seafaring: { island: "isle-01" }, // a new world: the start sloop at sea, nothing settled
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
@@ -452,13 +454,14 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       const t = await page.evaluate(() => {
         for (const is of window.__newShores!.getServer()!.display.islands) {
           const b = is.buildings.find((x) => (x.needs?.length ?? 0) > 0) ?? is.buildings.find((x) => x.residents !== undefined);
-          if (b) return { island: is.id, x: b.x, y: b.y };
+          if (b) return { island: is.id, x: b.x, y: b.y, ox: is.position.x, oy: is.position.y };
         }
         throw new Error("no house");
       });
-      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
+      // Archipelago coordinates: the generated home island is not at the origin (D-053).
+      await setCamera(page, { x: t.ox + t.x + 1, y: t.oy + t.y + 1, half: HALF.near, rotation: 0 });
       await settle(page);
-      const p = await tileAt(page, t.island, t.x, t.y);
+      const p = await tileAt(page, t.island, t.x + 1, t.y + 1);
       await page.mouse.click(p.x, p.y);
       await page.getByTestId("info-panel").waitFor({ state: "visible" });
       await page.mouse.move(5, 400);
