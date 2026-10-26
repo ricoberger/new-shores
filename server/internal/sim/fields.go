@@ -85,8 +85,11 @@ type PlaceFields struct {
 // DemolishFields demolishes the fields of the farm FarmID covering Tiles,
 // each once, with the refund of its cost; a tile without a field of the
 // farm is rejected (ErrBuildingNotFound). The valid tiles are applied in
-// one state change; unlike PlaceFields the command fails (world
-// unchanged) when no tile is valid, with the first tile's error.
+// one state change. Like PlaceFields, when no tile is valid the command
+// still succeeds without a state change (Result.Unchanged; every tile
+// carries its reason): a demolish rectangle painted over no field is not
+// an error. Duplicate tiles or more than MaxFieldTiles fail the whole
+// command.
 type DemolishFields struct {
 	IslandID string
 	FarmID   int64
@@ -481,17 +484,6 @@ func checkBatchTiles(tiles []Pos) error {
 	return nil
 }
 
-// batchFailure returns the command error of a batch that applied no tile:
-// the error of its first tile.
-func batchFailure(results []TileResult) error {
-	for _, r := range results {
-		if r.Err != nil {
-			return r.Err
-		}
-	}
-	return fmt.Errorf("%w: no tile applied", ErrInvalidCommand)
-}
-
 func placeFields(w *World, c *content.Catalogue, cmd PlaceFields, charge bool, l *Ledger) ([]TileResult, error) {
 	is, err := lookupIsland(w, cmd.IslandID)
 	if err != nil {
@@ -606,7 +598,7 @@ func demolishFields(w *World, c *content.Catalogue, cmd DemolishFields, l *Ledge
 		}
 	}
 	if len(remove) == 0 {
-		return results, batchFailure(results)
+		return results, nil // no valid tile: no state change
 	}
 
 	// Validation complete: mutate.

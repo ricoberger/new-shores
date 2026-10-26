@@ -167,15 +167,27 @@ func TestPlaceFieldsErrors(t *testing.T) {
 
 // TestDemolishFields: tiles name the farm's fields; a field covered by
 // several tiles goes once, foreign and empty tiles are rejected; each
-// demolished field refunds like a demolition.
+// demolished field refunds like a demolition; no valid tile is a success
+// without a state change.
 func TestDemolishFields(t *testing.T) {
 	c := catalogue(t)
 	w, sheep := fieldsWorld(t, c)
 	p1 := putField(t, w, c, sheep, "pasture", 11, 5)
 	p2 := putField(t, w, c, sheep, "pasture", 13, 5)
 	before := encodeWorld(t, w)
-	expectApplyErr(t, w, c, DemolishFields{IslandID: "main", FarmID: sheep, Tiles: []Pos{{20, 12}}}, ErrBuildingNotFound)
-	expectApplyErr(t, w, c, DemolishFields{IslandID: "main", FarmID: sheep, Tiles: []Pos{{9, 6}}}, ErrBuildingNotFound)
+	// No field of the farm under any tile (empty, the farm itself): success
+	// without a state change, every tile with its reason (like place_fields).
+	for _, tiles := range [][]Pos{{{20, 12}}, {{9, 6}}, {{20, 12}, {9, 6}, {-1, 0}}} {
+		res, err := ApplyWithResult(w, c, DemolishFields{IslandID: "main", FarmID: sheep, Tiles: tiles}, nil)
+		if err != nil || !res.Unchanged || len(res.Tiles) != len(tiles) {
+			t.Fatalf("%v: %+v, %v", tiles, res, err)
+		}
+		for i, r := range res.Tiles {
+			if r.Err == nil || (r.X != tiles[i].X || r.Y != tiles[i].Y) {
+				t.Errorf("%v tile %d: %+v", tiles, i, r)
+			}
+		}
+	}
 	expectApplyErr(t, w, c, DemolishFields{IslandID: "main", FarmID: sheep, Tiles: []Pos{{11, 5}, {11, 5}}}, ErrInvalidCommand)
 	expectApplyErr(t, w, c, DemolishFields{IslandID: "main", FarmID: 999, Tiles: []Pos{{11, 5}}}, ErrBuildingNotFound)
 	if !bytes.Equal(before, encodeWorld(t, w)) {
@@ -424,13 +436,13 @@ func (p *propCase) checkDemolishFields(seed uint64, farm int64) {
 		}
 	}
 	before := encodeWorld(p.t, p.w)
-	_, err := ApplyWithResult(p.w, p.c, DemolishFields{IslandID: is.ID, FarmID: farm, Tiles: tiles}, nil)
-	if (err == nil) != (len(order) > 0) {
-		p.t.Fatalf("seed %d: demolish_fields err %v with %d fields covered", seed, err, len(order))
+	res, err := ApplyWithResult(p.w, p.c, DemolishFields{IslandID: is.ID, FarmID: farm, Tiles: tiles}, nil)
+	if err != nil || res.Unchanged != (len(order) == 0) {
+		p.t.Fatalf("seed %d: demolish_fields %+v, %v with %d fields covered", seed, res, err, len(order))
 	}
-	if err != nil {
+	if res.Unchanged {
 		if !bytes.Equal(before, encodeWorld(p.t, p.w)) {
-			p.t.Fatalf("seed %d: failed demolish_fields changed the world", seed)
+			p.t.Fatalf("seed %d: demolish_fields without a field changed the world", seed)
 		}
 		return
 	}

@@ -495,11 +495,10 @@ export interface components {
          *     duplicates, invalid rotation), 404 `unknown_island`,
          *     `unknown_building`, `building_not_found` (no such farm), 409
          *     `field_type_mismatch`, `field_wrong_farm`, `tier_locked`,
-         *     `island_not_settled`. A `place_fields` without a valid tile is
-         *     not an error: 200 with every tile `ok: false` and its reason, the
-         *     unchanged version, no state change and no event. A
-         *     `demolish_fields` without a valid tile fails with the code of
-         *     its first tile.
+         *     `island_not_settled`. A batch without a valid tile is not an
+         *     error: 200 with every tile `ok: false` and its reason, the
+         *     unchanged version, no state change and no event (`place_fields`
+         *     and `demolish_fields` alike).
          *
          *     `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
          *     or no `island_id` for a quest that rewards goods), 404
@@ -797,8 +796,9 @@ export interface components {
          *     down, no gold). A tile without a field of the farm is rejected
          *     (`building_not_found`, or `out_of_bounds`). The valid tiles are
          *     applied in one state change; `tile_results` reports every tile.
-         *     Without a valid tile the command fails with the first tile's
-         *     code.
+         *     Without a valid tile (a rectangle over no field of the farm) it
+         *     succeeds like `place_fields`: 200, every tile `ok: false`, the
+         *     unchanged version, no event.
          */
         DemolishFieldsCommand: {
             /**
