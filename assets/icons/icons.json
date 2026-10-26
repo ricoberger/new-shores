@@ -458,6 +458,13 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/id-card.svg",
       "sha256": "7156eb05b2336d6d449fac0c18f71a244d748043fd92aa513df1bc53b92899d2"
     },
+    "tool:rename": {
+      "file": "pencil.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/pencil.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/pencil.svg",
+      "sha256": "4ffbab32f193256627e4d684305863d2862198f62a35948c1b1fde65f799a842"
+    },
     "tool:logout": {
       "file": "exit-door.svg",
       "author": "Delapouite",

@@ -123,7 +123,7 @@ describe("HUD components", () => {
       const noop = () => {};
       const card = (st: typeof statics | undefined) =>
         renderToStaticMarkup(
-          createElement(IslandCard, { islandId: island.id, model, content: tbContent, statics: st as never, onClose: noop }),
+          createElement(IslandCard, { islandId: island.id, model, content: tbContent, statics: st as never, onClose: noop, onRename: () => Promise.resolve(true) }),
         );
       const html = card(statics);
       expect(html).toContain('data-testid="island-card-fertility-wheat"');
@@ -135,6 +135,33 @@ describe("HUD components", () => {
       for (const t of tbContent.tiers) expect(html).toContain(`data-testid="island-card-population-${t.id}"`);
       expect(html).not.toMatch(/<button[^>]*data-testid="island-card-(enter|new-route|found)/);
       expect(text(html)).not.toMatch(/Settled|Trading Post fill|Warnings|Ships here/);
+    });
+
+    it("shows the size class and the rename pencil of a settled island (D-053)", () => {
+      const classes = { ...tbContent, size_classes: [{ id: "medium", name: "Medium", rock: false }, { id: "rock", name: "Resource rock", rock: true }] };
+      const card = (is: typeof island) =>
+        renderToStaticMarkup(
+          createElement(IslandCard, {
+            islandId: is.id,
+            model: { ...model, islands: [is, ...model.islands.filter((i) => i.id !== is.id)] },
+            content: classes as never,
+            statics: undefined,
+            onClose: () => {},
+            onRename: () => Promise.resolve(true),
+          }),
+        );
+      const medium = card({ ...island, size_class: "medium", rock: false, settled: true });
+      expect(text(medium)).toContain("Medium island");
+      expect(medium).toMatch(/<button[^>]*aria-label="Rename the island"[^>]*data-testid="island-rename"/);
+      const rock = card({ ...island, size_class: "rock", rock: true, settled: false });
+      expect(text(rock)).toContain("Resource rock");
+      expect(text(rock)).not.toContain("Resource rock island");
+      expect(rock).not.toContain('data-testid="island-rename"');
+      expect(card({ ...island, size_class: "", rock: false })).not.toContain('data-testid="island-card-kind"');
+      const bar = renderToStaticMarkup(
+        createElement(TopBar, { ...props, content: classes, model: { ...model, islands: [{ ...island, size_class: "medium" }, ...model.islands.slice(1)] } } as never),
+      );
+      expect(bar).toMatch(/data-testid="hud-island-kind">Medium</);
     });
 
     it("keeps the same stats on a phone, with the island on its own row", () => {

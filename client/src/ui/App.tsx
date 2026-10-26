@@ -593,6 +593,24 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       onConfirm: () => void send({ type: "scrap_ship", ship_id: ship.id }),
     });
 
+  /**
+   * "Another archipelago" (D-053): the server generates the next roll of
+   * the world's seed; allowed while `archipelago.rerollable`. A pending
+   * founding and the founding ghost refer to the old islands and end.
+   */
+  const requestReroll = () =>
+    setConfirm({
+      title: "Another archipelago?",
+      body: "These islands are replaced by a new archipelago of the same size and resources; your sloop and its cargo move to its centre. You cannot come back to this one.",
+      confirmLabel: "Another archipelago",
+      onConfirm: () => {
+        setPendingFound(null);
+        setTool(NO_TOOL);
+        dispatch({ type: "clearSelection" });
+        void send({ type: "reroll_archipelago" });
+      },
+    });
+
   const selectShipFromList = (ship: ShipDisplay) => {
     setPanel("none");
     dispatch({ type: "selectShip", id: ship.id });
@@ -724,6 +742,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           content={content}
           statics={snap.islands.get(id)}
           onClose={() => dispatch({ type: "clearSelection" })}
+          onRename={async (name) => (await send({ type: "rename_island", island_id: id, name })) === null}
         />
       );
     } else if (selectedBuilding && selectedOwner) {
@@ -929,10 +948,19 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
                   </button>
                 </div>
               )}
-              {founderHere && !pendingText && (
-                <button type="button" className={hud.button} onClick={() => startFounding(founderHere, focused.id)} data-testid="found-settlement-here">
-                  Found settlement here
-                </button>
+              {((founderHere && !pendingText) || model?.archipelago.rerollable) && (
+                <div className={`${hud.buttons} ${hud.centred}`}>
+                  {founderHere && !pendingText && (
+                    <button type="button" className={hud.button} onClick={() => startFounding(founderHere, focused.id)} data-testid="found-settlement-here">
+                      Found settlement here
+                    </button>
+                  )}
+                  {model?.archipelago.rerollable && (
+                    <button type="button" className={hud.button} onClick={requestReroll} data-testid="reroll-archipelago">
+                      Another archipelago
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           ) : (

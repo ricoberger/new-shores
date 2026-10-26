@@ -1,10 +1,10 @@
 // Argument parsing of `make shots` (e2e/tools/shots.ts), kept free of
 // Playwright and the browser so a Vitest covers it.
 
-export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelago-8", "archipelago-8x20", "town"] as const;
+export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelago-8", "archipelago-8x20", "town", "seafaring"] as const;
 export const VIEWS = ["near", "mid", "far"] as const;
 export const DEVICES = ["desktop", "phone"] as const;
-export const PRESETS = ["info-panel", "producer-inputs", "house-card", "service-card", "warehouse-card", "trading-post-card", "shipyard-idle", "shipyard-building", "served-houses", "serving-buildings", "sheet", "ghost", "sloop", "build-menu", "warnings", "ship-panel", "route-editor", "route-paused", "island-card", "top-bar-popups", "farm-selected", "hemp-farm-selected", "field-selected", "field-ghost"] as const;
+export const PRESETS = ["info-panel", "producer-inputs", "house-card", "service-card", "warehouse-card", "trading-post-card", "shipyard-idle", "shipyard-building", "served-houses", "serving-buildings", "sheet", "ghost", "sloop", "build-menu", "warnings", "ship-panel", "route-editor", "route-paused", "island-card", "top-bar-popups", "farm-selected", "hemp-farm-selected", "field-selected", "field-ghost", "archipelago-far", "reroll", "rename"] as const;
 
 export type Fixture = (typeof FIXTURES)[number];
 export type View = (typeof VIEWS)[number];
@@ -14,7 +14,10 @@ export type Preset = (typeof PRESETS)[number];
 export const DEFAULT_FIXTURES: Fixture[] = ["showcase", "settled", "dense-2x400"];
 
 /** Fixtures served by the dev server's reset endpoint (the page loads `/`) rather than by `?fixture=`. */
-export const SERVER_FIXTURES: readonly Fixture[] = ["settled", "town"];
+export const SERVER_FIXTURES: readonly Fixture[] = ["settled", "town", "seafaring"];
+
+/** The largest world seed (53 bits, D-053), as the server's --seed accepts. */
+export const MAX_SEED = 2 ** 53 - 1;
 
 export interface ShotArgs {
   fixtures: Fixture[];
@@ -34,6 +37,8 @@ export interface ShotArgs {
   hud: boolean;
   /** Named HUD-state shots; when set, only these are taken. */
   presets: Preset[];
+  /** Archipelago seed of the dev server (--seed); undefined: the dev seed. */
+  seed?: number;
 }
 
 export class ShotArgError extends Error {}
@@ -65,7 +70,7 @@ function parseNumber(name: string, raw: string | undefined, min?: number): numbe
   return n;
 }
 
-/** Parses FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET and SET from an environment. */
+/** Parses FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED and SET from an environment. */
 export function parseShotArgs(env: Env): ShotArgs {
   const presets = parseList("PRESET", env.PRESET, PRESETS, []);
   const rotationText = env.ROTATION?.trim();
@@ -95,6 +100,14 @@ export function parseShotArgs(env: Env): ShotArgs {
   if (x !== undefined && y !== undefined) {
     args.x = x;
     args.y = y;
+  }
+  const seedText = env.SEED?.trim();
+  if (seedText) {
+    const seed = Number(seedText);
+    if (!/^[0-9]+$/.test(seedText) || !Number.isSafeInteger(seed) || seed < 1 || seed > MAX_SEED) {
+      throw new ShotArgError(`SEED: '${seedText}' is not an integer in 1..${MAX_SEED}`);
+    }
+    args.seed = seed;
   }
   if (presets.length > 0) {
     const clash = ["FIXTURE", "VIEW", "DEVICE", "ROTATION", "ISLAND", "ZOOM", "X", "Y", "HUD"].filter((k) => env[k]?.trim());

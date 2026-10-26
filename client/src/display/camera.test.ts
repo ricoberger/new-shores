@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  archipelagoRect,
   azimuthOf,
   BOUNDS_MARGIN,
   clampView,
@@ -162,4 +163,13 @@ describe("sea extent", () => {
       }
     });
   }
+});
+
+describe("archipelagoRect", () => {
+  it("turns the display bounds (D-053) into a rectangle, null without extent", () => {
+    expect(archipelagoRect({ bounds: { x: 0, y: 0, width: 392, height: 346 } })).toEqual({ minX: 0, minY: 0, maxX: 392, maxY: 346 });
+    expect(archipelagoRect({ bounds: { x: 5, y: -3, width: 10, height: 4 } })).toEqual({ minX: 5, minY: -3, maxX: 15, maxY: 1 });
+    expect(archipelagoRect({ bounds: { x: 0, y: 0, width: 0, height: 0 } })).toBeNull();
+    expect(archipelagoRect(undefined)).toBeNull();
+  });
 });

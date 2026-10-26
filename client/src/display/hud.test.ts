@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { Content, ContentBuilding, DisplayState, Island } from "../api/client";
-import { constructionGoods, islandResources, tierRows, worstNeedText } from "./hud";
+import { constructionGoods, islandKind, islandResources, tierRows, worstNeedText } from "./hud";
 import { needLabel } from "./needs";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
@@ -25,6 +25,14 @@ const content = {
 const defs = new Map(content.buildings.map((b) => [b.id, b as ContentBuilding]));
 
 describe("top-bar aggregates", () => {
+  it("names the island's size class from content (D-053)", () => {
+    const classes = { size_classes: [{ id: "large", name: "Large" }, { id: "rock", name: "Resource rock" }] };
+    expect(islandKind({ size_class: "large", rock: false }, classes)).toBe("Large");
+    expect(islandKind({ size_class: "rock", rock: true }, classes)).toBe("Resource rock");
+    expect(islandKind({ size_class: "rock", rock: true }, null)).toBe("rock");
+    expect(islandKind({ size_class: "", rock: false }, classes)).toBe("");
+  });
+
   it("lists the construction materials in the goods order", () => {
     expect(constructionGoods(content)).toEqual(["planks", "stone", "tools"]);
   });

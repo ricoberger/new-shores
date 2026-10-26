@@ -2699,7 +2699,7 @@ components:
     Content:
       type: object
       additionalProperties: false
-      required: [region, tiers, goods, buildings, needs, need_categories, ships, quests]
+      required: [region, tiers, goods, buildings, needs, need_categories, ships, quests, size_classes]
       properties:
         region:
           $ref: "#/components/schemas/ContentRegion"
@@ -2736,6 +2736,24 @@ components:
           description: Ship types (ordered at buildings with a shipyard block).
           items:
             $ref: "#/components/schemas/ContentShip"
+        size_classes:
+          type: array
+          description: Island size classes of the archipelago generator in content order (D-053; the names of an island's `size_class`).
+          items:
+            $ref: "#/components/schemas/ContentSizeClass"
+    ContentSizeClass:
+      type: object
+      additionalProperties: false
+      required: [id, name, rock]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Player-facing name, e.g. "Large" or "Resource rock".
+        rock:
+          type: boolean
+          description: Resource rocks carry mines only (no fertility, no houses).
     ContentQuest:
       type: object
       additionalProperties: false

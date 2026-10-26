@@ -32,6 +32,16 @@ type contentPayload struct {
 	NeedCategories []needCategoryJSON `json:"need_categories"`
 	Ships          []shipJSONOut      `json:"ships"`
 	Quests         []questJSON        `json:"quests"`
+	// SizeClasses are the island size classes of the archipelago
+	// generator (islands.json) in content order: the display names of
+	// an island's size_class.
+	SizeClasses []sizeClassJSON `json:"size_classes"`
+}
+
+type sizeClassJSON struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Rock bool   `json:"rock"`
 }
 
 // questJSON is a quest of quests.json in content order. Objective targets
@@ -301,7 +311,10 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 			},
 		},
 		Tiers: []tierJSON{}, Goods: []goodJSON{}, Buildings: []buildingJSON{}, Needs: []needJSON{}, NeedCategories: []needCategoryJSON{}, Ships: []shipJSONOut{},
-		Quests: []questJSON{},
+		Quests: []questJSON{}, SizeClasses: []sizeClassJSON{},
+	}
+	for _, sc := range c.Islands.SizeClasses {
+		p.SizeClasses = append(p.SizeClasses, sizeClassJSON{ID: sc.ID, Name: sc.Name, Rock: sc.Rock})
 	}
 	for _, q := range c.Quests {
 		qj := questJSON{

@@ -14,7 +14,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { SyncSnapshot } from "../api/sync";
-import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
+import { archipelagoRect, type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
 import { servedRelated } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
@@ -59,8 +59,6 @@ const LABEL_Y = 0.4;
 /** Where the camera starts: an island (default: the first) at the near default zoom, or the whole archipelago. */
 export type InitialCamera = { kind: "island"; id?: string } | { kind: "fit" };
 
-/** Half extent (tiles) of the camera opening on the start ship at sea: the islands around it in view. */
-export const SEA_START_HALF_HEIGHT = 48;
 
 /** What the HUD needs to know about the camera. */
 export interface CameraInfo {
@@ -182,6 +180,8 @@ export class GameRenderer {
   private roadStart: IslandTile | null = null;
   private selected: number | null = null;
   private placedInitially = false;
+  /** Seed and roll of the archipelago on screen: a reroll (D-053) frames the new one. */
+  private archipelagoKey = "";
   /** Presses that began during a camera jump are ignored until all their pointers are up. */
   private readonly latch = new JumpLatch();
   private lod: Lod = "near";
@@ -659,9 +659,13 @@ export class GameRenderer {
     // Ships at a Trading Post's pier and in its queue moor along its front row (D-051).
     this.arch.update(d.islands, snap.islands, d.ships, d.routes, berths, dockPoints(d.islands, this.defs));
     this.lookups.clear();
-    this.rig.setIslandBounds(this.arch.bounds());
+    // The payload's bounds (D-053) cover every island, also those whose static data is still loading.
+    this.rig.setIslandBounds(archipelagoRect(d.archipelago) ?? this.arch.bounds());
     this.layoutSea();
-    if (!this.placedInitially && d.islands.length > 0) {
+    const archipelagoKey = `${d.archipelago.seed}/${d.archipelago.roll}`;
+    const rerolled = this.archipelagoKey !== "" && archipelagoKey !== this.archipelagoKey;
+    this.archipelagoKey = archipelagoKey;
+    if ((!this.placedInitially || rerolled) && d.islands.length > 0) {
       this.placedInitially = true;
       this.placeInitialCamera();
     }
@@ -680,14 +684,15 @@ export class GameRenderer {
     } else {
       const d = this.sync.getSnapshot().server?.display;
       const islands = d?.islands ?? [];
-      // The start at sea (D-051): nothing settled yet and a ship at sea —
-      // the camera opens on the ship, zoomed out so the islands around it
-      // are in view for the choice of the home island.
+      // The start at sea (D-051, D-053): nothing settled yet and the ship
+      // at sea near the archipelago's centre — the camera opens on the
+      // ship at the far zoom that shows the whole archipelago for the
+      // choice of the home island.
       const sea = ic.id === undefined && !islands.some((x) => x.settled) ? d?.ships.find((s) => s.position) : undefined;
       const is = islands.find((x) => x.id === ic.id) ?? islands.find((x) => x.settled) ?? islands[0];
       if (sea?.position) {
         const p = seaPoint(sea.position);
-        this.rig.setCamera({ x: p.x, y: p.y, half: Math.min(this.rig.zoomRange().max, SEA_START_HALF_HEIGHT) });
+        this.rig.setCamera({ x: p.x, y: p.y, half: this.rig.zoomRange().max });
       } else if (is) {
         this.rig.setCamera({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2, half: NEAR_DEFAULT_HALF_HEIGHT });
       }

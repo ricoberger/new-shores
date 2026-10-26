@@ -1866,6 +1866,15 @@ export interface components {
             need_categories: components["schemas"]["ContentNeedCategory"][];
             /** @description Ship types (ordered at buildings with a shipyard block). */
             ships: components["schemas"]["ContentShip"][];
+            /** @description Island size classes of the archipelago generator in content order (D-053; the names of an island's `size_class`). */
+            size_classes: components["schemas"]["ContentSizeClass"][];
+        };
+        ContentSizeClass: {
+            id: string;
+            /** @description Player-facing name, e.g. "Large" or "Resource rock". */
+            name: string;
+            /** @description Resource rocks carry mines only (no fertility, no houses). */
+            rock: boolean;
         };
         ContentQuest: {
             id: string;

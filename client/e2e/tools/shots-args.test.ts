@@ -36,7 +36,7 @@ describe("parseShotArgs", () => {
     expect(() => parseShotArgs({ FIXTURE: "showcase,nope" })).toThrow(/FIXTURE: unknown value 'nope'; allowed: showcase, settled, dense-2x400.*, all/);
     expect(() => parseShotArgs({ VIEW: "close" })).toThrow(/VIEW: unknown value 'close'; allowed: near, mid, far, all/);
     expect(() => parseShotArgs({ DEVICE: "tablet" })).toThrow(ShotArgError);
-    expect(() => parseShotArgs({ PRESET: "x" })).toThrow(/PRESET: unknown value 'x'; allowed: info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, sloop, build-menu, warnings, ship-panel, route-editor, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, all/);
+    expect(() => parseShotArgs({ PRESET: "x" })).toThrow(/PRESET: unknown value 'x'; allowed: info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, sloop, build-menu, warnings, ship-panel, route-editor, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, archipelago-far, reroll, rename, all/);
   });
 
   it("validates ROTATION, HUD and the numbers", () => {
@@ -54,6 +54,13 @@ describe("parseShotArgs", () => {
   it("takes the camera target as a pair", () => {
     expect(parseShotArgs({ X: "22", Y: "-3.5" })).toMatchObject({ x: 22, y: -3.5 });
     expect(() => parseShotArgs({ X: "22" })).toThrow(/together/);
+  });
+
+  it("parses SEED (the dev server's archipelago, D-053) and rejects values outside 1..2^53-1", () => {
+    expect(parseShotArgs({ SEED: "4711" }).seed).toBe(4711);
+    expect(parseShotArgs({ SEED: "" }).seed).toBeUndefined();
+    for (const bad of ["0", "-1", "1.5", "x", "9007199254740992"]) expect(() => parseShotArgs({ SEED: bad })).toThrow(/SEED: '.*' is not an integer in 1\.\.9007199254740991/);
+    expect(parseShotArgs({ SEED: "42", PRESET: "archipelago-far" }).seed).toBe(42);
   });
 
   it("sets island and output directory", () => {

@@ -19,8 +19,10 @@
 #                     settled, dense-2x400 × near/mid/far × desktop/phone, fixed camera and
 #                     clock; 25–40 s). Needs the Playwright browsers, free ports 18080/4174.
 #                     Parameters FIXTURE, VIEW, DEVICE (lists or all), ROTATION, ISLAND, ZOOM,
-#                     X Y, OUT, SET, HUD=0, PRESET (info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, sloop, build-menu, warnings, ship-panel, route-editor, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, all):
+#                     X Y, OUT, SET, HUD=0, PRESET (info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, sloop, build-menu, warnings, ship-panel, route-editor, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, archipelago-far, reroll, rename, all),
+#                     SEED (the dev server's archipelago, default the dev seed):
 #                     make shots FIXTURE=showcase VIEW=near DEVICE=desktop ROTATION=2
+#                     make shots FIXTURE=seafaring VIEW=far SEED=42
 #   make model-sheet  contact sheets of single recipes in .experiment/sheets (committed models
 #                     untouched; Blender 5.2 + NEW_SHORES_KITS_DIR); without RECIPE it lists
 #                     the recipe IDs: make model-sheet RECIPE=sawmill,sloop
@@ -92,7 +94,7 @@ assets-check:
 	cd $(CLIENT_DIR) && npm run --silent assets -- --check
 
 # Screenshots of the game for polish work, see the header. The parameters
-# (FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SET)
+# (FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED, SET)
 # reach the script as environment variables; unknown values fail with the allowed list.
 shots:
 	cd $(CLIENT_DIR) && npm run --silent shots

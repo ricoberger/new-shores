@@ -4,7 +4,7 @@
 // (fertilities, deposits, free coast), its construction-material stocks,
 // and per tier the workforce ("employed / total") and an island
 // satisfaction aggregate with the worst unmet need.
-import type { BuildingDisplay, Content, ContentBuilding, Island, IslandDisplay, NeedDisplay } from "../api/client";
+import type { BuildingDisplay, Content, ContentBuilding, ContentSizeClass, Island, IslandDisplay, NeedDisplay } from "../api/client";
 import { depositCounts } from "./archipelago";
 import type { NeedRef } from "./needs";
 import { blockedTiles } from "./scatter";
@@ -31,6 +31,17 @@ export function islandResources(
     if (!blocked.has(`${i % statics.width},${Math.floor(i / statics.width)}`)) free++;
   });
   return { fertilities: [...statics.fertilities], deposits: depositCounts(statics), coast: { tiles, free } };
+}
+
+/**
+ * The island's kind for the island card and the top bar (D-053): the
+ * content name of its size class ("Large", "Resource rock"); empty for a
+ * hand-made island. Without the content's size classes (still loading)
+ * the ID stands in.
+ */
+export function islandKind(island: Pick<IslandDisplay, "size_class" | "rock">, content: { size_classes?: Pick<ContentSizeClass, "id" | "name">[] } | null): string {
+  if (!island.size_class) return "";
+  return content?.size_classes?.find((c) => c.id === island.size_class)?.name ?? island.size_class;
 }
 
 /** Goods used as construction materials (any building's or ship's material cost), in the content's goods order. */
