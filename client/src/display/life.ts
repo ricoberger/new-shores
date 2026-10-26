@@ -160,5 +160,6 @@ export interface LifeSink {
 
 /** The life plan of one island: writes its instances for a frame within the budget. */
 export interface LifePlan {
-  frame(nowMs: number, sink: LifeSink, at: LifeAtLod, budget: LifeBudget): LifeStats;
+  /** `chunks`: the island chunks in view (display/chunks.ts; null: all) — walkers, carts, smoke, strollers, sheep and crates spawn only there. */
+  frame(nowMs: number, sink: LifeSink, at: LifeAtLod, budget: LifeBudget, chunks?: ReadonlySet<string> | null): LifeStats;
 }

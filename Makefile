@@ -23,7 +23,8 @@
 #                     SEED (the dev server's archipelago, default the dev seed), CONTENT (the dev
 #                     server's content directory, default content/old_coast), STATS=1 (draws,
 #                     triangles and meshes of each shot's frame, first-frame and focused-island
-#                     full-tiles times since navigation), QUERY (extra URL parameters, e.g.
+#                     full-tiles times since navigation; STATS=2: the active meshes by layer),
+#                     QUERY (extra URL parameters, e.g.
 #                     QUERY=farmask=0):
 #                     make shots FIXTURE=showcase VIEW=near DEVICE=desktop ROTATION=2
 #                     make shots FIXTURE=seafaring VIEW=far SEED=42

@@ -391,10 +391,11 @@ export class GameRenderer {
   }
 
   /** The life plans of the islands in view with their archipelago origins. */
-  private *lifeIslands(): Generator<{ origin: { x: number; y: number }; plan: IslandDetail["life"] }> {
+  /** The shown islands' life plans, with the chunks in view (life spawns only there). */
+  private *lifeIslands(): Generator<{ origin: { x: number; y: number }; plan: IslandDetail["life"]; chunks: ReadonlySet<string> | null }> {
     for (const d of this.details.values()) {
       const o = d.lifeOrigin();
-      if (o) yield { origin: o, plan: d.life };
+      if (o) yield { origin: o, plan: d.life, chunks: d.chunksInView() };
     }
   }
 

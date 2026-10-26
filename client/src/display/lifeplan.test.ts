@@ -119,6 +119,25 @@ describe("no state → no motion (carts and walkers)", () => {
 });
 
 describe("IslandLife", () => {
+  it("spawns carts, walkers and smoke only in the chunks in view", () => {
+    const life = new IslandLife();
+    const anchor: SmokeAnchor = (b) => ({ x: b.x + 0.5, y: b.y + 0.5, h: 1 });
+    life.update(island([producer(1, 2)]), defs, null, anchor);
+    const count = (chunks: ReadonlySet<string> | null) => {
+      const s = record();
+      const stats = life.frame(123_456, s, NEAR, BIG, chunks);
+      return { stats, smoke: s.by.get(CLS.smoke)?.length ?? 0 };
+    };
+    const all = count(null);
+    expect(all.stats.instances).toBeGreaterThan(0);
+    expect(all.smoke).toBeGreaterThan(0);
+    // The producer, its road and the warehouse lie in chunk 0,0.
+    expect(count(new Set(["0,0"]))).toEqual(all);
+    const none = count(new Set(["1,0", "0,1"]));
+    expect(none.stats).toEqual({ instances: 0, particles: 0 });
+    expect(none.smoke).toBe(0);
+  });
+
   it("runs the carts of a producer evenly spread in phase on its road path, loaded out and empty back", () => {
     const life = new IslandLife();
     life.update(island([producer(1, 2)]), defs, null);
