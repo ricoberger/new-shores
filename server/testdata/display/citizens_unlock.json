@@ -468,7 +468,7 @@
             "fields": {
               "active": 4,
               "required": 4,
-              "max": 8,
+              "max": 4,
               "ids": [
                 7,
                 8,
@@ -1838,7 +1838,7 @@
                 "fields": {
                   "active": 4,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": [
                     7,
                     8,
@@ -3208,7 +3208,7 @@
                 "fields": {
                   "active": 4,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": [
                     7,
                     8,
@@ -4578,7 +4578,7 @@
                 "fields": {
                   "active": 4,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": [
                     7,
                     8,
@@ -5948,7 +5948,7 @@
                 "fields": {
                   "active": 4,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": [
                     7,
                     8,
@@ -7318,7 +7318,7 @@
                 "fields": {
                   "active": 4,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": [
                     7,
                     8,

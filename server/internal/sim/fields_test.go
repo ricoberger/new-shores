@@ -102,21 +102,21 @@ func putField(t *testing.T, w *World, c *content.Catalogue, farm int64, typ stri
 
 // TestFieldEfficiency: a farm starts at 0 fields with efficiency 0 and
 // status low_efficiency; every active field adds 1/required (4 pastures)
-// to the efficiency, status ok at the requirement, more fields up to the
-// maximum stay at 1000. Fields display their farm and whether they are
+// to the efficiency, status ok at the requirement (which is also the
+// maximum: fields.max equals fields.required). Fields display their farm and whether they are
 // active; the farm displays active/required/max and its field IDs.
 func TestFieldEfficiency(t *testing.T) {
 	c := catalogue(t)
 	w, farm := fieldsWorld(t, c)
 	fd := fieldDisplay(t, w, c, farm)
 	if fd.EfficiencyPermille != 0 || fd.Status != StatusLowEfficiency || fd.Fields == nil || fd.Fields.Active != 0 || fd.Fields.Required != 4 ||
-		fd.Fields.Max != 8 || len(fd.Fields.IDs) != 0 || fd.Fields.IDs == nil || fd.FarmID != nil || fd.Active != nil {
+		fd.Fields.Max != 4 || len(fd.Fields.IDs) != 0 || fd.Fields.IDs == nil || fd.FarmID != nil || fd.Active != nil {
 		t.Fatalf("farm without fields: %+v %+v", fd, fd.Fields)
 	}
 	if fd.Rates.Outputs["wool"] != 0 {
 		t.Errorf("wool rate %d without fields", fd.Rates.Outputs["wool"])
 	}
-	spots := [][2]int{{11, 5}, {11, 7}, {13, 5}, {13, 7}, {15, 5}, {15, 7}, {8, 8}, {10, 9}}
+	spots := [][2]int{{11, 5}, {11, 7}, {13, 5}, {13, 7}}
 	var ids []int64
 	for i, p := range spots {
 		ids = append(ids, putField(t, w, c, farm, "pasture", p[0], p[1]))
@@ -208,16 +208,16 @@ func TestFieldMax(t *testing.T) {
 	c := catalogue(t)
 	w, farm := fieldsWorld(t, c)
 	var ids []int64
-	for _, p := range [][2]int{{11, 5}, {11, 7}, {13, 5}, {13, 7}, {15, 5}, {15, 7}, {8, 8}, {10, 9}} {
+	for _, p := range [][2]int{{11, 5}, {11, 7}, {13, 5}, {13, 7}} {
 		ids = append(ids, putField(t, w, c, farm, "pasture", p[0], p[1]))
 	}
-	next := PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 17, Y: 5}
+	next := PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 15, Y: 5}
 	expectApplyErr(t, w, c, next, ErrFieldMaxReached)
 	// The maximum is checked before the site: even an invalid site reports it.
 	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 0, Y: 0}, ErrFieldMaxReached)
-	// Inactive fields count: breaking the chain at (11,5) keeps 8 fields.
+	// Inactive fields count: breaking the chain at (11,5) keeps 4 fields.
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: ids[0]})
-	if len(fieldsOf(w, c)) != 7 {
+	if len(fieldsOf(w, c)) != 3 {
 		t.Fatalf("%d fields", len(fieldsOf(w, c)))
 	}
 	mustApply(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "pasture", X: 11, Y: 5})

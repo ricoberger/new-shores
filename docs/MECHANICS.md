@@ -158,7 +158,7 @@ handlers only.
     `not_adjacent` ("Not connected to its farm"); they are not deleted and
     become active again when the chain is rebuilt. Farm `efficiency =
     min(1, active / required)`; provisional `required`: 16 one-tile crop
-    fields (max 20), 4 pastures (max 8), 3 pig pens. A farm may stand with
+    fields (max 16), 4 pastures (max 4), 3 pig pens. A farm may stand with
     zero fields (`low_efficiency`, "n / required"). Fields **cannot be
     moved** (demolish and place again); moving the farm keeps its fields
     (they may become inactive); demolishing the farm demolishes its fields

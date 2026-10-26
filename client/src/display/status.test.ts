@@ -74,7 +74,7 @@ describe("field statuses (D-049)", () => {
   const fieldContent = {
     ...content,
     buildings: [
-      { id: "sheep_farm", name: "Sheep farm", fields: { type: "pasture", required: 4, max: 8 } },
+      { id: "sheep_farm", name: "Sheep farm", fields: { type: "pasture", required: 4, max: 4 } },
       { id: "pasture", name: "Pasture", field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } },
       { id: "lumberjack", name: "Lumberjack", work_area: { radius: 4, terrain: ["forest"], required_tiles: 24 } },
     ],
@@ -91,7 +91,7 @@ describe("field statuses (D-049)", () => {
 
   it("counts the fields of a farm below full efficiency", () => {
     const s = statusText(
-      building({ type: "sheep_farm", status: "low_efficiency", efficiency_permille: 750, fields: { active: 3, required: 4, max: 8, ids: [1, 2, 3] } }),
+      building({ type: "sheep_farm", status: "low_efficiency", efficiency_permille: 750, fields: { active: 3, required: 4, max: 4, ids: [1, 2, 3] } }),
       is,
       d,
       fieldContent,

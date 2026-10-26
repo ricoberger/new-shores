@@ -923,7 +923,7 @@
             "fields": {
               "active": 0,
               "required": 4,
-              "max": 8,
+              "max": 4,
               "ids": []
             }
           },
@@ -2233,7 +2233,7 @@
                 "fields": {
                   "active": 0,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": []
                 }
               },
@@ -3543,7 +3543,7 @@
                 "fields": {
                   "active": 0,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": []
                 }
               },
@@ -4853,7 +4853,7 @@
                 "fields": {
                   "active": 0,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": []
                 }
               },
@@ -6163,7 +6163,7 @@
                 "fields": {
                   "active": 0,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": []
                 }
               },
@@ -7473,7 +7473,7 @@
                 "fields": {
                   "active": 0,
                   "required": 4,
-                  "max": 8,
+                  "max": 4,
                   "ids": []
                 }
               },

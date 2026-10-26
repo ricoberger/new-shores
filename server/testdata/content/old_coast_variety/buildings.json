@@ -140,7 +140,7 @@
       "outputs": [{ "good": "wool", "amount": 1 }],
       "cycle_seconds": 60
     },
-    "fields": { "type": "pasture", "required": 4, "max": 8 }
+    "fields": { "type": "pasture", "required": 4, "max": 4 }
   },
   {
     "id": "pasture",

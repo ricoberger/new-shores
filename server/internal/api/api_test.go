@@ -773,7 +773,7 @@ func TestHealthAndContent(t *testing.T) {
 			fert := map[string]string{"wheat_farm": "wheat", "orchard": "apple", "hemp_farm": "hemp"}[b.ID]
 			if (fert == "") != (b.WorkArea == nil) || (b.WorkArea != nil && (b.WorkArea.Fertility != fert || b.WorkArea.Radius != 0 ||
 				b.WorkArea.Terrain != nil || b.WorkArea.RequiredTiles != 0)) ||
-				b.Fields == nil || b.Fields.Type != field || b.Fields.Required != required || b.Fields.Max != required+4 {
+				b.Fields == nil || b.Fields.Type != field || b.Fields.Required != required || b.Fields.Max != required {
 				t.Errorf("%s work area %+v fields %+v", b.ID, b.WorkArea, b.Fields)
 			}
 		case "wheat_field", "orchard_plot", "hemp_field", "pasture":
