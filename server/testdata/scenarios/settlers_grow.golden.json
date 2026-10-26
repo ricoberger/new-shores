@@ -816,6 +816,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              3
             ]
           },
           {
@@ -867,6 +870,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              3
             ]
           },
           {
@@ -918,6 +924,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              3
             ]
           },
           {
@@ -969,6 +978,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              3
             ]
           },
           {
@@ -1020,6 +1032,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              3
             ]
           },
           {
@@ -1071,6 +1086,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              3
             ]
           },
           {
@@ -1122,6 +1140,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              3
             ]
           },
           {
@@ -1173,6 +1194,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              3
             ]
           }
         ],

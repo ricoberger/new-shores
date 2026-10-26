@@ -398,6 +398,9 @@ type BuildingDisplay struct {
 	VarietyMultiplierPermille *int64        `json:"variety_multiplier_permille,omitempty"`
 	TaxRatePerMin             *Qty          `json:"tax_rate_per_min,omitempty"`
 	Needs                     []NeedDisplay `json:"needs,omitempty"`
+	// ServedBy lists the IDs of the buildings that currently fulfil one of the
+	// house's building needs (ascending, omitted when none).
+	ServedBy []int64 `json:"served_by,omitempty"`
 
 	// ShipOrder is set for shipyards: the pending order or null.
 	ShipOrder OptionalShipOrder `json:"ship_order,omitzero"`
@@ -745,7 +748,10 @@ func displayHouse(bd *BuildingDisplay, h *houseCalc) {
 			}
 		}
 		bd.Needs = append(bd.Needs, nd)
+		bd.ServedBy = append(bd.ServedBy, n.servedBy...)
 	}
+	slices.Sort(bd.ServedBy)
+	bd.ServedBy = slices.Compact(bd.ServedBy)
 }
 
 func displayProducer(bd *BuildingDisplay, is *Island, c *content.Catalogue, p *producer) {

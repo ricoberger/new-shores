@@ -174,6 +174,10 @@ func TestResidentsStepAndClamp(t *testing.T) {
 // tile of the house (D-042), it is connected to a warehouse and not paused.
 func TestBuildingNeedRadiusConnectionPaused(t *testing.T) {
 	c := withPauseCategory(catalogue(t), "market_small", "public")
+	servedBy := func(w *World, h int64) []int64 {
+		t.Helper()
+		return buildingDisplay(t, display(t, w, c), h).ServedBy
+	}
 	reason := func(w *World, h int64) string {
 		t.Helper()
 		for _, n := range buildingDisplay(t, display(t, w, c), h).Needs {
@@ -193,21 +197,33 @@ func TestBuildingNeedRadiusConnectionPaused(t *testing.T) {
 	if got := reason(w, h); got != NeedOutOfRange {
 		t.Errorf("distance 13: %s", got)
 	}
+	if got := servedBy(w, h); len(got) != 0 {
+		t.Errorf("served_by out of range: %v", got)
+	}
 	mustApply(t, w, c, Demolish{IslandID: "main", BuildingID: m})
 	// Footprint x 22..24: nearest tile (22,y) at distance exactly 12.
 	m = placeFree(t, w, c, "market_small", 22, 1, 0)
 	if got := reason(w, h); got != NeedOK {
 		t.Errorf("distance 12: %s", got)
 	}
+	if got := servedBy(w, h); len(got) != 1 || got[0] != m {
+		t.Errorf("served_by at distance 12: %v, want [%d]", got, m)
+	}
 	mustApply(t, w, c, SetPaused{IslandID: "main", BuildingID: m, Paused: true})
 	if got := reason(w, h); got != NeedPaused {
 		t.Errorf("paused market: %s", got)
+	}
+	if got := servedBy(w, h); len(got) != 0 {
+		t.Errorf("served_by with a paused market: %v", got)
 	}
 	mustApply(t, w, c, SetPaused{IslandID: "main", BuildingID: m, Paused: false})
 	// Cutting the road between the warehouse and the market disconnects it.
 	mustApply(t, w, c, DemolishRoad{IslandID: "main", Tiles: []Pos{{18, 4}}})
 	if got := reason(w, h); got != NeedNotConnected {
 		t.Errorf("unconnected market: %s", got)
+	}
+	if got := servedBy(w, h); len(got) != 0 {
+		t.Errorf("served_by with an unconnected market: %v", got)
 	}
 	ds := display(t, w, c)
 	if b := buildingDisplay(t, ds, m); b.Status != StatusNotConnected {

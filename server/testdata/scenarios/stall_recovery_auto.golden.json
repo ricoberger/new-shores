@@ -1687,6 +1687,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1738,6 +1741,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1789,6 +1795,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1840,6 +1849,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1891,6 +1903,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           }
         ],

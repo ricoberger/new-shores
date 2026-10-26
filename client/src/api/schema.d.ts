@@ -1761,6 +1761,8 @@ export interface components {
              */
             tax_rate_per_min?: number;
             needs?: components["schemas"]["NeedDisplay"][];
+            /** @description Houses only, omitted when empty — the IDs (ascending) of the buildings that currently fulfil one of the house's building needs (in range, connected to a warehouse, not paused). */
+            served_by?: number[];
             /** @description Shipyards only (absent for other buildings) — the pending order, or null when the shipyard is idle. */
             ship_order?: components["schemas"]["ShipOrderDisplay"] | null;
             /** @description Farms with fields only (D-051 part 4). */
