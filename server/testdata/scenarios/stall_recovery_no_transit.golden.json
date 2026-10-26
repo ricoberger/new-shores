@@ -1,6 +1,6 @@
 {
   "name": "stall_recovery_no_transit",
-  "content_version": "old_coast-0.8.0",
+  "content_version": "old_coast-0.9.0",
   "boundary_count": 55,
   "totals": {
     "start": {

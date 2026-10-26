@@ -1,6 +1,6 @@
 {
   "name": "offline_12h_route",
-  "content_version": "old_coast-0.8.0",
+  "content_version": "old_coast-0.9.0",
   "boundary_count": 356,
   "totals": {
     "island2": {

@@ -32,7 +32,7 @@ const (
 	FileNeedCategories = "need_categories.json"
 )
 
-var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeedCategories, FileNeeds, FileStart, FileShips, FileQuests}
+var contentFiles = []string{FileRegion, FileTiers, FileGoods, FileBuildings, FileNeedCategories, FileNeeds, FileStart, FileShips, FileQuests, FileIslands, FileIslandNames}
 
 // Error describes one content problem. It names the file, the offending
 // entity (if any) and the field.
@@ -192,6 +192,8 @@ func entityKind(file string) string {
 		return "ship"
 	case FileQuests:
 		return "quest"
+	case FileIslandNames:
+		return "island name"
 	}
 	return "entity"
 }
@@ -471,10 +473,12 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		start     rawStart
 		ships     []rawShip
 		quests    []rawQuest
+		islands   rawIslands
+		names     []string
 	)
 	for name, v := range map[string]any{
 		FileRegion: &region, FileTiers: &tiers, FileGoods: &goods, FileBuildings: &buildings, FileNeeds: &needs, FileStart: &start,
-		FileShips: &ships, FileQuests: &quests, FileNeedCategories: &needCats,
+		FileShips: &ships, FileQuests: &quests, FileNeedCategories: &needCats, FileIslands: &islands, FileIslandNames: &names,
 	} {
 		if err := unmarshal(raw[name], v); err != nil {
 			return nil, &Error{File: name, Msg: fmt.Sprintf("decode: %v", err)}
@@ -677,6 +681,8 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			cat.Start.Goods = append(cat.Start.Goods, GoodAmount{Good: good, Amount: v})
 		}
 	}
+
+	cat.Islands, cat.IslandNames = decodeIslands(col, islands, names)
 
 	if err := col.err(); err != nil {
 		return nil, err

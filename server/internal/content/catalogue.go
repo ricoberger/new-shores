@@ -68,6 +68,10 @@ type Catalogue struct {
 	QuestByID map[string]*Quest
 	// Start is the starting stock of a new world (start.json).
 	Start Start
+	// Islands are the archipelago generator rules (islands.json, D-053).
+	Islands IslandRules
+	// IslandNames is the generator's name list (island_names.json).
+	IslandNames []string
 }
 
 // Objective kinds (quests.json): a closed vocabulary of generic predicates

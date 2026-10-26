@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/island_names.schema.json",
+  "title": "Island names",
+  "description": "Word list the archipelago generator draws island names from, unique per archipelago (D-053 part 5). 1 to 24 printable characters, trimmed.",
+  "type": "array",
+  "minItems": 40,
+  "uniqueItems": true,
+  "items": { "type": "string", "minLength": 1, "maxLength": 24, "pattern": "^\\S(.*\\S)?$" }
+}

@@ -223,6 +223,7 @@ func checkReferences(c *Catalogue) error {
 	}
 
 	checkFields(c, col)
+	checkIslands(c, col)
 
 	for _, s := range c.Ships {
 		ent := fmt.Sprintf("ship %q", s.ID)
