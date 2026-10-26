@@ -130,6 +130,15 @@ async function open(browser: Browser, device: Device, fixture: Fixture, hud: boo
   const page = await context.newPage();
   page.on("pageerror", (e) => console.error(`page error (${fixture}, ${device}): ${e.message}`));
   await page.clock.setFixedTime(T);
+  // HOLD_TILES=n lets the first n island tile requests through and holds the
+  // rest (never answered): the lazy-loading look, islands drawn from masks.
+  const hold = process.env.HOLD_TILES?.trim();
+  if (hold) {
+    let passed = 0;
+    await page.route("**/api/v1/world/islands/*/tiles*", (route) => {
+      if (passed++ < Number(hold)) void route.continue();
+    });
+  }
   const t0 = Date.now();
   // QUERY adds URL parameters (e.g. farmask=0, life=0) for A/B measurements.
   const params = new URLSearchParams(SERVER_FIXTURES.includes(fixture) ? "" : `fixture=${fixture}`);
@@ -216,6 +225,12 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
   const info = FIXTURE_INFO[fixture];
   const here = await islandCentre(page, info.island, args.island);
   for (const view of args.views) {
+    if (view === "start") {
+      // The opening camera as the game placed it (before any other view moves it).
+      await settle(page);
+      await shoot(page, resolve(dir, `${fixture}-${view}-${device}.png`), written);
+      continue;
+    }
     if (view === "far" && args.zoom === undefined && args.x === undefined) {
       await showArchipelago(page, args.rotation);
     } else {

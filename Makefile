@@ -25,7 +25,9 @@
 #                     triangles and meshes of each shot's frame, first-frame and focused-island
 #                     full-tiles times since navigation; STATS=2: the active meshes by layer),
 #                     QUERY (extra URL parameters, e.g.
-#                     QUERY=farmask=0):
+#                     QUERY=farmask=0), HOLD_TILES=n (only the first n island tile requests are
+#                     answered: the lazy-loading look), VIEW=start (the opening camera, not a
+#                     default view):
 #                     make shots FIXTURE=showcase VIEW=near DEVICE=desktop ROTATION=2
 #                     make shots FIXTURE=seafaring VIEW=far SEED=42
 #   make model-sheet  contact sheets of single recipes in .experiment/sheets (committed models
@@ -99,7 +101,7 @@ assets-check:
 	cd $(CLIENT_DIR) && npm run --silent assets -- --check
 
 # Screenshots of the game for polish work, see the header. The parameters
-# (FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED, CONTENT, QUERY, SET)
+# (FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED, CONTENT, QUERY, HOLD_TILES, SET)
 # reach the script as environment variables; unknown values fail with the allowed list.
 shots:
 	cd $(CLIENT_DIR) && npm run --silent shots
