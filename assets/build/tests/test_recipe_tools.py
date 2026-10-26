@@ -1,6 +1,6 @@
 import unittest
 
-from helpers import CONTENT, KIT_FILES, ROLES, SCHEMA, fake_loader
+from helpers import CONTENT, KIT_FILES, LIVE_CONTENT, ROLES, SCHEMA, fake_loader
 from nsassets import config, geometry, pipeline, recipes
 
 
@@ -192,8 +192,8 @@ class SmokeAnchorTest(unittest.TestCase):
 
         from nsassets import content as content_mod
 
-        for cid in content_mod.required_ids(CONTENT):
-            if not content_mod.is_producer(CONTENT, cid):
+        for cid in content_mod.required_ids(LIVE_CONTENT):
+            if not content_mod.is_producer(LIVE_CONTENT, cid):
                 continue
             with open(os.path.join(config.RECIPES_DIR, f"{cid}.json"), encoding="utf-8") as f:
                 anchors = json.load(f).get("anchors", {})

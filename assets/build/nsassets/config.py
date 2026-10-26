@@ -19,6 +19,10 @@ KITS_README = "assets/kits/README.md"
 #: houses, …) until the recipes are re-fitted to the D-054 sizes of
 #: content/old_coast; the IDs are the same.
 CONTENT_DIR = os.path.join(REPO_ROOT, "server", "testdata", "content", "old_coast_pre_d054")
+#: Environment variable that points to another content directory (default
+#: CONTENT_DIR): footprints, kinds and levels are read from there, e.g. a
+#: content draft the models are fitted to before it lands (build.py --content).
+CONTENT_ENV = "NEW_SHORES_CONTENT_DIR"
 MODELS_DIR = os.path.join(REPO_ROOT, "client", "public", "models")
 SHEETS_DIR = os.path.join(BUILD_DIR, "out")
 #: Build-card thumbnails (client/public/models/thumbs/<content id>.png), committed.
@@ -244,6 +248,12 @@ BLENDER_MAJOR_MINOR = (5, 2)
 #: Positions are rounded to this many decimals before export (stable bytes).
 POSITION_DECIMALS = 5
 NORMAL_DECIMALS = 5
+
+
+def content_dir():
+    """The content directory: NEW_SHORES_CONTENT_DIR if set, else CONTENT_DIR."""
+    env = os.environ.get(CONTENT_ENV, "").strip()
+    return os.path.abspath(env) if env else CONTENT_DIR
 
 
 def kits_root():

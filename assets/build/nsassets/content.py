@@ -6,8 +6,9 @@ import os
 from . import config
 
 
-def load(content_dir=config.CONTENT_DIR):
-    """Returns {"buildings": {id: def}, "ships": {id: def}}."""
+def load(content_dir=None):
+    """Returns {"buildings": {id: def}, "ships": {id: def}} of content_dir (default: config.content_dir())."""
+    content_dir = content_dir or config.content_dir()
     with open(os.path.join(content_dir, "buildings.json"), encoding="utf-8") as f:
         buildings = {b["id"]: b for b in json.load(f)}
     with open(os.path.join(content_dir, "ships.json"), encoding="utf-8") as f:

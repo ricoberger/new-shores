@@ -5,7 +5,7 @@ import json
 import os
 import unittest
 
-from helpers import CONTENT, PALETTE_SHA
+from helpers import LIVE_CONTENT, PALETTE_SHA
 from nsassets import config, content, glb, validate
 
 
@@ -32,7 +32,7 @@ class CommittedModelsTest(unittest.TestCase):
         self.assertEqual(m["palette_sha256"], PALETTE_SHA)
         self.assertEqual(m["missing_recipes"], [])
         self.assertEqual(m["kit_scale"], config.KIT_SCALE)
-        self.assertEqual(sorted(m["models"]), content.required_ids(CONTENT))
+        self.assertEqual(sorted(m["models"]), content.required_ids(LIVE_CONTENT))
 
     def test_every_file_matches_and_meets_the_export_profile(self):
         listed = set()
