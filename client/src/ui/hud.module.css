@@ -14,10 +14,15 @@
   padding: 9px 10px 8px;
 }
 
+/* Three regions: stats left, the focused island in the middle (centred on
+   the screen), the account menu right. Portrait phones put the island on a
+   second row. */
 .topBar {
   position: relative;
-  display: flex;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: "left middle right";
+  gap: 4px 14px;
   align-items: center;
   padding: 6px 14px;
   padding-top: max(6px, env(safe-area-inset-top));
@@ -28,49 +33,171 @@
   border-bottom: 2px solid var(--ns-ui-brass);
 }
 
-/* Ornament at the top bar's ends only: brass caps with a diamond stud. */
+.topBarPortrait {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "left right"
+    "middle middle";
+  padding-left: max(8px, env(safe-area-inset-left));
+  padding-right: max(8px, env(safe-area-inset-right));
+}
+
+.hudLeft {
+  grid-area: left;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.hudGroup {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.hudGroup + .hudGroup {
+  padding-left: 10px;
+  border-left: 1px solid var(--ns-ui-wood-light);
+}
+
+.hudMiddle {
+  grid-area: middle;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.hudRight {
+  grid-area: right;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Icon and number; the details open in a popover (hover, click or tap). */
+.hudStat {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--ns-ui-parchment-light);
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.hudStat:hover {
+  background: color-mix(in srgb, var(--ns-ui-parchment-light) 12%, transparent);
+}
+
+.hudStat:focus-visible,
+.hudIslandButton:focus-visible {
+  outline: 3px solid var(--ns-ui-focus);
+}
+
+.hudStat .negative {
+  color: var(--ns-ui-negative-light);
+}
+
+.hudMaterial {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.hudChipWrap {
+  position: relative;
+}
+
+.hudPopover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 190px;
+  max-width: min(320px, calc(100vw - 16px));
+}
+
+.hudPopover .stat {
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hudPopover .noWrap {
+  white-space: nowrap;
+}
+
+.hudPopover .tierStat {
+  flex-wrap: wrap;
+}
+
+/* The focused island: name and resource icons as one button (the island card). */
+.hudIslandButton {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  max-width: 100%;
+  color: var(--ns-ui-parchment-light);
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.hudIslandButton:hover {
+  background: color-mix(in srgb, var(--ns-ui-parchment-light) 12%, transparent);
+}
+
+.hudIslandName {
+  color: var(--ns-ui-brass-light);
+  font-family: var(--ns-font-display, serif);
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.hudIslandButton .resourceBadges {
+  flex-wrap: nowrap;
+  flex: none;
+}
+
+/* The ends of the top bar and the build menu: a 2px brass line like their horizontal border. */
 .topBar::before,
-.topBar::after {
+.topBar::after,
+.buildMenu::before,
+.buildMenu::after {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 5px;
-  background: linear-gradient(var(--ns-ui-brass-light), var(--ns-ui-brass) 45%, var(--ns-ui-wood-light));
+  width: 2px;
+  background: var(--ns-ui-brass);
   pointer-events: none;
 }
 
-.topBar::before {
+.topBar::before,
+.buildMenu::before {
   left: 0;
 }
 
-.topBar::after {
+.topBar::after,
+.buildMenu::after {
   right: 0;
 }
 
 /* Brass icons on the dark wood. */
-.topBar > .stat .glyph,
-.compactStats > .stat .glyph {
-  color: var(--ns-ui-brass);
-}
-
 /* Stats on the dark-wood bar: light text (the population popover is a
    parchment panel and keeps the panel colours). */
-.topBar > .stat .label,
-.compactStats > .stat .label {
-  color: var(--ns-ui-parchment-dark);
-}
-
-.topBar > .stat .positive,
-.compactStats > .stat .positive {
-  color: var(--ns-ui-positive-light);
-}
-
-.topBar > .stat .negative,
-.compactStats > .stat .negative {
-  color: var(--ns-ui-negative-light);
-}
-
 .stat {
   display: flex;
   gap: 6px;
@@ -99,12 +226,8 @@
   flex: 1;
 }
 
-.version {
-  color: var(--ns-ui-parchment-dark);
-  font-size: 12px;
-}
-
 .buildMenu {
+  position: relative;
   display: flex;
   flex-direction: column;
   background: var(--ns-ui-dark-wood);
@@ -114,10 +237,25 @@
   padding-right: env(safe-area-inset-right);
 }
 
+/* Category tabs (scrolling sideways when they do not fit) with Demolish
+   pinned at the right end. The same look on every device. */
+.tabBar {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding: 4px 8px 0;
+}
+
 .tabs {
   display: flex;
   gap: 4px;
-  padding: 4px 8px 0;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs > * {
+  flex: none;
 }
 
 .tab {
@@ -173,12 +311,17 @@
   line-height: 1;
 }
 
+/* Inset from the bar's edges so scrolled cards are clipped before the brass
+   border (6px) and keep the bar's 8px start (2px inner padding). */
 .items {
   display: flex;
   gap: 6px;
-  padding: 6px 8px 8px;
+  margin: 0 6px;
+  padding: 6px 2px 8px;
   overflow-x: auto;
   min-height: 88px;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
 }
 
 .item {
@@ -194,7 +337,9 @@
   border-radius: 7px;
   padding: 6px 8px;
   background: var(--ns-ui-parchment-light);
-  box-shadow: inset 0 0 0 2px var(--ns-ui-parchment), inset 0 0 0 3px var(--ns-ui-parchment-edge);
+  box-shadow:
+    inset 0 0 0 2px var(--ns-ui-parchment),
+    inset 0 0 0 3px var(--ns-ui-parchment-edge);
 }
 
 /* Room for the model thumbnail in the card's bottom-right corner. */
@@ -237,8 +382,19 @@
   font-weight: 600;
 }
 
-.toolButton {
+/* A divider like the top bar's between the tabs and Demolish; it carries the auto margin that pins Demolish right. */
+.tabDivider {
+  flex: none;
+  align-self: center;
+  width: 1px;
+  height: 24px;
   margin-left: auto;
+  background: var(--ns-ui-wood-light);
+}
+
+.toolButton {
+  flex: none;
+  align-self: center;
   color: var(--ns-ui-ink);
   border: 1px solid var(--ns-ui-brass);
   border-radius: 6px;
@@ -253,13 +409,13 @@
 .infoPanel {
   width: 320px;
   max-height: calc(100vh - 220px);
-  overflow-y: auto;
 }
 
 /* Panel header: display serif over a brass rule. */
 .title {
   font-family: var(--ns-font-display);
   font-size: 17px;
+  line-height: 22px; /* the close button in the header row is 22px, aligned with this line */
   font-weight: 700;
   margin: 0 0 4px;
   padding-bottom: 3px;
@@ -287,7 +443,8 @@
   color: var(--ns-ui-ink);
   /* The seal's pressed ring and lower shade at list size (the world badges draw the same). */
   box-shadow:
-    inset 0 0 0 2px color-mix(in srgb, var(--ns-ui-parchment-light) 40%, transparent),
+    inset 0 0 0 2px
+      color-mix(in srgb, var(--ns-ui-parchment-light) 40%, transparent),
     inset 0 -2px 3px color-mix(in srgb, var(--ns-ui-ink) 30%, transparent);
 }
 
@@ -303,7 +460,8 @@
   height: 40px;
   border: 2px solid color-mix(in srgb, var(--ns-ui-ink) 75%, transparent);
   box-shadow:
-    inset 0 0 0 3px color-mix(in srgb, var(--ns-ui-parchment-light) 40%, transparent),
+    inset 0 0 0 3px
+      color-mix(in srgb, var(--ns-ui-parchment-light) 40%, transparent),
     inset 0 -3px 4px color-mix(in srgb, var(--ns-ui-ink) 30%, transparent),
     0 1px 3px color-mix(in srgb, var(--ns-ui-ink) 45%, transparent);
 }
@@ -320,6 +478,23 @@
 
 .section {
   margin-top: 10px;
+}
+
+/* A section set off by a divider (route editor: net effect, ships). */
+.divided {
+  border-top: 1px solid var(--ns-ui-parchment-dark);
+  padding-top: 8px;
+}
+
+/* The collapsed "Details" of a producer card: a disclosure with the section-title look. */
+.detailsSummary {
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ns-ui-ink-soft);
+  margin-bottom: 4px;
 }
 
 .sectionTitle {
@@ -344,21 +519,14 @@
   text-align: right;
 }
 
+/* The Details rows of a producer card: label and value each on one line. */
+.detailsTable td {
+  white-space: nowrap;
+}
+
 .table td:first-child,
 .table th:first-child {
   text-align: left;
-}
-
-.bar {
-  height: 8px;
-  background: var(--ns-ui-parchment-dark);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.barFill {
-  height: 100%;
-  background: var(--ns-ui-active);
 }
 
 .buttons {
@@ -379,23 +547,45 @@
   gap: 4px;
 }
 
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .danger {
   border-color: var(--ns-ui-negative);
   color: var(--ns-ui-negative);
 }
 
-/* The fields of a farm in its panel (D-051 part 4): one row per field. */
-.fieldList {
-  margin: 4px 0;
+/* Icon-only close button in a panel's header row: top-aligned with the title's
+   text line (not centred on the underlined title box, whose padding and border
+   sit below the text). */
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  color: var(--ns-ui-ink);
   padding: 0;
-  list-style: none;
-  max-height: 9.5em;
-  overflow-y: auto;
+  font-size: 15px;
 }
 
-.fieldList li {
-  margin: 0;
-  padding: 1px 0;
+/* Touch: the same 22px box (beating the global 44px minimum for buttons) with
+   a larger invisible hit area. */
+[data-touch="true"] .closeButton {
+  min-width: 0;
+  min-height: 0;
+}
+
+[data-touch="true"] .closeButton::after {
+  content: "";
+  position: absolute;
+  inset: -11px;
 }
 
 .link {
@@ -403,23 +593,6 @@
   background: none;
   color: var(--ns-ui-link);
   text-decoration: underline;
-  padding: 0;
-}
-
-.tray {
-  width: 340px;
-  max-width: 100%;
-  max-height: 40vh;
-  overflow-y: auto;
-}
-
-.trayHeader {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  border: none;
-  background: none;
-  font-weight: 700;
   padding: 0;
 }
 
@@ -481,59 +654,18 @@
   overflow-y: auto;
 }
 
-/* The focused island in the top bar (D-051 part 7): its name, resources,
-   materials and per-tier workforce and satisfaction; nothing wraps. */
-.topBar:not(.compactTop) > *:not(.spacer) {
-  flex: none;
-  white-space: nowrap;
-}
-
-.topBar:not(.compactTop) .resourceBadges {
-  flex-wrap: nowrap;
-}
-
-.hudIsland {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  min-width: 0;
-}
-
-.hudIslandName {
-  color: var(--ns-ui-brass-light);
-  font-family: var(--ns-font-display, serif);
-  font-size: 17px;
-  font-weight: 700;
-  background: none;
-  border: 0;
-  border-bottom: 1px dotted var(--ns-ui-brass);
-  padding: 0 2px;
-  cursor: pointer;
-  white-space: nowrap;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: none;
-}
-
-.hudIslandName:focus-visible {
-  outline: 3px solid var(--ns-ui-focus);
-}
-
-.hudBadge {
-  font-size: 11px;
-  color: var(--ns-ui-parchment-light);
-  border: 1px solid var(--ns-ui-brass);
-  border-radius: 8px;
-  padding: 0 6px;
-  white-space: nowrap;
-}
-
+/* Resource badges (top bar, island card, popovers). */
 .resourceBadges {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 8px;
   align-items: center;
+}
+
+.resourceStacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .resourceBadge {
@@ -550,36 +682,33 @@
 }
 
 .resourceShort svg,
-.material svg {
+.hudStat svg {
   color: var(--ns-ui-brass);
 }
 
-.materials {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 0 10px;
-  border-left: 1px solid var(--ns-ui-wood-light);
-  border-right: 1px solid var(--ns-ui-wood-light);
-}
-
-.material {
-  align-items: center;
-  gap: 4px;
-}
-
 .tierStat {
-  align-items: baseline;
+  align-items: center;
+}
+
+/* A popup row (population tier, construction material): icon, name, value and satisfaction share one centre line. */
+.popupStat {
+  align-items: center;
 }
 
 .satisfaction {
   font-size: 12px;
-  color: var(--ns-ui-brass-light);
+  color: var(--ns-ui-ink-soft);
   font-variant-numeric: tabular-nums;
 }
 
-.populationPopover .satisfaction {
-  color: var(--ns-ui-ink-soft);
+.shortOfWorkers {
+  flex-basis: 100%;
+  font-size: 12px;
+  color: var(--ns-ui-negative);
+}
+
+.shortOfWorkers .glyph {
+  margin-right: 4px;
 }
 
 .worstNeed {
@@ -590,42 +719,6 @@
 
 .worstNeed .glyph {
   margin-right: 4px;
-}
-
-.populationPopover .tierStat {
-  flex-wrap: wrap;
-}
-
-.islandChip {
-  max-width: 34vw;
-}
-
-.islandChipName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 700;
-}
-
-/* An unsettled island's chip: dashed (shape, not colour alone; its name says "unsettled"). */
-.islandChipUnsettled {
-  border-style: dashed;
-}
-
-.materialsPopover {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: max(8px, env(safe-area-inset-left));
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 180px;
-}
-
-.materialsPopover .stat {
-  justify-content: space-between;
-  gap: 12px;
 }
 
 .badge {
@@ -651,12 +744,92 @@
 .shipsPanel {
   width: 380px;
   max-height: calc(100vh - 220px);
+}
+
+/* Detail panels: the header (title row) stays put and the rest scrolls beneath it. */
+.infoPanel,
+.shipsPanel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panelBody {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+/* One line of the costs and the build time: items centred on one line, a dot between them. */
+.costLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 5px;
+  row-gap: 2px;
 }
 
 .shipEntry {
   border-top: 1px solid var(--ns-ui-parchment-dark);
   padding: 6px 0;
+}
+
+/* A divider between list entries, not between the title row and the first one. */
+.panelBody > .shipEntry:first-child,
+.panelBody > .trayList > .shipEntry:first-child {
+  border-top: none;
+}
+
+/* The action row closing a list (Routes: + New route): divided like an entry, no extra gap above the divider. */
+.shipEntry.buttons {
+  margin-top: 0;
+}
+
+.block {
+  display: block;
+}
+
+/* A route to pick in the ship panel. */
+.routeChoice {
+  padding: 4px 0;
+}
+
+/* A clickable entry inside a divided list item (warnings). */
+.shipEntry > .trayEntry {
+  padding: 0;
+}
+
+/* Ship cargo: one box per slot, the good's icon over "amount / slot size". */
+.slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 64px;
+  min-height: 56px;
+  padding: 4px 6px;
+  border: 1px solid var(--ns-ui-parchment-edge);
+  border-radius: 6px;
+  background: var(--ns-ui-parchment-light);
+}
+
+.slot .glyph {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.slotEmpty {
+  border-style: dashed;
+  background: transparent;
 }
 
 .row {
@@ -678,6 +851,15 @@
   width: 70px;
 }
 
+/* An input or select that takes the width of its row (or of the panel). */
+.grow {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .warn {
   color: var(--ns-ui-negative);
 }
@@ -686,6 +868,44 @@
 .unaffordable {
   color: var(--ns-ui-ink-soft);
   opacity: 0.6;
+}
+
+/* Save / Delete stay visible below the scrolling body of a panel. */
+.panelFooter {
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ns-ui-parchment-dark);
+}
+
+/* One good of a stop: good | load or unload | amount | stock | remove. */
+.goodRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.goodRow select {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+}
+
+.amount {
+  flex: 0 0 56px;
+  width: 56px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.goodRow > .small {
+  white-space: nowrap;
+}
+
+.addStop {
+  margin-top: 8px;
 }
 
 .stop {
@@ -819,9 +1039,19 @@
 
 .resumeBar {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   margin-bottom: 6px;
+}
+
+/* The route name of the paused editor: one line, its close button is aligned like a panel header. */
+.resumeTitle {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Touch tool bars (placement confirm, demolish mode): below the top bar,
@@ -892,127 +1122,39 @@
   border: 0;
 }
 
-/* Phone top bar: stats and quests/account pinned, navigation scrolls
-   (a second row in portrait). */
-.compactTop {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-areas: "stats nav end";
-  gap: 4px 10px;
-  padding-left: max(8px, env(safe-area-inset-left));
-  padding-right: max(8px, env(safe-area-inset-right));
-  padding-top: max(4px, env(safe-area-inset-top));
-  padding-bottom: 4px;
+/* Touch layouts: bigger hit areas for the tabs and Demolish. */
+[data-touch="true"] .tab,
+[data-touch="true"] .toolButton {
+  min-height: 44px;
 }
 
-.compactPortrait {
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "stats end"
-    "nav nav";
+[data-touch="true"] .toolButton {
+  min-width: 44px;
 }
 
-.compactStats {
-  grid-area: stats;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  min-width: 0;
+[data-touch="true"] .item {
+  min-height: 44px;
 }
 
-.compactNav {
-  grid-area: nav;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-
-.compactNav > * {
-  flex: none;
-}
-
-.compactEnd {
-  grid-area: end;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.compactTop .stat {
-  flex-direction: column;
-  gap: 0;
-  line-height: 1.15;
-}
-
-.populationChipWrap {
-  position: relative;
-}
-
-.populationPopover {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 160px;
-}
-
-.populationPopover .stat {
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-/* Phone build bar: categories as a scrolling chip row, items as compact
-   cards in one scrolling row. */
-.buildMenuCompact .tabs {
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 4px 6px 0;
-}
-
-.buildMenuCompact .tabs > * {
-  flex: none;
-}
-
-.buildMenuCompact .tab {
-  border-radius: 16px;
-  border-bottom: 1px solid var(--ns-ui-parchment-edge);
-}
-
-.buildMenuCompact .toolButton {
-  margin-left: 0;
-}
-
-.buildMenuCompact .items {
-  padding: 4px 6px 6px;
+/* Short landscape phones: the same menu, tighter cards and thumbnails. */
+.buildMenuDense .items {
+  padding: 4px 2px 6px;
   min-height: 0;
-  touch-action: pan-x;
-  overscroll-behavior-x: contain;
 }
 
-.buildMenuCompact .item {
+.buildMenuDense .item {
   min-width: 132px;
   max-width: 180px;
-  min-height: 44px;
-  flex: none;
   padding: 4px 6px;
 }
 
-/* Touch layouts: a smaller thumbnail, the card a little wider than without. */
-.buildMenuCompact .item:has(.itemThumb:not([hidden])) {
+.buildMenuDense .item:has(.itemThumb:not([hidden])) {
   min-width: 180px;
   max-width: 220px;
   padding-right: 46px;
 }
 
-.buildMenuCompact .itemThumb {
+.buildMenuDense .itemThumb {
   width: 40px;
   height: 40px;
   right: 3px;
@@ -1041,22 +1183,6 @@
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
-}
-
-.buildMenuRow {
-  flex-direction: row;
-  align-items: center;
-}
-
-.buildMenuRow .tabs {
-  flex: 0 1 auto;
-  max-width: 45%;
-  padding: 4px 6px;
-}
-
-.buildMenuRow .items {
-  flex: 1;
-  min-width: 0;
 }
 
 .updateToast {
@@ -1097,6 +1223,13 @@
   border-radius: 4px;
   cursor: crosshair;
   touch-action: none;
+}
+
+/* Phones: the toggle button with the expanded minimap to its right. */
+.minimapRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
 }
 
 /* The minimap canvas with the compass in its top-right corner (D-051). */
@@ -1162,4 +1295,69 @@
 
 .compassHub {
   fill: var(--ns-ui-brass);
+}
+
+/* Side dock: icon buttons down the left edge, vertically centred below the
+   top bar, with no backing panel; a count badge sits on each icon. */
+.dock {
+  /* Spans the map row and the build-bar row: the centre only depends on the
+     top bar, so the dock stays put when the build menu is shown or hidden. */
+  grid-area: 2 / 1 / 4 / 2;
+  align-self: center;
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px;
+  margin-left: max(8px, env(safe-area-inset-left));
+}
+
+.dockButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--ns-ui-ink);
+  background: var(--ns-ui-parchment-light);
+  border: 1px solid var(--ns-ui-brass);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ns-ui-ink) 35%, transparent);
+  cursor: pointer;
+}
+
+[data-touch="true"] .dockButton {
+  width: 44px;
+  height: 44px;
+}
+
+.dockButton:focus-visible {
+  outline: 3px solid var(--ns-ui-focus);
+}
+
+.dockActive {
+  color: var(--ns-ui-parchment-light);
+  background: var(--ns-ui-dark-wood);
+}
+
+.dockCount {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  color: var(--ns-ui-parchment-light);
+  background: var(--ns-ui-dark-wood);
+  border: 1px solid var(--ns-ui-brass);
+  border-radius: 9px;
+}
+
+.dockActive .dockCount {
+  background: var(--ns-ui-ink);
 }

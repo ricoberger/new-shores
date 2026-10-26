@@ -158,7 +158,7 @@ handlers only.
     `not_adjacent` ("Not connected to its farm"); they are not deleted and
     become active again when the chain is rebuilt. Farm `efficiency =
     min(1, active / required)`; provisional `required`: 16 one-tile crop
-    fields (max 20), 4 pastures (max 8), 3 pig pens. A farm may stand with
+    fields (max 16), 4 pastures (max 4), 3 pig pens. A farm may stand with
     zero fields (`low_efficiency`, "n / required"). Fields **cannot be
     moved** (demolish and place again); moving the farm keeps its fields
     (they may become inactive); demolishing the farm demolishes its fields
@@ -357,6 +357,10 @@ Each tier has a list of needs, each either:
   — and that building is road-connected to a warehouse and not paused; the
   house itself must be connected (§3); else 0. The UI reason is, in
   precedence, `not_connected`, `paused`, `out_of_range`.
+  The display lists every building that fulfils one of a house's building
+  needs as `served_by` (IDs; in range, connected, not paused), so the client
+  can highlight serving buildings and, inverted, the houses a building serves
+  without evaluating the distance rule.
 - Every need carries a flag `required` (counts toward satisfaction, so it
   gates growth and base tax) or `optional` (bonus only; D-012 guardrail).
   The flag is independent of the category name: the Patricians' `luxury`

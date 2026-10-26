@@ -1,17 +1,24 @@
+import { useState } from "react";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
 import { perMin, units } from "../display/format";
-import { shipWhere, SHIP_STATES } from "./ShipsPanel";
+import { ShipStatusLine } from "./ShipsPanel";
+import { goodIcon } from "../theme/iconSet";
+import { CloseButton } from "./CloseButton";
+import { RouteSummary } from "./RouteSummary";
 import styles from "./hud.module.css";
+import { Icon } from "./Icon";
 
 interface Props {
   ship: ShipDisplay;
   model: DisplayState;
   content: Content;
   nowMs: number;
-  onAssignToRoute: () => void;
+  /** Assigns the ship to an existing route (routes are created in the Routes list). */
+  onAssign: (routeId: number) => void;
+  /** Opens the Routes list (to create a route). */
+  onOpenRoutes: () => void;
   onUnassign: () => void;
   onSend: () => void;
-  onSendTo: () => void;
   onFound: () => void;
   /** The island this ship sails to found (a founding chained by the client, D-051); null when none. */
   pendingFounding?: string | null;
@@ -29,10 +36,10 @@ export function ShipPanel({
   model,
   content,
   nowMs,
-  onAssignToRoute,
+  onAssign,
+  onOpenRoutes,
   onUnassign,
   onSend,
-  onSendTo,
   onFound,
   pendingFounding = null,
   onScrap,
@@ -40,10 +47,14 @@ export function ShipPanel({
 }: Props) {
   const islandName = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
-  const type = content.ships.find((t) => t.id === s.type)?.name ?? s.type;
+  const shipType = content.ships.find((t) => t.id === s.type);
+  const type = shipType?.name ?? s.type;
   const idle = s.state === "idle";
+  const [choosing, setChoosing] = useState(false);
   const here = model.islands.find((i) => i.id === s.island_id);
   const route = model.routes.find((r) => r.id === s.route_id);
+  // No actions (a ship under way): no empty divider block.
+  const hasActions = idle || s.route_id !== 0 || s.state === "anchored_unpaid";
   return (
     <div className={`${styles.panel} ${styles.infoPanel}`} data-testid="ship-panel">
       <div className={styles.row}>
@@ -51,74 +62,119 @@ export function ShipPanel({
           {type} #{s.id}
         </h2>
         <div className={styles.spacer} />
-        <button type="button" className={styles.link} onClick={onClose} data-testid="ship-panel-close">
-          close
-        </button>
+        <CloseButton onClick={onClose} testId="ship-panel-close" />
       </div>
-      <div className={styles.row}>
-        <span data-testid="ship-panel-state">{SHIP_STATES[s.state] ?? s.state}</span>
-        {s.paused && <span className={styles.warn}>$ unpaid</span>}
-      </div>
-      <div className={styles.small}>
+      <div className={styles.panelBody}>
+        <ShipStatusLine ship={s} nowMs={nowMs} islandName={islandName} className={styles.small} stateTestId="ship-panel-state" etaTestId="ship-panel-eta" routeName={route?.name} />
         {s.leg && (
-          <>
-            {islandName(s.leg.from_island_id)} → {islandName(s.leg.to_island_id)} ·{" "}
-          </>
+          <div className={styles.small} data-testid="ship-panel-journey">
+            {islandName(s.leg.from_island_id)} → {islandName(s.leg.to_island_id)}
+          </div>
         )}
-        <span data-testid="ship-panel-eta">{shipWhere(s, nowMs, islandName)}</span>
-      </div>
-      {s.state === "waiting_for_berth" && (
-        <div className={styles.small} data-testid="ship-panel-berth">
-          Waiting for a free berth at the Trading Post since {new Date(s.queued_at ?? 0).toLocaleTimeString()} — its cargo is handled when one frees.
+        {/* On a route the status line names it; any other state with a route (berth wait, unpaid) says so here. */}
+        {route && s.state !== "on_route" && (
+          <div className={styles.small} data-testid="ship-panel-route">
+            Route: {route.name}
+          </div>
+        )}
+        <div className={styles.small}>Upkeep {perMin(s.upkeep_per_min)} $/min</div>
+        {shipType && (
+          <div className={styles.small} data-testid="ship-panel-speed">
+            Speed {(shipType.speed_permille / 1000).toFixed(1)}×
+          </div>
+        )}
+        <div className={styles.small} data-testid="ship-panel-capacity">
+          Capacity {s.slots} slots of {units(s.slot_size)} each
         </div>
-      )}
-      {pendingFounding && (
-        <div className={styles.small} data-testid="ship-panel-pending-founding">
-          Sails to found {pendingFounding}.
+        {s.state === "waiting_for_berth" && (
+          <div className={styles.small} data-testid="ship-panel-berth">
+            Waiting for a free berth at the Trading Post since {new Date(s.queued_at ?? 0).toLocaleTimeString()} — its cargo is handled when one frees.
+          </div>
+        )}
+        {pendingFounding && (
+          <div className={styles.small} data-testid="ship-panel-pending-founding">
+            Sails to found {pendingFounding}.
+          </div>
+        )}
+        <div className={`${styles.shipEntry} ${styles.slots}`} data-testid="ship-panel-cargo" aria-label={`Cargo, ${s.slots} slots`}>
+          {Array.from({ length: s.slots }, (_, i) => {
+            const c = s.cargo[i];
+            return c ? (
+              <div key={i} className={styles.slot} title={goodName(c.good)} data-testid={`ship-panel-slot-${i}`}>
+                <Icon path={goodIcon(c.good)} />
+                <span className={styles.small}>
+                  {units(c.amount)} / {units(s.slot_size)}
+                </span>
+                <span className={styles.srOnly}>{goodName(c.good)}</span>
+              </div>
+            ) : (
+              <div key={i} className={`${styles.slot} ${styles.slotEmpty}`} data-testid={`ship-panel-slot-${i}`}>
+                <span className={styles.srOnly}>Empty slot</span>
+              </div>
+            );
+          })}
         </div>
-      )}
-      <div className={styles.small} data-testid="ship-panel-route">
-        Route: {route ? route.name : "none"}
-      </div>
-      <div className={styles.section}>
-        <div className={styles.sectionTitle}>
-          Cargo ({s.cargo.length}/{s.slots} slots of {units(s.slot_size)})
+        {choosing && idle && (
+          <div className={styles.shipEntry} data-testid="ship-panel-route-picker">
+            <div className={styles.sectionTitle}>Assign to route</div>
+            {model.routes.length === 0 && (
+              <div className={styles.small} data-testid="ship-panel-no-routes">
+                No routes yet. Create one in the{" "}
+                <button type="button" className={styles.link} onClick={onOpenRoutes}>
+                  Routes list
+                </button>
+                .
+              </div>
+            )}
+            {model.routes.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                className={`${styles.trayEntry} ${styles.routeChoice}`}
+                onClick={() => {
+                  setChoosing(false);
+                  onAssign(r.id);
+                }}
+                data-testid={`ship-panel-assign-${r.id}`}
+              >
+                <span>
+                  <RouteSummary route={r} islandName={islandName} />
+                </span>
+              </button>
+            ))}
+            <button type="button" className={styles.link} onClick={() => setChoosing(false)} data-testid="ship-panel-assign-cancel">
+              Cancel
+            </button>
+          </div>
+        )}
+        {hasActions && !(choosing && idle) && (
+        <div className={`${styles.row} ${styles.shipEntry}`}>
+          {idle && (
+            <button type="button" className={styles.button} onClick={() => setChoosing(true)} data-testid="ship-panel-assign">
+              Assign to route…
+            </button>
+          )}
+          {s.route_id !== 0 && (
+            <button type="button" className={styles.button} onClick={onUnassign} data-testid="ship-panel-unassign">
+              Unassign
+            </button>
+          )}
+          {idle && here && (
+            <button type="button" className={styles.button} onClick={onSend} data-testid="ship-panel-send">
+              Send…
+            </button>
+          )}
+          {idle && here && !here.settled && (
+            <button type="button" className={styles.button} onClick={onFound} data-testid="ship-panel-found">
+              Found settlement
+            </button>
+          )}
+          {(idle || s.state === "anchored_unpaid") && (
+            <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onScrap} data-testid="ship-panel-scrap">
+              Scrap
+            </button>
+          )}
         </div>
-        <div className={styles.small} data-testid="ship-panel-cargo">
-          {s.cargo.length === 0 ? "empty" : s.cargo.map((c, i) => <div key={i}>{`${units(c.amount)} ${goodName(c.good)}`}</div>)}
-        </div>
-      </div>
-      <div className={styles.small}>upkeep {perMin(s.upkeep_per_min)}/min</div>
-      <div className={`${styles.row} ${styles.section}`}>
-        {idle && (
-          <button type="button" className={styles.button} onClick={onAssignToRoute} data-testid="ship-panel-assign">
-            Assign to route…
-          </button>
-        )}
-        {s.route_id !== 0 && (
-          <button type="button" className={styles.button} onClick={onUnassign} data-testid="ship-panel-unassign">
-            Unassign
-          </button>
-        )}
-        {idle && here && (
-          <button type="button" className={styles.button} onClick={onSend} data-testid="ship-panel-send">
-            Send…
-          </button>
-        )}
-        {idle && (
-          <button type="button" className={styles.button} onClick={onSendTo} data-testid="ship-panel-send-to">
-            Send to… (pick island)
-          </button>
-        )}
-        {idle && here && !here.settled && (
-          <button type="button" className={styles.button} onClick={onFound} data-testid="ship-panel-found">
-            Found settlement
-          </button>
-        )}
-        {(idle || s.state === "anchored_unpaid") && (
-          <button type="button" className={`${styles.button} ${styles.danger}`} onClick={onScrap} data-testid="ship-panel-scrap">
-            Scrap
-          </button>
         )}
       </div>
     </div>

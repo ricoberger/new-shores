@@ -40,7 +40,7 @@
     {
       "step": 17,
       "error": "field_max_reached",
-      "message": "farm has the maximum number of fields: sheep_farm 2 has 8 of 8 fields"
+      "message": "farm has the maximum number of fields: sheep_farm 2 has 4 of 4 fields"
     }
   ],
   "snapshots": [
@@ -76,7 +76,7 @@
           "type": "sheep_farm",
           "active": 2,
           "required": 4,
-          "max": 8,
+          "max": 4,
           "fields": 2,
           "efficiency_permille": 500
         }
@@ -114,7 +114,7 @@
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
-          "max": 8,
+          "max": 4,
           "fields": 1,
           "efficiency_permille": 0,
           "inactive": [
@@ -155,7 +155,7 @@
           "type": "sheep_farm",
           "active": 2,
           "required": 4,
-          "max": 8,
+          "max": 4,
           "fields": 2,
           "efficiency_permille": 500
         }
@@ -193,7 +193,7 @@
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
-          "max": 8,
+          "max": 4,
           "fields": 2,
           "efficiency_permille": 0,
           "inactive": [
@@ -235,7 +235,7 @@
           "type": "sheep_farm",
           "active": 2,
           "required": 4,
-          "max": 8,
+          "max": 4,
           "fields": 2,
           "efficiency_permille": 500
         }
@@ -260,7 +260,7 @@
       "statuses": {
         "ok": 1
       },
-      "gold": 809000,
+      "gold": 869000,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -271,10 +271,10 @@
           "island": "main",
           "id": 2,
           "type": "sheep_farm",
-          "active": 8,
+          "active": 4,
           "required": 4,
-          "max": 8,
-          "fields": 8,
+          "max": 4,
+          "fields": 4,
           "efficiency_permille": 1000
         }
       ]
@@ -296,7 +296,7 @@
         }
       },
       "statuses": {},
-      "gold": 809000,
+      "gold": 869000,
       "balance_rate_per_min": 0,
       "population": {},
       "unlocked_tiers": [
@@ -317,7 +317,7 @@
   "final": {
     "evaluated_at": "2026-01-01T00:07:00.000Z",
     "next_change_at": null,
-    "gold": 809000,
+    "gold": 869000,
     "balance_rate_per_min": 0,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 0,

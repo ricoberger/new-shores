@@ -309,6 +309,9 @@ type needResult struct {
 	fulfilment int64
 	reason     string
 	goods      *goodsNeedState
+	// servedBy lists the IDs of the usable buildings (in range, assigned to a
+	// warehouse, not paused) that fulfil a building need.
+	servedBy []int64
 }
 
 // houseCalc holds the derived values of one house.
@@ -368,7 +371,7 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 				}
 				h.variety += int64(gs.variety) * need.VarietyBonus
 			} else {
-				res.reason = buildingNeed(is, c, def, b, need)
+				res.reason, res.servedBy = buildingNeed(is, c, def, b, need)
 				if res.reason == NeedOK {
 					res.fulfilment = ppm
 				}
@@ -436,12 +439,15 @@ func growthRate(rules content.Rules, satisfaction, variety int64) int64 {
 }
 
 // buildingNeed evaluates a building need for one connected house and
-// returns its reason (NeedOK when fulfilled). Among buildings of the type
+// returns its reason (NeedOK when fulfilled) and the IDs of the usable
+// buildings of the type within range (ascending order of the island's
+// buildings; empty unless the reason is NeedOK). Among buildings of the type
 // within range, a usable one wins; otherwise an unconnected one reports
 // not_connected and a paused one paused.
-func buildingNeed(is *Island, c *content.Catalogue, houseDef *content.Building, house *Building, need *content.Need) string {
+func buildingNeed(is *Island, c *content.Catalogue, houseDef *content.Building, house *Building, need *content.Need) (string, []int64) {
 	hw, hh := footprint(houseDef, house.Rotation)
 	reason := NeedOutOfRange
+	var served []int64
 	for _, b := range is.Buildings {
 		if b.Type != need.Building {
 			continue
@@ -456,12 +462,17 @@ func buildingNeed(is *Island, c *content.Catalogue, houseDef *content.Building, 
 				reason = NeedPaused
 			}
 		case b.AssignedWarehouseID == 0:
-			reason = NeedNotConnected
+			if len(served) == 0 {
+				reason = NeedNotConnected
+			}
 		default:
-			return NeedOK
+			served = append(served, b.ID)
 		}
 	}
-	return reason
+	if len(served) > 0 {
+		return NeedOK, served
+	}
+	return reason, nil
 }
 
 // withinRadius reports whether the footprint of b and the footprint

@@ -33,8 +33,25 @@ const content = {
   buildings: [
     b("pasture", "Pasture", { width: 2, height: 2, cost: { gold: 15_000, materials: {} }, field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } }),
     b("lumberjack", "Lumberjack", { width: 2, height: 2, work_area: { radius: 4, terrain: ["forest"], required_tiles: 24 } }),
-    b("sheep_farm", "Sheep farm", { width: 3, height: 3, pause_category: "intermediate", fields: { type: "pasture", required: 4, max: 8 } }),
+    b("sheep_farm", "Sheep farm", { width: 3, height: 3, pause_category: "intermediate", fields: { type: "pasture", required: 4, max: 4 } }),
     b("weaver_wool", "Wool weaver", { width: 2, height: 2 }),
+    b("warehouse", "Warehouse", {
+      category: "harbour",
+      width: 2,
+      height: 2,
+      warehouse: {
+        levels: [{ throughput_per_min: 30_000 }, { throughput_per_min: 55_000, cost: { gold: 150_000, materials: { planks: 10_000, stone: 5_000 } } }, { throughput_per_min: 80_000, cost: { gold: 300_000, materials: {} } }],
+      },
+    }),
+    b("trading_post", "Trading Post", {
+      category: "harbour",
+      width: 3,
+      height: 3,
+      trading_post: {
+        levels: [{ capacity: 300_000, throughput_per_min: 30_000, berths: 1 }, { capacity: 500_000, throughput_per_min: 55_000, berths: 2, cost: { gold: 300_000, materials: { planks: 20_000 } } }],
+      },
+    }),
+    b("tavern", "Tavern", { width: 3, height: 3, category: "public", upkeep_per_min: 6_000, pause_category: "public", service: { radius: 14 } }),
   ],
   ships: [],
   quests: [],
@@ -45,6 +62,7 @@ const text = (html: string) => html.replace(/<[^>]+>/g, "");
 const panel = (building: BuildingDisplay, island: IslandDisplay, model: DisplayState) =>
   renderToStaticMarkup(
     createElement(InfoPanel, {
+      onClose: () => {},
       building,
       island,
       model,
@@ -57,7 +75,6 @@ const panel = (building: BuildingDisplay, island: IslandDisplay, model: DisplayS
       onUpgradeTradingPost: () => {},
       onSelectBuilding: () => {},
       onAddField: () => {},
-      onHoverBuilding: () => {},
       nowMs: 0,
       onOrderShip: () => {},
       onCancelShipOrder: () => {},
@@ -92,38 +109,47 @@ describe("fields in the HUD (D-051 part 4)", () => {
     for (const id of ids) expect(existsSync(join(dir, thumbUrl(id).replace("/models/", ""))), id).toBe(true);
   });
 
-  it("shows the farm's fields row: active / required / max, a list and an Add button", () => {
+  it("shows the farm's fields block only when it has something to say: not connected fields, an Add button below the maximum", () => {
     const model = fixture("settlers_grow");
     const island = model.islands[0]!;
     const farm = island.buildings.find((x) => x.type === "sheep_farm")!;
     const html = panel(farm, island, model);
-    expect(text(html)).toContain("Fields 4 / 4");
-    expect(text(html)).toContain("4 of at most 8 placed");
-    expect(html).toContain('data-testid="farm-field-list"');
-    for (const id of farm.fields!.ids) expect(html).toContain(`data-testid="farm-field-${id}"`);
-    expect(text(html)).toContain("Add pasture (15 gold)");
-    expect(html).toContain('data-testid="farm-add-field"');
-    expect(html).not.toContain("disabled");
-    // At the maximum the button is disabled.
-    const full = { ...farm, fields: { ...farm.fields!, ids: [1, 2, 3, 4, 5, 6, 7, 8] } };
-    expect(panel(full, island, model)).toMatch(/data-testid="farm-add-field"[^>]*disabled|disabled=""[^>]*data-testid="farm-add-field"/);
-    // An inactive field is marked in the list.
+    // The count and the bar are the farm's Efficiency (Details).
+    expect(text(html)).not.toContain("Fields 4 / 4");
+    expect(text(html)).not.toContain("placed");
+    // The cycle, efficiency, workers and transfer rows sit in a collapsed Details section.
+    expect(html).toMatch(/<details[^>]*data-testid="info-details"(?![^>]*\bopen\b)/);
+    expect(text(html)).toContain("Upkeep");
+    expect(html).toContain('data-testid="info-upkeep"');
+    // No field list and no warning while every field is connected.
+    expect(html).not.toContain('data-testid="farm-field-list"');
+    expect(html).not.toContain("farm-fields-inactive");
+    // The maximum equals the requirement: with every field placed there is no Add button (and no empty block), one short there is.
+    expect(html).not.toContain('data-testid="farm-add-field"');
+    expect(html).not.toContain('data-testid="farm-fields"');
+    const short = { ...farm, fields: { ...farm.fields!, active: 3, ids: [1, 2, 3] } };
+    const shortHtml = panel(short, island, model);
+    expect(shortHtml).toContain('data-testid="farm-add-field"');
+    expect(text(shortHtml)).toContain("Add pasture (15 gold)");
+    expect(shortHtml).not.toContain("disabled");
+    // An inactive field is counted in a warning line.
     const first = farm.fields!.ids[0]!;
     const broken = { ...island, buildings: island.buildings.map((x) => (x.id === first ? { ...x, active: false, status: "not_adjacent" as const } : x)) };
     const inactive = panel({ ...farm, fields: { ...farm.fields!, active: 3 } }, broken, model);
-    expect(text(inactive)).toContain("Fields 3 / 4");
-    expect(inactive).toMatch(new RegExp(`data-testid="farm-field-${first}"[^>]*data-active="false"`));
-    expect(text(inactive)).toContain("not adjacent");
+    expect(text(inactive)).toContain("1 not connected to the farm");
   });
 
-  it("shows a field's farm and whether it is active", () => {
+  it("shows whether a field counts for its farm", () => {
     const model = fixture("settlers_grow");
     const island = model.islands[0]!;
     const farm = island.buildings.find((x) => x.type === "sheep_farm")!;
     const field = island.buildings.find((x) => x.type === "pasture")!;
     const html = panel(field, island, model);
-    expect(text(html)).toContain(`Sheep farm #${farm.id}`);
-    expect(text(html)).toContain("Active: it counts for its farm");
+    // No link to the farm: the status sentence says it all.
+    expect(html).not.toContain('data-testid="field-farm');
+    expect(text(html)).not.toContain("Farm");
+    expect(text(html)).toContain("Counts for its farm");
+    expect(text(html)).not.toContain("Running");
     expect(html).not.toContain('data-testid="info-pause"');
     expect(html).toContain('data-testid="info-demolish"');
     // A field cannot be moved: no Move button (the farm keeps its own).
@@ -131,6 +157,92 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(panel(farm, island, model)).toContain('data-testid="info-move"');
     const inactive = panel({ ...field, active: false, status: "not_adjacent" }, island, model);
     expect(text(inactive)).toContain("Not connected to its farm");
-    expect(text(inactive)).toContain("Not adjacent: its chain to the farm is broken");
+    expect(text(inactive)).not.toContain("Counts for its farm");
+  });
+
+  it("shows the radius and upkeep of a service building in a collapsed Details", () => {
+    const model = fixture("settlers_grow");
+    const island = model.islands[0]!;
+    const tavern = { ...island.buildings[0]!, id: 9_999, type: "tavern", paused: false } as unknown as BuildingDisplay;
+    delete (tavern as { rates?: unknown }).rates;
+    delete (tavern as { residents?: unknown }).residents;
+    const html = panel(tavern, island, model);
+    expect(html).toMatch(/<details[^>]*data-testid="info-details"(?![^>]*\bopen\b)/);
+    expect(text(html)).toContain("Radius14 tiles");
+    expect(text(html)).toContain("Upkeep6.0 $/min");
+    expect(text(panel({ ...tavern, paused: true }, island, model))).toContain("Upkeep0.0 $/min");
+  });
+
+  it("shows the warehouse as rows, its producers and the next level, with Upgrade in the footer", () => {
+    const model = fixture("settlers_grow");
+    const island = model.islands[0]!;
+    const base = island.buildings[0]!;
+    const wh = { ...base, id: 8_001, type: "warehouse", level: 1, throughput_per_min: 30_000, load_permille: 400 } as unknown as BuildingDisplay;
+    const producers = [1, 2].map((n) => ({ ...base, id: 8_100 + n, type: "lumberjack", assigned_warehouse_id: 8_001, rates: { inputs: {}, outputs: {} } }) as unknown as BuildingDisplay);
+    const withProducers = { ...island, buildings: [...island.buildings, wh, ...producers] };
+    const html = panel(wh, withProducers, model);
+    const t = text(html);
+    expect(t).toContain("DetailsLevel1 / 3");
+    expect(t).toContain("Throughput30.0/min");
+    expect(t).toContain("Load40 %");
+    expect(t).toContain("Producers (2)");
+    // The producers are collapsed by default.
+    expect(html).toMatch(/<details[^>]*data-testid="collector-producers"(?![^>]*\bopen\b)/);
+    expect(t).not.toContain("#8100");
+    expect(html).toContain('data-testid="collector-producer-8101"');
+    expect(t).toContain("Upgrade to level 2");
+    expect(t).toContain("55.0/min throughput");
+    expect(t).not.toContain("adds no capacity");
+    // The button is pinned in the footer: after the preview, next to Move.
+    expect(html.indexOf("warehouse-upgrade-button")).toBeGreaterThan(html.indexOf("Upgrade to level"));
+    expect(html.indexOf("warehouse-upgrade-button")).toBeLessThan(html.indexOf("info-move"));
+    expect(html.match(/warehouse-upgrade-button/g)).toHaveLength(1);
+    // No next level at the top: no preview and no button.
+    const top = panel({ ...wh, level: 3 }, withProducers, model);
+    expect(text(top)).not.toContain("Upgrade to level");
+    expect(top).not.toContain("warehouse-upgrade-button");
+    // No producer: a hint instead of a list.
+    expect(text(panel(wh, island, model))).toContain("Producers (0)None yet");
+  });
+
+  it("shows the Trading Post as rows: details, pier, inventory and the next level", () => {
+    const model = fixture("settlers_grow");
+    const island = { ...model.islands[0]!, inventory: { wool: { stock: 120_000, capacity: 300_000, in_transit: 0, rate_per_min: -1_000 } } } as IslandDisplay;
+    const tp = {
+      ...island.buildings[0]!,
+      id: 8_201,
+      type: "trading_post",
+      level: 1,
+      capacity: 300_000,
+      throughput_per_min: 30_000,
+      load_permille: 400,
+      berths: { total: 2, busy: 1, ships: [1], queue: [2] },
+    } as unknown as BuildingDisplay;
+    const html = panel(tp, island, model);
+    const t = text(html);
+    expect(t).toContain("DetailsLevel1 / 2Capacity300 per goodThroughput30.0/minLoad40 %Berths1 / 2 free");
+    expect(t).toContain("PierShip #1at the pierShip #2waiting");
+    expect(t).toContain("InventoryWool120 / 300−1.0Producers (0)");
+    expect(t).toContain("Upgrade to level 2500 capacity per good·2 berths·55.0/min throughput");
+    expect(t).not.toContain("Net/min");
+    // Net rate: red below 0, green above, plain at 0 (and when it rounds to 0.0).
+    const net = (rate: number) => {
+      const inv = { ...island, inventory: { wool: { stock: 0, capacity: 300_000, in_transit: 0, rate_per_min: rate } } } as IslandDisplay;
+      return panel(tp, inv, model).match(/<td class="([^"]*)" data-testid="trading-post-net-wool"/)?.[1] ?? "";
+    };
+    expect(net(-1_000)).toMatch(/negative/);
+    expect(net(2_000)).toMatch(/positive/);
+    expect(net(0)).toBe("");
+    expect(net(40)).toBe("");
+    expect(html).not.toContain("trading-post-queue");
+    // The button is pinned in the footer; no pier section without ships.
+    expect(html.indexOf("trading-post-upgrade-button")).toBeGreaterThan(html.indexOf("Upgrade to level"));
+    const empty = panel({ ...tp, berths: { total: 2, busy: 0, ships: [], queue: [] } }, island, model);
+    expect(empty).not.toContain('data-testid="trading-post-pier"');
+    expect(text(empty)).toContain("Berths2 / 2 free");
+    // The last level: no preview, no button.
+    const top = panel({ ...tp, level: 2 }, island, model);
+    expect(text(top)).not.toContain("Upgrade to level");
+    expect(top).not.toContain("trading-post-upgrade-button");
   });
 });

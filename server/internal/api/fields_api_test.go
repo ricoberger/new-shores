@@ -108,7 +108,7 @@ func TestPlaceField(t *testing.T) {
 	for _, b := range fieldsBuildings(t, w.Display) {
 		switch b.Type {
 		case "sheep_farm":
-			if b.Efficiency != 750 || b.Fields == nil || b.Fields.Active != 3 || b.Fields.Required != 4 || b.Fields.Max != 8 || len(b.Fields.IDs) != 3 ||
+			if b.Efficiency != 750 || b.Fields == nil || b.Fields.Active != 3 || b.Fields.Required != 4 || b.Fields.Max != 4 || len(b.Fields.IDs) != 3 ||
 				b.FarmID != nil || b.Active != nil {
 				t.Errorf("farm %+v fields %+v", b, b.Fields)
 			}
@@ -144,8 +144,8 @@ func TestPlaceField(t *testing.T) {
 	if res.status != http.StatusBadRequest || errorCode(t, res) != "invalid_command" {
 		t.Errorf("move field: %d %s", res.status, res.body)
 	}
-	// Up to the maximum of 8 fields, then field_max_reached.
-	for _, p := range [][2]int{{17, 7}, {19, 7}, {21, 7}, {19, 5}, {14, 8}, {12, 5}} {
+	// Up to the maximum of 4 fields (it equals the requirement), then field_max_reached.
+	for _, p := range [][2]int{{17, 7}, {19, 7}} {
 		res = ts.command(placeField(farm, p[0], p[1]), nil)
 		if res.status != http.StatusOK {
 			t.Fatalf("place_field %v: %d %s", p, res.status, res.body)

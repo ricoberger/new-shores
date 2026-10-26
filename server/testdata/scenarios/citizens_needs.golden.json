@@ -215,7 +215,7 @@
           "type": "wheat_farm",
           "active": 16,
           "required": 16,
-          "max": 20,
+          "max": 16,
           "fields": 16,
           "efficiency_permille": 1000
         },
@@ -225,7 +225,7 @@
           "type": "orchard",
           "active": 16,
           "required": 16,
-          "max": 20,
+          "max": 16,
           "fields": 16,
           "efficiency_permille": 1000
         },
@@ -235,7 +235,7 @@
           "type": "hemp_farm",
           "active": 16,
           "required": 16,
-          "max": 20,
+          "max": 16,
           "fields": 16,
           "efficiency_permille": 1000
         }
@@ -314,7 +314,7 @@
           "type": "wheat_farm",
           "active": 16,
           "required": 16,
-          "max": 20,
+          "max": 16,
           "fields": 16,
           "efficiency_permille": 1000
         },
@@ -324,7 +324,7 @@
           "type": "orchard",
           "active": 16,
           "required": 16,
-          "max": 20,
+          "max": 16,
           "fields": 16,
           "efficiency_permille": 1000
         },
@@ -334,7 +334,7 @@
           "type": "hemp_farm",
           "active": 16,
           "required": 16,
-          "max": 20,
+          "max": 16,
           "fields": 16,
           "efficiency_permille": 1000
         }
@@ -1046,6 +1046,11 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2,
+              3,
+              19
             ]
           },
           {
@@ -1122,6 +1127,11 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2,
+              3,
+              19
             ]
           },
           {
@@ -1198,6 +1208,11 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2,
+              3,
+              19
             ]
           },
           {
@@ -1274,6 +1289,11 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2,
+              3,
+              19
             ]
           },
           {
@@ -1325,6 +1345,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1376,6 +1399,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1427,6 +1453,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1478,6 +1507,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1880,7 +1912,7 @@
             "fields": {
               "active": 16,
               "required": 16,
-              "max": 20,
+              "max": 16,
               "ids": [
                 21,
                 22,
@@ -2221,7 +2253,7 @@
             "fields": {
               "active": 16,
               "required": 16,
-              "max": 20,
+              "max": 16,
               "ids": [
                 40,
                 41,
@@ -2531,7 +2563,7 @@
             "fields": {
               "active": 16,
               "required": 16,
-              "max": 20,
+              "max": 16,
               "ids": [
                 58,
                 59,

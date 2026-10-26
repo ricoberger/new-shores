@@ -180,7 +180,7 @@
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
-          "max": 8,
+          "max": 4,
           "fields": 0,
           "efficiency_permille": 0
         }
@@ -220,7 +220,7 @@
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
-          "max": 8,
+          "max": 4,
           "fields": 0,
           "efficiency_permille": 0
         }
@@ -270,7 +270,7 @@
           "type": "sheep_farm",
           "active": 0,
           "required": 4,
-          "max": 8,
+          "max": 4,
           "fields": 0,
           "efficiency_permille": 0
         }
@@ -1230,7 +1230,7 @@
             "fields": {
               "active": 0,
               "required": 4,
-              "max": 8,
+              "max": 4,
               "ids": []
             }
           },
@@ -1316,6 +1316,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1367,6 +1370,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1418,6 +1424,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1469,6 +1478,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           },
           {
@@ -1520,6 +1532,9 @@
                 "fulfilment_permille": 1000,
                 "reason": "ok"
               }
+            ],
+            "served_by": [
+              2
             ]
           }
         ],

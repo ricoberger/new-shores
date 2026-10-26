@@ -195,7 +195,7 @@
           "type": "sheep_farm",
           "active": 3,
           "required": 4,
-          "max": 8,
+          "max": 4,
           "fields": 3,
           "efficiency_permille": 750
         }
@@ -689,7 +689,7 @@
             "fields": {
               "active": 3,
               "required": 4,
-              "max": 8,
+              "max": 4,
               "ids": [
                 7,
                 8,

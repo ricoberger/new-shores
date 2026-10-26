@@ -24,8 +24,8 @@ const def = (id: string, w: number, h: number, extra: Partial<ContentBuilding> =
 
 const pasture = def("pasture", 2, 2, { name: "Pasture", field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } });
 const wheatField = def("wheat_field", 1, 1, { name: "Wheat field", field: { type: "wheat_field", farm: "wheat_farm", terrain: ["grass"], fertility: "wheat" } });
-const sheepFarm = def("sheep_farm", 3, 3, { fields: { type: "pasture", required: 4, max: 8 } });
-const wheatFarm = def("wheat_farm", 3, 3, { fields: { type: "wheat_field", required: 16, max: 20 } });
+const sheepFarm = def("sheep_farm", 3, 3, { fields: { type: "pasture", required: 4, max: 4 } });
+const wheatFarm = def("wheat_farm", 3, 3, { fields: { type: "wheat_field", required: 16, max: 16 } });
 const defs = new Map([pasture, wheatField, sheepFarm, wheatFarm, def("house", 2, 2)].map((d) => [d.id, d]));
 
 const building = (id: number, type: string, x: number, y: number, extra: Partial<BuildingDisplay> = {}) =>
@@ -41,7 +41,7 @@ function island(fertilities: string[] = []) {
 
 /** The farm at (8,5) (x 8..10, y 5..7) with the given fields. */
 function world(fields: { id: number; x: number; y: number; active?: boolean; type?: string; farm?: number }[] = []) {
-  const farm = building(1, "sheep_farm", 8, 5, { fields: { active: fields.filter((f) => f.active !== false).length, required: 4, max: 8, ids: fields.map((f) => f.id) } });
+  const farm = building(1, "sheep_farm", 8, 5, { fields: { active: fields.filter((f) => f.active !== false).length, required: 4, max: 4, ids: fields.map((f) => f.id) } });
   const fs = fields.map((f) => building(f.id, f.type ?? "pasture", f.x, f.y, { farm_id: f.farm ?? 1, active: f.active ?? true }));
   const buildings = [farm, building(50, "house", 14, 10), ...fs];
   return { farm, buildings, data: { island: island(), buildings, roads: [{ x: 9, y: 4 }], defs } };

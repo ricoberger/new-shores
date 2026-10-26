@@ -60,8 +60,8 @@ func TestLoadFields(t *testing.T) {
 		size          int
 	}
 	for farm, w := range map[string]want{
-		"sheep_farm": {"pasture", 4, 8, 2}, "dairy_farm": {"cattle_pasture", 4, 8, 2}, "wheat_farm": {"wheat_field", 16, 20, 1},
-		"orchard": {"orchard_plot", 16, 20, 1}, "hemp_farm": {"hemp_field", 16, 20, 1},
+		"sheep_farm": {"pasture", 4, 4, 2}, "dairy_farm": {"cattle_pasture", 4, 4, 2}, "wheat_farm": {"wheat_field", 16, 16, 1},
+		"orchard": {"orchard_plot", 16, 16, 1}, "hemp_farm": {"hemp_field", 16, 16, 1},
 	} {
 		b := c.BuildingByID[farm]
 		if b.Fields == nil || b.Fields.Type != w.field || b.Fields.Required != w.required || b.Fields.Max != w.max {
@@ -115,12 +115,12 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 		},
 		{
 			"fields without max",
-			[]string{`"fields": { "type": "hemp_field", "required": 16, "max": 20 }`, `"fields": { "type": "hemp_field", "required": 16 }`},
+			[]string{`"fields": { "type": "hemp_field", "required": 16, "max": 16 }`, `"fields": { "type": "hemp_field", "required": 16 }`},
 			[]string{FileBuildings, `building "hemp_farm"`, "schema violation"},
 		},
 		{
 			"fields max below required",
-			[]string{`"fields": { "type": "hemp_field", "required": 16, "max": 20 }`, `"fields": { "type": "hemp_field", "required": 16, "max": 15 }`},
+			[]string{`"fields": { "type": "hemp_field", "required": 16, "max": 16 }`, `"fields": { "type": "hemp_field", "required": 16, "max": 15 }`},
 			[]string{FileBuildings, `building "hemp_farm"`, "fields.max", "must be >= fields.required"},
 		},
 		{
@@ -188,7 +188,7 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 		},
 		{
 			"dangling fields type",
-			[]string{`"fields": { "type": "hemp_field", "required": 16, "max": 20 }`, `"fields": { "type": "hop_field", "required": 16, "max": 20 }`},
+			[]string{`"fields": { "type": "hemp_field", "required": 16, "max": 16 }`, `"fields": { "type": "hop_field", "required": 16, "max": 16 }`},
 			[]string{FileBuildings, `building "hemp_farm"`, "fields.type", `no building with a field block of type "hop_field"`},
 		},
 		{
@@ -203,7 +203,7 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 		},
 		{
 			"field shared by two farms: the second farm's field type",
-			[]string{`"fields": { "type": "cattle_pasture", "required": 4, "max": 8 }`, `"fields": { "type": "pasture", "required": 4, "max": 8 }`},
+			[]string{`"fields": { "type": "cattle_pasture", "required": 4, "max": 4 }`, `"fields": { "type": "pasture", "required": 4, "max": 4 }`},
 			[]string{FileBuildings, `building "dairy_farm"`, "fields.type", `field type "pasture" belongs to farm "sheep_farm"`},
 		},
 		{
@@ -266,7 +266,7 @@ func TestShippedFields(t *testing.T) {
 				t.Errorf("%s has a work radius", b.ID)
 			}
 		}
-		if !ok || b.Fields.Type != w.field || b.Fields.Required != w.required || b.Fields.Max != w.required+4 || fert != w.fertility {
+		if !ok || b.Fields.Type != w.field || b.Fields.Required != w.required || b.Fields.Max != w.required || fert != w.fertility {
 			t.Errorf("%s fields %+v work area %+v", b.ID, b.Fields, b.WorkArea)
 			continue
 		}

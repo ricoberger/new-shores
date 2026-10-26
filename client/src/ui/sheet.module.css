@@ -54,33 +54,6 @@
   background: var(--ns-ui-wood-light);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 8px 0 14px;
-  flex: none;
-}
-
-.title {
-  flex: 1;
-  font-family: var(--ns-font-display);
-  font-weight: 700;
-  font-size: 16px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.close {
-  min-width: 44px;
-  min-height: 44px;
-  border: none;
-  background: none;
-  color: var(--ns-ui-ink);
-  font-size: 18px;
-}
-
 .body {
   flex: 1;
   min-height: 0;
@@ -88,14 +61,19 @@
   overscroll-behavior: contain;
   touch-action: pan-y;
   padding: 0 10px 10px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* The desktop panels inside a sheet take its width and scroll with it. */
+/* The desktop panels inside a sheet take its width and height: their title stays
+   and their body scrolls (a panel is a flex column, see hud.module.css). */
 .body > * {
   width: auto;
   max-width: none;
   max-height: none;
-  overflow: visible;
+  min-height: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
   box-shadow: none;
   border: none;
   background: transparent;

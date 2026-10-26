@@ -8,7 +8,7 @@ const draft = { name: "", stops: [] };
 describe("one continuous world (no view mode)", () => {
   it("has no view, zoom-out or enter/back state", () => {
     const s = fresh();
-    expect(Object.keys(s).sort()).toEqual(["dialog", "editor", "editorSessions", "selection", "shipment"]);
+    expect(Object.keys(s).sort()).toEqual(["dialog", "editor", "editorSessions", "selection"]);
   });
 
   it("a tap on island land at near LOD selects the building under it or deselects", () => {
@@ -26,15 +26,14 @@ describe("one continuous world (no view mode)", () => {
     expect(run(s, { type: "tapIsland", id: "start" }).selection).toEqual({ kind: "island", id: "start" });
   });
 
-  it("the editor and Send to… work at every LOD: island taps with or without a building append stops or pick the destination", () => {
-    let s = run(fresh(), { type: "openEditor", routeId: null, draft });
-    s = run(s, { type: "tapIsland", id: "a", building: 4 }, { type: "tapIsland", id: "b", building: null }, { type: "tapIsland", id: "c" });
-    expect(s.editor.kind === "open" && s.editor.draft.stops.map((x) => x.island)).toEqual(["a", "b", "c"]);
-    expect(s.selection).toEqual({ kind: "none" });
-    const send = run(fresh(), { type: "selectShip", id: 1 }, { type: "sendTo", shipId: 1, from: "start" }, { type: "tapIsland", id: "island2", building: 3 });
-    expect(send).toMatchObject({ shipment: { kind: "none" }, dialog: { shipId: 1, to: "island2" }, selection: { kind: "ship", id: 1 } });
-    // The ship's own island cancels.
-    expect(run(fresh(), { type: "sendTo", shipId: 1, from: "start" }, { type: "tapIsland", id: "start" })).toMatchObject({ shipment: { kind: "none" }, dialog: null });
+  it("an island tap while the editor is open selects the island (suspending the editor), it never adds a stop", () => {
+    const editing = run(fresh(), { type: "openEditor", routeId: null, draft });
+    for (const tap of [{ type: "tapIsland", id: "a" } as const, { type: "tapIsland", id: "a", building: 4 } as const]) {
+      const t = run(editing, tap);
+      expect(t.selection).toEqual(tap.building === undefined ? { kind: "island", id: "a" } : { kind: "building", id: 4 });
+      expect(t.editor).toMatchObject({ kind: "open", active: false });
+      expect(t.editor.kind === "open" && t.editor.draft.stops).toEqual([]);
+    }
   });
 
   it("opening the editor keeps the selection state otherwise unchanged (no view switch)", () => {
@@ -57,13 +56,12 @@ describe("selection", () => {
 });
 
 describe("route editor", () => {
-  it("opens anywhere, appends tapped islands (also repeated ones), removes and reorders stops", () => {
-    let s = run(fresh(), { type: "openEditor", routeId: null, draft, pickingShip: 1 });
-    expect(s.editor).toMatchObject({ kind: "open", routeId: null, pickingShip: 1 });
-    s = run(s, { type: "tapIsland", id: "a" }, { type: "tapIsland", id: "b" }, { type: "tapIsland", id: "b" }, { type: "appendStop", island: "c" });
+  it("opens anywhere, appends picked islands (also repeated ones), removes and reorders stops", () => {
+    let s = run(fresh(), { type: "openEditor", routeId: null, draft });
+    expect(s.editor).toMatchObject({ kind: "open", routeId: null });
+    s = run(s, { type: "appendStop", island: "a" }, { type: "appendStop", island: "b" }, { type: "appendStop", island: "b" }, { type: "appendStop", island: "c" });
     const stops = () => (s.editor.kind === "open" ? s.editor.draft.stops.map((x) => x.island) : []);
     expect(stops()).toEqual(["a", "b", "b", "c"]);
-    // Taps append stops instead of selecting.
     expect(s.selection).toEqual({ kind: "none" });
     s = run(s, { type: "removeStop", index: 1 });
     expect(stops()).toEqual(["a", "b", "c"]);
@@ -93,7 +91,7 @@ describe("route editor", () => {
     const routeA = { name: "A", stops: [{ island: "a", load: [], unload: [] }] };
     const routeB = { name: "B", stops: [{ island: "b", load: [], unload: [] }] };
     // Save route A (pending), then open route B before A's response arrives.
-    let s = run(fresh(), { type: "openEditor", routeId: 1, draft: routeA, pickingShip: 7 });
+    let s = run(fresh(), { type: "openEditor", routeId: 1, draft: routeA });
     const sessionA = s.editor.kind === "open" ? s.editor.session : -1;
     s = run(s, { type: "openEditor", routeId: 2, draft: routeB });
     const sessionB = s.editor.kind === "open" ? s.editor.session : -1;
@@ -102,7 +100,6 @@ describe("route editor", () => {
       s,
       { type: "saved", session: sessionA, routeId: 1 },
       { type: "saveFailed", session: sessionA, error: "late" },
-      { type: "clearPickingShip", session: sessionA },
     );
     expect(late).toBe(s);
     expect(late.editor).toMatchObject({ kind: "open", session: sessionB, routeId: 2, draft: routeB, error: null });
@@ -132,46 +129,21 @@ describe("route editor", () => {
       // "Back to route editor" resumes it and closes the ship panel.
       expect(run(s, { type: "resumeEditor" })).toMatchObject({ selection: { kind: "none" }, editor: { active: true } });
     }
-    // "Assign to route…" opens the editor active with the ship still selected.
-    const assign = run(fresh(), { type: "selectShip", id: 5 }, { type: "openEditor", routeId: null, draft, pickingShip: 5 });
-    expect(assign.editor).toMatchObject({ kind: "open", active: true, pickingShip: 5 });
   });
 });
 
 describe("manual shipment", () => {
-  it("drag and drop on another island opens the dialog with the destination; the sea or the same island cancels", () => {
-    const drag = run(fresh(), { type: "dragShip", shipId: 1, from: "start" });
-    expect(drag.shipment).toEqual({ kind: "dragging", shipId: 1, from: "start" });
-    expect(run(drag, { type: "dropShip", island: "island2" })).toMatchObject({ shipment: { kind: "none" }, dialog: { shipId: 1, to: "island2" } });
-    expect(run(drag, { type: "dropShip", island: null })).toMatchObject({ shipment: { kind: "none" }, dialog: null });
-    expect(run(drag, { type: "dropShip", island: "start" })).toMatchObject({ shipment: { kind: "none" }, dialog: null });
-  });
-
-  it("click–click: Send to… then a tap on the target island", () => {
-    let s = run(fresh(), { type: "selectShip", id: 1 }, { type: "sendTo", shipId: 1, from: "start" });
-    expect(s.shipment.kind).toBe("awaitingTarget");
-    s = run(s, { type: "tapIsland", id: "island2" });
-    expect(s).toMatchObject({ shipment: { kind: "none" }, dialog: { shipId: 1, to: "island2" }, selection: { kind: "ship", id: 1 } });
+  it("openShipment opens the dialog, closeShipment closes it", () => {
+    const s = run(fresh(), { type: "selectShip", id: 1 }, { type: "openShipment", shipId: 1, to: null });
+    expect(s).toMatchObject({ dialog: { shipId: 1, to: null }, selection: { kind: "ship", id: 1 } });
     expect(run(s, { type: "closeShipment" }).dialog).toBeNull();
-    const cancelled = run(fresh(), { type: "sendTo", shipId: 1, from: "start" }, { type: "tapSea" });
-    expect(cancelled).toMatchObject({ shipment: { kind: "none" }, dialog: null });
     expect(run(fresh(), { type: "openShipment", shipId: 2, to: null }).dialog).toEqual({ shipId: 2, to: null });
   });
 });
 
 describe("Esc", () => {
-  it("closes the shipment interaction, then the editor's pick, then the editor, then the selection — one step per press", () => {
-    let s = run(
-      fresh(),
-      { type: "selectShip", id: 1 },
-      { type: "openEditor", routeId: null, draft, pickingShip: 1 },
-      { type: "dragShip", shipId: 1, from: "start" },
-    );
-    s = run(s, { type: "escape" });
-    expect(s.shipment.kind).toBe("none");
-    expect(s.editor).toMatchObject({ kind: "open", pickingShip: 1 });
-    s = run(s, { type: "escape" });
-    expect(s.editor).toMatchObject({ kind: "open", pickingShip: null });
+  it("closes the editor, then the selection — one step per press", () => {
+    let s = run(fresh(), { type: "selectShip", id: 1 }, { type: "openEditor", routeId: null, draft });
     s = run(s, { type: "escape" });
     expect(s.editor.kind).toBe("closed");
     expect(s.selection).toEqual({ kind: "ship", id: 1 });

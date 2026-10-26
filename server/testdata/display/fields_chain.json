@@ -3,7 +3,7 @@
   "base": {
     "evaluated_at": "2026-01-01T00:07:00.000Z",
     "next_change_at": null,
-    "gold": 809000,
+    "gold": 869000,
     "balance_rate_per_min": 0,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 0,
@@ -355,7 +355,7 @@
       "display": {
         "evaluated_at": "2026-01-01T00:07:00.250Z",
         "next_change_at": null,
-        "gold": 809000,
+        "gold": 869000,
         "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 0,
@@ -707,7 +707,7 @@
       "display": {
         "evaluated_at": "2026-01-01T00:07:01.000Z",
         "next_change_at": null,
-        "gold": 809000,
+        "gold": 869000,
         "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 0,
@@ -1059,7 +1059,7 @@
       "display": {
         "evaluated_at": "2026-01-01T00:07:05.000Z",
         "next_change_at": null,
-        "gold": 809000,
+        "gold": 869000,
         "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 0,
@@ -1411,7 +1411,7 @@
       "display": {
         "evaluated_at": "2026-01-01T00:07:30.000Z",
         "next_change_at": null,
-        "gold": 809000,
+        "gold": 869000,
         "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 0,
@@ -1763,7 +1763,7 @@
       "display": {
         "evaluated_at": "2026-01-01T00:12:00.000Z",
         "next_change_at": null,
-        "gold": 809000,
+        "gold": 869000,
         "balance_rate_per_min": 0,
         "tax_rate_per_min": 0,
         "upkeep_rate_per_min": 0,

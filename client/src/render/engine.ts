@@ -16,6 +16,7 @@ import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResp
 import type { SyncSnapshot } from "../api/sync";
 import { type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
+import { servedRelated } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
@@ -106,9 +107,6 @@ export interface RendererEvents {
   inspectBuilding(id: number): void;
   inspectShip(id: number): void;
   inspectIsland(id: string): void;
-  /** An idle ship is dragged from its island; dropShip ends the drag (island null: the sea). */
-  dragShip(shipId: number, from: string): void;
-  dropShip(island: string | null): void;
   /** The focused island, the LOD or the rotation changed. */
   camera(info: CameraInfo): void;
 }
@@ -184,7 +182,6 @@ export class GameRenderer {
   private roadStart: IslandTile | null = null;
   private selected: number | null = null;
   private placedInitially = false;
-  private draggingShip: number | null = null;
   /** Presses that began during a camera jump are ignored until all their pointers are up. */
   private readonly latch = new JumpLatch();
   private lod: Lod = "near";
@@ -329,8 +326,7 @@ export class GameRenderer {
 
   /**
    * The island under the pointer at mid and far LOD with the pointer's
-   * canvas-relative CSS position (null when none, at near LOD or while a
-   * ship is dragged).
+   * canvas-relative CSS position (null when none or at near LOD).
    */
   onHoverIsland(l: (island: string | null, at: { x: number; y: number } | null) => void): () => void {
     this.hoverListeners.add(l);
@@ -343,7 +339,7 @@ export class GameRenderer {
     if (this.hoverListeners.size === 0) return;
     let id: string | null = null;
     let at: { x: number; y: number } | null = null;
-    if (p && this.lod !== "near" && this.draggingShip === null) {
+    if (p && this.lod === "far") {
       id = this.islandUnder(p);
       const k = this.ratio();
       at = { x: p.x / k, y: p.y / k };
@@ -574,7 +570,11 @@ export class GameRenderer {
     }
     for (const id of this.visible) if (!islands.some((is) => is.id === id)) this.visible.delete(id);
     this.lod = lod;
-    if (changed) this.applyView();
+    if (changed) {
+      this.applyView();
+      // The hover tooltip is far-LOD only: drop or show it without waiting for a pointer move.
+      if (this.hover) this.onHover(this.hover);
+    }
     if (v.rotation !== this.iconRotation) {
       // Status icons face the camera at every azimuth.
       this.iconRotation = v.rotation;
@@ -712,8 +712,13 @@ export class GameRenderer {
     const found = this.selected === null ? undefined : this.findBuilding(this.selected);
     for (const [islandId, d] of this.details) {
       const b = found && found.island.id === islandId ? found.b : undefined;
-      d.select(b, b ? this.defs.get(b.type) : undefined);
+      const chain = b && found ? farmChain(b, found.island.buildings) : null;
+      const def = b ? this.defs.get(b.type) : undefined;
+      const related = b && found ? servedRelated(b, found.island.buildings, def) : [];
+      d.select(b, def, chain?.farm ? [chain.farm.id, ...chain.fields.map((f) => f.id), ...related] : related);
     }
+    // Tinting rebuilds the chunk meshes, which are the shadow casters.
+    this.refreshCasters();
   }
 
   /** Selection ring, highlighted route and the edited route's draft stops. */
@@ -910,8 +915,8 @@ export class GameRenderer {
   }
 
   /**
-   * Long-press inspects: a ship, a building (near LOD) or an island (mid
-   * and far LOD) under the finger is selected and its panel opens; the
+   * Long-press inspects: a ship, a building (near and mid LOD) or an island (far
+   * LOD) under the finger is selected and its panel opens; the
    * active tool stays and nothing is placed or demolished.
    */
   private onLongPress(p: Point): void {
@@ -926,7 +931,7 @@ export class GameRenderer {
       this.events.inspectIsland(label);
       return;
     }
-    if (this.lod !== "near") {
+    if (this.lod === "far") {
       const id = this.islandUnder(p);
       if (id) this.events.inspectIsland(id);
       return;
@@ -952,7 +957,7 @@ export class GameRenderer {
         this.events.tapShip(ship);
         return;
       }
-      // A name label means its island (the island card) at every LOD.
+      // A name label (far LOD only) means its island (the island card).
       const label = this.labelUnder(p);
       if (label) {
         this.events.tapIsland(label);
@@ -963,7 +968,7 @@ export class GameRenderer {
         this.events.tapSea();
         return;
       }
-      if (this.lod !== "near") {
+      if (this.lod === "far") {
         this.events.tapIsland(id);
         return;
       }
@@ -1013,27 +1018,13 @@ export class GameRenderer {
     if (kind === "touch") this.lastTouch = this.groundPoint(p);
     const tool = this.tool();
     if (button !== 0) return;
-    if (tool.kind === "none") {
-      const id = this.shipUnder(p);
-      const ship = id === null ? undefined : this.sync.getSnapshot().server?.display.ships.find((s) => s.id === id);
-      // Only an idle ship can be sent; dragging any other ship pans.
-      if (ship && ship.state === "idle" && ship.island_id) {
-        this.draggingShip = ship.id;
-        this.events.dragShip(ship.id, ship.island_id);
-      }
-      return;
-    }
+    if (tool.kind === "none") return;
     if (tool.kind === "road") this.roadStart = this.tileAt(p);
   }
 
   private onDragMove(prev: Point, cur: Point, button: number): void {
     if (this.blocked()) return;
     if (this.touchDrag) this.lastTouch = this.groundPoint(cur) ?? this.lastTouch;
-    if (this.draggingShip !== null) {
-      const g = this.groundPoint(cur);
-      if (g) this.arch.setDragged({ shipId: this.draggingShip, point: g });
-      return;
-    }
     if (this.roadStart && button === 0) {
       const t = this.tileOn(this.roadStart.island, cur);
       const pl = this.arch.placement(this.roadStart.island);
@@ -1048,44 +1039,17 @@ export class GameRenderer {
     if (this.pans(button)) this.rig.pan(prev, cur);
   }
 
-  /** The pointer's press or drag was cancelled: drop any ship drag or road preview; a free turn eases to 45°. */
+  /** The pointer's press or drag was cancelled: drop any road preview; a free turn eases to 45°. */
   private onPointerCancel(): void {
     this.rig.snap();
     this.roadStart = null;
     this.roadPreview.set([]);
-    if (this.draggingShip !== null) {
-      this.draggingShip = null;
-      this.arch.setDragged(null);
-      this.events.dropShip(null);
-    }
-  }
-
-  /**
-   * Cancels a ship drag from outside (Esc): the ship returns to its place
-   * and the held pointer neither drags nor pans any more.
-   */
-  cancelShipDrag(): void {
-    if (this.draggingShip === null) return;
-    this.input.cancel();
-    this.draggingShip = null;
-    this.arch.setDragged(null);
-  }
-
-  /** A ship is being dragged. */
-  draggingShipId(): number | null {
-    return this.draggingShip;
   }
 
   private onDragEnd(p: Point, button: number): void {
     if (button === 2) this.rig.snap();
     if (this.blocked()) {
       this.onPointerCancel();
-      return;
-    }
-    if (this.draggingShip !== null) {
-      this.draggingShip = null;
-      this.arch.setDragged(null);
-      this.events.dropShip(this.islandUnder(p));
       return;
     }
     if (this.roadStart && button === 0) {
@@ -1120,7 +1084,9 @@ export class GameRenderer {
   /**
    * Outlines of a farm's chain (D-051 part 4): the farm and its fields of the
    * selected building (a farm or one of its fields) and of the farm the field
-   * tool adds to — active fields green, inactive ones yellow, the farm blue —
+   * tool adds to — active fields green, inactive ones yellow, the farm blue
+   * (the selected chain is tinted green like the selected building instead:
+   * only its inactive fields keep a mark) —
    * and the field row the UI hovers. Drawn at near LOD only; recomputed when
    * the selection, the tool, the hover or the server state changes.
    */
@@ -1138,14 +1104,18 @@ export class GameRenderer {
         const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
         marks.push({ cx: cx + island.position.x, cz: cz - island.position.y, w, h, kind });
       };
-      const chainOf = (found: { b: BuildingDisplay; island: IslandDisplay } | undefined) => {
+      const chainOf = (found: { b: BuildingDisplay; island: IslandDisplay } | undefined, selection = false) => {
         if (!found) return;
         const { farm, fields } = farmChain(found.b, found.island.buildings);
         if (!farm) return;
-        add(found.island, farm, "farm");
-        for (const f of fields) add(found.island, f, f.active === false ? "inactive" : "active");
+        // The selected chain is tinted green like the building; only the inactive fields keep a (yellow) mark.
+        if (!selection) add(found.island, farm, "farm");
+        for (const f of fields) {
+          if (f.active === false) add(found.island, f, "inactive");
+          else if (!selection) add(found.island, f, "active");
+        }
       };
-      if (this.selected !== null) chainOf(this.findBuilding(this.selected));
+      if (this.selected !== null) chainOf(this.findBuilding(this.selected), true);
       if (tool.kind === "field" && tool.farmId !== this.selected) chainOf(this.findBuilding(tool.farmId));
       const hover = this.hoverBuilding === null ? undefined : this.findBuilding(this.hoverBuilding);
       if (hover) add(hover.island, hover.b, "hover");

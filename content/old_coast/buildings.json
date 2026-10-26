@@ -185,7 +185,7 @@
       "outputs": [{ "good": "wool", "amount": 1 }],
       "cycle_seconds": 90
     },
-    "fields": { "type": "pasture", "required": 4, "max": 8 }
+    "fields": { "type": "pasture", "required": 4, "max": 4 }
   },
   {
     "id": "pasture",
@@ -289,7 +289,7 @@
       "cycle_seconds": 60
     },
     "work_area": { "fertility": "wheat" },
-    "fields": { "type": "wheat_field", "required": 16, "max": 20 }
+    "fields": { "type": "wheat_field", "required": 16, "max": 16 }
   },
   {
     "id": "wheat_field",
@@ -358,7 +358,7 @@
       "cycle_seconds": 90
     },
     "work_area": { "fertility": "apple" },
-    "fields": { "type": "orchard_plot", "required": 16, "max": 20 }
+    "fields": { "type": "orchard_plot", "required": 16, "max": 16 }
   },
   {
     "id": "orchard_plot",
@@ -409,7 +409,7 @@
       "cycle_seconds": 60
     },
     "work_area": { "fertility": "hemp" },
-    "fields": { "type": "hemp_field", "required": 16, "max": 20 }
+    "fields": { "type": "hemp_field", "required": 16, "max": 16 }
   },
   {
     "id": "hemp_field",

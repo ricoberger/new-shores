@@ -56,10 +56,15 @@ export const STAGE_SIZE = 1.4;
 const SCAFFOLD_SIZE = 2.6;
 const STAGE_MAX_Y = 1.6;
 const WHITE = [1, 1, 1, 1] as const;
+const NONE: ReadonlySet<number> = new Set();
+
+/** Multiplied onto the colours of the selected building (and of the fields and farm of its chain) (it turns green). */
+const SELECTED_TINT = [0.5, 1, 0.5, 1] as const;
 
 /** Instance colour of a building: paused and unpaid ones are tinted cool grey, inactive fields (not_adjacent) neutral grey. */
-function tintOf(b: BuildingDisplay): readonly number[] {
-  return b.paused ? PAUSED_TINT : b.active === false ? INACTIVE_TINT : WHITE;
+function tintOf(b: BuildingDisplay, selected: ReadonlySet<number> = NONE): readonly number[] {
+  const base = b.paused ? PAUSED_TINT : b.active === false ? INACTIVE_TINT : WHITE;
+  return selected.has(b.id) ? base.map((v, i) => v * (SELECTED_TINT[i] as number)) : base;
 }
 
 function faces(c: Color4, n: number): Color4[] {
@@ -212,6 +217,10 @@ export class BuildingLayer {
   private readonly material: StandardMaterial;
   private readonly doors: Mesh;
   private readonly selection: Mesh;
+  /** The selected building drawn as a model: tinted instead of framed. */
+  private selectedId: number | null = null;
+  /** The selected building and the farm and fields of its chain: tinted green. */
+  private tinted: ReadonlySet<number> = NONE;
   /** Merged model chunks per detail level in use (chunk key → signature and mesh). */
   private readonly chunks = new Map<Detail, Map<string, { key: string; mesh: Mesh | null }>>();
   /** Detail levels whose chunks are built (both, or only full when the lite tier is off: then full is drawn at every zoom). */
@@ -408,14 +417,14 @@ export class BuildingLayer {
       chunks.delete(key);
     }
     for (const [key, items] of byChunk) {
-      const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}:${it.b.paused ? 1 : 0}${it.b.active === false ? "i" : ""}:${it.def.width}x${it.def.height}`).join(";");
+      const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}:${it.b.paused ? 1 : 0}${it.b.active === false ? "i" : ""}${this.tinted.has(it.b.id) ? "s" : ""}:${it.def.width}x${it.def.height}`).join(";");
       const old = chunks.get(key);
       if (old?.key === sig) continue;
       old?.mesh?.dispose();
       const data = mergeItems(
         items.map((it) => {
           const p = placement(it.entry, it.def, it.b);
-          return { data: it.data, cx: p.cx, cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b) };
+          return { data: it.data, cx: p.cx, cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b, this.tinted) };
         }),
       );
       const mesh = new Mesh(`models_${key}`, this.scene);
@@ -485,7 +494,7 @@ export class BuildingLayer {
           .multiply(Matrix.RotationY(p.yaw))
           .multiply(Matrix.Translation(p.cx, 0, p.cz))
           .copyToArray(inst.matrices, i * 16);
-        inst.setColor(i, tintOf(it.b));
+        inst.setColor(i, tintOf(it.b, this.tinted));
       });
       inst.commit();
     }
@@ -525,7 +534,7 @@ export class BuildingLayer {
       inst.resize(items.length);
       items.forEach((it, i) => {
         stageMatrix(k, it.entry, it.def, it.b).copyToArray(inst.matrices, i * 16);
-        inst.setColor(i, tintOf(it.b));
+        inst.setColor(i, tintOf(it.b, this.tinted));
       });
       inst.commit();
     });
@@ -579,8 +588,17 @@ export class BuildingLayer {
     return this.current().size;
   }
 
-  select(b: BuildingDisplay | undefined, def: ContentBuilding | undefined): void {
-    if (!b || !def) {
+  /** `chain`: the other buildings tinted with the selected one (a farm's fields, a field's farm and siblings). */
+  select(b: BuildingDisplay | undefined, def: ContentBuilding | undefined, chain: readonly number[] = []): void {
+    const id = b && def ? b.id : null;
+    const key = (ids: ReadonlySet<number>) => [...ids].sort((x, y) => x - y).join(",");
+    const tinted = id === null ? NONE : new Set([id, ...chain]);
+    if (id !== this.selectedId || key(tinted) !== key(this.tinted)) {
+      this.selectedId = id;
+      this.tinted = tinted;
+      this.refresh();
+    }
+    if (!b || !def || this.modelIds.has(b.id)) {
       this.selection.setEnabled(false);
       return;
     }

@@ -21,8 +21,8 @@ const LABEL_EDGE_PX = 24;
 
 /**
  * HTML overlay of the continuous world (D-048), positioned every frame
- * from the camera projection at every LOD: island name labels (hidden when
- * their island centre is off screen), the hover tooltip (mid/far LOD) and
+ * from the camera projection at every LOD: island name labels (far LOD only,
+ * hidden when their island centre is off screen), the hover tooltip (mid/far LOD) and
  * the selected ship's ETA badge. The overlay is passive to the pointer, so
  * it never takes a pan, zoom or ship from the canvas; the labels are
  * buttons for the keyboard, and the renderer resolves pointer taps on them
@@ -47,12 +47,14 @@ export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland }:
     const offFrame = renderer.onFrame(() => {
       const w = root.current?.clientWidth ?? 0;
       const h = root.current?.clientHeight ?? 0;
+      const far = renderer.currentLod() === "far";
       for (const is of modelRef.current.islands) {
         const el = labels.current.get(is.id);
         if (!el) continue;
         const p = renderer.archToCanvas({ x: is.position.x + is.width / 2, y: is.position.y + is.height / 2 });
         const half = el.offsetWidth / 2;
         const inside =
+          far &&
           Number.isFinite(p.x) && p.x - half >= LABEL_EDGE_PX && p.x + half <= w - LABEL_EDGE_PX && p.y >= LABEL_EDGE_PX && p.y <= h - LABEL_EDGE_PX;
         // Measured while laid out (visibility, not display, hides it).
         el.style.visibility = inside ? "visible" : "hidden";
@@ -111,11 +113,6 @@ export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland }:
           data-testid={`island-label-${is.id}`}
         >
           {is.name || is.id}
-          {!is.settled && (
-            <span className={styles.badge} data-testid={`island-unsettled-${is.id}`}>
-              unsettled
-            </span>
-          )}
         </button>
       ))}
       <div ref={badge} className={styles.etaBadge} style={{ visibility: "hidden" }} data-testid="ship-eta-badge">

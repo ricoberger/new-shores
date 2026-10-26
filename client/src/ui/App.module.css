@@ -88,15 +88,6 @@
   z-index: 4;
 }
 
-.left {
-  grid-area: left;
-  min-width: 0;
-  max-width: calc(100% - 16px);
-  align-self: end;
-  justify-self: start;
-  margin: 8px;
-}
-
 .right {
   grid-area: right;
   margin: 8px;
@@ -165,21 +156,17 @@
   margin-right: max(6px, env(safe-area-inset-right));
 }
 
+.rightNarrow {
+  display: flex;
+  flex-direction: column;
+}
+
+/* A detail panel takes at most the column's height; its body scrolls under the title. */
 .rightNarrow > * {
   width: 100%;
   max-height: none;
-}
-
-.phone .left {
-  margin: 6px;
-  margin-left: max(6px, env(safe-area-inset-left));
-  max-width: calc(100vw - 12px);
-}
-
-.phone .left > * {
-  width: auto;
-  max-width: 100%;
-  max-height: 25vh;
+  min-height: 0;
+  flex: 0 1 auto;
 }
 
 /* Hints and banners of the phone layout stack below the top bar. */
@@ -206,8 +193,8 @@
   border-radius: 6px;
 }
 
-/* Minimap and camera controls: top of the left column (the warnings tray
-   sits at its bottom), never under the side panel. */
+/* Minimap and camera controls: top of the left column (the side dock is
+   centred below it), never under the side panel. */
 .mapCorner {
   grid-area: left;
   align-self: start;
@@ -217,6 +204,6 @@
 }
 
 .phone .mapCorner {
-  margin: 6px;
-  margin-left: max(6px, env(safe-area-inset-left));
+  margin: 8px;
+  margin-left: max(8px, env(safe-area-inset-left));
 }

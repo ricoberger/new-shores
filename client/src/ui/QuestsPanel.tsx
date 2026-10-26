@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Content, DisplayState } from "../api/client";
 import { units } from "../display/format";
 import { objectiveText, questDef, questTitle, rewardText, rewardsGoods } from "../display/quests";
+import { CloseButton } from "./CloseButton";
 import styles from "./hud.module.css";
 
 interface Props {
@@ -12,84 +13,73 @@ interface Props {
   onClose: () => void;
 }
 
-/** Active, claimable and completed quests (server state only). */
+/** Claimable and active quests (server state only); claimed quests are not listed. */
 export function QuestsPanel({ model, content, onClaim, onClose }: Props) {
   const [choosing, setChoosing] = useState<string | null>(null);
-  const claimed = new Set(model.quests.completed.filter((q) => q.claimed).map((q) => q.id));
   return (
     <div className={`${styles.panel} ${styles.shipsPanel}`} data-testid="quests-panel">
       <div className={styles.row}>
         <h2 className={styles.title}>Quests</h2>
         <div className={styles.spacer} />
-        <button type="button" className={styles.link} onClick={onClose} data-testid="quests-close">
-          close
-        </button>
+        <CloseButton onClick={onClose} testId="quests-close" />
       </div>
-      {model.quests.claimable.map((id) => {
-        const q = questDef(content, id);
-        return (
-          <div key={id} className={styles.shipEntry} data-testid={`quest-claimable-${id}`}>
-            <div className={styles.row}>
-              <strong>{questTitle(content, id)}</strong>
-              <span className={styles.ok}>✓ completed</span>
+      <div className={styles.panelBody}>
+        {model.quests.claimable.map((id) => {
+          const q = questDef(content, id);
+          return (
+            <div key={id} className={styles.shipEntry} data-testid={`quest-claimable-${id}`}>
+              <div className={styles.row}>
+                <strong>{questTitle(content, id)}</strong>
+                <span className={styles.ok}>✓ completed</span>
+              </div>
+              {q && <p className={styles.small}>{q.text}</p>}
+              {q && <div className={styles.small}>Reward: {rewardText(q, content)}</div>}
+              {choosing === id ? (
+                <ClaimIsland
+                  model={model}
+                  content={content}
+                  questId={id}
+                  onClaim={(island) => {
+                    setChoosing(null);
+                    onClaim(id, island);
+                  }}
+                  onCancel={() => setChoosing(null)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  className={styles.button}
+                  onClick={() => (rewardsGoods(q) ? setChoosing(id) : onClaim(id, null))}
+                  data-testid={`quest-claim-${id}`}
+                >
+                  Claim
+                </button>
+              )}
             </div>
-            {q && <p className={styles.small}>{q.text}</p>}
-            {q && <div className={styles.small}>Reward: {rewardText(q, content)}</div>}
-            {choosing === id ? (
-              <ClaimIsland
-                model={model}
-                content={content}
-                questId={id}
-                onClaim={(island) => {
-                  setChoosing(null);
-                  onClaim(id, island);
-                }}
-                onCancel={() => setChoosing(null)}
-              />
-            ) : (
-              <button
-                type="button"
-                className={styles.button}
-                onClick={() => (rewardsGoods(q) ? setChoosing(id) : onClaim(id, null))}
-                data-testid={`quest-claim-${id}`}
-              >
-                Claim
-              </button>
-            )}
-          </div>
-        );
-      })}
-      {model.quests.active.map((aq) => {
-        const q = questDef(content, aq.id);
-        return (
-          <div key={aq.id} className={styles.shipEntry} data-testid={`quest-active-${aq.id}`}>
-            <strong>{questTitle(content, aq.id)}</strong>
-            {q && <p className={styles.small}>{q.text}</p>}
-            <ul className={styles.trayList}>
-              {aq.objectives.map((o, i) => (
-                <li key={i} data-testid="quest-objective">
-                  {o.met ? <span className={styles.ok}>✓ </span> : "○ "}
-                  {objectiveText(o, content)}
-                </li>
-              ))}
-            </ul>
-            {q && <div className={styles.small}>Reward: {rewardText(q, content)}</div>}
-          </div>
-        );
-      })}
-      {model.quests.active.length === 0 && model.quests.claimable.length === 0 && (
-        <div className={styles.small}>No open quests.</div>
-      )}
-      {model.quests.completed.length > 0 && (
-        <div className={styles.section}>
-          <div className={styles.sectionTitle}>Completed</div>
-          {model.quests.completed.map((q) => (
-            <div key={q.id} className={styles.small} data-testid={`quest-completed-${q.id}`}>
-              {questTitle(content, q.id)} {claimed.has(q.id) ? "· claimed" : "· reward waiting"}
+          );
+        })}
+        {model.quests.active.map((aq) => {
+          const q = questDef(content, aq.id);
+          return (
+            <div key={aq.id} className={styles.shipEntry} data-testid={`quest-active-${aq.id}`}>
+              <strong>{questTitle(content, aq.id)}</strong>
+              {q && <p className={styles.small}>{q.text}</p>}
+              {q && <div className={styles.small}>Reward: {rewardText(q, content)}</div>}
+              <ul className={styles.trayList}>
+                {aq.objectives.map((o, i) => (
+                  <li key={i} data-testid="quest-objective">
+                    {o.met ? <span className={styles.ok}>✓ </span> : "○ "}
+                    {objectiveText(o, content)}
+                  </li>
+                ))}
+              </ul>
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })}
+        {model.quests.active.length === 0 && model.quests.claimable.length === 0 && (
+          <div className={styles.small}>No open quests.</div>
+        )}
+      </div>
     </div>
   );
 }

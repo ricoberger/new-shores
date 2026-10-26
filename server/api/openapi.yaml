@@ -2559,6 +2559,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NeedDisplay"
+        served_by:
+          type: array
+          description: Houses only, omitted when empty — the IDs (ascending) of the buildings that currently fulfil one of the house's building needs (in range, connected to a warehouse, not paused).
+          items:
+            type: integer
+            format: int64
+            description: Building ID (unscaled identifier).
         ship_order:
           nullable: true
           description: Shipyards only (absent for other buildings) — the pending order, or null when the shipyard is idle.

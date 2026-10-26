@@ -13,7 +13,12 @@ import { IslandCard } from "./IslandCard";
 import { draftFromRoute } from "../display/routes";
 import { QuestsPanel } from "./QuestsPanel";
 import { RouteEditor } from "./RouteEditor";
-import { TopBar } from "./TopBar";
+import { RoutesPanel } from "./RoutesPanel";
+import { units } from "../display/format";
+import { tierRows } from "../display/hud";
+import { SideDock } from "./SideDock";
+import { GoldDetails, PopulationDetails, TopBar } from "./TopBar";
+import { warningEntries, WarningsPanel } from "./WarningsPanel";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -62,43 +67,107 @@ describe("HUD components", () => {
       deposits: [{ x: 1, y: 0, kind: "iron" }],
       revision: "r",
     };
-    const props = { model, content: tbContent, islandId: island.id, statics, onOpenIsland: () => {}, onShips: () => {}, onRoutes: () => {}, onQuests: () => {} } as const;
+    const props = { model, content: tbContent, islandId: island.id, statics, onOpenIsland: () => {} } as const;
+    const rows = tierRows(island, tbContent, new Map(tbContent.buildings.map((b) => [b.id, b])));
 
-    it("shows the focused island with its resources, materials, employed / total and satisfaction; no island tabs", () => {
+    it("shows icons and numbers for the focused island: gold, residents, materials, and the island in the middle; no island tabs", () => {
       const html = renderToStaticMarkup(createElement(TopBar, props as never));
       expect(html).not.toContain("island-tab-");
       expect(html).toContain(`data-island="${island.id}"`);
+      expect(html).toContain('data-testid="hud-gold"');
+      expect(html).toContain('data-testid="hud-population-chip"');
       expect(html).toContain('data-testid="hud-fertility-wheat"');
       expect(html).toContain('data-testid="hud-deposit-iron"');
-      expect(text(html)).toContain("Free coast: 1 of 1 tiles");
       expect(html).toContain('data-testid="hud-material-planks"');
       expect(html).toContain('data-testid="hud-material-stone"');
       expect(html).not.toContain('data-testid="hud-material-fish"');
+      // Details stay in the popups until opened; the bar has no tier rows, satisfaction or balance.
+      for (const id of ["hud-gold-chip-details", "hud-population-chip-details", "hud-tier-settlers", "hud-satisfaction-settlers", "hud-balance", "hud-ships", "hud-routes", "hud-quests"]) {
+        expect(html).not.toContain(`data-testid="${id}"`);
+      }
+      expect(text(html)).not.toContain("unsettled");
+      expect(text(html)).toContain(`${units(rows.reduce((n, r) => n + r.total, 0))}Residents`);
+    });
+
+    it("shows the population details per tier: employed / total, satisfaction and the worst unmet need", () => {
+      const html = renderToStaticMarkup(createElement(PopulationDetails, { rows, content: tbContent, islandName: "Start" }));
       expect(text(html)).toContain("18 / 88");
       expect(text(html)).toContain("81 %");
-      expect(html).toContain('title="Worst unmet need: Small market 36 % (out of range)"');
+      expect(text(html)).toContain("Worst unmet need: Small market 36 % (out of range)");
       expect(text(html)).toContain("22 / 40");
+    });
+
+    it("marks a tier short of workers in the population details and turns the number red", () => {
+      const short = { ...model, islands: [{ ...island, workforce: { ...island.workforce, settlers: { required: 100_000, available: 88_000 } } }, ...model.islands.slice(1)] };
+      const shortRows = tierRows(short.islands[0] as never, tbContent, new Map(tbContent.buildings.map((b) => [b.id, b])));
+      const details = text(renderToStaticMarkup(createElement(PopulationDetails, { rows: shortRows, content: tbContent, islandName: "Start" })));
+      expect(details).toContain("Short of workers: 12 jobs unfilled (100 needed)");
+      // Between the tier's numbers and its worst unmet need.
+      expect(details.indexOf("Short of workers")).toBeLessThan(details.indexOf("Worst unmet need"));
+      expect(text(renderToStaticMarkup(createElement(PopulationDetails, { rows, content: tbContent, islandName: "Start" })))).not.toContain("Short of workers");
+      const bar = (m: typeof model) => renderToStaticMarkup(createElement(TopBar, { ...props, model: m } as never));
+      expect(bar(short as never)).toMatch(/negative[^"]*"[^>]*data-testid="hud-population"/);
+      expect(bar(model)).not.toMatch(/negative[^"]*"[^>]*data-testid="hud-population"/);
+    });
+
+    it("shows the current gold and the coloured balance on one line each", () => {
+      const gold = (balance: number) => renderToStaticMarkup(createElement(GoldDetails, { model: { ...model, gold: 5_000, balance_rate_per_min: balance } as never }));
+      expect(text(gold(12_000))).toContain("Current5");
+      expect(text(gold(12_000))).toContain("Balance▲ +12.0/min");
+      expect(text(gold(-4_500))).toContain("Balance▼ −4.5/min");
+      expect(text(gold(0))).toContain("Balance0.0/min");
+      expect(text(gold(-4_500))).not.toMatch(/taxes|shrinking|rising/);
     });
 
     it("shows the island's resources on the island card", () => {
       const noop = () => {};
       const card = (st: typeof statics | undefined) =>
         renderToStaticMarkup(
-          createElement(IslandCard, { islandId: island.id, model, content: tbContent, statics: st as never, nowMs: 0, onGoTo: noop, onFound: noop, onNewRoute: noop, onSelectShip: noop, onClose: noop }),
+          createElement(IslandCard, { islandId: island.id, model, content: tbContent, statics: st as never, onClose: noop }),
         );
       const html = card(statics);
       expect(html).toContain('data-testid="island-card-fertility-wheat"');
       expect(text(html)).toContain("Iron deposit (1 tile)");
       expect(text(html)).toContain("Free coast: 1 of 1 tiles");
-      expect(text(card({ ...statics, fertilities: [], deposits: [] }))).toMatch(/Fertilities.*none.*Deposits.*none/);
-      expect(text(card(undefined))).toContain("Fertilities…");
+      expect(text(card({ ...statics, fertilities: [], deposits: [] }))).toContain("No fertility or deposit");
+      expect(text(card(undefined))).toContain("Resources…");
+      // Population of every tier; no status, fill, warnings, ships or buttons.
+      for (const t of tbContent.tiers) expect(html).toContain(`data-testid="island-card-population-${t.id}"`);
+      expect(html).not.toMatch(/<button[^>]*data-testid="island-card-(enter|new-route|found)/);
+      expect(text(html)).not.toMatch(/Settled|Trading Post fill|Warnings|Ships here/);
     });
 
-    it("collapses into chips on a phone", () => {
+    it("keeps the same stats on a phone, with the island on its own row", () => {
       const html = renderToStaticMarkup(createElement(TopBar, { ...props, compact: "portrait" } as never));
-      for (const id of ["hud-island-chip", "hud-materials-chip", "hud-population-chip", "hud-gold", "hud-balance", "hud-ships", "hud-routes"]) expect(html).toContain(`data-testid="${id}"`);
-      expect(html).not.toContain('data-testid="hud-island-details"');
+      for (const id of ["hud-gold-chip", "hud-population-chip", "hud-materials-chip", "hud-island-name"]) expect(html).toContain(`data-testid="${id}"`);
     });
+  });
+
+  it("shows the side dock with counts only above zero and marks the open panel", () => {
+    const dock = (active: "none" | "ships", counts: Record<"warnings" | "quests" | "ships" | "routes", number>) =>
+      renderToStaticMarkup(createElement(SideDock, { active, onToggle: () => {}, counts, buildOpen: false, onToggleBuild: () => {} }));
+    const html = dock("ships", { warnings: 25, quests: 0, ships: 2, routes: 0 });
+    for (const id of ["build", "warnings", "quests", "ships", "routes"]) expect(html).toContain(`data-testid="dock-${id}"`);
+    expect(html).toContain('data-testid="dock-warnings-count"');
+    expect(html).toContain('data-testid="dock-ships-count"');
+    expect(html).not.toContain('data-testid="dock-quests-count"');
+    expect(html).not.toContain('data-testid="dock-routes-count"');
+    expect(html.match(/aria-pressed="true"/g)).toHaveLength(1);
+    const open = renderToStaticMarkup(createElement(SideDock, { active: "none", onToggle: () => {}, counts: { warnings: 0, quests: 0, ships: 0, routes: 0 }, buildOpen: true, onToggleBuild: () => {} }));
+    expect(open.match(/aria-pressed="true"/g)).toHaveLength(1);
+    expect(dock("none", { warnings: 0, quests: 0, ships: 0, routes: 0 })).not.toContain('aria-pressed="true"');
+  });
+
+  it("lists the warnings in a panel", () => {
+    const model = fixture("away_summary_12h");
+    const entries = warningEntries(model, content);
+    expect(entries.length).toBeGreaterThan(0);
+    const html = renderToStaticMarkup(createElement(WarningsPanel, { model, content, onFocus: () => {}, onClose: () => {} }));
+    expect(html).toContain('data-testid="warnings-panel"');
+    expect(html.match(/data-testid="warning-entry"/g)).toHaveLength(entries.length);
+    // Panels close with an icon button, not a text link.
+    expect(html).toMatch(/<button[^>]*aria-label="Close"[^>]*data-testid="warnings-close"/);
+    expect(html).not.toMatch(/>\s*close\s*</i);
   });
 
   it("renders the insolvency banner from a fixture with unpaid buildings", () => {
@@ -149,24 +218,57 @@ describe("HUD components", () => {
           content,
           routeId,
           draft: draftFromRoute(route),
-          pickingShip: null,
           error: null,
           onChange: noop,
           onAddStop: noop,
           onRemoveStop: noop,
           onMoveStop: noop,
           onSave: noop,
+          onDelete: noop,
           onClose: noop,
-          onAssign: noop,
           onUnassign: noop,
-          onCancelPick: noop,
+          onAssign: noop,
         }),
       );
 
-    it("renders the server's estimated effects and loop time of a saved route", () => {
+    it("lists a route as name, stops with loop time and ship count; it opens the editor", () => {
+      const html = renderToStaticMarkup(createElement(RoutesPanel, { model, onEdit: noop, onClose: noop }));
+      const name = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
+      const stops = route.stops.map((st) => name(st.island_id)).join(" → ");
+      expect(text(html)).toContain(`${route.name}${stops} (2:20 min)Ships: ${route.ship_ids.length}`);
+      expect(html).toMatch(new RegExp(`<button[^>]*data-testid="route-${route.id}"`));
+      expect(html).not.toContain("route-delete");
+    });
+
+    it("offers Delete in the editor of a saved route only while no ship is assigned", () => {
+      const withModel = (routes: DisplayState["routes"]) =>
+        renderToStaticMarkup(
+          createElement(RouteEditor, {
+            model: { ...model, routes },
+            content: content,
+            routeId: route.id,
+            draft: draftFromRoute(route),
+            error: null,
+            onChange: noop,
+            onAddStop: noop,
+            onRemoveStop: noop,
+            onMoveStop: noop,
+            onSave: noop,
+            onDelete: noop,
+            onClose: noop,
+            onUnassign: noop,
+            onAssign: noop,
+          }),
+        );
+      expect(withModel([{ ...route, ship_ids: [] }])).toContain('data-testid="route-delete"');
+      expect(withModel([{ ...route, ship_ids: [7] }])).not.toContain('data-testid="route-delete"');
+      expect(editor(null)).not.toContain('data-testid="route-delete"');
+    });
+
+    it("renders the server's estimated effects of a saved route", () => {
       const html = editor(route.id);
       expect(text(html)).toContain("Net effect (estimated)");
-      expect(text(html)).toContain("loop time 2:20");
+      expect(html).not.toContain("route-loop");
       // route_loop: wood out of start (−100 per loop, 42.9/min), planks back (+40, 17.1/min) over the 140 s estimated loop.
       const row = (island: string, good: string) => {
         const m = html.match(new RegExp(`<tr data-testid="route-effect-${island}-${good}">(.*?)</tr>`));
@@ -183,9 +285,37 @@ describe("HUD components", () => {
       expect(html).toContain(`data-testid="route-unassign-${route.ship_ids[0]}"`);
     });
 
-    it('shows "Save to compute" before the route is saved', () => {
+    it("offers idle ships in a '+ assign…' dropdown of a saved route only", () => {
+      const idle = { ...model.ships[0]!, id: 99, state: "idle", route_id: 0, leg: null, island_id: model.islands[0]!.id } as (typeof model.ships)[number];
+      const withIdle = { ...model, ships: [...model.ships, idle] };
+      const render = (m: typeof model, routeId: number | null) =>
+        renderToStaticMarkup(
+          createElement(RouteEditor, {
+            model: m,
+            content,
+            routeId,
+            draft: draftFromRoute(route),
+            error: null,
+            onChange: noop,
+            onAddStop: noop,
+            onRemoveStop: noop,
+            onMoveStop: noop,
+            onSave: noop,
+            onDelete: noop,
+            onClose: noop,
+            onAssign: noop,
+            onUnassign: noop,
+          }),
+        );
+      expect(render(withIdle, route.id)).toContain('data-testid="route-assign-add"');
+      expect(render(withIdle, route.id)).toContain('value="99"');
+      expect(render(withIdle, null)).not.toContain("route-assign-add");
+      expect(render({ ...model, ships: model.ships.filter((s) => s.state !== "idle") }, route.id)).not.toContain("route-assign-add");
+    });
+
+    it("shows no effects or ships before the route is saved", () => {
       const html = editor(null);
-      expect(text(html)).toContain("Save to compute");
+      expect(html).not.toContain("route-effects");
       expect(html).not.toContain("route-effect-");
       expect(html).not.toContain("route-unassign-");
     });
@@ -212,6 +342,7 @@ describe("HUD components", () => {
       const noop = () => {};
       return renderToStaticMarkup(
         createElement(InfoPanel, {
+          onClose: () => {},
           building: { id: 7, type: "shipyard", x: 1, y: 1, rotation: 0, paused: false, paused_reason: "", status: "ok", efficiency_permille: 1000, throughput_factor_permille: 1000, ...b } as BuildingDisplay,
           island,
           model,
@@ -224,7 +355,6 @@ describe("HUD components", () => {
         onUpgradeTradingPost: noop,
           onSelectBuilding: noop,
           onAddField: noop,
-          onHoverBuilding: noop,
           nowMs: 0,
           onOrderShip: noop,
           onCancelShipOrder: noop,
@@ -233,16 +363,39 @@ describe("HUD components", () => {
     };
     const icon = (path: string) => `<path d="${path}" fill="currentColor"></path>`;
 
-    it("puts an icon next to every good of the shipyard costs and the missing list", () => {
+    it("puts an icon next to every good of the shipyard costs, short goods red", () => {
       const html = panel({});
-      const costs = html.slice(html.indexOf('data-testid="shipyard-order-sloop"'));
-      // Costs: planks and wood with their icons.
-      expect(costs.split(icon(goodIcon("planks"))).length - 1).toBe(2); // cost line and missing list
-      expect(costs).toContain(icon(goodIcon("wood")));
-      const missing = html.match(/data-testid="shipyard-missing-sloop">(.*?)<\/div>/)![1]!;
-      expect(text(missing)).toBe("Missing: 800 gold, 30 Planks");
-      expect(missing).toContain(icon(goodIcon("planks")));
-      expect(missing).not.toContain(icon(goodIcon("wood")));
+      const cost = html.match(/data-testid="shipyard-cost-sloop">(.*?)<\/div>/)![1]!;
+      expect(text(cost)).toBe("900 gold·40Planks·5Wood·1:00 min build");
+      expect(cost).toContain(icon(goodIcon("planks")));
+      expect(cost).toContain(icon(goodIcon("wood")));
+      // Gold (100 available) and planks (10 in stock) are short, wood (9 in stock) is not.
+      const warn = (title: string) => new RegExp(`<span class="[^"]*warn[^"]*" title="${title}"`).test(cost);
+      expect([warn("100 gold available"), warn("10 in stock"), warn("9 in stock")]).toEqual([true, true, false]);
+      expect(html).not.toContain("shipyard-missing");
+      expect(html).not.toContain("shipyard-progress");
+    });
+
+    it("lists every ship type with speed, cargo and build time", () => {
+      const html = panel({});
+      expect(text(html)).not.toContain("Ships");
+      expect(text(html)).toContain("SloopOrder");
+      expect(text(html)).toContain("2×50 cargo·1.0× speed·1.0 $/min upkeep");
+      expect(text(html)).toContain("Idle");
+    });
+
+    it("shows the pending order as the status with Cancel in the footer and the ships list disabled", () => {
+      const html = panel({ ship_order: { type: "sloop", ordered_at: "1970-01-01T00:00:00Z", due_at: "1970-01-01T00:00:42Z" } as BuildingDisplay["ship_order"] });
+      expect(html.match(/data-testid="info-status">(.*?)<\/div>/)![1]).toBe("Building a Sloop · ready in 0:42 min");
+      // The 50 % hint is the second status line.
+      expect(html).toMatch(/data-testid="info-status">[^]*?<\/div><div class="[^"]*fix[^"]*">Cancelling the order returns 50 % of the materials\.<\/div>/);
+      expect(html).toContain('data-testid="shipyard-cancel"');
+      // The list stays, its Order buttons are disabled.
+      expect(html).toMatch(/<button[^>]*disabled=""[^>]*data-testid="shipyard-order-sloop"/);
+      // Idle: enabled, no hint.
+      const idle = panel({});
+      expect(idle).not.toMatch(/disabled=""[^>]*data-testid="shipyard-order-sloop"/);
+      expect(text(idle)).not.toContain("Cancelling");
     });
 
     it("shows the pause and resume buttons with icons, no glyphs", () => {

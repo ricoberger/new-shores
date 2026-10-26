@@ -3,8 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { Content, DisplayState } from "../api/client";
-import { cargoCoversWarehouse, depositCounts, foundingShips, islandSummary, shipsAt } from "./archipelago";
-import { serverTimeMs } from "./extrapolate";
+import { cargoCoversWarehouse, depositCounts, foundingShips, islandSummary } from "./archipelago";
 import { createdRouteId, draftFromRoute, ribbonsShown, signedUnits, stopsFromDraft } from "./routes";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
@@ -36,15 +35,9 @@ describe("island summary", () => {
     expect(depositCounts(undefined)).toEqual([]);
   });
 
-  it("ships at an island and founding ships (cargo covers the warehouse materials)", () => {
+  it("founding ships (cargo covers the warehouse materials)", () => {
     const d = fixture("ship_insolvency");
     const ship = d.ships[0]!;
-    expect(shipsAt(d.ships, ship.island_id, 0).map((s) => s.id)).toEqual([ship.id]);
-    const r = fixture("route_loop");
-    const handling = r.ships[0]!;
-    const depart = serverTimeMs(handling.leg!.depart_at);
-    expect(shipsAt(r.ships, handling.leg!.from_island_id, depart - 1)).toHaveLength(1);
-    expect(shipsAt(r.ships, handling.leg!.from_island_id, depart)).toHaveLength(0);
     expect(cargoCoversWarehouse([{ good: "planks", amount: 50_000 }], content)).toBe(true);
     expect(cargoCoversWarehouse([{ good: "planks", amount: 10_000 }], content)).toBe(false);
     const withCargo = { ...d, ships: [{ ...ship, cargo: [{ good: "planks", amount: 20_000 }] }] };

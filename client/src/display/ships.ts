@@ -55,6 +55,11 @@ export function countdown(ms: number): string {
   return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
 }
 
+/** A countdown with its unit: "2:00 min" (m:ss), "1:02:00 h" from an hour. */
+export function countdownWithUnit(ms: number): string {
+  return `${countdown(ms)} ${ms >= 3_600_000 ? "h" : "min"}`;
+}
+
 /** Cargo aboard per good (milli-units), summed over the slots. */
 export function cargoTotals(cargo: readonly CargoDisplay[]): Record<string, number> {
   const out: Record<string, number> = {};

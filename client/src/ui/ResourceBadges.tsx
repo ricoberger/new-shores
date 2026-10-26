@@ -11,6 +11,8 @@ interface Props {
   short?: boolean;
   /** Only these kinds (the island card lists them in separate rows); all by default. */
   only?: ResourceKind[];
+  /** One badge per line (the island card) instead of a wrapping row. */
+  stacked?: boolean;
 }
 
 type ResourceKind = "fertilities" | "deposits" | "coast";
@@ -23,7 +25,7 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
  * its icon and text (the short form keeps the text for screen readers and
  * the tooltip; the island card shows it in full).
  */
-export function ResourceBadges({ resources, prefix, short = false, only }: Props) {
+export function ResourceBadges({ resources, prefix, short = false, only, stacked = false }: Props) {
   const show = (k: ResourceKind) => !only || only.includes(k);
   const badge = (key: string, testId: string, icon: string, text: string, count?: string) => (
     <span key={key} className={`${styles.resourceBadge} ${short ? styles.resourceShort : ""}`} title={text} data-testid={testId}>
@@ -39,7 +41,7 @@ export function ResourceBadges({ resources, prefix, short = false, only }: Props
     </span>
   );
   return (
-    <span className={styles.resourceBadges} data-testid={only ? undefined : `${prefix}-resources`}>
+    <span className={`${styles.resourceBadges} ${stacked ? styles.resourceStacked : ""}`} data-testid={only ? undefined : `${prefix}-resources`}>
       {show("fertilities") && resources.fertilities.map((f) => badge(`f-${f}`, `${prefix}-fertility-${f}`, resourceIcon("fertility", f), `${cap(f)} fertility`))}
       {show("deposits") &&
         resources.deposits.map((d) =>

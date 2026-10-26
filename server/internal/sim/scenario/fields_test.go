@@ -74,13 +74,13 @@ func TestFieldsStep(t *testing.T) {
 	if active, n := farmFields(t, rep); active != 3 || n != 3 {
 		t.Errorf("count: %d active of %d", active, n)
 	}
-	// Without a count the rectangle fills up to the maximum (8), growing
+	// Without a count the rectangle fills up to the maximum (4), growing
 	// the chain over several passes.
 	rep, err = fieldsScenario(t, `, {"fields": {"farm": [4, 4], "rect": [1, 2, 12, 9]}}`)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if active, n := farmFields(t, rep); active != 8 || n != 8 {
+	if active, n := farmFields(t, rep); active != 4 || n != 4 {
 		t.Errorf("max: %d active of %d", active, n)
 	}
 	// A tile that touches nothing fails the whole step and the world stays

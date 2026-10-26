@@ -3,9 +3,9 @@
 // or level) drawn translucent and tinted by validity — neutral, yellow
 // ("not connected") or red (the server would reject it) — at the tool's
 // rotation. A depth pre-pass keeps the translucent model clean (only its
-// front surface shows). Content IDs without a model, and models still
-// loading, keep the box ghost of the footprint. Fields and roads have
-// their own previews. Purely visual, never pickable.
+// front surface shows). Fields use their model too. Content IDs without a
+// model, and models still loading, keep the box ghost of the footprint.
+// Roads have their own preview. Purely visual, never pickable.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
@@ -149,14 +149,14 @@ export class PlacementGhost {
   /** The ghost mesh of a building's full model, or null (no model, or still loading: the request starts it). */
   private modelFor(spec: GhostSpec): Mesh | null {
     const entry = this.registry?.entry(spec.def.id);
-    if (!entry || entry.kind !== "building" || !this.registry) return null;
+    if (!entry || entry.kind === "ship" || !this.registry) return null;
     const file = modelFileFor(entry, { id: spec.buildingId ?? 0, level: spec.level ?? 1 });
     if (!file) return null;
     let mesh = this.models.get(file.path);
     if (mesh) return mesh;
     const data = this.registry.request(file);
     if (!data) return null;
-    mesh = modelMesh(this.scene, `ghost_${file.path}`, worldData("building", data), this.modelMaterial);
+    mesh = modelMesh(this.scene, `ghost_${file.path}`, worldData(entry.kind, data), this.modelMaterial);
     mesh.alwaysSelectAsActiveMesh = true;
     mesh.setEnabled(false);
     this.models.set(file.path, mesh);

@@ -24,12 +24,12 @@ UI shows the same numbers the server uses.
   (with a ghost tool the twist rotates the ghost instead), `Q`/`E` in 45°
   steps; on release the azimuth eases (≤ 250 ms) to the nearest 45°; the
   sun stays world-fixed; the ease never blocks input. The **compass** in
-  the minimap's corner (next to the toggle when collapsed on phones) shows
+  the expanded minimap's corner (hidden while the minimap is collapsed on phones) shows
   the real heading on the north-up map; drag the ring to turn, tap/Enter
   = "Reset view" (default heading, which looks north-east). No separate
   rotate buttons. Building rotation stays fixed to the world (D-042).
-  **Jumps** (island tabs, island card "Go to island", Enter, founding,
-  warnings tray) move the camera in ≤ 350 ms and zoom in to 18 only when
+  **Jumps** (island tabs, Enter, founding,
+  warnings panel) move the camera in ≤ 350 ms and zoom in to 18 only when
   the camera is farther out; minimap taps keep the zoom. A gesture in
   progress when a jump starts is cancelled without its release action; a
   press begun during a jump is ignored until all fingers lift; wheel and
@@ -50,20 +50,22 @@ UI shows the same numbers the server uses.
   a haze colour toward the edge; the clear colour is the haze.
 - **Labels** are keyboard buttons with the island name and badge, hidden
   near the canvas edge; pointer taps resolve **ship → label → land**. A
-  label tap is an island tap at every LOD: it appends a stop when the route
-  editor is open, picks the destination for an awaiting shipment, otherwise
-  opens the **island card** (population, Trading Post fill, warnings
-  count, fertilities, deposits, coast; **"Found settlement here"** on an
-  unsettled island when a ship carries the Trading Post cost — the ship
-  sails there first (`sail_ship`), the founding is pending (shown on the
-  card and the ship panel, cancellable, survives a reload) and the
-  Trading Post ghost opens on arrival; "New route from here"; "Go to
-  island"). The world opens on the start sloop at sea with the first quest
+  label tap is an island tap at every LOD: it opens the **island card**
+  (a read-only overview: the population of every tier (with the top bar's population icon) and the island's
+  resources as icon badges, one per line: fertilities, deposits with their tile counts
+  and the free coast; no actions, ships or warnings). Founding is started
+  from the ship panel's "Found settlement" or the unsettled-island panel's
+  "Found settlement here" when a ship carries the Trading Post cost: the
+  ship sails there first (`sail_ship`), the founding is pending (shown on
+  that panel and the ship panel, cancellable, survives a reload) and the
+  Trading Post ghost opens on arrival. The world opens on the start sloop at sea with the first quest
   ("Choose your home island") as the hint.
   Hover shows a lightweight tooltip only; nothing is hover-only.
 - **Route ribbons** are drawn only for the selected ship's route or while
-  the route editor is open (all routes faint, the edited one bright);
-  ships are always drawn.
+  the route editor is open. All ribbons are the selection yellow and as
+  wide as the selection ring; in the editor the edited route and the
+  draft are opaque and the other routes translucent. Ships are always
+  drawn.
 - **Ships** are low-poly instances: with a leg, lerped between the two
   islands' pier anchors by `(now − depart_at) / (arrive_at − depart_at)`.
   A ship handling at the Trading Post sits at **pier slot i** (tile i of
@@ -72,9 +74,8 @@ UI shows the same numbers the server uses.
   take the island's harbour berths; `anchored_unpaid` ships greyed. Legs and ribbons are straight lines and may cross land
   (dressing task). Route ribbons carry direction arrows; the selected ship
   shows its route and ETA.
-- **Manual shipment:** drag an idle ship onto another island (drop on sea
-  or its own island cancels; dragging a non-idle ship pans), or "Send to…"
-  then tap the target island; both open the cargo dialog.
+- **Manual shipment:** only through the ship panel's "Send…" dialog; the
+  destination is chosen in its dropdown (no drag and drop, no map pick).
 - **Focused island** = the island under the camera centre, else the
   nearest; it drives the build-menu stock display, the highlighted tab and
   the unsettled-island panel, never a command.
@@ -90,40 +91,58 @@ UI shows the same numbers the server uses.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ ISLAND NAME ⌂⌂ 🌾🍎 ⛏1 📦1 ⚓140 │ 🪵 40 │ gold 5000 ▲ +12.0/min │        │
-│ Settlers 0/48 · Citizens 0/30 │ ⚠3 │ ⛵ 12 │ 🗺 2 │ Quests │ account ▾     │
+│ 🪙 5000  🏠 32 │ 🪵 40 🔨 0 📦 0      ISLAND NAME 🌾🍎 ⛏1 📦1 ⚓140      ☰ │
 ├──────────────────────────────────────────────────────────────────────────┤
 │ ┌minimap+compass┐                                           ┌ panel ┐   │
 │ └───────────────┘             3D canvas                     └───────┘   │
-│ ⚠ n warnings ▸                                                           │
+│ 🔨 / ⚠2 / 📜 / ⛵2 / 🗺  (side dock, vertically centred)                   │
 ├──────────────────────────────────────────────────────────────────────────┤
 │ [Houses] [Production] [Public] [Harbour] [Roads]      build cards w/ thumbs │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Focused island** = the island under the camera centre. The top bar
-  shows its **name** (opens the island card; unsettled islands show a
-  dashed "unsettled" chip and resources only), its **resources** as icon
-  badges (fertilities, deposits; the island card adds a Coast row), its
-  **construction-material stocks** with net rate, **gold and balance**, and
-  its **population per tier as employed / total** (workforce pool, D-035;
-  tiers without residents are hidden except the first) with a popover
-  showing capacity, satisfaction and the worst unmet need. Warnings, ships
-  and routes are icon chips with counts; Quests and the account menu are
-  pinned right. There are no island tabs — islands are reached via the
-  island name, the island card, the minimap and the Ships/Routes lists.
-- **Phone (compact):** island chip (name → details + "Island card"),
-  materials chip (first material + count → list), population chip (total →
-  tier rows); gold stays visible; the compass sits next to the minimap
-  toggle while collapsed.
+- **Focused island** = the island under the camera centre. The top bar has
+  three regions. **Left**, icons and numbers only: group 1 is **gold**
+  and the island's **residents** (summed over the tiers); group 2 is the
+  island's **construction-material stocks**. Each group opens a small
+  popup on mouse hover and toggles it on click or tap (a press elsewhere
+  or Escape closes it): gold shows two lines, the current amount
+  and the balance per minute (▲ / ▼ and number, coloured); population shows per tier employed / total (workforce pool,
+  D-035), the satisfaction, a red "short of workers" line when the
+  residents cannot fill the jobs and the worst unmet need (tiers without
+  residents or open jobs are hidden except the first); materials show stock of
+  capacity. A negative balance colours the gold number red, and so does a tier short of workers for the population number. **Middle**: the
+  focused island's **name** with its **resources** as icon badges
+  (fertilities, deposits, free coast) as one button that opens the island
+  card; unsettled islands show resources only and no materials. **Right**:
+  the menu icon (account: register, install, credits, log out). There are
+  no island tabs — islands are reached via the island name, the island
+  card, the minimap and the lists.
+- **Side dock:** icon buttons stacked down the left edge, vertically
+  centred between the top bar and the screen's bottom edge (it does not move when the build bar shows or hides), with no backing panel: Build menu, Warnings, Quests, Ships,
+  Routes. The first toggles the build menu at the bottom (closed by
+  default, the choice is remembered in the browser; hiding it ends an
+  active build, road or demolish tool; the founding panel of an unsettled
+  island stays); it is independent of the panels below. A count
+  badge shows above zero (quests: rewards to claim). A click opens that
+  panel in the right-hand slot (a sheet on phones), a second click closes
+  it; they are mutually exclusive with each other and with the info,
+  island, ship and route-editor panels. Opening one deselects the current
+  building, ship or island (closing the list does not bring its details
+  back). Details-in-place is a later task.
+- **Phone (compact):** same content; portrait puts the island on a second
+  row below gold / population / materials and the menu icon. The minimap
+  collapses to its toggle (portrait starts collapsed); the compass shows
+  with the expanded minimap only.
 - **Build menu:** categories → items with cost, upkeep, lock reason and a
   128 px model **thumbnail**; items are never disabled for cost.
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood
   edge (10 px radius; build cards 7 px); status badges as wax seals (ink
   bands, parchment ring). Producer panels show workforce as "needs 4
   Settlers · 16 available on this island (working at n %)".
-- **Warnings tray:** collapsible list of bottleneck messages from
-  MECHANICS §14, each clickable to focus the building.
+- **Warnings panel:** list of bottleneck messages from MECHANICS §14
+  (opened from the side dock or the insolvency banner), each clickable to
+  focus the building.
 - **"While you were away" dialog** after ≥ 15 min absence (see §4 and
   MECHANICS §12b); **Quests button** with a badge; **insolvency banner**
   whenever anything is unpaid.
@@ -139,15 +158,16 @@ UI shows the same numbers the server uses.
   by building ID; follow-up: a server-side preview hint).
 - Roads: drag to draw; auto-connect; cost preview.
 - **Fields** (D-051 part 4): fields are not in the build menu. The farm
-  panel has a fields row (active / required / max, the list highlights
-  on hover) and **"Add field"**, which enters a field tool bound to that
+  card has a fields block (active / required with a bar, placed and max, a
+  warning line when fields are not connected; no field list) and **"Add field"**, which enters a field tool bound to that
   farm: one field per click/tap, the ghost valid only edge-adjacent to
   the farm or one of its active fields (client hint; the server decides),
   the tool stays active until max or Esc/right-click. Inactive fields
-  are drawn desaturated with the `not_adjacent` status; selecting a field
-  highlights its farm and chain; a field panel offers Demolish only (no
+  are drawn desaturated with the `not_adjacent` status (and a yellow mark);
+  selecting a farm or a field tints its farm and fields green like a
+  selected building; the field ghost is the field's translucent model; a field card says "Counts for its farm" (an inactive one keeps "Not connected to its farm" and its fix) and offers Demolish only (no
   Move).
-- Public buildings show their radius; houses in range highlight.
+- Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the radius ring is not implemented.
 - Confirm on click/tap; the server validates and responds; the ghost becomes
   the building when the response arrives (round-trip ≈ 100 ms; show a brief
   "building" animation regardless).
@@ -158,7 +178,7 @@ UI shows the same numbers the server uses.
   colours; click/tap places it, Esc cancels and the building stays. Free;
   no confirmation. Roads cannot be moved.
 - Buildings may be placed without a road; the ghost shows yellow ("not
-  connected") rather than red, and the warnings tray lists the building
+  connected") rather than red, and the warnings panel lists the building
   until a road reaches it. The ghost is red with the reason for the
   server-side hard failures the client can know from content and island
   data without rules: missing fertility tag, no deposit under the
@@ -168,64 +188,112 @@ UI shows the same numbers the server uses.
 
 **Production building**
 
-- Name, tier, status icon + sentence + suggested fix (MECHANICS §14).
-- Inputs: per good, `stock on island`, `consumption/min`, `net/min`.
-- Output: `production/min`, efficiency %, assigned warehouse (click to
-  highlight) and transfer delay, throughput factor.
-- Buttons: pause/resume, move, demolish.
+- Name, status icon + sentence + suggested fix (MECHANICS §14).
+- Inputs: per good, this building's `consumption/min` (one row like Output; the island stock and net rate are in the Trading Post card).
+- Output: `production/min` (the final rate, all factors included).
+- A collapsed **Details** section (closed by default): one row per value, each on one line
+  (cycle length in seconds, efficiency %, throughput factor, workers as the
+  workforce factor in % (the shortage itself is the status sentence), upkeep like a ship's (`$/min`, 0 while paused), the assigned collector by name (click to
+  select), transfer delay, buffers). Farms show
+  a fields block above it only when it has something to say: a warning
+  when fields are not connected and "Add <field>" while the farm is
+  below its maximum (equal to the requirement); the field count is the
+  farm's efficiency in Details.
+- Buttons: pause/resume, move, demolish, pinned in a footer below a divider (only the content above scrolls).
 
 **House**
 
-- Tier, residents `floor–current–max` with growth arrow, satisfaction %.
-- Needs list: each with fulfilment bar and the reason if not met ("fish:
-  0/min on island", "no market within 12").
+- A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current / max" (the arrow is the growth direction) and "Satisfaction  %"; no bars.
+- Needs: one row per need (icon and name on the left, fulfilment % on the
+  right, no bar), the reason if not met as a tooltip ("short supply",
+  "no supply on the island", "out of range").
 - Upgrade button with cost and lock reason.
 
 **Trading Post**
 
-- Level `n of 4`, capacity per good, throughput `R / T` load bar, berths
-  `busy / total`, who is at the pier and who waits, assigned producers
-  count; upgrade button with the next level's numbers and the cost in
-  build-card format ("300 gold · 20 planks · 10 stone", unaffordable parts
-  greyed with the stock on hover).
-- Island inventory table: good, stock/capacity, net rate, with a filter.
+- A "Details" heading with rows (no bars): Level `n / max`, Capacity `per
+  good`, Throughput `/min`, Load `%`, Berths `free / total free`.
+- "Pier" (only with ships): one row per ship at the pier ("at the pier") or
+  waiting for a berth ("waiting"), by name and ID.
+- "Inventory": one row per good, icon and name, `stock / capacity` and the
+  signed net rate (green above 0, red below, plain at 0); no header row, no filter yet.
+- A collapsed "Producers (n)" like the Warehouse's.
+- "Upgrade to level n" (not at the last level): one grey line with the next
+  level's numbers ("500 capacity per good · 2 berths · 55.0/min
+  throughput") and the cost line (gold, goods with icons, " · " between the
+  items, red when short). The **Upgrade** button is pinned in the footer.
+
+**Shipyard**
+
+- Status "Idle" or "Building a Sloop · ready in 1:42 min" (no bar); a pending
+  order adds the second status line "Cancelling the order returns 50 % of
+  the materials." and **Cancel order** sits in the pinned footer.
+- Always (also while an order runs, then the Order buttons are disabled), with
+  no heading, a divider above and between the entries and one entry per
+  buildable type (content order): name and Order; cargo, speed (×) and upkeep; one line of
+  gold, the goods and the build time with " · " between them. Gold and goods
+  the island is short of are red (Order stays enabled when idle, the server
+  rejects an unaffordable order).
 
 **Warehouse**
 
-- Level, throughput `R / T` load bar, assigned producers count, upgrade
-  button (same cost format). No capacity row — capacity is the Trading
+- A "Details" heading above the rows (no bars): Level `n / max`,
+  Throughput `/min`, Load `%`. No capacity row — capacity is the Trading
   Post's.
+- A collapsed "Producers (n)": one row per assigned producer, the name a link
+  that selects it (no ID); "None yet" without any, "and n more" after eight.
+- "Upgrade to level n" (not at the last level): one grey line with the next
+  level's numbers ("55.0/min throughput") and one cost line (gold, goods with
+  icons, " · " between the items; what the balance or stock does not cover is
+  red). The **Upgrade** button is pinned in the footer next to Move and
+  Demolish (a warehouse cannot be paused). The Trading Post shares the
+  producers list, the upgrade preview and the footer button.
 
 **Ship** (ship info panel; the Ships list only selects)
 
-- Type, state (incl. "waiting for berth" with the position in the queue
-  and "handling until"), cargo slots, current leg with ETA, route
-  assignment, pending founding, upkeep.
-- Buttons: "Assign to route…" (opens the editor with the ship pending;
-  pick a saved route or save a new one to assign), unassign, "Send…"
-  (manual shipment dialog), "Send to… (pick island)", found settlement,
+- Status line shared with the list ("On route: name · arrives in …",
+  "Shipment · …", "Idle · at …"), the from → to islands of a leg, upkeep, speed (×, from the ship type),
+  slot capacity, one box per cargo slot (good icon, amount / slot size),
+  pending founding and berth-wait notes.
+- Buttons: "Assign to route…" (an inline picker of the saved routes; routes
+  are created only in the Routes list, the picker links there when there
+  are none), unassign, "Send…" (manual shipment dialog), found settlement,
   scrap; later: send on expedition (Harbourmaster).
 
-**Route editor** (panel; the Routes list opens it and may delete)
+**Routes list** (panel): per route its name, then "Island 1 → Island 2
+(15:00 min)" (the loop time), then "Ships: n". Clicking a route opens it in
+the route editor, which has Delete next to Save while no ship is assigned.
+"+ New route" ends the list. The ship panel's route picker shows the same
+three lines per route.
 
-- Opened from the Routes list, a ship's "Assign to route…" or an island
-  card; stays open while the camera moves.
-- Stops are chosen from **island pickers** (each option shows the island
-  name, settled state and the relevant goods' stock/capacity); clicking an
-  island or its label in the world while the editor is open also appends
-  it. Per stop a load list with
-  "top up to" amounts and an unload list, with the island's current stock
-  inline; assigned ships. Server errors (e.g. consecutive stops on one
+**Route editor** (panel; the Routes list opens it)
+
+- Opened from the Routes list; stays open while the camera moves.
+- The title is the route name (typed live; "New route" while empty), then
+  a name input. Stops are chosen from **island pickers** (each option shows
+  the island name and "(unsettled)" where it applies; the stock is
+  shown per good below);
+  a stop is one card: number, island picker, move up/down and remove, then
+  one list of goods: good | Load / Unload | amount ("top up to" for a
+  load, "all" for an unload) | the island's current stock | remove, and a
+  "+ good" link (loads and unloads are still separate rules in the route). A "+ first stop…" / "+ stop…" picker adds stops, never a click
+  on an island in the world. Server errors (e.g. consecutive stops on one
   island, `route_invalid`) are shown as toast and inline.
-- Loop time and per-island **effects** (MECHANICS §9.2) show "Save to
-  compute" until the route is saved, then the server's numbers for the
-  saved version, labelled "estimated"; per-minute values are 0 until a
-  ship is assigned.
+- Nothing is shown for effects before the first save. A saved
+  route shows the per-island **net effect** (MECHANICS §9.2): the
+  server's numbers for the saved version, labelled "estimated";
+  per-minute values are 0 until a ship is assigned. The loop time is shown
+  in the Routes list only. The effects and the ships are set off by dividers;
+  the assigned ships are listed with a remove (✕) button that unassigns,
+  and a "+ assign…" dropdown of the idle ships assigns one (the ship
+  panel can assign too).
+- Save (and Delete while no ship is assigned) are pinned below the
+  scrolling body.
 - Selecting a ship or island while the editor is open **suspends** it:
-  their panel shows, island clicks select instead of adding stops, and a
+  their panel shows, and a
   "Back to route editor" bar resumes it as the only side panel; the draft
   survives. Esc steps back one level per press (dialogs → island tool →
-  drag/pick → pending ship → editor → selection).
+  editor → selection).
 
 ## 5. World map screen
 
@@ -244,16 +312,20 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   ship, island card, route editor and its resume bar, lists, quests): one
   sheet at a time, `role="dialog"`, drag handle with snap points at 20 /
   50 / 90 % of the area below the top bar (opens at half; tap or Enter on
-  the handle cycles; dragging below the peek closes), focus moved in,
+  the handle cycles; dragging below the peek closes). A sheet has no header
+  of its own: the panel's title (underlined) and its icon-only close
+  button are the same as on the desktop side panel; the title row stays in
+  place and the panel's content scrolls beneath it (every panel has a close button,
+  including the building info panel). Focus moves in,
   Tab trapped, focus returned to the opener on close. Wider landscape
   phones get a narrow side panel; if it would be shorter than ≈ 240 px the
   hint bar hides and the insolvency banner is limited to one line.
-- Compact top bar: gold, balance and a population chip (tap expands the
-  per-tier list), quests and account pinned; island tabs, Archipelago,
-  Ships and Routes in a horizontally scrolling row. Build menu: category
-  chips and ≥ 44 px item cards in one horizontal scroller (Demolish at the
-  end); landscape shares one row. Hints and banners stack below the top
-  bar; toasts below the top bar; warnings tray ≤ 25 vh.
+- Compact top bar: see §2 (icons and numbers, island on a second row in
+  portrait; popups open on tap). Build menu: the
+  desktop look (folder tabs, parchment cards, an icon-only Demolish button
+  pinned at the right of the tab row behind a divider), with ≥ 44 px tabs and cards on touch; short landscape
+  phones keep the stacked layout with smaller cards and thumbnails. Hints and banners stack below the top
+  bar; toasts below the top bar.
 - **Gestures** (one pointer-event recogniser; input type decides per
   gesture, pen = mouse): one-finger drag pans, draws a road with the road
   tool, or drags an idle ship in the archipelago; pinch pans by its centre

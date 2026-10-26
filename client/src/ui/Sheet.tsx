@@ -1,8 +1,6 @@
-import { type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
+import { type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { nextSnap, SHEET_SNAPS, type SheetSnap, snapFor } from "../display/layout";
 import { modalOpen, trapTab } from "./DialogPanel";
-import { toolIcon } from "../theme/iconSet";
-import { Icon } from "./Icon";
 import styles from "./sheet.module.css";
 
 interface Props {
@@ -13,14 +11,14 @@ interface Props {
 
 /**
  * Bottom sheet of the phone layout: everything of the desktop side panel
- * slot, one at a time. A drag handle with three snap points (peek: header
- * only; half; full), opening at half; dragging below peek or the close
- * button closes it. Content scrolls inside at any snap. Pointer events on
+ * slot, one at a time. A drag handle with three snap points (peek: the
+ * panel's header only; half; full), opening at half; dragging below peek
+ * or the panel's close button closes it. The panel brings its own title and
+ * close icon (the same as on desktop). Content scrolls inside at any snap. Pointer events on
  * the sheet never reach the canvas (it is a sibling). While open it traps
  * focus (role="dialog") and returns focus to the opener on close.
  */
 export function Sheet({ title, onClose, children }: Props) {
-  const titleId = useId();
   const [snap, setSnap] = useState<SheetSnap>("half");
   const [dragFraction, setDragFraction] = useState<number | null>(null);
   const ref = useRef<HTMLElement>(null);
@@ -89,7 +87,7 @@ export function Sheet({ title, onClose, children }: Props) {
       className={`${styles.sheet} ${dragFraction !== null ? styles.dragging : ""}`}
       style={{ height: `${(fraction * 100).toFixed(2)}%` }}
       role="dialog"
-      aria-labelledby={titleId}
+      aria-label={title}
       tabIndex={-1}
       data-testid="sheet"
       data-snap={snap}
@@ -108,14 +106,6 @@ export function Sheet({ title, onClose, children }: Props) {
       >
         <span className={styles.grip} />
       </button>
-      <div className={styles.header}>
-        <span id={titleId} className={styles.title}>
-          {title}
-        </span>
-        <button type="button" className={styles.close} onClick={onClose} aria-label={`Close ${title}`} data-testid="sheet-close">
-          <Icon path={toolIcon("close")} />
-        </button>
-      </div>
       <div className={styles.body}>{children}</div>
     </section>
   );
