@@ -202,7 +202,7 @@ class SmokeAnchorTest(unittest.TestCase):
         self.assertEqual(content_mod.life_anchors(CONTENT, "pasture"), ["gate", "sheep_1", "sheep_2", "sheep_3"])
         self.assertEqual(content_mod.life_anchors(CONTENT, "house_settlers"), [])
         self.assertEqual(content_mod.life_anchors(CONTENT, "wheat_field"), [])
-        self.assertEqual(content_mod.life_anchors(CONTENT, "shipyard"), [])
+        self.assertEqual(content_mod.life_anchors(CONTENT, "shipyard"), ["slip"])
 
     def test_declared_anchors_are_exported_to_the_manifest(self):
         r = {"id": "sawmill", "kind": "building", "parts": [{"prim": "box", "size": [1.8, 1.8, 0.5], "role": "plaster"}],

@@ -50,7 +50,8 @@ def life_anchors(content, cid):
     The life-layer anchors a building's or field's model must declare besides
     chimney/smoke (D-054): a cart point for producers and storage, the boat's
     mooring for water-edge producers, one pier slot per berth of the Trading
-    Post's top level, and a gate and three sheep for pastures.
+    Post's top level, the slipway of a shipyard (where the hull under
+    construction stands), and a gate and three sheep for pastures.
     """
     b = content["buildings"].get(cid, {})
     out = []
@@ -60,6 +61,8 @@ def life_anchors(content, cid):
         out.append("boat")
     berths = max((lv.get("berths", 0) for lv in (b.get("trading_post") or {}).get("levels", [])), default=0)
     out += [f"berth_{i}" for i in range(1, berths + 1)]
+    if "shipyard" in b:
+        out.append("slip")
     if b.get("field", {}).get("type") == "pasture":
         out += ["gate", "sheep_1", "sheep_2", "sheep_3"]
     return out
