@@ -131,7 +131,11 @@ async function open(browser: Browser, device: Device, fixture: Fixture, hud: boo
   page.on("pageerror", (e) => console.error(`page error (${fixture}, ${device}): ${e.message}`));
   await page.clock.setFixedTime(T);
   const t0 = Date.now();
-  await page.goto(SERVER_FIXTURES.includes(fixture) ? "/" : `/?fixture=${fixture}`);
+  // QUERY adds URL parameters (e.g. farmask=0, life=0) for A/B measurements.
+  const params = new URLSearchParams(SERVER_FIXTURES.includes(fixture) ? "" : `fixture=${fixture}`);
+  for (const [k, v] of new URLSearchParams(process.env.QUERY?.trim() ?? "")) params.set(k, v);
+  const query = params.toString();
+  await page.goto(query === "" ? "/" : `/?${query}`);
   await page.waitForFunction(() => Number.isFinite(window.__newShores?.camera().x ?? NaN) && window.__newShores!.getServer() !== null, undefined, { timeout: 30_000 });
   // Load timing on the wall clock of this script (the page's performance clock is faked with the fixed time).
   const timing: Timing = { firstFrameMs: null, focusTilesMs: null };

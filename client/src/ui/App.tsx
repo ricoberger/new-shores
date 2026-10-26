@@ -917,7 +917,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             <Minimap
               renderer={renderer}
               model={model}
-              statics={snap.islands}
               viewport={{ width: layout.width, height: layout.height }}
               collapsible={phone}
               initiallyCollapsed={layout.mode === "phone-portrait"}

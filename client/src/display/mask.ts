@@ -86,3 +86,12 @@ export function maskAt(m: DecodedMask, x: number, y: number): number {
   if (mx < 0 || my < 0 || mx >= m.width || my >= m.height) return MASK_WATER;
   return m.cells[my * m.width + mx]!;
 }
+
+/** The mask at tile resolution: every tile carries its block's terrain (row-major, width × height). */
+export function maskTerrain(m: DecodedMask, width: number, height: number): Terrain[] {
+  const out: Terrain[] = new Array<Terrain>(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) out[y * width + x] = MASK_TERRAINS[maskAt(m, x, y)] as Terrain;
+  }
+  return out;
+}

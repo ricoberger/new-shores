@@ -24,6 +24,7 @@ import { anchorSlots, type ArchPoint, berthAnchor, type Berths, type Dock, islan
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
 import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
+import { type DecodedMask, decodeMask, MASK_WATER, maskAt, maskTerrain } from "../display/mask";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { anchorBob, SAILING_ALPHA, sailing, waiting } from "./sway";
 import { type ModelRegistry, shipMeshes, shipModel } from "./models";
@@ -115,6 +116,8 @@ export class ArchipelagoLayer {
   private readonly shipBlobs: BlobLayer;
   private shipBlobBuffer = new Float32Array(0);
   private placements = new Map<string, IslandPlacement>();
+  /** The islands' decoded 1:4 terrain masks (land of the islands whose tiles are still loading). */
+  private masks = new Map<string, DecodedMask>();
   private berths: Berths = new Map();
   /** Ships at a Trading Post's pier or in its queue: their mooring points (archipelago tiles). */
   private docks: ReadonlyMap<number, Dock> = new Map();
@@ -185,24 +188,23 @@ export class ArchipelagoLayer {
    */
   update(
     islands: readonly IslandDisplay[],
-    statics: ReadonlyMap<string, Island>,
     ships: readonly ShipDisplay[],
     routes: readonly RouteDisplay[],
     berths: Berths,
     docks: ReadonlyMap<number, Dock> = new Map(),
   ): void {
     this.placements = new Map(islands.map((is) => [is.id, { position: is.position, width: is.width, height: is.height }]));
+    this.masks = new Map(islands.map((is) => [is.id, decodeMask(is.terrain_mask, is.width, is.height)]));
     this.berths = berths;
     this.docks = docks;
-    // The sea's shallows follow the islands' land (recomputed only when it moved or changed).
-    const land = islands.flatMap((is) => {
-      const st = statics.get(is.id);
-      return st ? [{ position: is.position, width: st.width, height: st.height, terrain: st.terrain, key: `${is.id}|${st.revision}|${is.position.x},${is.position.y}` }] : [];
-    });
-    const landKey = land.map((l) => l.key).join(";");
+    // The sea's shallows follow the islands' land from their 1:4 masks (every
+    // island, also before its tiles arrive; recomputed only when it moved or changed).
+    const landKey = islands.map((is) => `${is.id}|${is.position.x},${is.position.y}|${is.width}x${is.height}|${is.terrain_mask}`).join(";");
     if (landKey !== this.landKey) {
       this.landKey = landKey;
-      this.sea.setIslands(land);
+      this.sea.setIslands(
+        islands.map((is) => ({ position: is.position, width: is.width, height: is.height, terrain: maskTerrain(decodeMask(is.terrain_mask, is.width, is.height), is.width, is.height) })),
+      );
     }
     this.layoutSea();
     this.shipList = [...ships];
@@ -518,13 +520,15 @@ export class ArchipelagoLayer {
       const lx = Math.floor(p.x - pl.position.x);
       const ly = Math.floor(p.y - pl.position.y);
       if (lx < -1 || ly < -1 || lx > pl.width || ly > pl.height) continue;
+      // The full tiles where loaded, else the island's 1:4 mask.
       const st = statics.get(id);
-      if (!st) return id;
+      const mask = this.masks.get(id);
       for (let dy = -1; dy <= 1; dy++) {
         for (let dx = -1; dx <= 1; dx++) {
           const x = lx + dx;
           const y = ly + dy;
-          if (x >= 0 && y >= 0 && x < st.width && y < st.height && st.terrain[y * st.width + x] !== "water") return id;
+          if (x < 0 || y < 0 || x >= pl.width || y >= pl.height) continue;
+          if (st ? st.terrain[y * st.width + x] !== "water" : !mask || maskAt(mask, x, y) !== MASK_WATER) return id;
         }
       }
     }

@@ -58,8 +58,8 @@ describe("minimap projection", () => {
 
 describe("minimap land cache key", () => {
   const islands = [
-    { id: "a", position: { x: 0, y: 0 }, width: 40, height: 30, settled: true, inventory: { fish: { stock: 1 } } },
-    { id: "b", position: { x: 80, y: 60 }, width: 20, height: 10, settled: false, inventory: {} },
+    { id: "a", position: { x: 0, y: 0 }, width: 40, height: 30, settled: true, terrain_mask: "g".repeat(80), inventory: { fish: { stock: 1 } } },
+    { id: "b", position: { x: 80, y: 60 }, width: 20, height: 10, settled: false, terrain_mask: "w".repeat(15), inventory: {} },
   ];
 
   it("ignores display numbers (an extrapolated model update keeps the key)", () => {
@@ -72,6 +72,8 @@ describe("minimap land cache key", () => {
     expect(minimapLandKey([islands[0]!, { ...islands[1]!, settled: true }])).not.toBe(key);
     expect(minimapLandKey([islands[0]!, { ...islands[1]!, position: { x: 81, y: 60 } }])).not.toBe(key);
     expect(minimapLandKey([islands[0]!])).not.toBe(key);
+    // A reroll (new terrain under the same ID and bounds).
+    expect(minimapLandKey([islands[0]!, { ...islands[1]!, terrain_mask: "g".repeat(15) }])).not.toBe(key);
   });
 
   it("islandsBounds spans every island", () => {
