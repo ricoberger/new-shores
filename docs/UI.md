@@ -37,12 +37,25 @@ UI shows the same numbers the server uses.
 - **LOD** is a pure function of the half-extent and the previous level
   (no timers): near → mid above 30, mid → near below 27, → far above 54,
   far → mid below 47 (far begins where a 2×2 footprint is ≈ 12 px tall on
-  a phone). *Near:* full models, roads, fields, carts, status icons,
-  construction hulls, foam. *Mid:* full models, roads and fields, no carts
-  or status icons. *Far:* lite models (≈ 25 %), the same diorama ground,
-  labels and settled badges; unsettled islands desaturated (D-050). All
-  geometry is built once per island; zoom only toggles. Islands outside
-  the frustum are not rendered; ships, route ribbons and the selected
+  a phone). The **maximum zoom-out is a content constant** (`region.json`
+  `camera.max_half_extent`, 120 tiles — one large island with sea around
+  it; PR #26, following Anno): the archipelago overview is the minimap,
+  not the camera; a new world opens on the ship at the cap and the
+  founding hint points at the minimap. *Near:* full models, roads,
+  fields, carts, status icons, construction hulls, foam. *Mid:* full
+  models, roads and fields, no carts or status icons. *Far:* lite models
+  (≈ 25 %), the same diorama ground, one simplified tree mesh per island
+  without scatter or tree shadows, labels and settled badges; unsettled
+  islands desaturated (D-050). Terrain, trees, scatter, roads and fields
+  are built per **32×32 chunk** and culled per chunk; a change rebuilds
+  only the touched chunks; the life layer spawns only in visible chunks.
+  **Island tiles load lazily** (`GET /world/islands/{id}/tiles`, cached
+  immutably per seed/roll; the focused and visible islands first, at
+  most two requests in flight): until they arrive an island draws a
+  merged mesh from its 1:4 terrain mask in the world payload (the same
+  mesh non-focused islands use at far; buildings do not show on it) and
+  its card says "Loading…". The minimap is drawn from the masks. Islands
+  outside the frustum are not rendered; ships, route ribbons and the selected
   ship's ETA badge render at every level (ships ×2 near/mid, ×4 far). The
   level is exposed to tests via the hook.
 - **Sea and haze:** a scrolling-noise sea plane sized so every viewport

@@ -567,6 +567,14 @@ recipes from CC0 Quaternius kits through a Blender script with enforced
 footprint and triangle budgets; every animation encodes a game state.
 Full brief: docs/ART_DIRECTION.md.
 
+*Refinement (PR #26, D-053 scale):* the camera's maximum zoom-out is a
+content constant (120 tiles half-extent — about one large island) rather
+than "fit the archipelago"; the minimap is the overview, as in Anno. The
+far view is per-chunk culled with one simplified tree mesh per island;
+islands without loaded tiles and non-focused islands at far draw a
+merged mesh from a 1:4 terrain mask. Landmarks of settled neighbours are
+not visible on the mask mesh (follow-up).
+
 - *Rationale:* mechanics are stable, so visuals will not be redone; a
   flat-shaded kit with strong light and colour reads "Anno-like at a
   glance" within the mobile budget, while textured detail would fight the

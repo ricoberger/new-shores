@@ -1,15 +1,15 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after PR #25
-(seeded archipelago generator, D-053).
+docs sync; details live in the linked documents. Last update: after PR #26
+(client scaling: lazy tiles, chunks, zoom cap).
 
 ## What exists
 
 | Area | State | Where |
 |---|---|---|
 | Simulation (pure Go, lazy, deterministic) | tiers 1–2 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename; schema 6 | `server/internal/sim`, MECHANICS.md |
-| Content | `old_coast` 0.9.0: generator rules (`islands.json`, 12 islands + 0–2 rocks) and 48 island names, tier 1 + 2 goods, buildings incl. Trading Post / Warehouse / water-edge fisher + shipyard, fields (1×1 crops, 2×2 pastures), sloop (4 slots), need names, 13 intro quests | `content/old_coast`, CONTENT.md |
+| Content | `old_coast` 0.9.0: `camera.max_half_extent`, generator rules (`islands.json`, 12 islands + 0–2 rocks) and 48 island names, tier 1 + 2 goods, buildings incl. Trading Post / Warehouse / water-edge fisher + shipyard, fields (1×1 crops, 2×2 pastures), sloop (4 slots), need names, 13 intro quests | `content/old_coast`, CONTENT.md |
 | Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store and `POST /api/v1/dev/reset` | `server/internal/*`, ARCHITECTURE.md |
 | Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052) | `client/`, UI.md |
 | Art | KayKit SOURCE kits only; recipe-driven Blender build (`npm run assets`), AO/two-tone vertex colours, diorama islands; recipes + decor; thumbnails; life layer (carts, walkers, smoke, sails, boats, gulls, strollers, sheep, construction stages) with device budgets | `assets/`, ART_DIRECTION.md |
@@ -37,18 +37,17 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Next tasks (in order)
 
-1. **Client scaling** (Opus, running): chunked terrain meshes, per-island tile
-   loading, far view on a budget — measured on the dev seed with large
-   islands at ~160×160.
-2. **D-054 footprints, costs and painted fields** (Opus): CONTENT §7
+1. **D-054 footprints, costs and painted fields** (Opus): CONTENT §7
    table into content, recipes re-fitted, `place_fields` + rectangle
    painting, pasture modules, fixtures/goldens/reference games
-   regenerated; the final `islands.json` sizes (large ≈ 192) in the same
-   PR.
-3. **Polish round 3** (interactive): far-view label crowding on phones,
-   the founding panel over the south of the map, far draw calls (3.7×),
-   ship size at far, minimap, camera fit, legs through islands.
-4. **Content depth** (design interview first): tier-2 alternatives
+   regenerated; the final `islands.json` sizes (large ≈ 192), terrain in
+   its own compressed column and the generator time in the same PR.
+2. **Polish round 3** (interactive, after a real-device check of mid zoom
+   on the final sizes): mid-zoom budget (far trees / no scatter above a
+   threshold if the phone drops below 60 fps), landmarks on mask-drawn
+   islands, minimap open on phones while unsettled, far-view labels,
+   founding panel over the map, ship size at far, legs through islands.
+3. **Content depth** (design interview first): tier-2 alternatives
    (dairy, pigs, apiary with their reserved field types), tier 3.
 
 ## Known follow-ups

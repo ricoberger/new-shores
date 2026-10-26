@@ -168,9 +168,13 @@ return Display(w, now)
 - Read-only queries (own world view, visits) advance in memory without
   writing; a write happens at most every N seconds per world to keep
   `last_evaluated_at` fresh (optional optimisation).
-- JSONB size budget: measure; expect 50–300 KB per mature archipelago
-  (the two-island dev world is ≈ 50 KB of JSON text, ≈ 2 KB compressed).
-  Compress (zstd) in a `bytea` column if it grows past ~1 MB.
+- JSONB size budget: measured in PR #26 — 289 kB (7 kB gzip) for the
+  committed 48/32/20 archipelago, **2.25 MB** (27 kB gzip) at the D-054
+  target sizes, almost all of it tile rows; generation 52 ms vs 1.38 s.
+  Planned with the D-054 task: terrain (immutable per seed/roll) moves
+  to its own compressed `bytea` column loaded with the state, so the
+  JSONB keeps only buildings, ships and events; generation time
+  optimised if it stays above ~1 s (reroll latency).
 
 ### 4.3 Scheduled events worker
 
@@ -251,9 +255,13 @@ CREATE INDEX ON scheduled_events USING gin (world_ids) WHERE status = 'pending';
   `upgrade_warehouse`, returning `{version, display}`; the display
   payload includes `ships`, `routes` (with `loop_ms` and the estimated
   `effects[]`, MECHANICS §9.2), shipyard `ship_order`, per-island `name`,
-  `settled`, `position`, `quests`, `away_summary`, `insolvency`; `GET /world/islands/{id}` → `{id, width, height, revision,
-  terrain[]}` (row-major, index `y*width+x`; fertilities and slots will be
-  sibling arrays); `GET /content` → catalogue in the same fixed-point units
+  `settled`, `position`, `quests`, `away_summary`, `insolvency`,
+  per-island `bounds`, `size_class`, `rock`, fertilities, deposit slots
+  and a 1:4 terrain `mask` (PR #26; tile rows are **not** in the world
+  payload); `GET /world/islands/{id}/tiles?v=<seed>-<roll>` → the full
+  rows, `ETag` = sha256(seed, roll, island id), `Cache-Control: private,
+  max-age=31536000, immutable`, 304 on `If-None-Match`, `no-store` when
+  `v` names another roll; `GET /content` → catalogue in the same fixed-point units
   as the display payload; `GET /healthz`.
 - Errors: `{error: {code, message}}`; `code` is a stable snake_case
   enumeration listed in the OpenAPI file (one per sim sentinel error plus
