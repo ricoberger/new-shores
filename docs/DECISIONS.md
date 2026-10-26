@@ -723,3 +723,49 @@ them.
   the removed specs are the starting point.
 - *Supersedes:* the perf-guard and e2e consequences of D-050 and the
   M3 acceptance text in FIRST_PLAYABLE §3.
+
+## D-053 Seeded archipelago generator: ~12 islands, fixed composition, re-roll before founding
+
+**Decision:** every world gets a generated archipelago from a seed stored
+on the world; generation is a pure function of (seed, content) in
+`internal/sim` (goldens and `TestPurity` apply). The hand-written
+two-island `devworld` archipelago is retired; `--dev`, fixtures and the
+reference games use fixed seeds.
+
+1. **Composition is fixed, the layout is random.** 12 habitable islands:
+   3 large (≈ 48×48), 5 medium (≈ 32×32), 4 small (≈ 20×20); plus 0–2
+   **resource rocks** (≈ 10×10, mountain and coast only, room for a
+   Trading Post and mines) that do not count toward the 12. Every
+   fertility and deposit of the region's pool appears within a fixed
+   count range; total buildable area within ±10 % of a target; one
+   **home candidate** (large; forest, grass, stone and wheat or apple;
+   never iron or hemp) is guaranteed. Archipelagos therefore differ in
+   shape, not in odds.
+2. **Re-roll** ("Another archipelago") is allowed until the first island
+   is founded; afterwards the archipelago is final.
+3. **Shapes:** blobby outlines, a one-tile coast ring, 1–2 mountain
+   clusters carrying the deposit slots, 1–3 forest patches, grass
+   elsewhere; every habitable island has ≥ 2 valid Trading Post sites and
+   ≥ 1 shipyard site (verified, retry otherwise). No rivers, lakes or
+   plateaus yet (plateaus may follow once the islands are seen).
+4. **Spacing:** islands ≥ 60 tiles apart, nearest neighbour ≤ 150 tiles;
+   the start ship spawns at the archipelago's centre with the whole map
+   visible at far zoom.
+5. **Names** come from a content word list, unique per archipelago; the
+   owner of a settled island may **rename** it (server-validated, 1–24
+   printable runes).
+6. Pools, counts, sizes and the name list are content
+   (`region.json` / `islands.json` / `island_names.json`), not code.
+
+- *Why:* two fixed islands made every world identical; a fixed
+  composition keeps the game fair across re-rolls while the first choice
+  (which island to found on) stays meaningful; rocks give mining outposts
+  a reason to exist.
+- *Consequences:* schema 6, no migration; a `reroll_archipelago` and a
+  `rename_island` command; MECHANICS §10 and CONTENT §9 updated; the far
+  view, minimap, camera fit, first load and ship legs across land are
+  re-judged in polish round 3 on the larger world. Supersedes the island
+  count and the generator text of D-039 and MECHANICS §10 (6–8 islands).
+- *Rejected:* fully random composition (unfair re-rolls); a fixed
+  hand-made archipelago for everyone (no discovery); 6–8 islands (too few
+  for 12 settle-anywhere players' worth of variety).

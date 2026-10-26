@@ -266,17 +266,22 @@ build_seconds, cost, upkeep_per_min }`, schema under `content/schema/`);
 only `sloop` is authored so far. Ship positions and legs follow MECHANICS
 §9; the archipelago seed stores island positions in tile coordinates.
 
-## 9. Islands (D-036, D-039)
+## 9. Islands (D-036, D-053)
 
-| Property | Range |
+| Property | Value |
 |---|---|
-| Islands per archipelago | 6–8 (2 small, 2–3 medium, 2–3 large) |
-| Fertilities per island | 2–4 |
-| Deposit slots per island | 0–4, typed |
-| Harbour area | proportional to coast length |
+| Habitable islands per archipelago | 12: 3 large (≈ 48×48), 5 medium (≈ 32×32), 4 small (≈ 20×20) |
+| Resource rocks | 0–2 (≈ 10×10, mountain + coast; Trading Post and mines only) |
+| Fertilities per habitable island | 2–4 from the pool; each pool entry 2–5 times per archipelago (provisional) |
+| Deposit slots per island | 0–4, typed; each pool entry 1–4 times (stone ≥ 3; gold exactly 1 when authored) |
+| Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
+| Spacing | ≥ 60 tiles between islands, nearest neighbour ≤ 150 |
+| Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
 
-Guarantees per tier are specified in MECHANICS §10. Settling order is gated
-by `islands.json: unlock` conditions (see §2).
+Guarantees per tier are specified in MECHANICS §10. No gating (D-051).
+Sizes, counts, pools and ranges live in `islands.json`; the generator
+reads them and the content loader validates that the ranges are
+satisfiable (pool size × max ≥ islands × min fertilities, etc.).
 
 ## 10. Decorations (cosmetic, Doubloons)
 

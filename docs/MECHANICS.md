@@ -565,15 +565,25 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
 
 ## 10. Islands, archipelago and settling (D-016, D-051)
 
-- Each archipelago has 6–8 islands of varied size (small/medium/large)
-  generated from a seed. Each island gets fertilities (2–4 from the pool),
-  typed deposit slots (0–4) and a harbour area proportional to its coast.
+- Each archipelago is generated from a **seed stored on the world**
+  (D-053) by a pure function of seed and content: **12 habitable islands**
+  (3 large ≈ 48×48, 5 medium ≈ 32×32, 4 small ≈ 20×20) plus 0–2 resource
+  rocks (≈ 10×10, mountain and coast only). Each island gets fertilities
+  (2–4 from the pool; rocks none), typed deposit slots (0–4) and a
+  harbour area proportional to its coast; each habitable island has ≥ 2
+  valid Trading Post sites. Islands are ≥ 60 tiles apart, nearest
+  neighbour ≤ 150; the start ship spawns at the centre. The archipelago
+  may be **re-rolled** until the first founding (`reroll_archipelago`);
+  a settled island may be **renamed** by its owner (`rename_island`).
 - **No gating** (D-051, supersedes D-039's unlock ladder): every island
   can be settled from the start; pacing comes from ships, Trading Posts
   and running a second settlement. Islands show their fertilities,
   deposits and size before settling so the first choice is informed.
-- **Generator guarantees** (over the archipelago): at least one island has
-  forest, fish, grass, stone and one of wheat/apple (a good home island);
+- **Generator guarantees** (over the archipelago; composition fixed so
+  re-rolls change the layout, not the odds): a **large** island has
+  forest, fish, grass, stone and one of wheat/apple (the home candidate);
+  every fertility and deposit of the pool appears within a fixed count
+  range; total buildable area within ±10 % of a target;
   iron and hemp never share an island with all of those; clay, salt,
   hops, woad, coal, grapes, quartz, copper and gold (exactly one gold
   deposit) are spread so that a balanced top-tier economy needs most
