@@ -60,8 +60,8 @@ func TestMigrateTwiceIsANoOp(t *testing.T) {
 		}
 		total += len(applied[i])
 	}
-	if total != 1 {
-		t.Fatalf("applied %d migrations in total, want 1", total)
+	if total != 2 {
+		t.Fatalf("applied %d migrations in total, want 2", total)
 	}
 	again, err := postgres.Migrate(ctx, pool, discard())
 	if err != nil || len(again) != 0 {
@@ -70,7 +70,7 @@ func TestMigrateTwiceIsANoOp(t *testing.T) {
 	if err := postgres.CheckMigrations(ctx, pool); err != nil {
 		t.Fatal(err)
 	}
-	for _, table := range []string{"players", "worlds", "scheduled_events", "sessions", "auth_tokens", "schema_migrations"} {
+	for _, table := range []string{"players", "worlds", "scheduled_events", "sessions", "auth_tokens", "schema_migrations", "world_terrain"} {
 		var ok bool
 		if err := pool.QueryRow(ctx, "SELECT to_regclass($1) IS NOT NULL", table).Scan(&ok); err != nil || !ok {
 			t.Errorf("table %s missing (%v)", table, err)
@@ -105,13 +105,19 @@ func TestEnvelopeRoundTripThroughJSONB(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var state []byte
+	var state, terrain []byte
 	var schemaVersion int
 	var lastEval time.Time
 	if err := pool.QueryRow(ctx, "SELECT state, schema_version, last_evaluated_at FROM worlds WHERE id = $1", string(id)).Scan(&state, &schemaVersion, &lastEval); err != nil {
 		t.Fatal(err)
 	}
-	w, cv, _, err := sim.Decode(state, catalogue(t))
+	if err := pool.QueryRow(ctx, "SELECT terrain FROM world_terrain WHERE world_id = $1", string(id)).Scan(&terrain); err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(state, []byte(`"tiles"`)) {
+		t.Error("the stored state carries tiles")
+	}
+	w, cv, _, err := sim.DecodeState(state, terrain, catalogue(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,6 +130,79 @@ func TestEnvelopeRoundTripThroughJSONB(t *testing.T) {
 	}
 	if schemaVersion != sim.SchemaVersion || !lastEval.Equal(w.LastEvaluatedAt) {
 		t.Fatalf("schema_version %d, last_evaluated_at %s vs %s", schemaVersion, lastEval, w.LastEvaluatedAt)
+	}
+}
+
+// TestTerrainRow (D-054): a world's tiles live in one world_terrain row
+// keyed by its seed and roll, written on creation; an update keeps it, a
+// re-roll (a new key) writes the new row and deletes the old one; the
+// world loads with its full islands.
+func TestTerrainRow(t *testing.T) {
+	st, pool := newStore(t)
+	_, id := newWorld(t, st, 0)
+	ctx := context.Background()
+	type row struct {
+		seed    int64
+		roll    int
+		terrain []byte
+	}
+	rows := func() []row {
+		t.Helper()
+		r, err := pool.Query(ctx, "SELECT seed, roll, terrain FROM world_terrain WHERE world_id = $1 ORDER BY roll", string(id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		out, err := pgx.CollectRows(r, func(r pgx.CollectableRow) (row, error) {
+			var x row
+			return x, r.Scan(&x.seed, &x.roll, &x.terrain)
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	first := rows()
+	var tiles0 string
+	_, err := st.Update(ctx, id, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
+		if len(first) != 1 || first[0].seed != int64(w.Seed) || first[0].roll != w.ArchipelagoRoll { //nolint:gosec // test seeds are small
+			t.Errorf("terrain rows %+v for key %+v", first, w.TerrainKey())
+		}
+		is := w.Islands[0]
+		if len(is.Tiles) != is.Width*is.Height {
+			t.Fatalf("island %q loaded with %d tiles", is.ID, len(is.Tiles))
+		}
+		tiles0 = is.Tiles[0].Terrain
+		return true, nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if again := rows(); len(again) != 1 || !bytes.Equal(again[0].terrain, first[0].terrain) {
+		t.Fatalf("an update rewrote the terrain: %+v", again)
+	}
+	// A re-roll: a new key with other tiles.
+	_, err = st.Update(ctx, id, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
+		w.ArchipelagoRoll++
+		w.Islands[0].Tiles[0].Terrain = content.TerrainMountain
+		if tiles0 == content.TerrainMountain {
+			w.Islands[0].Tiles[0].Terrain = content.TerrainWater
+		}
+		return true, nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r := rows(); len(r) != 1 || r[0].roll != first[0].roll+1 {
+		t.Fatalf("after the re-roll: %+v", r)
+	}
+	_, err = st.Update(ctx, id, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
+		if got := w.Islands[0].Tiles[0].Terrain; got == tiles0 {
+			t.Errorf("tile 0 is still %s after the re-roll", got)
+		}
+		return false, nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 

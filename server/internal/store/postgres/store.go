@@ -44,9 +44,13 @@ type LockedWorld struct {
 	ID      store.WorldID
 	World   *sim.World
 	Version int64
+	// terrain is the key of the stored terrain row (D-054); SaveWorld
+	// writes a new row when the world's key changed (a re-roll).
+	terrain sim.TerrainKey
 }
 
-// LockWorld locks the world row (FOR UPDATE) and decodes its envelope.
+// LockWorld locks the world row (FOR UPDATE) and decodes its envelope with
+// the terrain row of the state's seed and roll (D-054).
 // Unknown or malformed IDs are store.ErrWorldNotFound; an envelope without
 // a schema migration path fails with sim.ErrSchemaVersion (logged with the
 // world ID); farms whose efficiency a migration could not keep are logged
@@ -56,17 +60,23 @@ func (s *Store) LockWorld(ctx context.Context, tx pgx.Tx, id store.WorldID) (*Lo
 		return nil, store.ErrWorldNotFound
 	}
 	var (
-		state   []byte
-		version int64
+		state, terrain []byte
+		version        int64
 	)
-	err := tx.QueryRow(ctx, "SELECT state, version FROM worlds WHERE id = $1 FOR UPDATE", string(id)).Scan(&state, &version)
+	err := tx.QueryRow(ctx, `SELECT w.state, w.version, t.terrain
+FROM worlds w
+LEFT JOIN world_terrain t ON t.world_id = w.id
+  AND t.seed = COALESCE((w.state->'world'->>'seed')::bigint, 0)
+  AND t.roll = COALESCE((w.state->'world'->>'archipelago_roll')::int, 0)
+WHERE w.id = $1
+FOR UPDATE OF w`, string(id)).Scan(&state, &version, &terrain)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, store.ErrWorldNotFound
 	}
 	if err != nil {
 		return nil, fmt.Errorf("lock world: %w", err)
 	}
-	w, cv, _, err := sim.Decode(state, s.catalogue)
+	w, cv, _, err := sim.DecodeState(state, terrain, s.catalogue)
 	if err != nil {
 		if errors.Is(err, sim.ErrSchemaVersion) {
 			s.logger.Error("world envelope has an unsupported schema version", "world_id", string(id), "error", err)
@@ -77,14 +87,33 @@ func (s *Store) LockWorld(ctx context.Context, tx pgx.Tx, id store.WorldID) (*Lo
 		telemetry.ContentVersionMismatch.Inc()
 		s.logger.Debug("world content version differs from the catalogue", "world_id", string(id), "stored", cv, "loaded", s.contentVersion)
 	}
-	return &LockedWorld{ID: id, World: w, Version: version}, nil
+	return &LockedWorld{ID: id, World: w, Version: version, terrain: w.TerrainKey()}, nil
+}
+
+// saveTerrain stores the world's terrain under its key and deletes the
+// world's rows of other keys.
+func saveTerrain(ctx context.Context, tx pgx.Tx, id string, key sim.TerrainKey, terrain []byte) error {
+	if _, err := tx.Exec(ctx, `INSERT INTO world_terrain (world_id, seed, roll, terrain) VALUES ($1, $2, $3, $4)
+ON CONFLICT (world_id, seed, roll) DO UPDATE SET terrain = EXCLUDED.terrain`, id, int64(key.Seed), key.Roll, terrain); err != nil { //nolint:gosec // seeds are below 2^53 (archipelago.MaxSeed)
+		return fmt.Errorf("save terrain: %w", err)
+	}
+	if _, err := tx.Exec(ctx, "DELETE FROM world_terrain WHERE world_id = $1 AND (seed, roll) <> ($2, $3)", id, int64(key.Seed), key.Roll); err != nil { //nolint:gosec // as above
+		return fmt.Errorf("save terrain: %w", err)
+	}
+	return nil
 }
 
 // SaveWorld writes the locked world back and increments its version.
 func (s *Store) SaveWorld(ctx context.Context, tx pgx.Tx, lw *LockedWorld) error {
-	state, err := sim.Encode(lw.World, s.contentVersion)
+	state, terrain, err := sim.EncodeState(lw.World, s.contentVersion)
 	if err != nil {
 		return fmt.Errorf("encode world: %w", err)
+	}
+	if key := lw.World.TerrainKey(); key != lw.terrain {
+		if err := saveTerrain(ctx, tx, string(lw.ID), key, terrain); err != nil {
+			return err
+		}
+		lw.terrain = key
 	}
 	err = tx.QueryRow(ctx, `UPDATE worlds
 SET state = $2, schema_version = $3, version = version + 1, last_evaluated_at = $4, updated_at = statement_timestamp()
@@ -183,7 +212,7 @@ func (s *Store) Version(ctx context.Context, id store.WorldID) (int64, error) {
 
 // CreateWorld inserts a world for the player at version 0.
 func (s *Store) CreateWorld(ctx context.Context, tx pgx.Tx, playerID, region string, w *sim.World) (store.WorldID, error) {
-	state, err := sim.Encode(w, s.contentVersion)
+	state, terrain, err := sim.EncodeState(w, s.contentVersion)
 	if err != nil {
 		return "", fmt.Errorf("encode world: %w", err)
 	}
@@ -192,6 +221,9 @@ func (s *Store) CreateWorld(ctx context.Context, tx pgx.Tx, playerID, region str
 VALUES ($1, $2, $3, $4, $5, now()) RETURNING id::text`, playerID, region, state, sim.SchemaVersion, w.LastEvaluatedAt).Scan(&id)
 	if err != nil {
 		return "", fmt.Errorf("create world: %w", err)
+	}
+	if err := saveTerrain(ctx, tx, id, w.TerrainKey(), terrain); err != nil {
+		return "", err
 	}
 	return store.WorldID(id), nil
 }
