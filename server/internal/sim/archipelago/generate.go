@@ -52,12 +52,12 @@ func IslandID(i int) string { return fmt.Sprintf("isle-%02d", i+1) }
 
 // RollSeed returns the seed of re-roll number roll of a world seed
 // (reroll_archipelago, D-053 part 2): the world seed itself for roll 0,
-// else a 53-bit seed derived from both.
+// else a non-zero 53-bit seed derived from both.
 func RollSeed(seed uint64, roll int) uint64 {
 	if roll <= 0 {
 		return seed
 	}
-	return derive(seed, 0x5e11_0000+uint64(roll)) & MaxSeed // #nosec G115 -- roll > 0
+	return max(derive(seed, 0x5e11_0000+uint64(roll))&MaxSeed, 1) // #nosec G115 -- roll > 0
 }
 
 // Generate builds the archipelago of seed. It tries derived sub-seeds

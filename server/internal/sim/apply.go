@@ -173,6 +173,10 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 		err = claimQuest(w, c, cmd, l)
 	case AckSummary:
 		ackSummary(w, cmd)
+	case RerollArchipelago:
+		err = rerollArchipelago(w, c, cmd)
+	case RenameIsland:
+		err = renameIsland(w, c, cmd)
 	case nil:
 		return fmt.Errorf("%w: nil command", ErrInvalidCommand)
 	default:

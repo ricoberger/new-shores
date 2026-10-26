@@ -31,10 +31,23 @@
         "goods_delivered": {}
       }
     ],
+    "archipelago": {
+      "seed": 0,
+      "roll": 0,
+      "rerollable": false,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 30,
+        "height": 14
+      }
+    },
     "islands": [
       {
         "id": "main",
         "name": "",
+        "size_class": "",
+        "rock": false,
         "settled": true,
         "position": {
           "x": 0,
@@ -683,10 +696,23 @@
             "goods_delivered": {}
           }
         ],
+        "archipelago": {
+          "seed": 0,
+          "roll": 0,
+          "rerollable": false,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 30,
+            "height": 14
+          }
+        },
         "islands": [
           {
             "id": "main",
             "name": "",
+            "size_class": "",
+            "rock": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -1335,10 +1361,23 @@
             "goods_delivered": {}
           }
         ],
+        "archipelago": {
+          "seed": 0,
+          "roll": 0,
+          "rerollable": false,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 30,
+            "height": 14
+          }
+        },
         "islands": [
           {
             "id": "main",
             "name": "",
+            "size_class": "",
+            "rock": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -1987,10 +2026,23 @@
             "goods_delivered": {}
           }
         ],
+        "archipelago": {
+          "seed": 0,
+          "roll": 0,
+          "rerollable": false,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 30,
+            "height": 14
+          }
+        },
         "islands": [
           {
             "id": "main",
             "name": "",
+            "size_class": "",
+            "rock": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -2639,10 +2691,23 @@
             "goods_delivered": {}
           }
         ],
+        "archipelago": {
+          "seed": 0,
+          "roll": 0,
+          "rerollable": false,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 30,
+            "height": 14
+          }
+        },
         "islands": [
           {
             "id": "main",
             "name": "",
+            "size_class": "",
+            "rock": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -3291,10 +3356,23 @@
             "goods_delivered": {}
           }
         ],
+        "archipelago": {
+          "seed": 0,
+          "roll": 0,
+          "rerollable": false,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 30,
+            "height": 14
+          }
+        },
         "islands": [
           {
             "id": "main",
             "name": "",
+            "size_class": "",
+            "rock": false,
             "settled": true,
             "position": {
               "x": 0,

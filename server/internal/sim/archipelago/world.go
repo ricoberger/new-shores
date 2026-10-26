@@ -37,3 +37,19 @@ func NewWorld(c *content.Catalogue, seed uint64, start time.Time) (*sim.World, e
 	}
 	return w, nil
 }
+
+// Reroll builds the command that replaces the archipelago of w by its
+// next roll (reroll_archipelago, D-053): the archipelago of
+// RollSeed(w.Seed, roll+1), every ship back at its spawn. It fails with
+// sim.ErrRerollNotAllowed when the world can no longer be rerolled.
+func Reroll(w *sim.World, c *content.Catalogue) (sim.RerollArchipelago, error) {
+	if err := sim.CanReroll(w, c); err != nil {
+		return sim.RerollArchipelago{}, err
+	}
+	roll := w.ArchipelagoRoll + 1
+	a, err := Generate(RollSeed(w.Seed, roll), c)
+	if err != nil {
+		return sim.RerollArchipelago{}, err
+	}
+	return sim.RerollArchipelago{Roll: roll, Islands: a.Islands, Spawn: a.Ship}, nil
+}

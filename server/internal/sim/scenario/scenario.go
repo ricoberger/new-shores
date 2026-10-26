@@ -231,6 +231,12 @@ type FoundStep struct {
 	Rotation int    `json:"rotation"`
 }
 
+// RenameStep renames Island ("" = the first island) to Name.
+type RenameStep struct {
+	Island string `json:"island,omitempty"`
+	Name   string `json:"name"`
+}
+
 // AdvanceStep advances the world by Duration (Go duration syntax).
 type AdvanceStep struct {
 	Duration string `json:"duration"`
@@ -267,6 +273,10 @@ type Step struct {
 	FoundIsland     *FoundStep     `json:"found_island,omitempty"`
 	ScrapShip       *ShipStep      `json:"scrap_ship,omitempty"`
 	ClaimQuest      *ClaimStep     `json:"claim_quest,omitempty"`
+	// RerollArchipelago (true) replaces a generated archipelago by its
+	// next roll (archipelago.Reroll, D-053).
+	RerollArchipelago bool        `json:"reroll_archipelago,omitempty"`
+	RenameIsland      *RenameStep `json:"rename_island,omitempty"`
 	// AwaySummary (true) produces the "while you were away" summary over
 	// the time since the last command step, stores it as the world's
 	// pending summary and writes it into the report. Advance steps never
@@ -298,6 +308,7 @@ func (s Step) kind() (string, error) {
 		"unassign_ship": s.UnassignShip != nil, "manual_shipment": s.ManualShipment != nil, "sail_ship": s.SailShip != nil, "found_island": s.FoundIsland != nil,
 		"scrap_ship": s.ScrapShip != nil, "upgrade_warehouse": s.UpgradeWarehouse != nil, "upgrade_trading_post": s.UpgradeTradingPost != nil,
 		"claim_quest": s.ClaimQuest != nil, "away_summary": s.AwaySummary,
+		"reroll_archipelago": s.RerollArchipelago, "rename_island": s.RenameIsland != nil,
 	} {
 		if set {
 			kinds = append(kinds, name)
@@ -850,6 +861,14 @@ func (r *runner) step(i int, st Step) error {
 			typ = firstTradingPostType(r.c)
 		}
 		return r.apply(sim.FoundIsland{ShipID: f.Ship, IslandID: f.Island, BuildingType: typ, X: f.X, Y: f.Y, Rotation: f.Rotation})
+	case st.RerollArchipelago:
+		cmd, err := archipelago.Reroll(r.w, r.c)
+		if err != nil {
+			return err
+		}
+		return r.apply(cmd)
+	case st.RenameIsland != nil:
+		return r.apply(sim.RenameIsland{IslandID: r.islandID(st.RenameIsland.Island), Name: st.RenameIsland.Name})
 	case st.ClaimQuest != nil:
 		cq := st.ClaimQuest
 		if err := r.apply(sim.ClaimQuest{QuestID: cq.Quest, IslandID: cq.Island}); err != nil {
@@ -1004,7 +1023,8 @@ func Sentinels() map[string]error {
 		"last_trading_post": sim.ErrLastTradingPost, "not_connected": sim.ErrNotConnected,
 		"quest_not_found": sim.ErrQuestNotFound, "quest_not_completed": sim.ErrQuestNotCompleted,
 		"quest_already_claimed": sim.ErrQuestAlreadyClaimed,
-		"field_type_mismatch":   sim.ErrFieldTypeMismatch, "field_not_adjacent": sim.ErrFieldNotAdjacent,
+		"reroll_not_allowed":    sim.ErrRerollNotAllowed, "invalid_name": sim.ErrInvalidName,
+		"field_type_mismatch": sim.ErrFieldTypeMismatch, "field_not_adjacent": sim.ErrFieldNotAdjacent,
 		"field_max_reached": sim.ErrFieldMaxReached, "field_wrong_farm": sim.ErrFieldWrongFarm,
 		"field_needs_farm": sim.ErrFieldNeedsFarm,
 	}

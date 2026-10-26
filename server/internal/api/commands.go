@@ -10,6 +10,7 @@ import (
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 )
 
 // maxBodyBytes limits request bodies (64 KiB).
@@ -43,6 +44,9 @@ const (
 
 	cmdClaimQuest = "claim_quest"
 	cmdAckSummary = "ack_summary"
+
+	cmdRerollArchipelago = "reroll_archipelago"
+	cmdRenameIsland      = "rename_island"
 )
 
 // Body limits of the ship and route commands (API level, invalid_command).
@@ -282,6 +286,15 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeClaimQuest(raw)
 	case cmdAckSummary:
 		cmd, err = decodeAckSummary(raw)
+	case cmdRerollArchipelago:
+		// The server generates the next roll inside the transaction
+		// (resolveReroll); the client sends no parameters.
+		var c struct {
+			Type string `json:"type"`
+		}
+		cmd, err = sim.RerollArchipelago{}, decodeStrict(raw, &c)
+	case cmdRenameIsland:
+		cmd, err = decodeRenameIsland(raw)
 	case "":
 		return "", nil, missing("type")
 	default:
@@ -314,6 +327,34 @@ func decodeAckSummary(raw json.RawMessage) (sim.Command, error) {
 		return nil, missing("summary_id")
 	}
 	return sim.AckSummary{SummaryID: *c.SummaryID}, nil
+}
+
+func decodeRenameIsland(raw json.RawMessage) (sim.Command, error) {
+	var c struct {
+		Type     string  `json:"type"`
+		IslandID *string `json:"island_id"`
+		Name     *string `json:"name"`
+	}
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	if c.IslandID == nil {
+		return nil, missing("island_id")
+	}
+	if c.Name == nil {
+		return nil, missing("name")
+	}
+	return sim.RenameIsland{IslandID: *c.IslandID, Name: *c.Name}, nil
+}
+
+// resolveReroll turns a decoded reroll_archipelago into the command that
+// carries the world's next archipelago (archipelago.Reroll); other
+// commands pass through.
+func resolveReroll(w *sim.World, c *content.Catalogue, cmd sim.Command) (sim.Command, error) {
+	if _, ok := cmd.(sim.RerollArchipelago); !ok {
+		return cmd, nil
+	}
+	return archipelago.Reroll(w, c)
 }
 
 // checkClaimIsland rejects a claim_quest of a quest that rewards goods

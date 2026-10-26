@@ -42,3 +42,26 @@ func TestArchipelagoSeed(t *testing.T) {
 		t.Fatalf("ships %+v, want the start ship at %+v", w.Ships, a.Ship)
 	}
 }
+
+// TestArchipelagoSteps: the reroll_archipelago and rename_island steps
+// run the D-053 commands, with their expected errors.
+func TestArchipelagoSteps(t *testing.T) {
+	c := loadCatalogue(t)
+	s, err := Parse([]byte(`{"name": "steps", "start": "2026-01-01T00:00:00Z", "seed": {"archipelago": 7, "start": true}, "steps": [
+		{"rename_island": {"name": "Haven"}, "expect_error": "island_not_settled"},
+		{"reroll_archipelago": true},
+		{"reroll_archipelago": true},
+		{"sail_ship": {"ship": 1, "to": "isle-01"}},
+		{"reroll_archipelago": true, "expect_error": "reroll_not_allowed"}
+	]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	w, err := RunSteps(s, c, len(s.Steps))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if w.ArchipelagoRoll != 2 || w.Seed != 7 {
+		t.Fatalf("roll %d seed %d, want 2 and 7", w.ArchipelagoRoll, w.Seed)
+	}
+}
