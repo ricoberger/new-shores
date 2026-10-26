@@ -931,8 +931,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid={nothingSettled ? "seafaring-panel" : "unsettled-panel"}>
               {nothingSettled && (
                 <div data-testid="seafaring-hint">
-                  <strong>Choose your home island.</strong> Your sloop carries the planks and sails; look at the islands&apos;
-                  fertilities and deposits (tap one for its card) and found a Trading Post where you want to start.
+                  <strong>Choose your home island.</strong> Your sloop carries the planks and sails. Use the minimap to
+                  see the whole archipelago and tap it to look around; look at the islands&apos; fertilities and deposits (tap one for its
+                  card) and found a Trading Post where you want to start.
                 </div>
               )}
               <div>

@@ -17,5 +17,8 @@
     "ship_speed_tiles_per_min": 60,
     "away_summary_minutes": 15,
     "trial_resume_upkeep_minutes": 30
+  },
+  "camera": {
+    "max_half_extent": 120
   }
 }

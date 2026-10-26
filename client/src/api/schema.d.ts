@@ -1976,6 +1976,11 @@ export interface components {
             /** @description Content version (e.g. old_coast-0.3.0). */
             version: string;
             rules: components["schemas"]["ContentRules"];
+            /** @description Client view constants of the region (render only, no rule reads them). */
+            camera: {
+                /** @description Largest camera half-extent in tiles (the zoom-out cap); clients never cap below their far-LOD reach. */
+                max_half_extent: number;
+            };
         };
         ContentRules: {
             /**

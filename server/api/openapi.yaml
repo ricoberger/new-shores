@@ -2915,7 +2915,7 @@ components:
     ContentRegion:
       type: object
       additionalProperties: false
-      required: [id, name, version, rules]
+      required: [id, name, version, rules, camera]
       properties:
         id:
           type: string
@@ -2926,6 +2926,15 @@ components:
           description: Content version (e.g. old_coast-0.3.0).
         rules:
           $ref: "#/components/schemas/ContentRules"
+        camera:
+          type: object
+          additionalProperties: false
+          required: [max_half_extent]
+          description: Client view constants of the region (render only, no rule reads them).
+          properties:
+            max_half_extent:
+              type: integer
+              description: Largest camera half-extent in tiles (the zoom-out cap); clients never cap below their far-LOD reach.
     ContentRules:
       type: object
       additionalProperties: false

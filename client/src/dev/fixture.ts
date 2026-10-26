@@ -268,7 +268,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
     last_seen_at: ts(nowMs),
   } as DisplayState;
   const content = {
-    region: { id: "fixture", name: "Fixture", version: "fixture" },
+    region: { id: "fixture", name: "Fixture", version: "fixture", camera: { max_half_extent: 120 } },
     quests: [],
     tiers: [],
     goods: GOODS.map((g) => ({ id: g, name: g[0]?.toUpperCase() + g.slice(1) })),
@@ -484,7 +484,7 @@ export function fixtureDefs(): { id: string; tier: string; category: string; wid
 /** Content of the dense and showcase fixtures. */
 function denseContent(): Content {
   return {
-    region: { id: "fixture", name: "Fixture", version: "fixture" },
+    region: { id: "fixture", name: "Fixture", version: "fixture", camera: { max_half_extent: 120 } },
     quests: [],
     tiers: [
       { id: "settlers", name: "Settlers" },

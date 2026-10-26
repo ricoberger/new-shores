@@ -649,7 +649,7 @@ export class GameRenderer {
 
   private layoutSea(): void {
     const b = this.arch.bounds();
-    if (b) this.arch.setSeaMargin(seaMargin(b, this.rig.aspect()));
+    if (b) this.arch.setSeaMargin(seaMargin(b, this.rig.aspect(), this.rig.zoomCap()));
   }
 
   // Data ----------------------------------------------------------------------
@@ -658,6 +658,8 @@ export class GameRenderer {
     if (snap.content !== this.lastContent && snap.content) {
       this.lastContent = snap.content;
       this.defs = new Map(snap.content.buildings.map((b) => [b.id, b]));
+      // The zoom-out cap of the region (an older server sends none: no cap).
+      this.rig.setZoomCap((snap.content.region.camera as { max_half_extent?: number } | undefined)?.max_half_extent ?? null);
       this.lastServer = null; // rebuild with the new definitions
     }
     if (!snap.server || (snap.server === this.lastServer && snap.islands === this.lastIslands)) return;

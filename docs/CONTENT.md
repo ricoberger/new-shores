@@ -343,6 +343,7 @@ exponent notation; they are converted to fixed point at load time.
 | `ship_handling_seconds_per_unit` | berth time per unit unloaded or loaded (provisional 0.2) | §9.2 |
 | `away_summary_minutes` | minimum absence before a "while you were away" summary is produced (15) | §12b |
 | `trial_resume_upkeep_minutes` | gold reserve for a trial resume of an unpaid building; must be > `auto_resume_upkeep_minutes` (30) | §7 |
+| `camera.max_half_extent` | zoom-out cap of the camera, vertical half extent in tiles (120); client view only, no rule reads it; the client never caps below its far-LOD reach | render |
 
 `version` is the `content_version` embedded in every saved world.
 

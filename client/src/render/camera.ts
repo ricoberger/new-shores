@@ -60,6 +60,7 @@ export class CameraRig {
   private halfHeight = NEAR_DEFAULT_HALF_HEIGHT;
   private rotation = 0;
   private bounds: Rect | null = null;
+  private cap: number | null = null;
   /** Unit vector from the target to the camera. */
   private readonly offset = new Vector3();
   private anim: Animation | null = null;
@@ -89,13 +90,25 @@ export class CameraRig {
     this.update();
   }
 
+  /** The region's zoom-out cap (null: none). */
+  zoomCap(): number | null {
+    return this.cap;
+  }
+
+  /** The region's zoom-out cap (vertical half extent, tiles; null: none yet): the maximum zoom follows it. */
+  setZoomCap(cap: number | null): void {
+    if (cap === this.cap) return;
+    this.cap = cap;
+    this.update();
+  }
+
   aspect(): number {
     return this.engine.getRenderWidth() / Math.max(1, this.engine.getRenderHeight());
   }
 
   /** Zoom range (vertical half extents) for the current bounds and aspect. */
   zoomRange(): { min: number; max: number } {
-    return zoomRange(this.bounds, this.aspect());
+    return zoomRange(this.bounds, this.aspect(), this.cap);
   }
 
   /** Target (archipelago tiles), zoom and rotation step. */
@@ -108,7 +121,7 @@ export class CameraRig {
     this.anim = null;
     if (v.rotation !== undefined) this.turn = null;
     const cur = this.view();
-    const next = clampView({ ...cur, ...v }, this.bounds, this.aspect());
+    const next = clampView({ ...cur, ...v }, this.bounds, this.aspect(), this.cap);
     this.target.set(next.x, 0, -next.y);
     this.halfHeight = next.half;
     if (next.rotation !== this.rotation) {
@@ -186,7 +199,7 @@ export class CameraRig {
    * destination is clamped first.
    */
   animateTo(to: { x: number; y: number; half: number }, durationMs: number, nowMs: number): void {
-    const dest = clampView({ ...to, rotation: this.rotation }, this.bounds, this.aspect());
+    const dest = clampView({ ...to, rotation: this.rotation }, this.bounds, this.aspect(), this.cap);
     this.anim = { from: { x: this.target.x, y: -this.target.z, half: this.halfHeight }, to: { x: dest.x, y: dest.y, half: dest.half }, startMs: nowMs, durationMs };
   }
 
@@ -218,7 +231,7 @@ export class CameraRig {
   /** Applies target, rotation and zoom to the camera; the target and zoom are clamped unless animating or `clamp` is false. */
   update(clamp = true): void {
     if (clamp && !this.anim) {
-      const v = clampView(this.view(), this.bounds, this.aspect());
+      const v = clampView(this.view(), this.bounds, this.aspect(), this.cap);
       this.target.set(v.x, 0, -v.y);
       this.halfHeight = v.half;
     }

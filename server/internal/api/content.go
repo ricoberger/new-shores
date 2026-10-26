@@ -88,10 +88,16 @@ type shipyardJSONOut struct {
 }
 
 type regionJSON struct {
-	ID      string    `json:"id"`
-	Name    string    `json:"name"`
-	Version string    `json:"version"`
-	Rules   rulesJSON `json:"rules"`
+	ID      string     `json:"id"`
+	Name    string     `json:"name"`
+	Version string     `json:"version"`
+	Rules   rulesJSON  `json:"rules"`
+	Camera  cameraJSON `json:"camera"`
+}
+
+// cameraJSON are the region's client view constants (render only).
+type cameraJSON struct {
+	MaxHalfExtent int `json:"max_half_extent"`
 }
 
 type rulesJSON struct {
@@ -299,6 +305,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 	p := contentPayload{
 		Region: regionJSON{
 			ID: c.Region.ID, Name: c.Region.Name, Version: c.Region.Version,
+			Camera: cameraJSON{MaxHalfExtent: c.Region.Camera.MaxHalfExtent},
 			Rules: rulesJSON{
 				TransferBaseMs: r.TransferBaseMs, UnconnectedBuffer: r.UnconnectedBuffer,
 				IterationCap: r.IterationCap, CoarseStepMs: r.CoarseStepMs,

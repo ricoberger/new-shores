@@ -41,6 +41,23 @@ describe("zoom range", () => {
     expect(zoomRange({ minX: 0, minY: 0, maxX: 4, maxY: 4 }, aspect).max).toBe(FAR_REACH_HALF);
     expect(zoomRange(null, aspect)).toEqual({ min: MIN_HALF_HEIGHT, max: NEAR_DEFAULT_HALF_HEIGHT });
   });
+
+  it("the region's cap limits the maximum of a large archipelago, never below the far-LOD reach", () => {
+    const big = { minX: 0, minY: 0, maxX: 848, maxY: 824 };
+    const phone = 412 / 915;
+    expect(fitHalfHeight(848, 824, phone)).toBeGreaterThan(120);
+    expect(zoomRange(big, phone, 120)).toEqual({ min: MIN_HALF_HEIGHT, max: 120 });
+    expect(zoomRange(big, phone, null).max).toBe(fitHalfHeight(848, 824, phone));
+    // A world that fits below the cap keeps its fit (here lifted to the far-LOD reach).
+    expect(zoomRange(DEV, 1280 / 800, 120).max).toBe(Math.max(FAR_REACH_HALF, fitHalfHeight(112, 114, 1280 / 800)));
+    expect(zoomRange(DEV, phone, 120).max).toBe(120);
+    // A cap below the far-LOD reach is lifted to it; a nonsensical cap is ignored.
+    expect(zoomRange(big, phone, 20).max).toBe(FAR_REACH_HALF);
+    expect(zoomRange(big, phone, 0).max).toBe(fitHalfHeight(848, 824, phone));
+    expect(zoomRange(big, phone, Number.NaN).max).toBe(fitHalfHeight(848, 824, phone));
+    expect(clampView({ x: 400, y: 400, half: 10_000, rotation: 0 }, big, phone, 120).half).toBe(120);
+    expect(seaMargin(big, phone, 120)).toBeLessThan(seaMargin(big, phone));
+  });
 });
 
 describe("clamping", () => {

@@ -41,6 +41,9 @@ func TestLoadOldCoast(t *testing.T) {
 		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.9.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
+	if c.Region.Camera.MaxHalfExtent != 120 {
+		t.Errorf("camera = %+v", c.Region.Camera)
+	}
 
 	wantIDs := func(kind string, got []string, want ...string) {
 		t.Helper()
@@ -551,6 +554,19 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			"region missing trial reserve", FileRegion,
 			[]string{`,
     "trial_resume_upkeep_minutes": 30`, ""},
+			[]string{FileRegion, "schema violation"},
+		},
+		{
+			"region missing camera", FileRegion,
+			[]string{`,
+  "camera": {
+    "max_half_extent": 120
+  }`, ""},
+			[]string{FileRegion, "schema violation"},
+		},
+		{
+			"region zero camera extent", FileRegion,
+			[]string{`"max_half_extent": 120`, `"max_half_extent": 0`},
 			[]string{FileRegion, "schema violation"},
 		},
 		{

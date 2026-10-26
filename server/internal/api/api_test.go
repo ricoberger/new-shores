@@ -643,6 +643,9 @@ func TestHealthAndContent(t *testing.T) {
 				ShipHandlingMsPerUnit int64 `json:"ship_handling_ms_per_unit"`
 				ShipSpeed             int64 `json:"ship_speed_milli_tiles_per_min"`
 			} `json:"rules"`
+			Camera struct {
+				MaxHalfExtent int `json:"max_half_extent"`
+			} `json:"camera"`
 		} `json:"region"`
 		Tiers []json.RawMessage `json:"tiers"`
 		Goods []json.RawMessage `json:"goods"`
@@ -717,6 +720,9 @@ func TestHealthAndContent(t *testing.T) {
 	}
 	if err := json.Unmarshal(res.body, &c); err != nil {
 		t.Fatal(err)
+	}
+	if c.Region.Camera.MaxHalfExtent != 120 {
+		t.Errorf("camera %+v", c.Region.Camera)
 	}
 	if c.Region.Version != "old_coast-0.9.0" || len(c.Buildings) != 32 || len(c.Goods) != 18 || len(c.Tiers) != 2 || len(c.Needs) != 9 || len(c.Ships) != 1 {
 		t.Fatalf("content: version %s buildings %d goods %d tiers %d needs %d ships %d", c.Region.Version, len(c.Buildings), len(c.Goods), len(c.Tiers), len(c.Needs), len(c.Ships))
