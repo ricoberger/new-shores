@@ -108,10 +108,25 @@ func Apply(w *World, c *content.Catalogue, cmd Command) error {
 // also go into the away summary accumulator (World.Away), so that a summary
 // produced right after a command still reports the state at LastSeenAt.
 func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) error {
+	_, err := ApplyWithResult(w, c, cmd, l)
+	return err
+}
+
+// Result is the outcome of a successful command beyond the world change:
+// the per-tile results of a batch command (PlaceFields, DemolishFields;
+// nil for every other command).
+type Result struct {
+	Tiles []TileResult
+}
+
+// ApplyWithResult is ApplyWithLedger that also returns the command's
+// result (the per-tile outcome of batch commands).
+func ApplyWithResult(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Result, error) {
 	gold, pop := w.goldFine(), worldPopulation(w, c)
 	inner := NewLedger()
-	if err := applyCommand(w, c, cmd, inner); err != nil {
-		return err
+	res, err := applyCommand(w, c, cmd, inner)
+	if err != nil {
+		return Result{}, err
 	}
 	w.Away.GoldDeltaSub += w.goldFine() - gold
 	delta := worldPopulation(w, c)
@@ -121,11 +136,14 @@ func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) err
 	w.Away.addPopulation(delta)
 	w.Away.addLedger(inner)
 	l.merge(inner)
-	return nil
+	return res, nil
 }
 
-func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error {
-	var err error
+func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Result, error) {
+	var (
+		err error
+		res Result
+	)
 	switch cmd := cmd.(type) {
 	case PlaceBuilding:
 		err = placeBuilding(w, c, cmd, true, l)
@@ -139,6 +157,10 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 		err = demolishRoad(w, c, cmd, l)
 	case PlaceField:
 		err = placeField(w, c, cmd, true, l)
+	case PlaceFields:
+		res.Tiles, err = placeFields(w, c, cmd, true, l)
+	case DemolishFields:
+		res.Tiles, err = demolishFields(w, c, cmd, l)
 	case SetPaused:
 		err = setPaused(w, c, cmd)
 	case UpgradeHouse:
@@ -178,12 +200,12 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 	case RenameIsland:
 		err = renameIsland(w, c, cmd)
 	case nil:
-		return fmt.Errorf("%w: nil command", ErrInvalidCommand)
+		return res, fmt.Errorf("%w: nil command", ErrInvalidCommand)
 	default:
-		return fmt.Errorf("%w: %T", ErrInvalidCommand, cmd)
+		return res, fmt.Errorf("%w: %T", ErrInvalidCommand, cmd)
 	}
 	if err != nil {
-		return err
+		return Result{}, err
 	}
 	now := w.LastEvaluatedAt.UnixMilli()
 	// Due moments a command creates at this instant (a berth granted to
@@ -192,7 +214,7 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 	normalizeShips(w, now)
 	evaluateUnlocks(w, c)
 	evaluateQuests(w, c, now, nil)
-	return nil
+	return res, nil
 }
 
 // PlaceFree places a building without charging its cost. It is meant for
