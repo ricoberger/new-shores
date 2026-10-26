@@ -15,7 +15,8 @@ import { ColoredInstances, shipMatrix, shipTemplate } from "./shipmesh";
 /** Minimum distance (tiles) between two harbour berths. */
 const BERTH_SPACING = 2;
 const MAX_BERTHS = 24;
-const CONSTRUCTION = [1, 0.62, 0.15, 1];
+/** The hull under construction keeps its own colours (no tint). */
+const CONSTRUCTION = [1, 1, 1, 1];
 
 /**
  * Water tiles next to the coast, nearest first to the given tile, spaced
