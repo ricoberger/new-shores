@@ -1,9 +1,9 @@
 {
   "size_classes": [
-    { "id": "large", "name": "Large", "size": 48, "count": { "min": 3, "max": 3 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
-    { "id": "medium", "name": "Medium", "size": 32, "count": { "min": 5, "max": 5 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
-    { "id": "small", "name": "Small", "size": 20, "count": { "min": 4, "max": 4 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
-    { "id": "rock", "name": "Resource rock", "size": 10, "rock": true, "count": { "min": 0, "max": 2 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 2, "max": 4 } }
+    { "id": "large", "name": "Large", "size": 192, "count": { "min": 3, "max": 3 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
+    { "id": "medium", "name": "Medium", "size": 112, "count": { "min": 5, "max": 5 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
+    { "id": "small", "name": "Small", "size": 64, "count": { "min": 4, "max": 4 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
+    { "id": "rock", "name": "Resource rock", "size": 16, "rock": true, "count": { "min": 0, "max": 2 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 2, "max": 4 } }
   ],
   "fertilities": [
     { "id": "wheat", "count": { "min": 3, "max": 5 } },
@@ -17,8 +17,8 @@
     { "id": "stone", "count": { "min": 3, "max": 6 } },
     { "id": "iron", "count": { "min": 2, "max": 4 } }
   ],
-  "buildable_area": { "target": 6550, "tolerance": 0.1 },
-  "spacing": { "min": 60, "nearest_max": 150 },
+  "buildable_area": { "target": 91000, "tolerance": 0.1 },
+  "spacing": { "min": 100, "nearest_max": 300 },
   "home": {
     "size_class": "large",
     "terrain": ["forest", "grass"],

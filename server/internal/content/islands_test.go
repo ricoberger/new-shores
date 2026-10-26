@@ -20,10 +20,10 @@ func TestLoadIslands(t *testing.T) {
 		rock     bool
 		deposits Range
 	}{
-		"large":  {48, Range{3, 3}, false, Range{0, 4}},
-		"medium": {32, Range{5, 5}, false, Range{0, 4}},
-		"small":  {20, Range{4, 4}, false, Range{0, 4}},
-		"rock":   {10, Range{0, 2}, true, Range{2, 4}},
+		"large":  {192, Range{3, 3}, false, Range{0, 4}},
+		"medium": {112, Range{5, 5}, false, Range{0, 4}},
+		"small":  {64, Range{4, 4}, false, Range{0, 4}},
+		"rock":   {16, Range{0, 2}, true, Range{2, 4}},
 	}
 	if len(r.SizeClasses) != len(want) {
 		t.Fatalf("size classes = %d, want %d", len(r.SizeClasses), len(want))
@@ -42,7 +42,7 @@ func TestLoadIslands(t *testing.T) {
 			t.Errorf("deposit %+v below the D-053 minimum", d)
 		}
 	}
-	if r.SpacingMin != 60 || r.NearestMax != 150 || r.BuildableTolerance != 100 || r.Home.SizeClass != "large" {
+	if r.SpacingMin != 100 || r.NearestMax != 300 || r.BuildableTarget != 91_000 || r.BuildableTolerance != 100 || r.Home.SizeClass != "large" {
 		t.Errorf("rules = %+v", r)
 	}
 	if len(c.IslandNames) < 40 {

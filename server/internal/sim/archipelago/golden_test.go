@@ -17,7 +17,7 @@ var update = flag.Bool("update", false, "regenerate the archipelago goldens")
 // goldenSeeds are the archipelagos pinned by full tile maps: the dev seed
 // (devworld.DevSeed, not imported to keep the generator free of the dev
 // package) and two others.
-var goldenSeeds = []uint64{1_053_001, 1, 42}
+var goldenSeeds = []uint64{1_053_003, 1, 42}
 
 // render writes an archipelago as text: the spawn and bounds, then per
 // island its identity, position, size, fertilities and deposit counts and

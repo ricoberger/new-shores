@@ -78,6 +78,11 @@ func (is *Island) buildingRoads(def *content.Building, b *Building) []Pos {
 }
 
 // occupancy maps each tile index to the ID of the building covering it.
+// Occupancy returns the ID of the building covering each tile (row-major,
+// 0 for none): one snapshot for scans over many tiles, where BuildingAt
+// would rebuild it per tile.
+func (is *Island) Occupancy(c *content.Catalogue) []int64 { return is.occupancy(c) }
+
 func (is *Island) occupancy(c *content.Catalogue) []int64 {
 	occ := make([]int64, is.Width*is.Height)
 	for _, b := range is.Buildings {
