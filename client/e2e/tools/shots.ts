@@ -9,6 +9,7 @@ import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, devices, type Page } from "@playwright/test";
+import type { WorldResponse } from "../../src/api/client.ts";
 import { FAR_EXIT_HALF, MID_TO_NEAR_HALF } from "../../src/display/lod.ts";
 import { API_PORT, API_SERVER_COMMAND, E2E_TIME_SCALE, WEB_PORT, WEB_SERVER_COMMAND } from "../constants.ts";
 import { type Device, type Fixture, type Preset, parseShotArgs, SERVER_FIXTURES, ShotArgError, type ShotArgs, type View } from "./shots-args.ts";
@@ -117,7 +118,19 @@ interface Timing {
 }
 const timings = new WeakMap<Page, Timing>();
 
-async function open(browser: Browser, device: Device, fixture: Fixture, hud: boolean): Promise<{ page: Page; close: () => Promise<void> }> {
+/**
+ * Opens the game on a fixture. `patch` edits every `GET /api/v1/world`
+ * response before the client sees it (a state the dev fixtures do not
+ * reach, e.g. four ships at the pier; display only, the server is not
+ * changed).
+ */
+async function open(
+  browser: Browser,
+  device: Device,
+  fixture: Fixture,
+  hud: boolean,
+  patch?: (w: WorldResponse) => void,
+): Promise<{ page: Page; close: () => Promise<void> }> {
   if (SERVER_FIXTURES.includes(fixture)) {
     const res = await fetch(`http://localhost:${API_PORT}/api/v1/dev/reset`, {
       method: "POST",
@@ -137,6 +150,14 @@ async function open(browser: Browser, device: Device, fixture: Fixture, hud: boo
     let passed = 0;
     await page.route("**/api/v1/world/islands/*/tiles*", (route) => {
       if (passed++ < Number(hold)) void route.continue();
+    });
+  }
+  if (patch) {
+    await page.route("**/api/v1/world", async (route) => {
+      const response = await route.fetch();
+      const json = (await response.json()) as WorldResponse;
+      patch(json);
+      await route.fulfill({ response, json });
     });
   }
   const t0 = Date.now();
@@ -268,7 +289,61 @@ async function farmOf(page: Page, type = "sheep_farm"): Promise<{ island: string
   }, type);
 }
 
-const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> }> = {
+/** The home island's Trading Post at level 4 with four ships at its berths and one in its queue (copies of the start sloop). */
+function fourAtThePier(w: WorldResponse): void {
+  const d = w.display;
+  const home = d.islands.find((i) => i.buildings.some((b) => b.type === "trading_post"));
+  const tp = home?.buildings.find((b) => b.type === "trading_post");
+  const sloop = d.ships[0];
+  if (!home || !tp || !sloop) throw new Error("fourAtThePier: no Trading Post or ship");
+  const ids = [901, 902, 903, 904, 905];
+  for (const id of ids) {
+    d.ships.push({ ...sloop, id, state: id === 905 ? "waiting_for_berth" : "idle", island_id: home.id, position: null, leg: null, route_id: 0, cargo: [], paused: false });
+  }
+  tp.level = 4;
+  tp.berths = { total: 4, busy: 4, ships: ids.slice(0, 4), queue: [905] };
+}
+
+/** The home island's shipyard halfway through a sloop. */
+function sloopOnTheSlip(w: WorldResponse): void {
+  const yard = w.display.islands.flatMap((i) => i.buildings).find((b) => b.type === "shipyard");
+  if (!yard) throw new Error("sloopOnTheSlip: no shipyard");
+  // Around the payload's evaluation time (the client's clock follows the server's).
+  const now = Date.parse(w.display.evaluated_at);
+  yard.ship_order = { type: "sloop", ordered_at: new Date(now - 60_000).toISOString(), due_at: new Date(now + 60_000).toISOString() };
+}
+
+/** Centres the camera at near on a building's footprint (plus an offset in tiles) and opens its card. */
+async function selectBuilding(page: Page, type: string, offset: { x: number; y: number }, half: number): Promise<void> {
+  const t = await page.evaluate((ty) => {
+    for (const is of window.__newShores!.getServer()!.display.islands) {
+      const b = is.buildings.find((x) => x.type === ty);
+      if (b) return { island: is.id, x: b.x, y: b.y, ox: is.position.x, oy: is.position.y };
+    }
+    throw new Error(`no ${ty}`);
+  }, type);
+  await setCamera(page, { x: t.ox + t.x + offset.x, y: t.oy + t.y + offset.y, half, rotation: 0 });
+  await settle(page);
+  // A land tile of the footprint whatever its rotation (ships over the water rows take the click there).
+  for (const [dx, dy] of [
+    [2, 2],
+    [3, 5],
+    [5, 3],
+    [1, 7],
+    [7, 1],
+  ] as const) {
+    const p = await tileAt(page, t.island, t.x + dx, t.y + dy);
+    await page.mouse.click(p.x, p.y);
+    if (await page.getByTestId("info-panel").waitFor({ state: "visible", timeout: 2000 }).then(() => true, () => false)) {
+      if (await page.getByTestId("info-panel").getByText(type.replace("_", " "), { exact: false }).count()) break;
+    }
+    await page.keyboard.press("Escape");
+  }
+  await page.getByTestId("info-panel").waitFor({ state: "visible" });
+  await page.mouse.move(5, 400);
+}
+
+const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w: WorldResponse) => void; run: (page: Page) => Promise<void> }> = {
   // The HUD with the info panel of a building that is not running (desktop).
   "info-panel": {
     fixture: "dense-2x400",
@@ -367,24 +442,12 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.mouse.move(5, 400);
     },
   },
+  // The Trading Post at level 4 (D-054 size, settled) with four ships at its berths and one queued, its card open.
   "trading-post-card": {
-    fixture: "showcase",
+    fixture: "settled",
     device: "desktop",
-    run: async (page) => {
-      const t = await page.evaluate(() => {
-        for (const is of window.__newShores!.getServer()!.display.islands) {
-          const b = is.buildings.find((x) => x.type === "trading_post" && x.level === 1);
-          if (b) return { island: is.id, x: b.x, y: b.y };
-        }
-        throw new Error("no trading post");
-      });
-      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
-      await settle(page);
-      const p = await tileAt(page, t.island, t.x, t.y);
-      await page.mouse.click(p.x, p.y);
-      await page.getByTestId("info-panel").waitFor({ state: "visible" });
-      await page.mouse.move(5, 400);
-    },
+    patch: fourAtThePier,
+    run: (page) => selectBuilding(page, "trading_post", { x: 1, y: -3 }, 12),
   },
   "shipyard-idle": {
     fixture: "showcase",
@@ -406,24 +469,12 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.mouse.move(5, 400);
     },
   },
+  // The shipyard (D-054 size, settled) halfway through a sloop on its slipway, its card open.
   "shipyard-building": {
-    fixture: "showcase",
+    fixture: "settled",
     device: "desktop",
-    run: async (page) => {
-      const t = await page.evaluate(() => {
-        for (const is of window.__newShores!.getServer()!.display.islands) {
-          const b = is.buildings.find((x) => x.type === "shipyard");
-          if (b) return { island: is.id, x: b.x, y: b.y };
-        }
-        throw new Error("no chapel");
-      });
-      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
-      await settle(page);
-      const p = await tileAt(page, t.island, t.x, t.y);
-      await page.mouse.click(p.x, p.y);
-      await page.getByTestId("info-panel").waitFor({ state: "visible" });
-      await page.mouse.move(5, 400);
-    },
+    patch: sloopOnTheSlip,
+    run: (page) => selectBuilding(page, "shipyard", { x: 4, y: 4 }, 12),
   },
   "served-houses": {
     fixture: "showcase",
@@ -699,7 +750,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
 
 async function takePreset(browser: Browser, preset: Preset, dir: string, written: string[]): Promise<void> {
   const p = PRESET_RUN[preset];
-  const { page, close } = await open(browser, p.device, p.fixture, true);
+  const { page, close } = await open(browser, p.device, p.fixture, true, p.patch);
   try {
     if (preset === "sheet") await page.waitForFunction(() => window.__newShores!.quality() === "low", undefined, { timeout: 10_000 });
     await settle(page);

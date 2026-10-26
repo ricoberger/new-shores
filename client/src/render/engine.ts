@@ -31,7 +31,7 @@ import { type ArchPoint, dockPoints, seaPoint } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
-import { ArchipelagoLayer, type ArchSelection } from "./archipelago";
+import { ArchipelagoLayer, type ArchSelection, DOCK_STERN } from "./archipelago";
 import { CameraRig } from "./camera";
 import { footprintBox } from "./coords";
 import { FootprintMarks, type Mark } from "./fields";
@@ -40,7 +40,7 @@ import { PlacementGhost } from "./ghost";
 import { GridOverlay } from "./grid";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
-import { type AssetsStatus, type Detail, ModelRegistry } from "./models";
+import { type AssetsStatus, buildingAnchor, type Detail, ModelRegistry } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
 import { LIFE_CLASSES, LifeLayer } from "./life";
@@ -303,6 +303,10 @@ export class GameRenderer {
     if (this.modelsDirty && (this.models.status().pending.length === 0 || t - this.modelsRefreshedAt >= MODEL_REFRESH_MS)) {
       this.modelsDirty = false;
       this.modelsRefreshedAt = t;
+      if (!this.docksAnchored && this.lastServer && this.models.manifest()) {
+        this.docksAnchored = true;
+        this.arch.setDocks(this.docks(this.lastServer.display));
+      }
       for (const d of this.details.values()) d.refreshModels();
       this.refreshCasters();
     }
@@ -738,6 +742,22 @@ export class GameRenderer {
 
   // Data ----------------------------------------------------------------------
 
+  /** The docks were laid with the model manifest (the berth anchors) at hand. */
+  private docksAnchored = false;
+
+  /** Pier and queue points of the ships at the Trading Posts (the berth anchors of the loaded models, else the front row). */
+  private docks(d: { islands: readonly IslandDisplay[] }) {
+    return dockPoints(
+      d.islands,
+      this.defs,
+      (b, def, name) => {
+        const entry = this.models.entry(b.type);
+        return entry ? buildingAnchor(entry, def, b, name) : null;
+      },
+      DOCK_STERN,
+    );
+  }
+
   private onSnapshot(snap: SyncSnapshot): void {
     if (snap.content !== this.lastContent && snap.content) {
       this.lastContent = snap.content;
@@ -760,8 +780,9 @@ export class GameRenderer {
         islandBerths(is, st, this.defs).map((t) => ({ x: is.position.x + t.x + 0.5, y: is.position.y + t.y + 0.5 })),
       );
     }
-    // Ships at a Trading Post's pier and in its queue moor along its front row (D-051).
-    this.arch.update(d.islands, d.ships, d.routes, berths, dockPoints(d.islands, this.defs));
+    // Ships at a Trading Post's pier moor at its berth anchors and queue beyond them (D-051, D-054).
+    this.docksAnchored = !!this.models.manifest();
+    this.arch.update(d.islands, d.ships, d.routes, berths, this.docks(d));
     this.lookups.clear();
     // The payload's bounds (D-053) cover every island, also those whose static data is still loading.
     this.rig.setIslandBounds(archipelagoRect(d.archipelago) ?? this.arch.bounds());

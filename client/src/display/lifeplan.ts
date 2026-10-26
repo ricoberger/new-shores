@@ -12,7 +12,7 @@ import { allocateShares, hash01, lifeHash, type LifeAtLod, type LifeBudget, type
 import { chunkAt } from "./chunks";
 import { alongPath, footprintRoads, roadPath } from "./roadpath";
 import { rotatedFootprint, tileKey } from "./geometry";
-import { pierHeading, pierPoint } from "./ships";
+import { BERTH_ANCHORS, type ModelAnchor, pierHeading, pierPoint } from "./ships";
 
 /**
  * Visual cart capacity (output milli-units per minute one cart carries):
@@ -185,8 +185,9 @@ export const SEA_H = -0.6;
 
 /**
  * Harbour life (LIFE_LAYER §4). The fisher's boat rows an ellipse that
- * starts at the jetty's mooring point and reaches BOAT_OUT tiles out to
- * sea, one loop per BOAT_LOOP_MS, while the fisher's status is ok.
+ * starts at the jetty's mooring point (the model's boat anchor, D-054;
+ * the front row's first tile without a model) and reaches BOAT_OUT tiles
+ * out to sea, one loop per BOAT_LOOP_MS, while the fisher's status is ok.
  */
 export const BOAT_LOOP_MS = 48_000;
 /**
@@ -207,7 +208,7 @@ const GULL_FLAP_HZ = 1.6;
 /** Crates stacked on the quay beside each ship handling at a Trading Post's pier. */
 export const CRATES_PER_SHIP = 3;
 const QUAY_H = 0.02;
-/** How far back from the mooring point (toward land) the crates stand: on the pier deck beside the hull. */
+/** How far back from the mooring point (toward land) the crates stand: on the pier deck behind the stern (the berth anchor) or beside the hull. */
 const QUAY_BACK = 1.0;
 
 interface Boat {
@@ -251,8 +252,12 @@ const PUFF_MIN = 0.16;
 const PUFF_MAX = 0.5;
 const PUFF_JITTER = 0.07;
 
-/** Where a producer's smoke leaves its chimney (island tiles x/y, height), null without a model anchor. */
-export type SmokeAnchor = (b: BuildingDisplay, def: ContentBuilding) => { x: number; y: number; h: number } | null;
+/**
+ * A building's model anchor (island tiles x/y, height), null without one:
+ * where a producer's smoke leaves its chimney ("smoke"), the fisher's boat
+ * moors ("boat") and ships hold the Trading Post's berths ("berth_n").
+ */
+export type SmokeAnchor = ModelAnchor;
 
 /** Smoke puffs per second of a building: base × throughput × efficiency while ok, else 0. */
 export function smokeRate(b: Pick<BuildingDisplay, "status" | "throughput_factor_permille" | "efficiency_permille" | "rates">): number {
@@ -382,7 +387,8 @@ export class IslandLife implements LifePlan {
     for (const b of display.buildings) {
       const def = defs.get(b.type);
       if (!def || !(isFisher(def) || def.trading_post)) continue;
-      const moor = pierPoint(def, b, 0, false);
+      const boat = isFisher(def) ? this.smokeAnchor?.(b, def, "boat") : null;
+      const moor = boat ?? pierPoint(def, b, 0, false);
       if (!moor) continue;
       const h = pierHeading(b.rotation);
       const ox = Math.cos(h);
@@ -394,7 +400,8 @@ export class IslandLife implements LifePlan {
       // Crates on the quay beside every ship handling at the pier: back from the mooring point toward land.
       if (def.trading_post) {
         (b.berths?.ships ?? []).forEach((ship, i) => {
-          const p = pierPoint(def, b, i, false);
+          const berth = BERTH_ANCHORS[i];
+          const p = (berth ? this.smokeAnchor?.(b, def, berth) : null) ?? pierPoint(def, b, i, false);
           if (!p) return;
           for (let k = 0; k < CRATES_PER_SHIP; k++) {
             const side = k === 1 ? 0.3 : 0;
@@ -575,7 +582,7 @@ export class IslandLife implements LifePlan {
     if (smokers.length === 0 || budget <= 0) return 0;
     let demand = 0;
     for (const s of smokers) {
-      s.anchor ??= this.smokeAnchor?.(s.b, s.def) ?? null;
+      s.anchor ??= this.smokeAnchor?.(s.b, s.def, "smoke") ?? null;
       if (s.anchor) demand += s.rate * SMOKE_LIFE_MS + 1;
     }
     const thin = demand > budget ? budget / demand : 1;

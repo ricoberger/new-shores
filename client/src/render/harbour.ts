@@ -7,9 +7,9 @@ import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding, Island, IslandDisplay } from "../api/client";
 import { covers, type TilePos, waterRows } from "../display/geometry";
-import { orderTiming } from "../display/ships";
+import { orderTiming, pierHeading } from "../display/ships";
 import { footprintBox } from "./coords";
-import { type ModelRegistry, shipMeshes, shipModel } from "./models";
+import { buildingAnchor, type ModelRegistry, shipMeshes, shipModel } from "./models";
 import { ColoredInstances, shipMatrix, shipTemplate } from "./shipmesh";
 
 /** Minimum distance (tiles) between two harbour berths. */
@@ -79,6 +79,9 @@ export function islandBerths(island: IslandDisplay, statics: Island, defs: Reado
   return harbourBerths(statics, near, MAX_BERTHS, taken);
 }
 
+/** Height of the hull's waterline origin above the slip per unit of scale: its keel rests on the keel blocks. */
+const SLIP_KEEL = 0.12;
+
 /** A hull rising on every shipyard with an order (near LOD, under the island's node). */
 export class ConstructionLayer {
   private construction: ColoredInstances;
@@ -133,11 +136,15 @@ export class ConstructionLayer {
     orders.forEach((b, i) => {
       const def = this.defs.get(b.type);
       const box = def ? footprintBox(b.x, b.y, def.width, def.height, b.rotation) : { cx: b.x + 0.5, cz: -(b.y + 0.5) };
+      // On the slipway (the model's slip anchor, D-054) bow out to sea; the footprint centre without a model.
+      const entry = this.registry?.entry(b.type);
+      const slip = entry && def ? buildingAnchor(entry, def, b, "slip") : null;
       const p = b.ship_order ? orderTiming(b.ship_order, nowMs).progressPermille / 1000 : 0;
       // The hull grows and rises out of the slipway as the order progresses.
       const scale = 1.2 + 1.8 * p;
       this.markers.set(b.id, scale);
-      shipMatrix(this.construction.matrices, i, box.cx, 0.55 + 0.45 * p, box.cz, 0, scale);
+      if (slip) shipMatrix(this.construction.matrices, i, slip.x, slip.h + SLIP_KEEL * scale, -slip.y, pierHeading(b.rotation), scale);
+      else shipMatrix(this.construction.matrices, i, box.cx, 0.55 + 0.45 * p, box.cz, 0, scale);
       this.construction.setColor(i, CONSTRUCTION);
     });
     this.construction.commit();

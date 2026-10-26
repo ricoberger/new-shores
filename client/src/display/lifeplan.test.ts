@@ -296,6 +296,29 @@ describe("harbour life", () => {
     expect(run([fisher()], 5000, { moving: false, smoke: true, props: true }).n(CLS.boat)).toBe(0);
   });
 
+  it("starts the boat's loop at the model's boat anchor and stacks crates behind the berth anchors (D-054)", () => {
+    const anchor: SmokeAnchor = (_b, _def, name) => (name === "boat" ? { x: 25, y: -3, h: 0 } : name === "berth_1" ? { x: 40, y: -2, h: 0.06 } : null);
+    const withAnchors = (b: BuildingDisplay[], now: number) => {
+      const life = new IslandLife();
+      life.update({ ...island(b), id: "isle" } as IslandDisplay, harbourDefs, null, anchor);
+      const s = record();
+      life.frame(now, s, NEAR, BIG);
+      return s;
+    };
+    const pts = Array.from({ length: 24 }, (_, i) => withAnchors([fisher()], (i * BOAT_LOOP_MS) / 24).by.get(CLS.boat)?.[0] as { x: number; y: number });
+    // The loop reaches back to the anchor (its landward end) and runs out to sea from it.
+    expect(Math.max(...pts.map((p) => p.y))).toBeCloseTo(-3, 1);
+    expect(Math.min(...pts.map((p) => p.y))).toBeLessThan(-5);
+    expect(pts.reduce((s, p) => s + p.x, 0) / pts.length).toBeCloseTo(25, 0);
+    // The crates of the ship at berth 1 stand on the pier behind its anchor (toward land).
+    const crates = withAnchors([post([5])], 10_000).by.get(CLS.crate) as { x: number; y: number }[];
+    expect(crates).toHaveLength(CRATES_PER_SHIP);
+    for (const c of crates) {
+      expect(Math.abs(c.x - 40)).toBeLessThan(1);
+      expect(c.y).toBeCloseTo(-1, 5);
+    }
+  });
+
   it("circles 3–5 gulls over an island with a fisher or Trading Post, none elsewhere", () => {
     expect(gulls(run([producer(1, 2)]))).toBe(0);
     const seen = new Set<number>();
