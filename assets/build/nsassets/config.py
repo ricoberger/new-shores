@@ -15,10 +15,8 @@ SCHEMA_PATH = os.path.join(RECIPES_DIR, "schema.json")
 PALETTE_PATH = os.path.join(ASSETS_DIR, "palette.json")
 KITS_MANIFEST_PATH = os.path.join(ASSETS_DIR, "kits", "MANIFEST.json")
 KITS_README = "assets/kits/README.md"
-#: The content the models are fitted to: the pre-D-054 footprints (2×2
-#: houses, …) until the recipes are re-fitted to the D-054 sizes of
-#: content/old_coast; the IDs are the same.
-CONTENT_DIR = os.path.join(REPO_ROOT, "server", "testdata", "content", "old_coast_pre_d054")
+#: The content the models are fitted to (D-054 footprints).
+CONTENT_DIR = os.path.join(REPO_ROOT, "content", "old_coast")
 #: Environment variable that points to another content directory (default
 #: CONTENT_DIR): footprints, kinds and levels are read from there, e.g. a
 #: content draft the models are fitted to before it lands (build.py --content).

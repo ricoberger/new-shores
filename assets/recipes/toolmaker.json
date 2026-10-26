@@ -2,18 +2,18 @@
   "$schema": "./schema.json",
   "id": "toolmaker",
   "kind": "building",
-  "notes": "Toolmaker: the KayKit blacksmith (0.6) with its forge and anvil under terracotta. Signature prop: a rack of finished tools and a barrel of handles by the door.",
-  "anchors": {"smoke": [-0.39, -0.62, 1.4], "chimney": [-0.39, -0.62, 1.35]},
+  "notes": "Toolmaker (4×4, D-054): the KayKit blacksmith under terracotta on a work yard with a tool rack, a grindstone, an anvil, a barrel and crates of finished tools by the road.",
+  "anchors": {"smoke": [-0.659, -0.957, 2.187], "chimney": [-0.659, -0.957, 2.137], "cart": [0.3, 1.6, 0]},
   "parts": [
-    {"kit_building": "blacksmith", "position": [-0.1, -0.3, 0], "scale": 0.6, "roles": {"Atlas/team": "terracotta"}},
-    {"name": "yard", "prim": "box", "size": [1.9, 1.9, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "role": "road-paved"},
-    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.45], "open": ["bottom"], "position": [-0.85, 0.55, 0], "role": "timber"},
-    {"name": "post", "prim": "box", "size": [0.06, 0.06, 0.45], "open": ["bottom"], "position": [-0.3, 0.55, 0], "role": "timber"},
-    {"name": "beam", "prim": "box", "size": [0.55, 0.03, 0.03], "position": [-0.575, 0.55, 0.4], "role": "timber"},
-    {"name": "tool", "prim": "box", "size": [0.02, 0.02, 0.16], "position": [-0.75, 0.55, 0.22], "role": "iron"},
-    {"name": "tool", "prim": "box", "size": [0.02, 0.02, 0.16], "position": [-0.63, 0.55, 0.22], "role": "iron"},
-    {"name": "tool", "prim": "box", "size": [0.02, 0.02, 0.16], "position": [-0.51, 0.55, 0.22], "role": "iron"},
-    {"name": "tool", "prim": "box", "size": [0.02, 0.02, 0.16], "position": [-0.39, 0.55, 0.22], "role": "iron"},
-    {"name": "barrel", "prim": "lathe", "profile": [[0.06, 0], [0.075, 0.08], [0.06, 0.16], [0, 0.16]], "segments": 6, "position": [0.8, 0.8, 0], "role": "timber"}
+    {"name": "yard", "prim": "box", "size": [3.96, 3.96, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "position": [0.0, 0.0, 0.0], "role": "road-dirt", "shade": 0.95},
+    {"kit_building": "blacksmith", "position": [-0.2, -0.45, 0.0], "scale": 0.95, "roles": {"Atlas/team": "terracotta"}, "simplify": {"collapse": 0.7}},
+    {"name": "tool rack", "prim": "box", "size": [0.1, 1.2, 0.8], "open": ["bottom"], "position": [1.65, 0.2, 0.0], "role": "timber", "shade": 0.85},
+    {"name": "tools", "prim": "box", "size": [0.06, 1.0, 0.45], "position": [1.58, 0.2, 0.25], "role": "iron", "shade": 1.1, "lod": "full"},
+    {"name": "grindstone", "prim": "cylinder", "radius": 0.28, "height": 0.1, "segments": 10, "caps": true, "position": [1.1, 1.45, 0.32], "rotation": [0, 90, 0], "role": "stone", "shade": 1.0},
+    {"name": "grindstone frame", "prim": "box", "size": [0.3, 0.12, 0.3], "open": ["bottom"], "position": [1.1, 1.45, 0.0], "role": "timber", "shade": 0.8},
+    {"name": "anvil", "prim": "box", "size": [0.3, 0.16, 0.25], "open": ["bottom"], "position": [-1.0, 1.5, 0.0], "role": "iron", "shade": 0.9},
+    {"name": "barrel", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/barrel.gltf", "position": [-1.6, 1.55, 0.0], "scale": 0.5, "simplify": {"collapse": 0.35}},
+    {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_A_big.gltf", "position": [0.3, 1.6, 0.0], "rotation": [0, 0, 10], "scale": 0.5, "simplify": {"collapse": 0.45}},
+    {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_A_small.gltf", "position": [0.3, 1.6, 0.24], "rotation": [0, 0, -5], "scale": 0.4, "simplify": {"collapse": 0.45}, "lod": "full"}
   ]
 }

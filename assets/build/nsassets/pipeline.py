@@ -562,8 +562,8 @@ def manifest_entry(recipe, content, files, meta, kit_used):
         anchors["door"] = _vec(glb.to_gltf(door))
     status = declared.get("status") or [0.0, 0.0, union.bounds()[1][2] + config.STATUS_ABOVE]
     anchors["status"] = _vec(glb.to_gltf(status))
-    for k in ("chimney", "smoke"):
-        if k in declared:
+    for k in sorted(declared):
+        if k not in ("door", "status"):
             anchors[k] = _vec(glb.to_gltf(declared[k]))
     entry["anchors"] = anchors
     entry["kit_sources"] = [{"kit": k, "files": sorted(v)} for k, v in sorted(kit_used.items())]

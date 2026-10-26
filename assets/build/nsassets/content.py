@@ -45,6 +45,26 @@ def is_producer(content, cid):
     return "recipe" in content["buildings"].get(cid, {}) and "field" not in content["buildings"].get(cid, {})
 
 
+def life_anchors(content, cid):
+    """
+    The life-layer anchors a building's or field's model must declare besides
+    chimney/smoke (D-054): a cart point for producers and storage, the boat's
+    mooring for water-edge producers, one pier slot per berth of the Trading
+    Post's top level, and a gate and three sheep for pastures.
+    """
+    b = content["buildings"].get(cid, {})
+    out = []
+    if is_producer(content, cid) or warehouse_levels(content, cid):
+        out.append("cart")
+    if is_producer(content, cid) and b.get("water_tiles", 0) > 0:
+        out.append("boat")
+    berths = max((lv.get("berths", 0) for lv in (b.get("trading_post") or {}).get("levels", [])), default=0)
+    out += [f"berth_{i}" for i in range(1, berths + 1)]
+    if b.get("field", {}).get("type") == "pasture":
+        out += ["gate", "sheep_1", "sheep_2", "sheep_3"]
+    return out
+
+
 def ground_range(content, cid):
     """The ground band of a building's lowest point: deeper for water-edge buildings (piles into the sea)."""
     if content["buildings"].get(cid, {}).get("water_tiles", 0) > 0:

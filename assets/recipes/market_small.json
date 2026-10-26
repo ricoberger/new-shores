@@ -2,12 +2,21 @@
   "$schema": "./schema.json",
   "id": "market_small",
   "kind": "building",
-  "notes": "Small market (settlers civic): the KayKit market scaled to 3x3 with its stalls under terracotta awnings, crates and sacks of goods at the front and a barrel stack at the back.",
+  "notes": "Market (5×6, D-054): the KayKit market hall with blue awnings at the back of a paved square; in front a KayKit well, two awning stalls, crates, barrels and sacks, a bench by the road.",
   "parts": [
-    {"kit_building": "market", "position": [0, 0, 0], "scale": 0.8, "roles": {"Atlas/team": "terracotta"}},
-    {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_A_big.gltf", "position": [-0.9, 1.3, 0], "rotation": [0, 0, 12], "scale": 0.55},
-    {"name": "sack", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/sack.gltf", "position": [0.8, 1.3, 0], "rotation": [0, 0, -25], "scale": 0.7},
-    {"name": "barrel", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/barrel.gltf", "position": [0.4, -1.32, 0], "scale": 0.5, "lod": "full"},
-    {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_B_small.gltf", "position": [-0.5, -1.3, 0], "rotation": [0, 0, -8], "scale": 0.55}
+    {"name": "square", "prim": "box", "size": [4.96, 5.96, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "position": [0.0, 0.0, 0.0], "role": "road-paved"},
+    {"kit_building": "market", "position": [0.0, -1.2, 0.0], "scale": 1.08, "roles": {"Atlas/team": {"role": "dye-blue", "shade": 1.0}}, "simplify": {"collapse": 0.7}},
+    {"kit_building": "well", "position": [-1.45, 1.35, 0.0], "scale": 0.75, "simplify": {"collapse": 0.4}},
+    {"name": "stall", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/tent.gltf", "position": [1.3, 1.25, 0.0], "rotation": [0, 0, 15], "scale": 0.75, "roles": {"Atlas/team": {"role": "terracotta", "shade": 1.05}}},
+    {"name": "stall", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/tent.gltf", "position": [0.1, 2.2, 0.0], "rotation": [0, 0, -10], "scale": 0.65, "roles": {"Atlas/team": {"role": "ochre", "shade": 1.0}}},
+    {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_A_big.gltf", "position": [-0.35, 0.9, 0.0], "rotation": [0, 0, 10], "scale": 0.55, "simplify": {"collapse": 0.45}},
+    {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_A_small.gltf", "position": [-0.1, 0.95, 0.0], "rotation": [0, 0, -15], "scale": 0.5, "simplify": {"collapse": 0.45}, "lod": "full"},
+    {"name": "barrel", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/barrel.gltf", "position": [2.2, 0.3, 0.0], "scale": 0.5, "simplify": {"collapse": 0.35}},
+    {"name": "barrel", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/barrel.gltf", "position": [2.2, 0.0, 0.0], "scale": 0.5, "simplify": {"collapse": 0.35}, "lod": "full"},
+    {"name": "sack", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/sack.gltf", "position": [0.8, 0.55, 0.0], "rotation": [0, 0, 40], "scale": 0.7, "simplify": {"collapse": 0.5}, "lod": "full"},
+    {"name": "sack", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/sack.gltf", "position": [-2.2, -0.1, 0.0], "rotation": [0, 0, -20], "scale": 0.7, "simplify": {"collapse": 0.5}},
+    {"name": "pallet", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/pallet.gltf", "position": [-2.0, 2.5, 0.0], "rotation": [0, 0, 10], "scale": 0.6},
+    {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_B_big.gltf", "position": [-2.0, 2.5, 0.1], "rotation": [0, 0, 5], "scale": 0.5, "simplify": {"collapse": 0.45}},
+    {"name": "bench", "prim": "box", "size": [0.7, 0.2, 0.14], "open": ["bottom"], "position": [1.6, 2.55, 0.0], "role": "timber", "shade": 0.95}
   ]
 }
