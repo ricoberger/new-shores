@@ -87,7 +87,7 @@ UI shows the same numbers the server uses.
 - The HUD's world-map button opens the 2D world-map screen as an overlay
   (later).
 
-## 2. HUD (as built in the polish pass)
+## 2. HUD (as built after polish round 2, PR #24)
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -138,8 +138,9 @@ UI shows the same numbers the server uses.
   128 px model **thumbnail**; items are never disabled for cost.
 - **Panels:** parchment with a 3 px dark-wood border and inset light-wood
   edge (10 px radius; build cards 7 px); status badges as wax seals (ink
-  bands, parchment ring). Producer panels show workforce as "needs 4
-  Settlers · 16 available on this island (working at n %)".
+  bands, parchment ring). Every panel has a fixed title row with an icon
+  close button and a scrolling body; action buttons sit in a pinned
+  footer.
 - **Warnings panel:** list of bottleneck messages from MECHANICS §14
   (opened from the side dock or the insolvency banner), each clickable to
   focus the building.
@@ -328,7 +329,7 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   bar; toasts below the top bar.
 - **Gestures** (one pointer-event recogniser; input type decides per
   gesture, pen = mouse): one-finger drag pans, draws a road with the road
-  tool, or drags an idle ship in the archipelago; pinch pans by its centre
+  tool (ships are not draggable; dragging one pans); pinch pans by its centre
   and zooms about it with any tool, and pinch-out at the island's maximum
   zoom feeds the same zoom-out counter as the wheel; two-finger rotate
   steps a ghost by 45°; tap selects; long-press (450 ms, 10 px slop)

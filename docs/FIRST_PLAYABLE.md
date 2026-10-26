@@ -100,7 +100,7 @@ login, GLB assets, sound.
 ### M3 — Client (touch, mobile layout, performance budget) — done (PR #11)
 
 - Pointer-event gesture recogniser (pan, pinch, tap, long-press, rotate,
-  road drawing, ship drag), tap-then-confirm placement with a placement
+  road drawing; ship drag removed again in PR #24), tap-then-confirm placement with a placement
   bar, demolish and road mode bars, phone layouts with bottom sheets and a
   compact HUD, PWA shell (manifest, service worker, update toast,
   install), accessibility baseline, dense-fixture perf guard (removed
@@ -144,6 +144,14 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **Polish round 2 — done (PR #24):** 24 items from the owner's
+  playtest: larger ships at near/mid, green selection tint, far-only
+  island labels/tooltips, top bar with stat popups, side dock (build
+  menu toggle, warnings, quests, ships, routes), unified build menu,
+  panel headers/footers, route editor redesign (stops and goods via
+  dropdowns, no map picks, no ship drag), island card read-only,
+  `served_by` highlight between houses and their service buildings,
+  info-card rework with collapsed Details, `fields.max = required`.
 - **Polish tooling — done (PR #22):** `make shots`, `make model-sheet`,
   scene baselines retired in favour of a three-shot HUD guard set.
 - **Life layer (art task 4) — done (PR #21):** carts, walkers, smoke,
