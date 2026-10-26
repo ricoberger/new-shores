@@ -455,8 +455,9 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var (
-		ds      sim.DisplayState
-		results []tileResultJSON
+		ds        sim.DisplayState
+		results   []tileResultJSON
+		unchanged bool
 	)
 	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, version int64, now time.Time) (bool, error) {
 		if req.Version != nil && *req.Version != version {
@@ -480,6 +481,14 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 			return false, err
 		}
 		results = tileResults(res.Tiles)
+		if res.Unchanged {
+			// A place_fields without a valid tile: the per-tile reasons
+			// and the current state, no commit (same version) and no
+			// event.
+			unchanged = true
+			ds, err = sim.Display(world, s.cfg.Catalogue, now)
+			return false, err
+		}
 		// The summary over the gap before this command (rule of GET); an
 		// acknowledgement never produces one, it would re-open the summary
 		// it just closed. Every successful command then marks the player
@@ -495,7 +504,9 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, r, err)
 		return
 	}
-	s.published(r, id)
+	if !unchanged {
+		s.published(r, id)
+	}
 	s.writeJSON(w, http.StatusOK, worldResponse{Version: version, Display: ds, TileResults: results})
 }
 

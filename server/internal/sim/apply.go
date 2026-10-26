@@ -114,9 +114,12 @@ func ApplyWithLedger(w *World, c *content.Catalogue, cmd Command, l *Ledger) err
 
 // Result is the outcome of a successful command beyond the world change:
 // the per-tile results of a batch command (PlaceFields, DemolishFields;
-// nil for every other command).
+// nil for every other command). Unchanged is set when the command
+// succeeded without changing the world (a PlaceFields without a valid
+// tile): there is nothing to commit or publish.
 type Result struct {
-	Tiles []TileResult
+	Tiles     []TileResult
+	Unchanged bool
 }
 
 // ApplyWithResult is ApplyWithLedger that also returns the command's
@@ -159,6 +162,7 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 		err = placeField(w, c, cmd, true, l)
 	case PlaceFields:
 		res.Tiles, err = placeFields(w, c, cmd, true, l)
+		res.Unchanged = err == nil && noTileApplied(res.Tiles)
 	case DemolishFields:
 		res.Tiles, err = demolishFields(w, c, cmd, l)
 	case SetPaused:

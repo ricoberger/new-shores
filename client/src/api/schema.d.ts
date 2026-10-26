@@ -495,8 +495,11 @@ export interface components {
          *     duplicates, invalid rotation), 404 `unknown_island`,
          *     `unknown_building`, `building_not_found` (no such farm), 409
          *     `field_type_mismatch`, `field_wrong_farm`, `tier_locked`,
-         *     `island_not_settled` — or, when no tile is valid, with the code of
-         *     the first tile.
+         *     `island_not_settled`. A `place_fields` without a valid tile is
+         *     not an error: 200 with every tile `ok: false` and its reason, the
+         *     unchanged version, no state change and no event. A
+         *     `demolish_fields` without a valid tile fails with the code of
+         *     its first tile.
          *
          *     `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
          *     or no `island_id` for a quest that rewards goods), 404
@@ -762,7 +765,9 @@ export interface components {
          *     accepts a tile, so a rectangle grows from the farm whatever its
          *     order; placement stops at the farm's `fields.max`. The valid
          *     tiles are placed in one state change; `tile_results` reports
-         *     every tile.
+         *     every tile. Without a valid tile the command answers 200 with
+         *     every tile rejected and the unchanged version (no state change,
+         *     no event).
          */
         PlaceFieldsCommand: {
             /**
@@ -792,6 +797,8 @@ export interface components {
          *     down, no gold). A tile without a field of the farm is rejected
          *     (`building_not_found`, or `out_of_bounds`). The valid tiles are
          *     applied in one state change; `tile_results` reports every tile.
+         *     Without a valid tile the command fails with the first tile's
+         *     code.
          */
         DemolishFieldsCommand: {
             /**

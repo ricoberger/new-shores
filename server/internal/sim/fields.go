@@ -70,9 +70,10 @@ const MaxFieldTiles = 512
 // rules of PlaceField against the island plus the fields accepted before
 // it (cost included, cumulatively); the passes over Tiles repeat while one
 // accepts a tile, until the farm's fields.max. The valid tiles are placed
-// in one state change; the command fails (world unchanged) only when no
-// tile is valid, with the first tile's error. Duplicate tiles or more than
-// MaxFieldTiles fail the whole command.
+// in one state change. When no tile is valid the command still succeeds
+// without a state change (Result.Unchanged; every tile carries its
+// reason). Duplicate tiles or more than MaxFieldTiles fail the whole
+// command.
 type PlaceFields struct {
 	IslandID string
 	FarmID   int64
@@ -83,8 +84,9 @@ type PlaceFields struct {
 
 // DemolishFields demolishes the fields of the farm FarmID covering Tiles,
 // each once, with the refund of its cost; a tile without a field of the
-// farm is rejected (ErrBuildingNotFound). Applied like PlaceFields: the
-// valid tiles in one state change, failing only when none is valid.
+// farm is rejected (ErrBuildingNotFound). The valid tiles are applied in
+// one state change; unlike PlaceFields the command fails (world
+// unchanged) when no tile is valid, with the first tile's error.
 type DemolishFields struct {
 	IslandID string
 	FarmID   int64
@@ -443,8 +445,21 @@ func PlaceFieldFree(w *World, c *content.Catalogue, cmd PlaceField, l *Ledger) e
 // placeField is PlaceFields with one tile: the tile's error is the
 // command's error.
 func placeField(w *World, c *content.Catalogue, cmd PlaceField, charge bool, l *Ledger) error {
-	_, err := placeFields(w, c, PlaceFields{IslandID: cmd.IslandID, FarmID: cmd.FarmID, Type: cmd.Type, Tiles: []Pos{{cmd.X, cmd.Y}}, Rotation: cmd.Rotation}, charge, l)
-	return err
+	results, err := placeFields(w, c, PlaceFields{IslandID: cmd.IslandID, FarmID: cmd.FarmID, Type: cmd.Type, Tiles: []Pos{{cmd.X, cmd.Y}}, Rotation: cmd.Rotation}, charge, l)
+	if err != nil {
+		return err
+	}
+	return results[0].Err
+}
+
+// noTileApplied reports whether every tile of a batch was rejected.
+func noTileApplied(results []TileResult) bool {
+	for _, r := range results {
+		if r.Err == nil {
+			return false
+		}
+	}
+	return true
 }
 
 // checkBatchTiles validates the tile list of a batch command: 1 to
@@ -536,7 +551,7 @@ func placeFields(w *World, c *content.Catalogue, cmd PlaceFields, charge bool, l
 		}
 	}
 	if len(order) == 0 {
-		return results, batchFailure(results)
+		return results, nil // no valid tile: no state change
 	}
 
 	// Validation complete: mutate.

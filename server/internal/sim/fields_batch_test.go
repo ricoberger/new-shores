@@ -94,11 +94,16 @@ func TestPlaceFieldsBatch(t *testing.T) {
 	if b := is.Building(farm); b.Efficiency != 1000 {
 		t.Errorf("farm efficiency %d", b.Efficiency)
 	}
-	// The farm is full: a further batch fails as a whole.
+	// The farm is full: a further batch applies no tile and leaves the
+	// world unchanged; the one-tile place_field fails with the reason.
 	before := encodeWorld(t, w)
-	expectApplyErr(t, w, c, PlaceFields{IslandID: "main", FarmID: farm, Type: "wheat_field", Tiles: []Pos{{19, 5}}}, ErrFieldMaxReached)
+	res, err = ApplyWithResult(w, c, PlaceFields{IslandID: "main", FarmID: farm, Type: "wheat_field", Tiles: []Pos{{19, 5}}}, nil)
+	if err != nil || !res.Unchanged || len(res.Tiles) != 1 || !errors.Is(res.Tiles[0].Err, ErrFieldMaxReached) {
+		t.Errorf("full farm: %+v, %v", res, err)
+	}
+	expectApplyErr(t, w, c, PlaceField{IslandID: "main", FarmID: farm, Type: "wheat_field", X: 19, Y: 5}, ErrFieldMaxReached)
 	if !bytes.Equal(before, encodeWorld(t, w)) {
-		t.Error("a failed batch changed the world")
+		t.Error("a batch without a valid tile changed the world")
 	}
 }
 
@@ -142,7 +147,6 @@ func TestPlaceFieldsErrors(t *testing.T) {
 		{"too many", PlaceFields{IslandID: "main", FarmID: farm, Type: "wheat_field", Tiles: many[:MaxFieldTiles+1]}, ErrInvalidCommand},
 		{"wrong farm", PlaceFields{IslandID: "main", FarmID: farm, Type: "pasture", Tiles: []Pos{{19, 5}}}, ErrFieldWrongFarm},
 		{"unknown farm", PlaceFields{IslandID: "main", FarmID: 999, Type: "wheat_field", Tiles: []Pos{{19, 5}}}, ErrBuildingNotFound},
-		{"none valid", PlaceFields{IslandID: "main", FarmID: farm, Type: "wheat_field", Tiles: []Pos{{22, 12}, {19, 4}}}, ErrFieldNotAdjacent},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			before := encodeWorld(t, w)
@@ -228,8 +232,9 @@ func sequentialFields(w *World, c *content.Catalogue, cmd PlaceFields) int {
 
 // TestPropertyPlaceFields: on random worlds with farms, a random painted
 // rectangle (random order, sometimes out of reach, of a wrong type or
-// unaffordable) applies atomically: on error the world is byte-identical;
-// on success the world equals the one tile-by-tile PlaceField reference,
+// unaffordable) applies atomically: on error or without a valid tile
+// (Result.Unchanged, every tile rejected) the world is byte-identical;
+// otherwise the world equals the one tile-by-tile PlaceField reference,
 // every ok tile carries a new field of the farm, every rejected tile
 // none, the farm stays within fields.max; and demolish_fields of a random
 // rectangle equals demolishing the covered fields one by one.
@@ -260,8 +265,11 @@ func TestPropertyPlaceFields(t *testing.T) {
 					}
 					res, err := ApplyWithResult(p.w, p.c, cmd, nil)
 					n := sequentialFields(ref, p.c, cmd)
-					if err != nil {
+					if err != nil || res.Unchanged {
 						failed++
+						if err == nil && !noTileApplied(res.Tiles) {
+							t.Fatalf("seed %d: unchanged batch with an applied tile", seed)
+						}
 						if !bytes.Equal(before, encodeWorld(t, p.w)) {
 							t.Fatalf("seed %d: failed batch (%v) changed the world", seed, err)
 						}

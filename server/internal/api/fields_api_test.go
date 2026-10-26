@@ -196,11 +196,14 @@ func tileList(tiles ...[2]int) string {
 
 // TestPlaceFieldsAPI (D-054): place_fields applies the valid anchors of a
 // painted list in one version and reports every tile in tile_results
-// (validated against the spec); a list without a valid tile, with
-// duplicates or above 512 tiles fails as a whole; demolish_fields
+// (validated against the spec); a list without a valid tile answers 200
+// with every tile rejected, the unchanged version and no event; a list
+// with duplicates or above 512 tiles fails as a whole; demolish_fields
 // removes the fields under its tiles.
 func TestPlaceFieldsAPI(t *testing.T) {
 	ts := newTestServer(t, 1)
+	pub := &countingPublisher{}
+	ts.srv.cfg.Publisher = pub
 	if res := ts.command(`{"type":"place_building","island_id":"start","building_type":"sheep_farm","x":14,"y":5,"rotation":0}`, nil); res.status != http.StatusOK {
 		t.Fatalf("farm: %d %s", res.status, res.body)
 	}
@@ -212,6 +215,25 @@ func TestPlaceFieldsAPI(t *testing.T) {
 		}
 		return fmt.Sprintf(`{"type":"place_fields","island_id":"start","farm_id":%d,"building_type":"pasture","tiles":%s}`, farm, tiles)
 	}
+	// No valid tile: not an error, nothing committed or published.
+	pub.n.Store(0)
+	res := ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":`+batch("place_fields", tileList([2]int{20, 9}, [2]int{15, 6}))+`}`, true)
+	var none batchJSON
+	if res.status != http.StatusOK || json.Unmarshal(res.body, &none) != nil {
+		t.Fatalf("none valid: %d %s", res.status, res.body)
+	}
+	if none.Version != before.Version || len(none.TileResults) != 2 ||
+		none.TileResults[0].OK || none.TileResults[0].Reason != "field_not_adjacent" ||
+		none.TileResults[1].OK || none.TileResults[1].Reason != "occupied" {
+		t.Fatalf("none valid: version %d (before %d), results %+v", none.Version, before.Version, none.TileResults)
+	}
+	if after := ts.getWorld(); after.Version != before.Version || !bytes.Equal(after.Display, before.Display) {
+		t.Fatal("place_fields without a valid tile changed the world")
+	}
+	if n := pub.n.Load(); n != 0 {
+		t.Fatalf("place_fields without a valid tile published %d events", n)
+	}
+
 	var many [][2]int
 	for i := range 513 {
 		many = append(many, [2]int{i % 40, i / 40})
@@ -222,7 +244,6 @@ func TestPlaceFieldsAPI(t *testing.T) {
 		status    int
 		code      string
 	}{
-		{"none valid", batch("place_fields", tileList([2]int{20, 9}, [2]int{15, 6})), true, http.StatusConflict, "field_not_adjacent"},
 		{"duplicates", batch("place_fields", tileList([2]int{17, 5}, [2]int{17, 5})), false, http.StatusBadRequest, "invalid_command"},
 		{"too many", batch("place_fields", tileList(many...)), false, http.StatusBadRequest, "invalid_command"},
 		{"empty", batch("place_fields", `[]`), false, http.StatusBadRequest, "invalid_command"},
@@ -246,7 +267,7 @@ func TestPlaceFieldsAPI(t *testing.T) {
 	// A rejected tile reports its error of the last pass, after the
 	// accepted fields: the maximum is checked first, as by place_field.
 	tiles := [][2]int{{21, 5}, {19, 5}, {15, 6}, {17, 5}, {17, 7}, {23, 5}}
-	res := ts.command(batch("place_fields", tileList(tiles...)), nil)
+	res = ts.command(batch("place_fields", tileList(tiles...)), nil)
 	if res.status != http.StatusOK {
 		t.Fatalf("place_fields: %d %s", res.status, res.body)
 	}
