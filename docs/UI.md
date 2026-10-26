@@ -158,16 +158,16 @@ UI shows the same numbers the server uses.
   by building ID; follow-up: a server-side preview hint).
 - Roads: drag to draw; auto-connect; cost preview.
 - **Fields** (D-051 part 4): fields are not in the build menu. The farm
-  panel has a fields row (active / required / max, the list highlights
-  on hover) and **"Add field"**, which enters a field tool bound to that
+  card has a fields block (active / required with a bar, placed and max, a
+  warning line when fields are not connected; no field list) and **"Add field"**, which enters a field tool bound to that
   farm: one field per click/tap, the ghost valid only edge-adjacent to
   the farm or one of its active fields (client hint; the server decides),
   the tool stays active until max or Esc/right-click. Inactive fields
   are drawn desaturated with the `not_adjacent` status (and a yellow mark);
   selecting a farm or a field tints its farm and fields green like a
-  selected building; the field ghost is the field's translucent model; a field panel offers Demolish only (no
+  selected building; the field ghost is the field's translucent model; a field card says "Counts for its farm" (an inactive one keeps "Not connected to its farm" and its fix) and offers Demolish only (no
   Move).
-- Public buildings show their radius; houses in range highlight.
+- Public (service) buildings: a collapsed Details with the service radius (tiles) and upkeep; selecting one tints the houses it serves green (the selection tint), and selecting a house tints the buildings serving it (the server's `served_by`); the radius ring is not implemented.
 - Confirm on click/tap; the server validates and responds; the ghost becomes
   the building when the response arrives (round-trip ≈ 100 ms; show a brief
   "building" animation regardless).
@@ -188,38 +188,71 @@ UI shows the same numbers the server uses.
 
 **Production building**
 
-- Name, tier, status icon + sentence + suggested fix (MECHANICS §14).
-- Inputs: per good, `stock on island`, `consumption/min`, `net/min`.
-- Output: `production/min`, efficiency %, assigned warehouse (click to
-  highlight) and transfer delay, throughput factor.
-- Buttons: pause/resume, move, demolish.
+- Name, status icon + sentence + suggested fix (MECHANICS §14).
+- Inputs: per good, this building's `consumption/min` (one row like Output; the island stock and net rate are in the Trading Post card).
+- Output: `production/min` (the final rate, all factors included).
+- A collapsed **Details** section (closed by default): one row per value, each on one line
+  (cycle length in seconds, efficiency %, throughput factor, workers as the
+  workforce factor in % (the shortage itself is the status sentence), upkeep like a ship's (`$/min`, 0 while paused), the assigned collector by name (click to
+  select), transfer delay, buffers). Farms show
+  a fields block above it only when it has something to say: a warning
+  when fields are not connected and "Add <field>" while the farm is
+  below its maximum (equal to the requirement); the field count is the
+  farm's efficiency in Details.
+- Buttons: pause/resume, move, demolish, pinned in a footer below a divider (only the content above scrolls).
 
 **House**
 
-- Tier, residents `floor–current–max` with growth arrow, satisfaction %.
-- Needs list: each with fulfilment bar and the reason if not met ("fish:
-  0/min on island", "no market within 12").
+- A "Residents" heading, then two rows like the producer Details: "Residents  ↑ current / max" (the arrow is the growth direction) and "Satisfaction  %"; no bars.
+- Needs: one row per need (icon and name on the left, fulfilment % on the
+  right, no bar), the reason if not met as a tooltip ("short supply",
+  "no supply on the island", "out of range").
 - Upgrade button with cost and lock reason.
 
 **Trading Post**
 
-- Level `n of 4`, capacity per good, throughput `R / T` load bar, berths
-  `busy / total`, who is at the pier and who waits, assigned producers
-  count; upgrade button with the next level's numbers and the cost in
-  build-card format ("300 gold · 20 planks · 10 stone", unaffordable parts
-  greyed with the stock on hover).
-- Island inventory table: good, stock/capacity, net rate, with a filter.
+- A "Details" heading with rows (no bars): Level `n / max`, Capacity `per
+  good`, Throughput `/min`, Load `%`, Berths `free / total free`.
+- "Pier" (only with ships): one row per ship at the pier ("at the pier") or
+  waiting for a berth ("waiting"), by name and ID.
+- "Inventory": one row per good, icon and name, `stock / capacity` and the
+  signed net rate (green above 0, red below, plain at 0); no header row, no filter yet.
+- A collapsed "Producers (n)" like the Warehouse's.
+- "Upgrade to level n" (not at the last level): one grey line with the next
+  level's numbers ("500 capacity per good · 2 berths · 55.0/min
+  throughput") and the cost line (gold, goods with icons, " · " between the
+  items, red when short). The **Upgrade** button is pinned in the footer.
+
+**Shipyard**
+
+- Status "Idle" or "Building a Sloop · ready in 1:42 min" (no bar); a pending
+  order adds the second status line "Cancelling the order returns 50 % of
+  the materials." and **Cancel order** sits in the pinned footer.
+- Always (also while an order runs, then the Order buttons are disabled), with
+  no heading, a divider above and between the entries and one entry per
+  buildable type (content order): name and Order; cargo, speed (×) and upkeep; one line of
+  gold, the goods and the build time with " · " between them. Gold and goods
+  the island is short of are red (Order stays enabled when idle, the server
+  rejects an unaffordable order).
 
 **Warehouse**
 
-- Level, throughput `R / T` load bar, assigned producers count, upgrade
-  button (same cost format). No capacity row — capacity is the Trading
+- A "Details" heading above the rows (no bars): Level `n / max`,
+  Throughput `/min`, Load `%`. No capacity row — capacity is the Trading
   Post's.
+- A collapsed "Producers (n)": one row per assigned producer, the name a link
+  that selects it (no ID); "None yet" without any, "and n more" after eight.
+- "Upgrade to level n" (not at the last level): one grey line with the next
+  level's numbers ("55.0/min throughput") and one cost line (gold, goods with
+  icons, " · " between the items; what the balance or stock does not cover is
+  red). The **Upgrade** button is pinned in the footer next to Move and
+  Demolish (a warehouse cannot be paused). The Trading Post shares the
+  producers list, the upgrade preview and the footer button.
 
 **Ship** (ship info panel; the Ships list only selects)
 
 - Status line shared with the list ("On route: name · arrives in …",
-  "Shipment · …", "Idle · at …"), the from → to islands of a leg, upkeep,
+  "Shipment · …", "Idle · at …"), the from → to islands of a leg, upkeep, speed (×, from the ship type),
   slot capacity, one box per cargo slot (good icon, amount / slot size),
   pending founding and berth-wait notes.
 - Buttons: "Assign to route…" (an inline picker of the saved routes; routes

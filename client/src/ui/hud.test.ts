@@ -355,7 +355,6 @@ describe("HUD components", () => {
         onUpgradeTradingPost: noop,
           onSelectBuilding: noop,
           onAddField: noop,
-          onHoverBuilding: noop,
           nowMs: 0,
           onOrderShip: noop,
           onCancelShipOrder: noop,
@@ -364,16 +363,39 @@ describe("HUD components", () => {
     };
     const icon = (path: string) => `<path d="${path}" fill="currentColor"></path>`;
 
-    it("puts an icon next to every good of the shipyard costs and the missing list", () => {
+    it("puts an icon next to every good of the shipyard costs, short goods red", () => {
       const html = panel({});
-      const costs = html.slice(html.indexOf('data-testid="shipyard-order-sloop"'));
-      // Costs: planks and wood with their icons.
-      expect(costs.split(icon(goodIcon("planks"))).length - 1).toBe(2); // cost line and missing list
-      expect(costs).toContain(icon(goodIcon("wood")));
-      const missing = html.match(/data-testid="shipyard-missing-sloop">(.*?)<\/div>/)![1]!;
-      expect(text(missing)).toBe("Missing: 800 gold, 30 Planks");
-      expect(missing).toContain(icon(goodIcon("planks")));
-      expect(missing).not.toContain(icon(goodIcon("wood")));
+      const cost = html.match(/data-testid="shipyard-cost-sloop">(.*?)<\/div>/)![1]!;
+      expect(text(cost)).toBe("900 gold·40Planks·5Wood·1:00 min build");
+      expect(cost).toContain(icon(goodIcon("planks")));
+      expect(cost).toContain(icon(goodIcon("wood")));
+      // Gold (100 available) and planks (10 in stock) are short, wood (9 in stock) is not.
+      const warn = (title: string) => new RegExp(`<span class="[^"]*warn[^"]*" title="${title}"`).test(cost);
+      expect([warn("100 gold available"), warn("10 in stock"), warn("9 in stock")]).toEqual([true, true, false]);
+      expect(html).not.toContain("shipyard-missing");
+      expect(html).not.toContain("shipyard-progress");
+    });
+
+    it("lists every ship type with speed, cargo and build time", () => {
+      const html = panel({});
+      expect(text(html)).not.toContain("Ships");
+      expect(text(html)).toContain("SloopOrder");
+      expect(text(html)).toContain("2×50 cargo·1.0× speed·1.0 $/min upkeep");
+      expect(text(html)).toContain("Idle");
+    });
+
+    it("shows the pending order as the status with Cancel in the footer and the ships list disabled", () => {
+      const html = panel({ ship_order: { type: "sloop", ordered_at: "1970-01-01T00:00:00Z", due_at: "1970-01-01T00:00:42Z" } as BuildingDisplay["ship_order"] });
+      expect(html.match(/data-testid="info-status">(.*?)<\/div>/)![1]).toBe("Building a Sloop · ready in 0:42 min");
+      // The 50 % hint is the second status line.
+      expect(html).toMatch(/data-testid="info-status">[^]*?<\/div><div class="[^"]*fix[^"]*">Cancelling the order returns 50 % of the materials\.<\/div>/);
+      expect(html).toContain('data-testid="shipyard-cancel"');
+      // The list stays, its Order buttons are disabled.
+      expect(html).toMatch(/<button[^>]*disabled=""[^>]*data-testid="shipyard-order-sloop"/);
+      // Idle: enabled, no hint.
+      const idle = panel({});
+      expect(idle).not.toMatch(/disabled=""[^>]*data-testid="shipyard-order-sloop"/);
+      expect(text(idle)).not.toContain("Cancelling");
     });
 
     it("shows the pause and resume buttons with icons, no glyphs", () => {

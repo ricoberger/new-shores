@@ -756,7 +756,6 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onAddField={(fieldType) => {
             setTool({ kind: "field", farmId: selectedBuilding.id, island: islandId, buildingType: fieldType, rotation: 0 });
           }}
-          onHoverBuilding={(id) => rendererRef.current?.setHoverBuilding(id)}
           nowMs={snap.nowMs}
           onOrderShip={(shipType) =>
             void send({ type: "order_ship", island_id: islandId, building_id: selectedBuilding.id, ship_type: shipType })

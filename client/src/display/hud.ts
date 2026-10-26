@@ -6,7 +6,6 @@
 // satisfaction aggregate with the worst unmet need.
 import type { BuildingDisplay, Content, ContentBuilding, Island, IslandDisplay, NeedDisplay } from "../api/client";
 import { depositCounts } from "./archipelago";
-import { units } from "./format";
 import type { NeedRef } from "./needs";
 import { blockedTiles } from "./scatter";
 
@@ -127,22 +126,4 @@ export function worstNeedText(w: WorstNeed | null, label: (n: NeedRef) => string
   if (!w) return "All needs met";
   const name = label(w);
   return `Worst unmet need: ${name} ${Math.round(w.fulfilmentPermille / 10)} % (${REASONS[w.reason]})`;
-}
-
-/**
- * A producer's workforce line (D-051 part 7): "needs 4 Settlers · 16
- * available on this island" — its requirement and the island's pool of
- * that tier (its residents), both server numbers; the shortfall factor is
- * appended when the pool covers less than the island's demand.
- */
-export function workforceText(
-  b: Pick<BuildingDisplay, "workforce" | "workforce_factor_permille">,
-  island: Pick<IslandDisplay, "workforce">,
-  tierName: (id: string) => string,
-): string | null {
-  if (!b.workforce) return null;
-  const pool = island.workforce[b.workforce.tier];
-  const text = `needs ${units(b.workforce.required)} ${tierName(b.workforce.tier)} · ${units(pool?.available ?? 0)} available on this island`;
-  const factor = b.workforce_factor_permille ?? 1000;
-  return factor < 1000 ? `${text} (working at ${Math.floor(factor / 10)} %)` : text;
 }

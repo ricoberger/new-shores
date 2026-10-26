@@ -486,6 +486,17 @@
   padding-top: 8px;
 }
 
+/* The collapsed "Details" of a producer card: a disclosure with the section-title look. */
+.detailsSummary {
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ns-ui-ink-soft);
+  margin-bottom: 4px;
+}
+
 .sectionTitle {
   letter-spacing: 0.04em;
   font-size: 12px;
@@ -508,21 +519,14 @@
   text-align: right;
 }
 
+/* The Details rows of a producer card: label and value each on one line. */
+.detailsTable td {
+  white-space: nowrap;
+}
+
 .table td:first-child,
 .table th:first-child {
   text-align: left;
-}
-
-.bar {
-  height: 8px;
-  background: var(--ns-ui-parchment-dark);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.barFill {
-  height: 100%;
-  background: var(--ns-ui-active);
 }
 
 .buttons {
@@ -543,23 +547,14 @@
   gap: 4px;
 }
 
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .danger {
   border-color: var(--ns-ui-negative);
   color: var(--ns-ui-negative);
-}
-
-/* The fields of a farm in its panel (D-051 part 4): one row per field. */
-.fieldList {
-  margin: 4px 0;
-  padding: 0;
-  list-style: none;
-  max-height: 9.5em;
-  overflow-y: auto;
-}
-
-.fieldList li {
-  margin: 0;
-  padding: 1px 0;
 }
 
 /* Icon-only close button in a panel's header row: top-aligned with the title's
@@ -767,6 +762,15 @@
   touch-action: pan-y;
 }
 
+/* One line of the costs and the build time: items centred on one line, a dot between them. */
+.costLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 5px;
+  row-gap: 2px;
+}
+
 .shipEntry {
   border-top: 1px solid var(--ns-ui-parchment-dark);
   padding: 6px 0;
@@ -869,6 +873,7 @@
 /* Save / Delete stay visible below the scrolling body of a panel. */
 .panelFooter {
   flex: 0 0 auto;
+  flex-wrap: wrap;
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid var(--ns-ui-parchment-dark);
