@@ -1,15 +1,15 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after PR #24
-(polish round 2).
+docs sync; details live in the linked documents. Last update: after PR #25
+(seeded archipelago generator, D-053).
 
 ## What exists
 
 | Area | State | Where |
 |---|---|---|
-| Simulation (pure Go, lazy, deterministic) | tiers 1–2 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary; schema 5 | `server/internal/sim`, MECHANICS.md |
-| Content | `old_coast` 0.8.0: tier 1 + 2 goods, buildings incl. Trading Post / Warehouse / water-edge fisher + shipyard, fields (1×1 crops, 2×2 pastures), sloop (4 slots), need names, 13 intro quests | `content/old_coast`, CONTENT.md |
+| Simulation (pure Go, lazy, deterministic) | tiers 1–2 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename; schema 6 | `server/internal/sim`, MECHANICS.md |
+| Content | `old_coast` 0.9.0: generator rules (`islands.json`, 12 islands + 0–2 rocks) and 48 island names, tier 1 + 2 goods, buildings incl. Trading Post / Warehouse / water-edge fisher + shipyard, fields (1×1 crops, 2×2 pastures), sloop (4 slots), need names, 13 intro quests | `content/old_coast`, CONTENT.md |
 | Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store and `POST /api/v1/dev/reset` | `server/internal/*`, ARCHITECTURE.md |
 | Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052) | `client/`, UI.md |
 | Art | KayKit SOURCE kits only; recipe-driven Blender build (`npm run assets`), AO/two-tone vertex colours, diorama islands; recipes + decor; thumbnails; life layer (carts, walkers, smoke, sails, boats, gulls, strollers, sheep, construction stages) with device budgets | `assets/`, ART_DIRECTION.md |
@@ -37,12 +37,18 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Next tasks (in order)
 
-1. **Island generator** (design interview first, then Opus): seeded
-   6–8 island archipelagos replacing the fixed two-island `devworld`.
-2. **Polish round 3** (interactive, after the generator): archipelago
-   scale items — ship size at far, minimap, camera fit, far LOD, legs
-   through islands.
-3. **Content depth** (design interview first): tier-2 alternatives
+1. **D-054 candidate — Anno-117-style footprints and chain ratios**
+   (owner decision, then a content + pipeline task): houses 3×3, producers
+   3×3–4×5, long harbour footprints, 5×5–7×7 public buildings; our speeds
+   stay. Decides the island area target.
+2. **Client scaling** (Opus): chunked terrain meshes, per-island tile
+   loading, far view on a budget — measured on the dev seed with large
+   islands at ~160×160; then the final `islands.json` sizes (schema bump,
+   fixtures re-laid, reference games re-verified).
+3. **Polish round 3** (interactive): far-view label crowding on phones,
+   the founding panel over the south of the map, far draw calls (3.7×),
+   ship size at far, minimap, camera fit, legs through islands.
+4. **Content depth** (design interview first): tier-2 alternatives
    (dairy, pigs, apiary with their reserved field types), tier 3.
 
 ## Known follow-ups
@@ -61,7 +67,9 @@ in the sync after a task unless the task says otherwise; nobody adds the
   for the dock lists; life budget per *visible* island; stage models for
   fields; comfort/luxury need icons (with tier 3); progressive island
   loading if first load bothers on phones.
-- Local dev databases older than schema 5 must be recreated (`make down
+- API, store and event tests still run on the old hand-made two-island
+  world (fine: they test the store, not the map).
+- Local dev databases older than schema 6 must be recreated (`make down
   VOLUMES=1 && make up`).
 
 ## How to run

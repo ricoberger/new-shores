@@ -769,3 +769,17 @@ reference games use fixed seeds.
 - *Rejected:* fully random composition (unfair re-rolls); a fixed
   hand-made archipelago for everyone (no discovery); 6–8 islands (too few
   for 12 settle-anywhere players' worth of variety).
+- *As built (PR #25):* `internal/sim/archipelago` with its own integer
+  PRNG; `content/old_coast/islands.json` (size classes 48/32/20, rock 10;
+  fertilities wheat/apple/hemp 3–5, hops/woad/grapes 2–5; stone 3–6, iron
+  2–4; buildable area 6 550 ± 10 %; spacing 60 / nearest ≤ 150; 64
+  archipelago and 64 shape retries) and `island_names.json` (48 names);
+  dev seed 1053001 (`--seed`); goldens for seeds 1053001, 1, 42 and
+  200-seed property tests; `reroll_archipelago` (409
+  `reroll_not_allowed`) and `rename_island` (400 `invalid_name`);
+  `size_classes` in the content payload; the ship spawns ≥ 10 tiles from
+  land. Reference timings 99 / 136 min. **Sizes are provisional:** the
+  footprint rework (D-054 candidate, Anno-117 footprints) decides the
+  final area target; the client needs chunked terrain and per-island
+  loading before large islands grow past ~100 tiles (far draw calls were
+  already 3.7× the two-island baseline at 48×48).

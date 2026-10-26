@@ -7,7 +7,8 @@ other players on a shared world map. Anno's pace — build instantly, be gated b
 what you produce — with an economy that keeps running on the server while you
 are away. Cosmetic-only monetisation.
 
-Status: **M4 part 2b done — tiers 1–2 playable end to end**: two islands,
+Status: **M4 part 2b done — tiers 1–2 playable end to end**: seeded
+12-island archipelagos (D-053),
 ships, routes and settling, Citizens with balanced tier 1–2 content, intro
 quests, "while you were away", automatic stall recovery, one continuous
 3D world (every island at its archipelago position, free pan and zoom
