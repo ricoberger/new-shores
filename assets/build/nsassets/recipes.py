@@ -110,6 +110,16 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
         missing = [k for k in ("chimney", "smoke") if k not in recipe.get("anchors", {})]
         if missing:
             errors.append(f"{name}: producers need anchors {', '.join(missing)} (chimney top and smoke origin for the life layer)")
+    if kind in ("building", "field"):
+        anchors = recipe.get("anchors", {})
+        missing = [k for k in content_mod.life_anchors(content, cid) if k not in anchors]
+        if missing:
+            errors.append(f"{name}: needs life-layer anchors {', '.join(missing)} (cart points, boat mooring, pier slots, pasture gate and sheep)")
+        w, h = content_mod.footprint(content, cid)
+        tol = config.FOOTPRINT_TOLERANCE
+        for k, v in sorted(anchors.items()):
+            if abs(v[0]) > w / 2 + tol or abs(v[1]) > h / 2 + tol:
+                errors.append(f"{name}: anchor {k} {v[:2]} lies outside the {w}×{h} footprint")
     if kind == "decor":
         if not cid.startswith(config.DECOR_PREFIX):
             errors.append(f"{name}: decoration IDs start with {config.DECOR_PREFIX!r} (they are not content IDs)")

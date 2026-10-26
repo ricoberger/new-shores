@@ -222,8 +222,8 @@ describe("orientation and anchors", () => {
 
   it("puts the model front (door anchor) on frontOffset's edge at all four rotations", () => {
     for (const [entry, d] of [
-      [house, def("house_settlers", 2, 2)],
-      [warehouse, def("trading_post", 4, 4)],
+      [house, def("house_settlers", 3, 3)],
+      [warehouse, def("trading_post", 6, 9)],
     ] as const) {
       for (const rotation of [0, 90, 180, 270] as const) {
         const box = footprintBox(10, 20, d.width, d.height, rotation);
@@ -252,8 +252,8 @@ describe("orientation and anchors", () => {
   });
 
   it("stretches a model only when the content footprint differs from the manifest", () => {
-    expect(footprintScale(house, def("house_settlers", 2, 2))).toEqual({ sx: 1, sz: 1 });
-    expect(footprintScale(house, def("house_settlers", 3, 2))).toEqual({ sx: 1.5, sz: 1 });
+    expect(footprintScale(house, def("house_settlers", 3, 3))).toEqual({ sx: 1, sz: 1 });
+    expect(footprintScale(house, def("house_settlers", 4.5, 3))).toEqual({ sx: 1.5, sz: 1 });
   });
 
   it("maps glTF to world coordinates without mirroring (buildings −x, ships −z)", () => {

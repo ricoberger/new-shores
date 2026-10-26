@@ -2,7 +2,7 @@ import hashlib
 import json
 import unittest
 
-from helpers import A_KIT_FILE, CONTENT, PALETTE_SHA, ROLES, fake_loader
+from helpers import A_KIT_FILE, CONTENT, PALETTE_SHA, ROLES, fake_loader, pinned
 from nsassets import config, glb, pipeline, validate
 
 
@@ -118,6 +118,31 @@ class DetailTest(unittest.TestCase):
         self.assertEqual(pipeline.lite_budget({"id": "chapel", "kind": "building"}, CONTENT, 6000), 1500)
         self.assertEqual(pipeline.lite_budget({"id": "house_settlers", "kind": "building"}, CONTENT, 2500), 625)
 
+    def test_budgets_scale_with_the_footprint_area_up_to_the_cap(self):
+        # D-054 footprints; the 2 × 2 reference keeps the flat budgets.
+        c = pinned(CONTENT, {"fisher": [3, 8], "warehouse": [6, 6], "trading_post": [6, 9], "shipyard": [8, 12],
+                             "house_citizens": [3, 3], "pasture": [3, 3], "orchard_plot": [1, 1]})
+
+        def budget(cid, kind="building", **extra):
+            return pipeline.budget_of(dict({"id": cid, "kind": kind}, **extra), c, None)
+
+        self.assertEqual(config.BUDGET_BUILDING_PER_TILE, 1500)
+        self.assertEqual(config.BUDGET_BUILDING_CAP, 72000)
+        self.assertEqual(budget("chapel"), 6000)
+        self.assertEqual(budget("house_settlers"), 2500)
+        self.assertEqual(budget("fisher"), 6 * budget("chapel"))
+        self.assertEqual(budget("warehouse"), 54000)
+        self.assertEqual(budget("shipyard"), config.BUDGET_BUILDING_CAP)
+        self.assertEqual(budget("trading_post"), config.BUDGET_BUILDING_CAP)
+        self.assertEqual(budget("trading_post", budget_exception={"reason": "x"}), config.BUDGET_BUILDING_CAP)
+        self.assertEqual(budget("chapel", budget_exception={"reason": "x"}), 12000)
+        self.assertEqual(budget("house_citizens"), 5625)
+        self.assertEqual(budget("pasture", "field"), 675)
+        self.assertEqual(budget("orchard_plot", "field"), 300)
+        self.assertEqual(budget("sloop", "ship"), config.BUDGET_SHIP)
+        # Lite models keep their share of the area budget.
+        self.assertEqual(pipeline.lite_budget({"id": "fisher", "kind": "building"}, c, budget("fisher")), 9000)
+
     def test_sails_are_lit_from_both_sides(self):
         r = {"id": "sloop", "kind": "ship", "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0},
              "parts": [{"prim": "box", "size": [2.0, 0.5, 0.3], "role": "timber"},
@@ -173,3 +198,38 @@ class ThumbTest(unittest.TestCase):
         self.assertEqual(scale, 2.0)
         _, scale = pipeline.thumb_frame(pts, (1, 0, 0), (0, 1, 0), margin=0.1)
         self.assertAlmostEqual(scale, 2.4)
+
+
+class AreaBudgetBuildTest(unittest.TestCase):
+    """D-054: built entries record the area-scaled budgets and the life-layer anchors."""
+
+    def setUp(self):
+        self.content = pinned(CONTENT, {"fisher": [3, 8], "pasture": [3, 3], "trading_post": [6, 9]})
+
+    def build(self, recipe):
+        return pipeline.build_recipe(recipe, self.content, ROLES, fake_loader())
+
+    def test_a_strip_records_its_area_budget_and_lite_share(self):
+        r = {"id": "fisher", "kind": "building", "parts": [{"prim": "box", "size": [2.9, 7.9, 0.5], "role": "timber"}],
+             "anchors": {"chimney": [0, 1, 0.5], "smoke": [0, 1, 0.55], "cart": [0, 3.5, 0], "boat": [0, -3, 0.05]}}
+        _, entry, errors = self.build(r)
+        self.assertEqual(errors, [])
+        self.assertEqual(entry["footprint"], {"w": 3, "h": 8})
+        self.assertEqual(entry["file"]["budget"], 36000)
+        self.assertEqual(entry["file"]["lite"]["budget"], 9000)
+        self.assertEqual(entry["anchors"]["boat"], [0.0, 0.05, 3.0])
+
+    def test_pier_slots_and_pasture_anchors_reach_the_manifest(self):
+        berths = {f"berth_{i}": [x, -4.2, 0.06] for i, x in enumerate((-2.1, -0.7, 0.7, 2.1), 1)}
+        r = {"id": "trading_post", "kind": "building", "parts": [{"prim": "box", "size": [5.9, 8.9, 0.5], "role": "stone"}],
+             "anchors": {"cart": [0, 4, 0], **berths}}
+        _, entry, errors = self.build(r)
+        self.assertEqual(errors, [])
+        self.assertEqual([k for k in sorted(entry["anchors"]) if k.startswith("berth")], ["berth_1", "berth_2", "berth_3", "berth_4"])
+        self.assertEqual(entry["anchors"]["berth_4"], [2.1, 0.06, 4.2])
+        p = {"id": "pasture", "kind": "field", "parts": [{"prim": "box", "size": [2.9, 2.9, 0.05], "role": "pasture"}],
+             "anchors": {"gate": [0, 1.42, 0], "sheep_1": [-0.6, -0.3, 0], "sheep_2": [0.6, 0, 0], "sheep_3": [0, 0.7, 0]}}
+        _, entry, errors = self.build(p)
+        self.assertEqual(errors, [])
+        self.assertEqual(entry["file"]["budget"], 675)
+        self.assertEqual(sorted(entry["anchors"]), ["door", "gate", "sheep_1", "sheep_2", "sheep_3", "status"])

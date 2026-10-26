@@ -15,10 +15,12 @@ SCHEMA_PATH = os.path.join(RECIPES_DIR, "schema.json")
 PALETTE_PATH = os.path.join(ASSETS_DIR, "palette.json")
 KITS_MANIFEST_PATH = os.path.join(ASSETS_DIR, "kits", "MANIFEST.json")
 KITS_README = "assets/kits/README.md"
-#: The content the models are fitted to: the pre-D-054 footprints (2×2
-#: houses, …) until the recipes are re-fitted to the D-054 sizes of
-#: content/old_coast; the IDs are the same.
-CONTENT_DIR = os.path.join(REPO_ROOT, "server", "testdata", "content", "old_coast_pre_d054")
+#: The content the models are fitted to (D-054 footprints).
+CONTENT_DIR = os.path.join(REPO_ROOT, "content", "old_coast")
+#: Environment variable that points to another content directory (default
+#: CONTENT_DIR): footprints, kinds and levels are read from there, e.g. a
+#: content draft the models are fitted to before it lands (build.py --content).
+CONTENT_ENV = "NEW_SHORES_CONTENT_DIR"
 MODELS_DIR = os.path.join(REPO_ROOT, "client", "public", "models")
 SHEETS_DIR = os.path.join(BUILD_DIR, "out")
 #: Build-card thumbnails (client/public/models/thumbs/<content id>.png), committed.
@@ -174,11 +176,25 @@ KIT_BUILDINGS = {
 }
 
 #: Triangle budgets per exported file (restyle: chunky KayKit-led models;
-#: ships unchanged).
+#: ships unchanged). BUDGET_BUILDING, BUDGET_HOUSE and BUDGET_FIELD are the
+#: flat budgets of the pre-D-054 footprints: buildings and houses were set
+#: for 2 × 2 (BUDGET_REFERENCE_AREA tiles), fields for 1 × 1 crop tiles.
 BUDGET_BUILDING = 6000
-BUDGET_BUILDING_EXCEPTION = 12000
 BUDGET_HOUSE = 2500
 BUDGET_FIELD = 300
+#: Area-scaled budgets (D-054: Anno 117 footprints, 3 × 3 houses up to the
+#: 8 × 12 shipyard): today's per-tile density of the 2 × 2 reference times
+#: the footprint area, never below the flat budget, capped at
+#: BUDGET_BUILDING_CAP. A 3 × 8 fisher gets 24 / 4 = 6 × a 2 × 2's budget
+#: (36 000); the cap is 2 × that strip's (72 000, i.e. 48 tiles' worth),
+#: so the 6 × 9 Trading Post (81 000) and the 8 × 12 shipyard (144 000)
+#: stop there. A budget_exception doubles the area budget, within the cap.
+BUDGET_REFERENCE_AREA = 4
+BUDGET_BUILDING_PER_TILE = BUDGET_BUILDING // BUDGET_REFERENCE_AREA
+BUDGET_HOUSE_PER_TILE = BUDGET_HOUSE // BUDGET_REFERENCE_AREA
+BUDGET_FIELD_PER_TILE = BUDGET_FIELD // BUDGET_REFERENCE_AREA
+BUDGET_BUILDING_CAP = 2 * 3 * 8 * BUDGET_BUILDING_PER_TILE
+BUDGET_EXCEPTION_FACTOR = 2
 BUDGET_SHIP = 1500
 BUDGET_ATTACHMENT = 150
 #: Decoration pieces (kind "decor": trees, bushes, rocks, tufts, stumps,
@@ -215,7 +231,12 @@ LITE_MIN_TRIS = 150
 LITE_HOUSE_TRIS = 120
 LITE_HOUSE_STEP = 1.25
 LITE_FACTOR = 0.25
-#: Buildings that may declare a budget_exception (×2).
+#: Triangle budget of the buildings on one dense island at the near LOD
+#: (ART_DIRECTION §7: the dense town ≈ 700 k triangles at 60 fps on the
+#: baseline phone); the asset build does not enforce it, the D-054 notes
+#: log the sum for the dense fixture's building mix against it.
+ISLAND_BUDGET_NEAR = 700_000
+#: Buildings that may declare a budget_exception (BUDGET_EXCEPTION_FACTOR).
 EXCEPTION_ALLOWED = ("trading_post", "warehouse", "shipyard", "chapel", "market_small")
 
 #: Footprint fit tolerance (tiles) and ship length tolerance.
@@ -244,6 +265,12 @@ BLENDER_MAJOR_MINOR = (5, 2)
 #: Positions are rounded to this many decimals before export (stable bytes).
 POSITION_DECIMALS = 5
 NORMAL_DECIMALS = 5
+
+
+def content_dir():
+    """The content directory: NEW_SHORES_CONTENT_DIR if set, else CONTENT_DIR."""
+    env = os.environ.get(CONTENT_ENV, "").strip()
+    return os.path.abspath(env) if env else CONTENT_DIR
 
 
 def kits_root():

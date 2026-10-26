@@ -39,7 +39,7 @@ class DeterminismTest(unittest.TestCase):
     def build(self, out):
         script = os.path.join(config.BUILD_DIR, "build.py")
         cmd = [find_blender(), "-b", "--factory-startup", "--python-exit-code", "1", "--python", script, "--",
-               "--out", out, "--no-sheets", "--only", "pasture,sloop,lumberjack"]
+               "--out", out, "--no-sheets", "--no-thumbs", "--only", "pasture,sloop,lumberjack"]
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
         self.assertEqual(r.returncode, 0, r.stdout[-2000:] + r.stderr[-2000:])
 

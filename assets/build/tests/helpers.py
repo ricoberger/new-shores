@@ -10,7 +10,24 @@ if BUILD_DIR not in sys.path:
 from nsassets import content, kits, palette, schema  # noqa: E402
 
 ROLES, PALETTE_SHA = palette.load()
-CONTENT = content.load()
+#: The content the build reads: config.CONTENT_DIR or NEW_SHORES_CONTENT_DIR
+#: (committed recipes and models are checked against it).
+LIVE_CONTENT = content.load()
+#: Footprints the synthetic test recipes are drawn for (a 1.8-tile box fills
+#: a 2 × 2 chapel), pinned so that pipeline tests do not follow balance data.
+TEST_FOOTPRINTS = {"chapel": [2, 2], "house_settlers": [2, 2], "sailmaker": [2, 2], "sawmill": [2, 2], "wheat_field": [1, 1]}
+
+
+def pinned(c, footprints):
+    """A copy of content c with the given building footprints."""
+    out = {"buildings": {k: dict(v) for k, v in c["buildings"].items()}, "ships": c["ships"]}
+    for cid, fp in footprints.items():
+        out["buildings"][cid]["footprint"] = list(fp)
+    return out
+
+
+#: The content of the pipeline unit tests (LIVE_CONTENT with TEST_FOOTPRINTS).
+CONTENT = pinned(LIVE_CONTENT, TEST_FOOTPRINTS)
 SCHEMA = schema.load()
 KIT_FILES = kits.kit_files(kits.load_manifest())
 

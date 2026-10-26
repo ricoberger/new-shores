@@ -211,6 +211,15 @@ def outputs(recipe):
     return out
 
 
+def area_budget(flat, per_tile, area, factor=1):
+    """
+    A footprint's triangle budget (D-054): per_tile × area (× factor for a
+    budget exception), never below flat × factor, capped at
+    BUDGET_BUILDING_CAP (fields and houses stay far below it).
+    """
+    return min(max(flat, per_tile * area) * factor, max(flat * factor, config.BUDGET_BUILDING_CAP))
+
+
 def budget_of(recipe, content, key):
     cid = recipe["id"]
     kind = recipe["kind"]
@@ -222,11 +231,13 @@ def budget_of(recipe, content, key):
         return config.BUDGET_DECOR
     if kind == "life":
         return config.BUDGET_LIFE_STAGE if cid.startswith(config.LIFE_STAGE_PREFIX) else config.BUDGET_LIFE
+    w, h = content_mod.footprint(content, cid)
     if kind == "field":
-        return config.BUDGET_FIELD
+        return area_budget(config.BUDGET_FIELD, config.BUDGET_FIELD_PER_TILE, w * h)
     if content_mod.is_house(content, cid):
-        return config.BUDGET_HOUSE
-    return config.BUDGET_BUILDING_EXCEPTION if "budget_exception" in recipe else config.BUDGET_BUILDING
+        return area_budget(config.BUDGET_HOUSE, config.BUDGET_HOUSE_PER_TILE, w * h)
+    factor = config.BUDGET_EXCEPTION_FACTOR if "budget_exception" in recipe else 1
+    return area_budget(config.BUDGET_BUILDING, config.BUDGET_BUILDING_PER_TILE, w * h, factor)
 
 
 def lite_budget(recipe, content, limit):
@@ -551,8 +562,8 @@ def manifest_entry(recipe, content, files, meta, kit_used):
         anchors["door"] = _vec(glb.to_gltf(door))
     status = declared.get("status") or [0.0, 0.0, union.bounds()[1][2] + config.STATUS_ABOVE]
     anchors["status"] = _vec(glb.to_gltf(status))
-    for k in ("chimney", "smoke"):
-        if k in declared:
+    for k in sorted(declared):
+        if k not in ("door", "status"):
             anchors[k] = _vec(glb.to_gltf(declared[k]))
     entry["anchors"] = anchors
     entry["kit_sources"] = [{"kit": k, "files": sorted(v)} for k, v in sorted(kit_used.items())]

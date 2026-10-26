@@ -12,6 +12,7 @@ Without Blender (stdlib Python ≥ 3.11):
     python3 assets/build/build.py pin        (writes the sha256 of every kit file the recipes use into MANIFEST.json)
 
 Options: --out DIR (GLBs + manifest), --sheets DIR, --thumbs DIR (build-card PNGs), --recipes DIR, --only id,id,
+--content DIR (footprints, kinds and levels; default $NEW_SHORES_CONTENT_DIR or config.CONTENT_DIR),
 --no-sheets, --no-thumbs, --check (GLBs, manifest and thumbnails).
 """
 
@@ -39,6 +40,7 @@ def parse(argv):
     p.add_argument("--out", default=config.MODELS_DIR)
     p.add_argument("--sheets", default=config.SHEETS_DIR)
     p.add_argument("--recipes", default=config.RECIPES_DIR)
+    p.add_argument("--content", default=config.content_dir(), help=f"content directory (default ${config.CONTENT_ENV} or {config.CONTENT_DIR})")
     p.add_argument("--only", default="")
     p.add_argument("--thumbs", default=config.THUMBS_DIR)
     p.add_argument("--no-sheets", action="store_true")
@@ -49,7 +51,7 @@ def parse(argv):
 
 def load_inputs(args):
     roles, palette_sha = palette.load()
-    content = content_mod.load()
+    content = content_mod.load(os.path.abspath(args.content))
     manifest = kits.load_manifest()
     only = set(filter(None, args.only.split(","))) or None
     recipes = recipes_mod.load_all(args.recipes, content, kits.kit_files(manifest), roles, only=only)
@@ -109,6 +111,8 @@ def cmd_build(args):
         log(f"assets: {e}")
         return 1
     roles, palette_sha, content, manifest, recipes, only = load_inputs(args)
+    if os.path.abspath(args.content) != config.CONTENT_DIR:
+        log(f"assets: content from {os.path.abspath(args.content)}")
     blender_ops.reset()
     loader = blender_ops.KitLoader(lambda kit, rel: kits.file_path(manifest, kit, rel))
     entries, written, errors, sheet_items = {}, {}, [], []

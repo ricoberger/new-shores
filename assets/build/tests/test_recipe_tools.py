@@ -1,6 +1,6 @@
 import unittest
 
-from helpers import CONTENT, KIT_FILES, ROLES, SCHEMA, fake_loader
+from helpers import CONTENT, KIT_FILES, LIVE_CONTENT, ROLES, SCHEMA, fake_loader
 from nsassets import config, geometry, pipeline, recipes
 
 
@@ -184,7 +184,33 @@ class SmokeAnchorTest(unittest.TestCase):
         errs = recipes.check_recipe(r, "recipes/sawmill.json", SCHEMA, CONTENT, KIT_FILES, ROLES)
         self.assertTrue(any("producers need anchors smoke" in e for e in errs), errs)
         r["anchors"]["smoke"] = [0, 0, 0.55]
+        errs = recipes.check_recipe(r, "recipes/sawmill.json", SCHEMA, CONTENT, KIT_FILES, ROLES)
+        self.assertTrue(any("needs life-layer anchors cart" in e for e in errs), errs)
+        r["anchors"]["cart"] = [0.5, 0.9, 0]
         self.assertEqual(recipes.check_recipe(r, "recipes/sawmill.json", SCHEMA, CONTENT, KIT_FILES, ROLES), [])
+        r["anchors"]["cart"] = [0.5, 1.4, 0]
+        errs = recipes.check_recipe(r, "recipes/sawmill.json", SCHEMA, CONTENT, KIT_FILES, ROLES)
+        self.assertTrue(any("anchor cart [0.5, 1.4] lies outside the 2×2 footprint" in e for e in errs), errs)
+
+    def test_life_anchors_follow_the_content(self):
+        from nsassets import content as content_mod
+
+        self.assertEqual(content_mod.life_anchors(CONTENT, "sawmill"), ["cart"])
+        self.assertEqual(content_mod.life_anchors(CONTENT, "fisher"), ["cart", "boat"])
+        self.assertEqual(content_mod.life_anchors(CONTENT, "warehouse"), ["cart"])
+        self.assertEqual(content_mod.life_anchors(CONTENT, "trading_post"), ["cart", "berth_1", "berth_2", "berth_3", "berth_4"])
+        self.assertEqual(content_mod.life_anchors(CONTENT, "pasture"), ["gate", "sheep_1", "sheep_2", "sheep_3"])
+        self.assertEqual(content_mod.life_anchors(CONTENT, "house_settlers"), [])
+        self.assertEqual(content_mod.life_anchors(CONTENT, "wheat_field"), [])
+        self.assertEqual(content_mod.life_anchors(CONTENT, "shipyard"), [])
+
+    def test_declared_anchors_are_exported_to_the_manifest(self):
+        r = {"id": "sawmill", "kind": "building", "parts": [{"prim": "box", "size": [1.8, 1.8, 0.5], "role": "plaster"}],
+             "anchors": {"chimney": [0, 0, 0.5], "smoke": [0, 0, 0.55], "cart": [0.5, 0.9, 0]}}
+        _, entry, errors = pipeline.build_recipe(r, CONTENT, ROLES, fake_loader())
+        self.assertEqual(errors, [])
+        self.assertEqual(sorted(entry["anchors"]), ["cart", "chimney", "door", "smoke", "status"])
+        self.assertEqual(entry["anchors"]["cart"], [0.5, 0.0, -0.9])
 
     def test_every_committed_producer_recipe_has_them(self):
         import json
@@ -192,13 +218,31 @@ class SmokeAnchorTest(unittest.TestCase):
 
         from nsassets import content as content_mod
 
-        for cid in content_mod.required_ids(CONTENT):
-            if not content_mod.is_producer(CONTENT, cid):
+        for cid in content_mod.required_ids(LIVE_CONTENT):
+            if not content_mod.is_producer(LIVE_CONTENT, cid):
                 continue
             with open(os.path.join(config.RECIPES_DIR, f"{cid}.json"), encoding="utf-8") as f:
                 anchors = json.load(f).get("anchors", {})
             self.assertIn("chimney", anchors, cid)
             self.assertIn("smoke", anchors, cid)
+
+    def test_every_committed_recipe_has_its_life_anchors_inside_the_footprint(self):
+        import json
+        import os
+
+        from nsassets import content as content_mod
+
+        for cid in content_mod.required_ids(LIVE_CONTENT):
+            if content_mod.kind_of(LIVE_CONTENT, cid) not in ("building", "field"):
+                continue
+            with open(os.path.join(config.RECIPES_DIR, f"{cid}.json"), encoding="utf-8") as f:
+                anchors = json.load(f).get("anchors", {})
+            for k in content_mod.life_anchors(LIVE_CONTENT, cid):
+                self.assertIn(k, anchors, cid)
+            w, h = content_mod.footprint(LIVE_CONTENT, cid)
+            for k, v in anchors.items():
+                self.assertLessEqual(abs(v[0]), w / 2, f"{cid} {k}")
+                self.assertLessEqual(abs(v[1]), h / 2, f"{cid} {k}")
 
 
 class SwayMaskTest(unittest.TestCase):
