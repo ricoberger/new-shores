@@ -17,12 +17,15 @@ export type Tool =
   /** Placing the Trading Post of an unsettled island from a ship's cargo (D-051): the ship sails there first unless it is idle there. */
   | { kind: "found"; shipId: number; buildingType: string; rotation: Rotation; pending?: IslandTile }
   /**
-   * Adding fields to one farm from its panel (D-051 part 4): the ghost of the
-   * farm's field building (`buildingType`) follows the pointer, a click
-   * places one (place_field) and the tool stays until the farm has its
-   * maximum; Esc or a right click leaves it. `island`: the farm's island.
+   * Adding fields to one farm from its panel (D-051 part 4, D-054): the ghost
+   * of the farm's field building (`buildingType`) follows the pointer, a
+   * click places one (place_field), a dragged rectangle paints many (one
+   * place_fields), and the tool stays until the farm has its maximum; Esc
+   * or a right click leaves it (during a drag: drops the rectangle).
+   * `remove`: "Remove fields" — a click or rectangle removes the farm's
+   * fields under it (demolish_fields). `island`: the farm's island.
    */
-  | { kind: "field"; farmId: number; island: string; buildingType: string; rotation: Rotation; pending?: IslandTile }
+  | { kind: "field"; farmId: number; island: string; buildingType: string; rotation: Rotation; pending?: IslandTile; remove?: boolean }
   | { kind: "demolish" };
 
 export type GhostTool = Extract<Tool, { kind: "build" | "move" | "found" | "field" }>;

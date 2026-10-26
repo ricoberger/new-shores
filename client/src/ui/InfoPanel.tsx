@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
 import { percent, perMin, seconds, units } from "../display/format";
 import { countdownWithUnit, orderTiming } from "../display/ships";
@@ -26,8 +26,12 @@ interface Props {
   /** Raises the Trading Post to its next level (upgrade_trading_post). */
   onUpgradeTradingPost: () => void;
   onSelectBuilding: (id: number) => void;
-  /** Activates the field tool bound to this farm for a field building (its "Add field" button, D-051 part 4). */
-  onAddField: (fieldType: string) => void;
+  /**
+   * Activates the field tool bound to this farm for a field building (its
+   * "Paint" button, D-051 part 4, D-054); `remove`: in its "Remove fields"
+   * mode (a right click or long press on the button).
+   */
+  onAddField: (fieldType: string, remove?: boolean) => void;
   /** A fields-list row is hovered or focused (its building ID; null: none): the scene outlines it. */
   /** Server time the model was extrapolated to (ms since the epoch). */
   nowMs: number;
@@ -78,6 +82,65 @@ export function StatusIcon({ building, seal = false }: { building: BuildingDispl
     <span className={seal ? `${styles.icon} ${styles.seal}` : styles.icon} style={{ background: s.color }} title={s.label} role="img" aria-label={s.label}>
       <Icon path={statusIcon(key)} />
     </span>
+  );
+}
+
+/** How long a press on Paint lasts before it means "Remove fields" (the map's long press, render/gestures.ts). */
+const PAINT_LONG_PRESS_MS = 450;
+
+/**
+ * A farm's "Paint <field>" button (D-054): a click enters the field tool;
+ * a right click or a long press enters its "Remove fields" mode.
+ */
+function PaintButton({ field, full, onPaint }: { field: Content["buildings"][number]; full: boolean; onPaint: (remove: boolean) => void }) {
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const longPressed = useRef(false);
+  const clear = () => {
+    clearTimeout(timer.current);
+    timer.current = undefined;
+  };
+  const name = field.name.toLowerCase();
+  return (
+    <>
+      <div className={styles.buttons}>
+        <button
+          type="button"
+          className={styles.button}
+          title="Right click or long press: remove fields"
+          onClick={() => {
+            if (longPressed.current) {
+              longPressed.current = false;
+              return;
+            }
+            onPaint(false);
+          }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            clear();
+            onPaint(true);
+          }}
+          onPointerDown={(e) => {
+            longPressed.current = false;
+            if (e.button !== 0) return;
+            clear();
+            timer.current = setTimeout(() => {
+              longPressed.current = true;
+              onPaint(true);
+            }, PAINT_LONG_PRESS_MS);
+          }}
+          onPointerUp={clear}
+          onPointerLeave={clear}
+          onPointerCancel={clear}
+          data-testid="farm-add-field"
+        >
+          Paint {name}
+          {field.cost.gold > 0 && !full ? ` (${units(field.cost.gold)} gold each)` : ""}
+        </button>
+      </div>
+      <div className={styles.small} data-testid="farm-remove-hint">
+        Right click or long press Paint to remove fields
+      </div>
+    </>
   );
 }
 
@@ -351,26 +414,21 @@ export function InfoPanel({
         </div>
 
         {b.fields && def?.fields && (() => {
-          // Only what needs attention: fields cut off from the farm, and "Add" while the farm can take more (max equals the requirement).
+          // Placed of the maximum (= required), fields cut off from the farm, and the Paint button (right click / long press: Remove fields).
           const field = fieldBuildingOf(content, b.type);
-          const inactive = b.fields.ids.length - b.fields.active;
-          const canAdd = !!field && b.fields.ids.length < b.fields.max;
-          if (inactive <= 0 && !canAdd) return null;
+          const placed = b.fields.ids.length;
+          const inactive = placed - b.fields.active;
           return (
             <div className={styles.section} data-testid="farm-fields">
+              <div className={styles.small} data-testid="farm-fields-count">
+                {placed} / {b.fields.max} placed
+              </div>
               {inactive > 0 && (
                 <div className={`${styles.small} ${styles.warn}`} data-testid="farm-fields-inactive">
                   {inactive} not connected to the farm
                 </div>
               )}
-              {field && canAdd && (
-                <div className={styles.buttons}>
-                  <button type="button" className={styles.button} onClick={() => onAddField(field.id)} data-testid="farm-add-field">
-                    Add {field.name.toLowerCase()}
-                    {field.cost.gold > 0 ? ` (${units(field.cost.gold)} gold)` : ""}
-                  </button>
-                </div>
-              )}
+              {field && <PaintButton field={field} full={placed >= b.fields.max} onPaint={(remove) => onAddField(field.id, remove)} />}
             </div>
           );
         })()}
