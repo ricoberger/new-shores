@@ -84,6 +84,8 @@ export interface TestHook {
   meshesCreated(): number;
   /** Triangles drawn in the last frame (shadow passes included). */
   triangles(): number;
+  /** The last frame's active meshes grouped by layer (name prefix): meshes and triangles (make shots STATS=2). */
+  activeLayers(): Record<string, { meshes: number; tris: number }>;
   /** Load milestones (first frame, first frame with the focused island's full tiles) and their marks in ms since navigation start (null: not yet, or a faked clock). */
   timing(): { firstFrame: boolean; focusTiles: boolean; firstFrameMs: number | null; focusTilesMs: number | null };
   /** Jumps the camera to an island (the island card's "Go to island"; tests trigger jumps without a visible card). */
@@ -571,6 +573,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         drawCalls: () => rendererRef.current?.lastDrawCalls() ?? 0,
         meshesCreated: () => rendererRef.current?.meshesCreated() ?? 0,
         triangles: () => rendererRef.current?.renderStats().triangles ?? 0,
+        activeLayers: () => rendererRef.current?.activeLayers() ?? {},
         timing: () => rendererRef.current?.timing() ?? { firstFrame: false, focusTiles: false, firstFrameMs: null, focusTilesMs: null },
         jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,

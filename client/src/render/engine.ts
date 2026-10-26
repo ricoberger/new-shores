@@ -19,6 +19,7 @@ import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields"
 import { servedRelated } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
+import { visibleChunks } from "../display/chunks";
 import { islandSeed } from "../display/scatter";
 import { type MaskIsland, MaskLayer } from "./farmesh";
 import { gridOverlayVisible } from "../display/grid";
@@ -451,6 +452,21 @@ export class GameRenderer {
     return this.meshCount;
   }
 
+  /** The last frame's active meshes grouped by layer (the name up to its first "_" or digit): meshes and triangles (perf notes). */
+  activeLayers(): Record<string, { meshes: number; tris: number }> {
+    const out: Record<string, { meshes: number; tris: number }> = {};
+    const meshes = this.scene.getActiveMeshes();
+    for (let i = 0; i < meshes.length; i++) {
+      const m = meshes.data[i];
+      if (!m) continue;
+      const layer = m.name.replace(/^(island|models|trees|tree_shadows|scatter|terrain_lite|terrain|roads|field_decor|field|mask_terrain|blob_buildings|decor)[_].*$/, "$1");
+      const e = (out[layer] ??= { meshes: 0, tris: 0 });
+      e.meshes++;
+      for (const sm of m.subMeshes ?? []) e.tris += Math.round(sm.indexCount / 3);
+    }
+    return out;
+  }
+
   /** Draw calls, triangles (the scene's active indices of the last frame ÷ 3; shadow passes included) and the current LOD and model detail (the fps badge). */
   renderStats(): { drawCalls: number; triangles: number; lod: Lod; detail: Detail } {
     return { drawCalls: this.drawCalls, triangles: Math.round(this.scene.getActiveIndices() / 3), lod: this.lod, detail: this.detail };
@@ -623,6 +639,7 @@ export class GameRenderer {
       for (const d of this.details.values()) d.setRotation(v.rotation);
     }
     const focus = focusedIsland(islands, v);
+    this.cullChunks(islands);
     // Tile priorities: the focused island, then the islands in view by distance from the view's centre.
     const dist = (is: IslandDisplay) => Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y);
     const inView = islands
@@ -669,7 +686,17 @@ export class GameRenderer {
       if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), settled: is.settled });
     }
     this.mask.show(masked);
+    this.cullChunks(islands);
     this.refreshCasters();
+  }
+
+  /** Per-chunk culling: the chunks of each shown island in the camera's ground footprint. */
+  private cullChunks(islands: readonly IslandDisplay[]): void {
+    const fp = this.rig.footprint();
+    for (const is of islands) {
+      if (!this.visible.has(is.id)) continue;
+      this.details.get(is.id)?.setVisibleChunks(visibleChunks(is, fp));
+    }
   }
 
   /** The decoded mask of an island (cached per mask string). */

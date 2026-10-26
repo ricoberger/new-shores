@@ -200,6 +200,11 @@ async function shoot(page: Page, file: string, written: string[]): Promise<void>
     const t = timings.get(page);
     const ms = (v: number | null | undefined) => (v === null || v === undefined ? "-" : `${Math.round(v)} ms`);
     console.log(`${name}  draws ${s.draws}  tris ${s.tris}  meshes ${s.meshes}  first-frame ${ms(t?.firstFrameMs)}  focus-tiles ${ms(t?.focusTilesMs)}`);
+  } else if (process.env.STATS?.trim() === "2") {
+    // The active meshes by layer (where the draws and triangles go).
+    const layers = await page.evaluate(() => window.__newShores!.activeLayers());
+    const rows = Object.entries(layers).sort((a, b) => b[1].tris - a[1].tris);
+    console.log(`${name}\n${rows.map(([k, v]) => `  ${k.padEnd(28)} meshes ${String(v.meshes).padStart(3)}  tris ${v.tris}`).join("\n")}`);
   } else {
     console.log(name);
   }
