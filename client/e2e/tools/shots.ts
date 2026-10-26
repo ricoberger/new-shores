@@ -313,6 +313,67 @@ function sloopOnTheSlip(w: WorldResponse): void {
   yard.ship_order = { type: "sloop", ordered_at: new Date(now - 60_000).toISOString(), due_at: new Date(now + 60_000).toISOString() };
 }
 
+/** The home sheep farm and its pastures (island-local tiles) and the island's position. */
+async function sheepFarm(page: Page): Promise<{ island: string; ox: number; oy: number; farm: { id: number; x: number; y: number }; fields: { x: number; y: number }[] }> {
+  return page.evaluate(() => {
+    for (const is of window.__newShores!.getServer()!.display.islands) {
+      const f = is.buildings.find((x) => x.type === "sheep_farm");
+      if (f) return { island: is.id, ox: is.position.x, oy: is.position.y, farm: { id: f.id, x: f.x, y: f.y }, fields: is.buildings.filter((x) => x.farm_id === f.id).map((x) => ({ x: x.x, y: x.y })) };
+    }
+    throw new Error("no sheep farm");
+  });
+}
+
+/** A left-button drag between two tiles of an island; `release: false` keeps the button down (mid-drag shots). */
+async function dragTiles(page: Page, island: string, a: { x: number; y: number }, b: { x: number; y: number }, release = true): Promise<void> {
+  const p = await tileAt(page, island, a.x, a.y);
+  const q = await tileAt(page, island, b.x, b.y);
+  await page.mouse.move(p.x, p.y);
+  await page.mouse.down();
+  await page.mouse.move((p.x + q.x) / 2, (p.y + q.y) / 2, { steps: 6 });
+  await page.mouse.move(q.x, q.y, { steps: 6 });
+  if (release) await page.mouse.up();
+}
+
+/**
+ * The sheep farm of the settled home island selected with its pastures
+ * removed through the card's "Remove fields" (a right click on Paint) and
+ * a rectangle over them; the field tool is then in its paint mode. Returns
+ * the farm and where its pastures were.
+ */
+async function clearedSheepFarm(page: Page): Promise<Awaited<ReturnType<typeof sheepFarm>>> {
+  const s = await sheepFarm(page);
+  const xs = s.fields.map((f) => f.x);
+  const ys = s.fields.map((f) => f.y);
+  const cx = (Math.min(s.farm.x, ...xs) + Math.max(s.farm.x + 3, ...xs.map((x) => x + 3))) / 2;
+  const cy = (Math.min(s.farm.y, ...ys) + Math.max(s.farm.y + 3, ...ys.map((y) => y + 3))) / 2;
+  // The farm and its pastures left of the card.
+  await setCamera(page, { x: s.ox + cx + 4, y: s.oy + cy, half: 10, rotation: 0 });
+  await settle(page);
+  const p = await tileAt(page, s.island, s.farm.x + 1, s.farm.y + 1);
+  await page.mouse.click(p.x, p.y);
+  await page.getByTestId("farm-add-field").click({ button: "right" });
+  await dragTiles(page, s.island, { x: Math.min(...xs), y: Math.min(...ys) }, { x: Math.max(...xs) + 2, y: Math.max(...ys) + 2 });
+  await page.waitForFunction((id) => !window.__newShores!.getServer()!.display.islands.some((is) => is.buildings.some((b) => b.farm_id === id)), s.farm.id, { timeout: 10_000 });
+  await page.getByTestId("farm-add-field").click();
+  return s;
+}
+
+/**
+ * A pasture rectangle from the first pasture's place over the cleared ones
+ * and one module beyond them: three modules fit (green), the rest are over
+ * the maximum. The button stays down (`release`: up, the server answers).
+ */
+async function paintPastures(page: Page, s: Awaited<ReturnType<typeof sheepFarm>>, release: boolean): Promise<void> {
+  const first = s.fields[0]!;
+  const last = s.fields[s.fields.length - 1]!;
+  // One module further in the direction the pastures run, and a second row.
+  const dx = Math.sign(last.x - first.x);
+  const dy = Math.sign(last.y - first.y);
+  const end = { x: last.x + 2 + 3 * dx + (dx === 0 ? 3 : 0), y: last.y + 2 + 3 * dy + (dy === 0 ? 3 : 0) };
+  await dragTiles(page, s.island, first, end, release);
+}
+
 /** Centres the camera at near on a building's footprint (plus an offset in tiles) and opens its card. */
 async function selectBuilding(page: Page, type: string, offset: { x: number; y: number }, half: number): Promise<void> {
   const t = await page.evaluate((ty) => {
@@ -525,17 +586,14 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
     },
   },
-  // A sheep farm selected: its pastures are tinted like the farm (desktop).
+  // The sheep farm of the settled home island selected (D-054 sizes): its pastures tinted like the farm, the card with "3 / 3 placed", Paint and the Size row (desktop).
   "farm-selected": {
-    fixture: "showcase",
+    fixture: "settled",
     device: "desktop",
     run: async (page) => {
-      const f = await farmOf(page);
-      await setCamera(page, { x: f.x + 1, y: f.y + 1, half: 6, rotation: 0 });
-      await settle(page);
-      const p = await tileAt(page, f.island, f.x + 1, f.y + 1);
-      await page.mouse.click(p.x, p.y);
-      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await selectBuilding(page, "sheep_farm", { x: 5, y: 1 }, 10);
+      // Details open: the Size row (3×3 + 3 pastures of 3×3).
+      await page.getByTestId("info-details").locator("summary").click();
       await page.mouse.move(5, 400);
     },
   },
@@ -567,27 +625,43 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.mouse.move(5, 400);
     },
   },
-  // The field tool of a sheep farm: the pasture ghost next to the farm (desktop).
+  // The field tool of a sheep farm (settled, D-054 sizes) after its pastures were removed: one pasture module's ghost next to the farm (desktop).
   "field-ghost": {
-    fixture: "showcase",
+    fixture: "settled",
     device: "desktop",
     run: async (page) => {
-      const f = await farmOf(page);
-      await setCamera(page, { x: f.x + 1, y: f.y + 1, half: 6, rotation: 0 });
-      await settle(page);
-      const p = await tileAt(page, f.island, f.x + 1, f.y + 1);
-      await page.mouse.click(p.x, p.y);
-      await page.getByTestId("farm-add-field").click();
-      // The first tile around the farm where the server would accept a pasture.
-      for (let dy = -3; dy <= 6; dy++) {
-        for (let dx = -3; dx <= 6; dx++) {
-          const q = await tileAt(page, f.island, f.x + dx, f.y + dy);
-          await page.mouse.move(q.x, q.y);
-          await page.waitForTimeout(60);
-          if ((await page.evaluate(() => window.__newShores!.ghostValidity())) === "ok") return;
-        }
-      }
-      throw new Error("no valid pasture tile");
+      const s = await clearedSheepFarm(page);
+      const at = s.fields[0]!;
+      const q = await tileAt(page, s.island, at.x, at.y);
+      await page.mouse.move(q.x, q.y);
+      await page.waitForFunction(() => window.__newShores!.ghostValidity() === "ok", undefined, { timeout: 10_000 });
+    },
+  },
+  // Painting pastures mid-drag (D-054): the modules that fit green, the ones over the maximum red, the live count (desktop).
+  "field-paint": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const s = await clearedSheepFarm(page);
+      await paintPastures(page, s, false);
+      await page.getByTestId("paint-count").waitFor({ state: "visible" });
+    },
+  },
+  // The painted rectangle released: the server placed what fits, the rejected modules flash red (desktop).
+  "field-paint-result": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const s = await clearedSheepFarm(page);
+      // The new pastures rise in on the renderer's clock: it runs until they stand, then the shot's time is pinned again (the flash holds).
+      await page.evaluate(() => window.__newShores!.freezeTime(null));
+      await paintPastures(page, s, true);
+      await page.waitForFunction(() => window.__newShores!.paintCounts().flash > 0, undefined, { timeout: 10_000 });
+      await page.mouse.move(5, 400);
+      await page.clock.setFixedTime(new Date(T.getTime() + 2000));
+      await sleep(300);
+      await page.clock.setFixedTime(T);
+      await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
     },
   },
   // The red placement ghost: a quarry off its deposit (desktop).

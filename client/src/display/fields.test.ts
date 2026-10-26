@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, Content, ContentBuilding, DisplayState } from "../api/client";
-import { farmChain, fieldBuildingOf, fieldHintText, fieldPlacementHint, rectsTouch } from "./fields";
+import { farmChain, fieldBuildingOf, fieldHintText, fieldPlacementHint, footprintText, rectsTouch } from "./fields";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const fixtureDir = join(root, "server", "testdata", "display");
@@ -216,6 +216,31 @@ describe("the shared display fixtures", () => {
           ).toBe(true);
         }
       }
+    }
+  });
+});
+
+describe("footprintText (D-054)", () => {
+  // The shipped content as the client receives it (footprint as width × height).
+  const buildings = (JSON.parse(readFileSync(join(root, "content", "old_coast", "buildings.json"), "utf8")) as (BuildingJson & { name: string; water_tiles?: number })[]).map(
+    (b) => ({ ...b, width: b.footprint[0], height: b.footprint[1], water_tiles: b.water_tiles ?? 0 }) as unknown as ContentBuilding,
+  );
+  const of = (id: string) => footprintText(buildings.find((b) => b.id === id)!, { buildings });
+
+  it("names the size, the rows on water and a farm's fields at the maximum", () => {
+    expect(of("wheat_farm")).toBe("3×4 + 140 fields");
+    expect(of("sheep_farm")).toBe("3×3 + 3 pastures of 3×3");
+    expect(of("trading_post")).toBe("6×9 (3 rows on water)");
+    expect(of("shipyard")).toBe("8×12 (4 rows on water)");
+    expect(of("house_settlers")).toBe("3×3");
+    expect(of("wheat_field")).toBe("1×1");
+  });
+
+  it("has a size for every shipped building, and a field count for every farm", () => {
+    for (const b of buildings) {
+      const t = footprintText(b, { buildings });
+      expect(t, b.id).toMatch(/^\d+×\d+/);
+      if (b.fields) expect(t, b.id).toContain(`+ ${b.fields.max} `);
     }
   });
 });

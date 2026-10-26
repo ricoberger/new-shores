@@ -2,7 +2,7 @@ import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
 import { percent, perMin, seconds, units } from "../display/format";
 import { countdownWithUnit, orderTiming } from "../display/ships";
-import { fieldBuildingOf } from "../display/fields";
+import { fieldBuildingOf, footprintText } from "../display/fields";
 import { needCategory, needLabel } from "../display/needs";
 import { STATUS_STYLES, statusKey, statusText } from "../display/status";
 import { goodIcon, needIcon, statusIcon, toolIcon } from "../theme/iconSet";
@@ -82,6 +82,16 @@ export function StatusIcon({ building, seal = false }: { building: BuildingDispl
     <span className={seal ? `${styles.icon} ${styles.seal}` : styles.icon} style={{ background: s.color }} title={s.label} role="img" aria-label={s.label}>
       <Icon path={statusIcon(key)} />
     </span>
+  );
+}
+
+/** The building's size row of a Details table (D-054: footprint, water rows, a farm's fields). */
+function SizeRow({ def, content }: { def: Content["buildings"][number]; content: Content }) {
+  return (
+    <tr>
+      <td>Size</td>
+      <td data-testid="info-size">{footprintText(def, content)}</td>
+    </tr>
   );
 }
 
@@ -277,7 +287,10 @@ function TradingPostSection({
     const s = model.ships.find((x) => x.id === id);
     return `${content.ships.find((t) => t.id === s?.type)?.name ?? "Ship"} #${id}`;
   };
-  const berths = b.berths ?? { total: 0, busy: 0, ships: [], queue: [] };
+  const def = content.buildings.find((d) => d.id === b.type);
+  // The berths of the level (content) until the server reports them.
+  const levelBerths = def?.trading_post?.levels[(b.level ?? 1) - 1]?.berths ?? 0;
+  const berths = b.berths ?? { total: levelBerths, busy: 0, ships: [], queue: [] };
   const free = Math.max(0, berths.total - berths.busy);
   return (
     <div data-testid="trading-post-panel">
@@ -309,6 +322,7 @@ function TradingPostSection({
                 {free} / {berths.total} free
               </td>
             </tr>
+            {def && <SizeRow def={def} content={content} />}
           </tbody>
         </table>
       </div>
@@ -471,6 +485,7 @@ export function InfoPanel({
               <summary className={styles.detailsSummary}>Details</summary>
               <table className={`${styles.table} ${styles.detailsTable}`}>
                 <tbody>
+                  {def && <SizeRow def={def} content={content} />}
                   {b.cycle_seconds !== undefined && (
                     <tr>
                       <td>Cycle</td>
@@ -543,6 +558,7 @@ export function InfoPanel({
                   <td>Radius</td>
                   <td data-testid="info-radius">{def.service.radius} tiles</td>
                 </tr>
+                <SizeRow def={def} content={content} />
                 <tr>
                   <td>Upkeep</td>
                   <td data-testid="info-upkeep">{perMin(b.paused ? 0 : def.upkeep_per_min)} $/min</td>
@@ -663,6 +679,7 @@ export function InfoPanel({
                     <td>Load</td>
                     <td data-testid="warehouse-load">{percent(b.load_permille ?? 0)}</td>
                   </tr>
+                  <SizeRow def={def} content={content} />
                 </tbody>
               </table>
             </div>

@@ -7,6 +7,8 @@ import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
 import { goodIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import { AwayDialog } from "./AwayDialog";
+import { BuildMenu } from "./BuildMenu";
+import { NO_TOOL } from "./tools";
 import { InfoPanel } from "./InfoPanel";
 import { InsolvencyBanner } from "./InsolvencyBanner";
 import { IslandCard } from "./IslandCard";
@@ -433,6 +435,100 @@ describe("HUD components", () => {
       expect(paused).toContain(icon(toolIcon("resume")));
       expect(text(paused).trim()).toBe("Resume");
       expect(paused).not.toContain("▶");
+    });
+  });
+
+  describe("D-054 sizes in the build menu and the cards", () => {
+    const def = (id: string, name: string, extra: Record<string, unknown> = {}) => ({
+      id,
+      name,
+      tier: "settlers",
+      category: "production",
+      width: 1,
+      height: 1,
+      water_tiles: 0,
+      coastal: false,
+      requires_road: false,
+      cost: { gold: 0, materials: {} },
+      upkeep_per_min: 0,
+      pause_category: "never",
+      ...extra,
+    });
+    const sized = {
+      ...content,
+      buildings: [
+        def("wheat_farm", "Wheat farm", { width: 3, height: 4, fields: { type: "wheat_field", required: 140, max: 140 } }),
+        def("wheat_field", "Wheat field", { field: { type: "wheat_field", farm: "wheat_farm", terrain: ["grass"] } }),
+        def("sheep_farm", "Sheep farm", { width: 3, height: 3, fields: { type: "pasture", required: 3, max: 3 } }),
+        def("pasture", "Pasture", { width: 3, height: 3, field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } }),
+        def("fisher", "Fisher", { width: 3, height: 8, water_tiles: 3 }),
+        def("trading_post", "Trading Post", {
+          category: "harbour",
+          width: 6,
+          height: 9,
+          water_tiles: 3,
+          trading_post: { levels: [1, 2, 3, 4].map((n) => ({ capacity: 100_000 * n, throughput_per_min: 30_000, berths: n })) },
+        }),
+      ],
+    } as unknown as Content;
+    const island = { id: "start", name: "Start", buildings: [], roads: [], workforce: {}, inventory: {} } as unknown as IslandDisplay;
+    const model = fixture("chain_planks");
+    const card = (b: Partial<BuildingDisplay>) =>
+      renderToStaticMarkup(
+        createElement(InfoPanel, {
+          onClose: () => {},
+          building: { id: 7, x: 1, y: 1, rotation: 0, paused: false, paused_reason: "", status: "ok", efficiency_permille: 1000, throughput_factor_permille: 1000, ...b } as BuildingDisplay,
+          island,
+          model,
+          content: sized,
+          onSetPaused: () => {},
+          onDemolish: () => {},
+          onMove: () => {},
+          onUpgrade: () => {},
+          onUpgradeWarehouse: () => {},
+          onUpgradeTradingPost: () => {},
+          onSelectBuilding: () => {},
+          onAddField: () => {},
+          nowMs: 0,
+          onOrderShip: () => {},
+          onCancelShipOrder: () => {},
+        }),
+      );
+    const strip = (html: string) => html.replace(/<[^>]+>/g, "");
+
+    it("shows every build card's size: a farm with its fields at the maximum, a pier with its water rows", () => {
+      const html = renderToStaticMarkup(
+        createElement(BuildMenu, { content: sized, model: null, islandId: "start", fertilities: [], tool: NO_TOOL, onSelect: () => {}, onDemolishTool: () => {} }),
+      );
+      const size = (id: string) => strip(html.match(new RegExp(`<span[^>]*data-testid="build-size-${id}"[^>]*>[^<]*</span>`))?.[0] ?? "");
+      expect(size("wheat_farm")).toBe("3×4 + 140 fields");
+      expect(size("sheep_farm")).toBe("3×3 + 3 pastures of 3×3");
+      expect(size("fisher")).toBe("3×8 (3 rows on water)");
+      // Fields and the Trading Post are not built from the menu.
+      expect(html).not.toContain("build-size-wheat_field");
+      expect(html).not.toContain("build-size-trading_post");
+    });
+
+    it("has a Size row in the Details of a farm, a producer and the Trading Post", () => {
+      const farm = card({ type: "wheat_farm", rates: { inputs: {}, outputs: { wheat: 1_000 } }, fields: { active: 12, required: 140, max: 140, ids: Array.from({ length: 12 }, (_, i) => 100 + i) } } as Partial<BuildingDisplay>);
+      expect(strip(farm)).toContain("Size3×4 + 140 fields");
+      expect(strip(farm)).toContain("12 / 140 placed");
+      expect(strip(farm)).toContain("Paint wheat field");
+      const fisher = card({ type: "fisher", rates: { inputs: {}, outputs: { fish: 1_000 } } } as Partial<BuildingDisplay>);
+      expect(strip(fisher)).toContain("Size3×8 (3 rows on water)");
+      const tp = card({ type: "trading_post", level: 2, capacity: 200_000, throughput_per_min: 30_000, load_permille: 0 });
+      expect(strip(tp)).toContain("Size6×9 (3 rows on water)");
+    });
+
+    it("follows the Trading Post's level on its berths line (the server's berths when it sends them)", () => {
+      for (const level of [1, 2, 3, 4]) {
+        const tp = card({ type: "trading_post", level, capacity: 100_000, throughput_per_min: 30_000, load_permille: 0 });
+        expect(strip(tp), `level ${level}`).toContain(`Berths${level} / ${level} free`);
+      }
+      const busy = card({ type: "trading_post", level: 4, capacity: 400_000, throughput_per_min: 30_000, load_permille: 0, berths: { total: 4, busy: 3, ships: [1, 2, 3], queue: [] } });
+      expect(strip(busy)).toContain("Berths1 / 4 free");
+      // The next level's preview names its berths.
+      expect(strip(card({ type: "trading_post", level: 3, capacity: 300_000, throughput_per_min: 30_000, load_permille: 0 }))).toContain("4 berths");
     });
   });
 });

@@ -94,7 +94,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
         onDemolishTool: () => {},
       }),
     );
-    const order = [...html.matchAll(/data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "menu" && !id?.startsWith("tab-"));
+    const order = [...html.matchAll(/data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "menu" && id !== "size" && !id?.startsWith("tab-"));
     expect(order).toEqual(["lumberjack", "sheep_farm", "weaver_wool"]);
     expect(html).not.toContain('data-testid="build-pasture"');
     // Every card carries its model thumbnail from the asset build (decorative).
