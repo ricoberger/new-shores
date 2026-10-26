@@ -183,72 +183,148 @@ Infrastructure: `trading_post` lvl 4, `market_large`, `theatre`, `university`,
 Mandatory chains for one player to reach Patricians with one good per
 category: ~14. Everything else is variety bonus and trade material.
 
-## 7. Buildings — reference table
+## 7. Buildings — reference table (D-054 target)
 
-Tier 1–2 entries are the provisional baseline (tier 1 is implemented in
-`content/old_coast/`); tier 3–4 entries are authored with the
-post-first-playable content pass. Every building entry carries: `footprint`,
-`coastal`/`slot` requirement, `requires_road`, `cost`, `upkeep_per_min`,
-`workforce {tier, amount}`, `recipes[]` (one entry at launch, D-041),
-`pause_category`, `work_area` (farms/gatherers) and `tier`.
+**Status:** this table is the D-054 target for every planned building.
+`content/old_coast/` still carries the pre-D-054 values (2×2 houses,
+16-tile farms, 4 pastures) until the footprint task lands; MECHANICS keeps
+describing the implemented numbers until then.
 
-Footprint in tiles; upkeep in gold/min; `R` = requires road connection;
-workforce as `amount tier` (S = Settlers, C = Citizens).
+Every building entry carries: `footprint`, `coastal`/`slot` requirement,
+`requires_road`, `cost`, `upkeep_per_min`, `workforce {tier, amount}`,
+`recipes[]` (one entry at launch, D-041), `pause_category`, `work_area`
+(farms/gatherers) and `tier`.
 
-| ID | Tier | Footprint | Cost (gold / planks / stone / tools) | Upkeep | Workforce | Notes |
-|---|---|---|---|---|---|---|
-| `house_settlers` | 1 | 2×2 | 0 / 10 | 0 | — | R |
-| `road_dirt` | 1 | 1×1 | 0 | 0 | — | |
-| `trading_post` | 1 | 4×4, 2 water rows | 200 / 15 | 0 | — | founding only; lvl 1: cap 300/good, T 30/min, 1 berth |
-| `warehouse` | 1 | 2×2 inland | 100 / 10 | 0 | — | collector: lvl 1 T 30/min, no capacity |
-| `market_small` | 1 | 3×3 | 225 / 15 | 0 | — | R, radius 12 |
-| `chapel` | 1 | 2×2 | 275 / 15 | 0 | — | R, radius 16 |
-| `lumberjack` | 1 | 2×2 | 50 / 5 | 1 | 4 S | R, work radius 4 forest, 24 tiles |
-| `sawmill` | 1 | 2×2 | 80 / 8 | 2 | 4 S | R |
-| `fisher` | 1 | 2×2, 1 water row | 60 / 6 | 1 | 4 S | R |
-| `sheep_farm` | 1 | 3×3 + fields | 50 / 10 | 1 | 4 S | R, 4 `pasture` fields required (max 4), cycle 90 s |
-| `pasture` | 1 | 2×2 field | 15 gold | 0 | — | sheep_farm only; grass; edge-adjacent to the farm or an active field; never paused (planks 0: with 2 planks the reference game misses its §12 targets) |
-| `weaver_wool` | 1 | 2×2 | 70 / 10 | 1 | 6 S | R, cycle 90 s |
-| `shipyard` | 1 | 5×4, 2 water rows | 225 / 25 | 0 | — | R, `shipyard.ships: [sloop]`, never auto-paused |
-| `house_citizens` | 2 | 2×2 | 150 / 15 / 10 | 0 | — | upgrade only |
-| `road_paved` | 2 | 1×1 | 5 / – / 1 | 0 | — | |
-| `quarry` | 2 | 3×3 stone slot | 100 / 20 | 2 | 8 S | R |
-| `iron_mine` | 2 | 3×3 iron slot | 200 / 25 / 10 | 3 | 10 S | R |
-| `charcoal_burner` | 2 | 2×2 | 150 / 10 | 3 | 4 S | R |
-| `smelter` | 2 | 3×3 | 200 / 20 / 20 | 3 | 8 S | R |
-| `toolmaker` | 2 | 2×2 | 200 / 15 / 15 | 3 | 8 S | R |
-| `wheat_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, wheat fertility, 16 `wheat_field` fields required (max 16) |
-| `wheat_field` | 2 | 1×1 field | 5 gold | 0 | — | wheat_farm only; grass, wheat fertility; chain rule as `pasture` |
-| `mill` | 2 | 2×2 | 250 / 20 / 10 | 3 | 4 C | R |
-| `bakery` | 2 | 2×2 | 300 / 15 / 15 | 4 | 6 C | R |
-| `dairy_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass; field `cattle_pasture` |
-| `cattle_pasture` | 2 | 2×2 field | 15 gold | 0 | — | **reserved ID**, not shipped (dairy_farm has no recipe yet); dairy_farm only, 4 required (max 4), 1 cow |
-| `cheese_dairy` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `orchard` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, apple fertility, 16 `orchard_plot` fields required (max 16) |
-| `orchard_plot` | 2 | 1×1 field | 5 gold | 0 | — | orchard only; grass, apple fertility |
-| `cidery` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `apiary` | 2 | 2×2 + fields | 200 / 15 / 5 | 3 | 4 S | R; field `meadow` |
-| `meadow` | 2 | 1×1 field | 5 gold | 0 | — | **reserved ID**, not shipped (apiary has no recipe yet); apiary only, 16 required (max 16) |
-| `meadery` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `hemp_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, hemp fertility, 16 `hemp_field` fields required (max 16) |
-| `hemp_field` | 2 | 1×1 field | 5 gold | 0 | — | hemp_farm only; grass, hemp fertility |
-| `weaver_linen` | 2 | 2×2 | 300 / 15 / 10 | 4 | 6 C | R |
-| `pig_farm` | 2 | 3×3 + fields | 200 / 15 / 5 | 3 | 6 S | R, grass; field `pig_pen` |
-| `pig_pen` | 2 | 2×2 field | 15 gold | 0 | — | **reserved ID**, not shipped (pig_farm has no recipe yet); pig_farm only, 4 required (max 4), 2 pigs |
-| `tannery` | 2 | 3×3 | 400 / 20 / 15 | 5 | 8 C | R |
-| `sailmaker` | 2 | 2×2 | 300 / 20 / 5 | 3 | 6 C | R |
-| `tavern` | 2 | 3×3 | 600 / 30 / 20 | 6 | — | R, radius 14 |
+Derivation (D-054): footprints are Anno 117 Latium's for the counterpart
+named in the reference column ("… class" = the nearest same-role Latium
+building; no Albion sizes). Materials are Anno's counts × 3 with the
+ladder planks → planks, bricks → stone, concrete → bricks, marble → glass,
+clamped to the building's tier (a material above the tier is added to the
+tier's top material); at least 5 planks where Anno charges planks. Gold is
+Anno's where Anno charges gold (public and harbour buildings), otherwise
+10 × (planks + 2 stone + 3 bricks + 4 glass). Upkeep is Anno's denarii / 4
+(min 1 for producers). Workforce and cycle times are ours (§5). Fields:
+Anno's tile counts and per-tile prices; animal farms use pasture modules
+(`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7); `max = required`.
+Everything is provisional and re-verified against §12.
 
-Tier 3–4 buildings: see the chain tables in §5 for inputs, outputs, cycles
-and workforce; costs and upkeep to be authored (cost ramp in §3).
+Footprint in tiles as width × depth (depth away from the road; for
+harbour buildings the water rows are the far end); upkeep in gold/min;
+`R` = requires road connection; workforce as `amount tier` (S/C/M/P).
+
+| ID | Tier | Footprint | Anno 117 reference | Cost (gold / planks / stone / bricks / glass, up to the tier) | Upkeep | Workforce | Notes |
+|---|---|---|---|---|---|---|---|
+| `house_settlers` | 1 | 3×3 | Residence | 0 / 5 | 0 | — | R; all houses 3×3, upgrade in place |
+| `road_dirt` | 1 | 1×1 | road | see text | 0 | — |  |
+| `trading_post` | 1 | 6×9, 3 water rows | Trading Pier 6×9 | see text | 0 | — | founding only; levels as below |
+| `warehouse` | 1 | 6×6 | Warehouse 6×6 | 50 / 6 | 2 | — | collector; radius and throughput per level |
+| `market_small` | 1 | 5×6 | Market | 250 / 15 | 2 | — | R, radius 12 |
+| `chapel` | 1 | 3×3 | Shrine 3×3 | 100 / 6 | 4 | — | R, radius 16; the 6×10 church is tier 3 |
+| `lumberjack` | 1 | 3×3 | Woodcutter | 100 / 6 | 1 | 4 S | R, work radius 4 forest |
+| `sawmill` | 1 | 4×6 | Sawmill | 250 / 9 | 2 | 4 S | R |
+| `fisher` | 1 | 3×8, 3 water rows | Fishing Hut | 60 / 6 | 2 | 4 S | R |
+| `sheep_farm` | 1 | 3×3 + 3 `pasture` | Sheep Farm | 60 / 6 | 1 | 4 S | R, cycle 90 s |
+| `pasture` | 1 | 3×3 field | pasture module | 15 g / 5 planks | 0 | — | sheep_farm only; grass; edge-adjacent chain |
+| `weaver_wool` | 1 | 3×4 | Spinner | 60 / 6 | 2 | 6 S | R, cycle 90 s |
+| `shipyard` | 1 | 8×12, 4 water rows | Shipyard | 1000 / 45 | 4 | — | R, never auto-paused |
+| `house_citizens` | 2 | 3×3 | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
+| `road_paved` | 2 | 1×1 | road | see text | 0 | — | 5 gold / 1 stone |
+| `quarry` | 2 | 3×8 on a stone slot | Limestone Quarry | 120 / 6 / 3 | 3 | 8 S | R; strip into the mountain |
+| `iron_mine` | 2 | 3×8 on an iron slot | Iron Mine | 180 / 6 / 6 | 2 | 10 S | R |
+| `charcoal_burner` | 2 | 5×6 | Charcoal Burner | 90 / 9 / 0 | 2 | 4 S | R, forest nearby (visual) |
+| `smelter` | 2 | 4×6 | Furnace | 290 / 5 / 12 | 2 | 8 S | R |
+| `toolmaker` | 2 | 4×4 | Weaponsmith | 230 / 5 / 9 | 4 | 8 S | R |
+| `wheat_farm` | 2 | 3×4 + 140 `wheat_field` | Wheat Farm | 150 / 9 / 3 | 2 | 6 S | R, wheat fertility |
+| `wheat_field` | 2 | 1×1 field | field tile | 3 g | 0 | — | wheat_farm only; painted |
+| `mill` | 2 | 4×6 | Grain Mill | 180 / 6 / 6 | 2 | 4 C | R (no river slot: plain land) |
+| `bakery` | 2 | 4×5 | Bakery | 230 / 5 / 9 | 4 | 6 C | R |
+| `dairy_farm` | 2 | 4×5 + 5 `cattle_pasture` | Pig Farm class, large | 170 / 5 / 6 | 2 | 6 S | R, grass |
+| `cattle_pasture` | 2 | 4×7 field | pasture module | 30 g / 5 planks | 0 | — | dairy_farm and cattle_farm; grass |
+| `cheese_dairy` | 2 | 4×5 | Garum Works class | 180 / 6 / 6 | 3 | 6 C | R |
+| `orchard` | 2 | 4×4 + 160 `orchard_plot` | Olive Grower | 230 / 5 / 9 | 2 | 6 S | R, apple fertility |
+| `orchard_plot` | 2 | 1×1 field | field tile | 1 g | 0 | — | orchard only |
+| `cidery` | 2 | 5×6 | Olive Press | 240 / 6 / 9 | 4 | 6 C | R |
+| `apiary` | 2 | 5×5 + 100 `meadow` | Apiary | 290 / 5 / 12 | 4 | 4 S | R |
+| `meadow` | 2 | 1×1 field | field tile | 1 g | 0 | — | apiary only; grass |
+| `meadery` | 2 | 4×5 | Victualler class | 180 / 6 / 6 | 3 | 6 C | R |
+| `hemp_farm` | 2 | 3×4 + 60 `hemp_field` | Hemp Farm | 60 / 6 / 0 | 1 | 6 S | R, hemp fertility |
+| `hemp_field` | 2 | 1×1 field | field tile | 2 g | 0 | — | hemp_farm only |
+| `weaver_linen` | 2 | 4×5 | Loom Weavery | 410 / 5 / 18 | 5 | 6 C | R |
+| `pig_farm` | 2 | 3×4 + 5 `pig_pen` | Pig Farm | 170 / 5 / 6 | 2 | 6 S | R, grass |
+| `pig_pen` | 2 | 3×4 field | pasture module | 20 g / 5 planks | 0 | — | pig_farm only; grass |
+| `tannery` | 2 | 3×4 | Tannery | 180 / 6 / 6 | 2 | 8 C | R |
+| `sailmaker` | 2 | 4×8 | Ropemaker | 240 / 6 / 9 | 2 | 6 C | R |
+| `tavern` | 2 | 4×6 | Tavern | 250 / 15 / 0 | 2 | — | R, radius 14 |
+| `house_merchants` | 3 | 3×3 | Residence | 400 / 5 / 3 / 3 | 0 | — | upgrade only |
+| `market_medium` | 3 | 6×8 | Grammaticus class | 1000 / 15 / 30 / 0 | 4 | — | R, radius 16 |
+| `church` | 3 | 6×10 | Sanctuary | 1500 / 30 / 15 / 0 | 6 | — | R, radius 20 |
+| `harbourmaster_office` | 3 | 5×5, 2 water rows | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
+| `butcher` | 3 | 4×5 | Victualler class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
+| `pastry_kitchen` | 3 | 4×5 | Bakery class | 320 / 5 / 9 / 3 | 4 | 8 M | R |
+| `hop_farm` | 3 | 3×4 + 60 `hop_field` | crop farm class | 120 / 6 / 3 / 0 | 2 | 6 S | R, hops fertility |
+| `hop_field` | 3 | 1×1 field | field tile | 3 g | 0 | — | hop_farm only |
+| `brewery` | 3 | 5×6 | Olive Press class | 330 / 6 / 9 / 3 | 4 | 10 M | R |
+| `distillery` | 3 | 5×6 | Olive Press class | 420 / 6 / 9 / 6 | 4 | 8 M | R; T4 grain_spirit reuses the building |
+| `leather_works` | 3 | 3×4 | Tannery | 270 / 6 / 6 / 3 | 2 | 8 C | R |
+| `tailor` | 3 | 4×5 | Loom Weavery class | 410 / 5 / 9 / 6 | 5 | 10 M | R |
+| `woad_farm` | 3 | 3×4 + 100 `woad_field` | crop farm class | 120 / 6 / 3 / 0 | 2 | 6 S | R, woad fertility |
+| `woad_field` | 3 | 1×1 field | field tile | 1 g | 0 | — | woad_farm only |
+| `dyer_works` | 3 | 5×5 | Dye Works | 470 / 5 / 12 / 6 | 3 | 6 C | R |
+| `dyer` | 3 | 4×5 | Loom Weavery class | 410 / 5 / 9 / 6 | 5 | 8 M | R |
+| `trapper` | 3 | 5×5 | Resin Trapper | 180 / 6 / 6 / 0 | 2 | 4 S | R, forest radius |
+| `furrier` | 3 | 3×4 | Sandal Maker class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
+| `paper_mill` | 3 | 4×6 | Sawmill class | 300 / 9 / 6 / 3 | 2 | 8 C | R |
+| `printing_press` | 3 | 4×5 | Tabulus class | 330 / 6 / 9 / 3 | 6 | 10 M | R |
+| `clay_pit` | 3 | 4×6 on a clay slot | Clay Pit | 60 / 6 / 0 / 0 | 2 | 8 C | R (no river slot: deposit slot) |
+| `potter` | 3 | 4×5 | Potter | 180 / 6 / 6 / 0 | 4 | 8 M | R |
+| `rendering_house` | 3 | 3×3 | Renderer | 170 / 5 / 6 / 0 | 2 | 6 C | R |
+| `soap_maker` | 3 | 3×4 | Soap Maker | 120 / 6 / 3 / 0 | 3 | 8 M | R |
+| `salt_pans` | 3 | 5×9, 3 water rows | Salt Ponds | 180 / 6 / 6 / 0 | 2 | 4 S | R |
+| `salt_mine` | 3 | 3×8 on a salt slot | Iron Mine class | 180 / 6 / 6 / 0 | 2 | 10 C | R |
+| `salt_works` | 3 | 4×6 | Furnace class | 290 / 5 / 12 / 0 | 2 | 8 C | R |
+| `brickworks` | 3 | 4×5 | Tiler | 90 / 9 / 0 / 0 | 3 | 8 C | R |
+| `coal_mine` | 3 | 3×8 on a coal slot | Iron Mine class | 180 / 6 / 6 / 0 | 2 | 10 C | R |
+| `house_patricians` | 4 | 3×3 | Residence | 1000 / 5 / 3 / 3 / 3 | 0 | — | upgrade only |
+| `market_large` | 4 | 10×10 | Gambling House class | 5000 / 15 / 45 / 15 / 0 | 8 | — | R, radius 20 |
+| `theatre` | 4 | 11×14 | Theatre | 15000 / 30 / 60 / 30 / 0 | 15 | — | R, radius 24 |
+| `university` | 4 | 12×12 | Library | 50000 / 45 / 45 / 60 / 0 | 45 | — | R, radius 24 |
+| `cattle_farm` | 4 | 4×5 + 5 `cattle_pasture` | Pig Farm class, large | 410 / 5 / 9 / 6 / 0 | 4 | 8 S | R, grass |
+| `slaughterhouse` | 4 | 4×4 | Fish Gutter class | 390 / 6 / 6 / 3 / 3 | 8 | 8 P | R |
+| `oyster_beds` | 4 | 6×12, 4 water rows | Oyster Bed | 480 / 12 / 9 / 6 / 0 | 3 | 6 S | R |
+| `oyster_house` | 4 | 6×6 | Epicure of Water class | 510 / 6 / 6 / 3 / 6 | 10 | 6 P | R |
+| `confectioner` | 4 | 4×5 | Bakery class | 650 / 5 / 9 / 6 / 6 | 4 | 8 P | R |
+| `vineyard` | 4 | 4×5 + 100 `vine_row` | Vineyard | 330 / 6 / 9 / 3 / 0 | 2 | 8 S | R, grapes fertility |
+| `vine_row` | 4 | 1×1 field | field tile | 3 g | 0 | — | vineyard only |
+| `cooperage` | 4 | 4×6 | Caelator class | 840 / 9 / 12 / 9 / 6 | 7 | 8 C | R |
+| `winepress` | 4 | 6×9 | Vintner | 540 / 6 / 15 / 6 / 0 | 8 | 8 P | R |
+| `malt_house` | 4 | 4×6 | Grain Mill class | 270 / 6 / 6 / 3 / 0 | 2 | 6 C | R |
+| `fashion_house` | 4 | 5×7 | Chair Maker class | 900 / 6 / 9 / 6 / 12 | 7 | 10 P | R |
+| `thread_spinner` | 4 | 3×4 | Spinner | 240 / 6 / 0 / 6 / 0 | 2 | 6 C | R |
+| `lace_maker` | 4 | 3×5 | Cushion Stuffer | 650 / 5 / 3 / 6 / 9 | 4 | 10 P | R |
+| `candle_foundry` | 4 | 4×4 | Jeweller class | 680 / 5 / 0 / 9 / 9 | 12 | 6 P | R |
+| `quartz_quarry` | 4 | 3×8 on a quartz slot | Marble Quarry | 300 / 6 / 3 / 6 / 0 | 4 | 10 C | R |
+| `glass_smelter` | 4 | 4×6 | Glass Smelter | 270 / 6 / 6 / 3 / 0 | 3 | 8 C | R (no river slot) |
+| `copper_mine` | 4 | 3×8 on a copper slot | Mineral Quarry | 210 / 6 / 3 / 3 / 0 | 5 | 10 C | R |
+| `copper_smelter` | 4 | 4×6 | Goldsmith class | 740 / 5 / 9 / 9 / 6 | 6 | 8 C | R |
+| `optician` | 4 | 4×4 | Jeweller class | 680 / 5 / 0 / 9 / 9 | 12 | 8 P | R |
+| `gold_mine` | 4 | 3×8 on a gold slot | Gold Mine | 210 / 6 / 3 / 3 / 0 | 5 | 10 C | R; exactly one gold slot per archipelago |
+| `gold_smelter` | 4 | 4×6 | Goldsmith | 740 / 5 / 9 / 9 / 6 | 6 | 8 C | R |
+| `goldsmith` | 4 | 4×4 | Jeweller | 680 / 5 / 0 / 9 / 9 | 12 | 6 P | R |
+| `mineral_quarry` | 4 | 3×8 on a quartz slot | Mineral Quarry | 210 / 6 / 3 / 3 / 0 | 5 | 10 C | R |
+| `studio` | 4 | 5×5 | Gilder | 680 / 5 / 6 / 9 / 6 | 4 | 6 P | R |
+| `luthier` | 4 | 5×5 | Lythier | 870 / 6 / 9 / 9 / 9 | 8 | 8 P | R |
+
+Roads: `road_dirt` 2 gold; `road_paved` 5 gold / 1 stone. Trading Post
+founding cost 200 gold / 15 planks (start stock, D-051) — the levels below.
 
 Trading Post levels (provisional): lvl 1 cap 300 / T 30 / 1 berth; lvl 2
 cap 500 / T 55 / 2 berths (upgrade 300 gold / 20 planks / 10 stone); lvl 3
 cap 800 / T 80 / 3 berths (600 gold / 30 planks / 20 stone); lvl 4 cap
 1 200 / T 110 / 4 berths (1 200 gold / 40 planks / 30 stone / 10 tools).
-Warehouse levels (provisional, throughput only): lvl 1 T 30; lvl 2 T 55
-(150 gold / 10 planks / 5 stone); lvl 3 T 80 (300 gold / 15 planks /
-10 stone).
+Warehouse levels (provisional): lvl 1 T 30, radius 12; lvl 2 T 55, radius
+16 (150 gold / 10 planks / 5 stone); lvl 3 T 80, radius 20 (300 gold /
+15 planks / 10 stone) — a 6×6 hub earns its size with reach and
+throughput (D-054).
 
 ## 8. Ships
 

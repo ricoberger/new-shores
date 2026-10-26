@@ -37,14 +37,14 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Next tasks (in order)
 
-1. **D-054 candidate — Anno-117-style footprints and chain ratios**
-   (owner decision, then a content + pipeline task): houses 3×3, producers
-   3×3–4×5, long harbour footprints, 5×5–7×7 public buildings; our speeds
-   stay. Decides the island area target.
-2. **Client scaling** (Opus): chunked terrain meshes, per-island tile
+1. **Client scaling** (Opus, running): chunked terrain meshes, per-island tile
    loading, far view on a budget — measured on the dev seed with large
-   islands at ~160×160; then the final `islands.json` sizes (schema bump,
-   fixtures re-laid, reference games re-verified).
+   islands at ~160×160.
+2. **D-054 footprints, costs and painted fields** (Opus): CONTENT §7
+   table into content, recipes re-fitted, `place_fields` + rectangle
+   painting, pasture modules, fixtures/goldens/reference games
+   regenerated; the final `islands.json` sizes (large ≈ 192) in the same
+   PR.
 3. **Polish round 3** (interactive): far-view label crowding on phones,
    the founding panel over the south of the map, far draw calls (3.7×),
    ship size at far, minimap, camera fit, legs through islands.

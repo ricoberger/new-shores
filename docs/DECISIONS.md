@@ -783,3 +783,42 @@ reference games use fixed seeds.
   final area target; the client needs chunked terrain and per-island
   loading before large islands grow past ~100 tiles (far draw calls were
   already 3.7× the two-island baseline at 48×48).
+
+## D-054 Building footprints, costs and fields follow Anno 117 Latium
+
+**Decision:** every building's footprint is taken from its Anno 117
+Latium counterpart (or the nearest same-role Latium building; no Albion
+sizes), construction materials and upkeep are derived from Anno's by
+fixed rules (CONTENT §7 header), gold, workforce, cycle times and ratios
+stay ours. Field counts and per-tile prices are Anno's: crops 60–160
+one-tile fields painted by rectangle drag, animal farms 3–5 pasture
+modules (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7). Specific
+points: houses 3×3 at every tier; Trading Post 6×9 with 3 water rows;
+shipyard 8×12 with 4 water rows (a once-per-island landmark); warehouse
+6×6 with radius and throughput per level; chapel stays a 3×3 shrine, the
+6×10 church arrives at tier 3; mines and quarries are 3×8 strips on a
+mountain slot; mill, glass smelter and clay pit sit on plain land or a
+deposit slot (we have no rivers). The full table is CONTENT §7.
+
+- *Why:* uniform 2×2/3×3 boxes made towns look samey and islands tiny;
+  Anno's sizes carry information (a fishery is a pier, a quarry a strip,
+  a theatre a landmark) and give the island area target a basis. One
+  reference (Latium, ~83 economy buildings — the size of our catalogue)
+  keeps future content consistent without reopening the discussion.
+- *Consequences:* fields are **painted**: a `place_fields` batch command
+  validates every tile and applies the valid ones atomically, returning
+  the rejected ones; the ghost shows per-tile validity while dragging;
+  demolish gets the same rectangle. `fields.max = fields.required` stays
+  (D-051). The island area target rises to ≈ 16–20 k buildable per full
+  four-tier island (large ≈ 192×192, after the client scaling task).
+  Every recipe in `assets/build` is re-fitted; dense fixtures, scenarios,
+  goldens and the reference games are regenerated; CONTENT §12 targets
+  hold; MECHANICS §4 (fields) and UI §3 (painting) update with the
+  implementation. Schema bump, no migration.
+- *Parked (own decisions later):* Anno's shrines (set bonuses → our
+  variety mechanic, D-031), marvels (prestige goals, Doubloon-free),
+  city watch / amenities (a risk mechanic; conflicts with D-009 unless a
+  soft efficiency effect); military, aqueducts and river slots are out.
+- *Rejected:* footprint classes (a second table for a number already in
+  the row); Anno's absolute rates and costs (tuned for a real-time game;
+  our pacing is D-006/D-009); 1:1 copy of Albion sizes.
