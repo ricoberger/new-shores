@@ -38,12 +38,13 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	at := s.Steps[upgrade].Upgrade
 	islandID := at.Island
 	if islandID == "" {
-		islandID = s.Islands[0].ID
+		islandID = w.Islands[0].ID
 	}
 	house := w.Island(islandID).BuildingAt(c, at.X, at.Y)
 	if house == nil || house.Type != "house_settlers" {
 		t.Fatalf("no settler house at (%d,%d): %+v", at.X, at.Y, house)
 	}
+	tavernX, tavernY := roadSite(t, w, islandID, "tavern", house)
 	ts := newTestServerFor(t, w, w.LastEvaluatedAt, 1)
 
 	res := ts.command(fmt.Sprintf(`{"type":"upgrade_house","island_id":%q,"building_id":%d}`, islandID, house.ID), nil)
@@ -120,7 +121,7 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 			}
 		}
 	})
-	res = ts.command(fmt.Sprintf(`{"type":"place_building","island_id":%q,"building_type":"tavern","x":3,"y":5,"rotation":0}`, islandID), nil)
+	res = ts.command(fmt.Sprintf(`{"type":"place_building","island_id":%q,"building_type":"tavern","x":%d,"y":%d,"rotation":0}`, islandID, tavernX, tavernY), nil)
 	if res.status != http.StatusOK {
 		t.Fatalf("place tavern: %d %s", res.status, res.body)
 	}
@@ -145,4 +146,37 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	if grown := check(res.body, true); *grown.Residents <= *supplied.Residents {
 		t.Errorf("residents %d -> %d", *supplied.Residents, *grown.Residents)
 	}
+}
+
+// roadSite returns the valid site (rotation 0) of a building type nearest
+// to building near with a road next to it.
+func roadSite(t *testing.T, w *sim.World, islandID, typ string, near *sim.Building) (int, int) {
+	t.Helper()
+	c := catalogue(t)
+	is := w.Island(islandID)
+	def := c.BuildingByID[typ]
+	bestX, bestY, bestD := 0, 0, -1
+	for y := 0; y+def.Height <= is.Height; y++ {
+		for x := 0; x+def.Width <= is.Width; x++ {
+			d := (x-near.X)*(x-near.X) + (y-near.Y)*(y-near.Y)
+			if (bestD >= 0 && d >= bestD) || sim.CheckSite(is, c, def, x, y, 0) != nil {
+				continue
+			}
+			road := false
+			for ty := y - 1; ty <= y+def.Height; ty++ {
+				for tx := x - 1; tx <= x+def.Width; tx++ {
+					inside := tx >= x && tx < x+def.Width && ty >= y && ty < y+def.Height
+					diagonal := (tx < x || tx >= x+def.Width) && (ty < y || ty >= y+def.Height)
+					road = road || (!inside && !diagonal && is.InBounds(tx, ty) && is.RoadAt(tx, ty) != "")
+				}
+			}
+			if road {
+				bestX, bestY, bestD = x, y, d
+			}
+		}
+	}
+	if bestD < 0 {
+		t.Fatalf("no %s site next to a road on %s", typ, islandID)
+	}
+	return bestX, bestY
 }

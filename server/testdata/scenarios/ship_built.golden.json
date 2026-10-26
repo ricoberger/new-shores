@@ -1,6 +1,6 @@
 {
   "name": "ship_built",
-  "content_version": "old_coast-0.8.0",
+  "content_version": "old_coast-0.9.0",
   "boundary_count": 1,
   "totals": {
     "start": {
@@ -142,10 +142,23 @@
         "goods_delivered": {}
       }
     ],
+    "archipelago": {
+      "seed": 0,
+      "roll": 0,
+      "rerollable": false,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 54,
+        "height": 56
+      }
+    },
     "islands": [
       {
         "id": "start",
         "name": "Start",
+        "size_class": "",
+        "rock": false,
         "settled": true,
         "position": {
           "x": 0,
@@ -454,6 +467,8 @@
       {
         "id": "island2",
         "name": "Island 2",
+        "size_class": "",
+        "rock": false,
         "settled": false,
         "position": {
           "x": 36,

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { DisplayState, Island } from "../api/client";
-import type { Rect } from "../display/camera";
+import { archipelagoRect, type Rect } from "../display/camera";
 import { fromMinimap, islandsBounds, minimapLandKey, minimapProjection, minimapSize, toMinimap } from "../display/minimap";
 import type { GameRenderer } from "../render/engine";
 import { toolIcon } from "../theme/iconSet";
@@ -52,8 +52,10 @@ export function Minimap({ renderer, model, statics, viewport, collapsible, initi
   // (and static data), not by the model object that every extrapolated
   // update replaces.
   const landKey = minimapLandKey(islands);
+  // The payload's archipelago bounds (D-053); the islands' own for an older payload without extent.
+  const ab = model.archipelago.bounds;
   // eslint-disable-next-line react-hooks/exhaustive-deps -- landKey stands for the islands' geometry
-  const bounds = useMemo<Rect | null>(() => islandsBounds(islands), [landKey]);
+  const bounds = useMemo<Rect | null>(() => archipelagoRect(model.archipelago) ?? islandsBounds(islands), [landKey, ab.x, ab.y, ab.width, ab.height]);
   const size = bounds ? minimapSize(bounds, viewport.width, viewport.height) : { width: 0, height: 0 };
 
   // The cached land layer (an offscreen canvas at device resolution), drawn while the minimap shows.

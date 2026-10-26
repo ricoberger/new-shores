@@ -1,0 +1,30 @@
+{
+  "size_classes": [
+    { "id": "large", "name": "Large", "size": 48, "count": { "min": 3, "max": 3 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
+    { "id": "medium", "name": "Medium", "size": 32, "count": { "min": 5, "max": 5 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
+    { "id": "small", "name": "Small", "size": 20, "count": { "min": 4, "max": 4 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
+    { "id": "rock", "name": "Resource rock", "size": 10, "rock": true, "count": { "min": 0, "max": 2 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 2, "max": 4 } }
+  ],
+  "fertilities": [
+    { "id": "wheat", "count": { "min": 3, "max": 5 } },
+    { "id": "apple", "count": { "min": 3, "max": 5 } },
+    { "id": "hemp", "count": { "min": 3, "max": 5 } },
+    { "id": "hops", "count": { "min": 2, "max": 5 } },
+    { "id": "woad", "count": { "min": 2, "max": 5 } },
+    { "id": "grapes", "count": { "min": 2, "max": 5 } }
+  ],
+  "deposits": [
+    { "id": "stone", "count": { "min": 3, "max": 6 } },
+    { "id": "iron", "count": { "min": 2, "max": 4 } }
+  ],
+  "buildable_area": { "target": 6550, "tolerance": 0.1 },
+  "spacing": { "min": 60, "nearest_max": 150 },
+  "home": {
+    "size_class": "large",
+    "terrain": ["forest", "grass"],
+    "deposits": ["stone"],
+    "fertilities_any": ["wheat", "apple"],
+    "fertilities_none": ["hemp"],
+    "deposits_none": ["iron"]
+  }
+}

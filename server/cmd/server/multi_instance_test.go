@@ -22,11 +22,12 @@ import (
 
 	"github.com/coder/websocket"
 
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
 	"github.com/ricoberger/new-shores/server/internal/testenv"
+	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
 
 const testOrigin = "http://localhost:5173"
@@ -256,9 +257,9 @@ func TestMultiInstance(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 	}
 
-	// A new world starts at sea (D-051): the start ship sails to the start
-	// island.
-	cmd := `{"command":{"type":"sail_ship","ship_id":1,"to_island_id":"start"}}`
+	// A new world starts at sea (D-051) in a generated archipelago (D-053):
+	// the start ship sails to its home candidate.
+	cmd := `{"command":{"type":"sail_ship","ship_id":1,"to_island_id":"` + archipelago.IslandID(0) + `"}}`
 	sent := time.Now()
 	res, err := httpDo(http.MethodPost, a.url("/api/v1/world/commands"), cmd, map[string]string{"Authorization": "Bearer " + token, "Content-Type": "application/json"})
 	if err != nil || res.status != 200 {
@@ -314,7 +315,7 @@ func TestMultiInstance(t *testing.T) {
 		// (which starts at sea, D-051) by replacing it with the founded
 		// dev fixture at the same time.
 		if _, err := st.Update(context.Background(), wid, func(w *sim.World, _ int64, _ time.Time) (bool, error) {
-			founded, err := devworld.NewFixture(testenv.Catalogue(t), devworld.FixtureDefault, w.LastEvaluatedAt)
+			founded, err := testworld.Founded(testenv.Catalogue(t), w.LastEvaluatedAt)
 			if err != nil {
 				return false, err
 			}

@@ -166,6 +166,15 @@
   min-width: 0;
 }
 
+/* The size class (D-053) after the name: small caps-free label in the parchment tone. */
+.hudIslandKind {
+  color: var(--ns-ui-parchment-light);
+  font-size: 12px;
+  opacity: 0.8;
+  white-space: nowrap;
+  flex: none;
+}
+
 .hudIslandButton .resourceBadges {
   flex-wrap: nowrap;
   flex: none;
@@ -535,6 +544,10 @@
   margin-top: 10px;
 }
 
+.centred {
+  justify-content: center;
+}
+
 .button {
   color: var(--ns-ui-ink);
   border: 1px solid var(--ns-ui-wood-light);
@@ -845,6 +858,25 @@
   padding: 2px 4px;
   background: var(--ns-ui-parchment-light);
   max-width: 140px;
+}
+
+/* The island card's rename editor (D-053): the input takes the header row's width. */
+.renameForm {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 6px;
+  align-items: center;
+}
+
+.nowrap {
+  flex-wrap: nowrap;
+}
+
+.renameInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
 }
 
 .number {

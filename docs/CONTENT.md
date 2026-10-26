@@ -272,10 +272,11 @@ only `sloop` is authored so far. Ship positions and legs follow MECHANICS
 |---|---|
 | Habitable islands per archipelago | 12: 3 large (≈ 48×48), 5 medium (≈ 32×32), 4 small (≈ 20×20) |
 | Resource rocks | 0–2 (≈ 10×10, mountain + coast; Trading Post and mines only) |
-| Fertilities per habitable island | 2–4 from the pool; each pool entry 2–5 times per archipelago (provisional) |
-| Deposit slots per island | 0–4, typed; each pool entry 1–4 times (stone ≥ 3; gold exactly 1 when authored) |
+| Fertilities per habitable island | 2–4 from the pool (wheat, apple, hemp 3–5 times per archipelago; hops, woad, grapes 2–5 times; provisional) |
+| Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; stone 3–6, iron 2–4 slots per archipelago (gold exactly 1 when authored) |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
 | Spacing | ≥ 60 tiles between islands, nearest neighbour ≤ 150 |
+| Buildable area | 6550 tiles (coast, grass, forest) per archipelago ± 10 % (provisional) |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
 
 Guarantees per tier are specified in MECHANICS §10. No gating (D-051).

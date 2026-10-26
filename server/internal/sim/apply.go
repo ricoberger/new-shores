@@ -173,6 +173,10 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) error 
 		err = claimQuest(w, c, cmd, l)
 	case AckSummary:
 		ackSummary(w, cmd)
+	case RerollArchipelago:
+		err = rerollArchipelago(w, c, cmd)
+	case RenameIsland:
+		err = renameIsland(w, c, cmd)
 	case nil:
 		return fmt.Errorf("%w: nil command", ErrInvalidCommand)
 	default:
@@ -378,6 +382,18 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 	is.Buildings = append(is.Buildings, b)
 	afterChange(is, c)
 	return nil
+}
+
+// CheckSite validates a site for a building on the island as placement
+// does (rotation, bounds, terrain, occupancy, water rows, coast, deposit,
+// fertility and work area; checkSite), without cost, tier, settlement or
+// field rules. The archipelago generator uses it to verify Trading Post
+// and shipyard sites on fresh islands (D-053).
+func CheckSite(is *Island, c *content.Catalogue, def *content.Building, x, y, rotation int) error {
+	if !validRotation(rotation) {
+		return fmt.Errorf("%w: rotation %d", ErrInvalidCommand, rotation)
+	}
+	return checkSite(is, c, is.occupancy(c), def, x, y, rotation, true)
 }
 
 // checkSite validates a building site, in this order: the footprint is on

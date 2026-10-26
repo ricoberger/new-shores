@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ricoberger/new-shores/content/schema/islands.schema.json",
+  "title": "Archipelago generator rules",
+  "description": "Composition, pools and ranges of the seeded archipelago generator (D-053, MECHANICS §10, CONTENT §9). The content loader also checks that the ranges are satisfiable.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["size_classes", "fertilities", "deposits", "buildable_area", "spacing", "home"],
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "range": {
+      "description": "Inclusive integer range.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "max": { "type": "integer", "minimum": 0, "maximum": 1000 }
+      }
+    },
+    "pool": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "count"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "count": { "$ref": "#/$defs/range", "description": "How many times the entry appears per archipelago (fertility: islands carrying the tag; deposit: slots)." }
+        }
+      }
+    },
+    "ids": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true }
+  },
+  "properties": {
+    "size_classes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "size", "count", "fertilities", "deposits"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string", "minLength": 1, "maxLength": 32 },
+          "size": { "description": "Land extent in tiles (the island is about size x size).", "type": "integer", "minimum": 8, "maximum": 128 },
+          "rock": { "description": "Resource rock: mountain and coast only, no fertility.", "type": "boolean" },
+          "count": { "$ref": "#/$defs/range", "description": "Islands of the class per archipelago." },
+          "fertilities": { "$ref": "#/$defs/range", "description": "Fertility tags per island." },
+          "deposits": { "$ref": "#/$defs/range", "description": "Deposit slots per island." }
+        }
+      }
+    },
+    "fertilities": { "$ref": "#/$defs/pool" },
+    "deposits": { "$ref": "#/$defs/pool" },
+    "buildable_area": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "tolerance"],
+      "properties": {
+        "target": { "description": "Buildable tiles (coast, grass, forest) of the whole archipelago.", "type": "integer", "minimum": 1 },
+        "tolerance": { "description": "Allowed relative deviation from the target (0.1 = ±10 %).", "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "spacing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "nearest_max"],
+      "properties": {
+        "min": { "description": "Minimum gap in tiles between the grids of any two islands.", "type": "integer", "minimum": 1 },
+        "nearest_max": { "description": "Maximum gap in tiles from every island to its nearest neighbour.", "type": "integer", "minimum": 1 }
+      }
+    },
+    "home": {
+      "description": "The guaranteed home candidate (D-053 part 1).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["size_class", "terrain", "deposits", "fertilities_any", "fertilities_none", "deposits_none"],
+      "properties": {
+        "size_class": { "$ref": "#/$defs/id" },
+        "terrain": { "description": "Terrain the island must have (forest, grass).", "type": "array", "items": { "enum": ["forest", "grass"] }, "uniqueItems": true },
+        "deposits": { "description": "Deposit kinds the island must have.", "$ref": "#/$defs/ids" },
+        "fertilities_any": { "description": "The island has at least one of these fertilities (empty: no rule).", "$ref": "#/$defs/ids" },
+        "fertilities_none": { "$ref": "#/$defs/ids" },
+        "deposits_none": { "$ref": "#/$defs/ids" }
+      }
+    }
+  }
+}

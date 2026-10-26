@@ -39,11 +39,23 @@ func simDir(t *testing.T) string {
 	return filepath.Join(repoRoot(t), "server", "internal", "sim")
 }
 
-// TestPurity enforces that the simulation package performs no I/O, reads no
-// clock, uses no randomness and does not log.
+// pureFiles are the non-test files of the pure packages: the simulation
+// and its archipelago generator (D-053).
+func pureFiles(t *testing.T) map[string]*ast.File {
+	t.Helper()
+	files := parseNonTest(t, simDir(t))
+	for path, f := range parseNonTest(t, filepath.Join(simDir(t), "archipelago")) {
+		files[path] = f
+	}
+	return files
+}
+
+// TestPurity enforces that the simulation package and the archipelago
+// generator perform no I/O, read no clock, use no randomness and do not
+// log.
 func TestPurity(t *testing.T) {
 	forbidden := []string{"os", "io", "io/fs", "bufio", "log", "log/slog", "math/rand", "math/rand/v2", "crypto/rand", "net", "net/http", "syscall", "unsafe", "sync"}
-	for path, f := range parseNonTest(t, simDir(t)) {
+	for path, f := range pureFiles(t) {
 		for _, imp := range f.Imports {
 			p, _ := strconv.Unquote(imp.Path.Value)
 			for _, bad := range forbidden {
@@ -76,6 +88,36 @@ func TestPurity(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+// TestArchipelagoIntegerOnly: the generator uses integer arithmetic only
+// (D-053: identical archipelagos on every platform): no floating-point
+// types or literals and no package math (math/bits is fine).
+func TestArchipelagoIntegerOnly(t *testing.T) {
+	files := parseNonTest(t, filepath.Join(simDir(t), "archipelago"))
+	if len(files) == 0 {
+		t.Fatal("no generator files")
+	}
+	for path, f := range files {
+		for _, imp := range f.Imports {
+			if p, _ := strconv.Unquote(imp.Path.Value); p == "math" {
+				t.Errorf("%s imports math", path)
+			}
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			switch n := n.(type) {
+			case *ast.Ident:
+				if n.Name == "float32" || n.Name == "float64" {
+					t.Errorf("%s uses %s", path, n.Name)
+				}
+			case *ast.BasicLit:
+				if n.Kind == token.FLOAT {
+					t.Errorf("%s has the float literal %s", path, n.Value)
+				}
+			}
+			return true
+		})
 	}
 }
 

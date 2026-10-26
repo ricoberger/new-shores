@@ -115,6 +115,13 @@ export function zoomRange(bounds: Rect | null, aspect: number): { min: number; m
   return { min: MIN_HALF_HEIGHT, max: Math.max(NEAR_DEFAULT_HALF_HEIGHT, FAR_REACH_HALF, fit) };
 }
 
+/** The archipelago's bounding box of the display (D-053), null while it has no extent. */
+export function archipelagoRect(a: { bounds: { x: number; y: number; width: number; height: number } } | undefined): Rect | null {
+  if (!a || a.bounds.width <= 0 || a.bounds.height <= 0) return null;
+  const b = a.bounds;
+  return { minX: b.x, minY: b.y, maxX: b.x + b.width, maxY: b.y + b.height };
+}
+
 /** The rectangle the camera target is clamped to: the bounds plus BOUNDS_MARGIN. */
 export function targetBounds(bounds: Rect): Rect {
   return {

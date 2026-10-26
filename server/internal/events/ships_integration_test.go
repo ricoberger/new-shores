@@ -10,12 +10,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/events"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
 	"github.com/ricoberger/new-shores/server/internal/testenv"
+	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
 
 // pendingEvent is a pending scheduled event row.
@@ -77,7 +77,7 @@ func checkReconciled(t *testing.T, st *postgres.Store, id store.WorldID) []sim.D
 func shippingWorld(t *testing.T, created time.Time) *sim.World {
 	t.Helper()
 	cat := testenv.Catalogue(t)
-	w, err := devworld.NewFixture(cat, devworld.FixtureDefault, created)
+	w, err := testworld.Founded(cat, created)
 	if err != nil {
 		t.Fatal(err)
 	}

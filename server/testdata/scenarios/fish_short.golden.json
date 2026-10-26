@@ -1,6 +1,6 @@
 {
   "name": "fish_short",
-  "content_version": "old_coast-0.8.0",
+  "content_version": "old_coast-0.9.0",
   "boundary_count": 340,
   "totals": {
     "main": {
@@ -198,10 +198,23 @@
         "goods_delivered": {}
       }
     ],
+    "archipelago": {
+      "seed": 0,
+      "roll": 0,
+      "rerollable": false,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 44,
+        "height": 14
+      }
+    },
     "islands": [
       {
         "id": "main",
         "name": "",
+        "size_class": "",
+        "rock": false,
         "settled": true,
         "position": {
           "x": 0,

@@ -15,6 +15,7 @@ export type Content = Schemas["Content"];
 export type ContentBuilding = Schemas["ContentBuilding"];
 export type ContentTier = Schemas["ContentTier"];
 export type ContentShip = Schemas["ContentShip"];
+export type ContentSizeClass = Schemas["ContentSizeClass"];
 export type ShipDisplay = Schemas["ShipDisplay"];
 export type LegDisplay = Schemas["LegDisplay"];
 export type CargoDisplay = Schemas["CargoDisplay"];

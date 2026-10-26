@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { Content, DisplayState, Island, IslandDisplay } from "../api/client";
 import { perMin, units } from "../display/format";
-import { constructionGoods, islandResources, type TierRow, tierRows, worstNeedText } from "../display/hud";
+import { constructionGoods, islandKind, islandResources, type TierRow, tierRows, worstNeedText } from "../display/hud";
 import { needCategory, needLabel } from "../display/needs";
 import { goodIcon, needIcon, toolIcon } from "../theme/iconSet";
 import styles from "./hud.module.css";
@@ -185,6 +185,7 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, accoun
   const balance = model?.balance_rate_per_min ?? 0;
   const settled = island?.settled ?? false;
   const name = island ? island.name || island.id : "…";
+  const kind = island ? islandKind(island, content) : "";
 
   return (
     <div className={`${styles.topBar} ${compact === "portrait" ? styles.topBarPortrait : ""}`}>
@@ -239,6 +240,11 @@ export function TopBar({ model, content, islandId, statics, onOpenIsland, accoun
       <div className={styles.hudMiddle} data-testid="hud-island" data-island={island?.id ?? ""}>
         <button type="button" className={styles.hudIslandButton} onClick={onOpenIsland} title="Open the island card" data-testid="hud-island-name">
           <span className={styles.hudIslandName}>{name}</span>
+          {kind && (
+            <span className={styles.hudIslandKind} data-testid="hud-island-kind">
+              {kind}
+            </span>
+          )}
           {resources && <ResourceBadges resources={resources} prefix="hud" short />}
         </button>
       </div>

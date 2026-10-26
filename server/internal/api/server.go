@@ -437,7 +437,11 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		if err := checkClaimIsland(s.cfg.Catalogue, cmd); err != nil {
 			return false, err
 		}
-		if err := sim.Apply(world, s.cfg.Catalogue, cmd); err != nil {
+		resolved, err := resolveReroll(world, s.cfg.Catalogue, cmd)
+		if err != nil {
+			return false, err
+		}
+		if err := sim.Apply(world, s.cfg.Catalogue, resolved); err != nil {
 			return false, err
 		}
 		// The summary over the gap before this command (rule of GET); an
@@ -448,7 +452,6 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 			sim.MaybeProduceSummary(world, s.cfg.Catalogue)
 		}
 		sim.MarkSeen(world)
-		var err error
 		ds, err = sim.Display(world, s.cfg.Catalogue, now)
 		return err == nil, err
 	})
@@ -460,13 +463,22 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, http.StatusOK, worldResponse{Version: version, Display: ds})
 }
 
+// islandRevision identifies the static data of the world's islands for
+// client caching: the content version and, for a generated archipelago,
+// its seed and roll (a reroll replaces islands under the same IDs).
+func islandRevision(c *content.Catalogue, w *sim.World) string {
+	if w.Seed == 0 {
+		return c.Region.Version
+	}
+	return fmt.Sprintf("%s-%d-%d", c.Region.Version, w.Seed, w.ArchipelagoRoll)
+}
+
 // islandPathPrefix is the prefix of GET /api/v1/world/islands/{island_id}.
 const islandPathPrefix = "/api/v1/world/islands/"
 
 // islandResponse is the static data of an island: its terrain, row-major
 // (index y*width + x), as terrain IDs. Revision identifies the data for
-// client caching; it is the content version until island generation (M4)
-// gives islands their own identity. Fertilities are the island-wide
+// client caching (islandRevision). Fertilities are the island-wide
 // fertility tags; Deposits the tiles with a deposit, sorted by tile index.
 type islandResponse struct {
 	ID          string           `json:"id"`
@@ -506,7 +518,7 @@ func (s *Server) getIsland(w http.ResponseWriter, r *http.Request) {
 		}
 		resp = islandResponse{
 			ID: is.ID, Width: is.Width, Height: is.Height,
-			Revision: s.cfg.Catalogue.Region.Version, Terrain: make([]string, len(is.Tiles)),
+			Revision: islandRevision(s.cfg.Catalogue, world), Terrain: make([]string, len(is.Tiles)),
 			Fertilities: append([]string{}, is.Fertilities...), Deposits: []depositOutJSON{},
 		}
 		for i, t := range is.Tiles {

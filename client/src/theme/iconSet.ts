@@ -58,7 +58,8 @@ export type ToolIcon =
   | "warnings"
   | "credits"
   | "register"
-  | "logout";
+  | "logout"
+  | "rename";
 
 /** Icon of a HUD tool or control. */
 export function toolIcon(name: ToolIcon): string {

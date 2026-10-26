@@ -14,10 +14,10 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
+	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
 
 var (
@@ -56,7 +56,7 @@ func NewWorld(t testing.TB, st *postgres.Store, age time.Duration) (string, stor
 		}
 		// The founded start island (the default dev fixture): the tests
 		// build on it.
-		w, err := devworld.NewFixture(Catalogue(t), devworld.FixtureDefault, now.Add(-age))
+		w, err := testworld.Founded(Catalogue(t), now.Add(-age))
 		if err != nil {
 			return err
 		}

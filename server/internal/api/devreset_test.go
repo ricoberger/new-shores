@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/devworld"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 	"github.com/ricoberger/new-shores/server/internal/store"
 )
 
@@ -34,7 +35,7 @@ func newResetServer(t *testing.T) (*testServer, *countingPublisher) {
 		CORSOrigins:  []string{testOrigin},
 		Logger:       slog.New(slog.DiscardHandler),
 		DevReset: func(ctx context.Context, fixture string) (int64, error) {
-			w, err := devworld.NewFixture(c, fixture, now())
+			w, err := devworld.NewFixture(c, fixture, devworld.DevSeed, now())
 			if err != nil {
 				return 0, err
 			}
@@ -104,7 +105,7 @@ func TestDevReset(t *testing.T) {
 	}
 	d := decodeDisplay(t, w.Display)
 	// The default fixture: the start sloop idle at the founded start island.
-	if ships := d["ships"].([]any); d["away_summary"] != nil || len(ships) != 1 || ships[0].(map[string]any)["island_id"] != "start" {
+	if ships := d["ships"].([]any); d["away_summary"] != nil || len(ships) != 1 || ships[0].(map[string]any)["island_id"] != archipelago.IslandID(0) {
 		t.Errorf("summary %v ships %v after reset", d["away_summary"], d["ships"])
 	}
 	if pub.n.Load() != 2 {

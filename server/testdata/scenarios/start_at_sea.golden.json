@@ -1,6 +1,6 @@
 {
   "name": "start_at_sea",
-  "content_version": "old_coast-0.8.0",
+  "content_version": "old_coast-0.9.0",
   "boundary_count": 1,
   "totals": {
     "home": {
@@ -179,10 +179,23 @@
         "goods_delivered": {}
       }
     ],
+    "archipelago": {
+      "seed": 0,
+      "roll": 0,
+      "rerollable": false,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 50,
+        "height": 8
+      }
+    },
     "islands": [
       {
         "id": "home",
         "name": "Home",
+        "size_class": "",
+        "rock": false,
         "settled": true,
         "position": {
           "x": 0,
@@ -518,6 +531,8 @@
       {
         "id": "other",
         "name": "Other",
+        "size_class": "",
+        "rock": false,
         "settled": false,
         "position": {
           "x": 40,

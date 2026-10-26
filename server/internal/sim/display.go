@@ -46,8 +46,10 @@ type DisplayState struct {
 	TaxRatePerMin     Qty `json:"tax_rate_per_min"`
 	UpkeepRatePerMin  Qty `json:"upkeep_rate_per_min"`
 	// Tiers in progression order with their unlock progress.
-	Tiers   []TierDisplay   `json:"tiers"`
-	Islands []IslandDisplay `json:"islands"`
+	Tiers []TierDisplay `json:"tiers"`
+	// Archipelago identifies the generated archipelago and its extent.
+	Archipelago ArchipelagoDisplay `json:"archipelago"`
+	Islands     []IslandDisplay    `json:"islands"`
 	// Ships sorted by ID.
 	Ships []ShipDisplay `json:"ships"`
 	// Routes sorted by ID.
@@ -297,6 +299,11 @@ type IslandDisplay struct {
 	ID string `json:"id"`
 	// Name is the display name (may be empty).
 	Name string `json:"name"`
+	// SizeClass is the content size class of a generated island ("" for a
+	// hand-made one); Rock is true for a size class marked rock (a resource
+	// rock: mines only, D-053).
+	SizeClass string `json:"size_class"`
+	Rock      bool   `json:"rock"`
 	// Settled is true when the island has a Trading Post; unsettled
 	// islands have capacity 0 and accept only FoundIsland.
 	Settled bool `json:"settled"`
@@ -314,6 +321,39 @@ type IslandDisplay struct {
 	// CapacitySource is the island's Trading Post; null when the island is
 	// not settled (capacity 0).
 	CapacitySource *CapacitySourceDisplay `json:"capacity_source"`
+}
+
+// ArchipelagoDisplay is the generated archipelago (D-053): the world
+// seed and the number of rerolls that produced it (seed 0: hand-made),
+// whether it can still be rerolled (no island settled, no ship under way)
+// and the bounding box of its islands in archipelago tiles.
+type ArchipelagoDisplay struct {
+	Seed       uint64        `json:"seed"`
+	Roll       int           `json:"roll"`
+	Rerollable bool          `json:"rerollable"`
+	Bounds     BoundsDisplay `json:"bounds"`
+}
+
+// BoundsDisplay is a rectangle in archipelago tiles.
+type BoundsDisplay struct {
+	X      int `json:"x"`
+	Y      int `json:"y"`
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
+func displayArchipelago(w *World, c *content.Catalogue) ArchipelagoDisplay {
+	d := ArchipelagoDisplay{Seed: w.Seed, Roll: w.ArchipelagoRoll, Rerollable: CanReroll(w, c) == nil}
+	for i, is := range w.Islands {
+		if i == 0 {
+			d.Bounds = BoundsDisplay{X: is.X, Y: is.Y, Width: is.Width, Height: is.Height}
+			continue
+		}
+		x0, y0 := min(d.Bounds.X, is.X), min(d.Bounds.Y, is.Y)
+		x1, y1 := max(d.Bounds.X+d.Bounds.Width, is.X+is.Width), max(d.Bounds.Y+d.Bounds.Height, is.Y+is.Height)
+		d.Bounds = BoundsDisplay{X: x0, Y: y0, Width: x1 - x0, Height: y1 - y0}
+	}
+	return d
 }
 
 // GoodDisplay is the inventory line of one good.
@@ -465,6 +505,7 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		EvaluatedAt: cw.LastEvaluatedAt.Format(timeLayout), Gold: cw.Gold,
 		BalanceRatePerMin: wr.balance, TaxRatePerMin: wr.tax, UpkeepRatePerMin: wr.upkeep,
 		Tiers: []TierDisplay{}, Islands: []IslandDisplay{}, Ships: []ShipDisplay{}, Routes: []RouteDisplay{},
+		Archipelago: displayArchipelago(cw, c),
 	}
 	at, _ := nextBoundary(cw, c, wr, nowMs)
 	// A departure changes no rate but the ship's displayed location, so the
@@ -623,10 +664,13 @@ func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
 
 func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int64) IslandDisplay {
 	d := IslandDisplay{
-		ID: is.ID, Name: is.Name, Settled: settled(is, c), Position: PositionDisplay{X: is.X, Y: is.Y},
+		ID: is.ID, Name: is.Name, SizeClass: is.SizeClass, Settled: settled(is, c), Position: PositionDisplay{X: is.X, Y: is.Y},
 		Width: is.Width, Height: is.Height,
 		Inventory: map[string]GoodDisplay{}, Roads: []RoadDisplay{}, Buildings: []BuildingDisplay{},
 		Workforce: map[string]WorkforceDisplay{}, Population: islandPopulation(is, c),
+	}
+	if sc := c.Islands.SizeClassByID[is.SizeClass]; sc != nil {
+		d.Rock = sc.Rock
 	}
 	for tier, p := range r.workforce {
 		d.Workforce[tier] = WorkforceDisplay{Available: p.available, Required: p.required, FactorPermille: p.factorPermille()}

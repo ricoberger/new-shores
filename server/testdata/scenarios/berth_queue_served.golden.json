@@ -1,6 +1,6 @@
 {
   "name": "berth_queue_served",
-  "content_version": "old_coast-0.8.0",
+  "content_version": "old_coast-0.9.0",
   "boundary_count": 3,
   "totals": {
     "harbour": {
@@ -219,10 +219,23 @@
         "goods_delivered": {}
       }
     ],
+    "archipelago": {
+      "seed": 0,
+      "roll": 0,
+      "rerollable": false,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 6
+      }
+    },
     "islands": [
       {
         "id": "harbour",
         "name": "Harbour",
+        "size_class": "",
+        "rock": false,
         "settled": true,
         "position": {
           "x": 0,

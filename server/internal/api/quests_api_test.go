@@ -372,7 +372,7 @@ func TestAwaySummaryOfReturningUpgrade(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	house := w.Island("start").BuildingAt(c, s.Steps[upgrade].Upgrade.X, s.Steps[upgrade].Upgrade.Y)
+	house := w.Islands[0].BuildingAt(c, s.Steps[upgrade].Upgrade.X, s.Steps[upgrade].Upgrade.Y)
 	sim.MarkSeen(w)
 	ds, err := sim.Display(w, c, w.LastEvaluatedAt)
 	if err != nil {
@@ -384,7 +384,7 @@ func TestAwaySummaryOfReturningUpgrade(t *testing.T) {
 	}
 	ts := newTestServerFor(t, w, w.LastEvaluatedAt, 1)
 	ts.clock.Add(time.Duration(c.Region.Rules.AwaySummaryMs) * time.Millisecond)
-	v := questDisplay(t, ts.mustCommand(fmt.Sprintf(`{"type":"upgrade_house","island_id":"start","building_id":%d}`, house.ID)).Display)
+	v := questDisplay(t, ts.mustCommand(fmt.Sprintf(`{"type":"upgrade_house","island_id":%q,"building_id":%d}`, w.Islands[0].ID, house.ID)).Display)
 	if v.AwaySummary == nil {
 		t.Fatal("no summary")
 	}

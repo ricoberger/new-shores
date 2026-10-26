@@ -1,6 +1,6 @@
 {
   "name": "chain_planks",
-  "content_version": "old_coast-0.8.0",
+  "content_version": "old_coast-0.9.0",
   "boundary_count": 2,
   "totals": {
     "main": {
@@ -194,10 +194,23 @@
         "goods_delivered": {}
       }
     ],
+    "archipelago": {
+      "seed": 0,
+      "roll": 0,
+      "rerollable": false,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 20,
+        "height": 10
+      }
+    },
     "islands": [
       {
         "id": "main",
         "name": "",
+        "size_class": "",
+        "rock": false,
         "settled": true,
         "position": {
           "x": 0,

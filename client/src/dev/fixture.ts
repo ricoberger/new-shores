@@ -107,6 +107,15 @@ interface Built {
 
 const ts = (ms: number) => new Date(ms).toISOString();
 
+/** The display archipelago of a hand-made fixture: no seed, the islands' bounds (as the server computes them). */
+function handMadeArchipelago(islands: readonly Pick<IslandDisplay, "position" | "width" | "height">[]): DisplayState["archipelago"] {
+  const x0 = Math.min(...islands.map((is) => is.position.x));
+  const y0 = Math.min(...islands.map((is) => is.position.y));
+  const x1 = Math.max(...islands.map((is) => is.position.x + is.width));
+  const y1 = Math.max(...islands.map((is) => is.position.y + is.height));
+  return { seed: 0, roll: 0, rerollable: false, bounds: { x: x0, y: y0, width: x1 - x0, height: y1 - y0 } };
+}
+
 export function buildArchipelagoFixture(nowMs: number): Built {
   const specs = [
     { x: 0, y: 0, w: 56, h: 40 },
@@ -140,6 +149,8 @@ export function buildArchipelagoFixture(nowMs: number): Built {
       workforce: {},
       population: settled ? { settlers: (i + 1) * 12_000 } : {},
       capacity_source: null,
+      size_class: "",
+      rock: false,
     });
     statics.set(id, {
       id,
@@ -232,6 +243,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
     insolvency: { unpaid_buildings: 0, unpaid_ships: 4, unpaid_upkeep_per_min: 4000, balance_if_resumed_per_min: -4000 },
     quests: { active: [], claimable: [], completed: [] },
     away_summary: null,
+    archipelago: handMadeArchipelago(islands),
     last_seen_at: ts(nowMs),
   } as DisplayState;
   const content = {
@@ -674,6 +686,8 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     workforce: {},
     population: { settlers: buildings.filter((b) => b.type === "house_settlers").length * 8_000 },
     capacity_source: null,
+    size_class: "",
+    rock: false,
   } as IslandDisplay;
   const statics: Island = { id, width, height, revision: "fixture", terrain, fertilities: ["wheat"], deposits: denseDeposits(width, height) };
   return { display, statics };
@@ -723,6 +737,7 @@ export function buildDenseFixture(nowMs: number): Built {
     insolvency: { unpaid_buildings: 0, unpaid_ships: 0, unpaid_upkeep_per_min: 0, balance_if_resumed_per_min: 12_000 },
     quests: { active: [], claimable: [], completed: [] },
     away_summary: null,
+    archipelago: handMadeArchipelago([a.display, b.display]),
     last_seen_at: ts(nowMs),
   } as unknown as DisplayState;
   return {
@@ -777,6 +792,8 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
       workforce: {},
       population: {},
       capacity_source: null,
+      size_class: "",
+      rock: false,
     } as IslandDisplay);
     statics.set(sp.id, { id: sp.id, width: sp.w, height: sp.h, revision: "fixture", terrain: terrain(sp.w, sp.h, 31 + i), fertilities: ["wheat"], deposits: [] });
   });
@@ -850,6 +867,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
     insolvency: { unpaid_buildings: 0, unpaid_ships: 0, unpaid_upkeep_per_min: 0, balance_if_resumed_per_min: 12_000 },
     quests: { active: [], claimable: [], completed: [] },
     away_summary: null,
+    archipelago: handMadeArchipelago(displays),
     last_seen_at: ts(nowMs),
   } as unknown as DisplayState;
   return { server: { version: 1, display }, islands: statics, content: denseContent() };
@@ -990,6 +1008,8 @@ export function buildShowcaseFixture(nowMs: number): Built {
     workforce: {},
     population: { settlers: 48_000, citizens: 30_000 },
     capacity_source: null,
+    size_class: "",
+    rock: false,
   } as IslandDisplay;
   const statics: Island = {
     id: SHOWCASE_ISLAND,
@@ -1045,6 +1065,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     insolvency: { unpaid_buildings: 0, unpaid_ships: 0, unpaid_upkeep_per_min: 0, balance_if_resumed_per_min: 12_000 },
     quests: { active: [], claimable: [], completed: [] },
     away_summary: null,
+    archipelago: handMadeArchipelago([island]),
     last_seen_at: ts(nowMs),
   } as unknown as DisplayState;
   return { server: { version: 1, display }, islands: new Map([[SHOWCASE_ISLAND, statics]]), content: denseContent() };

@@ -54,7 +54,7 @@ func newService(t *testing.T) (*Service, *recordingMailer) {
 	st := postgres.New(pool, c, slog.New(slog.DiscardHandler))
 	mail := &recordingMailer{}
 	s, err := NewService(Config{
-		Store: st, NewWorld: func(now time.Time) (*sim.World, error) { return devworld.New(c, now) },
+		Store: st, NewWorld: func(now time.Time) (*sim.World, error) { return devworld.New(c, devworld.DevSeed, now) },
 		Region: c.Region.ID, Freshness: time.Hour, SessionTTL: time.Hour * 24, Argon2: DefaultArgon2,
 		Mailer: mail, PublicURL: "http://localhost:8000", Logger: slog.New(slog.DiscardHandler),
 	})

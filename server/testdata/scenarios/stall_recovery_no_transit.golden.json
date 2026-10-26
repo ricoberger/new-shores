@@ -1,6 +1,6 @@
 {
   "name": "stall_recovery_no_transit",
-  "content_version": "old_coast-0.8.0",
+  "content_version": "old_coast-0.9.0",
   "boundary_count": 55,
   "totals": {
     "start": {
@@ -638,10 +638,23 @@
         "goods_delivered": {}
       }
     ],
+    "archipelago": {
+      "seed": 0,
+      "roll": 0,
+      "rerollable": false,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 56,
+        "height": 40
+      }
+    },
     "islands": [
       {
         "id": "start",
         "name": "Start",
+        "size_class": "",
+        "rock": false,
         "settled": true,
         "position": {
           "x": 0,

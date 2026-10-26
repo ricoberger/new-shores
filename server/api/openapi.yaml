@@ -201,7 +201,9 @@ paths:
       summary: Static data of an island (terrain, fertilities, deposits).
       description: |
         Static per island; clients cache it by `revision` and fetch it once
-        per island. Unsettled islands are served as well. `fertilities` and
+        per island and archipelago (`display.archipelago` seed and roll: a
+        reroll replaces the islands under the same IDs). Unsettled islands
+        are served as well. `fertilities` and
         `deposits` are siblings of `terrain`.
       security:
         - cookieAuth: []
@@ -667,7 +669,9 @@ components:
           missing fields, malformed email or display name),
           `invalid_command` (also more than 8 route stops, 32 load or
           unload entries per stop or 16 cargo entries),
-          `unknown_building`, `out_of_bounds`, `route_invalid` (route
+          `unknown_building`, `out_of_bounds`, `invalid_name` (an island
+          name that is not 1–24 printable characters after trimming),
+          `route_invalid` (route
           rules: 2–8 stops at settled islands, consecutive stops differ,
           known goods without duplicates, whole-unit maximums, name ≤ 40
           characters; or a shipment to an unknown island or the ship's own
@@ -715,7 +719,10 @@ components:
           (a shipyard without a road to the Trading Post or a Warehouse
           cannot order),
           `quest_not_completed`, `quest_already_claimed` (rewards are
-          credited once), `email_taken`, `already_registered`;
+          credited once), `reroll_not_allowed` (`reroll_archipelago` after
+          an island was settled, while a ship is under way, or on a world
+          without a generated archipelago), `email_taken`,
+          `already_registered`;
         - 429: `rate_limited` (with `Retry-After` in seconds);
         - 500: `internal`;
         - 503: `service_unavailable` (the database does not answer).
@@ -748,6 +755,11 @@ components:
         `quest_not_found`, `unknown_island`; 409 `quest_not_completed`,
         `quest_already_claimed`, `island_not_settled`. `ack_summary` never
         fails for a well-formed body.
+
+        `reroll_archipelago` (D-053) can fail with 400 `bad_request`; 409
+        `reroll_not_allowed`. `rename_island` can fail with 400
+        `bad_request`, `invalid_command` (missing field), `invalid_name`;
+        404 `unknown_island`; 409 `island_not_settled`.
 
         **Internal-only codes** (HTTP 500, never caused by a client command;
         clients should treat them like `internal` and not handle them
@@ -808,6 +820,8 @@ components:
         - field_max_reached
         - field_wrong_farm
         - field_needs_farm
+        - invalid_name
+        - reroll_not_allowed
         - over_capacity
         - time_backwards
         - schema_version
@@ -972,6 +986,8 @@ components:
         - $ref: "#/components/schemas/FoundIslandCommand"
         - $ref: "#/components/schemas/ClaimQuestCommand"
         - $ref: "#/components/schemas/AckSummaryCommand"
+        - $ref: "#/components/schemas/RerollArchipelagoCommand"
+        - $ref: "#/components/schemas/RenameIslandCommand"
       discriminator:
         propertyName: type
         mapping:
@@ -998,6 +1014,8 @@ components:
           found_island: "#/components/schemas/FoundIslandCommand"
           claim_quest: "#/components/schemas/ClaimQuestCommand"
           ack_summary: "#/components/schemas/AckSummaryCommand"
+          reroll_archipelago: "#/components/schemas/RerollArchipelagoCommand"
+          rename_island: "#/components/schemas/RenameIslandCommand"
     ClaimQuestCommand:
       type: object
       additionalProperties: false
@@ -1032,6 +1050,36 @@ components:
           type: integer
           format: int64
           description: The `id` of the summary (its end time in Unix milliseconds).
+    RerollArchipelagoCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Replace the generated archipelago by the next one of the world's
+        seed (D-053; `archipelago.roll` + 1): new islands under the same
+        IDs, every ship back at the new spawn near the centre with its
+        cargo. Only while `archipelago.rerollable`: no island settled and
+        no ship under way.
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [reroll_archipelago]
+    RenameIslandCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Rename a settled island. The name is trimmed and must then have 1
+        to 24 printable characters (`invalid_name`).
+      required: [type, island_id, name]
+      properties:
+        type:
+          type: string
+          enum: [rename_island]
+        island_id:
+          type: string
+        name:
+          type: string
+          description: The new display name.
     Tile:
       type: object
       additionalProperties: false
@@ -1548,9 +1596,9 @@ components:
         revision:
           type: string
           description: |
-            Identity of the static island data for caching. Currently the
-            world's content version; island generation (M4) will give it
-            its own identity.
+            Identity of the static island data for caching: the world's
+            content version and, for a generated archipelago (D-053), its
+            seed and roll.
         terrain:
           type: array
           description: Terrain ID per tile, row-major (index = y × width + x).
@@ -1596,7 +1644,7 @@ components:
         Authoritative state at `evaluated_at` plus the rates the client
         extrapolates linearly until `next_change_at` (D-027).
       required:
-        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, islands, ships, routes, insolvency, quests, away_summary, last_seen_at]
+        [evaluated_at, next_change_at, gold, balance_rate_per_min, tax_rate_per_min, upkeep_rate_per_min, tiers, archipelago, islands, ships, routes, insolvency, quests, away_summary, last_seen_at]
       properties:
         evaluated_at:
           type: string
@@ -1627,6 +1675,8 @@ components:
           description: Tiers in progression order.
           items:
             $ref: "#/components/schemas/TierDisplay"
+        archipelago:
+          $ref: "#/components/schemas/ArchipelagoDisplay"
         islands:
           type: array
           items:
@@ -2180,16 +2230,59 @@ components:
           type: integer
           format: int64
           description: Residents required (milli-residents).
+    ArchipelagoDisplay:
+      type: object
+      additionalProperties: false
+      description: The generated archipelago (D-053).
+      required: [seed, roll, rerollable, bounds]
+      properties:
+        seed:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 9007199254740991
+          description: World seed (53 bits); 0 for a hand-made archipelago.
+        roll:
+          type: integer
+          minimum: 0
+          description: Number of rerolls; seed and roll identify the archipelago.
+        rerollable:
+          type: boolean
+          description: "`reroll_archipelago` is allowed: a generated archipelago, no island settled, no ship under way."
+        bounds:
+          type: object
+          additionalProperties: false
+          required: [x, y, width, height]
+          description: Bounding box of the islands (archipelago tiles).
+          properties:
+            x:
+              type: integer
+              description: Left column (archipelago tiles).
+            y:
+              type: integer
+              description: Top row (archipelago tiles).
+            width:
+              type: integer
+              description: Columns (archipelago tiles).
+            height:
+              type: integer
+              description: Rows (archipelago tiles).
     IslandDisplay:
       type: object
       additionalProperties: false
-      required: [id, name, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source]
+      required: [id, name, size_class, rock, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source]
       properties:
         id:
           type: string
         name:
           type: string
-          description: Display name (may be empty).
+          description: Display name (may be empty); generated islands draw it from the region's word list, `rename_island` renames a settled one.
+        size_class:
+          type: string
+          description: Content size class of a generated island (`islands.json`), "" for a hand-made one.
+        rock:
+          type: boolean
+          description: The island is a resource rock (mines only, no houses).
         settled:
           type: boolean
           description: The island has a Trading Post (capacity > 0); unsettled islands accept only found_island.
@@ -2606,7 +2699,7 @@ components:
     Content:
       type: object
       additionalProperties: false
-      required: [region, tiers, goods, buildings, needs, need_categories, ships, quests]
+      required: [region, tiers, goods, buildings, needs, need_categories, ships, quests, size_classes]
       properties:
         region:
           $ref: "#/components/schemas/ContentRegion"
@@ -2643,6 +2736,24 @@ components:
           description: Ship types (ordered at buildings with a shipyard block).
           items:
             $ref: "#/components/schemas/ContentShip"
+        size_classes:
+          type: array
+          description: Island size classes of the archipelago generator in content order (D-053; the names of an island's `size_class`).
+          items:
+            $ref: "#/components/schemas/ContentSizeClass"
+    ContentSizeClass:
+      type: object
+      additionalProperties: false
+      required: [id, name, rock]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Player-facing name, e.g. "Large" or "Resource rock".
+        rock:
+          type: boolean
+          description: Resource rocks carry mines only (no fertility, no houses).
     ContentQuest:
       type: object
       additionalProperties: false

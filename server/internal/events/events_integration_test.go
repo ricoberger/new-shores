@@ -16,13 +16,13 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/events"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
 	"github.com/ricoberger/new-shores/server/internal/telemetry"
 	"github.com/ricoberger/new-shores/server/internal/testenv"
+	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
 
 type recorder struct {
@@ -215,7 +215,7 @@ func TestEventAppliesAtDueAt(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	w, err := devworld.NewFixture(cat, devworld.FixtureDefault, created)
+	w, err := testworld.Founded(cat, created)
 	if err != nil {
 		t.Fatal(err)
 	}

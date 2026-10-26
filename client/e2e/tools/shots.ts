@@ -9,6 +9,7 @@ import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, devices, type Page } from "@playwright/test";
+import { FAR_EXIT_HALF, MID_TO_NEAR_HALF } from "../../src/display/lod.ts";
 import { API_PORT, API_SERVER_COMMAND, E2E_TIME_SCALE, WEB_PORT, WEB_SERVER_COMMAND } from "../constants.ts";
 import { type Device, type Fixture, type Preset, parseShotArgs, SERVER_FIXTURES, ShotArgError, type ShotArgs, type View } from "./shots-args.ts";
 
@@ -29,8 +30,9 @@ const DEVICE_OPTIONS = {
 /** The island each fixture opens on and per-view camera targets of the visual spec. */
 const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<Record<View, { x: number; y: number; half?: number }>> }> = {
   showcase: { island: "showcase", targets: { near: { x: 22, y: 13, half: 10 } } },
-  settled: { island: "start" },
-  town: { island: "start" },
+  settled: { island: "isle-01" }, // the home island of every generated archipelago (D-053)
+  town: { island: "isle-01" },
+  seafaring: { island: "isle-01" }, // a new world: the start sloop at sea, nothing settled
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
   "archipelago-8x20": { island: null },
@@ -168,7 +170,14 @@ async function shoot(page: Page, file: string, written: string[]): Promise<void>
   mkdirSync(dirname(file), { recursive: true });
   await page.screenshot({ path: file, timeout: 90_000, animations: "disabled", caret: "hide" });
   written.push(file);
-  console.log(relative(process.cwd(), file) || file);
+  const name = relative(process.cwd(), file) || file;
+  if (process.env.STATS?.trim() === "1") {
+    // Perf sanity (polish rounds): the renderer's counters of the shot's frame.
+    const s = await page.evaluate(() => ({ draws: window.__newShores!.drawCalls(), tris: window.__newShores!.triangles(), meshes: window.__newShores!.meshesCreated() }));
+    console.log(`${name}  draws ${s.draws}  tris ${s.tris}  meshes ${s.meshes}`);
+  } else {
+    console.log(name);
+  }
 }
 
 // ---------------------------------------------------------------- matrix
@@ -182,6 +191,13 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
     } else {
       const t = args.island ? undefined : info.targets?.[view];
       const half = args.zoom ?? t?.half ?? (view === "far" ? 100_000 : HALF[view]);
+      // The mid half extent lies in the LOD hysteresis band (FAR_EXIT_HALF):
+      // coming from far (a new world opens there, D-053; or VIEW=far,mid)
+      // the camera passes below it first.
+      if (view === "mid" && args.zoom === undefined && (await page.evaluate(() => window.__newShores!.lod())) === "far") {
+        await setCamera(page, { half: (MID_TO_NEAR_HALF + FAR_EXIT_HALF) / 2 });
+        await waitLod(page, "mid");
+      }
       await setCamera(page, { x: args.x ?? t?.x ?? here.x, y: args.y ?? t?.y ?? here.y, half, rotation: args.rotation });
     }
     if (args.zoom === undefined) await waitLod(page, view);
@@ -558,6 +574,35 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
     },
   },
   // The island card, opened from an island label at far LOD (desktop).
+  // A new world as it opens (D-053): the far zoom over the whole
+  // archipelago, the sloop at its centre and the first quest's hint.
+  "archipelago-far": {
+    fixture: "seafaring",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("seafaring-panel").waitFor({ state: "visible" });
+    },
+  },
+  // "Another archipelago" asks before it replaces the islands (desktop).
+  reroll: {
+    fixture: "seafaring",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("reroll-archipelago").click();
+      await page.getByTestId("dialog").waitFor({ state: "visible" });
+    },
+  },
+  // Renaming the settled home island in its card (desktop).
+  rename: {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("hud-island-name").click();
+      await page.getByTestId("island-card").waitFor({ state: "visible" });
+      await page.getByTestId("island-rename").click();
+      await page.getByTestId("island-rename-input").fill("Gull Haven");
+    },
+  },
   "island-card": {
     fixture: "dense-2x400",
     device: "desktop",
@@ -650,7 +695,8 @@ async function main(): Promise<number> {
       VITE_API_BASE: `http://localhost:${API_PORT}`,
       VITE_TIME_SCALE: String(E2E_TIME_SCALE),
     };
-    servers.push(await start(API_SERVER_COMMAND, resolve(REPO, "server"), `http://localhost:${API_PORT}/healthz`, process.env));
+    const apiCommand = args.seed === undefined ? API_SERVER_COMMAND : `${API_SERVER_COMMAND} --seed ${args.seed}`;
+    servers.push(await start(apiCommand, resolve(REPO, "server"), `http://localhost:${API_PORT}/healthz`, process.env));
     servers.push(await start(WEB_SERVER_COMMAND, CLIENT_DIR, `http://localhost:${WEB_PORT}`, env));
     const tReady = Date.now();
     browser = await chromium.launch();

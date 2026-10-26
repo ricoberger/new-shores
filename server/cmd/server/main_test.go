@@ -5,6 +5,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/ricoberger/new-shores/server/internal/devworld"
 )
 
 func TestParseFlags(t *testing.T) {
@@ -72,6 +74,22 @@ func TestTimeScaleRequiresDev(t *testing.T) {
 	}
 	if _, err := parseFlags([]string{"--dev", "--time-scale", "10"}, io.Discard); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// TestSeedFlag: --seed picks the dev archipelago (D-053); player worlds
+// get a random seed, so it requires --dev.
+func TestSeedFlag(t *testing.T) {
+	if o, err := parseFlags([]string{"--dev"}, io.Discard); err != nil || o.seed != devworld.DevSeed {
+		t.Fatalf("default seed = %d, %v (want %d)", o.seed, err, devworld.DevSeed)
+	}
+	if o, err := parseFlags([]string{"--dev", "--seed", "42"}, io.Discard); err != nil || o.seed != 42 {
+		t.Fatalf("--seed 42 = %d, %v", o.seed, err)
+	}
+	for _, args := range [][]string{{"--seed", "42"}, {"--dev", "--seed", "0"}, {"--dev", "--seed", "9007199254740992"}, {"--dev", "--seed", "-1"}} {
+		if _, err := parseFlags(args, io.Discard); err == nil {
+			t.Errorf("parseFlags(%v) succeeded", args)
+		}
 	}
 }
 

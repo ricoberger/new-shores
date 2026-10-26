@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/testworld"
 )
 
 // TestStartAtSeaOverHTTP (D-051): a new world starts at sea; sail_ship and
@@ -16,7 +16,7 @@ import (
 // openapi.yaml, with their errors; then the Trading Post's upgrade, the
 // founding-only rule and last_trading_post.
 func TestStartAtSeaOverHTTP(t *testing.T) {
-	sea, err := devworld.New(catalogue(t), testStart)
+	sea, err := testworld.Sea(catalogue(t), testStart)
 	if err != nil {
 		t.Fatal(err)
 	}

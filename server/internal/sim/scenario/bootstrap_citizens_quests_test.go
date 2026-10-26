@@ -14,10 +14,28 @@ type referenceTimings struct {
 	island2, citizens, house, tools float64
 }
 
+// referenceIslands returns the start island and island 2 of a reference
+// game on the generated archipelago: the islands of its first and second
+// found_island steps.
+func referenceIslands(t *testing.T, s *Scenario) (start, island2 string) {
+	t.Helper()
+	var found []string
+	for _, st := range s.Steps {
+		if st.FoundIsland != nil {
+			found = append(found, st.FoundIsland.Island)
+		}
+	}
+	if len(found) < 2 {
+		t.Fatalf("%s founds %d islands, want 2", s.Name, len(found))
+	}
+	return found[0], found[1]
+}
+
 func measureReference(t *testing.T, s *Scenario, rep *Report) referenceTimings {
 	t.Helper()
+	start, island2 := referenceIslands(t, s)
 	m := referenceTimings{island2: -1, citizens: -1, house: -1, tools: -1}
-	if i := firstStep(s, func(st Step) bool { return st.FoundIsland != nil && st.FoundIsland.Island == "island2" }); i >= 0 {
+	if i := firstStep(s, func(st Step) bool { return st.FoundIsland != nil && st.FoundIsland.Island == island2 }); i >= 0 {
 		m.island2 = minutesAt(t, s, i)
 	}
 	if i := firstStep(s, func(st Step) bool { return st.Upgrade != nil }); i >= 0 {
@@ -28,7 +46,7 @@ func measureReference(t *testing.T, s *Scenario, rep *Report) referenceTimings {
 		if m.citizens < 0 && slices.Contains(snap.UnlockedTiers, "citizens") {
 			m.citizens = at
 		}
-		if m.tools < 0 && snap.Inventory["start"]["tools"].Stock > 0 {
+		if m.tools < 0 && snap.Inventory[start]["tools"].Stock > 0 {
 			m.tools = at
 		}
 	}
@@ -46,7 +64,7 @@ func TestBootstrapCitizensQuests(t *testing.T) {
 	const name = "bootstrap_citizens_quests"
 	s := loadScenario(t, name)
 	ref := loadScenario(t, "bootstrap_citizens")
-	if !s.Seed.Start || s.Seed.Gold != "" || len(s.Seed.Stock) != 0 || len(s.Seed.Workforce) != 0 || s.DevBonus != nil {
+	if !s.Seed.Start || s.Seed.Gold != "" || len(s.Seed.Stock) != 0 || len(s.Seed.Workforce) != 0 {
 		t.Fatalf("seed = %+v, want the content starting stock only", s.Seed)
 	}
 	commands := func(sc *Scenario) []string {

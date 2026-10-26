@@ -91,6 +91,7 @@ var simErrors = []simError{
 	// 400: the command itself is invalid.
 	{sim.ErrInvalidCommand, "invalid_command", http.StatusBadRequest},
 	{sim.ErrUnknownBuilding, "unknown_building", http.StatusBadRequest},
+	{sim.ErrInvalidName, "invalid_name", http.StatusBadRequest},
 	{sim.ErrOutOfBounds, "out_of_bounds", http.StatusBadRequest},
 	{sim.ErrRouteInvalid, "route_invalid", http.StatusBadRequest},
 	// 404: a referenced entity does not exist.
@@ -101,6 +102,7 @@ var simErrors = []simError{
 	{sim.ErrQuestNotFound, "quest_not_found", http.StatusNotFound},
 	// 409: the command conflicts with the current state.
 	{sim.ErrOccupied, "occupied", http.StatusConflict},
+	{sim.ErrRerollNotAllowed, "reroll_not_allowed", http.StatusConflict},
 	{sim.ErrTerrain, "terrain", http.StatusConflict},
 	{sim.ErrNotCoastal, "not_coastal", http.StatusConflict},
 	{sim.ErrNotOnWater, "not_on_water", http.StatusConflict},

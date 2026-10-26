@@ -38,6 +38,7 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/devworld"
 	"github.com/ricoberger/new-shores/server/internal/events"
 	"github.com/ricoberger/new-shores/server/internal/sim"
+	"github.com/ricoberger/new-shores/server/internal/sim/archipelago"
 	"github.com/ricoberger/new-shores/server/internal/store"
 	"github.com/ricoberger/new-shores/server/internal/store/postgres"
 	"github.com/ricoberger/new-shores/server/internal/telemetry"
@@ -64,6 +65,7 @@ type options struct {
 	content     string
 	corsOrigins []string
 	timeScale   float64
+	seed        uint64
 	logFormat   string
 
 	// Default mode (environment only).
@@ -105,6 +107,7 @@ func parseConfig(args []string, getenv func(string) string, stderr io.Writer) (o
 	corsOrigin := fs.String("cors-origin", envOr(getenv, "ALLOWED_ORIGINS", defaultCORSOrigins),
 		"comma-separated browser origins allowed to call /api/ (scheme://host[:port]); also the CSRF and WebSocket origin list (env ALLOWED_ORIGINS)")
 	fs.Float64Var(&o.timeScale, "time-scale", 1, "world seconds per wall-clock second (> 0; --dev only)")
+	fs.Uint64Var(&o.seed, "seed", devworld.DevSeed, fmt.Sprintf("archipelago seed of the dev world and its fixtures (1..%d; --dev only)", archipelago.MaxSeed))
 	fs.StringVar(&o.logFormat, "log-format", envOr(getenv, "LOG_FORMAT", "text"), "log format: text or json (env LOG_FORMAT)")
 	if err := fs.Parse(args); err != nil {
 		return o, err
@@ -120,11 +123,20 @@ func parseConfig(args []string, getenv func(string) string, stderr io.Writer) (o
 	if !(o.timeScale > 0) || o.timeScale > 1e6 {
 		return o, fmt.Errorf("--time-scale must be > 0 and <= 1e6, got %v", o.timeScale)
 	}
+	if o.seed == 0 || o.seed > archipelago.MaxSeed {
+		return o, fmt.Errorf("--seed must be in 1..%d, got %d", archipelago.MaxSeed, o.seed)
+	}
 	if !o.dev {
-		timeScaleSet := false
-		fs.Visit(func(f *flag.Flag) { timeScaleSet = timeScaleSet || f.Name == "time-scale" })
+		var timeScaleSet, seedSet bool
+		fs.Visit(func(f *flag.Flag) {
+			timeScaleSet = timeScaleSet || f.Name == "time-scale"
+			seedSet = seedSet || f.Name == "seed"
+		})
 		if timeScaleSet {
 			return o, errors.New("--time-scale requires --dev (world time is the database clock)")
+		}
+		if seedSet {
+			return o, errors.New("--seed requires --dev (player worlds get a random seed)")
 		}
 	}
 	if o.logFormat != "text" && o.logFormat != "json" {
@@ -313,7 +325,7 @@ func runDev(o options, logger *slog.Logger) error {
 	}
 	clock := api.WallClock{}
 	start := clock.Now().Truncate(time.Millisecond)
-	w, err := devworld.NewDev(cat, start)
+	w, err := devworld.New(cat, o.seed, start)
 	if err != nil {
 		return err
 	}
@@ -333,7 +345,7 @@ func runDev(o options, logger *slog.Logger) error {
 		Logger:       logger,
 		// Dev only: POST /api/v1/dev/reset seeds a fresh world (E2E specs).
 		DevReset: func(ctx context.Context, fixture string) (int64, error) {
-			w, err := devworld.NewFixture(cat, fixture, worldNow())
+			w, err := devworld.NewFixture(cat, fixture, o.seed, worldNow())
 			if err != nil {
 				return 0, err
 			}
@@ -451,7 +463,7 @@ func runDefault(o options, logger *slog.Logger) error {
 	}
 	accounts, err := auth.NewService(auth.Config{
 		Store:      st,
-		NewWorld:   func(now time.Time) (*sim.World, error) { return devworld.New(cat, now) },
+		NewWorld:   func(now time.Time) (*sim.World, error) { return devworld.New(cat, devworld.RandomSeed(), now) },
 		Region:     cat.Region.ID,
 		Freshness:  o.freshness,
 		SessionTTL: o.sessionTTL,

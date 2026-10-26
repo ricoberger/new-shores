@@ -52,7 +52,7 @@ func firstStep(s *Scenario, match func(Step) bool) int {
 func TestBootstrapCitizens(t *testing.T) {
 	const name = "bootstrap_citizens"
 	s := loadScenario(t, name)
-	if !s.Seed.Start || s.Seed.Gold != "" || len(s.Seed.Stock) != 0 || len(s.Seed.Workforce) != 0 || s.DevBonus != nil {
+	if !s.Seed.Start || s.Seed.Gold != "" || len(s.Seed.Stock) != 0 || len(s.Seed.Workforce) != 0 {
 		t.Fatalf("seed = %+v, want the content starting stock only", s.Seed)
 	}
 	for _, st := range s.Steps {
@@ -69,8 +69,9 @@ func TestBootstrapCitizens(t *testing.T) {
 		}
 	}
 	rep := runScenario(t, name)
+	start, island2 := referenceIslands(t, s)
 
-	found := firstStep(s, func(st Step) bool { return st.FoundIsland != nil && st.FoundIsland.Island == "island2" })
+	found := firstStep(s, func(st Step) bool { return st.FoundIsland != nil && st.FoundIsland.Island == island2 })
 	if found < 0 || minutesAt(t, s, found) > 60 {
 		t.Errorf("island 2 founded at step %d, minute %.0f (want <= 60)", found, minutesAt(t, s, found))
 	}
@@ -92,7 +93,7 @@ func TestBootstrapCitizens(t *testing.T) {
 		if citizens == 0 && snap.Step > upgrade {
 			citizens = snap.Population["citizens"]
 		}
-		if tools < 0 && snap.Inventory["start"]["tools"].Stock > 0 {
+		if tools < 0 && snap.Inventory[start]["tools"].Stock > 0 {
 			tools = i
 		}
 	}
@@ -116,7 +117,7 @@ func TestBootstrapCitizens(t *testing.T) {
 	running := false
 	for _, is := range at.Final.Islands {
 		for _, b := range is.Buildings {
-			if is.ID == "island2" && b.Type == "toolmaker" && b.Status == sim.StatusOK && b.Rates.Outputs["tools"] > 0 {
+			if is.ID == island2 && b.Type == "toolmaker" && b.Status == sim.StatusOK && b.Rates.Outputs["tools"] > 0 {
 				running = true
 			}
 		}
