@@ -362,6 +362,34 @@ func (s *Server) published(r *http.Request, id store.WorldID) {
 type worldResponse struct {
 	Version int64            `json:"version"`
 	Display sim.DisplayState `json:"display"`
+	// TileResults is the per-tile outcome of a batch command
+	// (place_fields, demolish_fields), in request order; absent for
+	// every other command.
+	TileResults []tileResultJSON `json:"tile_results,omitempty"`
+}
+
+// tileResultJSON is one tile of a batch command: applied (ok) or rejected
+// with the error code the tile alone would have failed with.
+type tileResultJSON struct {
+	X      int    `json:"x"`
+	Y      int    `json:"y"`
+	OK     bool   `json:"ok"`
+	Reason string `json:"reason,omitempty"`
+}
+
+// tileResults converts the sim's per-tile results (nil for none).
+func tileResults(rs []sim.TileResult) []tileResultJSON {
+	if rs == nil {
+		return nil
+	}
+	out := make([]tileResultJSON, len(rs))
+	for i, r := range rs {
+		out[i] = tileResultJSON{X: r.X, Y: r.Y, OK: r.Err == nil}
+		if r.Err != nil {
+			out[i].Reason, _ = classify(r.Err)
+		}
+	}
+	return out
 }
 
 // advance moves the world to the world time delivered by the store. A time
@@ -426,7 +454,10 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		s.writeError(w, r, err)
 		return
 	}
-	var ds sim.DisplayState
+	var (
+		ds      sim.DisplayState
+		results []tileResultJSON
+	)
 	version, err := s.cfg.Store.Update(r.Context(), id, func(world *sim.World, version int64, now time.Time) (bool, error) {
 		if req.Version != nil && *req.Version != version {
 			s.cfg.Logger.Info("stale client version", "command", typ, "client_version", *req.Version, "version", version)
@@ -444,9 +475,11 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return false, err
 		}
-		if err := sim.Apply(world, s.cfg.Catalogue, resolved); err != nil {
+		res, err := sim.ApplyWithResult(world, s.cfg.Catalogue, resolved, nil)
+		if err != nil {
 			return false, err
 		}
+		results = tileResults(res.Tiles)
 		// The summary over the gap before this command (rule of GET); an
 		// acknowledgement never produces one, it would re-open the summary
 		// it just closed. Every successful command then marks the player
@@ -463,7 +496,7 @@ func (s *Server) postCommand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.published(r, id)
-	s.writeJSON(w, http.StatusOK, worldResponse{Version: version, Display: ds})
+	s.writeJSON(w, http.StatusOK, worldResponse{Version: version, Display: ds, TileResults: results})
 }
 
 // islandRevision identifies the static data of the world's islands for

@@ -62,7 +62,8 @@ export interface paths {
         /**
          * Advance the world to now and apply one command.
          * @description Commands (`command.type`): `place_building`, `place_road`,
-         *     `demolish`, `demolish_road`, `place_field`,
+         *     `demolish`, `demolish_road`, `place_field`, `place_fields`,
+         *     `demolish_fields`,
          *     `set_paused`, `upgrade_house`, `upgrade_trading_post`,
          *     `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
@@ -374,6 +375,21 @@ export interface components {
              */
             version: number;
             display: components["schemas"]["DisplayState"];
+            /**
+             * @description Per-tile outcome of a batch command (`place_fields`,
+             *     `demolish_fields`, D-054), one entry per request tile in
+             *     request order; absent for every other command.
+             */
+            tile_results?: components["schemas"]["TileResult"][];
+        };
+        TileResult: {
+            /** @description Column of the request tile (tiles). */
+            x: number;
+            /** @description Row of the request tile (tiles). */
+            y: number;
+            /** @description The tile was applied (a field placed or demolished). */
+            ok: boolean;
+            reason?: components["schemas"]["ErrorCode"];
         };
         ErrorResponse: {
             error: {
@@ -470,6 +486,18 @@ export interface components {
          *     Fields are demolished with `demolish` (refund of the field's own
          *     cost); demolishing a farm demolishes its fields, one refund each.
          *
+         *     `place_fields` and `demolish_fields` (D-054) are the batch forms
+         *     for painted rectangles (at most 512 tiles). Every tile is checked
+         *     with the single-tile rules; the valid ones are applied in one
+         *     state change (one new version) and `tile_results` reports each
+         *     tile. They fail as a whole (world unchanged) with 400
+         *     `bad_request`, `invalid_command` (no tiles, more than 512,
+         *     duplicates, invalid rotation), 404 `unknown_island`,
+         *     `unknown_building`, `building_not_found` (no such farm), 409
+         *     `field_type_mismatch`, `field_wrong_farm`, `tier_locked`,
+         *     `island_not_settled` — or, when no tile is valid, with the code of
+         *     the first tile.
+         *
          *     `claim_quest` can fail with 400 `bad_request` (missing `quest_id`,
          *     or no `island_id` for a quest that rewards goods), 404
          *     `quest_not_found`, `unknown_island`; 409 `quest_not_completed`,
@@ -559,7 +587,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -689,7 +717,7 @@ export interface components {
         /**
          * @description Place one field of `building_type` from the farm `farm_id` at
          *     (`x`, `y`), the top-left tile of the rotated footprint (D-051
-         *     part 4). The footprint (1×1 crop tile, 2×2 animal field) must be
+         *     part 4). The footprint (the field type's content footprint) must be
          *     on the island, on the field's terrain, free of buildings and
          *     roads, on an island with the field's fertility and 4-edge adjacent
          *     (sharing an edge segment, not only a corner) to the farm or to one of the farm's active
@@ -720,6 +748,64 @@ export interface components {
              * @enum {integer}
              */
             rotation?: 0 | 90 | 180 | 270;
+        };
+        /** @description Tiles of a field batch, without duplicates. */
+        FieldTileList: components["schemas"]["Tile"][];
+        /**
+         * @description Place fields of `building_type` from the farm `farm_id` at every
+         *     valid anchor of `tiles` (D-054 painting): each tile is the
+         *     top-left tile of one field footprint (a 1×1 crop field: the tile
+         *     itself) and is checked with the rules of `place_field` against
+         *     the island plus the fields accepted before it, the cost
+         *     cumulatively (a tile is valid only while gold and materials cover
+         *     it). The tiles are taken in order, in passes repeated while one
+         *     accepts a tile, so a rectangle grows from the farm whatever its
+         *     order; placement stops at the farm's `fields.max`. The valid
+         *     tiles are placed in one state change; `tile_results` reports
+         *     every tile.
+         */
+        PlaceFieldsCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "place_fields";
+            island_id: string;
+            /**
+             * Format: int64
+             * @description Building ID of the owning farm (BuildingDisplay.id).
+             */
+            farm_id: number;
+            /** @description Content building ID with a field block whose `field.farm` is the farm's type. */
+            building_type: string;
+            tiles: components["schemas"]["FieldTileList"];
+            /**
+             * @description Optional, default 0; applies to every field.
+             * @enum {integer}
+             */
+            rotation?: 0 | 90 | 180 | 270;
+        };
+        /**
+         * @description Demolish the fields of the farm `farm_id` covering `tiles`
+         *     (D-054): each field once, however many of its tiles are listed,
+         *     with the refund of its own cost (50 % of the materials, rounded
+         *     down, no gold). A tile without a field of the farm is rejected
+         *     (`building_not_found`, or `out_of_bounds`). The valid tiles are
+         *     applied in one state change; `tile_results` reports every tile.
+         */
+        DemolishFieldsCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "demolish_fields";
+            island_id: string;
+            /**
+             * Format: int64
+             * @description Building ID of the owning farm (BuildingDisplay.id).
+             */
+            farm_id: number;
+            tiles: components["schemas"]["FieldTileList"];
         };
         SetPausedCommand: {
             /**

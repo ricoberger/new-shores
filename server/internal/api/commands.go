@@ -23,6 +23,8 @@ const (
 	cmdDemolish      = "demolish"
 	cmdDemolishRoad  = "demolish_road"
 	cmdPlaceField    = "place_field"
+	cmdPlaceFields   = "place_fields"
+	cmdDemolishField = "demolish_fields"
 	cmdSetPaused     = "set_paused"
 	cmdUpgradeHouse  = "upgrade_house"
 	cmdMoveBuilding  = "move_building"
@@ -94,6 +96,24 @@ type placeFieldJSON struct {
 	X            *int    `json:"x"`
 	Y            *int    `json:"y"`
 	Rotation     *int    `json:"rotation"`
+}
+
+// placeFieldsJSON is the body of place_fields (D-054): field anchors of
+// one painted rectangle (or any tile list), at most sim.MaxFieldTiles.
+type placeFieldsJSON struct {
+	Type         string     `json:"type"`
+	IslandID     *string    `json:"island_id"`
+	FarmID       *int64     `json:"farm_id"`
+	BuildingType *string    `json:"building_type"`
+	Tiles        []tileJSON `json:"tiles"`
+	Rotation     *int       `json:"rotation"`
+}
+
+type demolishFieldsJSON struct {
+	Type     string     `json:"type"`
+	IslandID *string    `json:"island_id"`
+	FarmID   *int64     `json:"farm_id"`
+	Tiles    []tileJSON `json:"tiles"`
 }
 
 type demolishJSON struct {
@@ -258,6 +278,10 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = decodeDemolishRoad(raw)
 	case cmdPlaceField:
 		cmd, err = decodePlaceField(raw)
+	case cmdPlaceFields:
+		cmd, err = decodePlaceFields(raw)
+	case cmdDemolishField:
+		cmd, err = decodeDemolishFields(raw)
 	case cmdSetPaused:
 		cmd, err = decodeSetPaused(raw)
 	case cmdUpgradeHouse, cmdUpgradeWarehouse, cmdUpgradeTradingPost:
@@ -450,6 +474,59 @@ func decodeDemolishRoad(raw json.RawMessage) (sim.Command, error) {
 		return nil, err
 	}
 	return sim.DemolishRoad{IslandID: *c.IslandID, Tiles: tiles}, nil
+}
+
+// decodeFieldTiles decodes the tile list of a field batch: 1 to
+// sim.MaxFieldTiles tiles (more is invalid_command before the world is
+// locked).
+func decodeFieldTiles(tiles []tileJSON) ([]sim.Pos, error) {
+	if len(tiles) > sim.MaxFieldTiles {
+		return nil, fmt.Errorf("%w: %d tiles exceed %d", sim.ErrInvalidCommand, len(tiles), sim.MaxFieldTiles)
+	}
+	return decodeTiles(tiles)
+}
+
+// decodePlaceFields decodes place_fields; the rotation is optional (0).
+func decodePlaceFields(raw json.RawMessage) (sim.Command, error) {
+	var c placeFieldsJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	switch {
+	case c.IslandID == nil:
+		return nil, missing("island_id")
+	case c.FarmID == nil:
+		return nil, missing("farm_id")
+	case c.BuildingType == nil:
+		return nil, missing("building_type")
+	}
+	tiles, err := decodeFieldTiles(c.Tiles)
+	if err != nil {
+		return nil, err
+	}
+	rot := 0
+	if c.Rotation != nil {
+		rot = *c.Rotation
+	}
+	return sim.PlaceFields{IslandID: *c.IslandID, FarmID: *c.FarmID, Type: *c.BuildingType, Tiles: tiles, Rotation: rot}, nil
+}
+
+func decodeDemolishFields(raw json.RawMessage) (sim.Command, error) {
+	var c demolishFieldsJSON
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	switch {
+	case c.IslandID == nil:
+		return nil, missing("island_id")
+	case c.FarmID == nil:
+		return nil, missing("farm_id")
+	}
+	tiles, err := decodeFieldTiles(c.Tiles)
+	if err != nil {
+		return nil, err
+	}
+	return sim.DemolishFields{IslandID: *c.IslandID, FarmID: *c.FarmID, Tiles: tiles}, nil
 }
 
 // decodePlaceField decodes place_field; the rotation is optional (0).
