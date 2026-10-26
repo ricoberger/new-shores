@@ -20,7 +20,9 @@ import {
   type Content,
   type DisplayState,
   getContent,
-  getIsland,
+  getIslandTiles,
+  islandStatics,
+  tilesKey,
   getWorld,
   type Island,
   isUnauthorized,
@@ -315,14 +317,19 @@ export class GameSync {
 
   private async loadIsland(id: string): Promise<void> {
     if (this.snapshot.islands.has(id) || this.islandRequests.has(id) || this.stopped) return;
+    const display = this.snapshot.server?.display;
+    if (!display) return;
     const generation = this.generation;
     const epoch = this.islandEpoch;
     this.islandRequests.add(id);
     try {
-      const island = await getIsland(id);
+      const tiles = await getIslandTiles(id, tilesKey(display.archipelago));
       if (generation !== this.generation || epoch !== this.islandEpoch) return;
+      // Fertilities and deposits are static per roll like the rows: take them from the latest payload.
+      const is = (this.snapshot.server?.display ?? display).islands.find((i) => i.id === id);
+      if (!is) return;
       const islands = new Map(this.snapshot.islands);
-      islands.set(id, island);
+      islands.set(id, islandStatics(tiles, is));
       this.set({ islands });
       this.succeeded(`island ${id}`);
     } catch (err) {

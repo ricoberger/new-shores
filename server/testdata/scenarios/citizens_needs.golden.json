@@ -2877,7 +2877,14 @@
           "type": "trading_post",
           "level": 2,
           "capacity": 500000
-        }
+        },
+        "fertilities": [
+          "wheat",
+          "apple",
+          "hemp"
+        ],
+        "deposits": [],
+        "terrain_mask": "wggggggggwgggggggggggggggggggggggggggggggggggggggggggggggggg"
       }
     ],
     "ships": [],

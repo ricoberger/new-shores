@@ -1019,7 +1019,10 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [],
+        "deposits": [],
+        "terrain_mask": "wwwccccwgggggggwgggggffwwwwwwwww"
       },
       {
         "id": "island2",
@@ -1147,7 +1150,21 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [],
+        "deposits": [
+          {
+            "x": 13,
+            "y": 6,
+            "kind": "iron"
+          },
+          {
+            "x": 14,
+            "y": 6,
+            "kind": "iron"
+          }
+        ],
+        "terrain_mask": "wcccwggggw"
       }
     ],
     "ships": [

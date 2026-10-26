@@ -195,16 +195,22 @@ paths:
       responses:
         "204":
           description: Preflight accepted.
-  /api/v1/world/islands/{island_id}:
+  /api/v1/world/islands/{island_id}/tiles:
     get:
-      operationId: getIsland
-      summary: Static data of an island (terrain, fertilities, deposits).
+      operationId: getIslandTiles
+      summary: Full terrain rows of an island.
       description: |
-        Static per island; clients cache it by `revision` and fetch it once
-        per island and archipelago (`display.archipelago` seed and roll: a
-        reroll replaces the islands under the same IDs). Unsettled islands
-        are served as well. `fertilities` and
-        `deposits` are siblings of `terrain`.
+        The island's terrain at full resolution. The world payload carries
+        each island's bounds, fertilities, deposits and a 1:4
+        `terrain_mask` only; clients load the rows per island when they
+        need them (the island in view first). Terrain changes only with a
+        reroll (D-053), so the response is cacheable for good: the `ETag`
+        derives from the archipelago's seed and roll and the island ID,
+        `Cache-Control` is `private, max-age=31536000, immutable`, and a
+        matching `If-None-Match` answers 304. Clients pass the
+        archipelago's `<seed>-<roll>` as `v`, so a reroll changes the URL;
+        when `v` names another roll than the world's, the response is
+        `no-store`. Unsettled islands are served as well.
       security:
         - cookieAuth: []
         - bearerAuth: []
@@ -214,13 +220,41 @@ paths:
           required: true
           schema:
             type: string
+        - name: v
+          in: query
+          required: false
+          description: Cache key of the archipelago, `<seed>-<roll>` of `display.archipelago`.
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          required: false
+          description: ETag of a cached response.
+          schema:
+            type: string
       responses:
         "200":
-          description: The island.
+          description: The island's terrain rows.
+          headers:
+            ETag:
+              description: Strong validator from the archipelago's seed and roll and the island ID.
+              schema:
+                type: string
+            Cache-Control:
+              description: "`private, max-age=31536000, immutable`, or `no-store` when `v` names another roll."
+              schema:
+                type: string
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Island"
+                $ref: "#/components/schemas/IslandTiles"
+        "304":
+          description: Not modified (If-None-Match matched the ETag).
+          headers:
+            ETag:
+              description: The current validator.
+              schema:
+                type: string
         "401":
           $ref: "#/components/responses/Error"
         "404":
@@ -1578,12 +1612,12 @@ components:
           enum: [0, 90, 180, 270]
           description: Degrees; 90 and 270 swap width and height.
     # ------------------------------------------------------------------
-    # Island (static data)
+    # Island tiles (static terrain rows)
     # ------------------------------------------------------------------
-    Island:
+    IslandTiles:
       type: object
       additionalProperties: false
-      required: [id, width, height, revision, terrain, fertilities, deposits]
+      required: [id, width, height, revision, terrain]
       properties:
         id:
           type: string
@@ -1596,44 +1630,30 @@ components:
         revision:
           type: string
           description: |
-            Identity of the static island data for caching: the world's
-            content version and, for a generated archipelago (D-053), its
-            seed and roll.
+            Identity of the static island data (decoration seeds): the
+            world's content version and, for a generated archipelago
+            (D-053), its seed and roll.
         terrain:
           type: array
           description: Terrain ID per tile, row-major (index = y × width + x).
           items:
             type: string
             enum: [water, coast, grass, forest, mountain]
-        fertilities:
-          type: array
-          description: |
-            Island-wide fertility tags (MECHANICS §2); a building whose
-            `work_area.fertility` is missing here cannot be placed
-            (`no_fertility`).
-          items:
-            type: string
-        deposits:
-          type: array
-          description: |
-            Tiles carrying a deposit (infinite), sorted by tile index
-            (y × width + x). A building with `requires_deposit` must cover
-            at least one tile of its kind (`no_deposit`) and may stand on
-            mountain tiles.
-          items:
-            type: object
-            additionalProperties: false
-            required: [x, y, kind]
-            properties:
-              x:
-                type: integer
-                description: Column (tiles).
-              y:
-                type: integer
-                description: Row (tiles).
-              kind:
-                type: string
-                description: Deposit kind, e.g. stone or iron.
+    DepositDisplay:
+      type: object
+      additionalProperties: false
+      required: [x, y, kind]
+      description: A tile carrying a deposit (infinite, D-036).
+      properties:
+        x:
+          type: integer
+          description: Column (tiles).
+        y:
+          type: integer
+          description: Row (tiles).
+        kind:
+          type: string
+          description: Deposit kind, e.g. stone or iron.
     # ------------------------------------------------------------------
     # Display payload (sim.DisplayState)
     # ------------------------------------------------------------------
@@ -2270,7 +2290,7 @@ components:
     IslandDisplay:
       type: object
       additionalProperties: false
-      required: [id, name, size_class, rock, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source]
+      required: [id, name, size_class, rock, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source, fertilities, deposits, terrain_mask]
       properties:
         id:
           type: string
@@ -2335,6 +2355,33 @@ components:
           description: The building that sets the island's capacity per good (the Trading Post, D-051); null when the island is not settled (capacity 0). Warehouses never add capacity.
           allOf:
             - $ref: "#/components/schemas/CapacitySourceDisplay"
+        fertilities:
+          type: array
+          description: |
+            Island-wide fertility tags (MECHANICS §2); a building whose
+            `work_area.fertility` is missing here cannot be placed
+            (`no_fertility`).
+          items:
+            type: string
+        deposits:
+          type: array
+          description: |
+            Tiles carrying a deposit, sorted by tile index (y × width + x).
+            A building with `requires_deposit` must cover at least one tile
+            of its kind (`no_deposit`) and may stand on mountain tiles.
+          items:
+            $ref: "#/components/schemas/DepositDisplay"
+        terrain_mask:
+          type: string
+          description: |
+            The terrain downsampled 1:4 for the far view and the minimap:
+            one character per 4 × 4 block of tiles, row-major over
+            ceil(width / 4) × ceil(height / 4) blocks, the block's majority
+            terrain — `w` water, `c` coast, `m` mountain, `f` forest, `g`
+            grass; ties go to the earlier letter in that order (water wins
+            every tie); edge blocks count only the tiles inside the island.
+            The full rows: `GET /api/v1/world/islands/{island_id}/tiles`.
+          pattern: "^[wcmfg]*$"
     CapacitySourceDisplay:
       type: object
       additionalProperties: false

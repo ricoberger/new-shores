@@ -27,6 +27,9 @@ function world(version: number, evaluatedAt: string, nextChangeAt: string | null
       workforce: {},
       population: {},
       capacity_source: null,
+      fertilities: [],
+      deposits: [],
+      terrain_mask: "g",
     })),
     ships: [],
     routes: [],
@@ -228,7 +231,7 @@ describe("GameSync", () => {
     const sync = new GameSync();
     const stop = sync.start();
     await vi.advanceTimersByTimeAsync(0);
-    const islandCalls = () => calls.filter((c) => c.path === "/api/v1/world/islands/isle-01").length;
+    const islandCalls = () => calls.filter((c) => c.path === "/api/v1/world/islands/isle-01/tiles").length;
     expect(islandCalls()).toBe(1);
     expect(sync.getSnapshot().islands.get("isle-01")?.revision).toBe("v");
 

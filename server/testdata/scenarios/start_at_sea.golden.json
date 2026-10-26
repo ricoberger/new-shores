@@ -526,7 +526,12 @@
           "type": "trading_post",
           "level": 1,
           "capacity": 300000
-        }
+        },
+        "fertilities": [
+          "wheat"
+        ],
+        "deposits": [],
+        "terrain_mask": "wggwgffg"
       },
       {
         "id": "other",
@@ -654,7 +659,10 @@
         "buildings": [],
         "workforce": {},
         "population": {},
-        "capacity_source": null
+        "capacity_source": null,
+        "fertilities": [],
+        "deposits": [],
+        "terrain_mask": "wgwwww"
       }
     ],
     "ships": [

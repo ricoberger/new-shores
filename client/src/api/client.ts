@@ -23,8 +23,23 @@ export type RouteDisplay = Schemas["RouteDisplay"];
 export type ShipOrderDisplay = Schemas["ShipOrderDisplay"];
 export type RouteStop = Schemas["RouteStop"];
 export type LoadRule = Schemas["LoadRule"];
-export type Island = Schemas["Island"];
-export type Terrain = Island["terrain"][number];
+export type IslandTiles = Schemas["IslandTiles"];
+export type DepositDisplay = Schemas["DepositDisplay"];
+/**
+ * Static data of an island the renderer and the placement hints read: the
+ * full terrain rows (GET …/islands/{id}/tiles) with the fertilities and
+ * deposits of the island's display payload.
+ */
+export interface Island {
+  id: string;
+  width: number;
+  height: number;
+  revision: string;
+  terrain: IslandTiles["terrain"];
+  fertilities: string[];
+  deposits: DepositDisplay[];
+}
+export type Terrain = IslandTiles["terrain"][number];
 export type Command = Schemas["Command"];
 export type CommandRequest = Schemas["CommandRequest"];
 export type ErrorCode = Schemas["ErrorCode"];
@@ -119,21 +134,29 @@ export function getContent(): Promise<Content> {
 }
 
 /**
- * Static data of an island: terrain, fertility tags and deposit tiles. Only
- * the fields the client knows are read, so sibling arrays added later are
- * ignored until the regenerated types use them; missing arrays (an older
- * server) read as empty.
+ * Full terrain rows of an island. `key` is the archipelago's cache key
+ * (`<seed>-<roll>`, `tilesKey`): the response is immutable per roll, so a
+ * reroll must change the URL.
  */
-export async function getIsland(id: string): Promise<Island> {
-  const raw = await request<Island>(`/api/v1/world/islands/${encodeURIComponent(id)}`);
+export function getIslandTiles(id: string, key: string): Promise<IslandTiles> {
+  return request<IslandTiles>(`/api/v1/world/islands/${encodeURIComponent(id)}/tiles?v=${encodeURIComponent(key)}`);
+}
+
+/** The tiles cache key of an archipelago: seed and roll. */
+export function tilesKey(a: { seed: number; roll: number }): string {
+  return `${a.seed}-${a.roll}`;
+}
+
+/** An island's static data from its rows and its display payload. */
+export function islandStatics(tiles: IslandTiles, display: Pick<IslandDisplay, "fertilities" | "deposits">): Island {
   return {
-    id: raw.id,
-    width: raw.width,
-    height: raw.height,
-    revision: raw.revision,
-    terrain: raw.terrain,
-    fertilities: raw.fertilities ?? [],
-    deposits: raw.deposits ?? [],
+    id: tiles.id,
+    width: tiles.width,
+    height: tiles.height,
+    revision: tiles.revision,
+    terrain: tiles.terrain,
+    fertilities: [...display.fertilities],
+    deposits: display.deposits.map((d) => ({ ...d })),
   };
 }
 

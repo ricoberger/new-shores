@@ -20,8 +20,8 @@ func archipelagoView(t *testing.T, w worldJSON) sim.DisplayState {
 
 func islandRevisionOf(t *testing.T, ts *testServer, id string) string {
 	t.Helper()
-	res := ts.do(http.MethodGet, "/api/v1/world/islands/"+id, "", true)
-	var is islandResponse
+	res := ts.do(http.MethodGet, "/api/v1/world/islands/"+id+"/tiles", "", true)
+	var is tilesResponse
 	if err := json.Unmarshal(res.body, &is); err != nil || res.status != http.StatusOK {
 		t.Fatalf("GET island %s: %d %s", id, res.status, res.body)
 	}

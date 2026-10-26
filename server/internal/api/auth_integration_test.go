@@ -68,6 +68,15 @@ type pgEnv struct {
 
 func newPGEnv(t *testing.T, limiter auth.Limiter) *pgEnv {
 	t.Helper()
+	c := catalogue(t)
+	// The account flows build on a founded start island (the default
+	// dev fixture); a new player's world at sea is TestGetWorldInitialState's.
+	return newPGEnvWith(t, limiter, func(now time.Time) (*sim.World, error) { return testworld.Founded(c, now) })
+}
+
+// newPGEnvWith is newPGEnv with the worlds of new players from newWorld.
+func newPGEnvWith(t *testing.T, limiter auth.Limiter, newWorld func(time.Time) (*sim.World, error)) *pgEnv {
+	t.Helper()
 	_, pool := testenv.Database(t)
 	c := catalogue(t)
 	logs := &testenv.SyncBuffer{}
@@ -77,9 +86,7 @@ func newPGEnv(t *testing.T, limiter auth.Limiter) *pgEnv {
 	// Tee: the log mailer writes to the captured logs, the mailbox keeps
 	// the tokens for the test.
 	accts2, err := auth.NewService(auth.Config{
-		// The account flows build on a founded start island (the default
-		// dev fixture); a new player's world at sea is TestGetWorldInitialState's.
-		Store: st, NewWorld: func(now time.Time) (*sim.World, error) { return testworld.Founded(c, now) },
+		Store: st, NewWorld: newWorld,
 		Region: c.Region.ID, Freshness: time.Hour, SessionTTL: 30 * 24 * time.Hour, Argon2: auth.DefaultArgon2,
 		Mailer: teeMailer{mail, auth.LogMailer{Logger: logger}}, PublicURL: "http://localhost:8000", Logger: logger,
 	})
@@ -458,7 +465,7 @@ func TestSchemaVersionIsA500(t *testing.T) {
 	if _, err := env.st.Pool().Exec(context.Background(), "UPDATE worlds SET state = jsonb_set(state, '{schema_version}', '99') WHERE id = $1", worldID); err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/api/v1/world", "/api/v1/world/islands/start"} {
+	for _, path := range []string{"/api/v1/world", "/api/v1/world/islands/start/tiles"} {
 		rec, _ := c.do(http.MethodGet, path, "")
 		if rec.Code != 500 || code(t, rec) != "schema_version" {
 			t.Fatalf("%s: %d %s", path, rec.Code, rec.Body)

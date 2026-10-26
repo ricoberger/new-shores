@@ -524,7 +524,7 @@ func TestErrorResponses(t *testing.T) {
 		{"max y", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":10,"y":9223372036854775807,"rotation":0}}`, true, 400, "out_of_bounds"},
 		{"min x", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":-9223372036854775808,"y":5,"rotation":0}}`, true, 400, "out_of_bounds"},
 		{"min y", http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"place_building","island_id":"start","building_type":"sawmill","x":10,"y":-9223372036854775808,"rotation":0}}`, true, 400, "out_of_bounds"},
-		{"unknown island data", http.MethodGet, "/api/v1/world/islands/nope", "", true, 404, "unknown_island"},
+		{"unknown island data", http.MethodGet, "/api/v1/world/islands/nope/tiles", "", true, 404, "unknown_island"},
 		{"method", http.MethodDelete, "/api/v1/world", "", false, 405, CodeMethodNotAllowed},
 		{"unknown endpoint", http.MethodGet, "/api/v1/nope", "", false, 404, CodeNotFound},
 	}
@@ -807,13 +807,16 @@ func TestHealthAndContent(t *testing.T) {
 	}
 }
 
-func TestIslandData(t *testing.T) {
+// TestIslandTiles: GET /world/islands/{id}/tiles serves the full rows of
+// any island of the session's world (unsettled ones too, R-57); the world
+// payload carries the fertilities, the deposits and the 1:4 mask.
+func TestIslandTiles(t *testing.T) {
 	ts := newTestServer(t, 1)
-	res := ts.do(http.MethodGet, "/api/v1/world/islands/start", "", true)
+	res := ts.do(http.MethodGet, "/api/v1/world/islands/start/tiles", "", true)
 	if res.status != 200 {
 		t.Fatalf("%d %s", res.status, res.body)
 	}
-	var is islandResponse
+	var is tilesResponse
 	if err := json.Unmarshal(res.body, &is); err != nil {
 		t.Fatal(err)
 	}
@@ -824,43 +827,105 @@ func TestIslandData(t *testing.T) {
 	if is.Terrain[1*is.Width+0] != "water" || is.Terrain[1*is.Width+1] != "coast" {
 		t.Fatalf("terrain row 1: %v", is.Terrain[is.Width:is.Width+3])
 	}
-	// Fertilities and sparse deposits sorted by tile index (R-15).
-	checkDeposits := func(is islandResponse, kind string) {
-		t.Helper()
-		if len(is.Deposits) < 4 {
-			t.Errorf("%s deposits = %+v", is.ID, is.Deposits)
-		}
-		for i, d := range is.Deposits {
-			if d.Kind != kind || is.Terrain[d.Y*is.Width+d.X] != "mountain" {
-				t.Errorf("%s deposit %+v on %s", is.ID, d, is.Terrain[d.Y*is.Width+d.X])
-			}
-			if i > 0 && d.Y*is.Width+d.X <= is.Deposits[i-1].Y*is.Width+is.Deposits[i-1].X {
-				t.Errorf("%s deposits not sorted: %+v", is.ID, is.Deposits)
-			}
-		}
+	if res.header.Get("ETag") != tilesETag(0, 0, testIsland) || res.header.Get("Cache-Control") != tilesCacheControl {
+		t.Errorf("headers %v", res.header)
 	}
-	if strings.Join(is.Fertilities, ",") != "wheat,apple" {
-		t.Errorf("start fertilities = %v", is.Fertilities)
-	}
-	checkDeposits(is, "stone")
-	// The unsettled island 2 is served too (R-57).
-	res = ts.do(http.MethodGet, "/api/v1/world/islands/island2", "", true)
-	is = islandResponse{}
-	if err := json.Unmarshal(res.body, &is); err != nil || res.status != 200 || is.ID != "island2" || !slices.Contains(is.Terrain, "mountain") {
+	terrain := map[string][]string{testIsland: is.Terrain}
+	res = ts.do(http.MethodGet, "/api/v1/world/islands/island2/tiles?v=0-0", "", true)
+	var is2 tilesResponse
+	if err := json.Unmarshal(res.body, &is2); err != nil || res.status != 200 || is2.ID != "island2" || !slices.Contains(is2.Terrain, "mountain") {
 		t.Fatalf("island2: %d %s", res.status, res.body)
 	}
-	if strings.Join(is.Fertilities, ",") != "hemp" {
-		t.Errorf("island2 fertilities = %v", is.Fertilities)
+	terrain["island2"] = is2.Terrain
+
+	// The payload: fertilities, deposits sorted by tile index (R-15) on
+	// mountain tiles, and the mask of the rows.
+	ds := archipelagoView(t, ts.getWorld())
+	want := map[string]struct{ fertilities, deposit string }{testIsland: {"wheat,apple", "stone"}, "island2": {"hemp", "iron"}}
+	for _, d := range ds.Islands {
+		w, ok := want[d.ID]
+		if !ok {
+			continue
+		}
+		if strings.Join(d.Fertilities, ",") != w.fertilities {
+			t.Errorf("%s fertilities = %v", d.ID, d.Fertilities)
+		}
+		rows := terrain[d.ID]
+		if len(d.Deposits) < 4 {
+			t.Errorf("%s deposits = %+v", d.ID, d.Deposits)
+		}
+		for i, dep := range d.Deposits {
+			if dep.Kind != w.deposit || rows[dep.Y*d.Width+dep.X] != "mountain" {
+				t.Errorf("%s deposit %+v on %s", d.ID, dep, rows[dep.Y*d.Width+dep.X])
+			}
+			if i > 0 && dep.Y*d.Width+dep.X <= d.Deposits[i-1].Y*d.Width+d.Deposits[i-1].X {
+				t.Errorf("%s deposits not sorted: %+v", d.ID, d.Deposits)
+			}
+		}
+		tiles := make([]sim.Tile, len(rows))
+		for i, r := range rows {
+			tiles[i] = sim.Tile{Terrain: r}
+		}
+		if m := sim.TerrainMask(&sim.Island{Width: d.Width, Height: d.Height, Tiles: tiles}); d.TerrainMask != m || len(m) != ((d.Width+3)/4)*((d.Height+3)/4) {
+			t.Errorf("%s mask %q, want %q", d.ID, d.TerrainMask, m)
+		}
 	}
-	checkDeposits(is, "iron")
 }
 
-// TestIslandRequestAdvancesTheWorld: GET /world/islands/{id} advances the
+// TestIslandTilesCaching: the rows carry an ETag from seed, roll and
+// island ID and are immutable; a matching If-None-Match answers 304 (also
+// in a list or weak), another one the rows; a cache key of another roll
+// is answered no-store.
+func TestIslandTilesCaching(t *testing.T) {
+	ts := newTestServer(t, 1)
+	path := "/api/v1/world/islands/start/tiles"
+	etag := tilesETag(0, 0, testIsland)
+	get := func(path, inm string) response {
+		t.Helper()
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, path, nil)
+		req.Header.Set("Origin", testOrigin)
+		if inm != "" {
+			req.Header.Set("If-None-Match", inm)
+		}
+		rec := httptest.NewRecorder()
+		ts.srv.ServeHTTP(rec, req)
+		res := response{status: rec.Code, header: rec.Header(), body: rec.Body.Bytes()}
+		ts.spec.validate(t, http.MethodGet, path, "", res)
+		return res
+	}
+	for _, inm := range []string{etag, `"x", ` + etag, "W/" + etag, "*"} {
+		res := get(path, inm)
+		if res.status != http.StatusNotModified || len(res.body) != 0 || res.header.Get("ETag") != etag || res.header.Get("Cache-Control") != tilesCacheControl {
+			t.Errorf("If-None-Match %s: %d %v %q", inm, res.status, res.header, res.body)
+		}
+	}
+	if res := get(path, `"other"`); res.status != http.StatusOK || res.header.Get("ETag") != etag || len(res.body) == 0 {
+		t.Errorf("other ETag: %d %v", res.status, res.header)
+	}
+	if res := get(path+"?v=0-0", ""); res.header.Get("Cache-Control") != tilesCacheControl {
+		t.Errorf("current cache key: %v", res.header)
+	}
+	if res := get(path+"?v=0-1", ""); res.status != http.StatusOK || res.header.Get("Cache-Control") != "no-store" {
+		t.Errorf("stale cache key: %d %v", res.status, res.header)
+	}
+	// The route is exactly /world/islands/{id}/tiles; the former static
+	// endpoint is gone.
+	for _, p := range []string{"/api/v1/world/islands/start", "/api/v1/world/islands//tiles", "/api/v1/world/islands/a/b/tiles"} {
+		if res := ts.do(http.MethodGet, p, "", false); res.status != http.StatusNotFound || errorCode(t, res) != CodeNotFound {
+			t.Errorf("%s: %d %s", p, res.status, res.body)
+		}
+	}
+	if a, b := tilesETag(1, 0, "a"), tilesETag(1, 1, "a"); a == b || a == tilesETag(1, 0, "b") || a == tilesETag(2, 0, "a") {
+		t.Error("ETag does not follow seed, roll and island")
+	}
+}
+
+// TestIslandRequestAdvancesTheWorld: GET /world/islands/{id}/tiles advances the
 // world like every /api/v1/world* request (A.6) without a new version.
 func TestIslandRequestAdvancesTheWorld(t *testing.T) {
 	ts := newTestServer(t, 1)
 	ts.clock.Add(5 * time.Second)
-	if res := ts.do(http.MethodGet, "/api/v1/world/islands/start", "", true); res.status != http.StatusOK {
+	if res := ts.do(http.MethodGet, "/api/v1/world/islands/start/tiles", "", true); res.status != http.StatusOK {
 		t.Fatalf("%d %s", res.status, res.body)
 	}
 	// Step the wall clock back: the next GET is clamped to the last
