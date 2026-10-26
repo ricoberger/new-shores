@@ -144,6 +144,11 @@ export class IslandDetail {
     this.keys = null;
   }
 
+  /** Whether the island is drawn with its full tiles (terrain and layers built). */
+  hasTiles(): boolean {
+    return this.statics !== null && this.builtFrom !== null;
+  }
+
   /** Whether the layers reflect this payload and content. */
   builtWith(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): boolean {
     return this.builtFrom?.display === display && this.builtFrom.defs === defs;

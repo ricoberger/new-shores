@@ -39,6 +39,8 @@ export interface ShotArgs {
   presets: Preset[];
   /** Archipelago seed of the dev server (--seed); undefined: the dev seed. */
   seed?: number;
+  /** Content directory of the dev server (--content), relative to the repository root unless absolute; undefined: the committed content. */
+  content?: string;
 }
 
 export class ShotArgError extends Error {}
@@ -70,7 +72,7 @@ function parseNumber(name: string, raw: string | undefined, min?: number): numbe
   return n;
 }
 
-/** Parses FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED and SET from an environment. */
+/** Parses FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED, CONTENT and SET from an environment. */
 export function parseShotArgs(env: Env): ShotArgs {
   const presets = parseList("PRESET", env.PRESET, PRESETS, []);
   const rotationText = env.ROTATION?.trim();
@@ -101,6 +103,8 @@ export function parseShotArgs(env: Env): ShotArgs {
     args.x = x;
     args.y = y;
   }
+  const content = env.CONTENT?.trim();
+  if (content) args.content = content;
   const seedText = env.SEED?.trim();
   if (seedText) {
     const seed = Number(seedText);

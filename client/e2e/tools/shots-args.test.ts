@@ -59,6 +59,8 @@ describe("parseShotArgs", () => {
   it("parses SEED (the dev server's archipelago, D-053) and rejects values outside 1..2^53-1", () => {
     expect(parseShotArgs({ SEED: "4711" }).seed).toBe(4711);
     expect(parseShotArgs({ SEED: "" }).seed).toBeUndefined();
+    expect(parseShotArgs({ CONTENT: " .experiment/content " }).content).toBe(".experiment/content");
+    expect(parseShotArgs({ CONTENT: "" }).content).toBeUndefined();
     for (const bad of ["0", "-1", "1.5", "x", "9007199254740992"]) expect(() => parseShotArgs({ SEED: bad })).toThrow(/SEED: '.*' is not an integer in 1\.\.9007199254740991/);
     expect(parseShotArgs({ SEED: "42", PRESET: "archipelago-far" }).seed).toBe(42);
   });

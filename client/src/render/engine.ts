@@ -200,6 +200,8 @@ export class GameRenderer {
   private lastFrameAt = 0;
   private drawCalls = 0;
   private firstFrameMarked = false;
+  /** The focused island was first drawn with its full tiles (the "ns-focus-tiles" mark). */
+  private focusTilesMarked = false;
   /** Animation time pinned by a test (server ms; null: live). */
   private frozenAt: number | null = null;
 
@@ -305,6 +307,10 @@ export class GameRenderer {
       this.firstFrameMarked = true;
       performance.mark("ns-first-frame");
     }
+    if (!this.focusTilesMarked && this.info.focus !== "" && this.details.get(this.info.focus)?.hasTiles()) {
+      this.focusTilesMarked = true;
+      performance.mark("ns-focus-tiles");
+    }
   }
 
   dispose(): void {
@@ -403,6 +409,18 @@ export class GameRenderer {
     const out = [];
     for (const d of this.details.values()) out.push(...d.shadowCasters());
     this.lighting.setCasters(out);
+  }
+
+  /**
+   * Load milestones: the first rendered frame with the camera placed and
+   * the first frame that drew the focused island with its full tiles,
+   * with their performance marks (ms since navigation start; null until
+   * then or under a faked clock, where `make shots STATS=1` times the
+   * flags itself).
+   */
+  timing(): { firstFrame: boolean; focusTiles: boolean; firstFrameMs: number | null; focusTilesMs: number | null } {
+    const at = (name: string) => performance.getEntriesByName?.(name, "mark")[0]?.startTime ?? null;
+    return { firstFrame: this.firstFrameMarked, focusTiles: this.focusTilesMarked, firstFrameMs: at("ns-first-frame"), focusTilesMs: at("ns-focus-tiles") };
   }
 
   /** Draw calls of the last frame. */
