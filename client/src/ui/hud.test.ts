@@ -11,6 +11,7 @@ import { BuildMenu } from "./BuildMenu";
 import { NO_TOOL } from "./tools";
 import { InfoPanel } from "./InfoPanel";
 import { InsolvencyBanner } from "./InsolvencyBanner";
+import { Minimap } from "./Minimap";
 import { IslandCard } from "./IslandCard";
 import { draftFromRoute } from "../display/routes";
 import { QuestsPanel } from "./QuestsPanel";
@@ -529,6 +530,21 @@ describe("HUD components", () => {
       expect(strip(busy)).toContain("Berths1 / 4 free");
       // The next level's preview names its berths.
       expect(strip(card({ type: "trading_post", level: 3, capacity: 300_000, throughput_per_min: 30_000, load_permille: 0 }))).toContain("4 berths");
+    });
+  });
+
+  describe("phone minimap", () => {
+    const html = (settled: boolean, initiallyCollapsed: boolean) => {
+      const base = fixture("citizens_needs");
+      const model = { ...base, islands: base.islands.map((is) => ({ ...is, settled: settled && is.settled })) };
+      return renderToStaticMarkup(createElement(Minimap, { renderer: null, model, viewport: { width: 412, height: 915 }, collapsible: true, initiallyCollapsed, heading: 0 }));
+    };
+
+    it("opens expanded while no island is settled, with the layout's default afterwards", () => {
+      expect(html(false, true)).toContain('data-testid="minimap-panel"');
+      expect(html(false, true)).toContain('aria-expanded="true"');
+      expect(html(true, true)).not.toContain('data-testid="minimap-panel"');
+      expect(html(true, false)).toContain('data-testid="minimap-panel"');
     });
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { groundFootprint } from "./camera";
-import { fromMinimap, islandsBounds, MINIMAP_MARGIN, minimapLandKey, minimapProjection, minimapSize, toMinimap } from "./minimap";
+import { fromMinimap, islandsBounds, MINIMAP_MARGIN, MINIMAP_UNSETTLED_KEY, minimapCollapsedAtStart, minimapLandKey, minimapProjection, minimapSize, rememberMinimapCollapsed, toMinimap } from "./minimap";
 
 const BOUNDS = { minX: 0, minY: 0, maxX: 200, maxY: 100 };
 
@@ -79,5 +79,30 @@ describe("minimap land cache key", () => {
   it("islandsBounds spans every island", () => {
     expect(islandsBounds(islands)).toEqual({ minX: 0, minY: 0, maxX: 100, maxY: 70 });
     expect(islandsBounds([])).toBeNull();
+  });
+});
+
+describe("phone minimap while no island is settled", () => {
+  const storage = () => {
+    const m = new Map<string, string>();
+    return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), map: m };
+  };
+
+  it("opens expanded, remembers a collapse for the session and applies the layout default once settled", () => {
+    const s = storage();
+    // Phone portrait default: collapsed. Unsettled: expanded.
+    expect(minimapCollapsedAtStart(true, true, s)).toBe(false);
+    rememberMinimapCollapsed(true, true, s);
+    expect(s.map.get(MINIMAP_UNSETTLED_KEY)).toBe("1");
+    expect(minimapCollapsedAtStart(true, true, s)).toBe(true);
+    rememberMinimapCollapsed(false, true, s);
+    expect(minimapCollapsedAtStart(true, true, s)).toBe(false);
+    // Settled: the default, and toggles are not remembered.
+    expect(minimapCollapsedAtStart(true, false, s)).toBe(true);
+    expect(minimapCollapsedAtStart(false, false, s)).toBe(false);
+    rememberMinimapCollapsed(true, false, s);
+    expect(s.map.get(MINIMAP_UNSETTLED_KEY)).toBe("0");
+    // No storage: expanded.
+    expect(minimapCollapsedAtStart(true, true, null)).toBe(false);
   });
 });

@@ -72,3 +72,21 @@ export function islandsBounds(islands: readonly Omit<IslandShape, "id" | "settle
   }
   return b;
 }
+
+/** Session key of the phone minimap's collapsed state while no island is settled. */
+export const MINIMAP_UNSETTLED_KEY = "newShores.minimapUnsettledCollapsed";
+
+/**
+ * Initial collapsed state of the phone minimap: while no island is
+ * settled (choosing the home island) it opens expanded unless it was
+ * collapsed earlier in this session; afterwards the layout's default.
+ */
+export function minimapCollapsedAtStart(defaultCollapsed: boolean, unsettled: boolean, session: Pick<Storage, "getItem"> | null | undefined): boolean {
+  if (!unsettled) return defaultCollapsed;
+  return session?.getItem(MINIMAP_UNSETTLED_KEY) === "1";
+}
+
+/** Remembers a toggle of the phone minimap for the session (only while no island is settled). */
+export function rememberMinimapCollapsed(collapsed: boolean, unsettled: boolean, session: Pick<Storage, "setItem"> | null | undefined): void {
+  if (unsettled) session?.setItem(MINIMAP_UNSETTLED_KEY, collapsed ? "1" : "0");
+}

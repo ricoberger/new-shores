@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DisplayState } from "../api/client";
 import { archipelagoRect, type Rect } from "../display/camera";
 import { decodeMask, MASK_BLOCK, MASK_WATER } from "../display/mask";
-import { fromMinimap, islandsBounds, minimapLandKey, minimapProjection, minimapSize, toMinimap } from "../display/minimap";
+import { fromMinimap, islandsBounds, minimapCollapsedAtStart, minimapLandKey, minimapProjection, minimapSize, rememberMinimapCollapsed, toMinimap } from "../display/minimap";
 import type { GameRenderer } from "../render/engine";
 import { toolIcon } from "../theme/iconSet";
 import { TERRAIN, UI, WATER } from "../theme/palette";
@@ -14,7 +14,12 @@ interface Props {
   renderer: GameRenderer | null;
   model: DisplayState;
   viewport: { width: number; height: number };
-  /** Phone layouts: a toggle collapses the minimap; `collapsed` is its initial state. */
+  /**
+   * Phone layouts: a toggle collapses the minimap; `initiallyCollapsed`
+   * is the layout's default. While no island is settled it opens expanded
+   * instead (a collapse is remembered for the session); a founding
+   * applies the default.
+   */
   collapsible: boolean;
   initiallyCollapsed: boolean;
   /** The camera's rotation rounded to 45° (the compass's accessible name). */
@@ -42,7 +47,14 @@ const VIEW = UI.map_view;
  */
 export function Minimap({ renderer, model, viewport, collapsible, initiallyCollapsed, heading }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [collapsedState, setCollapsed] = useState(initiallyCollapsed);
+  const unsettled = !model.islands.some((is) => is.settled);
+  const [collapsedState, setCollapsed] = useState(() => minimapCollapsedAtStart(initiallyCollapsed, unsettled, session()));
+  // The first founding: the layout's default from now on.
+  const wasUnsettled = useRef(unsettled);
+  useEffect(() => {
+    if (wasUnsettled.current && !unsettled) setCollapsed(initiallyCollapsed);
+    wasUnsettled.current = unsettled;
+  }, [unsettled, initiallyCollapsed]);
   // Only phone layouts can collapse it: on a larger layout (e.g. after a
   // resize or rotation) the minimap shows, whatever the phone state was.
   const collapsed = collapsible && collapsedState;
@@ -162,7 +174,11 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
       <button
         type="button"
         className={`${styles.dockButton} ${collapsed ? "" : styles.dockActive}`}
-        onClick={() => setCollapsed((c) => !c)}
+        onClick={() => {
+          const next = !collapsed;
+          rememberMinimapCollapsed(next, unsettled, session());
+          setCollapsed(next);
+        }}
         aria-expanded={!collapsed}
         aria-label={collapsed ? "Show minimap" : "Hide minimap"}
         data-testid="minimap-toggle"
@@ -172,4 +188,13 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
       {!collapsed && view}
     </div>
   );
+}
+
+/** The session storage (null where there is none). */
+function session(): Storage | null {
+  try {
+    return globalThis.sessionStorage ?? null;
+  } catch {
+    return null;
+  }
 }
