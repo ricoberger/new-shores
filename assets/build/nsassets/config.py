@@ -21,6 +21,14 @@ CONTENT_DIR = os.path.join(REPO_ROOT, "content", "old_coast")
 #: CONTENT_DIR): footprints, kinds and levels are read from there, e.g. a
 #: content draft the models are fitted to before it lands (build.py --content).
 CONTENT_ENV = "NEW_SHORES_CONTENT_DIR"
+#: Planned footprints (D-056 model sessions): buildings and ships whose
+#: models are made before the content defines them. Every *.json in this
+#: directory except schema.json is read beneath the content (content wins
+#: per ID), so recipes validate and build before the content lands.
+PLANNED_DIR = os.path.join(BUILD_DIR, "planned")
+PLANNED_SCHEMA_PATH = os.path.join(PLANNED_DIR, "schema.json")
+#: Content tier IDs by tier number (planned entries give the number).
+TIER_NAMES = ("settlers", "citizens", "merchants", "patricians")
 MODELS_DIR = os.path.join(REPO_ROOT, "client", "public", "models")
 SHEETS_DIR = os.path.join(BUILD_DIR, "out")
 #: Build-card thumbnails (client/public/models/thumbs/<content id>.png), committed.
@@ -259,7 +267,8 @@ COLOR_TOLERANCE = 1.0 / 255.0
 #: Default status anchor height above the model (tiles).
 STATUS_ABOVE = 0.25
 
-#: Content IDs that need a model: tier 1–2 buildings except roads (fields included) and these ships.
+#: Content IDs that need a model: tier 1–2 buildings except roads (fields
+#: included) and these ships (D-056 ship ladder); planned IDs always do.
 MODEL_TIERS = ("settlers", "citizens")
 MODEL_SHIPS = ("sloop",)
 #: Tier 1–2 content IDs whose models are still to come (the D-056 tier-2

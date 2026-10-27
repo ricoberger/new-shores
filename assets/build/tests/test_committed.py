@@ -32,7 +32,10 @@ class CommittedModelsTest(unittest.TestCase):
         self.assertEqual(m["palette_sha256"], PALETTE_SHA)
         self.assertEqual(m["missing_recipes"], [])
         self.assertEqual(m["kit_scale"], config.KIT_SCALE)
-        self.assertEqual(sorted(m["models"]), content.required_ids(LIVE_CONTENT))
+        # Every content ID has a model; planned IDs (assets/build/planned) may still lack one.
+        required = set(content.required_ids(LIVE_CONTENT))
+        self.assertLessEqual(set(m["models"]), required)
+        self.assertEqual(sorted(required - set(m["models"]) - set(content.planned_ids(LIVE_CONTENT))), [])
 
     def test_every_file_matches_and_meets_the_export_profile(self):
         listed = set()

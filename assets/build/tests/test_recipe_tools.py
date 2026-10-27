@@ -218,8 +218,8 @@ class SmokeAnchorTest(unittest.TestCase):
 
         from nsassets import content as content_mod
 
-        for cid in content_mod.required_ids(LIVE_CONTENT):
-            if not content_mod.is_producer(LIVE_CONTENT, cid):
+        for cid in recipe_ids(LIVE_CONTENT):
+            if not content_mod.needs_smoke(LIVE_CONTENT, cid):
                 continue
             with open(os.path.join(config.RECIPES_DIR, f"{cid}.json"), encoding="utf-8") as f:
                 anchors = json.load(f).get("anchors", {})
@@ -232,7 +232,7 @@ class SmokeAnchorTest(unittest.TestCase):
 
         from nsassets import content as content_mod
 
-        for cid in content_mod.required_ids(LIVE_CONTENT):
+        for cid in recipe_ids(LIVE_CONTENT):
             if content_mod.kind_of(LIVE_CONTENT, cid) not in ("building", "field"):
                 continue
             with open(os.path.join(config.RECIPES_DIR, f"{cid}.json"), encoding="utf-8") as f:
@@ -243,6 +243,19 @@ class SmokeAnchorTest(unittest.TestCase):
             for k, v in anchors.items():
                 self.assertLessEqual(abs(v[0]), w / 2, f"{cid} {k}")
                 self.assertLessEqual(abs(v[1]), h / 2, f"{cid} {k}")
+
+
+def recipe_ids(c):
+    """Required IDs with a committed recipe: every content ID, planned IDs once their recipe exists."""
+    import os
+
+    from nsassets import content as content_mod
+
+    return [
+        cid
+        for cid in content_mod.required_ids(c)
+        if not content_mod.is_planned(c, cid) or os.path.isfile(os.path.join(config.RECIPES_DIR, f"{cid}.json"))
+    ]
 
 
 class SwayMaskTest(unittest.TestCase):
