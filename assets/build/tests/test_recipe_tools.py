@@ -203,6 +203,18 @@ class SmokeAnchorTest(unittest.TestCase):
         self.assertEqual(content_mod.life_anchors(CONTENT, "house_settlers"), [])
         self.assertEqual(content_mod.life_anchors(CONTENT, "wheat_field"), [])
         self.assertEqual(content_mod.life_anchors(CONTENT, "shipyard"), ["slip"])
+        # D-056 modules (planned until the content defines them): a gate and their animals.
+        c = content_mod.merge_planned(content_mod.load(config.CONTENT_DIR, planned_dir=None), [
+            {"id": "cattle_pasture", "kind": "module", "tier": 2, "footprint": [4, 7], "water_tiles": 0, "slot": None},
+            {"id": "pig_pen", "kind": "module", "tier": 2, "footprint": [3, 4], "water_tiles": 0, "slot": None},
+            {"id": "meadow", "kind": "field", "tier": 2, "footprint": [1, 1], "water_tiles": 0, "slot": None},
+        ])
+        self.assertEqual(content_mod.life_anchors(c, "cattle_pasture"), ["gate", "cattle_1", "cattle_2", "cattle_3"])
+        self.assertEqual(content_mod.life_anchors(c, "pig_pen"), ["gate", "pig_1", "pig_2", "pig_3", "pig_4"])
+        self.assertEqual(content_mod.life_anchors(c, "meadow"), [])
+        # By field ID first: content may give the modules the field type "pasture".
+        c["buildings"]["pig_pen"]["field"] = {"type": "pasture"}
+        self.assertEqual(content_mod.life_anchors(c, "pig_pen"), ["gate", "pig_1", "pig_2", "pig_3", "pig_4"])
 
     def test_declared_anchors_are_exported_to_the_manifest(self):
         r = {"id": "sawmill", "kind": "building", "parts": [{"prim": "box", "size": [1.8, 1.8, 0.5], "role": "plaster"}],

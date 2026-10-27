@@ -3,7 +3,7 @@ import json
 import unittest
 
 from helpers import A_KIT_FILE, CONTENT, PALETTE_SHA, ROLES, fake_loader, pinned
-from nsassets import config, glb, pipeline, validate
+from nsassets import config, content as content_mod, glb, pipeline, validate
 
 
 def build(recipe):
@@ -140,6 +140,18 @@ class DetailTest(unittest.TestCase):
         self.assertEqual(budget("pasture", "field"), 675)
         self.assertEqual(budget("orchard_plot", "field"), 300)
         self.assertEqual(budget("sloop", "ship"), config.BUDGET_SHIP)
+        # D-056 ship ladder: the budget grows with the class, the cargo with the slots (75 per prop).
+        self.assertLess(config.BUDGET_SHIP, config.BUDGET_SHIPS["brig"])
+        self.assertLess(config.BUDGET_SHIPS["brig"], config.BUDGET_SHIPS["galleon"])
+        cargo = lambda cid: pipeline.budget_of({"id": cid, "kind": "ship"}, c, ("attachment", "cargo"))
+        self.assertEqual((cargo("sloop"), cargo("brig"), cargo("galleon")), (150, 300, 450))
+        # Planned modules and fields (assets/build/planned) get the field rate per tile.
+        planned = content_mod.merge_planned(pinned(c, {}), [
+            {"id": "cattle_pasture", "kind": "module", "tier": 2, "footprint": [4, 7], "water_tiles": 0, "slot": None},
+            {"id": "school", "kind": "service", "tier": 2, "footprint": [6, 8], "water_tiles": 0, "slot": None},
+        ])
+        self.assertEqual(pipeline.budget_of({"id": "cattle_pasture", "kind": "field"}, planned, None), 2100)
+        self.assertEqual(pipeline.budget_of({"id": "school", "kind": "building"}, planned, None), 72000)
         # Lite models keep their share of the area budget.
         self.assertEqual(pipeline.lite_budget({"id": "fisher", "kind": "building"}, c, budget("fisher")), 9000)
 

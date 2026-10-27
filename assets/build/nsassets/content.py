@@ -169,7 +169,9 @@ def life_anchors(content, cid):
     chimney/smoke (D-054): a cart point for producers and storage, the boat's
     mooring for water-edge producers, one pier slot per berth of the Trading
     Post's top level, the slipway of a shipyard (where the hull under
-    construction stands), and a gate and three sheep for pastures.
+    construction stands), and for pasture modules a gate and the animal
+    positions of config.PASTURE_ANIMALS (by field ID, else field type:
+    three sheep, three cattle, four pigs).
     """
     b = content["buildings"].get(cid, {})
     out = []
@@ -181,8 +183,10 @@ def life_anchors(content, cid):
     out += [f"berth_{i}" for i in range(1, berths + 1)]
     if "shipyard" in b:
         out.append("slip")
-    if b.get("field", {}).get("type") == "pasture":
-        out += ["gate", "sheep_1", "sheep_2", "sheep_3"]
+    if "field" in b:
+        animals = config.PASTURE_ANIMALS.get(cid) or config.PASTURE_ANIMALS.get(b["field"].get("type"))
+        if animals:
+            out += ["gate"] + [f"{animals[0]}_{i}" for i in range(1, animals[1] + 1)]
     return out
 
 

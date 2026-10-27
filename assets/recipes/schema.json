@@ -73,10 +73,17 @@
         "berth_3": { "$ref": "#/$defs/vec3" },
         "berth_4": { "$ref": "#/$defs/vec3" },
         "slip": { "$ref": "#/$defs/vec3", "description": "shipyard: the slipway's centre line where the hull under construction stands (over the water rows; the hull lies along the slip, bow out to sea)." },
-        "gate": { "$ref": "#/$defs/vec3", "description": "pasture: the gate in the fence." },
+        "gate": { "$ref": "#/$defs/vec3", "description": "pasture modules (pasture, cattle_pasture, pig_pen): the gate in the fence." },
         "sheep_1": { "$ref": "#/$defs/vec3", "description": "pasture: positions of the three instanced sheep (sheep_1 … sheep_3)." },
         "sheep_2": { "$ref": "#/$defs/vec3" },
-        "sheep_3": { "$ref": "#/$defs/vec3" }
+        "sheep_3": { "$ref": "#/$defs/vec3" },
+        "cattle_1": { "$ref": "#/$defs/vec3", "description": "cattle_pasture: positions of the three instanced cattle (cattle_1 … cattle_3)." },
+        "cattle_2": { "$ref": "#/$defs/vec3" },
+        "cattle_3": { "$ref": "#/$defs/vec3" },
+        "pig_1": { "$ref": "#/$defs/vec3", "description": "pig_pen: positions of the four instanced pigs (pig_1 … pig_4)." },
+        "pig_2": { "$ref": "#/$defs/vec3" },
+        "pig_3": { "$ref": "#/$defs/vec3" },
+        "pig_4": { "$ref": "#/$defs/vec3" }
       }
     }
   },
