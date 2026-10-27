@@ -148,6 +148,32 @@ class CommittedFootprintTest(unittest.TestCase):
             self.assertGreaterEqual(mx[2] - mn[2], h - tol, cid)
             self.assertLessEqual(mn[1], 0.05, cid)
 
+    def test_planned_models(self):
+        """D-056 M2: the planned IDs have their models, signature anchors, ship classes and market levels."""
+        models = self.manifest["models"]
+        planned = set(content.planned_ids(LIVE_CONTENT))
+        self.assertLessEqual(planned, set(models))
+        for cid in sorted(planned):
+            anchors = set(models[cid].get("anchors", {}))
+            if content.needs_smoke(LIVE_CONTENT, cid):
+                self.assertLessEqual({"chimney", "smoke"}, anchors, cid)
+            if content.is_producer(LIVE_CONTENT, cid):
+                self.assertIn("cart", anchors, cid)
+        for cid in ("cheese_dairy", "meadery", "tannery"):
+            self.assertTrue(content.needs_smoke(LIVE_CONTENT, cid), cid)
+        for cid, (animal, n) in (("cattle_pasture", ("cattle", 3)), ("pig_pen", ("pig", 4))):
+            want = {"gate"} | {f"{animal}_{i}" for i in range(1, n + 1)}
+            self.assertEqual(set(models[cid]["anchors"]) - {"door", "status"}, want, cid)
+        self.assertEqual(set(models["meadow"]["anchors"]), {"door", "status"})
+        self.assertEqual(sorted(models["market_small"]["levels"]), ["1", "2", "3"])
+        ships = {cid: models[cid] for cid in config.MODEL_SHIPS}
+        self.assertEqual([ships[c]["ship"]["masts"] for c in config.MODEL_SHIPS], [3, 2, 3])
+        lengths = [ships[c]["ship"]["length_tiles"] for c in config.MODEL_SHIPS]
+        self.assertEqual(lengths, sorted(set(lengths)))
+        for cid in ("brig", "galleon"):
+            self.assertLessEqual(ships[cid]["file"]["triangles"], config.BUDGET_SHIPS[cid], cid)
+            self.assertLessEqual(ships[cid]["attachments"]["cargo"]["triangles"], config.BUDGET_SHIP_CARGO[cid], cid)
+
     def test_life_anchors_inside_the_footprint(self):
         for cid, entry in self.placed():
             w, h = content.footprint(LIVE_CONTENT, cid)

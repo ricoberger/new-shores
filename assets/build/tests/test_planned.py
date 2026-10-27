@@ -121,6 +121,10 @@ class PlannedTest(unittest.TestCase):
         recipes = {cid: {} for cid in content.required_ids(c) if cid not in ("cheese_test", "sawmill")}
         self.assertEqual(build.missing_recipes(c, recipes), (["sawmill"], ["cheese_test"]))
 
+    def test_every_repository_planned_id_has_a_recipe(self):
+        have = {f[:-5] for f in os.listdir(config.RECIPES_DIR) if f.endswith(".json") and f != "schema.json"}
+        self.assertEqual(sorted(set(content.planned_ids(content.load())) - have), [])
+
 
 if __name__ == "__main__":
     unittest.main()
