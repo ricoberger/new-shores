@@ -121,8 +121,19 @@ func checkReferences(c *Catalogue) error {
 			good(FileBuildings, ent, "cost."+m.Good, m.Good)
 		}
 		if r := b.Recipe; r != nil {
+			seen := map[string]bool{}
 			for i, in := range r.Inputs {
-				good(FileBuildings, ent, fmt.Sprintf("recipe.inputs[%d].good", i), in.Good)
+				for j, g := range in.Goods {
+					field := fmt.Sprintf("recipe.inputs[%d].good", i)
+					if len(in.Goods) > 1 {
+						field = fmt.Sprintf("recipe.inputs[%d].good[%d]", i, j)
+					}
+					good(FileBuildings, ent, field, g)
+					if seen[g] {
+						col.add(FileBuildings, ent, field, "good %q is accepted by more than one input", g)
+					}
+					seen[g] = true
+				}
 			}
 			for i, out := range r.Outputs {
 				good(FileBuildings, ent, fmt.Sprintf("recipe.outputs[%d].good", i), out.Good)

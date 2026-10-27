@@ -1005,7 +1005,7 @@ func fishWeaverCatalogue(base *content.Catalogue, reserveMs int64) *content.Cata
 	c.Region.Rules.AutoResumeMs = reserveMs
 	weaver := *base.BuildingByID["weaver_wool"]
 	rec := *weaver.Recipe
-	rec.Inputs = []content.GoodAmount{{Good: "fish", Amount: 1000}}
+	rec.Inputs = []content.RecipeInput{content.NewRecipeInput(1000, "fish")}
 	weaver.Recipe = &rec
 	c.BuildingByID = maps.Clone(base.BuildingByID)
 	c.BuildingByID["weaver_wool"] = &weaver

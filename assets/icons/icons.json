@@ -122,6 +122,13 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/coal-pile.svg",
       "sha256": "92eef09303cb8c21eebef4368e4de17d3f1bc2965e3d16b43b7b4f9bcba73ae7"
     },
+    "good:coal": {
+      "file": "mine-wagon.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/mine-wagon.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/mine-wagon.svg",
+      "sha256": "2235aef50652bec020e82a3dc5cfcc94b8c1ca0a6eb06a77e18cbb58b2160091"
+    },
     "good:iron": {
       "file": "metal-bar.svg",
       "author": "Lorc",

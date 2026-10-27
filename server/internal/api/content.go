@@ -148,10 +148,18 @@ type goodAmountJSON struct {
 	Amount int64  `json:"amount"`
 }
 
+// recipeInputJSON is a recipe input: good is the preferred good, goods
+// every accepted good in preference order (D-056 §7).
+type recipeInputJSON struct {
+	Good   string   `json:"good"`
+	Goods  []string `json:"goods"`
+	Amount int64    `json:"amount"`
+}
+
 type recipeJSON struct {
-	Inputs  []goodAmountJSON `json:"inputs"`
-	Outputs []goodAmountJSON `json:"outputs"`
-	CycleMs int64            `json:"cycle_ms"`
+	Inputs  []recipeInputJSON `json:"inputs"`
+	Outputs []goodAmountJSON  `json:"outputs"`
+	CycleMs int64             `json:"cycle_ms"`
 }
 
 type houseJSON struct {
@@ -405,7 +413,11 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit,
 	}
 	if r := b.Recipe; r != nil {
-		bj.Recipe = &recipeJSON{Inputs: goodAmounts(r.Inputs), Outputs: goodAmounts(r.Outputs), CycleMs: r.CycleMs}
+		ins := make([]recipeInputJSON, 0, len(r.Inputs))
+		for _, in := range r.Inputs {
+			ins = append(ins, recipeInputJSON{Good: in.Good, Goods: in.Goods, Amount: in.Amount})
+		}
+		bj.Recipe = &recipeJSON{Inputs: ins, Outputs: goodAmounts(r.Outputs), CycleMs: r.CycleMs}
 	}
 	if h := b.House; h != nil {
 		bj.House = &houseJSON{Tier: h.Tier}

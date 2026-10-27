@@ -535,7 +535,7 @@
     "pause_category": "intermediate",
     "workforce": { "tier": "settlers", "amount": 8 },
     "recipe": {
-      "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": "charcoal", "amount": 1 }],
+      "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
       "outputs": [{ "good": "iron", "amount": 1 }],
       "cycle_seconds": 60
     }

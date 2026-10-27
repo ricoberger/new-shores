@@ -2273,7 +2273,15 @@ export interface components {
             upkeep_per_min: number;
             pause_category: string;
             recipe?: {
-                inputs: components["schemas"]["ContentGoodAmount"][];
+                inputs: {
+                    good: string;
+                    goods: string[];
+                    /**
+                     * Format: int64
+                     * @description Milli-units per cycle.
+                     */
+                    amount: number;
+                }[];
                 outputs: components["schemas"]["ContentGoodAmount"][];
                 /**
                  * Format: int64

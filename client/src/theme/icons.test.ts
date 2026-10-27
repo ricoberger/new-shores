@@ -49,7 +49,7 @@ describe("HUD icon set", () => {
 
   it("has an icon for every good, need and status of the content", () => {
     const goods = content("goods.json") as { id: string }[];
-    expect(goods).toHaveLength(18);
+    expect(goods).toHaveLength(19);
     for (const g of goods) expect(ICON_PATHS[`good:${g.id}`], g.id).toBeTruthy();
     const needs = content("needs.json") as { category?: string; building?: string }[];
     for (const n of needs) expect(ICON_PATHS[n.category ? `need:${n.category}` : `need:${n.building}`], JSON.stringify(n)).toBeTruthy();

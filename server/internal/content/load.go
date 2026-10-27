@@ -269,6 +269,13 @@ type rawGoodAmount struct {
 	Amount json.Number `json:"amount"`
 }
 
+// rawRecipeInput is a recipe input whose good is one ID or a list of
+// alternatives in preference order (D-056 §7).
+type rawRecipeInput struct {
+	Good   json.RawMessage `json:"good"`
+	Amount json.Number     `json:"amount"`
+}
+
 type rawBuilding struct {
 	ID            string                 `json:"id"`
 	Name          string                 `json:"name"`
@@ -282,9 +289,9 @@ type rawBuilding struct {
 	Upkeep        json.Number            `json:"upkeep_per_min"`
 	PauseCategory string                 `json:"pause_category"`
 	Recipe        *struct {
-		Inputs       []rawGoodAmount `json:"inputs"`
-		Outputs      []rawGoodAmount `json:"outputs"`
-		CycleSeconds json.Number     `json:"cycle_seconds"`
+		Inputs       []rawRecipeInput `json:"inputs"`
+		Outputs      []rawGoodAmount  `json:"outputs"`
+		CycleSeconds json.Number      `json:"cycle_seconds"`
 	} `json:"recipe"`
 	House       *House `json:"house"`
 	TradingPost *struct {
@@ -743,7 +750,15 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 			if a <= 0 {
 				col.add(file, ent, field, "must be > 0")
 			}
-			rec.Inputs = append(rec.Inputs, GoodAmount{Good: in.Good, Amount: a})
+			var goods []string
+			var one string
+			if err := json.Unmarshal(in.Good, &one); err == nil {
+				goods = []string{one}
+			} else if err := json.Unmarshal(in.Good, &goods); err != nil || len(goods) == 0 {
+				col.add(file, ent, fmt.Sprintf("recipe.inputs[%d].good", i), "must be a good ID or a non-empty list of good IDs")
+				goods = []string{""}
+			}
+			rec.Inputs = append(rec.Inputs, RecipeInput{GoodAmount: GoodAmount{Good: goods[0], Amount: a}, Goods: goods})
 		}
 		for i, out := range r.Outputs {
 			field := fmt.Sprintf("recipe.outputs[%d].amount", i)

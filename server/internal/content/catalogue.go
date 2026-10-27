@@ -16,6 +16,8 @@
 //     (region rule) in milli-tiles per minute.
 package content
 
+import "slices"
+
 // Qty is a fixed-point quantity in milli-units (1 unit = 1000).
 type Qty = int64
 
@@ -323,9 +325,29 @@ type Cost struct {
 
 // Recipe is a production recipe (MECHANICS §4).
 type Recipe struct {
-	Inputs  []GoodAmount
+	Inputs  []RecipeInput
 	Outputs []GoodAmount
 	CycleMs int64
+}
+
+// RecipeInput is one input slot of a recipe. Good is its first (preferred)
+// good; Goods lists every accepted good in preference order, Good first
+// (D-056 §7: input alternatives such as ["charcoal", "coal"]). The amount
+// is the same for every alternative.
+type RecipeInput struct {
+	GoodAmount
+	Goods []string
+}
+
+// NewRecipeInput returns an input slot of amount accepting goods in
+// preference order.
+func NewRecipeInput(amount Qty, goods ...string) RecipeInput {
+	return RecipeInput{GoodAmount: GoodAmount{Good: goods[0], Amount: amount}, Goods: goods}
+}
+
+// Accepts reports whether the input slot accepts good.
+func (in RecipeInput) Accepts(good string) bool {
+	return slices.Contains(in.Goods, good)
 }
 
 // House marks a residential building of a tier.

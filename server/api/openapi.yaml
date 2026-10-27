@@ -3295,7 +3295,27 @@ components:
             inputs:
               type: array
               items:
-                $ref: "#/components/schemas/ContentGoodAmount"
+                type: object
+                additionalProperties: false
+                required: [good, goods, amount]
+                description: |
+                  An input slot (D-056 §7): `good` is the preferred good,
+                  `goods` every accepted good in preference order (`good`
+                  first, e.g. `["charcoal", "coal"]`). The producer draws
+                  the first one that is not starved; `rates.inputs` of the
+                  building display names the good it draws.
+                properties:
+                  good:
+                    type: string
+                  goods:
+                    type: array
+                    minItems: 1
+                    items:
+                      type: string
+                  amount:
+                    type: integer
+                    format: int64
+                    description: Milli-units per cycle.
             outputs:
               type: array
               items:

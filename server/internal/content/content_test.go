@@ -57,7 +57,7 @@ func TestLoadOldCoast(t *testing.T) {
 		ids = append(ids, g.ID)
 	}
 	wantIDs("goods", ids, "wood", "planks", "fish", "wool", "wool_garments", "sails",
-		"wheat", "flour", "bread", "apples", "cider", "hemp", "linen_garments", "stone", "iron_ore", "charcoal", "iron", "tools")
+		"wheat", "flour", "bread", "apples", "cider", "hemp", "linen_garments", "stone", "iron_ore", "charcoal", "coal", "iron", "tools")
 	ids = nil
 	for _, b := range c.Buildings {
 		ids = append(ids, b.ID)
@@ -658,6 +658,21 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			"service upgrade level without cost", FileBuildings,
 			[]string{`{ "radius": 16, "tier": "merchants", "cost": { "gold": 1000, "planks": 15, "stone": 30 } }`, `{ "radius": 16, "tier": "merchants" }`},
 			[]string{FileBuildings, `building "market_small"`, "schema violation"},
+		},
+		{
+			"input alternative of an unknown good", FileBuildings,
+			[]string{`{ "good": ["charcoal", "coal"], "amount": 1 }`, `{ "good": ["charcoal", "peat"], "amount": 1 }`},
+			[]string{FileBuildings, `building "smelter"`, "recipe.inputs[1].good[1]", `unknown good "peat"`},
+		},
+		{
+			"input alternative accepted twice", FileBuildings,
+			[]string{`{ "good": ["charcoal", "coal"], "amount": 1 }`, `{ "good": ["charcoal", "iron_ore"], "amount": 1 }`},
+			[]string{FileBuildings, `building "smelter"`, "recipe.inputs[1].good[1]", "more than one input"},
+		},
+		{
+			"input alternatives with one good", FileBuildings,
+			[]string{`{ "good": ["charcoal", "coal"], "amount": 1 }`, `{ "good": ["charcoal"], "amount": 1 }`},
+			[]string{FileBuildings, `building "smelter"`, "schema violation"},
 		},
 		{
 			"service with radius and levels", FileBuildings,

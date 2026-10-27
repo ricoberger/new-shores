@@ -834,7 +834,7 @@ func displayProducer(bd *BuildingDisplay, is *Island, c *content.Catalogue, p *p
 	b, rec := p.b, p.def.Recipe
 	bd.ThroughputFactorPermille = p.throughput
 	bd.Rates = &RatesDisplay{Inputs: map[string]Qty{}, Outputs: map[string]Qty{}}
-	for _, in := range rec.Inputs {
+	for _, in := range p.in {
 		rate := int64(0)
 		if p.connected {
 			rate = p.rate
@@ -871,7 +871,7 @@ func statusGoods(is *Island, p *producer, status string) []string {
 	var goods []string
 	switch status {
 	case StatusInputStarved:
-		for i, in := range p.def.Recipe.Inputs {
+		for i, in := range p.in {
 			if c := p.starveCap[i]; c >= 0 && c < p.tp {
 				goods = append(goods, in.Good)
 			}

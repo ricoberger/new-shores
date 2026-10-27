@@ -57,10 +57,69 @@ type producer struct {
 	// workforce is the workforce factor in per-mille (1000 without a
 	// workforce block).
 	workforce int64
+	// in are the recipe inputs with the good each slot draws (see
+	// selectInputs); same order as def.Recipe.Inputs.
+	in []content.GoodAmount
+}
+
+// selectInputs resolves the good every input slot draws (D-056 §7): the
+// first accepted good, in preference order, that is not in the starved
+// regime; when all are starved, the first one with arrivals; otherwise the
+// preferred good. It depends only on regimes and arrival rates, so it
+// changes only at boundaries.
+func selectInputs(def *content.Building, inv *Inventory, inflow map[string]int64) []content.GoodAmount {
+	in := make([]content.GoodAmount, len(def.Recipe.Inputs))
+	for i, slot := range def.Recipe.Inputs {
+		good := slot.Good
+		if len(slot.Goods) > 1 {
+			good = ""
+			for _, g := range slot.Goods {
+				if !inv.Starved[g] {
+					good = g
+					break
+				}
+			}
+			if good == "" {
+				good = slot.Good
+				for _, g := range slot.Goods {
+					if inflow[g] > 0 {
+						good = g
+						break
+					}
+				}
+			}
+		}
+		in[i] = content.GoodAmount{Good: good, Amount: slot.Amount}
+	}
+	return in
+}
+
+// wouldDraw returns the amount per cycle the producer would draw of good
+// if good were not starved: the slots accepting good whose earlier
+// alternatives are all starved (the exit demand of a starved good, like
+// houseExit for houses), and the index of the first such slot (-1 = none).
+func (p *producer) wouldDraw(inv *Inventory, good string) (Qty, int) {
+	var amount Qty
+	first := -1
+	for i, slot := range p.def.Recipe.Inputs {
+		for _, g := range slot.Goods {
+			if g == good {
+				amount += slot.Amount
+				if first < 0 {
+					first = i
+				}
+				break
+			}
+			if !inv.Starved[g] {
+				break
+			}
+		}
+	}
+	return amount, first
 }
 
 func (p *producer) inputAmount(good string) Qty {
-	for _, in := range p.def.Recipe.Inputs {
+	for _, in := range p.in {
 		if in.Good == good {
 			return in.Amount
 		}
@@ -94,12 +153,12 @@ func (p *producer) capExcept(skipIn, skipOut int) int64 {
 	return r
 }
 
-// capWithout is capExcept(-1, -1) without the starvation caps of the
-// inputs whose good is in skip.
-func (p *producer) capWithout(skip map[string]bool) int64 {
+// capWithoutSlot is capExcept(-1, -1) without the starvation caps of the
+// inputs whose good is in skip and of input slot (-1 = none).
+func (p *producer) capWithoutSlot(skip map[string]bool, slot int) int64 {
 	r := p.tp
 	for i, c := range p.starveCap {
-		if c >= 0 && !skip[p.def.Recipe.Inputs[i].Good] {
+		if c >= 0 && i != slot && !skip[p.in[i].Good] {
 			r = min(r, c)
 		}
 	}
@@ -228,6 +287,7 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 			b: b, def: def, connected: b.AssignedWarehouseID != 0, throughput: 1000, workforce: 1000,
 			starveCap: fill(len(def.Recipe.Inputs), -1),
 			fullCap:   fill(len(def.Recipe.Outputs), -1),
+			in:        selectInputs(def, &is.Inventory, r.inflow),
 		}
 		base := nominalRate(def) * b.Efficiency / 1000
 		if wf := def.Workforce; wf != nil {
@@ -258,7 +318,7 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 
 	// Throughput sharing per warehouse.
 	fullyStarved := func(p *producer) bool {
-		for _, in := range p.def.Recipe.Inputs {
+		for _, in := range p.in {
 			if is.Inventory.Starved[in.Good] && r.inflow[in.Good] == 0 {
 				return true
 			}
@@ -284,7 +344,7 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 		}
 		for _, p := range r.producers {
 			if run[p] {
-				for _, in := range p.def.Recipe.Inputs {
+				for _, in := range p.in {
 					consumed[in.Good] = true
 				}
 			}
@@ -341,7 +401,7 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 			if !p.connected {
 				continue
 			}
-			for i, inp := range p.def.Recipe.Inputs {
+			for i, inp := range p.in {
 				if inp.Good == good {
 					p.starveCap[i] = mulDiv(p.tp, in, demand)
 					p.rate = min(p.rate, p.starveCap[i])
@@ -399,7 +459,7 @@ func computeRates(is *Island, c *content.Catalogue, now int64) *rates {
 		for _, out := range p.def.Recipe.Outputs {
 			r.prod[out.Good] += p.rate * out.Amount
 		}
-		for _, in := range p.def.Recipe.Inputs {
+		for _, in := range p.in {
 			r.cons[in.Good] += p.rate * in.Amount
 		}
 	}
@@ -480,10 +540,11 @@ func updateRegimes(is *Island, c *content.Catalogue, r *rates, now int64, entrie
 			if !p.connected {
 				continue
 			}
-			for _, in := range p.def.Recipe.Inputs {
-				if in.Good == good {
-					demand += p.capWithout(skip) * in.Amount
-				}
+			// The slots that would draw the good once it leaves the
+			// regime, including those drawing an alternative meanwhile
+			// (D-056 §7); their own starvation cap does not count.
+			if a, slot := p.wouldDraw(inv, good); a > 0 {
+				demand += p.capWithoutSlot(skip, slot) * a
 			}
 		}
 		if demand <= r.inflow[good] {

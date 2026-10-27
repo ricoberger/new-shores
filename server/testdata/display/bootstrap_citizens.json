@@ -102,6 +102,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "coal": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 118671,
             "capacity": 300000,
@@ -4467,6 +4473,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "coal": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 82328,
             "capacity": 300000,
@@ -5650,6 +5662,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "coal": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 0,
             "capacity": 0,
@@ -5796,6 +5814,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "coal": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 0,
             "capacity": 0,
@@ -5925,6 +5949,12 @@
             "rate_per_min": 0
           },
           "cider": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -6064,6 +6094,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "coal": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 0,
             "capacity": 0,
@@ -6193,6 +6229,12 @@
             "rate_per_min": 0
           },
           "cider": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -6332,6 +6374,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "coal": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 0,
             "capacity": 0,
@@ -6466,6 +6514,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "coal": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 0,
             "capacity": 0,
@@ -6595,6 +6649,12 @@
             "rate_per_min": 0
           },
           "cider": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -6765,6 +6825,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "coal": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "fish": {
             "stock": 0,
             "capacity": 0,
@@ -6905,6 +6971,12 @@
             "rate_per_min": 0
           },
           "cider": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -7337,6 +7409,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -11707,6 +11785,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 82333,
                 "capacity": 300000,
@@ -12890,6 +12974,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -13036,6 +13126,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -13165,6 +13261,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -13304,6 +13406,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -13433,6 +13541,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -13572,6 +13686,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -13706,6 +13826,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -13835,6 +13961,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -14005,6 +14137,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -14145,6 +14283,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -14577,6 +14721,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -18947,6 +19097,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 82346,
                 "capacity": 300000,
@@ -20130,6 +20286,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -20276,6 +20438,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -20405,6 +20573,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -20544,6 +20718,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -20673,6 +20853,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -20812,6 +20998,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -20946,6 +21138,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -21075,6 +21273,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -21245,6 +21449,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -21385,6 +21595,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -21817,6 +22033,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -26187,6 +26409,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 82420,
                 "capacity": 300000,
@@ -27370,6 +27598,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -27516,6 +27750,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -27645,6 +27885,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -27784,6 +28030,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -27913,6 +28165,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -28052,6 +28310,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -28186,6 +28450,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -28315,6 +28585,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -28485,6 +28761,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -28625,6 +28907,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -29057,6 +29345,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 300000,
                 "in_transit": 0,
@@ -33427,6 +33721,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 82878,
                 "capacity": 300000,
@@ -34610,6 +34910,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -34756,6 +35062,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -34885,6 +35197,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -35024,6 +35342,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -35153,6 +35477,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -35292,6 +35622,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -35426,6 +35762,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -35555,6 +35897,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,
@@ -35725,6 +36073,12 @@
                 "in_transit": 0,
                 "rate_per_min": 0
               },
+              "coal": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
               "fish": {
                 "stock": 0,
                 "capacity": 0,
@@ -35865,6 +36219,12 @@
                 "rate_per_min": 0
               },
               "cider": {
+                "stock": 0,
+                "capacity": 0,
+                "in_transit": 0,
+                "rate_per_min": 0
+              },
+              "coal": {
                 "stock": 0,
                 "capacity": 0,
                 "in_transit": 0,

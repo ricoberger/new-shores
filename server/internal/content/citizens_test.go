@@ -19,7 +19,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	types := map[string]string{
 		"wheat": "raw", "flour": "intermediate", "bread": "food", "apples": "raw", "cider": "drink", "hemp": "raw",
 		"linen_garments": "clothing", "stone": "construction", "iron_ore": "raw", "charcoal": "intermediate", "iron": "intermediate",
-		"tools": "construction",
+		"tools": "construction", "coal": "intermediate",
 	}
 	for id, typ := range types {
 		if g := c.GoodByID[id]; g == nil || g.Type != typ {
@@ -92,14 +92,14 @@ func TestLoadCitizensContent(t *testing.T) {
 		"quarry":          {"", "stone", 45_000, "settlers", 8000, "", "stone", "intermediate"},
 		"iron_mine":       {"", "iron_ore", 60_000, "settlers", 10_000, "", "iron", "intermediate"},
 		"charcoal_burner": {"wood", "charcoal", 45_000, "settlers", 4000, "", "", "intermediate"},
-		"smelter":         {"iron_ore,charcoal", "iron", 60_000, "settlers", 8000, "", "", "intermediate"},
+		"smelter":         {"iron_ore,charcoal|coal", "iron", 60_000, "settlers", 8000, "", "", "intermediate"},
 		"toolmaker":       {"iron", "tools", 60_000, "settlers", 8000, "", "", "intermediate"},
 	}
 	for id, w := range chains {
 		b := c.BuildingByID[id]
 		var ins []string
 		for _, in := range b.Recipe.Inputs {
-			ins = append(ins, in.Good)
+			ins = append(ins, strings.Join(in.Goods, "|"))
 		}
 		fert := ""
 		if b.WorkArea != nil {

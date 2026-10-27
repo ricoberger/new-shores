@@ -556,7 +556,7 @@ func fishWeaverTown(t *testing.T, fishPerMin Qty) (*content.Catalogue, *World, i
 	c := orderCatalogue(t)
 	weaver := *c.BuildingByID["weaver_wool"]
 	rec := *weaver.Recipe
-	rec.Inputs = []content.GoodAmount{{Good: "fish", Amount: 1000}}
+	rec.Inputs = []content.RecipeInput{content.NewRecipeInput(1000, "fish")}
 	weaver.Recipe = &rec
 	c.BuildingByID = maps.Clone(c.BuildingByID)
 	c.BuildingByID["weaver_wool"] = &weaver
