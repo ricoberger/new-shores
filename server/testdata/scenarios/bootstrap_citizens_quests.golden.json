@@ -53,6 +53,7 @@
         "consumed": 0,
         "lost": 0,
         "spent": 10000,
+        "granted": 10000,
         "unloaded": 10000
       },
       "stone": {
@@ -3356,7 +3357,7 @@
       ]
     },
     {
-      "step": 177,
+      "step": 178,
       "at": "2026-01-01T00:57:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -3368,6 +3369,10 @@
           "planks": {
             "stock": 142996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 0,
@@ -3442,7 +3447,7 @@
       ]
     },
     {
-      "step": 180,
+      "step": 181,
       "at": "2026-01-01T00:58:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -3454,6 +3459,10 @@
           "planks": {
             "stock": 142996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 356,
@@ -3538,7 +3547,7 @@
       ]
     },
     {
-      "step": 181,
+      "step": 182,
       "at": "2026-01-01T00:59:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -3550,6 +3559,10 @@
           "planks": {
             "stock": 148996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 1689,
@@ -3634,7 +3647,7 @@
       ]
     },
     {
-      "step": 183,
+      "step": 184,
       "at": "2026-01-01T01:00:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -3646,6 +3659,10 @@
           "planks": {
             "stock": 151996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 3022,
@@ -3730,7 +3747,7 @@
       ]
     },
     {
-      "step": 184,
+      "step": 185,
       "at": "2026-01-01T01:01:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -3742,6 +3759,10 @@
           "planks": {
             "stock": 157996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 4356,
@@ -3826,7 +3847,7 @@
       ]
     },
     {
-      "step": 187,
+      "step": 188,
       "at": "2026-01-01T01:02:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -3838,6 +3859,10 @@
           "planks": {
             "stock": 157996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 5689,
@@ -3922,7 +3947,7 @@
       ]
     },
     {
-      "step": 188,
+      "step": 189,
       "at": "2026-01-01T01:03:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -3934,6 +3959,10 @@
           "planks": {
             "stock": 163996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 7022,
@@ -4018,7 +4047,7 @@
       ]
     },
     {
-      "step": 190,
+      "step": 191,
       "at": "2026-01-01T01:04:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -4030,6 +4059,10 @@
           "planks": {
             "stock": 163996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 8356,
@@ -4124,7 +4157,7 @@
       ]
     },
     {
-      "step": 192,
+      "step": 193,
       "at": "2026-01-01T01:05:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -4136,6 +4169,10 @@
           "planks": {
             "stock": 166996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 9689,
@@ -4230,7 +4267,7 @@
       ]
     },
     {
-      "step": 193,
+      "step": 194,
       "at": "2026-01-01T01:06:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -4242,6 +4279,10 @@
           "planks": {
             "stock": 172996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 11022,
@@ -4336,7 +4377,7 @@
       ]
     },
     {
-      "step": 195,
+      "step": 196,
       "at": "2026-01-01T01:07:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -4348,6 +4389,10 @@
           "planks": {
             "stock": 172996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 12356,
@@ -4442,7 +4487,7 @@
       ]
     },
     {
-      "step": 196,
+      "step": 197,
       "at": "2026-01-01T01:08:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -4454,6 +4499,10 @@
           "planks": {
             "stock": 178996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 13689,
@@ -4548,7 +4597,7 @@
       ]
     },
     {
-      "step": 199,
+      "step": 200,
       "at": "2026-01-01T01:09:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -4560,6 +4609,10 @@
           "planks": {
             "stock": 178996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 15022,
@@ -4654,7 +4707,7 @@
       ]
     },
     {
-      "step": 200,
+      "step": 201,
       "at": "2026-01-01T01:10:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -4666,6 +4719,10 @@
           "planks": {
             "stock": 184996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 16356,
@@ -4760,7 +4817,7 @@
       ]
     },
     {
-      "step": 201,
+      "step": 202,
       "at": "2026-01-01T01:11:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -4772,6 +4829,10 @@
           "planks": {
             "stock": 190996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 17689,
@@ -4866,7 +4927,7 @@
       ]
     },
     {
-      "step": 202,
+      "step": 203,
       "at": "2026-01-01T01:12:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -4878,6 +4939,10 @@
           "planks": {
             "stock": 196996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 19022,
@@ -4972,7 +5037,7 @@
       ]
     },
     {
-      "step": 203,
+      "step": 204,
       "at": "2026-01-01T01:13:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -4984,6 +5049,10 @@
           "planks": {
             "stock": 202996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 20356,
@@ -5078,7 +5147,7 @@
       ]
     },
     {
-      "step": 207,
+      "step": 208,
       "at": "2026-01-01T01:14:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -5090,6 +5159,10 @@
           "planks": {
             "stock": 203996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 18689,
@@ -5185,7 +5258,7 @@
       ]
     },
     {
-      "step": 208,
+      "step": 209,
       "at": "2026-01-01T01:15:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -5197,6 +5270,10 @@
           "planks": {
             "stock": 209996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 20022,
@@ -5292,7 +5369,7 @@
       ]
     },
     {
-      "step": 214,
+      "step": 215,
       "at": "2026-01-01T01:16:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -5304,6 +5381,10 @@
           "planks": {
             "stock": 215996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 21356,
@@ -5403,7 +5484,7 @@
       ]
     },
     {
-      "step": 216,
+      "step": 217,
       "at": "2026-01-01T01:17:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -5415,6 +5496,10 @@
           "planks": {
             "stock": 221996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 22689,
@@ -5514,7 +5599,7 @@
       ]
     },
     {
-      "step": 217,
+      "step": 218,
       "at": "2026-01-01T01:18:00.000Z",
       "boundaries": 5,
       "inventory": {
@@ -5526,6 +5611,10 @@
           "planks": {
             "stock": 177996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 534,
@@ -5631,7 +5720,7 @@
       ]
     },
     {
-      "step": 218,
+      "step": 219,
       "at": "2026-01-01T01:19:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -5643,6 +5732,10 @@
           "planks": {
             "stock": 183996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 1868,
@@ -5747,7 +5840,7 @@
       ]
     },
     {
-      "step": 219,
+      "step": 220,
       "at": "2026-01-01T01:20:00.000Z",
       "boundaries": 4,
       "inventory": {
@@ -5759,6 +5852,10 @@
           "planks": {
             "stock": 189996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 3201,
@@ -5863,7 +5960,7 @@
       ]
     },
     {
-      "step": 220,
+      "step": 221,
       "at": "2026-01-01T01:21:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -5875,6 +5972,10 @@
           "planks": {
             "stock": 195996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 4534,
@@ -5979,7 +6080,7 @@
       ]
     },
     {
-      "step": 221,
+      "step": 222,
       "at": "2026-01-01T01:22:00.000Z",
       "boundaries": 3,
       "inventory": {
@@ -5991,6 +6092,10 @@
           "planks": {
             "stock": 201996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 5868,
@@ -6095,7 +6200,7 @@
       ]
     },
     {
-      "step": 222,
+      "step": 223,
       "at": "2026-01-01T01:23:00.000Z",
       "boundaries": 2,
       "inventory": {
@@ -6107,6 +6212,10 @@
           "planks": {
             "stock": 207996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 7201,
@@ -6210,7 +6319,7 @@
       ]
     },
     {
-      "step": 231,
+      "step": 232,
       "at": "2026-01-01T01:24:00.000Z",
       "boundaries": 6,
       "inventory": {
@@ -6222,6 +6331,10 @@
           "planks": {
             "stock": 213996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 8534,
@@ -6333,7 +6446,7 @@
       ]
     },
     {
-      "step": 232,
+      "step": 233,
       "at": "2026-01-01T01:25:00.000Z",
       "boundaries": 2,
       "inventory": {
@@ -6345,6 +6458,10 @@
           "planks": {
             "stock": 219996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 9868,
@@ -6456,7 +6573,7 @@
       ]
     },
     {
-      "step": 233,
+      "step": 234,
       "at": "2026-01-01T01:26:00.000Z",
       "boundaries": 4,
       "inventory": {
@@ -6468,6 +6585,10 @@
           "planks": {
             "stock": 225996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 11201,
@@ -6579,7 +6700,7 @@
       ]
     },
     {
-      "step": 234,
+      "step": 235,
       "at": "2026-01-01T01:27:00.000Z",
       "boundaries": 2,
       "inventory": {
@@ -6591,6 +6712,10 @@
           "planks": {
             "stock": 231996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 12534,
@@ -6702,7 +6827,7 @@
       ]
     },
     {
-      "step": 238,
+      "step": 239,
       "at": "2026-01-01T01:28:00.000Z",
       "boundaries": 6,
       "inventory": {
@@ -6714,6 +6839,10 @@
           "planks": {
             "stock": 187996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 949,
@@ -6831,7 +6960,7 @@
       ]
     },
     {
-      "step": 239,
+      "step": 240,
       "at": "2026-01-01T01:29:00.000Z",
       "boundaries": 3,
       "inventory": {
@@ -6843,6 +6972,10 @@
           "planks": {
             "stock": 193996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 2282,
@@ -6960,7 +7093,7 @@
       ]
     },
     {
-      "step": 241,
+      "step": 242,
       "at": "2026-01-01T01:30:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -6972,6 +7105,10 @@
           "planks": {
             "stock": 199996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 3615,
@@ -7092,7 +7229,7 @@
       ]
     },
     {
-      "step": 242,
+      "step": 243,
       "at": "2026-01-01T01:31:00.000Z",
       "boundaries": 3,
       "inventory": {
@@ -7104,6 +7241,10 @@
           "planks": {
             "stock": 205996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 4949,
@@ -7224,7 +7365,7 @@
       ]
     },
     {
-      "step": 243,
+      "step": 244,
       "at": "2026-01-01T01:32:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -7236,6 +7377,10 @@
           "planks": {
             "stock": 211996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 6282,
@@ -7356,7 +7501,7 @@
       ]
     },
     {
-      "step": 244,
+      "step": 245,
       "at": "2026-01-01T01:33:00.000Z",
       "boundaries": 3,
       "inventory": {
@@ -7368,6 +7513,10 @@
           "planks": {
             "stock": 217996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 7615,
@@ -7483,7 +7632,7 @@
       ]
     },
     {
-      "step": 245,
+      "step": 246,
       "at": "2026-01-01T01:34:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -7495,6 +7644,10 @@
           "planks": {
             "stock": 223996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 8949,
@@ -7610,7 +7763,7 @@
       ]
     },
     {
-      "step": 246,
+      "step": 247,
       "at": "2026-01-01T01:35:00.000Z",
       "boundaries": 2,
       "inventory": {
@@ -7622,6 +7775,10 @@
           "planks": {
             "stock": 229996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 10282,
@@ -7737,7 +7894,7 @@
       ]
     },
     {
-      "step": 247,
+      "step": 248,
       "at": "2026-01-01T01:36:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -7749,6 +7906,10 @@
           "planks": {
             "stock": 235996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 11615,
@@ -7864,7 +8025,7 @@
       ]
     },
     {
-      "step": 248,
+      "step": 249,
       "at": "2026-01-01T01:37:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -7876,6 +8037,10 @@
           "planks": {
             "stock": 191996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 124,
@@ -7997,7 +8162,7 @@
       ]
     },
     {
-      "step": 249,
+      "step": 250,
       "at": "2026-01-01T01:38:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -8009,6 +8174,10 @@
           "planks": {
             "stock": 197996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 1457,
@@ -8129,7 +8298,7 @@
       ]
     },
     {
-      "step": 253,
+      "step": 254,
       "at": "2026-01-01T01:39:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -8141,6 +8310,10 @@
           "planks": {
             "stock": 203996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 2790,
@@ -8265,7 +8438,7 @@
       ]
     },
     {
-      "step": 254,
+      "step": 255,
       "at": "2026-01-01T01:40:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -8277,6 +8450,10 @@
           "planks": {
             "stock": 209996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 4124,
@@ -8401,7 +8578,7 @@
       ]
     },
     {
-      "step": 255,
+      "step": 256,
       "at": "2026-01-01T01:41:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -8413,6 +8590,10 @@
           "planks": {
             "stock": 215996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 5457,
@@ -8537,7 +8718,7 @@
       ]
     },
     {
-      "step": 256,
+      "step": 257,
       "at": "2026-01-01T01:42:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -8549,6 +8730,10 @@
           "planks": {
             "stock": 221996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 6790,
@@ -8669,7 +8854,7 @@
       ]
     },
     {
-      "step": 257,
+      "step": 258,
       "at": "2026-01-01T01:43:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -8681,6 +8866,10 @@
           "planks": {
             "stock": 227996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 8124,
@@ -8800,7 +8989,7 @@
       ]
     },
     {
-      "step": 258,
+      "step": 259,
       "at": "2026-01-01T01:44:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -8812,6 +9001,10 @@
           "planks": {
             "stock": 233996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 9457,
@@ -8931,7 +9124,7 @@
       ]
     },
     {
-      "step": 259,
+      "step": 260,
       "at": "2026-01-01T01:45:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -8943,6 +9136,10 @@
           "planks": {
             "stock": 239996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 10790,
@@ -9062,7 +9259,7 @@
       ]
     },
     {
-      "step": 263,
+      "step": 264,
       "at": "2026-01-01T01:46:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -9074,6 +9271,10 @@
           "planks": {
             "stock": 245996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 12124,
@@ -9194,7 +9395,7 @@
       ]
     },
     {
-      "step": 265,
+      "step": 266,
       "at": "2026-01-01T01:47:00.000Z",
       "boundaries": 2,
       "inventory": {
@@ -9206,6 +9407,10 @@
           "planks": {
             "stock": 201996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 633,
@@ -9334,7 +9539,7 @@
       ]
     },
     {
-      "step": 266,
+      "step": 267,
       "at": "2026-01-01T01:48:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -9346,6 +9551,10 @@
           "planks": {
             "stock": 207996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 1966,
@@ -9474,7 +9683,7 @@
       ]
     },
     {
-      "step": 267,
+      "step": 268,
       "at": "2026-01-01T01:49:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -9486,6 +9695,10 @@
           "planks": {
             "stock": 213996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 3300,
@@ -9614,7 +9827,7 @@
       ]
     },
     {
-      "step": 268,
+      "step": 269,
       "at": "2026-01-01T01:50:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -9626,6 +9839,10 @@
           "planks": {
             "stock": 219996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 4633,
@@ -9754,7 +9971,7 @@
       ]
     },
     {
-      "step": 269,
+      "step": 270,
       "at": "2026-01-01T01:51:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -9766,6 +9983,10 @@
           "planks": {
             "stock": 225996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 5966,
@@ -9894,7 +10115,7 @@
       ]
     },
     {
-      "step": 270,
+      "step": 271,
       "at": "2026-01-01T01:52:00.000Z",
       "boundaries": 1,
       "inventory": {
@@ -9906,6 +10127,10 @@
           "planks": {
             "stock": 231996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 7300,
@@ -10032,7 +10257,7 @@
       ]
     },
     {
-      "step": 271,
+      "step": 272,
       "at": "2026-01-01T01:53:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -10044,6 +10269,10 @@
           "planks": {
             "stock": 237996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 8633,
@@ -10170,7 +10399,7 @@
       ]
     },
     {
-      "step": 272,
+      "step": 273,
       "at": "2026-01-01T01:54:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -10182,6 +10411,10 @@
           "planks": {
             "stock": 243996,
             "in_transit": 2433
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 9966,
@@ -10308,7 +10541,7 @@
       ]
     },
     {
-      "step": 273,
+      "step": 274,
       "at": "2026-01-01T01:55:00.000Z",
       "boundaries": 4,
       "inventory": {
@@ -10320,6 +10553,10 @@
           "planks": {
             "stock": 249897,
             "in_transit": 2332
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 11300,
@@ -10447,7 +10684,7 @@
       ]
     },
     {
-      "step": 274,
+      "step": 275,
       "at": "2026-01-01T01:56:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -10459,6 +10696,10 @@
           "planks": {
             "stock": 255647,
             "in_transit": 2332
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 12633,
@@ -10586,7 +10827,7 @@
       ]
     },
     {
-      "step": 275,
+      "step": 276,
       "at": "2026-01-01T01:57:00.000Z",
       "boundaries": 4,
       "inventory": {
@@ -10598,6 +10839,10 @@
           "planks": {
             "stock": 211397,
             "in_transit": 2332
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 1120,
@@ -10731,7 +10976,7 @@
       ]
     },
     {
-      "step": 278,
+      "step": 279,
       "at": "2026-01-01T01:58:00.000Z",
       "boundaries": 0,
       "inventory": {
@@ -10743,6 +10988,10 @@
           "planks": {
             "stock": 217147,
             "in_transit": 2332
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 2454,
@@ -10876,7 +11125,7 @@
       ]
     },
     {
-      "step": 279,
+      "step": 280,
       "at": "2026-01-01T02:28:00.000Z",
       "boundaries": 6,
       "inventory": {
@@ -10888,6 +11137,10 @@
           "planks": {
             "stock": 252647,
             "in_transit": 2332
+          },
+          "sails": {
+            "stock": 10000,
+            "in_transit": 0
           },
           "stone": {
             "stock": 3801,
@@ -11068,12 +11321,17 @@
       "claimed_at": "2026-01-01T00:56:00.000Z"
     },
     {
-      "id": "intro_shipyard",
+      "id": "intro_island2",
       "completed_at": "2026-01-01T00:56:00.000Z",
       "claimed_at": "2026-01-01T00:56:00.000Z"
     },
     {
-      "id": "intro_island2",
+      "id": "citizens_shipyard",
+      "completed_at": "2026-01-01T00:56:00.000Z",
+      "claimed_at": "2026-01-01T00:56:00.000Z"
+    },
+    {
+      "id": "citizens_sloop",
       "completed_at": "2026-01-01T00:56:00.000Z",
       "claimed_at": "2026-01-01T00:56:00.000Z"
     },
@@ -11275,7 +11533,7 @@
             "rate_per_min": 5750
           },
           "sails": {
-            "stock": 0,
+            "stock": 10000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -18745,7 +19003,20 @@
       "balance_if_resumed_per_min": 26800
     },
     "quests": {
-      "active": [],
+      "active": [
+        {
+          "id": "citizens_tavern",
+          "objectives": [
+            {
+              "kind": "connected",
+              "type": "tavern",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
       "claimable": [],
       "completed": [
         {
@@ -18794,12 +19065,17 @@
           "claimed": true
         },
         {
-          "id": "intro_shipyard",
+          "id": "intro_island2",
           "completed_at": "2026-01-01T00:56:00.000Z",
           "claimed": true
         },
         {
-          "id": "intro_island2",
+          "id": "citizens_shipyard",
+          "completed_at": "2026-01-01T00:56:00.000Z",
+          "claimed": true
+        },
+        {
+          "id": "citizens_sloop",
           "completed_at": "2026-01-01T00:56:00.000Z",
           "claimed": true
         },

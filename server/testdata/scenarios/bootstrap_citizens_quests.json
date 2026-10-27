@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_citizens_quests",
-  "description": "Tier-1/2 reference game with the intro quests (golden y): the plan of bootstrap_citizens in the same order, with a claim_quest step as soon as a quest of the intro chain is completed (goods to the start island) and every wait shortened to the whole minutes the plan needs. The quest rewards are the only change; island 2 is founded at minute 34 and the first Citizen house stands at minute 73.",
+  "description": "Tier-1/2 reference game with the intro quests (golden y): the plan of bootstrap_citizens in the same order, with a claim_quest step as soon as a quest is completed (goods to the start island; the intro chain and the tier-2 quests the plan completes: shipyard and second sloop) and every wait shortened to the whole minutes the plan needs. The quest rewards are the only change; island 2 is founded at minute 34 and the first Citizen house stands at minute 73.",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
     "archipelago": 1053001,
@@ -1474,13 +1474,19 @@
     },
     {
       "claim_quest": {
-        "quest": "intro_shipyard"
+        "island": "isle-01",
+        "quest": "intro_island2"
       }
     },
     {
       "claim_quest": {
         "island": "isle-01",
-        "quest": "intro_island2"
+        "quest": "citizens_shipyard"
+      }
+    },
+    {
+      "claim_quest": {
+        "quest": "citizens_sloop"
       }
     },
     {

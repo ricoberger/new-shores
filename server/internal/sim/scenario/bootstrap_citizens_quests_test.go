@@ -3,6 +3,7 @@ package scenario
 import (
 	"encoding/json"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 )
@@ -59,7 +60,9 @@ func measureReference(t *testing.T, s *Scenario, rep *Report) referenceTimings {
 // same order, same seed restrictions); the rewards give at least 15
 // minutes of headroom on the island-2 (<= 45) and first-Citizen-house
 // (<= 85) targets, absolutely and against bootstrap_citizens; every quest
-// of the chain is completed and claimed; no permanent insolvency.
+// of the intro chain is completed and claimed, and so are the tier-2
+// quests the plan completes (shipyard, second sloop; the rest of that
+// chain stays active); no permanent insolvency.
 func TestBootstrapCitizensQuests(t *testing.T) {
 	const name = "bootstrap_citizens_quests"
 	s := loadScenario(t, name)
@@ -115,7 +118,8 @@ func TestBootstrapCitizensQuests(t *testing.T) {
 		t.Error("no tools arrived on the start island")
 	}
 
-	// Every quest of the chain is completed and claimed.
+	// Every quest of the intro chain is completed and claimed; of the
+	// tier-2 chain (D-056) the plan builds the shipyard and the sloop.
 	c, err := s.LoadContent(repoRoot(t))
 	if err != nil {
 		t.Fatal(err)
@@ -127,11 +131,11 @@ func TestBootstrapCitizensQuests(t *testing.T) {
 		}
 	}
 	for _, q := range c.Quests {
-		if !claimed[q.ID] {
+		if !claimed[q.ID] && (strings.HasPrefix(q.ID, "intro_") || q.ID == "citizens_shipyard" || q.ID == "citizens_sloop") {
 			t.Errorf("quest %s not completed and claimed", q.ID)
 		}
 	}
-	if len(rep.Final.Quests.Active) != 0 || len(rep.Final.Quests.Claimable) != 0 {
+	if a := rep.Final.Quests.Active; len(a) != 1 || a[0].ID != "citizens_tavern" || len(rep.Final.Quests.Claimable) != 0 {
 		t.Errorf("final quests %+v", rep.Final.Quests)
 	}
 	checkNoPermanentInsolvency(t, rep)

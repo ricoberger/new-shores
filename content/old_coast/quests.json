@@ -92,25 +92,14 @@
     "prerequisites": ["intro_chapel"]
   },
   {
-    "id": "intro_shipyard",
-    "title": "A shipyard of our own",
-    "text": "Beyond the bay lies a second island with iron in its hills. Build a shipyard with its slipway in the water and order a second sloop: the sails for it came with your first ship.",
-    "objectives": [
-      { "kind": "building_count", "type": "shipyard", "min": 1 },
-      { "kind": "ship_count", "min": 2 }
-    ],
-    "rewards": { "gold": 50 },
-    "prerequisites": ["intro_settlers_120"]
-  },
-  {
     "id": "intro_island2",
     "title": "A second settlement",
-    "text": "Load a sloop with planks for a Trading Post and sail to a second island to found a settlement there. Here are planks for its first buildings. Goods beyond the Trading Post capacity of the island you choose are lost.",
+    "text": "Beyond the bay lies a second island with iron in its hills. Load your sloop with planks for a Trading Post and sail there to found a settlement. Here are planks for its first buildings. Goods beyond the Trading Post capacity of the island you choose are lost.",
     "objectives": [
       { "kind": "island_settled", "count": 2 }
     ],
     "rewards": { "goods": { "planks": 30 } },
-    "prerequisites": ["intro_shipyard"]
+    "prerequisites": ["intro_settlers_120"]
   },
   {
     "id": "intro_tools",
@@ -132,5 +121,57 @@
     ],
     "rewards": { "gold": 100 },
     "prerequisites": ["intro_tools"]
+  },
+  {
+    "id": "citizens_shipyard",
+    "title": "A shipyard of our own",
+    "text": "Citizens open the way to shipbuilding. Build a shipyard with its slipway in the water: the company sends the sails for your first new sloop. Goods beyond the Trading Post capacity of the island you choose are lost.",
+    "objectives": [
+      { "kind": "tier_unlocked", "tier": "citizens" },
+      { "kind": "building_count", "type": "shipyard", "min": 1 }
+    ],
+    "rewards": { "goods": { "sails": 10 } },
+    "prerequisites": ["intro_settlers_120"]
+  },
+  {
+    "id": "citizens_sloop",
+    "title": "A second sloop",
+    "text": "One sloop cannot sail a route and found islands at once. Order a sloop at the shipyard.",
+    "objectives": [
+      { "kind": "ship_count", "min": 2 }
+    ],
+    "rewards": { "gold": 50 },
+    "prerequisites": ["citizens_shipyard"]
+  },
+  {
+    "id": "citizens_tavern",
+    "title": "A tavern for the town",
+    "text": "Citizens want a tavern, a market and a chapel within reach. Build a tavern and connect it to the road.",
+    "objectives": [
+      { "kind": "connected", "type": "tavern" }
+    ],
+    "rewards": { "gold": 50 },
+    "prerequisites": ["citizens_sloop"]
+  },
+  {
+    "id": "citizens_school",
+    "title": "Letters and numbers",
+    "text": "A school serves the citizens around it like the tavern does: each service in reach adds to their contentment. Build a school and connect it to the road.",
+    "objectives": [
+      { "kind": "connected", "type": "school" }
+    ],
+    "rewards": { "gold": 100 },
+    "prerequisites": ["citizens_tavern"]
+  },
+  {
+    "id": "citizens_cheese",
+    "title": "Cheese for the table",
+    "text": "Citizens eat bread or cheese, and both together feed them best. Build a dairy farm with its pastures and a cheese dairy, and connect both to the Trading Post.",
+    "objectives": [
+      { "kind": "connected", "type": "dairy_farm" },
+      { "kind": "connected", "type": "cheese_dairy" }
+    ],
+    "rewards": { "gold": 100 },
+    "prerequisites": ["citizens_school"]
   }
 ]

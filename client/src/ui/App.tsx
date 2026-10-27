@@ -54,6 +54,7 @@ import { TopBar } from "./TopBar";
 import { warningEntries, WarningsPanel } from "./WarningsPanel";
 import { SideDock, type DockPanel } from "./SideDock";
 import { claimableCount } from "../display/quests";
+import { unlockToasts } from "../display/tiers";
 import { WorldOverlay } from "./WorldOverlay";
 import { StatsBadge } from "./StatsBadge";
 import { statsRequested } from "../dev/stats";
@@ -543,6 +544,14 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       },
     );
   });
+
+  // Tier unlocks (D-056): a toast when a tier turns unlocked between two
+  // world models of this session.
+  const prevModel = useRef(model);
+  useEffect(() => {
+    for (const text of unlockToasts(prevModel.current, model, content)) toast(text);
+    prevModel.current = model;
+  }, [model, content, toast]);
 
   // Background request failures (GET world, content, island) are toasts too
   // (G.41); GameSync keeps retrying them.

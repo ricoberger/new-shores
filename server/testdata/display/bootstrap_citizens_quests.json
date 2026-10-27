@@ -187,7 +187,7 @@
             "rate_per_min": 5750
           },
           "sails": {
-            "stock": 0,
+            "stock": 10000,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0
@@ -7657,7 +7657,20 @@
       "balance_if_resumed_per_min": 26800
     },
     "quests": {
-      "active": [],
+      "active": [
+        {
+          "id": "citizens_tavern",
+          "objectives": [
+            {
+              "kind": "connected",
+              "type": "tavern",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
       "claimable": [],
       "completed": [
         {
@@ -7706,12 +7719,17 @@
           "claimed": true
         },
         {
-          "id": "intro_shipyard",
+          "id": "intro_island2",
           "completed_at": "2026-01-01T00:56:00.000Z",
           "claimed": true
         },
         {
-          "id": "intro_island2",
+          "id": "citizens_shipyard",
+          "completed_at": "2026-01-01T00:56:00.000Z",
+          "claimed": true
+        },
+        {
+          "id": "citizens_sloop",
           "completed_at": "2026-01-01T00:56:00.000Z",
           "claimed": true
         },
@@ -7920,7 +7938,7 @@
                 "rate_per_min": 5750
               },
               "sails": {
-                "stock": 0,
+                "stock": 10000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -15390,7 +15408,20 @@
           "balance_if_resumed_per_min": 26800
         },
         "quests": {
-          "active": [],
+          "active": [
+            {
+              "id": "citizens_tavern",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "tavern",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
           "claimable": [],
           "completed": [
             {
@@ -15439,12 +15470,17 @@
               "claimed": true
             },
             {
-              "id": "intro_shipyard",
+              "id": "intro_island2",
               "completed_at": "2026-01-01T00:56:00.000Z",
               "claimed": true
             },
             {
-              "id": "intro_island2",
+              "id": "citizens_shipyard",
+              "completed_at": "2026-01-01T00:56:00.000Z",
+              "claimed": true
+            },
+            {
+              "id": "citizens_sloop",
               "completed_at": "2026-01-01T00:56:00.000Z",
               "claimed": true
             },
@@ -15653,7 +15689,7 @@
                 "rate_per_min": 5750
               },
               "sails": {
-                "stock": 0,
+                "stock": 10000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -23123,7 +23159,20 @@
           "balance_if_resumed_per_min": 26800
         },
         "quests": {
-          "active": [],
+          "active": [
+            {
+              "id": "citizens_tavern",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "tavern",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
           "claimable": [],
           "completed": [
             {
@@ -23172,12 +23221,17 @@
               "claimed": true
             },
             {
-              "id": "intro_shipyard",
+              "id": "intro_island2",
               "completed_at": "2026-01-01T00:56:00.000Z",
               "claimed": true
             },
             {
-              "id": "intro_island2",
+              "id": "citizens_shipyard",
+              "completed_at": "2026-01-01T00:56:00.000Z",
+              "claimed": true
+            },
+            {
+              "id": "citizens_sloop",
               "completed_at": "2026-01-01T00:56:00.000Z",
               "claimed": true
             },
@@ -23386,7 +23440,7 @@
                 "rate_per_min": 5750
               },
               "sails": {
-                "stock": 0,
+                "stock": 10000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -30856,7 +30910,20 @@
           "balance_if_resumed_per_min": 26800
         },
         "quests": {
-          "active": [],
+          "active": [
+            {
+              "id": "citizens_tavern",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "tavern",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
           "claimable": [],
           "completed": [
             {
@@ -30905,12 +30972,17 @@
               "claimed": true
             },
             {
-              "id": "intro_shipyard",
+              "id": "intro_island2",
               "completed_at": "2026-01-01T00:56:00.000Z",
               "claimed": true
             },
             {
-              "id": "intro_island2",
+              "id": "citizens_shipyard",
+              "completed_at": "2026-01-01T00:56:00.000Z",
+              "claimed": true
+            },
+            {
+              "id": "citizens_sloop",
               "completed_at": "2026-01-01T00:56:00.000Z",
               "claimed": true
             },
@@ -31119,7 +31191,7 @@
                 "rate_per_min": 5750
               },
               "sails": {
-                "stock": 0,
+                "stock": 10000,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0
@@ -38589,7 +38661,20 @@
           "balance_if_resumed_per_min": 26800
         },
         "quests": {
-          "active": [],
+          "active": [
+            {
+              "id": "citizens_tavern",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "tavern",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
           "claimable": [],
           "completed": [
             {
@@ -38638,12 +38723,17 @@
               "claimed": true
             },
             {
-              "id": "intro_shipyard",
+              "id": "intro_island2",
               "completed_at": "2026-01-01T00:56:00.000Z",
               "claimed": true
             },
             {
-              "id": "intro_island2",
+              "id": "citizens_shipyard",
+              "completed_at": "2026-01-01T00:56:00.000Z",
+              "claimed": true
+            },
+            {
+              "id": "citizens_sloop",
               "completed_at": "2026-01-01T00:56:00.000Z",
               "claimed": true
             },

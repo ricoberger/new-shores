@@ -11849,11 +11849,15 @@
       "completed_at": "2026-01-01T01:06:00.000Z"
     },
     {
-      "id": "intro_shipyard",
+      "id": "intro_island2",
       "completed_at": "2026-01-01T01:06:00.000Z"
     },
     {
-      "id": "intro_island2",
+      "id": "citizens_shipyard",
+      "completed_at": "2026-01-01T01:06:00.000Z"
+    },
+    {
+      "id": "citizens_sloop",
       "completed_at": "2026-01-01T01:06:00.000Z"
     },
     {
@@ -19522,7 +19526,20 @@
       "balance_if_resumed_per_min": 26800
     },
     "quests": {
-      "active": [],
+      "active": [
+        {
+          "id": "citizens_tavern",
+          "objectives": [
+            {
+              "kind": "connected",
+              "type": "tavern",
+              "current": 0,
+              "target": 1,
+              "met": false
+            }
+          ]
+        }
+      ],
       "claimable": [
         "intro_home_island",
         "intro_first_road",
@@ -19533,10 +19550,11 @@
         "intro_wool",
         "intro_chapel",
         "intro_settlers_120",
-        "intro_shipyard",
         "intro_island2",
         "intro_tools",
-        "intro_citizen_house"
+        "intro_citizen_house",
+        "citizens_shipyard",
+        "citizens_sloop"
       ],
       "completed": [
         {
@@ -19585,12 +19603,17 @@
           "claimed": false
         },
         {
-          "id": "intro_shipyard",
+          "id": "intro_island2",
           "completed_at": "2026-01-01T01:06:00.000Z",
           "claimed": false
         },
         {
-          "id": "intro_island2",
+          "id": "citizens_shipyard",
+          "completed_at": "2026-01-01T01:06:00.000Z",
+          "claimed": false
+        },
+        {
+          "id": "citizens_sloop",
           "completed_at": "2026-01-01T01:06:00.000Z",
           "claimed": false
         },
