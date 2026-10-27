@@ -378,7 +378,13 @@ func TestRouteValidationAndCRUD(t *testing.T) {
 		t.Fatalf("route = %+v", r)
 	}
 	expectErr(t, w, c, UpdateRoute{RouteID: 9, Stops: []Stop{stop("a"), stop("b")}}, ErrRouteNotFound)
-	mustApply(t, w, c, UpdateRoute{RouteID: 2, Name: "Wood", Stops: []Stop{stop("b"), stop("a")}})
+	// Whitespace around a name is trimmed; a name of whitespace only is no name (the default).
+	mustApply(t, w, c, CreateRoute{Name: " \t ", Stops: []Stop{stop("a"), stop("b")}})
+	if r := w.Route(3); r == nil || r.Name != "Route 3" {
+		t.Fatalf("whitespace-only name: route = %+v", r)
+	}
+	mustApply(t, w, c, DeleteRoute{RouteID: 3})
+	mustApply(t, w, c, UpdateRoute{RouteID: 2, Name: "  Wood \t", Stops: []Stop{stop("b"), stop("a")}})
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 2})
 	expectErr(t, w, c, DeleteRoute{RouteID: 2}, ErrRouteInUse)
 	expectErr(t, w, c, DeleteRoute{RouteID: 9}, ErrRouteNotFound)

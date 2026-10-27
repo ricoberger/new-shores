@@ -62,7 +62,8 @@ export function RouteEditor(p: Props) {
   const applyName = (e: FormEvent) => {
     e.preventDefault();
     if (!editingName) return;
-    p.onChange({ ...draft, name: editingName.name });
+    // Trimmed like the server does (a whitespace-only name is no name: "Route <id>").
+    p.onChange({ ...draft, name: editingName.name.trim() });
     setNaming(null);
   };
   const route =

@@ -986,7 +986,8 @@ export interface components {
         };
         /**
          * @description Create a route: 2–8 stops at settled islands, consecutive stops
-         *     (including last → first) at different islands. An empty or missing
+         *     (including last → first) at different islands. The name is trimmed
+         *     of surrounding whitespace; an empty, whitespace-only or missing
          *     name becomes "Route <id>".
          */
         CreateRouteCommand: {
@@ -1002,7 +1003,8 @@ export interface components {
          * @description Replace a route's name and stops. Allowed while ships are assigned:
          *     they finish their current leg and resolve their stop at arrival
          *     (the stop they head to if it is at the arrival island, else the
-         *     first stop there, else they sail to stop 0).
+         *     first stop there, else they sail to stop 0). The name follows
+         *     create_route's rules (trimmed; empty becomes "Route <id>").
          */
         UpdateRouteCommand: {
             /**
