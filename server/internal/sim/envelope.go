@@ -14,9 +14,11 @@ import (
 // Building.Inactive), version 6 the generated archipelago (D-053:
 // World.Seed, World.ArchipelagoRoll, Island.SizeClass), version 7 the
 // terrain stored apart from the state (D-054: EncodeState writes islands
-// without tiles). Versions 1-6 have no migration path (the game was not
-// deployed; a fresh database is needed: make down VOLUMES=1 && make up).
-const SchemaVersion = 7
+// without tiles) and version 8 the ship names (D-055: Ship.Name, migrated
+// from 7 with the default names). Versions 1-6 have no migration path (the
+// game was not deployed; a fresh database is needed: make down VOLUMES=1
+// && make up).
+const SchemaVersion = 8
 
 // Envelope is the versioned persistence format of a world
 // (docs/ARCHITECTURE.md §4.1).

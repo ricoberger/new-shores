@@ -838,6 +838,10 @@ components:
         `bad_request`, `invalid_command` (missing field), `invalid_name`;
         404 `unknown_island`; 409 `island_not_settled`.
 
+        `rename_ship` (D-055) can fail with 400 `bad_request`,
+        `invalid_command` (missing field), `invalid_name`; 404
+        `ship_not_found`.
+
         **Internal-only codes** (HTTP 500, never caused by a client command;
         clients should treat them like `internal` and not handle them
         specifically): `over_capacity`, `time_backwards`, `schema_version`,
@@ -1067,6 +1071,7 @@ components:
         - $ref: "#/components/schemas/AckSummaryCommand"
         - $ref: "#/components/schemas/RerollArchipelagoCommand"
         - $ref: "#/components/schemas/RenameIslandCommand"
+        - $ref: "#/components/schemas/RenameShipCommand"
       discriminator:
         propertyName: type
         mapping:
@@ -1097,6 +1102,7 @@ components:
           ack_summary: "#/components/schemas/AckSummaryCommand"
           reroll_archipelago: "#/components/schemas/RerollArchipelagoCommand"
           rename_island: "#/components/schemas/RenameIslandCommand"
+          rename_ship: "#/components/schemas/RenameShipCommand"
     ClaimQuestCommand:
       type: object
       additionalProperties: false
@@ -1161,6 +1167,25 @@ components:
         name:
           type: string
           description: The new display name.
+    RenameShipCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Rename a ship in any state (D-055). The name is trimmed; an empty
+        name restores the default ("<ship type name> <id>"), any other must
+        have 1 to 24 printable characters (`invalid_name`).
+      required: [type, ship_id, name]
+      properties:
+        type:
+          type: string
+          enum: [rename_ship]
+        ship_id:
+          type: integer
+          format: int64
+          description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
+        name:
+          type: string
+          description: The new name (empty restores the default).
     Tile:
       type: object
       additionalProperties: false
@@ -2139,7 +2164,7 @@ components:
         reserved. While handling cargo before `leg.depart_at` the ship is
         at the leg's origin, holding a berth until `berth_until`;
         afterwards `island_id` is empty.
-      required: [id, type, state, island_id, route_id, stop_index, leg, cargo, slots, slot_size, upkeep_per_min, paused, paused_reason, position, queued_at, berth_until]
+      required: [id, type, name, state, island_id, route_id, stop_index, leg, cargo, slots, slot_size, upkeep_per_min, paused, paused_reason, position, queued_at, berth_until]
       properties:
         id:
           type: integer
@@ -2148,6 +2173,9 @@ components:
         type:
           type: string
           description: Content ship ID.
+        name:
+          type: string
+          description: The ship's name (D-055); "<ship type name> <id>" until `rename_ship` renames it.
         state:
           type: string
           enum: [idle, on_route, manual_leg, waiting_for_berth, anchored_unpaid, on_world_map]

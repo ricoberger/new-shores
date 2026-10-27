@@ -614,6 +614,7 @@
       {
         "id": 1,
         "type": "sloop",
+        "name": "Sloop 1",
         "state": "idle",
         "island_id": "start",
         "route_id": 0,

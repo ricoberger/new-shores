@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import { useState } from "react";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
 import { units } from "../display/format";
 import { draftChanged, effectRows } from "../display/routes";
@@ -7,6 +7,7 @@ import { toolIcon } from "../theme/iconSet";
 import { CloseButton } from "./CloseButton";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
+import { NameEditor } from "./NameEditor";
 
 interface Props {
   model: DisplayState;
@@ -59,8 +60,7 @@ export function RouteEditor(p: Props) {
     p.initiallyRenaming ? { routeId, name: draft.name } : null,
   );
   const editingName = naming && naming.routeId === routeId ? naming : null;
-  const applyName = (e: FormEvent) => {
-    e.preventDefault();
+  const applyName = () => {
     if (!editingName) return;
     // Trimmed like the server does (a whitespace-only name is no name: "Route <id>").
     p.onChange({ ...draft, name: editingName.name.trim() });
@@ -140,8 +140,7 @@ export function RouteEditor(p: Props) {
   };
   const dirty = route ? draftChanged(draft, route) : true;
   const idleShips = model.ships.filter((s) => s.state === "idle");
-  const shipName = (s: ShipDisplay) =>
-    `${content.ships.find((t) => t.id === s.type)?.name ?? s.type} #${s.id}`;
+  const shipName = (s: ShipDisplay) => s.name;
 
   return (
     <div
@@ -150,37 +149,16 @@ export function RouteEditor(p: Props) {
     >
       <div className={editingName ? `${styles.row} ${styles.nowrap}` : styles.row}>
         {editingName ? (
-          <form className={styles.renameForm} onSubmit={applyName} data-testid="route-rename-form">
-            <input
-              className={`${styles.input} ${styles.renameInput}`}
-              maxLength={40}
-              placeholder="Route name"
-              value={editingName.name}
-              onChange={(e) => setNaming({ routeId, name: e.target.value })}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  e.stopPropagation();
-                  setNaming(null);
-                }
-              }}
-              aria-label="Route name"
-              autoFocus
-              data-testid="route-name"
-            />
-            <button type="submit" className={styles.closeButton} aria-label="Rename" title="Rename" data-testid="route-rename-save">
-              <Icon path={toolIcon("confirm")} />
-            </button>
-            <button
-              type="button"
-              className={styles.closeButton}
-              onClick={() => setNaming(null)}
-              aria-label="Cancel renaming"
-              title="Cancel renaming"
-              data-testid="route-rename-cancel"
-            >
-              <Icon path={toolIcon("cancel")} />
-            </button>
-          </form>
+          <NameEditor
+            value={editingName.name}
+            onChange={(name) => setNaming({ routeId, name })}
+            onSubmit={applyName}
+            onCancel={() => setNaming(null)}
+            label="Route name"
+            testId="route-rename"
+            maxLength={40}
+            placeholder="Route name"
+          />
         ) : (
           <>
             <h2 className={styles.title} data-testid="route-editor-title">
@@ -420,14 +398,14 @@ export function RouteEditor(p: Props) {
               return (
                 <div key={id} className={styles.row}>
                   <span className={styles.small}>
-                    {s ? shipName(s) : `#${id}`}
+                    {s ? shipName(s) : `Ship #${id}`}
                   </span>
                   <div className={styles.spacer} />
                   <button
                     type="button"
                     className={styles.link}
                     onClick={() => p.onUnassign(id)}
-                    aria-label={`Unassign ${s ? shipName(s) : `#${id}`}`}
+                    aria-label={`Unassign ${s ? shipName(s) : `Ship #${id}`}`}
                     data-testid={`route-unassign-${id}`}
                   >
                     <Icon path={toolIcon("close")} />

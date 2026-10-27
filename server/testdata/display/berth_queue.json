@@ -211,6 +211,7 @@
       {
         "id": 1,
         "type": "sloop",
+        "name": "Sloop 1",
         "state": "manual_leg",
         "island_id": "harbour",
         "route_id": 0,
@@ -229,6 +230,7 @@
       {
         "id": 2,
         "type": "sloop",
+        "name": "Sloop 2",
         "state": "waiting_for_berth",
         "island_id": "harbour",
         "route_id": 0,

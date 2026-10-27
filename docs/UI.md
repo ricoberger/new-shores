@@ -277,6 +277,12 @@ UI shows the same numbers the server uses.
 
 **Ship** (ship info panel; the Ships list only selects)
 
+- The title is the ship's name (D-055) with a pencil button; the pencil
+  turns the header into a name input with ✓ (rename, saved at once) and ⊗
+  (cancel, Escape) icon buttons — the island card's rename pattern; the
+  close button is hidden meanwhile. The ship type ("Sloop") is a small line
+  below the title. Everywhere else (Ships list, route editor, toasts,
+  dialogs, away summary) a ship is shown by its name only.
 - Status line shared with the list ("On route: name · arrives in …",
   "Shipment · …", "Idle · at …"), the from → to islands of a leg, upkeep, speed (×, from the ship type),
   slot capacity, one box per cargo slot (good icon, amount / slot size),
@@ -295,8 +301,10 @@ three lines per route.
 **Route editor** (panel; the Routes list opens it)
 
 - Opened from the Routes list; stays open while the camera moves.
-- The title is the route name (typed live; "New route" while empty), then
-  a name input. Stops are chosen from **island pickers** (each option shows
+- The title is the route name ("New route" for a new route) with a pencil
+  button that turns the header into a name input with ✓ (apply the name to
+  the draft; it is saved with Save) and ⊗ (cancel) icon buttons, as on the
+  island card. A name of spaces only becomes "Route <id>". Stops are chosen from **island pickers** (each option shows
   the island name and "(unsettled)" where it applies; the stock is
   shown per good below);
   a stop is one card: number, island picker, move up/down and remove, then

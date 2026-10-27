@@ -9,13 +9,15 @@ interface Props {
   summary: AwaySummary;
   content: Content;
   islandName: (id: string) => string;
+  /** A ship's name by ID (D-055). */
+  shipName?: (id: number) => string;
   /** Closes the dialog and acknowledges the summary. */
   onDismiss: () => void;
 }
 
 /** "While you were away" (UI.md §2): what happened since the last command, as a letter from the advisor (ART_DIRECTION §6). */
-export function AwayDialog({ summary, content, islandName, onDismiss }: Props) {
-  const v = summaryView(summary, content, islandName);
+export function AwayDialog({ summary, content, islandName, shipName, onDismiss }: Props) {
+  const v = summaryView(summary, content, islandName, shipName);
   return (
     <div className={styles.backdrop}>
       <DialogPanel className={`${styles.panel} ${styles.dialog} ${styles.awayDialog} ${styles.letter}`} labelledBy="away-dialog-title" testId="away-dialog">

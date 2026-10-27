@@ -193,10 +193,20 @@ func decodeIslands(col *collector, raw rawIslands, names []string) (IslandRules,
 	return r, out
 }
 
+// MaxShipNameRunes bounds ship names (rename_ship): the island names' rule.
+const MaxShipNameRunes = MaxIslandNameRunes
+
 // CheckIslandName validates an island name (word list and rename_island):
 // 1 to MaxIslandNameRunes printable runes, valid UTF-8, without leading or
 // trailing white space.
-func CheckIslandName(name string) error {
+func CheckIslandName(name string) error { return checkName(name, MaxIslandNameRunes) }
+
+// CheckShipName validates a ship name (rename_ship) like an island's: 1 to
+// MaxShipNameRunes printable runes, valid UTF-8, without leading or
+// trailing white space.
+func CheckShipName(name string) error { return checkName(name, MaxShipNameRunes) }
+
+func checkName(name string, maxRunes int) error {
 	if !utf8.ValidString(name) {
 		return fmt.Errorf("name is not valid UTF-8")
 	}
@@ -210,8 +220,8 @@ func CheckIslandName(name string) error {
 			return fmt.Errorf("name contains a non-printable character")
 		}
 	}
-	if n < 1 || n > MaxIslandNameRunes {
-		return fmt.Errorf("name must have 1 to %d characters", MaxIslandNameRunes)
+	if n < 1 || n > maxRunes {
+		return fmt.Errorf("name must have 1 to %d characters", maxRunes)
 	}
 	return nil
 }

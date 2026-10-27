@@ -347,7 +347,7 @@ describe("HUD components", () => {
       const html = editor(route.id);
       expect(html).toMatch(new RegExp(`data-testid="route-editor-title">${route.name}</h2>`));
       expect(html).toMatch(/<button[^>]*aria-label="Rename the route"[^>]*data-testid="route-rename"><svg/);
-      expect(html).not.toContain('data-testid="route-name"');
+      expect(html).not.toContain('data-testid="route-rename-input"');
       expect(html).toContain('data-testid="route-editor-close"');
       const naming = renderToStaticMarkup(
         createElement(RouteEditor, {
@@ -368,7 +368,7 @@ describe("HUD components", () => {
           initiallyRenaming: true,
         }),
       );
-      expect(naming).toMatch(new RegExp(`<input[^>]*data-testid="route-name" value="${route.name}"`));
+      expect(naming).toMatch(new RegExp(`<input[^>]*data-testid="route-rename-input" value="${route.name}"`));
       expect(naming).toMatch(/<button type="submit"[^>]*aria-label="Rename"[^>]*data-testid="route-rename-save"><svg/);
       expect(naming).toMatch(/<button type="button"[^>]*aria-label="Cancel renaming"[^>]*data-testid="route-rename-cancel"><svg/);
       expect(naming).not.toContain('data-testid="route-editor-title"');

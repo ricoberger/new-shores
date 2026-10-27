@@ -14,7 +14,7 @@ import { GameSync, type SyncError, SyncStoppedError } from "../api/sync";
 import { founderFor, type PendingFounding, pendingFoundingStep } from "../display/archipelago";
 import { serverTimeMs } from "../display/extrapolate";
 import { units } from "../display/format";
-import { countdown } from "../display/ships";
+import { countdown, shipName } from "../display/ships";
 import { buildingAt, lPath, nextRotation, type TilePos } from "../display/geometry";
 import { createdRouteId, draftFromRoute, stopsFromDraft } from "../display/routes";
 import { shouldShowSummary } from "../display/summary";
@@ -343,7 +343,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           if (!ok) return;
           setPendingFound({ shipId: t.shipId, islandId, x, y, rotation: t.rotation });
           setTool((cur) => (cur === t ? NO_TOOL : cur));
-          toast(`Ship #${t.shipId} sails to ${islandName(islandId)} and founds the Trading Post on arrival`);
+          toast(`${ship.name} sails to ${islandName(islandId)} and founds the Trading Post on arrival`);
         });
         return;
       }
@@ -650,7 +650,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
 
   const scrap = (ship: ShipDisplay) =>
     setConfirm({
-      title: `Scrap ship #${ship.id}?`,
+      title: `Scrap ${ship.name}?`,
       body: "Its cargo is unloaded where it lies (above capacity it is lost); half of its materials are refunded, no gold.",
       confirmLabel: "Scrap",
       onConfirm: () => void send({ type: "scrap_ship", ship_id: ship.id }),
@@ -685,7 +685,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   const pendingShip = pendingFound ? model?.ships.find((s) => s.id === pendingFound.shipId) : undefined;
   const pendingText =
     pendingFound && pendingShip
-      ? `Ship #${pendingShip.id} sails to ${islandName(pendingFound.islandId)} to found the Trading Post${
+      ? `${pendingShip.name} sails to ${islandName(pendingFound.islandId)} to found the Trading Post${
           pendingShip.leg ? ` · arrives in ${countdown(Math.max(0, serverTimeMs(pendingShip.leg.arrive_at) - snap.nowMs))}` : ""
         }`
       : null;
@@ -712,7 +712,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       rightKey = "ships";
       rightTitle = "Ships";
       rightClose = () => setPanel("none");
-      right = <ShipsPanel model={model} content={content} nowMs={snap.nowMs} onSelect={selectShipFromList} onClose={() => setPanel("none")} />;
+      right = <ShipsPanel model={model} nowMs={snap.nowMs} onSelect={selectShipFromList} onClose={() => setPanel("none")} />;
     } else if (panel === "quests") {
       rightKey = "quests";
       rightTitle = "Quests";
@@ -771,7 +771,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     } else if (selectedShip) {
       const ship = selectedShip;
       rightKey = "ship";
-      rightTitle = `Ship #${ship.id}`;
+      rightTitle = ship.name;
       rightClose = () => dispatch({ type: "clearSelection" });
       right = (
         <ShipPanel
@@ -791,6 +791,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onFound={() => startFounding(ship)}
           onScrap={() => scrap(ship)}
           onClose={() => dispatch({ type: "clearSelection" })}
+          onRename={async (name) => (await send({ type: "rename_ship", ship_id: ship.id, name })) === null}
         />
       );
     } else if (vs.selection.kind === "island") {
@@ -923,7 +924,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       {tool.kind === "build" && `Click to place (${tool.rotation}°) · R rotate · Esc / right click cancel`}
       {tool.kind === "move" && `Click to move (${tool.rotation}°) · R rotate · Esc / right click cancel`}
       {tool.kind === "found" &&
-        `Click to place the Trading Post (its pier on the water) — ship #${tool.shipId} ${
+        `Click to place the Trading Post (its pier on the water) — ${shipName(model?.ships ?? [], tool.shipId)} ${
           model?.ships.find((s) => s.id === tool.shipId)?.state === "idle" && model?.ships.find((s) => s.id === tool.shipId)?.island_id === cam.focus
             ? "founds it at once"
             : "sails there and founds it on arrival"
@@ -1000,7 +1001,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
               seafaring={nothingSettled}
               detail={
                 founderHere
-                  ? `"Found settlement here" lets you place the Trading Post with its pier on the water; ship #${founderHere.id} ${
+                  ? `"Found settlement here" lets you place the Trading Post with its pier on the water; ${founderHere.name} ${
                       founderHere.island_id === focused.id ? "is here" : "sails there first"
                     }.`
                   : "Send a ship with the Trading Post's materials to found a settlement."
@@ -1042,7 +1043,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       <Toasts toasts={toasts} onDismiss={(id) => setToasts((ts) => ts.filter((t) => t.id !== id))} phone={phone} />
       {confirm && <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />}
       {awaySummary && content && shouldShowSummary(awaySummary, closedSummaries) && (
-        <AwayDialog summary={awaySummary} content={content} islandName={islandName} onDismiss={() => dismissSummary(awaySummary.id)} />
+        <AwayDialog summary={awaySummary} content={content} islandName={islandName} shipName={(id) => shipName(model?.ships ?? [], id)} onDismiss={() => dismissSummary(awaySummary.id)} />
       )}
       {vs.dialog && dialogShip && model && content && dialogShip.island_id !== "" && (
         <ShipmentDialog

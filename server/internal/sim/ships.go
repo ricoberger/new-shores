@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/bits"
 	"slices"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -77,7 +79,10 @@ type ShipOrder struct {
 type Ship struct {
 	ID int64 `json:"id"`
 	// Type is the content ship ID.
-	Type  string `json:"type"`
+	Type string `json:"type"`
+	// Name is the ship's name: "<ship type name> <ID>" from its creation
+	// until the player renames it (rename_ship; empty restores the default).
+	Name  string `json:"name"`
 	State string `json:"state"`
 	// IslandID is where the ship is ("" while travelling or at sea).
 	IslandID string `json:"island_id,omitempty"`
@@ -151,6 +156,33 @@ func (w *World) Ship(id int64) *Ship {
 			return s
 		}
 	}
+	return nil
+}
+
+// DefaultShipName is a ship's name until it is renamed: its content type's
+// name and its ID ("Sloop 2"; the type ID for a type the catalogue lacks).
+func DefaultShipName(c *content.Catalogue, typ string, id int64) string {
+	name := typ
+	if def := c.ShipByID[typ]; def != nil && def.Name != "" {
+		name = def.Name
+	}
+	return name + " " + strconv.FormatInt(id, 10)
+}
+
+func renameShip(w *World, c *content.Catalogue, cmd RenameShip) error {
+	s, err := lookupShip(w, cmd.ShipID)
+	if err != nil {
+		return err
+	}
+	name := strings.TrimSpace(cmd.Name)
+	if name == "" {
+		s.Name = DefaultShipName(c, s.Type, s.ID)
+		return nil
+	}
+	if err := content.CheckShipName(name); err != nil {
+		return fmt.Errorf("%w: %v", ErrInvalidName, err)
+	}
+	s.Name = name
 	return nil
 }
 
@@ -490,7 +522,7 @@ func applyDueEvent(w *World, c *content.Catalogue, e dueEvent, now int64, l *Led
 		if b == nil || b.Order == nil || b.Order.DueAtMs != e.atMs {
 			return false
 		}
-		applyShipBuilt(w, is, b)
+		applyShipBuilt(w, c, is, b)
 		return true
 	case DueShipArrived:
 		s := w.Ship(e.ShipID)
@@ -534,13 +566,13 @@ func ApplyDueEvent(w *World, c *content.Catalogue, ev DueEvent) (bool, error) {
 
 // applyShipBuilt completes the order of shipyard b: the ship appears idle at
 // the shipyard's island.
-func applyShipBuilt(w *World, is *Island, b *Building) {
+func applyShipBuilt(w *World, c *content.Catalogue, is *Island, b *Building) {
 	typ := b.Order.Type
 	b.Order = nil
 	if w.NextShipID < 1 {
 		w.NextShipID = 1
 	}
-	w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: typ, State: ShipIdle, IslandID: is.ID})
+	w.Ships = append(w.Ships, &Ship{ID: w.NextShipID, Type: typ, Name: DefaultShipName(c, typ, w.NextShipID), State: ShipIdle, IslandID: is.ID})
 	w.NextShipID++
 	clearRegimes(is)
 }
@@ -692,6 +724,14 @@ type ScrapShip struct {
 	ShipID int64
 }
 
+// RenameShip renames a ship in any state (D-055); the name is trimmed, an
+// empty name restores the default ("<ship type name> <ID>"), any other
+// must have 1 to content.MaxShipNameRunes printable runes.
+type RenameShip struct {
+	ShipID int64
+	Name   string
+}
+
 // SailShip sends an idle ship with its cargo (nothing is loaded) from its
 // island or its sea position to another island (D-051: the start ship
 // sails to the island the player chooses). It arrives like a manual
@@ -710,6 +750,7 @@ func (UnassignShip) isCommand()    {}
 func (ManualShipment) isCommand()  {}
 func (ScrapShip) isCommand()       {}
 func (SailShip) isCommand()        {}
+func (RenameShip) isCommand()      {}
 
 func shipyardBuilding(w *World, c *content.Catalogue, islandID string, id int64) (*Island, *Building, *content.Building, error) {
 	is, err := lookupIsland(w, islandID)
@@ -997,7 +1038,7 @@ func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo m
 	if w.NextShipID < 1 {
 		w.NextShipID = 1
 	}
-	s := &Ship{ID: w.NextShipID, Type: def.ID, State: ShipIdle, AtSea: &Pos{at.X, at.Y}}
+	s := &Ship{ID: w.NextShipID, Type: def.ID, Name: DefaultShipName(c, def.ID, w.NextShipID), State: ShipIdle, AtSea: &Pos{at.X, at.Y}}
 	setCargo(s, def.SlotSize, amounts)
 	w.NextShipID++
 	w.Ships = append(w.Ships, s)

@@ -502,6 +502,9 @@ buildings (tavern and up) keep upkeep.
   `anchored_unpaid`. Insolvency step 4 (§7) applies to **every** ship with
   upkeep, idle ones included: a ship on a leg finishes it, then anchors
   without unloading; it resumes at its arrival stop.
+- **Names** (D-055): a new ship is named "<type name> <id>" ("Sloop 1");
+  `rename_ship` renames it in any state — trimmed, 1–24 printable runes
+  (the island rule), not unique; an empty name restores the default.
 - **Cargo** is stored canonically per good (full slots, then one partial
   slot); loading tops up partially filled slots first. `scrap_ship`
   unloads the cargo (capacity permitting; excess lost) and refunds 50 % of

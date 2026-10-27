@@ -1,7 +1,7 @@
 import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
 import { percent, perMin, seconds, units } from "../display/format";
-import { countdownWithUnit, orderTiming } from "../display/ships";
+import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
 import { fieldBuildingOf, footprintText } from "../display/fields";
 import { needCategory, needLabel } from "../display/needs";
 import { STATUS_STYLES, statusKey, statusText } from "../display/status";
@@ -283,10 +283,7 @@ function TradingPostSection({
   onSelectBuilding: (id: number) => void;
 }) {
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
-  const shipName = (id: number) => {
-    const s = model.ships.find((x) => x.id === id);
-    return `${content.ships.find((t) => t.id === s?.type)?.name ?? "Ship"} #${id}`;
-  };
+  const shipName = (id: number) => shipNameOf(model.ships, id);
   const def = content.buildings.find((d) => d.id === b.type);
   // The berths of the level (content) until the server reports them.
   const levelBerths = def?.trading_post?.levels[(b.level ?? 1) - 1]?.berths ?? 0;

@@ -49,6 +49,7 @@ const (
 
 	cmdRerollArchipelago = "reroll_archipelago"
 	cmdRenameIsland      = "rename_island"
+	cmdRenameShip        = "rename_ship"
 )
 
 // Body limits of the ship and route commands (API level, invalid_command).
@@ -319,6 +320,8 @@ func decodeCommand(raw json.RawMessage) (string, sim.Command, error) {
 		cmd, err = sim.RerollArchipelago{}, decodeStrict(raw, &c)
 	case cmdRenameIsland:
 		cmd, err = decodeRenameIsland(raw)
+	case cmdRenameShip:
+		cmd, err = decodeRenameShip(raw)
 	case "":
 		return "", nil, missing("type")
 	default:
@@ -369,6 +372,24 @@ func decodeRenameIsland(raw json.RawMessage) (sim.Command, error) {
 		return nil, missing("name")
 	}
 	return sim.RenameIsland{IslandID: *c.IslandID, Name: *c.Name}, nil
+}
+
+func decodeRenameShip(raw json.RawMessage) (sim.Command, error) {
+	var c struct {
+		Type   string  `json:"type"`
+		ShipID *int64  `json:"ship_id"`
+		Name   *string `json:"name"`
+	}
+	if err := decodeStrict(raw, &c); err != nil {
+		return nil, err
+	}
+	if c.ShipID == nil {
+		return nil, missing("ship_id")
+	}
+	if c.Name == nil {
+		return nil, missing("name")
+	}
+	return sim.RenameShip{ShipID: *c.ShipID, Name: *c.Name}, nil
 }
 
 // resolveReroll turns a decoded reroll_archipelago into the command that

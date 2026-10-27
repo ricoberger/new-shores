@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import { useState } from "react";
 import type { Content, DisplayState, Island } from "../api/client";
 import { units } from "../display/format";
 import { islandKind, islandResources } from "../display/hud";
@@ -6,6 +6,7 @@ import { CloseButton } from "./CloseButton";
 import styles from "./hud.module.css";
 import { toolIcon } from "../theme/iconSet";
 import { Icon } from "./Icon";
+import { NameEditor } from "./NameEditor";
 import { ResourceBadges } from "./ResourceBadges";
 
 interface Props {
@@ -40,8 +41,7 @@ export function IslandCard({ islandId, model, content, statics, onClose, onRenam
   const resources = statics && statics.id === is.id ? islandResources(statics, is, defs) : null;
   const kind = islandKind(is, content);
   const editing = draft && draft.island === is.id ? draft : null;
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
+  const submit = () => {
     if (!editing || busy) return;
     setBusy(true);
     void onRename(editing.name).then((ok) => {
@@ -53,43 +53,15 @@ export function IslandCard({ islandId, model, content, statics, onClose, onRenam
     <div className={`${styles.panel} ${styles.infoPanel}`} data-testid="island-card">
       <div className={editing ? `${styles.row} ${styles.nowrap}` : styles.row}>
         {editing ? (
-          <form className={styles.renameForm} onSubmit={submit} data-testid="island-rename-form">
-            <input
-              className={`${styles.input} ${styles.renameInput}`}
-              value={editing.name}
-              onChange={(e) => setDraft({ island: is.id, name: e.target.value })}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  e.stopPropagation();
-                  setDraft(null);
-                }
-              }}
-              aria-label="Island name"
-              autoFocus
-              disabled={busy}
-              data-testid="island-rename-input"
-            />
-            <button
-              type="submit"
-              className={styles.closeButton}
-              disabled={busy}
-              aria-label="Rename"
-              title="Rename"
-              data-testid="island-rename-save"
-            >
-              <Icon path={toolIcon("confirm")} />
-            </button>
-            <button
-              type="button"
-              className={styles.closeButton}
-              onClick={() => setDraft(null)}
-              aria-label="Cancel renaming"
-              title="Cancel renaming"
-              data-testid="island-rename-cancel"
-            >
-              <Icon path={toolIcon("cancel")} />
-            </button>
-          </form>
+          <NameEditor
+            value={editing.name}
+            onChange={(name) => setDraft({ island: is.id, name })}
+            onSubmit={submit}
+            onCancel={() => setDraft(null)}
+            label="Island name"
+            testId="island-rename"
+            busy={busy}
+          />
         ) : (
           <>
             <h2 className={styles.title} data-testid="island-card-name">

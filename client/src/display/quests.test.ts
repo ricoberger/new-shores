@@ -101,6 +101,15 @@ describe("away summary", () => {
     expect(v.shipsArrived).toBe(1);
     expect(v.arrivals).toEqual(["Ship #1 at island2, 00:32 UTC"]);
     expect(v.quests).toEqual([]);
+    // With the model's ship names (D-055): the arrivals and a paused ship are named.
+    const named = summaryView(
+      { ...s!, still_unpaid: [...s!.still_unpaid, { type: "sloop", ship_id: 1, island_id: "start" } as NonNullable<typeof s>["still_unpaid"][number]] },
+      content,
+      islandName,
+      (id) => (id === 1 ? "Gull" : `Ship #${id}`),
+    );
+    expect(named.arrivals).toEqual(["Gull at island2, 00:32 UTC"]);
+    expect(named.stillPaused.at(-1)).toBe("Gull (Start)");
   });
 
   it("opens once per summary id", () => {

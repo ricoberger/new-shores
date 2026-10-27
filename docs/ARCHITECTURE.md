@@ -160,8 +160,9 @@ return Display(w, now)
   are pure functions over the raw envelope that may take the content
   catalogue and return **notes** (e.g. the 2→3 fields migration reports
   farms whose efficiency could not be preserved); the store logs the
-  notes, the sim never does. Current schema: 3 (1→2 quests/summary state,
-  2→3 explicit fields auto-placed for existing farms).
+  notes, the sim never does. Current schema: 8; the only registered
+  migration is 7→8 (default ship names, D-055) — older versions were
+  bumped without a migration (local databases are recreated).
 - Migrations are versioned SQL files embedded in the binary and applied by
   `server migrate` (or `MIGRATE_ON_START`) under an advisory lock, with
   `schema_migrations` bookkeeping; expand/contract only.

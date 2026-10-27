@@ -60,7 +60,7 @@ function clock(ts: string): string {
 }
 
 /** The view model of a summary for the away dialog. */
-export function summaryView(s: AwaySummary, content: Content, islandName: (id: string) => string): SummaryView {
+export function summaryView(s: AwaySummary, content: Content, islandName: (id: string) => string, shipName: (id: number) => string = (id) => `Ship #${id}`): SummaryView {
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
   const tierName = (id: string) => content.tiers.find((t) => t.id === id)?.name ?? id;
   const typeName = (id: string) => content.buildings.find((b) => b.id === id)?.name ?? content.ships.find((sh) => sh.id === id)?.name ?? id;
@@ -92,9 +92,11 @@ export function summaryView(s: AwaySummary, content: Content, islandName: (id: s
       })),
     paused: s.auto_paused,
     resumed: s.auto_resumed,
-    stillPaused: s.still_unpaid.map((u) => `${typeName(u.type)} #${u.building_id ?? u.ship_id} (${islandName(u.island_id)})`),
+    stillPaused: s.still_unpaid.map((u) =>
+      u.ship_id != null ? `${shipName(u.ship_id)} (${islandName(u.island_id)})` : `${typeName(u.type)} #${u.building_id} (${islandName(u.island_id)})`,
+    ),
     shipsArrived: s.ships_arrived,
-    arrivals: s.arrivals.map((a) => `Ship #${a.ship_id} at ${islandName(a.island_id)}, ${clock(a.at)}`),
+    arrivals: s.arrivals.map((a) => `${shipName(a.ship_id)} at ${islandName(a.island_id)}, ${clock(a.at)}`),
     quests: s.quests_completed.map((q) => questTitle(content, q.id)),
   };
 }

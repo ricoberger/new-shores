@@ -31,10 +31,10 @@ type Migrations map[int]Migration
 type MigrationNotes struct{}
 
 // SchemaMigrations returns the registered schema migrations; c is the
-// content catalogue of the binary for migrations that need content. None
-// is registered since schema 6 (D-053, generated archipelago): the game
-// was not deployed, so worlds of schema 1-5 are not migrated but fail to
-// load with ErrSchemaVersion (a fresh database is required).
+// content catalogue of the binary for migrations that need content: 7 → 8
+// (D-055, ship names). Worlds of schema 1-6 are not migrated (the game was
+// not deployed) but fail to load with ErrSchemaVersion (a fresh database
+// is required).
 //
 // Adding the next migration (docs/ARCHITECTURE.md §4.1):
 //
@@ -46,8 +46,56 @@ type MigrationNotes struct{}
 //  3. Add a test that decodes the fixture, asserts the migrated fields and
 //     checks the re-encode/round-trip/Advance/Display template
 //     (TestSchemaFixtures in migrate_test.go).
-func SchemaMigrations(_ *content.Catalogue) Migrations {
-	return Migrations{}
+func SchemaMigrations(c *content.Catalogue) Migrations {
+	return Migrations{7: migrate7to8(c)}
+}
+
+// migrate7to8 (D-055) names every ship of a schema-7 world without a name
+// with its default ("<ship type name> <ID>", DefaultShipName).
+func migrate7to8(c *content.Catalogue) Migration {
+	return func(e RawEnvelope, _ *MigrationNotes) (RawEnvelope, error) {
+		var world map[string]json.RawMessage
+		if err := json.Unmarshal(e.World, &world); err != nil {
+			return e, err
+		}
+		raw, ok := world["ships"]
+		if !ok || string(raw) == "null" {
+			return e, nil
+		}
+		var ships []map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &ships); err != nil {
+			return e, err
+		}
+		for _, s := range ships {
+			var head struct {
+				ID   int64  `json:"id"`
+				Type string `json:"type"`
+				Name string `json:"name"`
+			}
+			b, err := json.Marshal(s)
+			if err != nil {
+				return e, err
+			}
+			if err := json.Unmarshal(b, &head); err != nil {
+				return e, err
+			}
+			if head.Name != "" {
+				continue
+			}
+			if s["name"], err = json.Marshal(DefaultShipName(c, head.Type, head.ID)); err != nil {
+				return e, err
+			}
+		}
+		var err error
+		if world["ships"], err = json.Marshal(ships); err != nil {
+			return e, err
+		}
+		out, err := json.Marshal(world)
+		if err != nil {
+			return e, err
+		}
+		return RawEnvelope{ContentVersion: e.ContentVersion, World: out}, nil
+	}
 }
 
 // DecodeWith is Decode with an explicit migration registry. An envelope

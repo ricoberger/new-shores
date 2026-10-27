@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"maps"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -517,6 +518,42 @@ func TestScrapShip(t *testing.T) {
 		t.Errorf("scrap: ships %d stock %v flow %+v", len(w.Ships), w.Island("b").Inventory.Stock, f)
 	}
 	expectErr(t, w, c, ScrapShip{ShipID: s.ID}, ErrShipNotFound)
+}
+
+// TestRenameShip (D-055): a ship is named "<type name> <ID>" when it is
+// built or launched; rename_ship trims the name, validates it like an
+// island's and restores the default for an empty one, in any state.
+func TestRenameShip(t *testing.T) {
+	c := catalogue(t)
+	w := shipWorld(t, c)
+	s := builtSloop(t, w, c)
+	want := c.ShipByID["sloop"].Name + " " + strconv.FormatInt(s.ID, 10)
+	if s.Name != want {
+		t.Fatalf("built ship name %q, want %q", s.Name, want)
+	}
+	at, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -5, Y: -5}, nil)
+	if err != nil || at.Name != c.ShipByID["sloop"].Name+" "+strconv.FormatInt(at.ID, 10) {
+		t.Fatalf("launched ship %+v (%v)", at, err)
+	}
+	mustApply(t, w, c, RenameShip{ShipID: s.ID, Name: "  Gull \t"})
+	if s.Name != "Gull" {
+		t.Errorf("renamed: %q", s.Name)
+	}
+	// Under way too.
+	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 10_000}}})
+	mustApply(t, w, c, RenameShip{ShipID: s.ID, Name: strings.Repeat("é", content.MaxShipNameRunes)})
+	if ds := display(t, w, c); ds.Ships[0].Name != strings.Repeat("é", content.MaxShipNameRunes) {
+		t.Errorf("display name %q", ds.Ships[0].Name)
+	}
+	for _, bad := range []string{strings.Repeat("x", content.MaxShipNameRunes+1), "Gull\x00", "\xff"} {
+		expectErr(t, w, c, RenameShip{ShipID: s.ID, Name: bad}, ErrInvalidName)
+	}
+	expectErr(t, w, c, RenameShip{ShipID: 99, Name: "Gull"}, ErrShipNotFound)
+	// Empty (or white space only): the default again.
+	mustApply(t, w, c, RenameShip{ShipID: s.ID, Name: " "})
+	if s.Name != want {
+		t.Errorf("reset: %q, want %q", s.Name, want)
+	}
 }
 
 // withUpkeep returns a copy of the catalogue with changed building upkeeps

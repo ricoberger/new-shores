@@ -15,17 +15,18 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// TestSchemaMigrationsRegistered: schema 7 (D-054) registers no
-// migration: envelopes of schema 1-6 (the game was not deployed), envelopes
-// without a version and newer ones fail loudly with ErrSchemaVersion.
+// TestSchemaMigrationsRegistered: schema 8 (D-055) registers the
+// migration from 7 only: envelopes of schema 1-6 (the game was not
+// deployed), envelopes without a version and newer ones fail loudly with
+// ErrSchemaVersion.
 func TestSchemaMigrationsRegistered(t *testing.T) {
 	m := SchemaMigrations(catalogue(t))
-	if SchemaVersion != 7 || len(m) != 0 {
+	if SchemaVersion != 8 || len(m) != 1 || m[7] == nil {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":8,"content_version":"x","world":{}}`,
+		`{"schema_version":9,"content_version":"x","world":{}}`,
 		`{"schema_version":6,"content_version":"old_coast-0.9.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"schema_version":5,"content_version":"old_coast-0.8.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"schema_version":4,"content_version":"old_coast-0.7.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
@@ -36,6 +37,74 @@ func TestSchemaMigrationsRegistered(t *testing.T) {
 	} {
 		if _, _, _, err := Decode([]byte(raw), catalogue(t)); !errors.Is(err, ErrSchemaVersion) {
 			t.Errorf("%s: err = %v, want ErrSchemaVersion", raw, err)
+		}
+	}
+}
+
+// TestMigrate7to8 (D-055): the committed schema-7 fixtures (encoded by
+// the schema-7 binary) migrate to the schema-8 fixtures of the same
+// scenarios byte for byte: every ship gets its default name
+// ("<ship type name> <ID>"), nothing else changes; a name already set is
+// kept and a world without ships stays as it is.
+func TestMigrate7to8(t *testing.T) {
+	catalogues := map[string]*content.Catalogue{}
+	for _, c := range []*content.Catalogue{catalogue(t), shippedCatalogue(t)} {
+		catalogues[c.Region.Version] = c
+	}
+	files, err := filepath.Glob(filepath.Join("testdata", "schema7_*.json"))
+	if err != nil || len(files) < 4 {
+		t.Fatalf("schema 7 fixtures %v (%v)", files, err)
+	}
+	for _, f := range files {
+		t.Run(filepath.Base(f), func(t *testing.T) {
+			data, err := os.ReadFile(f) // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			terrain, err := os.ReadFile(strings.TrimSuffix(f, ".json") + ".terrain.gz") // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			var c *content.Catalogue
+			for key, cat := range catalogues {
+				if bytes.Contains(data, []byte(`"content_version":"`+key+`"`)) {
+					c = cat
+				}
+			}
+			if c == nil {
+				t.Fatal("no catalogue for the fixture's content version")
+			}
+			w, cv, _, err := DecodeState(data, terrain, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, s := range w.Ships {
+				if want := DefaultShipName(c, s.Type, s.ID); s.Name != want {
+					t.Errorf("ship %d: name %q, want %q", s.ID, s.Name, want)
+				}
+			}
+			state, _, err := EncodeState(w, cv)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want, err := os.ReadFile(strings.Replace(f, "schema7_", "schema8_", 1)) // #nosec G304 -- test fixture path.
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Equal(append(state, '\n'), want) {
+				t.Error("the migrated world differs from the schema-8 fixture of the same scenario")
+			}
+		})
+	}
+	m := SchemaMigrations(catalogue(t))[7]
+	for _, tc := range []struct{ in, want string }{
+		{`{"ships":[{"id":3,"type":"sloop","name":"Gull"},{"id":4,"type":"cog"}]}`, `{"ships":[{"id":3,"name":"Gull","type":"sloop"},{"id":4,"name":"cog 4","type":"cog"}]}`},
+		{`{"gold":5}`, `{"gold":5}`},
+		{`{"ships":null}`, `{"ships":null}`},
+	} {
+		out, err := m(RawEnvelope{ContentVersion: "x", World: json.RawMessage(tc.in)}, &MigrationNotes{})
+		if err != nil || string(out.World) != tc.want || out.ContentVersion != "x" {
+			t.Errorf("%s: %s (%v), want %s", tc.in, out.World, err, tc.want)
 		}
 	}
 }

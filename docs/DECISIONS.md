@@ -848,3 +848,27 @@ deposit slot (we have no rivers). The full table is CONTENT §7.
   binding limit, so the large footprints are mostly yards around a
   modest structure — a "structure, not slab" pass is the first item of
   the client follow-up (B2).
+
+## D-055 Ships have names the player can change
+
+**Decision:** every ship has a **name**, stored with the ship. A new ship
+(built at a shipyard or the start ship) is named "<ship type name> <id>"
+("Sloop 1"); the owner may rename it in any state with `rename_ship`.
+The name is trimmed and follows the island-name rule (1–24 printable
+runes, D-053 §5); names need not be unique; an empty name restores the
+default. The client shows the name wherever it refers to a ship (ship
+panel, Ships list, route editor, toasts, dialogs, the away summary); the
+ship panel shows the type below the name, the ID is no longer shown.
+
+- *Why:* "Sloop #2" said nothing about the ship; with several ships on
+  routes the player wants to tell them apart, as with islands and routes.
+  A stored default name follows the routes ("Route <id>"), so the client
+  never composes a ship's label.
+- *Consequences:* schema 8 with a 7→8 migration that names the existing
+  ships; `name` on the ship display; a `rename_ship` command (400
+  `invalid_name`, 404 `ship_not_found`); MECHANICS §9.1 and UI §4 (ship
+  panel) updated. Rename is a display change with no gameplay effect.
+- *Rejected:* auto-names from a content word list (a second list to
+  curate; the type and number are a clear default); unique names (no
+  need, unlike island labels on the map); showing "Name (#id)" (the
+  number carries no meaning for the player).

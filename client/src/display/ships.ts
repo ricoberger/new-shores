@@ -6,6 +6,14 @@ import type { BuildingDisplay, CargoDisplay, LegDisplay, ShipDisplay, ShipOrderD
 import { serverTimeMs } from "./extrapolate";
 import { rotatedFootprint, waterRows } from "./geometry";
 
+/**
+ * A ship's name by ID (the server's name, D-055); "Ship #<id>" for a ship
+ * the model no longer has (scrapped since a summary or a toast).
+ */
+export function shipName(ships: readonly Pick<ShipDisplay, "id" | "name">[], id: number): string {
+  return ships.find((s) => s.id === id)?.name || `Ship #${id}`;
+}
+
 export type LegPhase = "handling" | "travelling" | "arrived";
 
 export interface LegTiming {

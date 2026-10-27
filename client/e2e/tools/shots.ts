@@ -365,7 +365,7 @@ async function pan(page: Page, name: string): Promise<void> {
 /** Names the route in the open route editor (its header's pencil, the input, Rename). */
 async function nameRoute(page: Page, name: string): Promise<void> {
   await page.getByTestId("route-rename").click();
-  await page.getByTestId("route-name").fill(name);
+  await page.getByTestId("route-rename-input").fill(name);
   await page.getByTestId("route-rename-save").click();
 }
 
@@ -857,6 +857,17 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.getByTestId("ship-panel").waitFor({ state: "visible" });
     },
   },
+  // Renaming a ship in its panel's header (desktop, D-055).
+  "ship-rename": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("dock-ships").click();
+      await page.getByTestId("ship-1").click();
+      await page.getByTestId("ship-rename").click();
+      await page.getByTestId("ship-rename-input").fill("Gull");
+    },
+  },
   // A new route with two stops and a load line, in the route editor (desktop).
   "route-editor": {
     fixture: "dense-2x400",
@@ -883,7 +894,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       const id = await page.evaluate(() => window.__newShores!.getServer()!.display.routes[0]!.id);
       await page.getByTestId(`route-${id}`).click();
       await page.getByTestId("route-rename").click();
-      await page.getByTestId("route-name").fill("Timber run");
+      await page.getByTestId("route-rename-input").fill("Timber run");
     },
   },
   // The route editor paused by selecting a ship: the "Route editor paused" bar above the ship panel (desktop).

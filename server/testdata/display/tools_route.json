@@ -1776,6 +1776,7 @@
       {
         "id": 1,
         "type": "sloop",
+        "name": "Sloop 1",
         "state": "on_route",
         "island_id": "",
         "route_id": 1,
@@ -3673,6 +3674,7 @@
           {
             "id": 1,
             "type": "sloop",
+            "name": "Sloop 1",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
@@ -5570,6 +5572,7 @@
           {
             "id": 1,
             "type": "sloop",
+            "name": "Sloop 1",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
@@ -7467,6 +7470,7 @@
           {
             "id": 1,
             "type": "sloop",
+            "name": "Sloop 1",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,

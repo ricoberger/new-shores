@@ -2,11 +2,12 @@ import { useState } from "react";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
 import { perMin, units } from "../display/format";
 import { ShipStatusLine } from "./ShipsPanel";
-import { goodIcon } from "../theme/iconSet";
+import { goodIcon, toolIcon } from "../theme/iconSet";
 import { CloseButton } from "./CloseButton";
 import { RouteSummary } from "./RouteSummary";
 import styles from "./hud.module.css";
 import { Icon } from "./Icon";
+import { NameEditor } from "./NameEditor";
 
 interface Props {
   ship: ShipDisplay;
@@ -24,10 +25,14 @@ interface Props {
   pendingFounding?: string | null;
   onScrap: () => void;
   onClose: () => void;
+  /** Renames the ship (`rename_ship`, D-055); resolves whether the server accepted the name. */
+  onRename: (name: string) => Promise<boolean>;
+  /** Start with the name editor open (tests). */
+  initiallyRenaming?: boolean;
 }
 
 /**
- * Ship info panel (UI.md §4): type, state, cargo slots, current leg with a
+ * Ship info panel (UI.md §4): name (renamed in the header, D-055), type, state, cargo slots, current leg with a
  * live countdown, route and upkeep. Actions are offered only in the states
  * the server accepts them; the server validates.
  */
@@ -44,6 +49,8 @@ export function ShipPanel({
   pendingFounding = null,
   onScrap,
   onClose,
+  onRename,
+  initiallyRenaming = false,
 }: Props) {
   const islandName = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
@@ -51,18 +58,58 @@ export function ShipPanel({
   const type = shipType?.name ?? s.type;
   const idle = s.state === "idle";
   const [choosing, setChoosing] = useState(false);
+  // The name editor in the header (the island card's pattern); the name is saved at once.
+  const [draft, setDraft] = useState<{ ship: number; name: string } | null>(initiallyRenaming ? { ship: s.id, name: s.name } : null);
+  const [busy, setBusy] = useState(false);
+  const editing = draft && draft.ship === s.id ? draft : null;
+  const rename = () => {
+    if (!editing || busy) return;
+    setBusy(true);
+    void onRename(editing.name).then((ok) => {
+      setBusy(false);
+      if (ok) setDraft(null);
+    });
+  };
   const here = model.islands.find((i) => i.id === s.island_id);
   const route = model.routes.find((r) => r.id === s.route_id);
   // No actions (a ship under way): no empty divider block.
   const hasActions = idle || s.route_id !== 0 || s.state === "anchored_unpaid";
   return (
     <div className={`${styles.panel} ${styles.infoPanel}`} data-testid="ship-panel">
-      <div className={styles.row}>
-        <h2 className={styles.title} data-testid="ship-panel-name">
-          {type} #{s.id}
-        </h2>
-        <div className={styles.spacer} />
-        <CloseButton onClick={onClose} testId="ship-panel-close" />
+      <div className={editing ? `${styles.row} ${styles.nowrap}` : styles.row}>
+        {editing ? (
+          <NameEditor
+            value={editing.name}
+            onChange={(name) => setDraft({ ship: s.id, name })}
+            onSubmit={rename}
+            onCancel={() => setDraft(null)}
+            label="Ship name"
+            testId="ship-rename"
+            busy={busy}
+          />
+        ) : (
+          <>
+            <h2 className={styles.title} data-testid="ship-panel-name">
+              {s.name}
+            </h2>
+            <button
+              type="button"
+              className={styles.closeButton}
+              onClick={() => setDraft({ ship: s.id, name: s.name })}
+              aria-label="Rename the ship"
+              title="Rename the ship"
+              data-testid="ship-rename"
+            >
+              <Icon path={toolIcon("rename")} />
+            </button>
+          </>
+        )}
+        {/* While renaming, the cancel icon takes the close button's place (the same icon: one per row). */}
+        {!editing && <div className={styles.spacer} />}
+        {!editing && <CloseButton onClick={onClose} testId="ship-panel-close" />}
+      </div>
+      <div className={styles.small} data-testid="ship-panel-type">
+        {type}
       </div>
       <div className={styles.panelBody}>
         <ShipStatusLine ship={s} nowMs={nowMs} islandName={islandName} className={styles.small} stateTestId="ship-panel-state" etaTestId="ship-panel-eta" routeName={route?.name} />

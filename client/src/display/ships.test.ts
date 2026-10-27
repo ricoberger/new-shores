@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { DisplayState } from "../api/client";
 import { extrapolate, serverTimeMs } from "./extrapolate";
-import { cargoTotals, countdown, countdownWithUnit, legTiming, orderTiming, slotsFor } from "./ships";
+import { cargoTotals, countdown, countdownWithUnit, legTiming, orderTiming, shipName, slotsFor } from "./ships";
 
 // Server fixture (TestDisplayFixtures): a sloop on a manual leg and a
 // pending shipyard order, with server payloads at forward offsets.
@@ -90,6 +90,15 @@ describe("ship helpers", () => {
     expect(cargoTotals([{ good: "planks", amount: 50_000 }, { good: "planks", amount: 20_000 }])).toEqual({ planks: 70_000 });
     expect(slotsFor({ planks: 70_000, wood: 1 }, 50_000)).toBe(3);
   });
+
+describe("shipName (D-055)", () => {
+  it("is the server's name of the ship, Ship #<id> for one the model no longer has", () => {
+    expect(fixture.base.ships[0]!.name).toBe("Sloop 1");
+    expect(shipName(fixture.base.ships, 1)).toBe("Sloop 1");
+    expect(shipName([{ id: 3, name: "Gull" }], 3)).toBe("Gull");
+    expect(shipName([], 7)).toBe("Ship #7");
+  });
+});
 
 describe("countdownWithUnit", () => {
   it("adds min below an hour and h from an hour", () => {
