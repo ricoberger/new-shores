@@ -41,20 +41,22 @@ func TestLoadCitizensContent(t *testing.T) {
 				t.Errorf("%s = %+v", n.ID, n)
 			}
 		} else {
-			got = append(got, fmt.Sprintf("%s:%s:%d:%d", n.ID, n.Building, n.Radius, n.Weight))
+			got = append(got, fmt.Sprintf("%s:%s:%s:%d", n.ID, n.Category, needBuildings(n), n.Weight))
 		}
 	}
 	want := []string{
 		"citizens_food:food:bread:8000:120000", "citizens_drink:drink:cider:6000:120000", "citizens_clothing:clothing:linen_garments:5000:120000",
-		"citizens_market_small:market_small:12:60000", "citizens_chapel:chapel:16:90000", "citizens_tavern:tavern:14:90000",
+		// Services (D-056): one cumulative category, 0.6 per building.
+		"citizens_services:services:market_small=600000/chapel=600000/tavern=600000:240000",
 		// Lower-tier categories (D-056): 0.4 split 0.5 : 0.2.
 		"citizens_settlers_food:food:fish:4200:285714", "citizens_settlers_clothing:clothing:wool_garments:2100:114286",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("citizens needs = %v (weights %d), want %v", got, weights, want)
 	}
-	// D-012: the Settlers' needs are unchanged.
-	if n := c.NeedsByTier["settlers"]; len(n) != 3 || n[0].Goods[0].Good != "fish" || n[1].Goods[0].Good != "wool_garments" || n[2].Building != "market_small" {
+	// D-012: the Settlers' goods needs are unchanged; services (D-056)
+	// are market and chapel.
+	if n := c.NeedsByTier["settlers"]; len(n) != 3 || n[0].Goods[0].Good != "fish" || n[1].Goods[0].Good != "wool_garments" || needBuildings(n[2]) != "market_small=600000/chapel=600000" {
 		t.Errorf("settlers needs changed: %+v", n)
 	}
 
@@ -65,7 +67,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	if r := c.BuildingByID["road_paved"]; r.Road == nil || r.Road.MsPerTile != 600 || r.Tier != "citizens" {
 		t.Errorf("road_paved = %+v", r)
 	}
-	if tv := c.BuildingByID["tavern"]; tv.Service == nil || tv.Service.Radius != 14 || tv.PauseCategory != "public" || !tv.RequiresRoad {
+	if tv := c.BuildingByID["tavern"]; tv.Service == nil || tv.Service.RadiusAt(1) != 14 || tv.Upgradable() || tv.PauseCategory != "public" || !tv.RequiresRoad {
 		t.Errorf("tavern = %+v", tv)
 	}
 
@@ -476,4 +478,14 @@ func TestBalanceChecklist(t *testing.T) {
 			t.Errorf("%s: workforce %d leaves less than 20 %% slack of %d", tc.tier, workforce, tc.population)
 		}
 	}
+}
+
+// needBuildings renders the building alternatives of a need as
+// "building=share/...".
+func needBuildings(n *Need) string {
+	var parts []string
+	for _, nb := range n.Buildings {
+		parts = append(parts, fmt.Sprintf("%s=%d", nb.Building, nb.Share))
+	}
+	return strings.Join(parts, "/")
 }

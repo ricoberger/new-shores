@@ -18,13 +18,13 @@
     "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.005 }]
   },
   {
-    "id": "settlers_market_small",
-    "name": "Market",
+    "id": "settlers_services",
+    "name": "Services",
     "tier": "settlers",
     "kind": "required",
     "weight": 0.3,
-    "building": "market_small",
-    "radius": 12
+    "category": "services",
+    "buildings": [{ "building": "market_small" }, { "building": "chapel" }]
   },
   {
     "id": "citizens_food",
@@ -54,31 +54,13 @@
     "goods": [{ "good": "linen_garments", "per_resident_per_min": 0.005 }]
   },
   {
-    "id": "citizens_market_small",
-    "name": "Market",
+    "id": "citizens_services",
+    "name": "Services",
     "tier": "citizens",
     "kind": "required",
-    "weight": 0.1,
-    "building": "market_small",
-    "radius": 12
-  },
-  {
-    "id": "citizens_chapel",
-    "name": "Chapel",
-    "tier": "citizens",
-    "kind": "required",
-    "weight": 0.15,
-    "building": "chapel",
-    "radius": 16
-  },
-  {
-    "id": "citizens_tavern",
-    "name": "Tavern",
-    "tier": "citizens",
-    "kind": "required",
-    "weight": 0.15,
-    "building": "tavern",
-    "radius": 14
+    "weight": 0.4,
+    "category": "services",
+    "buildings": [{ "building": "market_small" }, { "building": "chapel" }, { "building": "tavern" }]
   },
   {
     "id": "citizens_settlers_food",

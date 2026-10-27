@@ -170,6 +170,12 @@
       "page": "https://game-icons.net/1x1/delapouite/shop.html",
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/shop.svg",
       "sha256": "6cc8624153d0cdc29babb993d6f1de5d50f848cc77f61df3fd1bdc7123c0e69d"
+    },    "need:services": {
+      "file": "shop.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/shop.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/shop.svg",
+      "sha256": "6cc8624153d0cdc29babb993d6f1de5d50f848cc77f61df3fd1bdc7123c0e69d"
     },
     "need:chapel": {
       "file": "church.svg",

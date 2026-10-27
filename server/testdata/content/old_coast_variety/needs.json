@@ -26,8 +26,7 @@
     "tier": "settlers",
     "kind": "required",
     "weight": 0.3,
-    "building": "market_small",
-    "radius": 12
+    "buildings": [{ "building": "market_small" }]
   },
   {
     "id": "settlers_chapel",
@@ -35,8 +34,7 @@
     "tier": "settlers",
     "kind": "optional",
     "weight": 0.5,
-    "building": "chapel",
-    "radius": 16
+    "buildings": [{ "building": "chapel" }]
   },
   {
     "id": "citizens_food",
@@ -53,7 +51,6 @@
     "tier": "citizens",
     "kind": "required",
     "weight": 0.5,
-    "building": "market_small",
-    "radius": 12
+    "buildings": [{ "building": "market_small" }]
   }
 ]

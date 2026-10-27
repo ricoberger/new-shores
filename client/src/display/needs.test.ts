@@ -22,9 +22,9 @@ describe("need display names", () => {
   it("names needs and categories from the content catalogue", () => {
     expect(needName(content, "settlers_food")).toBe("Food");
     expect(needName(content, "settlers_clothing")).toBe("Clothing");
-    expect(needName(content, "settlers_market_small")).toBe("Market");
-    expect(needName(content, "citizens_chapel")).toBe("Chapel");
-    expect(needName(content, "citizens_tavern")).toBe("Tavern");
+    expect(needName(content, "settlers_services")).toBe("Services");
+    expect(needName(content, "citizens_services")).toBe("Services");
+    expect(needCategory(content, "services")).toEqual({ id: "services", name: "Services", icon: "need:services" });
     expect(needCategory(content, "clothing")).toEqual({ id: "clothing", name: "Clothing", icon: "need:clothing" });
     expect(needCategory(content, "luxury").name).toBe("Luxury");
   });
@@ -41,7 +41,7 @@ describe("need display names", () => {
 
   it("labels a need entry by its name, else its category's or building's name, else its ID", () => {
     expect(needLabel(content, { id: "settlers_food", category: "food" })).toBe("Food");
-    expect(needLabel(content, { id: "settlers_market_small", building: "market_small" })).toBe("Market");
+    expect(needLabel(content, { id: "settlers_services", category: "services" })).toBe("Services");
     // Unknown need IDs (content drift): the category or building name.
     expect(needLabel(content, { id: "x_drink", category: "drink" })).toBe("Drink");
     expect(needLabel(content, { id: "x_market", building: "market_small" })).toBe("Small market");

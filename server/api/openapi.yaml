@@ -145,8 +145,9 @@ paths:
         Commands (`command.type`): `place_building`, `place_road`,
         `demolish`, `demolish_road`, `place_field`, `place_fields`,
         `demolish_fields`,
-        `set_paused`, `upgrade_house`, `upgrade_trading_post`,
-        `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
+        `set_paused`, `upgrade_building` (deprecated aliases
+        `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
+        `move_building`, and the ship and route commands `order_ship`,
         `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
         `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`,
         `sail_ship` and `found_island` (MECHANICS §8, §9).
@@ -1053,6 +1054,7 @@ components:
         - $ref: "#/components/schemas/DemolishFieldsCommand"
         - $ref: "#/components/schemas/SetPausedCommand"
         - $ref: "#/components/schemas/UpgradeHouseCommand"
+        - $ref: "#/components/schemas/UpgradeBuildingCommand"
         - $ref: "#/components/schemas/UpgradeWarehouseCommand"
         - $ref: "#/components/schemas/UpgradeTradingPostCommand"
         - $ref: "#/components/schemas/MoveBuildingCommand"
@@ -1084,6 +1086,7 @@ components:
           demolish_fields: "#/components/schemas/DemolishFieldsCommand"
           set_paused: "#/components/schemas/SetPausedCommand"
           upgrade_house: "#/components/schemas/UpgradeHouseCommand"
+          upgrade_building: "#/components/schemas/UpgradeBuildingCommand"
           upgrade_warehouse: "#/components/schemas/UpgradeWarehouseCommand"
           upgrade_trading_post: "#/components/schemas/UpgradeTradingPostCommand"
           move_building: "#/components/schemas/MoveBuildingCommand"
@@ -1393,9 +1396,34 @@ components:
           description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
         paused:
           type: boolean
+    UpgradeBuildingCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Upgrade a building (D-056): a full house to the next tier's house
+        (as `upgrade_house`); a Trading Post, Warehouse or public building
+        with service levels (`market_small`) to its next level — the
+        level's `cost` is charged like a placement and a level with a
+        `tier` needs that tier unlocked (`tier_locked`).
+        `upgrade_unavailable` for a building without a next level.
+        `upgrade_house`, `upgrade_warehouse` and `upgrade_trading_post`
+        are deprecated aliases (the latter two keep their building-kind
+        check).
+      required: [type, island_id, building_id]
+      properties:
+        type:
+          type: string
+          enum: [upgrade_building]
+        island_id:
+          type: string
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
     UpgradeHouseCommand:
       type: object
       additionalProperties: false
+      description: Deprecated alias of `upgrade_building` for houses.
       required: [type, island_id, building_id]
       properties:
         type:
@@ -1416,7 +1444,8 @@ components:
         `warehouse.levels[i].cost`) is charged like a placement (gold from
         the world, materials from the island); its throughput changes at
         once. `upgrade_unavailable` for every other building (the Trading
-        Post has `upgrade_trading_post`) and at the last level.
+        Post has `upgrade_trading_post`) and at the last level. Deprecated
+        alias of `upgrade_building`.
       required: [type, island_id, building_id]
       properties:
         type:
@@ -1437,7 +1466,8 @@ components:
         `trading_post.levels[i].cost`) is charged like a placement;
         capacity, throughput and berths change at once (ships waiting for
         a berth may be granted one at once). `upgrade_unavailable` for
-        every other building and at the last level.
+        every other building and at the last level. Deprecated alias of
+        `upgrade_building`.
       required: [type, island_id, building_id]
       properties:
         type:
@@ -2656,7 +2686,7 @@ components:
           description: Goods needs only.
         building:
           type: string
-          description: Building needs only (content building ID).
+          description: The public building of a building need with a single alternative (content building ID); absent for goods needs and services categories.
         fulfilment_permille:
           type: integer
           format: int64
@@ -2763,7 +2793,7 @@ components:
           $ref: "#/components/schemas/BuildingWorkforce"
         level:
           type: integer
-          description: Trading Post or Warehouse level (1-based).
+          description: Trading Post, Warehouse or levelled public building level (1-based).
         capacity:
           type: integer
           format: int64
@@ -3378,11 +3408,45 @@ components:
         service:
           type: object
           additionalProperties: false
-          required: [radius]
+          required: [radius, levels]
           properties:
             radius:
               type: integer
-              description: Service radius (tiles).
+              description: Service radius at level 1 (tiles).
+            levels:
+              type: array
+              description: Levels in order (D-056); a public building without levels has one. Later levels are reached by `upgrade_building`.
+              items:
+                type: object
+                additionalProperties: false
+                required: [radius]
+                properties:
+                  radius:
+                    type: integer
+                    description: Service radius (tiles).
+                  tier:
+                    type: string
+                    description: Tier that must be unlocked to upgrade into this level.
+                  cost:
+                    type: object
+                    additionalProperties: false
+                    required: [gold, materials]
+                    description: |
+                      Upgrade cost into this level (`upgrade_building`);
+                      absent on the first level, which the building cost
+                      places.
+                    properties:
+                      gold:
+                        type: integer
+                        format: int64
+                        description: Gold cost (milli-gold).
+                      materials:
+                        type: object
+                        description: Material cost per good (milli-units).
+                        additionalProperties:
+                          type: integer
+                          format: int64
+                          description: Amount (milli-units).
         work_area:
           type: object
           additionalProperties: false
@@ -3529,13 +3593,18 @@ components:
                 type: integer
                 format: int64
                 description: Coverage of the category at full supply of this good (ppm, D-056).
-        building:
-          type: string
-          description: Building needs only (content building ID).
-        radius:
-          type: integer
-          description: Radius (tiles; building needs only).
-        share:
-          type: integer
-          format: int64
-          description: Coverage when served (ppm, D-056; building needs only).
+        buildings:
+          type: array
+          description: Building (services) needs only (D-056) — the public buildings that serve the house within the radius of their level.
+          items:
+            type: object
+            additionalProperties: false
+            required: [building, share]
+            properties:
+              building:
+                type: string
+                description: Content building ID.
+              share:
+                type: integer
+                format: int64
+                description: Coverage when the building serves the house (ppm).

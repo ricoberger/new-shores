@@ -184,8 +184,18 @@ type roadJSON struct {
 	MsPerTile int64 `json:"ms_per_tile"`
 }
 
+// serviceJSON is a public building: radius is the first level's, levels
+// lists every level (D-056, upgrade_building).
 type serviceJSON struct {
-	Radius int `json:"radius"`
+	Radius int                `json:"radius"`
+	Levels []serviceLevelJSON `json:"levels"`
+}
+
+type serviceLevelJSON struct {
+	Radius int    `json:"radius"`
+	Tier   string `json:"tier,omitempty"`
+	// Cost is the upgrade cost into the level (absent on the first level).
+	Cost *costJSON `json:"cost,omitempty"`
 }
 
 // workAreaJSON is a work area; a farm with fields (D-051 part 4) has no
@@ -266,9 +276,13 @@ type needJSON struct {
 	WeightPpm int64          `json:"weight"`
 	Category  string         `json:"category,omitempty"`
 	Goods     []needGoodJSON `json:"goods,omitempty"`
-	Building  string         `json:"building,omitempty"`
-	Radius    *int           `json:"radius,omitempty"`
-	SharePpm  *int64         `json:"share,omitempty"`
+	// Buildings are the alternatives of a building (services) need.
+	Buildings []needBuildingJSON `json:"buildings,omitempty"`
+}
+
+type needBuildingJSON struct {
+	Building string `json:"building"`
+	SharePpm int64  `json:"share"`
 }
 
 // buildingCategory derives the build-menu group of a building from its
@@ -422,7 +436,15 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		bj.Road = &roadJSON{MsPerTile: rd.MsPerTile}
 	}
 	if s := b.Service; s != nil {
-		bj.Service = &serviceJSON{Radius: s.Radius}
+		bj.Service = &serviceJSON{Radius: s.RadiusAt(1), Levels: []serviceLevelJSON{}}
+		for _, l := range s.Levels {
+			lj := serviceLevelJSON{Radius: l.Radius, Tier: l.Tier}
+			if l.Cost != nil {
+				cost := newCostJSON(*l.Cost)
+				lj.Cost = &cost
+			}
+			bj.Service.Levels = append(bj.Service.Levels, lj)
+		}
 	}
 	if wa := b.WorkArea; wa != nil {
 		bj.WorkArea = &workAreaJSON{Radius: wa.Radius, RequiredTiles: wa.RequiredTiles, Fertility: wa.Fertility}
@@ -460,10 +482,9 @@ func newNeedJSON(n *content.Need) needJSON {
 		for _, g := range n.Goods {
 			nj.Goods = append(nj.Goods, needGoodJSON{Good: g.Good, PerResidentPerMin: g.PerResidentPerMin, SharePpm: g.Share})
 		}
-	} else {
-		nj.Building = n.Building
-		nj.Radius = &n.Radius
-		nj.SharePpm = &n.Share
+	}
+	for _, nb := range n.Buildings {
+		nj.Buildings = append(nj.Buildings, needBuildingJSON{Building: nb.Building, SharePpm: nb.Share})
 	}
 	return nj
 }

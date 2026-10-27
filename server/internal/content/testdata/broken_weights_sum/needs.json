@@ -23,7 +23,6 @@
     "tier": "settlers",
     "kind": "required",
     "weight": 0.4,
-    "building": "market_small",
-    "radius": 12
+    "buildings": [{ "building": "market_small" }]
   }
 ]

@@ -306,6 +306,11 @@ type rawBuilding struct {
 	} `json:"road"`
 	Service *struct {
 		Radius int `json:"radius"`
+		Levels []struct {
+			Radius int                    `json:"radius"`
+			Tier   string                 `json:"tier"`
+			Cost   map[string]json.Number `json:"cost"`
+		} `json:"levels"`
 	} `json:"service"`
 	WorkArea *struct {
 		Radius        int      `json:"radius"`
@@ -366,9 +371,10 @@ type rawNeed struct {
 		PerResidentPerMin json.Number `json:"per_resident_per_min"`
 		Share             json.Number `json:"share"`
 	} `json:"goods"`
-	Building string      `json:"building"`
-	Radius   int         `json:"radius"`
-	Share    json.Number `json:"share"`
+	Buildings []struct {
+		Building string      `json:"building"`
+		Share    json.Number `json:"share"`
+	} `json:"buildings"`
 }
 
 type rawQuest struct {
@@ -607,15 +613,14 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			Weight:   col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),
 			Category: rn.Category,
 			FromTier: rn.FromTier,
-			Building: rn.Building,
-			Radius:   rn.Radius,
 		}
-		if rn.Building != "" {
+		for i, rb := range rn.Buildings {
 			// Shares have at most 3 decimal places and are kept in ppm.
-			n.Share = col.fixed(FileNeeds, ent, "share", rn.Share, 3) * 1000
-			if rn.Share == "" {
-				n.Share = ShareLone
+			nb := NeedBuilding{Building: rb.Building, Share: col.fixed(FileNeeds, ent, fmt.Sprintf("buildings[%d].share", i), rb.Share, 3) * 1000}
+			if rb.Share == "" {
+				nb.Share = defaultShare(len(rn.Buildings))
 			}
+			n.Buildings = append(n.Buildings, nb)
 		}
 		for i, g := range rn.Goods {
 			n.Goods = append(n.Goods, NeedGood{
@@ -624,10 +629,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 				Share:             col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].share", i), g.Share, 3) * 1000,
 			})
 			if g.Share == "" {
-				n.Goods[i].Share = ShareAlternative
-				if len(rn.Goods) == 1 {
-					n.Goods[i].Share = ShareLone
-				}
+				n.Goods[i].Share = defaultShare(len(rn.Goods))
 			}
 		}
 		cat.NeedsByTier[n.Tier] = append(cat.NeedsByTier[n.Tier], n)
@@ -796,7 +798,20 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		b.Road = &Road{MsPerTile: col.fixed(file, ent, "road.seconds_per_tile", r.SecondsPerTile, 3)}
 	}
 	if s := rb.Service; s != nil {
-		b.Service = &Service{Radius: s.Radius}
+		// A service has either one radius or levels (schema); the radius
+		// is the single level.
+		b.Service = &Service{}
+		if len(s.Levels) == 0 {
+			b.Service.Levels = []ServiceLevel{{Radius: s.Radius}}
+		}
+		for _, l := range s.Levels {
+			lvl := ServiceLevel{Radius: l.Radius, Tier: l.Tier}
+			if l.Cost != nil {
+				cost := decodeCost(col, file, ent, l.Cost, goods)
+				lvl.Cost = &cost
+			}
+			b.Service.Levels = append(b.Service.Levels, lvl)
+		}
 	}
 	if wf := rb.Workforce; wf != nil {
 		b.Workforce = &Workforce{Tier: wf.Tier, Amount: wf.Amount * MilliPerUnit}
@@ -890,4 +905,14 @@ func normaliseNeedWeights(c *Catalogue) {
 		}
 		last.Weight += WeightScale - total
 	}
+}
+
+// defaultShare is the share of an alternative without an authored one
+// (D-056 amendment): 1.0 for a lone alternative, 0.6 for each of two or
+// more.
+func defaultShare(alternatives int) int64 {
+	if alternatives == 1 {
+		return ShareLone
+	}
+	return ShareAlternative
 }

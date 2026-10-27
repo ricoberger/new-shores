@@ -58,6 +58,17 @@ type UpgradeHouse struct {
 	BuildingID int64
 }
 
+// UpgradeBuilding upgrades any upgradable building (D-056): a full house to
+// the next tier's house (as UpgradeHouse); a Trading Post, Warehouse or
+// public building with levels (market_small) to its next level, charged
+// like a placement; a level may need a tier unlocked. UpgradeHouse,
+// UpgradeWarehouse and UpgradeTradingPost are its deprecated aliases (the
+// latter two keep their building-kind check).
+type UpgradeBuilding struct {
+	IslandID   string
+	BuildingID int64
+}
+
 // UpgradeWarehouse raises a Warehouse (inland collector) to its next level
 // (MECHANICS §5): the next level's cost is charged like a placement (gold
 // from the world, materials from the island); throughput changes at once.
@@ -92,6 +103,7 @@ func (Demolish) isCommand()           {}
 func (DemolishRoad) isCommand()       {}
 func (SetPaused) isCommand()          {}
 func (UpgradeHouse) isCommand()       {}
+func (UpgradeBuilding) isCommand()    {}
 func (UpgradeWarehouse) isCommand()   {}
 func (UpgradeTradingPost) isCommand() {}
 
@@ -170,6 +182,8 @@ func applyCommand(w *World, c *content.Catalogue, cmd Command, l *Ledger) (Resul
 		err = setPaused(w, c, cmd)
 	case UpgradeHouse:
 		err = upgradeHouse(w, c, cmd, l)
+	case UpgradeBuilding:
+		err = upgradeBuilding(w, c, cmd, l)
 	case UpgradeWarehouse:
 		err = upgradeCollector(w, c, cmd.IslandID, cmd.BuildingID, false, l)
 	case UpgradeTradingPost:
@@ -864,29 +878,67 @@ func upgradeHouse(w *World, c *content.Catalogue, cmd UpgradeHouse, l *Ledger) e
 	return nil
 }
 
-// upgradeCollector upgrades a Trading Post (tradingPost set) or a
-// Warehouse; the other kind of building fails with ErrUpgradeUnavailable.
-func upgradeCollector(w *World, c *content.Catalogue, islandID string, id int64, tradingPost bool, l *Ledger) error {
-	is, err := lookupIsland(w, islandID)
+// upgradeBuilding upgrades a house to the next tier or another building to
+// its next level (D-056).
+func upgradeBuilding(w *World, c *content.Catalogue, cmd UpgradeBuilding, l *Ledger) error {
+	is, b, def, err := lookupUpgrade(w, c, cmd.IslandID, cmd.BuildingID)
 	if err != nil {
 		return err
 	}
+	if def.House != nil {
+		return upgradeHouse(w, c, UpgradeHouse(cmd), l)
+	}
+	return upgradeLevel(w, c, is, b, def, l)
+}
+
+// lookupUpgrade resolves the island, building and definition of an
+// upgrade command.
+func lookupUpgrade(w *World, c *content.Catalogue, islandID string, id int64) (*Island, *Building, *content.Building, error) {
+	is, err := lookupIsland(w, islandID)
+	if err != nil {
+		return nil, nil, nil, err
+	}
 	b := is.Building(id)
 	if b == nil {
-		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, id, islandID)
+		return nil, nil, nil, fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, id, islandID)
 	}
 	def := c.BuildingByID[b.Type]
+	if def == nil {
+		return nil, nil, nil, fmt.Errorf("%w: %q", ErrUnknownBuilding, b.Type)
+	}
+	return is, b, def, nil
+}
+
+// upgradeCollector upgrades a Trading Post (tradingPost set) or a
+// Warehouse; the other kind of building fails with ErrUpgradeUnavailable
+// (the deprecated aliases of upgrade_building).
+func upgradeCollector(w *World, c *content.Catalogue, islandID string, id int64, tradingPost bool, l *Ledger) error {
+	is, b, def, err := lookupUpgrade(w, c, islandID, id)
+	if err != nil {
+		return err
+	}
 	switch {
-	case def == nil:
-		return fmt.Errorf("%w: %q", ErrUnknownBuilding, b.Type)
 	case tradingPost && def.TradingPost == nil:
 		return fmt.Errorf("%w: %s is not a trading post", ErrUpgradeUnavailable, b.Type)
 	case !tradingPost && def.Warehouse == nil:
 		return fmt.Errorf("%w: %s is not a warehouse", ErrUpgradeUnavailable, b.Type)
 	}
+	return upgradeLevel(w, c, is, b, def, l)
+}
+
+// upgradeLevel raises a building with levels (Trading Post, Warehouse,
+// public building) to its next level: the level's tier must be unlocked
+// and its cost is charged like a placement.
+func upgradeLevel(w *World, c *content.Catalogue, is *Island, b *Building, def *content.Building, l *Ledger) error {
 	level := max(b.Level, 1)
+	if !def.Upgradable() {
+		return fmt.Errorf("%w: %s has no levels", ErrUpgradeUnavailable, def.ID)
+	}
 	if level >= def.LevelCount() {
 		return fmt.Errorf("%w: %s is at its last level %d", ErrUpgradeUnavailable, def.ID, level)
+	}
+	if t := def.LevelTier(level + 1); t != "" && !TierUnlocked(w, c, t) {
+		return fmt.Errorf("%w: level %d of %s needs tier %s", ErrTierLocked, level+1, def.ID, t)
 	}
 	cost := def.LevelCost(level + 1)
 	if cost == nil {
@@ -896,8 +948,8 @@ func upgradeCollector(w *World, c *content.Catalogue, islandID string, id int64,
 		return err
 	}
 
-	// Validation complete: mutate. Capacity and throughput are derived from
-	// the level; the next settle recomputes all rates.
+	// Validation complete: mutate. Capacity, throughput and service radius
+	// are derived from the level; the next settle recomputes all rates.
 	chargeCost(w, is, *cost, 1, l)
 	b.Level = level + 1
 	b.Berths = def.TradingPostLevelAt(b.Level).Berths
@@ -933,12 +985,12 @@ func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) str
 // needCap is the highest fulfilment (ppm) a need can reach: the sum of the
 // shares of all its alternatives, at most 1 (D-056).
 func needCap(n *content.Need) int64 {
-	if !n.IsGoods() {
-		return min(n.Share, ppm)
-	}
 	var sum int64
 	for _, g := range n.Goods {
 		sum += g.Share
+	}
+	for _, nb := range n.Buildings {
+		sum += nb.Share
 	}
 	return min(sum, ppm)
 }

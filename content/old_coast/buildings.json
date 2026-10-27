@@ -88,7 +88,7 @@
   },
   {
     "id": "market_small",
-    "name": "Small market",
+    "name": "Market",
     "region": "old_coast",
     "tier": "settlers",
     "footprint": [5, 6],
@@ -97,7 +97,13 @@
     "cost": { "gold": 250, "planks": 15 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "service": { "radius": 12 }
+    "service": {
+      "levels": [
+        { "radius": 12 },
+        { "radius": 16, "tier": "merchants", "cost": { "gold": 1000, "planks": 15, "stone": 30 } },
+        { "radius": 20, "tier": "patricians", "cost": { "gold": 5000, "planks": 15, "stone": 45 } }
+      ]
+    }
   },
   {
     "id": "chapel",

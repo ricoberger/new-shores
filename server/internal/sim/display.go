@@ -274,9 +274,11 @@ type WorkforceDisplay struct {
 
 // NeedDisplay is the state of one need of a house.
 type NeedDisplay struct {
-	ID                 string `json:"id"`
-	Kind               string `json:"kind"`
-	Category           string `json:"category,omitempty"`
+	ID       string `json:"id"`
+	Kind     string `json:"kind"`
+	Category string `json:"category,omitempty"`
+	// Building is the public building of a building need with a single
+	// alternative ("" for goods needs and services categories).
 	Building           string `json:"building,omitempty"`
 	FulfilmentPermille int64  `json:"fulfilment_permille"`
 	// Reason is one of ok, short_supply, no_supply (goods needs) or ok,
@@ -446,7 +448,7 @@ type BuildingDisplay struct {
 	WorkforceFactorPermille *int64             `json:"workforce_factor_permille,omitempty"`
 	Workforce               *BuildingWorkforce `json:"workforce,omitempty"`
 
-	// Warehouses.
+	// Collectors; Level also for public buildings with levels (D-056).
 	Level            *int   `json:"level,omitempty"`
 	Capacity         *Qty   `json:"capacity,omitempty"`
 	ThroughputPerMin *Qty   `json:"throughput_per_min,omitempty"`
@@ -763,6 +765,9 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int
 				bd.ShipOrder.Order = &ShipOrderDisplay{Type: o.Type, OrderedAt: formatMs(o.OrderedAtMs), DueAt: formatMs(o.DueAtMs)}
 			}
 		}
+		if def.Service != nil && def.Upgradable() {
+			bd.Level = ptr(min(max(b.Level, 1), def.LevelCount()))
+		}
 		if def.Collector() {
 			level := min(max(b.Level, 1), def.LevelCount())
 			load := r.loads[b.ID]
@@ -804,8 +809,13 @@ func displayHouse(bd *BuildingDisplay, h *houseCalc) {
 	bd.Needs = []NeedDisplay{}
 	for _, n := range h.needs {
 		nd := NeedDisplay{
-			ID: n.need.ID, Kind: n.need.Kind, Category: n.need.Category, Building: n.need.Building,
+			ID: n.need.ID, Kind: n.need.Kind, Category: n.need.Category,
 			FulfilmentPermille: n.fulfilment / 1000, Reason: n.reason,
+		}
+		if len(n.need.Buildings) == 1 {
+			// A lone public building names the need; a services category
+			// with alternatives is named by its category.
+			nd.Building = n.need.Buildings[0].Building
 		}
 		if gs := n.goods; gs != nil {
 			nd.Goods = map[string]Qty{}

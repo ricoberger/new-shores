@@ -64,8 +64,9 @@ export interface paths {
          * @description Commands (`command.type`): `place_building`, `place_road`,
          *     `demolish`, `demolish_road`, `place_field`, `place_fields`,
          *     `demolish_fields`,
-         *     `set_paused`, `upgrade_house`, `upgrade_trading_post`,
-         *     `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
+         *     `set_paused`, `upgrade_building` (deprecated aliases
+         *     `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
+         *     `move_building`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
          *     `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`,
          *     `sail_ship` and `found_island` (MECHANICS §8, §9).
@@ -593,7 +594,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -851,6 +852,31 @@ export interface components {
             building_id: number;
             paused: boolean;
         };
+        /**
+         * @description Upgrade a building (D-056): a full house to the next tier's house
+         *     (as `upgrade_house`); a Trading Post, Warehouse or public building
+         *     with service levels (`market_small`) to its next level — the
+         *     level's `cost` is charged like a placement and a level with a
+         *     `tier` needs that tier unlocked (`tier_locked`).
+         *     `upgrade_unavailable` for a building without a next level.
+         *     `upgrade_house`, `upgrade_warehouse` and `upgrade_trading_post`
+         *     are deprecated aliases (the latter two keep their building-kind
+         *     check).
+         */
+        UpgradeBuildingCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "upgrade_building";
+            island_id: string;
+            /**
+             * Format: int64
+             * @description Building ID (unscaled integer identifier, from BuildingDisplay.id).
+             */
+            building_id: number;
+        };
+        /** @description Deprecated alias of `upgrade_building` for houses. */
         UpgradeHouseCommand: {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -870,7 +896,8 @@ export interface components {
          *     `warehouse.levels[i].cost`) is charged like a placement (gold from
          *     the world, materials from the island); its throughput changes at
          *     once. `upgrade_unavailable` for every other building (the Trading
-         *     Post has `upgrade_trading_post`) and at the last level.
+         *     Post has `upgrade_trading_post`) and at the last level. Deprecated
+         *     alias of `upgrade_building`.
          */
         UpgradeWarehouseCommand: {
             /**
@@ -891,7 +918,8 @@ export interface components {
          *     `trading_post.levels[i].cost`) is charged like a placement;
          *     capacity, throughput and berths change at once (ships waiting for
          *     a berth may be granted one at once). `upgrade_unavailable` for
-         *     every other building and at the last level.
+         *     every other building and at the last level. Deprecated alias of
+         *     `upgrade_building`.
          */
         UpgradeTradingPostCommand: {
             /**
@@ -1794,7 +1822,7 @@ export interface components {
             kind: "required" | "optional";
             /** @description Goods needs only. */
             category?: string;
-            /** @description Building needs only (content building ID). */
+            /** @description The public building of a building need with a single alternative (content building ID); absent for goods needs and services categories. */
             building?: string;
             /**
              * Format: int64
@@ -1891,7 +1919,7 @@ export interface components {
              */
             workforce_factor_permille?: number;
             workforce?: components["schemas"]["BuildingWorkforce"];
-            /** @description Trading Post or Warehouse level (1-based). */
+            /** @description Trading Post, Warehouse or levelled public building level (1-based). */
             level?: number;
             /**
              * Format: int64
@@ -2327,8 +2355,31 @@ export interface components {
                 ms_per_tile: number;
             };
             service?: {
-                /** @description Service radius (tiles). */
+                /** @description Service radius at level 1 (tiles). */
                 radius: number;
+                /** @description Levels in order (D-056); a public building without levels has one. Later levels are reached by `upgrade_building`. */
+                levels: {
+                    /** @description Service radius (tiles). */
+                    radius: number;
+                    /** @description Tier that must be unlocked to upgrade into this level. */
+                    tier?: string;
+                    /**
+                     * @description Upgrade cost into this level (`upgrade_building`);
+                     *     absent on the first level, which the building cost
+                     *     places.
+                     */
+                    cost?: {
+                        /**
+                         * Format: int64
+                         * @description Gold cost (milli-gold).
+                         */
+                        gold: number;
+                        /** @description Material cost per good (milli-units). */
+                        materials: {
+                            [key: string]: number;
+                        };
+                    };
+                }[];
             };
             /**
              * @description Work radius. `radius`, `terrain` and `required_tiles` are present
@@ -2428,15 +2479,16 @@ export interface components {
                  */
                 share: number;
             }[];
-            /** @description Building needs only (content building ID). */
-            building?: string;
-            /** @description Radius (tiles; building needs only). */
-            radius?: number;
-            /**
-             * Format: int64
-             * @description Coverage when served (ppm, D-056; building needs only).
-             */
-            share?: number;
+            /** @description Building (services) needs only (D-056) — the public buildings that serve the house within the radius of their level. */
+            buildings?: {
+                /** @description Content building ID. */
+                building: string;
+                /**
+                 * Format: int64
+                 * @description Coverage when the building serves the house (ppm).
+                 */
+                share: number;
+            }[];
         };
     };
     responses: {

@@ -2,6 +2,7 @@ package sim
 
 import (
 	"math"
+	"slices"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
@@ -368,10 +369,7 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 					res.reason = NeedOK
 				}
 			} else {
-				res.reason, res.servedBy = buildingNeed(is, c, def, b, need)
-				if res.reason == NeedOK {
-					res.fulfilment = need.Share
-				}
+				res.reason, res.servedBy, res.fulfilment = buildingNeed(is, c, def, b, need)
 			}
 			// Optional needs are evaluated and shown but count for nothing
 			// (D-056 removed the optional tax bonus).
@@ -428,41 +426,51 @@ func growthRate(rules content.Rules, satisfaction int64) int64 {
 	return -mulDivAny(rules.DeclinePerMin*unitsPerMilliPerMin, rules.GrowthThreshold-satisfaction, ppm)
 }
 
-// buildingNeed evaluates a building need for one connected house and
-// returns its reason (NeedOK when fulfilled) and the IDs of the usable
-// buildings of the type within range (ascending order of the island's
-// buildings; empty unless the reason is NeedOK). Among buildings of the type
-// within range, a usable one wins; otherwise an unconnected one reports
-// not_connected and a paused one paused.
-func buildingNeed(is *Island, c *content.Catalogue, houseDef *content.Building, house *Building, need *content.Need) (string, []int64) {
+// buildingNeed evaluates a building (services) need for one connected
+// house (D-056): every alternative building type that serves the house
+// adds its share, coverage = min(1, sum). A type serves when one of its
+// buildings reaches the house within the service radius of its level and
+// is usable (not paused, connected). It returns the reason (NeedOK when an
+// alternative serves), the IDs of the serving buildings (ascending order
+// of the island's buildings; empty unless NeedOK) and the coverage (ppm).
+// Without a serving building the reason is the most actionable among the
+// buildings in range: not_connected over paused over out_of_range.
+func buildingNeed(is *Island, c *content.Catalogue, houseDef *content.Building, house *Building, need *content.Need) (string, []int64, int64) {
 	hw, hh := footprint(houseDef, house.Rotation)
 	reason := NeedOutOfRange
 	var served []int64
-	for _, b := range is.Buildings {
-		if b.Type != need.Building {
-			continue
-		}
-		def := c.BuildingByID[b.Type]
-		if def == nil || !withinRadius(def, b, house.X, house.Y, hw, hh, need.Radius) {
-			continue
-		}
-		switch {
-		case b.Paused:
-			if reason == NeedOutOfRange {
-				reason = NeedPaused
+	var coverage int64
+	for _, nb := range need.Buildings {
+		serves := false
+		for _, b := range is.Buildings {
+			if b.Type != nb.Building {
+				continue
 			}
-		case b.AssignedWarehouseID == 0:
-			if len(served) == 0 {
+			def := c.BuildingByID[b.Type]
+			if def == nil || def.Service == nil || !withinRadius(def, b, house.X, house.Y, hw, hh, def.Service.RadiusAt(b.Level)) {
+				continue
+			}
+			switch {
+			case b.Paused:
+				if reason == NeedOutOfRange {
+					reason = NeedPaused
+				}
+			case b.AssignedWarehouseID == 0:
 				reason = NeedNotConnected
+			default:
+				served = append(served, b.ID)
+				serves = true
 			}
-		default:
-			served = append(served, b.ID)
+		}
+		if serves {
+			coverage += nb.Share
 		}
 	}
 	if len(served) > 0 {
-		return NeedOK, served
+		slices.Sort(served)
+		return NeedOK, served, min(coverage, ppm)
 	}
-	return reason, nil
+	return reason, nil, 0
 }
 
 // withinRadius reports whether the footprint of b and the footprint

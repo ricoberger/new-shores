@@ -225,8 +225,22 @@ func TestLoadOldCoast(t *testing.T) {
 	if c.BuildingByID["road_dirt"].Road.MsPerTile != 1000 {
 		t.Error("road_dirt seconds_per_tile")
 	}
-	if c.BuildingByID["market_small"].Service.Radius != 12 || c.BuildingByID["chapel"].Service.Radius != 16 {
-		t.Error("service radii")
+	if c.BuildingByID["chapel"].Service.RadiusAt(1) != 16 || c.BuildingByID["chapel"].Upgradable() {
+		t.Error("chapel service")
+	}
+	// Market levels (D-056): radius 12 / 16 / 20; levels 2 and 3 need
+	// Merchants and Patricians.
+	market := c.BuildingByID["market_small"]
+	var levels []string
+	for i, l := range market.Service.Levels {
+		cost := "-"
+		if lc := market.LevelCost(i + 1); lc != nil {
+			cost = fmt.Sprint(lc.Gold, lc.Materials)
+		}
+		levels = append(levels, fmt.Sprintf("%d:%s:%s", l.Radius, market.LevelTier(i+1), cost))
+	}
+	if got := strings.Join(levels, " "); market.Name != "Market" || got != "12::- 16:merchants:1000000 [{planks 15000} {stone 30000}] 20:patricians:5000000 [{planks 15000} {stone 45000}]" {
+		t.Errorf("market %q levels = %s", market.Name, got)
 	}
 	for id, amount := range map[string]Qty{"lumberjack": 4000, "sawmill": 4000, "fisher": 4000, "sheep_farm": 4000, "weaver_wool": 6000} {
 		if wf := c.BuildingByID[id].Workforce; wf == nil || wf.Tier != "settlers" || wf.Amount != amount {
@@ -243,7 +257,7 @@ func TestLoadOldCoast(t *testing.T) {
 	if len(needs) != 3 {
 		t.Fatalf("needs = %+v", needs)
 	}
-	food, clothing, market := needs[0], needs[1], needs[2]
+	food, clothing, services := needs[0], needs[1], needs[2]
 	if food.ID != "settlers_food" || food.Kind != NeedRequired || food.Category != "food" || food.Weight != 500_000 ||
 		len(food.Goods) != 1 || food.Goods[0] != (NeedGood{"fish", 10_000, ShareLone}) || !food.IsGoods() {
 		t.Errorf("food = %+v", food)
@@ -252,8 +266,9 @@ func TestLoadOldCoast(t *testing.T) {
 		len(clothing.Goods) != 1 || clothing.Goods[0] != (NeedGood{"wool_garments", 5_000, ShareLone}) {
 		t.Errorf("clothing = %+v", clothing)
 	}
-	if market.ID != "settlers_market_small" || market.Kind != NeedRequired || market.Building != "market_small" || market.Radius != 12 || market.Share != ShareLone || market.Weight != 300_000 || market.IsGoods() {
-		t.Errorf("market = %+v", market)
+	if services.ID != "settlers_services" || services.Kind != NeedRequired || services.Category != "services" || needBuildings(services) != "market_small=600000/chapel=600000" ||
+		services.Weight != 300_000 || services.IsGoods() || !services.IsBuilding() {
+		t.Errorf("services = %+v", services)
 	}
 }
 
@@ -313,8 +328,8 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"mixed shape", FileNeeds,
-			[]string{`"radius": 12`, `"radius": 12, "category": "food"`},
-			[]string{FileNeeds, `need "settlers_market_small"`, "schema violation"},
+			[]string{`"category": "services",`, `"category": "services", "goods": [{ "good": "fish", "per_resident_per_min": 0.01 }],`},
+			[]string{FileNeeds, `need "settlers_services"`, "schema violation"},
 		},
 		{
 			"duplicate good in category", FileNeeds,
@@ -340,9 +355,9 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"workforce on non-producer", FileBuildings,
-			[]string{`"service": { "radius": 12 }`, `"service": { "radius": 12 },
+			[]string{`"service": { "radius": 16 }`, `"service": { "radius": 16 },
     "workforce": { "tier": "settlers", "amount": 2 }`},
-			[]string{FileBuildings, `building "market_small"`, "workforce", "recipe"},
+			[]string{FileBuildings, `building "chapel"`, "workforce", "recipe"},
 		},
 		{
 			"workforce unknown tier", FileBuildings,
@@ -611,8 +626,46 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"from_tier on a building need", FileNeeds,
-			[]string{`"radius": 14`, `"radius": 14, "from_tier": "settlers"`},
-			[]string{FileNeeds, `need "citizens_tavern"`, "schema violation"},
+			[]string{`{ "building": "tavern" }]`, `{ "building": "tavern" }], "from_tier": "settlers"`},
+			[]string{FileNeeds, `need "citizens_services"`, "schema violation"},
+		},
+		{
+			"services alternative without a service block", FileNeeds,
+			[]string{`{ "building": "tavern" }]`, `{ "building": "tavern" }, { "building": "fisher" }]`},
+			[]string{FileNeeds, `need "citizens_services"`, "buildings[3].building", "not a public building"},
+		},
+		{
+			"services alternative of a higher tier", FileNeeds,
+			[]string{`[{ "building": "market_small" }, { "building": "chapel" }]`, `[{ "building": "market_small" }, { "building": "tavern" }]`},
+			[]string{FileNeeds, `need "settlers_services"`, "buildings[1].building", "above the need's tier"},
+		},
+		{
+			"duplicate services alternative", FileNeeds,
+			[]string{`[{ "building": "market_small" }, { "building": "chapel" }]`, `[{ "building": "market_small" }, { "building": "market_small" }]`},
+			[]string{FileNeeds, `need "settlers_services"`, "buildings[1].building", "duplicate building"},
+		},
+		{
+			"service level of an unknown tier", FileBuildings,
+			[]string{`"tier": "merchants", "cost"`, `"tier": "nobles", "cost"`},
+			[]string{FileBuildings, `building "market_small"`, "service.levels[1].tier", `unknown tier "nobles"`},
+		},
+		{
+			"service level radius shrinks", FileBuildings,
+			[]string{`{ "radius": 16, "tier"`, `{ "radius": 10, "tier"`},
+			[]string{FileBuildings, `building "market_small"`, "service.levels[1].radius", "previous level"},
+		},
+		{
+			"service upgrade level without cost", FileBuildings,
+			[]string{`{ "radius": 16, "tier": "merchants", "cost": { "gold": 1000, "planks": 15, "stone": 30 } }`, `{ "radius": 16, "tier": "merchants" }`},
+			[]string{FileBuildings, `building "market_small"`, "schema violation"},
+		},
+		{
+			"service with radius and levels", FileBuildings,
+			[]string{`"service": {
+      "levels"`, `"service": {
+      "radius": 12,
+      "levels"`},
+			[]string{FileBuildings, `building "market_small"`, "schema violation"},
 		},
 		{
 			"region decimals", FileRegion,
@@ -733,7 +786,7 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 			t.Errorf("NeedCategoryByID[%q] = %+v", nc.ID, c.NeedCategoryByID[nc.ID])
 		}
 	}
-	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:_fallback,luxury=Luxury/need:_fallback"
+	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:_fallback,luxury=Luxury/need:_fallback,services=Services/need:services"
 	if got := strings.Join(cats, ","); got != want {
 		t.Errorf("need categories = %s, want %s", got, want)
 	}
@@ -744,9 +797,8 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 		}
 	}
 	wantNames := map[string]string{
-		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_market_small": "Market",
-		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing",
-		"citizens_market_small": "Market", "citizens_chapel": "Chapel", "citizens_tavern": "Tavern",
+		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_services": "Services",
+		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing", "citizens_services": "Services",
 		"citizens_settlers_food": "Food", "citizens_settlers_clothing": "Clothing",
 	}
 	if len(names) != len(wantNames) {
@@ -795,8 +847,8 @@ func TestLoadRejectsInvalidNeedDisplayData(t *testing.T) {
 		},
 		{
 			"need without name", FileNeeds,
-			[]string{`"name": "Market",`, ""},
-			[]string{FileNeeds, `need "settlers_market_small"`, "schema violation"},
+			[]string{`"name": "Services",`, ""},
+			[]string{FileNeeds, `need "settlers_services"`, "schema violation"},
 		},
 		{
 			"need empty name", FileNeeds,
@@ -914,19 +966,18 @@ func TestNeedShareDefaults(t *testing.T) {
 		multi := 0
 		for _, needs := range c.NeedsByTier {
 			for _, n := range needs {
-				if !n.IsGoods() {
-					if n.Share != ShareLone {
-						t.Errorf("%s: %s share %d, want %d", dir, n.ID, n.Share, ShareLone)
-					}
-					continue
-				}
 				want := ShareLone
-				if len(n.Goods) > 1 {
+				if len(n.Goods) > 1 || len(n.Buildings) > 1 {
 					want, multi = ShareAlternative, multi+1
 				}
 				for _, g := range n.Goods {
 					if g.Share != want {
 						t.Errorf("%s: %s %s share %d, want %d", dir, n.ID, g.Good, g.Share, want)
+					}
+				}
+				for _, nb := range n.Buildings {
+					if nb.Share != want {
+						t.Errorf("%s: %s %s share %d, want %d", dir, n.ID, nb.Building, nb.Share, want)
 					}
 				}
 			}
@@ -938,16 +989,16 @@ func TestNeedShareDefaults(t *testing.T) {
 
 	dir := copyContent(t, FileNeeds,
 		`"goods": [{ "good": "fish", "per_resident_per_min": 0.010 }]`, `"goods": [{ "good": "fish", "per_resident_per_min": 0.010, "share": 0.5 }]`,
-		`"radius": 12`, `"radius": 12, "share": 0.75`)
+		`{ "building": "market_small" }`, `{ "building": "market_small", "share": 0.75 }`)
 	c, err := LoadWithSchemas(dir, schemaDir)
 	if err != nil {
 		t.Fatal(err)
 	}
 	needs := c.NeedsByTier["settlers"]
-	if needs[0].Goods[0].Share != 500_000 || needs[2].Share != 750_000 || needs[1].Goods[0].Share != ShareLone {
-		t.Errorf("authored shares = %+v %+v %+v", needs[0].Goods, needs[1].Goods, needs[2].Share)
+	if needs[0].Goods[0].Share != 500_000 || needBuildings(needs[2]) != "market_small=750000/chapel=600000" || needs[1].Goods[0].Share != ShareLone {
+		t.Errorf("authored shares = %+v %+v %+v", needs[0].Goods, needs[1].Goods, needs[2].Buildings)
 	}
-	dir = copyContent(t, FileNeeds, `"radius": 12`, `"radius": 12, "share": 1.5`)
+	dir = copyContent(t, FileNeeds, `{ "building": "market_small" }`, `{ "building": "market_small", "share": 1.5 }`)
 	if _, err := LoadWithSchemas(dir, schemaDir); err == nil || !strings.Contains(err.Error(), "schema violation") {
 		t.Errorf("share 1.5: err %v", err)
 	}

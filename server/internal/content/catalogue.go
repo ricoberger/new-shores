@@ -377,8 +377,24 @@ func (b *Building) LevelCount() int {
 		return len(b.TradingPost.Levels)
 	case b.Warehouse != nil:
 		return len(b.Warehouse.Levels)
+	case b.Service != nil:
+		return len(b.Service.Levels)
 	}
 	return 0
+}
+
+// Upgradable reports whether the building has a later level to upgrade
+// into (upgrade_building): a Trading Post, a Warehouse or a public
+// building with levels (D-056).
+func (b *Building) Upgradable() bool { return b.LevelCount() > 1 }
+
+// LevelTier is the tier that must be unlocked to upgrade into a 1-based
+// level ("" when the level has no tier condition).
+func (b *Building) LevelTier(level int) string {
+	if b.Service == nil || level < 2 || level > len(b.Service.Levels) {
+		return ""
+	}
+	return b.Service.Levels[level-1].Tier
 }
 
 // clampLevel maps a stored level to a valid 0-based level index.
@@ -404,10 +420,13 @@ func (b *Building) LevelCost(level int) *Cost {
 	if level < 2 || level > b.LevelCount() {
 		return nil
 	}
-	if b.TradingPost != nil {
+	switch {
+	case b.TradingPost != nil:
 		return b.TradingPost.Levels[level-1].Cost
+	case b.Warehouse != nil:
+		return b.Warehouse.Levels[level-1].Cost
 	}
-	return b.Warehouse.Levels[level-1].Cost
+	return b.Service.Levels[level-1].Cost
 }
 
 // TradingPostLevelAt is the Trading Post level for a 1-based level
@@ -426,8 +445,26 @@ type Road struct {
 }
 
 // Service marks a public building with a service radius (building needs).
+// Levels raise the radius (D-056: market_small 12 / 16 / 20); a service
+// without levels has one.
 type Service struct {
+	Levels []ServiceLevel
+}
+
+// ServiceLevel is one level of a public building.
+type ServiceLevel struct {
 	Radius int
+	// Tier must be unlocked to upgrade into this level ("" none; always ""
+	// on the first level).
+	Tier string
+	// Cost is the upgrade cost into this level; nil for the first level
+	// (placed with the building cost), set for every later level.
+	Cost *Cost
+}
+
+// RadiusAt is the service radius at a 1-based level (clamped).
+func (s *Service) RadiusAt(level int) int {
+	return s.Levels[clampLevel(level, len(s.Levels))].Radius
 }
 
 // FarmFields is the fields block of a farm (D-049, D-051 part 4):
@@ -510,11 +547,17 @@ type Need struct {
 	Category string
 	Goods    []NeedGood
 
-	// Building, Radius and Share (ppm, the coverage when served) are set
-	// for building needs.
+	// Buildings are the alternatives of a building need (services, D-056):
+	// public buildings whose service radius reaches the house.
+	Buildings []NeedBuilding
+}
+
+// NeedBuilding is an alternative of a building need.
+type NeedBuilding struct {
 	Building string
-	Radius   int
-	Share    int64
+	// Share is the coverage (ppm) the building contributes when it serves
+	// the house (D-056; default as for goods).
+	Share int64
 }
 
 // NeedCategory is a goods-need category (need_categories.json): display
@@ -551,6 +594,9 @@ const OwnTierWeight int64 = 600_000
 
 // IsGoods reports whether the need is a goods need.
 func (n *Need) IsGoods() bool { return len(n.Goods) > 0 }
+
+// IsBuilding reports whether n is a building (services) need.
+func (n *Need) IsBuilding() bool { return len(n.Buildings) > 0 }
 
 // MatchesTerrain reports whether terrain counts for the work area.
 func (wa *WorkArea) MatchesTerrain(terrain string) bool {

@@ -401,17 +401,21 @@ func TestCommandsOfEveryType(t *testing.T) {
 	if got := ts.getWorld().Version; got != w.Version {
 		t.Fatalf("version after failed warehouse upgrades = %d, want %d", got, w.Version)
 	}
+	if res := ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":{"type":"upgrade_building","island_id":"start"}}`, false); res.status != http.StatusBadRequest || errorCode(t, res) != "invalid_command" {
+		t.Fatalf("upgrade_building without building_id: %d %s", res.status, res.body)
+	}
 	// With the materials (granted directly into the stored world) the
-	// upgrade succeeds and the warehouse is at level 2.
+	// generic upgrade_building (D-056) succeeds and the Trading Post is at
+	// level 2.
 	ts.mutateWorld(func(world *sim.World) {
 		world.Gold += 1_000_000
 		if err := sim.AddStock(world, catalogue(t), "start", "stone", 20_000, nil); err != nil {
 			t.Fatal(err)
 		}
 	})
-	res = ts.command(fmt.Sprintf(`{"type":"upgrade_trading_post","island_id":"start","building_id":%d}`, wh), nil)
+	res = ts.command(fmt.Sprintf(`{"type":"upgrade_building","island_id":"start","building_id":%d}`, wh), nil)
 	if res.status != http.StatusOK {
-		t.Fatalf("upgrade_warehouse: %d %s", res.status, res.body)
+		t.Fatalf("upgrade_building: %d %s", res.status, res.body)
 	}
 	_ = json.Unmarshal(res.body, &w)
 	var ds sim.DisplayState

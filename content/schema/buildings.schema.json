@@ -127,12 +127,27 @@
         }
       },
       "service": {
+        "description": "A public building serving houses within its radius (building needs). Either one radius or levels (D-056, upgrade_building): the first level is placed with the building cost; every later level needs a cost and may need a tier unlocked.",
         "type": "object",
         "additionalProperties": false,
-        "required": ["radius"],
         "properties": {
-          "radius": { "type": "integer", "minimum": 1 }
-        }
+          "radius": { "type": "integer", "minimum": 1 },
+          "levels": {
+            "type": "array",
+            "minItems": 1,
+            "prefixItems": [
+              {
+                "$ref": "#/$defs/service_level",
+                "not": { "anyOf": [{ "required": ["cost"] }, { "required": ["tier"] }] }
+              }
+            ],
+            "items": {
+              "$ref": "#/$defs/service_level",
+              "required": ["cost"]
+            }
+          }
+        },
+        "oneOf": [{ "required": ["radius"] }, { "required": ["levels"] }]
       },
       "shipyard": {
         "description": "Orders ships of the listed types, one at a time (MECHANICS §9.1).",
@@ -292,6 +307,23 @@
       "required": ["throughput_per_min"],
       "properties": {
         "throughput_per_min": { "type": "number", "exclusiveMinimum": 0 },
+        "cost": {
+          "description": "Upgrade cost into this level (gold from the world, materials from the island).",
+          "$ref": "#/$defs/cost"
+        }
+      }
+    },
+    "service_level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["radius"],
+      "properties": {
+        "radius": { "type": "integer", "minimum": 1 },
+        "tier": {
+          "description": "Tier that must be unlocked to upgrade into this level.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
         "cost": {
           "description": "Upgrade cost into this level (gold from the world, materials from the island).",
           "$ref": "#/$defs/cost"
