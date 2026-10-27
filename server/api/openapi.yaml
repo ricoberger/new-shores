@@ -2230,7 +2230,7 @@ components:
             - $ref: "#/components/schemas/LegDisplay"
         cargo:
           type: array
-          description: Occupied cargo slots (a good may occupy several slots).
+          description: Occupied cargo slots (a good may occupy several slots). At most `slots` entries, except for the founding cargo of the start ship, which is exempt from the slot limit (D-056).
           items:
             $ref: "#/components/schemas/CargoDisplay"
         slots:

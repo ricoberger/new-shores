@@ -176,19 +176,36 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 	}
 
-	// Ships (CONTENT §7, §8; R-1, R-3).
-	if len(c.Ships) != 1 {
+	// Ships (CONTENT §7, §8; R-1, R-3; D-056 §9: 2/4/6 slots, the start
+	// sloop first, the others of tiers 3 and 4).
+	if len(c.Ships) != 3 || c.Ships[0].ID != "sloop" {
 		t.Fatalf("ships = %+v", c.Ships)
 	}
 	sloop := c.ShipByID["sloop"]
 	wantCost := Cost{Gold: 100_000, Materials: []GoodAmount{{"planks", 20_000}, {"sails", 10_000}}}
-	if sloop == nil || sloop.Tier != "settlers" || sloop.Slots != 4 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1000 ||
+	if sloop == nil || sloop.Tier != "citizens" || sloop.Slots != 2 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1000 ||
 		sloop.BuildMs != 120_000 || sloop.UpkeepPerMin != 1_000 || sloop.Cost.Gold != wantCost.Gold ||
 		len(sloop.Cost.Materials) != 2 || sloop.Cost.Materials[0] != wantCost.Materials[0] || sloop.Cost.Materials[1] != wantCost.Materials[1] {
 		t.Errorf("sloop = %+v", sloop)
 	}
+	for _, w := range []struct {
+		id, tier       string
+		slots          int
+		size, gold     Qty
+		buildMs, upkep int64
+		tools          Qty
+	}{
+		{"brig", "merchants", 4, 50_000, 1_500_000, 300_000, 4_000, 10_000},
+		{"galleon", "patricians", 6, 60_000, 6_000_000, 600_000, 8_000, 30_000},
+	} {
+		s := c.ShipByID[w.id]
+		if s == nil || s.Tier != w.tier || s.Slots != w.slots || s.SlotSize != w.size || s.Cost.Gold != w.gold || s.BuildMs != w.buildMs ||
+			s.UpkeepPerMin != w.upkep || s.SpeedPermille != 1000 || len(s.Cost.Materials) != 3 || s.Cost.Materials[2] != (GoodAmount{"tools", w.tools}) {
+			t.Errorf("%s = %+v", w.id, s)
+		}
+	}
 	sy := c.BuildingByID["shipyard"]
-	if sy.Shipyard == nil || strings.Join(sy.Shipyard.Ships, ",") != "sloop" || sy.Width != 8 || sy.Height != 12 || sy.WaterTiles != 4 || sy.Coastal || !sy.RequiresRoad ||
+	if sy.Shipyard == nil || sy.Tier != "citizens" || strings.Join(sy.Shipyard.Ships, ",") != "sloop,brig,galleon" || sy.Width != 8 || sy.Height != 12 || sy.WaterTiles != 4 || sy.Coastal || !sy.RequiresRoad ||
 		sy.Cost.Gold != 300_000 || len(sy.Cost.Materials) != 1 || sy.Cost.Materials[0] != (GoodAmount{"planks", 45_000}) ||
 		sy.UpkeepPerMin != 0 || sy.PauseCategory != "never" || sy.Recipe != nil || sy.Warehouse != nil {
 		t.Errorf("shipyard = %+v", sy)
@@ -419,7 +436,7 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"ship unknown tier", FileShips,
-			[]string{`"tier": "settlers"`, `"tier": "nobles"`},
+			[]string{`"tier": "citizens"`, `"tier": "nobles"`},
 			[]string{FileShips, `ship "sloop"`, "tier", `unknown tier "nobles"`},
 		},
 		{
@@ -434,12 +451,12 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"ship zero slots", FileShips,
-			[]string{`"slots": 4`, `"slots": 0`},
+			[]string{`"slots": 2`, `"slots": 0`},
 			[]string{FileShips, `ship "sloop"`, "schema violation"},
 		},
 		{
 			"ship unknown field", FileShips,
-			[]string{`"slots": 4`, `"slots": 4, "cannons": 4`},
+			[]string{`"slots": 2`, `"slots": 2, "cannons": 4`},
 			[]string{FileShips, `ship "sloop"`, "schema violation"},
 		},
 		{
@@ -452,12 +469,12 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"shipyard unknown ship", FileBuildings,
-			[]string{`"ships": ["sloop"]`, `"ships": ["galleon"]`},
-			[]string{FileBuildings, `building "shipyard"`, "shipyard.ships[0]", `unknown ship "galleon"`},
+			[]string{`"ships": ["sloop", "brig", "galleon"]`, `"ships": ["frigate"]`},
+			[]string{FileBuildings, `building "shipyard"`, "shipyard.ships[0]", `unknown ship "frigate"`},
 		},
 		{
 			"shipyard without ships", FileBuildings,
-			[]string{`"ships": ["sloop"]`, `"ships": []`},
+			[]string{`"ships": ["sloop", "brig", "galleon"]`, `"ships": []`},
 			[]string{FileBuildings, `building "shipyard"`, "schema violation"},
 		},
 		{

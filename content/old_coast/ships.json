@@ -3,12 +3,36 @@
     "id": "sloop",
     "name": "Sloop",
     "region": "old_coast",
-    "tier": "settlers",
-    "slots": 4,
+    "tier": "citizens",
+    "slots": 2,
     "slot_size": 50,
     "speed": 1.0,
     "build_seconds": 120,
     "cost": { "gold": 100, "planks": 20, "sails": 10 },
     "upkeep_per_min": 1
+  },
+  {
+    "id": "brig",
+    "name": "Brig",
+    "region": "old_coast",
+    "tier": "merchants",
+    "slots": 4,
+    "slot_size": 50,
+    "speed": 1.0,
+    "build_seconds": 300,
+    "cost": { "gold": 1500, "planks": 60, "sails": 20, "tools": 10 },
+    "upkeep_per_min": 4
+  },
+  {
+    "id": "galleon",
+    "name": "Galleon",
+    "region": "old_coast",
+    "tier": "patricians",
+    "slots": 6,
+    "slot_size": 60,
+    "speed": 1.0,
+    "build_seconds": 600,
+    "cost": { "gold": 6000, "planks": 120, "sails": 40, "tools": 30 },
+    "upkeep_per_min": 8
   }
 ]

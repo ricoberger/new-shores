@@ -31,7 +31,8 @@ import (
 //     house and the sawmill moved once), the quests that layout completes
 //     claimed, and a sheep farm with its three 3x3 pastures painted in
 //     one place_fields drag (D-054).
-//   - settled: town plus a shipyard on the coast, a second sloop (ship 2),
+//   - settled: town plus the citizens tier (granted; the shipyard is tier
+//     2, D-056), a shipyard on the coast, a second sloop (ship 2),
 //     the nearest habitable island founded by it (Trading Post, street,
 //     two houses, a fisher) and ship 2 sailing the route "Fish home"; the
 //     start sloop (ship 1) idle at the home island.
@@ -203,10 +204,14 @@ func town(f *fixture) {
 }
 
 // settle builds a shipyard and a sloop and settles the nearest habitable
-// island with it.
+// island with it. The shipyard is a tier-2 building (D-056), so the
+// citizens tier is granted first, as in the citizens fixture.
 func settle(f *fixture) {
 	if f.err != nil {
 		return
+	}
+	if !slices.Contains(f.w.UnlockedTiers, citizensTier) {
+		f.w.UnlockedTiers = append(f.w.UnlockedTiers, citizensTier)
 	}
 	home := f.home()
 	yard := f.placeNear(home, "shipyard", f.streetEnd(home))

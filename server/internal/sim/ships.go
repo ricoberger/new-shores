@@ -1010,9 +1010,11 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 }
 
 // LaunchShipAtSea adds an idle ship of the given type at a sea position
-// (archipelago tiles) with the given cargo (milli-units per good, at most
-// its slots) and returns it. Like PlaceFree it is meant for world creation
-// (the start ship of a new world, D-051), never for player commands.
+// (archipelago tiles) with the given cargo (milli-units per good) and
+// returns it. The founding cargo is exempt from the slot limit (D-056 §9:
+// the 2-slot start sloop carries the whole start stock); slots limit only
+// what a player loads. Like PlaceFree it is meant for world creation (the
+// start ship of a new world, D-051), never for player commands.
 func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo map[string]Qty) (*Ship, error) {
 	def := c.ShipByID[typ]
 	if def == nil {
@@ -1031,9 +1033,6 @@ func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo m
 		case cargo[g] > 0:
 			amounts[g] = cargo[g]
 		}
-	}
-	if used := slotsUsed(amounts, def.SlotSize); used > def.Slots {
-		return nil, fmt.Errorf("%w: needs %d of %d slots", ErrCargoExceedsSlots, used, def.Slots)
 	}
 	if w.NextShipID < 1 {
 		w.NextShipID = 1

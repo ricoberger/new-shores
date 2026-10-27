@@ -136,8 +136,9 @@ type ShipDisplay struct {
 	RouteID   int64       `json:"route_id"`
 	StopIndex int         `json:"stop_index"`
 	Leg       *LegDisplay `json:"leg"`
-	// Cargo lists the occupied slots (milli-units), at most Slots entries;
-	// a good may occupy several slots.
+	// Cargo lists the occupied slots (milli-units), at most Slots entries
+	// except for the founding cargo of the start ship (D-056); a good may
+	// occupy several slots.
 	Cargo    []CargoDisplay `json:"cargo"`
 	Slots    int            `json:"slots"`
 	SlotSize Qty            `json:"slot_size"`

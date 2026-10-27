@@ -19407,7 +19407,7 @@
             "amount": 12853
           }
         ],
-        "slots": 4,
+        "slots": 2,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,
@@ -19426,7 +19426,7 @@
         "stop_index": 0,
         "leg": null,
         "cargo": [],
-        "slots": 4,
+        "slots": 2,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
         "paused": false,

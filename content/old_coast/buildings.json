@@ -228,7 +228,7 @@
     "id": "shipyard",
     "name": "Shipyard",
     "region": "old_coast",
-    "tier": "settlers",
+    "tier": "citizens",
     "footprint": [8, 12],
     "water_tiles": 4,
     "coastal": false,
@@ -236,7 +236,7 @@
     "cost": { "gold": 300, "planks": 45 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "shipyard": { "ships": ["sloop"] }
+    "shipyard": { "ships": ["sloop", "brig", "galleon"] }
   },
   {
     "id": "house_citizens",
