@@ -81,10 +81,13 @@ UI shows the same numbers the server uses.
   drawn.
 - **Ships** are low-poly instances: with a leg, lerped between the two
   islands' pier anchors by `(now − depart_at) / (arrive_at − depart_at)`.
-  A ship handling at the Trading Post sits at **pier slot i** (tile i of
-  the front water row, one tile out, bow to sea); ships `waiting_for_berth`
-  sit one tile further out between two slots, two tiles apart; idle ships
-  take the island's harbour berths; `anchored_unpaid` ships greyed. Legs and ribbons are straight lines and may cross land
+  A ship handling at the Trading Post moors **stern-first at berth
+  anchor i** of the Trading Post model (`berth_1..4` in the manifest; the
+  middle pair first, bows fanned out to sea; PR #29) — the level unlocks
+  1–4 of them; ships `waiting_for_berth` sit out to sea past the moored
+  bows; idle ships take the island's harbour berths; the shipyard's hull
+  under construction stands on its `slip` anchor and the finished ship
+  appears at the harbour; `anchored_unpaid` ships greyed. Legs and ribbons are straight lines and may cross land
   (dressing task). Route ribbons carry direction arrows; the selected ship
   shows its route and ETA.
 - **Manual shipment:** only through the ship panel's "Send…" dialog; the
@@ -174,11 +177,18 @@ UI shows the same numbers the server uses.
 - **Fields** (D-051 part 4): fields are not in the build menu. The farm
   card has a fields block (active / required with a bar, placed and max, a
   warning line when fields are not connected; no field list) and **"Add field"**, which enters a field tool bound to that
-  farm: one field per click/tap today, **rectangle painting is the next
-  client task (D-054, session B2)** — `place_fields` is in the API; the
-  ghost valid only edge-adjacent to the farm or one of its active fields
-  (client hint; the server decides), the tool stays active until max or
-  Esc/right-click. Inactive fields
+  farm ("Paint wheat field (3 gold each)"): one field per tap, or a
+  **rectangle drag** (PR #29, D-054) that paints every tile of the
+  rectangle in one `place_fields` call on release (≤ 512 tiles; larger
+  rectangles are clipped from the start corner). While dragging every
+  tile shows the client hint (terrain, fertility, free, edge-adjacent
+  through the rectangle's own valid tiles) and the status line counts
+  "n / 140 · +k · m over the max"; tiles the server rejects flash red.
+  Pasture modules (3×3) paint on a 3×3 step grid. **Remove fields** by
+  right-click/long-press on Paint (rectangle drag → `demolish_fields`);
+  the Demolish tool dragged over fields removes the fields of every farm
+  under it. The ghost is a hint only; the server's per-tile result is
+  the truth (D-027). The tool stays active until max or Esc/right-click. Inactive fields
   are drawn desaturated with the `not_adjacent` status (and a yellow mark);
   selecting a farm or a field tints its farm and fields green like a
   selected building; the field ghost is the field's translucent model; a field card says "Counts for its farm" (an inactive one keeps "Not connected to its farm" and its fix) and offers Demolish only (no

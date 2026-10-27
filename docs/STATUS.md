@@ -1,8 +1,8 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after PR #27/#28
-(D-054 footprints, costs, painted fields on the server; re-fitted models).
+docs sync; details live in the linked documents. Last update: after PR #29
+(D-054 complete: field painting, berths on anchors, structure pass).
 
 ## What exists
 
@@ -37,19 +37,15 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Next tasks (in order)
 
-1. **D-054 client (session B2, Opus):** "structure, not slab" pass on
-   shipyard, trading post, warehouse, sailmaker, tavern, smelter (models
-   folder limit raised); pier/berth spacing for 6×9 and 8×12; rectangle
-   painting and demolish of fields with per-tile ghost validity
-   (`place_fields`); info cards for the new numbers; camera targets of
-   the dev fixtures; then the owner's real-device check at the final
-   sizes (mid zoom fps).
-2. **Polish round 3** (interactive, after a real-device check of mid zoom
-   on the final sizes): mid-zoom budget (far trees / no scatter above a
-   threshold if the phone drops below 60 fps), landmarks on mask-drawn
-   islands, minimap open on phones while unsettled, far-view labels,
-   founding panel over the map, ship size at far, legs through islands.
-3. **Content depth** (design interview first): tier-2 alternatives
+1. **Polish round 3** (Opus; design-lead items unattended, then the
+   owner's playtest items in the same session): **incremental island
+   build** (time-budgeted chunk queue, mask mesh until built, first
+   frame before any build — fixes frame drops when an island enters
+   view and the grey first screen), smelter/sailmaker palette, far
+   landmarks on mask-drawn islands, minimap open on phones while
+   unsettled, far labels, founding panel over the map, `citizens` dev
+   fixture, `sync.test.ts` fake timers.
+2. **Content depth** (design interview first): tier-2 alternatives
    (dairy, pigs, apiary with their reserved field types), tier 3.
 
 ## Known follow-ups
@@ -66,8 +62,8 @@ in the sync after a task unless the task says otherwise; nobody adds the
   real timers (rewrite with fake timers end to end); landscape phone —
   dock vs. half-open sheet and expanded minimap overlap; details-in-place
   for the dock lists; life budget per *visible* island; stage models for
-  fields; comfort/luxury need icons (with tier 3); progressive island
-  loading if first load bothers on phones.
+  fields; comfort/luxury need icons (with tier 3); a `citizens` dev fixture
+  (Citizens unlocked, a wheat farm) so presets can paint 140 fields.
 - API, store and event tests still run on the old hand-made two-island
   world (fine: they test the store, not the map).
 - Dev seed 1053001 (`--seed`); the pre-D-054 content lives in

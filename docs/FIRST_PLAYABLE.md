@@ -144,6 +144,22 @@ login, GLB assets, sound.
   upkeep (D-046) and unpaid buildings get a trial resume from a 30-minute
   reserve (D-047) — a fully stalled city restarts by itself ≈ 54 min after
   the stall. Schema version 2 with the first real envelope migration.
+- **D-054 footprints, costs, painted fields — done (PR #27 server/
+  content, #28 models, #29 client):** Anno 117 Latium footprints and
+  derived costs for tiers 1–2 (content 0.10.0), fields 140/60/160 and
+  3×3 pasture modules, `place_fields`/`demolish_fields` batch commands
+  with per-tile results, terrain in `world_terrain` (schema 7), islands
+  192/112/64/16 (91 k buildable target), area-scaled model budgets, all
+  30 recipes re-fitted with life anchors (berths, carts, boat, slip,
+  sheep), rectangle field painting, berths on model anchors, cards for
+  the new numbers. Reference games hold all §12 targets (59/62/88/141).
+  Owner's device check: stable 60 fps on desktop and phone at the final
+  sizes; islands build synchronously on first view (frame drops while
+  panning, grey first screen) → polish round 3.
+- **Client scaling — done (PR #26):** tile rows out of the world
+  payload, 1:4 masks, immutable per-island tiles endpoint, lazy loading,
+  32×32 chunks with per-chunk culling, zoom cap 120 (content), mask far
+  mesh, minimap from masks; far at the cap 10–18 draws / ≈ 215 k tris.
 - **Polish round 2 — done (PR #24):** 24 items from the owner's
   playtest: larger ships at near/mid, green selection tint, far-only
   island labels/tooltips, top bar with stat popups, side dock (build
