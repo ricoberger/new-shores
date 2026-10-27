@@ -376,6 +376,25 @@ async function farmOf(page: Page, type = "sheep_farm"): Promise<{ island: string
   }, type);
 }
 
+/**
+ * Two small islands side by side at the phone's zoom cap with 24-rune
+ * names, so that their far labels overlap: no generated archipelago puts
+ * two labels that close (their islands would touch), so the second island
+ * is moved half into the first one's rectangle. Display only, the server
+ * is not changed.
+ */
+function labelsSideBySide(w: WorldResponse): void {
+  const [a, b] = [...w.display.islands].sort((x, y) => x.width * x.height - y.width * y.height);
+  if (!a || !b) throw new Error("labelsSideBySide: fewer than two islands");
+  // Centres 30 tiles apart along x and y: across the screen at rotation 0, ≈ 160 CSS px on the phone at the cap.
+  const d = 30;
+  const cx = a.position.x + a.width / 2 + d;
+  const cy = a.position.y + a.height / 2 + d;
+  b.position = { x: Math.round(cx - b.width / 2), y: Math.round(cy - b.height / 2) };
+  a.name = "Northern Saltmarsh Holme";
+  b.name = "Southern Ropewalk Island";
+}
+
 /** The home island's Trading Post at level 4 with four ships at its berths and one in its queue (copies of the start sloop). */
 function fourAtThePier(w: WorldResponse): void {
   const d = w.display;
@@ -829,6 +848,21 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.getByTestId("dock-ships").click();
       await page.getByTestId("ship-1").click();
       await page.getByTestId("route-editor-resume").waitFor({ state: "visible" });
+    },
+  },
+  // Phone at the zoom cap with two overlapping labels: the focused (smaller) island's stays, the other one's is hidden.
+  "far-labels": {
+    fixture: "seafaring",
+    device: "phone",
+    patch: labelsSideBySide,
+    run: async (page) => {
+      const c = await page.evaluate(() => {
+        const [a, b] = [...window.__newShores!.getServer()!.display.islands].sort((x, y) => x.width * x.height - y.width * y.height);
+        return { x: (a!.position.x + a!.width / 2 + b!.position.x + b!.width / 2) / 2, y: (a!.position.y + a!.height / 2 + b!.position.y + b!.height / 2) / 2 };
+      });
+      await setCamera(page, { x: c.x, y: c.y, half: 100_000, rotation: 0 });
+      await waitLod(page, "far");
+      await settle(page);
     },
   },
   // The island card, opened from an island label at far LOD (desktop).

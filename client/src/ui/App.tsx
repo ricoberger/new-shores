@@ -954,7 +954,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   return (
     <div className={`${styles.root} ${phone ? styles.phone : ""}`} data-layout={layout.mode} data-touch={isTouchLayout(layout.mode) ? "true" : undefined}>
       {model && (
-        <WorldOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} />
+        <WorldOverlay renderer={renderer} model={model} selectedShip={selectedShip?.id ?? null} nowMs={snap.nowMs} onIsland={(id) => tapIsland(id)} declutter={phone} />
       )}
       <div className={styles.overlay}>
         <div className={styles.top}>

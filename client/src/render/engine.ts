@@ -571,6 +571,16 @@ export class GameRenderer {
     return this.lod;
   }
 
+  /** Whether the camera is zoomed out to its maximum (the region's cap or the whole archipelago; a pinch may stop within 2 %). */
+  atZoomCap(): boolean {
+    return this.rig.view().half >= this.rig.zoomRange().max * 0.98;
+  }
+
+  /** The island the camera is focused on ("" before the first view). */
+  focusedIsland(): string {
+    return this.info.focus;
+  }
+
   /** Camera target (archipelago tiles), zoom and rotation step. */
   cameraView(): CameraView {
     return this.rig.view();
