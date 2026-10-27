@@ -161,7 +161,15 @@ UI shows the same numbers the server uses.
   (opened from the side dock or the insolvency banner), each clickable to
   focus the building.
 - **"While you were away" dialog** after ≥ 15 min absence (see §4 and
-  MECHANICS §12b); **Quests button** with a badge; **insolvency banner**
+  MECHANICS §12b): the interval in the player's local time ("25 Oct,
+  21:36 – 26 Oct, 04:08 (6 h 31 min)", the end's day only when it
+  differs), then headed sections: **Overview** (one line each for gold,
+  "Gold: 184 → 4337 (+4153)", and the population per tier), one section per
+  island (its name as the heading, a goods table: produced, consumed,
+  lost, stock/capacity; no at-capacity badge — the stock shows it), pauses, **Ships arrived (n)** (one line per ship: "Gull: 42
+  arrivals (Cormorant Rock 21, Mistle Haven 21)") and quests; the
+  signature row has the title's brass line above it. **Quests button**
+  with a badge; **insolvency banner**
   whenever anything is unpaid.
 
 ## 3. Placement

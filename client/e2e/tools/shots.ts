@@ -418,6 +418,36 @@ function fourAtThePier(w: WorldResponse): void {
   tp.berths = { total: 4, busy: 4, ships: ids.slice(0, 4), queue: [905] };
 }
 
+/** A pending away summary like a night away (the owner's playtest): gold, settlers, six goods (two at capacity), a ship arrival. */
+function awayOvernight(w: WorldResponse): void {
+  const d = w.display;
+  const home = d.islands.find((i) => i.settled);
+  if (!home) throw new Error("awayOvernight: no settled island");
+  const to = Date.parse(d.evaluated_at);
+  const from = to - (6 * 60 + 31) * 60_000;
+  const good = (produced: number, consumed: number, stock: number) => ({ produced: produced * 1000, consumed: consumed * 1000, lost: 0, stock_after: stock * 1000, capacity: 300_000, at_capacity: stock === 300 });
+  d.away_summary = {
+    id: from,
+    from: new Date(from).toISOString(),
+    to: new Date(to).toISOString(),
+    gold_before: 184_000,
+    gold_after: 4_337_000,
+    population: { settlers: { before: 88_000, after: 88_000 } },
+    islands: [{ id: home.id, goods: { fish: good(587, 344, 254), planks: good(298, 0, 300), sails: good(0, 0, 10), wood: good(597, 298, 300), wool: good(261, 261, 5), wool_garments: good(261, 172, 90) } }],
+    auto_paused: 0,
+    auto_resumed: 0,
+    still_unpaid: [],
+    // The first ship shuttles between home and a neighbour (42 arrivals); grouped per ship in the letter.
+    ...(() => {
+      const other = d.islands.find((i) => i.id !== home.id)?.id ?? home.id;
+      const ship = d.ships[0]?.id ?? 1;
+      const arrivals = Array.from({ length: 42 }, (_, n) => ({ ship_id: ship, island_id: n % 2 === 0 ? other : home.id, at: new Date(from + (n + 1) * 9 * 60_000).toISOString() }));
+      return { ships_arrived: arrivals.length, arrivals };
+    })(),
+    quests_completed: [],
+  };
+}
+
 /** The home island's shipyard halfway through a sloop. */
 function sloopOnTheSlip(w: WorldResponse): void {
   const yard = w.display.islands.flatMap((i) => i.buildings).find((b) => b.type === "shipyard");
@@ -855,6 +885,15 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.getByTestId("dock-ships").click();
       await page.getByTestId("ship-1").click();
       await page.getByTestId("ship-panel").waitFor({ state: "visible" });
+    },
+  },
+  // The "While you were away" letter for a night away (desktop).
+  away: {
+    fixture: "settled",
+    device: "desktop",
+    patch: awayOvernight,
+    run: async (page) => {
+      await page.getByTestId("away-dialog").waitFor();
     },
   },
   // Renaming a ship in its panel's header (desktop, D-055).

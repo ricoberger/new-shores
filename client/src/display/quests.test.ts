@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Content, DisplayState } from "../api/client";
 import { insolvencyBanner } from "./insolvency";
 import { claimableCount, objectiveProgress, objectiveText, questTitle, rewardText, rewardsGoods } from "./quests";
-import { shouldShowSummary, summaryView } from "./summary";
+import { arrivalLines, intervalText, shouldShowSummary, summaryView } from "./summary";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -87,19 +87,20 @@ describe("away summary", () => {
     const model = fixture("away_summary_12h");
     const s = model.away_summary;
     expect(s).not.toBeNull();
-    const v = summaryView(s!, content, islandName);
-    expect(v.from).toBe("2026-01-01T00:30:00.000Z");
+    const v = summaryView(s!, content, islandName, undefined, "UTC");
+    expect(v.from).toBe("1 Jan, 00:30");
+    expect(v.to).toBe("12:30");
     expect(v.duration).toBe("12 h 0 min");
     expect(v.gold).toEqual({ before: "258", after: "26", change: "−232" });
-    expect(v.population).toEqual([{ tier: "settlers", name: "Settlers", text: "32 → 8" }]);
+    expect(v.population).toEqual([{ tier: "settlers", name: "Settlers", before: "32", after: "8" }]);
     expect(v.islands.map((is) => is.name)).toEqual(["Start"]);
     const planks = v.islands[0]!.goods.find((g) => g.good === "planks")!;
-    expect(planks).toMatchObject({ name: "Planks", produced: "158", stock: "300/300", atCapacity: true });
-    expect(v.islands[0]!.goods.find((g) => g.good === "fish")).toMatchObject({ consumed: "31", stock: "0/300", atCapacity: false });
+    expect(planks).toMatchObject({ name: "Planks", produced: "158", stock: "300/300" });
+    expect(v.islands[0]!.goods.find((g) => g.good === "fish")).toMatchObject({ consumed: "31", stock: "0/300" });
     expect(v.paused).toBe(8);
     expect(v.stillPaused).toEqual(["Lumberjack #3 (Start)", "Lumberjack #4 (Start)", "Sawmill #5 (Start)"]);
     expect(v.shipsArrived).toBe(1);
-    expect(v.arrivals).toEqual(["Ship #1 at island2, 00:32 UTC"]);
+    expect(v.arrivals).toEqual(["Ship #1: 1 arrival (island2)"]);
     expect(v.quests).toEqual([]);
     // With the model's ship names (D-055): the arrivals and a paused ship are named.
     const named = summaryView(
@@ -107,9 +108,31 @@ describe("away summary", () => {
       content,
       islandName,
       (id) => (id === 1 ? "Gull" : `Ship #${id}`),
+      "UTC",
     );
-    expect(named.arrivals).toEqual(["Gull at island2, 00:32 UTC"]);
+    expect(named.arrivals).toEqual(["Gull: 1 arrival (island2)"]);
     expect(named.stillPaused.at(-1)).toBe("Gull (Start)");
+  });
+
+  it("groups the arrivals per ship, ships and islands in the order of their first arrival", () => {
+    const at = "2026-01-01T00:00:00.000Z";
+    const arrivals = [
+      { ship_id: 2, island_id: "b", at },
+      { ship_id: 1, island_id: "a", at },
+      { ship_id: 2, island_id: "a", at },
+      { ship_id: 2, island_id: "b", at },
+    ];
+    const names: Record<string, string> = { a: "Cormorant Rock", b: "Mistle Haven" };
+    const lines = arrivalLines(arrivals, (id) => names[id] ?? id, (id) => (id === 2 ? "Gull" : `Ship #${id}`));
+    expect(lines).toEqual(["Gull: 3 arrivals (Mistle Haven 2, Cormorant Rock 1)", "Ship #1: 1 arrival (Cormorant Rock)"]);
+    expect(arrivalLines([], (id) => id, (id) => `Ship #${id}`)).toEqual([]);
+  });
+
+  it("formats the interval as day and time, the end's day only when it differs, in the given time zone", () => {
+    expect(intervalText("2026-10-25T21:36:39.279Z", "2026-10-26T04:08:23.689Z", "UTC")).toEqual({ from: "25 Oct, 21:36", to: "26 Oct, 04:08" });
+    expect(intervalText("2026-10-25T08:05:00Z", "2026-10-25T19:40:00Z", "UTC")).toEqual({ from: "25 Oct, 08:05", to: "19:40" });
+    // The same instants in Berlin (CET, UTC+1): both on 26 Oct.
+    expect(intervalText("2026-10-25T23:36:00Z", "2026-10-26T04:08:00Z", "Europe/Berlin")).toEqual({ from: "26 Oct, 00:36", to: "05:08" });
   });
 
   it("opens once per summary id", () => {

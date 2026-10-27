@@ -301,16 +301,22 @@ describe("HUD components", () => {
     expect(text(html)).toContain("Lay a road.");
   });
 
-  it("renders the away dialog with the interval and capacity marks", () => {
+  it("renders the away dialog with a readable interval, the overview, island and ships headings and no capacity badge", () => {
     const model = fixture("away_summary_12h");
     const html = renderToStaticMarkup(
-      createElement(AwayDialog, { summary: model.away_summary!, content, islandName: (id: string) => id, onDismiss: () => {} }),
+      createElement(AwayDialog, { summary: model.away_summary!, content, islandName: (id: string) => id, timeZone: "UTC", onDismiss: () => {} }),
     );
-    expect(text(html)).toContain("2026-01-01T00:30:00.000Z – 2026-01-01T12:30:00.000Z (12 h 0 min)");
+    expect(text(html)).toContain("1 Jan, 00:30 – 12:30 (12 h 0 min)");
     expect(html).toContain('data-testid="away-good-start-planks"');
-    expect(text(html)).toContain("300/300at capacity");
-    expect(text(html)).toContain("Settlers: 32 → 8");
-    expect(text(html)).toContain("Ships arrived: 1");
+    expect(text(html)).toContain("Planks15800300/300Wood");
+    expect(text(html)).not.toContain("at capacity");
+    expect(text(html)).toContain("OverviewGold: 258 → 26 (−232)Settlers: 32 → 8startGood");
+    expect(text(html)).toContain("Ships arrived (1)Ship #1: 1 arrival (island2)");
+    // Each island's name is a section heading (no "Islands" heading above them).
+    expect(html).toMatch(/<div class="[^"]*sectionTitle[^"]*" data-testid="away-island-start">start<\/div>/);
+    expect(text(html)).not.toContain("Islands");
+    // The signature row carries the title's brass divider.
+    expect(html).toMatch(/<div class="[^"]*letterEnd[^"]*" data-testid="away-end"><span[^>]*>Your humble advisor/);
   });
 
   describe("route editor", () => {

@@ -725,14 +725,6 @@
   margin-right: 4px;
 }
 
-.badge {
-  font-size: 11px;
-  color: var(--ns-ui-parchment-light);
-  background: var(--ns-ui-dark-wood);
-  border-radius: 8px;
-  padding: 0 6px;
-}
-
 .hudButton {
   color: var(--ns-ui-ink);
   border: 1px solid var(--ns-ui-brass);
@@ -1065,6 +1057,12 @@
   font-size: 12px;
   color: var(--ns-ui-ink-soft);
   margin-bottom: 2px;
+}
+
+/* The signature row: the title's brass line above it, closing the letter. */
+.letterEnd {
+  border-top: 1px solid var(--ns-ui-brass);
+  padding-top: 8px;
 }
 
 .letterSign {
