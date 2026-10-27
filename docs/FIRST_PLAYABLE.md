@@ -160,6 +160,16 @@ login, GLB assets, sound.
   payload, 1:4 masks, immutable per-island tiles endpoint, lazy loading,
   32×32 chunks with per-chunk culling, zoom cap 120 (content), mask far
   mesh, minimap from masks; far at the cap 10–18 draws / ≈ 215 k tris.
+- **Polish round 3 — done (PR #30):** incremental island build under
+  a frame budget (longest pan frame 200–483 → 17–33 ms, grey first
+  screen gone), warm smelter/sailmaker, far landmarks on mask-drawn
+  islands (cap: 10 draws / 211 k tris), minimap open on phones while
+  unsettled, overlapping far labels hidden, docked founding panel /
+  one-line phone sheet, `citizens` dev fixture, `sync.test.ts` on the
+  fake clock; owner's items: ship names (D-055, schema 8), icon rename
+  buttons shared by island/route/ship, unsettled islands in true
+  colours, tidied away letter, ship panel headings, start dialog
+  centred, island size off the top bar.
 - **Polish round 2 — done (PR #24):** 24 items from the owner's
   playtest: larger ships at near/mid, green selection tint, far-only
   island labels/tooltips, top bar with stat popups, side dock (build

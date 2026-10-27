@@ -652,6 +652,15 @@ specs isolate through a dev-only world reset endpoint.
 - *Update (PR #17):* the Quaternius Pirate Kit is gone too — the KayKit
   SOURCE editions (which add ships, boats, docks, carts and animals) are
   the only kits; the sloop is the KayKit `ship`.
+- *Refinement (PR #30, owner's playtest):* unsettled islands are **no
+  longer desaturated** at far or on the minimap — the grey made the
+  archipelago look dead; labels, settled badges and the far landmarks
+  (Trading Post, shipyards as lite models on mask-drawn islands) tell
+  settled from unsettled. The `unsettled` palette role is unused (art
+  follow-up). Island detail is built **incrementally** under a per-frame
+  time budget (6 ms desktop / 4 ms phone) from a queue ordered focused
+  island → visible chunks → distance; the mask mesh draws the island
+  until complete, nothing is built before the first rendered frame.
 
 ## D-051 Settling at sea, Trading Post and Warehouses, water-edge footprints, fields v2, berths, free camera
 

@@ -162,7 +162,11 @@ return Display(w, now)
   farms whose efficiency could not be preserved); the store logs the
   notes, the sim never does. Current schema: 8; the only registered
   migration is 7→8 (default ship names, D-055) — older versions were
-  bumped without a migration (local databases are recreated).
+  bumped without a migration (local databases are recreated). **Rule
+  while undeployed:** a trivial additive migration (a defaulted field)
+  may be written when it is cheaper than a reset; structural changes
+  (envelope layout, tiles, islands) bump the schema without a migration
+  and the owner recreates the local database.
 - Migrations are versioned SQL files embedded in the binary and applied by
   `server migrate` (or `MIGRATE_ON_START`) under an advisory lock, with
   `schema_migrations` bookkeeping; expand/contract only.
@@ -375,7 +379,7 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   (ART_DIRECTION §8, `?stats=1`); there is no CI perf guard (D-052).
 - **Dev reset:** `POST /api/v1/dev/reset` (dev mode only; 404 otherwise;
   not in the OpenAPI contract) reseeds the in-memory world from a named
-  fixture (`default`, `town`, `settled`), clears pending dev events and
+  fixture (`default`, `town`, `settled`, `seafaring`, `citizens`), clears pending dev events and
   publishes; `make shots` uses it for the server fixtures.
 
 ## 5a. Asset pipeline (art task 3)

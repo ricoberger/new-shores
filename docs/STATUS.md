@@ -1,15 +1,15 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after PR #29
-(D-054 complete: field painting, berths on anchors, structure pass).
+docs sync; details live in the linked documents. Last update: after PR #30
+(polish round 3: incremental island build, ship names D-055, playtest fixes).
 
 ## What exists
 
 | Area | State | Where |
 |---|---|---|
 | Simulation (pure Go, lazy, deterministic) | tiers 1–2 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename, batch field placement, terrain table, ship names; schema 8 | `server/internal/sim`, MECHANICS.md |
-| Content | `old_coast` 0.10.0: D-054 footprints/costs/fields for tiers 1–2, islands 192/112/64/16, `camera.max_half_extent`, generator rules (`islands.json`, 12 islands + 0–2 rocks) and 48 island names, tier 1 + 2 goods, buildings incl. Trading Post / Warehouse / water-edge fisher + shipyard, fields (1×1 crops, 2×2 pastures), sloop (4 slots), need names, 13 intro quests | `content/old_coast`, CONTENT.md |
+| Content | `old_coast` 0.10.0: D-054 footprints/costs/fields for tiers 1–2, islands 192/112/64/16, `camera.max_half_extent`, generator rules (`islands.json`, 12 islands + 0–2 rocks) and 48 island names, tier 1 + 2 goods, buildings incl. Trading Post / Warehouse / water-edge fisher + shipyard, fields (1×1 crops, 3×3 pastures), sloop (4 slots), need names, 13 intro quests | `content/old_coast`, CONTENT.md |
 | Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store and `POST /api/v1/dev/reset` | `server/internal/*`, ARCHITECTURE.md |
 | Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052) | `client/`, UI.md |
 | Art | KayKit SOURCE kits only; recipe-driven Blender build (`npm run assets`), AO/two-tone vertex colours, diorama islands; recipes + decor; thumbnails; life layer (carts, walkers, smoke, sails, boats, gulls, strollers, sheep, construction stages) with device budgets | `assets/`, ART_DIRECTION.md |
@@ -37,16 +37,13 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Next tasks (in order)
 
-1. **Polish round 3** (Opus; design-lead items unattended, then the
-   owner's playtest items in the same session): **incremental island
-   build** (time-budgeted chunk queue, mask mesh until built, first
-   frame before any build — fixes frame drops when an island enters
-   view and the grey first screen), smelter/sailmaker palette, far
-   landmarks on mask-drawn islands, minimap open on phones while
-   unsettled, far labels, founding panel over the map, `citizens` dev
-   fixture, `sync.test.ts` fake timers.
-2. **Content depth** (design interview first): tier-2 alternatives
-   (dairy, pigs, apiary with their reserved field types), tier 3.
+1. **Content depth** — design interview first (owner + design lead):
+   tier-2 alternatives (dairy, pigs, apiary with their reserved field
+   types), **tier 3 Merchants and tier 4 Patricians in one interview**
+   (needs per category, tax and unlock population, mandatory vs variety
+   chains, public buildings, coal as a charcoal substitute, the single
+   gold slot, luxury icons, CONTENT §12 targets per tier). Then one
+   content session + one models session per tier.
 
 ## Known follow-ups
 
@@ -70,7 +67,11 @@ in the sync after a task unless the task says otherwise; nobody adds the
   `server/testdata/content/old_coast_pre_d054` (hand-made scenarios,
   mechanics tests, two client tests) — see the PR #27 notes.
 - Local dev databases older than schema 7 must be recreated (`make down
-  VOLUMES=1 && make up`).
+  VOLUMES=1 && make up`); 7→8 migrates (ship names).
+- **First frame** ≈ 200 ms cold / 115 ms warm on desktop (PR #30 notes):
+  the world and content requests start only after the engine is set up
+  (~117 ms); fetching them in parallel saves ≈ 35–40 ms — client
+  follow-up. The unused `unsettled` palette role can be removed.
 
 ## How to run
 
