@@ -38,9 +38,6 @@ const GRASS_A = c3(TERRAIN.grass_a);
  */
 export const FAR_TREE_STRIDE = 1;
 
-/** Material colour of the muted ground scatter (vertex colours × this). */
-const MUTED = new Color3(0.62, 0.62, 0.64);
-
 /** Decor models of the tree species (variant index → manifest decor ID). */
 export const TREE_MODELS = ["decor_tree_a", "decor_tree_b", "decor_tree_c", "decor_tree_d"] as const;
 const STUMP_MODELS = ["decor_stump_a", "decor_stump_b"] as const;
@@ -194,17 +191,11 @@ export class ModelMerger {
   }
 }
 
-/** The materials of a Decoration: shared by the chunks of an island (setMuted tints them all). */
+/** The materials of a Decoration: shared by the chunks of an island. */
 export interface DecorMaterials {
   material: StandardMaterial;
   scatterMaterial: StandardMaterial;
   shadowMaterial: StandardMaterial;
-}
-
-/** Tints a ground scatter material down (unsettled islands at far LOD) or back. */
-export function muteScatter(m: StandardMaterial, on: boolean): void {
-  m.diffuseColor = on ? MUTED : Color3.White();
-  m.ambientColor = on ? MUTED : Color3.White();
 }
 
 /** A Decoration's materials (one set per island, shared by its chunks). */
@@ -220,7 +211,7 @@ export function decorMaterials(scene: Scene, name: string): DecorMaterials {
 /** Trees, stumps, their blob shadows and the ground scatter of one island or island chunk. */
 export class Decoration {
   private readonly material: StandardMaterial;
-  /** The ground scatter's own material: tinted down on unsettled islands at far LOD (setMuted). */
+  /** The ground scatter's own material. */
   private readonly scatterMaterial: StandardMaterial;
   private readonly shadowMaterial: StandardMaterial;
   private trees: Mesh | null = null;
@@ -331,16 +322,6 @@ export class Decoration {
     this.ranges = { trees: { kept: keptTrees, all: all(this.trees) }, shadows: { kept: keptShadows, all: all(this.shadows) } };
     this.applyThinning();
     this.setFar(this.far);
-  }
-
-  /** Tints the ground scatter down (unsettled islands at far LOD): a material colour, no rebuild. */
-  setMuted(on: boolean): void {
-    muteScatter(this.scatterMaterial, on);
-  }
-
-  /** The scatter's material colour (tests). */
-  scatterTint(): Color3 {
-    return this.scatterMaterial.diffuseColor;
   }
 
   /**

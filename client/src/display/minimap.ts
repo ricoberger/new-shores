@@ -49,18 +49,17 @@ interface IslandShape {
   position: { x: number; y: number };
   width: number;
   height: number;
-  settled: boolean;
   /** The 1:4 terrain mask the land is drawn from (display/mask.ts). */
   terrain_mask: string;
 }
 
 /**
  * Key of what the minimap's cached land layer shows: the islands' IDs,
- * positions, sizes, settlement and terrain masks. Display numbers (stocks, population)
+ * positions, sizes and terrain masks (settled or not, the land looks the same). Display numbers (stocks, population)
  * change every model update and are not part of it.
  */
 export function minimapLandKey(islands: readonly IslandShape[]): string {
-  return islands.map((is) => `${is.id}:${is.position.x},${is.position.y},${is.width},${is.height},${is.settled ? 1 : 0},${is.terrain_mask}`).join("|");
+  return islands.map((is) => `${is.id}:${is.position.x},${is.position.y},${is.width},${is.height},${is.terrain_mask}`).join("|");
 }
 
 /** Bounding box of the islands (archipelago tiles), null without islands. */

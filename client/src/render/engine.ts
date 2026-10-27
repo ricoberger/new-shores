@@ -754,7 +754,7 @@ export class GameRenderer {
       const farMasked = this.farMask && this.lod === "far" && is.id !== focus;
       const useMask = !d?.hasTiles() || farMasked;
       d?.setShown(shown && !useMask, this.lod);
-      if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), settled: is.settled });
+      if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey) });
       // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
       if (showsLandmarks(is, this.lod, focus, useMask)) landmarks.push(is);
     }
@@ -797,8 +797,8 @@ export class GameRenderer {
     }
     d.setPosition(is.position);
     if (d.hasTiles() && d.hasStatics(statics)) {
-      // Built: payload changes rebuild only the touched chunks (a founding's settled flag: the lite terrain, in the build queue).
-      d.setStatics(statics, is.settled);
+      // Built: payload changes rebuild only the touched chunks (a founding changes no terrain: settled or not, the colours are the same).
+      d.setStatics(statics);
       if (!d.builtWith(is, this.defs)) {
         d.update(is, this.defs);
         this.applySelection();
@@ -807,8 +807,8 @@ export class GameRenderer {
     }
     // The first build (or new static data): queued in steps, drawn from the mask until done.
     const b = d.building();
-    if (!b || b.statics !== statics || b.settled !== is.settled) {
-      d.startBuild(statics, is.settled, is, this.defs);
+    if (!b || b.statics !== statics) {
+      d.startBuild(statics, is, this.defs);
       this.buildLoads.set(is.id, this.modelLoads);
     }
     return d;
@@ -873,9 +873,7 @@ export class GameRenderer {
     if (done.length === 0) return;
     for (const id of done) {
       // Models that loaded during the build: swap the island's placeholders now.
-      // (A founding's lite recolour has no entry: no models placed.)
-      const loads = this.buildLoads.get(id);
-      if (loads !== undefined && loads !== this.modelLoads) this.details.get(id)?.refreshModels();
+      if (this.buildLoads.get(id) !== this.modelLoads) this.details.get(id)?.refreshModels();
       this.buildLoads.delete(id);
     }
     this.viewKey = "";

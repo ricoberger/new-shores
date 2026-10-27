@@ -365,12 +365,6 @@ export function terrainColors(seed: number, tint: (c: Color3) => Color3 = (c) =>
   return { tile: (t, x, y) => tint(groundColor(t, x, y, seed)), slab: tint };
 }
 
-/** Unsettled islands at far LOD: the colours blended 70 % toward their grey (a glance tells them apart). */
-export function unsettledTint(c: Color3): Color3 {
-  const grey = (c.r + c.g + c.b) / 3;
-  return new Color3(c.r * 0.3 + grey * 0.7, c.g * 0.3 + grey * 0.7, c.b * 0.3 + grey * 0.7);
-}
-
 /**
  * The island's ground and slab with the given colours and material: one
  * mesh per chunk (display/chunks.ts) when `parent` gives each chunk's
@@ -416,8 +410,8 @@ export function buildIslandMeshes(
  * island under `liteParent`, the far view shows whole islands) and `full`
  * with the full profile (near and mid LOD, with the full models; per
  * chunk under `parent`'s chunk nodes). The ground
- * fill is in both; exactly one set is enabled at a time. An unsettled
- * island's `lite` set is desaturated (unsettledTint).
+ * fill is in both; exactly one set is enabled at a time. Settled or not,
+ * an island is drawn in the same colours.
  */
 export function buildTerrain(
   scene: Scene,
@@ -425,18 +419,17 @@ export function buildTerrain(
   loops: readonly CoastLoop[],
   seed: number,
   parent: TransformNode | null | ((chunk: string) => TransformNode) = null,
-  settled = true,
   liteParent: TransformNode | null = typeof parent === "function" ? null : parent,
 ): { lite: Mesh[]; full: Mesh[] } {
   if (typeof parent !== "function") {
     const material = terrainMaterial(scene);
     const colors = terrainColors(seed);
     return {
-      lite: buildIslandMeshes(scene, island, loops, seed, settled ? colors : terrainColors(seed, unsettledTint), material, liteParent, "terrain_lite", NEAR_PROFILE),
+      lite: buildIslandMeshes(scene, island, loops, seed, colors, material, liteParent, "terrain_lite", NEAR_PROFILE),
       full: buildIslandMeshes(scene, island, loops, seed, colors, material, parent, "terrain", PROFILE),
     };
   }
-  const b = new TerrainBuild(scene, island, loops, seed, parent, settled, liteParent);
+  const b = new TerrainBuild(scene, island, loops, seed, parent, liteParent);
   b.slab("full");
   b.slab("lite");
   for (const c of islandChunks(island.width, island.height)) b.chunk(c);
@@ -455,13 +448,11 @@ function terrainMaterial(scene: Scene): StandardMaterial {
  * render/buildqueue.ts): the slab of each detail (`slab`), then the
  * ground of each chunk with its full-profile mesh (`chunk`, any order),
  * then the island's one lite mesh (`finish`). The result equals
- * buildTerrain's but for the order of vertices. `liteOnly` builds the lite
- * set alone (slab("lite"), chunk, finish: no full meshes).
+ * buildTerrain's but for the order of vertices.
  */
 export class TerrainBuild {
   private readonly material: StandardMaterial;
   private readonly colors: GroundColors;
-  private readonly liteColors: GroundColors;
   private readonly full = new Map<string, Builder>();
   private readonly lite = new Builder();
   private readonly meshes: Mesh[] = [];
@@ -472,14 +463,10 @@ export class TerrainBuild {
     private readonly loops: readonly CoastLoop[],
     private readonly seed: number,
     private readonly parent: (chunk: string) => TransformNode,
-    settled: boolean,
     private readonly liteParent: TransformNode | null,
-    /** Only the lite set (a founding's recolour: the full set does not depend on the settled flag). */
-    private readonly liteOnly = false,
   ) {
     this.material = terrainMaterial(scene);
     this.colors = terrainColors(seed);
-    this.liteColors = settled ? this.colors : terrainColors(seed, unsettledTint);
   }
 
   private builder(k: string): Builder {
@@ -493,22 +480,16 @@ export class TerrainBuild {
     const { width, height } = this.island;
     for (const loop of this.loops) {
       if (detail === "full") slabStrip((x, y) => this.builder(chunkAt(x, y, width, height)), loop, this.seed, this.colors.slab, PROFILE);
-      else slabStrip(this.lite, loop, this.seed, this.liteColors.slab, NEAR_PROFILE);
+      else slabStrip(this.lite, loop, this.seed, this.colors.slab, NEAR_PROFILE);
     }
   }
 
   /** The ground of a chunk (cells whose top-left tile centre is in it) in both details, and its full mesh. */
   chunk(c: ChunkRect): void {
-    if (this.liteOnly) {
-      for (let j = c.y - 1; j < c.y + c.height - 1; j++) {
-        for (let i = c.x - 1; i < c.x + c.width - 1; i++) groundCell(this.lite, this.island, i, j, this.liteColors);
-      }
-      return;
-    }
     const b = this.builder(c.key);
     for (let j = c.y - 1; j < c.y + c.height - 1; j++) {
       for (let i = c.x - 1; i < c.x + c.width - 1; i++) {
-        groundCell(this.lite, this.island, i, j, this.liteColors);
+        groundCell(this.lite, this.island, i, j, this.colors);
         groundCell(b, this.island, i, j, this.colors);
       }
     }

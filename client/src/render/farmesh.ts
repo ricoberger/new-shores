@@ -18,7 +18,7 @@ import { type DecodedMask, MASK_BLOCK, MASK_TERRAINS, MASK_WATER } from "../disp
 import { ISLAND } from "../theme/palette";
 import { skyFill } from "./lighting";
 import { c3 } from "./palette";
-import { Builder, fillCell, groundColor, NEAR_PROFILE, slabStrip, unsettledTint } from "./terrain";
+import { Builder, fillCell, groundColor, NEAR_PROFILE, slabStrip } from "./terrain";
 
 /** One island of the mask mesh. */
 export interface MaskIsland {
@@ -28,8 +28,6 @@ export interface MaskIsland {
   mask: DecodedMask;
   /** Decoration seed of the island (display/scatter.ts islandSeed). */
   seed: number;
-  /** Unsettled islands are drawn desaturated like their far-LOD terrain. */
-  settled: boolean;
 }
 
 /**
@@ -38,14 +36,13 @@ export interface MaskIsland {
  * (each MASK_BLOCK × MASK_BLOCK tiles) and the slab down below the sea
  * along their outline. Empty for an all-water mask.
  */
-export function maskMeshData(mask: DecodedMask, seed: number, settled = true): Builder {
+export function maskMeshData(mask: DecodedMask, seed: number): Builder {
   const b = new Builder();
-  const tint = settled ? (c: Color3) => c : unsettledTint;
   const cell = (x: number, y: number) => (x >= 0 && y >= 0 && x < mask.width && y < mask.height ? (mask.cells[y * mask.width + x] as number) : MASK_WATER);
   const inside = (x: number, y: number) => cell(x, y) !== MASK_WATER;
   // Banded ground: the colour of each cell's terrain at the block's centre tile.
-  const tile = (x: number, y: number) => tint(groundColor(MASK_TERRAINS[cell(x, y)] as Terrain, x * MASK_BLOCK + 2, y * MASK_BLOCK + 2, seed));
-  const rim = tint(c3(ISLAND.sand_rim));
+  const tile = (x: number, y: number) => groundColor(MASK_TERRAINS[cell(x, y)] as Terrain, x * MASK_BLOCK + 2, y * MASK_BLOCK + 2, seed);
+  const rim = c3(ISLAND.sand_rim);
   for (let j = -1; j < mask.height; j++) {
     for (let i = -1; i < mask.width; i++) fillCell(b, inside, tile, rim, i, j);
   }
@@ -61,7 +58,7 @@ export function maskMeshData(mask: DecodedMask, seed: number, settled = true): B
       b,
       loop.map((p) => ({ ...p, x: p.x * MASK_BLOCK, y: p.y * MASK_BLOCK })),
       seed,
-      tint,
+      (c) => c,
       NEAR_PROFILE,
     );
   }
@@ -84,7 +81,7 @@ export class MaskLayer {
 
   /** Draws exactly these islands from their masks (rebuilt only when the set or an island's inputs changed). */
   show(islands: readonly MaskIsland[]): void {
-    const keyOf = (is: MaskIsland) => `${is.seed}|${is.settled ? 1 : 0}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`;
+    const keyOf = (is: MaskIsland) => `${is.seed}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`;
     const key = islands.map((is) => `${is.id}@${is.position.x},${is.position.y}#${keyOf(is)}`).join(";");
     if (key === this.key) return;
     this.key = key;
@@ -95,7 +92,7 @@ export class MaskLayer {
     for (const is of islands) {
       const k = keyOf(is);
       let c = this.cache.get(is.id);
-      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask, is.seed, is.settled) }));
+      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask, is.seed) }));
       keep.add(is.id);
       parts.push({ data: c.data, x: is.position.x, y: is.position.y });
     }

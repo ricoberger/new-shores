@@ -67,9 +67,9 @@ describe("minimap land cache key", () => {
     expect(minimapLandKey(next)).toBe(minimapLandKey(islands));
   });
 
-  it("changes with geometry and settlement", () => {
+  it("changes with geometry, not with settlement (one land colour)", () => {
     const key = minimapLandKey(islands);
-    expect(minimapLandKey([islands[0]!, { ...islands[1]!, settled: true }])).not.toBe(key);
+    expect(minimapLandKey([islands[0]!, { ...islands[1]!, settled: true }])).toBe(key);
     expect(minimapLandKey([islands[0]!, { ...islands[1]!, position: { x: 81, y: 60 } }])).not.toBe(key);
     expect(minimapLandKey([islands[0]!])).not.toBe(key);
     // A reroll (new terrain under the same ID and bounds).

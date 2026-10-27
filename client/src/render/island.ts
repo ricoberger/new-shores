@@ -40,18 +40,11 @@ import { footprintTiles, PlateauLayer } from "./plateaus";
 import { roadMaterial, RoadLayer, type RoadTile } from "./roads";
 import { FootprintShadows } from "./shadows";
 import { buildTerrain, FoamLine, TerrainBuild } from "./terrain";
-import { type DecorMaterials, decorMaterials, Decoration, FarTrees, muteScatter, TREE_MODELS } from "./trees";
+import { type DecorMaterials, decorMaterials, Decoration, FarTrees, TREE_MODELS } from "./trees";
 
-/**
- * The state of an incremental build: the first build (IslandDetail.startBuild)
- * or a founding's lite-terrain recolour (`lite`, setStatics on a built
- * island: the island stays drawn with its old terrain until the new lite
- * mesh replaces it).
- */
+/** The state of an incremental first build (IslandDetail.startBuild). */
 interface IslandBuild {
-  kind: "first" | "lite";
   statics: Island;
-  settled: boolean;
   display: IslandDisplay;
   defs: ReadonlyMap<string, ContentBuilding>;
   /** The island-level steps (terrain slab, buildings, relief, …); done: null. */
@@ -134,8 +127,6 @@ export class IslandDetail {
   /** The first build in steps (startBuild; null: none running). */
   private build: IslandBuild | null = null;
   private lod: Lod = "near";
-  /** Settled (from the payload): an unsettled island is drawn muted at far LOD. */
-  private settled = true;
   private shown = false;
   private deposits: Island["deposits"] = [];
 
@@ -211,37 +202,21 @@ export class IslandDetail {
     for (const m of this.root.getChildMeshes()) if (m.isWorldMatrixFrozen) m.freezeWorldMatrix();
   }
 
-  /**
-   * Rebuilds the terrain when the static data changed. On a built island a
-   * new settled flag (a founding) only queues the lite terrain's recolour
-   * (startLiteBuild): the old terrain stays drawn until it is replaced.
-   */
-  setStatics(statics: Island, settled = true): void {
-    const key = `${statics.revision}|${statics.id}|${settled}`;
-    if (this.build?.kind !== "first" && this.hasTiles() && this.hasStatics(statics)) {
-      // Built, the same static data: a settled flag that changed (a founding) recolours the lite terrain in steps.
-      this.settled = settled;
-      this.applyMuted();
-      if (this.build && this.build.settled === settled) return;
-      this.build?.terrain?.dispose();
-      this.build = null;
-      if (key !== this.terrainKey) this.startLiteBuild(statics, settled);
-      return;
-    }
+  /** Rebuilds the terrain when the static data changed. */
+  setStatics(statics: Island): void {
+    const key = `${statics.revision}|${statics.id}`;
     // A running incremental build is replaced by this one (update() follows with every layer).
     if (this.build) {
       this.build.terrain?.dispose();
       this.build = null;
       this.terrainKey = "";
     }
-    this.settled = settled;
-    this.applyMuted();
     if (key === this.terrainKey) return;
     for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
     this.root.computeWorldMatrix(true);
     this.seed = islandSeed(statics.id, statics.revision);
     this.loops = coastline(statics);
-    this.terrain = buildTerrain(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), settled, this.root);
+    this.terrain = buildTerrain(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), this.root);
     this.applyTerrainDetail();
     this.deposits = statics.deposits;
     this.statics = statics;
@@ -280,11 +255,9 @@ export class IslandDetail {
    * draws the mask) and the island's node stays hidden. A running build is
    * replaced; the meshes built so far are kept for the chunks' rebuilds.
    */
-  startBuild(statics: Island, settled: boolean, display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
+  startBuild(statics: Island, display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
     const b: IslandBuild = {
-      kind: "first",
       statics,
-      settled,
       display,
       defs,
       head: null,
@@ -306,44 +279,9 @@ export class IslandDetail {
     this.terrainKey = "";
   }
 
-  /**
-   * Recolours the lite terrain of a built island for a new settled flag in
-   * steps (the build queue, like a first build): the lite slab, the lite
-   * ground chunk by chunk, then the new lite mesh replaces the old one. The
-   * full terrain does not depend on the flag and the island stays drawn
-   * (hasTiles) meanwhile.
-   */
-  private startLiteBuild(statics: Island, settled: boolean): void {
-    const b: IslandBuild = {
-      kind: "lite",
-      statics,
-      settled,
-      display: this.builtFrom!.display,
-      defs: this.builtFrom!.defs,
-      head: null,
-      chunks: new Map(islandChunks(statics.width, statics.height).map((c) => [c.key, c])),
-      terrain: null,
-      roads: new Map(),
-      fields: new Map(),
-      scatter: null,
-      areas: [],
-      keys: null,
-      current: null,
-      currentKey: null,
-    };
-    b.head = this.liteHeadSteps(b);
-    this.build = b;
-  }
-
-  private *liteHeadSteps(b: IslandBuild): Generator<void, void, void> {
-    b.terrain = new TerrainBuild(this.scene, b.statics, this.loops, this.seed, (k) => this.chunkNode(k), b.settled, this.root, true);
-    b.terrain.slab("lite");
-    yield;
-  }
-
-  /** The running build's statics and settled flag (null: none running). */
-  building(): { statics: Island; settled: boolean } | null {
-    return this.build ? { statics: this.build.statics, settled: this.build.settled } : null;
+  /** The running build's statics (null: none running). */
+  building(): { statics: Island } | null {
+    return this.build ? { statics: this.build.statics } : null;
   }
 
   /** Whether the running build still has island-level steps (they come before its chunks). */
@@ -393,11 +331,9 @@ export class IslandDetail {
 
   /** The island-level steps of a build. */
   private *headSteps(b: IslandBuild): Generator<void, void, void> {
-    const { statics, settled, display, defs } = b;
+    const { statics, display, defs } = b;
     for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
     this.terrain = { lite: [], full: [] };
-    this.settled = settled;
-    this.applyMuted();
     this.root.computeWorldMatrix(true);
     this.seed = islandSeed(statics.id, statics.revision);
     this.loops = coastline(statics);
@@ -405,7 +341,7 @@ export class IslandDetail {
     this.statics = statics;
     this.layerDefs = defs;
     this.farTrees.beginChunks();
-    b.terrain = new TerrainBuild(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), settled, this.root);
+    b.terrain = new TerrainBuild(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), this.root);
     yield;
     b.terrain.slab("full");
     yield;
@@ -435,10 +371,6 @@ export class IslandDetail {
   /** The steps of one chunk of a build: its terrain, its roads and fields, its trees and scatter, its far trees. */
   private *chunkSteps(b: IslandBuild, c: ChunkRect): Generator<void, void, void> {
     b.terrain?.chunk(c);
-    if (b.kind === "lite") {
-      b.chunks.delete(c.key);
-      return;
-    }
     this.roads.updateOne(c.key, b.roads.get(c.key));
     this.fields.updateOne(c.key, b.fields.get(c.key));
     this.fieldDecor.updateOne(c.key, b.fields.get(c.key));
@@ -460,17 +392,10 @@ export class IslandDetail {
   /** The last step: the merged meshes, and the island has its tiles. */
   private finishBuild(b: IslandBuild): void {
     this.build = null;
-    if (b.kind === "lite") {
-      for (const m of this.terrain.lite) m.dispose();
-      this.terrain = { lite: b.terrain?.finish().lite ?? [], full: this.terrain.full };
-      this.applyTerrainDetail();
-      this.terrainKey = `${b.statics.revision}|${b.statics.id}|${b.settled}`;
-      return;
-    }
     if (b.terrain) this.terrain = b.terrain.finish();
     this.applyTerrainDetail();
     this.farTrees.finishChunks();
-    this.terrainKey = `${b.statics.revision}|${b.statics.id}|${b.settled}`;
+    this.terrainKey = `${b.statics.revision}|${b.statics.id}`;
     this.builtFrom = { display: b.display, defs: b.defs };
     this.keys = b.keys;
     this.rebuilds.roads++;
@@ -686,19 +611,8 @@ export class IslandDetail {
       this.near.setEnabled(lod === "near");
       for (const d of this.decoration.values()) d.setFar(lod === "far");
       this.plateaus.setFar(lod === "far");
-      this.applyMuted();
     }
     this.farTrees.setShown(this.shown && this.lod === "far");
-  }
-
-  /** Unsettled islands at far LOD: the ground scatter tinted down (the desaturated ground is the terrain's lite set). */
-  private applyMuted(): void {
-    muteScatter(this.decorMaterials.scatterMaterial, this.lod === "far" && !this.settled);
-  }
-
-  /** Whether the ground scatter is drawn muted (tests). */
-  mutedScatter(): boolean {
-    return this.decorMaterials.scatterMaterial.diffuseColor.r < 1;
   }
 
   /** Trading Posts and shipyards drawn (shown at far LOD: the landmarks of the archipelago view). */

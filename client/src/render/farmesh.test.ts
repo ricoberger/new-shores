@@ -41,16 +41,15 @@ describe("mask mesh", () => {
     expect(Math.min(...zs)).toBeGreaterThan(-12.5);
   });
 
-  it("colours the cells by their terrain band and desaturates an unsettled island", () => {
-    const settled = maskMeshData(mask, 7);
-    const muted = maskMeshData(mask, 7, false);
-    expect(muted.positions).toEqual(settled.positions);
+  it("colours the cells by their terrain band in true colours (no unsettled tint)", () => {
+    const data = maskMeshData(mask, 7);
     const spread = (cols: number[]) => {
       let s = 0;
       for (let i = 0; i < cols.length; i += 4) s += Math.max(cols[i]!, cols[i + 1]!, cols[i + 2]!) - Math.min(cols[i]!, cols[i + 1]!, cols[i + 2]!);
-      return s;
+      return s / (cols.length / 4);
     };
-    expect(spread(muted.colors)).toBeLessThan(spread(settled.colors));
+    // True grass/sand colours (≈ 0.23 mean channel spread); the former unsettled grey tint kept 30 % (≈ 0.07).
+    expect(spread(data.colors)).toBeGreaterThan(0.15);
   });
 
   it("is empty for an all-water mask and merges islands at their positions", () => {

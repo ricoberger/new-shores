@@ -45,8 +45,8 @@ UI shows the same numbers the server uses.
   fields, carts, status icons, construction hulls, foam. *Mid:* full
   models, roads and fields, no carts or status icons. *Far:* lite models
   (≈ 25 %), the same diorama ground, one simplified tree mesh per island
-  without scatter or tree shadows, labels and settled badges; unsettled
-  islands desaturated (D-050). Terrain, trees, scatter, roads and fields
+  without scatter or tree shadows, labels and settled badges; settled or
+  not, an island has the same colours. Terrain, trees, scatter, roads and fields
   are built per **32×32 chunk** and culled per chunk; a change rebuilds
   only the touched chunks; the life layer spawns only in visible chunks.
   **Island tiles load lazily** (`GET /world/islands/{id}/tiles`, cached
@@ -97,7 +97,7 @@ UI shows the same numbers the server uses.
   the unsettled-island panel, never a command.
 - **Minimap** (HUD, top of the left column; `min(180 px, 25 % of the short
   side)`; collapsible and collapsed by default in phone portrait): north-up
-  2D canvas with island outlines (settled/unsettled tint, cached),
+  2D canvas with island outlines (one land colour, settled or not; cached),
   ship dots and the camera's viewport quad (rotates with the camera);
   tap/click jumps the camera. `role="img"` with a label.
 - The HUD's world-map button opens the 2D world-map screen as an overlay

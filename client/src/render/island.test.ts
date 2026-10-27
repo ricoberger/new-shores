@@ -192,14 +192,13 @@ describe("shadow casters with models", () => {
   });
 });
 
-describe("unsettled islands at far LOD", () => {
-  it("draw a desaturated ground and muted scatter at far LOD only, by toggles", () => {
+describe("unsettled islands", () => {
+  it("are drawn in the same colours as settled ones at every LOD (no grey far terrain, no muted scatter)", () => {
     engine = new NullEngine({ renderWidth: 320, renderHeight: 200, textureSize: 64, deterministicLockstep: false, lockstepMaxSteps: 1 });
     const scene = new Scene(engine);
     const built = buildDenseArchipelagoFixture(0);
     const defs = new Map<string, ContentBuilding>(built.content.buildings.map((b) => [b.id, b]));
     const is = built.server.display.islands.find((x) => !x.settled)!;
-    const st = built.islands.get(is.id)!;
     const saturation = (name: string) => {
       const m = scene.meshes.find((x) => x.name.startsWith(`${name}_${is.id}`))!;
       const c = m.getVerticesData("color")!;
@@ -208,21 +207,13 @@ describe("unsettled islands at far LOD", () => {
       return s / (c.length / 4);
     };
     const d = new IslandDetail(scene, is.id, is.position);
-    d.setStatics(st, false);
+    d.setStatics(built.islands.get(is.id)!);
     d.update(is, defs);
-    // The far (lite) ground is greyer than the near/mid (full) one.
-    expect(saturation("terrain_lite")).toBeLessThan(saturation("terrain") * 0.5);
-    d.setShown(true, "near");
-    const meshes = scene.meshes.length;
     d.setShown(true, "far");
-    expect(d.mutedScatter()).toBe(true);
-    d.setShown(true, "mid");
-    expect(d.mutedScatter()).toBe(false);
-    expect(scene.meshes.length).toBe(meshes);
-    // A settled island keeps its colours at far LOD.
-    d.setStatics(st, true);
-    d.setShown(true, "far");
-    expect(d.mutedScatter()).toBe(false);
+    // The far (lite) ground has the near/mid (full) ground's colours.
+    expect(saturation("terrain_lite")).toBeGreaterThan(saturation("terrain") * 0.8);
+    const scatter = scene.materials.find((m) => m.name.startsWith("scatter_"))! as unknown as { diffuseColor: { r: number } };
+    expect(scatter.diffuseColor.r).toBe(1);
   });
 });
 
@@ -242,14 +233,14 @@ describe("incremental build (display/buildqueue.ts)", () => {
     const st = buildDenseArchipelagoFixture(0).islands.get(is.id)!;
     const scene = new Scene(engine!);
     const once = new IslandDetail(scene, is.id, is.position);
-    once.setStatics(st, is.settled);
+    once.setStatics(st);
     once.update(is, sync.defs);
     const expected = geometry(scene);
     scene.dispose();
 
     const steps = new Scene(engine!);
     const d = new IslandDetail(steps, is.id, is.position);
-    d.startBuild(st, is.settled, is, sync.defs);
+    d.startBuild(st, is, sync.defs);
     d.setShown(false, "near");
     expect(d.hasTiles()).toBe(false);
     let n = 0;
@@ -289,68 +280,18 @@ describe("incremental build (display/buildqueue.ts)", () => {
     const st = buildDenseArchipelagoFixture(0).islands.get(is.id)!;
     const scene = new Scene(engine!);
     const d = new IslandDetail(scene, is.id, is.position);
-    d.startBuild(st, true, is, w.defs);
+    d.startBuild(st, is, w.defs);
     while (d.headPending()) d.buildStep(null);
     while (d.pendingChunks().some((c) => c.key === "0,0")) d.buildStep("0,0");
     const terrain = () => scene.meshes.filter((m) => !m.isDisposed() && m.name.startsWith(`terrain_${is.id}_`)).length;
     expect(terrain()).toBe(1);
-    d.startBuild({ ...st, revision: `${st.revision}b` }, true, is, w.defs);
+    d.startBuild({ ...st, revision: `${st.revision}b` }, is, w.defs);
     expect(terrain()).toBe(0);
     expect(d.building()?.statics.revision).toBe(`${st.revision}b`);
     expect(d.pendingChunks()).toHaveLength(2);
     while (d.building()) d.buildStep(d.pendingChunks()[0]?.key ?? null);
     expect(d.hasTiles()).toBe(true);
     expect(terrain()).toBe(2);
-    scene.dispose();
-  });
-
-  it("recolours the lite terrain of a founding in steps, the island drawn with its old terrain meanwhile", () => {
-    const w = world();
-    const is = w.islands.find((x) => x.id === "isle3")!;
-    const st = buildDenseArchipelagoFixture(0).islands.get(is.id)!;
-    const reference = new Scene(engine!);
-    const settled = new IslandDetail(reference, is.id, is.position);
-    settled.setStatics(st, true);
-    settled.update(is, w.defs);
-    const expected = geometry(reference);
-    const liteColors = (sc: Scene) => [...sc.meshes.find((m) => !m.isDisposed() && m.name.startsWith("terrain_lite_"))!.getVerticesData("color")!];
-    const settledLite = liteColors(reference);
-    reference.dispose();
-
-    const scene = new Scene(engine!);
-    const d = new IslandDetail(scene, is.id, is.position);
-    d.setStatics(st, false);
-    d.update(is, w.defs);
-    const live = (prefix: string) => scene.meshes.filter((m) => !m.isDisposed() && m.name.startsWith(prefix));
-    const full = live(`terrain_${is.id}_`);
-    const oldLite = live("terrain_lite_")[0]!;
-    d.setStatics(st, true);
-    // Queued, not built at once: still drawn, with the old lite mesh and the same full meshes.
-    expect(d.hasTiles()).toBe(true);
-    expect(d.building()?.settled).toBe(true);
-    expect(d.headPending()).toBe(true);
-    expect(oldLite.isDisposed()).toBe(false);
-    // The same flag again keeps the running recolour; flipping back cancels it.
-    d.setStatics(st, true);
-    expect(d.headPending()).toBe(true);
-    d.setStatics(st, false);
-    expect(d.building()).toBeNull();
-    d.setStatics(st, true);
-    let steps = 0;
-    while (d.building()) {
-      d.buildStep(d.pendingChunks()[0]?.key ?? null);
-      expect(d.hasTiles()).toBe(true);
-      steps++;
-    }
-    expect(steps).toBeGreaterThan(2);
-    expect(oldLite.isDisposed()).toBe(true);
-    expect(full.every((m) => !m.isDisposed())).toBe(true);
-    expect(live(`terrain_${is.id}_`)).toEqual(full);
-    expect(geometry(scene)).toEqual(expected);
-    expect(liteColors(scene)).toEqual(settledLite);
-    // Done: the same flag starts nothing.
-    d.setStatics(st, true);
-    expect(d.building()).toBeNull();
     scene.dispose();
   });
 });
