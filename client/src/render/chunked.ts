@@ -45,6 +45,35 @@ export class Chunked<L, I> {
     return changed;
   }
 
+  /**
+   * Builds one chunk from its input (the incremental island build): as
+   * update() would for this chunk, keeping the other chunks' signatures,
+   * so a later update() rebuilds only what changed since.
+   */
+  updateOne(key: string, input: I | undefined): void {
+    const sig = input === undefined ? "" : this.sig(input);
+    const sigs = (this.sigs ??= new Map());
+    const layer = this.layers.get(key);
+    if (input === undefined || sig === "") {
+      if (layer !== undefined) {
+        this.drop(layer);
+        this.layers.delete(key);
+      }
+      sigs.delete(key);
+      return;
+    }
+    if (layer !== undefined && sigs.get(key) === sig) return;
+    let l = layer;
+    if (l === undefined) this.layers.set(key, (l = this.make(key)));
+    this.build(l, input, key);
+    sigs.set(key, sig);
+  }
+
+  /** The layer of a chunk (undefined: none built). */
+  get(key: string): L | undefined {
+    return this.layers.get(key);
+  }
+
   /** The chunks' layers. */
   values(): IterableIterator<L> {
     return this.layers.values();

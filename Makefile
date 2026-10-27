@@ -27,7 +27,9 @@
 #                     QUERY (extra URL parameters, e.g.
 #                     QUERY=farmask=0), HOLD_TILES=n (only the first n island tile requests are
 #                     answered: the lazy-loading look), VIEW=start (the opening camera, not a
-#                     default view):
+#                     default view), VIEW=pan (measurement on the GPU and the real clock: load
+#                     milestones cold and warm, then a 10 s far → mid pan through every island
+#                     with its longest frame and build queue; with STATS=1):
 #                     make shots FIXTURE=showcase VIEW=near DEVICE=desktop ROTATION=2
 #                     make shots FIXTURE=seafaring VIEW=far SEED=42
 #   make model-sheet  contact sheets of single recipes in .experiment/sheets (committed models

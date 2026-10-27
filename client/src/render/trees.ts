@@ -410,6 +410,9 @@ function blob(b: TriBuilder, x: number, z: number, r: number): void {
  */
 export class FarTrees {
   private mesh: Mesh | null = null;
+  /** The crowns of an incremental build so far (null: none running). */
+  private pending: TriBuilder | null = null;
+  private pendingTrees: Placed[] = [];
   private trees: readonly Placed[] = [];
   private shown = false;
   /** Crown shape per tree variant: colour, radius and heights (from the decor model when loaded). */
@@ -428,6 +431,32 @@ export class FarTrees {
     this.trees = trees;
     this.shapes.clear();
     this.build();
+  }
+
+  /** Starts an incremental build (display/buildqueue.ts): the chunks' trees follow with addTrees, the mesh with finishChunks. */
+  beginChunks(): void {
+    this.pending = new TriBuilder();
+    this.pendingTrees = [];
+    this.shapes.clear();
+  }
+
+  /** The trees of one chunk of the incremental build: their crowns are added now. */
+  addTrees(trees: readonly Placed[]): void {
+    if (!this.pending) this.beginChunks();
+    for (const t of trees) this.pendingTrees.push(t);
+    if (this.pending) this.addCrowns(this.pending, trees);
+  }
+
+  /** The incremental build is done: one mesh of every chunk's crowns (setTrees' mesh, but for the order of the trees). */
+  finishChunks(): void {
+    const b = this.pending ?? new TriBuilder();
+    this.trees = this.pendingTrees;
+    this.pending = null;
+    this.pendingTrees = [];
+    this.mesh?.dispose();
+    this.mesh = b.build(`far_trees_${this.name}`, this.scene, this.material, this.parent);
+    if (this.mesh) this.mesh.receiveShadows = false;
+    this.mesh?.setEnabled(this.shown);
   }
 
   /** Shown at far LOD. */
@@ -481,13 +510,18 @@ export class FarTrees {
     return s;
   }
 
-  private build(): void {
-    this.mesh?.dispose();
-    const b = new TriBuilder();
-    for (const p of this.trees) {
+  private addCrowns(b: TriBuilder, trees: readonly Placed[]): void {
+    for (const p of trees) {
       const shade = 0.92 + 0.16 * ((p.yaw / (Math.PI * 2)) % 1);
       for (const tri of this.shape(p.variant)) b.add(tri, p.x, 0, -p.y, p.scale, p.yaw, shade);
     }
+  }
+
+  private build(): void {
+    this.mesh?.dispose();
+    this.pending = null;
+    const b = new TriBuilder();
+    this.addCrowns(b, this.trees);
     this.mesh = b.build(`far_trees_${this.name}`, this.scene, this.material, this.parent);
     if (this.mesh) this.mesh.receiveShadows = false;
     this.mesh?.setEnabled(this.shown);

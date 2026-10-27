@@ -35,6 +35,8 @@ export const PLATEAU_STEP = 0.42;
 /** Sample spacing (tiles) of the rounded outline and of the top surface grid. */
 const OUTLINE_STEP = 0.2;
 const TOP_GRID = 0.25;
+/** Plateau-top crag rows placed per step of the incremental build. */
+const CRAG_ROWS_PER_STEP = 24;
 /** Smoothing passes of the resampled outline (more: rounder corners). */
 const SMOOTH_PASSES = 10;
 
@@ -149,6 +151,66 @@ export function insideLoops(loops: readonly (readonly { x: number; y: number }[]
   return inside;
 }
 
+/**
+ * insideLoops of fixed loops as a function, with the edges bucketed by
+ * the unit rows they span: a test looks only at the edges of its row
+ * (the same even-odd result).
+ */
+export function loopIndex(loops: readonly (readonly { x: number; y: number }[])[]): (x: number, y: number) => boolean {
+  const rows = new Map<number, [number, number, number, number][]>();
+  for (const l of loops) {
+    for (let i = 0, j = l.length - 1; i < l.length; j = i++) {
+      const a = l[i] as { x: number; y: number };
+      const b = l[j] as { x: number; y: number };
+      if (a.y === b.y) continue; // never crossed (a.y > y !== b.y > y is false)
+      for (let r = Math.floor(Math.min(a.y, b.y)); r <= Math.floor(Math.max(a.y, b.y)); r++) {
+        let list = rows.get(r);
+        if (!list) rows.set(r, (list = []));
+        list.push([a.x, a.y, b.x, b.y]);
+      }
+    }
+  }
+  return (x, y) => {
+    let inside = false;
+    for (const [ax, ay, bx, by] of rows.get(Math.floor(y)) ?? []) {
+      if (ay > y !== by > y && x < ((bx - ax) * (y - ay)) / (by - ay) + ax) inside = !inside;
+    }
+    return inside;
+  };
+}
+
+/**
+ * insideLoops for every point of a grid (x0 + i·g, y0 + j·g), i < nx,
+ * j < ny, row-major: the same even-odd test, with each row's edge
+ * crossings computed once (O(rows × edges + points) instead of
+ * O(points × edges)).
+ */
+export function insideGrid(loops: readonly (readonly { x: number; y: number }[])[], x0: number, y0: number, g: number, nx: number, ny: number): Uint8Array {
+  const out = new Uint8Array(nx * ny);
+  const xs: number[] = [];
+  for (let j = 0; j < ny; j++) {
+    const y = y0 + j * g;
+    xs.length = 0;
+    for (const l of loops) {
+      for (let i = 0, k = l.length - 1; i < l.length; k = i++) {
+        const a = l[i] as { x: number; y: number };
+        const b = l[k] as { x: number; y: number };
+        if (a.y > y !== b.y > y) xs.push(((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x);
+      }
+    }
+    if (xs.length === 0) continue;
+    xs.sort((p, q) => p - q);
+    // Crossings strictly right of x, counted down as x moves right.
+    let c = 0;
+    for (let i = 0; i < nx; i++) {
+      const x = x0 + i * g;
+      while (c < xs.length && (xs[c] as number) <= x) c++;
+      out[j * nx + i] = (xs.length - c) % 2;
+    }
+  }
+  return out;
+}
+
 /** The flat top inside rounded loops: marching squares over a TOP_GRID sample grid at height y. */
 function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, color: Color3): void {
   let minX = Infinity;
@@ -169,10 +231,16 @@ function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, color: Colo
   const ny = Math.ceil((maxY - minY) / g) + 2;
   const x0 = minX - g;
   const y0 = minY - g;
-  const inside = new Uint8Array(nx * ny);
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) inside[j * nx + i] = insideLoops(loops, x0 + i * g, y0 + j * g) ? 1 : 0;
+  const inside = insideGrid(loops, x0, y0, g, nx, ny);
   const at = (i: number, j: number) => i >= 0 && j >= 0 && i < nx && j < ny && inside[j * nx + i] === 1;
-  const v = (px: number, py: number) => b.vertex(x0 + px * g, y, -(y0 + py * g), color, `t${y},${px},${py}`);
+  // Shared vertices by half-step grid position (one top per call and height: no string keys needed).
+  const shared = new Map<number, number>();
+  const v = (px: number, py: number) => {
+    const k = Math.round(py * 2) * (2 * nx + 2) + Math.round(px * 2);
+    let i = shared.get(k);
+    if (i === undefined) shared.set(k, (i = b.vertex(x0 + px * g, y, -(y0 + py * g), color)));
+    return i;
+  };
   for (let j = 0; j + 1 < ny; j++) {
     for (let i = 0; i + 1 < nx; i++) {
       const tl = at(i, j);
@@ -214,17 +282,23 @@ export class PlateauLayer {
 
   /** Rebuilds the plateaus of an island with the tiles kept at ground level (building footprints) and without crags on deposit tiles. */
   update(island: Island, seed: number, blocked: ReadonlySet<string>): void {
+    const steps = this.steps(island, seed, blocked);
+    while (!steps.next().done);
+  }
+
+  /**
+   * update() in steps (the incremental island build): yields after each
+   * level's outline, top and step, its rim crags and every band of
+   * top crags. Nothing is drawn differently
+   * until the generator is done.
+   */
+  *steps(island: Island, seed: number, blocked: ReadonlySet<string>): Generator<void, void, void> {
     const levels = plateauLevels(island, blocked);
     const models = CRAGS.every((id) => decorModel(this.registry, id) !== null);
     const key = `${island.id}|${island.revision}|${models}|${Array.from(levels).join("")}`;
     this.levelsData = levels;
     this.width = island.width;
     if (key === this.key) return;
-    this.key = key;
-    this.mesh?.dispose();
-    this.crags?.dispose();
-    this.mesh = null;
-    this.crags = null;
     const { width, height } = island;
     const deposits = new Set(island.deposits.map((d) => `${d.x},${d.y}`));
     const b = new Builder();
@@ -236,11 +310,17 @@ export class PlateauLayer {
       const h1 = level * PLATEAU_STEP;
       const h0 = (level - 1) * PLATEAU_STEP;
       const top = topColor(level);
+      yield;
       fillTop(b, loops, h1, top);
+      yield;
       const profile = stepProfile(h0, h1, top);
       for (const loop of loops) slabStrip(b, loop, seed + 31 * level, (c) => c, profile, 2);
-      if (models) this.placeCrags(rocks, loops, level, h1, seed, (x, y) => mask(x, y) && !deposits.has(`${x},${y}`) && levels[y * width + x] === level);
+      yield;
+      if (models) yield* this.placeCrags(rocks, loops, level, h1, seed, (x, y) => mask(x, y) && !deposits.has(`${x},${y}`) && levels[y * width + x] === level);
     }
+    this.key = key;
+    this.mesh?.dispose();
+    this.crags?.dispose();
     this.mesh = b.mesh(`plateaus_${island.id}`, this.scene, this.material, this.parent);
     this.crags = rocks.build(`crags_${island.id}`, this.scene, this.material, this.parent);
   }
@@ -251,7 +331,7 @@ export class PlateauLayer {
    * the seed) and a few on the top, on tiles of this level that are not
    * deposits. They stand on the step's top.
    */
-  private placeCrags(m: ModelMerger, loops: readonly CoastLoop[], level: number, h: number, seed: number, free: (x: number, y: number) => boolean): void {
+  private *placeCrags(m: ModelMerger, loops: readonly CoastLoop[], level: number, h: number, seed: number, free: (x: number, y: number) => boolean): Generator<void, void, void> {
     const crag = (k: number) => decorModel(this.registry, CRAGS[k % CRAGS.length] as string);
     const boulder = decorModel(this.registry, BOULDER);
     const s = seed + level * 977;
@@ -278,15 +358,20 @@ export class PlateauLayer {
         m.add(model, x, h - 0.03, -y, scale, hash2(Math.floor(x * 3), Math.floor(y * 3), s + 2) * Math.PI * 2, 0.92 + 0.12 * r);
       }
     }
+    yield;
     // A few on the tops: one candidate per tile.
     const xs = loops.flatMap((l) => l.map((p) => p.x));
     const ys = loops.flatMap((l) => l.map((p) => p.y));
-    for (let ty = Math.floor(Math.min(...ys)); ty <= Math.ceil(Math.max(...ys)); ty++) {
+    const inside = loopIndex(loops);
+    const y0 = Math.floor(Math.min(...ys));
+    for (let ty = y0; ty <= Math.ceil(Math.max(...ys)); ty++) {
+      // A step per band of rows (the incremental build).
+      if (ty > y0 && (ty - y0) % CRAG_ROWS_PER_STEP === 0) yield;
       for (let tx = Math.floor(Math.min(...xs)); tx <= Math.ceil(Math.max(...xs)); tx++) {
         if (!free(tx, ty) || hash2(tx, ty, s + 3) > 0.14) continue;
         const x = tx + 0.25 + 0.5 * hash2(tx, ty, s + 4);
         const y = ty + 0.25 + 0.5 * hash2(tx, ty, s + 5);
-        if (!insideLoops(loops, x, y)) continue;
+        if (!inside(x, y)) continue;
         const model = crag(Math.floor(hash2(tx, ty, s + 6) * 30));
         if (!model) continue;
         m.add(model, x, h - 0.03, -y, 0.45 + 0.35 * hash2(tx, ty, s + 7), hash2(tx, ty, s + 8) * Math.PI * 2);

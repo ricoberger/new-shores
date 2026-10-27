@@ -2,8 +2,13 @@
 // Playwright and the browser so a Vitest covers it.
 
 export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelago-8", "archipelago-8x20", "town", "seafaring"] as const;
-/** Camera views; "start" is the opening camera as the game places it (no camera move). */
-export const VIEWS = ["near", "mid", "far", "start"] as const;
+/**
+ * Camera views; "start" is the opening camera as the game places it (no
+ * camera move); "pan" is a measurement: a far → mid pan through the
+ * island centres on the real clock (longest frame, build queue), shot at
+ * its end.
+ */
+export const VIEWS = ["near", "mid", "far", "start", "pan"] as const;
 export const DEVICES = ["desktop", "phone"] as const;
 export const PRESETS = ["info-panel", "producer-inputs", "house-card", "service-card", "warehouse-card", "trading-post-card", "shipyard-idle", "shipyard-building", "served-houses", "serving-buildings", "sheet", "ghost", "sloop", "build-menu", "warnings", "ship-panel", "route-editor", "route-paused", "island-card", "top-bar-popups", "farm-selected", "hemp-farm-selected", "field-selected", "field-ghost", "field-paint", "field-paint-result", "archipelago-far", "reroll", "rename"] as const;
 

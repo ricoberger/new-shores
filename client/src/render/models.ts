@@ -498,6 +498,21 @@ export class ModelRegistry {
     return null;
   }
 
+  /**
+   * Whether the decoration models (trees, scatter, crags, outcrops) are
+   * loaded or failed — or the manifest failed, so there are none: island
+   * builds wait for them, so no chunk is drawn with a fallback and rebuilt
+   * when they arrive. Starts their loads.
+   */
+  decorReady(): boolean {
+    if (this.manifestState === "failed") return true;
+    const decor = this.manifestData?.decor;
+    if (!decor) return this.manifestState === "ready";
+    let ready = true;
+    for (const e of Object.values(decor)) if (!this.request(e.file) && !this.failed(e.file)) ready = false;
+    return ready;
+  }
+
   /** Loaded data of a model file without starting a load (null: not loaded). */
   peek(file: ModelFile): ModelData | null {
     return this.data.get(file.path) ?? null;

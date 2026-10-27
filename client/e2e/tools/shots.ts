@@ -132,6 +132,8 @@ async function open(
   fixture: Fixture,
   hud: boolean,
   patch?: (w: WorldResponse) => void,
+  /** Keep the page's clock real (VIEW=pan measures frame times; the shots are not pinned then). */
+  realClock = false,
 ): Promise<{ page: Page; close: () => Promise<void> }> {
   if (SERVER_FIXTURES.includes(fixture)) {
     const res = await fetch(`http://localhost:${API_PORT}/api/v1/dev/reset`, {
@@ -144,7 +146,7 @@ async function open(
   const context = await browser.newContext(DEVICE_OPTIONS[device]);
   const page = await context.newPage();
   page.on("pageerror", (e) => console.error(`page error (${fixture}, ${device}): ${e.message}`));
-  await page.clock.setFixedTime(T);
+  if (!realClock) await page.clock.setFixedTime(T);
   // HOLD_TILES=n lets the first n island tile requests through and holds the
   // rest (never answered): the lazy-loading look, islands drawn from masks.
   const hold = process.env.HOLD_TILES?.trim();
@@ -179,7 +181,7 @@ async function open(
     }
   }
   timings.set(page, timing);
-  await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
+  if (!realClock) await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
   await page.addStyleTag({ content: "*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }" });
   if (!hud) await page.addStyleTag({ content: "body * { visibility: hidden !important; } body canvas { visibility: visible !important; }" });
   return { page, close: () => context.close() };
@@ -248,6 +250,12 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
   const info = FIXTURE_INFO[fixture];
   const here = await islandCentre(page, info.island, args.island);
   for (const view of args.views) {
+    if (view === "pan") {
+      await pan(page, `${fixture}-${device}`);
+      await settle(page);
+      await shoot(page, resolve(dir, `${fixture}-${view}-${device}.png`), written);
+      continue;
+    }
     if (view === "start") {
       // The opening camera as the game placed it (before any other view moves it).
       await settle(page);
@@ -272,6 +280,83 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
     await settle(page);
     await shoot(page, resolve(dir, `${fixture}-${view}-${device}.png`), written);
   }
+}
+
+/** Duration of the VIEW=pan camera path (ms). */
+const PAN_MS = 10_000;
+/** The pan's end zoom (mid LOD, below FAR_EXIT_HALF). */
+const PAN_END_HALF = 40;
+
+/**
+ * VIEW=pan (real clock): the load milestones of the page (performance
+ * marks: first frame, focused island with its tiles), then a far → mid
+ * pan through every island centre west to east over PAN_MS while the
+ * page records the time between animation frames (after a reload with
+ * warm caches: the second visit's load milestones): the longest frame,
+ * frames over 50 ms and the longest build queue seen. Printed as one line.
+ */
+async function pan(page: Page, name: string): Promise<void> {
+  await settle(page);
+  const t = await page.evaluate(() => window.__newShores!.timing());
+  // The longest frame from the start until the view had settled (builds of the opening view).
+  const loadMax = await page.evaluate(() => window.__newShores!.frameStats?.(1e9).maxMs ?? NaN);
+  // Warm: a reload with the island tiles in the HTTP cache (immutable per seed and roll), as on a device's second visit.
+  await page.reload();
+  await page.waitForFunction(() => window.__newShores?.timing().firstFrame === true, undefined, { timeout: 60_000, polling: 10 });
+  await page.waitForFunction(() => window.__newShores!.timing().focusTiles, undefined, { timeout: 30_000, polling: 10 }).catch(() => undefined);
+  const warm = await page.evaluate(() => window.__newShores!.timing());
+  await settle(page);
+  const warmMax = await page.evaluate(() => window.__newShores!.frameStats?.(1e9).maxMs ?? NaN);
+  const r = await page.evaluate(
+    ([ms, endHalf]) =>
+      new Promise<{ frames: number; maxMs: number; over50: number; p95Ms: number; maxQueue: number }>((done) => {
+        const h = window.__newShores!;
+        const pts = h
+          .getServer()!
+          .display.islands.map((i) => ({ x: i.position.x + i.width / 2, y: i.position.y + i.height / 2 }))
+          .sort((a, b) => a.x - b.x);
+        h.setCamera({ x: pts[0]!.x, y: pts[0]!.y, half: 100_000 });
+        const startHalf = h.camera().half;
+        const at = (u: number) => {
+          const f = u * (pts.length - 1);
+          const i = Math.min(pts.length - 2, Math.floor(f));
+          const a = pts[i]!;
+          const b = pts[i + 1] ?? a;
+          const k = f - i;
+          return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
+        };
+        const times: number[] = [];
+        let maxQueue = 0;
+        let t0 = 0;
+        let last = 0;
+        const step = (now: number) => {
+          if (t0 === 0) t0 = now;
+          else times.push(now - last);
+          last = now;
+          // Optional: builds before the incremental island build (polish round 3) have no queue.
+          maxQueue = Math.max(maxQueue, (h as { buildQueue?: () => string[] }).buildQueue?.().length ?? 0);
+          const u = Math.min(1, (now - t0) / ms);
+          h.setCamera({ ...at(u), half: startHalf + (endHalf - startHalf) * u });
+          if (u < 1) requestAnimationFrame(step);
+          else {
+            const sorted = [...times].sort((x, y) => x - y);
+            done({
+              frames: times.length,
+              maxMs: sorted[sorted.length - 1] ?? 0,
+              over50: times.filter((x) => x > 50).length,
+              p95Ms: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
+              maxQueue,
+            });
+          }
+        };
+        requestAnimationFrame(step);
+      }),
+    [PAN_MS, PAN_END_HALF] as const,
+  );
+  const ms = (v: number | null) => (v === null ? "-" : `${Math.round(v)} ms`);
+  console.log(
+    `${name}  pan: first-frame ${ms(t.firstFrameMs)}  focus-tiles ${ms(t.focusTilesMs)}  load-longest ${ms(loadMax)}  warm first-frame ${ms(warm.firstFrameMs)}  focus-tiles ${ms(warm.focusTilesMs)}  load-longest ${ms(warmMax)}  frames ${r.frames}  longest ${Math.round(r.maxMs)} ms  p95 ${Math.round(r.p95Ms)} ms  >50ms ${r.over50}  max-queue ${r.maxQueue}`,
+  );
 }
 
 // ---------------------------------------------------------------- presets
@@ -874,13 +959,14 @@ async function main(): Promise<number> {
     servers.push(await start(apiCommand, resolve(REPO, "server"), `http://localhost:${API_PORT}/healthz`, process.env));
     servers.push(await start(WEB_SERVER_COMMAND, CLIENT_DIR, `http://localhost:${WEB_PORT}`, env));
     const tReady = Date.now();
-    browser = await chromium.launch();
+    // VIEW=pan measures on the machine's GPU (Metal on macOS), not on software WebGL: the frame times then show the build work, as on a device.
+    browser = await chromium.launch(args.views.includes("pan") ? { args: ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist"] } : {});
     const written: string[] = [];
     if (args.presets.length > 0) {
       for (const preset of args.presets) await takePreset(browser, preset, dir, written);
     } else {
       const job = async (device: Device, fixture: Fixture) => {
-        const { page, close } = await open(browser!, device, fixture, args.hud);
+        const { page, close } = await open(browser!, device, fixture, args.hud, undefined, args.views.includes("pan"));
         try {
           await takeViews(page, args, fixture, device, dir, written);
         } finally {
@@ -897,9 +983,11 @@ async function main(): Promise<number> {
         lock = run.catch(() => undefined);
         return run;
       };
+      // VIEW=pan measures frame times: one page at a time.
+      const measuring = args.views.includes("pan");
       await Promise.all(
         args.devices.map(async (device) => {
-          for (const fixture of args.fixtures.filter((f) => !SERVER_FIXTURES.includes(f))) await job(device, fixture);
+          for (const fixture of args.fixtures.filter((f) => !SERVER_FIXTURES.includes(f))) await (measuring ? exclusive(() => job(device, fixture)) : job(device, fixture));
           for (const fixture of args.fixtures.filter((f) => SERVER_FIXTURES.includes(f))) await exclusive(() => job(device, fixture));
         }),
       );

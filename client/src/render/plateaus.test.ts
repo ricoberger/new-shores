@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Terrain } from "../api/client";
-import { insideLoops, PLATEAU_STEP, plateauHeight, plateauLevels, roundLoop } from "./plateaus";
+import { insideGrid, insideLoops, loopIndex, PLATEAU_STEP, plateauHeight, plateauLevels, roundLoop } from "./plateaus";
 
 // Mountains as plateaus (visual only): level 1 on mountain tiles, level 2
 // deep inside a range, building footprints (mines, quarries) cut out.
@@ -60,5 +60,34 @@ describe("rounded plateau outline", () => {
     expect(insideLoops([square, hole], 2, 2)).toBe(false);
     expect(insideLoops([square, hole], 0.5, 2)).toBe(true);
     expect(insideLoops([square], 5, 2)).toBe(false);
+  });
+
+  it("tests a grid and indexed points against loops exactly like insideLoops", () => {
+    const hole = [
+      { x: 1, y: 1 },
+      { x: 1, y: 3 },
+      { x: 3, y: 3 },
+      { x: 3, y: 1 },
+    ];
+    const blob = roundLoop([
+      { x: 0, y: 0 },
+      { x: 6, y: 0 },
+      { x: 6, y: 2 },
+      { x: 3, y: 2 },
+      { x: 3, y: 5 },
+      { x: 0, y: 5 },
+    ]);
+    for (const loops of [[square], [square, hole], [blob]]) {
+      const [x0, y0, g, nx, ny] = [-0.6, -0.55, 0.25, 32, 28];
+      const grid = insideGrid(loops, x0, y0, g, nx, ny);
+      const index = loopIndex(loops);
+      for (let j = 0; j < ny; j++) {
+        for (let i = 0; i < nx; i++) {
+          const [x, y] = [x0 + i * g, y0 + j * g];
+          expect(grid[j * nx + i] === 1).toBe(insideLoops(loops, x, y));
+          expect(index(x + 0.07, y + 0.11)).toBe(insideLoops(loops, x + 0.07, y + 0.11));
+        }
+      }
+    }
   });
 });

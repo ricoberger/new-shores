@@ -23,7 +23,7 @@ import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { Island, Terrain } from "../api/client";
-import { chunkAt } from "../display/chunks";
+import { chunkAt, type ChunkRect, islandChunks } from "../display/chunks";
 import { type CoastLoop, outwardNormal } from "../display/coastline";
 import { fbm } from "../display/noise";
 import { ISLAND, TERRAIN, WATER } from "../theme/palette";
@@ -428,14 +428,101 @@ export function buildTerrain(
   settled = true,
   liteParent: TransformNode | null = typeof parent === "function" ? null : parent,
 ): { lite: Mesh[]; full: Mesh[] } {
+  if (typeof parent !== "function") {
+    const material = terrainMaterial(scene);
+    const colors = terrainColors(seed);
+    return {
+      lite: buildIslandMeshes(scene, island, loops, seed, settled ? colors : terrainColors(seed, unsettledTint), material, liteParent, "terrain_lite", NEAR_PROFILE),
+      full: buildIslandMeshes(scene, island, loops, seed, colors, material, parent, "terrain", PROFILE),
+    };
+  }
+  const b = new TerrainBuild(scene, island, loops, seed, parent, settled, liteParent);
+  b.slab("full");
+  b.slab("lite");
+  for (const c of islandChunks(island.width, island.height)) b.chunk(c);
+  return b.finish();
+}
+
+function terrainMaterial(scene: Scene): StandardMaterial {
   const material = skyFill(new StandardMaterial("terrain", scene));
   material.specularColor = Color3.Black();
   material.backFaceCulling = false;
-  const colors = terrainColors(seed);
-  return {
-    lite: buildIslandMeshes(scene, island, loops, seed, settled ? colors : terrainColors(seed, unsettledTint), material, liteParent, "terrain_lite", NEAR_PROFILE),
-    full: buildIslandMeshes(scene, island, loops, seed, colors, material, parent, "terrain", PROFILE),
-  };
+  return material;
+}
+
+/**
+ * buildTerrain with chunk parents in steps (the incremental island build,
+ * render/buildqueue.ts): the slab of each detail (`slab`), then the
+ * ground of each chunk with its full-profile mesh (`chunk`, any order),
+ * then the island's one lite mesh (`finish`). The result equals
+ * buildTerrain's but for the order of vertices.
+ */
+export class TerrainBuild {
+  private readonly material: StandardMaterial;
+  private readonly colors: GroundColors;
+  private readonly liteColors: GroundColors;
+  private readonly full = new Map<string, Builder>();
+  private readonly lite = new Builder();
+  private readonly meshes: Mesh[] = [];
+
+  constructor(
+    private readonly scene: Scene,
+    private readonly island: Island,
+    private readonly loops: readonly CoastLoop[],
+    private readonly seed: number,
+    private readonly parent: (chunk: string) => TransformNode,
+    settled: boolean,
+    private readonly liteParent: TransformNode | null,
+  ) {
+    this.material = terrainMaterial(scene);
+    this.colors = terrainColors(seed);
+    this.liteColors = settled ? this.colors : terrainColors(seed, unsettledTint);
+  }
+
+  private builder(k: string): Builder {
+    let b = this.full.get(k);
+    if (!b) this.full.set(k, (b = new Builder()));
+    return b;
+  }
+
+  /** The slab of one detail along every coast loop (full: into the chunks' builders). */
+  slab(detail: "full" | "lite"): void {
+    const { width, height } = this.island;
+    for (const loop of this.loops) {
+      if (detail === "full") slabStrip((x, y) => this.builder(chunkAt(x, y, width, height)), loop, this.seed, this.colors.slab, PROFILE);
+      else slabStrip(this.lite, loop, this.seed, this.liteColors.slab, NEAR_PROFILE);
+    }
+  }
+
+  /** The ground of a chunk (cells whose top-left tile centre is in it) in both details, and its full mesh. */
+  chunk(c: ChunkRect): void {
+    const b = this.builder(c.key);
+    for (let j = c.y - 1; j < c.y + c.height - 1; j++) {
+      for (let i = c.x - 1; i < c.x + c.width - 1; i++) {
+        groundCell(this.lite, this.island, i, j, this.liteColors);
+        groundCell(b, this.island, i, j, this.colors);
+      }
+    }
+    const mesh = b.mesh(`terrain_${this.island.id}_${c.key}`, this.scene, this.material, this.parent(c.key));
+    this.full.delete(c.key);
+    if (!mesh) return;
+    mesh.metadata = { chunk: c.key };
+    mesh.freezeWorldMatrix();
+    this.meshes.push(mesh);
+  }
+
+  /** Disposes the meshes built so far (a replaced build). */
+  dispose(): void {
+    for (const m of this.meshes) m.dispose();
+    this.meshes.length = 0;
+  }
+
+  /** The lite mesh; the full meshes built so far. */
+  finish(): { lite: Mesh[]; full: Mesh[] } {
+    const lite = this.lite.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.material, this.liteParent);
+    lite?.freezeWorldMatrix();
+    return { lite: lite ? [lite] : [], full: this.meshes };
+  }
 }
 
 const FOAM_TEX_W = 128;

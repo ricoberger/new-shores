@@ -89,6 +89,10 @@ export interface TestHook {
   activeLayers(): Record<string, { meshes: number; tris: number }>;
   /** Load milestones (first frame, first frame with the focused island's full tiles) and their marks in ms since navigation start (null: not yet, or a faked clock). */
   timing(): { firstFrame: boolean; focusTiles: boolean; firstFrameMs: number | null; focusTilesMs: number | null };
+  /** Frame time statistics over the frames of the last windowMs (the ?stats=1 numbers; make shots VIEW=pan). */
+  frameStats(windowMs: number): { frames: number; fps: number; avgMs: number; p95Ms: number; maxMs: number };
+  /** The island chunks waiting in the incremental build queue (`island/chunk` keys, in build order). */
+  buildQueue(): string[];
   /** Jumps the camera to an island (the island card's "Go to island"; tests trigger jumps without a visible card). */
   jumpToIsland(id: string): void;
   /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
@@ -623,6 +627,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         meshesCreated: () => rendererRef.current?.meshesCreated() ?? 0,
         triangles: () => rendererRef.current?.renderStats().triangles ?? 0,
         activeLayers: () => rendererRef.current?.activeLayers() ?? {},
+        buildQueue: () => rendererRef.current?.buildQueue() ?? [],
+        frameStats: (ms) => rendererRef.current?.frameStats(ms) ?? { frames: 0, fps: 0, avgMs: 0, p95Ms: 0, maxMs: 0 },
         timing: () => rendererRef.current?.timing() ?? { firstFrame: false, focusTiles: false, firstFrameMs: null, focusTilesMs: null },
         jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,

@@ -225,3 +225,82 @@ describe("unsettled islands at far LOD", () => {
     expect(d.mutedScatter()).toBe(false);
   });
 });
+
+describe("incremental build (display/buildqueue.ts)", () => {
+  /** Index counts of the meshes by name (what the island draws, independent of vertex order). */
+  const geometry = (scene: Scene) =>
+    Object.fromEntries(
+      scene.meshes
+        .filter((m) => !m.isDisposed() && m.getTotalIndices() > 0)
+        .map((m) => [m.name, m.getTotalIndices()] as const)
+        .sort(([a], [b]) => a.localeCompare(b)),
+    );
+
+  it("builds in head and chunk steps what setStatics and update build at once, hidden and without tiles until the last step", () => {
+    const sync = world();
+    const is = sync.islands.find((x) => x.id === "isle3")!;
+    const st = buildDenseArchipelagoFixture(0).islands.get(is.id)!;
+    const scene = new Scene(engine!);
+    const once = new IslandDetail(scene, is.id, is.position);
+    once.setStatics(st, is.settled);
+    once.update(is, sync.defs);
+    const expected = geometry(scene);
+    scene.dispose();
+
+    const steps = new Scene(engine!);
+    const d = new IslandDetail(steps, is.id, is.position);
+    d.startBuild(st, is.settled, is, sync.defs);
+    d.setShown(false, "near");
+    expect(d.hasTiles()).toBe(false);
+    let n = 0;
+    while (d.headPending()) {
+      expect(d.buildStep(null)).toBe(false);
+      n++;
+    }
+    expect(n).toBeGreaterThan(3);
+    // Chunks in any order (here: last first); a started chunk finishes before the next one starts.
+    const keys = d.pendingChunks().map((c) => c.key);
+    expect(keys).toEqual(["0,0", "1,0"]);
+    let done = false;
+    for (const k of [...keys].reverse()) {
+      while (d.pendingChunks().some((c) => c.key === k)) {
+        expect(d.hasTiles()).toBe(false);
+        done = d.buildStep(k);
+      }
+    }
+    expect(done).toBe(true);
+    expect(d.hasTiles()).toBe(true);
+    expect(d.building()).toBeNull();
+    expect(d.root.isEnabled(false)).toBe(false);
+    expect(geometry(steps)).toEqual(expected);
+    // Built with the payload: a change afterwards rebuilds only the chunks it touches.
+    expect(d.builtWith(is, sync.defs)).toBe(true);
+    const moved = structuredClone(is);
+    moved.roads.push({ x: 35, y: 3, type: "road" } as IslandDisplay["roads"][number]);
+    d.update(moved, sync.defs);
+    expect(d.chunkRebuilds.roads).toEqual(["1,0"]);
+    expect(d.rebuilds.roads).toBe(2);
+    steps.dispose();
+  });
+
+  it("restarts with new static data and drops what the replaced build had made", () => {
+    const w = world();
+    const is = w.islands.find((x) => x.id === "isle3")!;
+    const st = buildDenseArchipelagoFixture(0).islands.get(is.id)!;
+    const scene = new Scene(engine!);
+    const d = new IslandDetail(scene, is.id, is.position);
+    d.startBuild(st, true, is, w.defs);
+    while (d.headPending()) d.buildStep(null);
+    while (d.pendingChunks().some((c) => c.key === "0,0")) d.buildStep("0,0");
+    const terrain = () => scene.meshes.filter((m) => !m.isDisposed() && m.name.startsWith(`terrain_${is.id}_`)).length;
+    expect(terrain()).toBe(1);
+    d.startBuild({ ...st, revision: `${st.revision}b` }, true, is, w.defs);
+    expect(terrain()).toBe(0);
+    expect(d.building()?.statics.revision).toBe(`${st.revision}b`);
+    expect(d.pendingChunks()).toHaveLength(2);
+    while (d.building()) d.buildStep(d.pendingChunks()[0]?.key ?? null);
+    expect(d.hasTiles()).toBe(true);
+    expect(terrain()).toBe(2);
+    scene.dispose();
+  });
+});

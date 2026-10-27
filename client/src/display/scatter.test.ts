@@ -144,3 +144,20 @@ describe("merged-layer keys", () => {
     expect(thinned.decoration).not.toBe(k.decoration);
   });
 });
+
+describe("scatter by chunk rectangle", () => {
+  it("places exactly the whole island's items of the rectangle, in the same order", () => {
+    const m = { width: 70, height: 45, terrain: Array.from({ length: 70 * 45 }, (_, i) => (i % 7 < 3 ? "forest" : i % 11 === 0 ? "mountain" : "grass")) };
+    const blocked = blockedTiles([building("lumberjack", 30, 20), building("house", 3, 3)], [], defs);
+    const input = { ...m, seed: islandSeed("b", "1"), blocked };
+    const areas = thinningAreas([building("lumberjack", 30, 20, 800)], defs);
+    const rect = { x: 32, y: 32, width: 32, height: 13 };
+    const inRect = (p: Placed) => p.x >= rect.x && p.x < rect.x + rect.width && p.y >= rect.y && p.y < rect.y + rect.height;
+    const stumps: Placed[] = [];
+    const stumpsIn: Placed[] = [];
+    expect(scatterTrees({ ...input, rect }, areas, 3, stumpsIn)).toEqual(scatterTrees(input, areas, 3, stumps).filter(inRect));
+    expect(stumpsIn).toEqual(stumps.filter(inRect));
+    expect(scatterGround({ ...input, rect })).toEqual(scatterGround(input).filter(inRect));
+    expect(scatterGround({ ...input, rect }).length).toBeGreaterThan(0);
+  });
+});
