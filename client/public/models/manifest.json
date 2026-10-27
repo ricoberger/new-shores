@@ -3094,11 +3094,11 @@
           "budget": 12000,
           "bytes": 12708,
           "path": "sailmaker.lite.glb",
-          "sha256": "b272f4bed5aa17dade842198980bc39ae6af8a79ca4a284a0bd7ea0809afabd0",
+          "sha256": "1d256f56d0fa8909e3ddefa0dae3f070122cd88351d6496af4dff48446fac717",
           "triangles": 139
         },
         "path": "sailmaker.glb",
-        "sha256": "16f025a151c6460600c7f707a5cb2a252480e2216e78f9b9f3b56376c52b22be",
+        "sha256": "1171667ffc719d15af82d71c0313ff1d3f8b285d04bb4552f40e4c7cf683113b",
         "triangles": 847
       },
       "footprint": {
@@ -3543,11 +3543,11 @@
           "budget": 9000,
           "bytes": 13564,
           "path": "smelter.lite.glb",
-          "sha256": "9b20df1213dbd56339e1b67b2b139261cf1d6ee4c1ae0b56a3c63b751732febf",
+          "sha256": "fe44bc4bca85b4182bb4a59be013349755a90693daa5f6f1c620581828bb3a21",
           "triangles": 150
         },
         "path": "smelter.glb",
-        "sha256": "d6cc2280bdd17600ad61e3cc318bf63e9be540a296a52ceb7dfd729419e8e284",
+        "sha256": "c0419fd250b05979fff60f3a38a171eb9f0fef01f38a2d2b9b6b9023370ec554",
         "triangles": 452
       },
       "footprint": {
