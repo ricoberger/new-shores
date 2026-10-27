@@ -957,10 +957,15 @@ func upgradeLevel(w *World, c *content.Catalogue, is *Island, b *Building, def *
 	return nil
 }
 
+// upgradeGatePPM is the upgrade gate (D-056 §4): every required category
+// of the house must be covered to at least 0.6.
+const upgradeGatePPM = 600_000
+
 // unmetRequiredNeed returns the ID of the first required need of the house
-// that is not fully met at this instant ("" when all are met): a need is
-// fully met at the most its alternatives can cover together (needCap). It
-// settles a copy of the world, so the world itself is not changed.
+// below the upgrade gate at this instant ("" when all pass): fulfilment
+// >= 0.6, or the most its alternatives can cover together (needCap) when
+// that is less. The carried needs of lower tiers count like the own ones.
+// It settles a copy of the world, so the world itself is not changed.
 func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) string {
 	cw := w.Clone()
 	wr, _ := settleWorld(cw, c, cw.LastEvaluatedAt.UnixMilli())
@@ -973,7 +978,7 @@ func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) str
 				continue
 			}
 			for _, n := range h.needs {
-				if n.need.Kind != content.NeedOptional && n.fulfilment < needCap(n.need) {
+				if n.need.Kind != content.NeedOptional && n.fulfilment < min(upgradeGatePPM, needCap(n.need)) {
 					return n.need.ID
 				}
 			}

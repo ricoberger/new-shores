@@ -339,10 +339,10 @@ func TestUpgradeHouse(t *testing.T) {
 	house(w, h).Residents = 8_000
 	expectErr(t, w, c, cmd, ErrNeedsUnmet) // no food, no clothing
 	addStock(t, w, c, "fish", 50)
+	expectErr(t, w, c, cmd, ErrNeedsUnmet) // no clothing
+	// Fish alone covers 0.6 of the food category: at the upgrade gate
+	// (D-056 §4), no bread needed.
 	addStock(t, w, c, "wool_garments", 50)
-	// Fish alone covers 0.6 of the food category; both alternatives fill it.
-	expectErr(t, w, c, cmd, ErrNeedsUnmet)
-	addStock(t, w, c, "bread", 50)
 
 	big := *c
 	big.BuildingByID = maps.Clone(c.BuildingByID)
