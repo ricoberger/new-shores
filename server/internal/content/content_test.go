@@ -70,9 +70,19 @@ func TestLoadOldCoast(t *testing.T) {
 	for _, tr := range c.Tiers {
 		ids = append(ids, tr.ID)
 	}
-	wantIDs("tiers", ids, "settlers", "citizens")
-	if _, ok := c.TierByID["merchants"]; ok {
-		t.Error("merchants must not be in content yet")
+	wantIDs("tiers", ids, "settlers", "citizens", "merchants", "patricians")
+	// Merchants and Patricians are declared without a house (D-056 S1);
+	// Patricians' church condition comes with the church (tier 3).
+	for id, want := range map[string]string{"merchants": "8000-25000 1500 citizens=360 tavern", "patricians": "12000-40000 2700 merchants=1200 "} {
+		tr := c.TierByID[id]
+		var pop []string
+		for k, v := range tr.Unlock.Population {
+			pop = append(pop, fmt.Sprintf("%s=%d", k, v))
+		}
+		got := fmt.Sprintf("%d-%d %d %s %s", tr.ResidentsFloor, tr.ResidentsMax, tr.TaxPerResidentPerMin, strings.Join(pop, ","), strings.Join(tr.Unlock.Buildings, ","))
+		if got != want || tr.House != "" || len(c.NeedsByTier[id]) != 0 {
+			t.Errorf("%s = %q (house %q), want %q", id, got, tr.House, want)
+		}
 	}
 
 	settlers := c.TierByID["settlers"]
@@ -81,7 +91,7 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	citizens := c.TierByID["citizens"]
 	if citizens.Index != 1 || citizens.ResidentsFloor != 5000 || citizens.ResidentsMax != 15000 || citizens.TaxPerResidentPerMin != 800 || citizens.House != "house_citizens" ||
-		citizens.Unlock.Population["settlers"] != 120 || strings.Join(citizens.Unlock.Buildings, ",") != "market_small,chapel" || len(citizens.Unlock.GoodsDelivered) != 0 {
+		citizens.Unlock.Population["settlers"] != 120 || strings.Join(citizens.Unlock.Buildings, ",") != "market_small,chapel" {
 		t.Errorf("citizens = %+v", citizens)
 	}
 

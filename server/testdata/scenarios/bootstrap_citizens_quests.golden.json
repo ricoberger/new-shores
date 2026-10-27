@@ -12083,8 +12083,7 @@
         "id": "settlers",
         "unlocked": true,
         "population": {},
-        "buildings": {},
-        "goods_delivered": {}
+        "buildings": {}
       },
       {
         "id": "citizens",
@@ -12098,8 +12097,31 @@
         "buildings": {
           "chapel": true,
           "market_small": true
+        }
+      },
+      {
+        "id": "merchants",
+        "unlocked": false,
+        "population": {
+          "citizens": {
+            "have": 15000,
+            "need": 360000
+          }
         },
-        "goods_delivered": {}
+        "buildings": {
+          "tavern": false
+        }
+      },
+      {
+        "id": "patricians",
+        "unlocked": false,
+        "population": {
+          "merchants": {
+            "have": 0,
+            "need": 1200000
+          }
+        },
+        "buildings": {}
       }
     ],
     "archipelago": {

@@ -754,7 +754,7 @@ export function buildDenseFixture(nowMs: number): Built {
     balance_rate_per_min: 12_000,
     tax_rate_per_min: 60_000,
     upkeep_rate_per_min: 48_000,
-    tiers: [{ id: "settlers", unlocked: true, population: {}, buildings: {}, goods_delivered: {} }],
+    tiers: [{ id: "settlers", unlocked: true, population: {}, buildings: {} }],
     islands: [a.display, b.display],
     ships: [ship(1, DENSE_ISLAND, "dense2", 60_000), ship(2, "dense2", DENSE_ISLAND, 300_000)],
     routes: [],
@@ -886,7 +886,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
     balance_rate_per_min: 12_000,
     tax_rate_per_min: 60_000,
     upkeep_rate_per_min: 48_000,
-    tiers: [{ id: "settlers", unlocked: true, population: {}, buildings: {}, goods_delivered: {} }],
+    tiers: [{ id: "settlers", unlocked: true, population: {}, buildings: {} }],
     islands: displays,
     ships,
     routes,
@@ -1079,8 +1079,8 @@ export function buildShowcaseFixture(nowMs: number): Built {
     tax_rate_per_min: 60_000,
     upkeep_rate_per_min: 48_000,
     tiers: [
-      { id: "settlers", unlocked: true, population: {}, buildings: {}, goods_delivered: {} },
-      { id: "citizens", unlocked: true, population: {}, buildings: {}, goods_delivered: {} },
+      { id: "settlers", unlocked: true, population: {}, buildings: {} },
+      { id: "citizens", unlocked: true, population: {}, buildings: {} },
     ],
     islands: [island],
     ships: [

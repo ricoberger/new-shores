@@ -252,11 +252,10 @@ func (o *OptionalShipOrder) UnmarshalJSON(data []byte) error {
 // TierDisplay is the unlock state of a tier (MECHANICS §12). Population
 // values are milli-residents over the whole archipelago.
 type TierDisplay struct {
-	ID             string                       `json:"id"`
-	Unlocked       bool                         `json:"unlocked"`
-	Population     map[string]PopulationDisplay `json:"population"`
-	Buildings      map[string]bool              `json:"buildings"`
-	GoodsDelivered map[string]bool              `json:"goods_delivered"`
+	ID         string                       `json:"id"`
+	Unlocked   bool                         `json:"unlocked"`
+	Population map[string]PopulationDisplay `json:"population"`
+	Buildings  map[string]bool              `json:"buildings"`
 }
 
 // PopulationDisplay is a population unlock condition (milli-residents).
@@ -552,7 +551,7 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		st := evaluateTier(cw, c, t, pop)
 		td := TierDisplay{
 			ID: t.ID, Unlocked: TierUnlocked(cw, c, t.ID),
-			Population: map[string]PopulationDisplay{}, Buildings: st.buildings, GoodsDelivered: st.goods,
+			Population: map[string]PopulationDisplay{}, Buildings: st.buildings,
 		}
 		for tier, v := range st.population {
 			td.Population[tier] = PopulationDisplay{Have: v[0], Need: v[1]}

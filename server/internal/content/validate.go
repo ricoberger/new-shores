@@ -81,9 +81,6 @@ func checkReferences(c *Catalogue) error {
 		for i, id := range t.Unlock.Buildings {
 			building(FileTiers, ent, fmt.Sprintf("unlock.buildings[%d]", i), id)
 		}
-		for i, id := range t.Unlock.GoodsDelivered {
-			good(FileTiers, ent, fmt.Sprintf("unlock.goods_delivered[%d]", i), id)
-		}
 		_, hasNeeds := c.NeedsByTier[t.ID]
 		if t.House == "" {
 			// Declared-only tier: no house and no needs yet.

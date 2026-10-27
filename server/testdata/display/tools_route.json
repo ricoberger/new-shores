@@ -12,8 +12,7 @@
         "id": "settlers",
         "unlocked": true,
         "population": {},
-        "buildings": {},
-        "goods_delivered": {}
+        "buildings": {}
       },
       {
         "id": "citizens",
@@ -27,8 +26,7 @@
         "buildings": {
           "chapel": true,
           "market_small": true
-        },
-        "goods_delivered": {}
+        }
       }
     ],
     "archipelago": {
@@ -1865,8 +1863,7 @@
             "id": "settlers",
             "unlocked": true,
             "population": {},
-            "buildings": {},
-            "goods_delivered": {}
+            "buildings": {}
           },
           {
             "id": "citizens",
@@ -1880,8 +1877,7 @@
             "buildings": {
               "chapel": true,
               "market_small": true
-            },
-            "goods_delivered": {}
+            }
           }
         ],
         "archipelago": {
@@ -3718,8 +3714,7 @@
             "id": "settlers",
             "unlocked": true,
             "population": {},
-            "buildings": {},
-            "goods_delivered": {}
+            "buildings": {}
           },
           {
             "id": "citizens",
@@ -3733,8 +3728,7 @@
             "buildings": {
               "chapel": true,
               "market_small": true
-            },
-            "goods_delivered": {}
+            }
           }
         ],
         "archipelago": {
@@ -5571,8 +5565,7 @@
             "id": "settlers",
             "unlocked": true,
             "population": {},
-            "buildings": {},
-            "goods_delivered": {}
+            "buildings": {}
           },
           {
             "id": "citizens",
@@ -5586,8 +5579,7 @@
             "buildings": {
               "chapel": true,
               "market_small": true
-            },
-            "goods_delivered": {}
+            }
           }
         ],
         "archipelago": {

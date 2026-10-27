@@ -253,9 +253,8 @@ type rawTier struct {
 	Tax    json.Number `json:"tax_per_resident_per_min"`
 	House  string      `json:"house"`
 	Unlock struct {
-		Population     map[string]int64 `json:"population"`
-		Buildings      []string         `json:"buildings"`
-		GoodsDelivered []string         `json:"goods_delivered"`
+		Population map[string]int64 `json:"population"`
+		Buildings  []string         `json:"buildings"`
 	} `json:"unlock"`
 }
 
@@ -542,9 +541,8 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			TaxPerResidentPerMin: col.fixed(FileTiers, ent, "tax_per_resident_per_min", t.Tax, 3),
 			House:                t.House,
 			Unlock: Unlock{
-				Population:     t.Unlock.Population,
-				Buildings:      t.Unlock.Buildings,
-				GoodsDelivered: t.Unlock.GoodsDelivered,
+				Population: t.Unlock.Population,
+				Buildings:  t.Unlock.Buildings,
 			},
 		}
 		if tier.ResidentsFloor > tier.ResidentsMax {

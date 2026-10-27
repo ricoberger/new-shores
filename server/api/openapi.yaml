@@ -2363,7 +2363,7 @@ components:
     TierDisplay:
       type: object
       additionalProperties: false
-      required: [id, unlocked, population, buildings, goods_delivered]
+      required: [id, unlocked, population, buildings]
       properties:
         id:
           type: string
@@ -2377,11 +2377,6 @@ components:
         buildings:
           type: object
           description: Building unlock conditions keyed by building ID (true = built).
-          additionalProperties:
-            type: boolean
-        goods_delivered:
-          type: object
-          description: Delivery unlock conditions keyed by good ID.
           additionalProperties:
             type: boolean
     PopulationDisplay:
@@ -3165,7 +3160,7 @@ components:
     ContentUnlock:
       type: object
       additionalProperties: false
-      required: [population, buildings, goods_delivered]
+      required: [population, buildings]
       properties:
         population:
           type: object
@@ -3175,10 +3170,6 @@ components:
             format: int64
             description: Residents (milli-residents).
         buildings:
-          type: array
-          items:
-            type: string
-        goods_delivered:
           type: array
           items:
             type: string

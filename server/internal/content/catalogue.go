@@ -214,9 +214,8 @@ type Tier struct {
 
 // Unlock lists the conditions to unlock a tier (MECHANICS §12).
 type Unlock struct {
-	Population     map[string]int64
-	Buildings      []string
-	GoodsDelivered []string
+	Population map[string]int64
+	Buildings  []string
 }
 
 // Good is a tradeable good.

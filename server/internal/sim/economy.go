@@ -406,17 +406,16 @@ func worldPopulation(w *World, c *content.Catalogue) map[string]Qty {
 }
 
 // unlockStatus evaluates the unlock conditions of a tier over the whole
-// archipelago (MECHANICS §12). goods_delivered conditions cannot be met
-// before trade routes exist.
+// archipelago (MECHANICS §12): population of earlier tiers and buildings
+// (D-056 dropped the never-met goods_delivered condition).
 type unlockStatus struct {
 	population map[string][2]Qty // tier -> {have, need} in milli-residents
 	buildings  map[string]bool
-	goods      map[string]bool
 	met        bool
 }
 
 func evaluateTier(w *World, c *content.Catalogue, t *content.Tier, pop map[string]Qty) unlockStatus {
-	st := unlockStatus{population: map[string][2]Qty{}, buildings: map[string]bool{}, goods: map[string]bool{}, met: true}
+	st := unlockStatus{population: map[string][2]Qty{}, buildings: map[string]bool{}, met: true}
 	for tier, n := range t.Unlock.Population {
 		need := n * content.MilliPerUnit
 		st.population[tier] = [2]Qty{pop[tier], need}
@@ -438,10 +437,6 @@ func evaluateTier(w *World, c *content.Catalogue, t *content.Tier, pop map[strin
 		if !ok {
 			st.met = false
 		}
-	}
-	for _, g := range t.Unlock.GoodsDelivered {
-		st.goods[g] = false
-		st.met = false
 	}
 	return st
 }

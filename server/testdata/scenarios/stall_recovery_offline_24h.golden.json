@@ -319,8 +319,7 @@
         "id": "settlers",
         "unlocked": true,
         "population": {},
-        "buildings": {},
-        "goods_delivered": {}
+        "buildings": {}
       },
       {
         "id": "citizens",
@@ -334,8 +333,7 @@
         "buildings": {
           "chapel": false,
           "market_small": true
-        },
-        "goods_delivered": {}
+        }
       }
     ],
     "archipelago": {

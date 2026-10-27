@@ -39,9 +39,6 @@ export function lockReason(model: DisplayState | null, content: Content, tierId:
   for (const [id, built] of Object.entries(tier.buildings)) {
     if (!built) parts.push(content.buildings.find((b) => b.id === id)?.name ?? id);
   }
-  for (const [id, delivered] of Object.entries(tier.goods_delivered)) {
-    if (!delivered) parts.push(`deliver ${content.goods.find((g) => g.id === id)?.name ?? id}`);
-  }
   return parts.length > 0 ? `${head} — ${parts.join(", ")}` : head;
 }
 

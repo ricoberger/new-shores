@@ -5,7 +5,7 @@
     "residents": { "floor": 2, "max": 8 },
     "tax_per_resident_per_min": 0.2,
     "house": "house_settlers",
-    "unlock": { "population": {}, "buildings": [], "goods_delivered": [] }
+    "unlock": { "population": {}, "buildings": [] }
   },
   {
     "id": "citizens",
@@ -15,8 +15,27 @@
     "house": "house_citizens",
     "unlock": {
       "population": { "settlers": 120 },
-      "buildings": ["market_small", "chapel"],
-      "goods_delivered": []
+      "buildings": ["market_small", "chapel"]
+    }
+  },
+  {
+    "id": "merchants",
+    "name": "Merchants",
+    "residents": { "floor": 8, "max": 25 },
+    "tax_per_resident_per_min": 1.5,
+    "unlock": {
+      "population": { "citizens": 360 },
+      "buildings": ["tavern"]
+    }
+  },
+  {
+    "id": "patricians",
+    "name": "Patricians",
+    "residents": { "floor": 12, "max": 40 },
+    "tax_per_resident_per_min": 2.7,
+    "unlock": {
+      "population": { "merchants": 1200 },
+      "buildings": []
     }
   }
 ]

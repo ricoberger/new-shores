@@ -443,7 +443,7 @@ func TestDisplayPopulationFields(t *testing.T) {
 		t.Fatalf("tiers = %v", tiers)
 	}
 	cit := tiers[1].(map[string]any)
-	requireKeys(t, "tier", cit, "id", "unlocked", "population", "buildings", "goods_delivered")
+	requireKeys(t, "tier", cit, "id", "unlocked", "population", "buildings")
 	requireKeys(t, "tier population", cit["population"].(map[string]any)["settlers"].(map[string]any), "have", "need")
 	if cit["buildings"].(map[string]any)["market_small"] != true || cit["buildings"].(map[string]any)["chapel"] != false || cit["unlocked"] != false {
 		t.Errorf("citizens = %v", cit)

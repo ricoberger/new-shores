@@ -31,18 +31,17 @@ describe("tiers", () => {
   it("lists the server's unmet unlock conditions as the lock reason", () => {
     const model = {
       tiers: [
-        { id: "settlers", unlocked: true, population: {}, buildings: {}, goods_delivered: {} },
+        { id: "settlers", unlocked: true, population: {}, buildings: {} },
         {
           id: "citizens",
           unlocked: false,
           population: { settlers: { have: 88_000, need: 120_000 } },
           buildings: { market_small: true, chapel: false },
-          goods_delivered: { fish: false },
         },
       ],
       islands: [],
     } as unknown as DisplayState;
-    expect(lockReason(model, content, "citizens")).toBe("Needs Citizens — Settlers 88/120, Chapel, deliver Fish");
+    expect(lockReason(model, content, "citizens")).toBe("Needs Citizens — Settlers 88/120, Chapel");
     expect(lockReason(model, content, "settlers")).toBeNull();
     expect(tierUnlocked(model, "citizens")).toBe(false);
     // Conditions met but not yet evaluated, or no model: just the tier.

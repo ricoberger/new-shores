@@ -1599,10 +1599,6 @@ export interface components {
             buildings: {
                 [key: string]: boolean;
             };
-            /** @description Delivery unlock conditions keyed by good ID. */
-            goods_delivered: {
-                [key: string]: boolean;
-            };
         };
         PopulationDisplay: {
             /**
@@ -2189,7 +2185,6 @@ export interface components {
                 [key: string]: number;
             };
             buildings: string[];
-            goods_delivered: string[];
         };
         ContentGood: {
             id: string;

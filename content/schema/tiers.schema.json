@@ -29,7 +29,7 @@
       "unlock": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["population", "buildings", "goods_delivered"],
+        "required": ["population", "buildings"],
         "properties": {
           "population": {
             "type": "object",
@@ -37,10 +37,6 @@
             "additionalProperties": { "type": "integer", "minimum": 0 }
           },
           "buildings": {
-            "type": "array",
-            "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
-          },
-          "goods_delivered": {
             "type": "array",
             "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
           }

@@ -5,7 +5,7 @@
     "residents": { "floor": 2, "max": 8 },
     "tax_per_resident_per_min": 0.2,
     "house": "house_settlers",
-    "unlock": { "population": {}, "buildings": [], "goods_delivered": [] }
+    "unlock": { "population": {}, "buildings": [] }
   },
   {
     "id": "citizens",
@@ -15,8 +15,7 @@
     "house": "house_citizens",
     "unlock": {
       "population": { "settlers": 10 },
-      "buildings": ["market_small"],
-      "goods_delivered": []
+      "buildings": ["market_small"]
     }
   },
   {
@@ -26,8 +25,7 @@
     "tax_per_resident_per_min": 1.2,
     "unlock": {
       "population": { "citizens": 30 },
-      "buildings": [],
-      "goods_delivered": ["fish"]
+      "buildings": []
     }
   }
 ]

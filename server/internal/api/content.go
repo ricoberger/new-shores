@@ -128,9 +128,8 @@ type tierJSON struct {
 }
 
 type unlockJSON struct {
-	Population     map[string]int64 `json:"population"`
-	Buildings      []string         `json:"buildings"`
-	GoodsDelivered []string         `json:"goods_delivered"`
+	Population map[string]int64 `json:"population"`
+	Buildings  []string         `json:"buildings"`
 }
 
 type goodJSON struct {
@@ -355,9 +354,8 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 			ResidentsFloor: t.ResidentsFloor, ResidentsMax: t.ResidentsMax,
 			TaxPerResidentPerMin: t.TaxPerResidentPerMin,
 			Unlock: unlockJSON{
-				Population:     map[string]int64{},
-				Buildings:      append([]string{}, t.Unlock.Buildings...),
-				GoodsDelivered: append([]string{}, t.Unlock.GoodsDelivered...),
+				Population: map[string]int64{},
+				Buildings:  append([]string{}, t.Unlock.Buildings...),
 			},
 		}
 		if t.House != "" {
