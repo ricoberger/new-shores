@@ -346,6 +346,9 @@ func runDev(o options, logger *slog.Logger) error {
 		// Dev only: POST /api/v1/dev/reset seeds a fresh world (E2E specs).
 		DevReset: func(ctx context.Context, fixture string) (int64, error) {
 			w, err := devworld.NewFixture(cat, fixture, o.seed, worldNow())
+			if errors.Is(err, devworld.ErrFixtureSeed) {
+				return 0, api.DevFixtureError{Err: err}
+			}
 			if err != nil {
 				return 0, err
 			}

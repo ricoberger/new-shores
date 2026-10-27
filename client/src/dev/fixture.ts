@@ -209,6 +209,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
     const base: ShipDisplay = {
       id,
       type: "sloop",
+      name: `Sloop ${id}`,
       state: "idle",
       island_id: "",
       route_id: 0,
@@ -730,6 +731,7 @@ export function buildDenseFixture(nowMs: number): Built {
   const ship = (id: number, from: string, to: string, offset: number): ShipDisplay => ({
     id,
     type: "sloop",
+    name: `Sloop ${id}`,
     state: "manual_leg",
     island_id: "",
     route_id: 0,
@@ -843,6 +845,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
     const base: ShipDisplay = {
       id,
       type: "sloop",
+      name: `Sloop ${id}`,
       state: "idle",
       island_id: "",
       route_id: 0,
@@ -1051,6 +1054,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
   const ship = (id: number, extra: Partial<ShipDisplay>): ShipDisplay => ({
     id,
     type: "sloop",
+    name: `Sloop ${id}`,
     state: "idle",
     island_id: SHOWCASE_ISLAND,
     route_id: 0,

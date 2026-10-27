@@ -168,6 +168,14 @@ func ErrorCodes() []string {
 	return append(codes, accountCodes...)
 }
 
+// DevFixtureError is a dev fixture that cannot be built on the dev
+// server's archipelago (Config.DevReset): the caller's choice of fixture
+// and seed, answered 400 with the message.
+type DevFixtureError struct{ Err error }
+
+func (e DevFixtureError) Error() string { return e.Err.Error() }
+func (e DevFixtureError) Unwrap() error { return e.Err }
+
 // apiError is a client error detected by the handlers before the
 // simulation (malformed JSON, missing fields).
 type apiError struct {

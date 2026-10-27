@@ -1,4 +1,4 @@
-import type { Content, DisplayState, ShipDisplay } from "../api/client";
+import type { DisplayState, ShipDisplay } from "../api/client";
 import { serverTimeMs } from "../display/extrapolate";
 import { countdown, legTiming } from "../display/ships";
 import { CloseButton } from "./CloseButton";
@@ -6,7 +6,6 @@ import styles from "./hud.module.css";
 
 interface Props {
   model: DisplayState;
-  content: Content;
   /** Server time the model was extrapolated to (ms since the epoch). */
   nowMs: number;
   onSelect: (ship: ShipDisplay) => void;
@@ -81,7 +80,7 @@ export function ShipStatusLine({
 }
 
 /** The player's ships as a list; an entry selects the ship (its info panel holds the actions). */
-export function ShipsPanel({ model, content, nowMs, onSelect, onClose }: Props) {
+export function ShipsPanel({ model, nowMs, onSelect, onClose }: Props) {
   const islandName = (id: string) => model.islands.find((i) => i.id === id)?.name || id;
   return (
     <div className={`${styles.panel} ${styles.shipsPanel}`} data-testid="ships-panel">
@@ -95,9 +94,7 @@ export function ShipsPanel({ model, content, nowMs, onSelect, onClose }: Props) 
         {model.ships.map((s) => (
           <button key={s.id} type="button" className={`${styles.trayEntry} ${styles.shipEntry}`} onClick={() => onSelect(s)} data-testid={`ship-${s.id}`}>
             <span>
-              <strong>
-                {content.ships.find((t) => t.id === s.type)?.name ?? s.type} #{s.id}
-              </strong>
+              <strong>{s.name}</strong>
               <br />
               <ShipStatusLine ship={s} nowMs={nowMs} islandName={islandName} className={styles.small} stateTestId={`ship-state-${s.id}`} etaTestId={`ship-eta-${s.id}`} routeName={model.routes.find((r) => r.id === s.route_id)?.name} />
             </span>

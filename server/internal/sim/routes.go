@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -161,6 +162,8 @@ func validateRoute(w *World, c *content.Catalogue, name string, stops []Stop) er
 	return nil
 }
 
+// routeName is a route's name: the given one (trimmed by the caller), or
+// "Route <id>" when it is empty (also when it was only whitespace).
 func routeName(name string, id int64) string {
 	if name == "" {
 		return "Route " + strconv.FormatInt(id, 10)
@@ -169,7 +172,8 @@ func routeName(name string, id int64) string {
 }
 
 func createRoute(w *World, c *content.Catalogue, cmd CreateRoute) error {
-	if err := validateRoute(w, c, cmd.Name, cmd.Stops); err != nil {
+	name := strings.TrimSpace(cmd.Name)
+	if err := validateRoute(w, c, name, cmd.Stops); err != nil {
 		return err
 	}
 	if w.NextRouteID < 1 {
@@ -177,7 +181,7 @@ func createRoute(w *World, c *content.Catalogue, cmd CreateRoute) error {
 	}
 	id := w.NextRouteID
 	w.NextRouteID++
-	w.Routes = append(w.Routes, &Route{ID: id, Name: routeName(cmd.Name, id), Stops: cloneStops(cmd.Stops)})
+	w.Routes = append(w.Routes, &Route{ID: id, Name: routeName(name, id), Stops: cloneStops(cmd.Stops)})
 	return nil
 }
 
@@ -186,10 +190,11 @@ func updateRoute(w *World, c *content.Catalogue, cmd UpdateRoute) error {
 	if err != nil {
 		return err
 	}
-	if err := validateRoute(w, c, cmd.Name, cmd.Stops); err != nil {
+	name := strings.TrimSpace(cmd.Name)
+	if err := validateRoute(w, c, name, cmd.Stops); err != nil {
 		return err
 	}
-	r.Name, r.Stops = routeName(cmd.Name, r.ID), cloneStops(cmd.Stops)
+	r.Name, r.Stops = routeName(name, r.ID), cloneStops(cmd.Stops)
 	return nil
 }
 

@@ -3,6 +3,7 @@ package devworld
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -18,7 +19,7 @@ import (
 // world-time history that ends at now; the player was last seen at now (no
 // "while you were away" summary). Sites are found programmatically on the
 // generated islands (the real placement check), so every fixture works on
-// any seed:
+// any seed (citizens: any seed whose home island has the wheat fertility):
 //
 //   - seafaring: the start state as New builds it (D-051): no island
 //     settled, the start ship at sea with the starting stock.
@@ -34,28 +35,39 @@ import (
 //     the nearest habitable island founded by it (Trading Post, street,
 //     two houses, a fisher) and ship 2 sailing the route "Fish home"; the
 //     start sloop (ship 1) idle at the home island.
+//   - citizens: town with the citizens tier unlocked and a wheat farm
+//     without fields on the home island, at a site where its 140 wheat
+//     fields fit in one drag, with the gold and materials for them (the
+//     field painting shots). A seed whose home island lacks the wheat
+//     fertility is an error (DevSeed has it).
 const (
 	FixtureDefault   = "default"
 	FixtureSeafaring = "seafaring"
 	FixtureTown      = "town"
 	FixtureSettled   = "settled"
+	FixtureCitizens  = "citizens"
 )
 
 // ErrUnknownFixture reports a fixture name that NewFixture does not know.
 var ErrUnknownFixture = errors.New("unknown dev fixture")
 
+// ErrFixtureSeed reports a fixture that cannot be built on the seed's
+// archipelago (citizens: no wheat at home).
+var ErrFixtureSeed = errors.New("not available on this seed")
+
 // Fixtures lists the fixture names.
 func Fixtures() []string {
-	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled}
+	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens}
 }
 
 // History of the fixtures before now (world time): long enough for the
 // voyages from the spawn and between islands, the planks, the sloop and
 // the first fish the layouts need.
 const (
-	foundHistory   = 20 * time.Minute
-	townHistory    = foundHistory + 12*time.Minute
-	settledHistory = townHistory + 60*time.Minute
+	foundHistory    = 20 * time.Minute
+	townHistory     = foundHistory + 12*time.Minute
+	settledHistory  = townHistory + 60*time.Minute
+	citizensHistory = townHistory + 2*time.Minute
 )
 
 // FixtureGold (milli-gold) is granted to the town and settled fixtures, so
@@ -82,6 +94,12 @@ func NewFixture(c *content.Catalogue, name string, seed uint64, now time.Time) (
 			foundHome(f)
 			town(f)
 			settle(f)
+		})
+	case FixtureCitizens:
+		return replay(c, seed, now, citizensHistory, func(f *fixture) {
+			foundHome(f)
+			town(f)
+			citizens(f)
 		})
 	}
 	return nil, fmt.Errorf("%w %q (known: %v)", ErrUnknownFixture, name, Fixtures())
@@ -231,6 +249,50 @@ func settle(f *fixture) {
 	}
 	route := f.w.Routes[len(f.w.Routes)-1].ID
 	f.apply(sim.AssignShip{ShipID: ship, RouteID: route})
+	f.advance(time.Minute)
+}
+
+// The citizens fixture's tier and farm.
+const (
+	citizensTier = "citizens"
+	citizensFarm = "wheat_farm"
+)
+
+// citizens unlocks the citizens tier (granted, like the fixture gold: the
+// town is far from 120 settlers) and places a wheat farm without fields
+// near the street, at the nearest site where a trial drag places all its
+// fields (the trial is not kept). The farm's materials the town lacks are
+// granted first; the fields cost gold only (FixtureGold).
+func citizens(f *fixture) {
+	if f.err != nil {
+		return
+	}
+	if !slices.Contains(f.w.UnlockedTiers, citizensTier) {
+		f.w.UnlockedTiers = append(f.w.UnlockedTiers, citizensTier)
+	}
+	home := f.home()
+	def := f.c.BuildingByID[citizensFarm]
+	if def == nil || def.Fields == nil {
+		f.err = fmt.Errorf("no %s with fields in the content", citizensFarm)
+		return
+	}
+	inv := &f.w.Island(home).Inventory
+	if inv.Stock == nil {
+		inv.Stock = map[string]sim.Qty{}
+	}
+	for _, m := range def.Cost.Materials {
+		inv.Stock[m.Good] = max(inv.Stock[m.Good], m.Amount)
+	}
+	if fert := def.WorkArea; fert != nil && fert.Fertility != "" && !slices.Contains(f.w.Island(home).Fertilities, fert.Fertility) {
+		f.err = fmt.Errorf("%w: the %s fixture needs a home island with the %s fertility for its %s, but seed %d's home island %s has %v; use a seed whose home island grows %s (the dev seed %d does)",
+			ErrFixtureSeed, FixtureCitizens, fert.Fertility, citizensFarm, f.w.Seed, home, f.w.Island(home).Fertilities, fert.Fertility, DevSeed)
+		return
+	}
+	n := f.requiredFields(citizensFarm)
+	f.placeNearThen(home, citizensFarm, f.streetEnd(home), func(farm int64) bool {
+		w, placed := f.fieldDrag(home, farm, def.Fields.Type)
+		return w != nil && placed == n
+	})
 	f.advance(time.Minute)
 }
 

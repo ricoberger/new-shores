@@ -7074,6 +7074,7 @@
       {
         "id": 1,
         "type": "sloop",
+        "name": "Sloop 1",
         "state": "idle",
         "island_id": "isle-01",
         "route_id": 0,
@@ -7092,6 +7093,7 @@
       {
         "id": 2,
         "type": "sloop",
+        "name": "Sloop 2",
         "state": "on_route",
         "island_id": "",
         "route_id": 1,
@@ -14373,6 +14375,7 @@
           {
             "id": 1,
             "type": "sloop",
+            "name": "Sloop 1",
             "state": "idle",
             "island_id": "isle-01",
             "route_id": 0,
@@ -14391,6 +14394,7 @@
           {
             "id": 2,
             "type": "sloop",
+            "name": "Sloop 2",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
@@ -21672,6 +21676,7 @@
           {
             "id": 1,
             "type": "sloop",
+            "name": "Sloop 1",
             "state": "idle",
             "island_id": "isle-01",
             "route_id": 0,
@@ -21690,6 +21695,7 @@
           {
             "id": 2,
             "type": "sloop",
+            "name": "Sloop 2",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
@@ -28971,6 +28977,7 @@
           {
             "id": 1,
             "type": "sloop",
+            "name": "Sloop 1",
             "state": "idle",
             "island_id": "isle-01",
             "route_id": 0,
@@ -28989,6 +28996,7 @@
           {
             "id": 2,
             "type": "sloop",
+            "name": "Sloop 2",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
@@ -36270,6 +36278,7 @@
           {
             "id": 1,
             "type": "sloop",
+            "name": "Sloop 1",
             "state": "idle",
             "island_id": "isle-01",
             "route_id": 0,
@@ -36288,6 +36297,7 @@
           {
             "id": 2,
             "type": "sloop",
+            "name": "Sloop 2",
             "state": "on_route",
             "island_id": "",
             "route_id": 1,

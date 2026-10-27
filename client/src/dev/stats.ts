@@ -11,8 +11,13 @@ export interface StatsSample {
   triangles: number;
   /** JS heap in bytes; null where the browser does not expose it (Safari, Firefox). */
   heapBytes: number | null;
-  lod: string;
+  /** The level of detail; null before the camera is placed on the world (no level yet). */
+  lod: string | null;
   detail: string;
+  /** Island build steps waiting (the incremental build, display/buildqueue.ts). */
+  queue: number;
+  /** The longest frame of the last second (ms): build hitches. */
+  maxMs: number;
   /** Life instances and particles drawn in the last frame (null: the life layer is off, ?life=0). */
   life: { instances: number; particles: number } | null;
 }
@@ -27,9 +32,10 @@ export function statsLines(s: StatsSample): string[] {
   const heap = s.heapBytes === null ? "n/a" : `${(s.heapBytes / 1024 / 1024).toFixed(0)} MB`;
   return [
     `${s.fps.toFixed(1)} fps  ${s.frameMs.toFixed(1)} ms (p95 ${s.p95Ms.toFixed(1)})`,
+    `max ${s.maxMs.toFixed(1)} ms  queue ${s.queue}`,
     `draws ${s.drawCalls}  tris ${formatCount(s.triangles)}`,
     `heap ${heap}`,
-    `lod ${s.lod}  detail ${s.detail}`,
+    `lod ${s.lod ?? "–"}  detail ${s.detail}`,
     s.life ? `life ${s.life.instances} inst  ${s.life.particles} pcl` : "life off",
   ];
 }

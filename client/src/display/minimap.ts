@@ -49,18 +49,17 @@ interface IslandShape {
   position: { x: number; y: number };
   width: number;
   height: number;
-  settled: boolean;
   /** The 1:4 terrain mask the land is drawn from (display/mask.ts). */
   terrain_mask: string;
 }
 
 /**
  * Key of what the minimap's cached land layer shows: the islands' IDs,
- * positions, sizes, settlement and terrain masks. Display numbers (stocks, population)
+ * positions, sizes and terrain masks (settled or not, the land looks the same). Display numbers (stocks, population)
  * change every model update and are not part of it.
  */
 export function minimapLandKey(islands: readonly IslandShape[]): string {
-  return islands.map((is) => `${is.id}:${is.position.x},${is.position.y},${is.width},${is.height},${is.settled ? 1 : 0},${is.terrain_mask}`).join("|");
+  return islands.map((is) => `${is.id}:${is.position.x},${is.position.y},${is.width},${is.height},${is.terrain_mask}`).join("|");
 }
 
 /** Bounding box of the islands (archipelago tiles), null without islands. */
@@ -71,4 +70,22 @@ export function islandsBounds(islands: readonly Omit<IslandShape, "id" | "settle
     b = b ? { minX: Math.min(b.minX, r.minX), minY: Math.min(b.minY, r.minY), maxX: Math.max(b.maxX, r.maxX), maxY: Math.max(b.maxY, r.maxY) } : r;
   }
   return b;
+}
+
+/** Session key of the phone minimap's collapsed state while no island is settled. */
+export const MINIMAP_UNSETTLED_KEY = "newShores.minimapUnsettledCollapsed";
+
+/**
+ * Initial collapsed state of the phone minimap: while no island is
+ * settled (choosing the home island) it opens expanded unless it was
+ * collapsed earlier in this session; afterwards the layout's default.
+ */
+export function minimapCollapsedAtStart(defaultCollapsed: boolean, unsettled: boolean, session: Pick<Storage, "getItem"> | null | undefined): boolean {
+  if (!unsettled) return defaultCollapsed;
+  return session?.getItem(MINIMAP_UNSETTLED_KEY) === "1";
+}
+
+/** Remembers a toggle of the phone minimap for the session (only while no island is settled). */
+export function rememberMinimapCollapsed(collapsed: boolean, unsettled: boolean, session: Pick<Storage, "setItem"> | null | undefined): void {
+  if (unsettled) session?.setItem(MINIMAP_UNSETTLED_KEY, collapsed ? "1" : "0");
 }

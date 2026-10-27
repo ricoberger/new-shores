@@ -45,8 +45,8 @@ UI shows the same numbers the server uses.
   fields, carts, status icons, construction hulls, foam. *Mid:* full
   models, roads and fields, no carts or status icons. *Far:* lite models
   (≈ 25 %), the same diorama ground, one simplified tree mesh per island
-  without scatter or tree shadows, labels and settled badges; unsettled
-  islands desaturated (D-050). Terrain, trees, scatter, roads and fields
+  without scatter or tree shadows, labels and settled badges; settled or
+  not, an island has the same colours. Terrain, trees, scatter, roads and fields
   are built per **32×32 chunk** and culled per chunk; a change rebuilds
   only the touched chunks; the life layer spawns only in visible chunks.
   **Island tiles load lazily** (`GET /world/islands/{id}/tiles`, cached
@@ -97,7 +97,7 @@ UI shows the same numbers the server uses.
   the unsettled-island panel, never a command.
 - **Minimap** (HUD, top of the left column; `min(180 px, 25 % of the short
   side)`; collapsible and collapsed by default in phone portrait): north-up
-  2D canvas with island outlines (settled/unsettled tint, cached),
+  2D canvas with island outlines (one land colour, settled or not; cached),
   ship dots and the camera's viewport quad (rotates with the camera);
   tap/click jumps the camera. `role="img"` with a label.
 - The HUD's world-map button opens the 2D world-map screen as an overlay
@@ -161,7 +161,15 @@ UI shows the same numbers the server uses.
   (opened from the side dock or the insolvency banner), each clickable to
   focus the building.
 - **"While you were away" dialog** after ≥ 15 min absence (see §4 and
-  MECHANICS §12b); **Quests button** with a badge; **insolvency banner**
+  MECHANICS §12b): the interval in the player's local time ("25 Oct,
+  21:36 – 26 Oct, 04:08 (6 h 31 min)", the end's day only when it
+  differs), then headed sections: **Overview** (one line each for gold,
+  "Gold: 184 → 4337 (+4153)", and the population per tier), one section per
+  island (its name as the heading, a goods table: produced, consumed,
+  lost, stock/capacity; no at-capacity badge — the stock shows it), pauses, **Ships arrived (n)** (one line per ship: "Gull: 42
+  arrivals (Cormorant Rock 21, Mistle Haven 21)") and quests; the
+  signature row has the title's brass line above it. **Quests button**
+  with a badge; **insolvency banner**
   whenever anything is unpaid.
 
 ## 3. Placement
@@ -277,9 +285,17 @@ UI shows the same numbers the server uses.
 
 **Ship** (ship info panel; the Ships list only selects)
 
+- The title is the ship's name (D-055) with a pencil button; the pencil
+  turns the header into a name input with ✓ (rename, saved at once) and ⊗
+  (cancel, Escape) icon buttons — the island card's rename pattern; the
+  close button is hidden meanwhile. The ship type ("Sloop") is a small line
+  below the title, then a "Details" heading (as on the Trading Post and
+  Warehouse) above the rest. Everywhere else (Ships list, route editor, toasts,
+  dialogs, away summary) a ship is shown by its name only.
 - Status line shared with the list ("On route: name · arrives in …",
   "Shipment · …", "Idle · at …"), the from → to islands of a leg, upkeep, speed (×, from the ship type),
-  slot capacity, one box per cargo slot (good icon, amount / slot size),
+  slot capacity, under a "Slots" heading (no divider) one box per cargo
+  slot (good icon, amount / slot size),
   pending founding and berth-wait notes.
 - Buttons: "Assign to route…" (an inline picker of the saved routes; routes
   are created only in the Routes list, the picker links there when there
@@ -295,8 +311,10 @@ three lines per route.
 **Route editor** (panel; the Routes list opens it)
 
 - Opened from the Routes list; stays open while the camera moves.
-- The title is the route name (typed live; "New route" while empty), then
-  a name input. Stops are chosen from **island pickers** (each option shows
+- The title is the route name ("New route" for a new route) with a pencil
+  button that turns the header into a name input with ✓ (apply the name to
+  the draft; it is saved with Save) and ⊗ (cancel) icon buttons, as on the
+  island card. A name of spaces only becomes "Route <id>". Stops are chosen from **island pickers** (each option shows
   the island name and "(unsettled)" where it applies; the stock is
   shown per good below);
   a stop is one card: number, island picker, move up/down and remove, then

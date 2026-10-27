@@ -104,9 +104,8 @@ detail does not** (D-048, refined by D-050):
 - **Water:** shallows→deep gradient by distance from the coast, slow noise
   animation, subtle specular, foam line; the sea plane extends past the
   camera bounds and fades into a warm haze — never a hard edge.
-  Unsettled islands are desaturated (grass blended toward grey, scatter
-  darkened) at far so they read at a glance; near and mid show true
-  colours.
+  Unsettled islands show true colours at every zoom, like settled ones
+  (labels and settled badges tell them apart).
 - **Roads:** continuous strips with joins and a light border; dirt vs paved
   readable.
 - All decoration is **render-only**: it never blocks placement, holds no

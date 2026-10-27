@@ -15,10 +15,11 @@ describe("fps badge helpers", () => {
   });
 
   it("formats the lines, with and without a heap reading", () => {
-    const s = { fps: 59.96, frameMs: 16.7, p95Ms: 18.2, drawCalls: 31, triangles: 612_000, heapBytes: 88 * 1024 * 1024, lod: "near", detail: "lite", life: { instances: 120, particles: 40 } };
-    expect(statsLines(s)).toEqual(["60.0 fps  16.7 ms (p95 18.2)", "draws 31  tris 612.0k", "heap 88 MB", "lod near  detail lite", "life 120 inst  40 pcl"]);
-    expect(statsLines({ ...s, heapBytes: null })[2]).toBe("heap n/a");
-    expect(statsLines({ ...s, life: null })[4]).toBe("life off");
+    const s = { fps: 59.96, frameMs: 16.7, p95Ms: 18.2, drawCalls: 31, triangles: 612_000, heapBytes: 88 * 1024 * 1024, lod: "near", detail: "lite", queue: 12, maxMs: 41.26, life: { instances: 120, particles: 40 } };
+    expect(statsLines(s)).toEqual(["60.0 fps  16.7 ms (p95 18.2)", "max 41.3 ms  queue 12", "draws 31  tris 612.0k", "heap 88 MB", "lod near  detail lite", "life 120 inst  40 pcl"]);
+    expect(statsLines({ ...s, heapBytes: null })[3]).toBe("heap n/a");
+    expect(statsLines({ ...s, life: null })[5]).toBe("life off");
+    expect(statsLines({ ...s, lod: null })[4]).toBe("lod –  detail lite");
   });
 
   it("reads the heap when the browser exposes it", () => {

@@ -110,7 +110,9 @@ type Config struct {
 	// "" is the default) and returns the new version. It mounts POST
 	// /api/v1/dev/reset in dev mode only (Accounts == nil): the E2E specs
 	// start from a known world instead of each other's leftovers. Nil (and
-	// default mode) leaves the endpoint absent (404).
+	// default mode) leaves the endpoint absent (404). A DevFixtureError
+	// (a fixture the world's seed cannot build) answers 400 with its
+	// message; other errors are internal.
 	DevReset    func(ctx context.Context, fixture string) (int64, error)
 	DevFixtures []string
 	// Version and Instance identify the server in /healthz and the
@@ -774,6 +776,11 @@ func (s *Server) postDevReset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	version, err := s.cfg.DevReset(r.Context(), req.Fixture)
+	var fe DevFixtureError
+	if errors.As(err, &fe) {
+		s.writeError(w, r, badRequest(fe.Error()))
+		return
+	}
 	if err != nil {
 		s.writeError(w, r, err)
 		return

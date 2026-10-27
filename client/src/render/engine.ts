@@ -21,8 +21,10 @@ import { servedRelated } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
 import { visibleChunks } from "../display/chunks";
+import { BUILD_BUDGET_MS, type BuildItem, buildOrder, BuildScheduler } from "../display/buildqueue";
 import { islandSeed } from "../display/scatter";
 import { type MaskIsland, MaskLayer } from "./farmesh";
+import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
@@ -242,6 +244,8 @@ export class GameRenderer {
   private focusTilesMarked = false;
   /** Islands drawn from their 1:4 masks (no tiles yet; at far LOD all but the focused one). */
   private readonly mask: MaskLayer;
+  /** Trading Posts and shipyards of the settled mask-drawn islands at far LOD. */
+  private readonly landmarks: LandmarkLayer;
   /** The tile priorities last sent to the sync (focus and islands in view). */
   private priorityKey = "";
   /** The focused island at far LOD when the view was last applied (null at near and mid). */
@@ -252,6 +256,11 @@ export class GameRenderer {
   private readonly masks = new Map<string, { raw: string; mask: DecodedMask }>();
   /** Animation time pinned by a test (server ms; null: live). */
   private frozenAt: number | null = null;
+  /** The island builds' budget per frame; they start only after the first frame (sea, masks, ships and HUD come first). */
+  private readonly builds = new BuildScheduler();
+  /** Models loaded so far, and the count when each running island build started (a load during the build refreshes the island at its end). */
+  private modelLoads = 0;
+  private readonly buildLoads = new Map<string, number>();
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -281,10 +290,12 @@ export class GameRenderer {
     this.models = new ModelRegistry(this.scene);
     this.models.onChange(() => {
       this.modelsDirty = true;
+      this.modelLoads++;
     });
     void this.models.loadManifest();
     this.arch = new ArchipelagoLayer(this.scene, this.models);
     this.mask = new MaskLayer(this.scene);
+    this.landmarks = new LandmarkLayer(this.scene, this.models);
     // Measurement switch: ?farmask=0 keeps the full detail of every island in view at far LOD.
     this.farMask = new URLSearchParams(globalThis.location?.search ?? "").get("farmask") !== "0";
     this.life = new LifeLayer(this.scene, LIFE_CLASSES, quality, life, this.models);
@@ -331,6 +342,8 @@ export class GameRenderer {
     const now = this.frozenAt ?? this.sync.serverNowMs();
     this.rig.tick(t);
     this.updateView();
+    // Island builds run under the frame's time budget, never before the first frame.
+    this.drainBuild();
     // Loaded models swap in once the requests in flight have settled (or
     // every MODEL_REFRESH_MS while many load): each swap re-merges chunks.
     if (this.modelsDirty && (this.models.status().pending.length === 0 || t - this.modelsRefreshedAt >= MODEL_REFRESH_MS)) {
@@ -341,6 +354,7 @@ export class GameRenderer {
         this.arch.setDocks(this.docks(this.lastServer.display));
       }
       for (const d of this.details.values()) d.refreshModels();
+      this.landmarks.refresh();
       this.refreshCasters();
     }
     let casters = false;
@@ -359,6 +373,7 @@ export class GameRenderer {
     this.updateMarks();
     this.engine._drawCalls.fetchNewFrame();
     this.scene.render();
+    this.builds.frameRendered();
     this.drawCalls = this.engine._drawCalls.current;
     if (!this.models.rendered() && (this.arch.drawsModels() || [...this.details.values()].some((d) => d.drawsModels()))) this.models.markRendered();
     for (const l of this.frameListeners) l();
@@ -509,8 +524,11 @@ export class GameRenderer {
   }
 
   /** Draw calls, triangles (the scene's active indices of the last frame ÷ 3; shadow passes included) and the current LOD and model detail (the fps badge). */
-  renderStats(): { drawCalls: number; triangles: number; lod: Lod; detail: Detail } {
-    return { drawCalls: this.drawCalls, triangles: Math.round(this.scene.getActiveIndices() / 3), lod: this.lod, detail: this.detail };
+  renderStats(): { drawCalls: number; triangles: number; lod: Lod | null; detail: Detail; queue: number } {
+    let queue = 0;
+    for (const d of this.details.values()) if (d.building()) queue += d.pendingChunks().length + (d.headPending() ? 1 : 0);
+    // No level before the camera is placed on the world.
+    return { drawCalls: this.drawCalls, triangles: Math.round(this.scene.getActiveIndices() / 3), lod: this.placedInitially ? this.lod : null, detail: this.detail, queue };
   }
 
   /** Frame time statistics over the frames of the last windowMs. */
@@ -551,6 +569,16 @@ export class GameRenderer {
   /** Current level of detail. */
   currentLod(): Lod {
     return this.lod;
+  }
+
+  /** Whether the camera is zoomed out to its maximum (the region's cap or the whole archipelago; a pinch may stop within 2 %). */
+  atZoomCap(): boolean {
+    return this.rig.view().half >= this.rig.zoomRange().max * 0.98;
+  }
+
+  /** The island the camera is focused on ("" before the first view). */
+  focusedIsland(): string {
+    return this.info.focus;
   }
 
   /** Camera target (archipelago tiles), zoom and rotation step. */
@@ -707,7 +735,8 @@ export class GameRenderer {
    * brought up to date with its payload. An island without its tiles yet
    * is drawn from its 1:4 mask (render/farmesh.ts), and so is every island
    * but the focused one at far LOD (?farmask=0 turns that off for
-   * measurements).
+   * measurements); a settled one of those keeps its Trading Post and
+   * shipyards as lite models (render/landmarks.ts).
    */
   private applyView(): void {
     this.arch.show(this.lod);
@@ -717,6 +746,7 @@ export class GameRenderer {
     const v = this.rig.view();
     const focus = islands.length > 0 ? focusedIsland(islands, v) : null;
     const masked: MaskIsland[] = [];
+    const landmarks: LandmarkIsland[] = [];
     for (const is of islands) {
       const shown = this.visible.has(is.id);
       let d = this.details.get(is.id);
@@ -724,9 +754,12 @@ export class GameRenderer {
       const farMasked = this.farMask && this.lod === "far" && is.id !== focus;
       const useMask = !d?.hasTiles() || farMasked;
       d?.setShown(shown && !useMask, this.lod);
-      if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), settled: is.settled });
+      if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey) });
+      // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
+      if (showsLandmarks(is, this.lod, focus, useMask)) landmarks.push(is);
     }
     this.mask.show(masked);
+    this.landmarks.show(landmarks, this.defs);
     this.cullChunks(islands);
     this.refreshCasters();
   }
@@ -763,12 +796,94 @@ export class GameRenderer {
       this.details.set(is.id, d);
     }
     d.setPosition(is.position);
-    d.setStatics(statics, is.settled);
-    if (!d.builtWith(is, this.defs)) {
-      d.update(is, this.defs);
-      this.applySelection();
+    if (d.hasTiles() && d.hasStatics(statics)) {
+      // Built: payload changes rebuild only the touched chunks (a founding changes no terrain: settled or not, the colours are the same).
+      d.setStatics(statics);
+      if (!d.builtWith(is, this.defs)) {
+        d.update(is, this.defs);
+        this.applySelection();
+      }
+      return d;
+    }
+    // The first build (or new static data): queued in steps, drawn from the mask until done.
+    const b = d.building();
+    if (!b || b.statics !== statics) {
+      d.startBuild(statics, is, this.defs);
+      this.buildLoads.set(is.id, this.modelLoads);
     }
     return d;
+  }
+
+  /**
+   * The pending island build steps in build order (display/buildqueue.ts):
+   * the focused island first, then visible chunks before culled ones,
+   * nearest to the camera's target first; an island's head steps stand for
+   * it until they are done.
+   */
+  private buildItems(): BuildItem[] {
+    const islands = this.sync.getSnapshot().server?.display.islands ?? [];
+    const v = this.rig.view();
+    const fp = this.rig.footprint();
+    const items: BuildItem[] = [];
+    for (const is of islands) {
+      const d = this.details.get(is.id);
+      if (!d?.building()) continue;
+      const focus = is.id === this.info.focus;
+      const shown = this.visible.has(is.id);
+      const inView = shown ? visibleChunks(is, fp) : null;
+      const head = d.headPending();
+      let nearest = Infinity;
+      for (const c of d.pendingChunks()) {
+        const dist = Math.hypot(is.position.x + c.x + c.width / 2 - v.x, is.position.y + c.y + c.height / 2 - v.y);
+        nearest = Math.min(nearest, dist);
+        if (!head) items.push({ island: is.id, chunk: c.key, focus, visible: inView?.has(c.key) ?? false, dist });
+      }
+      if (head) items.push({ island: is.id, chunk: null, focus, visible: shown, dist: Number.isFinite(nearest) ? nearest : 0 });
+    }
+    return buildOrder(items);
+  }
+
+  /** Steps of the island builds within this frame's budget; finished islands replace their masks. */
+  private drainBuild(): void {
+    if (![...this.details.values()].some((d) => d.building())) return;
+    let order: BuildItem[] | null = null;
+    let i = 0;
+    const done: string[] = [];
+    this.builds.drain(
+      () => {
+        order ??= this.buildItems();
+        const it = order[i];
+        if (!it) return false;
+        const d = this.details.get(it.island);
+        if (d?.buildStep(it.chunk)) done.push(it.island);
+        // An unfinished head or chunk keeps its place.
+        if (it.chunk === null ? d?.headPending() : d?.chunkInProgress() === it.chunk) return true;
+        if (it.chunk === null) {
+          // The head is done: its chunks join the order.
+          order = this.buildItems();
+          i = 0;
+        } else i++;
+        return true;
+      },
+      () => performance.now(),
+      BUILD_BUDGET_MS[this.quality()],
+      // Builds wait for the decoration models (no chunk built with fallbacks and rebuilt on their arrival).
+      this.models.decorReady(),
+    );
+    if (done.length === 0) return;
+    for (const id of done) {
+      // Models that loaded during the build: swap the island's placeholders now.
+      if (this.buildLoads.get(id) !== this.modelLoads) this.details.get(id)?.refreshModels();
+      this.buildLoads.delete(id);
+    }
+    this.viewKey = "";
+    this.applyView();
+    this.applySelection();
+  }
+
+  /** The pending island build steps in build order (`island/chunk`, `island/head`; stats and the test hook). */
+  buildQueue(): string[] {
+    return this.buildItems().map((it) => `${it.island}/${it.chunk ?? "head"}`);
   }
 
   private layoutSea(): void {

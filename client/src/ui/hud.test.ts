@@ -9,8 +9,10 @@ import { goodIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import { AwayDialog } from "./AwayDialog";
 import { BuildMenu } from "./BuildMenu";
 import { NO_TOOL } from "./tools";
+import { FoundingPanel } from "./FoundingPanel";
 import { InfoPanel } from "./InfoPanel";
 import { InsolvencyBanner } from "./InsolvencyBanner";
+import { Minimap } from "./Minimap";
 import { IslandCard } from "./IslandCard";
 import { draftFromRoute } from "../display/routes";
 import { QuestsPanel } from "./QuestsPanel";
@@ -163,7 +165,30 @@ describe("HUD components", () => {
       const bar = renderToStaticMarkup(
         createElement(TopBar, { ...props, content: classes, model: { ...model, islands: [{ ...island, size_class: "medium" }, ...model.islands.slice(1)] } } as never),
       );
-      expect(bar).toMatch(/data-testid="hud-island-kind">Medium</);
+      // The top bar shows the name and resources only; the size class is the card's.
+      expect(bar).toContain('data-testid="hud-island-name"');
+      expect(bar).not.toContain("hud-island-kind");
+      expect(text(bar)).not.toContain("Medium");
+    });
+
+    it("renames with icon buttons, the cancel icon in the close button's place", () => {
+      const html = renderToStaticMarkup(
+        createElement(IslandCard, {
+          islandId: island.id,
+          model: { ...model, islands: [{ ...island, settled: true }, ...model.islands.filter((i) => i.id !== island.id)] },
+          content: tbContent as never,
+          statics: undefined,
+          onClose: () => {},
+          onRename: () => Promise.resolve(true),
+          initiallyRenaming: true,
+        }),
+      );
+      expect(html).toContain('data-testid="island-rename-form"');
+      expect(html).toMatch(/<button type="submit"[^>]*aria-label="Rename"[^>]*data-testid="island-rename-save"><svg/);
+      expect(html).toMatch(/<button type="button"[^>]*aria-label="Cancel renaming"[^>]*data-testid="island-rename-cancel"><svg/);
+      // Icons only, no text buttons; one cross per row.
+      expect(text(html)).not.toMatch(/Rename|cancel/i);
+      expect(html).not.toContain('data-testid="island-card-close"');
     });
 
     it("keeps the same stats on a phone, with the island on its own row", () => {
@@ -185,6 +210,58 @@ describe("HUD components", () => {
     const open = renderToStaticMarkup(createElement(SideDock, { active: "none", onToggle: () => {}, counts: { warnings: 0, quests: 0, ships: 0, routes: 0 }, buildOpen: true, onToggleBuild: () => {} }));
     expect(open.match(/aria-pressed="true"/g)).toHaveLength(1);
     expect(dock("none", { warnings: 0, quests: 0, ships: 0, routes: 0 })).not.toContain('aria-pressed="true"');
+  });
+
+  describe("founding panel", () => {
+    const panel = (over: Partial<Parameters<typeof FoundingPanel>[0]>) =>
+      renderToStaticMarkup(
+        createElement(FoundingPanel, {
+          name: "Mistle Haven",
+          seafaring: true,
+          detail: "Ship #1 sails there first.",
+          pending: null,
+          onCancelPending: () => {},
+          onFound: () => {},
+          onReroll: () => {},
+          sheet: false,
+          ...over,
+        }),
+      );
+    const buttons = ['data-testid="found-settlement-here"', 'data-testid="reroll-archipelago"'];
+
+    it("shows the full text and both buttons on the desktop, without a chevron: the start dialog centred, a later island's docked", () => {
+      const html = panel({});
+      expect(html).toContain('data-testid="seafaring-panel"');
+      expect(html).toContain('data-placement="centred"');
+      expect(panel({ seafaring: false })).toContain('data-placement="docked"');
+      expect(panel({ sheet: true })).toContain('data-placement="sheet"');
+      expect(html).toContain('data-testid="seafaring-hint"');
+      expect(html).toContain("Ship #1 sails there first.");
+      for (const b of buttons) expect(html).toContain(b);
+      expect(html).not.toContain('data-testid="founding-expand"');
+    });
+
+    it("collapses to one line with the buttons on a phone and expands with the chevron", () => {
+      const collapsed = panel({ sheet: true });
+      expect(collapsed).toContain('data-testid="founding-line"');
+      expect(collapsed).toContain('aria-expanded="false"');
+      expect(collapsed).not.toContain('data-testid="seafaring-hint"');
+      expect(collapsed).not.toContain("Ship #1 sails there first.");
+      for (const b of buttons) expect(collapsed).toContain(b);
+      const expanded = panel({ sheet: true, initiallyExpanded: true });
+      expect(expanded).toContain('aria-expanded="true"');
+      expect(expanded).toContain('data-testid="seafaring-hint"');
+      for (const b of buttons) expect(expanded).toContain(b);
+    });
+
+    it("names the island on the line of a later unsettled island, and a pending founding replaces Found", () => {
+      const html = panel({ sheet: true, seafaring: false, pending: "Ship #1 sails to Mistle Haven", onReroll: undefined });
+      expect(html).toContain('data-testid="unsettled-panel"');
+      expect(html).toContain("<strong>Mistle Haven</strong> is not settled.");
+      expect(html).toContain('data-testid="pending-founding"');
+      expect(html).not.toContain('data-testid="found-settlement-here"');
+      expect(html).not.toContain('data-testid="reroll-archipelago"');
+    });
   });
 
   it("lists the warnings in a panel", () => {
@@ -224,16 +301,22 @@ describe("HUD components", () => {
     expect(text(html)).toContain("Lay a road.");
   });
 
-  it("renders the away dialog with the interval and capacity marks", () => {
+  it("renders the away dialog with a readable interval, the overview, island and ships headings and no capacity badge", () => {
     const model = fixture("away_summary_12h");
     const html = renderToStaticMarkup(
-      createElement(AwayDialog, { summary: model.away_summary!, content, islandName: (id: string) => id, onDismiss: () => {} }),
+      createElement(AwayDialog, { summary: model.away_summary!, content, islandName: (id: string) => id, timeZone: "UTC", onDismiss: () => {} }),
     );
-    expect(text(html)).toContain("2026-01-01T00:30:00.000Z – 2026-01-01T12:30:00.000Z (12 h 0 min)");
+    expect(text(html)).toContain("1 Jan, 00:30 – 12:30 (12 h 0 min)");
     expect(html).toContain('data-testid="away-good-start-planks"');
-    expect(text(html)).toContain("300/300at capacity");
-    expect(text(html)).toContain("Settlers: 32 → 8");
-    expect(text(html)).toContain("Ships arrived: 1");
+    expect(text(html)).toContain("Planks15800300/300Wood");
+    expect(text(html)).not.toContain("at capacity");
+    expect(text(html)).toContain("OverviewGold: 258 → 26 (−232)Settlers: 32 → 8startGood");
+    expect(text(html)).toContain("Ships arrived (1)Ship #1: 1 arrival (island2)");
+    // Each island's name is a section heading (no "Islands" heading above them).
+    expect(html).toMatch(/<div class="[^"]*sectionTitle[^"]*" data-testid="away-island-start">start<\/div>/);
+    expect(text(html)).not.toContain("Islands");
+    // The signature row carries the title's brass divider.
+    expect(html).toMatch(/<div class="[^"]*letterEnd[^"]*" data-testid="away-end"><span[^>]*>Your humble advisor/);
   });
 
   describe("route editor", () => {
@@ -267,6 +350,38 @@ describe("HUD components", () => {
       expect(text(html)).toContain(`${route.name}${stops} (2:20 min)Ships: ${route.ship_ids.length}`);
       expect(html).toMatch(new RegExp(`<button[^>]*data-testid="route-${route.id}"`));
       expect(html).not.toContain("route-delete");
+    });
+
+    it("names the route in the header like an island: the pencil, then the input with Rename and Cancel icons", () => {
+      const html = editor(route.id);
+      expect(html).toMatch(new RegExp(`data-testid="route-editor-title">${route.name}</h2>`));
+      expect(html).toMatch(/<button[^>]*aria-label="Rename the route"[^>]*data-testid="route-rename"><svg/);
+      expect(html).not.toContain('data-testid="route-rename-input"');
+      expect(html).toContain('data-testid="route-editor-close"');
+      const naming = renderToStaticMarkup(
+        createElement(RouteEditor, {
+          model,
+          content,
+          routeId: route.id,
+          draft: draftFromRoute(route),
+          error: null,
+          onChange: noop,
+          onAddStop: noop,
+          onRemoveStop: noop,
+          onMoveStop: noop,
+          onSave: noop,
+          onDelete: noop,
+          onClose: noop,
+          onUnassign: noop,
+          onAssign: noop,
+          initiallyRenaming: true,
+        }),
+      );
+      expect(naming).toMatch(new RegExp(`<input[^>]*data-testid="route-rename-input" value="${route.name}"`));
+      expect(naming).toMatch(/<button type="submit"[^>]*aria-label="Rename"[^>]*data-testid="route-rename-save"><svg/);
+      expect(naming).toMatch(/<button type="button"[^>]*aria-label="Cancel renaming"[^>]*data-testid="route-rename-cancel"><svg/);
+      expect(naming).not.toContain('data-testid="route-editor-title"');
+      expect(naming).not.toContain('data-testid="route-editor-close"');
     });
 
     it("offers Delete in the editor of a saved route only while no ship is assigned", () => {
@@ -529,6 +644,21 @@ describe("HUD components", () => {
       expect(strip(busy)).toContain("Berths1 / 4 free");
       // The next level's preview names its berths.
       expect(strip(card({ type: "trading_post", level: 3, capacity: 300_000, throughput_per_min: 30_000, load_permille: 0 }))).toContain("4 berths");
+    });
+  });
+
+  describe("phone minimap", () => {
+    const html = (settled: boolean, initiallyCollapsed: boolean) => {
+      const base = fixture("citizens_needs");
+      const model = { ...base, islands: base.islands.map((is) => ({ ...is, settled: settled && is.settled })) };
+      return renderToStaticMarkup(createElement(Minimap, { renderer: null, model, viewport: { width: 412, height: 915 }, collapsible: true, initiallyCollapsed, heading: 0 }));
+    };
+
+    it("opens expanded while no island is settled, with the layout's default afterwards", () => {
+      expect(html(false, true)).toContain('data-testid="minimap-panel"');
+      expect(html(false, true)).toContain('aria-expanded="true"');
+      expect(html(true, true)).not.toContain('data-testid="minimap-panel"');
+      expect(html(true, false)).toContain('data-testid="minimap-panel"');
     });
   });
 });

@@ -26,8 +26,8 @@ import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay } from "..
 import { type CoastLoop, coastline } from "../display/coastline";
 import type { Lod } from "../display/lod";
 import { IslandLife } from "../display/lifeplan";
-import { blockedTiles, islandSeed, layerKeys, type Placed, type ScatterKind, scatterGround, scatterTrees, thinningAreas } from "../display/scatter";
-import { byChunk, chunkAt } from "../display/chunks";
+import { blockedTiles, islandSeed, layerKeys, type Placed, type ScatterInput, type ScatterKind, scatterGround, scatterTrees, type ThinningArea, thinningAreas } from "../display/scatter";
+import { byChunk, chunkAt, type ChunkRect, islandChunks } from "../display/chunks";
 import { BuildingLayer } from "./buildings";
 import { Chunked } from "./chunked";
 import { FieldDecor, fieldDecorMaterial, FieldTiles } from "./fields";
@@ -39,8 +39,29 @@ import { OutcropLayer } from "./outcrops";
 import { footprintTiles, PlateauLayer } from "./plateaus";
 import { roadMaterial, RoadLayer, type RoadTile } from "./roads";
 import { FootprintShadows } from "./shadows";
-import { buildTerrain, FoamLine } from "./terrain";
-import { type DecorMaterials, decorMaterials, Decoration, FarTrees, muteScatter, TREE_MODELS } from "./trees";
+import { buildTerrain, FoamLine, TerrainBuild } from "./terrain";
+import { type DecorMaterials, decorMaterials, Decoration, FarTrees, TREE_MODELS } from "./trees";
+
+/** The state of an incremental first build (IslandDetail.startBuild). */
+interface IslandBuild {
+  statics: Island;
+  display: IslandDisplay;
+  defs: ReadonlyMap<string, ContentBuilding>;
+  /** The island-level steps (terrain slab, buildings, relief, …); done: null. */
+  head: Generator<void, void, void> | null;
+  /** The chunks still to build. */
+  chunks: Map<string, ChunkRect>;
+  /** The chunk being built (its steps run before another chunk starts). */
+  current: Generator<void, void, void> | null;
+  currentKey: string | null;
+  terrain: TerrainBuild | null;
+  /** Prepared by the head for the chunk steps. */
+  roads: Map<string, RoadTile[]>;
+  fields: Map<string, BuildingDisplay[]>;
+  scatter: ScatterInput | null;
+  areas: ThinningArea[];
+  keys: ReturnType<typeof layerKeys> | null;
+}
 
 /** One chunk's decoration input. */
 interface DecorInput {
@@ -101,9 +122,11 @@ export class IslandDetail {
   private terrainKey = "";
   /** The display payload and content the layers were built from (identity). */
   private builtFrom: { display: IslandDisplay; defs: ReadonlyMap<string, ContentBuilding> } | null = null;
+  /** The content the chunked layers draw with (the last update's, or the running build's). */
+  private layerDefs: ReadonlyMap<string, ContentBuilding> = new Map();
+  /** The first build in steps (startBuild; null: none running). */
+  private build: IslandBuild | null = null;
   private lod: Lod = "near";
-  /** Settled (from the payload): an unsettled island is drawn muted at far LOD. */
-  private settled = true;
   private shown = false;
   private deposits: Island["deposits"] = [];
 
@@ -124,14 +147,14 @@ export class IslandDetail {
     const fieldSig = (bs: BuildingDisplay[]) => bs.map((b) => `${b.id}:${b.type}:${b.x},${b.y}`).join(";");
     this.fields = new Chunked(
       (k) => new FieldTiles(scene, this.chunkNode(k), fieldMaterials),
-      (l, bs) => l.update(bs, this.builtFrom?.defs ?? new Map()),
+      (l, bs) => l.update(bs, this.layerDefs),
       (l) => l.dispose(),
       fieldSig,
     );
     const decorMaterial = fieldDecorMaterial(scene);
     this.fieldDecor = new Chunked(
       (k) => new FieldDecor(scene, this.chunkNode(k), decorMaterial),
-      (l, bs) => l.update(bs, this.builtFrom?.defs ?? new Map()),
+      (l, bs) => l.update(bs, this.layerDefs),
       (l) => l.dispose(),
       fieldSig,
     );
@@ -180,16 +203,20 @@ export class IslandDetail {
   }
 
   /** Rebuilds the terrain when the static data changed. */
-  setStatics(statics: Island, settled = true): void {
-    const key = `${statics.revision}|${statics.id}|${settled}`;
-    this.settled = settled;
-    this.applyMuted();
+  setStatics(statics: Island): void {
+    const key = `${statics.revision}|${statics.id}`;
+    // A running incremental build is replaced by this one (update() follows with every layer).
+    if (this.build) {
+      this.build.terrain?.dispose();
+      this.build = null;
+      this.terrainKey = "";
+    }
     if (key === this.terrainKey) return;
     for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
     this.root.computeWorldMatrix(true);
     this.seed = islandSeed(statics.id, statics.revision);
     this.loops = coastline(statics);
-    this.terrain = buildTerrain(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), settled, this.root);
+    this.terrain = buildTerrain(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), this.root);
     this.applyTerrainDetail();
     this.deposits = statics.deposits;
     this.statics = statics;
@@ -208,9 +235,172 @@ export class IslandDetail {
     return this.statics !== null && this.builtFrom !== null;
   }
 
+  /** Whether the terrain was built from these static data (same island and revision). */
+  hasStatics(statics: Island): boolean {
+    return this.statics !== null && this.statics.id === statics.id && this.statics.revision === statics.revision;
+  }
+
   /** Whether the layers reflect this payload and content. */
   builtWith(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): boolean {
     return this.builtFrom?.display === display && this.builtFrom.defs === defs;
+  }
+
+  /**
+   * Starts the first build of the island in steps (the incremental build,
+   * display/buildqueue.ts): what setStatics and update build at once, as
+   * island-level head steps (terrain slab, buildings, icons, contact
+   * shadows, plateaus, …) and one step per chunk (its terrain, roads,
+   * fields, trees and scatter; the far trees and the lite terrain are
+   * merged after the last). Until then hasTiles() is false (the renderer
+   * draws the mask) and the island's node stays hidden. A running build is
+   * replaced; the meshes built so far are kept for the chunks' rebuilds.
+   */
+  startBuild(statics: Island, display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
+    const b: IslandBuild = {
+      statics,
+      display,
+      defs,
+      head: null,
+      chunks: new Map(islandChunks(statics.width, statics.height).map((c) => [c.key, c])),
+      terrain: null,
+      roads: new Map(),
+      fields: new Map(),
+      scatter: null,
+      areas: [],
+      keys: null,
+      current: null,
+      currentKey: null,
+    };
+    b.head = this.headSteps(b);
+    this.build?.terrain?.dispose();
+    this.build = b;
+    this.builtFrom = null;
+    this.keys = null;
+    this.terrainKey = "";
+  }
+
+  /** The running build's statics (null: none running). */
+  building(): { statics: Island } | null {
+    return this.build ? { statics: this.build.statics } : null;
+  }
+
+  /** Whether the running build still has island-level steps (they come before its chunks). */
+  headPending(): boolean {
+    return !!this.build?.head;
+  }
+
+  /** The chunk whose steps are running (null: none). */
+  chunkInProgress(): string | null {
+    return this.build?.currentKey ?? null;
+  }
+
+  /** The chunks the running build has still to do. */
+  pendingChunks(): ChunkRect[] {
+    return this.build ? [...this.build.chunks.values()] : [];
+  }
+
+  /**
+   * Runs one step of the build: the next head step (chunk null, or while
+   * head steps remain), else the chunk. Returns true when this step
+   * finished the build (the island has its tiles now).
+   */
+  buildStep(chunk: string | null): boolean {
+    const b = this.build;
+    if (!b) return false;
+    if (b.head) {
+      if (!b.head.next().done) return false;
+      b.head = null;
+    } else {
+      // A chunk started runs to its end first (whichever chunk is asked for).
+      if (!b.current && chunk !== null) {
+        const c = b.chunks.get(chunk);
+        if (c) {
+          b.current = this.chunkSteps(b, c);
+          b.currentKey = c.key;
+        }
+      }
+      if (b.current?.next().done) {
+        b.current = null;
+        b.currentKey = null;
+      }
+    }
+    if (b.head || b.current || b.chunks.size > 0) return false;
+    this.finishBuild(b);
+    return true;
+  }
+
+  /** The island-level steps of a build. */
+  private *headSteps(b: IslandBuild): Generator<void, void, void> {
+    const { statics, display, defs } = b;
+    for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
+    this.terrain = { lite: [], full: [] };
+    this.root.computeWorldMatrix(true);
+    this.seed = islandSeed(statics.id, statics.revision);
+    this.loops = coastline(statics);
+    this.deposits = statics.deposits;
+    this.statics = statics;
+    this.layerDefs = defs;
+    this.farTrees.beginChunks();
+    b.terrain = new TerrainBuild(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), this.root);
+    yield;
+    b.terrain.slab("full");
+    yield;
+    b.terrain.slab("lite");
+    yield;
+    this.foam ??= new FoamLine(this.scene, this.near, this.seed);
+    this.foam.update(this.loops);
+    this.buildings.update(display.buildings, defs);
+    yield;
+    this.updateLife(display, defs);
+    this.icons.update(display.buildings, defs, this.statusY);
+    this.construction.update(display, defs);
+    this.updateBlobs(display, defs);
+    yield;
+    const blocked = footprintTiles(display.buildings, defs);
+    yield* this.plateaus.steps(statics, this.seed, blocked);
+    this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.plateaus.heightAt(x, y));
+    yield;
+    b.keys = layerKeys(display, defs);
+    this.roadSet = new Set(display.roads.map((t) => `${t.x},${t.y}`));
+    b.roads = byChunk(display.roads, (t) => t);
+    b.fields = this.fieldsByChunk(display);
+    b.scatter = { width: statics.width, height: statics.height, terrain: statics.terrain, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
+    b.areas = thinningAreas(display.buildings, defs);
+  }
+
+  /** The steps of one chunk of a build: its terrain, its roads and fields, its trees and scatter, its far trees. */
+  private *chunkSteps(b: IslandBuild, c: ChunkRect): Generator<void, void, void> {
+    b.terrain?.chunk(c);
+    this.roads.updateOne(c.key, b.roads.get(c.key));
+    this.fields.updateOne(c.key, b.fields.get(c.key));
+    this.fieldDecor.updateOne(c.key, b.fields.get(c.key));
+    yield;
+    if (b.scatter) {
+      const input = { ...b.scatter, rect: c };
+      const stumps: Placed[] = [];
+      const trees = scatterTrees(input, b.areas, TREE_MODELS.length, stumps);
+      const ground = scatterGround(input);
+      yield;
+      this.decoration.updateOne(c.key, trees.length + ground.length + stumps.length > 0 ? { trees, ground, stumps } : undefined);
+      this.decoration.get(c.key)?.setFar(this.lod === "far");
+      yield;
+      this.farTrees.addTrees(trees);
+    }
+    b.chunks.delete(c.key);
+  }
+
+  /** The last step: the merged meshes, and the island has its tiles. */
+  private finishBuild(b: IslandBuild): void {
+    this.build = null;
+    if (b.terrain) this.terrain = b.terrain.finish();
+    this.applyTerrainDetail();
+    this.farTrees.finishChunks();
+    this.terrainKey = `${b.statics.revision}|${b.statics.id}`;
+    this.builtFrom = { display: b.display, defs: b.defs };
+    this.keys = b.keys;
+    this.rebuilds.roads++;
+    this.rebuilds.layout++;
+    this.rebuilds.decoration++;
   }
 
   /**
@@ -224,6 +414,7 @@ export class IslandDetail {
   update(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
     const defsChanged = this.builtFrom?.defs !== defs;
     this.builtFrom = { display, defs };
+    this.layerDefs = defs;
     this.buildings.update(display.buildings, defs);
     this.chunkRebuilds.fields = this.fields.update(this.fieldsByChunk(display), defsChanged);
     this.updateLife(display, defs);
@@ -278,7 +469,7 @@ export class IslandDetail {
 
   /** The unmodelled fields by chunk. */
   private fieldsByChunk(display: IslandDisplay): Map<string, BuildingDisplay[]> {
-    const defs = this.builtFrom?.defs;
+    const defs = this.layerDefs;
     return byChunk(
       this.unmodelledFields(display).filter((b) => defs?.get(b.type)?.field),
       (b) => b,
@@ -419,19 +610,9 @@ export class IslandDetail {
       this.lod = lod;
       this.near.setEnabled(lod === "near");
       for (const d of this.decoration.values()) d.setFar(lod === "far");
-      this.applyMuted();
+      this.plateaus.setFar(lod === "far");
     }
     this.farTrees.setShown(this.shown && this.lod === "far");
-  }
-
-  /** Unsettled islands at far LOD: the ground scatter tinted down (the desaturated ground is the terrain's lite set). */
-  private applyMuted(): void {
-    muteScatter(this.decorMaterials.scatterMaterial, this.lod === "far" && !this.settled);
-  }
-
-  /** Whether the ground scatter is drawn muted (tests). */
-  mutedScatter(): boolean {
-    return this.decorMaterials.scatterMaterial.diffuseColor.r < 1;
   }
 
   /** Trading Posts and shipyards drawn (shown at far LOD: the landmarks of the archipelago view). */

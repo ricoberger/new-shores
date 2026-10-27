@@ -36,6 +36,7 @@ const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<R
   settled: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 282, y: 316, half: 36 } } },
   town: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } },
   seafaring: { island: "isle-01" }, // a new world: the start sloop at sea, nothing settled
+  citizens: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } }, // town plus a bare wheat farm
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
   "archipelago-8x20": { island: null },
@@ -132,6 +133,8 @@ async function open(
   fixture: Fixture,
   hud: boolean,
   patch?: (w: WorldResponse) => void,
+  /** Keep the page's clock real (VIEW=pan measures frame times; the shots are not pinned then). */
+  realClock = false,
 ): Promise<{ page: Page; close: () => Promise<void> }> {
   if (SERVER_FIXTURES.includes(fixture)) {
     const res = await fetch(`http://localhost:${API_PORT}/api/v1/dev/reset`, {
@@ -144,7 +147,7 @@ async function open(
   const context = await browser.newContext(DEVICE_OPTIONS[device]);
   const page = await context.newPage();
   page.on("pageerror", (e) => console.error(`page error (${fixture}, ${device}): ${e.message}`));
-  await page.clock.setFixedTime(T);
+  if (!realClock) await page.clock.setFixedTime(T);
   // HOLD_TILES=n lets the first n island tile requests through and holds the
   // rest (never answered): the lazy-loading look, islands drawn from masks.
   const hold = process.env.HOLD_TILES?.trim();
@@ -179,7 +182,7 @@ async function open(
     }
   }
   timings.set(page, timing);
-  await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
+  if (!realClock) await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
   await page.addStyleTag({ content: "*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }" });
   if (!hud) await page.addStyleTag({ content: "body * { visibility: hidden !important; } body canvas { visibility: visible !important; }" });
   return { page, close: () => context.close() };
@@ -248,6 +251,12 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
   const info = FIXTURE_INFO[fixture];
   const here = await islandCentre(page, info.island, args.island);
   for (const view of args.views) {
+    if (view === "pan") {
+      await pan(page, `${fixture}-${device}`);
+      await settle(page);
+      await shoot(page, resolve(dir, `${fixture}-${view}-${device}.png`), written);
+      continue;
+    }
     if (view === "start") {
       // The opening camera as the game placed it (before any other view moves it).
       await settle(page);
@@ -274,7 +283,91 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
   }
 }
 
+/** Duration of the VIEW=pan camera path (ms). */
+const PAN_MS = 10_000;
+/** The pan's end zoom (mid LOD, below FAR_EXIT_HALF). */
+const PAN_END_HALF = 40;
+
+/**
+ * VIEW=pan (real clock): the load milestones of the page (performance
+ * marks: first frame, focused island with its tiles), then a far → mid
+ * pan through every island centre west to east over PAN_MS while the
+ * page records the time between animation frames (after a reload with
+ * warm caches: the second visit's load milestones): the longest frame,
+ * frames over 50 ms and the longest build queue seen. Printed as one line.
+ */
+async function pan(page: Page, name: string): Promise<void> {
+  await settle(page);
+  const t = await page.evaluate(() => window.__newShores!.timing());
+  // The longest frame from the start until the view had settled (builds of the opening view).
+  const loadMax = await page.evaluate(() => window.__newShores!.frameStats?.(1e9).maxMs ?? NaN);
+  // Warm: a reload with the island tiles in the HTTP cache (immutable per seed and roll), as on a device's second visit.
+  await page.reload();
+  await page.waitForFunction(() => window.__newShores?.timing().firstFrame === true, undefined, { timeout: 60_000, polling: 10 });
+  await page.waitForFunction(() => window.__newShores!.timing().focusTiles, undefined, { timeout: 30_000, polling: 10 }).catch(() => undefined);
+  const warm = await page.evaluate(() => window.__newShores!.timing());
+  await settle(page);
+  const warmMax = await page.evaluate(() => window.__newShores!.frameStats?.(1e9).maxMs ?? NaN);
+  const r = await page.evaluate(
+    ([ms, endHalf]) =>
+      new Promise<{ frames: number; maxMs: number; over50: number; p95Ms: number; maxQueue: number }>((done) => {
+        const h = window.__newShores!;
+        const pts = h
+          .getServer()!
+          .display.islands.map((i) => ({ x: i.position.x + i.width / 2, y: i.position.y + i.height / 2 }))
+          .sort((a, b) => a.x - b.x);
+        h.setCamera({ x: pts[0]!.x, y: pts[0]!.y, half: 100_000 });
+        const startHalf = h.camera().half;
+        const at = (u: number) => {
+          const f = u * (pts.length - 1);
+          const i = Math.min(pts.length - 2, Math.floor(f));
+          const a = pts[i]!;
+          const b = pts[i + 1] ?? a;
+          const k = f - i;
+          return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
+        };
+        const times: number[] = [];
+        let maxQueue = 0;
+        let t0 = 0;
+        let last = 0;
+        const step = (now: number) => {
+          if (t0 === 0) t0 = now;
+          else times.push(now - last);
+          last = now;
+          // Optional: builds before the incremental island build (polish round 3) have no queue.
+          maxQueue = Math.max(maxQueue, (h as { buildQueue?: () => string[] }).buildQueue?.().length ?? 0);
+          const u = Math.min(1, (now - t0) / ms);
+          h.setCamera({ ...at(u), half: startHalf + (endHalf - startHalf) * u });
+          if (u < 1) requestAnimationFrame(step);
+          else {
+            const sorted = [...times].sort((x, y) => x - y);
+            done({
+              frames: times.length,
+              maxMs: sorted[sorted.length - 1] ?? 0,
+              over50: times.filter((x) => x > 50).length,
+              p95Ms: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
+              maxQueue,
+            });
+          }
+        };
+        requestAnimationFrame(step);
+      }),
+    [PAN_MS, PAN_END_HALF] as const,
+  );
+  const ms = (v: number | null) => (v === null ? "-" : `${Math.round(v)} ms`);
+  console.log(
+    `${name}  pan: first-frame ${ms(t.firstFrameMs)}  focus-tiles ${ms(t.focusTilesMs)}  load-longest ${ms(loadMax)}  warm first-frame ${ms(warm.firstFrameMs)}  focus-tiles ${ms(warm.focusTilesMs)}  load-longest ${ms(warmMax)}  frames ${r.frames}  longest ${Math.round(r.maxMs)} ms  p95 ${Math.round(r.p95Ms)} ms  >50ms ${r.over50}  max-queue ${r.maxQueue}`,
+  );
+}
+
 // ---------------------------------------------------------------- presets
+
+/** Names the route in the open route editor (its header's pencil, the input, Rename). */
+async function nameRoute(page: Page, name: string): Promise<void> {
+  await page.getByTestId("route-rename").click();
+  await page.getByTestId("route-rename-input").fill(name);
+  await page.getByTestId("route-rename-save").click();
+}
 
 async function tileAt(page: Page, island: string, x: number, y: number): Promise<{ x: number; y: number }> {
   return page.evaluate(([id, tx, ty]) => window.__newShores!.tileToScreen(id as string, tx as number, ty as number), [island, x, y] as const);
@@ -289,6 +382,25 @@ async function farmOf(page: Page, type = "sheep_farm"): Promise<{ island: string
     }
     throw new Error(`no ${t}`);
   }, type);
+}
+
+/**
+ * Two small islands side by side at the phone's zoom cap with 24-rune
+ * names, so that their far labels overlap: no generated archipelago puts
+ * two labels that close (their islands would touch), so the second island
+ * is moved half into the first one's rectangle. Display only, the server
+ * is not changed.
+ */
+function labelsSideBySide(w: WorldResponse): void {
+  const [a, b] = [...w.display.islands].sort((x, y) => x.width * x.height - y.width * y.height);
+  if (!a || !b) throw new Error("labelsSideBySide: fewer than two islands");
+  // Centres 30 tiles apart along x and y: across the screen at rotation 0, ≈ 160 CSS px on the phone at the cap.
+  const d = 30;
+  const cx = a.position.x + a.width / 2 + d;
+  const cy = a.position.y + a.height / 2 + d;
+  b.position = { x: Math.round(cx - b.width / 2), y: Math.round(cy - b.height / 2) };
+  a.name = "Northern Saltmarsh Holme";
+  b.name = "Southern Ropewalk Island";
 }
 
 /** The home island's Trading Post at level 4 with four ships at its berths and one in its queue (copies of the start sloop). */
@@ -306,6 +418,36 @@ function fourAtThePier(w: WorldResponse): void {
   tp.berths = { total: 4, busy: 4, ships: ids.slice(0, 4), queue: [905] };
 }
 
+/** A pending away summary like a night away (the owner's playtest): gold, settlers, six goods (two at capacity), a ship arrival. */
+function awayOvernight(w: WorldResponse): void {
+  const d = w.display;
+  const home = d.islands.find((i) => i.settled);
+  if (!home) throw new Error("awayOvernight: no settled island");
+  const to = Date.parse(d.evaluated_at);
+  const from = to - (6 * 60 + 31) * 60_000;
+  const good = (produced: number, consumed: number, stock: number) => ({ produced: produced * 1000, consumed: consumed * 1000, lost: 0, stock_after: stock * 1000, capacity: 300_000, at_capacity: stock === 300 });
+  d.away_summary = {
+    id: from,
+    from: new Date(from).toISOString(),
+    to: new Date(to).toISOString(),
+    gold_before: 184_000,
+    gold_after: 4_337_000,
+    population: { settlers: { before: 88_000, after: 88_000 } },
+    islands: [{ id: home.id, goods: { fish: good(587, 344, 254), planks: good(298, 0, 300), sails: good(0, 0, 10), wood: good(597, 298, 300), wool: good(261, 261, 5), wool_garments: good(261, 172, 90) } }],
+    auto_paused: 0,
+    auto_resumed: 0,
+    still_unpaid: [],
+    // The first ship shuttles between home and a neighbour (42 arrivals); grouped per ship in the letter.
+    ...(() => {
+      const other = d.islands.find((i) => i.id !== home.id)?.id ?? home.id;
+      const ship = d.ships[0]?.id ?? 1;
+      const arrivals = Array.from({ length: 42 }, (_, n) => ({ ship_id: ship, island_id: n % 2 === 0 ? other : home.id, at: new Date(from + (n + 1) * 9 * 60_000).toISOString() }));
+      return { ships_arrived: arrivals.length, arrivals };
+    })(),
+    quests_completed: [],
+  };
+}
+
 /** The home island's shipyard halfway through a sloop. */
 function sloopOnTheSlip(w: WorldResponse): void {
   const yard = w.display.islands.flatMap((i) => i.buildings).find((b) => b.type === "shipyard");
@@ -315,15 +457,15 @@ function sloopOnTheSlip(w: WorldResponse): void {
   yard.ship_order = { type: "sloop", ordered_at: new Date(now - 60_000).toISOString(), due_at: new Date(now + 60_000).toISOString() };
 }
 
-/** The home sheep farm and its pastures (island-local tiles) and the island's position. */
-async function sheepFarm(page: Page): Promise<{ island: string; ox: number; oy: number; farm: { id: number; x: number; y: number }; fields: { x: number; y: number }[] }> {
-  return page.evaluate(() => {
+/** The first farm of a type (default the home sheep farm) and its fields (island-local tiles) and the island's position. */
+async function sheepFarm(page: Page, type = "sheep_farm"): Promise<{ island: string; ox: number; oy: number; farm: { id: number; x: number; y: number }; fields: { x: number; y: number }[] }> {
+  return page.evaluate((ty) => {
     for (const is of window.__newShores!.getServer()!.display.islands) {
-      const f = is.buildings.find((x) => x.type === "sheep_farm");
+      const f = is.buildings.find((x) => x.type === ty);
       if (f) return { island: is.id, ox: is.position.x, oy: is.position.y, farm: { id: f.id, x: f.x, y: f.y }, fields: is.buildings.filter((x) => x.farm_id === f.id).map((x) => ({ x: x.x, y: x.y })) };
     }
-    throw new Error("no sheep farm");
-  });
+    throw new Error(`no ${ty}`);
+  }, type);
 }
 
 /** A left-button drag between two tiles of an island; `release: false` keeps the button down (mid-drag shots). */
@@ -374,6 +516,26 @@ async function paintPastures(page: Page, s: Awaited<ReturnType<typeof sheepFarm>
   const dy = Math.sign(last.y - first.y);
   const end = { x: last.x + 2 + 3 * dx + (dx === 0 ? 3 : 0), y: last.y + 2 + 3 * dy + (dy === 0 ? 3 : 0) };
   await dragTiles(page, s.island, first, end, release);
+}
+
+/**
+ * The citizens fixture's wheat farm (no fields yet) selected, the field
+ * tool in its paint mode; the camera holds a rectangle of 140 fields
+ * around the farm left of the card.
+ */
+async function wheatFarmPainting(page: Page): Promise<Awaited<ReturnType<typeof sheepFarm>>> {
+  const s = await sheepFarm(page, "wheat_farm");
+  await setCamera(page, { x: s.ox + s.farm.x + 1, y: s.oy + s.farm.y + 6, half: 12, rotation: 0 });
+  await settle(page);
+  const p = await tileAt(page, s.island, s.farm.x + 1, s.farm.y + 1);
+  await page.mouse.click(p.x, p.y);
+  await page.getByTestId("farm-add-field").click();
+  return s;
+}
+
+/** A 12 × 14 rectangle from beside the wheat farm away from the town (DevSeed): up to 140 fields (the button stays down unless `release`). */
+async function paintWheat(page: Page, s: Awaited<ReturnType<typeof sheepFarm>>, release: boolean): Promise<void> {
+  await dragTiles(page, s.island, { x: s.farm.x - 9, y: s.farm.y - 2 }, { x: s.farm.x + 2, y: s.farm.y + 11 }, release);
 }
 
 /** Centres the camera at near on a building's footprint (plus an offset in tiles) and opens its card. */
@@ -640,31 +802,41 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "ok", undefined, { timeout: 10_000 });
     },
   },
-  // Painting pastures mid-drag (D-054): the modules that fit green, the ones over the maximum red, the live count (desktop).
+  // Painting wheat fields mid-drag (D-054) on the citizens fixture's bare wheat farm: the fields that fit green, the rest red, the live count of 140 (desktop).
   "field-paint": {
-    fixture: "settled",
+    fixture: "citizens",
     device: "desktop",
     run: async (page) => {
-      const s = await clearedSheepFarm(page);
-      await paintPastures(page, s, false);
+      const s = await wheatFarmPainting(page);
+      await paintWheat(page, s, false);
       await page.getByTestId("paint-count").waitFor({ state: "visible" });
     },
   },
-  // The painted rectangle released: the server placed what fits, the rejected modules flash red (desktop).
+  // The wheat rectangle released: the server placed what fits, the rejected tiles flash red (desktop).
   "field-paint-result": {
-    fixture: "settled",
+    fixture: "citizens",
     device: "desktop",
     run: async (page) => {
-      const s = await clearedSheepFarm(page);
-      // The new pastures rise in on the renderer's clock: it runs until they stand, then the shot's time is pinned again (the flash holds).
+      const s = await wheatFarmPainting(page);
+      // The new fields rise in on the renderer's clock: it runs until they stand, then the shot's time is pinned again (the flash holds).
       await page.evaluate(() => window.__newShores!.freezeTime(null));
-      await paintPastures(page, s, true);
+      await paintWheat(page, s, true);
       await page.waitForFunction(() => window.__newShores!.paintCounts().flash > 0, undefined, { timeout: 10_000 });
       await page.mouse.move(5, 400);
       await page.clock.setFixedTime(new Date(T.getTime() + 2000));
       await sleep(300);
       await page.clock.setFixedTime(T);
       await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
+    },
+  },
+  // Painting pastures mid-drag (D-054): the 3×3 modules that fit green, the ones over the maximum red, the live count (desktop).
+  "field-paint-pasture": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const s = await clearedSheepFarm(page);
+      await paintPastures(page, s, false);
+      await page.getByTestId("paint-count").waitFor({ state: "visible" });
     },
   },
   // The red placement ghost: a quarry off its deposit (desktop).
@@ -715,6 +887,26 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.getByTestId("ship-panel").waitFor({ state: "visible" });
     },
   },
+  // The "While you were away" letter for a night away (desktop).
+  away: {
+    fixture: "settled",
+    device: "desktop",
+    patch: awayOvernight,
+    run: async (page) => {
+      await page.getByTestId("away-dialog").waitFor();
+    },
+  },
+  // Renaming a ship in its panel's header (desktop, D-055).
+  "ship-rename": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("dock-ships").click();
+      await page.getByTestId("ship-1").click();
+      await page.getByTestId("ship-rename").click();
+      await page.getByTestId("ship-rename-input").fill("Gull");
+    },
+  },
   // A new route with two stops and a load line, in the route editor (desktop).
   "route-editor": {
     fixture: "dense-2x400",
@@ -722,7 +914,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
     run: async (page) => {
       await page.getByTestId("dock-routes").click();
       await page.getByTestId("route-new").click();
-      await page.getByTestId("route-name").fill("Timber run");
+      await nameRoute(page, "Timber run");
       for (let i = 0; i < 2; i++) {
         const options = await page.getByTestId("route-stop-add").locator("option").evaluateAll((o) => o.map((x) => (x as HTMLOptionElement).value).filter(Boolean));
         await page.getByTestId("route-stop-add").selectOption(options[i]!);
@@ -730,7 +922,18 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.getByTestId("route-good-add-0").click();
       await page.getByTestId("route-good-add-1").click();
       await page.getByTestId("route-mode-1-load-0").selectOption("unload");
-      await page.getByTestId("route-name").focus();
+    },
+  },
+  // Renaming a saved route in its editor's header (desktop).
+  "route-rename": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("dock-routes").click();
+      const id = await page.evaluate(() => window.__newShores!.getServer()!.display.routes[0]!.id);
+      await page.getByTestId(`route-${id}`).click();
+      await page.getByTestId("route-rename").click();
+      await page.getByTestId("route-rename-input").fill("Timber run");
     },
   },
   // The route editor paused by selecting a ship: the "Route editor paused" bar above the ship panel (desktop).
@@ -740,10 +943,25 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
     run: async (page) => {
       await page.getByTestId("dock-routes").click();
       await page.getByTestId("route-new").click();
-      await page.getByTestId("route-name").fill("Timber run");
+      await nameRoute(page, "Timber run");
       await page.getByTestId("dock-ships").click();
       await page.getByTestId("ship-1").click();
       await page.getByTestId("route-editor-resume").waitFor({ state: "visible" });
+    },
+  },
+  // Phone at the zoom cap with two overlapping labels: the focused (smaller) island's stays, the other one's is hidden.
+  "far-labels": {
+    fixture: "seafaring",
+    device: "phone",
+    patch: labelsSideBySide,
+    run: async (page) => {
+      const c = await page.evaluate(() => {
+        const [a, b] = [...window.__newShores!.getServer()!.display.islands].sort((x, y) => x.width * x.height - y.width * y.height);
+        return { x: (a!.position.x + a!.width / 2 + b!.position.x + b!.width / 2) / 2, y: (a!.position.y + a!.height / 2 + b!.position.y + b!.height / 2) / 2 };
+      });
+      await setCamera(page, { x: c.x, y: c.y, half: 100_000, rotation: 0 });
+      await waitLod(page, "far");
+      await settle(page);
     },
   },
   // The island card, opened from an island label at far LOD (desktop).
@@ -874,13 +1092,14 @@ async function main(): Promise<number> {
     servers.push(await start(apiCommand, resolve(REPO, "server"), `http://localhost:${API_PORT}/healthz`, process.env));
     servers.push(await start(WEB_SERVER_COMMAND, CLIENT_DIR, `http://localhost:${WEB_PORT}`, env));
     const tReady = Date.now();
-    browser = await chromium.launch();
+    // VIEW=pan measures on the machine's GPU (Metal on macOS), not on software WebGL: the frame times then show the build work, as on a device.
+    browser = await chromium.launch(args.views.includes("pan") ? { args: ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist"] } : {});
     const written: string[] = [];
     if (args.presets.length > 0) {
       for (const preset of args.presets) await takePreset(browser, preset, dir, written);
     } else {
       const job = async (device: Device, fixture: Fixture) => {
-        const { page, close } = await open(browser!, device, fixture, args.hud);
+        const { page, close } = await open(browser!, device, fixture, args.hud, undefined, args.views.includes("pan"));
         try {
           await takeViews(page, args, fixture, device, dir, written);
         } finally {
@@ -897,9 +1116,11 @@ async function main(): Promise<number> {
         lock = run.catch(() => undefined);
         return run;
       };
+      // VIEW=pan measures frame times: one page at a time.
+      const measuring = args.views.includes("pan");
       await Promise.all(
         args.devices.map(async (device) => {
-          for (const fixture of args.fixtures.filter((f) => !SERVER_FIXTURES.includes(f))) await job(device, fixture);
+          for (const fixture of args.fixtures.filter((f) => !SERVER_FIXTURES.includes(f))) await (measuring ? exclusive(() => job(device, fixture)) : job(device, fixture));
           for (const fixture of args.fixtures.filter((f) => SERVER_FIXTURES.includes(f))) await exclusive(() => job(device, fixture));
         }),
       );

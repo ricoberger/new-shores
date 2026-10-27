@@ -88,6 +88,16 @@ export interface ScatterInput {
   terrain: readonly string[];
   seed: number;
   blocked: ReadonlySet<string>;
+  /** Only the tiles of this rectangle (one chunk of the incremental build; the placements of the whole island's run inside it, in the same order). */
+  rect?: { x: number; y: number; width: number; height: number };
+}
+
+/** The tile rows and columns to place on: the input's rect, else the island. */
+function span(input: ScatterInput): { x0: number; x1: number; y0: number; y1: number } {
+  const r = input.rect;
+  return r
+    ? { x0: Math.max(0, r.x), x1: Math.min(input.width, r.x + r.width), y0: Math.max(0, r.y), y1: Math.min(input.height, r.y + r.height) }
+    : { x0: 0, x1: input.width, y0: 0, y1: input.height };
 }
 
 /** Whether a tile has a blocked tile among its eight neighbours (or is outside none). */
@@ -102,10 +112,11 @@ function nearBlocked(blocked: ReadonlySet<string>, x: number, y: number): boolea
  * tree, and the kept/dropped choice is stable between payloads.
  */
 export function scatterTrees(input: ScatterInput, areas: readonly ThinningArea[], variants = 3, stumps: Placed[] | null = null): Placed[] {
-  const { width, height, terrain, seed, blocked } = input;
+  const { width, terrain, seed, blocked } = input;
+  const { x0, x1, y0, y1 } = span(input);
   const out: Placed[] = [];
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
+  for (let y = y0; y < y1; y++) {
+    for (let x = x0; x < x1; x++) {
       if (terrain[y * width + x] !== "forest" || blocked.has(`${x},${y}`)) continue;
       const near = nearBlocked(blocked, x, y);
       for (let k = 0; k < TREES_PER_TILE; k++) {
@@ -181,11 +192,12 @@ export function scatterSite(input: Pick<ScatterInput, "width" | "height" | "terr
 
 /** Tufts, flowers, rocks and bushes on the free grass, coast and mountain tiles (variant: 0 tuft, 1 flower, 2 rock, 3 bush). */
 export function scatterGround(input: ScatterInput): (Placed & { kind: ScatterKind })[] {
-  const { width, height, seed, blocked } = input;
+  const { seed, blocked } = input;
+  const { x0, x1, y0, y1 } = span(input);
   const out: (Placed & { kind: ScatterKind })[] = [];
   const kinds: ScatterKind[] = ["tuft", "flower", "rock", "bush"];
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
+  for (let y = y0; y < y1; y++) {
+    for (let x = x0; x < x1; x++) {
       const site = scatterSite(input, x, y);
       if (site === null || blocked.has(`${x},${y}`)) continue;
       const damp = nearBlocked(blocked, x, y) ? 0.5 : 1;

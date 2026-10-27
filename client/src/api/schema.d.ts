@@ -511,6 +511,10 @@ export interface components {
          *     `bad_request`, `invalid_command` (missing field), `invalid_name`;
          *     404 `unknown_island`; 409 `island_not_settled`.
          *
+         *     `rename_ship` (D-055) can fail with 400 `bad_request`,
+         *     `invalid_command` (missing field), `invalid_name`; 404
+         *     `ship_not_found`.
+         *
          *     **Internal-only codes** (HTTP 500, never caused by a client command;
          *     clients should treat them like `internal` and not handle them
          *     specifically): `over_capacity`, `time_backwards`, `schema_version`,
@@ -589,7 +593,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -649,6 +653,25 @@ export interface components {
             type: "rename_island";
             island_id: string;
             /** @description The new display name. */
+            name: string;
+        };
+        /**
+         * @description Rename a ship in any state (D-055). The name is trimmed; an empty
+         *     name restores the default ("<ship type name> <id>"), any other must
+         *     have 1 to 24 printable characters (`invalid_name`).
+         */
+        RenameShipCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "rename_ship";
+            /**
+             * Format: int64
+             * @description Ship ID (unscaled integer identifier, from ShipDisplay.id).
+             */
+            ship_id: number;
+            /** @description The new name (empty restores the default). */
             name: string;
         };
         Tile: {
@@ -986,7 +1009,8 @@ export interface components {
         };
         /**
          * @description Create a route: 2–8 stops at settled islands, consecutive stops
-         *     (including last → first) at different islands. An empty or missing
+         *     (including last → first) at different islands. The name is trimmed
+         *     of surrounding whitespace; an empty, whitespace-only or missing
          *     name becomes "Route <id>".
          */
         CreateRouteCommand: {
@@ -1002,7 +1026,8 @@ export interface components {
          * @description Replace a route's name and stops. Allowed while ships are assigned:
          *     they finish their current leg and resolve their stop at arrival
          *     (the stop they head to if it is at the arrival island, else the
-         *     first stop there, else they sail to stop 0).
+         *     first stop there, else they sail to stop 0). The name follows
+         *     create_route's rules (trimmed; empty becomes "Route <id>").
          */
         UpdateRouteCommand: {
             /**
@@ -1449,6 +1474,8 @@ export interface components {
             id: number;
             /** @description Content ship ID. */
             type: string;
+            /** @description The ship's name (D-055); "<ship type name> <id>" until `rename_ship` renames it. */
+            name: string;
             /** @enum {string} */
             state: "idle" | "on_route" | "manual_leg" | "waiting_for_berth" | "anchored_unpaid" | "on_world_map";
             /** @description Island where the ship is; empty while travelling or at sea. */

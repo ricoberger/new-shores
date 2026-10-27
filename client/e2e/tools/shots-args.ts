@@ -1,11 +1,16 @@
 // Argument parsing of `make shots` (e2e/tools/shots.ts), kept free of
 // Playwright and the browser so a Vitest covers it.
 
-export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelago-8", "archipelago-8x20", "town", "seafaring"] as const;
-/** Camera views; "start" is the opening camera as the game places it (no camera move). */
-export const VIEWS = ["near", "mid", "far", "start"] as const;
+export const FIXTURES = ["showcase", "settled", "dense-2x400", "dense-archipelago-8", "archipelago-8x20", "town", "seafaring", "citizens"] as const;
+/**
+ * Camera views; "start" is the opening camera as the game places it (no
+ * camera move); "pan" is a measurement: a far → mid pan through the
+ * island centres on the real clock (longest frame, build queue), shot at
+ * its end.
+ */
+export const VIEWS = ["near", "mid", "far", "start", "pan"] as const;
 export const DEVICES = ["desktop", "phone"] as const;
-export const PRESETS = ["info-panel", "producer-inputs", "house-card", "service-card", "warehouse-card", "trading-post-card", "shipyard-idle", "shipyard-building", "served-houses", "serving-buildings", "sheet", "ghost", "sloop", "build-menu", "warnings", "ship-panel", "route-editor", "route-paused", "island-card", "top-bar-popups", "farm-selected", "hemp-farm-selected", "field-selected", "field-ghost", "field-paint", "field-paint-result", "archipelago-far", "reroll", "rename"] as const;
+export const PRESETS = ["info-panel", "producer-inputs", "house-card", "service-card", "warehouse-card", "trading-post-card", "shipyard-idle", "shipyard-building", "served-houses", "serving-buildings", "sheet", "ghost", "sloop", "build-menu", "warnings", "away", "ship-panel", "ship-rename", "route-editor", "route-rename", "route-paused", "island-card", "top-bar-popups", "farm-selected", "hemp-farm-selected", "field-selected", "field-ghost", "field-paint", "field-paint-result", "field-paint-pasture", "archipelago-far", "far-labels", "reroll", "rename"] as const;
 
 export type Fixture = (typeof FIXTURES)[number];
 export type View = (typeof VIEWS)[number];
@@ -16,7 +21,7 @@ export const DEFAULT_FIXTURES: Fixture[] = ["showcase", "settled", "dense-2x400"
 export const DEFAULT_VIEWS: View[] = ["near", "mid", "far"];
 
 /** Fixtures served by the dev server's reset endpoint (the page loads `/`) rather than by `?fixture=`. */
-export const SERVER_FIXTURES: readonly Fixture[] = ["settled", "town", "seafaring"];
+export const SERVER_FIXTURES: readonly Fixture[] = ["settled", "town", "seafaring", "citizens"];
 
 /** The largest world seed (53 bits, D-053), as the server's --seed accepts. */
 export const MAX_SEED = 2 ** 53 - 1;

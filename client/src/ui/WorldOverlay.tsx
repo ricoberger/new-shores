@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { DisplayState } from "../api/client";
 import { islandSummary } from "../display/archipelago";
 import { units } from "../display/format";
+import { declutterLabels, type LabelBox } from "../display/labels";
 import type { GameRenderer } from "../render/engine";
 import { shipWhere } from "./ShipsPanel";
 import styles from "./hud.module.css";
@@ -14,6 +15,8 @@ interface Props {
   nowMs: number;
   /** An island's name label was clicked or tapped. */
   onIsland: (id: string) => void;
+  /** Phones: at the zoom cap the smaller island's label of an overlapping pair is hidden (display/labels.ts). */
+  declutter?: boolean;
 }
 
 /** Labels closer than this (CSS px) to the canvas edge are hidden (never half off-screen). */
@@ -22,24 +25,27 @@ const LABEL_EDGE_PX = 24;
 /**
  * HTML overlay of the continuous world (D-048), positioned every frame
  * from the camera projection at every LOD: island name labels (far LOD only,
- * hidden when their island centre is off screen), the hover tooltip (mid/far LOD) and
+ * hidden when their island centre is off screen; on phones at the zoom
+ * cap also the smaller island's of two overlapping ones), the hover tooltip (mid/far LOD) and
  * the selected ship's ETA badge. The overlay is passive to the pointer, so
  * it never takes a pan, zoom or ship from the canvas; the labels are
  * buttons for the keyboard, and the renderer resolves pointer taps on them
  * through a hit test (ships first, then labels, then island land) — a tap
  * on a label opens the island card.
  */
-export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland }: Props) {
+export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland, declutter = false }: Props) {
   const root = useRef<HTMLDivElement>(null);
   const labels = useRef(new Map<string, HTMLButtonElement>());
   const badge = useRef<HTMLDivElement>(null);
   const tip = useRef<HTMLDivElement>(null);
   const modelRef = useRef(model);
   const shipRef = useRef(selectedShip);
+  const declutterRef = useRef(declutter);
   const [hover, setHover] = useState<string | null>(null);
   useEffect(() => {
     modelRef.current = model;
     shipRef.current = selectedShip;
+    declutterRef.current = declutter;
   });
 
   useEffect(() => {
@@ -48,6 +54,7 @@ export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland }:
       const w = root.current?.clientWidth ?? 0;
       const h = root.current?.clientHeight ?? 0;
       const far = renderer.currentLod() === "far";
+      const shown: LabelBox[] = [];
       for (const is of modelRef.current.islands) {
         const el = labels.current.get(is.id);
         if (!el) continue;
@@ -58,7 +65,17 @@ export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland }:
           Number.isFinite(p.x) && p.x - half >= LABEL_EDGE_PX && p.x + half <= w - LABEL_EDGE_PX && p.y >= LABEL_EDGE_PX && p.y <= h - LABEL_EDGE_PX;
         // Measured while laid out (visibility, not display, hides it).
         el.style.visibility = inside ? "visible" : "hidden";
-        if (inside) el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) translate(-50%, -50%)`;
+        if (inside) {
+          el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) translate(-50%, -50%)`;
+          shown.push({ id: is.id, x: p.x, y: p.y, width: el.offsetWidth, height: el.offsetHeight, area: is.width * is.height });
+        }
+      }
+      // Phones at the cap: no overlapping labels (the hidden ones' islands still open their card on a tap).
+      if (declutterRef.current && far && shown.length > 1 && renderer.atZoomCap()) {
+        for (const id of declutterLabels(shown, renderer.focusedIsland())) {
+          const el = labels.current.get(id);
+          if (el) el.style.visibility = "hidden";
+        }
       }
       const b = badge.current;
       const id = shipRef.current;

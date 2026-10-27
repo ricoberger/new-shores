@@ -42,7 +42,7 @@ export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClos
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className={styles.title} id="shipment-dialog-title">
-          Send ship #{ship.id}
+          Send {ship.name}
         </h2>
         <div className={styles.row}>
           <label htmlFor="shipment-dest">To</label>

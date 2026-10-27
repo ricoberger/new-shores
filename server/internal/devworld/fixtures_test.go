@@ -2,9 +2,12 @@ package devworld
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/ricoberger/new-shores/server/internal/content"
 	"github.com/ricoberger/new-shores/server/internal/sim"
 )
 
@@ -46,7 +49,7 @@ func TestFixtures(t *testing.T) {
 				if count(w, home, "trading_post") != 1 || len(w.Ships) != 1 || w.Ships[0].IslandID != home || w.Ships[0].State != sim.ShipIdle || len(w.Ships[0].Cargo) != 0 {
 					t.Errorf("default: home island not founded from the start ship: ships %+v", w.Ships)
 				}
-			case FixtureTown, FixtureSettled:
+			case FixtureTown, FixtureSettled, FixtureCitizens:
 				for typ, n := range map[string]int{"lumberjack": 1, "sawmill": 1, "house_settlers": 4, "sheep_farm": 1, "pasture": 3} {
 					if got := count(w, home, typ); got != n {
 						t.Errorf("%s: %d %s, want %d", home, got, typ, n)
@@ -83,6 +86,9 @@ func TestFixtures(t *testing.T) {
 					t.Errorf("ships %+v routes %+v", w.Ships, w.Routes)
 				}
 			}
+			if name == FixtureCitizens {
+				checkCitizens(t, c, w)
+			}
 			if name == FixtureTown {
 				// settle's additions on top of town.
 				f := &fixture{c: c, w: w, ends: map[string]sim.Pos{}}
@@ -110,13 +116,65 @@ func TestFixtures(t *testing.T) {
 	}
 }
 
+// checkCitizens: the citizens tier is unlocked and the home island has
+// one wheat farm without fields, where one drag places all its required
+// fields with the world's gold.
+func checkCitizens(t *testing.T, c *content.Catalogue, w *sim.World) {
+	t.Helper()
+	if !sim.TierUnlocked(w, c, citizensTier) {
+		t.Fatal("citizens not unlocked")
+	}
+	home := w.Islands[0].ID
+	def := c.BuildingByID[citizensFarm]
+	var farm *sim.Building
+	for _, b := range w.Island(home).Buildings {
+		switch b.Type {
+		case citizensFarm:
+			if farm != nil {
+				t.Fatal("more than one wheat farm")
+			}
+			farm = b
+		case def.Fields.Type:
+			t.Fatalf("wheat field %d placed", b.ID)
+		}
+	}
+	if farm == nil {
+		t.Fatal("no wheat farm at home")
+	}
+	n := def.Fields.Required
+	if field := c.BuildingByID[def.Fields.Type]; w.Gold < sim.Qty(n)*field.Cost.Gold {
+		t.Errorf("gold %d below %d fields' cost", w.Gold, n)
+	}
+	f := &fixture{c: c, w: w}
+	if painted, placed := f.fieldDrag(home, farm.ID, def.Fields.Type); painted == nil || placed != n {
+		t.Errorf("a drag places %d fields, want %d", placed, n)
+	}
+}
+
 // TestFixturesOtherSeeds: the settled fixture (every layout step) builds
-// on other archipelagos as well.
+// on other archipelagos as well, and so does the citizens fixture where
+// the home island has the wheat fertility (seed 3's has not: an error).
 func TestFixturesOtherSeeds(t *testing.T) {
 	c := catalogue(t)
 	for _, seed := range []uint64{1, 2, 3, 42, 4711} {
 		if _, err := NewFixture(c, FixtureSettled, seed, start); err != nil {
-			t.Errorf("seed %d: %v", seed, err)
+			t.Errorf("settled, seed %d: %v", seed, err)
+		}
+		w, err := NewFixture(c, FixtureCitizens, seed, start)
+		switch {
+		case seed == 3 && !errors.Is(err, ErrFixtureSeed):
+			t.Errorf("citizens, seed 3 (no wheat at home): %v, want ErrFixtureSeed", err)
+		case seed == 3:
+			// The error names the fixture, the fertility, the seed and a seed that works.
+			for _, want := range []string{"citizens", "wheat", "seed 3", "[apple woad]", fmt.Sprint(DevSeed)} {
+				if !strings.Contains(err.Error(), want) {
+					t.Errorf("citizens, seed 3: error %q does not mention %q", err, want)
+				}
+			}
+		case seed != 3 && err != nil:
+			t.Errorf("citizens, seed %d: %v", seed, err)
+		case seed != 3:
+			checkCitizens(t, c, w)
 		}
 	}
 }

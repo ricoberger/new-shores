@@ -124,8 +124,10 @@ type InsolvencyDisplay struct {
 // ShipDisplay is the display state of a ship. The client interpolates its
 // position and countdowns from the leg timestamps.
 type ShipDisplay struct {
-	ID    int64  `json:"id"`
-	Type  string `json:"type"`
+	ID   int64  `json:"id"`
+	Type string `json:"type"`
+	// Name is the ship's name (Ship.Name).
+	Name  string `json:"name"`
 	State string `json:"state"`
 	// IslandID is where the ship is; empty while travelling.
 	IslandID string `json:"island_id"`
@@ -633,7 +635,7 @@ func formatMs(ms int64) string { return time.UnixMilli(ms).UTC().Format(timeLayo
 
 func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
 	d := ShipDisplay{
-		ID: s.ID, Type: s.Type, State: s.State, IslandID: s.IslandID, RouteID: s.RouteID, StopIndex: s.StopIndex,
+		ID: s.ID, Type: s.Type, Name: s.Name, State: s.State, IslandID: s.IslandID, RouteID: s.RouteID, StopIndex: s.StopIndex,
 		Cargo: []CargoDisplay{}, Paused: s.Paused, PausedReason: s.PausedReason,
 	}
 	if def := c.ShipByID[s.Type]; def != nil {

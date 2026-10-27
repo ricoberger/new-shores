@@ -4,7 +4,7 @@ import type { GameRenderer } from "../render/engine";
 
 const REFRESH_MS = 500;
 
-/** Dev/E2E-only overlay (?stats=1): fps, frame time, draw calls, triangles, JS heap, LOD, model detail and the life layer's instances and particles. */
+/** Dev/E2E-only overlay (?stats=1): fps, frame time, the longest frame of the last second and the island build queue, draw calls, triangles, JS heap, LOD, model detail and the life layer's instances and particles. */
 export function StatsBadge({ renderer }: { renderer: GameRenderer | null }) {
   const [sample, setSample] = useState<StatsSample | null>(null);
   useEffect(() => {
@@ -21,12 +21,23 @@ export function StatsBadge({ renderer }: { renderer: GameRenderer | null }) {
         heapBytes: readHeapBytes(),
         lod: r.lod,
         detail: r.detail,
+        queue: r.queue,
+        maxMs: f.maxMs,
         life: renderer.lifeStats(),
       });
     };
     read();
     const id = window.setInterval(read, REFRESH_MS);
-    return () => window.clearInterval(id);
+    // The first frames (camera placed, level known) show at once, not after the first interval.
+    let early = 3;
+    const off = renderer.onFrame(() => {
+      if (early-- > 0) read();
+      else off();
+    });
+    return () => {
+      window.clearInterval(id);
+      off();
+    };
   }, [renderer]);
   if (!sample) return null;
   return (

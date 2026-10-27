@@ -38,9 +38,6 @@ const GRASS_A = c3(TERRAIN.grass_a);
  */
 export const FAR_TREE_STRIDE = 1;
 
-/** Material colour of the muted ground scatter (vertex colours × this). */
-const MUTED = new Color3(0.62, 0.62, 0.64);
-
 /** Decor models of the tree species (variant index → manifest decor ID). */
 export const TREE_MODELS = ["decor_tree_a", "decor_tree_b", "decor_tree_c", "decor_tree_d"] as const;
 const STUMP_MODELS = ["decor_stump_a", "decor_stump_b"] as const;
@@ -194,17 +191,11 @@ export class ModelMerger {
   }
 }
 
-/** The materials of a Decoration: shared by the chunks of an island (setMuted tints them all). */
+/** The materials of a Decoration: shared by the chunks of an island. */
 export interface DecorMaterials {
   material: StandardMaterial;
   scatterMaterial: StandardMaterial;
   shadowMaterial: StandardMaterial;
-}
-
-/** Tints a ground scatter material down (unsettled islands at far LOD) or back. */
-export function muteScatter(m: StandardMaterial, on: boolean): void {
-  m.diffuseColor = on ? MUTED : Color3.White();
-  m.ambientColor = on ? MUTED : Color3.White();
 }
 
 /** A Decoration's materials (one set per island, shared by its chunks). */
@@ -220,7 +211,7 @@ export function decorMaterials(scene: Scene, name: string): DecorMaterials {
 /** Trees, stumps, their blob shadows and the ground scatter of one island or island chunk. */
 export class Decoration {
   private readonly material: StandardMaterial;
-  /** The ground scatter's own material: tinted down on unsettled islands at far LOD (setMuted). */
+  /** The ground scatter's own material. */
   private readonly scatterMaterial: StandardMaterial;
   private readonly shadowMaterial: StandardMaterial;
   private trees: Mesh | null = null;
@@ -333,16 +324,6 @@ export class Decoration {
     this.setFar(this.far);
   }
 
-  /** Tints the ground scatter down (unsettled islands at far LOD): a material colour, no rebuild. */
-  setMuted(on: boolean): void {
-    muteScatter(this.scatterMaterial, on);
-  }
-
-  /** The scatter's material colour (tests). */
-  scatterTint(): Color3 {
-    return this.scatterMaterial.diffuseColor;
-  }
-
   /**
    * Far LOD: the island's FarTrees stand in for the trees, and the ground
    * scatter and tree shadows (sub-pixel there) are not drawn — toggles,
@@ -410,6 +391,9 @@ function blob(b: TriBuilder, x: number, z: number, r: number): void {
  */
 export class FarTrees {
   private mesh: Mesh | null = null;
+  /** The crowns of an incremental build so far (null: none running). */
+  private pending: TriBuilder | null = null;
+  private pendingTrees: Placed[] = [];
   private trees: readonly Placed[] = [];
   private shown = false;
   /** Crown shape per tree variant: colour, radius and heights (from the decor model when loaded). */
@@ -428,6 +412,32 @@ export class FarTrees {
     this.trees = trees;
     this.shapes.clear();
     this.build();
+  }
+
+  /** Starts an incremental build (display/buildqueue.ts): the chunks' trees follow with addTrees, the mesh with finishChunks. */
+  beginChunks(): void {
+    this.pending = new TriBuilder();
+    this.pendingTrees = [];
+    this.shapes.clear();
+  }
+
+  /** The trees of one chunk of the incremental build: their crowns are added now. */
+  addTrees(trees: readonly Placed[]): void {
+    if (!this.pending) this.beginChunks();
+    for (const t of trees) this.pendingTrees.push(t);
+    if (this.pending) this.addCrowns(this.pending, trees);
+  }
+
+  /** The incremental build is done: one mesh of every chunk's crowns (setTrees' mesh, but for the order of the trees). */
+  finishChunks(): void {
+    const b = this.pending ?? new TriBuilder();
+    this.trees = this.pendingTrees;
+    this.pending = null;
+    this.pendingTrees = [];
+    this.mesh?.dispose();
+    this.mesh = b.build(`far_trees_${this.name}`, this.scene, this.material, this.parent);
+    if (this.mesh) this.mesh.receiveShadows = false;
+    this.mesh?.setEnabled(this.shown);
   }
 
   /** Shown at far LOD. */
@@ -481,13 +491,18 @@ export class FarTrees {
     return s;
   }
 
-  private build(): void {
-    this.mesh?.dispose();
-    const b = new TriBuilder();
-    for (const p of this.trees) {
+  private addCrowns(b: TriBuilder, trees: readonly Placed[]): void {
+    for (const p of trees) {
       const shade = 0.92 + 0.16 * ((p.yaw / (Math.PI * 2)) % 1);
       for (const tri of this.shape(p.variant)) b.add(tri, p.x, 0, -p.y, p.scale, p.yaw, shade);
     }
+  }
+
+  private build(): void {
+    this.mesh?.dispose();
+    this.pending = null;
+    const b = new TriBuilder();
+    this.addCrowns(b, this.trees);
     this.mesh = b.build(`far_trees_${this.name}`, this.scene, this.material, this.parent);
     if (this.mesh) this.mesh.receiveShadows = false;
     this.mesh?.setEnabled(this.shown);

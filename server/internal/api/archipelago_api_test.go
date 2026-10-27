@@ -85,3 +85,23 @@ func TestRenameIslandOverHTTP(t *testing.T) {
 	ts.expectCode(`{"type":"rename_island","island_id":"atlantis","name":"Haven"}`, http.StatusNotFound, "unknown_island")
 	ts.expectUnvalidated(`{"type":"rename_island","island_id":"start"}`, http.StatusBadRequest, "invalid_command")
 }
+
+// TestRenameShipOverHTTP (D-055): a ship shows its default name
+// ("<ship type name> <id>"); rename_ship takes a trimmed name of 1-24
+// printable characters, an empty one restores the default.
+func TestRenameShipOverHTTP(t *testing.T) {
+	ts := newTestServer(t, 1)
+	if v := archipelagoView(t, ts.getWorld()); len(v.Ships) != 1 || v.Ships[0].Name != "Sloop 1" {
+		t.Fatalf("ships %+v", v.Ships)
+	}
+	v := archipelagoView(t, ts.mustCommand(`{"type":"rename_ship","ship_id":1,"name":"  Gull "}`))
+	if v.Ships[0].Name != "Gull" {
+		t.Fatalf("renamed ship %q", v.Ships[0].Name)
+	}
+	ts.expectCode(`{"type":"rename_ship","ship_id":1,"name":"abcdefghijklmnopqrstuvwxy"}`, http.StatusBadRequest, "invalid_name")
+	ts.expectCode(`{"type":"rename_ship","ship_id":9,"name":"Gull"}`, http.StatusNotFound, "ship_not_found")
+	ts.expectUnvalidated(`{"type":"rename_ship","ship_id":1}`, http.StatusBadRequest, "invalid_command")
+	if v := archipelagoView(t, ts.mustCommand(`{"type":"rename_ship","ship_id":1,"name":" "}`)); v.Ships[0].Name != "Sloop 1" {
+		t.Errorf("reset ship name %q", v.Ships[0].Name)
+	}
+}
