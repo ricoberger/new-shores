@@ -3127,40 +3127,40 @@
         "2": {
           "bounds": {
             "max": [
-              2.55,
-              2.4244,
+              2.48,
+              2.95,
               2.98
             ],
             "min": [
               -2.48,
-              -0.014,
+              -0.0036,
               -2.98
             ]
           },
           "budget": 45000,
-          "bytes": 242612,
+          "bytes": 123496,
           "lite": {
             "bounds": {
               "max": [
-                2.525,
-                2.4244,
+                2.48,
+                2.95,
                 2.98
               ],
               "min": [
                 -2.48,
-                -0.012,
+                -0.002,
                 -2.98
               ]
             },
             "budget": 11250,
-            "bytes": 71628,
+            "bytes": 33396,
             "path": "market_small.l2.lite.glb",
-            "sha256": "934ebe07b4271f908c160a604713ec7303427fe430fb4e1586eb771ef8f693e9",
-            "triangles": 792
+            "sha256": "3d7be4d8eb41b28f83f3eef1cc9bdd859afb56b617f445d82cfe64a3aa1c6990",
+            "triangles": 360
           },
           "path": "market_small.l2.glb",
-          "sha256": "aab0b3b4afa0d48ea3ef67aebb81ec552daeebb051a0d5139c81becb0a15a78c",
-          "triangles": 3267
+          "sha256": "1df4a2139296c1fa82ea64b47e403acec09056c016c6675fb2701bd86d415f27",
+          "triangles": 1595
         },
         "3": {
           "bounds": {
