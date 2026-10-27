@@ -86,12 +86,8 @@ describe("committed models are consistent with the manifest (Blender-free)", () 
     expect(manifest.palette_sha256).toBe(createHash("sha256").update(palette).digest("hex"));
     expect(manifest.missing_recipes).toEqual([]);
     const buildings = JSON.parse(readFileSync(join(REPO, "content", "old_coast", "buildings.json"), "utf8")) as { id: string; tier: string; road?: unknown }[];
-    // The D-056 tier-2 alternatives get their models in the companion
-    // models session; until then they draw the placeholder.
-    const pending = new Set(["dairy_farm", "cattle_pasture", "cheese_dairy", "apiary", "meadow", "meadery", "pig_farm", "pig_pen", "tannery", "school"]);
-    const want = buildings.filter((b) => (b.tier === "settlers" || b.tier === "citizens") && !b.road && !pending.has(b.id)).map((b) => b.id);
-    for (const id of pending) expect(manifest.models[id], id).toBeUndefined();
-    for (const id of [...want, "sloop"]) expect(manifest.models[id], id).toBeDefined();
+    const want = buildings.filter((b) => (b.tier === "settlers" || b.tier === "citizens") && !b.road).map((b) => b.id);
+    for (const id of [...want, "sloop", "brig", "galleon"]) expect(manifest.models[id], id).toBeDefined();
     expect(manifest.models.house_settlers?.variants).toHaveLength(3);
     expect(manifest.models.house_citizens?.variants).toHaveLength(3);
     expect(Object.keys(manifest.models.warehouse?.levels ?? {})).toEqual(["1", "2", "3"]);

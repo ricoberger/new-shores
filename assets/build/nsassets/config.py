@@ -181,8 +181,8 @@ KIT_BUILDINGS = {
         name: ("kaykit_hexagon", f"{_HEX_BUILDINGS}blue/building_{name}_blue.gltf", 180.0)
         for name in (
             "archeryrange", "barracks", "blacksmith", "castle", "church", "docks", "home_A", "home_B", "lumbermill",
-            "market", "mine", "tavern", "tower_A", "tower_B", "tower_base", "tower_catapult", "watermill",
-            "well", "windmill",
+            "market", "mine", "stables", "tavern", "tower_A", "tower_B", "tower_base", "tower_catapult",
+            "watermill", "well", "windmill", "workshop",
         )
     },
     **{
@@ -283,13 +283,7 @@ STATUS_ABOVE = 0.25
 #: Content IDs that need a model: tier 1–2 buildings except roads (fields
 #: included) and these ships (D-056 ship ladder); planned IDs always do.
 MODEL_TIERS = ("settlers", "citizens")
-MODEL_SHIPS = ("sloop",)
-#: Tier 1–2 content IDs whose models are still to come (the D-056 tier-2
-#: alternatives, made in their models session); the client draws the
-#: placeholder until then.
-MODEL_PENDING = frozenset(
-    {"dairy_farm", "cattle_pasture", "cheese_dairy", "apiary", "meadow", "meadery", "pig_farm", "pig_pen", "tannery", "school"}
-)
+MODEL_SHIPS = ("sloop", "brig", "galleon")
 
 #: Blender version the determinism guarantee holds for.
 BLENDER_MAJOR_MINOR = (5, 2)

@@ -1,0 +1,22 @@
+{
+  "$schema": "./schema.json",
+  "id": "meadow",
+  "kind": "field",
+  "notes": "Meadow (1×1 field, D-054; apiary): a lighter flowering grass tile with yellow and white flowers and two straw bee skeps on a little bench. No animals.",
+  "parts": [
+    {"name": "slab", "prim": "box", "size": [0.98, 0.98, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "position": [0.0, 0.0, 0.0], "role": "pasture", "shade": 1.06},
+    {"name": "hive bench", "prim": "box", "size": [0.62, 0.2, 0.04], "open": ["bottom"], "position": [0.08, -0.22, 0.12], "role": "timber", "shade": 1.05},
+    {"name": "hive bench leg", "prim": "box", "size": [0.05, 0.16, 0.12], "open": ["bottom"], "position": [-0.18, -0.22, 0.0], "role": "timber", "shade": 0.8, "repeat": {"count": 2, "step": [0.52, 0.0, 0.0]}},
+    {"name": "bee skep", "prim": "lathe", "profile": [[0, 0], [0.1235, 0], [0.133, 0.0665], [0.114, 0.1425], [0.0665, 0.1995], [0, 0.2185]], "segments": 7, "position": [-0.07, -0.22, 0.16], "role": "thatch", "shade": 1.08},
+    {"name": "bee skep", "prim": "lathe", "profile": [[0, 0], [0.1235, 0], [0.133, 0.0665], [0.114, 0.1425], [0.0665, 0.1995], [0, 0.2185]], "segments": 7, "position": [0.24, -0.22, 0.16], "role": "thatch", "shade": 1.08},
+    {"name": "flower", "prim": "cylinder", "radius": 0.045, "height": 0.07, "radius_top": 0.06, "segments": 3, "caps": true, "position": [-0.32, 0.15, 0.02], "role": "flower", "shade": 1.0},
+    {"name": "flower", "prim": "cylinder", "radius": 0.045, "height": 0.07, "radius_top": 0.06, "segments": 3, "caps": true, "position": [-0.1, 0.32, 0.02], "role": "flower", "shade": 0.9},
+    {"name": "flower", "prim": "cylinder", "radius": 0.045, "height": 0.07, "radius_top": 0.06, "segments": 3, "caps": true, "position": [0.18, 0.12, 0.02], "role": "flower", "shade": 1.05},
+    {"name": "flower", "prim": "cylinder", "radius": 0.045, "height": 0.07, "radius_top": 0.06, "segments": 3, "caps": true, "position": [0.35, 0.36, 0.02], "role": "flower", "shade": 0.95},
+    {"name": "flower", "prim": "cylinder", "radius": 0.045, "height": 0.07, "radius_top": 0.06, "segments": 3, "caps": true, "position": [-0.36, -0.36, 0.02], "role": "flower", "shade": 1.0},
+    {"name": "flower", "prim": "cylinder", "radius": 0.045, "height": 0.07, "radius_top": 0.06, "segments": 3, "caps": true, "position": [0.38, -0.05, 0.02], "role": "flower", "shade": 0.9},
+    {"name": "clover", "prim": "cylinder", "radius": 0.04, "height": 0.06, "radius_top": 0.05, "segments": 3, "caps": true, "position": [0.0, 0.05, 0.02], "role": "plaster", "shade": 1.0},
+    {"name": "clover", "prim": "cylinder", "radius": 0.04, "height": 0.06, "radius_top": 0.05, "segments": 3, "caps": true, "position": [-0.22, 0.38, 0.02], "role": "plaster", "shade": 1.0},
+    {"name": "tuft", "prim": "cylinder", "radius": 0.05, "height": 0.1, "radius_top": 0, "segments": 3, "position": [0.3, 0.25, 0.02], "role": "pasture-mark", "shade": 0.85}
+  ]
+}

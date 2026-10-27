@@ -221,13 +221,12 @@ def levels(content, cid):
 def required_ids(content):
     """
     Every ID that needs a model: tier 1–2 buildings except roads (fields
-    included) and the pending ones, the listed ships and every planned
-    building and ship.
+    included), the listed ships and every planned building and ship.
     """
     ids = [
         b["id"]
         for b in content["buildings"].values()
-        if (b.get("tier") in config.MODEL_TIERS or b.get("planned")) and "road" not in b and b["id"] not in config.MODEL_PENDING
+        if (b.get("tier") in config.MODEL_TIERS or b.get("planned")) and "road" not in b
     ]
     ids += [s["id"] for s in content["ships"].values() if s["id"] in config.MODEL_SHIPS or s.get("planned")]
     return sorted(ids)
