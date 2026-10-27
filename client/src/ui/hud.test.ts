@@ -9,6 +9,7 @@ import { goodIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import { AwayDialog } from "./AwayDialog";
 import { BuildMenu } from "./BuildMenu";
 import { NO_TOOL } from "./tools";
+import { FoundingPanel } from "./FoundingPanel";
 import { InfoPanel } from "./InfoPanel";
 import { InsolvencyBanner } from "./InsolvencyBanner";
 import { Minimap } from "./Minimap";
@@ -186,6 +187,55 @@ describe("HUD components", () => {
     const open = renderToStaticMarkup(createElement(SideDock, { active: "none", onToggle: () => {}, counts: { warnings: 0, quests: 0, ships: 0, routes: 0 }, buildOpen: true, onToggleBuild: () => {} }));
     expect(open.match(/aria-pressed="true"/g)).toHaveLength(1);
     expect(dock("none", { warnings: 0, quests: 0, ships: 0, routes: 0 })).not.toContain('aria-pressed="true"');
+  });
+
+  describe("founding panel", () => {
+    const panel = (over: Partial<Parameters<typeof FoundingPanel>[0]>) =>
+      renderToStaticMarkup(
+        createElement(FoundingPanel, {
+          name: "Mistle Haven",
+          seafaring: true,
+          detail: "Ship #1 sails there first.",
+          pending: null,
+          onCancelPending: () => {},
+          onFound: () => {},
+          onReroll: () => {},
+          sheet: false,
+          ...over,
+        }),
+      );
+    const buttons = ['data-testid="found-settlement-here"', 'data-testid="reroll-archipelago"'];
+
+    it("shows the full text and both buttons docked on the desktop, without a chevron", () => {
+      const html = panel({});
+      expect(html).toContain('data-testid="seafaring-panel"');
+      expect(html).toContain('data-testid="seafaring-hint"');
+      expect(html).toContain("Ship #1 sails there first.");
+      for (const b of buttons) expect(html).toContain(b);
+      expect(html).not.toContain('data-testid="founding-expand"');
+    });
+
+    it("collapses to one line with the buttons on a phone and expands with the chevron", () => {
+      const collapsed = panel({ sheet: true });
+      expect(collapsed).toContain('data-testid="founding-line"');
+      expect(collapsed).toContain('aria-expanded="false"');
+      expect(collapsed).not.toContain('data-testid="seafaring-hint"');
+      expect(collapsed).not.toContain("Ship #1 sails there first.");
+      for (const b of buttons) expect(collapsed).toContain(b);
+      const expanded = panel({ sheet: true, initiallyExpanded: true });
+      expect(expanded).toContain('aria-expanded="true"');
+      expect(expanded).toContain('data-testid="seafaring-hint"');
+      for (const b of buttons) expect(expanded).toContain(b);
+    });
+
+    it("names the island on the line of a later unsettled island, and a pending founding replaces Found", () => {
+      const html = panel({ sheet: true, seafaring: false, pending: "Ship #1 sails to Mistle Haven", onReroll: undefined });
+      expect(html).toContain('data-testid="unsettled-panel"');
+      expect(html).toContain("<strong>Mistle Haven</strong> is not settled.");
+      expect(html).toContain('data-testid="pending-founding"');
+      expect(html).not.toContain('data-testid="found-settlement-here"');
+      expect(html).not.toContain('data-testid="reroll-archipelago"');
+    });
   });
 
   it("lists the warnings in a panel", () => {

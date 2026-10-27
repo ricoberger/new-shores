@@ -953,6 +953,82 @@
   text-align: center;
 }
 
+/* Desktop: docked bottom-left, beside the side dock's column (its button
+   and both margins), over the open sea rather than the screen centre. */
+.foundingDocked {
+  --ns-dock-column: calc(max(8px, env(safe-area-inset-left)) + 40px + 8px);
+  margin: 0 8px 8px var(--ns-dock-column);
+  max-width: min(420px, calc(100% - var(--ns-dock-column) - 8px));
+  text-align: left;
+}
+
+[data-touch="true"] .foundingDocked {
+  --ns-dock-column: calc(max(8px, env(safe-area-inset-left)) + 44px + 8px);
+}
+
+/* Phones: a sheet of one line (expandable with the chevron) and the buttons. */
+.foundingSheet {
+  margin: 0 max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  max-width: none;
+}
+
+.foundingSheet[data-expanded="true"] {
+  max-height: 55vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.foundingLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+}
+
+.foundingLineText {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.foundingChevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -10px -6px -10px 0;
+  padding: 0;
+  color: var(--ns-ui-ink);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.foundingChevron svg {
+  width: 18px;
+  height: 18px;
+}
+
+.foundingChevron[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.foundingChevron:focus-visible {
+  outline: 3px solid var(--ns-ui-focus);
+}
+
+.foundingSheet[data-expanded="true"] .foundingLine {
+  margin-bottom: 6px;
+}
+
+.foundingSheet .buttons {
+  margin-top: 6px;
+}
+
 .ok {
   color: var(--ns-ui-positive);
 }

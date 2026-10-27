@@ -47,6 +47,7 @@ import { Sheet } from "./Sheet";
 import { useLayout } from "./useLayout";
 import { type GhostTool, type IslandTile, isGhostTool, NO_TOOL, rotateSteps, type Tool } from "./tools";
 import { AwayDialog } from "./AwayDialog";
+import { FoundingPanel } from "./FoundingPanel";
 import { InsolvencyBanner } from "./InsolvencyBanner";
 import { QuestsPanel } from "./QuestsPanel";
 import { TopBar } from "./TopBar";
@@ -994,45 +995,22 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         {rightSlot}
         <div className={styles.bottom}>
           {focused && !focused.settled ? (
-            <div className={`${hud.panel} ${hud.unsettledPanel}`} data-testid={nothingSettled ? "seafaring-panel" : "unsettled-panel"}>
-              {nothingSettled && (
-                <div data-testid="seafaring-hint">
-                  <strong>Choose your home island.</strong> Your sloop carries the planks and sails. Use the minimap to
-                  see the whole archipelago and tap it to look around; look at the islands&apos; fertilities and deposits (tap one for its
-                  card) and found a Trading Post where you want to start.
-                </div>
-              )}
-              <div>
-                <strong>{focused.name || focused.id}</strong> is not settled.{" "}
-                {founderHere
+            <FoundingPanel
+              name={focused.name || focused.id}
+              seafaring={nothingSettled}
+              detail={
+                founderHere
                   ? `"Found settlement here" lets you place the Trading Post with its pier on the water; ship #${founderHere.id} ${
                       founderHere.island_id === focused.id ? "is here" : "sails there first"
                     }.`
-                  : "Send a ship with the Trading Post's materials to found a settlement."}
-              </div>
-              {pendingText && (
-                <div className={hud.small} data-testid="pending-founding">
-                  {pendingText}{" "}
-                  <button type="button" className={hud.link} onClick={() => setPendingFound(null)} data-testid="pending-founding-cancel">
-                    cancel
-                  </button>
-                </div>
-              )}
-              {((founderHere && !pendingText) || model?.archipelago.rerollable) && (
-                <div className={`${hud.buttons} ${hud.centred}`}>
-                  {founderHere && !pendingText && (
-                    <button type="button" className={hud.button} onClick={() => startFounding(founderHere, focused.id)} data-testid="found-settlement-here">
-                      Found settlement here
-                    </button>
-                  )}
-                  {model?.archipelago.rerollable && (
-                    <button type="button" className={hud.button} onClick={requestReroll} data-testid="reroll-archipelago">
-                      Another archipelago
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+                  : "Send a ship with the Trading Post's materials to found a settlement."
+              }
+              pending={pendingText || null}
+              onCancelPending={() => setPendingFound(null)}
+              onFound={founderHere ? () => startFounding(founderHere, focused.id) : undefined}
+              onReroll={model?.archipelago.rerollable ? requestReroll : undefined}
+              sheet={phone}
+            />
           ) : (
             buildOpen && (
               <BuildMenu
