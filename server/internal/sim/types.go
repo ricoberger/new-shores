@@ -19,7 +19,7 @@
 // Gold is accounted in GoldSubPerMilli sub-units per milli-gold, so that a
 // rate of n sub-units per millisecond is exactly n milli-gold per minute.
 // Houses grow through a signed accumulator in ResidentSub units per resident.
-// Ratios (satisfaction, fulfilment, variety multiplier, workforce factor) are
+// Ratios (satisfaction, fulfilment, workforce factor) are
 // parts per million (ppm) internally and per-mille in the display.
 package sim
 

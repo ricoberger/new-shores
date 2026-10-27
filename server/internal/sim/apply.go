@@ -906,8 +906,9 @@ func upgradeCollector(w *World, c *content.Catalogue, islandID string, id int64,
 }
 
 // unmetRequiredNeed returns the ID of the first required need of the house
-// that is not fully met at this instant ("" when all are met). It settles a
-// copy of the world, so the world itself is not changed.
+// that is not fully met at this instant ("" when all are met): a need is
+// fully met at the most its alternatives can cover together (needCap). It
+// settles a copy of the world, so the world itself is not changed.
 func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) string {
 	cw := w.Clone()
 	wr, _ := settleWorld(cw, c, cw.LastEvaluatedAt.UnixMilli())
@@ -920,13 +921,26 @@ func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) str
 				continue
 			}
 			for _, n := range h.needs {
-				if n.need.Kind != content.NeedOptional && n.fulfilment < ppm {
+				if n.need.Kind != content.NeedOptional && n.fulfilment < needCap(n.need) {
 					return n.need.ID
 				}
 			}
 		}
 	}
 	return ""
+}
+
+// needCap is the highest fulfilment (ppm) a need can reach: the sum of the
+// shares of all its alternatives, at most 1 (D-056).
+func needCap(n *content.Need) int64 {
+	if !n.IsGoods() {
+		return min(n.Share, ppm)
+	}
+	var sum int64
+	for _, g := range n.Goods {
+		sum += g.Share
+	}
+	return min(sum, ppm)
 }
 
 // afterChange recomputes derived placement state after a map change.

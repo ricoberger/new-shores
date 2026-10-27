@@ -108,7 +108,6 @@ type rulesJSON struct {
 	GrowthPerMin               int64 `json:"growth_per_min"`
 	DeclinePerMin              int64 `json:"decline_per_min"`
 	GrowthThresholdPpm         int64 `json:"growth_satisfaction_threshold"`
-	OptionalTaxBonusPpm        int64 `json:"optional_tax_bonus"`
 	AutoResumeUpkeepDurationMs int64 `json:"auto_resume_upkeep_ms"`
 	ShipHandlingBaseMs         int64 `json:"ship_handling_base_ms"`
 	ShipHandlingMsPerUnit      int64 `json:"ship_handling_ms_per_unit"`
@@ -248,6 +247,7 @@ type buildingJSON struct {
 type needGoodJSON struct {
 	Good              string `json:"good"`
 	PerResidentPerMin int64  `json:"per_resident_per_min"`
+	SharePpm          int64  `json:"share"`
 }
 
 // needCategoryJSON is a goods-need category: display data only.
@@ -259,17 +259,16 @@ type needCategoryJSON struct {
 }
 
 type needJSON struct {
-	ID              string         `json:"id"`
-	Name            string         `json:"name"`
-	Tier            string         `json:"tier"`
-	Kind            string         `json:"kind"`
-	WeightPpm       int64          `json:"weight"`
-	Category        string         `json:"category,omitempty"`
-	Goods           []needGoodJSON `json:"goods,omitempty"`
-	VarietyBonusPpm *int64         `json:"variety_bonus,omitempty"`
-	MaxExtraGoods   *int           `json:"max_extra_goods,omitempty"`
-	Building        string         `json:"building,omitempty"`
-	Radius          *int           `json:"radius,omitempty"`
+	ID        string         `json:"id"`
+	Name      string         `json:"name"`
+	Tier      string         `json:"tier"`
+	Kind      string         `json:"kind"`
+	WeightPpm int64          `json:"weight"`
+	Category  string         `json:"category,omitempty"`
+	Goods     []needGoodJSON `json:"goods,omitempty"`
+	Building  string         `json:"building,omitempty"`
+	Radius    *int           `json:"radius,omitempty"`
+	SharePpm  *int64         `json:"share,omitempty"`
 }
 
 // buildingCategory derives the build-menu group of a building from its
@@ -310,7 +309,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 				TransferBaseMs: r.TransferBaseMs, UnconnectedBuffer: r.UnconnectedBuffer,
 				IterationCap: r.IterationCap, CoarseStepMs: r.CoarseStepMs,
 				GrowthPerMin: r.GrowthPerMin, DeclinePerMin: r.DeclinePerMin,
-				GrowthThresholdPpm: r.GrowthThreshold, OptionalTaxBonusPpm: r.OptionalTaxBonus,
+				GrowthThresholdPpm:         r.GrowthThreshold,
 				AutoResumeUpkeepDurationMs: r.AutoResumeMs,
 				ShipHandlingBaseMs:         r.ShipHandlingBaseMs, ShipHandlingMsPerUnit: r.ShipHandlingMsPerUnit,
 				ShipSpeedMilliTilesPerMin: r.ShipSpeedMilliTilesPerMin,
@@ -459,14 +458,13 @@ func newNeedJSON(n *content.Need) needJSON {
 	nj := needJSON{ID: n.ID, Name: n.Name, Tier: n.Tier, Kind: n.Kind, WeightPpm: n.Weight}
 	if n.IsGoods() {
 		nj.Category = n.Category
-		nj.VarietyBonusPpm = &n.VarietyBonus
-		nj.MaxExtraGoods = &n.MaxExtraGoods
 		for _, g := range n.Goods {
-			nj.Goods = append(nj.Goods, needGoodJSON{Good: g.Good, PerResidentPerMin: g.PerResidentPerMin})
+			nj.Goods = append(nj.Goods, needGoodJSON{Good: g.Good, PerResidentPerMin: g.PerResidentPerMin, SharePpm: g.Share})
 		}
 	} else {
 		nj.Building = n.Building
 		nj.Radius = &n.Radius
+		nj.SharePpm = &n.Share
 	}
 	return nj
 }

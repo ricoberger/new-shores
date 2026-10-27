@@ -1807,8 +1807,6 @@ export interface components {
             fulfilment_permille: number;
             /** @enum {string} */
             reason: "ok" | "short_supply" | "no_supply" | "out_of_range" | "not_connected" | "paused";
-            /** @description Extra goods supplied in the category (count; goods needs only). */
-            variety?: number;
             /** @description Island-wide consumption of the tier's houses per acceptable good (milli-units per minute). */
             goods?: {
                 [key: string]: number;
@@ -1955,11 +1953,6 @@ export interface components {
              * @description Satisfaction (permille).
              */
             satisfaction_permille?: number;
-            /**
-             * Format: int64
-             * @description Variety multiplier (permille; 1000 = ×1).
-             */
-            variety_multiplier_permille?: number;
             /**
              * Format: int64
              * @description Taxes of the house (milli-gold per minute).
@@ -2135,11 +2128,6 @@ export interface components {
              * @description Satisfaction from which houses grow (ppm).
              */
             growth_satisfaction_threshold: number;
-            /**
-             * Format: int64
-             * @description Tax bonus of fully met optional needs (ppm).
-             */
-            optional_tax_bonus: number;
             /**
              * Format: int64
              * @description Gold reserve for auto-resume, as a duration of the building's or ship's upkeep (ms).
@@ -2437,18 +2425,21 @@ export interface components {
                  * @description Consumption per resident (milli-units per minute).
                  */
                 per_resident_per_min: number;
+                /**
+                 * Format: int64
+                 * @description Coverage of the category at full supply of this good (ppm, D-056).
+                 */
+                share: number;
             }[];
-            /**
-             * Format: int64
-             * @description Bonus per extra good (ppm; goods needs only).
-             */
-            variety_bonus?: number;
-            /** @description Maximum extra goods counted for variety (count; goods needs only). */
-            max_extra_goods?: number;
             /** @description Building needs only (content building ID). */
             building?: string;
             /** @description Radius (tiles; building needs only). */
             radius?: number;
+            /**
+             * Format: int64
+             * @description Coverage when served (ppm, D-056; building needs only).
+             */
+            share?: number;
         };
     };
     responses: {

@@ -37,7 +37,7 @@ func TestLoadCitizensContent(t *testing.T) {
 		}
 		if n.IsGoods() {
 			got = append(got, fmt.Sprintf("%s:%s:%s:%d:%d", n.ID, n.Category, n.Goods[0].Good, n.Goods[0].PerResidentPerMin, n.Weight))
-			if len(n.Goods) != 1 || n.VarietyBonus != 100_000 || n.MaxExtraGoods != 2 {
+			if len(n.Goods) != 1 || n.Goods[0].Share != ShareLone {
 				t.Errorf("%s = %+v", n.ID, n)
 			}
 		} else {

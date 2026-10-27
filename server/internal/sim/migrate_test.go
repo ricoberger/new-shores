@@ -42,15 +42,20 @@ func TestSchemaMigrationsRegistered(t *testing.T) {
 }
 
 // TestMigrate7to8 (D-055): the committed schema-7 fixtures (encoded by
-// the schema-7 binary) migrate to the schema-8 fixtures of the same
-// scenarios byte for byte: every ship gets its default name
-// ("<ship type name> <ID>"), nothing else changes; a name already set is
-// kept and a world without ships stays as it is.
+// the schema-7 binary) migrate byte for byte to migrated7to8_<scenario>
+// (the schema-8 encoding of the same worlds, frozen when schema 8 landed;
+// the schema8_ fixtures follow the scenarios as content changes): every
+// ship gets its default name ("<ship type name> <ID>"), nothing else
+// changes; a name already set is kept and a world without ships stays as
+// it is.
 func TestMigrate7to8(t *testing.T) {
 	catalogues := map[string]*content.Catalogue{}
 	for _, c := range []*content.Catalogue{catalogue(t), shippedCatalogue(t)} {
 		catalogues[c.Region.Version] = c
 	}
+	// The schema-7 bootstrap fixture was written with content 0.10.0; the
+	// migration reads only ship type names, unchanged since.
+	catalogues["old_coast-0.10.0"] = shippedCatalogue(t)
 	files, err := filepath.Glob(filepath.Join("testdata", "schema7_*.json"))
 	if err != nil || len(files) < 4 {
 		t.Fatalf("schema 7 fixtures %v (%v)", files, err)
@@ -87,12 +92,12 @@ func TestMigrate7to8(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			want, err := os.ReadFile(strings.Replace(f, "schema7_", "schema8_", 1)) // #nosec G304 -- test fixture path.
+			want, err := os.ReadFile(strings.Replace(f, "schema7_", "migrated7to8_", 1)) // #nosec G304 -- test fixture path.
 			if err != nil {
 				t.Fatal(err)
 			}
 			if !bytes.Equal(append(state, '\n'), want) {
-				t.Error("the migrated world differs from the schema-8 fixture of the same scenario")
+				t.Error("the migrated world differs from the frozen schema-8 encoding of the same scenario")
 			}
 		})
 	}

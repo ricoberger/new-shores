@@ -42,9 +42,6 @@ func checkReferences(c *Catalogue) error {
 	if rules.GrowthThreshold < 0 || rules.GrowthThreshold > WeightScale {
 		col.add(FileRegion, rent, "rules.growth_satisfaction_threshold", "must be in [0, 1]")
 	}
-	if rules.OptionalTaxBonus < 0 {
-		col.add(FileRegion, rent, "rules.optional_tax_bonus", "must be >= 0")
-	}
 	// The reserve is the hysteresis between insolvency pauses and
 	// auto-resumes; without it a building can be paused and resumed every
 	// millisecond (MECHANICS §7).
@@ -316,8 +313,13 @@ func checkReferences(c *Catalogue) error {
 					col.add(FileNeeds, ent, "category", "unknown need category %q (need_categories.json)", n.Category)
 				}
 			}
-			if n.VarietyBonus < 0 {
-				col.add(FileNeeds, ent, "variety_bonus", "must be >= 0")
+			for i, g := range n.Goods {
+				if g.Share <= 0 || g.Share > WeightScale {
+					col.add(FileNeeds, ent, fmt.Sprintf("goods[%d].share", i), "must be in (0, 1]")
+				}
+			}
+			if n.Building != "" && (n.Share <= 0 || n.Share > WeightScale) {
+				col.add(FileNeeds, ent, "share", "must be in (0, 1]")
 			}
 			switch n.Kind {
 			case NeedRequired:

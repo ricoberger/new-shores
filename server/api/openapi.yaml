@@ -2669,9 +2669,6 @@ components:
         reason:
           type: string
           enum: [ok, short_supply, no_supply, out_of_range, not_connected, paused]
-        variety:
-          type: integer
-          description: Extra goods supplied in the category (count; goods needs only).
         goods:
           type: object
           description: Island-wide consumption of the tier's houses per acceptable good (milli-units per minute).
@@ -2834,10 +2831,6 @@ components:
           type: integer
           format: int64
           description: Satisfaction (permille).
-        variety_multiplier_permille:
-          type: integer
-          format: int64
-          description: Variety multiplier (permille; 1000 = ×1).
         tax_rate_per_min:
           type: integer
           format: int64
@@ -3086,7 +3079,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, optional_tax_bonus, auto_resume_upkeep_ms, ship_handling_base_ms, ship_handling_ms_per_unit, ship_speed_milli_tiles_per_min, away_summary_ms, trial_resume_upkeep_ms]
+        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, auto_resume_upkeep_ms, ship_handling_base_ms, ship_handling_ms_per_unit, ship_speed_milli_tiles_per_min, away_summary_ms, trial_resume_upkeep_ms]
       properties:
         transfer_base_ms:
           type: integer
@@ -3115,10 +3108,6 @@ components:
           type: integer
           format: int64
           description: Satisfaction from which houses grow (ppm).
-        optional_tax_bonus:
-          type: integer
-          format: int64
-          description: Tax bonus of fully met optional needs (ppm).
         auto_resume_upkeep_ms:
           type: integer
           format: int64
@@ -3534,7 +3523,7 @@ components:
           items:
             type: object
             additionalProperties: false
-            required: [good, per_resident_per_min]
+            required: [good, per_resident_per_min, share]
             properties:
               good:
                 type: string
@@ -3542,16 +3531,17 @@ components:
                 type: integer
                 format: int64
                 description: Consumption per resident (milli-units per minute).
-        variety_bonus:
-          type: integer
-          format: int64
-          description: Bonus per extra good (ppm; goods needs only).
-        max_extra_goods:
-          type: integer
-          description: Maximum extra goods counted for variety (count; goods needs only).
+              share:
+                type: integer
+                format: int64
+                description: Coverage of the category at full supply of this good (ppm, D-056).
         building:
           type: string
           description: Building needs only (content building ID).
         radius:
           type: integer
           description: Radius (tiles; building needs only).
+        share:
+          type: integer
+          format: int64
+          description: Coverage when served (ppm, D-056; building needs only).

@@ -839,9 +839,10 @@ func TestPropertyComposition(t *testing.T) {
 	for name, c := range cats {
 		// The recovery cases need towns that fall into insolvency again
 		// and again; they keep the never-pausable upkeep of the content
-		// before it was folded into the prices (legacyUpkeep), the random
-		// command cases run on the content as shipped.
-		rc := legacyUpkeep(c)
+		// before it was folded into the prices (legacyUpkeep) and the tax
+		// bonuses before D-056 (bonusTax); the random command cases run on
+		// the content as shipped.
+		rc := legacyUpkeep(bonusTax(c))
 		t.Run(name, func(t *testing.T) {
 			for seed := range uint64(propertyCases) {
 				p := newPropCase(t, c, 10_000+seed)

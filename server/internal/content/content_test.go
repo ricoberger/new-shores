@@ -34,11 +34,11 @@ func TestLoadOldCoast(t *testing.T) {
 	if rules.TransferBaseMs != 10_000 || rules.UnconnectedBuffer != 5_000 || rules.IterationCap != 10_000 || rules.CoarseStepMs != 60_000 {
 		t.Errorf("rules = %+v", rules)
 	}
-	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.GrowthThreshold != 500_000 || rules.OptionalTaxBonus != 250_000 || rules.AutoResumeMs != 300_000 {
+	if rules.GrowthPerMin != 1_000 || rules.DeclinePerMin != 500 || rules.GrowthThreshold != 500_000 || rules.AutoResumeMs != 300_000 {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.10.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.11.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 120 {
@@ -79,7 +79,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("settlers = %+v", settlers)
 	}
 	citizens := c.TierByID["citizens"]
-	if citizens.Index != 1 || citizens.ResidentsFloor != 5000 || citizens.ResidentsMax != 15000 || citizens.TaxPerResidentPerMin != 480 || citizens.House != "house_citizens" ||
+	if citizens.Index != 1 || citizens.ResidentsFloor != 5000 || citizens.ResidentsMax != 15000 || citizens.TaxPerResidentPerMin != 800 || citizens.House != "house_citizens" ||
 		citizens.Unlock.Population["settlers"] != 120 || strings.Join(citizens.Unlock.Buildings, ",") != "market_small,chapel" || len(citizens.Unlock.GoodsDelivered) != 0 {
 		t.Errorf("citizens = %+v", citizens)
 	}
@@ -234,14 +234,14 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	food, clothing, market := needs[0], needs[1], needs[2]
 	if food.ID != "settlers_food" || food.Kind != NeedRequired || food.Category != "food" || food.Weight != 500_000 ||
-		len(food.Goods) != 1 || food.Goods[0] != (NeedGood{"fish", 10}) || food.VarietyBonus != 100_000 || food.MaxExtraGoods != 2 || !food.IsGoods() {
+		len(food.Goods) != 1 || food.Goods[0] != (NeedGood{"fish", 10, ShareLone}) || !food.IsGoods() {
 		t.Errorf("food = %+v", food)
 	}
 	if clothing.ID != "settlers_clothing" || clothing.Category != "clothing" || clothing.Weight != 200_000 ||
-		len(clothing.Goods) != 1 || clothing.Goods[0] != (NeedGood{"wool_garments", 5}) || clothing.VarietyBonus != 100_000 || clothing.MaxExtraGoods != 2 {
+		len(clothing.Goods) != 1 || clothing.Goods[0] != (NeedGood{"wool_garments", 5, ShareLone}) {
 		t.Errorf("clothing = %+v", clothing)
 	}
-	if market.ID != "settlers_market_small" || market.Kind != NeedRequired || market.Building != "market_small" || market.Radius != 12 || market.Weight != 300_000 || market.IsGoods() {
+	if market.ID != "settlers_market_small" || market.Kind != NeedRequired || market.Building != "market_small" || market.Radius != 12 || market.Share != ShareLone || market.Weight != 300_000 || market.IsGoods() {
 		t.Errorf("market = %+v", market)
 	}
 }
@@ -297,14 +297,12 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{`"kind": "required",
     "weight": 0.5,
     "category": "food",
-    "goods": [{ "good": "fish", "per_resident_per_min": 0.010 }],
-    "variety_bonus": 0.10,
-    "max_extra_goods": 2`, `"weight": 0.5, "category": "basic", "good": "fish", "per_resident_per_min": 0.010`},
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.010 }]`, `"weight": 0.5, "category": "basic", "good": "fish", "per_resident_per_min": 0.010`},
 			[]string{FileNeeds, `need "settlers_food"`, "schema violation"},
 		},
 		{
 			"mixed shape", FileNeeds,
-			[]string{`"radius": 12`, `"radius": 12, "variety_bonus": 0.1`},
+			[]string{`"radius": 12`, `"radius": 12, "category": "food"`},
 			[]string{FileNeeds, `need "settlers_market_small"`, "schema violation"},
 		},
 		{
@@ -865,5 +863,61 @@ func TestCheckRequiresTradingPost(t *testing.T) {
 	c.BuildingByID["trading_post"].TradingPost = nil
 	if err := checkReferences(c); err == nil || !strings.Contains(err.Error(), "no building with a trading_post block") {
 		t.Errorf("err = %v", err)
+	}
+}
+
+// TestNeedShareDefaults (D-056 as amended): without an authored share a
+// lone alternative covers its category (1.0) and each of two or more
+// alternatives 0.6; an authored share wins.
+func TestNeedShareDefaults(t *testing.T) {
+	root := repoRoot(t)
+	schemaDir := filepath.Join(root, "content", "schema")
+	for _, dir := range []string{
+		filepath.Join(root, "content", "old_coast"),
+		filepath.Join(root, "server", "testdata", "content", "old_coast_variety"),
+	} {
+		c, err := LoadWithSchemas(dir, schemaDir)
+		if err != nil {
+			t.Fatal(err)
+		}
+		multi := 0
+		for _, needs := range c.NeedsByTier {
+			for _, n := range needs {
+				if !n.IsGoods() {
+					if n.Share != ShareLone {
+						t.Errorf("%s: %s share %d, want %d", dir, n.ID, n.Share, ShareLone)
+					}
+					continue
+				}
+				want := ShareLone
+				if len(n.Goods) > 1 {
+					want, multi = ShareAlternative, multi+1
+				}
+				for _, g := range n.Goods {
+					if g.Share != want {
+						t.Errorf("%s: %s %s share %d, want %d", dir, n.ID, g.Good, g.Share, want)
+					}
+				}
+			}
+		}
+		if strings.HasSuffix(dir, "old_coast_variety") && multi == 0 {
+			t.Errorf("%s: no category with alternatives", dir)
+		}
+	}
+
+	dir := copyContent(t, FileNeeds,
+		`"goods": [{ "good": "fish", "per_resident_per_min": 0.010 }]`, `"goods": [{ "good": "fish", "per_resident_per_min": 0.010, "share": 0.5 }]`,
+		`"radius": 12`, `"radius": 12, "share": 0.75`)
+	c, err := LoadWithSchemas(dir, schemaDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	needs := c.NeedsByTier["settlers"]
+	if needs[0].Goods[0].Share != 500_000 || needs[2].Share != 750_000 || needs[1].Goods[0].Share != ShareLone {
+		t.Errorf("authored shares = %+v %+v %+v", needs[0].Goods, needs[1].Goods, needs[2].Share)
+	}
+	dir = copyContent(t, FileNeeds, `"radius": 12`, `"radius": 12, "share": 1.5`)
+	if _, err := LoadWithSchemas(dir, schemaDir); err == nil || !strings.Contains(err.Error(), "schema violation") {
+		t.Errorf("share 1.5: err %v", err)
 	}
 }

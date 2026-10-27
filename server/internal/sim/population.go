@@ -31,9 +31,12 @@ import (
 // good (demand - consumed, converted at the per-resident rates) is drawn in
 // file order from the goods with slack: a non-starved good has unlimited
 // slack (until its stock empties, which is a stock_empty boundary), a
-// starved good its excess arrivals. Fulfilment is 1 when a supplied good is
-// not starved, else sum(consumed_i / (N x rate_i)), at most 1; variety =
-// min(m - 1, max_extra_goods).
+// starved good its excess arrivals. The fulfilment (coverage, D-056) is
+// min(1, sum_i share_i x ratio_i) over the supplied goods, where ratio_i
+// is the good's own allocation over its nominal demand (1 for a non-starved
+// good, the arrival share for a starved one; capped at 1): what a good
+// covers for another one's shortfall is consumption only and adds no
+// coverage, so one alternative never covers more than its share.
 //
 // A starved good leaves the regime when the consumption it would have if it
 // were not starved (the same allocation with unlimited slack for this good)
@@ -155,9 +158,10 @@ type goodsNeedState struct {
 	m        int
 	demand   []int64
 	cons     []int64
-	// fulfilment in ppm.
+	// fulfilment (coverage) in ppm; short is set when a supplied good gets
+	// less than its nominal demand.
 	fulfilment int64
-	variety    int
+	short      bool
 }
 
 // needRate converts residents (milli) x per-resident rate
@@ -205,9 +209,6 @@ func (r *rates) prepareHouseDemand(is *Island, c *content.Catalogue) {
 				gs.demand[i] = gs.full[i] / int64(gs.m)
 				r.houseDemand[g.Good] += gs.demand[i]
 			}
-			if gs.m > 0 {
-				gs.variety = min(gs.m-1, need.MaxExtraGoods)
-			}
 			r.goodsNeeds[t.ID] = append(r.goodsNeeds[t.ID], gs)
 		}
 	}
@@ -244,20 +245,24 @@ func (r *rates) allocateHouses(is *Island, c *content.Catalogue, treat string, c
 		for _, gs := range r.goodsNeeds[t.ID] {
 			goods := gs.need.Goods
 			use := make([]int64, len(goods))
-			fulfilment := int64(ppm)
-			if gs.residents > 0 {
-				unlimited := false
-				for i, g := range goods {
-					if !gs.supplied[i] {
-						continue
-					}
-					use[i] = gs.demand[i]
-					if !starved(g.Good) {
-						unlimited = true
-					} else if share := r.starvedShare[g.Good]; share[1] > share[0] {
-						use[i] = mulDiv(gs.demand[i], share[0], share[1])
-					}
+			fulfilment, short := int64(0), false
+			for i, g := range goods {
+				if !gs.supplied[i] {
+					continue
 				}
+				use[i] = gs.demand[i]
+				ratio := int64(ppm)
+				if share := r.starvedShare[g.Good]; starved(g.Good) && share[1] > share[0] {
+					use[i] = mulDiv(gs.demand[i], share[0], share[1])
+					if gs.demand[i] > 0 {
+						ratio = min(mulDivAny(use[i], ppm, gs.demand[i]), ppm)
+					}
+					short = short || ratio < ppm
+				}
+				fulfilment += mulDivAny(g.Share, ratio, ppm)
+			}
+			fulfilment = min(fulfilment, ppm)
+			if gs.residents > 0 {
 				for j := range goods {
 					short := gs.demand[j] - use[j]
 					for k := 0; k < len(goods) && short > 0; k++ {
@@ -283,19 +288,12 @@ func (r *rates) allocateHouses(is *Island, c *content.Catalogue, treat string, c
 						}
 					}
 				}
-				if !unlimited {
-					fulfilment = 0
-					for i := range goods {
-						fulfilment += mulDivAny(use[i], ppm, gs.full[i])
-					}
-					fulfilment = min(fulfilment, ppm)
-				}
 			}
 			for i, g := range goods {
 				total[g.Good] += use[i]
 			}
 			if commit {
-				gs.cons, gs.fulfilment = use, fulfilment
+				gs.cons, gs.fulfilment, gs.short = use, fulfilment, short
 			}
 		}
 	}
@@ -318,10 +316,8 @@ type needResult struct {
 type houseCalc struct {
 	b    *Building
 	tier *content.Tier
-	// satisfaction, variety multiplier and optional fulfilment in ppm.
+	// satisfaction in ppm.
 	satisfaction int64
-	variety      int64
-	optional     int64
 	// tax in gold sub-units per ms (= milli-gold per minute).
 	tax int64
 	// growth is the accumulator rate in ResidentSub units per ms (signed).
@@ -344,8 +340,8 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 		if tier == nil {
 			continue
 		}
-		h := &houseCalc{b: b, tier: tier, variety: ppm, connected: houseConnected(b)}
-		var required, optional, optWeight int64
+		h := &houseCalc{b: b, tier: tier, connected: houseConnected(b)}
+		var required int64
 		gi := 0
 		for _, need := range c.NeedsByTier[tier.ID] {
 			res := needResult{need: need}
@@ -361,25 +357,25 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 				gs := r.goodsNeeds[tier.ID][gi]
 				gi++
 				res.goods, res.fulfilment = gs, gs.fulfilment
+				// ok: every supplied alternative gets its full demand
+				// (coverage may still be below 1 with one alternative).
 				switch {
-				case gs.fulfilment >= ppm:
-					res.reason = NeedOK
 				case gs.fulfilment == 0:
 					res.reason = NeedNoSupply
-				default:
+				case gs.short:
 					res.reason = NeedShortSupply
+				default:
+					res.reason = NeedOK
 				}
-				h.variety += int64(gs.variety) * need.VarietyBonus
 			} else {
 				res.reason, res.servedBy = buildingNeed(is, c, def, b, need)
 				if res.reason == NeedOK {
-					res.fulfilment = ppm
+					res.fulfilment = need.Share
 				}
 			}
-			if need.Kind == content.NeedOptional {
-				optional += need.Weight * res.fulfilment
-				optWeight += need.Weight
-			} else {
+			// Optional needs are evaluated and shown but count for nothing
+			// (D-056 removed the optional tax bonus).
+			if need.Kind != content.NeedOptional {
 				required += need.Weight * res.fulfilment
 			}
 			h.needs = append(h.needs, res)
@@ -392,18 +388,13 @@ func (r *rates) computeHouses(is *Island, c *content.Catalogue) {
 		} else if hasRequired(h.needs) {
 			h.satisfaction = required / ppm
 		}
-		if optWeight > 0 {
-			h.optional = optional / optWeight
-		}
 
-		// Tax = rate x R x satisfaction x variety x (1 + bonus x optional).
+		// Tax = rate x R x satisfaction.
 		tax := tier.TaxPerResidentPerMin * b.House.Residents / content.MilliPerUnit
-		tax = mulDivAny(tax, h.satisfaction, ppm)
-		tax = mulDivAny(tax, h.variety, ppm)
-		h.tax = mulDivAny(tax, ppm+rules.OptionalTaxBonus*h.optional/ppm, ppm)
+		h.tax = mulDivAny(tax, h.satisfaction, ppm)
 		r.tax += h.tax
 
-		h.growth = growthRate(rules, h.satisfaction, h.variety)
+		h.growth = growthRate(rules, h.satisfaction)
 		hs := b.House
 		switch {
 		case h.growth > 0 && hs.Residents >= tier.ResidentsMax && hs.Growth >= 0:
@@ -425,15 +416,14 @@ func hasRequired(needs []needResult) bool {
 }
 
 // growthRate returns the accumulator rate in ResidentSub units per ms:
-// growth_per_min x satisfaction x variety when satisfaction >= threshold,
-// else -decline_per_min x (threshold - satisfaction). Magnitudes round down.
-func growthRate(rules content.Rules, satisfaction, variety int64) int64 {
+// growth_per_min x satisfaction when satisfaction >= threshold, else
+// -decline_per_min x (threshold - satisfaction). Magnitudes round down.
+func growthRate(rules content.Rules, satisfaction int64) int64 {
 	// 1 milli-resident per minute = ResidentSub / 1000 / msPerMinute = 1000
 	// units per ms.
 	const unitsPerMilliPerMin = ResidentSub / content.MilliPerUnit / msPerMinute
 	if satisfaction >= rules.GrowthThreshold {
-		g := mulDivAny(rules.GrowthPerMin*unitsPerMilliPerMin, satisfaction, ppm)
-		return mulDivAny(g, variety, ppm)
+		return mulDivAny(rules.GrowthPerMin*unitsPerMilliPerMin, satisfaction, ppm)
 	}
 	return -mulDivAny(rules.DeclinePerMin*unitsPerMilliPerMin, rules.GrowthThreshold-satisfaction, ppm)
 }

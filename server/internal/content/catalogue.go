@@ -10,7 +10,7 @@
 //   - durations (cycles, transfer delays, coarse step): milliseconds,
 //   - need weights, satisfaction-like ratios (growth threshold): parts per
 //     million,
-//   - variety and optional tax bonuses: parts per million,
+//   - need shares (coverage per alternative): parts per million,
 //   - growth and decline rates: milli-residents per minute,
 //   - ship speed: per-mille of the reference speed; the reference speed
 //     (region rule) in milli-tiles per minute.
@@ -173,8 +173,6 @@ type Rules struct {
 	DeclinePerMin Qty
 	// GrowthThreshold is the satisfaction (ppm) from which houses grow.
 	GrowthThreshold int64
-	// OptionalTaxBonus is the tax bonus of fully met optional needs (ppm).
-	OptionalTaxBonus int64
 	// AutoResumeMs is the gold reserve, in milliseconds of a building's
 	// upkeep, required before an unpaid building is auto-resumed.
 	AutoResumeMs int64
@@ -501,16 +499,16 @@ type Need struct {
 	// Weight in parts per million.
 	Weight int64
 
-	// Category, Goods, VarietyBonus (ppm per extra good) and MaxExtraGoods
-	// are set for goods needs. Goods keep the file order.
-	Category      string
-	Goods         []NeedGood
-	VarietyBonus  int64
-	MaxExtraGoods int
+	// Category and Goods are set for goods needs. Goods keep the file
+	// order.
+	Category string
+	Goods    []NeedGood
 
-	// Building and Radius are set for building needs.
+	// Building, Radius and Share (ppm, the coverage when served) are set
+	// for building needs.
 	Building string
 	Radius   int
+	Share    int64
 }
 
 // NeedCategory is a goods-need category (need_categories.json): display
@@ -527,7 +525,18 @@ type NeedGood struct {
 	Good string
 	// PerResidentPerMin in milli-units per resident per minute.
 	PerResidentPerMin Qty
+	// Share is the coverage (ppm) the good contributes to its category at
+	// full supply (D-056).
+	Share int64
 }
+
+// Default need shares (D-056 as amended): an alternative without an
+// authored share covers its category alone (ShareLone) when it is the
+// category's only alternative, else ShareAlternative each.
+const (
+	ShareLone        int64 = WeightScale
+	ShareAlternative int64 = 600_000
+)
 
 // IsGoods reports whether the need is a goods need.
 func (n *Need) IsGoods() bool { return len(n.Goods) > 0 }

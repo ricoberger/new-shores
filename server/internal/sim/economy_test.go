@@ -28,6 +28,22 @@ func legacyUpkeep(base *content.Catalogue) *content.Catalogue {
 	return withUpkeep(base, up)
 }
 
+// bonusTax returns base with every tier's tax raised by the largest
+// bonus that D-056 removed (variety x1.1 and optional needs x1.25): the
+// recovery property cases were calibrated with those bonuses on the
+// variety test content and otherwise miss their minimum boundary counts.
+func bonusTax(base *content.Catalogue) *content.Catalogue {
+	c := *base
+	c.Tiers, c.TierByID = nil, map[string]*content.Tier{}
+	for _, t := range base.Tiers {
+		cp := *t
+		cp.TaxPerResidentPerMin = cp.TaxPerResidentPerMin * 1375 / 1000
+		c.Tiers = append(c.Tiers, &cp)
+		c.TierByID[cp.ID] = &cp
+	}
+	return &c
+}
+
 // withoutQuests returns base without quests, for tests that compare exact
 // boundary lists or worlds where a (permanent) quest completion is not the
 // subject.
@@ -324,6 +340,9 @@ func TestUpgradeHouse(t *testing.T) {
 	expectErr(t, w, c, cmd, ErrNeedsUnmet) // no food, no clothing
 	addStock(t, w, c, "fish", 50)
 	addStock(t, w, c, "wool_garments", 50)
+	// Fish alone covers 0.6 of the food category; both alternatives fill it.
+	expectErr(t, w, c, cmd, ErrNeedsUnmet)
+	addStock(t, w, c, "bread", 50)
 
 	big := *c
 	big.BuildingByID = maps.Clone(c.BuildingByID)
@@ -437,7 +456,7 @@ func TestDisplayPopulationFields(t *testing.T) {
 		switch b["type"] {
 		case "house_settlers":
 			requireKeys(t, "house", b, "residents", "residents_floor", "residents_max", "growth_progress_permille", "growth_rate_per_min",
-				"satisfaction_permille", "variety_multiplier_permille", "tax_rate_per_min", "needs")
+				"satisfaction_permille", "tax_rate_per_min", "needs")
 			for _, n := range b["needs"].([]any) {
 				requireKeys(t, "need", n.(map[string]any), "id", "kind", "fulfilment_permille", "reason")
 			}
@@ -490,10 +509,10 @@ func TestDisplayPopulationFields(t *testing.T) {
 	}
 }
 
-// TestPropertyVarietyMonotonic (R16, MECHANICS §13): making one more good of
-// a category supplied (adding stock) never lowers any house's fulfilment,
-// satisfaction, tax or growth rate.
-func TestPropertyVarietyMonotonic(t *testing.T) {
+// TestPropertyCoverageMonotonic (R16, MECHANICS §13, D-056): making one
+// more good of a category supplied (adding stock) never lowers any house's
+// coverage, satisfaction, tax or growth rate.
+func TestPropertyCoverageMonotonic(t *testing.T) {
 	c := varietyCatalogue(t)
 	for seed := range uint64(propertyCases) {
 		p := newPropCase(t, c, 40_000+seed)
@@ -515,7 +534,7 @@ func TestPropertyVarietyMonotonic(t *testing.T) {
 					continue
 				}
 				if *a.SatisfactionPermille < *b.SatisfactionPermille || *a.TaxRatePerMin < *b.TaxRatePerMin ||
-					*a.GrowthRatePerMin < *b.GrowthRatePerMin || *a.VarietyMultiplierPermille < *b.VarietyMultiplierPermille {
+					*a.GrowthRatePerMin < *b.GrowthRatePerMin {
 					t.Fatalf("seed %d: adding %s lowered house %d: %+v -> %+v", seed, good, b.ID, b, a)
 				}
 				for j, n := range b.Needs {

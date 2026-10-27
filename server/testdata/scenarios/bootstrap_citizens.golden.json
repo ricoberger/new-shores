@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_citizens",
-  "content_version": "old_coast-0.10.0",
+  "content_version": "old_coast-0.11.0",
   "boundary_count": 326,
   "totals": {
     "isle-01": {
@@ -5920,8 +5920,8 @@
         "low_efficiency": 1,
         "ok": 12
       },
-      "gold": 48434,
-      "balance_rate_per_min": 27760,
+      "gold": 48834,
+      "balance_rate_per_min": 28160,
       "population": {
         "citizens": 5000,
         "settlers": 312000
@@ -6028,8 +6028,8 @@
         "low_efficiency": 1,
         "ok": 12
       },
-      "gold": 76194,
-      "balance_rate_per_min": 27760,
+      "gold": 76994,
+      "balance_rate_per_min": 28160,
       "population": {
         "citizens": 5000,
         "settlers": 312000
@@ -6136,8 +6136,8 @@
         "low_efficiency": 1,
         "ok": 12
       },
-      "gold": 103954,
-      "balance_rate_per_min": 27760,
+      "gold": 105154,
+      "balance_rate_per_min": 28160,
       "population": {
         "citizens": 5000,
         "settlers": 312000
@@ -6248,8 +6248,8 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 66194,
-      "balance_rate_per_min": 26360,
+      "gold": 67794,
+      "balance_rate_per_min": 26760,
       "population": {
         "citizens": 5000,
         "settlers": 318000
@@ -6360,8 +6360,8 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 92554,
-      "balance_rate_per_min": 26360,
+      "gold": 94554,
+      "balance_rate_per_min": 26760,
       "population": {
         "citizens": 5000,
         "settlers": 318000
@@ -6478,8 +6478,8 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 119154,
-      "balance_rate_per_min": 26660,
+      "gold": 121554,
+      "balance_rate_per_min": 27060,
       "population": {
         "citizens": 5000,
         "settlers": 321000
@@ -6595,8 +6595,8 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 145814,
-      "balance_rate_per_min": 26660,
+      "gold": 148614,
+      "balance_rate_per_min": 27060,
       "population": {
         "citizens": 5000,
         "settlers": 321000
@@ -6712,8 +6712,8 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 172714,
-      "balance_rate_per_min": 26960,
+      "gold": 175914,
+      "balance_rate_per_min": 27360,
       "population": {
         "citizens": 5000,
         "settlers": 324000
@@ -6829,8 +6829,8 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 199674,
-      "balance_rate_per_min": 26960,
+      "gold": 203274,
+      "balance_rate_per_min": 27360,
       "population": {
         "citizens": 5000,
         "settlers": 324000
@@ -6950,8 +6950,8 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 226874,
-      "balance_rate_per_min": 27260,
+      "gold": 230874,
+      "balance_rate_per_min": 27660,
       "population": {
         "citizens": 5000,
         "settlers": 327000
@@ -7074,8 +7074,8 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 81534,
-      "balance_rate_per_min": 24660,
+      "gold": 85934,
+      "balance_rate_per_min": 25060,
       "population": {
         "citizens": 5000,
         "settlers": 331000
@@ -7198,8 +7198,8 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 106434,
-      "balance_rate_per_min": 25160,
+      "gold": 111234,
+      "balance_rate_per_min": 25560,
       "population": {
         "citizens": 5000,
         "settlers": 336000
@@ -7322,8 +7322,8 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 131594,
-      "balance_rate_per_min": 25160,
+      "gold": 136794,
+      "balance_rate_per_min": 25560,
       "population": {
         "citizens": 5000,
         "settlers": 336000
@@ -7446,8 +7446,8 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 156994,
-      "balance_rate_per_min": 25660,
+      "gold": 162594,
+      "balance_rate_per_min": 26060,
       "population": {
         "citizens": 5000,
         "settlers": 341000
@@ -7570,8 +7570,8 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 182654,
-      "balance_rate_per_min": 25660,
+      "gold": 188654,
+      "balance_rate_per_min": 26060,
       "population": {
         "citizens": 5000,
         "settlers": 341000
@@ -7699,8 +7699,8 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 208554,
-      "balance_rate_per_min": 26160,
+      "gold": 214954,
+      "balance_rate_per_min": 26560,
       "population": {
         "citizens": 5000,
         "settlers": 346000
@@ -7828,8 +7828,8 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 234714,
-      "balance_rate_per_min": 26160,
+      "gold": 241514,
+      "balance_rate_per_min": 26560,
       "population": {
         "citizens": 5000,
         "settlers": 346000
@@ -7957,8 +7957,8 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 260874,
-      "balance_rate_per_min": 26360,
+      "gold": 268074,
+      "balance_rate_per_min": 26760,
       "population": {
         "citizens": 5000,
         "settlers": 348000
@@ -8090,8 +8090,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 41234,
-      "balance_rate_per_min": 24360,
+      "gold": 48834,
+      "balance_rate_per_min": 24760,
       "population": {
         "citizens": 5000,
         "settlers": 348000
@@ -8223,8 +8223,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 65594,
-      "balance_rate_per_min": 24560,
+      "gold": 73594,
+      "balance_rate_per_min": 24960,
       "population": {
         "citizens": 5000,
         "settlers": 350000
@@ -8351,8 +8351,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 90154,
-      "balance_rate_per_min": 24560,
+      "gold": 98554,
+      "balance_rate_per_min": 24960,
       "population": {
         "citizens": 5000,
         "settlers": 350000
@@ -8479,8 +8479,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 114714,
-      "balance_rate_per_min": 24760,
+      "gold": 123514,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -8607,8 +8607,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 139474,
-      "balance_rate_per_min": 24760,
+      "gold": 148674,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -8735,8 +8735,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 164234,
-      "balance_rate_per_min": 24760,
+      "gold": 173834,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -8869,8 +8869,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 188994,
-      "balance_rate_per_min": 24760,
+      "gold": 198994,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -9002,8 +9002,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 213754,
-      "balance_rate_per_min": 24760,
+      "gold": 224154,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -9135,8 +9135,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 238514,
-      "balance_rate_per_min": 24760,
+      "gold": 249314,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -9268,8 +9268,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 263274,
-      "balance_rate_per_min": 24760,
+      "gold": 274474,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -9401,8 +9401,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 288034,
-      "balance_rate_per_min": 24760,
+      "gold": 299634,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -9530,8 +9530,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 312794,
-      "balance_rate_per_min": 24760,
+      "gold": 324794,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -9658,8 +9658,8 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 337554,
-      "balance_rate_per_min": 24760,
+      "gold": 349954,
+      "balance_rate_per_min": 25160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -9790,8 +9790,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 65314,
-      "balance_rate_per_min": 22760,
+      "gold": 78114,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -9922,8 +9922,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 88074,
-      "balance_rate_per_min": 22760,
+      "gold": 101274,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -10054,8 +10054,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 110834,
-      "balance_rate_per_min": 22760,
+      "gold": 124434,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -10191,8 +10191,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 133594,
-      "balance_rate_per_min": 22760,
+      "gold": 147594,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -10328,8 +10328,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 156354,
-      "balance_rate_per_min": 22760,
+      "gold": 170754,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -10465,8 +10465,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 179114,
-      "balance_rate_per_min": 22760,
+      "gold": 193914,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -10602,8 +10602,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 201874,
-      "balance_rate_per_min": 22760,
+      "gold": 217074,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -10739,8 +10739,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 224634,
-      "balance_rate_per_min": 22760,
+      "gold": 240234,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -10871,8 +10871,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 247394,
-      "balance_rate_per_min": 22760,
+      "gold": 263394,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -11003,8 +11003,8 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 270154,
-      "balance_rate_per_min": 22760,
+      "gold": 286554,
+      "balance_rate_per_min": 23160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -11139,8 +11139,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 45914,
-      "balance_rate_per_min": 18760,
+      "gold": 62714,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -11275,8 +11275,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 64674,
-      "balance_rate_per_min": 18760,
+      "gold": 81874,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -11411,8 +11411,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 83434,
-      "balance_rate_per_min": 18760,
+      "gold": 101034,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -11552,8 +11552,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 102194,
-      "balance_rate_per_min": 18760,
+      "gold": 120194,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -11693,8 +11693,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 120954,
-      "balance_rate_per_min": 18760,
+      "gold": 139354,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -11834,8 +11834,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 139714,
-      "balance_rate_per_min": 18760,
+      "gold": 158514,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -11975,8 +11975,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 158474,
-      "balance_rate_per_min": 18760,
+      "gold": 177674,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -12115,8 +12115,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 177234,
-      "balance_rate_per_min": 18760,
+      "gold": 196834,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -12254,8 +12254,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 195994,
-      "balance_rate_per_min": 18760,
+      "gold": 215994,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -12393,8 +12393,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 214754,
-      "balance_rate_per_min": 18760,
+      "gold": 235154,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -12532,8 +12532,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 233514,
-      "balance_rate_per_min": 18760,
+      "gold": 254314,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -12675,8 +12675,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 252274,
-      "balance_rate_per_min": 18760,
+      "gold": 273474,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -12821,8 +12821,8 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 815074,
-      "balance_rate_per_min": 18760,
+      "gold": 848274,
+      "balance_rate_per_min": 19160,
       "population": {
         "citizens": 5000,
         "settlers": 352000
@@ -12939,9 +12939,9 @@
   "final": {
     "evaluated_at": "2026-01-01T02:51:00.000Z",
     "next_change_at": "2026-01-01T02:54:14.514Z",
-    "gold": 815074,
-    "balance_rate_per_min": 18760,
-    "tax_rate_per_min": 60760,
+    "gold": 848274,
+    "balance_rate_per_min": 19160,
+    "tax_rate_per_min": 61160,
     "upkeep_rate_per_min": 42000,
     "tiers": [
       {
@@ -14730,8 +14730,7 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 250,
-            "variety_multiplier_permille": 1000,
-            "tax_rate_per_min": 600,
+            "tax_rate_per_min": 1000,
             "needs": [
               {
                 "id": "citizens_food",
@@ -14739,7 +14738,6 @@
                 "category": "food",
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
-                "variety": 0,
                 "goods": {
                   "bread": 0
                 }
@@ -14750,7 +14748,6 @@
                 "category": "drink",
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
-                "variety": 0,
                 "goods": {
                   "cider": 0
                 }
@@ -14761,7 +14758,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
-                "variety": 0,
                 "goods": {
                   "linen_garments": 0
                 }
@@ -14810,7 +14806,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -14819,7 +14814,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -14830,7 +14824,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -14864,7 +14857,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -14873,7 +14865,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -14884,7 +14875,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -14918,7 +14908,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -14927,7 +14916,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -14938,7 +14926,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -14972,7 +14959,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -14981,7 +14967,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -14992,7 +14977,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15026,7 +15010,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15035,7 +15018,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15046,7 +15028,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15080,7 +15061,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15089,7 +15069,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15100,7 +15079,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15134,7 +15112,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15143,7 +15120,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15154,7 +15130,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15188,7 +15163,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15197,7 +15171,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15208,7 +15181,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15242,7 +15214,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15251,7 +15222,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15262,7 +15232,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15296,7 +15265,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15305,7 +15273,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15316,7 +15283,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15350,7 +15316,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15359,7 +15324,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15370,7 +15334,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15404,7 +15367,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15413,7 +15375,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15424,7 +15385,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15458,7 +15418,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15467,7 +15426,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15478,7 +15436,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15512,7 +15469,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15521,7 +15477,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15532,7 +15487,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15566,7 +15520,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15575,7 +15528,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15586,7 +15538,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15620,7 +15571,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15629,7 +15579,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15640,7 +15589,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15674,7 +15622,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15683,7 +15630,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15694,7 +15640,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15728,7 +15673,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15737,7 +15681,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15748,7 +15691,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15782,7 +15724,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15791,7 +15732,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15802,7 +15742,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15836,7 +15775,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15845,7 +15783,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15856,7 +15793,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15890,7 +15826,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15899,7 +15834,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15910,7 +15844,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -15973,7 +15906,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -15982,7 +15914,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -15993,7 +15924,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16027,7 +15957,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -16036,7 +15965,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16047,7 +15975,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16081,7 +16008,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -16090,7 +16016,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16101,7 +16026,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16135,7 +16059,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -16144,7 +16067,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16155,7 +16077,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16218,7 +16139,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16227,7 +16147,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16238,7 +16157,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16269,7 +16187,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16278,7 +16195,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16289,7 +16205,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16320,7 +16235,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -16329,7 +16243,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16340,7 +16253,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16408,7 +16320,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16417,7 +16328,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16428,7 +16338,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16459,7 +16368,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16468,7 +16376,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16479,7 +16386,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16510,7 +16416,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16519,7 +16424,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16530,7 +16434,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16561,7 +16464,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16570,7 +16472,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16581,7 +16482,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16612,7 +16512,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16621,7 +16520,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16632,7 +16530,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16663,7 +16560,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16672,7 +16568,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16683,7 +16578,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16714,7 +16608,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16723,7 +16616,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16734,7 +16626,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16765,7 +16656,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16774,7 +16664,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16785,7 +16674,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16816,7 +16704,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16825,7 +16712,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16836,7 +16722,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16867,7 +16752,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16876,7 +16760,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16887,7 +16770,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -16918,7 +16800,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -16927,7 +16808,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 3120
                 }
@@ -16938,7 +16818,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 1560
                 }
@@ -18175,7 +18054,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 800,
             "needs": [
               {
@@ -18184,7 +18062,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 400
                 }
@@ -18195,7 +18072,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 0
                 }
@@ -18226,7 +18102,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 800,
             "needs": [
               {
@@ -18235,7 +18110,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 400
                 }
@@ -18246,7 +18120,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 0
                 }
@@ -18277,7 +18150,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 800,
             "needs": [
               {
@@ -18286,7 +18158,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 400
                 }
@@ -18297,7 +18168,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 0
                 }
@@ -18328,7 +18198,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 800,
             "needs": [
               {
@@ -18337,7 +18206,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 400
                 }
@@ -18348,7 +18216,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 0
                 }
@@ -18379,7 +18246,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 500,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 800,
             "needs": [
               {
@@ -18388,7 +18254,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 400
                 }
@@ -18399,7 +18264,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 0
                 }
@@ -20144,7 +20008,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 18760
+      "balance_if_resumed_per_min": 19160
     },
     "quests": {
       "active": [],

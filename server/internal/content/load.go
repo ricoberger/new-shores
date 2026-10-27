@@ -230,7 +230,6 @@ type rawRegion struct {
 		GrowthPerMin           json.Number `json:"growth_per_min"`
 		DeclinePerMin          json.Number `json:"decline_per_min"`
 		GrowthThreshold        json.Number `json:"growth_satisfaction_threshold"`
-		OptionalTaxBonus       json.Number `json:"optional_tax_bonus"`
 		AutoResumeMinutes      json.Number `json:"auto_resume_upkeep_minutes"`
 		ShipHandlingBase       json.Number `json:"ship_handling_base_seconds"`
 		ShipHandlingPerUnit    json.Number `json:"ship_handling_seconds_per_unit"`
@@ -364,11 +363,11 @@ type rawNeed struct {
 	Goods    []struct {
 		Good              string      `json:"good"`
 		PerResidentPerMin json.Number `json:"per_resident_per_min"`
+		Share             json.Number `json:"share"`
 	} `json:"goods"`
-	VarietyBonus  json.Number `json:"variety_bonus"`
-	MaxExtraGoods int         `json:"max_extra_goods"`
-	Building      string      `json:"building"`
-	Radius        int         `json:"radius"`
+	Building string      `json:"building"`
+	Radius   int         `json:"radius"`
+	Share    json.Number `json:"share"`
 }
 
 type rawQuest struct {
@@ -513,8 +512,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			GrowthPerMin:      col.fixed(FileRegion, ent, "rules.growth_per_min", region.Rules.GrowthPerMin, 3),
 			DeclinePerMin:     col.fixed(FileRegion, ent, "rules.decline_per_min", region.Rules.DeclinePerMin, 3),
 			// Ratios have at most 3 decimal places and are kept in ppm.
-			GrowthThreshold:  col.fixed(FileRegion, ent, "rules.growth_satisfaction_threshold", region.Rules.GrowthThreshold, 3) * 1000,
-			OptionalTaxBonus: col.fixed(FileRegion, ent, "rules.optional_tax_bonus", region.Rules.OptionalTaxBonus, 3) * 1000,
+			GrowthThreshold: col.fixed(FileRegion, ent, "rules.growth_satisfaction_threshold", region.Rules.GrowthThreshold, 3) * 1000,
 			// Minutes with 3 decimal places are milli-minutes; x60 gives ms.
 			AutoResumeMs:          col.fixed(FileRegion, ent, "rules.auto_resume_upkeep_minutes", region.Rules.AutoResumeMinutes, 3) * 60,
 			TrialResumeMs:         col.fixed(FileRegion, ent, "rules.trial_resume_upkeep_minutes", region.Rules.TrialResumeMinutes, 3) * 60,
@@ -602,22 +600,34 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		seenNeeds[rn.ID] = true
 		col.displayName(FileNeeds, ent, rn.Name)
 		n := &Need{
-			ID:            rn.ID,
-			Name:          rn.Name,
-			Tier:          rn.Tier,
-			Kind:          rn.Kind,
-			Weight:        col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),
-			Category:      rn.Category,
-			VarietyBonus:  col.fixed(FileNeeds, ent, "variety_bonus", rn.VarietyBonus, 3) * 1000,
-			MaxExtraGoods: rn.MaxExtraGoods,
-			Building:      rn.Building,
-			Radius:        rn.Radius,
+			ID:       rn.ID,
+			Name:     rn.Name,
+			Tier:     rn.Tier,
+			Kind:     rn.Kind,
+			Weight:   col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),
+			Category: rn.Category,
+			Building: rn.Building,
+			Radius:   rn.Radius,
+		}
+		if rn.Building != "" {
+			// Shares have at most 3 decimal places and are kept in ppm.
+			n.Share = col.fixed(FileNeeds, ent, "share", rn.Share, 3) * 1000
+			if rn.Share == "" {
+				n.Share = ShareLone
+			}
 		}
 		for i, g := range rn.Goods {
 			n.Goods = append(n.Goods, NeedGood{
 				Good:              g.Good,
 				PerResidentPerMin: col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].per_resident_per_min", i), g.PerResidentPerMin, 3),
+				Share:             col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].share", i), g.Share, 3) * 1000,
 			})
+			if g.Share == "" {
+				n.Goods[i].Share = ShareAlternative
+				if len(rn.Goods) == 1 {
+					n.Goods[i].Share = ShareLone
+				}
+			}
 		}
 		cat.NeedsByTier[n.Tier] = append(cat.NeedsByTier[n.Tier], n)
 	}

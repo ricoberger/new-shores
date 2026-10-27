@@ -11,7 +11,7 @@
     "id": "citizens",
     "name": "Citizens",
     "residents": { "floor": 5, "max": 15 },
-    "tax_per_resident_per_min": 0.48,
+    "tax_per_resident_per_min": 0.8,
     "house": "house_citizens",
     "unlock": {
       "population": { "settlers": 120 },

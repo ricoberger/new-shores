@@ -283,8 +283,6 @@ type NeedDisplay struct {
 	// Reason is one of ok, short_supply, no_supply (goods needs) or ok,
 	// out_of_range, not_connected, paused (building needs).
 	Reason string `json:"reason"`
-	// Variety is the number of extra goods supplied (goods needs).
-	Variety *int `json:"variety,omitempty"`
 	// Goods maps each acceptable good to the island-wide consumption rate of
 	// the tier's houses (milli-units per minute).
 	Goods map[string]Qty `json:"goods,omitempty"`
@@ -456,15 +454,14 @@ type BuildingDisplay struct {
 	LoadPermille     *int64 `json:"load_permille,omitempty"`
 
 	// Houses (residents in milli-residents, rates per minute).
-	Residents                 *Qty          `json:"residents,omitempty"`
-	ResidentsFloor            *Qty          `json:"residents_floor,omitempty"`
-	ResidentsMax              *Qty          `json:"residents_max,omitempty"`
-	GrowthProgressPermille    *int64        `json:"growth_progress_permille,omitempty"`
-	GrowthRatePerMin          *Qty          `json:"growth_rate_per_min,omitempty"`
-	SatisfactionPermille      *int64        `json:"satisfaction_permille,omitempty"`
-	VarietyMultiplierPermille *int64        `json:"variety_multiplier_permille,omitempty"`
-	TaxRatePerMin             *Qty          `json:"tax_rate_per_min,omitempty"`
-	Needs                     []NeedDisplay `json:"needs,omitempty"`
+	Residents              *Qty          `json:"residents,omitempty"`
+	ResidentsFloor         *Qty          `json:"residents_floor,omitempty"`
+	ResidentsMax           *Qty          `json:"residents_max,omitempty"`
+	GrowthProgressPermille *int64        `json:"growth_progress_permille,omitempty"`
+	GrowthRatePerMin       *Qty          `json:"growth_rate_per_min,omitempty"`
+	SatisfactionPermille   *int64        `json:"satisfaction_permille,omitempty"`
+	TaxRatePerMin          *Qty          `json:"tax_rate_per_min,omitempty"`
+	Needs                  []NeedDisplay `json:"needs,omitempty"`
 	// ServedBy lists the IDs of the buildings that currently fulfil one of the
 	// house's building needs (ascending, omitted when none).
 	ServedBy []int64 `json:"served_by,omitempty"`
@@ -804,7 +801,6 @@ func displayHouse(bd *BuildingDisplay, h *houseCalc) {
 	// 1 milli-resident per minute = 1000 accumulator units per ms.
 	bd.GrowthRatePerMin = ptr(h.growth / 1000)
 	bd.SatisfactionPermille = ptr(h.satisfaction / 1000)
-	bd.VarietyMultiplierPermille = ptr(h.variety / 1000)
 	bd.TaxRatePerMin = ptr(h.tax)
 	bd.Needs = []NeedDisplay{}
 	for _, n := range h.needs {
@@ -813,7 +809,6 @@ func displayHouse(bd *BuildingDisplay, h *houseCalc) {
 			FulfilmentPermille: n.fulfilment / 1000, Reason: n.reason,
 		}
 		if gs := n.goods; gs != nil {
-			nd.Variety = ptr(gs.variety)
 			nd.Goods = map[string]Qty{}
 			for i, g := range n.need.Goods {
 				nd.Goods[g.Good] = perMin(gs.cons[i])

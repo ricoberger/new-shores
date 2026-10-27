@@ -2403,7 +2403,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -2412,7 +2411,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2423,7 +2421,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2457,7 +2454,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -2466,7 +2462,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2477,7 +2472,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2511,7 +2505,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -2520,7 +2513,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2531,7 +2523,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2565,7 +2556,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -2574,7 +2564,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2585,7 +2574,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2619,7 +2607,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -2628,7 +2615,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2639,7 +2625,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2673,7 +2658,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -2682,7 +2666,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2693,7 +2676,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2727,7 +2709,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -2736,7 +2717,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2747,7 +2727,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2781,7 +2760,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 1000,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1600,
             "needs": [
               {
@@ -2790,7 +2768,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2801,7 +2778,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2835,7 +2811,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -2844,7 +2819,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2855,7 +2829,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2886,7 +2859,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -2895,7 +2867,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2906,7 +2877,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2937,7 +2907,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -2946,7 +2915,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -2957,7 +2925,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -2988,7 +2955,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -2997,7 +2963,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -3008,7 +2973,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -3039,7 +3003,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -3048,7 +3011,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -3059,7 +3021,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -3090,7 +3051,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -3099,7 +3059,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -3110,7 +3069,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
@@ -3141,7 +3099,6 @@
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
             "satisfaction_permille": 700,
-            "variety_multiplier_permille": 1000,
             "tax_rate_per_min": 1120,
             "needs": [
               {
@@ -3150,7 +3107,6 @@
                 "category": "food",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "fish": 1200
                 }
@@ -3161,7 +3117,6 @@
                 "category": "clothing",
                 "fulfilment_permille": 1000,
                 "reason": "ok",
-                "variety": 0,
                 "goods": {
                   "wool_garments": 600
                 }
