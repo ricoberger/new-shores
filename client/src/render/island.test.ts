@@ -303,4 +303,54 @@ describe("incremental build (display/buildqueue.ts)", () => {
     expect(terrain()).toBe(2);
     scene.dispose();
   });
+
+  it("recolours the lite terrain of a founding in steps, the island drawn with its old terrain meanwhile", () => {
+    const w = world();
+    const is = w.islands.find((x) => x.id === "isle3")!;
+    const st = buildDenseArchipelagoFixture(0).islands.get(is.id)!;
+    const reference = new Scene(engine!);
+    const settled = new IslandDetail(reference, is.id, is.position);
+    settled.setStatics(st, true);
+    settled.update(is, w.defs);
+    const expected = geometry(reference);
+    const liteColors = (sc: Scene) => [...sc.meshes.find((m) => !m.isDisposed() && m.name.startsWith("terrain_lite_"))!.getVerticesData("color")!];
+    const settledLite = liteColors(reference);
+    reference.dispose();
+
+    const scene = new Scene(engine!);
+    const d = new IslandDetail(scene, is.id, is.position);
+    d.setStatics(st, false);
+    d.update(is, w.defs);
+    const live = (prefix: string) => scene.meshes.filter((m) => !m.isDisposed() && m.name.startsWith(prefix));
+    const full = live(`terrain_${is.id}_`);
+    const oldLite = live("terrain_lite_")[0]!;
+    d.setStatics(st, true);
+    // Queued, not built at once: still drawn, with the old lite mesh and the same full meshes.
+    expect(d.hasTiles()).toBe(true);
+    expect(d.building()?.settled).toBe(true);
+    expect(d.headPending()).toBe(true);
+    expect(oldLite.isDisposed()).toBe(false);
+    // The same flag again keeps the running recolour; flipping back cancels it.
+    d.setStatics(st, true);
+    expect(d.headPending()).toBe(true);
+    d.setStatics(st, false);
+    expect(d.building()).toBeNull();
+    d.setStatics(st, true);
+    let steps = 0;
+    while (d.building()) {
+      d.buildStep(d.pendingChunks()[0]?.key ?? null);
+      expect(d.hasTiles()).toBe(true);
+      steps++;
+    }
+    expect(steps).toBeGreaterThan(2);
+    expect(oldLite.isDisposed()).toBe(true);
+    expect(full.every((m) => !m.isDisposed())).toBe(true);
+    expect(live(`terrain_${is.id}_`)).toEqual(full);
+    expect(geometry(scene)).toEqual(expected);
+    expect(liteColors(scene)).toEqual(settledLite);
+    // Done: the same flag starts nothing.
+    d.setStatics(st, true);
+    expect(d.building()).toBeNull();
+    scene.dispose();
+  });
 });

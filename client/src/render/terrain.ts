@@ -455,7 +455,8 @@ function terrainMaterial(scene: Scene): StandardMaterial {
  * render/buildqueue.ts): the slab of each detail (`slab`), then the
  * ground of each chunk with its full-profile mesh (`chunk`, any order),
  * then the island's one lite mesh (`finish`). The result equals
- * buildTerrain's but for the order of vertices.
+ * buildTerrain's but for the order of vertices. `liteOnly` builds the lite
+ * set alone (slab("lite"), chunk, finish: no full meshes).
  */
 export class TerrainBuild {
   private readonly material: StandardMaterial;
@@ -473,6 +474,8 @@ export class TerrainBuild {
     private readonly parent: (chunk: string) => TransformNode,
     settled: boolean,
     private readonly liteParent: TransformNode | null,
+    /** Only the lite set (a founding's recolour: the full set does not depend on the settled flag). */
+    private readonly liteOnly = false,
   ) {
     this.material = terrainMaterial(scene);
     this.colors = terrainColors(seed);
@@ -496,6 +499,12 @@ export class TerrainBuild {
 
   /** The ground of a chunk (cells whose top-left tile centre is in it) in both details, and its full mesh. */
   chunk(c: ChunkRect): void {
+    if (this.liteOnly) {
+      for (let j = c.y - 1; j < c.y + c.height - 1; j++) {
+        for (let i = c.x - 1; i < c.x + c.width - 1; i++) groundCell(this.lite, this.island, i, j, this.liteColors);
+      }
+      return;
+    }
     const b = this.builder(c.key);
     for (let j = c.y - 1; j < c.y + c.height - 1; j++) {
       for (let i = c.x - 1; i < c.x + c.width - 1; i++) {

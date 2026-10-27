@@ -42,8 +42,14 @@ import { FootprintShadows } from "./shadows";
 import { buildTerrain, FoamLine, TerrainBuild } from "./terrain";
 import { type DecorMaterials, decorMaterials, Decoration, FarTrees, muteScatter, TREE_MODELS } from "./trees";
 
-/** The state of an incremental first build (IslandDetail.startBuild). */
+/**
+ * The state of an incremental build: the first build (IslandDetail.startBuild)
+ * or a founding's lite-terrain recolour (`lite`, setStatics on a built
+ * island: the island stays drawn with its old terrain until the new lite
+ * mesh replaces it).
+ */
 interface IslandBuild {
+  kind: "first" | "lite";
   statics: Island;
   settled: boolean;
   display: IslandDisplay;
@@ -205,9 +211,23 @@ export class IslandDetail {
     for (const m of this.root.getChildMeshes()) if (m.isWorldMatrixFrozen) m.freezeWorldMatrix();
   }
 
-  /** Rebuilds the terrain when the static data changed. */
+  /**
+   * Rebuilds the terrain when the static data changed. On a built island a
+   * new settled flag (a founding) only queues the lite terrain's recolour
+   * (startLiteBuild): the old terrain stays drawn until it is replaced.
+   */
   setStatics(statics: Island, settled = true): void {
     const key = `${statics.revision}|${statics.id}|${settled}`;
+    if (this.build?.kind !== "first" && this.hasTiles() && this.hasStatics(statics)) {
+      // Built, the same static data: a settled flag that changed (a founding) recolours the lite terrain in steps.
+      this.settled = settled;
+      this.applyMuted();
+      if (this.build && this.build.settled === settled) return;
+      this.build?.terrain?.dispose();
+      this.build = null;
+      if (key !== this.terrainKey) this.startLiteBuild(statics, settled);
+      return;
+    }
     // A running incremental build is replaced by this one (update() follows with every layer).
     if (this.build) {
       this.build.terrain?.dispose();
@@ -262,6 +282,7 @@ export class IslandDetail {
    */
   startBuild(statics: Island, settled: boolean, display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
     const b: IslandBuild = {
+      kind: "first",
       statics,
       settled,
       display,
@@ -283,6 +304,41 @@ export class IslandDetail {
     this.builtFrom = null;
     this.keys = null;
     this.terrainKey = "";
+  }
+
+  /**
+   * Recolours the lite terrain of a built island for a new settled flag in
+   * steps (the build queue, like a first build): the lite slab, the lite
+   * ground chunk by chunk, then the new lite mesh replaces the old one. The
+   * full terrain does not depend on the flag and the island stays drawn
+   * (hasTiles) meanwhile.
+   */
+  private startLiteBuild(statics: Island, settled: boolean): void {
+    const b: IslandBuild = {
+      kind: "lite",
+      statics,
+      settled,
+      display: this.builtFrom!.display,
+      defs: this.builtFrom!.defs,
+      head: null,
+      chunks: new Map(islandChunks(statics.width, statics.height).map((c) => [c.key, c])),
+      terrain: null,
+      roads: new Map(),
+      fields: new Map(),
+      scatter: null,
+      areas: [],
+      keys: null,
+      current: null,
+      currentKey: null,
+    };
+    b.head = this.liteHeadSteps(b);
+    this.build = b;
+  }
+
+  private *liteHeadSteps(b: IslandBuild): Generator<void, void, void> {
+    b.terrain = new TerrainBuild(this.scene, b.statics, this.loops, this.seed, (k) => this.chunkNode(k), b.settled, this.root, true);
+    b.terrain.slab("lite");
+    yield;
   }
 
   /** The running build's statics and settled flag (null: none running). */
@@ -379,6 +435,10 @@ export class IslandDetail {
   /** The steps of one chunk of a build: its terrain, its roads and fields, its trees and scatter, its far trees. */
   private *chunkSteps(b: IslandBuild, c: ChunkRect): Generator<void, void, void> {
     b.terrain?.chunk(c);
+    if (b.kind === "lite") {
+      b.chunks.delete(c.key);
+      return;
+    }
     this.roads.updateOne(c.key, b.roads.get(c.key));
     this.fields.updateOne(c.key, b.fields.get(c.key));
     this.fieldDecor.updateOne(c.key, b.fields.get(c.key));
@@ -400,6 +460,13 @@ export class IslandDetail {
   /** The last step: the merged meshes, and the island has its tiles. */
   private finishBuild(b: IslandBuild): void {
     this.build = null;
+    if (b.kind === "lite") {
+      for (const m of this.terrain.lite) m.dispose();
+      this.terrain = { lite: b.terrain?.finish().lite ?? [], full: this.terrain.full };
+      this.applyTerrainDetail();
+      this.terrainKey = `${b.statics.revision}|${b.statics.id}|${b.settled}`;
+      return;
+    }
     if (b.terrain) this.terrain = b.terrain.finish();
     this.applyTerrainDetail();
     this.farTrees.finishChunks();

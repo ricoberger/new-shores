@@ -797,7 +797,7 @@ export class GameRenderer {
     }
     d.setPosition(is.position);
     if (d.hasTiles() && d.hasStatics(statics)) {
-      // Built: payload changes rebuild only the touched chunks (a founding's settled flag: the terrain too).
+      // Built: payload changes rebuild only the touched chunks (a founding's settled flag: the lite terrain, in the build queue).
       d.setStatics(statics, is.settled);
       if (!d.builtWith(is, this.defs)) {
         d.update(is, this.defs);
@@ -873,7 +873,9 @@ export class GameRenderer {
     if (done.length === 0) return;
     for (const id of done) {
       // Models that loaded during the build: swap the island's placeholders now.
-      if (this.buildLoads.get(id) !== this.modelLoads) this.details.get(id)?.refreshModels();
+      // (A founding's lite recolour has no entry: no models placed.)
+      const loads = this.buildLoads.get(id);
+      if (loads !== undefined && loads !== this.modelLoads) this.details.get(id)?.refreshModels();
       this.buildLoads.delete(id);
     }
     this.viewKey = "";
