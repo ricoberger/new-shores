@@ -129,6 +129,48 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/mine-wagon.svg",
       "sha256": "2235aef50652bec020e82a3dc5cfcc94b8c1ca0a6eb06a77e18cbb58b2160091"
     },
+    "good:milk": {
+      "file": "udder.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/udder.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/udder.svg",
+      "sha256": "696389958b7e68ee41b92734272a186ae921a542f549033aae1f62289d4526b9"
+    },
+    "good:cheese": {
+      "file": "cheese-wedge.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/cheese-wedge.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/cheese-wedge.svg",
+      "sha256": "045320bc8d6c23b32841b7f6d5350e6ca1078f73fb93592f585e0679539cab0a"
+    },
+    "good:honey": {
+      "file": "honey-jar.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/honey-jar.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/honey-jar.svg",
+      "sha256": "94f7bda01c9f10a9994d2b7561f680953f198498bffdfaed5c75a868012a8cc7"
+    },
+    "good:mead": {
+      "file": "beer-horn.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/beer-horn.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/beer-horn.svg",
+      "sha256": "aec6322da976c21486d41fcf233642b0525bb138f0946ae4aa2ee25ab676af47"
+    },
+    "good:pigs": {
+      "file": "pig-face.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/pig-face.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/pig-face.svg",
+      "sha256": "d642ecc1effd5a26651b03796af43066e20c08affe984fefb3ceb7156f14963b"
+    },
+    "good:leather_jerkins": {
+      "file": "leather-vest.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/leather-vest.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/leather-vest.svg",
+      "sha256": "7a010652bc66be58420fd8ecb4ae4e9feee9657888aaa116f482fced6c894de6"
+    },
     "good:iron": {
       "file": "metal-bar.svg",
       "author": "Lorc",

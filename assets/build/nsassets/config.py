@@ -262,6 +262,12 @@ STATUS_ABOVE = 0.25
 #: Content IDs that need a model: tier 1–2 buildings except roads (fields included) and these ships.
 MODEL_TIERS = ("settlers", "citizens")
 MODEL_SHIPS = ("sloop",)
+#: Tier 1–2 content IDs whose models are still to come (the D-056 tier-2
+#: alternatives, made in their models session); the client draws the
+#: placeholder until then.
+MODEL_PENDING = frozenset(
+    {"dairy_farm", "cattle_pasture", "cheese_dairy", "apiary", "meadow", "meadery", "pig_farm", "pig_pen", "tannery", "school"}
+)
 
 #: Blender version the determinism guarantee holds for.
 BLENDER_MAJOR_MINOR = (5, 2)

@@ -9,6 +9,11 @@
         "consumed": 0,
         "lost": 0
       },
+      "cheese": {
+        "produced": 0,
+        "consumed": 0,
+        "lost": 0
+      },
       "cider": {
         "produced": 0,
         "consumed": 0,
@@ -19,7 +24,17 @@
         "consumed": 448304,
         "lost": 0
       },
+      "leather_jerkins": {
+        "produced": 0,
+        "consumed": 0,
+        "lost": 0
+      },
       "linen_garments": {
+        "produced": 0,
+        "consumed": 0,
+        "lost": 0
+      },
+      "mead": {
         "produced": 0,
         "consumed": 0,
         "lost": 0
@@ -11946,6 +11961,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 300000,
@@ -11976,6 +11997,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 300000,
@@ -11988,7 +12015,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
@@ -13682,7 +13733,8 @@
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
                 "goods": {
-                  "bread": 0
+                  "bread": 0,
+                  "cheese": 0
                 }
               },
               {
@@ -13692,7 +13744,8 @@
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
                 "goods": {
-                  "cider": 0
+                  "cider": 0,
+                  "mead": 0
                 }
               },
               {
@@ -13702,6 +13755,7 @@
                 "fulfilment_permille": 0,
                 "reason": "no_supply",
                 "goods": {
+                  "leather_jerkins": 0,
                   "linen_garments": 0
                 }
               },
@@ -16317,6 +16371,12 @@
             "in_transit": 667,
             "rate_per_min": 333
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 300000,
@@ -16347,6 +16407,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 7700,
             "capacity": 300000,
@@ -16359,7 +16425,31 @@
             "in_transit": 1533,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 300000,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
@@ -17506,6 +17596,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -17536,6 +17632,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -17548,7 +17650,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -17658,6 +17784,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -17688,6 +17820,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -17700,7 +17838,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -17798,6 +17960,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -17828,6 +17996,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -17840,7 +18014,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -17938,6 +18136,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -17968,6 +18172,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -17980,7 +18190,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -18078,6 +18312,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -18108,6 +18348,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -18120,7 +18366,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -18218,6 +18488,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -18248,6 +18524,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -18260,7 +18542,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -18358,6 +18664,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -18388,6 +18700,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -18400,7 +18718,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -18498,6 +18840,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -18528,6 +18876,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -18540,7 +18894,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -18669,6 +19047,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -18699,6 +19083,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -18711,7 +19101,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
@@ -18820,6 +19234,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "cheese": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "cider": {
             "stock": 0,
             "capacity": 0,
@@ -18850,6 +19270,12 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "honey": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "iron": {
             "stock": 0,
             "capacity": 0,
@@ -18862,7 +19288,31 @@
             "in_transit": 0,
             "rate_per_min": 0
           },
+          "leather_jerkins": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
           "linen_garments": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "mead": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "milk": {
+            "stock": 0,
+            "capacity": 0,
+            "in_transit": 0,
+            "rate_per_min": 0
+          },
+          "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,

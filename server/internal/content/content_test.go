@@ -57,15 +57,18 @@ func TestLoadOldCoast(t *testing.T) {
 		ids = append(ids, g.ID)
 	}
 	wantIDs("goods", ids, "wood", "planks", "fish", "wool", "wool_garments", "sails",
-		"wheat", "flour", "bread", "apples", "cider", "hemp", "linen_garments", "stone", "iron_ore", "charcoal", "coal", "iron", "tools")
+		"wheat", "flour", "bread", "apples", "cider", "hemp", "linen_garments", "stone", "iron_ore", "charcoal", "coal", "iron", "tools",
+		"milk", "cheese", "honey", "mead", "pigs", "leather_jerkins")
 	ids = nil
 	for _, b := range c.Buildings {
 		ids = append(ids, b.ID)
 	}
 	wantIDs("buildings", ids, "house_settlers", "road_dirt", "trading_post", "warehouse", "market_small", "chapel",
 		"lumberjack", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
-		"house_citizens", "road_paved", "tavern", "wheat_farm", "wheat_field", "mill", "bakery", "orchard", "orchard_plot",
-		"cidery", "hemp_farm", "hemp_field", "weaver_linen", "sailmaker", "quarry", "iron_mine", "charcoal_burner", "smelter", "toolmaker")
+		"house_citizens", "road_paved", "tavern", "school", "wheat_farm", "wheat_field", "mill", "bakery",
+		"dairy_farm", "cattle_pasture", "cheese_dairy", "orchard", "orchard_plot", "cidery", "apiary", "meadow", "meadery",
+		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
+		"charcoal_burner", "smelter", "toolmaker")
 	ids = nil
 	for _, tr := range c.Tiers {
 		ids = append(ids, tr.ID)
@@ -338,8 +341,8 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"unknown good in category", FileNeeds,
-			[]string{`{ "good": "fish",`, `{ "good": "cheese",`},
-			[]string{FileNeeds, `need "settlers_food"`, "goods[0].good", `unknown good "cheese"`},
+			[]string{`{ "good": "fish",`, `{ "good": "caviar",`},
+			[]string{FileNeeds, `need "settlers_food"`, "goods[0].good", `unknown good "caviar"`},
 		},
 		{
 			"required weights", FileNeeds,
@@ -386,8 +389,8 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"unknown good in start", FileStart,
-			[]string{`"sails": 10`, `"sails": 10, "cheese": 5`},
-			[]string{FileStart, "goods.cheese", `unknown good "cheese"`},
+			[]string{`"sails": 10`, `"sails": 10, "caviar": 5`},
+			[]string{FileStart, "goods.caviar", `unknown good "caviar"`},
 		},
 		{
 			"negative start gold", FileStart,
@@ -626,13 +629,17 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 		},
 		{
 			"from_tier on a building need", FileNeeds,
-			[]string{`{ "building": "tavern" }]`, `{ "building": "tavern" }], "from_tier": "settlers"`},
+			[]string{`{ "building": "school" }
+    ]`, `{ "building": "school" }
+    ], "from_tier": "settlers"`},
 			[]string{FileNeeds, `need "citizens_services"`, "schema violation"},
 		},
 		{
 			"services alternative without a service block", FileNeeds,
-			[]string{`{ "building": "tavern" }]`, `{ "building": "tavern" }, { "building": "fisher" }]`},
-			[]string{FileNeeds, `need "citizens_services"`, "buildings[3].building", "not a public building"},
+			[]string{`{ "building": "school" }
+    ]`, `{ "building": "school" }, { "building": "fisher" }
+    ]`},
+			[]string{FileNeeds, `need "citizens_services"`, "buildings[4].building", "not a public building"},
 		},
 		{
 			"services alternative of a higher tier", FileNeeds,

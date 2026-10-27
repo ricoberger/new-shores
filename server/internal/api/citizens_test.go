@@ -113,13 +113,17 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 		t.Errorf("floor house: satisfaction %d growth %d", *floor.SatisfactionPermille, *floor.GrowthRatePerMin)
 	}
 
-	// Supply every Citizens need: bread, cider and linen garments arrive
-	// (seeded into the stored world like a delivery), and a tavern is
-	// built over HTTP next to the house. After a clock advance the house
-	// is fully satisfied and grows.
+	// Supply every Citizens need with both alternatives (D-056: one fills
+	// 0.6): bread and cheese, cider and mead, linen garments and leather
+	// jerkins arrive (seeded into the stored world like a delivery), and a
+	// tavern is built over HTTP next to the house. After a clock advance
+	// the house is fully satisfied and grows.
 	ts.mutateWorld(func(world *sim.World) {
 		world.Gold += 1_000_000
-		for good, n := range map[string]sim.Qty{"bread": 50_000, "cider": 50_000, "linen_garments": 50_000, "stone": 20_000, "planks": 30_000} {
+		for good, n := range map[string]sim.Qty{
+			"bread": 50_000, "cheese": 50_000, "cider": 50_000, "mead": 50_000, "linen_garments": 50_000, "leather_jerkins": 50_000,
+			"stone": 20_000, "planks": 30_000,
+		} {
 			if err := sim.AddStock(world, c, islandID, good, n, nil); err != nil {
 				t.Fatal(err)
 			}

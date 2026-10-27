@@ -20,6 +20,7 @@ func TestLoadCitizensContent(t *testing.T) {
 		"wheat": "raw", "flour": "intermediate", "bread": "food", "apples": "raw", "cider": "drink", "hemp": "raw",
 		"linen_garments": "clothing", "stone": "construction", "iron_ore": "raw", "charcoal": "intermediate", "iron": "intermediate",
 		"tools": "construction", "coal": "intermediate",
+		"milk": "raw", "cheese": "food", "honey": "raw", "mead": "drink", "pigs": "raw", "leather_jerkins": "clothing",
 	}
 	for id, typ := range types {
 		if g := c.GoodByID[id]; g == nil || g.Type != typ {
@@ -36,20 +37,28 @@ func TestLoadCitizensContent(t *testing.T) {
 			t.Errorf("%s kind %s", n.ID, n.Kind)
 		}
 		if n.IsGoods() {
-			got = append(got, fmt.Sprintf("%s:%s:%s:%d:%d", n.ID, n.Category, n.Goods[0].Good, n.Goods[0].PerResidentPerMin, n.Weight))
-			if len(n.Goods) != 1 || n.Goods[0].Share != ShareLone {
-				t.Errorf("%s = %+v", n.ID, n)
+			var goods []string
+			for _, g := range n.Goods {
+				goods = append(goods, fmt.Sprintf("%s=%d", g.Good, g.PerResidentPerMin))
+				// One alternative fills the category; two share 0.6 each
+				// (D-056 amendment).
+				if want := map[bool]int64{true: ShareLone, false: ShareAlternative}[len(n.Goods) == 1]; g.Share != want {
+					t.Errorf("%s %s share %d, want %d", n.ID, g.Good, g.Share, want)
+				}
 			}
+			got = append(got, fmt.Sprintf("%s:%s:%s:%d", n.ID, n.Category, strings.Join(goods, "/"), n.Weight))
 		} else {
 			got = append(got, fmt.Sprintf("%s:%s:%s:%d", n.ID, n.Category, needBuildings(n), n.Weight))
 		}
 	}
 	want := []string{
-		"citizens_food:food:bread:8000:120000", "citizens_drink:drink:cider:6000:120000", "citizens_clothing:clothing:linen_garments:5000:120000",
+		// Two alternatives per category from tier 2 (D-056 §5).
+		"citizens_food:food:bread=8000/cheese=6000:120000", "citizens_drink:drink:cider=6000/mead=5000:120000",
+		"citizens_clothing:clothing:linen_garments=5000/leather_jerkins=4000:120000",
 		// Services (D-056): one cumulative category, 0.6 per building.
-		"citizens_services:services:market_small=600000/chapel=600000/tavern=600000:240000",
+		"citizens_services:services:market_small=600000/chapel=600000/tavern=600000/school=600000:240000",
 		// Lower-tier categories (D-056): 0.4 split 0.5 : 0.2.
-		"citizens_settlers_food:food:fish:4200:285714", "citizens_settlers_clothing:clothing:wool_garments:2100:114286",
+		"citizens_settlers_food:food:fish=4200:285714", "citizens_settlers_clothing:clothing:wool_garments=2100:114286",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("citizens needs = %v (weights %d), want %v", got, weights, want)
@@ -69,6 +78,11 @@ func TestLoadCitizensContent(t *testing.T) {
 	}
 	if tv := c.BuildingByID["tavern"]; tv.Service == nil || tv.Service.RadiusAt(1) != 14 || tv.Upgradable() || tv.PauseCategory != "public" || !tv.RequiresRoad {
 		t.Errorf("tavern = %+v", tv)
+	}
+	// The second tier-2 service (D-056 §3).
+	if sc := c.BuildingByID["school"]; sc.Service == nil || sc.Service.RadiusAt(1) != 16 || sc.Upgradable() || sc.PauseCategory != "public" || !sc.RequiresRoad ||
+		sc.Tier != "citizens" || sc.Cost.Gold != 1_000_000 || sc.UpkeepPerMin != 4000 || sc.Width != 6 || sc.Height != 8 {
+		t.Errorf("school = %+v", sc)
 	}
 
 	type chain struct {
@@ -94,6 +108,13 @@ func TestLoadCitizensContent(t *testing.T) {
 		"charcoal_burner": {"wood", "charcoal", 45_000, "settlers", 4000, "", "", "intermediate"},
 		"smelter":         {"iron_ore,charcoal|coal", "iron", 60_000, "settlers", 8000, "", "", "intermediate"},
 		"toolmaker":       {"iron", "tools", 60_000, "settlers", 8000, "", "", "intermediate"},
+		// D-056 tier-2 alternatives.
+		"dairy_farm":   {"", "milk", 60_000, "settlers", 6000, "", "", "intermediate"},
+		"cheese_dairy": {"milk", "cheese", 60_000, "citizens", 6000, "", "", "need_goods"},
+		"apiary":       {"", "honey", 90_000, "settlers", 4000, "", "", "intermediate"},
+		"meadery":      {"honey", "mead", 60_000, "citizens", 6000, "", "", "need_goods"},
+		"pig_farm":     {"", "pigs", 90_000, "settlers", 6000, "", "", "intermediate"},
+		"tannery":      {"pigs", "leather_jerkins", 60_000, "citizens", 8000, "", "", "need_goods"},
 	}
 	for id, w := range chains {
 		b := c.BuildingByID[id]
