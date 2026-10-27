@@ -51,6 +51,10 @@ const (
 // ErrUnknownFixture reports a fixture name that NewFixture does not know.
 var ErrUnknownFixture = errors.New("unknown dev fixture")
 
+// ErrFixtureSeed reports a fixture that cannot be built on the seed's
+// archipelago (citizens: no wheat at home).
+var ErrFixtureSeed = errors.New("not available on this seed")
+
 // Fixtures lists the fixture names.
 func Fixtures() []string {
 	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens}
@@ -280,7 +284,8 @@ func citizens(f *fixture) {
 		inv.Stock[m.Good] = max(inv.Stock[m.Good], m.Amount)
 	}
 	if fert := def.WorkArea; fert != nil && fert.Fertility != "" && !slices.Contains(f.w.Island(home).Fertilities, fert.Fertility) {
-		f.err = fmt.Errorf("home island %s has no %s fertility for the %s", home, fert.Fertility, citizensFarm)
+		f.err = fmt.Errorf("%w: the %s fixture needs a home island with the %s fertility for its %s, but seed %d's home island %s has %v; use a seed whose home island grows %s (the dev seed %d does)",
+			ErrFixtureSeed, FixtureCitizens, fert.Fertility, citizensFarm, f.w.Seed, home, f.w.Island(home).Fertilities, fert.Fertility, DevSeed)
 		return
 	}
 	n := f.requiredFields(citizensFarm)

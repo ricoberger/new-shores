@@ -2,6 +2,8 @@ package devworld
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -160,8 +162,15 @@ func TestFixturesOtherSeeds(t *testing.T) {
 		}
 		w, err := NewFixture(c, FixtureCitizens, seed, start)
 		switch {
-		case seed == 3 && err == nil:
-			t.Error("citizens, seed 3: built without the wheat fertility at home")
+		case seed == 3 && !errors.Is(err, ErrFixtureSeed):
+			t.Errorf("citizens, seed 3 (no wheat at home): %v, want ErrFixtureSeed", err)
+		case seed == 3:
+			// The error names the fixture, the fertility, the seed and a seed that works.
+			for _, want := range []string{"citizens", "wheat", "seed 3", "[apple woad]", fmt.Sprint(DevSeed)} {
+				if !strings.Contains(err.Error(), want) {
+					t.Errorf("citizens, seed 3: error %q does not mention %q", err, want)
+				}
+			}
 		case seed != 3 && err != nil:
 			t.Errorf("citizens, seed %d: %v", seed, err)
 		case seed != 3:

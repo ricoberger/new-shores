@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -22,6 +24,13 @@ func (p *countingPublisher) Publish(context.Context, store.WorldID) { p.n.Add(1)
 // like cmd/server: fixtures are built at the store's world time.
 func newResetServer(t *testing.T) (*testServer, *countingPublisher) {
 	t.Helper()
+	return newResetServerWith(t, nil)
+}
+
+// newResetServerWith is newResetServer where the citizens fixture fails
+// with unavailable (if set) like on a seed without wheat at home.
+func newResetServerWith(t *testing.T, unavailable error) (*testServer, *countingPublisher) {
+	t.Helper()
 	ts := newTestServer(t, 1)
 	c := catalogue(t)
 	pub := &countingPublisher{}
@@ -35,6 +44,9 @@ func newResetServer(t *testing.T) (*testServer, *countingPublisher) {
 		CORSOrigins:  []string{testOrigin},
 		Logger:       slog.New(slog.DiscardHandler),
 		DevReset: func(ctx context.Context, fixture string) (int64, error) {
+			if fixture == devworld.FixtureCitizens && unavailable != nil {
+				return 0, DevFixtureError{Err: unavailable}
+			}
 			w, err := devworld.NewFixture(c, fixture, devworld.DevSeed, now())
 			if err != nil {
 				return 0, err
@@ -143,5 +155,19 @@ func TestDevResetAbsentByDefault(t *testing.T) {
 	}
 	if rec := serveReq(srv, http.MethodPost, "/api/v1/dev/reset", "", map[string]string{"Origin": testOrigin}); rec.Code != http.StatusNotFound {
 		t.Errorf("default mode: %d, want 404", rec.Code)
+	}
+}
+
+// TestDevResetFixtureSeed: a fixture the seed cannot build answers 400 with
+// the reason (not an internal error), and the world is unchanged.
+func TestDevResetFixtureSeed(t *testing.T) {
+	ts, pub := newResetServerWith(t, fmt.Errorf("%w: no wheat at home on seed 3", devworld.ErrFixtureSeed))
+	before := ts.getWorld().Version
+	res := ts.do(http.MethodPost, "/api/v1/dev/reset", `{"fixture":"citizens"}`, false)
+	if res.status != http.StatusBadRequest || !strings.Contains(string(res.body), "no wheat at home on seed 3") {
+		t.Fatalf("reset to citizens on seed 3: %d %s", res.status, res.body)
+	}
+	if v := ts.getWorld().Version; v != before || pub.n.Load() != 0 {
+		t.Errorf("version %d (before %d), published %d: the world must be unchanged", v, before, pub.n.Load())
 	}
 }
