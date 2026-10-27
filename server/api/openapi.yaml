@@ -3507,13 +3507,16 @@ components:
           description: Player-facing name (1–32 printable characters), e.g. "Food" or "Market".
         tier:
           type: string
+        from_tier:
+          type: string
+          description: Set on a lower tier's goods category carried by this tier (cumulative tiers, D-056).
         kind:
           type: string
           enum: [required, optional]
         weight:
           type: integer
           format: int64
-          description: Weight (ppm).
+          description: Satisfaction weight (ppm, normalised; own-tier categories share 0.6 when the tier carries lower-tier categories).
         category:
           type: string
           description: Goods needs only.
@@ -3530,7 +3533,7 @@ components:
               per_resident_per_min:
                 type: integer
                 format: int64
-                description: Consumption per resident (milli-units per minute).
+                description: Consumption per resident (micro-units per minute).
               share:
                 type: integer
                 format: int64

@@ -246,7 +246,7 @@ type buildingJSON struct {
 
 type needGoodJSON struct {
 	Good              string `json:"good"`
-	PerResidentPerMin int64  `json:"per_resident_per_min"`
+	PerResidentPerMin int64  `json:"per_resident_per_min"` // micro-units
 	SharePpm          int64  `json:"share"`
 }
 
@@ -262,6 +262,7 @@ type needJSON struct {
 	ID        string         `json:"id"`
 	Name      string         `json:"name"`
 	Tier      string         `json:"tier"`
+	FromTier  string         `json:"from_tier,omitempty"`
 	Kind      string         `json:"kind"`
 	WeightPpm int64          `json:"weight"`
 	Category  string         `json:"category,omitempty"`
@@ -455,7 +456,7 @@ func newCostJSON(c content.Cost) costJSON {
 }
 
 func newNeedJSON(n *content.Need) needJSON {
-	nj := needJSON{ID: n.ID, Name: n.Name, Tier: n.Tier, Kind: n.Kind, WeightPpm: n.Weight}
+	nj := needJSON{ID: n.ID, Name: n.Name, Tier: n.Tier, FromTier: n.FromTier, Kind: n.Kind, WeightPpm: n.Weight}
 	if n.IsGoods() {
 		nj.Category = n.Category
 		for _, g := range n.Goods {

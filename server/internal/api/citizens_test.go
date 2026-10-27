@@ -79,7 +79,9 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 				for _, n := range b.Needs {
 					needs = append(needs, n.Category+n.Building)
 				}
-				if want := []string{"food", "drink", "clothing", "market_small", "chapel", "tavern"}; !slices.Equal(needs, want) {
+				// Own categories, then the Settlers' food and clothing
+				// (cumulative tiers, D-056).
+				if want := []string{"food", "drink", "clothing", "market_small", "chapel", "tavern", "food", "clothing"}; !slices.Equal(needs, want) {
 					t.Errorf("needs = %v, want %v", needs, want)
 				}
 				if wantPopulation && *b.TaxRatePerMin <= 0 {
@@ -102,11 +104,12 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	if res.status != http.StatusOK {
 		t.Fatalf("GET /world: %d %s", res.status, res.body)
 	}
-	// Right after the upgrade only market and chapel are in reach: the
-	// house stays at its floor (satisfaction below the growth threshold)
-	// but pays Citizens tax.
+	// Right after the upgrade only market and chapel are in reach, plus
+	// the Settlers' fish and wool garments of the town (D-056: 0.4 of
+	// satisfaction): 0.06 + 0.09 + 0.4 = 0.55, just above the growth
+	// threshold; the house pays Citizens tax.
 	floor := check(res.body, true)
-	if *floor.SatisfactionPermille != 250 || *floor.GrowthRatePerMin != 0 {
+	if *floor.SatisfactionPermille != 550 || *floor.GrowthRatePerMin != 550 {
 		t.Errorf("floor house: satisfaction %d growth %d", *floor.SatisfactionPermille, *floor.GrowthRatePerMin)
 	}
 

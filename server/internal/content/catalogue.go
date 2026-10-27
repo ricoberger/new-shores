@@ -496,8 +496,15 @@ type Need struct {
 	Tier string
 	// Kind is NeedRequired or NeedOptional.
 	Kind string
-	// Weight in parts per million.
+	// Weight in parts per million, normalised by the loader (D-056): the
+	// tier's own required needs share OwnTierWeight, the lower-tier
+	// categories (FromTier set) the rest, equally per lower tier and then
+	// by their weights in that tier. A tier without lower tiers keeps its
+	// weights (they sum to 1).
 	Weight int64
+	// FromTier is set on a lower tier's goods category carried by a
+	// higher tier (cumulative tiers, D-056); "" for the tier's own needs.
+	FromTier string
 
 	// Category and Goods are set for goods needs. Goods keep the file
 	// order.
@@ -523,7 +530,8 @@ type NeedCategory struct {
 // NeedGood is an acceptable good of a goods need.
 type NeedGood struct {
 	Good string
-	// PerResidentPerMin in milli-units per resident per minute.
+	// PerResidentPerMin in micro-units per resident per minute (the
+	// cumulative-tier rates of D-056 have four decimal places).
 	PerResidentPerMin Qty
 	// Share is the coverage (ppm) the good contributes to its category at
 	// full supply (D-056).
@@ -537,6 +545,10 @@ const (
 	ShareLone        int64 = WeightScale
 	ShareAlternative int64 = 600_000
 )
+
+// OwnTierWeight is the share of satisfaction (ppm) of a tier's own
+// required needs when the tier also carries lower-tier categories (D-056).
+const OwnTierWeight int64 = 600_000
 
 // IsGoods reports whether the need is a goods need.
 func (n *Need) IsGoods() bool { return len(n.Goods) > 0 }

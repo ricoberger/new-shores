@@ -3,6 +3,7 @@ package content
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -234,11 +235,11 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	food, clothing, market := needs[0], needs[1], needs[2]
 	if food.ID != "settlers_food" || food.Kind != NeedRequired || food.Category != "food" || food.Weight != 500_000 ||
-		len(food.Goods) != 1 || food.Goods[0] != (NeedGood{"fish", 10, ShareLone}) || !food.IsGoods() {
+		len(food.Goods) != 1 || food.Goods[0] != (NeedGood{"fish", 10_000, ShareLone}) || !food.IsGoods() {
 		t.Errorf("food = %+v", food)
 	}
 	if clothing.ID != "settlers_clothing" || clothing.Category != "clothing" || clothing.Weight != 200_000 ||
-		len(clothing.Goods) != 1 || clothing.Goods[0] != (NeedGood{"wool_garments", 5, ShareLone}) {
+		len(clothing.Goods) != 1 || clothing.Goods[0] != (NeedGood{"wool_garments", 5_000, ShareLone}) {
 		t.Errorf("clothing = %+v", clothing)
 	}
 	if market.ID != "settlers_market_small" || market.Kind != NeedRequired || market.Building != "market_small" || market.Radius != 12 || market.Share != ShareLone || market.Weight != 300_000 || market.IsGoods() {
@@ -585,6 +586,25 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{FileRegion, "schema violation"},
 		},
 		{
+			"from_tier not lower", FileNeeds,
+			[]string{`"from_tier": "settlers",
+    "kind": "required",
+    "weight": 0.5,`, `"from_tier": "citizens",
+    "kind": "required",
+    "weight": 0.5,`},
+			[]string{FileNeeds, `need "citizens_settlers_food"`, "from_tier", "must be a lower tier"},
+		},
+		{
+			"from_tier other goods", FileNeeds,
+			[]string{`{ "good": "fish", "per_resident_per_min": 0.0042 }`, `{ "good": "bread", "per_resident_per_min": 0.0042 }`},
+			[]string{FileNeeds, `need "citizens_settlers_food"`, "goods", "must list the goods"},
+		},
+		{
+			"from_tier on a building need", FileNeeds,
+			[]string{`"radius": 14`, `"radius": 14, "from_tier": "settlers"`},
+			[]string{FileNeeds, `need "citizens_tavern"`, "schema violation"},
+		},
+		{
 			"region decimals", FileRegion,
 			[]string{`"decline_per_min": 0.5`, `"decline_per_min": 0.5001`},
 			[]string{FileRegion, "rules.decline_per_min", "more than 3 decimal places"},
@@ -717,6 +737,7 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_market_small": "Market",
 		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing",
 		"citizens_market_small": "Market", "citizens_chapel": "Chapel", "citizens_tavern": "Tavern",
+		"citizens_settlers_food": "Food", "citizens_settlers_clothing": "Clothing",
 	}
 	if len(names) != len(wantNames) {
 		t.Errorf("need names = %v, want %v", names, wantNames)
@@ -919,5 +940,62 @@ func TestNeedShareDefaults(t *testing.T) {
 	dir = copyContent(t, FileNeeds, `"radius": 12`, `"radius": 12, "share": 1.5`)
 	if _, err := LoadWithSchemas(dir, schemaDir); err == nil || !strings.Contains(err.Error(), "schema violation") {
 		t.Errorf("share 1.5: err %v", err)
+	}
+}
+
+// TestCumulativeTierRates (D-056 §2): every tier carries the required goods
+// categories of every lower tier (same goods, from_tier set) at the rate
+// own rate x (lower max / higher max residents) x 0.5^(distance / 3),
+// rounded in content to four decimal places; the normalised weights give
+// the own tier 0.6 and the lower tiers 0.4 together.
+func TestCumulativeTierRates(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, hi := range c.Tiers {
+		needs := c.NeedsByTier[hi.ID]
+		if len(needs) == 0 {
+			continue
+		}
+		var own, lower int64
+		for _, n := range needs {
+			if n.Kind != NeedRequired {
+				continue
+			}
+			if n.FromTier == "" {
+				own += n.Weight
+			} else {
+				lower += n.Weight
+			}
+		}
+		if hi.Index > 0 && (own != OwnTierWeight || lower != WeightScale-OwnTierWeight) {
+			t.Errorf("%s: own weight %d, lower %d", hi.ID, own, lower)
+		}
+		for _, lo := range c.Tiers[:hi.Index] {
+			for _, src := range c.NeedsByTier[lo.ID] {
+				if !src.IsGoods() || src.FromTier != "" || src.Kind != NeedRequired {
+					continue
+				}
+				var carried *Need
+				for _, n := range needs {
+					if n.FromTier == lo.ID && n.Category == src.Category {
+						carried = n
+					}
+				}
+				if carried == nil {
+					t.Errorf("%s does not carry %s", hi.ID, src.ID)
+					continue
+				}
+				dist := float64(hi.Index - lo.Index)
+				for i, g := range src.Goods {
+					want := float64(g.PerResidentPerMin) * float64(lo.ResidentsMax) / float64(hi.ResidentsMax) * math.Pow(0.5, dist/3)
+					// Content rounds to four decimals (100 micro-units).
+					if got := float64(carried.Goods[i].PerResidentPerMin); math.Abs(got-want) > 50 {
+						t.Errorf("%s: %s rate %.0f micro, want %.0f (rule)", carried.ID, g.Good, got, want)
+					}
+				}
+			}
+		}
 	}
 }

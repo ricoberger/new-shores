@@ -1,7 +1,7 @@
 {
   "name": "bootstrap_citizens_quests",
   "content_version": "old_coast-0.11.0",
-  "boundary_count": 327,
+  "boundary_count": 337,
   "totals": {
     "isle-01": {
       "bread": {
@@ -16,7 +16,7 @@
       },
       "fish": {
         "produced": 580500,
-        "consumed": 443837,
+        "consumed": 448708,
         "lost": 0
       },
       "linen_garments": {
@@ -65,7 +65,7 @@
       },
       "wool_garments": {
         "produced": 192667,
-        "consumed": 151671,
+        "consumed": 154107,
         "lost": 0
       }
     },
@@ -4852,7 +4852,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 19099,
+            "stock": 19078,
             "in_transit": 3025
           },
           "planks": {
@@ -4872,7 +4872,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 2920,
+            "stock": 2910,
             "in_transit": 1556
           }
         },
@@ -4898,8 +4898,8 @@
         "low_efficiency": 1,
         "ok": 12
       },
-      "gold": 29202,
-      "balance_rate_per_min": 28160,
+      "gold": 30402,
+      "balance_rate_per_min": 29360,
       "population": {
         "citizens": 5000,
         "settlers": 312000
@@ -4956,11 +4956,11 @@
     {
       "step": 205,
       "at": "2026-01-01T01:12:00.000Z",
-      "boundaries": 0,
+      "boundaries": 1,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 20479,
+            "stock": 20436,
             "in_transit": 3025
           },
           "planks": {
@@ -4980,7 +4980,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 3360,
+            "stock": 3339,
             "in_transit": 1556
           }
         },
@@ -5006,10 +5006,10 @@
         "low_efficiency": 1,
         "ok": 12
       },
-      "gold": 57362,
-      "balance_rate_per_min": 28160,
+      "gold": 59842,
+      "balance_rate_per_min": 29800,
       "population": {
-        "citizens": 5000,
+        "citizens": 6000,
         "settlers": 312000
       },
       "unlocked_tiers": [
@@ -5068,7 +5068,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 21859,
+            "stock": 21791,
             "in_transit": 3025
           },
           "planks": {
@@ -5088,7 +5088,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 3800,
+            "stock": 3766,
             "in_transit": 1556
           }
         },
@@ -5114,10 +5114,10 @@
         "low_efficiency": 1,
         "ok": 12
       },
-      "gold": 85522,
-      "balance_rate_per_min": 28160,
+      "gold": 89642,
+      "balance_rate_per_min": 29800,
       "population": {
-        "citizens": 5000,
+        "citizens": 6000,
         "settlers": 312000
       },
       "unlocked_tiers": [
@@ -5172,11 +5172,11 @@
     {
       "step": 213,
       "at": "2026-01-01T01:14:00.000Z",
-      "boundaries": 1,
+      "boundaries": 2,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 23239,
+            "stock": 23144,
             "in_transit": 3025
           },
           "planks": {
@@ -5196,7 +5196,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 4240,
+            "stock": 4193,
             "in_transit": 1556
           }
         },
@@ -5226,10 +5226,10 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 48162,
-      "balance_rate_per_min": 26760,
+      "gold": 54082,
+      "balance_rate_per_min": 28840,
       "population": {
-        "citizens": 5000,
+        "citizens": 7000,
         "settlers": 318000
       },
       "unlocked_tiers": [
@@ -5288,7 +5288,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 24619,
+            "stock": 24494,
             "in_transit": 3025
           },
           "planks": {
@@ -5308,7 +5308,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 4680,
+            "stock": 4618,
             "in_transit": 1556
           }
         },
@@ -5338,10 +5338,10 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 74922,
-      "balance_rate_per_min": 26760,
+      "gold": 82922,
+      "balance_rate_per_min": 28840,
       "population": {
-        "citizens": 5000,
+        "citizens": 7000,
         "settlers": 318000
       },
       "unlocked_tiers": [
@@ -5402,11 +5402,11 @@
     {
       "step": 215,
       "at": "2026-01-01T01:16:00.000Z",
-      "boundaries": 3,
+      "boundaries": 4,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 25999,
+            "stock": 25843,
             "in_transit": 3025
           },
           "planks": {
@@ -5426,7 +5426,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 5120,
+            "stock": 5042,
             "in_transit": 1556
           }
         },
@@ -5456,10 +5456,10 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 101922,
-      "balance_rate_per_min": 27060,
+      "gold": 112242,
+      "balance_rate_per_min": 29580,
       "population": {
-        "citizens": 5000,
+        "citizens": 8000,
         "settlers": 321000
       },
       "unlocked_tiers": [
@@ -5523,7 +5523,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 27379,
+            "stock": 27189,
             "in_transit": 3025
           },
           "planks": {
@@ -5543,7 +5543,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 5560,
+            "stock": 5465,
             "in_transit": 1556
           }
         },
@@ -5573,10 +5573,10 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 128982,
-      "balance_rate_per_min": 27060,
+      "gold": 141822,
+      "balance_rate_per_min": 29580,
       "population": {
-        "citizens": 5000,
+        "citizens": 8000,
         "settlers": 321000
       },
       "unlocked_tiers": [
@@ -5636,11 +5636,11 @@
     {
       "step": 217,
       "at": "2026-01-01T01:18:00.000Z",
-      "boundaries": 3,
+      "boundaries": 4,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 28759,
+            "stock": 28532,
             "in_transit": 3025
           },
           "planks": {
@@ -5660,7 +5660,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 6000,
+            "stock": 5887,
             "in_transit": 1556
           }
         },
@@ -5690,10 +5690,10 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 156282,
-      "balance_rate_per_min": 27360,
+      "gold": 171962,
+      "balance_rate_per_min": 30320,
       "population": {
-        "citizens": 5000,
+        "citizens": 9000,
         "settlers": 324000
       },
       "unlocked_tiers": [
@@ -5757,7 +5757,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 30139,
+            "stock": 29875,
             "in_transit": 3025
           },
           "planks": {
@@ -5777,7 +5777,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 6440,
+            "stock": 6308,
             "in_transit": 1556
           }
         },
@@ -5807,10 +5807,10 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 183642,
-      "balance_rate_per_min": 27360,
+      "gold": 202282,
+      "balance_rate_per_min": 30320,
       "population": {
-        "citizens": 5000,
+        "citizens": 9000,
         "settlers": 324000
       },
       "unlocked_tiers": [
@@ -5870,11 +5870,11 @@
     {
       "step": 219,
       "at": "2026-01-01T01:20:00.000Z",
-      "boundaries": 4,
+      "boundaries": 5,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 31519,
+            "stock": 31213,
             "in_transit": 3025
           },
           "planks": {
@@ -5894,7 +5894,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 6880,
+            "stock": 6727,
             "in_transit": 1556
           }
         },
@@ -5928,10 +5928,10 @@
         "low_efficiency": 1,
         "ok": 13
       },
-      "gold": 211242,
-      "balance_rate_per_min": 27660,
+      "gold": 233242,
+      "balance_rate_per_min": 31060,
       "population": {
-        "citizens": 5000,
+        "citizens": 10000,
         "settlers": 327000
       },
       "unlocked_tiers": [
@@ -5986,11 +5986,11 @@
     {
       "step": 228,
       "at": "2026-01-01T01:21:00.000Z",
-      "boundaries": 2,
+      "boundaries": 3,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 32899,
+            "stock": 32551,
             "in_transit": 3025
           },
           "planks": {
@@ -6010,7 +6010,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 7320,
+            "stock": 7146,
             "in_transit": 1556
           }
         },
@@ -6052,10 +6052,10 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 66302,
-      "balance_rate_per_min": 25060,
+      "gold": 91742,
+      "balance_rate_per_min": 28900,
       "population": {
-        "citizens": 5000,
+        "citizens": 11000,
         "settlers": 331000
       },
       "unlocked_tiers": [
@@ -6114,7 +6114,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 34279,
+            "stock": 33884,
             "in_transit": 3025
           },
           "planks": {
@@ -6134,7 +6134,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 7760,
+            "stock": 7563,
             "in_transit": 1556
           }
         },
@@ -6176,10 +6176,10 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 91602,
-      "balance_rate_per_min": 25560,
+      "gold": 120882,
+      "balance_rate_per_min": 29400,
       "population": {
-        "citizens": 5000,
+        "citizens": 11000,
         "settlers": 336000
       },
       "unlocked_tiers": [
@@ -6234,11 +6234,11 @@
     {
       "step": 230,
       "at": "2026-01-01T01:23:00.000Z",
-      "boundaries": 0,
+      "boundaries": 1,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 35659,
+            "stock": 35217,
             "in_transit": 3025
           },
           "planks": {
@@ -6258,7 +6258,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 8200,
+            "stock": 7979,
             "in_transit": 1556
           }
         },
@@ -6300,10 +6300,10 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 117162,
-      "balance_rate_per_min": 25560,
+      "gold": 150402,
+      "balance_rate_per_min": 29840,
       "population": {
-        "citizens": 5000,
+        "citizens": 12000,
         "settlers": 336000
       },
       "unlocked_tiers": [
@@ -6362,7 +6362,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 37039,
+            "stock": 36547,
             "in_transit": 3025
           },
           "planks": {
@@ -6382,7 +6382,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 8640,
+            "stock": 8394,
             "in_transit": 1556
           }
         },
@@ -6424,10 +6424,10 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 142962,
-      "balance_rate_per_min": 26060,
+      "gold": 180482,
+      "balance_rate_per_min": 30340,
       "population": {
-        "citizens": 5000,
+        "citizens": 12000,
         "settlers": 341000
       },
       "unlocked_tiers": [
@@ -6482,11 +6482,11 @@
     {
       "step": 232,
       "at": "2026-01-01T01:25:00.000Z",
-      "boundaries": 1,
+      "boundaries": 2,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 38419,
+            "stock": 37874,
             "in_transit": 3025
           },
           "planks": {
@@ -6506,7 +6506,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 9080,
+            "stock": 8808,
             "in_transit": 1556
           }
         },
@@ -6548,10 +6548,10 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 169022,
-      "balance_rate_per_min": 26060,
+      "gold": 211022,
+      "balance_rate_per_min": 30780,
       "population": {
-        "citizens": 5000,
+        "citizens": 13000,
         "settlers": 341000
       },
       "unlocked_tiers": [
@@ -6615,7 +6615,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 39799,
+            "stock": 39200,
             "in_transit": 3025
           },
           "planks": {
@@ -6635,7 +6635,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 9520,
+            "stock": 9221,
             "in_transit": 1556
           }
         },
@@ -6677,10 +6677,10 @@
         "low_efficiency": 1,
         "ok": 15
       },
-      "gold": 195322,
-      "balance_rate_per_min": 26560,
+      "gold": 242042,
+      "balance_rate_per_min": 31280,
       "population": {
-        "citizens": 5000,
+        "citizens": 13000,
         "settlers": 346000
       },
       "unlocked_tiers": [
@@ -6740,11 +6740,11 @@
     {
       "step": 237,
       "at": "2026-01-01T01:27:00.000Z",
-      "boundaries": 1,
+      "boundaries": 2,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 41179,
+            "stock": 40523,
             "in_transit": 3025
           },
           "planks": {
@@ -6764,7 +6764,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 9960,
+            "stock": 9632,
             "in_transit": 1556
           }
         },
@@ -6807,10 +6807,10 @@
         "not_connected": 1,
         "ok": 14
       },
-      "gold": 33882,
-      "balance_rate_per_min": 24560,
+      "gold": 85602,
+      "balance_rate_per_min": 29720,
       "population": {
-        "citizens": 5000,
+        "citizens": 14000,
         "settlers": 346000
       },
       "unlocked_tiers": [
@@ -6874,7 +6874,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 42559,
+            "stock": 41844,
             "in_transit": 3025
           },
           "planks": {
@@ -6894,7 +6894,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 10400,
+            "stock": 10043,
             "in_transit": 1556
           }
         },
@@ -6937,10 +6937,10 @@
         "not_connected": 1,
         "ok": 14
       },
-      "gold": 58442,
-      "balance_rate_per_min": 24760,
+      "gold": 115322,
+      "balance_rate_per_min": 29920,
       "population": {
-        "citizens": 5000,
+        "citizens": 14000,
         "settlers": 348000
       },
       "unlocked_tiers": [
@@ -7000,11 +7000,11 @@
     {
       "step": 239,
       "at": "2026-01-01T01:29:00.000Z",
-      "boundaries": 0,
+      "boundaries": 1,
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 43939,
+            "stock": 43162,
             "in_transit": 3025
           },
           "planks": {
@@ -7024,7 +7024,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 10840,
+            "stock": 10452,
             "in_transit": 1556
           }
         },
@@ -7067,10 +7067,10 @@
         "not_connected": 1,
         "ok": 14
       },
-      "gold": 83202,
-      "balance_rate_per_min": 24760,
+      "gold": 145602,
+      "balance_rate_per_min": 30360,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 348000
       },
       "unlocked_tiers": [
@@ -7134,7 +7134,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 45319,
+            "stock": 44479,
             "in_transit": 3025
           },
           "planks": {
@@ -7154,7 +7154,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 11280,
+            "stock": 10860,
             "in_transit": 1556
           }
         },
@@ -7200,10 +7200,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 49962,
-      "balance_rate_per_min": 24960,
+      "gold": 117962,
+      "balance_rate_per_min": 30560,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 350000
       },
       "unlocked_tiers": [
@@ -7262,7 +7262,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 46699,
+            "stock": 45796,
             "in_transit": 3025
           },
           "planks": {
@@ -7282,7 +7282,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 11720,
+            "stock": 11269,
             "in_transit": 1556
           }
         },
@@ -7328,10 +7328,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 74922,
-      "balance_rate_per_min": 24960,
+      "gold": 148522,
+      "balance_rate_per_min": 30560,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 350000
       },
       "unlocked_tiers": [
@@ -7390,7 +7390,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 48079,
+            "stock": 47113,
             "in_transit": 3025
           },
           "planks": {
@@ -7410,7 +7410,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 12160,
+            "stock": 11677,
             "in_transit": 1556
           }
         },
@@ -7456,10 +7456,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 99882,
-      "balance_rate_per_min": 25160,
+      "gold": 179082,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -7518,7 +7518,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 49459,
+            "stock": 48430,
             "in_transit": 3025
           },
           "planks": {
@@ -7538,7 +7538,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 12600,
+            "stock": 12086,
             "in_transit": 1556
           }
         },
@@ -7584,10 +7584,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 125042,
-      "balance_rate_per_min": 25160,
+      "gold": 209842,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -7646,7 +7646,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 50839,
+            "stock": 49747,
             "in_transit": 3025
           },
           "planks": {
@@ -7666,7 +7666,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 13040,
+            "stock": 12494,
             "in_transit": 1556
           }
         },
@@ -7712,10 +7712,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 150202,
-      "balance_rate_per_min": 25160,
+      "gold": 240602,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -7780,7 +7780,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 52219,
+            "stock": 51064,
             "in_transit": 3025
           },
           "planks": {
@@ -7800,7 +7800,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 13480,
+            "stock": 12903,
             "in_transit": 1556
           }
         },
@@ -7846,10 +7846,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 175362,
-      "balance_rate_per_min": 25160,
+      "gold": 271362,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -7913,7 +7913,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 53599,
+            "stock": 52381,
             "in_transit": 3025
           },
           "planks": {
@@ -7933,7 +7933,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 13920,
+            "stock": 13311,
             "in_transit": 1556
           }
         },
@@ -7979,10 +7979,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 200522,
-      "balance_rate_per_min": 25160,
+      "gold": 302122,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -8046,7 +8046,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 54979,
+            "stock": 53698,
             "in_transit": 3025
           },
           "planks": {
@@ -8066,7 +8066,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 14360,
+            "stock": 13720,
             "in_transit": 1556
           }
         },
@@ -8112,10 +8112,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 225682,
-      "balance_rate_per_min": 25160,
+      "gold": 332882,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -8179,7 +8179,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 56359,
+            "stock": 55015,
             "in_transit": 3025
           },
           "planks": {
@@ -8199,7 +8199,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 14800,
+            "stock": 14128,
             "in_transit": 1556
           }
         },
@@ -8245,10 +8245,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 250842,
-      "balance_rate_per_min": 25160,
+      "gold": 363642,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -8312,7 +8312,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 57739,
+            "stock": 56332,
             "in_transit": 3025
           },
           "planks": {
@@ -8332,7 +8332,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 15240,
+            "stock": 14537,
             "in_transit": 1556
           }
         },
@@ -8378,10 +8378,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 276002,
-      "balance_rate_per_min": 25160,
+      "gold": 394402,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -8441,7 +8441,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 59119,
+            "stock": 57649,
             "in_transit": 3025
           },
           "planks": {
@@ -8461,7 +8461,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 15680,
+            "stock": 14945,
             "in_transit": 1556
           }
         },
@@ -8507,10 +8507,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 301162,
-      "balance_rate_per_min": 25160,
+      "gold": 425162,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -8569,7 +8569,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 60499,
+            "stock": 58966,
             "in_transit": 3025
           },
           "planks": {
@@ -8589,7 +8589,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 16120,
+            "stock": 15354,
             "in_transit": 1556
           }
         },
@@ -8635,10 +8635,10 @@
         "low_efficiency": 2,
         "ok": 15
       },
-      "gold": 326322,
-      "balance_rate_per_min": 25160,
+      "gold": 455922,
+      "balance_rate_per_min": 30760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -8697,7 +8697,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 61879,
+            "stock": 60283,
             "in_transit": 3025
           },
           "planks": {
@@ -8717,7 +8717,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 16560,
+            "stock": 15762,
             "in_transit": 1556
           }
         },
@@ -8767,10 +8767,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 54482,
-      "balance_rate_per_min": 23160,
+      "gold": 189682,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -8829,7 +8829,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 63259,
+            "stock": 61600,
             "in_transit": 3025
           },
           "planks": {
@@ -8849,7 +8849,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 17000,
+            "stock": 16171,
             "in_transit": 1556
           }
         },
@@ -8899,10 +8899,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 77642,
-      "balance_rate_per_min": 23160,
+      "gold": 218442,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -8961,7 +8961,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 64639,
+            "stock": 62917,
             "in_transit": 3025
           },
           "planks": {
@@ -8981,7 +8981,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 17440,
+            "stock": 16579,
             "in_transit": 1556
           }
         },
@@ -9031,10 +9031,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 100802,
-      "balance_rate_per_min": 23160,
+      "gold": 247202,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -9098,7 +9098,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 66019,
+            "stock": 64234,
             "in_transit": 3025
           },
           "planks": {
@@ -9118,7 +9118,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 17880,
+            "stock": 16988,
             "in_transit": 1556
           }
         },
@@ -9168,10 +9168,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 123962,
-      "balance_rate_per_min": 23160,
+      "gold": 275962,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -9235,7 +9235,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 67399,
+            "stock": 65551,
             "in_transit": 3025
           },
           "planks": {
@@ -9255,7 +9255,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 18320,
+            "stock": 17396,
             "in_transit": 1556
           }
         },
@@ -9305,10 +9305,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 147122,
-      "balance_rate_per_min": 23160,
+      "gold": 304722,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -9372,7 +9372,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 68779,
+            "stock": 66868,
             "in_transit": 3025
           },
           "planks": {
@@ -9392,7 +9392,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 18760,
+            "stock": 17805,
             "in_transit": 1556
           }
         },
@@ -9442,10 +9442,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 170282,
-      "balance_rate_per_min": 23160,
+      "gold": 333482,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -9509,7 +9509,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 70159,
+            "stock": 68185,
             "in_transit": 3025
           },
           "planks": {
@@ -9529,7 +9529,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 19200,
+            "stock": 18213,
             "in_transit": 1556
           }
         },
@@ -9579,10 +9579,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 193442,
-      "balance_rate_per_min": 23160,
+      "gold": 362242,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -9646,7 +9646,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 71539,
+            "stock": 69502,
             "in_transit": 3025
           },
           "planks": {
@@ -9666,7 +9666,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 19640,
+            "stock": 18622,
             "in_transit": 1556
           }
         },
@@ -9716,10 +9716,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 216602,
-      "balance_rate_per_min": 23160,
+      "gold": 391002,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -9778,7 +9778,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 72919,
+            "stock": 70819,
             "in_transit": 3025
           },
           "planks": {
@@ -9798,7 +9798,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 20080,
+            "stock": 19030,
             "in_transit": 1556
           }
         },
@@ -9848,10 +9848,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 239762,
-      "balance_rate_per_min": 23160,
+      "gold": 419762,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -9910,7 +9910,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 74299,
+            "stock": 72136,
             "in_transit": 3025
           },
           "planks": {
@@ -9930,7 +9930,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 20520,
+            "stock": 19439,
             "in_transit": 1556
           }
         },
@@ -9980,10 +9980,10 @@
         "low_efficiency": 2,
         "ok": 16
       },
-      "gold": 262922,
-      "balance_rate_per_min": 23160,
+      "gold": 448522,
+      "balance_rate_per_min": 28760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -10042,7 +10042,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 75679,
+            "stock": 73453,
             "in_transit": 3025
           },
           "planks": {
@@ -10062,7 +10062,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 20960,
+            "stock": 19847,
             "in_transit": 1556
           }
         },
@@ -10116,10 +10116,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 39082,
-      "balance_rate_per_min": 19160,
+      "gold": 230282,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -10178,7 +10178,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 77059,
+            "stock": 74770,
             "in_transit": 3025
           },
           "planks": {
@@ -10198,7 +10198,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 21400,
+            "stock": 20256,
             "in_transit": 1556
           }
         },
@@ -10252,10 +10252,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 58242,
-      "balance_rate_per_min": 19160,
+      "gold": 255042,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -10314,7 +10314,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 78439,
+            "stock": 76087,
             "in_transit": 3025
           },
           "planks": {
@@ -10334,7 +10334,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 21840,
+            "stock": 20664,
             "in_transit": 1556
           }
         },
@@ -10388,10 +10388,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 77402,
-      "balance_rate_per_min": 19160,
+      "gold": 279802,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -10455,7 +10455,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 79819,
+            "stock": 77404,
             "in_transit": 3025
           },
           "planks": {
@@ -10475,7 +10475,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 22280,
+            "stock": 21073,
             "in_transit": 1556
           }
         },
@@ -10529,10 +10529,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 96562,
-      "balance_rate_per_min": 19160,
+      "gold": 304562,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -10596,7 +10596,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 81199,
+            "stock": 78721,
             "in_transit": 3025
           },
           "planks": {
@@ -10616,7 +10616,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 22720,
+            "stock": 21481,
             "in_transit": 1556
           }
         },
@@ -10670,10 +10670,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 115722,
-      "balance_rate_per_min": 19160,
+      "gold": 329322,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -10737,7 +10737,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 82579,
+            "stock": 80038,
             "in_transit": 3025
           },
           "planks": {
@@ -10757,7 +10757,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 23160,
+            "stock": 21890,
             "in_transit": 1556
           }
         },
@@ -10811,10 +10811,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 134882,
-      "balance_rate_per_min": 19160,
+      "gold": 354082,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -10878,7 +10878,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 83959,
+            "stock": 81355,
             "in_transit": 3025
           },
           "planks": {
@@ -10898,7 +10898,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 23600,
+            "stock": 22298,
             "in_transit": 1556
           }
         },
@@ -10952,10 +10952,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 154042,
-      "balance_rate_per_min": 19160,
+      "gold": 378842,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -11018,7 +11018,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 85339,
+            "stock": 82672,
             "in_transit": 3025
           },
           "planks": {
@@ -11038,7 +11038,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 24040,
+            "stock": 22707,
             "in_transit": 1556
           }
         },
@@ -11092,10 +11092,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 173202,
-      "balance_rate_per_min": 19160,
+      "gold": 403602,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -11157,7 +11157,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 86719,
+            "stock": 83989,
             "in_transit": 3025
           },
           "planks": {
@@ -11177,7 +11177,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 24480,
+            "stock": 23115,
             "in_transit": 1556
           }
         },
@@ -11231,10 +11231,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 192362,
-      "balance_rate_per_min": 19160,
+      "gold": 428362,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -11296,7 +11296,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 88099,
+            "stock": 85306,
             "in_transit": 3025
           },
           "planks": {
@@ -11316,7 +11316,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 24920,
+            "stock": 23524,
             "in_transit": 1556
           }
         },
@@ -11370,10 +11370,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 211522,
-      "balance_rate_per_min": 19160,
+      "gold": 453122,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -11435,7 +11435,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 89479,
+            "stock": 86623,
             "in_transit": 3025
           },
           "planks": {
@@ -11455,7 +11455,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 25360,
+            "stock": 23932,
             "in_transit": 1556
           }
         },
@@ -11509,10 +11509,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 230682,
-      "balance_rate_per_min": 19160,
+      "gold": 477882,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -11574,7 +11574,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 90859,
+            "stock": 87940,
             "in_transit": 3025
           },
           "planks": {
@@ -11598,7 +11598,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 25800,
+            "stock": 24341,
             "in_transit": 1556
           }
         },
@@ -11652,10 +11652,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 249842,
-      "balance_rate_per_min": 19160,
+      "gold": 502642,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -11720,7 +11720,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 92239,
+            "stock": 89257,
             "in_transit": 3025
           },
           "planks": {
@@ -11744,7 +11744,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 26240,
+            "stock": 24749,
             "in_transit": 1556
           }
         },
@@ -11798,10 +11798,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 469002,
-      "balance_rate_per_min": 19160,
+      "gold": 727402,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -11865,7 +11865,7 @@
       "inventory": {
         "isle-01": {
           "fish": {
-            "stock": 133639,
+            "stock": 128767,
             "in_transit": 3025
           },
           "planks": {
@@ -11889,7 +11889,7 @@
             "in_transit": 1544
           },
           "wool_garments": {
-            "stock": 39440,
+            "stock": 37004,
             "in_transit": 1556
           }
         },
@@ -11943,10 +11943,10 @@
         "low_efficiency": 2,
         "ok": 17
       },
-      "gold": 1043802,
-      "balance_rate_per_min": 19160,
+      "gold": 1470202,
+      "balance_rate_per_min": 24760,
       "population": {
-        "citizens": 5000,
+        "citizens": 15000,
         "settlers": 352000
       },
       "unlocked_tiers": [
@@ -12074,9 +12074,9 @@
   "final": {
     "evaluated_at": "2026-01-01T02:34:00.000Z",
     "next_change_at": "2026-01-01T02:35:13.260Z",
-    "gold": 1043802,
-    "balance_rate_per_min": 19160,
-    "tax_rate_per_min": 61160,
+    "gold": 1470202,
+    "balance_rate_per_min": 24760,
+    "tax_rate_per_min": 66760,
     "upkeep_rate_per_min": 42000,
     "tiers": [
       {
@@ -12152,10 +12152,10 @@
             "rate_per_min": 0
           },
           "fish": {
-            "stock": 133639,
+            "stock": 128767,
             "capacity": 300000,
             "in_transit": 3025,
-            "rate_per_min": 1380
+            "rate_per_min": 1317
           },
           "flour": {
             "stock": 0,
@@ -12230,10 +12230,10 @@
             "rate_per_min": 0
           },
           "wool_garments": {
-            "stock": 39440,
+            "stock": 37004,
             "capacity": 300000,
             "in_transit": 1556,
-            "rate_per_min": 440
+            "rate_per_min": 408
           }
         },
         "roads": [
@@ -13859,13 +13859,13 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
-            "residents": 5000,
+            "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
             "growth_progress_permille": 0,
             "growth_rate_per_min": 0,
-            "satisfaction_permille": 250,
-            "tax_rate_per_min": 1000,
+            "satisfaction_permille": 550,
+            "tax_rate_per_min": 6600,
             "needs": [
               {
                 "id": "citizens_food",
@@ -13917,6 +13917,26 @@
                 "building": "tavern",
                 "fulfilment_permille": 0,
                 "reason": "out_of_range"
+              },
+              {
+                "id": "citizens_settlers_food",
+                "kind": "required",
+                "category": "food",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "fish": 63
+                }
+              },
+              {
+                "id": "citizens_settlers_clothing",
+                "kind": "required",
+                "category": "clothing",
+                "fulfilment_permille": 1000,
+                "reason": "ok",
+                "goods": {
+                  "wool_garments": 31
+                }
               }
             ],
             "served_by": [
@@ -16388,7 +16408,7 @@
         ],
         "workforce": {
           "citizens": {
-            "available": 5000,
+            "available": 15000,
             "required": 0,
             "factor_permille": 1000
           },
@@ -16399,7 +16419,7 @@
           }
         },
         "population": {
-          "citizens": 5000,
+          "citizens": 15000,
           "settlers": 312000
         },
         "capacity_source": {
@@ -19143,7 +19163,7 @@
       "unpaid_buildings": 0,
       "unpaid_ships": 0,
       "unpaid_upkeep_per_min": 0,
-      "balance_if_resumed_per_min": 19160
+      "balance_if_resumed_per_min": 24760
     },
     "quests": {
       "active": [],

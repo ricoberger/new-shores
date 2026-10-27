@@ -3,7 +3,7 @@ import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../a
 import { percent, perMin, seconds, units } from "../display/format";
 import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
 import { fieldBuildingOf, footprintText } from "../display/fields";
-import { needCategory, needLabel } from "../display/needs";
+import { needCategory, needLabel, orderNeeds } from "../display/needs";
 import { STATUS_STYLES, statusKey, statusText } from "../display/status";
 import { goodIcon, needIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import { CloseButton } from "./CloseButton";
@@ -588,7 +588,7 @@ export function InfoPanel({
               <div className={styles.sectionTitle}>Needs</div>
               <table className={styles.table}>
                 <tbody>
-                  {(b.needs ?? []).map((n) => (
+                  {orderNeeds(content, b.needs ?? []).map((n) => (
                     <tr key={n.id} data-testid={`house-need-${n.id}`} title={NEED_REASONS[n.reason] || undefined}>
                       <td>
                         <span className={styles.withIcon}>

@@ -45,8 +45,10 @@ func TestLoadCitizensContent(t *testing.T) {
 		}
 	}
 	want := []string{
-		"citizens_food:food:bread:8:200000", "citizens_drink:drink:cider:6:200000", "citizens_clothing:clothing:linen_garments:5:200000",
-		"citizens_market_small:market_small:12:100000", "citizens_chapel:chapel:16:150000", "citizens_tavern:tavern:14:150000",
+		"citizens_food:food:bread:8000:120000", "citizens_drink:drink:cider:6000:120000", "citizens_clothing:clothing:linen_garments:5000:120000",
+		"citizens_market_small:market_small:12:60000", "citizens_chapel:chapel:16:90000", "citizens_tavern:tavern:14:90000",
+		// Lower-tier categories (D-056): 0.4 split 0.5 : 0.2.
+		"citizens_settlers_food:food:fish:4200:285714", "citizens_settlers_clothing:clothing:wool_garments:2100:114286",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("citizens needs = %v (weights %d), want %v", got, weights, want)
@@ -442,10 +444,11 @@ func TestBalanceChecklist(t *testing.T) {
 		tier := c.TierByID[tc.tier]
 		counts := map[string]int64{}
 		for _, n := range c.NeedsByTier[tc.tier] {
-			if !n.IsGoods() {
+			// Lower-tier categories share the lower tier's chains.
+			if !n.IsGoods() || n.FromTier != "" {
 				continue
 			}
-			demand := tc.population * n.Goods[0].PerResidentPerMin
+			demand := tc.population * n.Goods[0].PerResidentPerMin / MilliPerUnit
 			capacity := chainCapacity(c, n.Goods[0].Good, demand, counts)
 			surplus := capacity*1000/demand - 1000
 			t.Logf("%s @%d: %s demand %d, capacity %d milli/min: surplus %d ‰", tc.tier, tc.population, n.Goods[0].Good, demand, capacity, surplus)

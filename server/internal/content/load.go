@@ -87,6 +87,7 @@ func LoadWithSchemas(dir, schemaDir string) (*Catalogue, error) {
 	if err := checkReferences(c); err != nil {
 		return nil, err
 	}
+	normaliseNeedWeights(c)
 	return c, nil
 }
 
@@ -360,6 +361,7 @@ type rawNeed struct {
 	Kind     string      `json:"kind"`
 	Weight   json.Number `json:"weight"`
 	Category string      `json:"category"`
+	FromTier string      `json:"from_tier"`
 	Goods    []struct {
 		Good              string      `json:"good"`
 		PerResidentPerMin json.Number `json:"per_resident_per_min"`
@@ -606,6 +608,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			Kind:     rn.Kind,
 			Weight:   col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),
 			Category: rn.Category,
+			FromTier: rn.FromTier,
 			Building: rn.Building,
 			Radius:   rn.Radius,
 		}
@@ -619,7 +622,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		for i, g := range rn.Goods {
 			n.Goods = append(n.Goods, NeedGood{
 				Good:              g.Good,
-				PerResidentPerMin: col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].per_resident_per_min", i), g.PerResidentPerMin, 3),
+				PerResidentPerMin: col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].per_resident_per_min", i), g.PerResidentPerMin, 6),
 				Share:             col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].share", i), g.Share, 3) * 1000,
 			})
 			if g.Share == "" {
@@ -847,4 +850,46 @@ func decodeCost(col *collector, file, ent string, raw map[string]json.Number, go
 		}
 	}
 	return cost
+}
+
+// normaliseNeedWeights turns the authored need weights into the
+// satisfaction weights (D-056 cumulative tiers): in a tier that carries
+// lower-tier categories its own required needs (weights summing to 1)
+// share OwnTierWeight, and every lower tier an equal part of the rest,
+// split by the authored weights of its categories. Rounding goes to the
+// last required need, so the required weights sum to exactly WeightScale.
+// Optional needs keep their weights (they have no effect).
+func normaliseNeedWeights(c *Catalogue) {
+	for _, needs := range c.NeedsByTier {
+		lowerSum := map[string]int64{}
+		var lowerTiers []string
+		for _, n := range needs {
+			if n.Kind != NeedRequired || n.FromTier == "" {
+				continue
+			}
+			if _, ok := lowerSum[n.FromTier]; !ok {
+				lowerTiers = append(lowerTiers, n.FromTier)
+			}
+			lowerSum[n.FromTier] += n.Weight
+		}
+		if len(lowerTiers) == 0 {
+			continue
+		}
+		perTier := (WeightScale - OwnTierWeight) / int64(len(lowerTiers))
+		var total int64
+		var last *Need
+		for _, n := range needs {
+			if n.Kind != NeedRequired {
+				continue
+			}
+			if n.FromTier == "" {
+				n.Weight = n.Weight * OwnTierWeight / WeightScale
+			} else {
+				n.Weight = n.Weight * perTier / lowerSum[n.FromTier]
+			}
+			total += n.Weight
+			last = n
+		}
+		last.Weight += WeightScale - total
+	}
 }

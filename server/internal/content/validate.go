@@ -321,9 +321,14 @@ func checkReferences(c *Catalogue) error {
 			if n.Building != "" && (n.Share <= 0 || n.Share > WeightScale) {
 				col.add(FileNeeds, ent, "share", "must be in (0, 1]")
 			}
+			if n.FromTier != "" {
+				checkFromTier(c, col, ent, n)
+			}
 			switch n.Kind {
 			case NeedRequired:
-				required += n.Weight
+				if n.FromTier == "" {
+					required += n.Weight
+				}
 			case NeedOptional:
 				if n.Weight <= 0 || n.Weight > WeightScale {
 					col.add(FileNeeds, ent, "weight", "optional weight must be in (0, 1]")
@@ -339,6 +344,37 @@ func checkReferences(c *Catalogue) error {
 		}
 	}
 	return col.err()
+}
+
+// checkFromTier validates a lower-tier category carried by a higher tier
+// (D-056): from_tier is a lower tier that has a required goods need of the
+// same category with the same goods, and the carried need is required.
+// The content test checks the reduced rates.
+func checkFromTier(c *Catalogue, col *collector, ent string, n *Need) {
+	from, own := c.TierByID[n.FromTier], c.TierByID[n.Tier]
+	if from == nil || own == nil || from.Index >= own.Index {
+		col.add(FileNeeds, ent, "from_tier", "must be a lower tier than %q", n.Tier)
+		return
+	}
+	if n.Kind != NeedRequired {
+		col.add(FileNeeds, ent, "kind", "a lower-tier category must be required")
+	}
+	for _, src := range c.NeedsByTier[n.FromTier] {
+		if src.Category != n.Category || src.FromTier != "" || src.Kind != NeedRequired {
+			continue
+		}
+		if len(src.Goods) != len(n.Goods) {
+			break
+		}
+		for i := range src.Goods {
+			if src.Goods[i].Good != n.Goods[i].Good {
+				col.add(FileNeeds, ent, "goods", "must list the goods of %q in its order", src.ID)
+				return
+			}
+		}
+		return
+	}
+	col.add(FileNeeds, ent, "category", "tier %q has no required goods need of category %q with the same goods", n.FromTier, n.Category)
 }
 
 // checkFields validates the fields of farms (D-049, D-051 part 4): every

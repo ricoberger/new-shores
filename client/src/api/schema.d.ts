@@ -2408,11 +2408,13 @@ export interface components {
             /** @description Player-facing name (1–32 printable characters), e.g. "Food" or "Market". */
             name: string;
             tier: string;
+            /** @description Set on a lower tier's goods category carried by this tier (cumulative tiers, D-056). */
+            from_tier?: string;
             /** @enum {string} */
             kind: "required" | "optional";
             /**
              * Format: int64
-             * @description Weight (ppm).
+             * @description Satisfaction weight (ppm, normalised; own-tier categories share 0.6 when the tier carries lower-tier categories).
              */
             weight: number;
             /** @description Goods needs only. */
@@ -2422,7 +2424,7 @@ export interface components {
                 good: string;
                 /**
                  * Format: int64
-                 * @description Consumption per resident (milli-units per minute).
+                 * @description Consumption per resident (micro-units per minute).
                  */
                 per_resident_per_min: number;
                 /**

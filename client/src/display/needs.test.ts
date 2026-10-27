@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Content } from "../api/client";
 import { needIcon } from "../theme/iconSet";
 import { ICON_PATHS } from "../theme/icons";
-import { type NeedContent, needCategory, needLabel, needName } from "./needs";
+import { type NeedContent, needCategory, needFromTier, needLabel, needName, orderNeeds } from "./needs";
 
 // The shipped content files carry the names (content/old_coast), so the
 // lookup is checked against the real catalogue shape and an empty one.
@@ -15,6 +15,7 @@ const content = {
   needs: read<{ id: string; name: string }[]>("needs.json"),
   need_categories: read<{ id: string; name: string; icon: string }[]>("need_categories.json"),
   buildings: [{ id: "market_small", name: "Small market" }],
+  tiers: read<{ id: string; name: string }[]>("tiers.json"),
 } as unknown as Content;
 
 describe("need display names", () => {
@@ -54,5 +55,14 @@ describe("need display names", () => {
     expect(needIcon({ category: "comfort" }, needCategory(content, "comfort").icon)).toBe(ICON_PATHS["need:_fallback"]);
     expect(needIcon({ category: "food" }, "need:not_in_the_set")).toBe(ICON_PATHS["need:food"]);
     expect(needIcon({ category: "spices" }, needCategory(content, "spices").icon)).toBe(ICON_PATHS["need:_fallback"]);
+  });
+
+  it("labels lower-tier categories with their tier and lists them after the own needs (D-056)", () => {
+    expect(needFromTier(content, "citizens_settlers_food")).toBe("Settlers");
+    expect(needFromTier(content, "citizens_food")).toBeUndefined();
+    expect(needLabel(content, { id: "citizens_settlers_food", category: "food" })).toBe("Food (Settlers)");
+    expect(needLabel(content, { id: "citizens_food", category: "food" })).toBe("Food");
+    const ids = orderNeeds(content, [{ id: "citizens_settlers_food" }, { id: "citizens_food" }, { id: "citizens_settlers_clothing" }, { id: "citizens_tavern" }]).map((n) => n.id);
+    expect(ids).toEqual(["citizens_food", "citizens_tavern", "citizens_settlers_food", "citizens_settlers_clothing"]);
   });
 });

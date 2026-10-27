@@ -165,9 +165,9 @@ type goodsNeedState struct {
 }
 
 // needRate converts residents (milli) x per-resident rate
-// (milli-units per minute) into sub-milli units per millisecond.
+// (micro-units per minute) into sub-milli units per millisecond.
 func needRate(residents, perResidentPerMin Qty) int64 {
-	return residents * perResidentPerMin * (SubPerMilli / msPerMinute) / content.MilliPerUnit
+	return residents * perResidentPerMin * (SubPerMilli / msPerMinute) / (content.MilliPerUnit * content.MilliPerUnit)
 }
 
 // prepareHouseDemand computes the supplied goods and nominal demand of every

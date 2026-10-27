@@ -1159,7 +1159,7 @@ func TestPropertyResumeEligibility(t *testing.T) {
 		// Fish delivery at 90-110 % of the houses' demand for 2 hours,
 		// booked as granted so that conservation holds.
 		now := w.LastEvaluatedAt.UnixMilli()
-		rate := needRate(n, 10) * int64(90+p.rng.IntN(21)) / 100
+		rate := needRate(n, 10_000) * int64(90+p.rng.IntN(21)) / 100
 		seg := TransitSegment{Good: "fish", FromMs: now, ToMs: now + 7_200_000, RateSub: rate}
 		w.Islands[0].Building(houses[0]).Transit = []TransitSegment{seg}
 		p.l.flow("main", "fish").Granted += seg.RateSub * (seg.ToMs - seg.FromMs)

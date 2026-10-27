@@ -574,7 +574,7 @@ func fishWeaverTown(t *testing.T, fishPerMin Qty) (*content.Catalogue, *World, i
 	b := is.Building(wv)
 	b.Paused, b.PausedReason, b.PauseSeq, b.PausedAtMs = true, PausedReasonUnpaid, 1, now-1
 	w.PauseSeq = 1
-	is.Building(hs[0]).Transit = []TransitSegment{{Good: "fish", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, fishPerMin)}}
+	is.Building(hs[0]).Transit = []TransitSegment{{Good: "fish", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, fishPerMin*1000)}}
 	return c, w, wv
 }
 
