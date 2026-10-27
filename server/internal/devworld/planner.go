@@ -373,13 +373,24 @@ func (f *fixture) moveOnce(island, typ string) {
 // nearest anchors first, and reports whether n fields were placed (the
 // world keeps them; a drag that places fewer leaves no trace).
 func (f *fixture) paintFields(island string, farmID int64, typ string, n int) bool {
-	if f.err != nil {
+	w, placed := f.fieldDrag(island, farmID, typ)
+	if w == nil || placed != n {
 		return false
+	}
+	f.w = w
+	return true
+}
+
+// fieldDrag applies paintFields' drag to a copy of the world and returns
+// the copy and the number of fields placed (nil when the drag fails).
+func (f *fixture) fieldDrag(island string, farmID int64, typ string) (*sim.World, int) {
+	if f.err != nil {
+		return nil, 0
 	}
 	is := f.w.Island(island)
 	farm := is.Building(farmID)
 	if farm == nil {
-		return false
+		return nil, 0
 	}
 	fw, fh := dims(f.c.BuildingByID[farm.Type], farm.Rotation)
 	r := 1
@@ -403,7 +414,7 @@ func (f *fixture) paintFields(island string, farmID int64, typ string, n int) bo
 	w := f.w.Clone()
 	res, err := sim.ApplyWithResult(w, f.c, sim.PlaceFields{IslandID: island, FarmID: farmID, Type: typ, Tiles: tiles}, nil)
 	if err != nil {
-		return false
+		return nil, 0
 	}
 	placed := 0
 	for _, t := range res.Tiles {
@@ -411,11 +422,7 @@ func (f *fixture) paintFields(island string, farmID int64, typ string, n int) bo
 			placed++
 		}
 	}
-	if placed != n {
-		return false
-	}
-	f.w = w
-	return true
+	return w, placed
 }
 
 // roadPath returns the free tiles of the shortest road from the island's

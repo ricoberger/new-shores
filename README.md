@@ -119,7 +119,7 @@ in as the fixed player "Developer". The API is at
   `http://$HOST:4173/?fixture=dense-2x400&stats=1`.
 - **`POST /api/v1/dev/reset` (tests only):** replaces the dev server's
   in-memory world with a fresh dev fixture (optional body
-  `{"fixture": "default" | "town" | "settled"}`, see
+  `{"fixture": "default" | "seafaring" | "town" | "settled" | "citizens"}`, see
   `server/internal/devworld/fixtures.go`): pending events, the last-seen
   time and the away summary start over, the version increases and
   `world_changed` is published. It exists for `make shots`, which resets

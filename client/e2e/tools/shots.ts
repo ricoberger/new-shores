@@ -36,6 +36,7 @@ const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<R
   settled: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 282, y: 316, half: 36 } } },
   town: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } },
   seafaring: { island: "isle-01" }, // a new world: the start sloop at sea, nothing settled
+  citizens: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } }, // town plus a bare wheat farm
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
   "archipelago-8x20": { island: null },
@@ -419,15 +420,15 @@ function sloopOnTheSlip(w: WorldResponse): void {
   yard.ship_order = { type: "sloop", ordered_at: new Date(now - 60_000).toISOString(), due_at: new Date(now + 60_000).toISOString() };
 }
 
-/** The home sheep farm and its pastures (island-local tiles) and the island's position. */
-async function sheepFarm(page: Page): Promise<{ island: string; ox: number; oy: number; farm: { id: number; x: number; y: number }; fields: { x: number; y: number }[] }> {
-  return page.evaluate(() => {
+/** The first farm of a type (default the home sheep farm) and its fields (island-local tiles) and the island's position. */
+async function sheepFarm(page: Page, type = "sheep_farm"): Promise<{ island: string; ox: number; oy: number; farm: { id: number; x: number; y: number }; fields: { x: number; y: number }[] }> {
+  return page.evaluate((ty) => {
     for (const is of window.__newShores!.getServer()!.display.islands) {
-      const f = is.buildings.find((x) => x.type === "sheep_farm");
+      const f = is.buildings.find((x) => x.type === ty);
       if (f) return { island: is.id, ox: is.position.x, oy: is.position.y, farm: { id: f.id, x: f.x, y: f.y }, fields: is.buildings.filter((x) => x.farm_id === f.id).map((x) => ({ x: x.x, y: x.y })) };
     }
-    throw new Error("no sheep farm");
-  });
+    throw new Error(`no ${ty}`);
+  }, type);
 }
 
 /** A left-button drag between two tiles of an island; `release: false` keeps the button down (mid-drag shots). */
@@ -478,6 +479,26 @@ async function paintPastures(page: Page, s: Awaited<ReturnType<typeof sheepFarm>
   const dy = Math.sign(last.y - first.y);
   const end = { x: last.x + 2 + 3 * dx + (dx === 0 ? 3 : 0), y: last.y + 2 + 3 * dy + (dy === 0 ? 3 : 0) };
   await dragTiles(page, s.island, first, end, release);
+}
+
+/**
+ * The citizens fixture's wheat farm (no fields yet) selected, the field
+ * tool in its paint mode; the camera holds a rectangle of 140 fields
+ * around the farm left of the card.
+ */
+async function wheatFarmPainting(page: Page): Promise<Awaited<ReturnType<typeof sheepFarm>>> {
+  const s = await sheepFarm(page, "wheat_farm");
+  await setCamera(page, { x: s.ox + s.farm.x + 1, y: s.oy + s.farm.y + 6, half: 12, rotation: 0 });
+  await settle(page);
+  const p = await tileAt(page, s.island, s.farm.x + 1, s.farm.y + 1);
+  await page.mouse.click(p.x, p.y);
+  await page.getByTestId("farm-add-field").click();
+  return s;
+}
+
+/** A 12 × 14 rectangle from beside the wheat farm away from the town (DevSeed): up to 140 fields (the button stays down unless `release`). */
+async function paintWheat(page: Page, s: Awaited<ReturnType<typeof sheepFarm>>, release: boolean): Promise<void> {
+  await dragTiles(page, s.island, { x: s.farm.x - 9, y: s.farm.y - 2 }, { x: s.farm.x + 2, y: s.farm.y + 11 }, release);
 }
 
 /** Centres the camera at near on a building's footprint (plus an offset in tiles) and opens its card. */
@@ -744,31 +765,41 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "ok", undefined, { timeout: 10_000 });
     },
   },
-  // Painting pastures mid-drag (D-054): the modules that fit green, the ones over the maximum red, the live count (desktop).
+  // Painting wheat fields mid-drag (D-054) on the citizens fixture's bare wheat farm: the fields that fit green, the rest red, the live count of 140 (desktop).
   "field-paint": {
-    fixture: "settled",
+    fixture: "citizens",
     device: "desktop",
     run: async (page) => {
-      const s = await clearedSheepFarm(page);
-      await paintPastures(page, s, false);
+      const s = await wheatFarmPainting(page);
+      await paintWheat(page, s, false);
       await page.getByTestId("paint-count").waitFor({ state: "visible" });
     },
   },
-  // The painted rectangle released: the server placed what fits, the rejected modules flash red (desktop).
+  // The wheat rectangle released: the server placed what fits, the rejected tiles flash red (desktop).
   "field-paint-result": {
-    fixture: "settled",
+    fixture: "citizens",
     device: "desktop",
     run: async (page) => {
-      const s = await clearedSheepFarm(page);
-      // The new pastures rise in on the renderer's clock: it runs until they stand, then the shot's time is pinned again (the flash holds).
+      const s = await wheatFarmPainting(page);
+      // The new fields rise in on the renderer's clock: it runs until they stand, then the shot's time is pinned again (the flash holds).
       await page.evaluate(() => window.__newShores!.freezeTime(null));
-      await paintPastures(page, s, true);
+      await paintWheat(page, s, true);
       await page.waitForFunction(() => window.__newShores!.paintCounts().flash > 0, undefined, { timeout: 10_000 });
       await page.mouse.move(5, 400);
       await page.clock.setFixedTime(new Date(T.getTime() + 2000));
       await sleep(300);
       await page.clock.setFixedTime(T);
       await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
+    },
+  },
+  // Painting pastures mid-drag (D-054): the 3×3 modules that fit green, the ones over the maximum red, the live count (desktop).
+  "field-paint-pasture": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const s = await clearedSheepFarm(page);
+      await paintPastures(page, s, false);
+      await page.getByTestId("paint-count").waitFor({ state: "visible" });
     },
   },
   // The red placement ghost: a quarry off its deposit (desktop).
