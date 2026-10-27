@@ -17,8 +17,9 @@ interface Props {
   onReroll?: () => void;
   /**
    * Phone layouts: a one-line sheet, collapsed by default, with an expand
-   * chevron for the full text. Desktop: the full text docked bottom-left
-   * beside the side dock. The buttons show in both.
+   * chevron for the full text. Desktop: the full text, centred at the
+   * bottom while choosing the home island (the start dialog), else docked
+   * bottom-left beside the side dock. The buttons show in all.
    */
   sheet: boolean;
   /** Start expanded (tests). */
@@ -29,9 +30,11 @@ interface Props {
 export function FoundingPanel({ name, seafaring, detail, pending, onCancelPending, onFound, onReroll, sheet, initiallyExpanded = false }: Props) {
   const [expanded, setExpanded] = useState(initiallyExpanded);
   const full = !sheet || expanded;
+  const placement = sheet ? "sheet" : seafaring ? "centred" : "docked";
   return (
     <div
-      className={`${styles.panel} ${styles.unsettledPanel} ${sheet ? styles.foundingSheet : styles.foundingDocked}`}
+      className={`${styles.panel} ${styles.unsettledPanel} ${placement === "sheet" ? styles.foundingSheet : placement === "docked" ? styles.foundingDocked : ""}`}
+      data-placement={placement}
       data-testid={seafaring ? "seafaring-panel" : "unsettled-panel"}
       data-expanded={sheet ? String(expanded) : undefined}
     >
@@ -83,7 +86,7 @@ export function FoundingPanel({ name, seafaring, detail, pending, onCancelPendin
         </div>
       )}
       {((onFound && !pending) || onReroll) && (
-        <div className={`${styles.buttons} ${sheet ? styles.centred : ""}`}>
+        <div className={`${styles.buttons} ${placement === "docked" ? "" : styles.centred}`}>
           {onFound && !pending && (
             <button type="button" className={styles.button} onClick={onFound} data-testid="found-settlement-here">
               Found settlement here

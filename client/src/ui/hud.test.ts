@@ -206,9 +206,12 @@ describe("HUD components", () => {
       );
     const buttons = ['data-testid="found-settlement-here"', 'data-testid="reroll-archipelago"'];
 
-    it("shows the full text and both buttons docked on the desktop, without a chevron", () => {
+    it("shows the full text and both buttons on the desktop, without a chevron: the start dialog centred, a later island's docked", () => {
       const html = panel({});
       expect(html).toContain('data-testid="seafaring-panel"');
+      expect(html).toContain('data-placement="centred"');
+      expect(panel({ seafaring: false })).toContain('data-placement="docked"');
+      expect(panel({ sheet: true })).toContain('data-placement="sheet"');
       expect(html).toContain('data-testid="seafaring-hint"');
       expect(html).toContain("Ship #1 sails there first.");
       for (const b of buttons) expect(html).toContain(b);
