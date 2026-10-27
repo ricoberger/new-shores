@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"maps"
+	"math/rand/v2"
 	"testing"
 	"time"
 
@@ -591,5 +592,52 @@ func TestHouseOnIsolatedRoadStub(t *testing.T) {
 	mustAdvance(t, w, c, 12*time.Hour)
 	if hs := house(w, h); hs.Residents != 2000 || hs.Growth != 0 {
 		t.Errorf("after decline = %+v, want floor", hs)
+	}
+}
+
+// TestCoverageMonotoneProperty (D-056): over random arrival rates of
+// starved goods, the coverage of a category stays within [0, 1], is 0
+// without supply, and never falls when a further alternative comes into
+// stock; with both alternatives in stock it is full (0.6 + 0.6, capped).
+func TestCoverageMonotoneProperty(t *testing.T) {
+	c := varietyCatalogue(t)
+	rng := rand.New(rand.NewPCG(56, 1)) // #nosec G404 -- deterministic test data
+	for i := range 60 {
+		w := newTown(t, c, 1_000)
+		houses := placeHouses(t, w, c, 5)
+		is := w.Islands[0]
+		now := w.LastEvaluatedAt.UnixMilli()
+		var segs []TransitSegment
+		for _, g := range []string{"fish", "bread"} {
+			if rng.IntN(2) == 0 {
+				segs = append(segs, TransitSegment{Good: g, FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, Qty(rng.IntN(120_000)))})
+			}
+		}
+		is.Building(houses[0]).Transit = segs
+		is.Inventory.Starved = map[string]bool{"fish": true, "bread": true}
+		food := func() int64 {
+			wr, _ := settleWorld(w, c, now)
+			return wr.islands[0].goodsNeeds["settlers"][0].fulfilment
+		}
+		prev := food()
+		if prev < 0 || prev > 1_000_000 || (len(segs) == 0 && prev != 0) {
+			t.Fatalf("case %d: coverage %d with arrivals %+v", i, prev, segs)
+		}
+		order := []string{"fish", "bread"}
+		if rng.IntN(2) == 0 {
+			order[0], order[1] = order[1], order[0]
+		}
+		for _, g := range order {
+			is.Inventory.setFine(g, 100_000*SubPerMilli)
+			delete(is.Inventory.Starved, g)
+			got := food()
+			if got < prev || got > 1_000_000 {
+				t.Fatalf("case %d: coverage %d -> %d after stocking %s (arrivals %+v)", i, prev, got, g, segs)
+			}
+			prev = got
+		}
+		if prev != 1_000_000 {
+			t.Fatalf("case %d: both alternatives in stock, coverage %d", i, prev)
+		}
 	}
 }
