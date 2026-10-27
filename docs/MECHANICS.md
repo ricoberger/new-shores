@@ -339,58 +339,73 @@ cycle:   seconds               at 100 % efficiency
 
 ### 6.2 Needs
 
-> **D-056 (planned, first content-depth session):** fulfilment becomes
-> weighted — every supplied alternative of a category contributes its
-> `share` (0.6), coverage = `min(1, Σ)`; the variety multiplier and
-> `optional_tax_bonus` go; a house also carries the categories of every
-> lower tier at reduced rates (own tier 0.6 of satisfaction, lower tiers
-> 0.4); services are one cumulative category; recipe inputs may list
-> alternative goods. This section describes the implemented rules until
-> that session lands and rewrites it.
-
-Each tier has a list of needs, each either:
+Each tier has a list of needs (D-056 weighted shares). Each need is a
+*category* with one or more *alternatives*; every alternative has a
+`share` (content; the loader default is 1.0 for a category's only
+alternative and 0.6 each when there are two or more; an authored share
+wins). The **coverage** of a category is `min(1, Σ share × supply
+ratio)` over its alternatives, so one alternative of a two-good category
+covers 0.6 and both cover it fully. A need is either:
 
 - **Goods need (category, D-031):**
-  `{category, weight, goods: [{good, per_resident_per_min}], variety_bonus,
-  max_extra_goods}`. A good is *supplied* when it is not in the starved
-  regime, or is starved but still has arrivals. The island's houses of that
-  tier share the category's demand **equally among the supplied goods**:
-  with `m` supplied goods each is consumed at
-  `residents × per_resident_per_min / m` (so a house supplied with two goods
-  does not eat double). If a supplied good runs short, the shortfall is
-  drawn from the other goods **in list order** from whatever slack they
-  have (unlimited for non-starved goods, up to the unused arrivals for
-  starved ones). Fulfilment is 1 if any supplied good is non-starved,
-  otherwise `min(1, Σ consumed / demand)`. **Variety** = `min(m − 1,
-  max_extra_goods)`. Adding a supplied good never lowers fulfilment, tax or
+  `{category, weight, goods: [{good, per_resident_per_min, share?}]}`. A
+  good is *supplied* when it is not in the starved regime, or is starved
+  but still has arrivals. The island's houses of that tier share the
+  category's demand **equally among the supplied goods**: with `m`
+  supplied goods each is consumed at `residents × per_resident_per_min /
+  m` (so a house supplied with two goods does not eat double). If a
+  supplied good runs short, the shortfall is drawn from the other goods
+  **in list order** from whatever slack they have (unlimited for
+  non-starved goods, up to the unused arrivals for starved ones). A
+  good's **supply ratio** is its own allocation over its nominal demand
+  (1 when not starved, its arrival share when starved; at most 1): what a
+  good draws for another's shortfall is consumption only and adds no
+  coverage. The reason is `ok` while no supplied good is short, even at
+  a coverage of 0.6. Adding a supplied good never lowers coverage, tax or
   growth (invariant, §13). Lower-tier goods are not accepted by higher
-  tiers' categories (D-033). Tier 1 categories have exactly one good
-  (D-032). Houses count as running consumers for warehouse throughput and
-  upstream blocking (§4, §5).
-- **Building need:** `{building, radius, weight}`. Fulfilled (1) if a
-  public building of that type is within `radius` of the house — Euclidean
-  distance between tile centres from the **nearest footprint tile of the
-  house** to the **nearest footprint tile** of the public building (D-042)
-  — and that building is road-connected to a warehouse and not paused; the
-  house itself must be connected (§3); else 0. The UI reason is, in
-  precedence, `not_connected`, `paused`, `out_of_range`.
-  The display lists every building that fulfils one of a house's building
-  needs as `served_by` (IDs; in range, connected, not paused), so the client
-  can highlight serving buildings and, inverted, the houses a building serves
-  without evaluating the distance rule.
+  tiers' own categories (D-033). Houses count as running consumers for
+  warehouse throughput and upstream blocking (§4, §5).
+- **Services (building need):** `{category: services, weight, buildings:
+  [{building, share?}]}`, one cumulative category per tier listing the
+  public buildings of that tier and every lower one. An alternative
+  serves a house when a building of that type is within its **service
+  radius** of the house — Euclidean distance between tile centres from
+  the **nearest footprint tile of the house** to the **nearest footprint
+  tile** of the public building (D-042) — and is road-connected to a
+  warehouse and not paused; the house itself must be connected (§3). The
+  radius is that of the building's current **level** (`service.levels`;
+  the small market 12/16/20, raised with `upgrade_building`, which needs
+  the level's tier unlocked and its cost). Coverage = `min(1, Σ share)`
+  over the serving alternatives. Without a serving building the UI
+  reason is, in precedence, `not_connected`, `paused`, `out_of_range`.
+  The display lists every serving building as `served_by` (IDs), so the
+  client can highlight serving buildings and, inverted, the houses a
+  building serves without evaluating the distance rule.
+- **Cumulative tiers:** a house also carries the goods categories of
+  every lower tier (`from_tier`), with that tier's goods at a reduced
+  rate: `rate × (own max / higher max) × 0.5^(dist / 3)`, where *own max*
+  is the lower tier's house maximum, *higher max* the carrying tier's
+  and *dist* the tier distance (Citizens eat fish at 0.01 × 8/15 ×
+  0.5^(1/3) ≈ 0.0042). The loader normalises the satisfaction weights:
+  the tier's own required needs share 0.6 (their authored weights sum to
+  1), the lower tiers share 0.4 equally, each split by the authored
+  weights of its categories.
 - Every need carries a flag `required` (counts toward satisfaction, so it
-  gates growth and base tax) or `optional` (bonus only; D-012 guardrail).
-  The flag is independent of the category name: the Patricians' `luxury`
-  category is a `required` category like any other; `optional` needs are
-  the mechanism for adding bonus needs to an existing tier after launch.
+  gates growth, tax and the upgrade) or `optional` (displayed only; the
+  tax bonus is gone). The flag is independent of the category name: the
+  Patricians' `luxury` category is a `required` category like any other.
 
 **Satisfaction** of a house = weighted mean of its required needs'
-fulfilment (1 if the tier has no required needs; required weights sum to 1).
-**Variety multiplier** of a house = `1 + Σ_categories variety × variety_bonus`
-(provisional bonus 0.10 per extra good, max 2 extras per category); it
-multiplies both tax and growth rate. Optional needs add up to
-`optional_tax_bonus` (content, provisional 0.25 = +25 %) tax, scaled by the
-weighted fulfilment of the optional needs.
+coverage (1 if the tier has no required needs; the normalised required
+weights sum to 1). There is no variety multiplier and no optional tax
+bonus: tax and growth scale with satisfaction alone (§6.1, §6.3 still
+name the old factors until their sections are revised).
+
+**Recipe inputs** may list alternative goods (`"good": ["charcoal",
+"coal"]`): a producer draws the first listed good that is not starved,
+else the first with arrivals, else the first; the choice changes only at
+regime boundaries, a slot is never split across goods, and a good is
+accepted by at most one input of a recipe.
 
 ### 6.3 Taxes
 
@@ -628,7 +643,7 @@ Tier `n+1` becomes available (house upgrades and new buildings unlock) when
 all of the tier's `unlock` conditions in content hold:
 
 ```json
-{ "population": { "settlers": 120 }, "buildings": ["market_small"], "goods_delivered": [] }
+{ "population": { "settlers": 120 }, "buildings": ["market_small", "chapel"] }
 ```
 
 Conditions are evaluated against the player's whole archipelago at the end
@@ -636,10 +651,18 @@ of every advancement and after every successful command; `population`
 keys must be earlier tiers. The first tier is always unlocked. Unlocks are
 permanent (no regression) and have no rate effect; the unlock moment is
 reported as a `tier_unlocked` boundary. Placing a building (or road) of a
-locked tier fails with `ErrTierLocked`. A non-empty `goods_delivered` list
-cannot be satisfied until trade routes exist (M4). D-056 sets the
-unlocks to 120 Settlers + market + chapel, 360 Citizens + tavern,
-1 200 Merchants + church, and drops `goods_delivered` from the plan.
+locked tier fails with `ErrTierLocked`; so does ordering a ship of a
+locked tier or upgrading a public building into a level of one. The
+unlocks (D-056) are 120 Settlers + small market + chapel (Citizens), 360
+Citizens + tavern (Merchants) and 1 200 Merchants (Patricians; the
+church joins once it is authored). The client toasts an unlock it sees
+during a session with the number of new buildings.
+
+**House upgrade gate (D-056):** a house upgrades when it is at `max`
+residents, every required need — the tier's own and the carried
+lower-tier ones — has a coverage of at least 0.6 (or its full coverage
+when a category cannot reach 0.6), the next tier is unlocked and its
+house cost is paid. One alternative per category is enough.
 
 ## 12a. Quests (D-022)
 
