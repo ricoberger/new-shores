@@ -281,7 +281,8 @@ UI shows the same numbers the server uses.
   turns the header into a name input with ✓ (rename, saved at once) and ⊗
   (cancel, Escape) icon buttons — the island card's rename pattern; the
   close button is hidden meanwhile. The ship type ("Sloop") is a small line
-  below the title. Everywhere else (Ships list, route editor, toasts,
+  below the title, then a "Details" heading (as on the Trading Post and
+  Warehouse) above the rest. Everywhere else (Ships list, route editor, toasts,
   dialogs, away summary) a ship is shown by its name only.
 - Status line shared with the list ("On route: name · arrives in …",
   "Shipment · …", "Idle · at …"), the from → to islands of a leg, upkeep, speed (×, from the ship type),

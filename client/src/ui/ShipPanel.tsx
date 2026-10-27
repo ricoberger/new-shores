@@ -112,6 +112,10 @@ export function ShipPanel({
         {type}
       </div>
       <div className={styles.panelBody}>
+        {/* The heading of the building panels' details (Trading Post, Warehouse) between the type line and the ship's state. */}
+        <div className={`${styles.section} ${styles.sectionTitle}`} data-testid="ship-panel-details">
+          Details
+        </div>
         <ShipStatusLine ship={s} nowMs={nowMs} islandName={islandName} className={styles.small} stateTestId="ship-panel-state" etaTestId="ship-panel-eta" routeName={route?.name} />
         {s.leg && (
           <div className={styles.small} data-testid="ship-panel-journey">

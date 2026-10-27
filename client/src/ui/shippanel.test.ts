@@ -33,6 +33,8 @@ describe("ship panel", () => {
     const html = renderToStaticMarkup(createElement(ShipPanel, props));
     expect(html).toMatch(/data-testid="ship-panel-name">Gull<\/h2>/);
     expect(html).toMatch(/data-testid="ship-panel-type">Sloop</);
+    // A "Details" heading between the type line and the state (the building panels' heading).
+    expect(text(html)).toMatch(/^GullSloopDetailsIdle/);
     expect(text(html)).not.toContain("#2");
     expect(html).toMatch(/<button[^>]*aria-label="Rename the ship"[^>]*data-testid="ship-rename"><svg/);
     expect(html).toContain('data-testid="ship-panel-close"');
