@@ -166,15 +166,6 @@
   min-width: 0;
 }
 
-/* The size class (D-053) after the name: small caps-free label in the parchment tone. */
-.hudIslandKind {
-  color: var(--ns-ui-parchment-light);
-  font-size: 12px;
-  opacity: 0.8;
-  white-space: nowrap;
-  flex: none;
-}
-
 .hudIslandButton .resourceBadges {
   flex-wrap: nowrap;
   flex: none;

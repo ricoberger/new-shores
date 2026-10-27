@@ -165,7 +165,10 @@ describe("HUD components", () => {
       const bar = renderToStaticMarkup(
         createElement(TopBar, { ...props, content: classes, model: { ...model, islands: [{ ...island, size_class: "medium" }, ...model.islands.slice(1)] } } as never),
       );
-      expect(bar).toMatch(/data-testid="hud-island-kind">Medium</);
+      // The top bar shows the name and resources only; the size class is the card's.
+      expect(bar).toContain('data-testid="hud-island-name"');
+      expect(bar).not.toContain("hud-island-kind");
+      expect(text(bar)).not.toContain("Medium");
     });
 
     it("renames with icon buttons, the cancel icon in the close button's place", () => {
