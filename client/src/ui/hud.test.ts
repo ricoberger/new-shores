@@ -343,6 +343,38 @@ describe("HUD components", () => {
       expect(html).not.toContain("route-delete");
     });
 
+    it("names the route in the header like an island: the pencil, then the input with Rename and Cancel icons", () => {
+      const html = editor(route.id);
+      expect(html).toMatch(new RegExp(`data-testid="route-editor-title">${route.name}</h2>`));
+      expect(html).toMatch(/<button[^>]*aria-label="Rename the route"[^>]*data-testid="route-rename"><svg/);
+      expect(html).not.toContain('data-testid="route-name"');
+      expect(html).toContain('data-testid="route-editor-close"');
+      const naming = renderToStaticMarkup(
+        createElement(RouteEditor, {
+          model,
+          content,
+          routeId: route.id,
+          draft: draftFromRoute(route),
+          error: null,
+          onChange: noop,
+          onAddStop: noop,
+          onRemoveStop: noop,
+          onMoveStop: noop,
+          onSave: noop,
+          onDelete: noop,
+          onClose: noop,
+          onUnassign: noop,
+          onAssign: noop,
+          initiallyRenaming: true,
+        }),
+      );
+      expect(naming).toMatch(new RegExp(`<input[^>]*data-testid="route-name" value="${route.name}"`));
+      expect(naming).toMatch(/<button type="submit"[^>]*aria-label="Rename"[^>]*data-testid="route-rename-save"><svg/);
+      expect(naming).toMatch(/<button type="button"[^>]*aria-label="Cancel renaming"[^>]*data-testid="route-rename-cancel"><svg/);
+      expect(naming).not.toContain('data-testid="route-editor-title"');
+      expect(naming).not.toContain('data-testid="route-editor-close"');
+    });
+
     it("offers Delete in the editor of a saved route only while no ship is assigned", () => {
       const withModel = (routes: DisplayState["routes"]) =>
         renderToStaticMarkup(

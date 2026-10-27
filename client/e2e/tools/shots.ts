@@ -362,6 +362,13 @@ async function pan(page: Page, name: string): Promise<void> {
 
 // ---------------------------------------------------------------- presets
 
+/** Names the route in the open route editor (its header's pencil, the input, Rename). */
+async function nameRoute(page: Page, name: string): Promise<void> {
+  await page.getByTestId("route-rename").click();
+  await page.getByTestId("route-name").fill(name);
+  await page.getByTestId("route-rename-save").click();
+}
+
 async function tileAt(page: Page, island: string, x: number, y: number): Promise<{ x: number; y: number }> {
   return page.evaluate(([id, tx, ty]) => window.__newShores!.tileToScreen(id as string, tx as number, ty as number), [island, x, y] as const);
 }
@@ -857,7 +864,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
     run: async (page) => {
       await page.getByTestId("dock-routes").click();
       await page.getByTestId("route-new").click();
-      await page.getByTestId("route-name").fill("Timber run");
+      await nameRoute(page, "Timber run");
       for (let i = 0; i < 2; i++) {
         const options = await page.getByTestId("route-stop-add").locator("option").evaluateAll((o) => o.map((x) => (x as HTMLOptionElement).value).filter(Boolean));
         await page.getByTestId("route-stop-add").selectOption(options[i]!);
@@ -865,7 +872,18 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.getByTestId("route-good-add-0").click();
       await page.getByTestId("route-good-add-1").click();
       await page.getByTestId("route-mode-1-load-0").selectOption("unload");
-      await page.getByTestId("route-name").focus();
+    },
+  },
+  // Renaming a saved route in its editor's header (desktop).
+  "route-rename": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      await page.getByTestId("dock-routes").click();
+      const id = await page.evaluate(() => window.__newShores!.getServer()!.display.routes[0]!.id);
+      await page.getByTestId(`route-${id}`).click();
+      await page.getByTestId("route-rename").click();
+      await page.getByTestId("route-name").fill("Timber run");
     },
   },
   // The route editor paused by selecting a ship: the "Route editor paused" bar above the ship panel (desktop).
@@ -875,7 +893,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
     run: async (page) => {
       await page.getByTestId("dock-routes").click();
       await page.getByTestId("route-new").click();
-      await page.getByTestId("route-name").fill("Timber run");
+      await nameRoute(page, "Timber run");
       await page.getByTestId("dock-ships").click();
       await page.getByTestId("ship-1").click();
       await page.getByTestId("route-editor-resume").waitFor({ state: "visible" });

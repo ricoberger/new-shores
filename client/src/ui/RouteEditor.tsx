@@ -1,3 +1,4 @@
+import { type FormEvent, useState } from "react";
 import type { Content, DisplayState, ShipDisplay } from "../api/client";
 import { units } from "../display/format";
 import { draftChanged, effectRows } from "../display/routes";
@@ -27,6 +28,8 @@ interface Props {
   onUnassign: (shipId: number) => void;
   /** Assigns an idle ship to the saved route. */
   onAssign: (shipId: number, routeId: number) => void;
+  /** Start with the name editor open (tests). */
+  initiallyRenaming?: boolean;
 }
 
 interface GoodRow {
@@ -46,10 +49,22 @@ interface GoodRow {
  * stock) over its load ("top up to") and unload rules from the extrapolated display model. The
  * estimated effects are the server's numbers of the saved route (shown
  * once the route is saved). Save and Delete are pinned below the
- * scrolling body.
+ * scrolling body. The name is edited in the header like an island's
+ * (pencil; Rename and Cancel icons) and saved with the route.
  */
 export function RouteEditor(p: Props) {
   const { model, content, routeId, draft, error } = p;
+  // The name editor in the header (the island card's pattern): the name goes into the draft, saved with Save.
+  const [naming, setNaming] = useState<{ routeId: number | null; name: string } | null>(() =>
+    p.initiallyRenaming ? { routeId, name: draft.name } : null,
+  );
+  const editingName = naming && naming.routeId === routeId ? naming : null;
+  const applyName = (e: FormEvent) => {
+    e.preventDefault();
+    if (!editingName) return;
+    p.onChange({ ...draft, name: editingName.name });
+    setNaming(null);
+  };
   const route =
     routeId === null ? undefined : model.routes.find((r) => r.id === routeId);
   const setStop = (i: number, patch: Partial<DraftStop>) =>
@@ -132,24 +147,62 @@ export function RouteEditor(p: Props) {
       className={`${styles.panel} ${styles.shipsPanel}`}
       data-testid="route-editor"
     >
-      <div className={styles.row}>
-        <h2 className={styles.title} data-testid="route-editor-title">
-          {draft.name.trim() ||
-            (routeId === null ? "New route" : `Route #${routeId}`)}
-        </h2>
-        <div className={styles.spacer} />
-        <CloseButton onClick={p.onClose} testId="route-editor-close" />
+      <div className={editingName ? `${styles.row} ${styles.nowrap}` : styles.row}>
+        {editingName ? (
+          <form className={styles.renameForm} onSubmit={applyName} data-testid="route-rename-form">
+            <input
+              className={`${styles.input} ${styles.renameInput}`}
+              maxLength={40}
+              placeholder="Route name"
+              value={editingName.name}
+              onChange={(e) => setNaming({ routeId, name: e.target.value })}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.stopPropagation();
+                  setNaming(null);
+                }
+              }}
+              aria-label="Route name"
+              autoFocus
+              data-testid="route-name"
+            />
+            <button type="submit" className={styles.closeButton} aria-label="Rename" title="Rename" data-testid="route-rename-save">
+              <Icon path={toolIcon("confirm")} />
+            </button>
+            <button
+              type="button"
+              className={styles.closeButton}
+              onClick={() => setNaming(null)}
+              aria-label="Cancel renaming"
+              title="Cancel renaming"
+              data-testid="route-rename-cancel"
+            >
+              <Icon path={toolIcon("cancel")} />
+            </button>
+          </form>
+        ) : (
+          <>
+            <h2 className={styles.title} data-testid="route-editor-title">
+              {draft.name.trim() ||
+                (routeId === null ? "New route" : `Route #${routeId}`)}
+            </h2>
+            <button
+              type="button"
+              className={styles.closeButton}
+              onClick={() => setNaming({ routeId, name: draft.name })}
+              aria-label="Rename the route"
+              title="Rename the route"
+              data-testid="route-rename"
+            >
+              <Icon path={toolIcon("rename")} />
+            </button>
+          </>
+        )}
+        {/* While renaming, the cancel icon takes the close button's place (the same icon: one per row). */}
+        {!editingName && <div className={styles.spacer} />}
+        {!editingName && <CloseButton onClick={p.onClose} testId="route-editor-close" />}
       </div>
       <div className={styles.panelBody}>
-        <input
-          className={`${styles.input} ${styles.grow}`}
-          maxLength={40}
-          placeholder="Route name"
-          value={draft.name}
-          onChange={(e) => p.onChange({ ...draft, name: e.target.value })}
-          aria-label="Route name"
-          data-testid="route-name"
-        />
         {draft.stops.map((s, i) => (
           <div key={i} className={styles.stop} data-testid={`route-stop-${i}`}>
             <div className={styles.row}>
