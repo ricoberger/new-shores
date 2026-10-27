@@ -35,6 +35,9 @@ describe("ship panel", () => {
     expect(html).toMatch(/data-testid="ship-panel-type">Sloop</);
     // A "Details" heading between the type line and the state (the building panels' heading).
     expect(text(html)).toMatch(/^GullSloopDetailsIdle/);
+    // A "Slots" heading over the cargo slots, no divider entry around them.
+    expect(html).toMatch(/data-testid="ship-panel-slots-title">Slots<\/div><div class="[^"]*" data-testid="ship-panel-cargo"/);
+    expect(html).not.toMatch(/class="[^"]*shipEntry[^"]*"[^>]*data-testid="ship-panel-cargo"/);
     expect(text(html)).not.toContain("#2");
     expect(html).toMatch(/<button[^>]*aria-label="Rename the ship"[^>]*data-testid="ship-rename"><svg/);
     expect(html).toContain('data-testid="ship-panel-close"');

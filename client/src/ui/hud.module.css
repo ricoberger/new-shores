@@ -810,6 +810,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  /* The gap above a following divider (the action row), as a divided entry had. */
+  padding-bottom: 6px;
 }
 
 .slot {

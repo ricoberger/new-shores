@@ -147,7 +147,11 @@ export function ShipPanel({
             Sails to found {pendingFounding}.
           </div>
         )}
-        <div className={`${styles.shipEntry} ${styles.slots}`} data-testid="ship-panel-cargo" aria-label={`Cargo, ${s.slots} slots`}>
+        {/* A "Slots" heading over the cargo slots (no divider: the details heading's style). */}
+        <div className={`${styles.section} ${styles.sectionTitle}`} data-testid="ship-panel-slots-title">
+          Slots
+        </div>
+        <div className={styles.slots} data-testid="ship-panel-cargo" aria-label={`Cargo, ${s.slots} slots`}>
           {Array.from({ length: s.slots }, (_, i) => {
             const c = s.cargo[i];
             return c ? (

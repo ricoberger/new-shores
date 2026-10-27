@@ -286,7 +286,8 @@ UI shows the same numbers the server uses.
   dialogs, away summary) a ship is shown by its name only.
 - Status line shared with the list ("On route: name · arrives in …",
   "Shipment · …", "Idle · at …"), the from → to islands of a leg, upkeep, speed (×, from the ship type),
-  slot capacity, one box per cargo slot (good icon, amount / slot size),
+  slot capacity, under a "Slots" heading (no divider) one box per cargo
+  slot (good icon, amount / slot size),
   pending founding and berth-wait notes.
 - Buttons: "Assign to route…" (an inline picker of the saved routes; routes
   are created only in the Routes list, the picker links there when there
