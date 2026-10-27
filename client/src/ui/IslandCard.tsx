@@ -17,6 +17,8 @@ interface Props {
   onClose: () => void;
   /** Renames the island (`rename_island`); resolves whether the server accepted the name. */
   onRename: (name: string) => Promise<boolean>;
+  /** Start with the rename editor open (tests). */
+  initiallyRenaming?: boolean;
 }
 
 /**
@@ -24,10 +26,13 @@ interface Props {
  * population per tier and its resources (fertilities, deposits, coast),
  * from display numbers and static data, with its size class (D-053). The
  * only action: a settled island's owner renames it (the pencil; the server
- * validates the name).
+ * validates the name; the editor's Rename and Cancel are icons).
  */
-export function IslandCard({ islandId, model, content, statics, onClose, onRename }: Props) {
-  const [draft, setDraft] = useState<{ island: string; name: string } | null>(null);
+export function IslandCard({ islandId, model, content, statics, onClose, onRename, initiallyRenaming = false }: Props) {
+  const [draft, setDraft] = useState<{ island: string; name: string } | null>(() => {
+    const is = initiallyRenaming ? model.islands.find((i) => i.id === islandId) : undefined;
+    return is ? { island: is.id, name: is.name } : null;
+  });
   const [busy, setBusy] = useState(false);
   const is = model.islands.find((i) => i.id === islandId);
   if (!is) return null;
@@ -64,11 +69,25 @@ export function IslandCard({ islandId, model, content, statics, onClose, onRenam
               disabled={busy}
               data-testid="island-rename-input"
             />
-            <button type="submit" className={styles.button} disabled={busy} data-testid="island-rename-save">
-              Rename
+            <button
+              type="submit"
+              className={styles.closeButton}
+              disabled={busy}
+              aria-label="Rename"
+              title="Rename"
+              data-testid="island-rename-save"
+            >
+              <Icon path={toolIcon("confirm")} />
             </button>
-            <button type="button" className={styles.link} onClick={() => setDraft(null)} data-testid="island-rename-cancel">
-              cancel
+            <button
+              type="button"
+              className={styles.closeButton}
+              onClick={() => setDraft(null)}
+              aria-label="Cancel renaming"
+              title="Cancel renaming"
+              data-testid="island-rename-cancel"
+            >
+              <Icon path={toolIcon("cancel")} />
             </button>
           </form>
         ) : (
@@ -90,8 +109,9 @@ export function IslandCard({ islandId, model, content, statics, onClose, onRenam
             )}
           </>
         )}
+        {/* While renaming, the cancel icon takes the close button's place (the same icon: one per row). */}
         {!editing && <div className={styles.spacer} />}
-        <CloseButton onClick={onClose} testId="island-card-close" />
+        {!editing && <CloseButton onClick={onClose} testId="island-card-close" />}
       </div>
       {kind && (
         <div className={styles.small} data-testid="island-card-kind">

@@ -869,6 +869,16 @@
   align-items: center;
 }
 
+/* Its icon buttons (Rename, Cancel) centred on the input, not top-aligned like a panel's close. */
+.renameForm .closeButton {
+  align-self: center;
+}
+
+/* Touch: the icon buttons' enlarged hit areas (11px around) do not overlap. */
+[data-touch="true"] .renameForm {
+  gap: 22px;
+}
+
 .nowrap {
   flex-wrap: nowrap;
 }

@@ -168,6 +168,26 @@ describe("HUD components", () => {
       expect(bar).toMatch(/data-testid="hud-island-kind">Medium</);
     });
 
+    it("renames with icon buttons, the cancel icon in the close button's place", () => {
+      const html = renderToStaticMarkup(
+        createElement(IslandCard, {
+          islandId: island.id,
+          model: { ...model, islands: [{ ...island, settled: true }, ...model.islands.filter((i) => i.id !== island.id)] },
+          content: tbContent as never,
+          statics: undefined,
+          onClose: () => {},
+          onRename: () => Promise.resolve(true),
+          initiallyRenaming: true,
+        }),
+      );
+      expect(html).toContain('data-testid="island-rename-form"');
+      expect(html).toMatch(/<button type="submit"[^>]*aria-label="Rename"[^>]*data-testid="island-rename-save"><svg/);
+      expect(html).toMatch(/<button type="button"[^>]*aria-label="Cancel renaming"[^>]*data-testid="island-rename-cancel"><svg/);
+      // Icons only, no text buttons; one cross per row.
+      expect(text(html)).not.toMatch(/Rename|cancel/i);
+      expect(html).not.toContain('data-testid="island-card-close"');
+    });
+
     it("keeps the same stats on a phone, with the island on its own row", () => {
       const html = renderToStaticMarkup(createElement(TopBar, { ...props, compact: "portrait" } as never));
       for (const id of ["hud-gold-chip", "hud-population-chip", "hud-materials-chip", "hud-island-name"]) expect(html).toContain(`data-testid="${id}"`);
