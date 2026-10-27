@@ -1,8 +1,8 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after PR #30
-(polish round 3: incremental island build, ship names D-055, playtest fixes).
+docs sync; details live in the linked documents. Last update: after PR #30 and the D-056 interview
+(content depth: need model, tiers 3–4 plan, services and ship ladders).
 
 ## What exists
 
@@ -37,13 +37,19 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Next tasks (in order)
 
-1. **Content depth** — design interview first (owner + design lead):
-   tier-2 alternatives (dairy, pigs, apiary with their reserved field
-   types), **tier 3 Merchants and tier 4 Patricians in one interview**
-   (needs per category, tax and unlock population, mandatory vs variety
-   chains, public buildings, coal as a charcoal substitute, the single
-   gold slot, luxury icons, CONTENT §12 targets per tier). Then one
-   content session + one models session per tier.
+1. **Content depth (D-056 decided; CONTENT §2/§5/§7/§8/§12 are the
+   spec):**
+   - **S1 need model + tier-2 completion** (Opus, server/content):
+     weighted shares, cumulative tiers, services category, input
+     alternatives, upgrade gate, market levels, `school`, cheese/mead/
+     leather_jerkins chains with their modules, sloop 2 slots, shipyard
+     at tier 2, brig/galleon authored, unlocks, unlock toast, tier-2
+     quest chain, reference games re-verified.
+   - **M2 / M3 / M4 models** (Opus, parallel to S1; footprints from §7):
+     tier-2 completion + school + market levels; tier 3; tier 4.
+   - **C3 tier 3**, then **C4 tier 4** content sessions after S1; a
+     playtest/polish round between tiers. Island area re-checked after
+     tier 3 (D-054).
 
 ## Known follow-ups
 

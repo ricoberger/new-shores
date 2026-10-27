@@ -339,6 +339,15 @@ cycle:   seconds               at 100 % efficiency
 
 ### 6.2 Needs
 
+> **D-056 (planned, first content-depth session):** fulfilment becomes
+> weighted — every supplied alternative of a category contributes its
+> `share` (0.6), coverage = `min(1, Σ)`; the variety multiplier and
+> `optional_tax_bonus` go; a house also carries the categories of every
+> lower tier at reduced rates (own tier 0.6 of satisfaction, lower tiers
+> 0.4); services are one cumulative category; recipe inputs may list
+> alternative goods. This section describes the implemented rules until
+> that session lands and rewrites it.
+
 Each tier has a list of needs, each either:
 
 - **Goods need (category, D-031):**
@@ -628,7 +637,9 @@ keys must be earlier tiers. The first tier is always unlocked. Unlocks are
 permanent (no regression) and have no rate effect; the unlock moment is
 reported as a `tier_unlocked` boundary. Placing a building (or road) of a
 locked tier fails with `ErrTierLocked`. A non-empty `goods_delivered` list
-cannot be satisfied until trade routes exist (M4).
+cannot be satisfied until trade routes exist (M4). D-056 sets the
+unlocks to 120 Settlers + market + chapel, 360 Citizens + tavern,
+1 200 Merchants + church, and drops `goods_delivered` from the plan.
 
 ## 12a. Quests (D-022)
 

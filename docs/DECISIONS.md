@@ -881,3 +881,121 @@ ship panel shows the type below the name, the ID is no longer shown.
   curate; the type and number are a clear default); unique names (no
   need, unlike island labels on the map); showing "Name (#id)" (the
   number carries no meaning for the player).
+
+## D-056 Content depth: weighted needs, cumulative tiers, services ladder, ship ladder, pacing for tiers 3–4
+
+**Decision (interview 2026-10-27, owner + design lead; inputs: the
+Anno 117 Latium need tables and residence caps, Anno 1404's unlock
+curve, D-054's footprints):**
+
+1. **Weighted coverage (supersedes D-031's fulfilment and variety
+   bonus).** A goods or services need is a **category** with 1–3
+   alternatives; every alternative supplied contributes a **share**
+   (content; **0.6 for every good and service**, symmetric), category
+   coverage = `min(1, Σ shares of supplied alternatives)`. One
+   alternative gets a house to 60 % of the category, the second fills
+   it. Residents and tax scale with satisfaction as today; there is no
+   variety bonus and no per-good residents/gold bonus (the 117 bonus
+   layer was considered and parked — it can be added on top later if
+   playtests ask for more decisions). Partial supply of a good scales
+   its share as before (`consumed / demand`).
+2. **Cumulative tiers (supersedes D-033's "lower-tier goods do not
+   satisfy higher tiers").** A house has the **required categories of
+   its own tier (own goods only)** *plus* the categories of every lower
+   tier as separate needs with **lower per-resident rates**, as in Anno
+   117 (Patricians still eat fish, a Patrician house of 40 about as much
+   as four Settler houses): rate at a higher tier = own-tier rate ×
+   (own tier max residents / higher tier max residents) × 0.5^(tier
+   distance / 3), rounded in content — roughly the same per-house rate
+   as the house it grew from, tapering to half by tier 4 (fish 0.010 →
+   0.0042 / 0.0020 / 0.0010). Weights: the own tier's
+   categories share **60 %** of satisfaction, all lower tiers together
+   **40 %** (provisional). Lower goods therefore matter but can never
+   substitute for the tier's own goods.
+3. **Services are one cumulative category** per house: every public
+   building of the house's tier or below counts with share 0.6 (radius
+   rule as today). Ladder: tier 1 `market_small` (levels 1–3 raise the
+   radius 12 → 16 → 20; same ID, display "Market") and `chapel`; tier 2
+   `tavern` and `school`; tier 3 `church` and `theatre`; tier 4
+   `university` and `cathedral`. `market_medium`/`market_large` are
+   dropped (never shipped).
+4. **Upgrade gate:** the next tier unlocked ∧ every required category
+   of the house's *current* tier ≥ 0.6 (one alternative each) ∧ the
+   house at `max` residents ∧ the cost. The second alternative is never
+   needed to progress.
+5. **Tier plan (two alternatives per category from tier 2):**
+   Settlers food fish, clothing wool_garments; Citizens food bread |
+   cheese, drink cider | mead, clothing linen_garments | leather_jerkins;
+   Merchants food sausages | pies, drink beer | brandy, clothing coats |
+   dyed_garments, comfort books | soap; Patricians food roast_beef |
+   oysters, drink wine | grain_spirit, clothing fine_garments | lace,
+   comfort candles | spectacles, luxury jewellery | instruments.
+   Residents 8 / 15 / 25 / 40 (floors 2 / 5 / 8 / 12). Construction
+   goods stone, tools, bricks (`clay_pit` stays), glass and the
+   intermediates salt, coal, barrels, brass, gold_bars as in CONTENT §5.
+   **Variety reserve for content updates** (IDs stay reserved):
+   fur_coats (`trapper`, `furrier`), tableware (`potter`), confectionery
+   (`confectioner`), paintings (`mineral_quarry`, `studio`).
+6. **Unlocks** (Anno 1404's doubling): Citizens 120 Settlers +
+   `market_small` + `chapel` (as today); Merchants **360 Citizens +
+   `tavern`**; Patricians **1 200 Merchants + `church`**. The
+   `goods_delivered` and `harbourmaster_office` conditions are dropped
+   from the unlocks. Tax per resident per minute 0.2 / 0.48 / 0.9 /
+   1.6 (provisional; tuned by the reference games).
+7. **Recipe input alternatives**, generalised: a recipe input may list
+   several goods in preference order (`["charcoal", "coal"]`); the
+   consumer draws whichever is available. Coal replaces charcoal 1:1 in
+   every charcoal-burning recipe.
+8. **Generator guarantees ≥ 1 gold slot** per archipelago (the single
+   gold deposit; jewellery is 0.6 of luxury, so an archipelago without it
+   would only be poorer, but we guarantee it anyway).
+9. **Ships:** `sloop` **2 slots** (start ship; buildable from tier 2),
+   `brig` **4 slots** (tier 3), `galleon` **6 slots** (tier 4); equal
+   speed; the **shipyard unlocks at tier 2** without levels and builds
+   every unlocked type. (The start ship still carries the founding
+   stock; the second ship comes after Citizens.)
+10. **Unlock feedback:** a client toast on the `tier_unlocked` boundary
+    ("Citizens unlocked — n new buildings", display only) and a **quest
+    chain per tier** in content whose first quests point at the new
+    infrastructure (shipyard rewarding the sails for the first sloop,
+    tavern, school, …).
+11. **Pacing targets (CONTENT §12, sim minutes, attentive play, not
+    faster):** Merchants unlocked ≤ 240, first Merchant house ≤ 270,
+    Merchant chains complete (every category ≥ 0.6) ≤ 420; Patricians
+    unlocked ≤ 900, first Patrician house ≤ 960, Patrician chains
+    complete ≤ 1 800. Tier 1–2 targets unchanged.
+12. **Order of work:** (1) need model + tier-2 completion (server/
+    content) with its models session; (2) tier 3; (3) tier 4; playtest
+    between tiers; models sessions depend only on §7 footprints and may
+    run in parallel. Island area target (D-054) re-checked after tier 3.
+
+- *Why:* the Anno 117 structure (categories with alternatives, bonus for
+  the second, cumulative base goods) gives choice and resilience (D-009:
+  a stalled chain trims a house to 60 %, never to zero) without a hard
+  gate; weighted shares express it with the existing coverage mechanic
+  and one number per good instead of a bonus layer. Two alternatives per
+  category match 117's shape (26 consumer goods vs 1404's ~22) — depth
+  comes from the shared intermediates (pigs, wheat, charcoal, salt,
+  barrels) and the fertility/deposit spread, not from a third good.
+  The services ladder reads as a town growing up; the ship ladder gives
+  routes a reason to upgrade (a three-good supply run needs the brig).
+  Pacing follows Anno Online's weeks, not 1404's evening.
+- *Rejected:* "every need required, no alternatives" (1404 basic; a
+  checklist, dead alternatives); the full 117 bonus layer (residents
+  *and* gold per good — two numbers per good and new house-card states
+  for a benefit we cannot see yet); three goods per category at tiers
+  3–4 (chains, not decisions); keeping D-033 (per-tier goods only —
+  simpler, but the base chains would stop mattering for upgraded
+  towns); a `bathhouse` as second tier-2 service (school chosen);
+  shipyard levels; separate `market_medium`/`market_large` buildings.
+- *Consequences:* content format: `needs.json` goods and buildings gain
+  `share`; `variety_bonus`/`max_extra_goods`/`optional_tax_bonus` go;
+  a tier's need list includes the lower tiers' categories with their
+  rates; `market_small` gains `levels`; recipes' `inputs[].good` may be
+  a list; `ships.json` slots 2/4/6; `tiers.json` unlocks as above;
+  `quests.json` per-tier chains. Sim: coverage formula, cumulative need
+  lists, input alternatives, upgrade gate, market levels; schema bump.
+  UI: the house card shows every category of every tier as bars (no
+  grouping yet — polish item), the toast. CONTENT §2, §5, §6, §7, §8,
+  §12 and MECHANICS §6, §12 updated with this decision; MECHANICS §6.2
+  describes the implemented formula once the first session lands.

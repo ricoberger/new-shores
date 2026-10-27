@@ -20,34 +20,48 @@ Content IDs are stable snake_case strings and never reused.
 
 | # | ID | Name | Residents (floor–max) | Tax/res/min | House cost | Workforce role |
 |---|---|---|---|---|---|---|
-| 1 | `settlers` | Settlers | 2–8 | 0.20 | 10 planks | farms, fishers, lumber, gatherers |
-| 2 | `citizens` | Citizens | 5–15 | 0.48 | 15 planks, 10 stone, 150 gold | mines, kilns, mills, basic workshops |
-| 3 | `merchants` | Merchants | 9–25 | 1.20 | 20 planks, 20 stone, 10 bricks, 1 500 gold | refined workshops, printing, brewing |
-| 4 | `patricians` | Patricians | 14–40 | 2.80 | 20 stone, 20 bricks, 10 glass, 8 000 gold | fine crafts, studios, opticians (small numbers) |
+| 1 | `settlers` | Settlers | 2–8 | 0.20 | 5 planks (§7) | farms, fishers, lumber, gatherers |
+| 2 | `citizens` | Citizens | 5–15 | 0.48 | §7 `house_citizens` | mines, kilns, mills, basic workshops |
+| 3 | `merchants` | Merchants | 8–25 | 0.90 | §7 `house_merchants` | refined workshops, printing, brewing |
+| 4 | `patricians` | Patricians | 12–40 | 1.60 | §7 `house_patricians` | fine crafts, opticians (small numbers) |
+
+Residents and tax for tiers 3–4 per D-056 (provisional; the reference
+games tune the tax).
 
 ### Unlock conditions (archipelago-wide)
 
 | Unlocks | Requires |
 |---|---|
 | Citizens | 120 Settlers, `market_small`, `chapel` |
-| Merchants | 400 Citizens, `tavern`, a trade route delivering ≥ 1 good |
-| Patricians | 800 Merchants, `church`, `harbourmaster_office` |
+| Merchants | 360 Citizens, `tavern` (D-056) |
+| Patricians | 1 200 Merchants, `church` (D-056) |
 | Islands | no tier gating — every island can be settled from the start (D-051) |
 
-### Need categories per tier (D-031 – D-033)
+### Need categories per tier (D-056; supersedes D-031's bonus and D-033)
 
-Weights sum to 1 per tier. Consumption in units per resident per minute
-(provisional; a 60 s cycle producer making 1 unit = 1 unit/min). Variety bonus
-+10 % tax and growth per extra good supplied, max 2 extras per category.
+Every alternative of a category has **share 0.6**; category coverage =
+`min(1, Σ shares of supplied alternatives)` — one alternative gives 60 %,
+two give 100 %. Consumption in units per resident per minute (provisional;
+a 60 s cycle producer making 1 unit = 1 unit/min). A house also has the
+categories of every **lower tier** (cumulative, D-056 §2) at reduced
+rates: `rate × (own max residents / higher max residents) × 0.5^(tier
+distance / 3)`, e.g. fish 0.010 → Citizens 0.0042, Merchants 0.0020,
+Patricians 0.0010. Weights: the own tier's categories share 0.6 of
+satisfaction, all lower tiers' categories 0.4 together (split equally
+per lower tier, then by the lower tier's own weights). **Services** are
+one cumulative category per house: every public building of the house's
+tier or below, share 0.6 each, with the radii of §7. The table lists each
+tier's **own** categories (weights relative within the tier).
 
 | Tier | Goods categories → acceptable goods | Building needs (radius) |
 |---|---|---|
-| Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | `market_small` 12 (0.3) |
-| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | `market_small` 12 (0.1), `chapel` 16 (0.15), `tavern` 14 (0.15) |
-| Merchants | food 0.15: sausages 0.006 \| pies 0.005 · drink 0.15: beer 0.006 \| brandy 0.004 · clothing 0.15: coats 0.004 \| dyed_garments 0.004 \| fur_coats 0.003 · comfort 0.15: books 0.002 \| tableware 0.003 \| soap 0.003 | `market_medium` 14 (0.15), `church` 20 (0.15), `tavern` 14 (0.1) |
-| Patricians | food 0.12: roast_beef 0.005 \| oysters 0.004 \| confectionery 0.004 · drink 0.12: wine 0.004 \| grain_spirit 0.003 · clothing 0.12: fine_garments 0.003 \| lace 0.003 · comfort 0.12: candles 0.004 \| spectacles 0.002 · luxury 0.12: jewellery 0.001 \| paintings 0.001 \| instruments 0.001 | `market_large` 16 (0.15), `church` 20 (0.1), `theatre` 22 (0.1), `university` 24 (0.05) |
+| Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | services 0.3: `market_small` 12, `chapel` 16 |
+| Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | services 0.4: + `tavern` 14, `school` 16 |
+| Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.17: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | services 0.32: + `church` 20, `theatre` 24 |
+| Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | services 0.3: + `university` 24, `cathedral` 28 |
 
-Lower-tier goods do not satisfy higher tiers' categories.
+Variety reserve (D-056, IDs reserved, not in the tier plan): fur_coats,
+tableware, confectionery, paintings.
 
 ## 3. Construction materials (D-037)
 
@@ -98,7 +112,8 @@ provisional.
 | wool_garments | `sheep_farm` (grass → wool, 90 s) [4 S], `weaver_wool` (wool → wool_garments, 90 s) [6 S] | 1 : 1 |
 
 Infrastructure: `trading_post` lvl 1 (founding), `warehouse` lvl 1,
-`road_dirt`, `market_small`, `chapel`, `shipyard` (sloop), `house_settlers`.
+`road_dirt`, `market_small` lvl 1, `chapel`, `house_settlers`. The start
+ship is a sloop; the shipyard unlocks at tier 2 (D-056).
 
 ### Tier 2 — Citizens
 
@@ -113,8 +128,8 @@ Infrastructure: `trading_post` lvl 1 (founding), `warehouse` lvl 1,
 | construction | stone, tools | `quarry` (stone slot → stone, 45 s) [8 S]; `iron_mine` (iron slot → iron_ore, 60 s) [10 S], `charcoal_burner` (wood → charcoal, 45 s) [4 S], `smelter` (iron_ore + charcoal → iron, 60 s) [8 S], `toolmaker` (iron → tools, 60 s) [8 S] | tools 1 : 1.3 : 1 : 1 |
 | ships | sails | `sailmaker` (hemp → sails, 60 s) [6 C] | — |
 
-Infrastructure: `trading_post` lvl 2, `road_paved`, `tavern`, `house_citizens`,
-brig. Iron and hemp are on the second settleable island, never the first.
+Infrastructure: `trading_post` lvl 2, `road_paved`, `tavern`, `school`,
+`shipyard` (sloop, 2 slots), `house_citizens`. Iron and hemp are on the second settleable island, never the first.
 The construction chains (quarry, tool chain) are **Settler-staffed** per the
 bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
 must be producible before any Citizen exists. Likewise bricks (tier 3) are
@@ -130,9 +145,7 @@ made by Citizens and glass (tier 4) by Citizens.
 | drink | brandy | `orchard`, `cidery`, `distillery` (cider + charcoal → brandy, 90 s) [8 M] | 4 : 2 : 1 |
 | clothing | coats | `weaver_wool`, `pig_farm`, `leather_works` (pigs → leather, 60 s) [8 C], `tailor` (wool_garments + leather → coats, 90 s) [10 M] | 1 : 1 : 1 : 1 |
 | clothing | dyed_garments | `weaver_linen`, `woad_farm` (woad fert. → woad, 90 s) [6 S], `dyer_works` (woad → dye, 60 s) [6 C], `dyer` (linen_garments + dye → dyed_garments, 60 s) [8 M] | 1 : 1 : 1 : 1 |
-| clothing | fur_coats | `trapper` (forest → furs, 90 s) [4 S], `furrier` (furs → fur_coats, 90 s) [8 M] | 1 : 1 |
 | comfort | books | `lumberjack`, `paper_mill` (wood → paper, 30 s) [8 C], `printing_press` (paper → books, 60 s) [10 M] | 1 : 1 : 2 |
-| comfort | tableware | `clay_pit` (clay slot → clay, 45 s) [8 C], `potter` (clay + charcoal → tableware, 60 s) [8 M] | 1 : 1 (+ charcoal) |
 | comfort | soap | `pig_farm`, `rendering_house` (pigs → tallow, 60 s) [6 C], `soap_maker` (tallow → soap, 60 s) [8 M] | 2 : 1 : 1 |
 | intermediate | salt | `salt_pans` (harbour slot → salt, 120 s) [4 S] **or** `salt_mine` (salt slot → brine, 30 s) [10 C] + `salt_works` (brine + charcoal → salt, 30 s) [8 C] | — |
 | construction | bricks | `clay_pit`, `brickworks` (clay + charcoal → bricks, 45 s) [8 C] | 1 : 1 |
@@ -141,9 +154,11 @@ made by Citizens and glass (tier 4) by Citizens.
 One recipe per building (D-041): `leather_works` is a separate building from
 `tannery` rather than a second recipe.
 
-Infrastructure: `trading_post` lvl 3, `market_medium`, `church`,
-`harbourmaster_office` (world map, expeditions, contracts), `house_merchants`,
-galleon.
+Infrastructure: `trading_post` lvl 3, `market_small` lvl 2, `church`,
+`theatre`, `brig` (4 slots), `house_merchants`;
+`harbourmaster_office` (world map, expeditions, contracts) is an ONLINE
+feature, not a tier gate. Variety reserve (D-056): fur_coats (`trapper`,
+`furrier`), tableware (`potter`; `clay_pit` stays for bricks).
 
 ### Tier 4 — Patricians
 
@@ -151,7 +166,6 @@ galleon.
 |---|---|---|---|
 | food | roast_beef | `cattle_farm` (grass → cattle, 120 s) [8 S], salt, `slaughterhouse` (cattle + salt → roast_beef, 60 s) [8 P] | 2 : 1 : 1 |
 | food | oysters | `oyster_beds` (harbour slot → raw_oysters, 90 s) [6 S], salt, `oyster_house` (raw_oysters + salt → oysters, 60 s) [6 P] | 3 : 1 : 2 |
-| food | confectionery | `apiary`, `mill`, `orchard`, `confectioner` (honey + flour + apples → confectionery, 90 s) [8 P] | 3 : 1 : 2 : 2 |
 | drink | wine | `vineyard` (grape fert. → grapes, 90 s) [8 S], `cooperage` (planks + iron → barrels, 60 s) [8 C], `winepress` (2 grapes + barrels → wine, 60 s) [8 P] | 3 : 1 : 1.5 |
 | drink | grain_spirit | `wheat_farm`, `malt_house` (wheat → malt, 60 s) [6 C], `cooperage`, `distillery` (malt + barrels + charcoal → grain_spirit, 90 s) [8 P] | 2 : 1 : 1 : 1 |
 | clothing | fine_garments | `dyer`, `furrier`, `fashion_house` (dyed_garments + furs → fine_garments, 120 s) [10 P] | 1 : 1 : 1 |
@@ -159,29 +173,29 @@ galleon.
 | comfort | candles | `rendering_house`, `hemp_farm`, `candle_foundry` (tallow + hemp → candles, 45 s) [6 P] | 2 : 1 : 2 |
 | comfort | spectacles | `glass_smelter`, `copper_mine` (copper slot → copper_ore, 60 s) [10 C], `copper_smelter` (copper_ore + charcoal → brass, 60 s) [8 C], `optician` (glass + brass → spectacles, 90 s) [8 P] | 1 : 1 : 1 : 1.5 |
 | luxury | jewellery | `gold_mine` (gold slot → gold_ore, 120 s) [10 C], `gold_smelter` (gold_ore + charcoal → gold_bars, 60 s) [8 C], `goldsmith` (gold_bars → jewellery, 90 s) [6 P] | 1 : 2 : 1.5 |
-| luxury | paintings | `weaver_linen`, `dyer_works`, `mineral_quarry` (quartz slot → minerals, 60 s) [10 C], `studio` (linen_garments + dye + minerals → paintings, 180 s) [6 P] | 1 : 1 : 1 : 3 |
 | luxury | instruments | `sawmill`, `copper_smelter`, `luthier` (planks + brass → instruments, 120 s) [8 P] | 1 : 1 : 2 |
 | construction | glass | `quartz_quarry` (quartz slot → quartz, 60 s) [10 C], `glass_smelter` (quartz + charcoal → glass, 60 s) [8 C] | 1 : 1 |
 
-`mineral_quarry` is a separate building on the same quartz slot type rather
-than a second quartz_quarry recipe (D-041); `gold_bars` avoids a good named
-`gold`, which is the reserved cost key (§11).
+`gold_bars` avoids a good named `gold`, which is the reserved cost key
+(§11). Variety reserve (D-056): confectionery (`confectioner`), paintings
+(`mineral_quarry`, `studio`).
 
-Infrastructure: `trading_post` lvl 4, `market_large`, `theatre`, `university`,
-`house_patricians`.
+Infrastructure: `trading_post` lvl 4, `market_small` lvl 3, `university`,
+`cathedral`, `galleon` (6 slots), `house_patricians`.
 
 ## 6. Catalogue totals
 
 | | Settlers | Citizens | Merchants | Patricians | Total |
 |---|---|---|---|---|---|
-| Final goods (needs) | 2 | 6 | 10 | 12 | **30** |
+| Final goods (needs) | 2 | 6 | 8 | 10 | **26** (+4 reserve) |
 | Construction/ship materials | 1 | 3 | 1 (+coal) | 1 | 6 (+1) |
-| Buildings (all kinds) | ~11 | ~22 | ~26 | ~26 | **~85** |
+| Buildings (all kinds) | ~10 | ~26 | ~24 | ~26 | **~86** |
 | Fertilities | — | wheat, apple, hemp | hops, woad | grapes | 6 |
 | Deposit slot types | — | stone, iron | clay, salt, coal | quartz, copper, gold | 8 |
 
-Mandatory chains for one player to reach Patricians with one good per
-category: ~14. Everything else is variety bonus and trade material.
+Mandatory chains for one player to reach Patricians with one alternative
+per category (0.6 coverage): ~14. The second alternative of each category
+fills the house (D-056).
 
 ## 7. Buildings — reference table (D-054)
 
@@ -220,7 +234,7 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `road_dirt` | 1 | 1×1 | road | see text | 0 | — |  |
 | `trading_post` | 1 | 6×9, 3 water rows | Trading Pier 6×9 | see text | 0 | — | founding only; levels as below |
 | `warehouse` | 1 | 6×6 | Warehouse 6×6 | 50 / 6 | 0 | — | collector; radius and throughput per level |
-| `market_small` | 1 | 5×6 | Market | 250 / 15 | 0 | — | R, radius 12 |
+| `market_small` | 1 | 5×6 | Market | 250 / 15 | 0 | — | R, display "Market"; levels: lvl 1 radius 12; lvl 2 (tier 3) radius 16, 1000 gold / 15 planks / 30 stone; lvl 3 (tier 4) radius 20, 5000 gold / 15 planks / 45 stone / 15 bricks (D-056) |
 | `chapel` | 1 | 3×3 | Shrine 3×3 | 100 / 6 | 0 | — | R, radius 16; the 6×10 church is tier 3 |
 | `lumberjack` | 1 | 3×3 | Woodcutter | 60 / 6 | 1 | 4 S | R, work radius 4 forest |
 | `sawmill` | 1 | 4×6 | Sawmill | 120 / 9 | 2 | 4 S | R |
@@ -228,7 +242,7 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `sheep_farm` | 1 | 3×3 + 3 `pasture` | Sheep Farm | 60 / 6 | 1 | 4 S | R, cycle 90 s |
 | `pasture` | 1 | 3×3 field | pasture module | 15 g / 1 plank | 0 | — | sheep_farm only; grass; edge-adjacent chain |
 | `weaver_wool` | 1 | 3×4 | Spinner | 60 / 6 | 2 | 6 S | R, cycle 90 s |
-| `shipyard` | 1 | 8×12, 4 water rows | Shipyard | 300 / 45 | 0 | — | R, never auto-paused |
+| `shipyard` | 2 | 8×12, 4 water rows | Shipyard | 300 / 45 / 0 | 0 | — | R, never auto-paused; tier 2 since D-056; builds every unlocked ship type |
 | `house_citizens` | 2 | 3×3 | Residence | 150 / 5 / 3 | 0 | — | upgrade only |
 | `road_paved` | 2 | 1×1 | road | see text | 0 | — | 3 gold / 1 stone |
 | `quarry` | 2 | 3×8 on a stone slot | Limestone Quarry | 120 / 9 / 0 | 3 | 8 S | R; strip into the mountain |
@@ -257,9 +271,10 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `tannery` | 2 | 3×4 | Tannery | 180 / 6 / 6 | 2 | 8 C | R |
 | `sailmaker` | 2 | 4×8 | Ropemaker | 240 / 6 / 9 | 2 | 6 C | R |
 | `tavern` | 2 | 4×6 | Tavern | 250 / 15 / 0 | 2 | — | R, radius 14 |
+| `school` | 2 | 6×8 | Grammaticus | 1000 / 15 / 30 | 4 | — | R, radius 16 (D-056) |
 | `house_merchants` | 3 | 3×3 | Residence | 400 / 5 / 3 / 3 | 0 | — | upgrade only |
-| `market_medium` | 3 | 6×8 | Grammaticus class | 1000 / 15 / 30 / 0 | 4 | — | R, radius 16 |
 | `church` | 3 | 6×10 | Sanctuary | 1500 / 30 / 15 / 0 | 6 | — | R, radius 20 |
+| `theatre` | 3 | 11×14 | Theatre | 15000 / 30 / 60 / 30 | 15 | — | R, radius 24 (tier 3 since D-056) |
 | `harbourmaster_office` | 3 | 5×5, 2 water rows | Repair Crane class | 1000 / 60 / 45 / 0 | 6 | — | world map, expeditions, contracts |
 | `butcher` | 3 | 4×5 | Victualler class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
 | `pastry_kitchen` | 3 | 4×5 | Bakery class | 320 / 5 / 9 / 3 | 4 | 8 M | R |
@@ -273,12 +288,12 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `woad_field` | 3 | 1×1 field | field tile | 1 g | 0 | — | woad_farm only |
 | `dyer_works` | 3 | 5×5 | Dye Works | 470 / 5 / 12 / 6 | 3 | 6 C | R |
 | `dyer` | 3 | 4×5 | Loom Weavery class | 410 / 5 / 9 / 6 | 5 | 8 M | R |
-| `trapper` | 3 | 5×5 | Resin Trapper | 180 / 6 / 6 / 0 | 2 | 4 S | R, forest radius |
-| `furrier` | 3 | 3×4 | Sandal Maker class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
+| `trapper` (reserve) | 3 | 5×5 | Resin Trapper | 180 / 6 / 6 / 0 | 2 | 4 S | R, forest radius |
+| `furrier` (reserve) | 3 | 3×4 | Sandal Maker class | 270 / 6 / 6 / 3 | 3 | 8 M | R |
 | `paper_mill` | 3 | 4×6 | Sawmill class | 300 / 9 / 6 / 3 | 2 | 8 C | R |
 | `printing_press` | 3 | 4×5 | Tabulus class | 330 / 6 / 9 / 3 | 6 | 10 M | R |
 | `clay_pit` | 3 | 4×6 on a clay slot | Clay Pit | 60 / 6 / 0 / 0 | 2 | 8 C | R (no river slot: deposit slot) |
-| `potter` | 3 | 4×5 | Potter | 180 / 6 / 6 / 0 | 4 | 8 M | R |
+| `potter` (reserve) | 3 | 4×5 | Potter | 180 / 6 / 6 / 0 | 4 | 8 M | R |
 | `rendering_house` | 3 | 3×3 | Renderer | 170 / 5 / 6 / 0 | 2 | 6 C | R |
 | `soap_maker` | 3 | 3×4 | Soap Maker | 120 / 6 / 3 / 0 | 3 | 8 M | R |
 | `salt_pans` | 3 | 5×9, 3 water rows | Salt Ponds | 180 / 6 / 6 / 0 | 2 | 4 S | R |
@@ -287,14 +302,13 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `brickworks` | 3 | 4×5 | Tiler | 90 / 9 / 0 / 0 | 3 | 8 C | R |
 | `coal_mine` | 3 | 3×8 on a coal slot | Iron Mine class | 180 / 6 / 6 / 0 | 2 | 10 C | R |
 | `house_patricians` | 4 | 3×3 | Residence | 1000 / 5 / 3 / 3 / 3 | 0 | — | upgrade only |
-| `market_large` | 4 | 10×10 | Gambling House class | 5000 / 15 / 45 / 15 / 0 | 8 | — | R, radius 20 |
-| `theatre` | 4 | 11×14 | Theatre | 15000 / 30 / 60 / 30 / 0 | 15 | — | R, radius 24 |
 | `university` | 4 | 12×12 | Library | 50000 / 45 / 45 / 60 / 0 | 45 | — | R, radius 24 |
+| `cathedral` | 4 | 12×16 | Temple | 60000 / 15 / 60 / 60 / 30 | 30 | — | R, radius 28 (D-056) |
 | `cattle_farm` | 4 | 4×5 + 5 `cattle_pasture` | Pig Farm class, large | 410 / 5 / 9 / 6 / 0 | 4 | 8 S | R, grass |
 | `slaughterhouse` | 4 | 4×4 | Fish Gutter class | 390 / 6 / 6 / 3 / 3 | 8 | 8 P | R |
 | `oyster_beds` | 4 | 6×12, 4 water rows | Oyster Bed | 480 / 12 / 9 / 6 / 0 | 3 | 6 S | R |
 | `oyster_house` | 4 | 6×6 | Epicure of Water class | 510 / 6 / 6 / 3 / 6 | 10 | 6 P | R |
-| `confectioner` | 4 | 4×5 | Bakery class | 650 / 5 / 9 / 6 / 6 | 4 | 8 P | R |
+| `confectioner` (reserve) | 4 | 4×5 | Bakery class | 650 / 5 / 9 / 6 / 6 | 4 | 8 P | R |
 | `vineyard` | 4 | 4×5 + 100 `vine_row` | Vineyard | 330 / 6 / 9 / 3 / 0 | 2 | 8 S | R, grapes fertility |
 | `vine_row` | 4 | 1×1 field | field tile | 3 g | 0 | — | vineyard only |
 | `cooperage` | 4 | 4×6 | Caelator class | 840 / 9 / 12 / 9 / 6 | 7 | 8 C | R |
@@ -312,8 +326,8 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `gold_mine` | 4 | 3×8 on a gold slot | Gold Mine | 210 / 6 / 3 / 3 / 0 | 5 | 10 C | R; exactly one gold slot per archipelago |
 | `gold_smelter` | 4 | 4×6 | Goldsmith | 740 / 5 / 9 / 9 / 6 | 6 | 8 C | R |
 | `goldsmith` | 4 | 4×4 | Jeweller | 680 / 5 / 0 / 9 / 9 | 12 | 6 P | R |
-| `mineral_quarry` | 4 | 3×8 on a quartz slot | Mineral Quarry | 210 / 6 / 3 / 3 / 0 | 5 | 10 C | R |
-| `studio` | 4 | 5×5 | Gilder | 680 / 5 / 6 / 9 / 6 | 4 | 6 P | R |
+| `mineral_quarry` (reserve) | 4 | 3×8 on a quartz slot | Mineral Quarry | 210 / 6 / 3 / 3 / 0 | 5 | 10 C | R |
+| `studio` (reserve) | 4 | 5×5 | Gilder | 680 / 5 / 6 / 9 / 6 | 4 | 6 P | R |
 | `luthier` | 4 | 5×5 | Lythier | 870 / 6 / 9 / 9 / 9 | 8 | 8 P | R |
 
 Roads: `road_dirt` 1 gold; `road_paved` 3 gold / 1 stone. Trading Post
@@ -332,12 +346,13 @@ its size with throughput (D-054); a reach rule would be a new decision.
 
 | ID | Tier | Slots × size | Speed | Build | Cost | Upkeep |
 |---|---|---|---|---|---|---|
-| `sloop` | 1 | 4 × 50 | 1.0 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
-| `brig` | 2 | 4 × 50 | 1.2 | 5 min | 1 500 gold, 60 planks, 20 sails, 10 tools | 4 |
-| `galleon` | 3 | 6 × 60 | 1.0 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
+| `sloop` | 2 (start ship from tier 1) | 2 × 50 | 1.0 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
+| `brig` | 3 | 4 × 50 | 1.0 | 5 min | 1 500 gold, 60 planks, 20 sails, 10 tools | 4 |
+| `galleon` | 4 | 6 × 60 | 1.0 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
 
-\*Starting stock includes sails for one more sloop; the first sloop is the
-start ship (4 slots so that it carries the starting stock, D-051).
+\*The sails for the first built sloop are the reward of the tier-2
+"Build a shipyard" quest (D-056); the start ship is a sloop and carries
+the founding stock (planks and sails fit its two slots, D-051).
 
 Ships live in `ships.json` (`{ id, name, tier, slots, slot_size, speed,
 build_seconds, cost, upkeep_per_min }`, schema under `content/schema/`);
@@ -560,6 +575,15 @@ See MECHANICS §6.2 for the semantics.
   deliberately tight: a change that slows the first hour must say so.
   If a later change needs room, the first lever is the sloop's reference
   speed (legs are 3.4–4.3 min on the dev seed), not the targets.
+- **Tier 3–4 reference games (D-056, sim minutes from the starting
+  stock, attentive play; not faster):** Merchants unlocked (360
+  Citizens + tavern) ≤ 240, first Merchant house ≤ 270, every Merchant
+  category ≥ 0.6 ≤ 420; Patricians unlocked (1 200 Merchants + church)
+  ≤ 900, first Patrician house ≤ 960, every Patrician category ≥ 0.6
+  ≤ 1 800. Goldens `bootstrap_merchants` / `bootstrap_patricians` once
+  the tiers exist. With D-056 the tier-1/2 game runs its categories at
+  0.6 until the second alternatives are built; the §12 tier-1/2 targets
+  stay and are re-verified by the need-model session.
 - Warehouse throughput at each level must cover a "typical" island at that
   tier with one warehouse ≈ 80 % load.
 - Tax income at each tier's unlock population must cover upkeep of the
