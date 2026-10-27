@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Content } from "../api/client";
 import { needIcon } from "../theme/iconSet";
 import { ICON_PATHS } from "../theme/icons";
-import { type NeedContent, needCategory, needFromTier, needLabel, needName, orderNeeds } from "./needs";
+import { type NeedContent, needAlternatives, needCategory, needFromTier, needLabel, needName, orderNeeds } from "./needs";
 
 // The shipped content files carry the names (content/old_coast), so the
 // lookup is checked against the real catalogue shape and an empty one.
@@ -64,5 +64,35 @@ describe("need display names", () => {
     expect(needLabel(content, { id: "citizens_food", category: "food" })).toBe("Food");
     const ids = orderNeeds(content, [{ id: "citizens_settlers_food" }, { id: "citizens_food" }, { id: "citizens_settlers_clothing" }, { id: "citizens_tavern" }]).map((n) => n.id);
     expect(ids).toEqual(["citizens_food", "citizens_tavern", "citizens_settlers_food", "citizens_settlers_clothing"]);
+  });
+});
+
+describe("need alternatives (D-056)", () => {
+  const c = {
+    goods: [
+      { id: "bread", name: "Bread" },
+      { id: "cheese", name: "Cheese" },
+    ],
+    buildings: [
+      { id: "market_small", name: "Small market" },
+      { id: "chapel", name: "Chapel" },
+      { id: "school", name: "School" },
+    ],
+    needs: [
+      { id: "citizens_food", goods: [{ good: "bread", share: 600 }, { good: "cheese", share: 600 }] },
+      { id: "citizens_services", buildings: [{ building: "market_small" }, { building: "chapel" }, { building: "school" }, { building: "opera" }] },
+      { id: "settlers_food", goods: [{ good: "fish", share: 1000 }] },
+    ],
+  } as unknown as Content;
+
+  it("lists the goods or buildings of a category by name", () => {
+    expect(needAlternatives(c, "citizens_food")).toBe("Bread or Cheese");
+    expect(needAlternatives(c, "citizens_services")).toBe("Small market, Chapel, School or opera");
+  });
+
+  it("is undefined for a lone alternative, an unknown need or no catalogue", () => {
+    expect(needAlternatives(c, "settlers_food")).toBeUndefined();
+    expect(needAlternatives(c, "nobody")).toBeUndefined();
+    expect(needAlternatives(null, "citizens_food")).toBeUndefined();
   });
 });

@@ -842,8 +842,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             })
           }
           onUpgrade={() => void send({ type: "upgrade_house", island_id: islandId, building_id: selectedBuilding.id })}
-          onUpgradeWarehouse={() => void send({ type: "upgrade_warehouse", island_id: islandId, building_id: selectedBuilding.id })}
-          onUpgradeTradingPost={() => void send({ type: "upgrade_trading_post", island_id: islandId, building_id: selectedBuilding.id })}
+          onUpgradeBuilding={() => void send({ type: "upgrade_building", island_id: islandId, building_id: selectedBuilding.id })}
           onSelectBuilding={focus}
           onAddField={(fieldType, remove) => {
             setTool({ kind: "field", farmId: selectedBuilding.id, island: islandId, buildingType: fieldType, rotation: 0, ...(remove ? { remove: true } : {}) });

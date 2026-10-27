@@ -1518,7 +1518,7 @@ export interface components {
             /** @description Index of the route stop the ship heads to (0-based count). */
             stop_index: number;
             leg: components["schemas"]["LegDisplay"] | null;
-            /** @description Occupied cargo slots (a good may occupy several slots). */
+            /** @description Occupied cargo slots (a good may occupy several slots). At most `slots` entries, except for the founding cargo of the start ship, which is exempt from the slot limit (D-056). */
             cargo: components["schemas"]["CargoDisplay"][];
             /** @description Cargo slots of the ship type (count). */
             slots: number;

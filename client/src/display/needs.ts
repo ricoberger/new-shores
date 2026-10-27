@@ -69,3 +69,19 @@ export function orderNeeds<T extends { id: string }>(content: NeedContent, needs
   const lower = (n: T) => (content?.needs?.find((x) => x.id === n.id)?.from_tier ? 1 : 0);
   return [...needs].sort((a, b) => lower(a) - lower(b));
 }
+
+/**
+ * The alternatives of a need from the content (D-056 weighted shares), as
+ * display names in content order: "Bread or Cheese", "Small market,
+ * Chapel, Tavern or School". Undefined for an unknown need or a need with
+ * a single alternative.
+ */
+export function needAlternatives(content: (NeedContent & Partial<Pick<Content, "goods">>) | null | undefined, id: string): string | undefined {
+  const n = content?.needs?.find((x) => x.id === id);
+  const names = [
+    ...(n?.goods ?? []).map((g) => content?.goods?.find((x) => x.id === g.good)?.name || g.good),
+    ...(n?.buildings ?? []).map((b) => content?.buildings?.find((x) => x.id === b.building)?.name || b.building),
+  ];
+  if (names.length < 2) return undefined;
+  return `${names.slice(0, -1).join(", ")} or ${names[names.length - 1]}`;
+}

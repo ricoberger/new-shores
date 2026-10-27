@@ -3,7 +3,8 @@ import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../a
 import { percent, perMin, seconds, units } from "../display/format";
 import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
 import { fieldBuildingOf, footprintText } from "../display/fields";
-import { needCategory, needLabel, orderNeeds } from "../display/needs";
+import { needAlternatives, needCategory, needLabel, orderNeeds } from "../display/needs";
+import { lockReason, tierUnlocked } from "../display/tiers";
 import { STATUS_STYLES, statusKey, statusText } from "../display/status";
 import { goodIcon, needIcon, statusIcon, toolIcon } from "../theme/iconSet";
 import { CloseButton } from "./CloseButton";
@@ -21,10 +22,8 @@ interface Props {
   /** Lifts the building into a move ghost (D-042). */
   onMove: () => void;
   onUpgrade: () => void;
-  /** Raises a Warehouse to its next level (upgrade_warehouse). */
-  onUpgradeWarehouse: () => void;
-  /** Raises the Trading Post to its next level (upgrade_trading_post). */
-  onUpgradeTradingPost: () => void;
+  /** Raises a Trading Post, Warehouse or levelled public building to its next level (upgrade_building, D-056). */
+  onUpgradeBuilding: () => void;
   onSelectBuilding: (id: number) => void;
   /**
    * Activates the field tool bound to this farm for a field building (its
@@ -157,14 +156,18 @@ function PaintButton({ field, full, onPaint }: { field: Content["buildings"][num
 interface LevelDef {
   capacity?: number;
   berths?: number;
-  throughput_per_min: number;
+  throughput_per_min?: number;
+  /** Service radius of a levelled public building (D-056). */
+  radius?: number;
+  /** Tier the upgrade into this level needs (D-056). */
+  tier?: string;
   cost?: { gold: number; materials: Record<string, number> };
 }
 
-/** The next level of a Trading Post or Warehouse (content), undefined at the last level. */
+/** The next level of a Trading Post, Warehouse or levelled public building (content), undefined at the last level. */
 function nextLevelOf(content: Content, b: BuildingDisplay): LevelDef | undefined {
   const def = content.buildings.find((d) => d.id === b.type);
-  const levels: LevelDef[] = def?.trading_post?.levels ?? def?.warehouse?.levels ?? [];
+  const levels: LevelDef[] = def?.trading_post?.levels ?? def?.warehouse?.levels ?? def?.service?.levels ?? [];
   return b.level !== undefined ? levels[b.level] : undefined;
 }
 
@@ -195,9 +198,15 @@ function UpgradePreview({
         items={[
           ...(next.capacity !== undefined ? [<span key="capacity">{units(next.capacity)} capacity per good</span>] : []),
           ...(next.berths !== undefined ? [<span key="berths">{next.berths} berths</span>] : []),
-          <span key="throughput">{perMin(next.throughput_per_min)}/min throughput</span>,
+          ...(next.throughput_per_min !== undefined ? [<span key="throughput">{perMin(next.throughput_per_min)}/min throughput</span>] : []),
+          ...(next.radius !== undefined ? [<span key="radius">{next.radius} tiles radius</span>] : []),
         ]}
       />
+      {next.tier && !tierUnlocked(model, next.tier) && (
+        <div className={`${styles.small} ${styles.warn}`} data-testid={`${testId}-locked`}>
+          {lockReason(model, content, next.tier)}
+        </div>
+      )}
       {/* The content's upgrade cost; a part the balance or the island's stock does not cover is red (the server decides). */}
       <DotRow
         testId={`${testId}-cost`}
@@ -379,8 +388,7 @@ export function InfoPanel({
   onDemolish,
   onMove,
   onUpgrade,
-  onUpgradeWarehouse,
-  onUpgradeTradingPost,
+  onUpgradeBuilding,
   onSelectBuilding,
   onAddField,
   nowMs,
@@ -551,9 +559,17 @@ export function InfoPanel({
             <summary className={styles.detailsSummary}>Details</summary>
             <table className={`${styles.table} ${styles.detailsTable}`}>
               <tbody>
+                {def.service.levels.length > 1 && (
+                  <tr>
+                    <td>Level</td>
+                    <td data-testid="service-level">
+                      {b.level ?? 1} / {def.service.levels.length}
+                    </td>
+                  </tr>
+                )}
                 <tr>
                   <td>Radius</td>
-                  <td data-testid="info-radius">{def.service.radius} tiles</td>
+                  <td data-testid="info-radius">{def.service.levels[(b.level ?? 1) - 1]?.radius ?? def.service.radius} tiles</td>
                 </tr>
                 <SizeRow def={def} content={content} />
                 <tr>
@@ -564,6 +580,7 @@ export function InfoPanel({
             </table>
           </details>
         )}
+        {def?.service && b.level !== undefined && <UpgradePreview building={b} island={island} model={model} content={content} testId="service-upgrade" />}
 
         {b.residents !== undefined && (
           <>
@@ -589,7 +606,11 @@ export function InfoPanel({
               <table className={styles.table}>
                 <tbody>
                   {orderNeeds(content, b.needs ?? []).map((n) => (
-                    <tr key={n.id} data-testid={`house-need-${n.id}`} title={NEED_REASONS[n.reason] || undefined}>
+                    <tr
+                      key={n.id}
+                      data-testid={`house-need-${n.id}`}
+                      title={[needAlternatives(content, n.id), NEED_REASONS[n.reason]].filter(Boolean).join(" — ") || undefined}
+                    >
                       <td>
                         <span className={styles.withIcon}>
                           <Icon path={needIcon(n, n.category ? needCategory(content, n.category).icon : undefined)} />
@@ -703,8 +724,8 @@ export function InfoPanel({
           <button
             type="button"
             className={styles.button}
-            onClick={def?.trading_post ? onUpgradeTradingPost : onUpgradeWarehouse}
-            data-testid={def?.trading_post ? "trading-post-upgrade-button" : "warehouse-upgrade-button"}
+            onClick={onUpgradeBuilding}
+            data-testid={def?.trading_post ? "trading-post-upgrade-button" : def?.warehouse ? "warehouse-upgrade-button" : "service-upgrade-button"}
           >
             <Icon path={toolIcon("upgrade")} /> Upgrade
           </button>
