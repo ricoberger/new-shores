@@ -618,6 +618,7 @@ export class IslandDetail {
       this.lod = lod;
       this.near.setEnabled(lod === "near");
       for (const d of this.decoration.values()) d.setFar(lod === "far");
+      this.plateaus.setFar(lod === "far");
       this.applyMuted();
     }
     this.farTrees.setShown(this.shown && this.lod === "far");

@@ -1,6 +1,9 @@
+import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { describe, expect, it } from "vitest";
 import type { Terrain } from "../api/client";
-import { insideGrid, insideLoops, loopIndex, PLATEAU_STEP, plateauHeight, plateauLevels, roundLoop } from "./plateaus";
+import { marchingSquares, traceLoops } from "../display/coastline";
+import { fillTop, insideGrid, insideLoops, loopIndex, PLATEAU_STEP, plateauHeight, plateauLevels, roundLoop } from "./plateaus";
+import { Builder } from "./terrain";
 
 // Mountains as plateaus (visual only): level 1 on mountain tiles, level 2
 // deep inside a range, building footprints (mines, quarries) cut out.
@@ -89,5 +92,37 @@ describe("rounded plateau outline", () => {
         }
       }
     }
+  });
+});
+
+describe("plateau top", () => {
+  /** Area of a builder's triangles (on the xz plane) and its triangle count. */
+  const area = (b: Builder) => {
+    let a = 0;
+    for (let i = 0; i < b.indices.length; i += 3) {
+      const p = (k: number) => [b.positions[(b.indices[i + k] as number) * 3] as number, b.positions[(b.indices[i + k] as number) * 3 + 2] as number];
+      const [ax, az] = p(0) as [number, number];
+      const [bx, bz] = p(1) as [number, number];
+      const [cx, cz] = p(2) as [number, number];
+      a += Math.abs((bx - ax) * (cz - az) - (cx - ax) * (bz - az)) / 2;
+    }
+    return { area: a, tris: b.indices.length / 3 };
+  };
+
+  it("merges runs of whole cells into quads: the same surface with far fewer triangles", () => {
+    // A blob with a hole and a notch: partial cells along every edge.
+    const rows = ["gggggggggg", "gmmmmmmmmg", "gmmmmmmmmg", "gmmggmmmmg", "gmmggmmmgg", "gmmmmmmmmg", "gmmmmmmmmg", "gggggggggg"];
+    const { width, height, terrain } = grid(rows);
+    const mask = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && terrain[y * width + x] === "mountain";
+    const loops = traceLoops(marchingSquares(width, height, mask)).map((l) => roundLoop(l));
+    const merged = new Builder();
+    const cells = new Builder();
+    fillTop(merged, loops, 1, Color3.White());
+    fillTop(cells, loops, 1, Color3.White(), false);
+    const m = area(merged);
+    const c = area(cells);
+    expect(m.area).toBeCloseTo(c.area, 6);
+    expect(m.tris).toBeLessThan(c.tris / 3);
+    expect(merged.positions.filter((_, i) => i % 3 === 1).every((y) => y === 1)).toBe(true);
   });
 });

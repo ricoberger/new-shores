@@ -122,7 +122,7 @@ function template(scene: Scene, def: ContentBuilding): Mesh {
 
 /** World-oriented vertex data of a building model file (cached per loaded data). */
 const worldCache = new WeakMap<ModelData, ModelData>();
-function buildingData(data: ModelData): ModelData {
+export function buildingData(data: ModelData): ModelData {
   let w = worldCache.get(data);
   if (!w) worldCache.set(data, (w = worldData("building", data)));
   return w;

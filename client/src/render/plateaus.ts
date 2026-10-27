@@ -211,8 +211,12 @@ export function insideGrid(loops: readonly (readonly { x: number; y: number }[])
   return out;
 }
 
-/** The flat top inside rounded loops: marching squares over a TOP_GRID sample grid at height y. */
-function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, color: Color3): void {
+/**
+ * The flat top inside rounded loops: marching squares over a TOP_GRID
+ * sample grid at height y; with merge, a row's run of whole cells is one
+ * quad (same surface, a fraction of the triangles; false: tests).
+ */
+export function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, color: Color3, merge = true): void {
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -248,6 +252,17 @@ function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, color: Colo
       const br = at(i + 1, j + 1);
       const bl = at(i, j + 1);
       if (!tl && !tr && !br && !bl) continue;
+      if (merge && tl && tr && br && bl) {
+        // A run of whole cells is one quad (the top is flat and one colour).
+        let e = i + 1;
+        while (e + 1 < nx && at(e + 1, j) && at(e + 1, j + 1)) e++;
+        const a = v(i, j);
+        const c = v(e, j + 1);
+        b.tri(a, v(e, j), c);
+        b.tri(a, c, v(i, j + 1));
+        i = e - 1;
+        continue;
+      }
       const poly: number[] = [];
       if (tl) poly.push(v(i, j));
       if (tl !== tr) poly.push(v(i + 0.5, j));
@@ -269,6 +284,8 @@ export class PlateauLayer {
   private key = "";
   private levelsData: Uint8Array = new Uint8Array(0);
   private width = 0;
+  /** Far LOD: the crags are left out (a few pixels each there; the far triangle budget, ART_DIRECTION §2). */
+  private far = false;
 
   constructor(
     private readonly scene: Scene,
@@ -323,6 +340,13 @@ export class PlateauLayer {
     this.crags?.dispose();
     this.mesh = b.mesh(`plateaus_${island.id}`, this.scene, this.material, this.parent);
     this.crags = rocks.build(`crags_${island.id}`, this.scene, this.material, this.parent);
+    this.crags?.setEnabled(!this.far);
+  }
+
+  /** Far LOD: hides the crags. */
+  setFar(far: boolean): void {
+    this.far = far;
+    this.crags?.setEnabled(!far);
   }
 
   /**
@@ -364,10 +388,13 @@ export class PlateauLayer {
     const ys = loops.flatMap((l) => l.map((p) => p.y));
     const inside = loopIndex(loops);
     const y0 = Math.floor(Math.min(...ys));
-    for (let ty = y0; ty <= Math.ceil(Math.max(...ys)); ty++) {
+    const y1 = Math.ceil(Math.max(...ys));
+    const x0 = Math.floor(Math.min(...xs));
+    const x1 = Math.ceil(Math.max(...xs));
+    for (let ty = y0; ty <= y1; ty++) {
       // A step per band of rows (the incremental build).
       if (ty > y0 && (ty - y0) % CRAG_ROWS_PER_STEP === 0) yield;
-      for (let tx = Math.floor(Math.min(...xs)); tx <= Math.ceil(Math.max(...xs)); tx++) {
+      for (let tx = x0; tx <= x1; tx++) {
         if (!free(tx, ty) || hash2(tx, ty, s + 3) > 0.14) continue;
         const x = tx + 0.25 + 0.5 * hash2(tx, ty, s + 4);
         const y = ty + 0.25 + 0.5 * hash2(tx, ty, s + 5);

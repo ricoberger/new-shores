@@ -24,6 +24,7 @@ import { visibleChunks } from "../display/chunks";
 import { BUILD_BUDGET_MS, type BuildItem, buildOrder, BuildScheduler } from "../display/buildqueue";
 import { islandSeed } from "../display/scatter";
 import { type MaskIsland, MaskLayer } from "./farmesh";
+import { type LandmarkIsland, LandmarkLayer, showsLandmarks } from "./landmarks";
 import { gridOverlayVisible } from "../display/grid";
 import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, tileKey, waterEdgeHint, waterRows } from "../display/geometry";
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
@@ -243,6 +244,8 @@ export class GameRenderer {
   private focusTilesMarked = false;
   /** Islands drawn from their 1:4 masks (no tiles yet; at far LOD all but the focused one). */
   private readonly mask: MaskLayer;
+  /** Trading Posts and shipyards of the settled mask-drawn islands at far LOD. */
+  private readonly landmarks: LandmarkLayer;
   /** The tile priorities last sent to the sync (focus and islands in view). */
   private priorityKey = "";
   /** The focused island at far LOD when the view was last applied (null at near and mid). */
@@ -292,6 +295,7 @@ export class GameRenderer {
     void this.models.loadManifest();
     this.arch = new ArchipelagoLayer(this.scene, this.models);
     this.mask = new MaskLayer(this.scene);
+    this.landmarks = new LandmarkLayer(this.scene, this.models);
     // Measurement switch: ?farmask=0 keeps the full detail of every island in view at far LOD.
     this.farMask = new URLSearchParams(globalThis.location?.search ?? "").get("farmask") !== "0";
     this.life = new LifeLayer(this.scene, LIFE_CLASSES, quality, life, this.models);
@@ -350,6 +354,7 @@ export class GameRenderer {
         this.arch.setDocks(this.docks(this.lastServer.display));
       }
       for (const d of this.details.values()) d.refreshModels();
+      this.landmarks.refresh();
       this.refreshCasters();
     }
     let casters = false;
@@ -720,7 +725,8 @@ export class GameRenderer {
    * brought up to date with its payload. An island without its tiles yet
    * is drawn from its 1:4 mask (render/farmesh.ts), and so is every island
    * but the focused one at far LOD (?farmask=0 turns that off for
-   * measurements).
+   * measurements); a settled one of those keeps its Trading Post and
+   * shipyards as lite models (render/landmarks.ts).
    */
   private applyView(): void {
     this.arch.show(this.lod);
@@ -730,6 +736,7 @@ export class GameRenderer {
     const v = this.rig.view();
     const focus = islands.length > 0 ? focusedIsland(islands, v) : null;
     const masked: MaskIsland[] = [];
+    const landmarks: LandmarkIsland[] = [];
     for (const is of islands) {
       const shown = this.visible.has(is.id);
       let d = this.details.get(is.id);
@@ -738,8 +745,11 @@ export class GameRenderer {
       const useMask = !d?.hasTiles() || farMasked;
       d?.setShown(shown && !useMask, this.lod);
       if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), settled: is.settled });
+      // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
+      if (showsLandmarks(is, this.lod, focus, useMask)) landmarks.push(is);
     }
     this.mask.show(masked);
+    this.landmarks.show(landmarks, this.defs);
     this.cullChunks(islands);
     this.refreshCasters();
   }
