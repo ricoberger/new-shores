@@ -21,9 +21,9 @@ Content IDs are stable snake_case strings and never reused.
 | # | ID | Name | Residents (floor–max) | Tax/res/min | House cost | Workforce role |
 |---|---|---|---|---|---|---|
 | 1 | `settlers` | Settlers | 2–8 | 0.20 | 5 planks (§7) | farms, fishers, lumber, gatherers |
-| 2 | `citizens` | Citizens | 5–15 | 0.48 | §7 `house_citizens` | mines, kilns, mills, basic workshops |
-| 3 | `merchants` | Merchants | 8–25 | 0.90 | §7 `house_merchants` | refined workshops, printing, brewing |
-| 4 | `patricians` | Patricians | 12–40 | 1.60 | §7 `house_patricians` | fine crafts, opticians (small numbers) |
+| 2 | `citizens` | Citizens | 5–15 | 0.80 | §7 `house_citizens` | mines, kilns, mills, basic workshops |
+| 3 | `merchants` | Merchants | 8–25 | 1.50 | §7 `house_merchants` | refined workshops, printing, brewing |
+| 4 | `patricians` | Patricians | 12–40 | 2.70 | §7 `house_patricians` | fine crafts, opticians (small numbers) |
 
 Residents and tax for tiers 3–4 per D-056 (provisional; the reference
 games tune the tax).
@@ -39,9 +39,11 @@ games tune the tax).
 
 ### Need categories per tier (D-056; supersedes D-031's bonus and D-033)
 
-Every alternative of a category has **share 0.6**; category coverage =
-`min(1, Σ shares of supplied alternatives)` — one alternative gives 60 %,
-two give 100 %. Consumption in units per resident per minute (provisional;
+Every alternative of a category with two or more alternatives has
+**share 0.6**; a category with exactly one alternative has share 1.0
+(D-056 amendment); category coverage = `min(1, Σ shares of supplied
+alternatives)` — one of two alternatives gives 60 %, both give 100 %.
+Tax rates are tuned to the one-alternative baseline (§2). Consumption in units per resident per minute (provisional;
 a 60 s cycle producer making 1 unit = 1 unit/min). A house also has the
 categories of every **lower tier** (cumulative, D-056 §2) at reduced
 rates: `rate × (own max residents / higher max residents) × 0.5^(tier

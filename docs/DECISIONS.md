@@ -999,3 +999,15 @@ curve, D-054's footprints):**
   grouping yet — polish item), the toast. CONTENT §2, §5, §6, §7, §8,
   §12 and MECHANICS §6, §12 updated with this decision; MECHANICS §6.2
   describes the implemented formula once the first session lands.
+- *Amendment (S1 findings, same day):* (i) **a category with exactly
+  one alternative has share 1.0** (a lone alternative fills it; 0.6
+  each from two alternatives on) — otherwise Settlers, who have one
+  alternative per category by design, could never exceed 0.6; (ii)
+  **tax is tuned to the one-alternative baseline**: Citizens 0.8,
+  Merchants 1.5, Patricians 2.7 per resident per minute (Settlers 0.2),
+  so a town with one chain per category earns what it earned before and
+  full coverage earns up to 1.67× — the reward for the second chains;
+  (iii) **the founding cargo is exempt from slot limits**: the world
+  generator loads the start stock onto the sloop regardless of its two
+  slots, slot checks apply to player loading, and the stock moves to the
+  Trading Post at founding (D-051) as today.
