@@ -24,7 +24,8 @@ import type { Lod } from "../display/lod";
 import { lifeEnabled } from "../display/life";
 import { fxaaForced, type Quality, resolveQuality } from "../display/quality";
 import { initialViewState, viewReducer } from "../display/view";
-import { type CameraInfo, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
+import { type CameraInfo, type FieldPaint, GameRenderer, type InitialCamera, type RendererEvents, type RenderSource } from "../render/engine";
+import { MAX_PAINT_TILES } from "../display/fieldpaint";
 import { AccountMenu } from "./AccountMenu";
 import styles from "./App.module.css";
 import hud from "./hud.module.css";
@@ -92,6 +93,8 @@ export interface TestHook {
   jumpToIsland(id: string): void;
   /** Validity colour of the placement ghost in the last frame: neutral, yellow (no road) or red (null: hidden). */
   ghostValidity(): "ok" | "no_road" | "invalid" | null;
+  /** Marks of a painted field rectangle by kind and the rejected anchors flashing (D-054). */
+  paintCounts(): Record<"ok" | "bad" | "max" | "remove" | "flash", number>;
   /** Render quality in force ("high": shadow map, grading, FXAA; "low": blob shadows and vignette). */
   quality(): Quality;
   /** Pins the renderer's animation time (server ms: sea, foam, carts, ships), or releases it with null. */
@@ -153,6 +156,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
   // id does not re-open the dialog, a new id does.
   const [closedSummaries, setClosedSummaries] = useState<ReadonlySet<number>>(() => new Set());
   const [ghostHint, setGhostHint] = useState<string | null>(null);
+  /** The live count of a painted field rectangle (D-054), null without a drag. */
+  const [paintStatus, setPaintStatus] = useState<string | null>(null);
   // A founding the client chains (D-051): sail_ship was sent, found_island
   // follows when the ship is idle at the island. Kept across reloads.
   const [storedPendingFound, setPendingFoundState] = useState<PendingFounding | null>(() => loadPendingFounding());
@@ -354,11 +359,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       }
       if (t.kind === "field") {
         // The tool stays for the next field until the farm has its maximum.
-        const farm = res?.display.islands.flatMap((is) => is.buildings).find((b) => b.id === t.farmId);
-        if (!farm || (farm.fields && farm.fields.ids.length >= farm.fields.max)) {
-          setTool((cur) => (cur === t || (cur.kind === "field" && cur.farmId === t.farmId) ? NO_TOOL : cur));
-          if (farm) toast(`${defs.get(farm.type)?.name ?? "The farm"} has all the ${(defs.get(t.buildingType)?.name ?? "field").toLowerCase()}s it can use`);
-        } else setTool((cur) => (cur === t && cur.pending ? { ...cur, pending: undefined } : cur));
+        afterFields(t, res);
         return;
       }
       // Build stays active (without a pending tile) for the next building;
@@ -366,6 +367,49 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       // at its new position.
       if (t.kind === "build") setTool((cur) => (cur === t && cur.kind === "build" && cur.pending ? { ...cur, pending: undefined } : cur));
       else setTool((cur) => (cur === t ? NO_TOOL : cur));
+    });
+  };
+
+  /** The field tool ends when its farm has the maximum (after a field or a painted rectangle); else it stays. */
+  const afterFields = (t: Extract<Tool, { kind: "field" }>, res: WorldResponse | null) => {
+    const farm = res?.display.islands.flatMap((is) => is.buildings).find((b) => b.id === t.farmId);
+    if (!farm || (farm.fields && farm.fields.ids.length >= farm.fields.max)) {
+      setTool((cur) => (cur === t || (cur.kind === "field" && cur.farmId === t.farmId) ? NO_TOOL : cur));
+      if (farm) toast(`${defs.get(farm.type)?.name ?? "The farm"} has all the ${(defs.get(t.buildingType)?.name ?? "field").toLowerCase()}s it can use`);
+    } else setTool((cur) => (cur === t && cur.pending ? { ...cur, pending: undefined } : cur));
+  };
+
+  /**
+   * A painted rectangle (D-054): one place_fields with its anchors; a
+   * rectangle above the command's limit was clipped (toast). Resolves to
+   * the per-tile results the scene flashes (null: the command failed and the
+   * world is re-fetched, the hint's data was stale).
+   */
+  const paintFields = async (p: FieldPaint) => {
+    const t = tool;
+    if (t.kind !== "field" || t.remove || t.farmId !== p.farmId) return null;
+    if (p.clipped) toast(`A rectangle takes at most ${MAX_PAINT_TILES} tiles: it was clipped`);
+    const { ok, error, res } = await sendCommand({
+      type: "place_fields",
+      island_id: p.island,
+      farm_id: p.farmId,
+      building_type: p.buildingType,
+      tiles: p.tiles,
+      rotation: p.rotation as 0 | 90 | 180 | 270,
+    });
+    if (!ok) {
+      if (error) void sync.refresh();
+      return null;
+    }
+    afterFields(t, res);
+    return res?.tile_results ?? null;
+  };
+
+  /** A removal rectangle or click: one demolish_fields for the farm (the server answers every tile; nothing to flash). */
+  const removeFields = (islandId: string, farmId: number, tiles: TilePos[], clipped: boolean) => {
+    if (clipped) toast(`A rectangle takes at most ${MAX_PAINT_TILES} tiles: it was clipped`);
+    void sendCommand({ type: "demolish_fields", island_id: islandId, farm_id: farmId, tiles }).then(({ ok, error }) => {
+      if (!ok && error) void sync.refresh();
     });
   };
 
@@ -416,8 +460,11 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       if (tool.kind === "build") placeGhost(tool, at);
     },
     placeField: (at: IslandTile) => {
-      if (tool.kind === "field") placeGhost(tool, at);
+      if (tool.kind === "field" && !tool.remove) placeGhost(tool, at);
     },
+    paintFields,
+    removeFields,
+    paintStatus: (text: string | null) => setPaintStatus(text),
     pend: (at: IslandTile) => setTool((t) => (isGhostTool(t) ? { ...t, pending: at } : t)),
     unpend: () => setTool((t) => (isGhostTool(t) && t.pending ? { ...t, pending: undefined } : t)),
     rotateGhost: rotateTool,
@@ -525,6 +572,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
       if (t instanceof HTMLInputElement || t instanceof HTMLSelectElement || t instanceof HTMLTextAreaElement) return;
       const cur = latest.current;
       if (e.key === "Escape") {
+        // A dragged rectangle or road is dropped first; the tool stays.
+        if (rendererRef.current?.cancelDrag()) return;
         if (cur.confirm) setConfirm(null);
         else if (cur.dialog) dispatch({ type: "closeShipment" });
         else if (cur.tool.kind !== "none") setTool(NO_TOOL);
@@ -577,6 +626,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
         timing: () => rendererRef.current?.timing() ?? { firstFrame: false, focusTiles: false, firstFrameMs: null, focusTilesMs: null },
         jumpToIsland: (id) => rendererRef.current?.jumpToIsland(id),
         ghostValidity: () => rendererRef.current?.ghostValidity() ?? null,
+        paintCounts: () => rendererRef.current?.paintCounts() ?? { ok: 0, bad: 0, max: 0, remove: 0, flash: 0 },
         quality: () => rendererRef.current?.quality() ?? "low",
         freezeTime: (ms) => rendererRef.current?.freezeTime(ms),
         assets: () =>
@@ -778,8 +828,8 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           onUpgradeWarehouse={() => void send({ type: "upgrade_warehouse", island_id: islandId, building_id: selectedBuilding.id })}
           onUpgradeTradingPost={() => void send({ type: "upgrade_trading_post", island_id: islandId, building_id: selectedBuilding.id })}
           onSelectBuilding={focus}
-          onAddField={(fieldType) => {
-            setTool({ kind: "field", farmId: selectedBuilding.id, island: islandId, buildingType: fieldType, rotation: 0 });
+          onAddField={(fieldType, remove) => {
+            setTool({ kind: "field", farmId: selectedBuilding.id, island: islandId, buildingType: fieldType, rotation: 0, ...(remove ? { remove: true } : {}) });
           }}
           nowMs={snap.nowMs}
           onOrderShip={(shipType) =>
@@ -872,9 +922,17 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             : "sails there and founds it on arrival"
         } (${tool.rotation}°) · R rotate · Esc cancel`}
       {tool.kind === "road" && "Drag to draw a road · Esc / right click cancel"}
-      {tool.kind === "field" && `Click to add a ${fieldPlural.slice(0, -1)} next to the farm or its fields (${tool.rotation}°) · R rotate · Esc / right click leave`}
-      {tool.kind === "demolish" && "Click a building, field or road to demolish · Esc / right click cancel"}
-      {ghostHint && (tool.kind === "build" || tool.kind === "move" || tool.kind === "found" || tool.kind === "field") && (
+      {tool.kind === "field" &&
+        (tool.remove
+          ? `Click or drag over ${fieldPlural} to remove them · Esc / right click leave`
+          : `Click to add a ${fieldPlural.slice(0, -1)}, drag to paint a rectangle next to the farm or its fields (${tool.rotation}°) · R rotate · Esc / right click leave`)}
+      {tool.kind === "demolish" && "Click a building, field or road to demolish, drag over fields to remove them · Esc / right click cancel"}
+      {paintStatus && (tool.kind === "field" || tool.kind === "demolish") && (
+        <div className={styles.hintCount} data-testid="paint-count">
+          {paintStatus}
+        </div>
+      )}
+      {ghostHint && !paintStatus && (tool.kind === "build" || tool.kind === "move" || tool.kind === "found" || tool.kind === "field") && (
         <div className={styles.hintReason} data-testid="tool-hint-reason">
           {ghostHint}
         </div>
@@ -905,7 +963,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
           />
           <InsolvencyBanner model={model} onOpenWarnings={() => togglePanel("warnings", true)} compact={phone} oneLine={tightLandscape} />
           {placementBar && isGhostTool(tool) && (
-            <PlacementBar tool={tool} hint={ghostHint} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
+            <PlacementBar tool={tool} hint={ghostHint} paintStatus={paintStatus} onConfirm={confirmPlacement} onRotate={() => rotateTool(1)} onCancel={() => setTool(NO_TOOL)} />
           )}
           {demolishBar && <DemolishBar onDone={() => setTool(NO_TOOL)} />}
           {roadBar && <RoadBar onDone={() => setTool(NO_TOOL)} />}

@@ -36,7 +36,7 @@ describe("parseShotArgs", () => {
     expect(() => parseShotArgs({ FIXTURE: "showcase,nope" })).toThrow(/FIXTURE: unknown value 'nope'; allowed: showcase, settled, dense-2x400.*, all/);
     expect(() => parseShotArgs({ VIEW: "close" })).toThrow(/VIEW: unknown value 'close'; allowed: near, mid, far, start, all/);
     expect(() => parseShotArgs({ DEVICE: "tablet" })).toThrow(ShotArgError);
-    expect(() => parseShotArgs({ PRESET: "x" })).toThrow(/PRESET: unknown value 'x'; allowed: info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, sloop, build-menu, warnings, ship-panel, route-editor, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, archipelago-far, reroll, rename, all/);
+    expect(() => parseShotArgs({ PRESET: "x" })).toThrow(/PRESET: unknown value 'x'; allowed: info-panel, producer-inputs, house-card, service-card, warehouse-card, trading-post-card, shipyard-idle, shipyard-building, served-houses, serving-buildings, sheet, ghost, sloop, build-menu, warnings, ship-panel, route-editor, route-paused, island-card, top-bar-popups, farm-selected, hemp-farm-selected, field-selected, field-ghost, field-paint, field-paint-result, archipelago-far, reroll, rename, all/);
   });
 
   it("validates ROTATION, HUD and the numbers", () => {

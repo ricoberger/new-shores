@@ -9,6 +9,7 @@ import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, devices, type Page } from "@playwright/test";
+import type { WorldResponse } from "../../src/api/client.ts";
 import { FAR_EXIT_HALF, MID_TO_NEAR_HALF } from "../../src/display/lod.ts";
 import { API_PORT, API_SERVER_COMMAND, E2E_TIME_SCALE, WEB_PORT, WEB_SERVER_COMMAND } from "../constants.ts";
 import { type Device, type Fixture, type Preset, parseShotArgs, SERVER_FIXTURES, ShotArgError, type ShotArgs, type View } from "./shots-args.ts";
@@ -30,8 +31,10 @@ const DEVICE_OPTIONS = {
 /** The island each fixture opens on and per-view camera targets of the visual spec. */
 const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<Record<View, { x: number; y: number; half?: number }>> }> = {
   showcase: { island: "showcase", targets: { near: { x: 22, y: 13, half: 10 } } },
-  settled: { island: "isle-01" }, // the home island of every generated archipelago (D-053)
-  town: { island: "isle-01" },
+  // The home island of every generated archipelago (D-053), isle-01 at (193, 303) on the default seed:
+  // near on the street between the Trading Post and the sheep farm, mid over the settlement (settled: with the shipyard).
+  settled: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 282, y: 316, half: 36 } } },
+  town: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } },
   seafaring: { island: "isle-01" }, // a new world: the start sloop at sea, nothing settled
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
@@ -117,7 +120,19 @@ interface Timing {
 }
 const timings = new WeakMap<Page, Timing>();
 
-async function open(browser: Browser, device: Device, fixture: Fixture, hud: boolean): Promise<{ page: Page; close: () => Promise<void> }> {
+/**
+ * Opens the game on a fixture. `patch` edits every `GET /api/v1/world`
+ * response before the client sees it (a state the dev fixtures do not
+ * reach, e.g. four ships at the pier; display only, the server is not
+ * changed).
+ */
+async function open(
+  browser: Browser,
+  device: Device,
+  fixture: Fixture,
+  hud: boolean,
+  patch?: (w: WorldResponse) => void,
+): Promise<{ page: Page; close: () => Promise<void> }> {
   if (SERVER_FIXTURES.includes(fixture)) {
     const res = await fetch(`http://localhost:${API_PORT}/api/v1/dev/reset`, {
       method: "POST",
@@ -137,6 +152,14 @@ async function open(browser: Browser, device: Device, fixture: Fixture, hud: boo
     let passed = 0;
     await page.route("**/api/v1/world/islands/*/tiles*", (route) => {
       if (passed++ < Number(hold)) void route.continue();
+    });
+  }
+  if (patch) {
+    await page.route("**/api/v1/world", async (route) => {
+      const response = await route.fetch();
+      const json = (await response.json()) as WorldResponse;
+      patch(json);
+      await route.fulfill({ response, json });
     });
   }
   const t0 = Date.now();
@@ -268,7 +291,122 @@ async function farmOf(page: Page, type = "sheep_farm"): Promise<{ island: string
   }, type);
 }
 
-const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page: Page) => Promise<void> }> = {
+/** The home island's Trading Post at level 4 with four ships at its berths and one in its queue (copies of the start sloop). */
+function fourAtThePier(w: WorldResponse): void {
+  const d = w.display;
+  const home = d.islands.find((i) => i.buildings.some((b) => b.type === "trading_post"));
+  const tp = home?.buildings.find((b) => b.type === "trading_post");
+  const sloop = d.ships[0];
+  if (!home || !tp || !sloop) throw new Error("fourAtThePier: no Trading Post or ship");
+  const ids = [901, 902, 903, 904, 905];
+  for (const id of ids) {
+    d.ships.push({ ...sloop, id, state: id === 905 ? "waiting_for_berth" : "idle", island_id: home.id, position: null, leg: null, route_id: 0, cargo: [], paused: false });
+  }
+  tp.level = 4;
+  tp.berths = { total: 4, busy: 4, ships: ids.slice(0, 4), queue: [905] };
+}
+
+/** The home island's shipyard halfway through a sloop. */
+function sloopOnTheSlip(w: WorldResponse): void {
+  const yard = w.display.islands.flatMap((i) => i.buildings).find((b) => b.type === "shipyard");
+  if (!yard) throw new Error("sloopOnTheSlip: no shipyard");
+  // Around the payload's evaluation time (the client's clock follows the server's).
+  const now = Date.parse(w.display.evaluated_at);
+  yard.ship_order = { type: "sloop", ordered_at: new Date(now - 60_000).toISOString(), due_at: new Date(now + 60_000).toISOString() };
+}
+
+/** The home sheep farm and its pastures (island-local tiles) and the island's position. */
+async function sheepFarm(page: Page): Promise<{ island: string; ox: number; oy: number; farm: { id: number; x: number; y: number }; fields: { x: number; y: number }[] }> {
+  return page.evaluate(() => {
+    for (const is of window.__newShores!.getServer()!.display.islands) {
+      const f = is.buildings.find((x) => x.type === "sheep_farm");
+      if (f) return { island: is.id, ox: is.position.x, oy: is.position.y, farm: { id: f.id, x: f.x, y: f.y }, fields: is.buildings.filter((x) => x.farm_id === f.id).map((x) => ({ x: x.x, y: x.y })) };
+    }
+    throw new Error("no sheep farm");
+  });
+}
+
+/** A left-button drag between two tiles of an island; `release: false` keeps the button down (mid-drag shots). */
+async function dragTiles(page: Page, island: string, a: { x: number; y: number }, b: { x: number; y: number }, release = true): Promise<void> {
+  const p = await tileAt(page, island, a.x, a.y);
+  const q = await tileAt(page, island, b.x, b.y);
+  await page.mouse.move(p.x, p.y);
+  await page.mouse.down();
+  await page.mouse.move((p.x + q.x) / 2, (p.y + q.y) / 2, { steps: 6 });
+  await page.mouse.move(q.x, q.y, { steps: 6 });
+  if (release) await page.mouse.up();
+}
+
+/**
+ * The sheep farm of the settled home island selected with its pastures
+ * removed through the card's "Remove fields" (a right click on Paint) and
+ * a rectangle over them; the field tool is then in its paint mode. Returns
+ * the farm and where its pastures were.
+ */
+async function clearedSheepFarm(page: Page): Promise<Awaited<ReturnType<typeof sheepFarm>>> {
+  const s = await sheepFarm(page);
+  const xs = s.fields.map((f) => f.x);
+  const ys = s.fields.map((f) => f.y);
+  const cx = (Math.min(s.farm.x, ...xs) + Math.max(s.farm.x + 3, ...xs.map((x) => x + 3))) / 2;
+  const cy = (Math.min(s.farm.y, ...ys) + Math.max(s.farm.y + 3, ...ys.map((y) => y + 3))) / 2;
+  // The farm and its pastures left of the card.
+  await setCamera(page, { x: s.ox + cx + 4, y: s.oy + cy, half: 10, rotation: 0 });
+  await settle(page);
+  const p = await tileAt(page, s.island, s.farm.x + 1, s.farm.y + 1);
+  await page.mouse.click(p.x, p.y);
+  await page.getByTestId("farm-add-field").click({ button: "right" });
+  await dragTiles(page, s.island, { x: Math.min(...xs), y: Math.min(...ys) }, { x: Math.max(...xs) + 2, y: Math.max(...ys) + 2 });
+  await page.waitForFunction((id) => !window.__newShores!.getServer()!.display.islands.some((is) => is.buildings.some((b) => b.farm_id === id)), s.farm.id, { timeout: 10_000 });
+  await page.getByTestId("farm-add-field").click();
+  return s;
+}
+
+/**
+ * A pasture rectangle from the first pasture's place over the cleared ones
+ * and one module beyond them: three modules fit (green), the rest are over
+ * the maximum. The button stays down (`release`: up, the server answers).
+ */
+async function paintPastures(page: Page, s: Awaited<ReturnType<typeof sheepFarm>>, release: boolean): Promise<void> {
+  const first = s.fields[0]!;
+  const last = s.fields[s.fields.length - 1]!;
+  // One module further in the direction the pastures run, and a second row.
+  const dx = Math.sign(last.x - first.x);
+  const dy = Math.sign(last.y - first.y);
+  const end = { x: last.x + 2 + 3 * dx + (dx === 0 ? 3 : 0), y: last.y + 2 + 3 * dy + (dy === 0 ? 3 : 0) };
+  await dragTiles(page, s.island, first, end, release);
+}
+
+/** Centres the camera at near on a building's footprint (plus an offset in tiles) and opens its card. */
+async function selectBuilding(page: Page, type: string, offset: { x: number; y: number }, half: number): Promise<void> {
+  const t = await page.evaluate((ty) => {
+    for (const is of window.__newShores!.getServer()!.display.islands) {
+      const b = is.buildings.find((x) => x.type === ty);
+      if (b) return { island: is.id, x: b.x, y: b.y, ox: is.position.x, oy: is.position.y };
+    }
+    throw new Error(`no ${ty}`);
+  }, type);
+  await setCamera(page, { x: t.ox + t.x + offset.x, y: t.oy + t.y + offset.y, half, rotation: 0 });
+  await settle(page);
+  // A land tile of the footprint whatever its rotation (ships over the water rows take the click there).
+  for (const [dx, dy] of [
+    [2, 2],
+    [3, 5],
+    [5, 3],
+    [1, 7],
+    [7, 1],
+  ] as const) {
+    const p = await tileAt(page, t.island, t.x + dx, t.y + dy);
+    await page.mouse.click(p.x, p.y);
+    if (await page.getByTestId("info-panel").waitFor({ state: "visible", timeout: 2000 }).then(() => true, () => false)) {
+      if (await page.getByTestId("info-panel").getByText(type.replace("_", " "), { exact: false }).count()) break;
+    }
+    await page.keyboard.press("Escape");
+  }
+  await page.getByTestId("info-panel").waitFor({ state: "visible" });
+  await page.mouse.move(5, 400);
+}
+
+const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w: WorldResponse) => void; run: (page: Page) => Promise<void> }> = {
   // The HUD with the info panel of a building that is not running (desktop).
   "info-panel": {
     fixture: "dense-2x400",
@@ -316,13 +454,14 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       const t = await page.evaluate(() => {
         for (const is of window.__newShores!.getServer()!.display.islands) {
           const b = is.buildings.find((x) => (x.needs?.length ?? 0) > 0) ?? is.buildings.find((x) => x.residents !== undefined);
-          if (b) return { island: is.id, x: b.x, y: b.y };
+          if (b) return { island: is.id, x: b.x, y: b.y, ox: is.position.x, oy: is.position.y };
         }
         throw new Error("no house");
       });
-      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
+      // Archipelago coordinates: the generated home island is not at the origin (D-053).
+      await setCamera(page, { x: t.ox + t.x + 1, y: t.oy + t.y + 1, half: HALF.near, rotation: 0 });
       await settle(page);
-      const p = await tileAt(page, t.island, t.x, t.y);
+      const p = await tileAt(page, t.island, t.x + 1, t.y + 1);
       await page.mouse.click(p.x, p.y);
       await page.getByTestId("info-panel").waitFor({ state: "visible" });
       await page.mouse.move(5, 400);
@@ -367,24 +506,12 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.mouse.move(5, 400);
     },
   },
+  // The Trading Post at level 4 (D-054 size, settled) with four ships at its berths and one queued, its card open.
   "trading-post-card": {
-    fixture: "showcase",
+    fixture: "settled",
     device: "desktop",
-    run: async (page) => {
-      const t = await page.evaluate(() => {
-        for (const is of window.__newShores!.getServer()!.display.islands) {
-          const b = is.buildings.find((x) => x.type === "trading_post" && x.level === 1);
-          if (b) return { island: is.id, x: b.x, y: b.y };
-        }
-        throw new Error("no trading post");
-      });
-      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
-      await settle(page);
-      const p = await tileAt(page, t.island, t.x, t.y);
-      await page.mouse.click(p.x, p.y);
-      await page.getByTestId("info-panel").waitFor({ state: "visible" });
-      await page.mouse.move(5, 400);
-    },
+    patch: fourAtThePier,
+    run: (page) => selectBuilding(page, "trading_post", { x: 1, y: -3 }, 12),
   },
   "shipyard-idle": {
     fixture: "showcase",
@@ -406,24 +533,12 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.mouse.move(5, 400);
     },
   },
+  // The shipyard (D-054 size, settled) halfway through a sloop on its slipway, its card open.
   "shipyard-building": {
-    fixture: "showcase",
+    fixture: "settled",
     device: "desktop",
-    run: async (page) => {
-      const t = await page.evaluate(() => {
-        for (const is of window.__newShores!.getServer()!.display.islands) {
-          const b = is.buildings.find((x) => x.type === "shipyard");
-          if (b) return { island: is.id, x: b.x, y: b.y };
-        }
-        throw new Error("no chapel");
-      });
-      await setCamera(page, { x: t.x + 1, y: t.y + 1, half: HALF.near, rotation: 0 });
-      await settle(page);
-      const p = await tileAt(page, t.island, t.x, t.y);
-      await page.mouse.click(p.x, p.y);
-      await page.getByTestId("info-panel").waitFor({ state: "visible" });
-      await page.mouse.move(5, 400);
-    },
+    patch: sloopOnTheSlip,
+    run: (page) => selectBuilding(page, "shipyard", { x: 4, y: 4 }, 12),
   },
   "served-houses": {
     fixture: "showcase",
@@ -474,17 +589,14 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
     },
   },
-  // A sheep farm selected: its pastures are tinted like the farm (desktop).
+  // The sheep farm of the settled home island selected (D-054 sizes): its pastures tinted like the farm, the card with "3 / 3 placed", Paint and the Size row (desktop).
   "farm-selected": {
-    fixture: "showcase",
+    fixture: "settled",
     device: "desktop",
     run: async (page) => {
-      const f = await farmOf(page);
-      await setCamera(page, { x: f.x + 1, y: f.y + 1, half: 6, rotation: 0 });
-      await settle(page);
-      const p = await tileAt(page, f.island, f.x + 1, f.y + 1);
-      await page.mouse.click(p.x, p.y);
-      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await selectBuilding(page, "sheep_farm", { x: 5, y: 1 }, 10);
+      // Details open: the Size row (3×3 + 3 pastures of 3×3).
+      await page.getByTestId("info-details").locator("summary").click();
       await page.mouse.move(5, 400);
     },
   },
@@ -516,27 +628,43 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
       await page.mouse.move(5, 400);
     },
   },
-  // The field tool of a sheep farm: the pasture ghost next to the farm (desktop).
+  // The field tool of a sheep farm (settled, D-054 sizes) after its pastures were removed: one pasture module's ghost next to the farm (desktop).
   "field-ghost": {
-    fixture: "showcase",
+    fixture: "settled",
     device: "desktop",
     run: async (page) => {
-      const f = await farmOf(page);
-      await setCamera(page, { x: f.x + 1, y: f.y + 1, half: 6, rotation: 0 });
-      await settle(page);
-      const p = await tileAt(page, f.island, f.x + 1, f.y + 1);
-      await page.mouse.click(p.x, p.y);
-      await page.getByTestId("farm-add-field").click();
-      // The first tile around the farm where the server would accept a pasture.
-      for (let dy = -3; dy <= 6; dy++) {
-        for (let dx = -3; dx <= 6; dx++) {
-          const q = await tileAt(page, f.island, f.x + dx, f.y + dy);
-          await page.mouse.move(q.x, q.y);
-          await page.waitForTimeout(60);
-          if ((await page.evaluate(() => window.__newShores!.ghostValidity())) === "ok") return;
-        }
-      }
-      throw new Error("no valid pasture tile");
+      const s = await clearedSheepFarm(page);
+      const at = s.fields[0]!;
+      const q = await tileAt(page, s.island, at.x, at.y);
+      await page.mouse.move(q.x, q.y);
+      await page.waitForFunction(() => window.__newShores!.ghostValidity() === "ok", undefined, { timeout: 10_000 });
+    },
+  },
+  // Painting pastures mid-drag (D-054): the modules that fit green, the ones over the maximum red, the live count (desktop).
+  "field-paint": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const s = await clearedSheepFarm(page);
+      await paintPastures(page, s, false);
+      await page.getByTestId("paint-count").waitFor({ state: "visible" });
+    },
+  },
+  // The painted rectangle released: the server placed what fits, the rejected modules flash red (desktop).
+  "field-paint-result": {
+    fixture: "settled",
+    device: "desktop",
+    run: async (page) => {
+      const s = await clearedSheepFarm(page);
+      // The new pastures rise in on the renderer's clock: it runs until they stand, then the shot's time is pinned again (the flash holds).
+      await page.evaluate(() => window.__newShores!.freezeTime(null));
+      await paintPastures(page, s, true);
+      await page.waitForFunction(() => window.__newShores!.paintCounts().flash > 0, undefined, { timeout: 10_000 });
+      await page.mouse.move(5, 400);
+      await page.clock.setFixedTime(new Date(T.getTime() + 2000));
+      await sleep(300);
+      await page.clock.setFixedTime(T);
+      await page.evaluate((t) => window.__newShores!.freezeTime(t), T.getTime());
     },
   },
   // The red placement ghost: a quarry off its deposit (desktop).
@@ -699,7 +827,7 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; run: (page:
 
 async function takePreset(browser: Browser, preset: Preset, dir: string, written: string[]): Promise<void> {
   const p = PRESET_RUN[preset];
-  const { page, close } = await open(browser, p.device, p.fixture, true);
+  const { page, close } = await open(browser, p.device, p.fixture, true, p.patch);
   try {
     if (preset === "sheet") await page.waitForFunction(() => window.__newShores!.quality() === "low", undefined, { timeout: 10_000 });
     await settle(page);

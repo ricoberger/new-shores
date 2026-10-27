@@ -40,6 +40,8 @@ const SHIP_Y = 0;
 /** Ship instance scale at near/mid LOD and at far LOD (≥ 1.5×, so ships stay visible zoomed out). */
 export const SHIP_SCALE = 5;
 export const SHIP_SCALE_FAR = 4;
+/** From a ship's origin back to its stern at near LOD (tiles): the sloop's stern lies 0.443 ship lengths behind; a hand's breadth off the pier. */
+export const DOCK_STERN = 0.45 * SHIP_SCALE + 0.1;
 const ROUTE_Y = GROUND_TOP + 0.25;
 /** The haze starts this far (tiles) outside the islands' bounding box. */
 const HAZE_INNER = 30;
@@ -186,6 +188,11 @@ export class ArchipelagoLayer {
    * the ship list. `berths` are the islands' harbour
    * berths in archipelago tiles.
    */
+  /** Replaces the pier and queue points (the berth anchors arrived with the model manifest). */
+  setDocks(docks: ReadonlyMap<number, Dock>): void {
+    this.docks = docks;
+  }
+
   update(
     islands: readonly IslandDisplay[],
     ships: readonly ShipDisplay[],

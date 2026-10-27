@@ -16,6 +16,7 @@ import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResp
 import type { SyncSnapshot } from "../api/sync";
 import { archipelagoRect, type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
+import { fieldsUnder, type PaintDrag, paintAnchors, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
 import { servedRelated } from "../display/served";
 import { focusedIsland, islandRect, rectIntersectsQuad } from "../display/frustum";
 import { type DecodedMask, decodeMask, MASK_BLOCK } from "../display/mask";
@@ -31,7 +32,7 @@ import { type ArchPoint, dockPoints, seaPoint } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
-import { ArchipelagoLayer, type ArchSelection } from "./archipelago";
+import { ArchipelagoLayer, type ArchSelection, DOCK_STERN } from "./archipelago";
 import { CameraRig } from "./camera";
 import { footprintBox } from "./coords";
 import { FootprintMarks, type Mark } from "./fields";
@@ -40,13 +41,14 @@ import { PlacementGhost } from "./ghost";
 import { GridOverlay } from "./grid";
 import { IslandDetail } from "./island";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD, HAZE } from "./palette";
-import { type AssetsStatus, type Detail, ModelRegistry } from "./models";
+import { type AssetsStatus, buildingAnchor, type Detail, ModelRegistry } from "./models";
 import { type Point, PointerInput, type PointerKind } from "./picking";
 import { JumpLatch } from "./latch";
 import { LIFE_CLASSES, LifeLayer } from "./life";
 import { setSwayTime } from "./sway";
 import { SceneLighting } from "./lighting";
 import { RoadPreview } from "./roads";
+import { PaintPreview, type PaintMark } from "./paint";
 
 /**
  * Render resolution cap (render pixels per CSS pixel). High-DPR phones
@@ -98,6 +100,20 @@ export interface RendererEvents {
   road(island: string, from: TilePos, to: TilePos): void;
   /** Field tool (D-051 part 4): a mouse click on a tile places the ghost's field there. */
   placeField(at: IslandTile): void;
+  /**
+   * Field tool (D-054): a rectangle was painted — one place_fields with its
+   * anchors (`clipped`: the drag was larger than one command takes).
+   * Resolves to the server's per-tile results (null: the command failed).
+   */
+  paintFields(paint: FieldPaint): Promise<readonly { x: number; y: number; ok: boolean }[] | null>;
+  /**
+   * Removal rectangle (the field tool's "Remove fields" or the Demolish
+   * tool over fields): one demolish_fields per farm with the rectangle's
+   * tiles on its fields.
+   */
+  removeFields(island: string, farmId: number, tiles: TilePos[], clipped: boolean): void;
+  /** The live count of a painted or removal rectangle ("n / max …"), null when no rectangle is dragged. */
+  paintStatus(text: string | null): void;
   demolish(at: IslandTile): void;
   cancelTool(): void;
   /**
@@ -111,6 +127,16 @@ export interface RendererEvents {
   inspectIsland(id: string): void;
   /** The focused island, the LOD or the rotation changed. */
   camera(info: CameraInfo): void;
+}
+
+/** A painted field rectangle: the anchors of one place_fields. */
+export interface FieldPaint {
+  island: string;
+  farmId: number;
+  buildingType: string;
+  rotation: number;
+  tiles: TilePos[];
+  clipped: boolean;
 }
 
 /** The part of GameSync the renderer reads. */
@@ -184,6 +210,12 @@ export class GameRenderer {
   private defs = new Map<string, ContentBuilding>();
   private hover: Point | null = null;
   private roadStart: IslandTile | null = null;
+  /** The rectangle being dragged with the field tool (place or remove) or the Demolish tool (remove fields). */
+  private paint: (PaintDrag & { island: string; mode: "place" | "remove" }) | null = null;
+  private readonly paintPreview: PaintPreview;
+  /** Cache key of the painted rectangle's preview, and its marks' state for the release. */
+  private paintKey = "";
+  private lastPaintStatus: string | null = null;
   private selected: number | null = null;
   private placedInitially = false;
   /** Seed and roll of the archipelago on screen: a reroll (D-053) frames the new one. */
@@ -260,6 +292,7 @@ export class GameRenderer {
     this.marks = new FootprintMarks(this.scene);
     this.roadPreview = new RoadPreview(this.scene);
     this.grid = new GridOverlay(this.scene);
+    this.paintPreview = new PaintPreview(this.scene);
 
     this.ghost = new PlacementGhost(this.scene, this.models);
 
@@ -303,6 +336,10 @@ export class GameRenderer {
     if (this.modelsDirty && (this.models.status().pending.length === 0 || t - this.modelsRefreshedAt >= MODEL_REFRESH_MS)) {
       this.modelsDirty = false;
       this.modelsRefreshedAt = t;
+      if (!this.docksAnchored && this.lastServer && this.models.manifest()) {
+        this.docksAnchored = true;
+        this.arch.setDocks(this.docks(this.lastServer.display));
+      }
       for (const d of this.details.values()) d.refreshModels();
       this.refreshCasters();
     }
@@ -315,6 +352,9 @@ export class GameRenderer {
     this.arch.bobbing = this.life.isEnabled();
     this.arch.frame(now);
     this.updateGhost();
+    this.updatePaint();
+    // A pinned clock (shots) holds the flash of rejected tiles.
+    this.paintPreview.tick(t, this.frozenAt !== null);
     this.updateGrid();
     this.updateMarks();
     this.engine._drawCalls.fetchNewFrame();
@@ -738,6 +778,22 @@ export class GameRenderer {
 
   // Data ----------------------------------------------------------------------
 
+  /** The docks were laid with the model manifest (the berth anchors) at hand. */
+  private docksAnchored = false;
+
+  /** Pier and queue points of the ships at the Trading Posts (the berth anchors of the loaded models, else the front row). */
+  private docks(d: { islands: readonly IslandDisplay[] }) {
+    return dockPoints(
+      d.islands,
+      this.defs,
+      (b, def, name) => {
+        const entry = this.models.entry(b.type);
+        return entry ? buildingAnchor(entry, def, b, name) : null;
+      },
+      DOCK_STERN,
+    );
+  }
+
   private onSnapshot(snap: SyncSnapshot): void {
     if (snap.content !== this.lastContent && snap.content) {
       this.lastContent = snap.content;
@@ -760,8 +816,9 @@ export class GameRenderer {
         islandBerths(is, st, this.defs).map((t) => ({ x: is.position.x + t.x + 0.5, y: is.position.y + t.y + 0.5 })),
       );
     }
-    // Ships at a Trading Post's pier and in its queue moor along its front row (D-051).
-    this.arch.update(d.islands, d.ships, d.routes, berths, dockPoints(d.islands, this.defs));
+    // Ships at a Trading Post's pier moor at its berth anchors and queue beyond them (D-051, D-054).
+    this.docksAnchored = !!this.models.manifest();
+    this.arch.update(d.islands, d.ships, d.routes, berths, this.docks(d));
     this.lookups.clear();
     // The payload's bounds (D-053) cover every island, also those whose static data is still loading.
     this.rig.setIslandBounds(archipelagoRect(d.archipelago) ?? this.arch.bounds());
@@ -1090,6 +1147,11 @@ export class GameRenderer {
     // A tool acts on the island whose rectangle is under the pointer.
     const t = this.tileAt(p);
     if (!t) return;
+    // Removing fields acts at once (mouse and touch), like the Demolish tool.
+    if (tool.kind === "field" && tool.remove) {
+      this.removeFieldsAt(t.island, [t], tool.farmId, false);
+      return;
+    }
     // Touch has no hover: a tap only positions the ghost; Confirm places it.
     if (kind === "touch" && isGhostTool(tool)) {
       this.events.pend(t);
@@ -1129,11 +1191,21 @@ export class GameRenderer {
     if (button !== 0) return;
     if (tool.kind === "none") return;
     if (tool.kind === "road") this.roadStart = this.tileAt(p);
+    // Field tool: paint (or remove) a rectangle; the Demolish tool removes the fields under one.
+    if (tool.kind === "field" || tool.kind === "demolish") {
+      const t = this.tileAt(p);
+      if (t) this.paint = { island: t.island, start: t, end: t, mode: tool.kind === "field" && !tool.remove ? "place" : "remove" };
+    }
   }
 
   private onDragMove(prev: Point, cur: Point, button: number): void {
     if (this.blocked()) return;
     if (this.touchDrag) this.lastTouch = this.groundPoint(cur) ?? this.lastTouch;
+    if (this.paint && button === 0) {
+      const t = this.tileOn(this.paint.island, cur);
+      if (t) this.paint.end = { x: t.x, y: t.y };
+      return;
+    }
     if (this.roadStart && button === 0) {
       const t = this.tileOn(this.roadStart.island, cur);
       const pl = this.arch.placement(this.roadStart.island);
@@ -1148,17 +1220,37 @@ export class GameRenderer {
     if (this.pans(button)) this.rig.pan(prev, cur);
   }
 
-  /** The pointer's press or drag was cancelled: drop any road preview; a free turn eases to 45°. */
+  /** The pointer's press or drag was cancelled: drop any road preview or painted rectangle; a free turn eases to 45°. */
   private onPointerCancel(): void {
     this.rig.snap();
     this.roadStart = null;
     this.roadPreview.set([]);
+    this.paint = null;
+  }
+
+  /**
+   * Esc during a drag: the painted rectangle or road is dropped and the
+   * tool stays (true); false when no such drag runs.
+   */
+  cancelDrag(): boolean {
+    if (!this.paint && !this.roadStart) return false;
+    this.input.cancel();
+    this.onPointerCancel();
+    return true;
   }
 
   private onDragEnd(p: Point, button: number): void {
     if (button === 2) this.rig.snap();
     if (this.blocked()) {
       this.onPointerCancel();
+      return;
+    }
+    if (this.paint && button === 0) {
+      const paint = this.paint;
+      const t = this.tileOn(paint.island, p);
+      if (t) paint.end = { x: t.x, y: t.y };
+      this.paint = null;
+      this.commitPaint(paint);
       return;
     }
     if (this.roadStart && button === 0) {
@@ -1251,7 +1343,9 @@ export class GameRenderer {
     const t = !ghostTool || !def ? null : this.precise ? hovered : (tool.pending ?? hovered);
     const l = t ? this.lookup(t.island) : undefined;
     const pl = t ? this.arch.placement(t.island) : undefined;
-    if (!ghostTool || !def || !t || !pl) {
+    // A painted rectangle and the removal mode have their own preview (updatePaint).
+    const painting = this.paint !== null || (tool.kind === "field" && tool.remove === true);
+    if (!ghostTool || !def || !t || !pl || painting) {
       this.ghost.hide();
       this.ghostValid = null;
       this.setGhostHint(null);
@@ -1303,6 +1397,128 @@ export class GameRenderer {
       color,
     );
     this.setGhostHint(hint);
+  }
+
+  /**
+   * The painted rectangle's preview (D-054) and its live count while a
+   * rectangle is dragged: the field tool's anchors coloured by the client
+   * hint (display/fieldpaint.ts), or the fields a removal rectangle takes;
+   * in the field tool's removal mode without a drag, the field under the
+   * mouse. Recomputed only when the rectangle, the tool or the server
+   * state changes.
+   */
+  private updatePaint(): void {
+    const tool = this.tool();
+    const server = this.sync.getSnapshot().server;
+    let drag = this.paint;
+    if (!drag && tool.kind === "field" && tool.remove && this.precise && this.hover) {
+      const t = this.tileAt(this.hover);
+      if (t) drag = { island: t.island, start: t, end: t, mode: "remove" };
+    }
+    const toolKey = tool.kind === "field" ? `${tool.farmId}|${tool.buildingType}|${tool.rotation}|${tool.remove ? 1 : 0}` : tool.kind;
+    const key = drag
+      ? `${drag.mode}|${drag.island}|${drag.start.x},${drag.start.y}|${drag.end.x},${drag.end.y}|${toolKey}|${server?.version ?? 0}|${this.paint ? 1 : 0}`
+      : "";
+    if (key === this.paintKey) return;
+    this.paintKey = key;
+    const pl = drag ? this.arch.placement(drag.island) : undefined;
+    if (!drag || !pl) {
+      this.paintPreview.set([]);
+      this.setPaintStatus(null);
+      return;
+    }
+    const mark = (x: number, y: number, w: number, h: number, kind: PaintMark["kind"]): PaintMark => ({ cx: pl.position.x + x + w / 2, cz: -(pl.position.y + y + h / 2), w, h, kind });
+    if (drag.mode === "place") {
+      const p = this.paintPlanOf(drag);
+      if (!p) {
+        this.paintPreview.set([]);
+        this.setPaintStatus(null);
+        return;
+      }
+      const { plan } = p;
+      this.paintPreview.set(plan.tiles.map((t) => mark(t.x, t.y, plan.w, plan.h, t.hint === null ? "ok" : t.hint === "max_reached" ? "max" : "bad")));
+      this.setPaintStatus(p.wrongIsland ? "Fields are added on the island of their farm" : paintCountText(plan));
+      return;
+    }
+    const { tiles, clipped } = paintTiles(drag);
+    const l = this.lookup(drag.island);
+    const groups = l ? fieldsUnder(tiles, l.display.buildings, this.defs, tool.kind === "field" ? tool.farmId : null) : new Map();
+    const marks: PaintMark[] = [];
+    let n = 0;
+    for (const g of groups.values()) {
+      for (const f of g.fields) {
+        const def = this.defs.get(f.type);
+        if (!def) continue;
+        const { w, h } = footprintBox(f.x, f.y, def.width, def.height, f.rotation);
+        marks.push(mark(f.x, f.y, w, h, "remove"));
+        n++;
+      }
+    }
+    this.paintPreview.set(marks);
+    if (!this.paint) {
+      this.setPaintStatus(null);
+      return;
+    }
+    const name = tool.kind === "field" ? (this.defs.get(tool.buildingType)?.name ?? "field").toLowerCase() : "field";
+    this.setPaintStatus(`Remove ${n} ${n === 1 ? name : `${name}s`}${clipped ? " · clipped to 512 tiles" : ""}`);
+  }
+
+  /** The anchors of a painted rectangle and their hint for the field tool (null: no field tool or its farm is gone). */
+  private paintPlanOf(drag: PaintDrag & { island: string }): { plan: ReturnType<typeof planPaint>; wrongIsland: boolean } | null {
+    const tool = this.tool();
+    if (tool.kind !== "field") return null;
+    const def = this.defs.get(tool.buildingType);
+    const farm = this.findBuilding(tool.farmId);
+    const l = this.lookup(drag.island);
+    if (!def || !farm || !l?.statics) return null;
+    const [w, h] = tool.rotation === 90 || tool.rotation === 270 ? [def.height, def.width] : [def.width, def.height];
+    const { anchors, clipped } = paintAnchors(drag, w, h);
+    const plan = planPaint(farm.b, def, anchors, tool.rotation, { island: l.statics, buildings: l.display.buildings, roads: l.display.roads, defs: this.defs }, clipped);
+    const wrongIsland = farm.island.id !== drag.island;
+    if (wrongIsland) for (const t of plan.tiles) t.hint = "not_adjacent";
+    return { plan, wrongIsland };
+  }
+
+  /** A released rectangle: one place_fields (its rejected anchors flash), or the removal of the fields under it. */
+  private commitPaint(paint: PaintDrag & { island: string; mode: "place" | "remove" }): void {
+    const tool = this.tool();
+    if (paint.mode === "remove") {
+      const { tiles, clipped } = paintTiles(paint);
+      this.removeFieldsAt(paint.island, tiles, tool.kind === "field" ? tool.farmId : null, clipped);
+      return;
+    }
+    const p = this.paintPlanOf(paint);
+    const pl = this.arch.placement(paint.island);
+    if (tool.kind !== "field" || !p || p.wrongIsland || !pl) return;
+    const { plan } = p;
+    void this.events
+      .paintFields({ island: paint.island, farmId: tool.farmId, buildingType: tool.buildingType, rotation: tool.rotation, tiles: plan.tiles.map((t) => ({ x: t.x, y: t.y })), clipped: plan.clipped })
+      .then((results) => {
+        if (!results) return;
+        const rejected = results.filter((r) => !r.ok);
+        this.paintPreview.flash(
+          rejected.map((r) => ({ cx: pl.position.x + r.x + plan.w / 2, cz: -(pl.position.y + r.y + plan.h / 2), w: plan.w, h: plan.h })),
+          performance.now(),
+        );
+      });
+  }
+
+  /** Removes the fields (of one farm, or of any farm: null) under tiles of an island: one demolish_fields per farm. */
+  private removeFieldsAt(island: string, tiles: readonly TilePos[], farmId: number | null, clipped: boolean): void {
+    const l = this.lookup(island);
+    if (!l) return;
+    for (const [farm, g] of fieldsUnder(tiles, l.display.buildings, this.defs, farmId)) this.events.removeFields(island, farm, g.tiles, clipped);
+  }
+
+  /** Marks of the painted rectangle by kind and the anchors flashing (tests and shots). */
+  paintCounts(): Record<PaintMark["kind"] | "flash", number> {
+    return this.paintPreview.counts();
+  }
+
+  private setPaintStatus(text: string | null): void {
+    if (text === this.lastPaintStatus) return;
+    this.lastPaintStatus = text;
+    this.events.paintStatus(text);
   }
 
   /**

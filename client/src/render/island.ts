@@ -34,7 +34,7 @@ import { FieldDecor, fieldDecorMaterial, FieldTiles } from "./fields";
 import { ConstructionLayer } from "./harbour";
 import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
-import { type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, rotateXZ, statusHeight, toWorld } from "./models";
+import { buildingAnchor, type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
 import { OutcropLayer } from "./outcrops";
 import { footprintTiles, PlateauLayer } from "./plateaus";
 import { roadMaterial, RoadLayer, type RoadTile } from "./roads";
@@ -226,7 +226,7 @@ export class IslandDetail {
     this.builtFrom = { display, defs };
     this.buildings.update(display.buildings, defs);
     this.chunkRebuilds.fields = this.fields.update(this.fieldsByChunk(display), defsChanged);
-    this.life.update(display, defs, this.statics, this.smokeAnchor);
+    this.updateLife(display, defs);
     this.icons.update(display.buildings, defs, this.statusY);
     this.construction.update(display, defs);
     const keys = layerKeys(display, defs);
@@ -367,6 +367,8 @@ export class IslandDetail {
     this.icons.update(built.display.buildings, built.defs, this.statusY);
     this.updateBlobs(built.display, built.defs);
     this.updateRelief();
+    // The harbour life moors at the model anchors (boat, berths) once the manifest is in.
+    if (!this.lifeAnchored && this.registry?.manifest()) this.updateLife(built.display, built.defs);
     if ([...this.decoration.values()].some((d) => d.needsModels())) {
       this.rebuilds.decoration++;
       this.updateDecoration(built.display, built.defs, true);
@@ -494,15 +496,18 @@ export class IslandDetail {
     return { trees, scatter };
   }
 
-  /** Where a producer's smoke leaves its chimney: the model's smoke anchor (island tiles), null without a model yet. */
-  private readonly smokeAnchor = (b: BuildingDisplay, def: ContentBuilding) => {
+  /** The life plan was built with the model manifest (its anchors) at hand. */
+  private lifeAnchored = false;
+
+  private updateLife(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>): void {
+    this.lifeAnchored = !!this.registry?.manifest();
+    this.life.update(display, defs, this.statics, this.modelAnchor);
+  }
+
+  /** A building's model anchor (island tiles; the smoke's chimney, the fisher's boat), null without a model yet. */
+  private readonly modelAnchor = (b: BuildingDisplay, def: { width: number; height: number }, name: string) => {
     const entry = this.registry?.entry(b.type);
-    const a = entry?.anchors.smoke;
-    if (!entry || !a) return null;
-    const p = placement(entry, def, b);
-    const w = toWorld(entry.kind, a);
-    const [x, z] = rotateXZ(w[0] * p.sx, w[2] * p.sz, p.yaw);
-    return { x: p.cx + x, y: -(p.cz + z), h: w[1] };
+    return entry ? buildingAnchor(entry, def, b, name) : null;
   };
 
   /** Island origin (archipelago tiles) while shown, for the life layer; null when hidden. */

@@ -7,6 +7,8 @@ interface Props {
   tool: GhostTool;
   /** Why the server would reject the pending tile (missing fertility or deposit), or null. */
   hint: string | null;
+  /** The live count of a painted field rectangle (D-054), or null. */
+  paintStatus?: string | null;
   onConfirm: () => void;
   onRotate: () => void;
   onCancel: () => void;
@@ -18,13 +20,20 @@ interface Props {
  * pending; the ghost's validity colour is drawn in the scene and its
  * reason is repeated here.
  */
-export function PlacementBar({ tool, hint, onConfirm, onRotate, onCancel }: Props) {
+export function PlacementBar({ tool, hint, paintStatus = null, onConfirm, onRotate, onCancel }: Props) {
   const what = tool.kind === "move" ? "Move" : tool.kind === "found" ? "Found settlement" : tool.kind === "field" ? "Add field" : "Place";
-  let text = tool.kind === "field" ? "Tap next to the farm or one of its fields" : "Tap the map to position the building";
-  if (tool.pending) text = hint ?? `${what} at ${tool.pending.x}, ${tool.pending.y}?`;
+  const removing = tool.kind === "field" && tool.remove === true;
+  let text = removing
+    ? "Tap a field or drag over fields to remove them"
+    : tool.kind === "field"
+      ? "Tap next to the farm or one of its fields, or drag a rectangle"
+      : "Tap the map to position the building";
+  if (tool.pending && !removing) text = hint ?? `${what} at ${tool.pending.x}, ${tool.pending.y}?`;
+  // A rectangle being painted: its live count.
+  if (paintStatus) text = paintStatus;
   return (
     <div className={`${styles.panel} ${styles.toolBar}`} role="toolbar" aria-label="Placement" data-testid="placement-bar">
-      <span className={`${styles.toolBarText} ${tool.pending && hint ? styles.lock : ""}`} data-testid="placement-hint">
+      <span className={`${styles.toolBarText} ${tool.pending && hint && !paintStatus && !removing ? styles.lock : ""}`} data-testid="placement-hint">
         {text}
       </span>
       <div className={styles.toolBarButtons}>

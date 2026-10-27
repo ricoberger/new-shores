@@ -7,7 +7,7 @@ import { shipWhere } from "../ui/ShipsPanel";
 import { founderFor, pendingFoundingStep } from "./archipelago";
 import { serverTimeMs } from "./extrapolate";
 import { waterEdgeHint, waterRows } from "./geometry";
-import { anchorSlots, dockPoints, islandAnchor, pierHeading, pierPoint, shipPlacement } from "./ships";
+import { anchorSlots, berthDock, dockPoints, islandAnchor, type ModelAnchor, pierHeading, pierPoint, shipPlacement } from "./ships";
 
 // The harbour displays of D-051 against the shared fixtures: water-edge
 // ghosts (the scenario's island rows and the shipped water_tiles), ships
@@ -175,5 +175,79 @@ describe("moorings at the Trading Post's pier", () => {
     // Fishers and shipyards hold no ships.
     const edge = display("water_edge_placement");
     expect([...dockPoints(edge.islands, defs).keys()]).toEqual([]);
+  });
+
+  // A pier front at y = 0 (rotation 0: out is −y), berth anchors 1.5 tiles apart, the middle pair first (the recipe's order).
+  const pier = [
+    { x: -0.75, y: 0 },
+    { x: 0.75, y: 0 },
+    { x: -2.25, y: 0 },
+    { x: 2.25, y: 0 },
+  ];
+
+  it("moors ship i bow out from berth anchor i + 1, the sterns at the anchors and the bows fanned apart", () => {
+    const docks = [0, 1, 2, 3].map((i) => berthDock(pier, 0, i, false, 2))!;
+    docks.forEach((d, i) => {
+      const a = pier[i]!;
+      // The stern (2 tiles behind the origin) lies on the anchor; the ship points out to sea.
+      expect(d!.point.x - Math.cos(d!.heading) * 2).toBeCloseTo(a.x);
+      expect(d!.point.y - Math.sin(d!.heading) * 2).toBeCloseTo(a.y);
+      expect(d!.point.y).toBeLessThan(0);
+    });
+    // Mirrored about the pier's centre; the outer berths turn further out than the middle ones.
+    const turn = docks.map((d) => d!.heading - pierHeading(0));
+    expect(turn[0]).toBeCloseTo(-turn[1]!);
+    expect(turn[2]).toBeCloseTo(-turn[3]!);
+    expect(Math.abs(turn[2]!)).toBeGreaterThan(Math.abs(turn[0]!));
+    // Neighbouring hulls (2.2 tiles wide at scale 5, the origin 2.35 tiles ahead of the stern) clear each other amidships.
+    const wide = [0, 2].map((i) => berthDock(pier, 0, i, false, 2.35)!.point.x);
+    expect(wide[0]! - wide[1]!).toBeGreaterThan(2.2);
+    // More ships than anchors, or no anchors at all: the caller falls back to the front row.
+    expect(berthDock(pier, 0, 4, false, 2)).toBeNull();
+    expect(berthDock([], 0, 0, false, 2)).toBeNull();
+  });
+
+  it("queues waiting ships bow out beyond the moored bows, centre first, the next row further out", () => {
+    const q = [0, 1, 2, 5].map((i) => berthDock(pier, 0, i, true, 2)!);
+    for (const d of q) expect(d.heading).toBeCloseTo(pierHeading(0));
+    // Beyond the moored ships' bows (2 × stern out) with a gap: origin ≥ 3 × stern out.
+    expect(q[0]!.point.x).toBeCloseTo(0);
+    expect(q[0]!.point.y).toBeCloseTo(-7);
+    expect(q[1]!.point.y).toBeCloseTo(-7);
+    expect(Math.abs(q[1]!.point.x - q[2]!.point.x)).toBeCloseTo(5);
+    expect(q[3]!.point.y).toBeLessThan(q[0]!.point.y - 4);
+    // Rotation 90: out is +x.
+    const r90 = berthDock(
+      pier.map((a) => ({ x: -a.y, y: a.x })),
+      90,
+      0,
+      true,
+      2,
+    )!;
+    expect(r90.point.x).toBeCloseTo(7);
+  });
+
+  it("lays the docks on the model's berth anchors when given, else along the front row", () => {
+    const d = display("berth_queue");
+    const is = d.islands[0]!;
+    const b = is.buildings.find((x) => x.type === "trading_post")!;
+    const anchor: ModelAnchor = (bb, _def, name) => {
+      const i = ["berth_1", "berth_2", "berth_3", "berth_4"].indexOf(name);
+      return i < 0 ? null : { x: bb.x + pier[i]!.x + 3, y: bb.y + 0.5, h: 0.06 };
+    };
+    const docks = dockPoints(d.islands, defs, anchor, 2);
+    const moored = berthDock(
+      pier.map((a) => ({ x: is.position.x + b.x + a.x + 3, y: is.position.y + b.y + 0.5 })),
+      b.rotation,
+      0,
+      false,
+      2,
+    )!;
+    expect(docks.get(1)?.point.x).toBeCloseTo(moored.point.x);
+    expect(docks.get(1)?.point.y).toBeCloseTo(moored.point.y);
+    expect(docks.get(1)?.heading).toBeCloseTo(moored.heading);
+    expect(docks.get(2)?.queued).toBe(true);
+    // An anchor that is missing (model not loaded): the front row.
+    expect(dockPoints(d.islands, defs, () => null, 2)).toEqual(dockPoints(d.islands, defs));
   });
 });

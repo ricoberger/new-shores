@@ -9,8 +9,10 @@ import type { ContentBuilding } from "../api/client";
 import { FIELDS } from "../theme/palette";
 import { footprintBox } from "./coords";
 import { frontOffset, mergeItems, riseScale } from "./buildings";
+import { waterRows } from "../display/geometry";
 import {
   anchorOffset,
+  buildingAnchor,
   atDetail,
   DEFAULT_STATUS_Y,
   entryFiles,
@@ -264,6 +266,30 @@ describe("orientation and anchors", () => {
     expect([...ship.positions].map((v) => v + 0)).toEqual([0.5, 0, 0, 0, 0.5, 0, 0, 0, -0.5]);
     expect([...ship.normals.slice(0, 3)].map((v) => v + 0)).toEqual([0, 0, -1]);
     expect([...ship.indices]).toEqual([0, 1, 2]);
+  });
+
+  it("lays the harbour anchors (berths, slip, boat) on the water rows at every rotation (D-054)", () => {
+    for (const [id, w, h, water, names] of [
+      ["trading_post", 6, 9, 3, ["berth_1", "berth_2", "berth_3", "berth_4"]],
+      ["shipyard", 8, 12, 4, ["slip"]],
+      ["fisher", 3, 8, 3, ["boat"]],
+    ] as const) {
+      const entry = manifest.models[id] as ModelEntry;
+      const d = { ...def(id, w, h), water_tiles: water };
+      for (const rotation of [0, 90, 180, 270] as const) {
+        const b = { x: 10, y: 20, rotation };
+        const rows = waterRows(d, b.x, b.y, rotation)!;
+        for (const name of names) {
+          const a = buildingAnchor(entry, d, b, name)!;
+          expect(a, `${id} ${name} ${rotation}`).not.toBeNull();
+          expect(a.x, `${id} ${name} ${rotation}`).toBeGreaterThanOrEqual(rows.x);
+          expect(a.x, `${id} ${name} ${rotation}`).toBeLessThanOrEqual(rows.x + rows.w);
+          expect(a.y, `${id} ${name} ${rotation}`).toBeGreaterThanOrEqual(rows.y);
+          expect(a.y, `${id} ${name} ${rotation}`).toBeLessThanOrEqual(rows.y + rows.h);
+        }
+      }
+    }
+    expect(buildingAnchor(house, def("house_settlers", 2, 2), { x: 0, y: 0, rotation: 0 }, "slip")).toBeNull();
   });
 
   it("puts status icons at the manifest anchor, the default without a model", () => {

@@ -94,7 +94,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
         onDemolishTool: () => {},
       }),
     );
-    const order = [...html.matchAll(/data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "menu" && !id?.startsWith("tab-"));
+    const order = [...html.matchAll(/data-testid="build-([a-z_]+)"/g)].map((m) => m[1]).filter((id) => id !== "menu" && id !== "size" && !id?.startsWith("tab-"));
     expect(order).toEqual(["lumberjack", "sheep_farm", "weaver_wool"]);
     expect(html).not.toContain('data-testid="build-pasture"');
     // Every card carries its model thumbnail from the asset build (decorative).
@@ -128,14 +128,15 @@ describe("fields in the HUD (D-051 part 4)", () => {
     for (const id of ids) expect(existsSync(join(dir, thumbUrl(id).replace("/models/", ""))), id).toBe(true);
   });
 
-  it("shows the farm's fields block only when it has something to say: not connected fields, an Add button below the maximum", () => {
+  it("shows the farm's fields block: placed of the maximum, not connected fields and the Paint button (D-054)", () => {
     const model = fixture("settlers_grow");
     const island = model.islands[0]!;
     const farm = island.buildings.find((x) => x.type === "sheep_farm")!;
     const html = panel(farm, island, model);
-    // The count and the bar are the farm's Efficiency (Details).
+    // The bar is the farm's Efficiency (Details); the block counts the fields placed of the maximum.
     expect(text(html)).not.toContain("Fields 4 / 4");
-    expect(text(html)).not.toContain("placed");
+    expect(html).toContain('data-testid="farm-fields-count"');
+    expect(text(html)).toContain("4 / 4 placed");
     // The cycle, efficiency, workers and transfer rows sit in a collapsed Details section.
     expect(html).toMatch(/<details[^>]*data-testid="info-details"(?![^>]*\bopen\b)/);
     expect(text(html)).toContain("Upkeep");
@@ -143,18 +144,21 @@ describe("fields in the HUD (D-051 part 4)", () => {
     // No field list and no warning while every field is connected.
     expect(html).not.toContain('data-testid="farm-field-list"');
     expect(html).not.toContain("farm-fields-inactive");
-    // The maximum equals the requirement: with every field placed there is no Add button (and no empty block), one short there is.
-    expect(html).not.toContain('data-testid="farm-add-field"');
-    expect(html).not.toContain('data-testid="farm-fields"');
+    // Paint stays at the maximum (its right click / long press removes fields); the price only while fields fit.
+    expect(html).toContain('data-testid="farm-add-field"');
+    expect(text(html)).toContain("Paint pasture");
+    expect(text(html)).not.toContain("gold each");
+    expect(html).toContain('data-testid="farm-remove-hint"');
     const short = { ...farm, fields: { ...farm.fields!, active: 3, ids: [1, 2, 3] } };
     const shortHtml = panel(short, island, model);
-    expect(shortHtml).toContain('data-testid="farm-add-field"');
-    expect(text(shortHtml)).toContain("Add pasture (15 gold)");
+    expect(text(shortHtml)).toContain("3 / 4 placed");
+    expect(text(shortHtml)).toContain("Paint pasture (15 gold each)");
     expect(shortHtml).not.toContain("disabled");
     // An inactive field is counted in a warning line.
     const first = farm.fields!.ids[0]!;
     const broken = { ...island, buildings: island.buildings.map((x) => (x.id === first ? { ...x, active: false, status: "not_adjacent" as const } : x)) };
     const inactive = panel({ ...farm, fields: { ...farm.fields!, active: 3 } }, broken, model);
+    expect(text(inactive)).toContain("4 / 4 placed");
     expect(text(inactive)).toContain("1 not connected to the farm");
   });
 

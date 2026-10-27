@@ -199,7 +199,8 @@ func tileList(tiles ...[2]int) string {
 // (validated against the spec); a list without a valid tile answers 200
 // with every tile rejected, the unchanged version and no event; a list
 // with duplicates or above 512 tiles fails as a whole; demolish_fields
-// removes the fields under its tiles.
+// removes the fields under its tiles and, over no field, answers like
+// place_fields without a valid tile.
 func TestPlaceFieldsAPI(t *testing.T) {
 	ts := newTestServer(t, 1)
 	pub := &countingPublisher{}
@@ -234,6 +235,25 @@ func TestPlaceFieldsAPI(t *testing.T) {
 		t.Fatalf("place_fields without a valid tile published %d events", n)
 	}
 
+	// demolish_fields over no field: the same (200, every tile rejected,
+	// the unchanged version, no event).
+	res = ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":`+batch("demolish_fields", tileList([2]int{17, 5}, [2]int{15, 6}))+`}`, true)
+	none = batchJSON{}
+	if res.status != http.StatusOK || json.Unmarshal(res.body, &none) != nil {
+		t.Fatalf("demolish none: %d %s", res.status, res.body)
+	}
+	if none.Version != before.Version || len(none.TileResults) != 2 ||
+		none.TileResults[0].OK || none.TileResults[0].Reason != "building_not_found" ||
+		none.TileResults[1].OK || none.TileResults[1].Reason != "building_not_found" {
+		t.Fatalf("demolish none: version %d (before %d), results %+v", none.Version, before.Version, none.TileResults)
+	}
+	if after := ts.getWorld(); after.Version != before.Version || !bytes.Equal(after.Display, before.Display) {
+		t.Fatal("demolish_fields without a field changed the world")
+	}
+	if n := pub.n.Load(); n != 0 {
+		t.Fatalf("demolish_fields without a field published %d events", n)
+	}
+
 	var many [][2]int
 	for i := range 513 {
 		many = append(many, [2]int{i % 40, i / 40})
@@ -249,7 +269,6 @@ func TestPlaceFieldsAPI(t *testing.T) {
 		{"empty", batch("place_fields", `[]`), false, http.StatusBadRequest, "invalid_command"},
 		{"missing tiles", fmt.Sprintf(`{"type":"place_fields","island_id":"start","farm_id":%d,"building_type":"pasture"}`, farm), false, http.StatusBadRequest, "invalid_command"},
 		{"missing farm", `{"type":"demolish_fields","island_id":"start","tiles":[{"x":1,"y":1}]}`, false, http.StatusBadRequest, "invalid_command"},
-		{"demolish nothing", batch("demolish_fields", tileList([2]int{17, 5})), true, http.StatusNotFound, "building_not_found"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			res := ts.do(http.MethodPost, "/api/v1/world/commands", `{"command":`+tt.cmd+`}`, tt.validate)

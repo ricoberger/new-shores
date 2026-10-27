@@ -51,7 +51,11 @@ export interface ModelEntry {
   levels?: Record<string, ModelFile>;
   attachments?: Record<string, ModelFile>;
   bounds: { min: [number, number, number]; max: [number, number, number] };
-  anchors: { door?: [number, number, number]; status: [number, number, number]; chimney?: [number, number, number]; smoke?: [number, number, number] };
+  /** door, status, chimney, smoke and the life-layer anchors (cart, boat, berth_1 … berth_4, slip, gate, sheep_n). */
+  anchors: { door?: [number, number, number]; status: [number, number, number]; chimney?: [number, number, number]; smoke?: [number, number, number] } & Record<
+    string,
+    [number, number, number] | undefined
+  >;
   ship?: { length_tiles: number; masts: number; sail_scale: number };
   budget_exception?: { reason: string };
 }
@@ -232,6 +236,25 @@ export function anchorOffset(entry: ModelEntry, name: "door" | "status" | "chimn
   const w = toWorld(entry.kind, a);
   const [x, z] = rotateXZ(w[0], w[2], rotationYaw(rotation));
   return [x, w[1], z];
+}
+
+/**
+ * Island-tile position (and height) of a building's model anchor: the
+ * anchor turned and stretched with the model onto the footprint; null
+ * without the anchor.
+ */
+export function buildingAnchor(
+  entry: ModelEntry,
+  def: Pick<ContentBuilding, "width" | "height">,
+  b: Pick<BuildingDisplay, "x" | "y" | "rotation">,
+  name: string,
+): { x: number; y: number; h: number } | null {
+  const a = entry.anchors[name];
+  if (!a) return null;
+  const p = placement(entry, def as ContentBuilding, b);
+  const w = toWorld(entry.kind, a);
+  const [x, z] = rotateXZ(w[0] * p.sx, w[2] * p.sz, p.yaw);
+  return { x: p.cx + x, y: -(p.cz + z), h: w[1] };
 }
 
 /** Status icon height of a building (the model's status anchor, else the default). */

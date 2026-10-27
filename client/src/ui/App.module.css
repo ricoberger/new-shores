@@ -132,6 +132,13 @@
   font-weight: 600;
 }
 
+/* The live count of a painted field rectangle ("52 / 140 · +37"). */
+.hintCount {
+  margin-top: 2px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Phone layouts: panels in a bottom sheet over the area below the top bar
    (never over the top bar and the touch tool bars). */
 .sheetHost {

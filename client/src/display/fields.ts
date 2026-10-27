@@ -16,6 +16,27 @@ export function fieldBuildingOf(content: Content, farmType: string): ContentBuil
   return content.buildings.find((b) => b.field?.farm === farmType);
 }
 
+/**
+ * A building's size for the build menu and the Details rows (D-054):
+ * "w×h" in tiles, the rows of it on water (piers), and for a farm its
+ * fields at the maximum — "3×4 + 140 fields" for one-tile fields,
+ * "3×3 + 3 pastures of 3×3" for modules.
+ */
+export function footprintText(def: Pick<ContentBuilding, "id" | "width" | "height" | "water_tiles" | "fields">, content: Pick<Content, "buildings">): string {
+  let text = `${def.width}×${def.height}`;
+  if (def.water_tiles) text += ` (${def.water_tiles} ${def.water_tiles === 1 ? "row" : "rows"} on water)`;
+  if (def.fields) {
+    const field = fieldBuildingOf(content as Content, def.id);
+    const max = def.fields.max;
+    if (!field || (field.width === 1 && field.height === 1)) text += ` + ${max} ${max === 1 ? "field" : "fields"}`;
+    else {
+      const name = field.name.toLowerCase();
+      text += ` + ${max} ${max === 1 ? name : `${name}s`} of ${field.width}×${field.height}`;
+    }
+  }
+  return text;
+}
+
 /** Whether two non-overlapping footprints share an edge segment (the server's 4-edge adjacency; a corner alone does not count). */
 export function rectsTouch(a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w: number; h: number }): boolean {
   const overlapX = a.x < b.x + b.w && b.x < a.x + a.w;

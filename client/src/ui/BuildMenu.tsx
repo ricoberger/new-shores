@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
+import { footprintText } from "../display/fields";
 import { perMin, units } from "../display/format";
 import { depositText, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, tierUnlocked } from "../display/tiers";
 import { categoryIcon, goodIcon, toolIcon } from "../theme/iconSet";
@@ -136,6 +137,9 @@ export function BuildMenu({ content, model, islandId, fertilities, loading = fal
                 <span className={styles.itemName}>{b.name}</span>
                 <span className={styles.small}>
                   {units(b.cost.gold)} gold · upkeep {perMin(b.upkeep_per_min)}/min
+                </span>
+                <span className={styles.small} data-testid={`build-size-${b.id}`}>
+                  {footprintText(b, content)}
                 </span>
                 {Object.entries(b.cost.materials).map(([good, need]) => (
                   <span key={good} className={`${styles.small} ${styles.withIcon}`}>

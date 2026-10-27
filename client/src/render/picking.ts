@@ -177,6 +177,13 @@ export class PointerInput {
   };
 
   private readonly onMove = (e: PointerEvent): void => {
+    // The right button pressed while the left one is held (a mouse chord
+    // reports no pointerdown): the left press or drag is cancelled, like Esc
+    // (a painted field rectangle or road is dropped).
+    if (e.pointerType === "mouse" && e.button === 2 && (e.buttons & 3) === 3) {
+      this.cancel();
+      return;
+    }
     this.gestures.move(e.pointerId, kindOf(e.pointerType), this.css(e), eventTime(e));
     this.schedule();
   };
