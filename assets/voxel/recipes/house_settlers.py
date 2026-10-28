@@ -1,14 +1,29 @@
-"""Settler house (3 × 3): timber frame, steep thatch, stone plinth; three variants (gable to the side, gable to the front, L-plan)."""
+"""
+Settler house (3 × 3; D-057 §3): single-storey cottages in a pegged timber
+frame with plaster infill on a proud stone plinth, steep thatch with a
+ridge roll and a ragged eave, a coursed stone chimney with a pot; small
+framed windows with sills and plank shutters, a plank door with strap
+hinges and a step. Three variants (gable to the side with a front garden,
+gable to the front with a woodshed, L-plan with a kitchen garden).
+"""
 
 from nsvoxel import parts as P
-from nsvoxel.mats import PLASTER, PLASTER_WARM, STONE, STONE_DARK, THATCH, THATCH_DARK, TIMBER, TIMBER_LIGHT, OCHRE
+from nsvoxel.grid import mat
+from nsvoxel.mats import PLASTER, PLASTER_WARM, STONE_DARK, TIMBER_LIGHT
 
 VARIANTS = 3
 
+#: Corner braces on the gable ends only: the eave sides keep plaster panels round the windows.
+GABLES = ("x-", "x+")
 
-def body(v, x0, y0, x1, y1, wall, z1=9):
-    v.box(x0, y0, 1, x1, y1, 2, STONE_DARK)
-    P.timber_frame(v, x0, y0, x1, y1, 2, z1, wall, TIMBER, spacing=5, braces=False, sill=False)
+#: Warm roof variety per variant (thatch shades) and wall infill.
+THATCHES = (mat("thatch", 1.0), mat("thatch", 0.94), mat("thatch", 1.05))
+WALLS = (PLASTER, PLASTER_WARM, mat("plaster", 0.95))
+
+
+def windows(f, spots, z=5, shutters=TIMBER_LIGHT):
+    for a in spots:
+        P.casement(f, a, z, 2, 2, frame=None, sill=TIMBER_LIGHT, lintel=None, shutters=shutters, bars=False)
 
 
 def build(ctx):
@@ -16,65 +31,63 @@ def build(ctx):
     k = ctx.variant
     seed = 11 + k
     P.yard(v, 0, 0, 24, 24, "grass", seed=seed)
-    wall = (PLASTER, PLASTER_WARM, OCHRE)[k]
+    wall, thatch = WALLS[k], THATCHES[k]
     if k == 0:
-        x0, y0, x1, y1 = 4, 7, 20, 17
-        body(v, x0, y0, x1, y1, wall)
-        top = v.gable(x0, x1, y0, y1, 9, THATCH, wall, along="x", rise=1.5, ov=1, ridge=THATCH_DARK, seed=seed)
-        f = P.Face(v, "y+", y1 - 1)
-        P.door(f, 10, 2, 3, 5)
-        P.window(f, 6, 4, 2, 2, shutters=TIMBER_LIGHT)
-        P.window(f, 15, 4, 2, 2, shutters=TIMBER_LIGHT)
-        P.window(P.Face(v, "x+", x1 - 1), 11, 4, 2, 2)
-        P.window(P.Face(v, "x-", x0), 11, 4, 2, 2)
-        P.chimney(v, 5, 11, 2, top + 1)
-        P.logs(v, 20, 10, 1, n=3, length=4, along="y")
-        P.fence(v, 1, 18, 23, 23, gaps={(10, 22), (11, 22), (12, 22)})
-        P.path(v, [(x, y) for x in range(10, 13) for y in range(17, 24)])
-        P.bush(v, 4, 20, 1, 2, seed=seed)
-        P.barrel(v, 17, 18, 1)
+        # Gable to the side, front garden behind a picket fence.
+        b = P.building(v, 4, 6, 20, 15, "settler", along="x", wall=wall, roof=thatch, seed=seed, spacing=5, braces=GABLES)
+        f = b.face("y+")
+        P.entrance(f, 10, 2, 3, 5)
+        windows(f, (6, 16))
+        P.casement(b.face("x-"), 10, 5, 2, 2, frame=None, sill=TIMBER_LIGHT, bars=False)
+        P.casement(b.face("x+"), 10, 5, 2, 2, frame=None, sill=TIMBER_LIGHT, bars=False)
+        P.roof_chimney(v, b.roof, 5, 9, above=3)
+        P.path(v, [(x, y) for x in range(10, 13) for y in range(16, 24)])
+        P.fence_line_v2(v, 1, 17, 1, 22, seed=seed)
+        P.fence_line_v2(v, 2, 22, 9, 22, seed=seed)
+        P.fence_line_v2(v, 13, 22, 22, 22, seed=seed)
+        P.fence_line_v2(v, 22, 21, 22, 17, seed=seed)
+        P.crop_rows(v, 3, 19, 9, 22, "cabbage", along="y", pitch=2, seed=seed)
+        P.flower_bed(v, 14, 19, 21, 21, seed=seed)
+        P.bench(v, 14, 16, 1, 3)
+        P.woodpile(v, 21, 8, 1, length=5, along="y", rows=3)
+        P.chopping_block(v, 21, 3)
+        P.cask(v, 2, 13, 1)
     elif k == 1:
-        x0, y0, x1, y1 = 6, 4, 18, 18
-        body(v, x0, y0, x1, y1, wall)
-        top = v.gable(x0, x1, y0, y1, 9, THATCH, wall, along="y", rise=1.5, ov=1, ridge=THATCH_DARK, seed=seed)
-        f = P.Face(v, "y+", y1 - 1)
-        P.door(f, 9, 2, 3, 5)
-        P.window(f, 13, 4, 2, 2, shutters=TIMBER)
-        P.window(f, 11, 10, 2, 2, sill=False)
-        for side, plane in (("x+", x1 - 1), ("x-", x0)):
-            F = P.Face(v, side, plane)
-            P.window(F, 7, 4, 2, 2)
-            P.window(F, 13, 4, 2, 2)
-        # Lean-to woodshed on the east side.
-        v.box(18, 9, 1, 22, 15, 2, STONE_DARK)
-        for y in (9, 14):
-            v.box(21, y, 2, 22, y + 1, 6, TIMBER)
-        P.logs(v, 18, 10, 2, n=3, length=4, along="y")
-        v.shed(18, 22, 9, 15, 6, THATCH, down="x+", ov=1)
-        P.chimney(v, 13, 6, 2, top - 2)
-        P.fence(v, 1, 19, 23, 23, gaps={(9, 22), (10, 22), (11, 22)})
-        P.path(v, [(x, y) for x in range(9, 12) for y in range(18, 24)])
-        P.bush(v, 3, 7, 1, 2, seed=seed)
-        P.bush(v, 20, 4, 1, 2, seed=seed + 1)
+        # Gable to the front, a lean-to woodshed on the east.
+        b = P.building(v, 5, 4, 17, 18, "settler", along="y", wall=wall, roof=thatch, seed=seed, spacing=5, braces=GABLES)
+        f = b.face("y+")
+        P.entrance(f, 7, 2, 3, 5)
+        windows(f, (13,))
+        P.casement(f, 10, 10, 2, 2, frame=None, sill=TIMBER_LIGHT, bars=False)
+        for side in ("x-", "x+"):
+            windows(b.face(side), (7, 12), shutters=None)
+        v.box(17, 8, 1, 22, 15, 1, None)
+        P.plinth(v, 17, 8, 21, 15, 1, STONE_DARK, out=0)
+        P.lean_to(v, 17, 21, 8, 15, 6, "thatch", down="x+", ov=1, seed=seed)
+        P.log_stack(v, 18, 9, 2, length=5, along="y", n=2)
+        P.roof_chimney(v, b.roof, 10, 14, above=3)
+        P.path(v, [(x, y) for x in range(7, 10) for y in range(19, 24)])
+        P.fence_ring(v, 1, 20, 23, 23, kind="wattle", gaps={(7, 22), (8, 22), (9, 22)}, seed=seed)
+        P.washing_line(v, 1, 4, 10, 6, (mat("canvas"), mat("dye-blue", 1.1)), every=2)
+        P.chopping_block(v, 19, 18)
+        P.sacks(v, 12, 20, 1, n=2)
+        P.shrub(v, 20, 3, 1, 2, seed=seed)
     else:
-        # L-plan: main range along x at the back, a wing toward the front on the west.
-        body(v, 3, 5, 21, 13, wall)
-        body(v, 3, 13, 11, 20, wall)
-        top = v.gable(3, 21, 5, 13, 9, THATCH, wall, along="x", rise=1.5, ov=1, ridge=THATCH_DARK, seed=seed)
-        v.gable(3, 11, 9, 20, 9, THATCH, wall, along="y", rise=1.5, ov=1, ridge=THATCH_DARK, seed=seed)
-        f = P.Face(v, "y+", 12)
-        P.door(f, 14, 2, 3, 5)
-        P.window(f, 18, 4, 2, 2, shutters=TIMBER_LIGHT)
-        P.window(P.Face(v, "y+", 19), 6, 4, 2, 2, shutters=TIMBER_LIGHT)
-        P.window(P.Face(v, "x+", 10), 15, 4, 2, 2)
-        P.chimney(v, 17, 7, 2, top)
-        # Kitchen garden in the angle.
-        for x in range(13, 21):
-            for y in range(15, 21):
-                v.set(x, y, 0, P.mat("road-dirt", 0.9) if x % 2 else P.mat("grass-b", 0.85))
-                if x % 2 == 0 and y % 2 == 0:
-                    v.set(x, y, 1, P.mat("grass-a", 1.1))
-        P.fence(v, 12, 14, 22, 22, gaps={(17, 21)})
-        P.barrel(v, 11, 21, 1)
-        P.crate(v, 1, 21, 1)
-    return v.jitter(0.04, roles={"plaster", "ochre", "stone"}, cell=2, seed=seed)
+        # L-plan: range along x at the back, a wing to the front on the west.
+        b = P.building(v, 3, 4, 21, 12, "settler", along="x", wall=wall, roof=thatch, seed=seed, spacing=5, braces=GABLES)
+        w = P.building(v, 3, 12, 11, 20, "settler", along="y", wall=wall, roof=thatch, seed=seed + 5, spacing=4, braces=GABLES)
+        f = b.face("y+")
+        P.entrance(f, 14, 2, 3, 5)
+        windows(f, (18,))
+        windows(w.face("y+"), (6,))
+        windows(w.face("x+"), (15,), shutters=None)
+        P.roof_chimney(v, b.roof, 17, 6, above=3)
+        P.crop_rows(v, 13, 15, 21, 21, "cabbage", along="x", pitch=2, seed=seed)
+        P.fence_ring(v, 12, 14, 22, 22, kind="picket", gaps={(17, 21), (18, 21)}, seed=seed)
+        P.path(v, [(x, y) for x in range(14, 17) for y in range(12, 14)] + [(17, y) for y in range(21, 24)] + [(18, y) for y in range(21, 24)])
+        P.cask(v, 11, 21, 1)
+        P.box_crate(v, 1, 21, 1)
+        P.handcart(v, 1, 1, 1, along="x", load=mat("thatch", 1.1))
+        P.shrub(v, 22, 3, 1, 1, seed=seed)
+    P.scatter(v, 0, 0, 24, 24, 0.035, seed=seed)
+    return P.colour_jitter(v, seed=seed)

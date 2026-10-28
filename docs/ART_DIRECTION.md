@@ -216,6 +216,58 @@ hand-made `.vox` files.
   to `.experiment/sheets/` in about a second; without `RECIPE` it lists
   the IDs. Review the sheet, then the game (`make shots`).
 
+### Recipe authoring at the D-057 §3 detail
+
+Tier 1–2 recipes are written on the v2 parts in `nsvoxel/detail.py`
+(re-exported by `parts.py`, called as `P.<name>`); the v1 helpers stay
+for the placeholders. A recipe is a yard, one or two `P.building`s, the
+openings, the props that say what the building does, the anchors, then
+`P.scatter(...)` and `return P.colour_jitter(v, seed=…)` — about 40–70
+lines.
+
+- **Building:** `b = P.building(v, x0, y0, x1, y1, style, along=…)`
+  with style `settler` (pegged timber frame, plaster, thatch),
+  `citizen` (coursed-stone ground floor with dressed quoins, jettied
+  framed upper storey, tiles), `stone` or `stonethatch`. It lays the
+  proud plinth, fills hidden volumes solid (only the shell is meshed)
+  and returns `b.face(side, upper=False)` for openings and `b.roof`
+  (`ridge_z`, `surface(x, y)`) for chimneys and dormers. Lower-level
+  parts (`coursed_stone`, `dressed_quoins`, `half_timber`, `boarded`,
+  `log_walls`, `jetty_course`, `roof`, `lean_to`) build anything else.
+- **Openings:** `P.casement` (frame, glazing bars, sill, lintel,
+  shutters, flower box; settler windows unframed with a pale sill),
+  `P.entrance` (framed leaf, hinges, knob, stone step), `P.barn_gate`,
+  `P.trade_sign` in the colour of the good, `P.dormer_on`.
+- **Roofs:** courses with ridge tiles or a thatch roll, eaves (fascia or
+  ragged fringe) and three-voxel gable ends so the lite keeps them;
+  `P.roof_chimney(v, b.roof, x, y, anchor=True)` places a stack with
+  pots and the chimney/smoke anchors on smoking producers (content
+  `smoke`).
+- **Yard and props:** uneven fences (`fence_ring`, `fence_line_v2`),
+  `crop_rows`, `fruit_tree`, `shrub`, and the work props — `woodpile`,
+  `log_stack`, `cask`, `box_crate`, `sacks`, `bale`, `handcart`,
+  `trough`, `well`, `tool_rack`, `ladder`, `sawhorse`, `haystack`,
+  `sheaf`, `stone_blocks`, `lamp_post`, `flower_bed`. One signature prop
+  per producer must read at mid zoom.
+- **Anchors:** everything `model.required_anchors` lists (cart, boat,
+  berths, slip, pasture gate and animals, chimney/smoke) plus a door on
+  buildings; the build fails without them.
+- **Colour jitter last:** `P.colour_jitter` gives every material three
+  shades by role (`JITTER`): per voxel on walls and props, 2 × 2 plan
+  patches on roofs and timber, a low share on stone and the ground plate.
+  Every off-shade patch splits merged quads, and the models folder has a
+  hard limit (`MODELS_FOLDER_LIMIT`) — prefer structure (courses, frames,
+  props) over more speckle.
+- **Sway:** only sails, ship canvas and flags (`flag_*`, `P.cloth`); sacks,
+  bales, awnings, washing and stretched sailcloth stay rigid.
+- **Lite:** the automatic lite (2 voxels/tile) must still read: keep
+  jettied fronts and gable ends on 4-voxel block boundaries, roofs at
+  least three voxels thick at the verges, and check the lite column of
+  the sheet.
+- **Budgets:** triangles per footprint tile and class
+  (`nsvoxel/config.py`) and the folder limit are fixed; report a recipe
+  that does not fit instead of raising them.
+
 ### Look rules
 
 - **Colour:** palette roles only, each in a few named shades
