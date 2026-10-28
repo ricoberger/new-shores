@@ -37,6 +37,7 @@ const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<R
   town: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } },
   seafaring: { island: "isle-01" }, // a new world: the start sloop at sea, nothing settled
   citizens: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } }, // town plus a bare wheat farm
+  merchants: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } }, // citizens plus the tier-3 street end and a clay island
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
   "archipelago-8x20": { island: null },
@@ -568,7 +569,7 @@ async function selectBuilding(page: Page, type: string, offset: { x: number; y: 
   await page.mouse.move(5, 400);
 }
 
-const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w: WorldResponse) => void; run: (page: Page) => Promise<void> }> = {
+const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly Device[]; patch?: (w: WorldResponse) => void; run: (page: Page) => Promise<void> }> = {
   // The HUD with the info panel of a building that is not running (desktop).
   "info-panel": {
     fixture: "dense-2x400",
@@ -854,6 +855,42 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
       await page.waitForFunction(() => window.__newShores!.ghostValidity() === "invalid", undefined, { timeout: 10_000 });
     },
   },
+  // A Merchant house of the merchants fixture selected (D-056 C3), desktop and phone.
+  "merchant-house-card": {
+    fixture: "merchants",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.type === "house_merchants");
+          if (b) return { island: is.id, x: b.x, y: b.y, ox: is.position.x, oy: is.position.y };
+        }
+        throw new Error("no Merchant house");
+      });
+      await setCamera(page, { x: t.ox + t.x + 1, y: t.oy + t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x + 1, t.y + 1);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  // The build menu of the merchants fixture on its Production tab, scrolled to the tier-3 end, desktop and phone.
+  "merchant-build-menu": {
+    fixture: "merchants",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      await page.getByTestId("build-tab-production").click();
+      await page.evaluate(() => {
+        for (const el of document.querySelectorAll<HTMLElement>('[data-testid="build-menu"] *')) {
+          if (el.scrollWidth > el.clientWidth) el.scrollLeft = el.scrollWidth;
+          if (el.scrollHeight > el.clientHeight) el.scrollTop = el.scrollHeight;
+        }
+      });
+    },
+  },
   // The build menu open (phone portrait).
   "build-menu": {
     fixture: "showcase",
@@ -1045,15 +1082,17 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device; patch?: (w:
 
 async function takePreset(browser: Browser, preset: Preset, dir: string, written: string[]): Promise<void> {
   const p = PRESET_RUN[preset];
-  const { page, close } = await open(browser, p.device, p.fixture, true, p.patch);
-  try {
-    if (preset === "sheet") await page.waitForFunction(() => window.__newShores!.quality() === "low", undefined, { timeout: 10_000 });
-    await settle(page);
-    await p.run(page);
-    await settle(page);
-    await shoot(page, resolve(dir, `${p.fixture}-${preset}-${p.device}.png`), written);
-  } finally {
-    await close();
+  for (const device of typeof p.device === "string" ? [p.device] : p.device) {
+    const { page, close } = await open(browser, device, p.fixture, true, p.patch);
+    try {
+      if (preset === "sheet") await page.waitForFunction(() => window.__newShores!.quality() === "low", undefined, { timeout: 10_000 });
+      await settle(page);
+      await p.run(page);
+      await settle(page);
+      await shoot(page, resolve(dir, `${p.fixture}-${preset}-${device}.png`), written);
+    } finally {
+      await close();
+    }
   }
 }
 
