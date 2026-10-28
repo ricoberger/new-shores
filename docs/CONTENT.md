@@ -83,7 +83,7 @@ bricks; T4 stone + bricks + glass.
 
 | Good | Produced by | Alternatives | Consumed by |
 |---|---|---|---|
-| `charcoal` | `charcoal_burner` (wood) | `coal_mine` (coal slot, T3) → `coal` accepted wherever charcoal is | smelter, brickworks, salt_works, glass_smelter, distillery, copper_smelter, gold_smelter |
+| `charcoal` | `charcoal_burner` (wood) | `coal_mine` (coal slot, T3) → `coal` accepted wherever charcoal is | smelter, brickworks, salt_works, glass_smelter, distillery, grain_distillery, copper_smelter, gold_smelter |
 | `salt` | `salt_pans` (harbour slot, slow) | `salt_mine` (salt slot) → brine → `salt_works` (+charcoal) | butcher, slaughterhouse, oyster_house |
 | `clay` | `clay_pit` (clay slot) | — | brickworks, potter |
 | `flour` | `mill` (wheat) | — | bakery, pastry_kitchen, confectioner |
@@ -93,11 +93,11 @@ bricks; T4 stone + bricks + glass.
 | `honey` | `apiary` (meadow) | — | meadery, confectioner |
 | `wood` | `lumberjack` | — | sawmill, charcoal_burner, paper_mill |
 | `leather` | `leather_works` (pigs, T3) | — | `tailor` (coats); `tannery` makes the T2 good `leather_jerkins` directly (D-041) |
-| `barrels` | `cooperage` (planks + iron) | — | winepress, distillery (grain spirit) |
+| `barrels` | `cooperage` (planks + iron) | — | winepress, grain_distillery |
 | `brass` | `copper_smelter` (copper slot + charcoal) | — | optician, luthier |
 | `dye` | `dyer_works` (woad fertility) | — | dyer (dyed garments), studio (pigments) |
-| `thread` | `thread_spinner` (hemp) | — | lace_maker |
-| `malt` | `malt_house` (wheat) | — | distillery (grain spirit) |
+| `thread` | `thread_spinner` (hemp) | — | lace_maker, fashion_house |
+| `malt` | `malt_house` (wheat) | — | grain_distillery |
 
 ## 5. Production chains by tier
 
@@ -170,8 +170,8 @@ feature, not a tier gate, and not authored yet. Variety reserve
 | food | roast_beef | `cattle_farm` (grass → cattle, 120 s) [8 S], salt, `slaughterhouse` (cattle + salt → roast_beef, 60 s) [8 P] | 2 : 1 : 1 |
 | food | oysters | `oyster_beds` (harbour slot → raw_oysters, 90 s) [6 S], salt, `oyster_house` (raw_oysters + salt → oysters, 60 s) [6 P] | 3 : 1 : 2 |
 | drink | wine | `vineyard` (grape fert. → grapes, 90 s) [8 S], `cooperage` (planks + iron → barrels, 60 s) [8 C], `winepress` (2 grapes + barrels → wine, 60 s) [8 P] | 3 : 1 : 1.5 |
-| drink | grain_spirit | `wheat_farm`, `malt_house` (wheat → malt, 60 s) [6 C], `cooperage`, `distillery` (malt + barrels + charcoal → grain_spirit, 90 s) [8 P] | 2 : 1 : 1 : 1 |
-| clothing | fine_garments | `dyer`, `furrier`, `fashion_house` (dyed_garments + furs → fine_garments, 120 s) [10 P] | 1 : 1 : 1 |
+| drink | grain_spirit | `wheat_farm`, `malt_house` (wheat → malt, 60 s) [6 C], `cooperage`, `grain_distillery` (malt + barrels + charcoal → grain_spirit, 90 s) [8 P] | 2 : 1 : 1 : 1 |
+| clothing | fine_garments | `dyer`, `thread_spinner`, `fashion_house` (dyed_garments + thread → fine_garments, 120 s) [10 P] | 1 : 1 : 1 |
 | clothing | lace | `hemp_farm`, `thread_spinner` (hemp → thread, 45 s) [6 C], `lace_maker` (thread → lace, 120 s) [10 P] | 1 : 1 : 2 |
 | comfort | candles | `rendering_house`, `hemp_farm`, `candle_foundry` (tallow + hemp → candles, 45 s) [6 P] | 2 : 1 : 2 |
 | comfort | spectacles | `glass_smelter`, `copper_mine` (copper slot → copper_ore, 60 s) [10 C], `copper_smelter` (copper_ore + charcoal → brass, 60 s) [8 C], `optician` (glass + brass → spectacles, 90 s) [8 P] | 1 : 1 : 1 : 1.5 |
@@ -285,7 +285,7 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `hop_farm` | 3 | 3×4 + 60 `hop_field` | crop farm class | 120 / 6 / 3 / 0 | 2 | 6 S | R, hops fertility |
 | `hop_field` | 3 | 1×1 field | field tile | 3 g | 0 | — | hop_farm only |
 | `brewery` | 3 | 5×6 | Olive Press class | 330 / 6 / 9 / 3 | 4 | 10 M | R |
-| `distillery` | 3 | 5×6 | Olive Press class | 420 / 6 / 9 / 6 | 4 | 8 M | R; T4 grain_spirit reuses the building |
+| `distillery` | 3 | 5×6 | Olive Press class | 420 / 6 / 9 / 6 | 4 | 8 M | R (brandy only, D-041) |
 | `leather_works` | 3 | 3×4 | Tannery | 270 / 6 / 6 / 3 | 2 | 8 C | R |
 | `tailor` | 3 | 4×5 | Loom Weavery class | 410 / 5 / 9 / 6 | 5 | 10 M | R |
 | `woad_farm` | 3 | 3×4 + 100 `woad_field` | crop farm class | 120 / 6 / 3 / 0 | 2 | 6 S | R, woad fertility |
@@ -318,7 +318,8 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `cooperage` | 4 | 4×6 | Caelator class | 840 / 9 / 12 / 9 / 6 | 7 | 8 C | R |
 | `winepress` | 4 | 6×9 | Vintner | 540 / 6 / 15 / 6 / 0 | 8 | 8 P | R |
 | `malt_house` | 4 | 4×6 | Grain Mill class | 270 / 6 / 6 / 3 / 0 | 2 | 6 C | R |
-| `fashion_house` | 4 | 5×7 | Chair Maker class | 900 / 6 / 9 / 6 / 12 | 7 | 10 P | R |
+| `grain_distillery` | 4 | 5×6 | Olive Press class | 600 / 6 / 9 / 6 / 6 | 5 | 8 P | R; model: the distillery recipe with its own roof colour (D-041: one recipe per building) |
+| `fashion_house` | 4 | 5×7 | Chair Maker class | 900 / 6 / 9 / 6 / 12 | 7 | 10 P | R; dyed_garments + thread (furs are reserve) |
 | `thread_spinner` | 4 | 3×4 | Spinner | 240 / 6 / 0 / 6 / 0 | 2 | 6 C | R |
 | `lace_maker` | 4 | 3×5 | Cushion Stuffer | 650 / 5 / 3 / 6 / 9 | 4 | 10 P | R |
 | `candle_foundry` | 4 | 4×4 | Jeweller class | 680 / 5 / 0 / 9 / 9 | 12 | 6 P | R |
