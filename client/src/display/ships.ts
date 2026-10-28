@@ -203,31 +203,47 @@ export type ModelAnchor = (b: BuildingDisplay, def: { width: number; height: num
 
 /** The Trading Post model's berth anchors (D-054: berth_1 … berth_4, the stern points on the pier front). */
 export const BERTH_ANCHORS = ["berth_1", "berth_2", "berth_3", "berth_4"] as const;
-/** Fan of the ships moored at the pier: radians of turn per tile of the berth's offset from the pier's centre (bows spread, sterns close). */
+/** Fan of the ships moored at the pier: radians of turn per tile of the berth's offset from the pier's centre (bows spread, sterns close), for a ship of the reference length. */
 const BERTH_FAN = (28 * Math.PI) / 180 / 1.5;
 /** Queue: ships along a row (centre first, then alternating sides), their spacing and the gap behind the moored bows (tiles). */
 const QUEUE_PER_ROW = 5;
 const QUEUE_SPACING = 2.5;
 const QUEUE_GAP = 1;
+/** Hull length (tiles, content ships.json `length_tiles`) of the reference ship, the sloop: the ship drawn at the layers' scale and laid on the berth anchors as they are. */
+export const REFERENCE_SHIP_LENGTH_MILLI = 2_000;
+
+/** A ship type's length relative to the reference ship (1 for the sloop or without content length). */
+export function shipLengthRatio(ship: { length_milli_tiles?: number } | undefined): number {
+  const l = ship?.length_milli_tiles ?? 0;
+  return l > 0 ? l / REFERENCE_SHIP_LENGTH_MILLI : 1;
+}
 
 /**
- * Where ship `slot` lies at a Trading Post's pier with the model's berth
- * anchors (D-054, island tiles; the ship's origin and heading). A moored
- * ship holds berth anchor slot + 1 and lies bow out from it, fanned by the
- * anchor's offset from the pier's centre, its stern `stern` tiles behind
- * its origin. A queued ship waits bow out beyond the moored ships' bows:
- * QUEUE_PER_ROW along a row (centre first), further rows further out.
- * Null without anchors (the model is not loaded) or with more moored ships
- * than anchors; pierPoint is the fallback. Visual placement only.
+ * Where the ships lie at a Trading Post's pier with the model's berth
+ * anchors (D-054, island tiles; each ship's origin and heading).
+ * `moored[i]` and `queued[i]` are the length ratios (shipLengthRatio) of
+ * the ships holding pier slot i and waiting at queue place i.
+ *
+ * A moored ship lies stern-first at the pier front, bow out, fanned by its
+ * offset from the pier's centre, its stern `stern × ratio` tiles behind its
+ * origin. The berths are spaced by ship length: slot i takes the side of
+ * berth anchor i + 1 (the middle pair first, then outwards), and each ship
+ * takes a width of `anchor spacing × ratio` along the pier, so sloops lie
+ * exactly on the anchors and longer ships push their neighbours outwards
+ * instead of overlapping them. A queued ship waits bow out beyond the
+ * longest moored bow: QUEUE_PER_ROW along a row (centre first), further rows
+ * further out. An entry is null without anchors (the model is not loaded)
+ * or for a pier slot beyond the anchors; pierPoint is the fallback. Visual
+ * placement only.
  */
-export function berthDock(
+export function pierLayout(
   anchors: readonly { x: number; y: number }[],
   rotation: number,
-  slot: number,
-  queued: boolean,
+  moored: readonly number[],
+  queued: readonly number[],
   stern: number,
-): { point: ArchPoint; heading: number } | null {
-  if (anchors.length === 0) return null;
+): { moored: ({ point: ArchPoint; heading: number } | null)[]; queued: ({ point: ArchPoint; heading: number } | null)[] } {
+  if (anchors.length === 0) return { moored: moored.map(() => null), queued: queued.map(() => null) };
   const out = pierHeading(rotation);
   const ox = Math.cos(out);
   const oy = Math.sin(out);
@@ -236,28 +252,77 @@ export function berthDock(
   const ay = ox;
   const cx = anchors.reduce((s, a) => s + a.x, 0) / anchors.length;
   const cy = anchors.reduce((s, a) => s + a.y, 0) / anchors.length;
-  const n = Math.max(0, Math.floor(slot));
-  if (!queued) {
+  const offsets = anchors.map((a) => (a.x - cx) * ax + (a.y - cy) * ay);
+  // The anchor spacing: the width one reference ship takes along the pier.
+  const sorted = [...offsets].sort((a, b) => a - b);
+  let unit = Infinity;
+  for (let k = 1; k < sorted.length; k++) if (sorted[k]! - sorted[k - 1]! > 1e-6) unit = Math.min(unit, sorted[k]! - sorted[k - 1]!);
+  if (!Number.isFinite(unit)) unit = 1.5;
+  // Width already taken on each side of the centre (neg: negative offsets); the slots fill outwards in anchor order.
+  const taken = { neg: 0, pos: 0 };
+  const mooredOut = moored.map((ratio, n) => {
     const a = anchors[n];
-    if (!a) return null;
-    const heading = out + ((a.x - cx) * ax + (a.y - cy) * ay) * BERTH_FAN;
-    return { point: { x: a.x + Math.cos(heading) * stern, y: a.y + Math.sin(heading) * stern }, heading };
-  }
-  const row = Math.floor(n / QUEUE_PER_ROW);
-  const k = n % QUEUE_PER_ROW;
-  const along = (k % 2 === 1 ? 1 : -1) * Math.ceil(k / 2) * QUEUE_SPACING;
-  // The moored bows reach 2 × stern out; the queue's sterns wait QUEUE_GAP beyond, each row a ship length further.
-  const dist = 3 * stern + QUEUE_GAP + row * (2 * stern + QUEUE_GAP);
-  return { point: { x: cx + ox * dist + ax * along, y: cy + oy * dist + ay * along }, heading: out };
+    const o = offsets[n];
+    if (!a || o === undefined) return null;
+    const width = unit * ratio;
+    let off = o;
+    if (Math.abs(o) > 1e-6) {
+      const side = o < 0 ? "neg" : "pos";
+      off = Math.sign(o) * (taken[side] + width / 2);
+      taken[side] += width;
+    } else {
+      // A ship on the centre line (odd anchor counts) takes half its width of each side.
+      taken.neg += width / 2;
+      taken.pos += width / 2;
+    }
+    // The pier front through the anchor (its depth along "out" kept), shifted along to the packed offset.
+    const bx = a.x + ax * (off - o);
+    const by = a.y + ay * (off - o);
+    const heading = out + (off / ratio) * BERTH_FAN;
+    const len = stern * ratio;
+    return { point: { x: bx + Math.cos(heading) * len, y: by + Math.sin(heading) * len }, heading };
+  });
+  // The moored bows reach 2 × stern × ratio out; the queue's sterns wait QUEUE_GAP beyond, each row a ship length further.
+  const reach = Math.max(2 * stern, ...moored.map((r) => 2 * stern * r));
+  const qr = Math.max(1, ...queued);
+  const queuedOut = queued.map((_, n) => {
+    const row = Math.floor(n / QUEUE_PER_ROW);
+    const k = n % QUEUE_PER_ROW;
+    const along = (k % 2 === 1 ? 1 : -1) * Math.ceil(k / 2) * QUEUE_SPACING * qr;
+    const dist = reach + stern * qr + QUEUE_GAP + row * (2 * stern * qr + QUEUE_GAP);
+    return { point: { x: cx + ox * dist + ax * along, y: cy + oy * dist + ay * along }, heading: out };
+  });
+  return { moored: mooredOut, queued: queuedOut };
+}
+
+/**
+ * Where ship `slot` lies at a Trading Post's pier with the model's berth
+ * anchors when every ship there has the reference length (pierLayout):
+ * a moored ship holds berth anchor slot + 1, a queued ship waits at queue
+ * place `slot`. Null without anchors or with more moored ships than
+ * anchors.
+ */
+export function berthDock(
+  anchors: readonly { x: number; y: number }[],
+  rotation: number,
+  slot: number,
+  queued: boolean,
+  stern: number,
+): { point: ArchPoint; heading: number } | null {
+  const n = Math.max(0, Math.floor(slot));
+  const ones = new Array<number>(n + 1).fill(1);
+  const layout = queued ? pierLayout(anchors, rotation, [], ones, stern).queued : pierLayout(anchors, rotation, ones, [], stern).moored;
+  return layout[n] ?? null;
 }
 
 /**
  * Archipelago points of the ships at a Trading Post's pier (D-051, D-054):
  * a ship holding a berth at pier slot = its index among the berth's ships,
  * a queued ship at queue slot = its place in the queue. With the model's
- * berth anchors (`anchor`) they moor at the pier's berths (berthDock,
- * `stern`: tiles from a ship's origin back to its stern); without them along
- * the front row (pierPoint). From the payload's `berths`; fisher and
+ * berth anchors (`anchor`) they moor at the pier's berths (pierLayout,
+ * `stern`: tiles from a reference ship's origin back to its stern; `ratio`:
+ * a ship's length relative to the reference, by ship ID); without them
+ * along the front row (pierPoint). From the payload's `berths`; fisher and
  * shipyard jetties hold no ships.
  */
 export function dockPoints(
@@ -265,6 +330,7 @@ export function dockPoints(
   defs: ReadonlyMap<string, { width: number; height: number; water_tiles?: number; trading_post?: unknown }>,
   anchor: ModelAnchor | null = null,
   stern = 0,
+  ratio: (shipId: number) => number = () => 1,
 ): Map<number, Dock> {
   const out = new Map<number, Dock>();
   for (const is of islands) {
@@ -279,9 +345,10 @@ export function dockPoints(
           anchors.push(a);
         }
       }
+      const layout = pierLayout(anchors, b.rotation, b.berths.ships.map(ratio), b.berths.queue.map(ratio), stern);
       const put = (ids: readonly number[], queued: boolean) =>
         ids.forEach((id, i) => {
-          const at = berthDock(anchors, b.rotation, i, queued, stern);
+          const at = (queued ? layout.queued : layout.moored)[i] ?? null;
           const p = at?.point ?? pierPoint(def, b, i, queued);
           if (p) out.set(id, { point: { x: is.position.x + p.x, y: is.position.y + p.y }, heading: at?.heading ?? pierHeading(b.rotation), ...(queued ? { queued } : {}) });
         });

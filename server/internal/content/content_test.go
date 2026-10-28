@@ -206,6 +206,12 @@ func TestLoadOldCoast(t *testing.T) {
 		len(sloop.Cost.Materials) != 2 || sloop.Cost.Materials[0] != wantCost.Materials[0] || sloop.Cost.Materials[1] != wantCost.Materials[1] {
 		t.Errorf("sloop = %+v", sloop)
 	}
+	// Hull lengths (display only, CONTENT §11) match the models (assets/recipes ship.length_tiles).
+	for id, want := range map[string]int64{"sloop": 2_000, "brig": 2_600, "galleon": 3_200} {
+		if sh := c.ShipByID[id]; sh == nil || sh.LengthMilliTiles != want {
+			t.Errorf("%s length = %+v, want %d", id, sh, want)
+		}
+	}
 	for _, w := range []struct {
 		id, tier       string
 		slots          int

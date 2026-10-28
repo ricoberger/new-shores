@@ -123,6 +123,8 @@ export class ArchipelagoLayer {
   private berths: Berths = new Map();
   /** Ships at a Trading Post's pier or in its queue: their mooring points (archipelago tiles). */
   private docks: ReadonlyMap<number, Dock> = new Map();
+  /** Hull length of each ship type relative to the reference ship (content length_tiles; 1 when unknown). */
+  private lengthRatios: ReadonlyMap<string, number> = new Map();
   /** Waiting ships bob at anchor (the life layer; off with ?life=0). */
   bobbing = true;
   private shipList: ShipDisplay[] = [];
@@ -188,6 +190,16 @@ export class ArchipelagoLayer {
    * the ship list. `berths` are the islands' harbour
    * berths in archipelago tiles.
    */
+  /** Sets the ship types' hull lengths relative to the reference ship (content ships, shipLengthRatio): ships are drawn that much longer. */
+  setShipLengths(ratios: ReadonlyMap<string, number>): void {
+    this.lengthRatios = ratios;
+  }
+
+  /** Hull length of a ship type relative to the reference ship. */
+  private lengthRatio(type: string): number {
+    return this.lengthRatios.get(type) ?? 1;
+  }
+
   /** Replaces the pier and queue points (the berth anchors arrived with the model manifest). */
   setDocks(docks: ReadonlyMap<number, Dock>): void {
     this.docks = docks;
@@ -423,7 +435,7 @@ export class ArchipelagoLayer {
     }
     this.shipPoints.clear();
     this.shipStyles.clear();
-    const scale = this.shipScale();
+    const baseScale = this.shipScale();
     const y = this.lod === "far" ? SHIP_Y_FAR : SHIP_Y;
     const blobs = this.lod !== "far";
     if (blobs && this.shipBlobBuffer.length !== this.shipList.length * 16) {
@@ -434,6 +446,7 @@ export class ArchipelagoLayer {
     let blob = 0;
     for (const [type, list] of byType) {
       const { inst, cargo, model } = this.shipInstances(type);
+      const scale = baseScale * this.lengthRatio(type);
       // A model's origin is its waterline (at the sea surface); the placeholder floats on y = SHIP_Y.
       const sy = model && this.lod !== "far" ? SEA_LEVEL : y;
       inst.resize(list.length);
@@ -489,7 +502,8 @@ export class ArchipelagoLayer {
       }
     } else if (sel.kind === "ship") {
       at = this.shipPoints.get(sel.id) ?? null;
-      size = this.shipScale() * 1.6;
+      const ship = this.shipList.find((s) => s.id === sel.id);
+      size = this.shipScale() * 1.6 * (ship ? this.lengthRatio(ship.type) : 1);
     }
     if (!at) {
       this.ring.setEnabled(false);

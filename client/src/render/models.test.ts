@@ -94,6 +94,14 @@ describe("committed models are consistent with the manifest (Blender-free)", () 
     expect(Object.keys(manifest.models.trading_post?.levels ?? {})).toEqual(["1", "2", "3", "4"]);
     expect(manifest.models.sloop?.attachments?.cargo).toBeDefined();
   });
+
+  it("every ship's content length_tiles is its model's length (berth spacing and drawn size follow content)", () => {
+    const ships = JSON.parse(readFileSync(join(REPO, "content", "old_coast", "ships.json"), "utf8")) as { id: string; length_tiles?: number }[];
+    for (const s of ships) {
+      expect(s.length_tiles, s.id).toBeDefined();
+      expect(manifest.models[s.id]?.ship?.length_tiles, s.id).toBeCloseTo(s.length_tiles!);
+    }
+  });
 });
 
 interface GlbDoc {

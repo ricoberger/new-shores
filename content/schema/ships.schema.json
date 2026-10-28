@@ -44,7 +44,12 @@
         },
         "additionalProperties": false
       },
-      "upkeep_per_min": { "type": "number", "minimum": 0 }
+      "upkeep_per_min": { "type": "number", "minimum": 0 },
+      "length_tiles": {
+        "description": "Hull length in tiles at model scale (display only: the client draws ships and spaces the Trading Post berths by it, CONTENT §11). Absent: the reference length 2.",
+        "type": "number",
+        "exclusiveMinimum": 0
+      }
     }
   },
   "$defs": {

@@ -81,6 +81,9 @@ type shipJSONOut struct {
 	BuildMs       int64    `json:"build_ms"`
 	Cost          costJSON `json:"cost"`
 	UpkeepPerMin  int64    `json:"upkeep_per_min"`
+	// LengthMilliTiles is the hull length (display only); absent when the
+	// content gives none.
+	LengthMilliTiles int64 `json:"length_milli_tiles,omitempty"`
 }
 
 type shipyardJSONOut struct {
@@ -366,7 +369,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 	}
 	for _, sh := range c.Ships {
 		sj := shipJSONOut{
-			ID: sh.ID, Name: sh.Name, Tier: sh.Tier, Slots: sh.Slots, SlotSize: sh.SlotSize, SpeedPermille: sh.SpeedPermille,
+			ID: sh.ID, Name: sh.Name, Tier: sh.Tier, Slots: sh.Slots, SlotSize: sh.SlotSize, SpeedPermille: sh.SpeedPermille, LengthMilliTiles: sh.LengthMilliTiles,
 			BuildMs: sh.BuildMs, Cost: costJSON{Gold: sh.Cost.Gold, Materials: map[string]int64{}}, UpkeepPerMin: sh.UpkeepPerMin,
 		}
 		for _, m := range sh.Cost.Materials {

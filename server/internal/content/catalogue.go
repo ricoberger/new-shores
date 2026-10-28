@@ -305,6 +305,9 @@ type Ship struct {
 	SlotSize Qty
 	// SpeedPermille is the speed factor in per-mille (1000 = reference).
 	SpeedPermille int64
+	// LengthMilliTiles is the hull length in milli-tiles (display only:
+	// ship size and berth spacing); 0 when the content gives none.
+	LengthMilliTiles int64
 	// BuildMs is the shipyard build time.
 	BuildMs int64
 	// Cost is deducted at order time (gold from the world, materials from

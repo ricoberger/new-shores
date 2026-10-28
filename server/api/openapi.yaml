@@ -3053,6 +3053,13 @@ components:
           type: integer
           format: int64
           description: Speed factor (permille; 1000 = reference speed).
+        length_milli_tiles:
+          type: integer
+          format: int64
+          description: |
+            Hull length in milli-tiles (display only): the client draws the
+            ship and spaces the Trading Post's berths by it. Absent: the
+            reference length (2 000, the sloop).
         build_ms:
           type: integer
           format: int64

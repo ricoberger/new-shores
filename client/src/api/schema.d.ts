@@ -2087,6 +2087,13 @@ export interface components {
             speed_permille: number;
             /**
              * Format: int64
+             * @description Hull length in milli-tiles (display only): the client draws the
+             *     ship and spaces the Trading Post's berths by it. Absent: the
+             *     reference length (2 000, the sloop).
+             */
+            length_milli_tiles?: number;
+            /**
+             * Format: int64
              * @description Build time at the shipyard (ms).
              */
             build_ms: number;

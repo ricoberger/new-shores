@@ -359,6 +359,7 @@ type rawShip struct {
 	BuildSeconds json.Number            `json:"build_seconds"`
 	Cost         map[string]json.Number `json:"cost"`
 	Upkeep       json.Number            `json:"upkeep_per_min"`
+	LengthTiles  json.Number            `json:"length_tiles"`
 }
 
 type rawNeedCategory struct {
@@ -657,6 +658,9 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			BuildMs:       col.fixed(FileShips, ent, "build_seconds", rs.BuildSeconds, 3),
 			UpkeepPerMin:  col.fixed(FileShips, ent, "upkeep_per_min", rs.Upkeep, 3),
 			Cost:          decodeCost(col, FileShips, ent, rs.Cost, cat.GoodByID),
+		}
+		if rs.LengthTiles != "" {
+			sh.LengthMilliTiles = col.fixed(FileShips, ent, "length_tiles", rs.LengthTiles, 3)
 		}
 		cat.Ships = append(cat.Ships, sh)
 		cat.ShipByID[sh.ID] = sh
