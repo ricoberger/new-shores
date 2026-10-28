@@ -2,6 +2,7 @@ package sim
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"maps"
 	"math"
@@ -460,6 +461,9 @@ type BuildingDisplay struct {
 	ThroughputPerMin *Qty   `json:"throughput_per_min,omitempty"`
 	LoadPermille     *int64 `json:"load_permille,omitempty"`
 
+	// Upgrade is the upgrade gate of a house (houses only).
+	Upgrade *UpgradeDisplay `json:"upgrade,omitempty"`
+
 	// Houses (residents in milli-residents, rates per minute).
 	Residents              *Qty          `json:"residents,omitempty"`
 	ResidentsFloor         *Qty          `json:"residents_floor,omitempty"`
@@ -550,10 +554,6 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 			at = min(at, s.BerthUntilMs)
 		}
 	}
-	if at != math.MaxInt64 {
-		s := time.UnixMilli(at).UTC().Format(timeLayout)
-		ds.NextChangeAt = &s
-	}
 	pop := worldPopulation(cw, c)
 	for _, t := range c.Tiers {
 		st := evaluateTier(cw, c, t, pop)
@@ -567,7 +567,11 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		ds.Tiers = append(ds.Tiers, td)
 	}
 	for i, is := range cw.Islands {
-		ds.Islands = append(ds.Islands, displayIsland(cw, is, c, wr.islands[i], nowMs))
+		ds.Islands = append(ds.Islands, displayIsland(cw, is, c, wr, wr.islands[i], nowMs, &at))
+	}
+	if at != math.MaxInt64 {
+		s := time.UnixMilli(at).UTC().Format(timeLayout)
+		ds.NextChangeAt = &s
 	}
 	for _, s := range cw.Ships {
 		ds.Ships = append(ds.Ships, displayShip(s, c))
@@ -693,7 +697,10 @@ func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
 	return d
 }
 
-func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int64) IslandDisplay {
+// displayIsland derives the display of one island. It lowers *at (the
+// payload's next change) to the moment a house's upgrade availability flips
+// by gold or stock crossing the cost, which no boundary marks.
+func displayIsland(w *World, is *Island, c *content.Catalogue, wr *worldRates, r *rates, now int64, at *int64) IslandDisplay {
 	d := IslandDisplay{
 		ID: is.ID, Name: is.Name, SizeClass: is.SizeClass, Settled: settled(is, c), Position: PositionDisplay{X: is.X, Y: is.Y},
 		Width: is.Width, Height: is.Height,
@@ -797,10 +804,99 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int
 		}
 		if h := houses[b.ID]; h != nil {
 			displayHouse(&bd, h)
+			bd.Upgrade = upgradeDisplay(w, c, is, h)
+			if flip := upgradeFlipAt(w, c, wr, r, is, h, bd.Upgrade, now); flip > now {
+				*at = min(*at, flip)
+			}
 		}
 		d.Buildings = append(d.Buildings, bd)
 	}
 	return d
+}
+
+// UpgradeDisplay says whether upgrading a house would succeed now (the
+// server's gate, so the client computes no rule, D-027) and, when not, why:
+// the first failing condition of the gate as a code (the Upgrade* reason
+// constants).
+type UpgradeDisplay struct {
+	Available bool   `json:"available"`
+	Reason    string `json:"reason,omitempty"`
+}
+
+// Reasons of an UpgradeDisplay in gate order. A failing need is reported as
+// UpgradeNeedsBelowThreshold + ":" + the need's category.
+const (
+	UpgradeNoHouse             = "no_house"
+	UpgradeTierLocked          = "tier_locked"
+	UpgradeNotFull             = "not_full"
+	UpgradeNeedsBelowThreshold = "needs_below_threshold"
+	UpgradeCannotAfford        = "cannot_afford"
+)
+
+// upgradeDisplay evaluates the upgrade gate (checkHouseUpgrade) of a house
+// of the settled display world.
+func upgradeDisplay(w *World, c *content.Catalogue, is *Island, h *houseCalc) *UpgradeDisplay {
+	var unmet *content.Need
+	_, _, err := checkHouseUpgrade(w, c, is, h.b, func() *content.Need {
+		unmet = unmetNeed(h)
+		return unmet
+	})
+	switch {
+	case err == nil:
+		return &UpgradeDisplay{Available: true}
+	case errors.Is(err, ErrTierLocked):
+		return &UpgradeDisplay{Reason: UpgradeTierLocked}
+	case errors.Is(err, ErrHouseNotFull):
+		return &UpgradeDisplay{Reason: UpgradeNotFull}
+	case errors.Is(err, ErrNeedsUnmet):
+		category := unmet.Category
+		if category == "" {
+			category = unmet.ID
+		}
+		return &UpgradeDisplay{Reason: UpgradeNeedsBelowThreshold + ":" + category}
+	case errors.Is(err, ErrInsufficientGold), errors.Is(err, ErrInsufficientMaterials):
+		return &UpgradeDisplay{Reason: UpgradeCannotAfford}
+	}
+	// No house of the next tier (or one of another footprint).
+	return &UpgradeDisplay{Reason: UpgradeNoHouse}
+}
+
+// upgradeFlipAt returns the first millisecond at which a house's upgrade
+// availability changes only because gold or a material crosses the cost at
+// the current rates (0 for none): the gate's earlier conditions change at
+// boundaries, but a stock or the gold passing the cost does not, and the
+// client must re-fetch then (D-027). Only houses that pass the gate up to
+// its cost have one.
+func upgradeFlipAt(w *World, c *content.Catalogue, wr *worldRates, r *rates, is *Island, h *houseCalc, u *UpgradeDisplay, now int64) int64 {
+	if !u.Available && u.Reason != UpgradeCannotAfford {
+		return 0
+	}
+	_, next := nextHouse(c, h.b)
+	if next == nil {
+		return 0
+	}
+	// crossing returns the first ms after now at which have (sub-units,
+	// moving by rate per ms) is on the other side of need than now.
+	crossing := func(have, need, rate int64) int64 {
+		switch {
+		case have < need && rate > 0:
+			return now + ceilDiv(need-have, rate)
+		case have >= need && rate < 0:
+			return now + (have-need)/-rate + 1
+		}
+		return 0
+	}
+	flip := int64(0)
+	consider := func(t int64) {
+		if t > 0 && (flip == 0 || t < flip) {
+			flip = t
+		}
+	}
+	consider(crossing(w.goldFine(), next.Cost.Gold*GoldSubPerMilli, wr.goldRate))
+	for _, m := range next.Cost.Materials {
+		consider(crossing(is.Inventory.fine(m.Good), m.Amount*SubPerMilli, r.inflow[m.Good]-r.cons[m.Good]))
+	}
+	return flip
 }
 
 func displayHouse(bd *BuildingDisplay, h *houseCalc) {

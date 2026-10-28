@@ -7403,6 +7403,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "no_house"
+            },
             "residents": 40000,
             "residents_floor": 12000,
             "residents_max": 40000,
@@ -7587,6 +7591,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "no_house"
+            },
             "residents": 40000,
             "residents_floor": 12000,
             "residents_max": 40000,
@@ -7770,6 +7778,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "no_house"
+            },
             "residents": 40000,
             "residents_floor": 12000,
             "residents_max": 40000,
@@ -7955,6 +7967,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "no_house"
+            },
             "residents": 40000,
             "residents_floor": 12000,
             "residents_max": 40000,
@@ -8138,6 +8154,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -8267,6 +8286,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -8396,6 +8418,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -8524,6 +8549,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -8652,6 +8680,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -8782,6 +8813,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -8912,6 +8946,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -9042,6 +9079,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -9170,6 +9210,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -9300,6 +9343,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -9430,6 +9476,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -9558,6 +9607,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -9687,6 +9739,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -9816,6 +9871,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -9946,6 +10004,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -10074,6 +10135,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -10204,6 +10268,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -10334,6 +10401,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -10494,6 +10564,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -10624,6 +10697,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -10754,6 +10830,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -10882,6 +10961,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -11040,6 +11122,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -11169,6 +11254,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -11310,6 +11398,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -11472,6 +11563,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -11520,6 +11615,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -11649,6 +11747,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -11697,6 +11799,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -11826,6 +11931,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -11955,6 +12063,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -12084,6 +12195,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -12213,6 +12327,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -12342,6 +12459,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -12390,6 +12511,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -12519,6 +12643,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -28247,6 +28374,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -28377,6 +28507,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -28507,6 +28640,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -28637,6 +28773,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -28767,6 +28906,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -28897,6 +29039,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -29027,6 +29172,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -29157,6 +29305,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -29287,6 +29438,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -29417,6 +29571,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -29547,6 +29704,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -29677,6 +29837,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -29806,6 +29969,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -29936,6 +30102,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -30065,6 +30234,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -30195,6 +30367,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -30325,6 +30500,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 25000,
             "residents_floor": 8000,
             "residents_max": 25000,
@@ -30455,6 +30633,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -30540,6 +30721,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -30625,6 +30809,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -30710,6 +30897,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -30795,6 +30985,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -30929,6 +31122,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -31014,6 +31210,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -31099,6 +31298,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -31184,6 +31386,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -31269,6 +31474,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -31354,6 +31562,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -31439,6 +31650,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -31524,6 +31738,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -31609,6 +31826,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -31694,6 +31914,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -31746,6 +31969,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -31798,6 +32024,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -31850,6 +32079,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -31902,6 +32134,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -31954,6 +32189,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32006,6 +32244,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32058,6 +32299,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32110,6 +32354,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32162,6 +32409,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32214,6 +32464,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32266,6 +32519,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32318,6 +32574,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32370,6 +32629,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32422,6 +32684,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32476,6 +32741,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32528,6 +32796,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32580,6 +32851,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32632,6 +32906,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32686,6 +32963,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32738,6 +33018,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32792,6 +33075,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -32844,6 +33130,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -34432,6 +34721,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -36020,6 +36312,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -36185,6 +36480,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -36295,6 +36593,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -36405,6 +36706,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -36491,6 +36795,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -36608,6 +36915,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48518,6 +48828,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48570,6 +48883,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48622,6 +48938,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48674,6 +48993,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48726,6 +49048,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48778,6 +49103,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48830,6 +49158,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48882,6 +49213,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48934,6 +49268,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -48986,6 +49323,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49038,6 +49378,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49090,6 +49433,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49142,6 +49488,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49194,6 +49543,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49246,6 +49598,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49298,6 +49653,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49350,6 +49708,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49402,6 +49763,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49454,6 +49818,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49506,6 +49873,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -49587,6 +49957,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -51175,6 +51548,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -51292,6 +51668,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -51375,6 +51754,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -51489,6 +51871,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -51575,6 +51960,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -51711,6 +52099,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -51915,6 +52306,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -52014,6 +52408,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -54234,6 +54631,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -54320,6 +54720,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -54710,6 +55113,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -54935,6 +55341,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -55497,6 +55906,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -55549,6 +55961,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -55601,6 +56016,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -55653,6 +56071,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -60173,6 +60594,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -60257,6 +60682,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -60341,6 +60770,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -60425,6 +60858,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -60509,6 +60946,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -60727,6 +61167,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -60778,6 +61221,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -60829,6 +61275,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -60880,6 +61329,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -60931,6 +61383,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -60982,6 +61437,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -62119,6 +62577,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -62167,6 +62629,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -62248,6 +62714,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -62327,6 +62797,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -63392,6 +63866,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -64376,6 +64854,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -65360,6 +65842,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -66344,6 +66830,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -68264,6 +68754,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -69248,6 +69742,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -69380,6 +69877,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -69459,6 +69960,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -70490,6 +70995,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -70649,6 +71158,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -70808,6 +71321,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -70967,6 +71484,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -71237,6 +71758,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -71396,6 +71921,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -71555,6 +72084,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -71714,6 +72247,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -71873,6 +72410,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -72032,6 +72573,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -72191,6 +72736,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -72461,6 +73010,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -72620,6 +73173,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -72749,6 +73306,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -72828,6 +73389,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -73098,6 +73663,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -73257,6 +73826,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -73337,6 +73910,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -73496,6 +74073,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -73766,6 +74347,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -73925,6 +74510,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -74002,6 +74591,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -74108,6 +74701,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -74214,6 +74811,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -74373,6 +74974,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -74532,6 +75137,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -77817,6 +78426,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -77934,6 +78547,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -78954,6 +79571,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -79148,6 +79769,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -79263,6 +79888,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -79411,6 +80040,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -79563,6 +80196,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -79676,6 +80313,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -79760,6 +80401,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -79837,6 +80482,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:food"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -79921,6 +80570,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -80004,6 +80657,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -80052,6 +80709,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -80134,6 +80795,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -80217,6 +80882,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -80265,6 +80934,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -81849,6 +82522,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -83433,6 +84110,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -85017,6 +85698,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -85097,6 +85782,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -96252,6 +96941,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "no_house"
+                },
                 "residents": 40000,
                 "residents_floor": 12000,
                 "residents_max": 40000,
@@ -96436,6 +97129,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "no_house"
+                },
                 "residents": 40000,
                 "residents_floor": 12000,
                 "residents_max": 40000,
@@ -96619,6 +97316,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "no_house"
+                },
                 "residents": 40000,
                 "residents_floor": 12000,
                 "residents_max": 40000,
@@ -96804,6 +97505,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "no_house"
+                },
                 "residents": 40000,
                 "residents_floor": 12000,
                 "residents_max": 40000,
@@ -96987,6 +97692,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -97116,6 +97824,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -97245,6 +97956,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -97373,6 +98087,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -97501,6 +98218,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -97631,6 +98351,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -97761,6 +98484,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -97891,6 +98617,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -98019,6 +98748,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -98149,6 +98881,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -98279,6 +99014,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -98407,6 +99145,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -98536,6 +99277,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -98665,6 +99409,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -98795,6 +99542,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -98923,6 +99673,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -99053,6 +99806,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -99183,6 +99939,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -99343,6 +100102,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -99473,6 +100235,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -99603,6 +100368,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -99731,6 +100499,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -99889,6 +100660,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -100018,6 +100792,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -100159,6 +100936,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -100321,6 +101101,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -100369,6 +101153,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -100498,6 +101285,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -100546,6 +101337,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -100675,6 +101469,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -100804,6 +101601,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -100933,6 +101733,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -101062,6 +101865,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -101191,6 +101997,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -101239,6 +102049,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -101368,6 +102181,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -117096,6 +117912,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -117226,6 +118045,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -117356,6 +118178,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -117486,6 +118311,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -117616,6 +118444,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -117746,6 +118577,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -117876,6 +118710,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -118006,6 +118843,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -118136,6 +118976,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -118266,6 +119109,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -118396,6 +119242,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -118526,6 +119375,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -118655,6 +119507,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -118785,6 +119640,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -118914,6 +119772,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -119044,6 +119905,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -119174,6 +120038,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 25000,
                 "residents_floor": 8000,
                 "residents_max": 25000,
@@ -119304,6 +120171,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -119389,6 +120259,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -119474,6 +120347,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -119559,6 +120435,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -119644,6 +120523,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -119778,6 +120660,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -119863,6 +120748,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -119948,6 +120836,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -120033,6 +120924,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -120118,6 +121012,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -120203,6 +121100,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -120288,6 +121188,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -120373,6 +121276,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -120458,6 +121364,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -120543,6 +121452,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -120595,6 +121507,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -120647,6 +121562,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -120699,6 +121617,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -120751,6 +121672,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -120803,6 +121727,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -120855,6 +121782,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -120907,6 +121837,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -120959,6 +121892,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121011,6 +121947,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121063,6 +122002,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121115,6 +122057,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121167,6 +122112,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121219,6 +122167,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121271,6 +122222,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121325,6 +122279,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121377,6 +122334,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121429,6 +122389,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121481,6 +122444,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121535,6 +122501,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121587,6 +122556,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121641,6 +122613,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -121693,6 +122668,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -123281,6 +124259,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -124869,6 +125850,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -125034,6 +126018,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -125144,6 +126131,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -125254,6 +126244,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -125340,6 +126333,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -125457,6 +126453,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137367,6 +138366,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137419,6 +138421,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137471,6 +138476,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137523,6 +138531,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137575,6 +138586,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137627,6 +138641,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137679,6 +138696,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137731,6 +138751,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137783,6 +138806,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137835,6 +138861,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137887,6 +138916,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137939,6 +138971,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -137991,6 +139026,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -138043,6 +139081,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -138095,6 +139136,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -138147,6 +139191,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -138199,6 +139246,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -138251,6 +139301,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -138303,6 +139356,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -138355,6 +139411,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -138436,6 +139495,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -140024,6 +141086,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -140141,6 +141206,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -140224,6 +141292,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -140338,6 +141409,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -140424,6 +141498,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -140560,6 +141637,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -140764,6 +141844,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -140863,6 +141946,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -143083,6 +144169,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -143169,6 +144258,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -143559,6 +144651,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -143784,6 +144879,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -144346,6 +145444,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -144398,6 +145499,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -144450,6 +145554,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -144502,6 +145609,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -149022,6 +150132,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -149106,6 +150220,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -149190,6 +150308,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -149274,6 +150396,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -149358,6 +150484,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -149576,6 +150705,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -149627,6 +150759,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -149678,6 +150813,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -149729,6 +150867,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -149780,6 +150921,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -149831,6 +150975,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -150968,6 +152115,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -151016,6 +152167,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -151097,6 +152252,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -151176,6 +152335,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -152241,6 +153404,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -153225,6 +154392,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -154209,6 +155380,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -155193,6 +156368,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -157113,6 +158292,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -158097,6 +159280,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -158229,6 +159415,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -158308,6 +159498,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -159339,6 +160533,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -159498,6 +160696,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -159657,6 +160859,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -159816,6 +161022,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -160086,6 +161296,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -160245,6 +161459,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -160404,6 +161622,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -160563,6 +161785,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -160722,6 +161948,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -160881,6 +162111,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -161040,6 +162274,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -161310,6 +162548,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -161469,6 +162711,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -161598,6 +162844,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -161677,6 +162927,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -161947,6 +163201,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -162106,6 +163364,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -162186,6 +163448,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -162345,6 +163611,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -162615,6 +163885,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -162774,6 +164048,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -162851,6 +164129,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -162957,6 +164239,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -163063,6 +164349,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -163222,6 +164512,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -163381,6 +164675,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -166666,6 +167964,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -166783,6 +168085,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -167803,6 +169109,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -167997,6 +169307,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -168112,6 +169426,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -168260,6 +169578,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -168412,6 +169734,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -168525,6 +169851,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -168609,6 +169939,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -168686,6 +170020,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:food"
+                },
                 "residents": 15000,
                 "residents_floor": 5000,
                 "residents_max": 15000,
@@ -168770,6 +170108,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -168853,6 +170195,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -168901,6 +170247,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -168983,6 +170333,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -169066,6 +170420,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -169114,6 +170472,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -170698,6 +172060,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -172282,6 +173648,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -173866,6 +175236,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -173946,6 +175320,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:services"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,

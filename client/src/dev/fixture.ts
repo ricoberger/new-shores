@@ -628,7 +628,7 @@ function denseIsland(id: string, name: string, width: number, height: number, co
       buildings.push({ ...base, type: "chapel" } as BuildingDisplay);
     } else {
       const unhappy = i % 17 === 0;
-      buildings.push({ ...base, type: "house_settlers", status: unhappy ? "short_of_workers" : "ok", residents: 8_000 } as unknown as BuildingDisplay);
+      buildings.push({ ...base, type: "house_settlers", status: unhappy ? "short_of_workers" : "ok", residents: 8_000, upgrade: { available: true } } as unknown as BuildingDisplay);
     }
     bid++;
   });
@@ -942,6 +942,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     residents: 8_000,
     residents_floor: 2_000,
     residents_max: 8_000,
+    upgrade: { available: true },
     growth_rate_per_min: 0,
     satisfaction_permille: 800,
     served_by,

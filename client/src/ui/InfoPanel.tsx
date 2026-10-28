@@ -3,7 +3,7 @@ import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../a
 import { percent, perMin, seconds, units } from "../display/format";
 import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
 import { fieldBuildingOf, footprintText } from "../display/fields";
-import { needAlternatives, needCategory, needLabel, orderNeeds } from "../display/needs";
+import { needAlternatives, needCategory, needLabel, orderNeeds, upgradeReasonText } from "../display/needs";
 import { lockReason, tierUnlocked } from "../display/tiers";
 import { STATUS_STYLES, statusKey, statusText } from "../display/status";
 import { goodIcon, needIcon, statusIcon, toolIcon } from "../theme/iconSet";
@@ -731,7 +731,15 @@ export function InfoPanel({
           </button>
         )}
         {b.residents !== undefined && (
-          <button type="button" className={styles.button} onClick={onUpgrade} data-testid="info-upgrade">
+          // The server says whether the upgrade would succeed (D-027): enabled only then, the reason as the tooltip.
+          <button
+            type="button"
+            className={styles.button}
+            onClick={onUpgrade}
+            disabled={!b.upgrade?.available}
+            title={b.upgrade && !b.upgrade.available && b.upgrade.reason ? upgradeReasonText(content, b.upgrade.reason) : undefined}
+            data-testid="info-upgrade"
+          >
             <Icon path={toolIcon("upgrade")} /> Upgrade
           </button>
         )}

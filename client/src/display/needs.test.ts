@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Content } from "../api/client";
 import { needIcon } from "../theme/iconSet";
 import { ICON_PATHS } from "../theme/icons";
-import { type NeedContent, needAlternatives, needCategory, needFromTier, needLabel, needName, orderNeeds } from "./needs";
+import { type NeedContent, needAlternatives, needCategory, needFromTier, needLabel, needName, orderNeeds, upgradeReasonText } from "./needs";
 
 // The shipped content files carry the names (content/old_coast), so the
 // lookup is checked against the real catalogue shape and an empty one.
@@ -17,6 +17,18 @@ const content = {
   buildings: [{ id: "market", name: "Small market" }],
   tiers: read<{ id: string; name: string }[]>("tiers.json"),
 } as unknown as Content;
+
+describe("upgrade reasons", () => {
+  it("words the server's reason codes, naming the category of a need", () => {
+    expect(upgradeReasonText(content, "tier_locked")).toBe("The next tier is not unlocked yet");
+    expect(upgradeReasonText(content, "not_full")).toBe("The house is not full yet");
+    expect(upgradeReasonText(content, "needs_below_threshold:clothing")).toBe("Clothing is not supplied well enough");
+    expect(upgradeReasonText(null, "needs_below_threshold:clothing")).toBe("clothing is not supplied well enough");
+    expect(upgradeReasonText(content, "cannot_afford")).toBe("Not enough gold or materials");
+    expect(upgradeReasonText(content, "no_house")).toBe("There is no house of a next tier");
+    expect(upgradeReasonText(content, "something_new")).toBe("something_new");
+  });
+});
 
 describe("need display names", () => {
   it("names needs and categories from the content catalogue", () => {

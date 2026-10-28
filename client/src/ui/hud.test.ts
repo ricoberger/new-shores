@@ -531,6 +531,19 @@ describe("HUD components", () => {
       expect(html).not.toContain("shipyard-progress");
     });
 
+    it("enables a house's Upgrade button only when the server says it would succeed, the reason as its tooltip", () => {
+      const button = (upgrade?: { available: boolean; reason?: string }) =>
+        panel({ type: "house_settlers", residents: 8_000, residents_floor: 2_000, residents_max: 8_000, upgrade }).match(/<button[^>]*data-testid="info-upgrade"[^>]*>/)![0];
+      expect(button({ available: true })).not.toContain("disabled");
+      expect(button({ available: true })).not.toContain("title=");
+      const locked = button({ available: false, reason: "tier_locked" });
+      expect(locked).toContain("disabled");
+      expect(locked).toContain('title="The next tier is not unlocked yet"');
+      expect(button({ available: false, reason: "needs_below_threshold:food" })).toContain('title="food is not supplied well enough"');
+      // A payload without the block (older server) offers nothing.
+      expect(button(undefined)).toContain("disabled");
+    });
+
     it("lists every ship type with speed, cargo and build time", () => {
       const html = panel({});
       expect(text(html)).not.toContain("Ships");

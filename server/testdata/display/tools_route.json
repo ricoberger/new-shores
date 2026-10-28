@@ -636,6 +636,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -687,6 +690,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -738,6 +744,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -789,6 +798,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -840,6 +852,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -891,6 +906,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -942,6 +960,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -993,6 +1014,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -1041,6 +1066,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -1089,6 +1118,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -1137,6 +1170,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -1185,6 +1222,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -1233,6 +1274,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -1281,6 +1326,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -1329,6 +1378,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2523,6 +2576,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -2574,6 +2630,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -2625,6 +2684,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -2676,6 +2738,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -2727,6 +2792,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -2778,6 +2846,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -2829,6 +2900,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -2880,6 +2954,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -2928,6 +3006,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -2976,6 +3058,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -3024,6 +3110,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -3072,6 +3162,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -3120,6 +3214,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -3168,6 +3266,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -3216,6 +3318,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4410,6 +4516,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4461,6 +4570,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4512,6 +4624,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4563,6 +4678,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4614,6 +4732,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4665,6 +4786,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4716,6 +4840,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4767,6 +4894,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4815,6 +4946,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4863,6 +4998,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4911,6 +5050,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -4959,6 +5102,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -5007,6 +5154,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -5055,6 +5206,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -5103,6 +5258,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6297,6 +6456,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6348,6 +6510,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6399,6 +6564,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6450,6 +6618,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6501,6 +6672,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6552,6 +6726,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6603,6 +6780,9 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6654,6 +6834,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6702,6 +6886,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6750,6 +6938,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6798,6 +6990,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6846,6 +7042,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6894,6 +7094,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6942,6 +7146,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,
@@ -6990,6 +7198,10 @@
                 "status": "ok",
                 "efficiency_permille": 1000,
                 "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small"
+                },
                 "residents": 8000,
                 "residents_floor": 2000,
                 "residents_max": 8000,

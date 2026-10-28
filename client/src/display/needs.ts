@@ -85,3 +85,27 @@ export function needAlternatives(content: (NeedContent & Partial<Pick<Content, "
   if (names.length < 2) return undefined;
   return `${names.slice(0, -1).join(", ")} or ${names[names.length - 1]}`;
 }
+
+/**
+ * The words of a house's `upgrade.reason` (the server's first failing gate
+ * condition, shown as the disabled Upgrade button's tooltip): "needs_below_
+ * threshold:food" names the category. Display only; an unknown reason is
+ * shown as it is.
+ */
+export function upgradeReasonText(content: NeedContent, reason: string): string {
+  const [code, category] = reason.split(":", 2) as [string, string | undefined];
+  switch (code) {
+    case "tier_locked":
+      return "The next tier is not unlocked yet";
+    case "not_full":
+      return "The house is not full yet";
+    case "needs_below_threshold":
+      return category ? `${needCategory(content, category).name} is not supplied well enough` : "A need is not supplied well enough";
+    case "cannot_afford":
+      return "Not enough gold or materials";
+    case "no_house":
+      return "There is no house of a next tier";
+    default:
+      return reason;
+  }
+}

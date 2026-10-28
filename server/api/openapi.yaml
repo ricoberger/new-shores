@@ -1846,7 +1846,7 @@ components:
         next_change_at:
           type: string
           nullable: true
-          description: Earliest time the state changes without a command — rates, ship arrivals, departures and completed ship orders (RFC 3339, UTC, ms); null if never.
+          description: Earliest time the state changes without a command — rates, ship arrivals, departures, completed ship orders and a house's `upgrade.available` flipping as gold or a material crosses the cost (RFC 3339, UTC, ms); null if never.
         gold:
           type: integer
           format: int64
@@ -2726,6 +2726,28 @@ components:
             type: integer
             format: int64
             description: Consumption (milli-units per minute).
+    UpgradeDisplay:
+      type: object
+      additionalProperties: false
+      description: |
+        Whether upgrading a house to the next tier would succeed now (house
+        fields; the server's upgrade gate, MECHANICS §6.1 — clients compute
+        no rule) and, when not, the first failing condition of the gate.
+      required: [available]
+      properties:
+        available:
+          type: boolean
+          description: Whether `upgrade_building` on the house would succeed now.
+        reason:
+          type: string
+          description: |
+            Present when `available` is false: `no_house` (no house of the
+            next tier, or one of another footprint), `tier_locked` (the next
+            tier is not unlocked), `not_full` (the house is below its maximum
+            residents), `needs_below_threshold:<category>` (a required need
+            of the named category is below the upgrade gate) or
+            `cannot_afford` (the gold or materials of the next house are not
+            covered). The first failing condition in this order.
     BuildingDisplay:
       type: object
       additionalProperties: false
@@ -2734,8 +2756,8 @@ components:
         recipe, collector fields (`level`, `throughput_per_min`,
         `load_permille`) for the Trading Post and Warehouses, `capacity`
         and `berths` for the Trading Post only (D-051), house fields for
-        houses, `fields` for farms with fields and `farm_id` for assigned
-        fields (D-049).
+        houses (including `upgrade`), `fields` for farms with fields and
+        `farm_id` for assigned fields (D-049).
       required:
         [id, type, x, y, rotation, paused, paused_reason, status, efficiency_permille, throughput_factor_permille]
       properties:
@@ -2881,6 +2903,8 @@ components:
           type: integer
           format: int64
           description: Satisfaction (permille).
+        upgrade:
+          $ref: "#/components/schemas/UpgradeDisplay"
         tax_rate_per_min:
           type: integer
           format: int64

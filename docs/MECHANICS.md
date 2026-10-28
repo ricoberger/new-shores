@@ -337,6 +337,11 @@ cycle:   seconds               at 100 % efficiency
   it fails with a typed error until its house exists. Houses above the
   first tier can never be *placed*, only upgraded into (`upgrade_only`,
   checked before `tier_locked`).
+- The display carries the gate for every house as `upgrade: {available,
+  reason?}`, where `reason` is the first failing condition in gate order
+  (`no_house`, `tier_locked`, `not_full`, `needs_below_threshold:<category>`,
+  `cannot_afford`), so the client enables the Upgrade button from it and
+  computes no rule.
 
 ### 6.2 Needs
 

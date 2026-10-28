@@ -11871,7 +11871,7 @@
   ],
   "final": {
     "evaluated_at": "2026-01-01T02:42:00.000Z",
-    "next_change_at": "2026-01-01T02:44:57.820Z",
+    "next_change_at": "2026-01-01T02:42:24.905Z",
     "gold": 1130286,
     "balance_rate_per_min": 26800,
     "tax_rate_per_min": 68800,
@@ -14029,6 +14029,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "tier_locked"
+            },
             "residents": 15000,
             "residents_floor": 5000,
             "residents_max": 15000,
@@ -14114,6 +14118,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14165,6 +14173,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14217,6 +14229,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14268,6 +14284,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14320,6 +14340,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14372,6 +14396,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14423,6 +14451,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14474,6 +14506,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14526,6 +14562,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14578,6 +14618,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14630,6 +14674,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14681,6 +14729,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14733,6 +14785,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14785,6 +14841,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14836,6 +14896,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14888,6 +14952,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14940,6 +15008,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -14992,6 +15064,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15043,6 +15119,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15095,6 +15175,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15147,6 +15231,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15227,6 +15315,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15279,6 +15371,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15331,6 +15427,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15382,6 +15482,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15463,6 +15567,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15514,6 +15622,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15577,6 +15689,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15662,6 +15778,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15710,6 +15830,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15761,6 +15885,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15809,6 +15937,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15860,6 +15992,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15911,6 +16047,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -15962,6 +16102,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -16013,6 +16157,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -16064,6 +16212,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:services"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -16112,6 +16264,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -16163,6 +16319,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "cannot_afford"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -17755,6 +17915,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:clothing"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -17803,6 +17967,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:clothing"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -17851,6 +18019,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:clothing"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -17899,6 +18071,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:clothing"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -17947,6 +18123,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:clothing"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
