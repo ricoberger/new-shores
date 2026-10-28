@@ -655,7 +655,7 @@ Tier `n+1` becomes available (house upgrades and new buildings unlock) when
 all of the tier's `unlock` conditions in content hold:
 
 ```json
-{ "population": { "settlers": 120 }, "buildings": ["market_small", "chapel"] }
+{ "population": { "settlers": 120 }, "buildings": ["market", "chapel"] }
 ```
 
 Conditions are evaluated against the player's whole archipelago at the end

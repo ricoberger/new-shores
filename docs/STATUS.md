@@ -1,15 +1,15 @@
 # New Shores — Status (read this first)
 
 One page for anyone (human or agent) starting work. Updated with every
-docs sync; details live in the linked documents. Last update: after S1 (#34, D-056 need model + tier-2 completion)
-and the model sessions M2/M3/M4 (#31/#32/#33, every tier 2–4 model).
+docs sync; details live in the linked documents. Last update: after C3 (#35, tier 3 Merchants) — tiers 1–3 playable,
+every tier 2–4 model on main.
 
 ## What exists
 
 | Area | State | Where |
 |---|---|---|
-| Simulation (pure Go, lazy, deterministic) | tiers 1–2 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename, batch field placement, terrain table, ship names, weighted need shares with cumulative tiers and a services category, building levels (`upgrade_building`), recipe input alternatives, upgrade gate ≥ 0.6, founding cargo exempt from slots; schema 9 | `server/internal/sim`, MECHANICS.md |
-| Content | `old_coast` 0.11.0: D-054 footprints/costs/fields, D-056 need model (shares 1.0 lone / 0.6, cumulative lower-tier rates, `services`), tiers 1–2 complete with two alternatives per Citizens category (bread/cheese, cider/mead, linen/leather_jerkins), `school`, `market_small` levels 1–3, tiers 3–4 declared (residents, tax, unlocks) without goods or houses, islands 192/112/64/16, generator rules and 48 island names, sloop (2 slots, tier 2) / brig / galleon, 12 intro + 5 tier-2 quests | `content/old_coast`, CONTENT.md |
+| Simulation (pure Go, lazy, deterministic) | tiers 1–3 complete: production, logistics via collectors (Trading Post + Warehouses), needs/categories, workforce, taxes, insolvency with trial resume, fields by adjacency chains, ships/routes, start at sea + founding, berth queues, quests, away summary, seeded archipelago generator with reroll and rename, batch field placement, terrain table, ship names, weighted need shares with cumulative tiers and a services category, building levels (`upgrade_building`), recipe input alternatives, upgrade gate ≥ 0.6, founding cargo exempt from slots, berths spaced by ship length, tier-3 deposits; schema 10 | `server/internal/sim`, MECHANICS.md |
+| Content | `old_coast` 0.12.0: D-054 footprints/costs/fields, D-056 need model (shares 1.0 lone / 0.6, cumulative lower-tier rates, `services`), tiers 1–3 complete with two alternatives per category from tier 2 (Citizens bread/cheese, cider/mead, linen/leather_jerkins; Merchants sausages/pies, beer/brandy, coats/dyed_garments, books/soap), salt / bricks / coal, `school`, `church`, `theatre`, `market` levels 1–3, Patricians declared without goods or house, islands 192/112/64/16 with iron/clay/salt/coal deposits, `smoke`/`boat` flags, sloop (2 slots, tier 2) / brig (tier 3) / galleon, 12 intro + 5 tier-2 + 6 tier-3 quests | `content/old_coast`, CONTENT.md |
 | Server | Go + PostgreSQL + Redis; accounts (guest/email), sessions, CSRF, scheduled-events worker, WebSocket push, dev mode with in-memory store and `POST /api/v1/dev/reset` | `server/internal/*`, ARCHITECTURE.md |
 | Client | Vite/React/Babylon; one continuous world with LOD (full models near/mid, lite far), free camera + compass, HUD with island resources and workforce, start-at-sea flow, harbour panels, touch layouts, PWA; `make shots` / `make model-sheet` for looking at the result (no e2e/visual/perf suites, D-052) | `client/`, UI.md |
 | Art | KayKit SOURCE kits only; recipe-driven Blender build (`npm run assets`), AO/two-tone vertex colours, diorama islands; 123 recipes — every tier 1–4 building, module, field and ship modelled (tiers 3–4 ahead of content via `assets/build/planned/`); thumbnails; life layer (carts, walkers, smoke, sails, boats, gulls, strollers, sheep, cattle/pig anchors, construction stages) with device budgets; models folder 20.2 of 24 MiB | `assets/`, ART_DIRECTION.md |
@@ -41,27 +41,34 @@ in the sync after a task unless the task says otherwise; nobody adds the
    spec):**
    - ~~S1 need model + tier-2 completion~~ merged (#34); ~~M2 / M3 /
      M4 models~~ merged (#31–#33).
-   - **Playtest round on tier 2** (owner, `settled` / `citizens`
-     fixtures): second chains, market levels, school, unlock toast,
-     tier-2 quests, house card with the carried Settler needs.
-   - **C3 tier 3**, then **C4 tier 4** content sessions; a
-     playtest/polish round between tiers. Island area re-checked after
-     tier 3 (D-054). Handed to C3 from the model sessions: a per-
-     building `smoke` flag in content (only burners/cookers get
-     chimney+smoke anchors; the asset loader derives the requirement
-     from it); the client boat loop limited to fishers (`salt_pans`,
-     `oyster_beds` carry a boat anchor); Trading Post berths spaced by
-     ship class (brig 2.6 / galleon 3.2 tiles); `market_small` renamed
-     to `market` (new ID, old one retired). Before deployment: quantised
-     GLB export (KHR_mesh_quantization) to roughly halve the models
-     folder (≈ 63 bytes/triangle today; limit raised to 24 MiB by M4).
+   - ~~C3 tier 3~~ merged (#35): targets 225 / 235 / 283; the smoke and
+     boat flags, berth spacing by `length_tiles` and the `market` rename
+     landed with it.
+   - **Playtest round on tiers 2–3** (owner, `citizens` / `merchants`
+     fixtures): second chains, market levels, school/church/theatre,
+     unlock toast, quest chains, house cards with carried needs, brig
+     at the piers.
+   - **C4 tier 4** content session: Patricians per CONTENT §5/§7, the
+     reference game written with the chains spread over ≥ 2 production
+     islands (home island for houses) — `islands.json` changes only if
+     that still does not fit (D-054/D-056 as built).
+   - **Art-style prototype (voxels)** running in parallel on its own
+     branch (do-not-merge PR) as evidence for a D-057 interview: look
+     side by side, phone fps, authoring effort per model.
+   - Before deployment: quantised GLB export (KHR_mesh_quantization) to
+     roughly halve the models folder (≈ 63 bytes/triangle today; limit
+     24 MiB).
 
 ## Known follow-ups
 
 - **Decision candidates** (owner + design lead): unload amounts per
   route stop (touches D-015); a meaning for fields above `required`
   (D-051 part 4); ship and fisher-boat routing around islands.
-- **Server tasks:** `upgrade_available` (or the blocking reason) on the
+- **Server tasks:** an in-transit *rate* per good in the display (the
+  client treats the in-transit amount as fixed between updates, so it
+  drifts while ships load — C3); a per-ship-type quest condition (the
+  brig quest asks for three ships); the unlock toast for a tier unlocked
+  while away (add it to the letter); `upgrade_available` (or the blocking reason) on the
   house display so the Upgrade button shows only when it would succeed
   (D-027 forbids computing it in the client); `preview_variant` hint for
   the house ghost; content validation that a building need's

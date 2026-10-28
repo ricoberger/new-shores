@@ -1011,8 +1011,9 @@ curve, D-054's footprints):**
   generator loads the start stock onto the sloop regardless of its two
   slots, slot checks apply to player loading, and the stock moves to the
   Trading Post at founding (D-051) as today.
-- *As built (PR #34 S1; PRs #31/#32/#33 models M2/M3/M4):* sim schema 9,
-  content `old_coast-0.11.0`. Weighted shares with the loader default
+- *As built (PR #34 S1; PRs #31/#32/#33 models M2/M3/M4):* content
+  `old_coast-0.11.0` (the schema bump S1 reported was not committed;
+  C3 moved the code from 8 to 10). Weighted shares with the loader default
   (1.0 lone / 0.6 each), cumulative lower-tier categories at the reduced
   rates, one `services` category per tier, `market_small` levels 1–3 via
   the generalised `upgrade_building` (`upgrade_warehouse` /
@@ -1035,3 +1036,28 @@ curve, D-054's footprints):**
   `assets/build/planned/tier{2,3,4}.json` (read beneath the content;
   content wins); models folder 20.2 MiB of a 24 MiB limit (≈ 64–74
   bytes/triangle; a quantised export is the follow-up).
+- *As built (PR #35 C3, tier 3):* sim schema 10, content
+  `old_coast-0.12.0`. Every tier-3 chain, good, building, field and
+  deposit of CONTENT §5/§7 as written (no number changed), `coal` makes
+  the charcoal | coal inputs real, `bricks` price market level 3,
+  `house_merchants`, Merchants needs with the carried Settler and
+  Citizen categories, `church` + `theatre` in the services ladder, the
+  church in the Patricians unlock, brig buildable, `market` level 2;
+  content gains `smoke` and `boat` flags (the asset loader derives the
+  chimney/boat anchor requirements from them) and ships `length_tiles`
+  (sloop 2 / brig 2.6 / galleon 3.2; Trading Post berths spaced by it);
+  `market_small` renamed to `market` (old ID retired); tier-3 deposits
+  (clay 2–4, salt 1–3, coal 1–3, never on the home island) in their own
+  generator pass so tier-1/2 worlds are unchanged; tier-3 quest chain
+  (the brig quest asks for three ships — no per-type condition exists;
+  the second-food / second-drink quests need both alternatives); dev
+  fixture `merchants`. Reference game `bootstrap_merchants`: Merchants
+  unlocked 225 (≤ 240), first Merchant house 235 (≤ 270), every
+  Merchant category ≥ 0.6 at 283 (≤ 420), build order the only lever;
+  the tier-1/2 game is unchanged (52 / 30 / 88 / 132). **Island area:**
+  the Merchant town uses 3 102 of 16 387 buildable home tiles (19 %);
+  reaching 1 200 Merchants is estimated at 13–16 k tiles, so a
+  four-tier city fits the home island only with its chains spread over
+  other islands — which is the intended loop; C4 writes its reference
+  game that way and `islands.json` stays until that is shown not to
+  work (D-054 as built).

@@ -379,7 +379,7 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   (ART_DIRECTION §8, `?stats=1`); there is no CI perf guard (D-052).
 - **Dev reset:** `POST /api/v1/dev/reset` (dev mode only; 404 otherwise;
   not in the OpenAPI contract) reseeds the in-memory world from a named
-  fixture (`default`, `town`, `settled`, `seafaring`, `citizens`), clears pending dev events and
+  fixture (`default`, `town`, `settled`, `seafaring`, `citizens`, `merchants`), clears pending dev events and
   publishes; `make shots` uses it for the server fixtures.
 
 ## 5a. Asset pipeline (art task 3)
