@@ -229,6 +229,9 @@ func checkReferences(c *Catalogue) error {
 				col.add(FileBuildings, ent, "shipyard.ships", "must not be empty")
 			}
 		}
+		if b.Smoke && (b.Recipe == nil || b.Field != nil) {
+			col.add(FileBuildings, ent, "smoke", "only producers (a recipe, not a field) can smoke")
+		}
 		if b.RequiresDeposit != "" && b.Recipe == nil {
 			col.add(FileBuildings, ent, "requires_deposit", "only buildings with a recipe can require a deposit")
 		}

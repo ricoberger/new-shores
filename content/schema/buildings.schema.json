@@ -45,6 +45,10 @@
       "pause_category": {
         "enum": ["need_goods", "public", "intermediate", "food_basic", "never"]
       },
+      "smoke": {
+        "description": "The producer burns or cooks: its model carries chimney and smoke anchors and the life layer draws smoke (producers only, CONTENT §11). Absent is false.",
+        "type": "boolean"
+      },
       "recipe": {
         "type": "object",
         "additionalProperties": false,

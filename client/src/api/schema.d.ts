@@ -2422,6 +2422,11 @@ export interface components {
              */
             requires_deposit?: string;
             /**
+             * @description The producer burns or cooks (display only): its model has chimney
+             *     and smoke anchors and the life layer draws smoke. Absent is false.
+             */
+            smoke?: boolean;
+            /**
              * @description A farm that needs fields (D-049, D-051 part 4): efficiency =
              *     min(1, active fields / required). Fields are placed from the
              *     farm's panel next to the farm or one of its active fields.

@@ -514,6 +514,12 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{FileBuildings, `building "market_small"`, "upkeep_per_min", "must be 0 for pause_category never"},
 		},
 		{
+			"smoke on a public building", FileBuildings,
+			[]string{`"cost": { "gold": 100, "planks": 6 },`, `"cost": { "gold": 100, "planks": 6 },
+    "smoke": true,`},
+			[]string{FileBuildings, `building "chapel"`, "smoke", "only producers"},
+		},
+		{
 			"water rows cover the whole footprint", FileBuildings,
 			[]string{`"water_tiles": 3,
     "coastal": false,

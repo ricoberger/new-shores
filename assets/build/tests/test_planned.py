@@ -59,11 +59,15 @@ class PlannedTest(unittest.TestCase):
         self.assertFalse(content.is_planned(c, "sawmill"))
         self.assertEqual(content.ground_range(c, "pier_test"), config.GROUND_RANGE_WATER_EDGE)
         self.assertEqual(c["buildings"]["pier_test"]["requires_deposit"], "stone")
-        # Smoke only where planned (producers that burn or cook); every content producer has it.
+        # Smoke only where flagged (producers that burn or cook): planned or content `smoke: true`.
         self.assertTrue(content.needs_smoke(c, "cheese_test"))
         self.assertFalse(content.needs_smoke(c, "farm_test"))
         self.assertFalse(content.needs_smoke(c, "hall_test"))
         self.assertTrue(content.needs_smoke(c, "sawmill"))
+        c["buildings"]["sawmill"] = dict(c["buildings"]["sawmill"], smoke=False)
+        self.assertFalse(content.needs_smoke(c, "sawmill"))
+        c["buildings"]["sawmill"].pop("smoke")
+        self.assertFalse(content.needs_smoke(c, "sawmill"))
         self.assertEqual(content.life_anchors(c, "farm_test"), ["cart"])
         required = content.required_ids(c)
         for cid in ("cheese_test", "farm_test", "pen_test", "hall_test", "pier_test", "brig_test"):

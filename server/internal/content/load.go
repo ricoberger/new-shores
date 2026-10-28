@@ -344,6 +344,7 @@ type rawBuilding struct {
 		Ships []string `json:"ships"`
 	} `json:"shipyard"`
 	RequiresDeposit string `json:"requires_deposit"`
+	Smoke           bool   `json:"smoke"`
 }
 
 type rawShip struct {
@@ -729,6 +730,7 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		House:         rb.House,
 
 		RequiresDeposit: rb.RequiresDeposit,
+		Smoke:           rb.Smoke,
 	}
 	if len(rb.Footprint) == 2 {
 		b.Width, b.Height = rb.Footprint[0], rb.Footprint[1]

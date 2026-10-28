@@ -154,13 +154,12 @@ def is_producer(content, cid):
 def needs_smoke(content, cid):
     """
     Whether a building's model needs chimney and smoke anchors for the life
-    layer's smoke: every content producer; a planned one only with smoke
-    true (producers that burn or cook).
+    layer's smoke: a producer whose definition says `smoke: true` (it burns
+    or cooks; content buildings.json, else the planned entry).
     """
     if not is_producer(content, cid):
         return False
-    b = content["buildings"][cid]
-    return bool(b["smoke"]) if b.get("planned") else True
+    return bool(content["buildings"][cid].get("smoke", False))
 
 
 def life_anchors(content, cid):

@@ -129,6 +129,7 @@
     "cost": { "gold": 60, "planks": 6 },
     "upkeep_per_min": 1,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -148,6 +149,7 @@
     "cost": { "gold": 120, "planks": 9 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [{ "good": "wood", "amount": 1 }],
@@ -167,6 +169,7 @@
     "cost": { "gold": 60, "planks": 6 },
     "upkeep_per_min": 2,
     "pause_category": "food_basic",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -185,6 +188,7 @@
     "cost": { "gold": 60, "planks": 6 },
     "upkeep_per_min": 1,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -217,6 +221,7 @@
     "cost": { "gold": 60, "planks": 6 },
     "upkeep_per_min": 2,
     "pause_category": "need_goods",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "wool", "amount": 1 }],
@@ -301,6 +306,7 @@
     "cost": { "gold": 150, "planks": 9, "stone": 3 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [],
@@ -334,6 +340,7 @@
     "cost": { "gold": 180, "planks": 6, "stone": 6 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "citizens", "amount": 4 },
     "recipe": {
       "inputs": [{ "good": "wheat", "amount": 1 }],
@@ -352,6 +359,7 @@
     "cost": { "gold": 230, "planks": 5, "stone": 9 },
     "upkeep_per_min": 4,
     "pause_category": "need_goods",
+    "smoke": true,
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "flour", "amount": 1 }],
@@ -370,6 +378,7 @@
     "cost": { "gold": 170, "planks": 5, "stone": 6 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [],
@@ -402,6 +411,7 @@
     "cost": { "gold": 180, "planks": 6, "stone": 6 },
     "upkeep_per_min": 3,
     "pause_category": "need_goods",
+    "smoke": true,
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "milk", "amount": 1 }],
@@ -420,6 +430,7 @@
     "cost": { "gold": 230, "planks": 5, "stone": 9 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [],
@@ -453,6 +464,7 @@
     "cost": { "gold": 240, "planks": 6, "stone": 9 },
     "upkeep_per_min": 4,
     "pause_category": "need_goods",
+    "smoke": true,
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "apples", "amount": 1 }],
@@ -471,6 +483,7 @@
     "cost": { "gold": 290, "planks": 5, "stone": 12 },
     "upkeep_per_min": 4,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
@@ -503,6 +516,7 @@
     "cost": { "gold": 180, "planks": 6, "stone": 6 },
     "upkeep_per_min": 3,
     "pause_category": "need_goods",
+    "smoke": true,
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "honey", "amount": 1 }],
@@ -521,6 +535,7 @@
     "cost": { "gold": 60, "planks": 6 },
     "upkeep_per_min": 1,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [],
@@ -554,6 +569,7 @@
     "cost": { "gold": 410, "planks": 5, "stone": 18 },
     "upkeep_per_min": 5,
     "pause_category": "need_goods",
+    "smoke": true,
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "hemp", "amount": 1 }],
@@ -572,6 +588,7 @@
     "cost": { "gold": 170, "planks": 5, "stone": 6 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 6 },
     "recipe": {
       "inputs": [],
@@ -604,6 +621,7 @@
     "cost": { "gold": 180, "planks": 6, "stone": 6 },
     "upkeep_per_min": 2,
     "pause_category": "need_goods",
+    "smoke": true,
     "workforce": { "tier": "citizens", "amount": 8 },
     "recipe": {
       "inputs": [{ "good": "pigs", "amount": 1 }],
@@ -622,6 +640,7 @@
     "cost": { "gold": 240, "planks": 6, "stone": 9 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "citizens", "amount": 6 },
     "recipe": {
       "inputs": [{ "good": "hemp", "amount": 1 }],
@@ -640,6 +659,7 @@
     "cost": { "gold": 120, "planks": 9 },
     "upkeep_per_min": 3,
     "pause_category": "intermediate",
+    "smoke": true,
     "requires_deposit": "stone",
     "workforce": { "tier": "settlers", "amount": 8 },
     "recipe": {
@@ -659,6 +679,7 @@
     "cost": { "gold": 180, "planks": 6, "stone": 6 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "requires_deposit": "iron",
     "workforce": { "tier": "settlers", "amount": 10 },
     "recipe": {
@@ -678,6 +699,7 @@
     "cost": { "gold": 90, "planks": 9 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [{ "good": "wood", "amount": 1 }],
@@ -696,6 +718,7 @@
     "cost": { "gold": 290, "planks": 5, "stone": 12 },
     "upkeep_per_min": 2,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 8 },
     "recipe": {
       "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
@@ -714,6 +737,7 @@
     "cost": { "gold": 230, "planks": 5, "stone": 9 },
     "upkeep_per_min": 4,
     "pause_category": "intermediate",
+    "smoke": true,
     "workforce": { "tier": "settlers", "amount": 8 },
     "recipe": {
       "inputs": [{ "good": "iron", "amount": 1 }],

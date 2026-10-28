@@ -3516,6 +3516,11 @@ components:
           description: |
             Deposit kind the footprint must cover (absent for none); such a
             building may also stand on mountain tiles.
+        smoke:
+          type: boolean
+          description: |
+            The producer burns or cooks (display only): its model has chimney
+            and smoke anchors and the life layer draws smoke. Absent is false.
         fields:
           type: object
           additionalProperties: false

@@ -278,6 +278,10 @@ type Building struct {
 	// RequiresDeposit is the deposit kind at least one footprint tile must
 	// carry ("" for none). Such a building may also stand on mountain tiles.
 	RequiresDeposit string
+
+	// Smoke marks a producer that burns or cooks (display only: its model
+	// has chimney and smoke anchors and the life layer draws smoke).
+	Smoke bool
 }
 
 // Shipyard marks a building that orders ships (one at a time) of the listed
