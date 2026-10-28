@@ -49,25 +49,36 @@ import (
 //     Post, street, clay pit on the slot, brickworks) and sails the route
 //     "Bricks home". A seed without a clay deposit is an error (every
 //     seed of the shipped content has one, DevSeed included).
+//   - patricians: merchants plus the patricians tier (granted), the
+//     services ladder to the cathedral with the market at level 3, two
+//     Merchant houses and a Patrician house (seeded), the roast-beef chain
+//     on the home island (cattle farm with its five pastures, salt pans,
+//     slaughterhouse) and a galleon that founds the nearest island with a
+//     quartz deposit (Trading Post, street, lumberjack, charcoal burner,
+//     quartz quarry on the slot, glass smelter) and sails the route
+//     "Glass home". A seed without a quartz deposit is an error (every
+//     seed of the shipped content has two or more, DevSeed included).
 const (
-	FixtureDefault   = "default"
-	FixtureSeafaring = "seafaring"
-	FixtureTown      = "town"
-	FixtureSettled   = "settled"
-	FixtureCitizens  = "citizens"
-	FixtureMerchants = "merchants"
+	FixtureDefault    = "default"
+	FixtureSeafaring  = "seafaring"
+	FixtureTown       = "town"
+	FixtureSettled    = "settled"
+	FixtureCitizens   = "citizens"
+	FixtureMerchants  = "merchants"
+	FixturePatricians = "patricians"
 )
 
 // ErrUnknownFixture reports a fixture name that NewFixture does not know.
 var ErrUnknownFixture = errors.New("unknown dev fixture")
 
 // ErrFixtureSeed reports a fixture that cannot be built on the seed's
-// archipelago (citizens: no wheat at home; merchants: no clay deposit).
+// archipelago (citizens: no wheat at home; merchants: no clay deposit;
+// patricians: no quartz deposit).
 var ErrFixtureSeed = errors.New("not available on this seed")
 
 // Fixtures lists the fixture names.
 func Fixtures() []string {
-	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants}
+	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants, FixturePatricians}
 }
 
 // History of the fixtures before now (world time): long enough for the
@@ -79,6 +90,8 @@ const (
 	settledHistory   = townHistory + 60*time.Minute
 	citizensHistory  = townHistory + 2*time.Minute
 	merchantsHistory = townHistory + 60*time.Minute
+	// patriciansHistory: the galleon's 10 min build and a longer voyage.
+	patriciansHistory = townHistory + 90*time.Minute
 )
 
 // FixtureGold (milli-gold) is granted to the town and settled fixtures, so
@@ -117,6 +130,12 @@ func NewFixture(c *content.Catalogue, name string, seed uint64, now time.Time) (
 			foundHome(f)
 			town(f)
 			merchants(f)
+		})
+	case FixturePatricians:
+		return replay(c, seed, now, patriciansHistory, func(f *fixture) {
+			foundHome(f)
+			town(f)
+			patricians(f)
 		})
 	}
 	return nil, fmt.Errorf("%w %q (known: %v)", ErrUnknownFixture, name, Fixtures())
@@ -401,6 +420,113 @@ func merchants(f *fixture) {
 	f.apply(sim.CreateRoute{Name: "Bricks home", Stops: []sim.Stop{
 		{IslandID: deposit, Load: []sim.LoadRule{{Good: "bricks", MaxAmount: 50_000}}},
 		{IslandID: home, Unload: []string{"bricks"}},
+	}})
+	if f.err != nil {
+		return
+	}
+	f.apply(sim.AssignShip{ShipID: ship, RouteID: f.w.Routes[len(f.w.Routes)-1].ID})
+	f.advance(time.Minute)
+}
+
+// The patricians fixture's tier, house, ship, deposit and chains.
+const (
+	patriciansTier    = "patricians"
+	patriciansHouse   = "house_patricians"
+	patriciansShip    = "galleon"
+	patriciansDeposit = "quartz"
+	// patriciansGold (milli-gold) is granted on top of FixtureGold: the
+	// university and cathedral alone cost 110 000 gold.
+	patriciansGold = 150_000_000
+)
+
+// patricians unlocks the citizens, merchants and patricians tiers
+// (granted, like the gold), builds the full services ladder with the
+// market at level 3, two seeded Merchant houses and a seeded Patrician
+// house, and the roast-beef chain on the home island (cattle farm with
+// its pastures, salt pans on the coast, slaughterhouse); a shipyard's
+// galleon founds the nearest island with a quartz deposit, builds the
+// glass chain there (lumberjack, charcoal burner, quartz quarry on the
+// slot, glass smelter) and sails glass home. Every charged placement gets
+// its cost granted first.
+func patricians(f *fixture) {
+	if f.err != nil {
+		return
+	}
+	f.w.Gold += patriciansGold
+	for _, tier := range []string{citizensTier, merchantsTier, patriciansTier} {
+		if !slices.Contains(f.w.UnlockedTiers, tier) {
+			f.w.UnlockedTiers = append(f.w.UnlockedTiers, tier)
+		}
+	}
+	home := f.home()
+	deposit := f.nearestWithDeposit(home, patriciansDeposit)
+	if deposit == "" {
+		f.err = fmt.Errorf("%w: the %s fixture needs an island with a %s deposit, but seed %d has none; use a seed with one (the dev seed %d has)",
+			ErrFixtureSeed, FixturePatricians, patriciansDeposit, f.w.Seed, DevSeed)
+		return
+	}
+	yard := f.placePaid(home, "shipyard", f.streetEnd(home))
+	f.placePaid(home, "slaughterhouse", f.streetEnd(home))
+	f.grant(home, &f.c.BuildingByID["salt_pans"].Cost)
+	f.placeNear(home, "salt_pans", f.tradingPostCentre(home))
+	if farm := f.c.BuildingByID["cattle_farm"]; farm != nil && farm.Fields != nil {
+		f.grant(home, &farm.Cost)
+		field := f.c.FieldByType[farm.Fields.Type]
+		for range farm.Fields.Required {
+			f.grant(home, &field.Cost)
+		}
+		f.placeNearThen(home, "cattle_farm", f.grassAnchor(home, f.streetEnd(home)), func(id int64) bool {
+			return f.paintFields(home, id, farm.Fields.Type, farm.Fields.Required)
+		})
+	}
+	market := f.placePaid(home, "market", f.streetEnd(home))
+	for _, typ := range []string{"chapel", "tavern", "school", "church", "theatre", "university", "cathedral"} {
+		f.placePaid(home, typ, f.streetEnd(home))
+	}
+	for lv := 2; lv <= 3 && f.err == nil; lv++ {
+		f.grant(home, f.c.BuildingByID["market"].LevelCost(lv))
+		f.apply(sim.UpgradeBuilding{IslandID: home, BuildingID: market})
+	}
+	f.seeded = true
+	for _, typ := range []string{merchantsHouse, merchantsHouse, patriciansHouse} {
+		f.placeNear(home, typ, f.streetEnd(home))
+	}
+	f.seeded = false
+	if f.err != nil {
+		return
+	}
+	galleon := f.c.ShipByID[patriciansShip]
+	f.grant(home, &galleon.Cost)
+	f.apply(sim.OrderShip{IslandID: home, BuildingID: yard, ShipType: patriciansShip})
+	f.advance(time.Duration(galleon.BuildMs)*time.Millisecond + 10*time.Second)
+	if f.err == nil && (len(f.w.Ships) != 2 || f.w.Ships[1].Type != patriciansShip || f.w.Ships[1].State != sim.ShipIdle) {
+		f.err = errors.New("the galleon is not idle after its build time")
+	}
+	if f.err != nil {
+		return
+	}
+	ship := f.w.Ships[1].ID
+	f.grant(home, &content.Cost{Materials: []content.GoodAmount{{Good: "planks", Amount: 60_000}}})
+	f.apply(sim.ManualShipment{ShipID: ship, ToIslandID: deposit, Cargo: []sim.CargoAmount{{Good: "planks", Amount: 60_000}}})
+	f.arrive(ship)
+	if f.err != nil {
+		return
+	}
+	site, ok := f.tradingPostSite(deposit)
+	if !ok {
+		f.err = fmt.Errorf("no trading post site on %s", deposit)
+		return
+	}
+	f.apply(sim.FoundIsland{ShipID: ship, IslandID: deposit, BuildingType: tradingPostType(f.c), X: site.X, Y: site.Y, Rotation: site.Rotation})
+	f.street(deposit, 8)
+	f.placePaid(deposit, "quartz_quarry", f.depositTile(deposit, patriciansDeposit))
+	f.placePaid(deposit, "lumberjack", f.forestAnchor(deposit, f.streetEnd(deposit)))
+	f.placePaid(deposit, "charcoal_burner", f.streetEnd(deposit))
+	f.placePaid(deposit, "glass_smelter", f.streetEnd(deposit))
+	f.advance(time.Minute)
+	f.apply(sim.CreateRoute{Name: "Glass home", Stops: []sim.Stop{
+		{IslandID: deposit, Load: []sim.LoadRule{{Good: "glass", MaxAmount: 60_000}}},
+		{IslandID: home, Unload: []string{"glass"}},
 	}})
 	if f.err != nil {
 		return
