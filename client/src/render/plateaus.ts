@@ -30,10 +30,14 @@ import { c3 } from "./palette";
 import { Builder, type ProfileRing, slabStrip } from "./terrain";
 import { ModelMerger } from "./trees";
 import { VOXEL } from "../display/voxel";
-import { distanceTo, EMPTY, type Field, meshField, TERRAIN_VPT, VOXEL_STEP } from "./voxelterrain";
+import { distanceTo, EMPTY, type Field, meshField, TERRAIN_VPT } from "./voxelterrain";
 
-/** Height (tiles) of one plateau step (voxel prototype: two voxel steps, see plateauField). */
-export const PLATEAU_STEP = VOXEL ? 2 * VOXEL_STEP : 0.42;
+/**
+ * Height (tiles) of one plateau step (voxel prototype: two voxel steps of
+ * 0.25, see plateauField; a literal, as voxelterrain.ts imports this module
+ * and its constants are not initialised yet here).
+ */
+export const PLATEAU_STEP = VOXEL ? 0.5 : 0.42;
 /** Sample spacing (tiles) of the rounded outline and of the top surface grid. */
 const OUTLINE_STEP = 0.2;
 const TOP_GRID = 0.25;
