@@ -190,7 +190,7 @@ isle-02 "Lantern Skerry" large at (486,282) 140x189 fertilities [hemp woad] slot
 ~~~~~~~~~~~~~~~~~~~~~~ccffffffffffffffffffffffffffmmfmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm....................................c~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~cfffffffffffffffffffffffffffmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm...................................c~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~ccfff.fffffffffffffffffffffffmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm...................................c~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~c.fffffffffffffffffffffffffffmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm....................................c~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~c.fffffffffffffffffffffffffffmCCmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm....................................c~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~cfffffffffffffffffffffffffffffffmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm....................................c~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~ccffffffffffffffffffffffffffffffmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm....................................cc~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~cc...ffffffffffffffffffffffffffffmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.....................................c~~~~~~~~~~~~~~~
@@ -565,7 +565,7 @@ isle-04 "Larkspur Holm" medium at (739,200) 109x97 fertilities [wheat woad] slot
 ~~~~~~~~~~cc...........f.ffff.ffffffffffffffff...ffffffmmmmmmmmmmmmmmm..................mmmmmm....cc~~~~~~~~~
 ~~~~~~~~~~~c..............ff....ffffffffffffff...ffffffmmmmmmmmmmmmmmm.................mmmmmmmm...c~~~~~~~~~~
 ~~~~~~~~~~~cc..................ffffffffffffff.....ffff..mmmmmmmmmmmmmm.............m..mmmmmmmmm..cc~~~~~~~~~~
-~~~~~~~~~~~~cc.................fffffffffff........ffff...mmmmmmmmmmmmmmm.........mmmmmmmmmmmmmm..c~~~~~~~~~~~
+~~~~~~~~~~~~cc.................fffffffffff........ffff...mmmmmmmmmmmmmmm.........QQmmmmmmmmmmmm..c~~~~~~~~~~~
 ~~~~~~~~~~~~~cc................fffffffffff.........f.......mmmmmmmmmmmmm.........mmmmmmmmmmmmmm.cc~~~~~~~~~~~
 ~~~~~~~~~~~~~~cc................ffffff...ff...............mmmmmmmmmmmmmm...........mmmmmmmmmmm..c~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~cc.................fff.....................mmmmmmmmmm.mmm...........mmmmmmmmmmm.cc~~~~~~~~~~~~
@@ -816,8 +816,8 @@ isle-07 "Shepherd's Holm" medium at (478,66) 99x95 fertilities [apple grapes] sl
 ~~~~~~~~~~~~~~cc....................................................................cccc~~~~~~~~~~~
 ~~~~~~~~~~~~~cc........................................................................cc~~~~~~~~~~
 ~~~~~~~~~~~~~c................................................................m.mmmmmm..cc~~~~~~~~~
-~~~~~~~~~~~~cc.................................................f..............mmmmmmmmm..cc~~~~~~~~
-~~~~~~~~~~~~c.................................................ffff.............mmmmmmmmm..cc~~~~~~~
+~~~~~~~~~~~~cc.................................................f..............mQmmmmmmm..cc~~~~~~~~
+~~~~~~~~~~~~c.................................................ffff.............Qmmmmmmmm..cc~~~~~~~
 ~~~~~~~~~~~cc.................................................fff.............mmmmmmmmmmm..cc~~~~~~
 ~~~~~~~~~~cc............................................fff..fffffff.........mmmmmmmmmmmmm..cc~~~~~
 ~~~~~~~~~~c...........ff...ff......................fff..ffff.fffffff.......mmmmmmmmmmmmmmmm..c~~~~~
@@ -827,8 +827,8 @@ isle-07 "Shepherd's Holm" medium at (478,66) 99x95 fertilities [apple grapes] sl
 ~~~~~~~~cc.....fffffffffffffffff..................ffffffffffffffffffff...mmmmmmmmmmmmmmmmmmmm.c~~~~
 ~~~~~~~~c....f.fffffffffffffffff................ffffffffffffffffffffff..mmmmmmmmmmmmmmmmmmmm..c~~~~
 ~~~~~~~cc....f.fffffffffffffffffff.............ffffffffffffffffffffffff.mmmmmmmmmmmmmmmmmmmmm.c~~~~
-~~~~~~~c..ffffffffffffffffffffffff...........f.ffffffffffffffffffffff....mmmmmmmmmmmmmmmmmmmm.c~~~~
-~~~~~~cc..ffffffffffffffffffffffff.f.........ffffffffffffffffffffff........mmmmmmmmmmmmmmmmmm.cc~~~
+~~~~~~~c..ffffffffffffffffffffffff...........f.ffffffffffffffffffffff....mmmmmmmmmmmmmmmmmmmQ.c~~~~
+~~~~~~cc..ffffffffffffffffffffffff.f.........ffffffffffffffffffffff........mmmmmmmmmmmmmmmmmQ.cc~~~
 ~~~~~~cff.fffffffffffffffffffffffffff........ffffffffffffffffffffffff......mmmmmmmmmmmmmmmmm...c~~~
 ~~~~~ccffffffffffffffffffffffffffffff........ffffffffffffffffffffffff.......mmmmmmmmmmmmmmm....c~~~
 ~~~~~c..ffffffffffffffffffffffffffff........ffffffffffffffffffffffffff.........mmmmmmmmmm......c~~~
@@ -1230,7 +1230,7 @@ isle-12 "Grey Mantle" small at (765,0) 56x64 fertilities [apple hops grapes] slo
 ~~~~~~~cc.............mmmmmmm.........c~~~~~~~~~~~~~~~~~
 ~~~~~~~~ccc...........mmmmm..........cc~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~ccc..........m.mmm........cc~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~cccc.......m.mmmm......cc~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~cccc.......m.mGGm......cc~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~cccc..............ccc~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~ccc...........cc~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~ccccccccccccc~~~~~~~~~~~~~~~~~~~~~~~

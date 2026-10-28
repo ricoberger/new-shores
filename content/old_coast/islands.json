@@ -18,7 +18,10 @@
     { "id": "iron", "count": { "min": 2, "max": 4 } },
     { "id": "clay", "count": { "min": 2, "max": 4 } },
     { "id": "salt", "count": { "min": 1, "max": 3 } },
-    { "id": "coal", "count": { "min": 1, "max": 3 } }
+    { "id": "coal", "count": { "min": 1, "max": 3 } },
+    { "id": "quartz", "count": { "min": 2, "max": 4 } },
+    { "id": "copper", "count": { "min": 1, "max": 3 } },
+    { "id": "gold", "count": { "min": 1, "max": 1 } }
   ],
   "buildable_area": { "target": 91000, "tolerance": 0.1 },
   "spacing": { "min": 100, "nearest_max": 300 },
@@ -28,6 +31,6 @@
     "deposits": ["stone"],
     "fertilities_any": ["wheat", "apple"],
     "fertilities_none": ["hemp"],
-    "deposits_none": ["iron", "clay", "salt", "coal"]
+    "deposits_none": ["iron", "clay", "salt", "coal", "quartz", "copper", "gold"]
   }
 }

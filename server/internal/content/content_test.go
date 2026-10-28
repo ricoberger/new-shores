@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.12.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.13.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 120 {
@@ -61,7 +61,10 @@ func TestLoadOldCoast(t *testing.T) {
 		"milk", "cheese", "honey", "mead", "pigs", "leather_jerkins",
 		// Tier 3 (D-056 C3).
 		"hops", "woad", "clay", "brine", "salt", "leather", "tallow", "dye", "paper", "bricks",
-		"sausages", "pies", "beer", "brandy", "coats", "dyed_garments", "books", "soap")
+		"sausages", "pies", "beer", "brandy", "coats", "dyed_garments", "books", "soap",
+		// Tier 4 (D-056 C4).
+		"cattle", "raw_oysters", "grapes", "quartz", "copper_ore", "gold_ore", "barrels", "malt", "thread", "brass", "gold_bars", "glass",
+		"roast_beef", "oysters", "wine", "grain_spirit", "fine_garments", "lace", "candles", "spectacles", "jewellery", "instruments")
 	ids = nil
 	for _, b := range c.Buildings {
 		ids = append(ids, b.ID)
@@ -75,7 +78,11 @@ func TestLoadOldCoast(t *testing.T) {
 		// Tier 3 (D-056 C3).
 		"house_merchants", "church", "theatre", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
 		"woad_farm", "woad_field", "dyer_works", "dyer", "paper_mill", "printing_press", "clay_pit", "rendering_house",
-		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine")
+		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine",
+		// Tier 4 (D-056 C4).
+		"cattle_farm", "slaughterhouse", "oyster_beds", "oyster_house", "vineyard", "vine_row", "cooperage", "winepress", "malt_house",
+		"grain_distillery", "fashion_house", "thread_spinner", "lace_maker", "candle_foundry", "quartz_quarry", "glass_smelter",
+		"copper_mine", "copper_smelter", "optician", "gold_mine", "gold_smelter", "goldsmith", "luthier")
 	ids = nil
 	for _, tr := range c.Tiers {
 		ids = append(ids, tr.ID)

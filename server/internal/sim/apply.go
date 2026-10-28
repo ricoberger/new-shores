@@ -3,6 +3,7 @@ package sim
 import (
 	"fmt"
 	"math"
+	"strings"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
@@ -383,7 +384,7 @@ func placeBuilding(w *World, c *content.Catalogue, cmd PlaceBuilding, charge boo
 		return fmt.Errorf("%w: a trading post is placed by found_island", ErrInvalidCommand)
 	}
 	if def.Field != nil {
-		return fmt.Errorf("%w: %s is placed from its %s (place_field)", ErrFieldNeedsFarm, def.ID, def.Field.Farm)
+		return fmt.Errorf("%w: %s is placed from its %s (place_field)", ErrFieldNeedsFarm, def.ID, strings.Join(def.Field.Farms, " or "))
 	}
 	if def.Road != nil {
 		if !charge {

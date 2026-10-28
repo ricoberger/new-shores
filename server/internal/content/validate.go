@@ -453,8 +453,8 @@ func checkFields(c *Catalogue, col *collector) {
 			switch {
 			case fb == nil || fb.Field == nil || fb.Field.Type != f.Type:
 				col.add(FileBuildings, ent, "fields.type", "no building with a field block of type %q", f.Type)
-			case fb.Field.Farm != b.ID:
-				col.add(FileBuildings, ent, "fields.type", "field type %q belongs to farm %q", f.Type, fb.Field.Farm)
+			case !fb.Field.BelongsTo(b.ID):
+				col.add(FileBuildings, ent, "fields.type", "field type %q belongs to farm %v", f.Type, fb.Field.Farms)
 			}
 			if b.WorkArea != nil && b.WorkArea.Radius != 0 {
 				col.add(FileBuildings, ent, "work_area.radius", "a farm with fields has no work radius")
@@ -472,17 +472,19 @@ func checkFields(c *Catalogue, col *collector) {
 		} else {
 			declared[f.Type] = b.ID
 		}
-		farm := c.BuildingByID[f.Farm]
-		switch {
-		case farm == nil || farm.Fields == nil:
-			col.add(FileBuildings, ent, "field.farm", "%q is not a farm with a fields block", f.Farm)
-		case farm.Fields.Type != f.Type:
-			col.add(FileBuildings, ent, "field.farm", "farm %q accepts field type %q, not %q", f.Farm, farm.Fields.Type, f.Type)
-		}
-		if other, dup := farmField[f.Farm]; dup {
-			col.add(FileBuildings, ent, "field.farm", "farm %q already has the field building %q", f.Farm, other)
-		} else {
-			farmField[f.Farm] = b.ID
+		for _, id := range f.Farms {
+			farm := c.BuildingByID[id]
+			switch {
+			case farm == nil || farm.Fields == nil:
+				col.add(FileBuildings, ent, "field.farm", "%q is not a farm with a fields block", id)
+			case farm.Fields.Type != f.Type:
+				col.add(FileBuildings, ent, "field.farm", "farm %q accepts field type %q, not %q", id, farm.Fields.Type, f.Type)
+			}
+			if other, dup := farmField[id]; dup {
+				col.add(FileBuildings, ent, "field.farm", "farm %q already has the field building %q", id, other)
+			} else {
+				farmField[id] = b.ID
+			}
 		}
 		if b.Recipe != nil || b.WorkArea != nil {
 			col.add(FileBuildings, ent, "field", "a field cannot have a recipe or a work area")

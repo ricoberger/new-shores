@@ -191,7 +191,7 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 		{
 			"field shared by two farms: the second farm's field type",
 			[]string{`"fields": { "type": "cattle_pasture", "required": 4, "max": 4 }`, `"fields": { "type": "pasture", "required": 4, "max": 4 }`},
-			[]string{FileBuildings, `building "dairy_farm"`, "fields.type", `field type "pasture" belongs to farm "sheep_farm"`},
+			[]string{FileBuildings, `building "dairy_farm"`, "fields.type", `field type "pasture" belongs to farm [sheep_farm]`},
 		},
 		{
 			"field of another farm type",
@@ -225,7 +225,9 @@ func TestLoadRejectsInvalidFields(t *testing.T) {
 // wheat tiles (3 gold), 160 orchard plots (1 gold) and 60 hemp tiles (2
 // gold), all 1x1, and since D-056 5 cattle pastures (4x7, 30 gold and 5
 // planks), 5 pig pens (3x4, 20 gold and 5 planks) and 100 meadow tiles (1
-// gold); max equals required; each field type belongs to exactly one farm.
+// gold); max equals required; each field type belongs to exactly one farm,
+// except the cattle pasture, which the tier-4 cattle farm shares with the
+// dairy farm (D-056 C4), whose vineyard has 100 vine rows (3 gold).
 // Field footprints are free (pasture modules).
 func TestShippedFields(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
@@ -246,6 +248,8 @@ func TestShippedFields(t *testing.T) {
 		"apiary": {"meadow", "citizens", "", 100, 1, 1, 1_000, 0},
 		// Tier 3 (D-056 C3): max = required.
 		"hop_farm": {"hop_field", "merchants", "hops", 60, 1, 1, 3_000, 0}, "woad_farm": {"woad_field", "merchants", "woad", 100, 1, 1, 1_000, 0},
+		// Tier 4 (D-056 C4): the cattle farm shares the dairy farm's pasture module.
+		"cattle_farm": {"cattle_pasture", "citizens", "", 5, 4, 7, 30_000, 5}, "vineyard": {"vine_row", "patricians", "grapes", 100, 1, 1, 3_000, 0},
 	}
 	farms := 0
 	for _, b := range c.Buildings {
@@ -267,13 +271,16 @@ func TestShippedFields(t *testing.T) {
 		}
 		f := c.FieldByType[b.Fields.Type]
 		wantGold, wantPlanks := w.gold, w.planks
-		if f == nil || f.ID != w.field || f.Tier != w.tier || f.Field.Farm != b.ID || f.Field.Fertility != w.fertility || strings.Join(f.Field.Terrain, ",") != "grass" ||
+		if f == nil || f.ID != w.field || f.Tier != w.tier || !f.Field.BelongsTo(b.ID) || f.Field.Fertility != w.fertility || strings.Join(f.Field.Terrain, ",") != "grass" ||
 			f.Width != w.w || f.Height != w.h || f.Cost.Gold != wantGold || len(f.Cost.Materials) != min(wantPlanks, 1) ||
 			(wantPlanks > 0 && f.Cost.Materials[0].Amount != int64(wantPlanks)*1000) {
 			t.Errorf("%s field %+v", b.ID, f)
 		}
 	}
-	if farms != len(wants) || len(c.FieldByType) != len(wants) {
+	if cp := c.FieldByType["cattle_pasture"]; cp == nil || strings.Join(cp.Field.Farms, ",") != "dairy_farm,cattle_farm" || cp.Field.Farm != "dairy_farm" {
+		t.Errorf("cattle pasture farms %+v", cp)
+	}
+	if farms != len(wants) || len(c.FieldByType) != len(wants)-1 {
 		t.Errorf("%d farms with fields, %d field types", farms, len(c.FieldByType))
 	}
 	if lj := c.BuildingByID["lumberjack"]; lj.Fields != nil || lj.WorkArea.Radius != 4 || lj.WorkArea.RequiredTiles != 24 {

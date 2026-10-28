@@ -657,8 +657,8 @@ isle-05 "Seal Watch" medium at (712,201) 96x89 fertilities [wheat woad] slots ir
 ~~~~cc.......................................................mmmmmmmmmmmfffffffffffffff..f.c~~~~
 ~~~~c........................................................mmmmmmmmmmmmmffffffffffffffff.c~~~~
 ~~~~c.........................................m...........mmmmmmmmmmmmmmmffffffffffffff....c~~~~
-~~~~c................................mm.m.m.m.mmm.m.....mmmmmmmmmmmmmmmmmffffffffffff.f....c~~~~
-~~~cc.................................CCmmmmmmmmmmm.....mmmmmmmmmmmmmmmfmmffffffffff.......c~~~~
+~~~~c................................mm.m.m.m.mmm.m.....Cmmmmmmmmmmmmmmmmffffffffffff.f....c~~~~
+~~~cc.................................CCmmmmmmmmmmm.....CmmmmmmmmmmmmGGfmmffffffffff.......c~~~~
 ~~~c..................................mmmmmmmmmmmmmm.....mmmmmmmmmmmmfffmmmfffffffff.......cc~~~
 ~~~c...................................mmmmmmmmmmmmmmm...mmmmmmmmfffffffmmmfff....ff........c~~~
 ~~~c...................................mmmmmmmmmmmmmmmmffffffmmmffffffffffmfff....ff........c~~~
@@ -747,7 +747,7 @@ isle-06 "Merrow's Cradle" medium at (0,361) 91x112 fertilities [hemp grapes] slo
 ~~~cfffffffffffffffffffmfffffffffffffffffffff..f.....................................c~~~~~
 ~~~cffffffffffffffffmmmmmmmfmffffffffffffffffff......................................c~~~~~
 ~~~cffffffffffffffffmmmmmmmmmfffffffffffff...ff.....................................cc~~~~~
-~~~ccfffffffffffffmmmmmmmmmmmmmffffffffffff..ff.....................................c~~~~~~
+~~~ccfffffffffffffCCmmmmmmmmmmmffffffffffff..ff.....................................c~~~~~~
 ~~~~cfffffffffffffmmmmmmmmmmmmffffffffffffffffff....................................c~~~~~~
 ~~~~cffffffffffffmmmmmmmmmmmmmffffffffffffffffff....................................c~~~~~~
 ~~~~cffffffffffffmmmmmmmmmmmmmmfffffffffffffff......................................c~~~~~~
@@ -756,7 +756,7 @@ isle-06 "Merrow's Cradle" medium at (0,361) 91x112 fertilities [hemp grapes] slo
 ~~~~cffffffffffffmmmmmmmmmmm..fffffffffffffff.......................................cc~~~~~
 ~~~~cfffffffffffffmmmmmmmmmmm.ffffff.ffff.f.f........................................c~~~~~
 ~~~~cffffffffffffffmmmmmmmmm...fff...fff.............................................c~~~~~
-~~~~cffffffffffffffmmmmmmmmmm..fff.fff...............................................cc~~~~
+~~~~cffffffffffffffmmmmmmmmQQ..fff.fff...............................................cc~~~~
 ~~~~cfffffffffffffffmmmmm......f......................................................c~~~~
 ~~~~cfffffffffffffff..mmm.............................................................c~~~~
 ~~~~cffffffffffffff...mmm.............................................................c~~~~
@@ -1111,8 +1111,8 @@ isle-10 "Gannet Cliff" small at (405,748) 70x62 fertilities [wheat woad] slots i
 ~~~~~~~c..................................mm.IIm........c~~~~~~~~~~~~~
 ~~~~~~~c...................................m..m.........c~~~~~~~~~~~~~
 ~~~~~~~c...................................mmmm........cc~~~~~~~~~~~~~
-~~~~~~cc.f.......................mm....m....mmmmm......c~~~~~~~~~~~~~~
-~~~~~cc.ffff..f...............m..mm....m.m.mmmmmm......c~~~~~~~~~~~~~~
+~~~~~~cc.f.......................Qm....m....mmmmm......c~~~~~~~~~~~~~~
+~~~~~cc.ffff..f...............m..Qm....m.m.mmmmmm......c~~~~~~~~~~~~~~
 ~~~~cc..fffff.ffff............mmmmmmm..mmmmmmmmmmmm...cc~~~~~~~~~~~~~~
 ~~~~c..ffffffffffff......m..mmmmmmmmmm.mmmmmmmmmmmm...c~~~~~~~~~~~~~~~
 ~~~~c..ffffffffffff......Smmmmmmm....m...mmmmmmmmmm..cc~~~~~~~~~~~~~~~
@@ -1185,7 +1185,7 @@ isle-11 "Driftwood Isle" small at (799,678) 60x54 fertilities [wheat apple] slot
 ~~~~~cc..f.ffffffffffffff..................mmmmm.......cc~~~
 ~~~~~~cc.f.fffffffffffff...................mmm.........c~~~~
 ~~~~~~~ccffffffffffffff....................mmmm.......cc~~~~
-~~~~~~~~ccfffffffffffffff..................mmmm.......c~~~~~
+~~~~~~~~ccfffffffffffffff..................mCCm.......c~~~~~
 ~~~~~~~~~ccfffffffffffff.............................cc~~~~~
 ~~~~~~~~~~ccffffffffffff.............................c~~~~~~
 ~~~~~~~~~~~ccfffffffffff............................cc~~~~~~
@@ -1240,8 +1240,8 @@ isle-12 "Saltmarsh Holm" small at (791,497) 62x53 fertilities [apple woad grapes
 ~~~~~~~cc........................mmmmmm..................c~~~~
 ~~~~~~~~cc........................mmmmm..................c~~~~
 ~~~~~~~~~cc......................mmmmmmm................cc~~~~
-~~~~~~~~~~ccc.............m..S..mmmmmmmmm...............c~~~~~
-~~~~~~~~~~~~ccc...........m..Smmmmmmmmmmm...............c~~~~~
+~~~~~~~~~~ccc.............m..S..mmmmmmmmQ...............c~~~~~
+~~~~~~~~~~~~ccc...........m..SmmmmmmmmmmQ...............c~~~~~
 ~~~~~~~~~~~~~~c.....mmm...mm.mmmmmmmmm.................cc~~~~~
 ~~~~~~~~~~~~~~c....mmmm.mmmmmmmmmmmm......f............c~~~~~~
 ~~~~~~~~~~~~~~c.....mmmmmmmmmmmmmmm.......f...........cc~~~~~~

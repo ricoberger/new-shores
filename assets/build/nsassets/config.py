@@ -284,9 +284,9 @@ COLOR_TOLERANCE = 1.0 / 255.0
 #: Default status anchor height above the model (tiles).
 STATUS_ABOVE = 0.25
 
-#: Content IDs that need a model: tier 1–3 buildings except roads (fields
+#: Content IDs that need a model: tier 1–4 buildings except roads (fields
 #: included) and these ships (D-056 ship ladder); planned IDs always do.
-MODEL_TIERS = ("settlers", "citizens", "merchants")
+MODEL_TIERS = ("settlers", "citizens", "merchants", "patricians")
 MODEL_SHIPS = ("sloop", "brig", "galleon")
 
 #: Blender version the determinism guarantee holds for.

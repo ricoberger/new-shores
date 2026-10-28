@@ -225,10 +225,29 @@ class CommittedPlannedTest(unittest.TestCase):
 
     def test_the_planned_tier4_entries_resolve_beneath_the_content(self):
         self.assertEqual(len(self.planned), 25)
-        self.assertLessEqual(set(self.planned), set(content.planned_ids(LIVE_CONTENT)))
         for cid, b in self.planned.items():
-            self.assertTrue(LIVE_CONTENT["buildings"][cid].get("planned"), cid)
+            # Content (D-056 C4) or still planned (house and services until they are content).
+            self.assertEqual(LIVE_CONTENT["buildings"][cid]["tier"], "patricians", cid)
             self.assertEqual(list(content.footprint(LIVE_CONTENT, cid)), b["footprint"], cid)
+
+    def test_tier4_content_models(self):
+        """D-056 C4: every tier-4 content building has a model at its footprint; chimney and smoke exactly on the smoke flag."""
+        models = self.manifest["models"]
+        buildings = LIVE_CONTENT["buildings"]
+        tier4 = [cid for cid in content.required_ids(LIVE_CONTENT) if buildings.get(cid, {}).get("tier") == "patricians"]
+        # The planned 25 plus grain_distillery (the distillery recipe with its own roof, D-041).
+        self.assertEqual(sorted(tier4), sorted(set(self.planned) | {"grain_distillery"}))
+        for cid in tier4:
+            w, h = content.footprint(LIVE_CONTENT, cid)
+            self.assertEqual(models[cid]["footprint"], {"w": w, "h": h}, cid)
+            if "field" in buildings[cid] or not content.is_producer(LIVE_CONTENT, cid):
+                continue
+            anchors = models[cid]["anchors"]
+            smoke = content.needs_smoke(LIVE_CONTENT, cid)
+            self.assertEqual("chimney" in anchors, smoke, cid)
+            self.assertEqual("smoke" in anchors, smoke, cid)
+            self.assertIn("cart", anchors, cid)
+        self.assertEqual(models["grain_distillery"]["footprint"], models["distillery"]["footprint"])
 
     def test_every_planned_building_has_a_model_at_its_footprint(self):
         models = self.manifest["models"]

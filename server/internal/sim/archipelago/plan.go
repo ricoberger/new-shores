@@ -28,11 +28,13 @@ var errPlan = errors.New("no resource assignment")
 //
 // Deposits are assigned per tier (depositTiers): the kinds of the first
 // tier that mines anything with r, interleaved with the fertilities as
-// before; the kinds of every later tier afterwards with late, appended to
-// the islands' slots (addDeposits). Adding a later tier's deposits to the
+// before; the kinds of every later tier afterwards, each tier with its own
+// stream late(k) (k = 1 for the second mining tier, …), appended to the
+// islands' slots (addDeposits). Adding a later tier's deposits to the
 // content therefore leaves the earlier composition, shapes and slots of
-// every seed as they were (D-056 C3: the tier-3 clay, salt and coal).
-func planComposition(r, late *rng, c *content.Catalogue) ([]*plan, error) {
+// every seed as they were (D-056 C3: the tier-3 clay, salt and coal; C4:
+// the tier-4 quartz, copper and gold).
+func planComposition(r *rng, late func(k int) *rng, c *content.Catalogue) ([]*plan, error) {
 	rules := &c.Islands
 	var out []*plan
 	for _, sc := range rules.SizeClasses {
@@ -53,8 +55,8 @@ func planComposition(r, late *rng, c *content.Catalogue) ([]*plan, error) {
 	if err := assignFertilities(r, rules, out); err != nil {
 		return nil, err
 	}
-	for _, pool := range tiers[1:] {
-		if err := addDeposits(late, rules, pool, out); err != nil {
+	for k, pool := range tiers[1:] {
+		if err := addDeposits(late(k+1), rules, pool, out); err != nil {
 			return nil, err
 		}
 	}

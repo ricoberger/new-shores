@@ -122,7 +122,7 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 		},
 		{
 			"home requires an excluded deposit", FileIslands,
-			[]string{`"deposits_none": ["iron", "clay", "salt", "coal"]`, `"deposits_none": ["iron", "clay", "salt", "coal", "stone"]`},
+			[]string{`"deposits_none": ["iron", "clay", "salt", "coal", "quartz", "copper", "gold"]`, `"deposits_none": ["iron", "clay", "salt", "coal", "quartz", "copper", "gold", "stone"]`},
 			[]string{FileIslands, "home.deposits_none", "both required and excluded"},
 		},
 		{

@@ -11,9 +11,13 @@
 import type { BuildingDisplay, Content, ContentBuilding, Island } from "../api/client";
 import { rotatedFootprint, type TilePos, tileKey } from "./geometry";
 
-/** The field building a farm type owns (content `field.farm`), if any. */
+/**
+ * The field building a farm type owns (content `field.farms`, else
+ * `field.farm`), if any: a field may serve several farm types (the cattle
+ * pasture of the dairy and cattle farms, D-056 C4).
+ */
 export function fieldBuildingOf(content: Content, farmType: string): ContentBuilding | undefined {
-  return content.buildings.find((b) => b.field?.farm === farmType);
+  return content.buildings.find((b) => b.field && (b.field.farms ?? [b.field.farm]).includes(farmType));
 }
 
 /**

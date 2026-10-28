@@ -227,6 +227,7 @@ type farmFieldsJSON struct {
 type fieldJSON struct {
 	Type      string   `json:"type"`
 	Farm      string   `json:"farm"`
+	Farms     []string `json:"farms"`
 	Terrain   []string `json:"terrain"`
 	Fertility string   `json:"fertility,omitempty"`
 }
@@ -475,7 +476,7 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		bj.Fields = &farmFieldsJSON{Type: f.Type, Required: f.Required, Max: f.Max}
 	}
 	if f := b.Field; f != nil {
-		bj.Field = &fieldJSON{Type: f.Type, Farm: f.Farm, Terrain: append([]string{}, f.Terrain...), Fertility: f.Fertility}
+		bj.Field = &fieldJSON{Type: f.Type, Farm: f.Farm, Farms: append([]string{}, f.Farms...), Terrain: append([]string{}, f.Terrain...), Fertility: f.Fertility}
 	}
 	if wf := b.Workforce; wf != nil {
 		bj.Workforce = &workforceJSON{Tier: wf.Tier, Amount: wf.Amount}

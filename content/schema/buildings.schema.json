@@ -203,8 +203,11 @@
         "properties": {
           "type": { "$ref": "#/$defs/id" },
           "farm": {
-            "description": "Building type of the one farm this field belongs to (its fields.type is this type).",
-            "$ref": "#/$defs/id"
+            "description": "Building type of the farm this field belongs to (its fields.type is this type), or a list of farm types sharing the field (D-056 C4: the cattle pasture of the dairy and cattle farms).",
+            "oneOf": [
+              { "$ref": "#/$defs/id" },
+              { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+            ]
           },
           "terrain": {
             "type": "array",

@@ -49,7 +49,7 @@ describe("HUD icon set", () => {
 
   it("has an icon for every good, need and status of the content", () => {
     const goods = content("goods.json") as { id: string }[];
-    expect(goods).toHaveLength(43);
+    expect(goods).toHaveLength(65);
     for (const g of goods) expect(ICON_PATHS[`good:${g.id}`], g.id).toBeTruthy();
     const needs = content("needs.json") as { category?: string; building?: string }[];
     for (const n of needs) expect(ICON_PATHS[n.category ? `need:${n.category}` : `need:${n.building}`], JSON.stringify(n)).toBeTruthy();
@@ -59,7 +59,8 @@ describe("HUD icon set", () => {
 
   it("falls back to a generic icon for unknown content IDs", () => {
     expect(goodIcon("unobtainium")).toBe(ICON_PATHS["good:_fallback"]);
-    expect(needIcon({ category: "luxury" })).toBe(ICON_PATHS["need:_fallback"]);
+    expect(needIcon({ category: "wonders" })).toBe(ICON_PATHS["need:_fallback"]);
+    expect(needIcon({ category: "luxury" })).toBe(ICON_PATHS["need:luxury"]);
     expect(needIcon({ building: "opera" })).toBe(ICON_PATHS["need:_fallback"]);
     expect(needIcon({})).toBe(ICON_PATHS["need:_fallback"]);
     expect(categoryIcon("wonders")).toBe(ICON_PATHS["category:other"]);

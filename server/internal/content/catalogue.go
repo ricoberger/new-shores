@@ -517,13 +517,22 @@ type FarmFields struct {
 type Field struct {
 	// Type is the field type, unique per field building.
 	Type string
-	// Farm is the building type of the one farm the field belongs to;
-	// its fields.type equals Type.
-	Farm    string
+	// Farm is the building type of the first farm the field belongs to
+	// (Farms[0]); its fields.type equals Type.
+	Farm string
+	// Farms lists every farm type the field belongs to (content `farm`, a
+	// farm ID or a list: the cattle pasture serves the dairy farm and the
+	// cattle farm, D-056 C4); each one's fields.type equals Type.
+	Farms   []string
 	Terrain []string
 	// Fertility is the island-wide fertility tag the field needs ("" for
 	// none).
 	Fertility string
+}
+
+// BelongsTo reports whether the field is a field of the farm type.
+func (f *Field) BelongsTo(farm string) bool {
+	return slices.Contains(f.Farms, farm)
 }
 
 // MatchesTerrain reports whether a field may stand on the terrain.

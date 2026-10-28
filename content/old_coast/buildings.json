@@ -399,7 +399,7 @@
     "cost": { "gold": 30, "planks": 5 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "field": { "type": "cattle_pasture", "farm": "dairy_farm", "terrain": ["grass"] }
+    "field": { "type": "cattle_pasture", "farm": ["dairy_farm", "cattle_farm"], "terrain": ["grass"] }
   },
   {
     "id": "cheese_dairy",
@@ -1188,6 +1188,435 @@
       "inputs": [],
       "outputs": [{ "good": "coal", "amount": 1 }],
       "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "cattle_farm",
+    "name": "Cattle farm",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 410, "planks": 5, "stone": 9, "bricks": 6 },
+    "upkeep_per_min": 4,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 8 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "cattle", "amount": 1 }],
+      "cycle_seconds": 120
+    },
+    "fields": { "type": "cattle_pasture", "required": 5, "max": 5 }
+  },
+  {
+    "id": "slaughterhouse",
+    "name": "Slaughterhouse",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 390, "planks": 6, "stone": 6, "bricks": 3, "glass": 3 },
+    "upkeep_per_min": 8,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "patricians", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "cattle", "amount": 1 }, { "good": "salt", "amount": 1 }],
+      "outputs": [{ "good": "roast_beef", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "oyster_beds",
+    "name": "Oyster beds",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [6, 12],
+    "water_tiles": 4,
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 480, "planks": 12, "stone": 9, "bricks": 6 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "boat": true,
+    "workforce": { "tier": "settlers", "amount": 6 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "raw_oysters", "amount": 1 }],
+      "cycle_seconds": 90
+    }
+  },
+  {
+    "id": "oyster_house",
+    "name": "Oyster house",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [6, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 510, "planks": 6, "stone": 6, "bricks": 3, "glass": 6 },
+    "upkeep_per_min": 10,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "patricians", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "raw_oysters", "amount": 1 }, { "good": "salt", "amount": 1 }],
+      "outputs": [{ "good": "oysters", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "vineyard",
+    "name": "Vineyard",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 330, "planks": 6, "stone": 9, "bricks": 3 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 8 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "grapes", "amount": 1 }],
+      "cycle_seconds": 90
+    },
+    "work_area": { "fertility": "grapes" },
+    "fields": { "type": "vine_row", "required": 100, "max": 100 }
+  },
+  {
+    "id": "vine_row",
+    "name": "Vine row",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 3 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "vine_row", "farm": "vineyard", "terrain": ["grass"], "fertility": "grapes" }
+  },
+  {
+    "id": "cooperage",
+    "name": "Cooperage",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 840, "planks": 9, "stone": 12, "bricks": 9, "glass": 6 },
+    "upkeep_per_min": 7,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "planks", "amount": 1 }, { "good": "iron", "amount": 1 }],
+      "outputs": [{ "good": "barrels", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "winepress",
+    "name": "Winepress",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [6, 9],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 540, "planks": 6, "stone": 15, "bricks": 6 },
+    "upkeep_per_min": 8,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "patricians", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "grapes", "amount": 2 }, { "good": "barrels", "amount": 1 }],
+      "outputs": [{ "good": "wine", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "malt_house",
+    "name": "Malt house",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 270, "planks": 6, "stone": 6, "bricks": 3 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "wheat", "amount": 1 }],
+      "outputs": [{ "good": "malt", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "grain_distillery",
+    "name": "Grain distillery",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [5, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 600, "planks": 6, "stone": 9, "bricks": 6, "glass": 6 },
+    "upkeep_per_min": 5,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "patricians", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "malt", "amount": 1 }, { "good": "barrels", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
+      "outputs": [{ "good": "grain_spirit", "amount": 1 }],
+      "cycle_seconds": 90
+    }
+  },
+  {
+    "id": "fashion_house",
+    "name": "Fashion house",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [5, 7],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 900, "planks": 6, "stone": 9, "bricks": 6, "glass": 12 },
+    "upkeep_per_min": 7,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "patricians", "amount": 10 },
+    "recipe": {
+      "inputs": [{ "good": "dyed_garments", "amount": 1 }, { "good": "thread", "amount": 1 }],
+      "outputs": [{ "good": "fine_garments", "amount": 1 }],
+      "cycle_seconds": 120
+    }
+  },
+  {
+    "id": "thread_spinner",
+    "name": "Thread spinner",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 240, "planks": 6, "bricks": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "hemp", "amount": 1 }],
+      "outputs": [{ "good": "thread", "amount": 1 }],
+      "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "lace_maker",
+    "name": "Lace maker",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [3, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 650, "planks": 5, "stone": 3, "bricks": 6, "glass": 9 },
+    "upkeep_per_min": 4,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "patricians", "amount": 10 },
+    "recipe": {
+      "inputs": [{ "good": "thread", "amount": 1 }],
+      "outputs": [{ "good": "lace", "amount": 1 }],
+      "cycle_seconds": 120
+    }
+  },
+  {
+    "id": "candle_foundry",
+    "name": "Candle foundry",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 680, "planks": 5, "bricks": 9, "glass": 9 },
+    "upkeep_per_min": 12,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "patricians", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "tallow", "amount": 1 }, { "good": "hemp", "amount": 1 }],
+      "outputs": [{ "good": "candles", "amount": 1 }],
+      "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "quartz_quarry",
+    "name": "Quartz quarry",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [3, 8],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 300, "planks": 6, "stone": 3, "bricks": 6 },
+    "upkeep_per_min": 4,
+    "pause_category": "intermediate",
+    "requires_deposit": "quartz",
+    "workforce": { "tier": "citizens", "amount": 10 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "quartz", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "glass_smelter",
+    "name": "Glass smelter",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 270, "planks": 6, "stone": 6, "bricks": 3 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "quartz", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
+      "outputs": [{ "good": "glass", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "copper_mine",
+    "name": "Copper mine",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [3, 8],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 210, "planks": 6, "stone": 3, "bricks": 3 },
+    "upkeep_per_min": 5,
+    "pause_category": "intermediate",
+    "requires_deposit": "copper",
+    "workforce": { "tier": "citizens", "amount": 10 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "copper_ore", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "copper_smelter",
+    "name": "Copper smelter",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 740, "planks": 5, "stone": 9, "bricks": 9, "glass": 6 },
+    "upkeep_per_min": 6,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "copper_ore", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
+      "outputs": [{ "good": "brass", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "optician",
+    "name": "Optician",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 680, "planks": 5, "bricks": 9, "glass": 9 },
+    "upkeep_per_min": 12,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "patricians", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "glass", "amount": 1 }, { "good": "brass", "amount": 1 }],
+      "outputs": [{ "good": "spectacles", "amount": 1 }],
+      "cycle_seconds": 90
+    }
+  },
+  {
+    "id": "gold_mine",
+    "name": "Gold mine",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [3, 8],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 210, "planks": 6, "stone": 3, "bricks": 3 },
+    "upkeep_per_min": 5,
+    "pause_category": "intermediate",
+    "requires_deposit": "gold",
+    "workforce": { "tier": "citizens", "amount": 10 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "gold_ore", "amount": 1 }],
+      "cycle_seconds": 120
+    }
+  },
+  {
+    "id": "gold_smelter",
+    "name": "Gold smelter",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 740, "planks": 5, "stone": 9, "bricks": 9, "glass": 6 },
+    "upkeep_per_min": 6,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "gold_ore", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
+      "outputs": [{ "good": "gold_bars", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "goldsmith",
+    "name": "Goldsmith",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [4, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 680, "planks": 5, "bricks": 9, "glass": 9 },
+    "upkeep_per_min": 12,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "patricians", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "gold_bars", "amount": 1 }],
+      "outputs": [{ "good": "jewellery", "amount": 1 }],
+      "cycle_seconds": 90
+    }
+  },
+  {
+    "id": "luthier",
+    "name": "Luthier",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [5, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 870, "planks": 6, "stone": 9, "bricks": 9, "glass": 9 },
+    "upkeep_per_min": 8,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "patricians", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "planks", "amount": 1 }, { "good": "brass", "amount": 1 }],
+      "outputs": [{ "good": "instruments", "amount": 1 }],
+      "cycle_seconds": 120
     }
   }
 ]

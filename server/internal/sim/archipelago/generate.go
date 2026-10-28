@@ -78,7 +78,9 @@ func Generate(seed uint64, c *content.Catalogue) (*Archipelago, error) {
 
 func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 	rules := &c.Islands
-	plans, err := planComposition(newRNG(derive(sub, 1)), newRNG(derive(sub, 4)), c)
+	// Later mining tiers' deposits: tier 3 on stream 4 (C3), tier 4 on 5.
+	late := func(k int) *rng { return newRNG(derive(sub, 3+uint64(k))) } // #nosec G115 -- k >= 1
+	plans, err := planComposition(newRNG(derive(sub, 1)), late, c)
 	if err != nil {
 		return nil, err
 	}
