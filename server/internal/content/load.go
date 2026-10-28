@@ -335,10 +335,10 @@ type rawBuilding struct {
 		Max      int    `json:"max"`
 	} `json:"fields"`
 	Field *struct {
-		Type      string   `json:"type"`
-		Farm      string   `json:"farm"`
-		Terrain   []string `json:"terrain"`
-		Fertility string   `json:"fertility"`
+		Type      string          `json:"type"`
+		Farm      json.RawMessage `json:"farm"`
+		Terrain   []string        `json:"terrain"`
+		Fertility string          `json:"fertility"`
 	} `json:"field"`
 	Shipyard *struct {
 		Ships []string `json:"ships"`
@@ -687,6 +687,9 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			case ObjectiveBuildingCount, ObjectiveShipCount:
 				o.Min = col.whole(FileQuests, ent, field, col.fixed(FileQuests, ent, field, ro.Min, 0))
 			}
+			if ro.Kind == ObjectiveShipCount {
+				o.Ship, o.Building = ro.Type, ""
+			}
 			q.Objectives = append(q.Objectives, o)
 		}
 		if rq.Rewards.Gold != 0 {
@@ -860,7 +863,15 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		}
 	}
 	if f := rb.Field; f != nil {
-		b.Field = &Field{Type: f.Type, Farm: f.Farm, Terrain: append([]string(nil), f.Terrain...), Fertility: f.Fertility}
+		var farms []string
+		var one string
+		if err := json.Unmarshal(f.Farm, &one); err == nil {
+			farms = []string{one}
+		} else if err := json.Unmarshal(f.Farm, &farms); err != nil || len(farms) == 0 {
+			col.add(file, ent, "field.farm", "must be a farm ID or a non-empty list of farm IDs")
+			farms = []string{""}
+		}
+		b.Field = &Field{Type: f.Type, Farm: farms[0], Farms: farms, Terrain: append([]string(nil), f.Terrain...), Fertility: f.Fertility}
 	}
 	return b
 }

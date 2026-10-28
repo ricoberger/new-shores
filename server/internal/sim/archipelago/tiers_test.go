@@ -1,14 +1,19 @@
 package archipelago
 
 import (
+	"fmt"
 	"slices"
 	"testing"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// lateKinds are the deposit kinds first mined at tier 3 (D-056 C3).
-var lateKinds = []string{"clay", "salt", "coal"}
+// lateKinds are the deposit kinds first mined at tier 3 (D-056 C3);
+// tierFourKinds those first mined at tier 4 (D-056 C4).
+var (
+	lateKinds     = []string{"clay", "salt", "coal"}
+	tierFourKinds = []string{"quartz", "copper", "gold"}
+)
 
 func TestDepositTiers(t *testing.T) {
 	tiers := depositTiers(catalogue(t))
@@ -19,7 +24,8 @@ func TestDepositTiers(t *testing.T) {
 		}
 		return out
 	}
-	if len(tiers) != 2 || !slices.Equal(ids(tiers[0]), []string{"stone", "iron"}) || !slices.Equal(ids(tiers[1]), lateKinds) {
+	if len(tiers) != 3 || !slices.Equal(ids(tiers[0]), []string{"stone", "iron"}) || !slices.Equal(ids(tiers[1]), lateKinds) ||
+		!slices.Equal(ids(tiers[2]), tierFourKinds) {
 		t.Fatalf("deposit tiers %v", tiers)
 	}
 }
@@ -56,9 +62,19 @@ func TestDevSeedTierThreeDeposits(t *testing.T) {
 // and the earlier deposits of the dev seed stay as without them.
 func TestLaterTierDepositsKeepTheWorld(t *testing.T) {
 	c := catalogue(t)
+	// Without tier 4 (the C3 world) and without tiers 3 and 4 (the S1 world).
+	for _, removed := range [][]string{tierFourKinds, append(slices.Clone(lateKinds), tierFourKinds...)} {
+		t.Run(removed[0], func(t *testing.T) { keepsTheWorld(t, c, removed) })
+	}
+}
+
+// keepsTheWorld: the content without the removed deposit kinds generates
+// the same islands as with them, except mountain tiles turned into slots
+// of the removed kinds.
+func keepsTheWorld(t *testing.T, c *content.Catalogue, removed []string) {
 	base := *c
 	base.Islands.Deposits = slices.DeleteFunc(slices.Clone(c.Islands.Deposits), func(e content.PoolEntry) bool {
-		return slices.Contains(lateKinds, e.ID)
+		return slices.Contains(removed, e.ID)
 	})
 	for _, seed := range []uint64{1_053_001, 1} {
 		with, err := Generate(seed, c)
@@ -88,11 +104,72 @@ func TestLaterTierDepositsKeepTheWorld(t *testing.T) {
 						t.Fatalf("seed %d: %s tile %d lost its %s deposit", seed, is.ID, k, old.Deposit.Kind)
 					}
 				case tile.Deposit != nil:
-					if !slices.Contains(lateKinds, tile.Deposit.Kind) || tile.Terrain != content.TerrainMountain {
+					if !slices.Contains(removed, tile.Deposit.Kind) || tile.Terrain != content.TerrainMountain {
 						t.Fatalf("seed %d: %s tile %d new deposit %s on %s", seed, is.ID, k, tile.Deposit.Kind, tile.Terrain)
 					}
 				}
 			}
 		}
+	}
+}
+
+// TestDevSeedTierFourDeposits: the dev seed carries every tier-4 deposit
+// (quartz, copper, gold), none on the home island.
+func TestDevSeedTierFourDeposits(t *testing.T) {
+	a, err := Generate(1_053_001, catalogue(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := map[string][]string{}
+	for _, is := range a.Islands {
+		for kind, n := range DepositCounts(is) {
+			if slices.Contains(tierFourKinds, kind) && n > 0 {
+				found[kind] = append(found[kind], is.ID)
+				if is.ID == a.Home {
+					t.Errorf("home island %s has %d %s slots", is.ID, n, kind)
+				}
+			}
+		}
+	}
+	for _, kind := range tierFourKinds {
+		if len(found[kind]) == 0 {
+			t.Errorf("no %s slot on the dev seed", kind)
+		}
+	}
+	t.Logf("tier-4 deposits on the dev seed: %v", found)
+}
+
+// TestGoldSlotGuaranteed: every archipelago has exactly one gold slot
+// (D-056 §8: at least one; CONTENT §7: exactly one), never on the home
+// island nor on a resource rock, over 200 seeds.
+func TestGoldSlotGuaranteed(t *testing.T) {
+	if testing.Short() {
+		t.Skip("200 archipelagos")
+	}
+	c := catalogue(t)
+	for seed := uint64(1); seed <= 200; seed++ {
+		t.Run(fmt.Sprint(seed), func(t *testing.T) {
+			t.Parallel()
+			goldSlot(t, c, seed)
+		})
+	}
+}
+
+// goldSlot checks the gold slot of one seed's archipelago.
+func goldSlot(t *testing.T, c *content.Catalogue, seed uint64) {
+	a, err := Generate(seed, c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gold := 0
+	for _, is := range a.Islands {
+		n := DepositCounts(is)["gold"]
+		gold += n
+		if n > 0 && (is.ID == a.Home || c.Islands.SizeClassByID[is.SizeClass].Rock) {
+			t.Errorf("seed %d: gold on %s (%s)", seed, is.ID, is.SizeClass)
+		}
+	}
+	if gold != 1 {
+		t.Errorf("seed %d: %d gold slots, want 1", seed, gold)
 	}
 }

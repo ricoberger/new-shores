@@ -236,5 +236,68 @@
     ],
     "rewards": { "gold": 200 },
     "prerequisites": ["merchants_brig"]
+  },
+  {
+    "id": "patricians_cathedral",
+    "title": "A cathedral for the patricians",
+    "text": "Patricians want a university and a cathedral besides the services the merchants enjoy. Build a cathedral and connect it to the road. Its windows need glass: quarry quartz on an island with quartz deposits and melt it in a glass smelter.",
+    "objectives": [
+      { "kind": "tier_unlocked", "tier": "patricians" },
+      { "kind": "connected", "type": "cathedral" }
+    ],
+    "rewards": { "gold": 200 },
+    "prerequisites": ["merchants_bricks"]
+  },
+  {
+    "id": "patricians_house",
+    "title": "The first patricians",
+    "text": "Upgrade a full merchant house whose needs are all met into a patrician house. Its windows need glass.",
+    "objectives": [
+      { "kind": "building_count", "type": "house_patricians", "min": 1 }
+    ],
+    "rewards": { "gold": 150 },
+    "prerequisites": ["patricians_cathedral"]
+  },
+  {
+    "id": "patricians_food",
+    "title": "Roast beef and oysters",
+    "text": "Patricians eat roast beef or oysters, and both together feed them best. Have a slaughterhouse and an oyster house at work, both connected to the Trading Post.",
+    "objectives": [
+      { "kind": "connected", "type": "slaughterhouse" },
+      { "kind": "connected", "type": "oyster_house" }
+    ],
+    "rewards": { "gold": 200 },
+    "prerequisites": ["patricians_house"]
+  },
+  {
+    "id": "patricians_drink",
+    "title": "Wine and grain spirit",
+    "text": "Patricians drink wine or grain spirit, and both together please them best. Have a winepress and a grain distillery at work, both connected to the Trading Post.",
+    "objectives": [
+      { "kind": "connected", "type": "winepress" },
+      { "kind": "connected", "type": "grain_distillery" }
+    ],
+    "rewards": { "gold": 200 },
+    "prerequisites": ["patricians_food"]
+  },
+  {
+    "id": "patricians_glass",
+    "title": "Glass for the houses",
+    "text": "Every patrician house needs three glass, and the optician grinds spectacles from it. Store thirty glass in a Trading Post.",
+    "objectives": [
+      { "kind": "stock", "good": "glass", "min": 30 }
+    ],
+    "rewards": { "gold": 200 },
+    "prerequisites": ["patricians_drink"]
+  },
+  {
+    "id": "patricians_galleon",
+    "title": "A galleon for the routes",
+    "text": "A galleon carries six loads of sixty where a brig carries four of fifty. Order a galleon at the shipyard.",
+    "objectives": [
+      { "kind": "ship_count", "type": "galleon", "min": 1 }
+    ],
+    "rewards": { "gold": 250 },
+    "prerequisites": ["patricians_glass"]
   }
 ]

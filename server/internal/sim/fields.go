@@ -303,8 +303,8 @@ func newFieldSites(is *Island, c *content.Catalogue, farm *Building, def *conten
 	if def == nil || def.Field == nil {
 		return nil, fmt.Errorf("%w: not a field", ErrFieldTypeMismatch)
 	}
-	if fdef == nil || fdef.Fields == nil || def.Field.Farm != farm.Type || fdef.Fields.Type != def.Field.Type {
-		return nil, fmt.Errorf("%w: %s belongs to %s, not %s %d", ErrFieldWrongFarm, def.ID, def.Field.Farm, farm.Type, farm.ID)
+	if fdef == nil || fdef.Fields == nil || !def.Field.BelongsTo(farm.Type) || fdef.Fields.Type != def.Field.Type {
+		return nil, fmt.Errorf("%w: %s belongs to %s, not %s %d", ErrFieldWrongFarm, def.ID, strings.Join(def.Field.Farms, " or "), farm.Type, farm.ID)
 	}
 	s := &fieldSites{is: is, def: def, farm: farm, max: fdef.Fields.Max, occupied: make([]bool, is.Width*is.Height), reach: make([]bool, is.Width*is.Height)}
 	s.w, s.h = footprint(def, rotation)
@@ -410,7 +410,7 @@ func (s *fieldSites) add(x, y int) {
 
 // CheckFieldSite validates a field of the field building def at (x, y)
 // (rotation r) from the farm: the field rule without tier, settlement and
-// cost checks, in this order: the farm type matches def.Field.Farm
+// cost checks, in this order: the farm type is one of def.Field.Farms
 // (ErrFieldWrongFarm), the farm has fewer than fields.max fields
 // (ErrFieldMaxReached), the footprint is on the island, on the field's
 // terrain and free (ErrOutOfBounds, ErrTerrain, ErrOccupied), the island

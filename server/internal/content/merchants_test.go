@@ -237,7 +237,9 @@ func TestClosedChains(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	produced, used := map[string]bool{}, map[string]bool{}
+	// playable: made by a building of a tier with a house; a good made only
+	// by a declared-only tier's buildings waits for that tier's needs.
+	produced, used, playable := map[string]bool{}, map[string]bool{}, map[string]bool{}
 	for _, g := range c.Start.Goods {
 		produced[g.Good] = true
 	}
@@ -262,6 +264,9 @@ func TestClosedChains(t *testing.T) {
 		}
 		for _, out := range b.Recipe.Outputs {
 			produced[out.Good] = true
+			if c.TierByID[b.Tier].House != "" {
+				playable[out.Good] = true
+			}
 		}
 	}
 	for _, sh := range c.Ships {
@@ -280,7 +285,7 @@ func TestClosedChains(t *testing.T) {
 		if !produced[g.ID] {
 			t.Errorf("good %s has no producer", g.ID)
 		}
-		if !used[g.ID] {
+		if !used[g.ID] && playable[g.ID] {
 			t.Errorf("good %s has no use", g.ID)
 		}
 	}
@@ -309,7 +314,8 @@ type plannedEntry struct {
 // TestTierThreeMatchesPlannedModels: every tier-3 building of the content
 // has the footprint, water rows, deposit slot and smoke flag of its
 // planned model (assets/build/planned/tier3.json, PR #32), so the
-// committed models fit; boats only where content says so (the fisher).
+// committed models fit; boats only where content says so (the fisher and,
+// since tier 4, the oyster beds).
 func TestTierThreeMatchesPlannedModels(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
@@ -339,7 +345,7 @@ func TestTierThreeMatchesPlannedModels(t *testing.T) {
 		if b.Tier == "merchants" && !seen[b.ID] {
 			t.Errorf("%s is not in the planned tier-3 models", b.ID)
 		}
-		if b.Boat != (b.ID == "fisher") {
+		if b.Boat != (b.ID == "fisher" || b.ID == "oyster_beds") {
 			t.Errorf("%s boat = %v", b.ID, b.Boat)
 		}
 	}

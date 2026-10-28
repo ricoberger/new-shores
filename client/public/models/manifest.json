@@ -4188,6 +4188,101 @@
         }
       ]
     },
+    "grain_distillery": {
+      "anchors": {
+        "cart": [
+          1.4,
+          0.0,
+          -2.2
+        ],
+        "chimney": [
+          1.2,
+          4.83,
+          1.6
+        ],
+        "door": [
+          1.2,
+          0.0,
+          0.55
+        ],
+        "smoke": [
+          1.2,
+          4.88,
+          1.6
+        ],
+        "status": [
+          0.0,
+          5.08,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          2.48,
+          4.83,
+          3.07
+        ],
+        "min": [
+          -2.5246,
+          -0.0036,
+          -2.98
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            2.48,
+            4.83,
+            3.07
+          ],
+          "min": [
+            -2.5246,
+            -0.0036,
+            -2.98
+          ]
+        },
+        "budget": 45000,
+        "bytes": 188824,
+        "lite": {
+          "bounds": {
+            "max": [
+              2.48,
+              4.8557,
+              3.07
+            ],
+            "min": [
+              -2.5024,
+              -0.0115,
+              -2.98
+            ]
+          },
+          "budget": 11250,
+          "bytes": 48764,
+          "path": "grain_distillery.lite.glb",
+          "sha256": "c175365b3046a1361c3b965a3f92b2aa91970c733321bb0ad099836ca979b9e7",
+          "triangles": 549
+        },
+        "path": "grain_distillery.glb",
+        "sha256": "f72f962e8db8a417312a46c5502adbfd5354fe3c65d357ede7a80fc40d9ca4c5",
+        "triangles": 2257
+      },
+      "footprint": {
+        "h": 6,
+        "w": 5
+      },
+      "kind": "building",
+      "kit_sources": [
+        {
+          "files": [
+            "Assets/gltf/decoration/props/barrel.gltf",
+            "Assets/gltf/decoration/props/crate_A_small.gltf",
+            "Assets/gltf/decoration/props/resource_lumber.gltf",
+            "Assets/gltf/units/neutral/cart.gltf"
+          ],
+          "kit": "kaykit_hexagon"
+        }
+      ]
+    },
     "hemp_farm": {
       "anchors": {
         "cart": [

@@ -648,31 +648,37 @@ type runner struct {
 // Run executes the scenario and returns its report. A failing step fails the
 // run with the step index.
 func Run(s *Scenario, c *content.Catalogue) (*Report, error) {
+	rep, _, err := run(s, c)
+	return rep, err
+}
+
+// run is Run that also returns the final world.
+func run(s *Scenario, c *content.Catalogue) (*Report, *sim.World, error) {
 	l := sim.NewLedger()
 	w, err := BuildWorld(s, c, l)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	r := &runner{s: s, c: c, w: w, l: l, report: &Report{Name: s.Name, ContentVersion: c.Region.Version}}
 	for i, st := range s.Steps {
 		kind, err := st.kind()
 		if err != nil {
-			return nil, fmt.Errorf("step %d: %w", i, err)
+			return nil, nil, fmt.Errorf("step %d: %w", i, err)
 		}
 		if st.ExpectError != "" {
 			if err := r.expectError(i, st); err != nil {
-				return nil, fmt.Errorf("step %d (%s): %w", i, kind, err)
+				return nil, nil, fmt.Errorf("step %d (%s): %w", i, kind, err)
 			}
 			continue
 		}
 		if err := r.step(i, st); err != nil {
-			return nil, fmt.Errorf("step %d (%s): %w", i, kind, err)
+			return nil, nil, fmt.Errorf("step %d (%s): %w", i, kind, err)
 		}
 	}
 	if err := r.finish(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return r.report, nil
+	return r.report, r.w, nil
 }
 
 // islandID resolves a step's island ("" = the first island).

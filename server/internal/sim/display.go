@@ -87,7 +87,9 @@ type ActiveQuestDisplay struct {
 // tier_unlocked, milli-residents for population, milli-units for stock and
 // per-mille for satisfaction (current -1 without a house of the tier).
 type ObjectiveDisplay struct {
-	Kind    string `json:"kind"`
+	Kind string `json:"kind"`
+	// Type is the building type (building_count, connected) or the ship
+	// type (ship_count; empty = every ship).
 	Type    string `json:"type,omitempty"`
 	Good    string `json:"good,omitempty"`
 	Tier    string `json:"tier,omitempty"`
@@ -593,7 +595,7 @@ func displayQuests(w *World, c *content.Catalogue, wr *worldRates, now int64) Qu
 			}
 			target := ObjectiveTarget(o)
 			aq.Objectives = append(aq.Objectives, ObjectiveDisplay{
-				Kind: o.Kind, Type: o.Building, Good: o.Good, Tier: o.Tier, Island: o.Island,
+				Kind: o.Kind, Type: o.Building + o.Ship, Good: o.Good, Tier: o.Tier, Island: o.Island,
 				Current: cur, Target: target, Met: env.met(o),
 			})
 		}

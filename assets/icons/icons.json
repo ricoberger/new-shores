@@ -318,6 +318,160 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/wooden-crate.svg",
       "sha256": "df0585b49fb3f2ac158ac065e146b60510f3a6dfba4bab310d5dd4389467cbc3"
     },
+    "good:cattle": {
+      "file": "cow.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/cow.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/cow.svg",
+      "sha256": "48cd880c417dabb8a0986aaeab8cee8e25a0e3e759b4f5e12e4f88cc26da9f21"
+    },
+    "good:raw_oysters": {
+      "file": "oyster.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/oyster.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/oyster.svg",
+      "sha256": "3df96305c91d6eafe63a04056a334b47d99abcc231b9a95dd5e60d7e90c4bc22"
+    },
+    "good:grapes": {
+      "file": "grapes.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/grapes.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/grapes.svg",
+      "sha256": "fa177617acfa4020947f3adc1640e4edef11123f8f8869d2f4d2036045e41a4e"
+    },
+    "good:quartz": {
+      "file": "crystal-cluster.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/crystal-cluster.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/crystal-cluster.svg",
+      "sha256": "452a4c5f0cbd5e65dc6875c662a1590f92d07d6787201f53b6be8d7ad83fa841"
+    },
+    "good:copper_ore": {
+      "file": "ore.svg",
+      "author": "Faithtoken",
+      "page": "https://game-icons.net/1x1/faithtoken/ore.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/faithtoken/ore.svg",
+      "sha256": "f6d0c2a968269c38f06604ebee811e220bdad554ee769e0973cf130a3c0a8f08"
+    },
+    "good:gold_ore": {
+      "file": "gold-nuggets.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/gold-nuggets.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/gold-nuggets.svg",
+      "sha256": "64e8fbcad8ee00aa8df97693e818bcd105e4460a790b4de82a0a995455d6b92e"
+    },
+    "good:barrels": {
+      "file": "barrel.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/barrel.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/barrel.svg",
+      "sha256": "0f979f5adaa9a7cb9aaa4f1b2592d9cd92ffeaef63a0503afd29c841bf2de7f1"
+    },
+    "good:malt": {
+      "file": "grain.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/grain.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/grain.svg",
+      "sha256": "c53a624f57aadb7301f7f08420ba81ce566df39a6a58d44182755a54b8975611"
+    },
+    "good:thread": {
+      "file": "sewing-string.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/sewing-string.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/sewing-string.svg",
+      "sha256": "c0ee0ac1921e8afd0589cd5c4ab5e849c65e6c8ba8d286837cef9c1520a48973"
+    },
+    "good:brass": {
+      "file": "melting-metal.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/melting-metal.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/melting-metal.svg",
+      "sha256": "4bcc5af4f3f5739ee9022a24648b8e15ee4ab060707205d6f0955adae5e18419"
+    },
+    "good:gold_bars": {
+      "file": "gold-bar.svg",
+      "author": "Willdabeast",
+      "page": "https://game-icons.net/1x1/willdabeast/gold-bar.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/willdabeast/gold-bar.svg",
+      "sha256": "984483d7877a3e6f4ec89368fdc13ea0e1a1b9bbbade8c7a2ac209ac12d99152"
+    },
+    "good:glass": {
+      "file": "window.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/window.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/window.svg",
+      "sha256": "08091b6721a2fb45be12cb485c790a76f0c4f3e6c4161cc3d1dee3e70de47413"
+    },
+    "good:roast_beef": {
+      "file": "meat.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/meat.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/meat.svg",
+      "sha256": "928b0da10545fc2a8b373878aaabdaed0c9c339d25f2fcf3a2888a3f3a6e7950"
+    },
+    "good:oysters": {
+      "file": "oyster-pearl.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/oyster-pearl.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/oyster-pearl.svg",
+      "sha256": "66d2c7b52e0750463920acdaf9029a8c1b170d084097b5709b5cebd622edfdc3"
+    },
+    "good:wine": {
+      "file": "wine-bottle.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/wine-bottle.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/wine-bottle.svg",
+      "sha256": "83d1f52223da515b34cf2f77f016491b9dafc42d5b5c398dfcfb66badc849775"
+    },
+    "good:grain_spirit": {
+      "file": "bottle-vapors.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/bottle-vapors.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/bottle-vapors.svg",
+      "sha256": "3b8ce137998e039eb5b0ea158e5fbbdb58875ea18555d312c1ec65afd9c050cd"
+    },
+    "good:fine_garments": {
+      "file": "dress.svg",
+      "author": "Skoll",
+      "page": "https://game-icons.net/1x1/skoll/dress.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/skoll/dress.svg",
+      "sha256": "7a96221d93291198fb92d64dfe9376620a392adaa37df75127ee69b7f127e674"
+    },
+    "good:lace": {
+      "file": "bow-tie-ribbon.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/bow-tie-ribbon.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/bow-tie-ribbon.svg",
+      "sha256": "6d0538c5d9b381ffdfdb11b0698aeede67d21d6661f5cfb27c48bfec3f30cefa"
+    },
+    "good:candles": {
+      "file": "candle-holder.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/candle-holder.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/candle-holder.svg",
+      "sha256": "2d75f63d7dfa012c1572cfcbb313639f975603f57f3c27512e3c3dedc9dcffbb"
+    },
+    "good:spectacles": {
+      "file": "spectacles.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/spectacles.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/spectacles.svg",
+      "sha256": "c0abde82fbfd9808f6102ffbe1ab2bd971dc0c0b10a694eabbea7d153cbdb61c"
+    },
+    "good:jewellery": {
+      "file": "diamond-ring.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/diamond-ring.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/diamond-ring.svg",
+      "sha256": "91f94eb0d33045678c50d6887499a125a323a0bb0d5efde22c1c333c31d7a0ae"
+    },
+    "good:instruments": {
+      "file": "lyre.svg",
+      "author": "Lorc",
+      "page": "https://game-icons.net/1x1/lorc/lyre.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/lyre.svg",
+      "sha256": "2781700fcb4ec7de561300092491634b9177ef26e9ceea1ec535d64c34d23c22"
+    },
     "need:food": {
       "file": "hot-meal.svg",
       "author": "Delapouite",
@@ -352,6 +506,13 @@
       "page": "https://game-icons.net/1x1/delapouite/sofa.html",
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/sofa.svg",
       "sha256": "016a924f1b9ae2a1f2022f8b466f580ecc4787a8ad933b6a36bf3146e94ae3d5"
+    },
+    "need:luxury": {
+      "file": "jewel-crown.svg",
+      "author": "Delapouite",
+      "page": "https://game-icons.net/1x1/delapouite/jewel-crown.html",
+      "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/jewel-crown.svg",
+      "sha256": "9cb75464de809a74a79979101526b64fc5e9a1feda3e0b932c5dbdc46fe0168d"
     },
     "need:services": {
       "file": "shop.svg",

@@ -17,6 +17,13 @@ import (
 // fixtures; only offsets strictly before next_change_at are kept.
 var displayFixtureOffsetsMs = []int64{250, 1000, 5000, 30000, 300000}
 
+// displayFixtureOffsetsOverride keeps the fixtures of large worlds small:
+// a full Display of bootstrap_patricians is about 2.6 MB indented, so it
+// keeps a single sample.
+var displayFixtureOffsetsOverride = map[string][]int64{
+	"bootstrap_patricians": {250},
+}
+
 // DisplayFixture is the extrapolation fixture shared with the client tests
 // (server/testdata/display): the Display payload at the end of a scenario
 // and the payloads after advancing it by each sample offset.
@@ -36,30 +43,12 @@ func displayDir(t testing.TB) string {
 	return filepath.Join(repoRoot(t), "server", "testdata", "display")
 }
 
-// runToEnd runs every step of a scenario and returns the final world.
+// runToEnd returns the final world of a scenario (the shared replay; the
+// caller must not modify it).
 func runToEnd(t *testing.T, name string) (*content.Catalogue, *sim.World) {
 	t.Helper()
-	s := loadScenario(t, name)
-	c, err := s.LoadContent(repoRoot(t))
-	if err != nil {
-		t.Fatal(err)
-	}
-	l := sim.NewLedger()
-	w, err := BuildWorld(s, c, l)
-	if err != nil {
-		t.Fatal(err)
-	}
-	r := &runner{s: s, c: c, w: w, l: l, report: &Report{Name: s.Name}}
-	for i, st := range s.Steps {
-		run := r.step
-		if st.ExpectError != "" {
-			run = r.expectError
-		}
-		if err := run(i, st); err != nil {
-			t.Fatalf("%s: step %d: %v", name, i, err)
-		}
-	}
-	return c, w
+	r := replay(t, name)
+	return r.c, r.w
 }
 
 func buildDisplayFixture(t *testing.T, name string) DisplayFixture {
@@ -78,7 +67,11 @@ func buildDisplayFixture(t *testing.T, name string) DisplayFixture {
 		limit = next.Sub(w.LastEvaluatedAt).Milliseconds()
 	}
 	fx := DisplayFixture{Scenario: name, Base: base, Samples: []DisplaySample{}}
-	for _, off := range displayFixtureOffsetsMs {
+	offsets := displayFixtureOffsetsMs
+	if o, ok := displayFixtureOffsetsOverride[name]; ok {
+		offsets = o
+	}
+	for _, off := range offsets {
 		if limit >= 0 && off >= limit {
 			continue
 		}

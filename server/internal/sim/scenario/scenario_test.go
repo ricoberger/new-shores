@@ -17,6 +17,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -64,18 +65,47 @@ func loadScenario(t testing.TB, name string) *Scenario {
 	return s
 }
 
-func runScenario(t testing.TB, name string) *Report {
+// replayed is one complete run of a scenario, shared by every test of the
+// package binary that needs it (read only).
+type replayed struct {
+	c   *content.Catalogue
+	w   *sim.World
+	rep *Report
+}
+
+var (
+	replayMu    sync.Mutex
+	replayCache = map[string]*replayed{}
+)
+
+// replay runs a scenario to its end once per test binary and returns the
+// cached run on later calls; callers must not modify the world or report
+// (clone the world first). Tests that need independent runs (determinism,
+// timing) call Run themselves.
+func replay(t testing.TB, name string) *replayed {
 	t.Helper()
+	replayMu.Lock()
+	defer replayMu.Unlock()
+	if r, ok := replayCache[name]; ok {
+		return r
+	}
 	s := loadScenario(t, name)
 	c, err := s.LoadContent(repoRoot(t))
 	if err != nil {
 		t.Fatal(err)
 	}
-	rep, err := Run(s, c)
+	rep, w, err := run(s, c)
 	if err != nil {
 		t.Fatalf("%s: %v", name, err)
 	}
-	return rep
+	r := &replayed{c: c, w: w, rep: rep}
+	replayCache[name] = r
+	return r
+}
+
+func runScenario(t testing.TB, name string) *Report {
+	t.Helper()
+	return replay(t, name).rep
 }
 
 func encodeReport(t testing.TB, rep *Report) []byte {
@@ -280,8 +310,20 @@ func firstKey(m map[string]int64) string {
 }
 
 func TestDeterministicReports(t *testing.T) {
-	a := encodeReport(t, runScenario(t, "chain_planks"))
-	b := encodeReport(t, runScenario(t, "chain_planks"))
+	s := loadScenario(t, "chain_planks")
+	c, err := s.LoadContent(repoRoot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	runOnce := func() *Report {
+		rep, err := Run(s, c)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return rep
+	}
+	a := encodeReport(t, runOnce())
+	b := encodeReport(t, runOnce())
 	if !bytes.Equal(a, b) {
 		t.Error("same scenario produced different reports")
 	}

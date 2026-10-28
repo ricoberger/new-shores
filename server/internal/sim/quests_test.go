@@ -118,16 +118,19 @@ func TestQuestPredicates(t *testing.T) {
 }
 
 // TestQuestRouteShipAndIslands: route_exists needs an assigned ship;
-// ship_count counts every ship; island_settled counts founded islands.
+// ship_count counts every ship, or the ships of its type (D-056 C4);
+// island_settled counts founded islands.
 func TestQuestRouteShipAndIslands(t *testing.T) {
 	c := withQuests(withoutQuests(catalogue(t)),
 		quest("ship", goldReward, content.Objective{Kind: content.ObjectiveShipCount, Min: 1}),
+		quest("sloop", goldReward, content.Objective{Kind: content.ObjectiveShipCount, Ship: "sloop", Min: 1}),
+		quest("galleon", goldReward, content.Objective{Kind: content.ObjectiveShipCount, Ship: "galleon", Min: 1}),
 		quest("islands", goldReward, content.Objective{Kind: content.ObjectiveIslandSettled, Min: 2}),
 		quest("route", goldReward, content.Objective{Kind: content.ObjectiveRouteExists}),
 	)
 	w := shipWorld(t, c)
 	s := builtSloop(t, w, c)
-	if !QuestCompleted(w, "ship") || QuestCompleted(w, "islands") {
+	if !QuestCompleted(w, "ship") || !QuestCompleted(w, "sloop") || QuestCompleted(w, "galleon") || QuestCompleted(w, "islands") {
 		t.Fatalf("after the sloop: %v", w.Quests)
 	}
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 30_000}}})

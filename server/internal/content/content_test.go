@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.12.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.13.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 120 {
@@ -61,7 +61,10 @@ func TestLoadOldCoast(t *testing.T) {
 		"milk", "cheese", "honey", "mead", "pigs", "leather_jerkins",
 		// Tier 3 (D-056 C3).
 		"hops", "woad", "clay", "brine", "salt", "leather", "tallow", "dye", "paper", "bricks",
-		"sausages", "pies", "beer", "brandy", "coats", "dyed_garments", "books", "soap")
+		"sausages", "pies", "beer", "brandy", "coats", "dyed_garments", "books", "soap",
+		// Tier 4 (D-056 C4).
+		"cattle", "raw_oysters", "grapes", "quartz", "copper_ore", "gold_ore", "barrels", "malt", "thread", "brass", "gold_bars", "glass",
+		"roast_beef", "oysters", "wine", "grain_spirit", "fine_garments", "lace", "candles", "spectacles", "jewellery", "instruments")
 	ids = nil
 	for _, b := range c.Buildings {
 		ids = append(ids, b.ID)
@@ -75,7 +78,11 @@ func TestLoadOldCoast(t *testing.T) {
 		// Tier 3 (D-056 C3).
 		"house_merchants", "church", "theatre", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
 		"woad_farm", "woad_field", "dyer_works", "dyer", "paper_mill", "printing_press", "clay_pit", "rendering_house",
-		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine")
+		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine",
+		// Tier 4 (D-056 C4).
+		"house_patricians", "university", "cathedral", "cattle_farm", "slaughterhouse", "oyster_beds", "oyster_house", "vineyard", "vine_row", "cooperage", "winepress", "malt_house",
+		"grain_distillery", "fashion_house", "thread_spinner", "lace_maker", "candle_foundry", "quartz_quarry", "glass_smelter",
+		"copper_mine", "copper_smelter", "optician", "gold_mine", "gold_smelter", "goldsmith", "luthier")
 	ids = nil
 	for _, tr := range c.Tiers {
 		ids = append(ids, tr.ID)
@@ -91,8 +98,11 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 		got := fmt.Sprintf("%d-%d %d %s %s", tr.ResidentsFloor, tr.ResidentsMax, tr.TaxPerResidentPerMin, strings.Join(pop, ","), strings.Join(tr.Unlock.Buildings, ","))
 		wantHouse, wantNeeds := "", 0
-		if id == "merchants" {
+		switch id {
+		case "merchants":
 			wantHouse, wantNeeds = "house_merchants", 10
+		case "patricians":
+			wantHouse, wantNeeds = "house_patricians", 15
 		}
 		if got != want || tr.House != wantHouse || len(c.NeedsByTier[id]) != wantNeeds {
 			t.Errorf("%s = %q (house %q), want %q", id, got, tr.House, want)
@@ -122,8 +132,9 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 
 	// Quests (quests.json): the intro chain, the tier-2 chain (D-056 §10)
-	// and the tier-3 chain (C3), each linear; the tier-2 chain branches off
-	// at intro_settlers_120, the tier-3 chain follows citizens_cheese. Rewards in fixed point; only the shipyard quest
+	// the tier-3 chain (C3) and the tier-4 chain (C4), each linear; the
+	// tier-2 chain branches off at intro_settlers_120, the tier-3 chain
+	// follows citizens_cheese, the tier-4 chain merchants_bricks. Rewards in fixed point; only the shipyard quest
 	// gives sails (for the first built sloop, CONTENT §8).
 	if len(c.Quests) < 10 || c.Quests[0].ID != "intro_home_island" || len(c.Quests[0].Prerequisites) != 0 ||
 		c.Quests[0].Objectives[0] != (Objective{Kind: ObjectiveIslandSettled, Min: 1}) || c.Quests[1].ID != "intro_first_road" {
@@ -139,8 +150,11 @@ func TestLoadOldCoast(t *testing.T) {
 		if !ok && chain == "merchants" {
 			want = "citizens_cheese"
 		}
+		if !ok && chain == "patricians" {
+			want = "merchants_bricks"
+		}
 		prev[chain] = q.ID
-		if (chain != "intro" && chain != "citizens" && chain != "merchants") || len(q.Prerequisites) != 1 || q.Prerequisites[0] != want || c.QuestByID[q.ID] != q || q.Index != i+1 {
+		if (chain != "intro" && chain != "citizens" && chain != "merchants" && chain != "patricians") || len(q.Prerequisites) != 1 || q.Prerequisites[0] != want || c.QuestByID[q.ID] != q || q.Index != i+1 {
 			t.Errorf("quest %s: prerequisites %v (want %s), index %d", q.ID, q.Prerequisites, want, q.Index)
 		}
 		if len(q.Rewards.Goods) > 0 && !strings.Contains(q.Text, "capacity") {
@@ -590,6 +604,11 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{FileQuests, `quest "intro_tools"`, "objectives[1].good", `unknown good "spades"`},
 		},
 		{
+			"quest unknown ship type", FileQuests,
+			[]string{`{ "kind": "ship_count", "type": "galleon", "min": 1 }`, `{ "kind": "ship_count", "type": "frigate", "min": 1 }`},
+			[]string{FileQuests, `quest "patricians_galleon"`, "objectives[0].type", `unknown ship type "frigate"`},
+		},
+		{
 			"quest unknown tier", FileQuests,
 			[]string{`"tier": "settlers", "min": 120`, `"tier": "peasants", "min": 120`},
 			[]string{FileQuests, `quest "intro_settlers_120"`, "objectives[0].tier", `unknown tier "peasants"`},
@@ -877,7 +896,7 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 			t.Errorf("NeedCategoryByID[%q] = %+v", nc.ID, c.NeedCategoryByID[nc.ID])
 		}
 	}
-	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:_fallback,services=Services/need:services"
+	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury,services=Services/need:services"
 	if got := strings.Join(cats, ","); got != want {
 		t.Errorf("need categories = %s, want %s", got, want)
 	}
@@ -894,6 +913,11 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 		"merchants_food": "Food", "merchants_drink": "Drink", "merchants_clothing": "Clothing", "merchants_comfort": "Comfort",
 		"merchants_services": "Services", "merchants_settlers_food": "Food", "merchants_settlers_clothing": "Clothing",
 		"merchants_citizens_food": "Food", "merchants_citizens_drink": "Drink", "merchants_citizens_clothing": "Clothing",
+		"patricians_food": "Food", "patricians_drink": "Drink", "patricians_clothing": "Clothing", "patricians_comfort": "Comfort",
+		"patricians_luxury": "Luxury", "patricians_services": "Services", "patricians_settlers_food": "Food", "patricians_settlers_clothing": "Clothing",
+		"patricians_citizens_food": "Food", "patricians_citizens_drink": "Drink", "patricians_citizens_clothing": "Clothing",
+		"patricians_merchants_food": "Food", "patricians_merchants_drink": "Drink", "patricians_merchants_clothing": "Clothing",
+		"patricians_merchants_comfort": "Comfort",
 	}
 	if len(names) != len(wantNames) {
 		t.Errorf("need names = %v, want %v", names, wantNames)

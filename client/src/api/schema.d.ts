@@ -1301,7 +1301,7 @@ export interface components {
         ObjectiveDisplay: {
             /** @enum {string} */
             kind: "building_count" | "connected" | "population" | "stock" | "route_exists" | "island_settled" | "tier_unlocked" | "ship_count" | "satisfaction";
-            /** @description Content building ID (building_count, connected). */
+            /** @description Content building ID (building_count, connected) or ship type (ship_count; absent = every ship). */
             type?: string;
             /** @description Good ID (stock). */
             good?: string;
@@ -2044,7 +2044,7 @@ export interface components {
         ContentObjective: {
             /** @enum {string} */
             kind: "building_count" | "connected" | "population" | "stock" | "route_exists" | "island_settled" | "tier_unlocked" | "ship_count" | "satisfaction";
-            /** @description Content building ID (building_count, connected). */
+            /** @description Content building ID (building_count, connected) or ship type (ship_count; absent = every ship). */
             type?: string;
             /** @description Good ID (stock). */
             good?: string;
@@ -2461,8 +2461,15 @@ export interface components {
             field?: {
                 /** @description Field type. */
                 type: string;
-                /** @description Building type of the one farm the field belongs to. */
+                /** @description Building type of the first farm the field belongs to (`farms[0]`). */
                 farm: string;
+                /**
+                 * @description Every farm type the field belongs to (each one's `fields.type` is
+                 *     this field type); the cattle pasture serves the dairy farm and the
+                 *     cattle farm (D-056 C4). Always sent by the server; absent in older
+                 *     payloads, where `farm` is the only one.
+                 */
+                farms?: string[];
                 terrain: string[];
                 /** @description Island fertility tag the field needs (absent for none). */
                 fertility?: string;

@@ -163,7 +163,7 @@ feature, not a tier gate, and not authored yet. Variety reserve
 (D-056): fur_coats (`trapper`, `furrier`), tableware (`potter`;
 `clay_pit` stays for bricks).
 
-### Tier 4 — Patricians
+### Tier 4 — Patricians (implemented, content `old_coast-0.13.0`)
 
 | Category | Good | Chain | Ratio |
 |---|---|---|---|
@@ -192,7 +192,7 @@ Infrastructure: `trading_post` lvl 4, `market` lvl 3, `university`,
 |---|---|---|---|---|---|
 | Final goods (needs) | 2 | 6 | 8 | 10 | **26** (+4 reserve) |
 | Construction/ship materials | 1 | 3 | 1 (+coal) | 1 | 6 (+1) |
-| Buildings (all kinds) | ~10 | ~26 | ~24 | ~26 | **~86** |
+| Buildings (all kinds, content `old_coast-0.13.0`; reserve not counted) | 12 | 30 | 25 | 26 | **93** |
 | Fertilities | — | wheat, apple, hemp | hops, woad | grapes | 6 |
 | Deposit slot types | — | stone, iron | clay, salt, coal | quartz, copper, gold | 8 |
 
@@ -202,10 +202,10 @@ fills the house (D-056).
 
 ## 7. Buildings — reference table (D-054)
 
-**Status:** tiers 1–3 (the shipped set, content `old_coast-0.12.0`;
-tiers 1–2 since PR #27/#28, tier 3 since D-056 C3) are implemented
-exactly as listed, except the `(reserve)` rows and `harbourmaster_office`
-(an ONLINE feature); tier 4 is the target for the content-depth tasks.
+**Status:** tiers 1–4 (the shipped set, content `old_coast-0.13.0`;
+tiers 1–2 since PR #27/#28, tier 3 since D-056 C3, tier 4 since D-056
+C4) are implemented exactly as listed, except the `(reserve)` rows and
+`harbourmaster_office` (an ONLINE feature).
 The pre-D-054 numbers survive only in `server/testdata/content/
 old_coast_pre_d054` for the hand-made scenarios and mechanics tests.
 
@@ -374,7 +374,7 @@ only: the client draws each ship and spaces the Trading Post berths by it
 | Habitable islands per archipelago | 12: 3 large (≈ 192×192), 5 medium (≈ 112×112), 4 small (≈ 64×64) |
 | Resource rocks | 0–2 (≈ 16×16, mountain + coast; Trading Post and mines only) |
 | Fertilities per habitable island | 2–4 from the pool (wheat, apple, hemp 3–5 times per archipelago; hops, woad, grapes 2–5 times; provisional) |
-| Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; stone 3–6, iron 2–4 slots per archipelago (gold exactly 1 when authored) |
+| Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
 | Spacing | ≥ 100 tiles between islands, nearest neighbour ≤ 300 |
 | Buildable area | 91 000 tiles (coast, grass, forest) per archipelago ± 10 % (≈ 48 % of the 189 696-tile land extents, the share the shape rules give: ≈ 17.7 k per large island, D-054; provisional) |
@@ -476,13 +476,13 @@ it carries:
 | `service` | `radius` | public buildings |
 | `work_area` | `radius`, `fertility?` (island-wide tag the island must carry, else `no_fertility`); harvesters also `terrain[]`, `required_tiles` | farms (radius only), lumberjack, gatherers |
 | `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4) |
-| `field` | `type`, `farm` (the one farm type that owns it), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires exactly one farm whose `fields.type` matches | pasture, wheat_field, orchard_plot, hemp_field, pig_pen, meadow, cattle_pasture, hop_field, woad_field (later vine_row) |
+| `field` | `type`, `farm` (the farm type that owns it, or a list of farm types sharing the module: `cattle_pasture` serves `dairy_farm` and `cattle_farm`), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires every listed farm to exist with a matching `fields.type` | pasture, wheat_field, orchard_plot, hemp_field, pig_pen, meadow, cattle_pasture, hop_field, woad_field, vine_row |
 | `workforce` | `tier`, `amount` | producers only (D-035) |
 | `requires_deposit` | deposit type; the footprint must cover ≥ 1 tile with that deposit (`no_deposit`) and may cover mountain tiles | mines, quarries |
 | `slot` | typed deposit/harbour slots (D-036) — not yet implemented; `requires_deposit` is the interim rule | — |
 | `shipyard` | `ships[]` (ship IDs it can build) | shipyard |
-| `smoke` | boolean, absent false — display only: the model carries chimney/smoke anchors and the client draws smoke | producers whose model has a chimney: every shipped producer except hop_farm, woad_farm, leather_works, tailor, printing_press, clay_pit, salt_pans, salt_mine and coal_mine |
-| `boat` | boolean, absent false — display only: the client rows a boat out from the model's boat anchor and back; needs `water_tiles` | water-edge producers (fisher) |
+| `smoke` | boolean, absent false — display only: the model carries chimney/smoke anchors and the client draws smoke | producers whose model has a chimney: every shipped producer except hop_farm, woad_farm, leather_works, tailor, printing_press, clay_pit, salt_pans, salt_mine, coal_mine, cattle_farm, oyster_beds, vineyard, fashion_house, thread_spinner, lace_maker, quartz_quarry, copper_mine, gold_mine and luthier |
+| `boat` | boolean, absent false — display only: the client rows a boat out from the model's boat anchor and back; needs `water_tiles` | water-edge producers (fisher, oyster_beds) |
 
 ```json
 {
@@ -507,7 +507,8 @@ it carries:
 `pause_category` ∈ `need_goods`, `public`, `intermediate`, `food_basic`,
 `never` drives the insolvency order (MECHANICS §7). Buildings accepting
 `charcoal` or `coal` list both as the input's good, `{ "good": ["charcoal",
-"coal"], "amount": 1 }` (tier 3: distillery, salt_works, brickworks).
+"coal"], "amount": 1 }` (tier 3: distillery, salt_works, brickworks;
+tier 4: grain_distillery, glass_smelter, copper_smelter, gold_smelter).
 
 ### tiers.json and goods.json
 
@@ -535,7 +536,12 @@ stone, tools or sails (those are taught, not given). The tier-2 chain
 (`citizens_shipyard`, `citizens_sloop`, `citizens_tavern`,
 `citizens_school`, `citizens_cheese`) with rewards of 50–100 gold; the
 shipyard quest's 10 sails for the first built sloop are the only sails
-(§8).
+(§8). The tier-3 chain is 6 quests after `citizens_cheese`
+(`merchants_church` … `merchants_bricks`, 100–200 gold) and the tier-4
+chain 6 after it (`patricians_cathedral`, `patricians_house`,
+`patricians_food`, `patricians_drink`, `patricians_glass` — 30 glass in
+stock — and `patricians_galleon`, 150–250 gold); `ship_count` takes an
+optional ship `type`, so the galleon quest counts galleons.
 Quests that reward goods must mention that excess beyond capacity is lost
 (content test).
 
@@ -582,8 +588,8 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
   Current staffing satisfies it: stone and tools [S] for Citizens, bricks
   [C] for Merchants, glass (quartz_quarry, glass_smelter) [C] for
   Patricians. Checked by a generic content test over every tier with a
-  house and by the goldens `bootstrap_settlers`, `bootstrap_citizens`
-  and `bootstrap_merchants` (tier 3, below)
+  house and by the goldens `bootstrap_settlers`, `bootstrap_citizens`,
+  `bootstrap_merchants` and `bootstrap_patricians` (tiers 3–4, below)
   (the tier 1–2 reference game from the starting stock: island 2 settled
   at 52 min by the start sloop, Citizens unlocked by 30 min, the first
   Citizen house at 88 min, tools from island 2 on the home island by
@@ -607,6 +613,18 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
   last found on a ten-wait scan) with the build order alone; its home
   island then uses 3 102 of 16 387 buildable tiles (19 %) for 144
   Settlers, 285 Citizens and 75 Merchants.
+  `bootstrap_patricians` (D-056 C4) continues `bootstrap_merchants`
+  step for step (tier 1–3 times unchanged) and holds the Patrician
+  targets at 501 / 798 / 843 with build order and island choice alone:
+  the Patrician houses and public buildings stand at home; island 6
+  (quartz, copper, grapes, hemp) makes glass, brass, thread and grapes
+  for a sloop and a brig, island 2 pigs, salt, milk and cattle for a
+  galleon. At the end (minute 873: 560 Settlers, 210 Citizens, 1 250
+  Merchants, 160 Patricians at home) the used share of the buildable
+  tiles is 59 % at home (16 387; houses and public buildings 1 443,
+  production and fields 6 632, roads 1 332, collectors 234), 30 % on
+  island 2 (15 612) and 18 % on island 6 (6 892): 1 200 Merchants and
+  the first Patricians fit on the home island with room to spare.
   With D-056 the tier-1/2 game runs its categories at
   0.6 until the second alternatives are built; the §12 tier-1/2 targets
   stay and hold (see Bootstrap above). Two notes from S1: "Citizens
