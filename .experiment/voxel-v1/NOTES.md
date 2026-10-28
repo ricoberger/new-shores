@@ -136,6 +136,48 @@ Pipeline (`make assets-test`, part of `make check`; 38 tests):
   `NEW_SHORES_CONTENT_DIR` override.
 - `test_voxel.py`: meshing, grid helpers, export, every recipe fits.
 
+## Step 5 — numbers (`make shots STATS=1`, headless Chromium on the M-series Mac)
+
+Commands: `make shots FIXTURE=<f> VIEW=<v> DEVICE=desktop,phone STATS=1
+OUT=.experiment/voxel-v1/shots` (PNGs there, git-ignored). "Kit" is the
+prototype's measurement of the kit renderer on the same views
+(`.experiment/voxel/NOTES.md` step 5, desktop); "proto" its `?voxel=1`
+numbers.
+
+| View | Device | Draws | Tris | Kit tris | Proto tris |
+|---|---|---|---|---|---|
+| far at the cap, 8 islands (dense-archipelago-8) | desktop | 14 | 66 710 | 59 868 | 67 116 |
+| far at the cap, 8 islands (dense-archipelago-8) | phone | 14 | 66 710 | – | – |
+| far at the cap, dense island (dense-2x400) | desktop | 19 | 152 200 | 166 322 | 151 980 |
+| far at the cap, dense island (dense-2x400) | phone | 19 | 152 200 | – | – |
+| mid, dense island (dense-2x400) | desktop | 52 | 1 410 520 | 876 765 | 1 410 642 |
+| mid, dense island (dense-2x400) | phone | 32 | 1 220 588 | – | – |
+| near with life, dense island (dense-2x400) | desktop | 49 | 1 300 474 | 843 338 | 1 302 090 |
+| near with life, dense island (dense-2x400) | phone | 43 | 1 236 416 | – | – |
+| far, settled | desktop | 11 | 188 560 | 213 355 | 190 894 |
+| mid, settled | desktop | 47 | 521 270 | – | – |
+| near with life, settled | desktop | 41 | 262 374 | 188 284 | 261 538 |
+
+Pan (`VIEW=pan`, 10 s real clock, desktop):
+
+| Fixture | Frames | Longest | p95 | > 50 ms | Max queue | Cold first frame / focus tiles | Warm |
+|---|---|---|---|---|---|---|---|
+| dense-2x400 | 601 | 17 ms | 17 ms | 0 | 2 | 190 / 454 ms | 76 / 291 ms |
+| dense-archipelago-8 | 599 | 33 ms | 17 ms | 0 | 8 | 202 / 478 ms | 111 / 338 ms |
+
+(Kit pan per the prototype: dense-2x400 longest 17 ms / queue 2;
+dense-archipelago-8 longest 133 ms with one frame > 50 ms / queue 7.)
+
+D-048 far budget (≤ 40 draws, ≤ 250k tris): met at the cap (14 / 67k
+and 19 / 152k). Draw calls equal the kit renderer's everywhere (the voxel
+path adds no meshes); near/mid on the dense island carry ~+55–60 %
+triangles (1.30M / 1.41M), inside the ≈ 1.6M envelope ART_DIRECTION §8
+records for the iPhone 15 Pro Max — **not verified on the device** (the
+gate stays `make preview HOST=<lan-ip>` with `?stats=1`; there is no
+`?voxel=1` any more). The numbers match the prototype's `?voxel=1` within
+0.5 % (the slab-only meshes are gone; the field alignment fix moves a few
+columns).
+
 ### Visually rough spots for V2
 
 1. **Placeholders (66 IDs):** walls + roof + sign-letter models sized to
