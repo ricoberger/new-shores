@@ -2,7 +2,7 @@ import hashlib
 import json
 import unittest
 
-from helpers import A_KIT_FILE, CONTENT, PALETTE_SHA, ROLES, fake_loader, pinned
+from helpers import A_KIT_FILE, CONTENT, LIVE_CONTENT, PALETTE_SHA, ROLES, fake_loader, pinned
 from nsassets import config, content as content_mod, glb, pipeline, validate
 
 
@@ -154,6 +154,22 @@ class DetailTest(unittest.TestCase):
         self.assertEqual(pipeline.budget_of({"id": "school", "kind": "building"}, planned, None), 72000)
         # Lite models keep their share of the area budget.
         self.assertEqual(pipeline.lite_budget({"id": "fisher", "kind": "building"}, c, budget("fisher")), 9000)
+
+    def test_tier3_planned_footprints_get_area_budgets(self):
+        # D-056 M3 (assets/build/planned/tier3.json): the same constants, no new ones.
+        def budget(cid, kind="building"):
+            return pipeline.budget_of({"id": cid, "kind": kind}, LIVE_CONTENT, None)
+
+        self.assertEqual(budget("house_merchants"), 9 * config.BUDGET_HOUSE_PER_TILE)
+        self.assertEqual(budget("rendering_house"), 9 * config.BUDGET_BUILDING_PER_TILE)
+        self.assertEqual(budget("butcher"), 20 * config.BUDGET_BUILDING_PER_TILE)
+        self.assertEqual(budget("salt_pans"), 45 * config.BUDGET_BUILDING_PER_TILE)
+        self.assertEqual(budget("hop_field", "field"), config.BUDGET_FIELD)
+        self.assertEqual(budget("woad_field", "field"), config.BUDGET_FIELD)
+        # The 6 × 10 church and the 11 × 14 theatre stop at the cap (the theatre may use all of it).
+        self.assertEqual(budget("church"), config.BUDGET_BUILDING_CAP)
+        self.assertEqual(budget("theatre"), config.BUDGET_BUILDING_CAP)
+        self.assertLessEqual(config.MODELS_FOLDER_LIMIT, 24 * 1024 * 1024)
 
     def test_sails_are_lit_from_both_sides(self):
         r = {"id": "sloop", "kind": "ship", "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0},
