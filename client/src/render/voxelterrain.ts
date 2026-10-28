@@ -60,7 +60,7 @@ const PEBBLE = c3(ISLAND.rock_light);
 const PEBBLE_DARK = c3(ISLAND.rock);
 const ROCK_GROUND = Color3.Lerp(c3(ISLAND.rock_light), c3(ISLAND.moss), 0.25);
 /** Earth and rock bands of a grass edge over the sea, top to foot (darker at the base). */
-const EARTH_BANDS = [Color3.Lerp(c3(ISLAND.rock_deep), c3(TERRAIN.grass_a), 0.18), c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
+const EARTH_BANDS = [Color3.Lerp(c3(TERRAIN.road_dirt), c3(ISLAND.rock_deep), 0.3), c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
 /** Sand walls of the beach steps, top to foot. */
 const SAND_BANDS = [SAND.scale(0.9), SAND.scale(0.86), WET.scale(0.95), WET.scale(0.85), Color3.Lerp(WET, c3(ISLAND.cliff_foot), 0.5)];
 
@@ -331,7 +331,11 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
     for (let i = i0; i < i1; i++) {
       const hc = H(i, j);
       if (hc === EMPTY) continue;
-      const up = (di: number, dj: number) => (H(i + di, j + dj) > hc ? 1 : 0);
+      // An occluder one step higher counts half (a road's or a beach step's edge), two or more in full.
+      const up = (di: number, dj: number) => {
+        const d = H(i + di, j + dj) - hc;
+        return d >= 2 ? 1 : d === 1 ? 0.5 : 0;
+      };
       const o: number[] = [];
       // Corners (i, j), (i+1, j), (i+1, j+1), (i, j+1).
       for (const [di, dj] of [
@@ -342,7 +346,7 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
       ] as const) {
         const a = up(di, 0);
         const c = up(0, dj);
-        o.push(a && c ? 3 : a + c + up(di, dj));
+        o.push(a && c ? Math.max(a + c + up(di, dj), 1.5 * Math.max(a, c)) : a + c + up(di, dj));
       }
       const k = (j - j0) * w + (i - i0);
       occl[k] = o;

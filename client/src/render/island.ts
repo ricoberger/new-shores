@@ -37,7 +37,6 @@ import { footprintBox } from "./coords";
 import { buildingAnchor, type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
 import { OutcropLayer } from "./outcrops";
 import { footprintTiles, PlateauLayer } from "./plateaus";
-import { roadMaterial, RoadLayer, type RoadTile } from "./roads";
 import { FootprintShadows } from "./shadows";
 import { groundShade } from "./groundshader";
 import { type Builder, buildTerrain, CoastWater, NO_TERRAIN, TerrainBuild, type TerrainMeshes } from "./terrain";
@@ -57,7 +56,6 @@ interface IslandBuild {
   currentKey: string | null;
   terrain: TerrainBuild | null;
   /** Prepared by the head for the chunk steps. */
-  roads: Map<string, RoadTile[]>;
   fields: Map<string, BuildingDisplay[]>;
   scatter: ScatterInput | null;
   areas: ThinningArea[];
@@ -89,9 +87,6 @@ export class IslandDetail {
   private readonly fields: Chunked<FieldTiles, BuildingDisplay[]>;
   private readonly fieldDecor: Chunked<FieldDecor, BuildingDisplay[]>;
   private readonly decoration: Chunked<Decoration, DecorInput>;
-  private readonly roads: Chunked<RoadLayer, RoadTile[]>;
-  /** The road tiles of the island ("x,y"): road joins across a chunk's edge. */
-  private roadSet = new Set<string>();
   /** The chunk nodes (enabled while the chunk is in view). */
   private readonly chunkNodes = new Map<string, TransformNode>();
   /** The chunks in view (null: all). */
@@ -167,15 +162,6 @@ export class IslandDetail {
       (l, d) => l.update(d.trees, d.ground, d.stumps, (x, y) => this.plateaus.heightAt(x, y)),
       (l) => l.dispose(),
       (d) => `${d.trees.map(placedSig).join(";")}|${d.ground.map((p) => `${p.kind}${placedSig(p)}@${this.plateaus.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}|${d.stumps.map(placedSig).join(";")}`,
-    );
-    const roads = roadMaterial(scene);
-    const has = (x: number, y: number) => this.roadSet.has(`${x},${y}`);
-    this.roads = new Chunked(
-      (k) => new RoadLayer(scene, this.chunkNode(k), roads),
-      (l, tiles) => l.update(tiles, has),
-      (l) => l.dispose(),
-      // A tile's joins depend on its four neighbours (also across the chunk's edge).
-      (tiles) => tiles.map((t) => `${t.x},${t.y},${t.type ?? ""},${[has(t.x, t.y - 1), has(t.x, t.y + 1), has(t.x - 1, t.y), has(t.x + 1, t.y)].map(Number).join("")}`).join(";"),
     );
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near, registry);
@@ -276,7 +262,6 @@ export class IslandDetail {
       head: null,
       chunks: new Map(islandChunks(statics.width, statics.height).map((c) => [c.key, c])),
       terrain: null,
-      roads: new Map(),
       fields: new Map(),
       scatter: null,
       areas: [],
@@ -368,8 +353,8 @@ export class IslandDetail {
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.plateaus.heightAt(x, y));
     yield;
     b.keys = layerKeys(display, defs);
-    this.roadSet = new Set(display.roads.map((t) => `${t.x},${t.y}`));
-    b.roads = byChunk(display.roads, (t) => t);
+    // The roads are voxel paths in the terrain: painted before its chunks are meshed.
+    b.terrain?.setRoads(display.roads);
     b.fields = this.fieldsByChunk(display);
     b.scatter = { width: statics.width, height: statics.height, terrain: statics.terrain, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
     b.areas = thinningAreas(display.buildings, defs);
@@ -378,7 +363,6 @@ export class IslandDetail {
   /** The steps of one chunk of a build: its terrain, its roads and fields, its trees and scatter, its far trees. */
   private *chunkSteps(b: IslandBuild, c: ChunkRect): Generator<void, void, void> {
     b.terrain?.chunk(c);
-    this.roads.updateOne(c.key, b.roads.get(c.key));
     this.fields.updateOne(c.key, b.fields.get(c.key));
     this.fieldDecor.updateOne(c.key, b.fields.get(c.key));
     yield;
@@ -433,8 +417,8 @@ export class IslandDetail {
     this.keys = keys;
     if (old?.roads !== keys.roads) {
       this.rebuilds.roads++;
-      this.roadSet = new Set(display.roads.map((t) => `${t.x},${t.y}`));
-      this.chunkRebuilds.roads = this.roads.update(byChunk(display.roads, (t) => t), old === null);
+      this.chunkRebuilds.roads = this.terrain.setRoads(display.roads);
+      this.applyTerrainDetail();
     }
     if (old?.layout !== keys.layout) {
       this.rebuilds.layout++;

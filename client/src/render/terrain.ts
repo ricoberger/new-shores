@@ -21,13 +21,15 @@ import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import { Constants } from "@babylonjs/core/Engines/constants";
 import type { Island, Terrain } from "../api/client";
-import { type ChunkRect, islandChunks } from "../display/chunks";
+import { chunkAt, type ChunkRect, islandChunks } from "../display/chunks";
 import type { CoastLoop } from "../display/coastline";
 import { fbm, hash2 } from "../display/noise";
 import { TERRAIN, WATER } from "../theme/palette";
 import { addGround } from "./groundshader";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
+import type { RoadTile } from "./roads";
+import { type FieldBase, fieldBase, paintRoads, touchedChunks } from "./roadvoxels";
 import { downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, TERRAIN_VPT, tileRange } from "./voxelterrain";
 
 /** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
@@ -121,11 +123,13 @@ export interface TerrainMeshes {
   field: Field | null;
   /** The far view's columns (FAR_VPT per tile, island-local), merged with the other islands (farmesh.ts). */
   far: Builder | null;
+  /** Paints the island's roads into the terrain; returns the chunks whose meshes were rebuilt. */
+  setRoads(tiles: readonly RoadTile[]): string[];
   dispose(): void;
 }
 
 /** No terrain. */
-export const NO_TERRAIN: TerrainMeshes = { lite: [], full: [], field: null, far: null, dispose: () => undefined };
+export const NO_TERRAIN: TerrainMeshes = { lite: [], full: [], field: null, far: null, setRoads: () => [], dispose: () => undefined };
 
 /**
  * The island's terrain in two details, both built once: `lite` (far LOD,
@@ -165,7 +169,12 @@ function terrainMaterial(scene: Scene, name: string): StandardMaterial {
 export class TerrainBuild {
   private readonly material: StandardMaterial;
   private readonly texture: RawTexture;
-  private readonly meshes: Mesh[] = [];
+  /** The full meshes by chunk key. */
+  private readonly meshes = new Map<string, Mesh>();
+  private readonly rects: Map<string, ChunkRect>;
+  /** The near field without roads (setRoads repaints from it). */
+  private readonly base: FieldBase;
+  private roadKey = "";
   /** The column fields of the full (4 per tile, textured) and lite (2 per tile, downsampled) terrain. */
   private readonly fields: { full: Field; lite: Field };
 
@@ -173,13 +182,15 @@ export class TerrainBuild {
     private readonly scene: Scene,
     private readonly island: Island,
     loops: readonly CoastLoop[],
-    seed: number,
+    private readonly seed: number,
     private readonly parent: (chunk: string) => TransformNode,
     private readonly liteParent: TransformNode | null,
   ) {
     const full: Field = { ...islandField(island, loops, seed, TERRAIN_VPT), textured: true };
     // The lite tops sample the same ground texture (their colours need no vertex colour: they merge into large rectangles).
     this.fields = { full, lite: { ...downsampleField(full, TERRAIN_VPT / LITE_VPT), textured: true } };
+    this.base = fieldBase(full);
+    this.rects = new Map(islandChunks(island.width, island.height).map((c) => [c.key, c]));
     this.texture = new RawTexture(groundTexels(full), full.nx, full.ny, Constants.TEXTUREFORMAT_RGBA, scene, false, false, Texture.NEAREST_SAMPLINGMODE);
     this.texture.name = `ground_${island.id}`;
     this.texture.wrapU = Texture.CLAMP_ADDRESSMODE;
@@ -187,21 +198,45 @@ export class TerrainBuild {
     this.material = addGround(terrainMaterial(scene, "terrain"), { texture: this.texture, width: full.nx, height: full.ny, vpt: TERRAIN_VPT });
   }
 
-  /** The full mesh of a chunk. */
+  /** The full mesh of a chunk (replacing one built before). */
   chunk(c: ChunkRect): void {
+    this.meshes.get(c.key)?.dispose();
+    this.meshes.delete(c.key);
     const b = new Builder();
     meshField(b, this.fields.full, ...tileRange(c.x, c.y, c.width, c.height, TERRAIN_VPT));
     const mesh = b.mesh(`terrain_${this.island.id}_${c.key}`, this.scene, this.material, this.parent(c.key));
     if (!mesh) return;
     mesh.metadata = { chunk: c.key };
     mesh.freezeWorldMatrix();
-    this.meshes.push(mesh);
+    this.meshes.set(c.key, mesh);
+  }
+
+  /**
+   * Paints the roads into the near field (render/roadvoxels.ts) and the
+   * ground texture; rebuilds the meshes of the built chunks whose columns
+   * changed height (or whose neighbours did) and returns their keys.
+   */
+  setRoads(tiles: readonly RoadTile[]): string[] {
+    const key = tiles.map((t) => `${t.x},${t.y},${t.type ?? ""}`).join(";");
+    if (key === this.roadKey) return [];
+    this.roadKey = key;
+    const f = this.fields.full;
+    const changed = paintRoads(f, this.base, tiles, this.seed);
+    this.texture.update(groundTexels(f));
+    const out: string[] = [];
+    for (const k of touchedChunks(changed, f, (x, y) => chunkAt(x, y, this.island.width, this.island.height))) {
+      const c = this.rects.get(k);
+      if (!c || !this.meshes.has(k)) continue;
+      this.chunk(c);
+      out.push(k);
+    }
+    return out.sort();
   }
 
   /** Disposes what was built so far (a replaced build). */
   dispose(): void {
-    for (const m of this.meshes) m.dispose();
-    this.meshes.length = 0;
+    for (const m of this.meshes.values()) m.dispose();
+    this.meshes.clear();
     this.texture.dispose();
     this.material.dispose();
   }
@@ -216,12 +251,15 @@ export class TerrainBuild {
     const farF: Field = { ...downsampleField(this.fields.full, TERRAIN_VPT / FAR_VPT), quant: FAR_QUANT };
     const far = new Builder();
     meshField(far, farF, 0, 0, farF.nx, farF.ny);
-    const full = this.meshes;
+    const meshes = this.meshes;
     return {
       lite: liteMesh ? [liteMesh] : [],
-      full,
+      get full() {
+        return [...meshes.values()];
+      },
       field: this.fields.full,
       far,
+      setRoads: (tiles) => this.setRoads(tiles),
       dispose: () => {
         liteMesh?.dispose();
         this.dispose();

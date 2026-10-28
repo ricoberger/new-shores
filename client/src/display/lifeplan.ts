@@ -23,15 +23,15 @@ import { BERTH_ANCHORS, type ModelAnchor, pierHeading, pierPoint } from "./ships
 export const CART_CAPACITY = 1000;
 export const MAX_CARTS = 3;
 
-/** Road surface height (render/roads.ts ROAD_Y). */
-const ROAD_H = 0.02;
+/** Road surface height: one voxel below the grass (render/roadvoxels.ts ROAD_H, steps of 1/8 tile). */
+const ROAD_H = -0.125;
 /** Wheel pivots of the cart models (assets/voxel/recipes/_life.py wheel anchors, tiles: ahead of the centre, height). */
 export const WHEEL_AHEAD = 0.15;
 export const WHEEL_HEIGHT = 0.0969;
 /** Wheel radius (tiles): the spin per tile travelled. */
 const WHEEL_RADIUS = 0.09;
 /** Walkers keep to the right of the road centre (tiles), carts drive in the middle. */
-const WALKER_SIDE = 0.24;
+const WALKER_SIDE = 0.15;
 /** Stride (tiles per step) and bob height (tiles) of a walker. */
 const STRIDE = 0.22;
 const BOB = 0.018;
@@ -74,7 +74,7 @@ const STROLL_SPEED = 0.45;
 export const MARKET_PAUSE_MS = 8000;
 const STOP_PAUSE_MS = 2000;
 const HOME_PAUSE_MS = 4000;
-const STROLLER_SIDE = 0.2;
+const STROLLER_SIDE = 0.14;
 
 /**
  * Sheep (LIFE_LAYER §5): SHEEP_PER_PASTURE wander inside each pasture: in
