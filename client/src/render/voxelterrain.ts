@@ -26,12 +26,13 @@ export const SEA_BOTTOM = -3;
 /** Darkening per occluded corner of a top face (0..3 corners). */
 const AO = 0.09;
 /** Upward tilt of the side normals (like the slab's UP_TILT). */
-const UP_TILT = 0.55;
+const UP_TILT = 0.9;
 /** Colour quantisation of the column tops (per channel): equal neighbours merge. */
 const QUANT = 48;
 
 const RIM = c3(ISLAND.sand_rim);
 const SAND = c3(TERRAIN.sand);
+const ROCK_GROUND = Color3.Lerp(c3(ISLAND.rock_light), c3(ISLAND.moss), 0.25);
 const BANDS = [c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
 
 /** A height field: column (i, j) covers x0 + i·s … x0 + (i+1)·s (island tiles; tile centres are integers), y likewise. */
@@ -117,7 +118,8 @@ export function islandField(island: Pick<Island, "width" | "height" | "terrain">
         let t = terrain[ty * width + tx] as Terrain | undefined;
         // A land column in a water tile (the smoothed coast bulges out): the coast's sand.
         if (t === "water") t = "coast";
-        top[k] = pack(toSea[k] === 1 ? RIM : color(t, tx, ty));
+        // Mountain ground left around the rounded plateaus: the plateau's warm rock, not the grey mountain role.
+        top[k] = pack(toSea[k] === 1 ? RIM : t === "mountain" && !tile ? ROCK_GROUND.scale(0.96 + 0.08 * ((tx * 7 + ty * 13) % 5) / 4) : color(t, tx, ty));
       } else {
         const d = toLand[k] as number;
         if (d >= 3) continue;
@@ -272,9 +274,9 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
   const emitSide = (dir: 0 | 1 | 2 | 3, a: number, c0: number, c1: number, hc: number, hn: number) => {
     for (let z = hn; z < hc; z++) {
       const col = f.side(z, dir >= 2 ? c0 : a, dir >= 2 ? a : c0);
-      const dark = z === hn ? 0.82 : 1;
-      const cc: [number, number, number] = [col.r * dark, col.g * dark, col.b * dark];
-      const lo: [number, number, number] = cc;
+      const cc: [number, number, number] = [col.r, col.g, col.b];
+      // The lowest layer of a wall a little darker at its foot (baked occlusion of the step below).
+      const lo: [number, number, number] = z === hn ? [col.r * 0.88, col.g * 0.88, col.b * 0.88] : cc;
       const za = z * step;
       const zb = (z + 1) * step;
       let p: [number, number, number][];

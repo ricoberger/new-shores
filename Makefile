@@ -36,7 +36,10 @@
 #                     assets/voxel/recipes (Python 3 stdlib, no Blender; loaded with ?voxel=1;
 #                     .experiment/voxel/NOTES.md); make voxel-test runs its unit tests (part of
 #                     `make check`); make voxel-sheet RECIPE=fisher,house_settlers renders a
-#                     contact sheet to .experiment/voxel/sheets/<ids>.png
+#                     contact sheet to .experiment/voxel/sheets/<ids>.png; make voxel-compare
+#                     shoots settled near/mid/far, citizens near, showcase near, seafaring start
+#                     and dense-archipelago-8 far on desktop + phone with and without ?voxel=1 to
+#                     .experiment/voxel/shots/{current,voxel} and the sheet .experiment/voxel/compare.png
 #   make model-sheet  contact sheets of single recipes in .experiment/sheets (committed models
 #                     untouched; Blender 5.2 + NEW_SHORES_KITS_DIR); without RECIPE it lists
 #                     the recipe IDs: make model-sheet RECIPE=sawmill,sloop
@@ -64,7 +67,7 @@ DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUM
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
 	client-install client-check client-lint client-typecheck client-test client-build dev preview \
 	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet \
-	voxel voxel-test voxel-sheet
+	voxel voxel-test voxel-sheet voxel-compare
 
 check: server-check content-test client-check makefile-test assets-test voxel-test
 
@@ -146,6 +149,18 @@ voxel-test:
 voxel-sheet:
 	@mkdir -p .experiment/voxel/sheets
 	python3 assets/voxel/build.py --only $(RECIPE) --sheet .experiment/voxel/sheets/$(subst $(comma),-,$(RECIPE)).png
+
+VOXEL_SHOTS := settled:near,mid,far citizens:near showcase:near seafaring:start dense-archipelago-8:far
+
+voxel-compare:
+	@rm -rf .experiment/voxel/shots
+	@for v in current voxel; do \
+		for s in $(VOXEL_SHOTS); do \
+			$(MAKE) --no-print-directory shots FIXTURE=$${s%%:*} VIEW=$${s#*:} DEVICE=desktop,phone \
+				OUT=.experiment/voxel/shots/$$v STATS=1 $$( [ $$v = voxel ] && echo VOXEL=1 ) || exit 1; \
+		done; \
+	done
+	python3 assets/voxel/compare.py .experiment/voxel/shots/current .experiment/voxel/shots/voxel .experiment/voxel/compare.png
 
 # Needs TEST_DATABASE_URL/TEST_REDIS_URL or a running Docker (testcontainers);
 # skipped otherwise (failed when CI is set).

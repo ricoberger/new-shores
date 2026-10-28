@@ -1,7 +1,7 @@
 """
 Recipes → model files: loads assets/voxel/recipes/<id>.py (or the
 auto-generated placeholder), builds every variant/level, meshes the full
-grid (8 voxels per tile) and the lite grid (downsampled 2×, 4 per tile),
+grid (8 voxels per tile) and the lite grid (downsampled 4×, 2 per tile),
 checks anchors, footprint and budget, and returns the files and the
 manifest entry in the format of assets/build (client/src/render/models.ts).
 """
@@ -21,6 +21,10 @@ from nsassets import config, content as content_mod, pipeline  # noqa: E402  (ex
 #: budgets (assets/build config); the build fails above it and reports the
 #: models over 1× (a prototype finding, NOTES.md).
 BUDGET_FACTOR = 2.0
+#: Downsampling of the buildings' lite (far) level: 4 → 2 voxels per tile,
+#: the far-budget mitigation (NOTES.md step 5: dense far 442k → 152k tris);
+#: NSVOXEL_LITE=2 builds the first try (4 per tile) for comparison.
+LITE_DOWNSAMPLE = int(os.environ.get("NSVOXEL_LITE", "4"))
 
 #: Default voxel tolerance outside the footprint (overhanging eaves, a crane jib): 0.25 tile.
 FOOTPRINT_SLACK = 2
@@ -157,9 +161,10 @@ def build_id(cid, kind, recipe, content):
         info = export.file_info(fname, data, n, bounds, budget)
         files.append((fname, data, n, v, ctx))
         if kind == "building" and (key is None or key[0] in ("variant", "level")):
-            lite_cells = grid.downsample(v.cells, 2)
+            f = LITE_DOWNSAMPLE
+            lite_cells = grid.downsample(v.cells, f, keep=max(2, f ** 3 // 8))
             lname = fname[: -len(".glb")] + ".lite.glb"
-            ldata, ln, lbounds = export.write_model(cid, lite_cells, ctx.W / 2, ctx.D / 2, scale * 2)
+            ldata, ln, lbounds = export.write_model(cid, lite_cells, ctx.W / f, ctx.D / f, scale * f)
             lbudget = int(budget * config.LITE_FACTOR)
             if ln > lbudget * BUDGET_FACTOR:
                 problems.append(f"{lname}: {ln} triangles over {BUDGET_FACTOR}× the lite budget {lbudget}")
