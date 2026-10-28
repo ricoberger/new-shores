@@ -82,7 +82,7 @@ class CommittedModelsTest(unittest.TestCase):
 
     def test_variants_and_levels(self):
         models = self.manifest["models"]
-        for house in ("house_settlers", "house_citizens"):
+        for house in ("house_settlers", "house_citizens", "house_merchants"):
             self.assertEqual(len(models[house]["variants"]), 3)
             for v in models[house]["variants"]:
                 self.assertLessEqual(v["triangles"], config.BUDGET_HOUSE)
@@ -90,7 +90,7 @@ class CommittedModelsTest(unittest.TestCase):
         self.assertEqual(sorted(models["trading_post"]["levels"]), ["1", "2", "3", "4"])
         self.assertIn("cargo", models["sloop"]["attachments"])
         self.assertLessEqual(models["sloop"]["attachments"]["cargo"]["triangles"], config.BUDGET_ATTACHMENT)
-        for cid in ("pasture", "wheat_field", "orchard_plot", "hemp_field"):
+        for cid in ("pasture", "wheat_field", "orchard_plot", "hemp_field", "hop_field", "woad_field"):
             self.assertEqual(models[cid]["kind"], "field")
             w, h = content.footprint(LIVE_CONTENT, cid)
             limit = pipeline.area_budget(config.BUDGET_FIELD, config.BUDGET_FIELD_PER_TILE, w * h)
