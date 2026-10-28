@@ -282,6 +282,9 @@ type Building struct {
 	// Smoke marks a producer that burns or cooks (display only: its model
 	// has chimney and smoke anchors and the life layer draws smoke).
 	Smoke bool
+	// Boat marks a water-edge producer that works with a boat (the
+	// fisher; display only: the life layer's boat loop).
+	Boat bool
 }
 
 // Shipyard marks a building that orders ships (one at a time) of the listed

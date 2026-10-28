@@ -232,6 +232,9 @@ func checkReferences(c *Catalogue) error {
 		if b.Smoke && (b.Recipe == nil || b.Field != nil) {
 			col.add(FileBuildings, ent, "smoke", "only producers (a recipe, not a field) can smoke")
 		}
+		if b.Boat && (b.Recipe == nil || b.WaterTiles < 1 || b.TradingPost != nil) {
+			col.add(FileBuildings, ent, "boat", "only water-edge producers (a recipe and water_tiles) can have a boat")
+		}
 		if b.RequiresDeposit != "" && b.Recipe == nil {
 			col.add(FileBuildings, ent, "requires_deposit", "only buildings with a recipe can require a deposit")
 		}

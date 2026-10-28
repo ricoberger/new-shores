@@ -261,6 +261,8 @@ type buildingJSON struct {
 	RequiresDeposit string `json:"requires_deposit,omitempty"`
 	// Smoke marks a producer that burns or cooks (display only).
 	Smoke bool `json:"smoke,omitempty"`
+	// Boat marks a water-edge producer with a boat (display only).
+	Boat bool `json:"boat,omitempty"`
 }
 
 type needGoodJSON struct {
@@ -412,7 +414,7 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		ID: b.ID, Name: b.Name, Tier: b.Tier, Category: buildingCategory(b),
 		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterTiles: b.WaterTiles, RequiresRoad: b.RequiresRoad,
 		Cost:         newCostJSON(b.Cost),
-		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit, Smoke: b.Smoke,
+		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit, Smoke: b.Smoke, Boat: b.Boat,
 	}
 	if r := b.Recipe; r != nil {
 		ins := make([]recipeInputJSON, 0, len(r.Inputs))

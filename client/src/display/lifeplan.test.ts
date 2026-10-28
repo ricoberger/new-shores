@@ -269,7 +269,8 @@ describe("chimney smoke", () => {
 describe("harbour life", () => {
   const harbourDefs = new Map<string, ContentBuilding>([
     ...defs,
-    ["fisher", { id: "fisher", width: 2, height: 2, tier: "settlers", category: "production", water_tiles: 1, recipe: {} } as unknown as ContentBuilding],
+    ["fisher", { id: "fisher", width: 2, height: 2, tier: "settlers", category: "production", water_tiles: 1, recipe: {}, boat: true } as unknown as ContentBuilding],
+    ["salt_pans", { id: "salt_pans", width: 2, height: 3, tier: "merchants", category: "production", water_tiles: 1, recipe: {} } as unknown as ContentBuilding],
     ["trading_post", { id: "trading_post", width: 4, height: 4, tier: "settlers", category: "harbour", water_tiles: 2, trading_post: {} } as unknown as ContentBuilding],
   ]);
   const fisher = (status = "ok") => ({ id: 7, type: "fisher", x: 20, y: 0, rotation: 0, paused: false, paused_reason: "", status }) as unknown as BuildingDisplay;
@@ -294,6 +295,12 @@ describe("harbour life", () => {
     expect(at(5000).x).toBeCloseTo(at(5000 + BOAT_LOOP_MS).x);
     expect(at(5000).y).toBeCloseTo(at(5000 + BOAT_LOOP_MS).y);
     expect(run([fisher()], 5000, { moving: false, smoke: true, props: true }).n(CLS.boat)).toBe(0);
+  });
+
+  it("rows a boat only for buildings whose content says boat: salt pans keep their barge moored", () => {
+    const pans = { id: 9, type: "salt_pans", x: 10, y: 0, rotation: 0, paused: false, paused_reason: "", status: "ok" } as unknown as BuildingDisplay;
+    expect(run([pans]).n(CLS.boat)).toBe(0);
+    expect(run([pans, fisher()]).n(CLS.boat)).toBe(1);
   });
 
   it("starts the boat's loop at the model's boat anchor and stacks crates behind the berth anchors (D-054)", () => {

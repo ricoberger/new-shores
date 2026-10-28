@@ -3521,6 +3521,12 @@ components:
           description: |
             The producer burns or cooks (display only): its model has chimney
             and smoke anchors and the life layer draws smoke. Absent is false.
+        boat:
+          type: boolean
+          description: |
+            The water-edge producer works with a boat (the fisher; display
+            only): the life layer rows it out from the model's boat anchor.
+            Absent is false.
         fields:
           type: object
           additionalProperties: false

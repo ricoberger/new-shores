@@ -436,7 +436,7 @@ const FIXTURE_DEFS: FixtureDef[] = [
   ["chapel", "Chapel", "settlers", "public", 2, 2, { service: { radius: 10 } }],
   ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { work_area: { radius: 4, terrain: ["forest"] } }],
   ["sawmill", "Sawmill", "settlers", "production", 2, 2],
-  ["fisher", "Fisher", "settlers", "production", 2, 2, { water_tiles: 1 }],
+  ["fisher", "Fisher", "settlers", "production", 2, 2, { water_tiles: 1, boat: true }],
   ["sheep_farm", "Sheep farm", "settlers", "production", 3, 3, { fields: { type: "pasture", required: 4, max: 4 } }],
   ["pasture", "Pasture", "settlers", "production", 2, 2, { requires_road: false, cost: { gold: 15_000, materials: {} }, field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } }],
   ["weaver_wool", "Wool weaver", "settlers", "production", 2, 2],

@@ -241,7 +241,7 @@ func TestLoadOldCoast(t *testing.T) {
 	if lj.WorkArea == nil || lj.WorkArea.Radius != 4 || lj.WorkArea.RequiredTiles != 24 || !lj.WorkArea.MatchesTerrain("forest") {
 		t.Errorf("lumberjack work area = %+v", lj.WorkArea)
 	}
-	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || f.WaterTiles != 3 || f.Coastal {
+	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || f.WaterTiles != 3 || f.Coastal || !f.Boat || !f.Smoke {
 		t.Error("fisher recipe/water-edge mismatch")
 	}
 	tp := c.BuildingByID["trading_post"]
@@ -518,6 +518,14 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			[]string{`"cost": { "gold": 100, "planks": 6 },`, `"cost": { "gold": 100, "planks": 6 },
     "smoke": true,`},
 			[]string{FileBuildings, `building "chapel"`, "smoke", "only producers"},
+		},
+		{
+			"boat on a land producer", FileBuildings,
+			[]string{`"cost": { "gold": 120, "planks": 9 },
+    "upkeep_per_min": 2,`, `"cost": { "gold": 120, "planks": 9 },
+    "boat": true,
+    "upkeep_per_min": 2,`},
+			[]string{FileBuildings, `building "sawmill"`, "boat", "only water-edge producers"},
 		},
 		{
 			"water rows cover the whole footprint", FileBuildings,

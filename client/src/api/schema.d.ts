@@ -2427,6 +2427,12 @@ export interface components {
              */
             smoke?: boolean;
             /**
+             * @description The water-edge producer works with a boat (the fisher; display
+             *     only): the life layer rows it out from the model's boat anchor.
+             *     Absent is false.
+             */
+            boat?: boolean;
+            /**
              * @description A farm that needs fields (D-049, D-051 part 4): efficiency =
              *     min(1, active fields / required). Fields are placed from the
              *     farm's panel next to the farm or one of its active fields.

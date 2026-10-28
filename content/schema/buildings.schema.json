@@ -45,6 +45,10 @@
       "pause_category": {
         "enum": ["need_goods", "public", "intermediate", "food_basic", "never"]
       },
+      "boat": {
+        "description": "The water-edge producer works with a boat (fisher): the life layer rows it out from the model's boat anchor and back (display only, CONTENT §11). Needs water_tiles. Absent is false.",
+        "type": "boolean"
+      },
       "smoke": {
         "description": "The producer burns or cooks: its model carries chimney and smoke anchors and the life layer draws smoke (producers only, CONTENT §11). Absent is false.",
         "type": "boolean"

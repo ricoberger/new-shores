@@ -170,6 +170,7 @@
     "upkeep_per_min": 2,
     "pause_category": "food_basic",
     "smoke": true,
+    "boat": true,
     "workforce": { "tier": "settlers", "amount": 4 },
     "recipe": {
       "inputs": [],
