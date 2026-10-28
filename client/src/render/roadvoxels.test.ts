@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { chunkAt } from "../display/chunks";
-import { fieldBase, paintRoads, ROAD_H, touchedChunks } from "./roadvoxels";
+import { fieldBase, fieldGround, paintFields, paintRoads, ROAD_H, touchedChunks } from "./roadvoxels";
 import { type Field, TERRAIN_VPT } from "./voxelterrain";
 
 /** A flat grass field of w × h tiles at TERRAIN_VPT columns per tile. */
@@ -69,5 +69,27 @@ describe("voxel roads", () => {
     expect([...touchedChunks(paintRoads(f, base, [{ x: 32, y: 1 }], 1), f, chunk)]).toEqual(["1,0"]);
     // Joined with x 31: the arms reach the shared edge, both chunks rebuild.
     expect([...touchedChunks(paintRoads(f, base, [{ x: 31, y: 1 }, { x: 32, y: 1 }], 1), f, chunk)].sort()).toEqual(["0,0", "1,0"]);
+  });
+});
+
+describe("field ground", () => {
+  it("ploughs crop fields in furrows, keeps roads and repaints from the base", () => {
+    expect(["wheat_field", "pasture", "cattle_pasture", "orchard_plot", "woad_field"].map(fieldGround)).toEqual(["furrows", "pasture", "pasture", "orchard", "furrows"]);
+    const f = flat(3, 3);
+    const base = fieldBase(f);
+    paintRoads(f, base, [{ x: 1, y: 0 }, { x: 1, y: 1 }], 1);
+    const road = f.top.slice();
+    paintFields(f, base, [{ x: 1, y: 1, type: "wheat_field" }], 1);
+    const at = (a: number, b: number) => (TERRAIN_VPT + b) * f.nx + TERRAIN_VPT + a;
+    // Furrows: alternate rows along x differ, columns of one row are close.
+    expect(f.top[at(0, 0)]).not.toBe(base.top[at(0, 0)]);
+    expect((f.top[at(0, 0)]! >> 16) & 255).toBeLessThan((f.top[at(0, 1)]! >> 16) & 255);
+    // The sunk road columns keep their colour.
+    expect(f.h[at(1, 0)]).toBe(ROAD_H);
+    expect(f.top[at(1, 0)]).toBe(road[at(1, 0)]);
+    // Colour only: no height changes; a repaint without the field restores the ground.
+    paintRoads(f, base, [], 1);
+    paintFields(f, base, [], 1);
+    expect(Array.from(f.top)).toEqual(Array.from(base.top));
   });
 });

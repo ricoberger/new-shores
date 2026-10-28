@@ -22,6 +22,7 @@ const PAVED = c3(TERRAIN.road_paved);
 const KERB = c3(TERRAIN.road_border);
 const STONE = c3(ISLAND.rock_light);
 const STONE_DARK = c3(ISLAND.rock);
+const LUSH = c3(TERRAIN.grass_a).scale(0.92);
 
 /** Whether a road tile is the paved (cobbled) road. */
 const paved = (t: RoadTile) => t.type === "road_paved";
@@ -115,6 +116,46 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   const changed: number[] = [];
   for (let k = 0; k < nx * ny; k++) if (f.h[k] !== before[k]) changed.push(k);
   return changed;
+}
+
+/** A field tile and its field type (the ground under it is painted: render/terrain.ts). */
+export interface FieldTile {
+  x: number;
+  y: number;
+  type: string;
+}
+
+/** The ground of a field type: ploughed furrows, pasture grass or orchard grass. */
+export function fieldGround(type: string): "furrows" | "pasture" | "orchard" {
+  return type.includes("pasture") ? "pasture" : type.includes("orchard") ? "orchard" : "furrows";
+}
+
+/**
+ * Paints the ground under the field tiles (colour only, after the roads):
+ * crop fields are ploughed soil in furrows along the tile's x, pastures a
+ * lusher grass, orchards grass mown in rows. Road and lowered columns
+ * keep their colour.
+ */
+export function paintFields(f: Field, base: FieldBase, fields: readonly FieldTile[], seed: number): void {
+  const vpt = TERRAIN_VPT;
+  for (const t of fields) {
+    const g = fieldGround(t.type);
+    for (let b = 0; b < vpt; b++) {
+      for (let a = 0; a < vpt; a++) {
+        const i = t.x * vpt + a;
+        const j = t.y * vpt + b;
+        if (i < 0 || j < 0 || i >= f.nx || j >= f.ny) continue;
+        const k = j * f.nx + i;
+        if ((f.h[k] as number) !== 0 || (base.h[k] as number) !== 0) continue;
+        const r = hash2(i, j, seed + 71);
+        const p = base.top[k] as number;
+        const grass = new Color3(((p >> 16) & 255) / 255, ((p >> 8) & 255) / 255, (p & 255) / 255);
+        if (g === "furrows") f.top[k] = pack(DIRT.scale((b % 2 === 0 ? 0.74 : 0.9) + 0.05 * r));
+        else if (g === "pasture") f.top[k] = pack(Color3.Lerp(grass, LUSH, 0.45).scale(0.96 + 0.08 * r));
+        else f.top[k] = pack(grass.scale(a % 4 === 1 ? 0.9 : 1.02 + 0.03 * r));
+      }
+    }
+  }
 }
 
 /** The chunk keys whose meshes a height change of these columns touches (the columns and their neighbours: sides and corner occlusion). */

@@ -29,7 +29,7 @@ import { addGround } from "./groundshader";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 import type { RoadTile } from "./roads";
-import { type FieldBase, fieldBase, paintRoads, touchedChunks } from "./roadvoxels";
+import { type FieldBase, fieldBase, type FieldTile, paintFields, paintRoads, touchedChunks } from "./roadvoxels";
 import { downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, TERRAIN_VPT, tileRange } from "./voxelterrain";
 
 /** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
@@ -124,7 +124,7 @@ export interface TerrainMeshes {
   /** The far view's columns (FAR_VPT per tile, island-local), merged with the other islands (farmesh.ts). */
   far: Builder | null;
   /** Paints the island's roads into the terrain; returns the chunks whose meshes were rebuilt. */
-  setRoads(tiles: readonly RoadTile[]): string[];
+  setRoads(tiles: readonly RoadTile[], fields?: readonly FieldTile[]): string[];
   dispose(): void;
 }
 
@@ -212,16 +212,17 @@ export class TerrainBuild {
   }
 
   /**
-   * Paints the roads into the near field (render/roadvoxels.ts) and the
-   * ground texture; rebuilds the meshes of the built chunks whose columns
+   * Paints the roads and the ground under the fields into the near field
+   * (render/roadvoxels.ts) and the ground texture; rebuilds the meshes of the built chunks whose columns
    * changed height (or whose neighbours did) and returns their keys.
    */
-  setRoads(tiles: readonly RoadTile[]): string[] {
-    const key = tiles.map((t) => `${t.x},${t.y},${t.type ?? ""}`).join(";");
+  setRoads(tiles: readonly RoadTile[], fields: readonly FieldTile[] = []): string[] {
+    const key = `${tiles.map((t) => `${t.x},${t.y},${t.type ?? ""}`).join(";")}|${fields.map((t) => `${t.x},${t.y},${t.type}`).join(";")}`;
     if (key === this.roadKey) return [];
     this.roadKey = key;
     const f = this.fields.full;
     const changed = paintRoads(f, this.base, tiles, this.seed);
+    paintFields(f, this.base, fields, this.seed);
     this.texture.update(groundTexels(f));
     const out: string[] = [];
     for (const k of touchedChunks(changed, f, (x, y) => chunkAt(x, y, this.island.width, this.island.height))) {
@@ -259,7 +260,7 @@ export class TerrainBuild {
       },
       field: this.fields.full,
       far,
-      setRoads: (tiles) => this.setRoads(tiles),
+      setRoads: (tiles, fields) => this.setRoads(tiles, fields),
       dispose: () => {
         liteMesh?.dispose();
         this.dispose();

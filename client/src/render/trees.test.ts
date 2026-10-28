@@ -33,6 +33,13 @@ describe("ModelMerger", () => {
     expect(n[2]).toBeCloseTo(-1);
     expect(internal.colors[v * 4]).toBeCloseTo(0.25);
   });
+
+  it("keeps the vertex alpha (the canopies' sway mask)", () => {
+    const m = new ModelMerger();
+    m.add({ ...TRI, colors: new Float32Array([0.5, 0.5, 0.5, 1, 0.5, 0.5, 0.5, 0.6, 0.5, 0.5, 0.5, 1]) }, 0, 0, 0, 1, 0);
+    const colors = (m as unknown as { colors: Float32Array }).colors;
+    expect([colors[3], colors[7], colors[11]].map((a) => +(a as number).toFixed(2))).toEqual([1, 0.6, 1]);
+  });
 });
 
 describe("Decoration far-LOD thinning", () => {

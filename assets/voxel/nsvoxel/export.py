@@ -18,6 +18,10 @@ AO_STRENGTH = 0.62
 #: cool sky fill and read as cold grey slabs. Rotation-safe, unlike a baked
 #: sun. Cloth (a sway group) uses the up normal (lit from both sides).
 SIDE_TILT = 0.5
+#: The sway group of leaf canopies (decor trees): ordinary normals, a sway
+#: weight rising from 0 at the canopy's bottom to CANOPY_SWAY at its top.
+CANOPY = "canopy"
+CANOPY_SWAY = 0.45
 
 _ROLES = None
 _SHADOWS = None
@@ -62,7 +66,8 @@ def build_tris(cells, w, d, scale, ao=True, offset=(0.0, 0.0, 0.0)):
     any_sway = False
     for corners, m, levels, axis, sign in mesh.triangles(mesh.greedy(cells, ao=ao)):
         pts = [to_recipe(p, w, d, scale, offset) for p in corners]
-        if len(m) > 2 or axis == 2:
+        canopy = len(m) > 2 and m[2] == CANOPY
+        if (len(m) > 2 and not canopy) or axis == 2:
             normal = (0.0, 0.0, 1.0)
         else:
             k = 1.0 / math.sqrt(1.0 + SIDE_TILT * SIDE_TILT)
@@ -82,7 +87,11 @@ def build_tris(cells, w, d, scale, ao=True, offset=(0.0, 0.0, 0.0)):
             any_sway = True
             lo, hi = groups[m[2]]
             h = hi - lo
-            sway.append(tuple(0.3 + 0.7 * math.sin(math.pi * ((c[2] - lo) / h if h else 0.5)) for c in corners))
+            if canopy:
+                # Leaves: still at the bottom of the canopy, CANOPY_SWAY at its top.
+                sway.append(tuple(CANOPY_SWAY * min(1.0, max(0.0, (c[2] - lo) / h if h else 1.0)) for c in corners))
+            else:
+                sway.append(tuple(0.3 + 0.7 * math.sin(math.pi * ((c[2] - lo) / h if h else 0.5)) for c in corners))
         else:
             sway.append(None)
     return tris, colors, ao_keys, (sway if any_sway else None)
