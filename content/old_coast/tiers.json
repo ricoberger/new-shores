@@ -34,6 +34,7 @@
     "name": "Patricians",
     "residents": { "floor": 12, "max": 40 },
     "tax_per_resident_per_min": 2.7,
+    "house": "house_patricians",
     "unlock": {
       "population": { "merchants": 1200 },
       "buildings": ["church"]

@@ -52,9 +52,9 @@ describe("need display names", () => {
 
   it("uses the category's content icon when the HUD set has it", () => {
     expect(needIcon({ category: "clothing" }, needCategory(content, "clothing").icon)).toBe(ICON_PATHS["need:clothing"]);
-    // Comfort has its own icon since tier 3 (D-056 C3); luxury still falls back.
+    // Comfort has its own icon since tier 3 (D-056 C3), luxury since tier 4 (C4).
     expect(needIcon({ category: "comfort" }, needCategory(content, "comfort").icon)).toBe(ICON_PATHS["need:comfort"]);
-    expect(needIcon({ category: "luxury" }, needCategory(content, "luxury").icon)).toBe(ICON_PATHS["need:_fallback"]);
+    expect(needIcon({ category: "luxury" }, needCategory(content, "luxury").icon)).toBe(ICON_PATHS["need:luxury"]);
     expect(needIcon({ category: "food" }, "need:not_in_the_set")).toBe(ICON_PATHS["need:food"]);
     expect(needIcon({ category: "spices" }, needCategory(content, "spices").icon)).toBe(ICON_PATHS["need:_fallback"]);
   });

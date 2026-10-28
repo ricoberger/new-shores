@@ -3,6 +3,7 @@ package content
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"slices"
@@ -221,5 +222,128 @@ func TestTierFourMatchesPlannedModels(t *testing.T) {
 	}
 	if d, gd := c.BuildingByID["distillery"], c.BuildingByID["grain_distillery"]; d.Width != gd.Width || d.Height != gd.Height {
 		t.Errorf("grain_distillery %dx%d, distillery %dx%d", gd.Width, gd.Height, d.Width, d.Height)
+	}
+}
+
+// TestLoadPatriciansNeeds checks the Patricians house, needs and services
+// ladder (D-056 C4, CONTENT §2): five goods categories at 0.14 each with
+// two alternatives, services 0.3 with university and cathedral, the three
+// lower tiers' categories at the cumulative rates, and the tier's
+// infrastructure (market level 3, trading post level 4, galleon).
+func TestLoadPatriciansNeeds(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []string
+	var weights int64
+	for _, n := range c.NeedsByTier["patricians"] {
+		weights += n.Weight
+		if n.Kind != NeedRequired {
+			t.Errorf("%s kind %s", n.ID, n.Kind)
+		}
+		if !n.IsGoods() {
+			got = append(got, fmt.Sprintf("%s:%s:%s:%d", n.ID, n.Category, needBuildings(n), n.Weight))
+			continue
+		}
+		var goods []string
+		for _, g := range n.Goods {
+			goods = append(goods, fmt.Sprintf("%s=%d", g.Good, g.PerResidentPerMin))
+			if want := map[bool]int64{true: ShareLone, false: ShareAlternative}[len(n.Goods) == 1]; g.Share != want {
+				t.Errorf("%s %s share %d, want %d", n.ID, g.Good, g.Share, want)
+			}
+		}
+		got = append(got, fmt.Sprintf("%s:%s:%s:%d", n.ID, n.Category, strings.Join(goods, "/"), n.Weight))
+	}
+	want := []string{
+		// Own categories: 0.14 each and services 0.3 of the own 0.6.
+		"patricians_food:food:roast_beef=5000/oysters=4000:84000", "patricians_drink:drink:wine=4000/grain_spirit=3000:84000",
+		"patricians_clothing:clothing:fine_garments=3000/lace=3000:84000", "patricians_comfort:comfort:candles=4000/spectacles=2000:84000",
+		"patricians_luxury:luxury:jewellery=1000/instruments=1000:84000",
+		"patricians_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/theatre=600000/university=600000/cathedral=600000:180000",
+		// Lower tiers: 0.4/3 each, split by their own weights (rounding to the last);
+		// rates × (own max / 40) × 0.5^(distance/3), 4 decimals.
+		"patricians_settlers_food:food:fish=1000:95237", "patricians_settlers_clothing:clothing:wool_garments=500:38095",
+		"patricians_citizens_food:food:bread=1900/cheese=1400:44444", "patricians_citizens_drink:drink:cider=1400/mead=1200:44444",
+		"patricians_citizens_clothing:clothing:linen_garments=1200/leather_jerkins=900:44444",
+		"patricians_merchants_food:food:sausages=3000/pies=2500:33333", "patricians_merchants_drink:drink:beer=3000/brandy=2000:33333",
+		"patricians_merchants_clothing:clothing:coats=2000/dyed_garments=2000:33333",
+		"patricians_merchants_comfort:comfort:books=1000/soap=1500:33337",
+	}
+	if !slices.Equal(got, want) || weights != WeightScale {
+		t.Errorf("patricians needs = %v (weights %d), want %v", got, weights, want)
+	}
+
+	// Every carried rate follows the formula of CONTENT §2 from the lower
+	// tier's own rate: rate × (lower max / 40) × 0.5^(distance/3), rounded
+	// to 0.0001 per resident and minute.
+	index := map[string]int{}
+	for i, tr := range c.Tiers {
+		index[tr.ID] = i
+	}
+	carried := 0
+	for _, n := range c.NeedsByTier["patricians"] {
+		if n.FromTier == "" {
+			continue
+		}
+		low := c.TierByID[n.FromTier]
+		factor := float64(low.ResidentsMax) / 40_000 * math.Pow(0.5, float64(index["patricians"]-index[n.FromTier])/3)
+		for _, own := range c.NeedsByTier[n.FromTier] {
+			if own.FromTier != "" || own.Category != n.Category {
+				continue
+			}
+			for i, g := range own.Goods {
+				want := int64(math.Round(float64(g.PerResidentPerMin)*factor/100)) * 100
+				if i >= len(n.Goods) || n.Goods[i].Good != g.Good || n.Goods[i].PerResidentPerMin != want {
+					t.Errorf("%s %s: carried %+v, want %d", n.ID, g.Good, n.Goods, want)
+				}
+				carried++
+			}
+		}
+	}
+	if carried != 16 {
+		t.Errorf("%d carried goods, want 16", carried)
+	}
+
+	hp := c.BuildingByID["house_patricians"]
+	if hp == nil || hp.House == nil || hp.House.Tier != "patricians" || hp.Width != 3 || hp.Height != 3 || hp.PauseCategory != "never" || hp.UpkeepPerMin != 0 ||
+		fmt.Sprint(hp.Cost.Gold, hp.Cost.Materials) != "1000000 [{bricks 3000} {glass 3000} {planks 5000} {stone 3000}]" {
+		t.Errorf("house_patricians = %+v", hp)
+	}
+	if tr := c.TierByID["patricians"]; tr.House != "house_patricians" {
+		t.Errorf("patricians house %q", tr.House)
+	}
+	// The full services ladder (CONTENT §2): radius per public building, by tier.
+	ladder := map[string]string{
+		"market": "settlers:12", "chapel": "settlers:16", "tavern": "citizens:14", "school": "citizens:16",
+		"church": "merchants:20", "theatre": "merchants:24", "university": "patricians:24", "cathedral": "patricians:28",
+	}
+	for id, w := range ladder {
+		b := c.BuildingByID[id]
+		if b == nil || b.Service == nil || fmt.Sprintf("%s:%d", b.Tier, b.Service.RadiusAt(1)) != w || !b.RequiresRoad {
+			t.Errorf("%s service = %+v, want %s", id, b, w)
+		}
+	}
+	for id, w := range map[string]string{
+		"university": "50000000 [{bricks 60000} {planks 45000} {stone 45000}] 45000",
+		"cathedral":  "60000000 [{bricks 60000} {glass 30000} {planks 15000} {stone 60000}] 30000",
+	} {
+		b := c.BuildingByID[id]
+		if b.Upgradable() || b.PauseCategory != "public" || fmt.Sprint(b.Cost.Gold, b.Cost.Materials, b.UpkeepPerMin) != w {
+			t.Errorf("%s = %+v", id, b)
+		}
+	}
+	// The market's level 3 is the Patricians' (radius 20); the trading post's
+	// level 4 holds 1200 with 4 berths (CONTENT §7).
+	if m := c.BuildingByID["market"]; m.LevelCount() != 3 || m.Service.RadiusAt(3) != 20 || m.LevelTier(3) != "patricians" {
+		t.Errorf("market level 3 = %d %s", m.Service.RadiusAt(3), m.LevelTier(3))
+	}
+	if tp := c.BuildingByID["trading_post"]; tp.LevelCount() != 4 || fmt.Sprint(tp.LevelCost(4).Gold, tp.LevelCost(4).Materials) != "1200000 [{planks 40000} {stone 30000} {tools 10000}]" {
+		t.Errorf("trading_post level 4 = %+v", tp.LevelCost(4))
+	}
+	// The galleon is the Patricians' ship, built at the shipyard.
+	if g := c.ShipByID["galleon"]; g == nil || g.Tier != "patricians" || g.Slots != 6 || g.SlotSize != 60_000 || g.LengthMilliTiles != 3200 ||
+		!slices.Contains(c.BuildingByID["shipyard"].Shipyard.Ships, "galleon") {
+		t.Errorf("galleon = %+v", g)
 	}
 }

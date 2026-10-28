@@ -218,5 +218,194 @@
       { "good": "linen_garments", "per_resident_per_min": 0.0024 },
       { "good": "leather_jerkins", "per_resident_per_min": 0.0019 }
     ]
+  },
+  {
+    "id": "patricians_food",
+    "name": "Food",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.14,
+    "category": "food",
+    "goods": [
+      { "good": "roast_beef", "per_resident_per_min": 0.005 },
+      { "good": "oysters", "per_resident_per_min": 0.004 }
+    ]
+  },
+  {
+    "id": "patricians_drink",
+    "name": "Drink",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.14,
+    "category": "drink",
+    "goods": [
+      { "good": "wine", "per_resident_per_min": 0.004 },
+      { "good": "grain_spirit", "per_resident_per_min": 0.003 }
+    ]
+  },
+  {
+    "id": "patricians_clothing",
+    "name": "Clothing",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.14,
+    "category": "clothing",
+    "goods": [
+      { "good": "fine_garments", "per_resident_per_min": 0.003 },
+      { "good": "lace", "per_resident_per_min": 0.003 }
+    ]
+  },
+  {
+    "id": "patricians_comfort",
+    "name": "Comfort",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.14,
+    "category": "comfort",
+    "goods": [
+      { "good": "candles", "per_resident_per_min": 0.004 },
+      { "good": "spectacles", "per_resident_per_min": 0.002 }
+    ]
+  },
+  {
+    "id": "patricians_luxury",
+    "name": "Luxury",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.14,
+    "category": "luxury",
+    "goods": [
+      { "good": "jewellery", "per_resident_per_min": 0.001 },
+      { "good": "instruments", "per_resident_per_min": 0.001 }
+    ]
+  },
+  {
+    "id": "patricians_services",
+    "name": "Services",
+    "tier": "patricians",
+    "kind": "required",
+    "weight": 0.3,
+    "category": "services",
+    "buildings": [
+      { "building": "market" },
+      { "building": "chapel" },
+      { "building": "tavern" },
+      { "building": "school" },
+      { "building": "church" },
+      { "building": "theatre" },
+      { "building": "university" },
+      { "building": "cathedral" }
+    ]
+  },
+  {
+    "id": "patricians_settlers_food",
+    "name": "Food",
+    "tier": "patricians",
+    "from_tier": "settlers",
+    "kind": "required",
+    "weight": 0.5,
+    "category": "food",
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.001 }]
+  },
+  {
+    "id": "patricians_settlers_clothing",
+    "name": "Clothing",
+    "tier": "patricians",
+    "from_tier": "settlers",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "clothing",
+    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.0005 }]
+  },
+  {
+    "id": "patricians_citizens_food",
+    "name": "Food",
+    "tier": "patricians",
+    "from_tier": "citizens",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "food",
+    "goods": [
+      { "good": "bread", "per_resident_per_min": 0.0019 },
+      { "good": "cheese", "per_resident_per_min": 0.0014 }
+    ]
+  },
+  {
+    "id": "patricians_citizens_drink",
+    "name": "Drink",
+    "tier": "patricians",
+    "from_tier": "citizens",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "drink",
+    "goods": [
+      { "good": "cider", "per_resident_per_min": 0.0014 },
+      { "good": "mead", "per_resident_per_min": 0.0012 }
+    ]
+  },
+  {
+    "id": "patricians_citizens_clothing",
+    "name": "Clothing",
+    "tier": "patricians",
+    "from_tier": "citizens",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "clothing",
+    "goods": [
+      { "good": "linen_garments", "per_resident_per_min": 0.0012 },
+      { "good": "leather_jerkins", "per_resident_per_min": 0.0009 }
+    ]
+  },
+  {
+    "id": "patricians_merchants_food",
+    "name": "Food",
+    "tier": "patricians",
+    "from_tier": "merchants",
+    "kind": "required",
+    "weight": 0.17,
+    "category": "food",
+    "goods": [
+      { "good": "sausages", "per_resident_per_min": 0.003 },
+      { "good": "pies", "per_resident_per_min": 0.0025 }
+    ]
+  },
+  {
+    "id": "patricians_merchants_drink",
+    "name": "Drink",
+    "tier": "patricians",
+    "from_tier": "merchants",
+    "kind": "required",
+    "weight": 0.17,
+    "category": "drink",
+    "goods": [
+      { "good": "beer", "per_resident_per_min": 0.003 },
+      { "good": "brandy", "per_resident_per_min": 0.002 }
+    ]
+  },
+  {
+    "id": "patricians_merchants_clothing",
+    "name": "Clothing",
+    "tier": "patricians",
+    "from_tier": "merchants",
+    "kind": "required",
+    "weight": 0.17,
+    "category": "clothing",
+    "goods": [
+      { "good": "coats", "per_resident_per_min": 0.002 },
+      { "good": "dyed_garments", "per_resident_per_min": 0.002 }
+    ]
+  },
+  {
+    "id": "patricians_merchants_comfort",
+    "name": "Comfort",
+    "tier": "patricians",
+    "from_tier": "merchants",
+    "kind": "required",
+    "weight": 0.17,
+    "category": "comfort",
+    "goods": [
+      { "good": "books", "per_resident_per_min": 0.001 },
+      { "good": "soap", "per_resident_per_min": 0.0015 }
+    ]
   }
 ]

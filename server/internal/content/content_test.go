@@ -80,7 +80,7 @@ func TestLoadOldCoast(t *testing.T) {
 		"woad_farm", "woad_field", "dyer_works", "dyer", "paper_mill", "printing_press", "clay_pit", "rendering_house",
 		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine",
 		// Tier 4 (D-056 C4).
-		"cattle_farm", "slaughterhouse", "oyster_beds", "oyster_house", "vineyard", "vine_row", "cooperage", "winepress", "malt_house",
+		"house_patricians", "university", "cathedral", "cattle_farm", "slaughterhouse", "oyster_beds", "oyster_house", "vineyard", "vine_row", "cooperage", "winepress", "malt_house",
 		"grain_distillery", "fashion_house", "thread_spinner", "lace_maker", "candle_foundry", "quartz_quarry", "glass_smelter",
 		"copper_mine", "copper_smelter", "optician", "gold_mine", "gold_smelter", "goldsmith", "luthier")
 	ids = nil
@@ -98,8 +98,11 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 		got := fmt.Sprintf("%d-%d %d %s %s", tr.ResidentsFloor, tr.ResidentsMax, tr.TaxPerResidentPerMin, strings.Join(pop, ","), strings.Join(tr.Unlock.Buildings, ","))
 		wantHouse, wantNeeds := "", 0
-		if id == "merchants" {
+		switch id {
+		case "merchants":
 			wantHouse, wantNeeds = "house_merchants", 10
+		case "patricians":
+			wantHouse, wantNeeds = "house_patricians", 15
 		}
 		if got != want || tr.House != wantHouse || len(c.NeedsByTier[id]) != wantNeeds {
 			t.Errorf("%s = %q (house %q), want %q", id, got, tr.House, want)
@@ -884,7 +887,7 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 			t.Errorf("NeedCategoryByID[%q] = %+v", nc.ID, c.NeedCategoryByID[nc.ID])
 		}
 	}
-	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:_fallback,services=Services/need:services"
+	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:luxury,services=Services/need:services"
 	if got := strings.Join(cats, ","); got != want {
 		t.Errorf("need categories = %s, want %s", got, want)
 	}
@@ -901,6 +904,11 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 		"merchants_food": "Food", "merchants_drink": "Drink", "merchants_clothing": "Clothing", "merchants_comfort": "Comfort",
 		"merchants_services": "Services", "merchants_settlers_food": "Food", "merchants_settlers_clothing": "Clothing",
 		"merchants_citizens_food": "Food", "merchants_citizens_drink": "Drink", "merchants_citizens_clothing": "Clothing",
+		"patricians_food": "Food", "patricians_drink": "Drink", "patricians_clothing": "Clothing", "patricians_comfort": "Comfort",
+		"patricians_luxury": "Luxury", "patricians_services": "Services", "patricians_settlers_food": "Food", "patricians_settlers_clothing": "Clothing",
+		"patricians_citizens_food": "Food", "patricians_citizens_drink": "Drink", "patricians_citizens_clothing": "Clothing",
+		"patricians_merchants_food": "Food", "patricians_merchants_drink": "Drink", "patricians_merchants_clothing": "Clothing",
+		"patricians_merchants_comfort": "Comfort",
 	}
 	if len(names) != len(wantNames) {
 		t.Errorf("need names = %v, want %v", names, wantNames)

@@ -1191,6 +1191,45 @@
     }
   },
   {
+    "id": "house_patricians",
+    "name": "Patrician house",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 1000, "planks": 5, "stone": 3, "bricks": 3, "glass": 3 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "house": { "tier": "patricians" }
+  },
+  {
+    "id": "university",
+    "name": "University",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [12, 12],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 50000, "planks": 45, "stone": 45, "bricks": 60 },
+    "upkeep_per_min": 45,
+    "pause_category": "public",
+    "service": { "radius": 24 }
+  },
+  {
+    "id": "cathedral",
+    "name": "Cathedral",
+    "region": "old_coast",
+    "tier": "patricians",
+    "footprint": [12, 16],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 60000, "planks": 15, "stone": 60, "bricks": 60, "glass": 30 },
+    "upkeep_per_min": 30,
+    "pause_category": "public",
+    "service": { "radius": 28 }
+  },
+  {
     "id": "cattle_farm",
     "name": "Cattle farm",
     "region": "old_coast",
