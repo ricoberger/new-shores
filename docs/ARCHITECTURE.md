@@ -398,20 +398,27 @@ See MONETIZATION.md §4. Adapters implement `Provider interface { Verify(ref)
   fixture (`default`, `town`, `settled`, `seafaring`, `citizens`, `merchants`, `patricians`), clears pending dev events and
   publishes; `make shots` uses it for the server fixtures.
 
-## 5a. Asset pipeline (art task 3)
+## 5a. Asset pipeline (D-057)
 
-See ART_DIRECTION §7 for the rules. Mechanically: `assets/recipes/*.json`
-(data) + `assets/build/` (Python, runs inside Blender 5.2 headless) →
-`client/public/models/*.glb` + `manifest.json` (committed) → the client's
-model registry (`client/src/render/models.ts`, `@babylonjs/loaders` glTF)
-builds merged per-chunk meshes (full and lite tiers, built once, toggled
-by LOD) with variant selection by building ID and falls back to
-procedural placeholders for IDs without a model (none at present; the
-`showcase` fixture asserts it). Kits in use: KayKit Medieval Hexagon,
-KayKit Forest Nature, Quaternius Pirate Kit (D-050). Kits are inputs only
-(`assets/kits/`, git-ignored, sha256-pinned in `MANIFEST.json`). `make
-assets-check` proves reproducibility locally; CI skips it when Blender is
-absent and runs the Python tests instead.
+See ART_DIRECTION for the rules. Mechanically: `assets/voxel/recipes/
+<id>.py` (procedural voxel recipes on the shared parts library in
+`assets/voxel/nsvoxel`, 8 voxels per tile) + `assets/voxel/build.py`
+(Python 3 standard library only — no Blender, no kits, no numpy) →
+greedy-meshed quads with per-vertex colour, baked AO and sun →
+`client/public/models/*.glb` + `manifest.json` + thumbnails (committed)
+→ the client's model registry (`client/src/render/models.ts`,
+`@babylonjs/loaders` glTF) builds merged per-chunk meshes (full and
+lite — the lite is the grid downsampled to 2 voxels per tile — toggled
+by LOD) with variant selection by building ID. A content building
+without a recipe gets an automatic voxel placeholder sized to its
+footprint (walls + roof), so no island mixes styles; footprints come
+from content, or from `assets/voxel/planned/` for buildings content
+does not define yet (content wins). `make assets` builds, `make
+assets-check` rebuilds into a temp dir and compares (deterministic; CI
+runs it — no Blender needed), `make assets-test` runs the Python tests
+(budgets per footprint tile, folder limit 24 MiB, anchors incl. the
+content `smoke`/`boat` flags, determinism), `make model-sheet RECIPE=`
+renders a sheet in about a second.
 
 ## 6. Content pipeline
 

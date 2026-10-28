@@ -84,14 +84,15 @@ Not in scope: weather, day/night (D-048), combat units, horses as traffic.
   fisher boat and gulls, a paused producer (no smoke, no walkers), a
   construction in progress; a 10 s screen recording from the phone.
 
-## 6. Kit inventory used (KayKit Medieval Hexagon SOURCE)
+## 6. Props (D-057)
 
-`units/neutral`: `cart`, `cart_merchant`, `horse_A–G`, `horse_saddle`,
-`unit` (pawn — not used for villagers), `banner`, `boat`, `anchor`;
-`decoration/props`: `haybale`, `trough`, `trough_long`, `wheelbarrow`,
-crates, barrels, sacks, `flag_*`; `buildings/neutral`:
-`building_stage_A/B/C`, `building_scaffolding`, `building_destroyed`.
-No skinned animations in the pack — all motion is procedural.
+Every life prop is a voxel recipe in `assets/voxel/recipes/_life.py`
+(villagers in tier colours, carts with an axle anchor, sheep, cattle,
+pigs, boat, crates, construction stages a/b/c and scaffolding) and
+`_ships.py` (one hull builder: sloop, brig, galleon, cargo). The KayKit
+props named elsewhere in this document are history (PR #38 removed the
+kits); the element table's "model" column reads as "the voxel prop of
+that name". All motion is procedural.
 
 ## 7. As built (PR #21)
 

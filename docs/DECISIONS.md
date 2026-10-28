@@ -1141,3 +1141,17 @@ fresh repository (server, sim, content, API, UI, life logic, chunk
 system and tooling are untouched by the restyle); buying voxel packs
 (code generation is cheaper and consistent); hand-made `.vox` files
 (no artist in the loop; agents iterate faster in code).
+- *As built (PR #38 V1):* one renderer, one pipeline. `assets/voxel`
+  (standard library only, no numpy) builds every model; the Blender
+  build, kit manifest, 124 kit recipes and all kit models are deleted
+  (−17.6 k lines net); 28 prototype recipes + 66 automatic placeholders
+  ship; budgets per footprint tile full / lite: building 500 / 40,
+  house 540 / 45, field 410; ships 2 800 / 6 000 / 7 600; folder 19.1
+  of 24 MiB. Client: voxel terrain/decor/far mesh are the code (the
+  prototype's half-tile terrain offset fixed), `?voxel=1` gone. Far at
+  the cap 66.7 k (8 islands) / 152 k (dense) triangles, pans 17 / 33 ms
+  longest frame, no frame > 50 ms; near/mid dense ≈ 1.3–1.4 M (≈ 1.6×
+  the kit look). Rough spots handed to V2: roads as smooth ribbons,
+  foam on the smooth coastline, per-column ground colour, coarse far
+  coast, generic construction stages, cube smoke puffs, lost cloth
+  sway, single tier-3/4 house variants, 66 placeholders.
