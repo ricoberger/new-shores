@@ -43,30 +43,12 @@ func displayDir(t testing.TB) string {
 	return filepath.Join(repoRoot(t), "server", "testdata", "display")
 }
 
-// runToEnd runs every step of a scenario and returns the final world.
+// runToEnd returns the final world of a scenario (the shared replay; the
+// caller must not modify it).
 func runToEnd(t *testing.T, name string) (*content.Catalogue, *sim.World) {
 	t.Helper()
-	s := loadScenario(t, name)
-	c, err := s.LoadContent(repoRoot(t))
-	if err != nil {
-		t.Fatal(err)
-	}
-	l := sim.NewLedger()
-	w, err := BuildWorld(s, c, l)
-	if err != nil {
-		t.Fatal(err)
-	}
-	r := &runner{s: s, c: c, w: w, l: l, report: &Report{Name: s.Name}}
-	for i, st := range s.Steps {
-		run := r.step
-		if st.ExpectError != "" {
-			run = r.expectError
-		}
-		if err := run(i, st); err != nil {
-			t.Fatalf("%s: step %d: %v", name, i, err)
-		}
-	}
-	return c, w
+	r := replay(t, name)
+	return r.c, r.w
 }
 
 func buildDisplayFixture(t *testing.T, name string) DisplayFixture {
