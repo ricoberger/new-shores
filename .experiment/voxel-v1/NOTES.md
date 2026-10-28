@@ -11,7 +11,7 @@ rebased onto main (C4 #37 included). Supersedes #36.
 | 1 | `assets/voxel` becomes the asset build | done |
 | 2 | Delete the kit assets | done |
 | 3 | Client: one render path | done |
-| 4 | Tests and fixtures | open |
+| 4 | Tests and fixtures | done |
 | 5 | Device numbers | open |
 | 6 | Docs | open |
 
@@ -99,6 +99,42 @@ start at 0 (columns aligned with tiles); the mask test checks the land
 spans tiles 4…12 exactly. Alternative (stricter "prototype quality"):
 keep the offset and list it for V2 — rejected because it is a position
 bug, not a style choice.
+
+## Step 4 — tests
+
+Client (Vitest):
+- `render/models.test.ts`: the manifest is the voxel build's
+  (`voxels_per_tile`, palette hash); the model IDs are exactly the content
+  buildings (all tiers, no roads) and ships; placeholders are listed,
+  sorted and have entries; every building/field model has its anchors
+  (status, door; chimney + smoke exactly on content `smoke` producers;
+  cart on producers and storage; boat exactly on water-row producers;
+  berths, slip, pasture gate and animals); the file/profile/budget checks
+  now cover decor and life GLBs too.
+- `render/life.test.ts`: every modelled life class (carts, axle, villagers
+  with their variants, boat, crate, sheep) and the construction stages
+  (`life_stage` × STAGES, scaffolding) exist in the voxel manifest; the
+  layer test loads the voxel `life_cart`/`life_cart_axle`.
+- `render/sway.test.ts` (step 1): sway on the voxel ships, weaver_wool and
+  trading_post l4; none on placeholders.
+- `display/lifeplan.test.ts` (step 1): cart axles at the voxel wheel anchors.
+
+Pipeline (`make assets-test`, part of `make check`; 38 tests):
+- `test_committed.py`: `--check` rebuild (determinism against the
+  committed bytes), manifest header, one model per content ID,
+  placeholders = IDs without recipe, no orphan recipes, file hashes and
+  export profile, GLB folder size ≤ limit, thumbnails, per-tile budgets
+  per class (full and lite) and flat budgets, footprint fit and ground
+  contact, life anchors incl. smoke/boat flags, variants/levels/ships.
+- `test_pipeline.py`: a model over its full or lite budget fails the
+  build; budgets scale with the area per class; two parallel builds give
+  identical bytes; placeholders for every footprint kind (water rows,
+  smoke, levels + berths, slipway, house, field, pasture, service,
+  warehouse) with anchors and within budget; ships have no placeholder.
+- `test_planned.py`: planned loader validation, planned IDs beneath the
+  content (and their placeholders with anchors), content wins per ID,
+  `NEW_SHORES_CONTENT_DIR` override.
+- `test_voxel.py`: meshing, grid helpers, export, every recipe fits.
 
 ### Visually rough spots for V2
 
