@@ -3,15 +3,16 @@
 // under a node at the island's archipelago position, so local tile (x, y)
 // is world (position.x + x, 0, −(position.y + y)). Built lazily (when the
 // island is first shown) and rebuilt on payload changes while shown. Every
-// LOD draws the same diorama: terrain (ground, slab, plateaus, outcrops),
-// roads, contact shadows, the kit-bashed models of buildings and fields,
-// trees and ground scatter. The level of detail only toggles pre-built
-// geometry: the full models and the full slab profile at near and mid,
-// the lite models and the coarser slab at far; status icons,
-// construction hulls and foam at near only. The island's life plan (carts,
-// walkers, …) is drawn by the renderer's life layer (render/life.ts). Buildings, fields and ships
-// are kit-bashed models where the manifest has them (render/models.ts),
-// placeholders otherwise. The static layers — terrain, trees and scatter,
+// LOD draws the same voxel diorama (D-057): terrain (ground columns, sand
+// shelves, plateaus, outcrops), roads, contact shadows, the voxel models
+// of buildings and fields, trees and ground scatter. The level of detail
+// only toggles pre-built geometry: the full models and the 4-per-tile
+// terrain at near and mid, the lite models and the 2-per-tile terrain at
+// far; status icons, construction hulls and foam at near only. The
+// island's life plan (carts, walkers, …) is drawn by the renderer's life
+// layer (render/life.ts). Buildings, fields and ships are the voxel
+// build's models (render/models.ts; a content ID without a recipe gets
+// the build's placeholder model), procedural placeholders until they load. The static layers — terrain, trees and scatter,
 // roads and fields, and the merged building models — are built per chunk
 // (display/chunks.ts) under a node per chunk: the renderer culls them per
 // chunk (setVisibleChunks) and a payload change rebuilds only the chunks
@@ -47,7 +48,7 @@ interface IslandBuild {
   statics: Island;
   display: IslandDisplay;
   defs: ReadonlyMap<string, ContentBuilding>;
-  /** The island-level steps (terrain slab, buildings, relief, …); done: null. */
+  /** The island-level steps (terrain, buildings, relief, …); done: null. */
   head: Generator<void, void, void> | null;
   /** The chunks still to build. */
   chunks: Map<string, ChunkRect>;
@@ -107,7 +108,7 @@ export class IslandDetail {
   private readonly plateaus: PlateauLayer;
   private foam: FoamLine | null = null;
   private terrain: { lite: Mesh[]; full: Mesh[] } = { lite: [], full: [] };
-  /** Model detail (full at near and mid, lite at far): the terrain's slab profile follows it. */
+  /** Model detail (full at near and mid, lite at far): the terrain's column size follows it. */
   private detail: Detail = "full";
   /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
   private loops: CoastLoop[] = [];
@@ -248,7 +249,7 @@ export class IslandDetail {
   /**
    * Starts the first build of the island in steps (the incremental build,
    * display/buildqueue.ts): what setStatics and update build at once, as
-   * island-level head steps (terrain slab, buildings, icons, contact
+   * island-level head steps (terrain, buildings, icons, contact
    * shadows, plateaus, …) and one step per chunk (its terrain, roads,
    * fields, trees and scatter; the far trees and the lite terrain are
    * merged after the last). Until then hasTiles() is false (the renderer
@@ -342,10 +343,6 @@ export class IslandDetail {
     this.layerDefs = defs;
     this.farTrees.beginChunks();
     b.terrain = new TerrainBuild(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), this.root);
-    yield;
-    b.terrain.slab("full");
-    yield;
-    b.terrain.slab("lite");
     yield;
     this.foam ??= new FoamLine(this.scene, this.near, this.seed);
     this.foam.update(this.loops);
@@ -625,7 +622,7 @@ export class IslandDetail {
     }).length;
   }
 
-  /** The full slab profile with the full models; the coarse one with the lite models (far LOD). */
+  /** The full terrain (4 columns per tile) with the full models; the coarse one (2 per tile) with the lite models (far LOD). */
   private applyTerrainDetail(): void {
     const full = this.detail === "full";
     for (const m of this.terrain.full) m.setEnabled(full);
@@ -661,7 +658,7 @@ export class IslandDetail {
     return this.shown ? this.buildings.bridged() : 0;
   }
 
-  /** Whether a kit-bashed building or field model is drawn (shown). */
+  /** Whether a voxel building or field model is drawn (shown). */
   drawsModels(): boolean {
     return this.shown && this.buildings.modelled().size > 0;
   }

@@ -1,19 +1,11 @@
-// Terrain (ART_DIRECTION §4, restyle diorama), render-only: continuous
-// flat ground with a hidden grid on top of a diorama slab. The land is
-// filled by marching squares over the tile centres (display/coastline.ts)
-// so its outline follows the chamfered coastline; vertex colours at the
-// tile centres give two-tone grass noise with dry patches, the forest
-// floor, rock and sand, blending smoothly between tiles. Along the
-// smoothed coastline the land ends in a slab: a thin sand rim on top, then
-// a layered cliff (an upper band, a ledge, a lower band) down to its
-// AO-darkened foot under the sea surface (SEA_LEVEL, ≈ 0.6 tiles below the
-// ground), flat-shaded with per-face normals so the bands catch the sun;
-// band heights and offsets wander with noise along the coast. Every LOD
-// draws this diorama ground: the full slab profile with the full models
-// (near and mid LOD), the five-ring one with the lite models (far). One mesh per
-// chunk (display/chunks.ts, CHUNK × CHUNK tiles; the slab's segments go to
-// the chunk of their coast point), culled per chunk. The foam line (FoamLine) is a
-// separate animated strip at the cliff foot at near LOD.
+// Terrain (ART_DIRECTION §4; D-057 voxel style), render-only: the island's
+// ground as voxel columns (render/voxelterrain.ts) — 4 per tile with the
+// full models (near and mid LOD), 2 per tile with the lite models (far) —
+// in noise-tinted ground colours per terrain, a sand rim on the outermost
+// land column and two sand shelves stepping down into the sea. One full
+// mesh per chunk (display/chunks.ts, CHUNK × CHUNK tiles), culled per
+// chunk, and one lite mesh per island. The foam line (FoamLine) is a
+// separate animated strip off the coast at near LOD.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
@@ -23,57 +15,18 @@ import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { Island, Terrain } from "../api/client";
-import { chunkAt, type ChunkRect, islandChunks } from "../display/chunks";
+import { type ChunkRect, islandChunks } from "../display/chunks";
 import { type CoastLoop, outwardNormal } from "../display/coastline";
 import { fbm } from "../display/noise";
-import { ISLAND, TERRAIN, WATER } from "../theme/palette";
+import { TERRAIN, WATER } from "../theme/palette";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
-import { VOXEL } from "../display/voxel";
 import { type Field, islandField, meshField, TERRAIN_VPT, tileRange } from "./voxelterrain";
 
-/**
- * The slab at far LOD (with the lite models): the same bands merged to
- * five rings (rim, contour, the upper cliff's top, the ledge, the foot) —
- * about half the triangles of PROFILE, which near and mid LOD draw.
- */
-export const NEAR_PROFILE: readonly ProfileRing[] = [
-  { out: -0.22, y: 0.004, color: c3(ISLAND.sand_rim), jitter: 0 },
-  { out: 0, y: 0.004, color: c3(ISLAND.sand_rim).scale(0.97), jitter: 0 },
-  { out: 0.08, y: -0.09, color: c3(ISLAND.cliff_upper), jitter: 0.015 },
-  { out: 0.21, y: -0.31, color: c3(ISLAND.cliff_ledge), jitter: 0.04 },
-  { out: 0.36, y: -0.7, color: c3(ISLAND.cliff_foot), jitter: 0 },
-];
-
-/** Share of the local radius of curvature a slab ring may reach on the curve's inner side. */
-const CURVE_SHARE = 0.8;
-/** Upward tilt added to the slab's steep face normals (stylised soft lighting of the cliffs). */
-const UP_TILT = 0.55;
-/** Height of the sea surface: the slab's cliffs drop from the ground (0) to below it. */
+/** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
 export const SEA_LEVEL = -0.6;
-/** How far (tiles) the sand rim reaches inland from the coastline. */
-const RIM_INLAND = 0.22;
-/** How far (tiles) the cliff foot reaches out from the coastline (the foam starts there). */
-export const SLAB_REACH = 0.36;
-
-/**
- * The slab profile from the coastline outward: (outward offset, height,
- * colour, noise weight of the height) per ring. The rim and its rounded
- * lip, the upper cliff band, a ledge, the lower band and the foot below
- * the sea. Noise moves the inner rings' heights by up to ±weight.
- */
-const PROFILE: readonly ProfileRing[] = [
-  { out: -RIM_INLAND, y: 0.004, color: c3(ISLAND.sand_rim), jitter: 0 },
-  { out: 0, y: 0.004, color: c3(ISLAND.sand_rim).scale(0.97), jitter: 0 },
-  { out: 0.05, y: -0.045, color: c3(ISLAND.sand_rim).scale(0.88), jitter: 0 },
-  { out: 0.08, y: -0.09, color: c3(ISLAND.cliff_upper), jitter: 0.015 },
-  { out: 0.1, y: -0.25, color: c3(ISLAND.cliff_upper).scale(0.86), jitter: 0.04 },
-  { out: 0.19, y: -0.29, color: c3(ISLAND.cliff_ledge), jitter: 0.04 },
-  { out: 0.23, y: -0.33, color: c3(ISLAND.cliff_ledge).scale(0.9), jitter: 0.04 },
-  { out: 0.25, y: -0.4, color: c3(ISLAND.cliff_lower), jitter: 0.03 },
-  { out: 0.28, y: -0.56, color: c3(ISLAND.cliff_lower).scale(0.78), jitter: 0.02 },
-  { out: SLAB_REACH, y: SEA_LEVEL - 0.1, color: c3(ISLAND.cliff_foot), jitter: 0 },
-];
+/** Columns per tile of the far (lite) terrain. */
+const LITE_VPT = 2;
 
 const SAND = c3(TERRAIN.sand);
 const GRASS_A = c3(TERRAIN.grass_a);
@@ -125,17 +78,6 @@ export function smoothNormals(loop: CoastLoop, w: number): { x: number; y: numbe
   });
 }
 
-/**
- * Stylised: tilts steep normals toward the sky, so cliffs turned away from
- * the sun keep a readable mid-tone instead of the bare ambient fill.
- */
-function tilt(n: [number, number, number]): [number, number, number] {
-  if (n[1] >= 0.6) return n;
-  const ny = n[1] + UP_TILT;
-  const l = Math.hypot(n[0], ny, n[2]) || 1;
-  return [n[0] / l, ny / l, n[2] / l];
-}
-
 /** Mesh data under construction (positions, colours, normals, indices) with shared vertices by key. */
 export class Builder {
   positions: number[] = [];
@@ -161,19 +103,6 @@ export class Builder {
     this.indices.push(a, b, c);
   }
 
-  /** A triangle with its own vertices, colours and normals (normals are tilted toward the sky like flat()). */
-  shaded(p: readonly [number, number, number][], cols: readonly Color3[], normals: readonly [number, number, number][]): void {
-    for (let k = 0; k < 3; k++) {
-      const q = p[k] as [number, number, number];
-      const col = cols[k] as Color3;
-      const n = tilt(normals[k] as [number, number, number]);
-      this.indices.push(this.positions.length / 3);
-      this.positions.push(q[0], q[1], q[2]);
-      this.colors.push(col.r, col.g, col.b, 1);
-      this.normals.push(n[0], n[1], n[2]);
-    }
-  }
-
   mesh(name: string, scene: Scene, material: StandardMaterial, parent: TransformNode | null): Mesh | null {
     if (this.indices.length === 0) return null;
     const mesh = new Mesh(name, scene);
@@ -191,249 +120,23 @@ export class Builder {
   }
 }
 
-/** Ground colour of a tile (centre) and of a coastline crossing. */
-export interface GroundColors {
-  tile(terrain: Terrain | undefined, x: number, y: number): Color3;
-  /** Colour transform of the slab colours. */
-  slab(c: Color3): Color3;
-}
-
 /**
- * Ground fill of the cell between the centres of tiles (i, j) … (i+1,
- * j+1) at height y: the part of the marching-squares cell inside the
- * mask, centres coloured per tile, crossings (edge midpoints) by `edge`.
- */
-export function fillCell(
-  b: Builder,
-  inside: (x: number, y: number) => boolean,
-  tile: (x: number, y: number) => Color3,
-  edgeColor: Color3,
-  i: number,
-  j: number,
-  y = 0,
-): void {
-  const corner = (x: number, yy: number) => b.vertex(x + 0.5, y, -(yy + 0.5), tile(x, yy), `c${x},${yy}`);
-  const edge = (x: number, yy: number) => b.vertex(x, y, -yy, edgeColor, `e${x},${yy}`);
-  const tl = inside(i, j);
-  const tr = inside(i + 1, j);
-  const br = inside(i + 1, j + 1);
-  const bl = inside(i, j + 1);
-  const T = () => edge(i + 1, j + 0.5);
-  const R = () => edge(i + 1.5, j + 1);
-  const B = () => edge(i + 1, j + 1.5);
-  const L = () => edge(i + 0.5, j + 1);
-  // Saddles keep diagonal land apart (as the coastline does).
-  if (tr && bl && !tl && !br) {
-    b.tri(T(), corner(i + 1, j), R());
-    b.tri(B(), corner(i, j + 1), L());
-    return;
-  }
-  if (tl && br && !tr && !bl) {
-    b.tri(L(), corner(i, j), T());
-    b.tri(R(), corner(i + 1, j + 1), B());
-    return;
-  }
-  const poly: number[] = [];
-  if (tl) poly.push(corner(i, j));
-  if (tl !== tr) poly.push(T());
-  if (tr) poly.push(corner(i + 1, j));
-  if (tr !== br) poly.push(R());
-  if (br) poly.push(corner(i + 1, j + 1));
-  if (br !== bl) poly.push(B());
-  if (bl) poly.push(corner(i, j + 1));
-  if (bl !== tl) poly.push(L());
-  for (let k = 1; k + 1 < poly.length; k++) b.tri(poly[0] as number, poly[k] as number, poly[k + 1] as number);
-}
-
-/** The island ground's cell: land is any terrain but water, tiles coloured by `colors`. */
-function groundCell(b: Builder, island: Island, i: number, j: number, colors: GroundColors): void {
-  const { width, height, terrain } = island;
-  const t = (x: number, y: number) => (x >= 0 && y >= 0 && x < width && y < height ? (terrain[y * width + x] as Terrain | undefined) : "water");
-  fillCell(b, (x, y) => t(x, y) !== "water", (x, y) => colors.tile(t(x, y), x, y), colors.slab(c3(ISLAND.sand_rim)), i, j);
-}
-
-/** One ring of a slab profile: outward offset from the contour, height, colour and noise weight of the height. */
-export interface ProfileRing {
-  out: number;
-  y: number;
-  color: Color3;
-  jitter: number;
-}
-
-/**
- * The slab along one smoothed coastline loop: PROFILE rings offset along
- * the outward normal, heights wandering with noise along the loop
- * (deterministic per seed), flat-shaded quads between consecutive points.
- */
-export function slabStrip(target: Builder | ((x: number, y: number) => Builder), loop: CoastLoop, seed: number, tint: (c: Color3) => Color3, profile: readonly ProfileRing[] = PROFILE, topRings = 2): void {
-  const n = loop.length;
-  if (n < 3) return;
-  const rings: { pts: [number, number, number][] }[] = [];
-  // Outward normals averaged over neighbours, so that the rings of tight
-  // concave corners fan instead of folding over each other; the shading
-  // normals averaged wider (±4 points), so a short step of the coast (a
-  // one-tile notch) shades like its neighbours instead of as an isolated
-  // face turned away from the sun.
-  const smooth = smoothNormals(loop, 2);
-  const shadeN = smoothNormals(loop, 4);
-  // Clamp the offsets where the coast curves tighter than they reach: at
-  // an inward corner (curving toward the water) the outward rings would
-  // fold over each other into dark interpenetrating faces, at an outward
-  // corner the inland rim would. Each point's offsets on that side are
-  // limited to a share of the local radius of curvature (smoothed along
-  // the loop so the clamp blends in).
-  const maxOut = Math.max(...profile.map((r) => r.out)) * 1.25;
-  const maxIn = Math.max(0, ...profile.map((r) => -r.out));
-  const pt = (k: number) => loop[((k % n) + n) % n] as CoastLoop[number];
-  const rawOut: number[] = [];
-  const rawIn: number[] = [];
-  for (let k = 0; k < n; k++) {
-    const a0 = pt(k - 2);
-    const a1 = pt(k);
-    const a2 = pt(k + 2);
-    const ax = a1.x - a0.x;
-    const ay = a1.y - a0.y;
-    const bx = a2.x - a1.x;
-    const by = a2.y - a1.y;
-    const la = Math.hypot(ax, ay) || 1;
-    const lb = Math.hypot(bx, by) || 1;
-    const theta = Math.atan2(ax * by - ay * bx, ax * bx + ay * by);
-    const o = smooth[k] as { x: number; y: number };
-    const toward = (bx / lb - ax / la) * o.x + (by / lb - ay / la) * o.y;
-    const radius = (la + lb) / 2 / Math.max(1e-6, Math.abs(theta));
-    const limit = CURVE_SHARE * radius;
-    rawOut.push(toward > 0 && maxOut > limit ? limit / maxOut : 1);
-    rawIn.push(toward < 0 && maxIn > limit ? limit / maxIn : 1);
-  }
-  const window = (arr: number[], k: number) => {
-    let m = 1;
-    for (let d = -3; d <= 3; d++) m = Math.min(m, arr[((k + d) % n + n) % n] as number);
-    return m;
-  };
-  let along = 0;
-  for (let k = 0; k < n; k++) {
-    const p = loop[k] as CoastLoop[number];
-    if (k > 0) {
-      const q = loop[k - 1] as CoastLoop[number];
-      along += Math.hypot(p.x - q.x, p.y - q.y);
-    }
-    const o = smooth[k] as { x: number; y: number };
-    const wobble = fbm(along / 2.5, seed % 97, seed) * 2 - 1;
-    const reach = (1 + 0.25 * (fbm(along / 4 + 17, seed % 53, seed + 3) * 2 - 1)) * window(rawOut, k);
-    const inland = window(rawIn, k);
-    const pts = profile.map((r): [number, number, number] => {
-      const out = r.out > 0 ? r.out * reach : r.out * inland;
-      return [p.x + o.x * out, r.y + r.jitter * wobble, -(p.y + o.y * out)];
-    });
-    rings.push({ pts });
-  }
-  const cols = profile.map((r) => tint(r.color));
-  // Per band, the normal of its slope in the (outward, up) plane: a wall is
-  // horizontal, a ledge points up; around the loop it turns with the
-  // smoothed outward direction (bands keep their flat colours).
-  const band = profile.slice(0, -1).map((r, s) => {
-    const next = profile[s + 1] as ProfileRing;
-    const dout = Math.max(0, next.out - r.out);
-    const dy = r.y - next.y;
-    const l = Math.hypot(dout, dy) || 1;
-    return { h: dy / l, v: dout / l };
-  });
-  const normalAt = (k: number, s: number): [number, number, number] => {
-    if (s < topRings) return [0, 1, 0];
-    const o = shadeN[k % n] as { x: number; y: number };
-    const bn = band[s] as { h: number; v: number };
-    return [o.x * bn.h, bn.v, -o.y * bn.h];
-  };
-  for (let k = 0; k < n; k++) {
-    const k2 = (k + 1) % n;
-    // Each segment goes to the builder of its coast point (a chunk), or the one builder.
-    const lp = loop[k] as CoastLoop[number];
-    const b = typeof target === "function" ? target(lp.x, lp.y) : target;
-    const a = rings[k] as (typeof rings)[number];
-    const c = rings[k2] as (typeof rings)[number];
-    for (let s = 0; s + 1 < profile.length; s++) {
-      const ca = cols[s] as Color3;
-      const cb = cols[s + 1] as Color3;
-      const na = normalAt(k, s);
-      const nc = normalAt(k2, s);
-      b.shaded([a.pts[s] as [number, number, number], c.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number]], [ca, ca, cb], [na, nc, nc]);
-      b.shaded([a.pts[s] as [number, number, number], c.pts[s + 1] as [number, number, number], a.pts[s + 1] as [number, number, number]], [ca, cb, cb], [na, nc, na]);
-    }
-  }
-}
-
-/** Ground colours of the terrain (noise-tinted per terrain), optionally through a colour transform. */
-export function terrainColors(seed: number, tint: (c: Color3) => Color3 = (c) => c): GroundColors {
-  return { tile: (t, x, y) => tint(groundColor(t, x, y, seed)), slab: tint };
-}
-
-/**
- * The island's ground and slab with the given colours and material: one
- * mesh per chunk (display/chunks.ts) when `parent` gives each chunk's
- * node, else one mesh for the whole island under `parent`.
- */
-export function buildIslandMeshes(
-  scene: Scene,
-  island: Island,
-  loops: readonly CoastLoop[],
-  seed: number,
-  colors: GroundColors,
-  material: StandardMaterial,
-  /** The parent node, or the parent of each chunk's mesh by chunk key. */
-  parent: TransformNode | null | ((chunk: string) => TransformNode),
-  name: string,
-  profile: readonly ProfileRing[] = PROFILE,
-): Mesh[] {
-  const meshes: Mesh[] = [];
-  const chunks = new Map<string, Builder>();
-  const chunk = (x: number, y: number) => {
-    const k = typeof parent === "function" ? chunkAt(x, y, island.width, island.height) : "all";
-    let b = chunks.get(k);
-    if (!b) chunks.set(k, (b = new Builder()));
-    return b;
-  };
-  for (let j = -1; j < island.height; j++) {
-    for (let i = -1; i < island.width; i++) groundCell(chunk(i + 1, j + 1), island, i, j, colors);
-  }
-  for (const loop of loops) slabStrip(chunk, loop, seed, colors.slab, profile);
-  for (const [k, b] of chunks) {
-    const mesh = b.mesh(`${name}_${island.id}_${k}`, scene, material, typeof parent === "function" ? parent(k) : parent);
-    if (!mesh) continue;
-    if (typeof parent === "function") mesh.metadata = { chunk: k };
-    mesh.freezeWorldMatrix();
-    meshes.push(mesh);
-  }
-  return meshes;
-}
-
-/**
- * The island's terrain in two details, both built once: `lite` with the
- * five-ring slab profile (far LOD, with the lite models; one mesh for the
- * island under `liteParent`, the far view shows whole islands) and `full`
- * with the full profile (near and mid LOD, with the full models; per
- * chunk under `parent`'s chunk nodes). The ground
- * fill is in both; exactly one set is enabled at a time. Settled or not,
- * an island is drawn in the same colours.
+ * The island's terrain in two details, both built once: `lite` (far LOD,
+ * with the lite models; one mesh for the island under `liteParent`, the
+ * far view shows whole islands) and `full` (near and mid LOD, with the
+ * full models; per chunk under `parent`'s chunk nodes). Exactly one set
+ * is enabled at a time. Settled or not, an island is drawn in the same
+ * colours.
  */
 export function buildTerrain(
   scene: Scene,
   island: Island,
   loops: readonly CoastLoop[],
   seed: number,
-  parent: TransformNode | null | ((chunk: string) => TransformNode) = null,
-  liteParent: TransformNode | null = typeof parent === "function" ? null : parent,
+  parent: (chunk: string) => TransformNode,
+  liteParent: TransformNode | null = null,
 ): { lite: Mesh[]; full: Mesh[] } {
-  if (typeof parent !== "function") {
-    const material = terrainMaterial(scene);
-    const colors = terrainColors(seed);
-    return {
-      lite: buildIslandMeshes(scene, island, loops, seed, colors, material, liteParent, "terrain_lite", NEAR_PROFILE),
-      full: buildIslandMeshes(scene, island, loops, seed, colors, material, parent, "terrain", PROFILE),
-    };
-  }
   const b = new TerrainBuild(scene, island, loops, seed, parent, liteParent);
-  b.slab("full");
-  b.slab("lite");
   for (const c of islandChunks(island.width, island.height)) b.chunk(c);
   return b.finish();
 }
@@ -445,70 +148,38 @@ function terrainMaterial(scene: Scene): StandardMaterial {
   return material;
 }
 
-/** Columns per tile of the voxel prototype's far (lite) terrain. */
-const LITE_VPT = 2;
-
 /**
- * buildTerrain with chunk parents in steps (the incremental island build,
- * render/buildqueue.ts): the slab of each detail (`slab`), then the
- * ground of each chunk with its full-profile mesh (`chunk`, any order),
- * then the island's one lite mesh (`finish`). The result equals
- * buildTerrain's but for the order of vertices.
+ * buildTerrain in steps (the incremental island build,
+ * render/buildqueue.ts): the columns of each chunk in both details with
+ * its full mesh (`chunk`, any order), then the island's one lite mesh
+ * (`finish`). The result equals buildTerrain's but for the order of
+ * vertices.
  */
 export class TerrainBuild {
   private readonly material: StandardMaterial;
-  private readonly colors: GroundColors;
-  private readonly full = new Map<string, Builder>();
   private readonly lite = new Builder();
   private readonly meshes: Mesh[] = [];
-  /** Voxel prototype (?voxel=1): the column fields of the full (4 per tile) and lite (2 per tile) terrain. */
-  private readonly voxel: { full: Field; lite: Field } | null;
+  /** The column fields of the full (4 per tile) and lite (2 per tile) terrain. */
+  private readonly fields: { full: Field; lite: Field };
 
   constructor(
     private readonly scene: Scene,
     private readonly island: Island,
-    private readonly loops: readonly CoastLoop[],
-    private readonly seed: number,
+    loops: readonly CoastLoop[],
+    seed: number,
     private readonly parent: (chunk: string) => TransformNode,
     private readonly liteParent: TransformNode | null,
   ) {
     this.material = terrainMaterial(scene);
-    this.colors = terrainColors(seed);
-    this.voxel = VOXEL ? { full: islandField(island, loops, seed, TERRAIN_VPT), lite: islandField(island, loops, seed, LITE_VPT) } : null;
+    this.fields = { full: islandField(island, loops, seed, TERRAIN_VPT), lite: islandField(island, loops, seed, LITE_VPT) };
   }
 
-  private builder(k: string): Builder {
-    let b = this.full.get(k);
-    if (!b) this.full.set(k, (b = new Builder()));
-    return b;
-  }
-
-  /** The slab of one detail along every coast loop (full: into the chunks' builders). */
-  slab(detail: "full" | "lite"): void {
-    // The voxel terrain's coast is part of its columns (chunk()).
-    if (this.voxel) return;
-    const { width, height } = this.island;
-    for (const loop of this.loops) {
-      if (detail === "full") slabStrip((x, y) => this.builder(chunkAt(x, y, width, height)), loop, this.seed, this.colors.slab, PROFILE);
-      else slabStrip(this.lite, loop, this.seed, this.colors.slab, NEAR_PROFILE);
-    }
-  }
-
-  /** The ground of a chunk (cells whose top-left tile centre is in it) in both details, and its full mesh. */
+  /** The columns of a chunk in both details, and its full mesh. */
   chunk(c: ChunkRect): void {
-    const b = this.builder(c.key);
-    if (this.voxel) {
-      meshField(b, this.voxel.full, ...tileRange(c.x, c.y, c.width, c.height, TERRAIN_VPT));
-      meshField(this.lite, this.voxel.lite, ...tileRange(c.x, c.y, c.width, c.height, LITE_VPT));
-    }
-    for (let j = c.y - 1; !this.voxel && j < c.y + c.height - 1; j++) {
-      for (let i = c.x - 1; i < c.x + c.width - 1; i++) {
-        groundCell(this.lite, this.island, i, j, this.colors);
-        groundCell(b, this.island, i, j, this.colors);
-      }
-    }
+    const b = new Builder();
+    meshField(b, this.fields.full, ...tileRange(c.x, c.y, c.width, c.height, TERRAIN_VPT));
+    meshField(this.lite, this.fields.lite, ...tileRange(c.x, c.y, c.width, c.height, LITE_VPT));
     const mesh = b.mesh(`terrain_${this.island.id}_${c.key}`, this.scene, this.material, this.parent(c.key));
-    this.full.delete(c.key);
     if (!mesh) return;
     mesh.metadata = { chunk: c.key };
     mesh.freezeWorldMatrix();
@@ -529,11 +200,12 @@ export class TerrainBuild {
   }
 }
 
+
 const FOAM_TEX_W = 128;
 const FOAM_TEX_H = 32;
-/** Foam band: from just inside the cliff foot to this far beyond the coastline (tiles), on the sea surface. */
-const FOAM_IN = SLAB_REACH * 0.7;
-const FOAM_OUT = SLAB_REACH + 0.55;
+/** Foam band: from this far off the coastline (tiles, over the sand shelves) to FOAM_OUT, on the sea surface. */
+const FOAM_IN = 0.252;
+const FOAM_OUT = 0.91;
 const FOAM_Y = SEA_LEVEL + 0.015;
 
 /** Foam texture: a broken white band across v, varying along u (wraps in u). */

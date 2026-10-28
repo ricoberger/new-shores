@@ -1,5 +1,4 @@
-// Voxel terrain of the art-style prototype (?voxel=1, display/voxel.ts;
-// .experiment/voxel/NOTES.md), render data only. A height field of
+// Voxel terrain (D-057; ART_DIRECTION §4), render data only. A height field of
 // square columns — 4 per tile at near/mid, fewer for the far meshes —
 // meshed with 2.5D greedy meshing: column tops merge into rectangles of
 // equal colour and corner occlusion, column sides become one quad per
@@ -25,7 +24,7 @@ export const EMPTY = -128;
 export const SEA_BOTTOM = -3;
 /** Darkening per occluded corner of a top face (0..3 corners). */
 const AO = 0.09;
-/** Upward tilt of the side normals (like the slab's UP_TILT). */
+/** Upward tilt of the side normals (stylised soft lighting of the column sides). */
 const UP_TILT = 0.9;
 /** Colour quantisation of the column tops (per channel): equal neighbours merge. */
 const QUANT = 48;
@@ -35,7 +34,7 @@ const SAND = c3(TERRAIN.sand);
 const ROCK_GROUND = Color3.Lerp(c3(ISLAND.rock_light), c3(ISLAND.moss), 0.25);
 const BANDS = [c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
 
-/** A height field: column (i, j) covers x0 + i·s … x0 + (i+1)·s (island tiles; tile centres are integers), y likewise. */
+/** A height field: column (i, j) covers x0 + i·s … x0 + (i+1)·s (island tiles: tile x spans x … x + 1, like the coastline), y likewise. */
 export interface Field {
   nx: number;
   ny: number;
@@ -93,12 +92,19 @@ export function distanceTo(on: Uint8Array, nx: number, ny: number, cap: number):
  * ground colour with a sand rim on the outermost column, then two sand
  * shelves (−1, −2 steps) out into the sea.
  */
-export function islandField(island: Pick<Island, "width" | "height" | "terrain">, loops: readonly CoastLoop[], seed: number, vpt = TERRAIN_VPT, tile?: (t: Terrain | undefined, x: number, y: number) => Color3): Field {
+export function islandField(
+  island: Pick<Island, "width" | "height" | "terrain">,
+  loops: readonly CoastLoop[],
+  seed: number,
+  vpt = TERRAIN_VPT,
+  tile?: (t: Terrain | undefined, x: number, y: number) => Color3,
+): Field {
   const s = 1 / vpt;
   const nx = island.width * vpt;
   const ny = island.height * vpt;
-  const x0 = -0.5;
-  const y0 = -0.5;
+  // Columns aligned with the tiles: column i lies in tile floor(i / vpt).
+  const x0 = 0;
+  const y0 = 0;
   const inside = insideGrid(loops, x0 + s / 2, y0 + s / 2, s, nx, ny);
   const outside = new Uint8Array(nx * ny);
   for (let k = 0; k < nx * ny; k++) outside[k] = inside[k] ? 0 : 1;

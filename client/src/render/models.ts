@@ -1,5 +1,5 @@
 // Model registry (ART_DIRECTION §7): the asset manifest
-// (/models/manifest.json, fetched once) and the kit-bashed GLBs it lists,
+// (/models/manifest.json, fetched once) and the voxel GLBs it lists,
 // loaded lazily the first time a model file is drawn — through the glTF
 // 2.0 loader of @babylonjs/loaders — and kept as plain vertex data
 // (positions, normals, palette vertex colours, indices). The layers build

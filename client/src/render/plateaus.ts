@@ -1,19 +1,18 @@
-// Mountains as rocky plateaus (restyle diorama), visual only: the
-// island's mountain tiles rise in one step (and the tiles deep inside a
-// mountain range in a second one). Each step's outline is the tile
-// contour rounded by Gaussian-like smoothing (corner radius ≥ 0.5 tile),
-// its top a flat surface sampled on a quarter-tile grid inside that
-// rounded outline (warm rock on the first step, a thin moss cap on the
-// top step), its side the slab's layered cliff profile in warm rock
-// bands. KayKit crags and boulders (decor_crag_*, decor_rock_c) cluster
-// along the step edges and on the tops, so the silhouette is jagged. The
-// rules do not change (D-036): roads never go on mountains, and a
-// building that covers mountain tiles (a mine or quarry on its deposit)
-// keeps them at ground level — they are cut out of the plateau, so the
-// building stands in a notch; deposit tiles get their outcrop instead of
-// crags. Rebuilt with the layout (building footprints) and once the
-// decor models have loaded; shown at near and mid LOD under the island
-// root.
+// Mountains as rocky plateaus (D-057 voxel style), visual only: the
+// island's mountain tiles rise in one level (and the tiles deep inside a
+// mountain range in a second one). Each level's outline is the tile
+// contour rounded by Gaussian-like smoothing (corner radius ≥ 0.5 tile);
+// inside it the terrain columns (render/voxelterrain.ts, 4 per tile) step
+// up as terraces — one voxel at the rim, two inside — warm rock on the
+// first level, a moss cap on the second, banded rock sides. Voxel crags
+// and boulders (decor_crag_*, decor_rock_c) cluster along the level
+// edges and on the tops, so the silhouette is jagged. The rules do not
+// change (D-036): roads never go on mountains, and a building that covers
+// mountain tiles (a mine or quarry on its deposit) keeps them at ground
+// level — they are cut out of the plateau, so the building stands in a
+// notch; deposit tiles get their outcrop instead of crags. Rebuilt with
+// the layout (building footprints) and once the decor models have
+// loaded; shown at near and mid LOD under the island root.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -27,20 +26,18 @@ import { ISLAND } from "../theme/palette";
 import { skyFill } from "./lighting";
 import { decorModel, type ModelRegistry } from "./models";
 import { c3 } from "./palette";
-import { Builder, type ProfileRing, slabStrip } from "./terrain";
+import { Builder } from "./terrain";
 import { ModelMerger } from "./trees";
-import { VOXEL } from "../display/voxel";
 import { distanceTo, EMPTY, type Field, meshField, TERRAIN_VPT } from "./voxelterrain";
 
 /**
- * Height (tiles) of one plateau step (voxel prototype: two voxel steps of
- * 0.25, see plateauField; a literal, as voxelterrain.ts imports this module
- * and its constants are not initialised yet here).
+ * Height (tiles) of one plateau level: two voxel steps of 0.25 (see
+ * plateauField; a literal, as voxelterrain.ts imports this module and its
+ * constants are not initialised yet here).
  */
-export const PLATEAU_STEP = VOXEL ? 0.5 : 0.42;
-/** Sample spacing (tiles) of the rounded outline and of the top surface grid. */
+export const PLATEAU_STEP = 0.5;
+/** Sample spacing (tiles) of the rounded outline. */
 const OUTLINE_STEP = 0.2;
-const TOP_GRID = 0.25;
 /** Plateau-top crag rows placed per step of the incremental build. */
 const CRAG_ROWS_PER_STEP = 24;
 /** Smoothing passes of the resampled outline (more: rounder corners). */
@@ -57,21 +54,6 @@ const BOULDER = "decor_rock_c";
 /** Top colour of a plateau level: warm rock on the first step, the moss cap on the top step. */
 function topColor(level: number): Color3 {
   return level >= 2 ? MOSS : Color3.Lerp(ROCK_LIGHT, MOSS, 0.18);
-}
-
-/** Cliff profile of one step from its top (h1) down to the level below (h0): rounded lip, upper band, ledge, lower band, foot. */
-function stepProfile(h0: number, h1: number, top: Color3): ProfileRing[] {
-  const d = h1 - h0;
-  return [
-    { out: -0.18, y: h1, color: top, jitter: 0 },
-    { out: 0, y: h1, color: Color3.Lerp(top, ROCK_LIGHT, 0.6), jitter: 0 },
-    { out: 0.06, y: h1 - 0.14 * d, color: ROCK_LIGHT, jitter: 0 },
-    { out: 0.1, y: h1 - 0.45 * d, color: ROCK, jitter: 0.06 * d },
-    { out: 0.17, y: h1 - 0.52 * d, color: ROCK.scale(1.06), jitter: 0.06 * d },
-    { out: 0.2, y: h1 - 0.62 * d, color: ROCK_DEEP, jitter: 0.04 * d },
-    { out: 0.24, y: h0 + 0.1 * d, color: ROCK_DEEP.scale(0.86), jitter: 0 },
-    { out: 0.3, y: h0 - 0.02, color: ROCK_DEEP.scale(0.7), jitter: 0 },
-  ];
 }
 
 /**
@@ -218,73 +200,7 @@ export function insideGrid(loops: readonly (readonly { x: number; y: number }[])
 }
 
 /**
- * The flat top inside rounded loops: marching squares over a TOP_GRID
- * sample grid at height y; with merge, a row's run of whole cells is one
- * quad (same surface, a fraction of the triangles; false: tests).
- */
-export function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, color: Color3, merge = true): void {
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-  for (const l of loops) {
-    for (const p of l) {
-      minX = Math.min(minX, p.x);
-      minY = Math.min(minY, p.y);
-      maxX = Math.max(maxX, p.x);
-      maxY = Math.max(maxY, p.y);
-    }
-  }
-  if (!Number.isFinite(minX)) return;
-  const g = TOP_GRID;
-  const nx = Math.ceil((maxX - minX) / g) + 2;
-  const ny = Math.ceil((maxY - minY) / g) + 2;
-  const x0 = minX - g;
-  const y0 = minY - g;
-  const inside = insideGrid(loops, x0, y0, g, nx, ny);
-  const at = (i: number, j: number) => i >= 0 && j >= 0 && i < nx && j < ny && inside[j * nx + i] === 1;
-  // Shared vertices by half-step grid position (one top per call and height: no string keys needed).
-  const shared = new Map<number, number>();
-  const v = (px: number, py: number) => {
-    const k = Math.round(py * 2) * (2 * nx + 2) + Math.round(px * 2);
-    let i = shared.get(k);
-    if (i === undefined) shared.set(k, (i = b.vertex(x0 + px * g, y, -(y0 + py * g), color)));
-    return i;
-  };
-  for (let j = 0; j + 1 < ny; j++) {
-    for (let i = 0; i + 1 < nx; i++) {
-      const tl = at(i, j);
-      const tr = at(i + 1, j);
-      const br = at(i + 1, j + 1);
-      const bl = at(i, j + 1);
-      if (!tl && !tr && !br && !bl) continue;
-      if (merge && tl && tr && br && bl) {
-        // A run of whole cells is one quad (the top is flat and one colour).
-        let e = i + 1;
-        while (e + 1 < nx && at(e + 1, j) && at(e + 1, j + 1)) e++;
-        const a = v(i, j);
-        const c = v(e, j + 1);
-        b.tri(a, v(e, j), c);
-        b.tri(a, c, v(i, j + 1));
-        i = e - 1;
-        continue;
-      }
-      const poly: number[] = [];
-      if (tl) poly.push(v(i, j));
-      if (tl !== tr) poly.push(v(i + 0.5, j));
-      if (tr) poly.push(v(i + 1, j));
-      if (tr !== br) poly.push(v(i + 1, j + 0.5));
-      if (br) poly.push(v(i + 1, j + 1));
-      if (br !== bl) poly.push(v(i + 0.5, j + 1));
-      if (bl) poly.push(v(i, j + 1));
-      if (bl !== tl) poly.push(v(i, j + 0.5));
-      for (let k = 1; k + 1 < poly.length; k++) b.tri(poly[0] as number, poly[k] as number, poly[k + 1] as number);
-    }
-  }
-}
-
-/**
- * Voxel prototype: the plateau levels as terraces of terrain columns (4 per
+ * The plateau levels as terraces of terrain columns (4 per
  * tile) inside each level's rounded outline: one voxel step at the rim and
  * two inside (level 1 → 1, 2 steps; level 2 → 3, 4), so every visible step
  * is one voxel; PLATEAU_STEP is the two-step height of a level.
@@ -298,7 +214,7 @@ export function plateauField(width: number, height: number, levelLoops: readonly
   const top = new Uint32Array(nx * ny);
   const packed = (c: Color3) => (Math.round(c.r * 255) << 16) | (Math.round(c.g * 255) << 8) | Math.round(c.b * 255);
   levelLoops.forEach((loops, k) => {
-    const inside = insideGrid(loops, -0.5 + s / 2, -0.5 + s / 2, s, nx, ny);
+    const inside = insideGrid(loops, s / 2, s / 2, s, nx, ny);
     const out = new Uint8Array(nx * ny);
     for (let q = 0; q < nx * ny; q++) out[q] = inside[q] ? 0 : 1;
     const d = distanceTo(out, nx, ny, 2);
@@ -311,7 +227,7 @@ export function plateauField(width: number, height: number, levelLoops: readonly
     }
   });
   const bands = [ROCK_LIGHT, ROCK, ROCK_DEEP, ROCK.scale(1.06)];
-  return { nx, ny, x0: -0.5, y0: -0.5, s, h, top, bottom: 0, side: (z) => bands[((z % 4) + 4) % 4] as Color3 };
+  return { nx, ny, x0: 0, y0: 0, s, h, top, bottom: 0, side: (z) => bands[((z % 4) + 4) % 4] as Color3 };
 }
 
 export class PlateauLayer {
@@ -342,8 +258,8 @@ export class PlateauLayer {
 
   /**
    * update() in steps (the incremental island build): yields after each
-   * level's outline, top and step, its rim crags and every band of
-   * top crags. Nothing is drawn differently
+   * level's outline, its rim crags and every band of top crags; the
+   * terraces are meshed at the end. Nothing is drawn differently
    * until the generator is done.
    */
   *steps(island: Island, seed: number, blocked: ReadonlySet<string>): Generator<void, void, void> {
@@ -363,21 +279,12 @@ export class PlateauLayer {
       const loops = traceLoops(marchingSquares(width, height, mask)).map((l) => roundLoop(l));
       if (loops.length === 0) continue;
       const h1 = level * PLATEAU_STEP;
-      const h0 = (level - 1) * PLATEAU_STEP;
-      const top = topColor(level);
       yield;
-      if (VOXEL) {
-        allLoops.push(loops);
-      } else {
-        fillTop(b, loops, h1, top);
-        yield;
-        const profile = stepProfile(h0, h1, top);
-        for (const loop of loops) slabStrip(b, loop, seed + 31 * level, (c) => c, profile, 2);
-      }
+      allLoops.push(loops);
       yield;
       if (models) yield* this.placeCrags(rocks, loops, level, h1, seed, (x, y) => mask(x, y) && !deposits.has(`${x},${y}`) && levels[y * width + x] === level);
     }
-    if (VOXEL && allLoops.length > 0) {
+    if (allLoops.length > 0) {
       const f = plateauField(width, height, allLoops);
       meshField(b, f, 0, 0, f.nx, f.ny);
     }

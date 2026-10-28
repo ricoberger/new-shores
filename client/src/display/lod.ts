@@ -49,8 +49,8 @@ export function lodFor(half: number, prev: Lod): Lod {
 }
 
 /**
- * Model detail per level (art restyle): the full kit-bashed models at near
- * and mid LOD, the lite ones (≈ 25 % of the triangles, covering the same
+ * Model detail per level (art restyle): the full voxel models at near
+ * and mid LOD, the lite ones (downsampled 4×, covering the same
  * footprint) at far LOD. Both are built once per island and only toggled
  * at the mid/far boundary, so a zoom never rebuilds geometry.
  */

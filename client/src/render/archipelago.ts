@@ -32,7 +32,7 @@ import { ARROW_BRIGHT, ARROW_DIM, HAZE, SELECTION } from "./palette";
 
 /** Top of the islands' ground (every LOD draws the island detail). */
 const GROUND_TOP = 0;
-/** Height of the sea surface (the islands' slabs drop into it). */
+/** Height of the sea surface (the islands' coast columns drop into it). */
 export const SEA_LEVEL = TERRAIN_SEA_LEVEL;
 /** Ships slightly above the water at far LOD (drawn larger); at near/mid on the water. */
 const SHIP_Y_FAR = GROUND_TOP + 0.05;
@@ -106,7 +106,7 @@ function setHazeGeometry(mesh: Mesh, inner: Rect, outer: Rect, y: number): void 
 export class ArchipelagoLayer {
   private readonly sea: Sea;
   private readonly haze: Mesh;
-  /** Ship instances per type, with the cargo attachment where the model has one; model: the kit-bashed model (else the placeholder). */
+  /** Ship instances per type, with the cargo attachment where the model has one; model: the voxel model (else the placeholder). */
   private readonly ships = new Map<string, { inst: ColoredInstances; cargo: ColoredInstances | null; model: boolean }>();
   private readonly arrows: ColoredInstances;
   private readonly routeLines = new Map<string, RouteLine>();
