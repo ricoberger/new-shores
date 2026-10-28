@@ -60,7 +60,8 @@ export function objectiveText(o: ObjectiveDisplay, content: Content): string {
     case "tier_unlocked":
       return `${tier} unlocked`;
     case "ship_count":
-      return `Ships ${objectiveProgress(o)}`;
+      // A ship type (D-056 C4: "Galleon 0/1") or every ship.
+      return o.type ? `${name(content.ships, o.type)} ${objectiveProgress(o)}` : `Ships ${objectiveProgress(o)}`;
     case "satisfaction":
       return `${tier} satisfaction ${objectiveProgress(o)}`;
   }

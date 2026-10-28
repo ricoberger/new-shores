@@ -347,3 +347,48 @@ func TestLoadPatriciansNeeds(t *testing.T) {
 		t.Errorf("galleon = %+v", g)
 	}
 }
+
+// TestPatriciansQuests pins the tier-4 quest chain (D-056 C4): cathedral
+// at the Patricians' unlock, first Patrician house, both food and both
+// drink alternatives, stored glass and a galleon (a per-type ship_count),
+// with modest gold rewards only (D-022).
+func TestPatriciansQuests(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{
+		"patricians_cathedral": "tier_unlocked:patricians:0 connected:cathedral:0",
+		"patricians_house":     "building_count:house_patricians:1",
+		"patricians_food":      "connected:slaughterhouse:0 connected:oyster_house:0",
+		"patricians_drink":     "connected:winepress:0 connected:grain_distillery:0",
+		"patricians_glass":     "stock:glass:30000",
+		"patricians_galleon":   "ship_count:galleon:1",
+	}
+	n := 0
+	for _, q := range c.Quests {
+		if !strings.HasPrefix(q.ID, "patricians_") {
+			continue
+		}
+		n++
+		var objs []string
+		for _, o := range q.Objectives {
+			objs = append(objs, fmt.Sprintf("%s:%s:%d", o.Kind, o.Building+o.Good+o.Tier+o.Ship, o.Min))
+			if o.Kind == ObjectiveShipCount && o.Building != "" {
+				t.Errorf("%s: ship_count with building %q", q.ID, o.Building)
+			}
+		}
+		if got := strings.Join(objs, " "); got != want[q.ID] || len(q.Rewards.Goods) != 0 || q.Rewards.Gold < 100_000 || q.Rewards.Gold > 250_000 {
+			t.Errorf("%s = %s, rewards %+v", q.ID, got, q.Rewards)
+		}
+	}
+	if n != len(want) {
+		t.Errorf("%d patricians quests, want %d", n, len(want))
+	}
+	// The earlier chains keep counting every ship.
+	for _, id := range []string{"citizens_sloop", "merchants_brig"} {
+		if q := c.QuestByID[id]; q == nil || q.Objectives[0].Kind != ObjectiveShipCount || q.Objectives[0].Ship != "" {
+			t.Errorf("%s = %+v", id, q)
+		}
+	}
+}

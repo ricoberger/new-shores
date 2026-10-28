@@ -1301,7 +1301,7 @@ export interface components {
         ObjectiveDisplay: {
             /** @enum {string} */
             kind: "building_count" | "connected" | "population" | "stock" | "route_exists" | "island_settled" | "tier_unlocked" | "ship_count" | "satisfaction";
-            /** @description Content building ID (building_count, connected). */
+            /** @description Content building ID (building_count, connected) or ship type (ship_count; absent = every ship). */
             type?: string;
             /** @description Good ID (stock). */
             good?: string;
@@ -2044,7 +2044,7 @@ export interface components {
         ContentObjective: {
             /** @enum {string} */
             kind: "building_count" | "connected" | "population" | "stock" | "route_exists" | "island_settled" | "tier_unlocked" | "ship_count" | "satisfaction";
-            /** @description Content building ID (building_count, connected). */
+            /** @description Content building ID (building_count, connected) or ship type (ship_count; absent = every ship). */
             type?: string;
             /** @description Good ID (stock). */
             good?: string;

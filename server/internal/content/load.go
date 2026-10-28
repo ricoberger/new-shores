@@ -687,6 +687,9 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			case ObjectiveBuildingCount, ObjectiveShipCount:
 				o.Min = col.whole(FileQuests, ent, field, col.fixed(FileQuests, ent, field, ro.Min, 0))
 			}
+			if ro.Kind == ObjectiveShipCount {
+				o.Ship, o.Building = ro.Type, ""
+			}
 			q.Objectives = append(q.Objectives, o)
 		}
 		if rq.Rewards.Gold != 0 {

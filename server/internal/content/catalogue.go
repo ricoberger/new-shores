@@ -112,6 +112,9 @@ type Objective struct {
 	Kind string
 	// Building is the content building type (building_count, connected).
 	Building string
+	// Ship is the ship type ship_count counts ("" = every ship; content
+	// `type`, D-056 C4).
+	Ship string
 	// Good (stock) and Tier (population, tier_unlocked, satisfaction).
 	Good string
 	Tier string

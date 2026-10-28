@@ -132,8 +132,9 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 
 	// Quests (quests.json): the intro chain, the tier-2 chain (D-056 §10)
-	// and the tier-3 chain (C3), each linear; the tier-2 chain branches off
-	// at intro_settlers_120, the tier-3 chain follows citizens_cheese. Rewards in fixed point; only the shipyard quest
+	// the tier-3 chain (C3) and the tier-4 chain (C4), each linear; the
+	// tier-2 chain branches off at intro_settlers_120, the tier-3 chain
+	// follows citizens_cheese, the tier-4 chain merchants_bricks. Rewards in fixed point; only the shipyard quest
 	// gives sails (for the first built sloop, CONTENT §8).
 	if len(c.Quests) < 10 || c.Quests[0].ID != "intro_home_island" || len(c.Quests[0].Prerequisites) != 0 ||
 		c.Quests[0].Objectives[0] != (Objective{Kind: ObjectiveIslandSettled, Min: 1}) || c.Quests[1].ID != "intro_first_road" {
@@ -149,8 +150,11 @@ func TestLoadOldCoast(t *testing.T) {
 		if !ok && chain == "merchants" {
 			want = "citizens_cheese"
 		}
+		if !ok && chain == "patricians" {
+			want = "merchants_bricks"
+		}
 		prev[chain] = q.ID
-		if (chain != "intro" && chain != "citizens" && chain != "merchants") || len(q.Prerequisites) != 1 || q.Prerequisites[0] != want || c.QuestByID[q.ID] != q || q.Index != i+1 {
+		if (chain != "intro" && chain != "citizens" && chain != "merchants" && chain != "patricians") || len(q.Prerequisites) != 1 || q.Prerequisites[0] != want || c.QuestByID[q.ID] != q || q.Index != i+1 {
 			t.Errorf("quest %s: prerequisites %v (want %s), index %d", q.ID, q.Prerequisites, want, q.Index)
 		}
 		if len(q.Rewards.Goods) > 0 && !strings.Contains(q.Text, "capacity") {
@@ -598,6 +602,11 @@ func TestLoadRejectsInvalidNeedsTiersAndStart(t *testing.T) {
 			"quest unknown good", FileQuests,
 			[]string{`"good": "tools", "min": 10`, `"good": "spades", "min": 10`},
 			[]string{FileQuests, `quest "intro_tools"`, "objectives[1].good", `unknown good "spades"`},
+		},
+		{
+			"quest unknown ship type", FileQuests,
+			[]string{`{ "kind": "ship_count", "type": "galleon", "min": 1 }`, `{ "kind": "ship_count", "type": "frigate", "min": 1 }`},
+			[]string{FileQuests, `quest "patricians_galleon"`, "objectives[0].type", `unknown ship type "frigate"`},
 		},
 		{
 			"quest unknown tier", FileQuests,

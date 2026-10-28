@@ -360,7 +360,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 		}
 		for _, o := range q.Objectives {
 			qj.Objectives = append(qj.Objectives, objectiveJSON{
-				Kind: o.Kind, Type: o.Building, Good: o.Good, Tier: o.Tier, Island: o.Island, Target: sim.ObjectiveTarget(o),
+				Kind: o.Kind, Type: o.Building + o.Ship, Good: o.Good, Tier: o.Tier, Island: o.Island, Target: sim.ObjectiveTarget(o),
 			})
 		}
 		for _, g := range q.Rewards.Goods {

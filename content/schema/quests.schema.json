@@ -142,6 +142,7 @@
           "required": ["kind", "min"],
           "properties": {
             "kind": { "const": "ship_count" },
+            "type": { "$ref": "#/$defs/id", "description": "Ship type to count (D-056 C4); absent: every ship." },
             "min": { "$ref": "#/$defs/count" }
           }
         },

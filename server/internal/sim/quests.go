@@ -153,7 +153,16 @@ func (e *questEnv) objectiveValue(o content.Objective) (current, target int64) {
 		}
 		return 0, 1
 	case content.ObjectiveShipCount:
-		return int64(len(w.Ships)), o.Min
+		if o.Ship == "" {
+			return int64(len(w.Ships)), o.Min
+		}
+		var n int64
+		for _, s := range w.Ships {
+			if s.Type == o.Ship {
+				n++
+			}
+		}
+		return n, o.Min
 	case content.ObjectiveSatisfaction:
 		// Resident-weighted mean satisfaction of all houses of the tier;
 		// without a house of the tier the objective does not hold (-1).

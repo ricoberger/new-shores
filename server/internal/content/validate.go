@@ -294,7 +294,11 @@ func checkReferences(c *Catalogue) error {
 				good(FileQuests, ent, field+".good", o.Good)
 			case ObjectivePopulation, ObjectiveTierUnlocked, ObjectiveSatisfaction:
 				tier(FileQuests, ent, field+".tier", o.Tier)
-			case ObjectiveRouteExists, ObjectiveIslandSettled, ObjectiveShipCount:
+			case ObjectiveShipCount:
+				if o.Ship != "" && c.ShipByID[o.Ship] == nil {
+					col.add(FileQuests, ent, field+".type", "unknown ship type %q", o.Ship)
+				}
+			case ObjectiveRouteExists, ObjectiveIslandSettled:
 			default:
 				col.add(FileQuests, ent, field+".kind", "unknown kind %q", o.Kind)
 			}

@@ -28,7 +28,10 @@ const content = {
     { id: "lumberjack", name: "Lumberjack" },
     { id: "sawmill", name: "Sawmill" },
   ],
-  ships: [{ id: "sloop", name: "Sloop" }],
+  ships: [
+    { id: "sloop", name: "Sloop" },
+    { id: "galleon", name: "Galleon" },
+  ],
   needs: [],
   quests: [
     { id: "intro_home_island", title: "Choose your home island", text: "", objectives: [], rewards: { gold: 25_000, goods: {} }, prerequisites: [] },
@@ -72,6 +75,9 @@ describe("quests", () => {
     expect(objectiveProgress({ kind: "satisfaction", tier: "settlers", current: 500, target: 800, met: false })).toBe("50/80 %");
     expect(objectiveProgress({ kind: "satisfaction", tier: "citizens", current: -1, target: 800, met: false })).toBe("–/80 %");
     expect(objectiveText({ kind: "route_exists", current: 1, target: 1, met: true }, content)).toBe("A route with a ship");
+    // ship_count counts every ship, or the ships of its type (D-056 C4).
+    expect(objectiveText({ kind: "ship_count", current: 2, target: 3, met: false }, content)).toBe("Ships 2/3");
+    expect(objectiveText({ kind: "ship_count", type: "galleon", current: 0, target: 1, met: false }, content)).toBe("Galleon 0/1");
   });
 
   it("describes rewards and whether a claim needs an island", () => {
