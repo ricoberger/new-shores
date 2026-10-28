@@ -205,6 +205,8 @@ BUDGET_FIELD = 300
 #: (36 000); the cap is 2 × that strip's (72 000, i.e. 48 tiles' worth),
 #: so the 6 × 9 Trading Post (81 000) and the 8 × 12 shipyard (144 000)
 #: stop there. A budget_exception doubles the area budget, within the cap.
+#: The tier-3 landmarks (D-056: 6 × 10 church, 11 × 14 theatre) stop at the
+#: cap too; the theatre may use all of it.
 BUDGET_REFERENCE_AREA = 4
 BUDGET_BUILDING_PER_TILE = BUDGET_BUILDING // BUDGET_REFERENCE_AREA
 BUDGET_HOUSE_PER_TILE = BUDGET_HOUSE // BUDGET_REFERENCE_AREA
