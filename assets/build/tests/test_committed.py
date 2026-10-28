@@ -185,3 +185,24 @@ class CommittedFootprintTest(unittest.TestCase):
                     continue
                 self.assertLessEqual(abs(v[0]), w / 2, f"{cid} {k}")
                 self.assertLessEqual(abs(v[2]), h / 2, f"{cid} {k}")
+
+    def test_tier3_anchors(self):
+        """D-056 M3: every tier-3 model has door and status; chimney and smoke exactly on the planned burners; a cart on every producer."""
+        models = self.manifest["models"]
+        buildings = LIVE_CONTENT["buildings"]
+        tier3 = [cid for cid in content.planned_ids(LIVE_CONTENT)
+                 if buildings.get(cid, {}).get("tier") == "merchants" and "field" not in buildings[cid]]
+        self.assertEqual(len(tier3), 23)
+        smokers = sorted(cid for cid in tier3 if content.needs_smoke(LIVE_CONTENT, cid))
+        self.assertEqual(smokers, sorted([
+            "brewery", "distillery", "dyer_works", "dyer", "rendering_house", "soap_maker",
+            "salt_works", "brickworks", "paper_mill", "butcher", "pastry_kitchen",
+        ]))
+        for cid in tier3:
+            anchors = models[cid]["anchors"]
+            self.assertIn("door", anchors, cid)
+            self.assertIn("status", anchors, cid)
+            smoke = cid in smokers
+            self.assertEqual("chimney" in anchors, smoke, cid)
+            self.assertEqual("smoke" in anchors, smoke, cid)
+            self.assertEqual("cart" in anchors, content.is_producer(LIVE_CONTENT, cid), cid)
