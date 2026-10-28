@@ -13,8 +13,6 @@ Hidden volumes are filled solid (walls, attics) so that only the outer
 shell is meshed and the jitter never pays for faces nobody sees.
 """
 
-import math
-
 from . import parts as _p
 from .grid import hash3, mat, shade_of
 from .mats import (
@@ -241,6 +239,22 @@ def half_timber(v, x0, y0, x1, y1, z0, z1, infill, frame=TIMBER, spacing=4, brac
                         f.put(a, z, PEG)
 
 
+def boarded(v, x0, y0, x1, y1, z0, z1, m=TIMBER_LIGHT, batten=TIMBER, every=3, core=True):
+    """Barn walls of vertical boards in two shades with a darker batten every `every` voxels, a corner post and a sill; core solid."""
+    if core:
+        fill(v, x0, y0, x1, y1, z0, z1, m)
+    else:
+        v.walls(x0, y0, x1, y1, z0, z1, m)
+    for side, f in _p.faces_of(v, x0, y0, x1, y1).items():
+        a0, a1 = _p.span(side, x0, y0, x1, y1)
+        for a in range(a0, a1):
+            c = batten if a in (a0, a1 - 1) or (a - a0) % every == 0 else shade_of(m, 1.0 if a % 2 == 0 else 0.9)
+            for z in range(z0, z1):
+                f.put(a, z, c)
+        for a in range(a0, a1):
+            f.put(a, z0, batten)
+
+
 def jetty_course(v, x0, y0, x1, y1, z, m=TIMBER_DARK, end=TIMBER_LIGHT):
     """The jetty of an upper storey: a ring of joist ends (pale end grain every other voxel) one voxel out."""
     for x in range(x0 - 1, x1 + 1):
@@ -249,6 +263,30 @@ def jetty_course(v, x0, y0, x1, y1, z, m=TIMBER_DARK, end=TIMBER_LIGHT):
     for y in range(y0 - 1, y1 + 1):
         for x in (x0 - 1, x1):
             v.set(x, y, z, end if y % 2 == 0 else m)
+
+
+def log_walls(v, x0, y0, x1, y1, z0, z1, m=TIMBER, end=PLANK, core=True):
+    """
+    Log-cabin walls: one log per course in alternating shades, every log
+    round-ended (a darker underside voxel line every other course), the
+    logs of alternate courses running one voxel past the corners with pale
+    end grain (notched corners). The core is filled solid.
+    """
+    if core:
+        fill(v, x0, y0, x1, y1, z0, z1, m)
+    else:
+        v.walls(x0, y0, x1, y1, z0, z1, m)
+    for z in range(z0, z1):
+        c = shade_of(m, 1.0 if z % 2 == 0 else 1.18)
+        v.walls(x0, y0, x1, y1, z, z + 1, c)
+        if z % 2 == 0:
+            for x in (x0 - 1, x1):
+                v.set(x, y0, z, end)
+                v.set(x, y1 - 1, z, end)
+        else:
+            for y in (y0 - 1, y1):
+                v.set(x0, y, z, end)
+                v.set(x1 - 1, y, z, end)
 
 
 # ---------------------------------------------------------------- openings
@@ -530,8 +568,8 @@ def _shed_z(x0, x1, y0, y1, z, down, ov, x, y):
 def chimney_stack(v, x, y, z0, z1, m=STONE, brick=False, pots=1, cap=STONE_DARK, anchor=False):
     """
     A 2 × 2 chimney stack z0..z1 in courses (stone in two shades, or brick
-    with staggered joints), a corbelled cap course one voxel wider, and one
-    or two terracotta pots on top. anchor=True also sets the chimney and
+    with staggered joints), a corbelled cap course one voxel wider, and
+    none, one or two terracotta pots on top. anchor=True also sets the chimney and
     smoke anchors (producers with content `smoke`). Returns the smoke point.
     """
     for zz in range(z0, z1):
@@ -545,9 +583,12 @@ def chimney_stack(v, x, y, z0, z1, m=STONE, brick=False, pots=1, cap=STONE_DARK,
     v.box(x - 1, y - 1, z1, x + 3, y + 3, z1 + 1, cap)
     v.box(x, y, z1 + 1, x + 2, y + 2, z1 + 2, shade_of(cap, 0.92))
     pot = mat("terracotta", 0.95)
-    v.set(x, y + 1, z1 + 2, pot)
-    v.set(x, y + 1, z1 + 3, shade_of(pot, 0.85))
     sx, sy, sz = x + 0.5, y + 1.5, z1 + 4.0
+    if pots == 0:
+        sx, sy, sz = x + 1.0, y + 1.0, z1 + 2.0
+    else:
+        v.set(x, y + 1, z1 + 2, pot)
+        v.set(x, y + 1, z1 + 3, shade_of(pot, 0.85))
     if pots >= 2:
         v.set(x + 1, y, z1 + 2, pot)
         sx, sy = x + 1.0, y + 1.0
@@ -646,19 +687,19 @@ def fence_line_v2(v, x0, y0, x1, y1, z=1, kind="rail", every=4, seed=0, **kw):
 # ---------------------------------------------------------------- crops and plants
 
 
-def soil_rows(v, x0, y0, x1, y1, along="y", pitch=2, z=0, soil=DIRT):
-    """Ploughed soil: ridges and darker furrows every `pitch` voxels across the rows."""
+def soil_rows(v, x0, y0, x1, y1, along="y", pitch=2, z=0, soil=DIRT, furrow=1):
+    """Ploughed soil: ridges and darker furrows (the last `furrow` voxels of every `pitch`) across the rows."""
     for x in range(x0, x1):
         for y in range(y0, y1):
             i = (x - x0) if along == "y" else (y - y0)
-            v.set(x, y, z, shade_of(soil, 0.78 if i % pitch == pitch - 1 else 0.92))
+            v.set(x, y, z, shade_of(soil, 0.78 if i % pitch >= pitch - furrow else 0.92))
 
 
 def plant(v, x, y, z, kind, seed=0):
     """One plant on the ground cell (x, y) standing from z: wheat, hemp, flax, meadow, cabbage, grass."""
     h = hash3(x, y, 61, seed)
     if kind == "wheat":
-        n = 3 + (1 if h < 0.55 else 0)
+        n = 2 + (1 if h < 0.6 else 0)
         for k in range(n - 1):
             v.set(x, y, z + k, WHEAT if k else shade_of(WHEAT, 0.86))
         v.set(x, y, z + n - 1, WHEAT_MARK if h < 0.8 else shade_of(WHEAT, 1.08))
@@ -678,17 +719,18 @@ def plant(v, x, y, z, kind, seed=0):
             v.set(x, y, z + 1, shade_of(GRASS_B, 1.14))
 
 
-def crop_rows(v, x0, y0, x1, y1, kind="wheat", along="y", pitch=2, z=0, seed=0, gap=0.0):
+def crop_rows(v, x0, y0, x1, y1, kind="wheat", along="y", pitch=2, z=0, seed=0, gap=0.0, furrow=1):
     """
-    A crop bed: ploughed soil rows (`pitch` voxels apart, the last voxel a
-    furrow) with a plant of `kind` on every ridge cell (a hashed share
-    `gap` left bare) — crops read as rows of plants (D-057 §3).
+    A crop bed: ploughed soil rows (`pitch` voxels apart, the last
+    `furrow` voxels a furrow) with a plant of `kind` on every ridge cell
+    (a hashed share `gap` left bare) — crops read as rows of plants
+    (D-057 §3).
     """
-    soil_rows(v, x0, y0, x1, y1, along, pitch, z)
+    soil_rows(v, x0, y0, x1, y1, along, pitch, z, furrow=furrow)
     for x in range(x0, x1):
         for y in range(y0, y1):
             i = (x - x0) if along == "y" else (y - y0)
-            if i % pitch == pitch - 1:
+            if i % pitch >= pitch - furrow:
                 continue
             if gap and hash3(x, y, 62, seed) < gap:
                 continue
@@ -928,6 +970,64 @@ def flower_bed(v, x0, y0, x1, y1, z=1, seed=0):
                 v.set(x, y, z, shade_of(GRASS_A, 1.0 if h < 0.4 else 1.12))
                 if h < 0.25:
                     v.set(x, y, z + 1, FLOWER if h < 0.12 else mat("terracotta", 1.25))
+
+
+def stump(v, x, y, z=1, h=1, seed=0):
+    """A tree stump: bark round a pale cut top (2 × 2), sometimes with a root."""
+    v.box(x, y, z, x + 2, y + 2, z + h, TIMBER)
+    v.box(x, y, z + h - 1, x + 2, y + 2, z + h, PLANK)
+    if hash3(x, y, 71, seed) < 0.5:
+        v.set(x + 2, y, z - 1 if z > 1 else z, TIMBER_DARK)
+
+
+def haystack(v, cx, cy, r=2.5, h=5, m=WHEAT, seed=0):
+    """A rounded haystack with a ragged surface and a dark cap."""
+    for x in range(int(cx - r - 1), int(cx + r + 2)):
+        for y in range(int(cy - r - 1), int(cy + r + 2)):
+            for z in range(1, h + 1):
+                t = (z - 1) / h
+                rr = r * (1 - t * t * 0.85)
+                d = (x + 0.5 - cx) ** 2 + (y + 0.5 - cy) ** 2
+                hh = hash3(x, y, z, seed + 81)
+                if d <= rr * rr + 0.4 - hh * 0.9:
+                    v.set(x, y, z, shade_of(m, 0.9 + 0.12 * t + (0.05 if hh < 0.3 else 0)))
+    v.set(int(cx), int(cy), h + 1, shade_of(THATCH_DARK, 0.9))
+
+
+def sheaf(v, x, y, z=1, m=WHEAT):
+    """A sheaf standing in the stubble: 3 high, a darker tie."""
+    v.set(x, y, z, m)
+    v.set(x, y, z + 1, shade_of(m, 0.8))
+    v.set(x, y, z + 2, shade_of(m, 1.1))
+
+
+def sawhorse(v, x, y, z=1, along="x", log=True):
+    """A sawhorse (two crossed-leg trestles) with a log on it."""
+    for k in (0, 3):
+        if along == "x":
+            v.set(x + k, y, z, TIMBER)
+            v.set(x + k, y + 2, z, TIMBER)
+            v.set(x + k, y + 1, z + 1, TIMBER)
+        else:
+            v.set(x, y + k, z, TIMBER)
+            v.set(x + 2, y + k, z, TIMBER)
+            v.set(x + 1, y + k, z + 1, TIMBER)
+    if log:
+        if along == "x":
+            v.box(x - 1, y + 1, z + 2, x + 5, y + 2, z + 3, TIMBER_LIGHT)
+            v.set(x - 1, y + 1, z + 2, PLANK)
+        else:
+            v.box(x + 1, y - 1, z + 2, x + 2, y + 5, z + 3, TIMBER_LIGHT)
+            v.set(x + 1, y - 1, z + 2, PLANK)
+
+
+def stone_blocks(v, x, y, z=1, n=3, m=STONE, seed=0):
+    """Cut stone blocks (3 × 2 × 2) stacked in a little pile, in pale fresh shades."""
+    spots = ((0, 0, 0), (3, 0, 0), (0, 2, 0), (1, 1, 2), (3, 2, 0))
+    for i in range(min(n, len(spots))):
+        dx, dy, dz = spots[i]
+        c = shade_of(m, 1.1 if hash3(x + i, y, 51, seed) < 0.5 else 1.0)
+        v.box(x + dx, y + dy, z + dz, x + dx + 3, y + dy + 2, z + dz + 2, c)
 
 
 def cloth(m, sway="cloth"):

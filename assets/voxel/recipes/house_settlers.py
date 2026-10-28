@@ -9,7 +9,7 @@ gable to the front with a woodshed, L-plan with a kitchen garden).
 
 from nsvoxel import parts as P
 from nsvoxel.grid import mat
-from nsvoxel.mats import PLANK, PLASTER, PLASTER_WARM, STONE_DARK, TIMBER, TIMBER_LIGHT
+from nsvoxel.mats import PLASTER, PLASTER_WARM, STONE_DARK, TIMBER_LIGHT
 
 VARIANTS = 3
 

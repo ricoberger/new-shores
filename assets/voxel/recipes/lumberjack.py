@@ -1,35 +1,45 @@
-"""Lumberjack (3 × 3): log cabin with a stone chimney, log piles, chopping block with an axe, a young conifer."""
+"""
+Lumberjack (3 × 3; D-057 §3): a log cabin with notched corners on a stone
+plinth, thatch with a ridge roll, a stone chimney (smoke) with a pot;
+the yard says what it does — log stacks with pale ends, a woodpile of
+split billets, a chopping block with the axe in it, a sawhorse with a
+log, stumps of felled trees, a young conifer and a hand cart.
+"""
 
 from nsvoxel import parts as P
-from nsvoxel.mats import IRON, PLANK, THATCH, THATCH_DARK, TIMBER, TIMBER_LIGHT
+from nsvoxel.mats import PLANK, STONE_DARK, THATCH, TIMBER, TIMBER_LIGHT
 
 
 def build(ctx):
     v = ctx.vox()
-    P.yard(v, 0, 0, 24, 24, "dirt", seed=3)
-    P.yard(v, 0, 0, 24, 5, "grass", seed=3)
-    # Log cabin: alternating courses of logs with pale crossed ends at the corners.
-    x0, y0, x1, y1 = 3, 5, 16, 15
-    for z in range(1, 8):
-        m = TIMBER if z % 2 else TIMBER_LIGHT
-        v.walls(x0, y0, x1, y1, z, z + 1, m)
-        for cx, cy in ((x0 - 1, y0), (x1, y0), (x0 - 1, y1 - 1), (x1, y1 - 1)):
-            if z % 2:
-                v.set(cx, cy, z, PLANK)
-    v.box(x0, y0, 7, x1, y1, 8, TIMBER)
-    top = v.gable(x0, x1, y0, y1, 8, THATCH, TIMBER, along="x", rise=1.5, ov=1, ridge=THATCH_DARK, seed=3)
+    seed = 3
+    P.yard(v, 0, 0, 24, 24, "dirt", seed=seed)
+    P.yard(v, 0, 0, 24, 4, "grass", seed=seed)
+    P.yard(v, 0, 0, 3, 24, "grass", seed=seed)
+    # Log cabin.
+    x0, y0, x1, y1 = 4, 5, 16, 14
+    P.plinth(v, x0, y0, x1, y1, 1, STONE_DARK, out=1)
+    P.fill(v, x0, y0, x1, y1, 1, 2, STONE_DARK)
+    P.log_walls(v, x0, y0, x1, y1, 2, 9)
+    r = P.roof(v, x0, x1, y0, y1, 9, "thatch", along="x", gable=TIMBER, seed=seed, m=THATCH)
     f = P.Face(v, "y+", y1 - 1)
-    P.door(f, 8, 1, 3, 5)
-    P.window(f, 4, 3, 2, 2, frame=PLANK)
-    P.window(f, 12, 3, 2, 2, frame=PLANK)
-    P.smoke(v, 4, 9, 1, top + 1)
-    P.logs(v, 17, 6, 1, n=3, length=6, along="y")
-    P.logs(v, 3, 17, 1, n=3, length=7, along="x")
-    # Chopping block with an axe, split wood.
-    v.box(14, 18, 1, 16, 20, 3, TIMBER_LIGHT)
-    v.set(15, 18, 3, IRON)
-    v.set(15, 19, 3, TIMBER)
-    P.planks(v, 17, 16, 1, w=4, d=2, h=2, along="y")
-    P.tree(v, 20, 3, 1, "conifer")
+    P.entrance(f, 9, 2, 3, 5, leaf=TIMBER_LIGHT, frame=TIMBER)
+    P.casement(f, 5, 5, 2, 2, frame=PLANK, sill=PLANK, bars=False)
+    P.casement(f, 13, 5, 2, 2, frame=PLANK, sill=PLANK, bars=False)
+    P.casement(P.Face(v, "x+", x1 - 1), 8, 5, 2, 2, frame=PLANK, sill=PLANK, bars=False)
+    P.roof_chimney(v, r, x0 + 1, 10, above=3, anchor=True)
+    # Yard: log stacks, woodpile, chopping block, sawhorse.
+    P.log_stack(v, 18, 4, 1, length=9, along="y", n=3)
+    P.log_stack(v, 4, 17, 1, length=8, along="x", n=2)
+    P.woodpile(v, 17, 15, 1, length=5, along="y", rows=3)
+    P.chopping_block(v, 13, 18)
+    P.sawhorse(v, 13, 21, 1, along="x")
+    P.handcart(v, 19, 18, 1, along="y", load=TIMBER_LIGHT)
+    # Felled trees: stumps in the grass, a young conifer.
+    P.stump(v, 1, 1, seed=seed)
+    P.stump(v, 8, 1, seed=seed + 1)
+    P.stump(v, 0, 19, seed=seed + 2)
+    P.tree(v, 21, 1, 1, "conifer")
     v.anchor("cart", 20, 22, 1)
-    return v
+    P.scatter(v, 0, 0, 24, 24, 0.03, seed=seed)
+    return P.colour_jitter(v, seed=seed)
