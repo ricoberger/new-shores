@@ -115,7 +115,7 @@ def _r(v):
 def write_model(name, cells, w, d, scale, ao=True, offset=(0.0, 0.0, 0.0)):
     """(GLB bytes, triangle count, glTF bounds) of a grid."""
     tris, colors, ao_keys, sway = build_tris(cells, w, d, scale, ao, offset)
-    data = glb.write(name, tris, colors, ao_keys, sway)
+    data = glb.write(name, tris, colors, ao_keys, sway, unit=scale)
     return data, len(tris), bounds_gltf(tris)
 
 

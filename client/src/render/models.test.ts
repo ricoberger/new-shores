@@ -84,7 +84,7 @@ describe("committed models are consistent with the manifest", () => {
     }
   });
 
-  it("every GLB meets the export profile (one mesh and primitive, POSITION/NORMAL/COLOR_0, no textures, animations or extensions)", () => {
+  it("every GLB meets the export profile (one mesh and primitive, POSITION/NORMAL/COLOR_0, no textures or animations, exactly KHR_mesh_quantization required)", () => {
     for (const [, f] of all) {
       const doc = glbJson(readFileSync(join(MODELS, f.path)));
       expect(doc.meshes.length, f.path).toBe(1);
@@ -94,8 +94,15 @@ describe("committed models are consistent with the manifest", () => {
       expect(prim.mode ?? 4).toBe(4);
       expect([5123, 5125]).toContain(doc.accessors[prim.indices]!.componentType);
       expect(doc.materials.length).toBe(1);
-      for (const k of ["textures", "images", "samplers", "animations", "skins", "extensionsUsed", "extensionsRequired"]) expect(doc[k], `${f.path} ${k}`).toBeUndefined();
-      for (const n of doc.nodes) expect(n.matrix ?? n.translation ?? n.rotation ?? n.scale, f.path).toBeUndefined();
+      for (const k of ["textures", "images", "samplers", "animations", "skins"]) expect(doc[k], `${f.path} ${k}`).toBeUndefined();
+      expect(doc["extensionsUsed"], f.path).toEqual(["KHR_mesh_quantization"]);
+      expect(doc["extensionsRequired"], f.path).toEqual(["KHR_mesh_quantization"]);
+      // int16 POSITION, int8 NORMAL, uint8 COLOR_0 (all normalized but the position, whose unit is the node's uniform scale).
+      expect(["POSITION", "NORMAL", "COLOR_0"].map((k) => doc.accessors[prim.attributes[k]!]!.componentType), f.path).toEqual([5122, 5120, 5121]);
+      for (const n of doc.nodes) {
+        expect(n.matrix ?? n.translation ?? n.rotation, f.path).toBeUndefined();
+        expect(n.scale?.[0], f.path).toBeGreaterThan(0);
+      }
     }
   });
 
@@ -152,7 +159,7 @@ interface GlbDoc {
   meshes: { primitives: { attributes: Record<string, number>; indices: number; mode?: number }[] }[];
   accessors: { count: number; componentType: number }[];
   materials: unknown[];
-  nodes: Record<string, unknown>[];
+  nodes: { matrix?: unknown; translation?: unknown; rotation?: unknown; scale?: number[] }[];
   [k: string]: unknown;
 }
 
@@ -179,6 +186,18 @@ describe("loading through the registry", () => {
       if (Math.min(...k) > 0.6 && Math.max(...k) <= 1.001 && Math.max(...k) - Math.min(...k) < 0.08) found = true;
     }
     expect(found).toBe(true);
+    // The quantised positions come back in tiles: the data's bounds are the manifest's (glTF space: z flips with the handedness root, x and y as written).
+    for (const id of ["house_settlers", "sailmaker", "brig"]) {
+      const e = manifest.models[id] as ModelEntry;
+      const file = (e.file ?? e.variants?.[0]) as ModelFile;
+      const d = await parseGlb(new Uint8Array(readFileSync(join(MODELS, file.path))), scene);
+      for (let a = 0; a < 3; a++) {
+        const vals = Array.from({ length: d.positions.length / 3 }, (_, i) => d.positions[i * 3 + a] as number);
+        expect(Math.min(...vals), `${id} min ${a}`).toBeCloseTo(file.bounds.min[a] as number, 3);
+        expect(Math.max(...vals), `${id} max ${a}`).toBeCloseTo(file.bounds.max[a] as number, 3);
+      }
+      for (let i = 0; i < d.normals.length; i += 3) expect(Math.hypot(d.normals[i] as number, d.normals[i + 1] as number, d.normals[i + 2] as number)).toBeCloseTo(1, 1);
+    }
     // The loader's PBR material and nodes stay out of the scene (the layers use their own material).
     expect(scene.materials.filter((m) => m.getClassName() === "PBRMaterial")).toHaveLength(0);
     expect(scene.meshes).toHaveLength(0);

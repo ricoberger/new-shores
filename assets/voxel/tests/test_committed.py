@@ -88,8 +88,23 @@ class CommittedTest(unittest.TestCase):
                     prim = doc["meshes"][0]["primitives"]
                     self.assertEqual(len(prim), 1, info["path"])
                     self.assertEqual(sorted(prim[0]["attributes"]), ["COLOR_0", "NORMAL", "POSITION"], info["path"])
-                    for k in ("textures", "images", "animations", "extensionsUsed"):
+                    for k in ("textures", "images", "animations"):
                         self.assertNotIn(k, doc, info["path"])
+                    # The export profile is exactly KHR_mesh_quantization (D-057 V3c), required, and the attribute formats it allows us.
+                    self.assertEqual(doc["extensionsUsed"], [glb.EXTENSION], info["path"])
+                    self.assertEqual(doc["extensionsRequired"], [glb.EXTENSION], info["path"])
+                    attrs = prim[0]["attributes"]
+                    kinds = {k: (doc["accessors"][attrs[k]]["componentType"], doc["accessors"][attrs[k]].get("normalized", False)) for k in attrs}
+                    self.assertEqual(kinds, {"POSITION": (glb.SHORT, False), "NORMAL": (glb.BYTE, True), "COLOR_0": (glb.UNSIGNED_BYTE, True)}, info["path"])
+                    for k in attrs:
+                        self.assertEqual(doc["bufferViews"][doc["accessors"][attrs[k]]["bufferView"]]["byteStride"] % 4, 0, info["path"])
+                    self.assertEqual(len(doc["nodes"]), 1, info["path"])
+                    self.assertGreater(glb.node_scale(doc), 0, info["path"])
+                    # The quantised positions reproduce the manifest bounds exactly (voxel coordinates stay exact).
+                    pos = doc["accessors"][attrs["POSITION"]]
+                    u = glb.node_scale(doc)
+                    self.assertEqual([round(c * u, 4) for c in pos["min"]], info["bounds"]["min"], info["path"])
+                    self.assertEqual([round(c * u, 4) for c in pos["max"]], info["bounds"]["max"], info["path"])
                     self.assertEqual(doc["accessors"][prim[0]["indices"]]["count"] // 3, info["triangles"], info["path"])
         on_disk = {f for f in os.listdir(config.MODELS_DIR) if f.endswith(".glb")}
         self.assertEqual(on_disk, listed)

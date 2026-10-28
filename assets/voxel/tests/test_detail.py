@@ -109,16 +109,17 @@ class TierDetailTest(unittest.TestCase):
             self.assertLess(differing / n, 0.02, kind)
 
     def test_cloth_sways_only_where_allowed(self):
-        manifest = json.load(open(os.path.join(config.MODELS_DIR, "manifest.json")))["models"]
+        with open(os.path.join(config.MODELS_DIR, "manifest.json")) as f:
+            manifest = json.load(f)["models"]
         for cid in tier_ids():
             files, entry, _ = self.built(cid)
             swaying = set()
-            for f in files:
-                if f[3] is None:
+            for g in files:
+                if g[3] is None:
                     continue
-                sway = any(len(m) > 2 for m in f[3].cells.values())
-                self.assertEqual(sway, f[0] in SWAY_ALLOWED, f[0])
-                swaying |= {m[2] for m in f[3].cells.values() if len(m) > 2}
+                sway = any(len(m) > 2 for m in g[3].cells.values())
+                self.assertEqual(sway, g[0] in SWAY_ALLOWED, g[0])
+                swaying |= {m[2] for m in g[3].cells.values() if len(m) > 2}
             # The manifest lists exactly the groups the cells carry.
             self.assertEqual(entry.get("sway", []), sorted(swaying), cid)
             self.assertEqual(manifest[cid].get("sway", []), sorted(swaying), cid)
