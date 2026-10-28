@@ -519,6 +519,15 @@ buildings (tavern and up) keep upkeep.
   sloop; its **founding cargo** (start stock) is exempt from the slot
   limit — slot checks apply only to player loading — and moves to the
   Trading Post at founding (§10).
+- **Length and berth spacing** (display only, D-056 C3): each type has a
+  hull length (`length_tiles`: sloop 2, brig 2.6, galleon 3.2); its
+  ratio to the sloop scales the drawn ship. At a Trading Post (§9.3) each
+  moored ship takes the anchor spacing (1.5 tiles without anchors) ×
+  its ratio along the pier, filling outwards in anchor order, so sloops
+  lie exactly on the berth anchors and a longer ship pushes its
+  neighbours out instead of overlapping them; ships stay stern-first
+  (stern offset × ratio), and the queue waits beyond the longest moored
+  bow. The sim's berths, handling and queue order are unchanged.
 - Shipyard build: one order at a time per shipyard (`shipyard_busy`);
   costs deducted at order time; cancel refunds 50 % materials; completion
   is a due moment (`ship_built`, §1.3) after the type's build time; the
