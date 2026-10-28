@@ -1761,6 +1761,11 @@ export interface components {
              * @description Net stock rate, arrivals minus consumption (milli-units per minute, signed).
              */
             rate_per_min: number;
+            /**
+             * Format: int64
+             * @description Rate of in_transit until next_change_at, connected production entering transit minus arrivals (milli-units per minute, signed; 0 while a steady flow replaces what arrives). Clients extrapolate it like the stock.
+             */
+            in_transit_rate_per_min: number;
         };
         WorkforceDisplay: {
             /**

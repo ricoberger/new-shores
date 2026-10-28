@@ -154,7 +154,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
     const settled = i % 4 !== 3;
     const inventory: IslandDisplay["inventory"] = {};
     for (const [j, g] of GOODS.entries()) {
-      inventory[g] = { stock: settled ? ((i + 1) * (j + 2) * 7000) % 300_000 : 0, capacity: settled ? 300_000 : 0, in_transit: 0, rate_per_min: 0 };
+      inventory[g] = { stock: settled ? ((i + 1) * (j + 2) * 7000) % 300_000 : 0, capacity: settled ? 300_000 : 0, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: 0 };
     }
     islands.push({
       id,
@@ -694,7 +694,7 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     }
   }
   const inventory: IslandDisplay["inventory"] = {};
-  for (const g of DENSE_GOODS) inventory[g] = { stock: 40_000, capacity: 100_000, in_transit: 0, rate_per_min: 1_000 };
+  for (const g of DENSE_GOODS) inventory[g] = { stock: 40_000, capacity: 100_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: 1_000 };
   const display = {
     id,
     name,
@@ -802,7 +802,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
   ];
   light.forEach((sp, i) => {
     const inventory: IslandDisplay["inventory"] = {};
-    for (const g of DENSE_GOODS) inventory[g] = { stock: sp.settled ? 20_000 : 0, capacity: sp.settled ? 100_000 : 0, in_transit: 0, rate_per_min: 0 };
+    for (const g of DENSE_GOODS) inventory[g] = { stock: sp.settled ? 20_000 : 0, capacity: sp.settled ? 100_000 : 0, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: 0 };
     displays.push({
       id: sp.id,
       name: `Isle ${sp.id.slice(4)}`,
@@ -1020,7 +1020,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
   }) as BuildingDisplay);
   const inventory: IslandDisplay["inventory"] = {};
   // Net rates of all three signs (green, plain, red) in the Trading Post card.
-  DENSE_GOODS.forEach((g, i) => (inventory[g] = { stock: 40_000, capacity: 100_000, in_transit: 0, rate_per_min: [1_500, 0, -2_000][i % 3] as number }));
+  DENSE_GOODS.forEach((g, i) => (inventory[g] = { stock: 40_000, capacity: 100_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: [1_500, 0, -2_000][i % 3] as number }));
   const island = {
     id: SHOWCASE_ISLAND,
     name: "Showcase",

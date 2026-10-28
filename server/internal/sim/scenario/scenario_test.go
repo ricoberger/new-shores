@@ -900,7 +900,11 @@ func TestMoveWithTransit(t *testing.T) {
 		!reflect.DeepEqual(lj.Transit, transit) || !maps.Equal(lj.Buffer, buffer) || len(r.island().Buildings) != 2 {
 		t.Fatalf("after the move: %+v", lj)
 	}
-	if after := r.mustDisplay(t).Islands[0].Inventory["wood"]; after != before || r.w.Gold != gold {
+	// The in-transit rate follows the producer's rate at its new site
+	// (the work area there is smaller: 833 ‰ efficiency), so it is not compared.
+	after := r.mustDisplay(t).Islands[0].Inventory["wood"]
+	after.InTransitRatePerMin = before.InTransitRatePerMin
+	if after != before || r.w.Gold != gold {
 		t.Errorf("move changed wood %+v -> %+v or gold %d -> %d", before, after, gold, r.w.Gold)
 	}
 	if lj.AssignedWarehouseID != 1 || lj.RoadDistance != 6 || lj.TransferDelayMs != 16_000 {

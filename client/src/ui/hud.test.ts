@@ -479,7 +479,7 @@ describe("HUD components", () => {
       buildings: [],
       roads: [],
       workforce: {},
-      inventory: { planks: { stock: 10_000, capacity: 100_000, in_transit: 0, rate_per_min: 0 }, wood: { stock: 9_000, capacity: 100_000, in_transit: 0, rate_per_min: 0 } },
+      inventory: { planks: { stock: 10_000, capacity: 100_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: 0 }, wood: { stock: 9_000, capacity: 100_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: 0 } },
     } as unknown as IslandDisplay;
     const model = { ...fixture("chain_planks"), gold: 100_000, balance_rate_per_min: 0 } as DisplayState;
     const panel = (b: Partial<BuildingDisplay>) => {

@@ -392,6 +392,9 @@ type GoodDisplay struct {
 	InTransit Qty `json:"in_transit"`
 	// RatePerMin is the net rate of the stock (arrivals - consumption).
 	RatePerMin Qty `json:"rate_per_min"`
+	// InTransitRatePerMin is the rate of the in-transit amount until the
+	// next boundary: connected production entering transit minus arrivals.
+	InTransitRatePerMin Qty `json:"in_transit_rate_per_min"`
 }
 
 // RoadDisplay is one road tile.
@@ -711,10 +714,11 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int
 	capMilli := capacityMilli(is, c)
 	for _, g := range c.Goods {
 		d.Inventory[g.ID] = GoodDisplay{
-			Stock:      roundFine(is.Inventory.fine(g.ID)),
-			Capacity:   capMilli,
-			InTransit:  roundFine(transitFine(is, g.ID, now)),
-			RatePerMin: perMin(r.inflow[g.ID] - r.cons[g.ID]),
+			Stock:               roundFine(is.Inventory.fine(g.ID)),
+			Capacity:            capMilli,
+			InTransit:           roundFine(transitFine(is, g.ID, now)),
+			RatePerMin:          perMin(r.inflow[g.ID] - r.cons[g.ID]),
+			InTransitRatePerMin: perMin(r.prod[g.ID] - r.inflow[g.ID]),
 		}
 	}
 	for _, i := range slices.Sorted(maps.Keys(is.Roads)) {

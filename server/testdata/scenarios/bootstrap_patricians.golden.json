@@ -60810,391 +60810,456 @@
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 211850,
             "capacity": 800000,
             "in_transit": 1150,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 197135,
             "capacity": 800000,
             "in_transit": 11067,
-            "rate_per_min": 1020
+            "rate_per_min": 1020,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 54403,
             "capacity": 800000,
             "in_transit": 6200,
-            "rate_per_min": 340
+            "rate_per_min": 340,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 218973,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": -1166
+            "rate_per_min": -1166,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 136128,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 112731,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": -1000
+            "rate_per_min": -1000,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 257707,
             "capacity": 800000,
             "in_transit": 3017,
-            "rate_per_min": 891
+            "rate_per_min": 891,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 42034,
             "capacity": 800000,
             "in_transit": 10944,
-            "rate_per_min": 680
+            "rate_per_min": 680,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 788072,
             "capacity": 800000,
             "in_transit": 11928,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 248844,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": -666
+            "rate_per_min": -666,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 600651,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": -2000
+            "rate_per_min": -2000,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 117707,
             "capacity": 800000,
             "in_transit": 3322,
-            "rate_per_min": -333
+            "rate_per_min": -333,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 717166,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": -9000
+            "rate_per_min": -9000,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 26844,
             "capacity": 800000,
             "in_transit": 517,
-            "rate_per_min": 340
+            "rate_per_min": 340,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 25846,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": -1000
+            "rate_per_min": -1000,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 9902,
             "capacity": 800000,
             "in_transit": 92,
-            "rate_per_min": 20
+            "rate_per_min": 20,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 798016,
             "capacity": 800000,
             "in_transit": 1983,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 161661,
             "capacity": 800000,
             "in_transit": 2150,
-            "rate_per_min": 641
+            "rate_per_min": 641,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 294181,
             "capacity": 800000,
             "in_transit": 1850,
-            "rate_per_min": 758
+            "rate_per_min": 758,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 2226,
             "capacity": 800000,
             "in_transit": 1633,
-            "rate_per_min": -3000
+            "rate_per_min": -3000,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 797950,
             "capacity": 800000,
             "in_transit": 2050,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 92971,
             "capacity": 800000,
             "in_transit": 5811,
-            "rate_per_min": -12333
+            "rate_per_min": -12333,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 799450,
             "capacity": 800000,
             "in_transit": 550,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 26043,
             "capacity": 800000,
             "in_transit": 2783,
-            "rate_per_min": 200
+            "rate_per_min": 200,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 42900,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 761447,
             "capacity": 800000,
             "in_transit": 12383,
-            "rate_per_min": -2500
+            "rate_per_min": -2500,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 290940,
             "capacity": 800000,
             "in_transit": 5350,
-            "rate_per_min": 1020
+            "rate_per_min": 1020,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 30067,
             "capacity": 800000,
             "in_transit": 633,
-            "rate_per_min": 346
+            "rate_per_min": 346,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 44009,
             "capacity": 800000,
             "in_transit": 911,
-            "rate_per_min": 1333
+            "rate_per_min": 1333,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 330192,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": -500
+            "rate_per_min": -500,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 134939,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 787817,
             "capacity": 800000,
             "in_transit": 12183,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 11181,
             "capacity": 800000,
             "in_transit": 2550,
-            "rate_per_min": 360
+            "rate_per_min": 360,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 800000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 401565,
             "capacity": 800000,
             "in_transit": 9271,
-            "rate_per_min": 6248
+            "rate_per_min": 6248,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 788789,
             "capacity": 800000,
             "in_transit": 11211,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 795170,
             "capacity": 800000,
             "in_transit": 4818,
-            "rate_per_min": -2
+            "rate_per_min": -2,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [
@@ -116489,391 +116554,456 @@
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 4998,
             "capacity": 300000,
             "in_transit": 822,
-            "rate_per_min": 1333
+            "rate_per_min": 1333,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 5034,
             "capacity": 300000,
             "in_transit": 2308,
-            "rate_per_min": 1000
+            "rate_per_min": 1000,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 85225,
             "capacity": 300000,
             "in_transit": 1556,
-            "rate_per_min": 333
+            "rate_per_min": 333,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 67,
             "capacity": 300000,
             "in_transit": 800,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 296276,
             "capacity": 300000,
             "in_transit": 3724,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 232767,
             "capacity": 300000,
             "in_transit": 4917,
-            "rate_per_min": 9000
+            "rate_per_min": 9000,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 4031,
             "capacity": 300000,
             "in_transit": 250,
-            "rate_per_min": 1000
+            "rate_per_min": 1000,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 7467,
             "capacity": 300000,
             "in_transit": 1533,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 15099,
             "capacity": 300000,
             "in_transit": 5583,
-            "rate_per_min": 3000
+            "rate_per_min": 3000,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 225182,
             "capacity": 300000,
             "in_transit": 15211,
-            "rate_per_min": 12000
+            "rate_per_min": 12000,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 300000,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 156736,
             "capacity": 300000,
             "in_transit": 6575,
-            "rate_per_min": 2500
+            "rate_per_min": 2500,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 272364,
             "capacity": 300000,
             "in_transit": 1178,
-            "rate_per_min": 1333
+            "rate_per_min": 1333,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 300000,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 128918,
             "capacity": 300000,
             "in_transit": 1688,
-            "rate_per_min": 665
+            "rate_per_min": 665,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 567,
             "capacity": 300000,
             "in_transit": 1700,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 163730,
             "capacity": 300000,
             "in_transit": 1989,
-            "rate_per_min": 74
+            "rate_per_min": 74,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [
@@ -135253,391 +135383,456 @@
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [],
@@ -135681,391 +135876,456 @@
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [],
@@ -136108,391 +136368,456 @@
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [],
@@ -136555,391 +136880,456 @@
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 854,
             "capacity": 300000,
             "in_transit": 883,
-            "rate_per_min": 1000
+            "rate_per_min": 1000,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 300000,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 297750,
             "capacity": 300000,
             "in_transit": 2250,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 47900,
             "capacity": 300000,
             "in_transit": 1883,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 173620,
             "capacity": 300000,
             "in_transit": 1000,
-            "rate_per_min": 53
+            "rate_per_min": 53,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 854,
             "capacity": 300000,
             "in_transit": 842,
-            "rate_per_min": 1000
+            "rate_per_min": 1000,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 1706,
             "capacity": 300000,
             "in_transit": 2256,
-            "rate_per_min": 2000
+            "rate_per_min": 2000,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 600,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 300000,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 1983,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 154265,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 853,
             "capacity": 300000,
             "in_transit": 1167,
-            "rate_per_min": 1000
+            "rate_per_min": 1000,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 299370,
             "capacity": 300000,
             "in_transit": 630,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 300000,
             "in_transit": 256,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 45686,
             "capacity": 300000,
             "in_transit": 656,
-            "rate_per_min": -56
+            "rate_per_min": -56,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [
@@ -145558,391 +145948,456 @@
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [],
@@ -145974,391 +146429,456 @@
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [],
@@ -146390,391 +146910,456 @@
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [],
@@ -146817,391 +147402,456 @@
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [],
@@ -147274,391 +147924,456 @@
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [],
@@ -147711,391 +148426,456 @@
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "barrels": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "beer": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "books": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brandy": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bricks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "brine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "candles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cattle": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cheese": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "clay": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coal": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "coats": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "copper_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dye": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "dyed_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fine_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "glass": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_bars": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "gold_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grain_spirit": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "grapes": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "honey": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hops": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "instruments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "jewellery": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "lace": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "leather_jerkins": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "malt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "mead": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "milk": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "paper": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pies": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "pigs": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "quartz": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "raw_oysters": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "roast_beef": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "salt": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "sausages": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "soap": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "spectacles": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tallow": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "thread": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wine": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "woad": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 0,
             "capacity": 0,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [],
