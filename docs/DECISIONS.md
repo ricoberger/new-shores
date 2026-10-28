@@ -1155,3 +1155,23 @@ system and tooling are untouched by the restyle); buying voxel packs
   foam on the smooth coastline, per-column ground colour, coarse far
   coast, generic construction stages, cube smoke puffs, lost cloth
   sway, single tier-3/4 house variants, 66 placeholders.
+- *As built (PR #40 V3, PR #41 V2):* **V3** — parts library v2
+  (`nsvoxel/detail.py`: coursed stone, quoins, half-timber, casements,
+  roof courses with ridge and chimney pots, fences, crop rows, ~40
+  props, `Building`) and all 40 tier 1–2 recipes at the §3 detail, 3
+  variants per house tier, anchors from the content flags; every model
+  inside its budget. Finding: **colour jitter baked into geometry
+  defeats greedy meshing** (28 MB with full jitter, 21 MB without) — V3
+  shipped reduced jitter at 24.8 of 25.2 MB. **V2** — ground colour
+  blended across columns, stepped pixel coast with shallows, foam and
+  wet sand that follow the steps, cliff/plateau rock bands, roads as
+  voxel paths in the terrain mesh (dirt / cobbles), denser decor per
+  terrain role with irregular swaying canopies, voxel smoke puffs in
+  sizes, construction stages in 2/4/8-tile classes, ship wakes, warmer
+  sun/sky/sea, **per-voxel colour jitter in the shader** (`?jitter=0`),
+  minimap from the voxel ground roles. Numbers on top of V3: far 78 k /
+  154 k (D-048 holds), dense mid 1.69 M (≈ 267 k from V3's buildings),
+  settled near 325 k (+33 %, ground detail), no pan frame > 50 ms.
+  Decision from both: **recipes export flat colours and the shader
+  jitters** (V3b), cloth sway returns via manifest sway groups, the
+  24 MiB limit stays.
