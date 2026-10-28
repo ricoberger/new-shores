@@ -23,6 +23,7 @@ import { depthFactor, type DistanceField, type IslandLand, landDistance } from "
 import { LIGHT, TERRAIN, WATER } from "../theme/palette";
 import { c3 } from "./palette";
 import { skyFill } from "./lighting";
+import { seaDeepRgb } from "./mapcolors";
 
 /** Ripple normal map size (texels) and how many tiles one repeat covers. */
 const RIPPLE_TEX = 64;
@@ -87,11 +88,9 @@ function rippleTexture(scene: Scene, h: Float32Array): RawTexture {
  * and warmed (D-057 V2: a warmer sea under the golden-hour sun).
  */
 export function seaDeep(): Color3 {
-  const d = Color3.Lerp(c3(WATER.deep), c3(WATER.shallows), SEA_TEAL);
-  return new Color3(Math.min(1, d.r * 1.08 + 0.015), Math.min(1, d.g * 1.03), d.b * 0.97);
+  const [r, g, b] = seaDeepRgb();
+  return new Color3(r, g, b);
 }
-/** Share of the shallows in the deep colour. */
-const SEA_TEAL = 0.12;
 
 /** Gradient texture of a distance field: shallows near land, deep beyond. */
 function gradientTexture(scene: Scene, f: DistanceField): RawTexture {

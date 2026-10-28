@@ -4,8 +4,9 @@ import { archipelagoRect, type Rect } from "../display/camera";
 import { decodeMask, MASK_BLOCK, MASK_WATER } from "../display/mask";
 import { fromMinimap, islandsBounds, minimapCollapsedAtStart, minimapLandKey, minimapProjection, minimapSize, rememberMinimapCollapsed, toMinimap } from "../display/minimap";
 import type { GameRenderer } from "../render/engine";
+import { MAP_SEA, mapLandColor } from "../render/mapcolors";
 import { toolIcon } from "../theme/iconSet";
-import { TERRAIN, UI, WATER } from "../theme/palette";
+import { UI } from "../theme/palette";
 import { Compass } from "./Compass";
 import { Icon } from "./Icon";
 import styles from "./hud.module.css";
@@ -28,15 +29,14 @@ interface Props {
 
 /** Dots and the viewport quadrilateral are redrawn at most this often (ms). */
 const REFRESH_MS = 50;
-const SEA = WATER.deep;
-/** Land, settled or not: one colour (the islands are told apart by their labels, not by a grey tint). */
-const LAND = TERRAIN.grass_a;
+/** Sea and land in the voxel world's colours (render/mapcolors.ts); settled or not alike (the islands are told apart by their labels, not by a grey tint). */
+const SEA = MAP_SEA;
 const SHIP = UI.map_ship;
 const VIEW = UI.map_view;
 
 /**
- * Minimap (D-048): a north-up 2D canvas of the islands' land (one
- * colour, settled or not) from their 1:4 terrain masks (no tiles needed), ship dots and the camera's ground footprint (which
+ * Minimap (D-048): a north-up 2D canvas of the islands' land (the voxel
+ * ground colour of each cell's terrain, settled or not) from their 1:4 terrain masks (no tiles needed), ship dots and the camera's ground footprint (which
  * turns with the camera), with the compass (D-051) in its top-right
  * corner (on phones a toggle button like the side dock's opens it to its
  * right; collapsed, only the toggle shows, so the compass shows with the
@@ -81,13 +81,14 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
     const m = minimapProjection(bounds, c.width, c.height);
     ctx.fillStyle = SEA;
     ctx.fillRect(0, 0, c.width, c.height);
-    ctx.fillStyle = LAND;
     for (const is of islands) {
       const mask = decodeMask(is.terrain_mask, is.width, is.height);
       // One mask cell covers MASK_BLOCK × MASK_BLOCK tiles (clipped at the island's edge).
       for (let my = 0; my < mask.height; my++) {
         for (let mx = 0; mx < mask.width; mx++) {
-          if (mask.cells[my * mask.width + mx] === MASK_WATER) continue;
+          const cell = mask.cells[my * mask.width + mx] as number;
+          if (cell === MASK_WATER) continue;
+          ctx.fillStyle = mapLandColor(cell);
           const x = mx * MASK_BLOCK;
           const y = my * MASK_BLOCK;
           // Whole pixels, so neighbouring cells meet without anti-aliased seams.
