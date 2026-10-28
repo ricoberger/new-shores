@@ -29,9 +29,11 @@ import { decorModel, type ModelRegistry } from "./models";
 import { c3 } from "./palette";
 import { Builder, type ProfileRing, slabStrip } from "./terrain";
 import { ModelMerger } from "./trees";
+import { VOXEL } from "../display/voxel";
+import { distanceTo, EMPTY, type Field, meshField, TERRAIN_VPT, VOXEL_STEP } from "./voxelterrain";
 
-/** Height (tiles) of one plateau step. */
-export const PLATEAU_STEP = 0.42;
+/** Height (tiles) of one plateau step (voxel prototype: two voxel steps, see plateauField). */
+export const PLATEAU_STEP = VOXEL ? 2 * VOXEL_STEP : 0.42;
 /** Sample spacing (tiles) of the rounded outline and of the top surface grid. */
 const OUTLINE_STEP = 0.2;
 const TOP_GRID = 0.25;
@@ -277,6 +279,37 @@ export function fillTop(b: Builder, loops: readonly CoastLoop[], y: number, colo
   }
 }
 
+/**
+ * Voxel prototype: the plateau levels as terraces of terrain columns (4 per
+ * tile) inside each level's rounded outline: one voxel step at the rim and
+ * two inside (level 1 → 1, 2 steps; level 2 → 3, 4), so every visible step
+ * is one voxel; PLATEAU_STEP is the two-step height of a level.
+ */
+export function plateauField(width: number, height: number, levelLoops: readonly (readonly CoastLoop[])[]): Field {
+  const vpt = TERRAIN_VPT;
+  const s = 1 / vpt;
+  const nx = width * vpt;
+  const ny = height * vpt;
+  const h = new Int8Array(nx * ny).fill(EMPTY);
+  const top = new Uint32Array(nx * ny);
+  const packed = (c: Color3) => (Math.round(c.r * 255) << 16) | (Math.round(c.g * 255) << 8) | Math.round(c.b * 255);
+  levelLoops.forEach((loops, k) => {
+    const inside = insideGrid(loops, -0.5 + s / 2, -0.5 + s / 2, s, nx, ny);
+    const out = new Uint8Array(nx * ny);
+    for (let q = 0; q < nx * ny; q++) out[q] = inside[q] ? 0 : 1;
+    const d = distanceTo(out, nx, ny, 2);
+    const level = k + 1;
+    for (let q = 0; q < nx * ny; q++) {
+      if (!inside[q]) continue;
+      const rim = d[q] === 1;
+      h[q] = 2 * level - (rim ? 1 : 0);
+      top[q] = packed(rim ? ROCK_LIGHT : topColor(level));
+    }
+  });
+  const bands = [ROCK_LIGHT, ROCK, ROCK_DEEP, ROCK.scale(1.06)];
+  return { nx, ny, x0: -0.5, y0: -0.5, s, h, top, bottom: 0, side: (z) => bands[((z % 4) + 4) % 4] as Color3 };
+}
+
 export class PlateauLayer {
   private readonly material: StandardMaterial;
   private mesh: Mesh | null = null;
@@ -320,6 +353,7 @@ export class PlateauLayer {
     const deposits = new Set(island.deposits.map((d) => `${d.x},${d.y}`));
     const b = new Builder();
     const rocks = new ModelMerger();
+    const allLoops: CoastLoop[][] = [];
     for (const level of [1, 2]) {
       const mask = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && levels[y * width + x]! >= level;
       const loops = traceLoops(marchingSquares(width, height, mask)).map((l) => roundLoop(l));
@@ -328,12 +362,20 @@ export class PlateauLayer {
       const h0 = (level - 1) * PLATEAU_STEP;
       const top = topColor(level);
       yield;
-      fillTop(b, loops, h1, top);
-      yield;
-      const profile = stepProfile(h0, h1, top);
-      for (const loop of loops) slabStrip(b, loop, seed + 31 * level, (c) => c, profile, 2);
+      if (VOXEL) {
+        allLoops.push(loops);
+      } else {
+        fillTop(b, loops, h1, top);
+        yield;
+        const profile = stepProfile(h0, h1, top);
+        for (const loop of loops) slabStrip(b, loop, seed + 31 * level, (c) => c, profile, 2);
+      }
       yield;
       if (models) yield* this.placeCrags(rocks, loops, level, h1, seed, (x, y) => mask(x, y) && !deposits.has(`${x},${y}`) && levels[y * width + x] === level);
+    }
+    if (VOXEL && allLoops.length > 0) {
+      const f = plateauField(width, height, allLoops);
+      meshField(b, f, 0, 0, f.nx, f.ny);
     }
     this.key = key;
     this.mesh?.dispose();

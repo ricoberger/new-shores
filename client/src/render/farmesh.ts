@@ -19,6 +19,8 @@ import { ISLAND } from "../theme/palette";
 import { skyFill } from "./lighting";
 import { c3 } from "./palette";
 import { Builder, fillCell, groundColor, NEAR_PROFILE, slabStrip } from "./terrain";
+import { VOXEL } from "../display/voxel";
+import { islandField, meshField } from "./voxelterrain";
 
 /** One island of the mask mesh. */
 export interface MaskIsland {
@@ -37,6 +39,7 @@ export interface MaskIsland {
  * along their outline. Empty for an all-water mask.
  */
 export function maskMeshData(mask: DecodedMask, seed: number): Builder {
+  if (VOXEL) return voxelMaskData(mask, seed);
   const b = new Builder();
   const cell = (x: number, y: number) => (x >= 0 && y >= 0 && x < mask.width && y < mask.height ? (mask.cells[y * mask.width + x] as number) : MASK_WATER);
   const inside = (x: number, y: number) => cell(x, y) !== MASK_WATER;
@@ -62,6 +65,32 @@ export function maskMeshData(mask: DecodedMask, seed: number): Builder {
       NEAR_PROFILE,
     );
   }
+  return b;
+}
+
+/**
+ * Voxel prototype (?voxel=1): the mask replaced by coarse voxel terrain —
+ * one column per tile over the mask's land (each cell MASK_BLOCK ×
+ * MASK_BLOCK tiles, its terrain's colour at the tile), the coast a pixel
+ * outline of the smoothed cell contour with the two sand shelves.
+ */
+export function voxelMaskData(mask: DecodedMask, seed: number): Builder {
+  const b = new Builder();
+  const width = mask.width * MASK_BLOCK;
+  const height = mask.height * MASK_BLOCK;
+  // Pseudo-island of tiles: tile (x, y) takes the cell floor(x / B); cell c's centre sits at tile c·B (the mask's own layout), so the field shifts by B/2.
+  const terrain: Terrain[] = new Array<Terrain>(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const c = mask.cells[Math.floor(y / MASK_BLOCK) * mask.width + Math.floor(x / MASK_BLOCK)] as number;
+      terrain[y * width + x] = c === MASK_WATER ? "water" : (MASK_TERRAINS[c] as Terrain);
+    }
+  }
+  const pseudo = { width, height, terrain };
+  const f = islandField(pseudo, coastline(pseudo), seed, 1);
+  f.x0 -= MASK_BLOCK / 2;
+  f.y0 -= MASK_BLOCK / 2;
+  meshField(b, f, 0, 0, f.nx, f.ny);
   return b;
 }
 
