@@ -65,6 +65,8 @@ class BudgetTest(unittest.TestCase):
         self.assertEqual(model.budget_of("brig", "ship", CONTENT, ("attachment", "cargo")), config.BUDGET_SHIP_CARGO)
         self.assertEqual(model.budget_of("decor_tree_a", "decor", CONTENT), config.BUDGET_DECOR)
         self.assertEqual(model.budget_of("life_stage", "life", CONTENT), config.BUDGET_LIFE_STAGE)
+        self.assertEqual(model.budget_of("life_stage_4", "life", CONTENT), config.BUDGET_LIFE_STAGE)
+        self.assertEqual(model.budget_of("life_stage_scaffolding_8", "life", CONTENT), 2 * config.BUDGET_LIFE_STAGE)
         self.assertEqual(model.budget_of("life_cart", "life", CONTENT), config.BUDGET_LIFE)
 
 

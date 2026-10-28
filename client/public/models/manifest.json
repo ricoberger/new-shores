@@ -814,7 +814,10 @@
         "sha256": "281e55b1af6bd9fd80b2e7ceda6fa0dd508d37c65f4c69504f5762a655ef5eae",
         "triangles": 304
       },
-      "kind": "decor"
+      "kind": "decor",
+      "sway": [
+        "canopy"
+      ]
     },
     "decor_tree_b": {
       "bounds": {
@@ -848,7 +851,10 @@
         "sha256": "d9b0f9e73f8813985eec2667f5db65742371ebb2a1ac4f6fbb43fe547c010993",
         "triangles": 264
       },
-      "kind": "decor"
+      "kind": "decor",
+      "sway": [
+        "canopy"
+      ]
     },
     "decor_tree_c": {
       "bounds": {
@@ -882,7 +888,10 @@
         "sha256": "48e95fe31a380a508b77d0688932d762c5a6f8bdcf97f9724f8c7e9af61f7ad1",
         "triangles": 440
       },
-      "kind": "decor"
+      "kind": "decor",
+      "sway": [
+        "canopy"
+      ]
     },
     "decor_tree_d": {
       "bounds": {
@@ -916,7 +925,10 @@
         "sha256": "c58c36ec99de037dd65d273dfbfe38cc839ca308a9b615f92c8ae252d52f17df",
         "triangles": 166
       },
-      "kind": "decor"
+      "kind": "decor",
+      "sway": [
+        "canopy"
+      ]
     },
     "decor_tuft_a": {
       "bounds": {
@@ -1221,6 +1233,100 @@
       },
       "kind": "life"
     },
+    "life_smoke": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.1875,
+          0.1875,
+          0.1875
+        ],
+        "min": [
+          -0.1875,
+          -0.1875,
+          -0.1875
+        ]
+      },
+      "kind": "life",
+      "variants": [
+        {
+          "bounds": {
+            "max": [
+              0.0625,
+              0.0625,
+              0.0625
+            ],
+            "min": [
+              -0.0625,
+              -0.0625,
+              -0.0625
+            ]
+          },
+          "budget": 760,
+          "bytes": 2200,
+          "path": "life_smoke.v0.glb",
+          "sha256": "fa04f87f4ec5c76b0620a7bd6e3ec0514cd64c7cca10bf31a92c85b61b9ecf4c",
+          "triangles": 18
+        },
+        {
+          "bounds": {
+            "max": [
+              0.0938,
+              0.0938,
+              0.0938
+            ],
+            "min": [
+              -0.0938,
+              -0.0938,
+              -0.0938
+            ]
+          },
+          "budget": 760,
+          "bytes": 5572,
+          "path": "life_smoke.v1.glb",
+          "sha256": "4a14afa69bd7c8a9399a6f3763989f1fd540e1582f8cf1d4461f5c574604c92f",
+          "triangles": 74
+        },
+        {
+          "bounds": {
+            "max": [
+              0.125,
+              0.125,
+              0.125
+            ],
+            "min": [
+              -0.125,
+              -0.125,
+              -0.125
+            ]
+          },
+          "budget": 760,
+          "bytes": 5928,
+          "path": "life_smoke.v2.glb",
+          "sha256": "169d75bbea8063abfc6ff9e29276a8d4d150a6f278826da8040cd7c33e75ab48",
+          "triangles": 98
+        },
+        {
+          "bounds": {
+            "max": [
+              0.1875,
+              0.1875,
+              0.1875
+            ],
+            "min": [
+              -0.1875,
+              -0.1875,
+              -0.1875
+            ]
+          },
+          "budget": 760,
+          "bytes": 13636,
+          "path": "life_smoke.v3.glb",
+          "sha256": "ab9f52ae39e61f46a021317abb2a16a8ddaa5442a6eafeb65f702f4cfb813fbb",
+          "triangles": 242
+        }
+      ]
+    },
     "life_stage": {
       "anchors": {},
       "bounds": {
@@ -1251,16 +1357,16 @@
             ]
           },
           "budget": 2100,
-          "bytes": 27396,
+          "bytes": 8084,
           "path": "life_stage.v0.glb",
-          "sha256": "dfc24eceeb990899416151efd3a6febfb4eb01ad9394c9a9e47339c59ad5f66b",
-          "triangles": 508
+          "sha256": "549f1b3910ce0b2d65536e80b6e962e302e486eab465bcdc0a0be520a02c2a6b",
+          "triangles": 174
         },
         {
           "bounds": {
             "max": [
               1.0,
-              1.125,
+              1.25,
               1.0
             ],
             "min": [
@@ -1270,10 +1376,10 @@
             ]
           },
           "budget": 2100,
-          "bytes": 36508,
+          "bytes": 22728,
           "path": "life_stage.v1.glb",
-          "sha256": "9022968de39d8fc6370d22c36da53c7f015fa0ce133eec56d4667a3b9e970c57",
-          "triangles": 728
+          "sha256": "83d78f3e370ba3d7113b0ed6fc3247284bd154468f32b0dcc4d34b5a3a6e0239",
+          "triangles": 500
         },
         {
           "bounds": {
@@ -1289,10 +1395,160 @@
             ]
           },
           "budget": 2100,
-          "bytes": 71212,
+          "bytes": 45260,
           "path": "life_stage.v2.glb",
-          "sha256": "790fef7bb31a93df45f473bfe3e630222c675f993fec6ba4303eebb3fcedd311",
-          "triangles": 1370
+          "sha256": "9c26493ccb684dc09b159776a2aa37230deb982f07e11e7dd421a9621ac94b13",
+          "triangles": 904
+        }
+      ]
+    },
+    "life_stage_4": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          2.0,
+          2.625,
+          2.0
+        ],
+        "min": [
+          -2.0,
+          0.0,
+          -2.0
+        ]
+      },
+      "kind": "life",
+      "variants": [
+        {
+          "bounds": {
+            "max": [
+              2.0,
+              0.375,
+              2.0
+            ],
+            "min": [
+              -2.0,
+              0.0,
+              -2.0
+            ]
+          },
+          "budget": 2100,
+          "bytes": 8088,
+          "path": "life_stage_4.v0.glb",
+          "sha256": "6457eb8507ec92bf444a73d937f038aa801a7daac1a4739fb71907bd16698dd5",
+          "triangles": 174
+        },
+        {
+          "bounds": {
+            "max": [
+              2.0,
+              1.625,
+              2.0
+            ],
+            "min": [
+              -2.0,
+              0.0,
+              -2.0
+            ]
+          },
+          "budget": 2100,
+          "bytes": 27116,
+          "path": "life_stage_4.v1.glb",
+          "sha256": "722aa023113b401639163d7d014b9be954113a9d681151bb33169357f46f9083",
+          "triangles": 596
+        },
+        {
+          "bounds": {
+            "max": [
+              2.0,
+              2.625,
+              2.0
+            ],
+            "min": [
+              -2.0,
+              0.0,
+              -2.0
+            ]
+          },
+          "budget": 2100,
+          "bytes": 53704,
+          "path": "life_stage_4.v2.glb",
+          "sha256": "750cb17e16358b3d2d40c5f9c949fba71486f760df6ee785315724e45a1c845c",
+          "triangles": 1078
+        }
+      ]
+    },
+    "life_stage_8": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          4.0,
+          3.125,
+          4.0
+        ],
+        "min": [
+          -4.0,
+          0.0,
+          -4.0
+        ]
+      },
+      "kind": "life",
+      "variants": [
+        {
+          "bounds": {
+            "max": [
+              4.0,
+              0.375,
+              4.0
+            ],
+            "min": [
+              -4.0,
+              0.0,
+              -4.0
+            ]
+          },
+          "budget": 4200,
+          "bytes": 8088,
+          "path": "life_stage_8.v0.glb",
+          "sha256": "a33e4272f22b23af41d3a1c2b81c7bca388890adb6711cb12b1470c098572b19",
+          "triangles": 174
+        },
+        {
+          "bounds": {
+            "max": [
+              4.0,
+              1.625,
+              4.0
+            ],
+            "min": [
+              -4.0,
+              0.0,
+              -4.0
+            ]
+          },
+          "budget": 4200,
+          "bytes": 44660,
+          "path": "life_stage_8.v1.glb",
+          "sha256": "482ca37cc9c288c0d6ae3edf5ba7eba00c52d2dd7f6c5cfacd67cd647c04a9d2",
+          "triangles": 980
+        },
+        {
+          "bounds": {
+            "max": [
+              4.0,
+              3.125,
+              4.0
+            ],
+            "min": [
+              -4.0,
+              0.0,
+              -4.0
+            ]
+          },
+          "budget": 4200,
+          "bytes": 86548,
+          "path": "life_stage_8.v2.glb",
+          "sha256": "c8690c9fb5f10105e91811de73b1e8603466d0b187549f158b87e05180b14f06",
+          "triangles": 1736
         }
       ]
     },
@@ -1300,34 +1556,69 @@
       "anchors": {},
       "bounds": {
         "max": [
-          1.25,
+          1.625,
           1.5,
-          1.25
+          1.625
         ],
         "min": [
-          -1.125,
+          -1.625,
           0.0,
-          -1.25
+          -1.625
         ]
       },
       "file": {
         "bounds": {
           "max": [
-            1.25,
+            1.625,
             1.5,
-            1.25
+            1.625
           ],
           "min": [
-            -1.125,
+            -1.625,
             0.0,
-            -1.25
+            -1.625
           ]
         },
         "budget": 2100,
-        "bytes": 54340,
+        "bytes": 40096,
         "path": "life_stage_scaffolding.glb",
-        "sha256": "e8c2bfadfaf5ee782e656b69bf10fd370a24334e65f18aa92bfcf45caff6a9aa",
-        "triangles": 1036
+        "sha256": "712f3d666fdd2bba8b054f6597221a3ff4e7e2fcb1cfd3a9eb779b2fcb2803f0",
+        "triangles": 766
+      },
+      "kind": "life"
+    },
+    "life_stage_scaffolding_8": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          4.125,
+          2.0,
+          4.125
+        ],
+        "min": [
+          -4.125,
+          0.0,
+          -4.125
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            4.125,
+            2.0,
+            4.125
+          ],
+          "min": [
+            -4.125,
+            0.0,
+            -4.125
+          ]
+        },
+        "budget": 4200,
+        "bytes": 51500,
+        "path": "life_stage_scaffolding_8.glb",
+        "sha256": "95274cd04afa76402ed73b42dec7d42b4acc720ec54db474647b8fe01e9fe7bb",
+        "triangles": 986
       },
       "kind": "life"
     },
@@ -1480,6 +1771,41 @@
           "triangles": 112
         }
       ]
+    },
+    "life_wake": {
+      "anchors": {},
+      "bounds": {
+        "max": [
+          0.0625,
+          0.0625,
+          0.0
+        ],
+        "min": [
+          -0.0625,
+          0.0,
+          -0.0625
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.0625,
+            0.0625,
+            0.0
+          ],
+          "min": [
+            -0.0625,
+            0.0,
+            -0.0625
+          ]
+        },
+        "budget": 760,
+        "bytes": 2064,
+        "path": "life_wake.glb",
+        "sha256": "8447df08224c0cc1b74b87b38af3a9a33d25b4812cdc84db0e978c5efd939916",
+        "triangles": 16
+      },
+      "kind": "life"
     }
   },
   "models": {
@@ -1884,7 +2210,11 @@
         "length_tiles": 2.6,
         "masts": 2,
         "sail_scale": 1.0
-      }
+      },
+      "sway": [
+        "flag",
+        "sail"
+      ]
     },
     "butcher": {
       "anchors": {
@@ -3611,7 +3941,11 @@
         "length_tiles": 3.2,
         "masts": 3,
         "sail_scale": 1.0
-      }
+      },
+      "sway": [
+        "flag",
+        "sail"
+      ]
     },
     "glass_smelter": {
       "anchors": {
@@ -7427,7 +7761,11 @@
         "length_tiles": 2.0,
         "masts": 3,
         "sail_scale": 1.0
-      }
+      },
+      "sway": [
+        "flag",
+        "sail"
+      ]
     },
     "smelter": {
       "anchors": {
@@ -8259,7 +8597,10 @@
           "sha256": "9b9d35d627b40dbd017cc7460d5014b58c1d8a7c2042843a4b3115009840fd7a",
           "triangles": 8398
         }
-      }
+      },
+      "sway": [
+        "flag"
+      ]
     },
     "university": {
       "anchors": {
@@ -8772,7 +9113,10 @@
         "h": 4,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "sway": [
+        "cloth"
+      ]
     },
     "wheat_farm": {
       "anchors": {

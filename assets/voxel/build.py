@@ -248,8 +248,7 @@ def write_sheet(path, ids, cell=256, cols=4):
         for _, key, ctx in model.outputs(cid, kind, recipe, _CONTENT):
             ctx.needs = model.required_anchors(_CONTENT, cid) if kind in ("building", "field") else []
             ctx.smoke = "smoke" in ctx.needs
-            fn = recipe["cargo"] if key and key[0] == "attachment" else recipe["build"]
-            v = fn(ctx)
+            v = model.build_grid(recipe, kind, key, ctx)
             rows = render.render(tri_list(v, ctx), cell * 2)
             imgs.append(render.downsample(rows, cell * 2))
     rows, w, h = render.sheet(imgs, cols, cell)

@@ -30,7 +30,7 @@ const CLASSES: readonly DetailClass[] = [
   { ids: ["decor_fern_a", "decor_fern_b"], chance: { forest: 0.35 }, scale: [0.8, 1.2] },
   { ids: ["decor_mushroom_a"], chance: { forest: 0.06 }, scale: [0.8, 1.2] },
   { ids: ["decor_log_a"], chance: { forest: 0.03 }, scale: [0.8, 1.1] },
-  { ids: ["decor_flowers_a", "decor_flowers_b"], chance: { meadow: 0.45 }, patch: 0.68, scale: [0.8, 1.2] },
+  { ids: ["decor_flowers_a", "decor_flowers_b"], chance: { meadow: 0.3 }, patch: 0.7, scale: [0.8, 1.2] },
   { ids: ["decor_flowers_a", "decor_flowers_b"], chance: { meadow: 0.02, forest: 0.02 }, scale: [0.8, 1.1] },
   { ids: ["decor_pebbles_a", "decor_pebbles_b"], chance: { meadow: 0.015, beach: 0.2, rock: 0.25 }, scale: [0.8, 1.3] },
   { ids: ["decor_reeds_a"], chance: { beach: 0.1 }, scale: [0.8, 1.2] },
