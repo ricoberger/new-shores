@@ -21,7 +21,11 @@ export function elapsedMinutes(server: DisplayState, serverNowMs: number): numbe
 }
 
 export function extrapolateGood(g: GoodDisplay, dtMin: number): GoodDisplay {
-  return { ...g, stock: clamp(g.stock + g.rate_per_min * dtMin, 0, g.capacity) };
+  return {
+    ...g,
+    stock: clamp(g.stock + g.rate_per_min * dtMin, 0, g.capacity),
+    in_transit: Math.max(0, g.in_transit + g.in_transit_rate_per_min * dtMin),
+  };
 }
 
 export function extrapolateBuilding(b: BuildingDisplay, dtMin: number): BuildingDisplay {

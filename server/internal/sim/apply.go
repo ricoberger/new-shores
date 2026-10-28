@@ -842,32 +842,8 @@ func upgradeHouse(w *World, c *content.Catalogue, cmd UpgradeHouse, l *Ledger) e
 	if b == nil {
 		return fmt.Errorf("%w: building %d on island %q", ErrBuildingNotFound, cmd.BuildingID, cmd.IslandID)
 	}
-	def := c.BuildingByID[b.Type]
-	tier := houseTier(b, c)
-	if def == nil || tier == nil {
-		return fmt.Errorf("%w: %s", ErrNotAHouse, b.Type)
-	}
-	var next *content.Tier
-	if tier.Index+1 < len(c.Tiers) {
-		next = c.Tiers[tier.Index+1]
-	}
-	if next == nil || next.House == "" || c.BuildingByID[next.House] == nil {
-		return fmt.Errorf("%w: no house of the next tier after %s", ErrUpgradeUnavailable, tier.ID)
-	}
-	nextDef := c.BuildingByID[next.House]
-	if !TierUnlocked(w, c, next.ID) {
-		return fmt.Errorf("%w: %s", ErrTierLocked, next.ID)
-	}
-	if b.House.Residents < tier.ResidentsMax {
-		return fmt.Errorf("%w: %d of %d milli-residents", ErrHouseNotFull, b.House.Residents, tier.ResidentsMax)
-	}
-	if need := unmetRequiredNeed(w, c, is, b.ID); need != "" {
-		return fmt.Errorf("%w: %s", ErrNeedsUnmet, need)
-	}
-	if nextDef.Width != def.Width || nextDef.Height != def.Height {
-		return fmt.Errorf("%w: footprint of %s differs", ErrUpgradeUnavailable, nextDef.ID)
-	}
-	if err := checkCost(w, is, nextDef.Cost, 1); err != nil {
+	nextDef, next, err := checkHouseUpgrade(w, c, is, b, func() *content.Need { return unmetRequiredNeed(w, c, is, b.ID) })
+	if err != nil {
 		return err
 	}
 
@@ -877,6 +853,57 @@ func upgradeHouse(w *World, c *content.Catalogue, cmd UpgradeHouse, l *Ledger) e
 	b.House = &HouseState{Residents: next.ResidentsFloor}
 	afterChange(is, c)
 	return nil
+}
+
+// checkHouseUpgrade is the upgrade gate of a house (MECHANICS §6.1): it
+// returns the house definition and the tier of the next tier, or the first failing
+// condition as a typed error, in this order: a next-tier house exists
+// (ErrUpgradeUnavailable), its tier is unlocked (ErrTierLocked), the house
+// is full (ErrHouseNotFull), no required need is below the gate
+// (ErrNeedsUnmet; unmet returns the failing need, nil when none), the
+// footprints match (ErrUpgradeUnavailable) and the cost is covered
+// (ErrInsufficientGold / ErrInsufficientMaterials). The upgrade command and
+// the display's upgrade block (upgradeDisplay) share it.
+func checkHouseUpgrade(w *World, c *content.Catalogue, is *Island, b *Building, unmet func() *content.Need) (*content.Building, *content.Tier, error) {
+	def := c.BuildingByID[b.Type]
+	tier := houseTier(b, c)
+	if def == nil || tier == nil {
+		return nil, nil, fmt.Errorf("%w: %s", ErrNotAHouse, b.Type)
+	}
+	next, nextDef := nextHouse(c, b)
+	if next == nil {
+		return nil, nil, fmt.Errorf("%w: no house of the next tier after %s", ErrUpgradeUnavailable, tier.ID)
+	}
+	if !TierUnlocked(w, c, next.ID) {
+		return nil, nil, fmt.Errorf("%w: %s", ErrTierLocked, next.ID)
+	}
+	if b.House.Residents < tier.ResidentsMax {
+		return nil, nil, fmt.Errorf("%w: %d of %d milli-residents", ErrHouseNotFull, b.House.Residents, tier.ResidentsMax)
+	}
+	if need := unmet(); need != nil {
+		return nil, nil, fmt.Errorf("%w: %s", ErrNeedsUnmet, need.ID)
+	}
+	if nextDef.Width != def.Width || nextDef.Height != def.Height {
+		return nil, nil, fmt.Errorf("%w: footprint of %s differs", ErrUpgradeUnavailable, nextDef.ID)
+	}
+	if err := checkCost(w, is, nextDef.Cost, 1); err != nil {
+		return nil, nil, err
+	}
+	return nextDef, next, nil
+}
+
+// nextHouse returns the next tier of a house and that tier's house
+// definition (nil, nil when the tier is the last or has no house yet).
+func nextHouse(c *content.Catalogue, b *Building) (*content.Tier, *content.Building) {
+	tier := houseTier(b, c)
+	if tier == nil || tier.Index+1 >= len(c.Tiers) {
+		return nil, nil
+	}
+	next := c.Tiers[tier.Index+1]
+	if next.House == "" || c.BuildingByID[next.House] == nil {
+		return nil, nil
+	}
+	return next, c.BuildingByID[next.House]
 }
 
 // upgradeBuilding upgrades a house to the next tier or another building to
@@ -962,12 +989,10 @@ func upgradeLevel(w *World, c *content.Catalogue, is *Island, b *Building, def *
 // of the house must be covered to at least 0.6.
 const upgradeGatePPM = 600_000
 
-// unmetRequiredNeed returns the ID of the first required need of the house
-// below the upgrade gate at this instant ("" when all pass): fulfilment
-// >= 0.6, or the most its alternatives can cover together (needCap) when
-// that is less. The carried needs of lower tiers count like the own ones.
-// It settles a copy of the world, so the world itself is not changed.
-func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) string {
+// unmetRequiredNeed returns the first required need of the house below the
+// upgrade gate at this instant (nil when all pass); see unmetNeed. It
+// settles a copy of the world, so the world itself is not changed.
+func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) *content.Need {
 	cw := w.Clone()
 	wr, _ := settleWorld(cw, c, cw.LastEvaluatedAt.UnixMilli())
 	for i, cis := range cw.Islands {
@@ -975,18 +1000,31 @@ func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) str
 			continue
 		}
 		for _, h := range wr.islands[i].houses {
-			if h.b.ID != id {
-				continue
-			}
-			for _, n := range h.needs {
-				if n.need.Kind != content.NeedOptional && n.fulfilment < min(upgradeGatePPM, needCap(n.need)) {
-					return n.need.ID
-				}
+			if h.b.ID == id {
+				return unmetNeed(h)
 			}
 		}
 	}
-	return ""
+	return nil
 }
+
+// unmetNeed returns the first required need of a settled house below the
+// upgrade gate: fulfilment >= 0.6, or the most its alternatives can cover
+// together (needCap) when that is less. The carried needs of lower tiers
+// count like the own ones. Nil when all pass.
+func unmetNeed(h *houseCalc) *content.Need {
+	for _, n := range h.needs {
+		if n.need.Kind != content.NeedOptional && n.fulfilment < needGate(n.need) {
+			return n.need
+		}
+	}
+	return nil
+}
+
+// needGate is the fulfilment (ppm) a required need must reach for an
+// upgrade: the gate, or the most the need's alternatives can cover when that
+// is less.
+func needGate(n *content.Need) int64 { return min(upgradeGatePPM, needCap(n)) }
 
 // needCap is the highest fulfilment (ppm) a need can reach: the sum of the
 // shares of all its alternatives, at most 1 (D-056).

@@ -1238,7 +1238,7 @@ export interface components {
         DisplayState: {
             /** @description World time of this state (RFC 3339, UTC, ms). */
             evaluated_at: string;
-            /** @description Earliest time the state changes without a command — rates, ship arrivals, departures and completed ship orders (RFC 3339, UTC, ms); null if never. */
+            /** @description Earliest time the state changes without a command — rates, ship arrivals, departures, completed ship orders and a house's `upgrade.available` flipping as gold or a material crosses the cost (RFC 3339, UTC, ms); null if never. */
             next_change_at: string | null;
             /**
              * Format: int64
@@ -1377,6 +1377,14 @@ export interface components {
             arrivals: components["schemas"]["AwayArrival"][];
             /** @description Quests completed during the interval, by completion time. */
             quests_completed: components["schemas"]["AwayQuest"][];
+            /** @description Tiers unlocked during the interval (the tier_unlocked boundaries), in unlock order. */
+            tiers_unlocked: components["schemas"]["AwayTier"][];
+        };
+        AwayTier: {
+            /** @description Tier ID. */
+            id: string;
+            /** @description Buildings the tier adds to the build menu (content count; roads included, the Trading Post, fields and upgrade-only houses not). */
+            buildings: number;
         };
         AwayPopulation: {
             /**
@@ -1761,6 +1769,11 @@ export interface components {
              * @description Net stock rate, arrivals minus consumption (milli-units per minute, signed).
              */
             rate_per_min: number;
+            /**
+             * Format: int64
+             * @description Rate of in_transit until next_change_at, connected production entering transit minus arrivals (milli-units per minute, signed; 0 while a steady flow replaces what arrives). Clients extrapolate it like the stock.
+             */
+            in_transit_rate_per_min: number;
         };
         WorkforceDisplay: {
             /**
@@ -1837,12 +1850,33 @@ export interface components {
             };
         };
         /**
+         * @description Whether upgrading a house to the next tier would succeed now (house
+         *     fields; the server's upgrade gate, MECHANICS §6.1 — clients compute
+         *     no rule) and, when not, the first failing condition of the gate.
+         */
+        UpgradeDisplay: {
+            /** @description Whether `upgrade_building` on the house would succeed now. */
+            available: boolean;
+            /**
+             * @description Present when `available` is false: `no_house` (no house of the
+             *     next tier, or one of another footprint), `tier_locked` (the next
+             *     tier is not unlocked), `not_full` (the house is below its maximum
+             *     residents), `needs_below_threshold:<category>:<percent>` (a required need
+             *     of the named category is below the upgrade gate, which is
+             *     <percent> as a whole percent: 60, or less for a need whose
+             *     alternatives cannot cover 60) or
+             *     `cannot_afford` (the gold or materials of the next house are not
+             *     covered). The first failing condition in this order.
+             */
+            reason?: string;
+        };
+        /**
          * @description A building. Producer fields are present for buildings with a
          *     recipe, collector fields (`level`, `throughput_per_min`,
          *     `load_permille`) for the Trading Post and Warehouses, `capacity`
          *     and `berths` for the Trading Post only (D-051), house fields for
-         *     houses, `fields` for farms with fields and `farm_id` for assigned
-         *     fields (D-049).
+         *     houses (including `upgrade`), `fields` for farms with fields and
+         *     `farm_id` for assigned fields (D-049).
          */
         BuildingDisplay: {
             /**
@@ -1977,6 +2011,7 @@ export interface components {
              * @description Satisfaction (permille).
              */
             satisfaction_permille?: number;
+            upgrade?: components["schemas"]["UpgradeDisplay"];
             /**
              * Format: int64
              * @description Taxes of the house (milli-gold per minute).

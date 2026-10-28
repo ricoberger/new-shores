@@ -260,7 +260,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
 
   it("shows the Trading Post as rows: details, pier, inventory and the next level", () => {
     const model = fixture("settlers_grow");
-    const island = { ...model.islands[0]!, inventory: { wool: { stock: 120_000, capacity: 300_000, in_transit: 0, rate_per_min: -1_000 } } } as IslandDisplay;
+    const island = { ...model.islands[0]!, inventory: { wool: { stock: 120_000, capacity: 300_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: -1_000 } } } as IslandDisplay;
     const tp = {
       ...island.buildings[0]!,
       id: 8_201,
@@ -280,7 +280,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(t).not.toContain("Net/min");
     // Net rate: red below 0, green above, plain at 0 (and when it rounds to 0.0).
     const net = (rate: number) => {
-      const inv = { ...island, inventory: { wool: { stock: 0, capacity: 300_000, in_transit: 0, rate_per_min: rate } } } as IslandDisplay;
+      const inv = { ...island, inventory: { wool: { stock: 0, capacity: 300_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: rate } } } as IslandDisplay;
       return panel(tp, inv, model).match(/<td class="([^"]*)" data-testid="trading-post-net-wool"/)?.[1] ?? "";
     };
     expect(net(-1_000)).toMatch(/negative/);

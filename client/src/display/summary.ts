@@ -3,6 +3,7 @@ import type { Content } from "../api/client";
 import type { components } from "../api/schema";
 import { units } from "./format";
 import { questTitle } from "./quests";
+import { unlockText } from "./tiers";
 
 export type AwaySummary = components["schemas"]["AwaySummary"];
 
@@ -40,6 +41,8 @@ export interface SummaryView {
   /** One line per ship (in the order of its first arrival), e.g. "Gull: 42 arrivals (Cormorant Rock 21, Mistle Haven 21)". */
   arrivals: string[];
   quests: string[];
+  /** One line per tier unlocked while away, e.g. "Citizens unlocked — 15 new buildings" (the server's count). */
+  unlocks: string[];
 }
 
 const signed = (milli: number) => {
@@ -138,6 +141,7 @@ export function summaryView(
     shipsArrived: s.ships_arrived,
     arrivals: arrivalLines(s.arrivals, islandName, shipName),
     quests: s.quests_completed.map((q) => questTitle(content, q.id)),
+    unlocks: (s.tiers_unlocked ?? []).map((t) => unlockText(tierName(t.id), t.buildings)),
   };
 }
 

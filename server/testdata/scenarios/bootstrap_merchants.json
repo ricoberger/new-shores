@@ -6,6 +6,7 @@
     "start": true
   },
   "start": "2026-01-01T00:00:00Z",
+  "snapshot_every": 10,
   "steps": [
     {
       "sail_ship": {
@@ -6846,7 +6847,7 @@
     },
     {
       "advance": {
-        "duration": "31m"
+        "duration": "30m"
       }
     }
   ]

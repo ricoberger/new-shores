@@ -94,6 +94,13 @@ export function AwayDialog({ summary, content, islandName, shipName, timeZone, o
             </div>
           </div>
         )}
+        {v.unlocks.length > 0 && (
+          <div className={styles.section} data-testid="away-unlocks">
+            {v.unlocks.map((u) => (
+              <div key={u}>{u}</div>
+            ))}
+          </div>
+        )}
         {v.quests.length > 0 && <div className={styles.section}>Quests completed: {v.quests.join(", ")}</div>}
         <div className={`${styles.buttons} ${styles.letterEnd}`} data-testid="away-end">
           <span className={styles.letterSign}>Your humble advisor</span>

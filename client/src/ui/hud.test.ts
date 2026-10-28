@@ -319,6 +319,18 @@ describe("HUD components", () => {
     expect(html).toMatch(/<div class="[^"]*letterEnd[^"]*" data-testid="away-end"><span[^>]*>Your humble advisor/);
   });
 
+  it("lists the tiers unlocked while away with the server's building count", () => {
+    const model = fixture("away_unlock");
+    expect(model.away_summary?.tiers_unlocked).toEqual([{ id: "citizens", buildings: 15 }]);
+    const c = { ...content, tiers: [...content.tiers, { id: "citizens", name: "Citizens", index: 1 }] } as unknown as Content;
+    const html = renderToStaticMarkup(createElement(AwayDialog, { summary: model.away_summary!, content: c, islandName: (id: string) => id, timeZone: "UTC", onDismiss: () => {} }));
+    expect(html).toContain('data-testid="away-unlocks"');
+    expect(text(html)).toContain("Citizens unlocked — 15 new buildings");
+    // No unlock, no line.
+    const none = renderToStaticMarkup(createElement(AwayDialog, { summary: fixture("away_summary_12h").away_summary!, content, islandName: (id: string) => id, timeZone: "UTC", onDismiss: () => {} }));
+    expect(none).not.toContain("away-unlocks");
+  });
+
   describe("route editor", () => {
     const model = fixture("route_loop");
     const route = model.routes[0]!;
@@ -479,7 +491,7 @@ describe("HUD components", () => {
       buildings: [],
       roads: [],
       workforce: {},
-      inventory: { planks: { stock: 10_000, capacity: 100_000, in_transit: 0, rate_per_min: 0 }, wood: { stock: 9_000, capacity: 100_000, in_transit: 0, rate_per_min: 0 } },
+      inventory: { planks: { stock: 10_000, capacity: 100_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: 0 }, wood: { stock: 9_000, capacity: 100_000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: 0 } },
     } as unknown as IslandDisplay;
     const model = { ...fixture("chain_planks"), gold: 100_000, balance_rate_per_min: 0 } as DisplayState;
     const panel = (b: Partial<BuildingDisplay>) => {
@@ -517,6 +529,33 @@ describe("HUD components", () => {
       expect([warn("100 gold available"), warn("10 in stock"), warn("9 in stock")]).toEqual([true, true, false]);
       expect(html).not.toContain("shipyard-missing");
       expect(html).not.toContain("shipyard-progress");
+    });
+
+    it("enables a house's Upgrade button only when the server says it would succeed, the reason as its tooltip", () => {
+      const button = (upgrade?: { available: boolean; reason?: string }) =>
+        panel({ type: "house_settlers", residents: 8_000, residents_floor: 2_000, residents_max: 8_000, upgrade }).match(/<button[^>]*data-testid="info-upgrade"[^>]*>/)![0];
+      expect(button({ available: true })).not.toContain("disabled");
+      expect(button({ available: true })).not.toContain("title=");
+      const locked = button({ available: false, reason: "tier_locked" });
+      expect(locked).toContain("disabled");
+      expect(locked).toContain('title="The next tier is not unlocked yet"');
+      expect(button({ available: false, reason: "needs_below_threshold:food:60" })).toContain('title="food is not supplied well enough"');
+      // A payload without the block (older server) offers nothing.
+      expect(button(undefined)).toContain("disabled");
+    });
+
+    it("shows the upgrade reason as a short line under a disabled house Upgrade button, none when available", () => {
+      const hint = (upgrade: { available: boolean; reason?: string }) => {
+        const html = panel({ type: "house_settlers", residents: 8_000, residents_floor: 2_000, residents_max: 8_000, upgrade });
+        return html.match(/data-testid="info-upgrade-hint">(.*?)<\/span>/)?.[1];
+      };
+      expect(hint({ available: true })).toBeUndefined();
+      expect(hint({ available: false, reason: "not_full" })).toBe("House not full");
+      // The percent is the server's (the gate, or less for a need that cannot reach it).
+      expect(hint({ available: false, reason: "needs_below_threshold:food:60" })).toBe("Needs food ≥ 60 %");
+      expect(hint({ available: false, reason: "needs_below_threshold:services:36" })).toBe("Needs services ≥ 36 %");
+      // The shipyard content of this panel has no tiers: the generic words.
+      expect(hint({ available: false, reason: "tier_locked" })).toBe("Next tier not unlocked");
     });
 
     it("lists every ship type with speed, cargo and build time", () => {

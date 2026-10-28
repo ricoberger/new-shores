@@ -42,8 +42,19 @@ type Scenario struct {
 	Island  *Island  `json:"island,omitempty"`
 	Islands []Island `json:"islands,omitempty"`
 	Seed    Seed     `json:"seed"`
-	Steps   []Step   `json:"steps"`
+	// SnapshotEvery is the snapshot interval in simulated minutes (0: the
+	// default of 1, a snapshot after every advance step of a minute or
+	// more). With a larger interval the report records a snapshot only at
+	// the first advance step, the first one that reaches a multiple of the
+	// interval (since Start), every milestone (a tier unlocks; a tier gets its first
+	// residents) and at the last advance step; the replay still advances
+	// step by step, so the simulated game is unchanged.
+	SnapshotEvery int    `json:"snapshot_every,omitempty"`
+	Steps         []Step `json:"steps"`
 }
+
+// maxSnapshotEvery bounds snapshot_every (minutes, one week).
+const maxSnapshotEvery = 7 * 24 * 60
 
 // Island is an ASCII island: one string per row, one character per tile
 // ('~' water, 'c' coast, '.' grass, 'f' forest, 'm' mountain, 'I' mountain
@@ -341,6 +352,9 @@ func Parse(data []byte) (*Scenario, error) {
 	}
 	if s.Content == "" {
 		s.Content = DefaultContent
+	}
+	if s.SnapshotEvery < 0 || s.SnapshotEvery > maxSnapshotEvery {
+		return nil, fmt.Errorf("parse scenario: snapshot_every %d outside 0..%d", s.SnapshotEvery, maxSnapshotEvery)
 	}
 	switch {
 	case s.Seed.Archipelago != 0 && (s.Island != nil || len(s.Islands) > 0):
@@ -643,6 +657,15 @@ type runner struct {
 	w      *sim.World
 	l      *sim.Ledger
 	report *Report
+
+	// Snapshot bookkeeping (snapshot_every > 1): the last snapshot interval
+	// index, the boundaries crossed since the last snapshot, the unlocked
+	// tiers and the tiers that already had residents at the previous advance.
+	lastSlot   int64
+	boundaries int
+	tiers      []string
+	populated  map[string]bool
+	lastAdv    int
 }
 
 // Run executes the scenario and returns its report. A failing step fails the
@@ -660,6 +683,7 @@ func run(s *Scenario, c *content.Catalogue) (*Report, *sim.World, error) {
 		return nil, nil, err
 	}
 	r := &runner{s: s, c: c, w: w, l: l, report: &Report{Name: s.Name, ContentVersion: c.Region.Version}}
+	r.initSnapshots()
 	for i, st := range s.Steps {
 		kind, err := st.kind()
 		if err != nil {
@@ -902,8 +926,12 @@ func (r *runner) step(i int, st Step) error {
 			return err
 		}
 		r.report.BoundaryCount += len(bs)
+		r.boundaries += len(bs)
 		r.recordPauseEvents(bs)
-		r.report.Snapshots = append(r.report.Snapshots, r.snapshot(i, len(bs)))
+		if r.wantSnapshot(i) {
+			r.report.Snapshots = append(r.report.Snapshots, r.snapshot(i, r.boundaries))
+			r.boundaries = 0
+		}
 		return nil
 	}
 	return errors.New("empty step")

@@ -337,6 +337,12 @@ cycle:   seconds               at 100 % efficiency
   it fails with a typed error until its house exists. Houses above the
   first tier can never be *placed*, only upgraded into (`upgrade_only`,
   checked before `tier_locked`).
+- The display carries the gate for every house as `upgrade: {available,
+  reason?}`, where `reason` is the first failing condition in gate order
+  (`no_house`, `tier_locked`, `not_full`,
+  `needs_below_threshold:<category>:<percent>` with the need's effective
+  gate as a whole percent, `cannot_afford`), so the client enables the
+  Upgrade button from it and computes no rule.
 
 ### 6.2 Needs
 
@@ -710,7 +716,10 @@ house cost is paid. One alternative per category is enough.
   `[last_seen_at, now]`: gold before/after, population per tier
   before/after, per-island goods produced/consumed/lost with stock,
   capacity and `at_capacity`, auto-paused/resumed counts, still-unpaid
-  list, ship arrivals, quests completed. A read that produces one commits
+  list, ship arrivals, quests completed, tiers unlocked (a `tier_unlocked`
+  boundary inside the interval: the tier and the number of buildings it adds
+  to the build menu, as in the live unlock toast; the letter shows "Citizens
+  unlocked — 15 new buildings"). A read that produces one commits
   it (version bump, push) so every device sees it until one acknowledges.
 - `ack_summary {id}` clears the pending summary when the id matches; it
   counts as a command for `last_seen_at` and never produces a new summary.

@@ -845,109 +845,127 @@
             "stock": 0,
             "capacity": 500000,
             "in_transit": 2400,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "bread": {
             "stock": 53333,
             "capacity": 500000,
             "in_transit": 2633,
-            "rate_per_min": 4000
+            "rate_per_min": 4000,
+            "in_transit_rate_per_min": 0
           },
           "charcoal": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "cider": {
             "stock": 35444,
             "capacity": 500000,
             "in_transit": 2156,
-            "rate_per_min": 2666
+            "rate_per_min": 2666,
+            "in_transit_rate_per_min": 0
           },
           "fish": {
             "stock": 237455,
             "capacity": 500000,
             "in_transit": 3825,
-            "rate_per_min": 3300
+            "rate_per_min": 3300,
+            "in_transit_rate_per_min": 0
           },
           "flour": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 2033,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "hemp": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 2400,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "iron_ore": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "linen_garments": {
             "stock": 25783,
             "capacity": 500000,
             "in_transit": 1817,
-            "rate_per_min": 2000
+            "rate_per_min": 2000,
+            "in_transit_rate_per_min": 0
           },
           "planks": {
             "stock": 107100,
             "capacity": 500000,
             "in_transit": 7700,
-            "rate_per_min": 6000
+            "rate_per_min": 6000,
+            "in_transit_rate_per_min": 0
           },
           "sails": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "stone": {
             "stock": 58222,
             "capacity": 500000,
             "in_transit": 1778,
-            "rate_per_min": 2666
+            "rate_per_min": 2666,
+            "in_transit_rate_per_min": 0
           },
           "tools": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 0,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wheat": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 2000,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wood": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 8200,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool": {
             "stock": 0,
             "capacity": 500000,
             "in_transit": 2233,
-            "rate_per_min": 0
+            "rate_per_min": 0,
+            "in_transit_rate_per_min": 0
           },
           "wool_garments": {
             "stock": 112323,
             "capacity": 500000,
             "in_transit": 2333,
-            "rate_per_min": 1400
+            "rate_per_min": 1400,
+            "in_transit_rate_per_min": 0
           }
         },
         "roads": [
@@ -2395,6 +2413,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2446,6 +2467,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2497,6 +2521,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2548,6 +2575,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2599,6 +2629,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2650,6 +2683,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2701,6 +2737,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2752,6 +2791,9 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": true
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2803,6 +2845,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small:60"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2851,6 +2897,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small:60"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2899,6 +2949,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small:60"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2947,6 +3001,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small:60"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -2995,6 +3053,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small:60"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -3043,6 +3105,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small:60"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,
@@ -3091,6 +3157,10 @@
             "status": "ok",
             "efficiency_permille": 1000,
             "throughput_factor_permille": 1000,
+            "upgrade": {
+              "available": false,
+              "reason": "needs_below_threshold:settlers_market_small:60"
+            },
             "residents": 8000,
             "residents_floor": 2000,
             "residents_max": 8000,

@@ -253,3 +253,12 @@ func TestAwaySummaryIncludesCommandEffects(t *testing.T) {
 		t.Errorf("fish %+v", g)
 	}
 }
+
+// A summary stored before tiers_unlocked existed still serves an empty
+// list, not null, after a clone (the display copies the world).
+func TestSummaryCloneTiersUnlockedNotNull(t *testing.T) {
+	s := &AwaySummary{ID: 1}
+	if got := s.clone().TiersUnlocked; got == nil || len(got) != 0 {
+		t.Errorf("TiersUnlocked = %#v, want an empty list", got)
+	}
+}

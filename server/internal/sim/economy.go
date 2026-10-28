@@ -394,6 +394,15 @@ func UnlockedTiers(w *World, c *content.Catalogue) []string {
 	return out
 }
 
+// WorldPopulation returns the residents (milli) per tier over all islands.
+func WorldPopulation(w *World, c *content.Catalogue) map[string]int64 {
+	out := map[string]int64{}
+	for tier, n := range worldPopulation(w, c) {
+		out[tier] = int64(n)
+	}
+	return out
+}
+
 // worldPopulation returns the residents (milli) per tier over all islands.
 func worldPopulation(w *World, c *content.Catalogue) map[string]Qty {
 	pop := map[string]Qty{}
@@ -466,6 +475,7 @@ func evaluateUnlocks(w *World, c *content.Catalogue) []string {
 			}
 		}
 		w.UnlockedTiers = all
+		w.Away.TiersUnlocked = append(w.Away.TiersUnlocked, unlocked...)
 	}
 	return unlocked
 }

@@ -97,7 +97,12 @@ export function unlockToasts(prev: DisplayState | null, next: DisplayState | nul
     if (!t.unlocked || tierUnlocked(prev, t.id) || !prev.tiers.some((p) => p.id === t.id)) continue;
     const name = content.tiers.find((x) => x.id === t.id)?.name ?? t.id;
     const n = content.buildings.filter((b) => b.tier === t.id && listedInBuildMenu(b, content)).length;
-    out.push(n > 0 ? `${name} unlocked — ${n} new building${n === 1 ? "" : "s"}` : `${name} unlocked`);
+    out.push(unlockText(name, n));
   }
   return out;
+}
+
+/** "Citizens unlocked — 15 new buildings" (just the name when no building is new). */
+export function unlockText(name: string, buildings: number): string {
+  return buildings > 0 ? `${name} unlocked — ${buildings} new building${buildings === 1 ? "" : "s"}` : `${name} unlocked`;
 }

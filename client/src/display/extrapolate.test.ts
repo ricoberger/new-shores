@@ -31,7 +31,7 @@ function passThrough(d: DisplayState): unknown {
     gold: undefined,
     islands: d.islands.map((is) => ({
       ...is,
-      inventory: Object.fromEntries(Object.entries(is.inventory).map(([k, g]) => [k, { ...g, stock: undefined }])),
+      inventory: Object.fromEntries(Object.entries(is.inventory).map(([k, g]) => [k, { ...g, stock: undefined, in_transit: undefined }])),
       buildings: is.buildings.map((b) => ({
         ...b,
         cycle_progress_permille: undefined,
@@ -67,6 +67,9 @@ export function compareSample(base: DisplayState, offsetMs: number, sample: Disp
       const e = ei.inventory[good];
       if (!e || Math.abs(e.stock - g.stock) > tol) {
         out.push(`${is.id} ${good} stock ${e?.stock} vs ${g.stock}`);
+      }
+      if (!e || Math.abs(e.in_transit - g.in_transit) > tol) {
+        out.push(`${is.id} ${good} in_transit ${e?.in_transit} vs ${g.in_transit}`);
       }
     }
     is.buildings.forEach((b, j) => {
@@ -156,8 +159,8 @@ describe("extrapolate", () => {
         deposits: [],
         terrain_mask: "g",
         inventory: {
-          up: { stock: 900, capacity: 1000, in_transit: 0, rate_per_min: 600 },
-          down: { stock: 100, capacity: 1000, in_transit: 0, rate_per_min: -600 },
+          up: { stock: 900, capacity: 1000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: 600 },
+          down: { stock: 100, capacity: 1000, in_transit: 0, in_transit_rate_per_min: 0, rate_per_min: -600 },
         },
         buildings: [
           {
@@ -187,6 +190,14 @@ describe("extrapolate", () => {
     expect(d.gold).toBe(0);
     expect(d.islands[0]?.inventory.up?.stock).toBe(1000);
     expect(d.islands[0]?.inventory.down?.stock).toBe(0);
+  });
+
+  it("extrapolates the in-transit amount by its rate and clamps it at 0", () => {
+    const up = { stock: 0, capacity: 1000, in_transit: 100, in_transit_rate_per_min: 600, rate_per_min: 0 };
+    const is = { ...base.islands[0]!, inventory: { up, down: { ...up, in_transit_rate_per_min: -600 } } };
+    const d = extrapolate({ ...base, islands: [is] }, t0 + 30_000).islands[0]?.inventory;
+    expect(d?.up?.in_transit).toBeCloseTo(400);
+    expect(d?.down?.in_transit).toBe(0);
   });
 
   it("wraps cycle progress and clamps growth progress", () => {
