@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -107,6 +108,154 @@ func TestLoadMerchantsChains(t *testing.T) {
 	// Salt pans: the harbour-slot alternative of the salt chain (3 water rows, no boat loop).
 	if sp := c.BuildingByID["salt_pans"]; sp.WaterTiles != 3 || sp.Boat || sp.Coastal {
 		t.Errorf("salt_pans = %+v", sp)
+	}
+}
+
+// TestLoadMerchantsNeeds checks the Merchants house, needs and services
+// ladder (D-056 C3, CONTENT §2): four goods categories at 0.17 each with
+// two alternatives, services 0.32 with church and theatre, the lower
+// tiers' categories at the cumulative rates, and the tier's buildings.
+func TestLoadMerchantsNeeds(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []string
+	var weights int64
+	for _, n := range c.NeedsByTier["merchants"] {
+		weights += n.Weight
+		if n.Kind != NeedRequired {
+			t.Errorf("%s kind %s", n.ID, n.Kind)
+		}
+		if !n.IsGoods() {
+			got = append(got, fmt.Sprintf("%s:%s:%s:%d", n.ID, n.Category, needBuildings(n), n.Weight))
+			continue
+		}
+		var goods []string
+		for _, g := range n.Goods {
+			goods = append(goods, fmt.Sprintf("%s=%d", g.Good, g.PerResidentPerMin))
+			if want := map[bool]int64{true: ShareLone, false: ShareAlternative}[len(n.Goods) == 1]; g.Share != want {
+				t.Errorf("%s %s share %d, want %d", n.ID, g.Good, g.Share, want)
+			}
+		}
+		got = append(got, fmt.Sprintf("%s:%s:%s:%d", n.ID, n.Category, strings.Join(goods, "/"), n.Weight))
+	}
+	want := []string{
+		// Own categories: 0.17 each and services 0.32 of the own 0.6.
+		"merchants_food:food:sausages=6000/pies=5000:102000", "merchants_drink:drink:beer=6000/brandy=4000:102000",
+		"merchants_clothing:clothing:coats=4000/dyed_garments=4000:102000", "merchants_comfort:comfort:books=2000/soap=3000:102000",
+		"merchants_services:services:market=600000/chapel=600000/tavern=600000/school=600000/church=600000/theatre=600000:192000",
+		// Lower tiers: 0.2 each, split by their own weights (rounding to the last).
+		"merchants_settlers_food:food:fish=2000:142857", "merchants_settlers_clothing:clothing:wool_garments=1000:57142",
+		"merchants_citizens_food:food:bread=3800/cheese=2900:66666", "merchants_citizens_drink:drink:cider=2900/mead=2400:66666",
+		"merchants_citizens_clothing:clothing:linen_garments=2400/leather_jerkins=1900:66669",
+	}
+	if !slices.Equal(got, want) || weights != WeightScale {
+		t.Errorf("merchants needs = %v (weights %d), want %v", got, weights, want)
+	}
+
+	hm := c.BuildingByID["house_merchants"]
+	if hm == nil || hm.House == nil || hm.House.Tier != "merchants" || hm.Width != 3 || hm.Height != 3 || hm.PauseCategory != "never" || hm.UpkeepPerMin != 0 ||
+		fmt.Sprint(hm.Cost.Gold, hm.Cost.Materials) != "400000 [{bricks 3000} {planks 5000} {stone 3000}]" {
+		t.Errorf("house_merchants = %+v", hm)
+	}
+	if tr := c.TierByID["merchants"]; tr.House != "house_merchants" {
+		t.Errorf("merchants house %q", tr.House)
+	}
+	if tr := c.TierByID["patricians"]; !slices.Equal(tr.Unlock.Buildings, []string{"church"}) {
+		t.Errorf("patricians unlock %v", tr.Unlock.Buildings)
+	}
+	// The services ladder (CONTENT §2): radius per public building, by tier.
+	ladder := map[string]string{"market": "settlers:12", "chapel": "settlers:16", "tavern": "citizens:14", "school": "citizens:16", "church": "merchants:20", "theatre": "merchants:24"}
+	for id, w := range ladder {
+		b := c.BuildingByID[id]
+		if b == nil || b.Service == nil || fmt.Sprintf("%s:%d", b.Tier, b.Service.RadiusAt(1)) != w || !b.RequiresRoad {
+			t.Errorf("%s service = %+v, want %s", id, b, w)
+		}
+	}
+	for id, cost := range map[string]string{"church": "1500000 [{planks 30000} {stone 15000}]", "theatre": "15000000 [{bricks 30000} {planks 30000} {stone 60000}]"} {
+		b := c.BuildingByID[id]
+		if b.Upgradable() || b.PauseCategory != "public" || fmt.Sprint(b.Cost.Gold, b.Cost.Materials) != cost {
+			t.Errorf("%s = %+v", id, b)
+		}
+	}
+	if up := map[string]Qty{"church": 6000, "theatre": 15000}; c.BuildingByID["church"].UpkeepPerMin != up["church"] || c.BuildingByID["theatre"].UpkeepPerMin != up["theatre"] {
+		t.Error("church/theatre upkeep")
+	}
+	// The market's level 2 is the Merchants' (radius 16).
+	if m := c.BuildingByID["market"]; m.Service.RadiusAt(2) != 16 || m.LevelTier(2) != "merchants" {
+		t.Errorf("market level 2 = %d %s", m.Service.RadiusAt(2), m.LevelTier(2))
+	}
+	// The brig is the Merchants' ship, built at the shipyard.
+	if b := c.ShipByID["brig"]; b == nil || b.Tier != "merchants" || !slices.Contains(c.BuildingByID["shipyard"].Shipyard.Ships, "brig") {
+		t.Errorf("brig = %+v", b)
+	}
+}
+
+// TestClosedChains: every good of the shipped content has a producer (or
+// is in the starting stock) and a use: a recipe input, a need, or a
+// building or ship cost. The charcoal | coal alternative is real: coal has
+// its mine (D-056 C3).
+func TestClosedChains(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	produced, used := map[string]bool{}, map[string]bool{}
+	for _, g := range c.Start.Goods {
+		produced[g.Good] = true
+	}
+	for _, b := range c.Buildings {
+		for _, m := range b.Cost.Materials {
+			used[m.Good] = true
+		}
+		for lv := 2; lv <= b.LevelCount(); lv++ {
+			if cost := b.LevelCost(lv); cost != nil {
+				for _, m := range cost.Materials {
+					used[m.Good] = true
+				}
+			}
+		}
+		if b.Recipe == nil {
+			continue
+		}
+		for _, in := range b.Recipe.Inputs {
+			for _, g := range in.Goods {
+				used[g] = true
+			}
+		}
+		for _, out := range b.Recipe.Outputs {
+			produced[out.Good] = true
+		}
+	}
+	for _, sh := range c.Ships {
+		for _, m := range sh.Cost.Materials {
+			used[m.Good] = true
+		}
+	}
+	for _, needs := range c.NeedsByTier {
+		for _, n := range needs {
+			for _, g := range n.Goods {
+				used[g.Good] = true
+			}
+		}
+	}
+	for _, g := range c.Goods {
+		if !produced[g.ID] {
+			t.Errorf("good %s has no producer", g.ID)
+		}
+		if !used[g.ID] {
+			t.Errorf("good %s has no use", g.ID)
+		}
+	}
+	var coal []string
+	for _, b := range c.Buildings {
+		if b.Recipe != nil && b.Recipe.Outputs[0].Good == "coal" {
+			coal = append(coal, b.ID)
+		}
+	}
+	if !slices.Equal(coal, []string{"coal_mine"}) {
+		t.Errorf("coal producers %v", coal)
 	}
 }
 

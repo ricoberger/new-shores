@@ -95,5 +95,128 @@
     "weight": 0.2,
     "category": "clothing",
     "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.0021 }]
+  },
+  {
+    "id": "merchants_food",
+    "name": "Food",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.17,
+    "category": "food",
+    "goods": [
+      { "good": "sausages", "per_resident_per_min": 0.006 },
+      { "good": "pies", "per_resident_per_min": 0.005 }
+    ]
+  },
+  {
+    "id": "merchants_drink",
+    "name": "Drink",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.17,
+    "category": "drink",
+    "goods": [
+      { "good": "beer", "per_resident_per_min": 0.006 },
+      { "good": "brandy", "per_resident_per_min": 0.004 }
+    ]
+  },
+  {
+    "id": "merchants_clothing",
+    "name": "Clothing",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.17,
+    "category": "clothing",
+    "goods": [
+      { "good": "coats", "per_resident_per_min": 0.004 },
+      { "good": "dyed_garments", "per_resident_per_min": 0.004 }
+    ]
+  },
+  {
+    "id": "merchants_comfort",
+    "name": "Comfort",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.17,
+    "category": "comfort",
+    "goods": [
+      { "good": "books", "per_resident_per_min": 0.002 },
+      { "good": "soap", "per_resident_per_min": 0.003 }
+    ]
+  },
+  {
+    "id": "merchants_services",
+    "name": "Services",
+    "tier": "merchants",
+    "kind": "required",
+    "weight": 0.32,
+    "category": "services",
+    "buildings": [
+      { "building": "market" },
+      { "building": "chapel" },
+      { "building": "tavern" },
+      { "building": "school" },
+      { "building": "church" },
+      { "building": "theatre" }
+    ]
+  },
+  {
+    "id": "merchants_settlers_food",
+    "name": "Food",
+    "tier": "merchants",
+    "from_tier": "settlers",
+    "kind": "required",
+    "weight": 0.5,
+    "category": "food",
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.002 }]
+  },
+  {
+    "id": "merchants_settlers_clothing",
+    "name": "Clothing",
+    "tier": "merchants",
+    "from_tier": "settlers",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "clothing",
+    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.001 }]
+  },
+  {
+    "id": "merchants_citizens_food",
+    "name": "Food",
+    "tier": "merchants",
+    "from_tier": "citizens",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "food",
+    "goods": [
+      { "good": "bread", "per_resident_per_min": 0.0038 },
+      { "good": "cheese", "per_resident_per_min": 0.0029 }
+    ]
+  },
+  {
+    "id": "merchants_citizens_drink",
+    "name": "Drink",
+    "tier": "merchants",
+    "from_tier": "citizens",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "drink",
+    "goods": [
+      { "good": "cider", "per_resident_per_min": 0.0029 },
+      { "good": "mead", "per_resident_per_min": 0.0024 }
+    ]
+  },
+  {
+    "id": "merchants_citizens_clothing",
+    "name": "Clothing",
+    "tier": "merchants",
+    "from_tier": "citizens",
+    "kind": "required",
+    "weight": 0.2,
+    "category": "clothing",
+    "goods": [
+      { "good": "linen_garments", "per_resident_per_min": 0.0024 },
+      { "good": "leather_jerkins", "per_resident_per_min": 0.0019 }
+    ]
   }
 ]

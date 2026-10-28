@@ -2,7 +2,7 @@
   { "id": "food", "name": "Food", "icon": "need:food" },
   { "id": "drink", "name": "Drink", "icon": "need:drink" },
   { "id": "clothing", "name": "Clothing", "icon": "need:clothing" },
-  { "id": "comfort", "name": "Comfort", "icon": "need:_fallback" },
+  { "id": "comfort", "name": "Comfort", "icon": "need:comfort" },
   { "id": "luxury", "name": "Luxury", "icon": "need:_fallback" },
   { "id": "services", "name": "Services", "icon": "need:services" }
 ]

@@ -73,7 +73,7 @@ func TestLoadOldCoast(t *testing.T) {
 		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
 		"charcoal_burner", "smelter", "toolmaker",
 		// Tier 3 (D-056 C3).
-		"butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
+		"house_merchants", "church", "theatre", "butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
 		"woad_farm", "woad_field", "dyer_works", "dyer", "paper_mill", "printing_press", "clay_pit", "rendering_house",
 		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine")
 	ids = nil
@@ -81,16 +81,20 @@ func TestLoadOldCoast(t *testing.T) {
 		ids = append(ids, tr.ID)
 	}
 	wantIDs("tiers", ids, "settlers", "citizens", "merchants", "patricians")
-	// Merchants and Patricians are declared without a house (D-056 S1);
-	// Patricians' church condition comes with the church (tier 3).
-	for id, want := range map[string]string{"merchants": "8000-25000 1500 citizens=360 tavern", "patricians": "12000-40000 2700 merchants=1200 "} {
+	// Merchants have their house and needs (D-056 C3); Patricians unlock
+	// with the church and are still declared without a house or needs.
+	for id, want := range map[string]string{"merchants": "8000-25000 1500 citizens=360 tavern", "patricians": "12000-40000 2700 merchants=1200 church"} {
 		tr := c.TierByID[id]
 		var pop []string
 		for k, v := range tr.Unlock.Population {
 			pop = append(pop, fmt.Sprintf("%s=%d", k, v))
 		}
 		got := fmt.Sprintf("%d-%d %d %s %s", tr.ResidentsFloor, tr.ResidentsMax, tr.TaxPerResidentPerMin, strings.Join(pop, ","), strings.Join(tr.Unlock.Buildings, ","))
-		if got != want || tr.House != "" || len(c.NeedsByTier[id]) != 0 {
+		wantHouse, wantNeeds := "", 0
+		if id == "merchants" {
+			wantHouse, wantNeeds = "house_merchants", 10
+		}
+		if got != want || tr.House != wantHouse || len(c.NeedsByTier[id]) != wantNeeds {
 			t.Errorf("%s = %q (house %q), want %q", id, got, tr.House, want)
 		}
 	}
@@ -280,7 +284,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Error("chapel service")
 	}
 	// Market levels (D-056): radius 12 / 16 / 20; levels 2 and 3 need
-	// Merchants and Patricians.
+	// Merchants and Patricians; level 3 costs bricks (C3).
 	market := c.BuildingByID["market"]
 	var levels []string
 	for i, l := range market.Service.Levels {
@@ -290,7 +294,7 @@ func TestLoadOldCoast(t *testing.T) {
 		}
 		levels = append(levels, fmt.Sprintf("%d:%s:%s", l.Radius, market.LevelTier(i+1), cost))
 	}
-	if got := strings.Join(levels, " "); market.Name != "Market" || got != "12::- 16:merchants:1000000 [{planks 15000} {stone 30000}] 20:patricians:5000000 [{planks 15000} {stone 45000}]" {
+	if got := strings.Join(levels, " "); market.Name != "Market" || got != "12::- 16:merchants:1000000 [{planks 15000} {stone 30000}] 20:patricians:5000000 [{bricks 15000} {planks 15000} {stone 45000}]" {
 		t.Errorf("market %q levels = %s", market.Name, got)
 	}
 	for id, amount := range map[string]Qty{"lumberjack": 4000, "sawmill": 4000, "fisher": 4000, "sheep_farm": 4000, "weaver_wool": 6000} {
@@ -870,7 +874,7 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 			t.Errorf("NeedCategoryByID[%q] = %+v", nc.ID, c.NeedCategoryByID[nc.ID])
 		}
 	}
-	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:_fallback,luxury=Luxury/need:_fallback,services=Services/need:services"
+	want := "food=Food/need:food,drink=Drink/need:drink,clothing=Clothing/need:clothing,comfort=Comfort/need:comfort,luxury=Luxury/need:_fallback,services=Services/need:services"
 	if got := strings.Join(cats, ","); got != want {
 		t.Errorf("need categories = %s, want %s", got, want)
 	}
@@ -884,6 +888,9 @@ func TestLoadNeedDisplayNames(t *testing.T) {
 		"settlers_food": "Food", "settlers_clothing": "Clothing", "settlers_services": "Services",
 		"citizens_food": "Food", "citizens_drink": "Drink", "citizens_clothing": "Clothing", "citizens_services": "Services",
 		"citizens_settlers_food": "Food", "citizens_settlers_clothing": "Clothing",
+		"merchants_food": "Food", "merchants_drink": "Drink", "merchants_clothing": "Clothing", "merchants_comfort": "Comfort",
+		"merchants_services": "Services", "merchants_settlers_food": "Food", "merchants_settlers_clothing": "Clothing",
+		"merchants_citizens_food": "Food", "merchants_citizens_drink": "Drink", "merchants_citizens_clothing": "Clothing",
 	}
 	if len(names) != len(wantNames) {
 		t.Errorf("need names = %v, want %v", names, wantNames)

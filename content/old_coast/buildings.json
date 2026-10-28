@@ -101,7 +101,7 @@
       "levels": [
         { "radius": 12 },
         { "radius": 16, "tier": "merchants", "cost": { "gold": 1000, "planks": 15, "stone": 30 } },
-        { "radius": 20, "tier": "patricians", "cost": { "gold": 5000, "planks": 15, "stone": 45 } }
+        { "radius": 20, "tier": "patricians", "cost": { "gold": 5000, "planks": 15, "stone": 45, "bricks": 15 } }
       ]
     }
   },
@@ -745,6 +745,45 @@
       "outputs": [{ "good": "tools", "amount": 1 }],
       "cycle_seconds": 60
     }
+  },
+  {
+    "id": "house_merchants",
+    "name": "Merchant house",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 400, "planks": 5, "stone": 3, "bricks": 3 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "house": { "tier": "merchants" }
+  },
+  {
+    "id": "church",
+    "name": "Church",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [6, 10],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 1500, "planks": 30, "stone": 15 },
+    "upkeep_per_min": 6,
+    "pause_category": "public",
+    "service": { "radius": 20 }
+  },
+  {
+    "id": "theatre",
+    "name": "Theatre",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [11, 14],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 15000, "planks": 30, "stone": 60, "bricks": 30 },
+    "upkeep_per_min": 15,
+    "pause_category": "public",
+    "service": { "radius": 24 }
   },
   {
     "id": "butcher",

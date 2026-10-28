@@ -50,7 +50,9 @@
             "need": 1200000
           }
         },
-        "buildings": {}
+        "buildings": {
+          "church": false
+        }
       }
     ],
     "archipelago": {
@@ -9197,7 +9199,9 @@
                 "need": 1200000
               }
             },
-            "buildings": {}
+            "buildings": {
+              "church": false
+            }
           }
         ],
         "archipelago": {
@@ -18344,7 +18348,9 @@
                 "need": 1200000
               }
             },
-            "buildings": {}
+            "buildings": {
+              "church": false
+            }
           }
         ],
         "archipelago": {
@@ -27491,7 +27497,9 @@
                 "need": 1200000
               }
             },
-            "buildings": {}
+            "buildings": {
+              "church": false
+            }
           }
         ],
         "archipelago": {
@@ -36638,7 +36646,9 @@
                 "need": 1200000
               }
             },
-            "buildings": {}
+            "buildings": {
+              "church": false
+            }
           }
         ],
         "archipelago": {
