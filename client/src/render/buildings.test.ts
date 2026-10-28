@@ -110,7 +110,8 @@ describe("BuildingLayer with models", () => {
     const paused = await colours(true);
     expect(paused.length).toBe(active.length);
     expect(paused[0]).toBeLessThan(active[0] as number);
-    expect(paused[3]).toBe(1);
+    // The alpha (the jitter class, render/jitter.ts) is not tinted.
+    expect(paused[3]).toBe(active[3]);
     scene.dispose();
   });
 
@@ -132,7 +133,7 @@ describe("BuildingLayer with models", () => {
     expect(off[0]).toBeCloseTo((on[0] as number) * 0.62, 5);
     expect(off[1]).toBeCloseTo((on[1] as number) * 0.62, 5);
     expect(off[2]).toBeCloseTo((on[2] as number) * 0.58, 5);
-    expect(off[3]).toBe(1);
+    expect(off[3]).toBe(on[3]);
     scene.dispose();
   });
 

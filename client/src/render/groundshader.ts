@@ -25,9 +25,12 @@ import type { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture
 import type { Material } from "@babylonjs/core/Materials/material";
 import { MaterialPluginBase } from "@babylonjs/core/Materials/materialPluginBase";
 import type { UniformBuffer } from "@babylonjs/core/Materials/uniformBuffer";
+import { JITTER_CLASSES } from "./jitter";
 
-/** Global strength of the per-voxel brightness jitter (± per step; 0 at far LOD). */
-export const groundShade = { jitter: 0.045 };
+/** Ground jitter strength (± per step): the ground class of render/jitter.ts. */
+export const GROUND_JITTER = (JITTER_CLASSES[5] as readonly [number, number])[0];
+/** Global strength of the per-voxel brightness jitter (± per step; 0 at far LOD and with ?jitter=0). */
+export const groundShade = { jitter: GROUND_JITTER };
 
 /** The ground texture of one island (null: jitter only) and its column grid. */
 export interface GroundBinding {

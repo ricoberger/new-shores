@@ -18,6 +18,7 @@ import { CLS, VILLAGER_VARIANTS } from "../display/lifeplan";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
 import { BUILDINGS, WATER } from "../theme/palette";
+import { addJitter, LIFE_VPT } from "./jitter";
 import { skyFill } from "./lighting";
 import { lifeModel, type ModelData, type ModelRegistry } from "./models";
 import { c4, mix } from "./palette";
@@ -166,7 +167,7 @@ export class LifeLayer {
   ) {
     this.quality = quality;
     this.enabled = enabled;
-    this.material = skyFill(new StandardMaterial("life", scene));
+    this.material = addJitter(skyFill(new StandardMaterial("life", scene)), LIFE_VPT);
     this.material.specularColor = Color3.Black();
     for (const [id, def] of Object.entries(defs)) this.define(id, def);
     this.sink = {

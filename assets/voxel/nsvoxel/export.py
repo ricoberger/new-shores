@@ -2,17 +2,18 @@
 Voxel grid → GLB through the deterministic writer (glb.py) and the
 manifest file entries the client reads (client/src/render/models.ts):
 vertex colours are palette roles × shade blended toward the role's shadow
-tone by the corner's occlusion; cloth voxels (a sway group) lower the
-alpha byte (the client's sway mask).
+tone by the corner's occlusion; the alpha byte carries the material's
+jitter class (nsvoxel/jitter.py), or on cloth voxels (a sway group) the
+sway weight (the client's sway mask).
 """
 
 import hashlib
 import math
 
-from . import glb, mesh, palette
+from . import glb, jitter, mesh, palette
 
 #: Share of the way to the shadow tone at full occlusion (level 3).
-AO_STRENGTH = 0.62
+AO_STRENGTH = 0.58
 #: Side faces' normals are tilted toward up by this much (normalise(n + k·up)):
 #: axis-aligned walls facing away from the sun would otherwise get only the
 #: cool sky fill and read as cold grey slabs. Rotation-safe, unlike a baked
@@ -74,12 +75,12 @@ def build_tris(cells, w, d, scale, ao=True, offset=(0.0, 0.0, 0.0)):
             normal = (sign * k if axis == 0 else 0.0, sign * k if axis == 1 else 0.0, SIDE_TILT * k)
         tri_keys = []
         for lv in levels:
-            col = tuple(palette.to_byte(c) for c in corner_color(m, lv))
+            col = tuple(palette.to_byte(c) for c in corner_color(m, lv)) + (jitter.alpha_of(m[0]),)
             k = keys.get(col)
             if k is None:
                 k = len(keys)
                 keys[col] = k
-                colors[("v", 0, k)] = tuple(c / 255.0 for c in col)
+                colors[("v", 0, k)] = tuple(c / 255.0 for c in col[:3]) + (col[3],)
             tri_keys.append(k)
         tris.append((pts[0], pts[1], pts[2], "v", 0, None, normal))
         ao_keys.append(tuple(tri_keys))

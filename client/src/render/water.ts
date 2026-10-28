@@ -82,10 +82,21 @@ function rippleTexture(scene: Scene, h: Float32Array): RawTexture {
   return tex;
 }
 
+/**
+ * The deep sea's colour: the palette's deep a little toward the shallows
+ * and warmed (D-057 V2: a warmer sea under the golden-hour sun).
+ */
+export function seaDeep(): Color3 {
+  const d = Color3.Lerp(c3(WATER.deep), c3(WATER.shallows), SEA_TEAL);
+  return new Color3(Math.min(1, d.r * 1.08 + 0.015), Math.min(1, d.g * 1.03), d.b * 0.97);
+}
+/** Share of the shallows in the deep colour. */
+const SEA_TEAL = 0.12;
+
 /** Gradient texture of a distance field: shallows near land, deep beyond. */
 function gradientTexture(scene: Scene, f: DistanceField): RawTexture {
   const shallows = c3(WATER.shallows);
-  const deep = c3(WATER.deep);
+  const deep = seaDeep();
   const sand = c3(TERRAIN.sand);
   const data = new Uint8Array(f.width * f.height * 4);
   for (let i = 0; i < f.width * f.height; i++) {
@@ -142,7 +153,7 @@ export class Sea {
   ) {
     this.mesh = new Mesh("sea", scene);
     this.material = skyFill(new StandardMaterial("sea", scene));
-    this.material.diffuseColor = c3(WATER.deep);
+    this.material.diffuseColor = seaDeep();
     this.material.specularPower = 40;
     const heights = rippleHeights();
     this.ripples = rippleTexture(scene, heights);
@@ -173,7 +184,7 @@ export class Sea {
     this.gradient?.dispose();
     this.gradient = this.field ? gradientTexture(this.scene, this.field) : null;
     this.material.diffuseTexture = this.gradient;
-    this.material.diffuseColor = this.gradient ? Color3.White() : c3(WATER.deep);
+    this.material.diffuseColor = this.gradient ? Color3.White() : seaDeep();
     this.rebuild();
   }
 

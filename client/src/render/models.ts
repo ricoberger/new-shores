@@ -27,6 +27,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import "@babylonjs/loaders/glTF/2.0/glTFLoader";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
+import { addJitter, MODEL_VPT } from "./jitter";
 import { skyFill } from "./lighting";
 import { addSway } from "./sway";
 
@@ -320,7 +321,7 @@ export function modelMesh(scene: Scene, name: string, data: ModelData, material?
   vd.applyToMesh(mesh);
   if (material) mesh.material = material;
   else {
-    const mat = skyFill(new StandardMaterial(name, scene));
+    const mat = addJitter(skyFill(new StandardMaterial(name, scene)), MODEL_VPT);
     mat.specularColor = Color3.Black();
     mesh.material = mat;
   }

@@ -83,7 +83,7 @@ def _job(args):
 def tri_list(v, ctx):
     """Triangles with corner colours of a grid (renderer input)."""
     tris, colors, ao_keys, _ = export.build_tris(v.cells, ctx.W, ctx.D, 1.0 / ctx.vpt, offset=v.offset)
-    return [((t[0], t[1], t[2]), [colors[("v", 0, k)] for k in ks], t[6]) for t, ks in zip(tris, ao_keys)]
+    return [((t[0], t[1], t[2]), [colors[("v", 0, k)][:3] for k in ks], t[6]) for t, ks in zip(tris, ao_keys)]
 
 
 def thumbnail(f, size=config.THUMB_PX):

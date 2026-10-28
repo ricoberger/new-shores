@@ -3,7 +3,11 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { afterEach, describe, expect, it } from "vitest";
 import { CameraRig } from "./camera";
-import { SceneLighting, SHADOW_LEAN, SUN_DIRECTION } from "./lighting";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { LIGHT, LIGHT_VALUES, WATER } from "../theme/palette";
+import { previewOffset, SceneLighting, SHADOW_LEAN, skyFillColor, SUN_DIRECTION } from "./lighting";
+import { c3 } from "./palette";
+import { seaDeep } from "./water";
 
 // The golden-hour sun (accepted north-west placement): fixed to the world
 // under the camera's 90° steps; at rotation 0 shadows fall toward the
@@ -52,5 +56,29 @@ describe("sun", () => {
       (n) => Vector3.Dot(n, cam) > 0 && Vector3.Dot(n, toSun) > 0,
     );
     expect(facesCameraAndSun.length).toBeGreaterThan(0);
+  });
+});
+
+describe("sky fill and sea (D-057 V2)", () => {
+  it("warms the sky fill toward the sun and lifts it above the palette's fill ratio", () => {
+    const sky = c3(LIGHT.sky).scale(LIGHT_VALUES.fill_ratio);
+    const fill = skyFillColor();
+    expect(fill.r / fill.b).toBeGreaterThan(sky.r / sky.b);
+    expect(fill.r + fill.g + fill.b).toBeGreaterThan(sky.r + sky.g + sky.b);
+    const { rig } = setup();
+    expect(rig.camera.getScene().ambientColor.equalsWithEpsilon(fill, 1e-6)).toBe(true);
+  });
+
+  it("warms the deep sea", () => {
+    const deep = c3(WATER.deep);
+    const sea = seaDeep();
+    expect(sea.r / sea.b).toBeGreaterThan(deep.r / deep.b);
+  });
+
+  it("pulls previews toward the camera in depth (no z-fighting with the ground)", () => {
+    const { rig } = setup();
+    const m = previewOffset(new StandardMaterial("p", rig.camera.getScene()));
+    expect(m.zOffset).toBeLessThan(0);
+    expect(m.zOffsetUnits).toBeLessThan(0);
   });
 });

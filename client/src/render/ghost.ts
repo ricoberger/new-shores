@@ -14,7 +14,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { ContentBuilding } from "../api/client";
 import type { ArchPoint } from "../display/ships";
 import { type Rotation, rotatedFootprint } from "../display/geometry";
-import { skyFill } from "./lighting";
+import { previewOffset, skyFill } from "./lighting";
 import { GHOST, WATER_ROWS } from "./palette";
 import { modelFileFor, modelMesh, type ModelRegistry, placement, worldData } from "./models";
 
@@ -75,17 +75,17 @@ export class PlacementGhost {
     private readonly registry: ModelRegistry | null,
   ) {
     this.box = CreateBox("ghost", { size: 1 }, scene);
-    this.boxMaterial = skyFill(new StandardMaterial("ghost", scene));
+    this.boxMaterial = previewOffset(skyFill(new StandardMaterial("ghost", scene)));
     this.boxMaterial.alpha = BOX_ALPHA;
     this.box.material = this.boxMaterial;
     this.box.isPickable = false;
     this.box.setEnabled(false);
-    this.modelMaterial = skyFill(new StandardMaterial("ghost_model", scene));
+    this.modelMaterial = previewOffset(skyFill(new StandardMaterial("ghost_model", scene)));
     this.modelMaterial.specularColor = Color3.Black();
     this.modelMaterial.alpha = MODEL_ALPHA;
     this.modelMaterial.needDepthPrePass = true;
     this.water = CreateBox("ghost_water_rows", { size: 1 }, scene);
-    const wm = skyFill(new StandardMaterial("ghost_water_rows", scene));
+    const wm = previewOffset(skyFill(new StandardMaterial("ghost_water_rows", scene)));
     wm.diffuseColor = WATER_ROWS;
     wm.emissiveColor = WATER_ROWS.scale(0.5);
     wm.alpha = WATER_ROWS_ALPHA;

@@ -12,7 +12,7 @@ import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { Scene } from "@babylonjs/core/scene";
 import { setInstances } from "./instances";
-import { skyFill } from "./lighting";
+import { previewOffset, skyFill } from "./lighting";
 import { FIELD_VALID, GHOST_INVALID } from "./palette";
 
 /** A field footprint in world coordinates (the scene's x, z of its centre and its size in tiles). */
@@ -56,7 +56,7 @@ export class PaintPreview {
   constructor(scene: Scene) {
     for (const [kind, look] of Object.entries(LOOKS) as [PaintMark["kind"] | "flash", (typeof LOOKS)[PaintMark["kind"]]][]) {
       const mesh = CreateBox(`paint_${kind}`, { width: 1, height: 0.04, depth: 1 }, scene);
-      const mat = skyFill(new StandardMaterial(`paint_${kind}`, scene));
+      const mat = previewOffset(skyFill(new StandardMaterial(`paint_${kind}`, scene)));
       mat.diffuseColor = look.color;
       mat.emissiveColor = look.color.scale(0.45);
       mat.specularColor = Color3.Black();

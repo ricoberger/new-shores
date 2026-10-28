@@ -33,6 +33,7 @@ import { type Detail, type ModelData, type ModelEntry, type ModelFile, type Mode
 import { rotatedFootprint } from "../display/geometry";
 import { buildingColor, DOOR, INACTIVE_TINT, PAUSED_TINT, roofColor, SELECTION } from "./palette";
 import { skyFill } from "./lighting";
+import { addJitter, LITE_VPT, MODEL_VPT } from "./jitter";
 import { addSway } from "./sway";
 import { ColoredInstances } from "./shipmesh";
 import { chunkAt } from "../display/chunks";
@@ -242,6 +243,8 @@ export function stageMatrix(k: number, entry: ModelEntry, def: ContentBuilding, 
 export class BuildingLayer {
   private readonly templates = new Map<string, Mesh>();
   private readonly material: StandardMaterial;
+  /** The lite tier's material: the same, with the jitter on its coarser voxel grid. */
+  private readonly liteMaterial: StandardMaterial;
   private readonly doors: Mesh;
   private readonly selection: Mesh;
   /** The selected building drawn as a model: tinted instead of framed. */
@@ -277,8 +280,10 @@ export class BuildingLayer {
     private readonly parent: TransformNode | null = null,
     private readonly registry: ModelRegistry | null = null,
   ) {
-    this.material = addSway(skyFill(new StandardMaterial("buildings", scene)));
+    this.material = addJitter(addSway(skyFill(new StandardMaterial("buildings", scene))), MODEL_VPT);
     this.material.specularColor = Color3.Black();
+    this.liteMaterial = addJitter(addSway(skyFill(new StandardMaterial("buildings_lite", scene))), LITE_VPT);
+    this.liteMaterial.specularColor = Color3.Black();
     this.doors = CreateBox("doors", { width: 0.35, height: 0.3, depth: 0.12 }, scene);
     const doorMat = skyFill(new StandardMaterial("doors", scene));
     doorMat.diffuseColor = DOOR;
@@ -445,11 +450,11 @@ export class BuildingLayer {
     for (const [detail, byChunk] of byDetail) {
       let chunks = this.chunks.get(detail);
       if (!chunks) this.chunks.set(detail, (chunks = new Map()));
-      this.drawChunkSet(chunks, byChunk, detail === this.drawn());
+      this.drawChunkSet(chunks, byChunk, detail === this.drawn(), detail === "lite" ? this.liteMaterial : this.material);
     }
   }
 
-  private drawChunkSet(chunks: Map<string, { key: string; mesh: Mesh | null }>, byChunk: Map<string, Item[]>, enabled: boolean): void {
+  private drawChunkSet(chunks: Map<string, { key: string; mesh: Mesh | null }>, byChunk: Map<string, Item[]>, enabled: boolean, material: StandardMaterial): void {
     for (const [key, chunk] of chunks) {
       if (byChunk.has(key)) continue;
       chunk.mesh?.dispose();
@@ -468,7 +473,7 @@ export class BuildingLayer {
       );
       const mesh = new Mesh(`models_${key}`, this.scene);
       data.applyToMesh(mesh);
-      mesh.material = this.material;
+      mesh.material = material;
       mesh.parent = this.parent;
       mesh.isPickable = false;
       mesh.setEnabled(enabled && this.chunkShown(key));
@@ -524,7 +529,7 @@ export class BuildingLayer {
       if (!inst) {
         const mesh = new Mesh(`rising_${path}`, this.scene);
         mergeItems([{ data: (items[0] as Item).data, cx: 0, cz: 0, yaw: 0, sx: 1, sz: 1, tint: WHITE }]).applyToMesh(mesh);
-        mesh.material = this.material;
+        mesh.material = path.includes(".lite.") ? this.liteMaterial : this.material;
         mesh.parent = this.parent;
         mesh.isPickable = false;
         mesh.alwaysSelectAsActiveMesh = true;

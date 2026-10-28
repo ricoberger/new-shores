@@ -19,6 +19,7 @@ import { setInstances } from "./instances";
 import { cone, prism, type Tri, TriBuilder } from "./meshdata";
 import { BUILDINGS, FIELDS, UI } from "../theme/palette";
 import { buildingColor, c3, FIELD_HOVER, FIELD_OUT_OF_RANGE, FIELD_RING, FIELD_VALID } from "./palette";
+import { addJitter, MODEL_VPT } from "./jitter";
 import { skyFill } from "./lighting";
 
 const TEX = 64;
@@ -125,7 +126,7 @@ export class FieldTiles {
         mesh = CreateBox(`field_${id}`, { width: 0.96, height: 0.03, depth: 0.96 }, this.scene);
         let mat = this.materials.get(id);
         if (!mat) {
-          mat = skyFill(new StandardMaterial(`field_${id}`, this.scene));
+          mat = addJitter(skyFill(new StandardMaterial(`field_${id}`, this.scene)), MODEL_VPT);
           mat.diffuseTexture = patternTexture(this.scene, id);
           mat.specularColor = Color3.Black();
           this.materials.set(id, mat);
@@ -299,7 +300,7 @@ export class FieldDecor {
 
 /** The field decoration's material (one per island, shared by its chunks). */
 export function fieldDecorMaterial(scene: Scene): StandardMaterial {
-  const m = skyFill(new StandardMaterial("field_decor", scene));
+  const m = addJitter(skyFill(new StandardMaterial("field_decor", scene)), MODEL_VPT);
   m.specularColor = Color3.Black();
   m.backFaceCulling = false;
   return m;

@@ -47,9 +47,22 @@ export const SUN_DIRECTION = new Vector3(
 /** Ground offset (tiles per unit height) of a shadow: where blob shadows lean. */
 export const SHADOW_LEAN = { x: SUN_DIRECTION.x / -SUN_DIRECTION.y, z: SUN_DIRECTION.z / -SUN_DIRECTION.y };
 
-const SUN_INTENSITY = 1.05;
+const SUN_INTENSITY = 1.0;
+/**
+ * The sky fill leans this far toward the sun's colour (a warm bounce off
+ * the sunlit ground) and is FILL_LIFT times the palette's fill ratio: the
+ * camera-facing walls get the fill only and read as cold slabs otherwise
+ * (D-057 V2).
+ */
+export const SKY_WARMTH = 0.38;
+export const FILL_LIFT = 1.25;
 /** Shadow map size (px): low resolution, soft filtering. */
 export const SHADOW_MAP_SIZE = 1024;
+
+/** The scene's ambient colour: the sky fill, warmed toward the sun and lifted. */
+export function skyFillColor(): Color3 {
+  return Color3.Lerp(c3(LIGHT.sky), c3(LIGHT.sun), SKY_WARMTH).scale(SUN_INTENSITY * LIGHT_VALUES.fill_ratio * FILL_LIFT);
+}
 
 /** Which quality-dependent effects of the scene exist (tests; grading and vignette are the canvas overlays'). */
 export interface Effects {
@@ -58,6 +71,17 @@ export interface Effects {
   fxaa: boolean;
   /** The WebGL renderer is a software rasteriser (FXAA skipped). */
   software: boolean;
+}
+
+/**
+ * Previews drawn on the ground (ghosts, road and paint marks): pulled
+ * toward the camera in depth (polygon offset) so that they do not
+ * z-fight with the coplanar ground and model bases.
+ */
+export function previewOffset<T extends StandardMaterial>(m: T): T {
+  m.zOffset = -1;
+  m.zOffsetUnits = -4;
+  return m;
 }
 
 /** A lit material takes the sky fill (the scene's ambient colour); unlit materials must not. */
@@ -89,7 +113,7 @@ export class SceneLighting {
     this.sun.autoUpdateExtends = true;
     this.sun.autoCalcShadowZBounds = true;
     // Sky fill: the ambient term of the lit materials, at the fill ratio of the key.
-    scene.ambientColor = c3(LIGHT.sky).scale(SUN_INTENSITY * LIGHT_VALUES.fill_ratio);
+    scene.ambientColor = skyFillColor();
     this.setQuality(quality);
   }
 
@@ -125,7 +149,7 @@ export class SceneLighting {
 
   /**
    * Meshes that cast into the shadow map (buildings and trees of the
-   * islands at near LOD); the map is redrawn once (call it again after the
+   * islands at near and mid LOD); the map is redrawn once (call it again after the
    * casters' instances changed).
    */
   setCasters(meshes: readonly AbstractMesh[]): void {

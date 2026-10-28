@@ -10,7 +10,7 @@ const engine = new NullEngine();
 const scene = new Scene(engine);
 afterAll(() => engine.dispose());
 
-/** Swaying vertices (COLOR_0 alpha byte below 255) of a shipped model file (GLB: JSON chunk, then BIN). */
+/** Swaying vertices (COLOR_0 alpha byte below 248: 248..255 are the jitter classes) of a shipped model file (GLB: JSON chunk, then BIN). */
 function swaying(file: string): { n: number; of: number } {
   const buf = readFileSync(join(__dirname, "../../public/models", file));
   const jsonLen = buf.readUInt32LE(12);
@@ -23,7 +23,7 @@ function swaying(file: string): { n: number; of: number } {
   const acc = doc.accessors[doc.meshes[0]!.primitives[0]!.attributes["COLOR_0"]!]!;
   const at = bin + doc.bufferViews[acc.bufferView]!.byteOffset;
   let n = 0;
-  for (let i = 0; i < acc.count; i++) if ((buf[at + i * 4 + 3] as number) < 255) n++;
+  for (let i = 0; i < acc.count; i++) if ((buf[at + i * 4 + 3] as number) < 248) n++;
   return { n, of: acc.count };
 }
 

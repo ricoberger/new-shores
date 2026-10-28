@@ -25,6 +25,7 @@ import { decorModel, type ModelData, type ModelRegistry } from "./models";
 import type { DetailPlaced } from "./decorscatter";
 import { c3, SHADOW } from "./palette";
 import { BLOB_Y } from "./shadows";
+import { addJitter, MODEL_VPT } from "./jitter";
 import { addSway } from "./sway";
 
 const TRUNK = c3(BUILDINGS.timber);
@@ -85,7 +86,7 @@ const ROCK: Tri[] = (() => {
 const BUSH: Tri[] = bipyramid(5, 0.16, 0, 0.12, 0.28, FOREST.scale(1.1), 0.3);
 
 function decorMaterial(scene: Scene, name: string): StandardMaterial {
-  const m = skyFill(new StandardMaterial(name, scene));
+  const m = addJitter(skyFill(new StandardMaterial(name, scene)), MODEL_VPT);
   m.specularColor = Color3.Black();
   m.backFaceCulling = false;
   return m;

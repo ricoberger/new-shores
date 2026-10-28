@@ -38,7 +38,8 @@ import { buildingAnchor, type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, 
 import { OutcropLayer } from "./outcrops";
 import { footprintTiles, PlateauLayer } from "./plateaus";
 import { FootprintShadows } from "./shadows";
-import { groundShade } from "./groundshader";
+import { GROUND_JITTER, groundShade } from "./groundshader";
+import { jitterShade, setJitterLod } from "./jitter";
 import { type Builder, buildTerrain, CoastWater, NO_TERRAIN, TerrainBuild, type TerrainMeshes } from "./terrain";
 import { type DetailPlaced, scatterDetail } from "./decorscatter";
 import type { FieldTile } from "./roadvoxels";
@@ -591,9 +592,9 @@ export class IslandDetail {
     return [...out];
   }
 
-  /** Meshes casting into the sun shadow map: the buildings while shown at near LOD. */
+  /** Meshes casting into the sun shadow map: the buildings and trees while shown at near and mid LOD. */
   shadowCasters(): AbstractMesh[] {
-    if (!this.shown || this.lod !== "near") return [];
+    if (!this.shown || this.lod === "far") return [];
     const trees = [...this.decoration.entries()].filter(([k]) => this.visibleChunks === null || this.visibleChunks.has(k)).flatMap(([, d]) => d.casters());
     return [...this.buildings.meshes(), ...trees];
   }
@@ -612,7 +613,8 @@ export class IslandDetail {
       this.water?.setFar(lod === "far");
     }
     // The per-voxel jitter is below a pixel at far LOD (global: one LOD for the whole view).
-    groundShade.jitter = lod === "far" ? 0 : 0.045;
+    setJitterLod(lod === "far");
+    groundShade.jitter = jitterShade.amount * GROUND_JITTER;
     this.farTrees.setShown(this.shown && this.lod === "far");
   }
 

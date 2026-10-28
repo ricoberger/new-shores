@@ -10,7 +10,7 @@ import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { Scene } from "@babylonjs/core/scene";
 import type { TilePos } from "../display/geometry";
 import { setInstances } from "./instances";
-import { skyFill } from "./lighting";
+import { previewOffset, skyFill } from "./lighting";
 import { GHOST } from "./palette";
 
 function slabs(tiles: readonly TilePos[], y: number): Float32Array | null {
@@ -29,7 +29,7 @@ export class RoadPreview {
 
   constructor(scene: Scene) {
     this.preview = CreateBox("road_preview", { width: 0.9, height: 0.06, depth: 0.9 }, scene);
-    const pm = skyFill(new StandardMaterial("road_preview", scene));
+    const pm = previewOffset(skyFill(new StandardMaterial("road_preview", scene)));
     pm.diffuseColor = GHOST;
     pm.alpha = 0.6;
     pm.specularColor = Color3.Black();
