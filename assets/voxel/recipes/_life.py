@@ -129,58 +129,120 @@ def crate(ctx):
     return v
 
 
-def stage(ctx):
-    """Construction stages a (foundations), b (timber skeleton), c (rafters) on a 2 × 2-tile unit stretched to the footprint."""
+#: Diameters (voxels at 16 per tile) of the smoke puff variants (render/life.ts SMOKE_SIZES).
+SMOKE_SIZES = (2, 3, 4, 6)
+
+
+def smoke(ctx):
+    """A smoke puff: a rounded voxel blob, light on top and greyer beneath, centred on the origin."""
+    d = SMOKE_SIZES[ctx.variant]
     v = ctx.vox(0, 0)
-    k = ctx.variant
-    for x in range(-8, 8):
-        for y in range(-8, 8):
-            v.set(x, y, 0, mat("road-dirt", 0.95 if (x + y) % 3 else 0.88))
-    v.walls(-6, -6, 6, 6, 1, 2, STONE)
-    v.walls(-6, -6, 6, 6, 0, 1, STONE_DARK)
-    if k == 0:
-        v.box(-7, 5, 1, -4, 7, 3, STONE)
-        for x in range(-2, 3, 2):
-            v.box(x, 7, 1, x + 1, 8, 2, PLANK)
-        v.box(3, -8, 1, 7, -6, 2, PLANK)
-        return v
-    for x, y in ((-6, -6), (5, -6), (-6, 5), (5, 5), (-1, -6), (-1, 5), (-6, -1), (5, -1)):
-        v.box(x, y, 2, x + 1, y + 1, 9, TIMBER_LIGHT)
-    v.walls(-6, -6, 6, 6, 8, 9, TIMBER_LIGHT)
-    if k == 1:
-        v.walls(-6, -6, 6, 6, 2, 4, PLASTER)
-        P_planks = PLANK
-        v.box(-8, 6, 1, -4, 8, 2, P_planks)
-        return v
-    v.walls(-6, -6, 6, 6, 2, 7, PLASTER)
-    for x in range(-7, 7, 3):
-        for j in range(7):
-            v.set(x, -7 + j, 9 + j, TIMBER)
-            v.set(x, 6 - j, 9 + j, TIMBER)
-    v.box(-7, -1, 15, 7, 1, 16, TIMBER)
-    v.box(-7, -7, 9, 7, -5, 10, mat("terracotta"))
+    r = d / 2
+    for x in range(d):
+        for y in range(d):
+            for z in range(d):
+                q = ((x + 0.5 - r) ** 2 + (y + 0.5 - r) ** 2 + (z + 0.5 - r) ** 2) / (r * r)
+                if d > 2 and q > 1.0 + 0.15 * (d > 4):
+                    continue
+                v.set(x - d // 2, y - d // 2, z, mat("foam", 0.98) if z >= r else mat("stone", 1.12))
+    v.offset = (0.0 if d % 2 == 0 else 0.5, 0.0 if d % 2 == 0 else 0.5, r)
     return v
 
 
-def scaffolding(ctx):
-    """Poles every half tile around a 2.4-tile square, two plank decks and ladders."""
+def wake(ctx):
+    """A wake fleck: two flat foam voxels (16 per tile), centred on the origin at the water line."""
     v = ctx.vox(0, 0)
-    for x in range(-9, 10, 4):
-        for y in (-10, 9):
-            v.box(x, y, 0, x + 1, y + 1, 12, TIMBER_LIGHT)
-    for y in range(-10, 10, 4):
-        for x in (-9, 9):
-            v.box(x, y, 0, x + 1, y + 1, 12, TIMBER_LIGHT)
-    for z in (5, 10):
-        for x in range(-9, 10):
-            for y in (-10, 9):
-                v.set(x, y, z, PLANK)
-        for y in range(-10, 10):
-            for x in (-9, 9):
-                v.set(x, y, z, PLANK)
-    for z in range(1, 10, 2):
-        v.set(-8, 9, z, TIMBER)
+    v.set(0, 0, 0, mat("foam", 1.0))
+    v.set(-1, 0, 0, mat("foam", 0.94))
     return v
+
+
+#: Footprint classes of the construction stages (tiles per side): a building's
+#: stage is the class nearest its footprint, stretched by at most ~1.5 (the
+#: client's stageClass in render/buildings.ts).
+STAGE_CLASSES = (2, 4, 8)
+
+
+def stage(n):
+    """Construction stages a (foundations), b (timber skeleton), c (rafters) on an n × n-tile footprint at 8 voxels per tile."""
+
+    def b(ctx):
+        v = ctx.vox(0, 0)
+        k = ctx.variant
+        half = 4 * n
+        inset = 1 if n == 1 else 2
+        lo, hi = -half + inset, half - inset
+        wall = 7 if n == 1 else (9 if n <= 3 else 12)
+        for x in range(-half, half):
+            for y in range(-half, half):
+                # Trodden earth in one shade (one face; the shader jitter adds the voxel variety).
+                v.set(x, y, 0, mat("road-dirt", 0.92))
+        v.walls(lo, lo, hi, hi, 0, 1, STONE_DARK)
+        v.walls(lo, lo, hi, hi, 1, 2, STONE)
+        if k == 0:
+            # Foundations, a stone pile and a stack of planks in the yard.
+            v.box(lo, hi - 3, 1, lo + 3, hi - 1, 3, STONE)
+            v.box(hi - 4, lo + 1, 1, hi - 1, lo + 3, 2, PLANK)
+            return v
+        step = 4 if n <= 2 else 8
+        posts = sorted(set(list(range(lo, hi - 1, step)) + [hi - 1]))
+        for x in posts:
+            for y in (lo, hi - 1):
+                v.box(x, y, 2, x + 1, y + 1, wall + 1, TIMBER_LIGHT)
+        for y in posts:
+            for x in (lo, hi - 1):
+                v.box(x, y, 2, x + 1, y + 1, wall + 1, TIMBER_LIGHT)
+        v.walls(lo, lo, hi, hi, wall, wall + 1, TIMBER_LIGHT)
+        if k == 1:
+            v.walls(lo, lo, hi, hi, 2, 2 + wall // 3, PLASTER)
+            v.box(lo - 1, hi, 1, lo + 3, hi + 1, 2, PLANK)
+            return v
+        v.walls(lo, lo, hi, hi, 2, wall - 2, PLASTER)
+        # Rafters across y (every other post on big footprints), rising to a ridge beam along x.
+        rise = min((hi - lo) // 2, 4 + n)
+        run = (hi - lo) // 2
+        # Three rafters (the gable ends and the middle) beyond 2 tiles: the stage files stay small (models-folder limit).
+        rafters = posts if n <= 2 else sorted({lo, (lo + hi) // 2, hi - 1})
+        for x in rafters:
+            for j in range(rise):
+                y = j * run // rise
+                v.box(x, lo + y, wall + 1 + j, x + 1, lo + (j + 1) * run // rise, wall + 2 + j, TIMBER)
+                v.box(x, hi - (j + 1) * run // rise, wall + 1 + j, x + 1, hi - y, wall + 2 + j, TIMBER)
+        v.box(lo, -1, wall + rise, hi, 1, wall + rise + 1, TIMBER)
+        # The first course of roof tiles on the front slope.
+        v.box(lo, lo - 1, wall + 1, hi, lo + 1, wall + 2, mat("terracotta"))
+        return v
+
+    return b
+
+
+def scaffolding(n):
+    """Poles every half tile around an n × n-tile footprint (a voxel outside it), two plank decks and a ladder."""
+
+    def b(ctx):
+        v = ctx.vox(0, 0)
+        half = 4 * n
+        lo, hi = -half - 1, half
+        h = 12 if n <= 4 else 16
+        every = 4 if n <= 2 else (8 if n <= 4 else 16)
+        for x in range(lo, hi + 1, every):
+            for y in (lo, hi):
+                v.box(x, y, 0, x + 1, y + 1, h, TIMBER_LIGHT)
+        for y in range(lo, hi + 1, every):
+            for x in (lo, hi):
+                v.box(x, y, 0, x + 1, y + 1, h, TIMBER_LIGHT)
+        for z in (h // 2 - 1, h - 2):
+            for x in range(lo, hi + 1):
+                for y in (lo, hi):
+                    v.set(x, y, z, PLANK)
+            for y in range(lo, hi + 1):
+                for x in (lo, hi):
+                    v.set(x, y, z, PLANK)
+        for z in range(1, h - 2, 2):
+            v.set(lo + 1, hi, z, TIMBER)
+        return v
+
+    return b
 
 
 RECIPES = {
@@ -192,8 +254,13 @@ RECIPES = {
     "life_sheep": {"build": sheep, "scale": 16},
     "life_boat": {"build": boat, "scale": 16},
     "life_crate": {"build": crate, "scale": 16},
-    "life_stage": {"build": stage, "variants": 3},
-    "life_stage_scaffolding": {"build": scaffolding},
+    "life_wake": {"build": wake, "scale": 16},
+    "life_smoke": {"build": smoke, "variants": len(SMOKE_SIZES), "scale": 16},
+    # The 2-tile class keeps the plain IDs; the others carry their size.
+    "life_stage": {"build": stage(2), "variants": 3},
+    "life_stage_scaffolding": {"build": scaffolding(3)},
+    **{f"life_stage_{n}": {"build": stage(n), "variants": 3} for n in STAGE_CLASSES if n != 2},
+    **{f"life_stage_scaffolding_{n}": {"build": scaffolding(n)} for n in STAGE_CLASSES if n > 4},
 }
 
 del SAND

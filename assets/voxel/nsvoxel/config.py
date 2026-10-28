@@ -72,7 +72,9 @@ BUDGET_SHIP_CARGO = 300
 BUDGET_DECOR = 580
 #: Life-layer elements (kind "life": thin-instanced by the dozen per
 #: island): prototype max 506 (life_cart_merchant); the construction
-#: stages stand in for a building for seconds only: max 1 370 (life_stage).
+#: stages stand in for a building for seconds only: max 1 370 (life_stage);
+#: the sized stage classes (life_stage_<n>, n tiles per side) get
+#: BUDGET_LIFE_STAGE × n / 4 from n = 4 up.
 BUDGET_LIFE = 760
 BUDGET_LIFE_STAGE = 2100
 #: Ceiling of the committed GLBs (bytes; manifest-listed files). The voxel

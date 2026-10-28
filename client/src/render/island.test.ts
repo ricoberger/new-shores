@@ -267,7 +267,10 @@ describe("incremental build (display/buildqueue.ts)", () => {
     // Built with the payload: a change afterwards rebuilds only the chunks it touches.
     expect(d.builtWith(is, sync.defs)).toBe(true);
     const moved = structuredClone(is);
-    moved.roads.push({ x: 35, y: 3, type: "road" } as IslandDisplay["roads"][number]);
+    // A road on a grass tile of chunk 1,0 (roads sink into the ground, never the beach).
+    let tile = { x: 35, y: 3 };
+    for (let y = 4; y < st.height - 4; y++) for (let x = 34; x < st.width - 2; x++) if (st.terrain[y * st.width + x] === "grass" && st.terrain[(y + 1) * st.width + x] === "grass") tile = { x, y };
+    moved.roads.push({ ...tile, type: "road" } as IslandDisplay["roads"][number]);
     d.update(moved, sync.defs);
     expect(d.chunkRebuilds.roads).toEqual(["1,0"]);
     expect(d.rebuilds.roads).toBe(2);

@@ -7,7 +7,7 @@ import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { LifeAtLod, LifeBudget, LifePlan, LifeSink } from "../display/life";
 import { CLS, SEA_H } from "../display/lifeplan";
-import { LIFE_CLASSES, LifeLayer, writeMatrix } from "./life";
+import { LIFE_CLASSES, LifeLayer, SMOKE_SIZES, smokeRoute, writeMatrix } from "./life";
 import { STAGES } from "./buildings";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./models";
 import { SEA_LEVEL } from "./terrain";
@@ -143,6 +143,27 @@ describe("life models", () => {
     // Construction stages A, B, C and the scaffolding (render/buildings.ts).
     expect(life.life_stage?.variants).toHaveLength(STAGES);
     expect(life.life_stage_scaffolding?.file).toBeDefined();
+  });
+});
+
+describe("voxel smoke", () => {
+  it("draws a puff as the size variant nearest it, scaled little, turned by quarters", () => {
+    for (const k of [0.16, 0.25, 0.33, 0.5]) {
+      const r = smokeRoute(k, 1.3);
+      expect(r.cls).toMatch(/^smoke_[0-3]$/);
+      expect(r.k).toBeGreaterThan(0.7);
+      expect(r.k).toBeLessThan(1.45);
+      expect((SMOKE_SIZES[Number(r.cls.slice(-1))] as number) * r.k).toBeCloseTo(0.8 * k, 6);
+      expect(r.yaw).toBeCloseTo(Math.PI / 2, 6);
+    }
+    expect(new Set([0.16, 0.25, 0.33, 0.5].map((k) => smokeRoute(k, 0).cls)).size).toBeGreaterThanOrEqual(3);
+    for (let v = 0; v < SMOKE_SIZES.length; v++) expect(LIFE_CLASSES[`smoke_${v}`]?.particle, `smoke_${v}`).toBe(true);
+  });
+
+  it("routes the plan's smoke class to the size variants", () => {
+    const life = new LifeLayer(new Scene(engine), LIFE_CLASSES, "high");
+    life.frame(0, [{ origin: { x: 0, y: 0 }, plan: { frame: (_n: number, sink: LifeSink) => (sink.add(CLS.smoke, 1, 1, 1, 0, 0.16), sink.add(CLS.smoke, 1, 1, 1, 0, 0.5), { instances: 0, particles: 2 }) } as never }], "near");
+    expect(Object.keys(life.counts()).sort()).toEqual(["smoke_0", "smoke_3"].sort());
   });
 });
 

@@ -10,7 +10,7 @@ const engine = new NullEngine();
 const scene = new Scene(engine);
 afterAll(() => engine.dispose());
 
-/** Swaying vertices (COLOR_0 alpha byte below 255) of a shipped model file (GLB: JSON chunk, then BIN). */
+/** Swaying vertices (COLOR_0 alpha byte below 248: 248..255 are the jitter classes) of a shipped model file (GLB: JSON chunk, then BIN). */
 function swaying(file: string): { n: number; of: number } {
   const buf = readFileSync(join(__dirname, "../../public/models", file));
   const jsonLen = buf.readUInt32LE(12);
@@ -23,7 +23,7 @@ function swaying(file: string): { n: number; of: number } {
   const acc = doc.accessors[doc.meshes[0]!.primitives[0]!.attributes["COLOR_0"]!]!;
   const at = bin + doc.bufferViews[acc.bufferView]!.byteOffset;
   let n = 0;
-  for (let i = 0; i < acc.count; i++) if ((buf[at + i * 4 + 3] as number) < 255) n++;
+  for (let i = 0; i < acc.count; i++) if ((buf[at + i * 4 + 3] as number) < 248) n++;
   return { n, of: acc.count };
 }
 
@@ -64,13 +64,26 @@ describe("cloth sway", () => {
     expect((m.pluginManager?.getPlugin("Sway") as SwayPlugin).getCustomCode("fragment")).toBeNull();
   });
 
-  it("is marked on the ships' sails, the cloth and the flags, nowhere else", () => {
-    // The voxel recipes with cloth (sway group); placeholders have none.
-    for (const f of ["sloop.glb", "brig.glb", "galleon.glb", "weaver_wool.glb", "trading_post.l4.glb"]) {
-      const s = swaying(f);
-      expect(s.n, f).toBeGreaterThan(0);
-      expect(s.n, f).toBeLessThan(s.of);
+  it("is marked exactly on the models whose manifest entry lists sway groups", () => {
+    // In sync with the manifest (assets/voxel: the recipes' sail, flag and cloth groups, canopies), not a fixed list.
+    type FileInfo = { path: string };
+    type Entry = { sway?: string[]; file?: FileInfo; variants?: FileInfo[]; levels?: Record<string, FileInfo> };
+    const manifest = JSON.parse(readFileSync(join(__dirname, "../../public/models/manifest.json"), "utf8")) as Record<"models" | "decor" | "life", Record<string, Entry>>;
+    let swayingModels = 0;
+    for (const group of ["models", "decor", "life"] as const) {
+      for (const [id, e] of Object.entries(manifest[group])) {
+        const files = [e.file, ...(e.variants ?? []), ...Object.values(e.levels ?? {})].filter((f): f is FileInfo => !!f).map((f) => swaying(f.path));
+        if (e.sway?.length) {
+          swayingModels++;
+          // Some level or variant sways (trading post: level 4 only), and never the whole model.
+          expect(files.some((f) => f.n > 0), id).toBe(true);
+          for (const f of files) expect(f.n, id).toBeLessThan(f.of);
+        } else for (const f of files) expect(f.n, id).toBe(0);
+      }
     }
-    for (const f of ["house_settlers.v0.glb", "lumberjack.glb", "trading_post.l1.glb", "pasture.glb", "sailmaker.glb"]) expect(swaying(f).n, f).toBe(0);
+    // The ships, the wool weaver, the trading post and the trees at least.
+    expect(swayingModels).toBeGreaterThanOrEqual(8);
+    expect(manifest.models["brig"]?.sway).toContain("sail");
+    expect(manifest.decor["decor_tree_a"]?.sway).toEqual(["canopy"]);
   });
 });

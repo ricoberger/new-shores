@@ -29,6 +29,7 @@ import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate }
 import { anchorBob, SAILING_ALPHA, sailing, waiting } from "./sway";
 import { type ModelRegistry, shipMeshes, shipModel } from "./models";
 import { ARROW_BRIGHT, ARROW_DIM, HAZE, SELECTION } from "./palette";
+import { ShipWake, type WakeShip } from "./wake";
 
 /** Top of the islands' ground (every LOD draws the island detail). */
 const GROUND_TOP = 0;
@@ -117,6 +118,9 @@ export class ArchipelagoLayer {
   /** Blob shadows of the ships at near and mid LOD (matrices rewritten every frame). */
   private readonly shipBlobs: BlobLayer;
   private shipBlobBuffer = new Float32Array(0);
+  /** Foam wakes of the sailing ships at near and mid LOD. */
+  readonly wake: ShipWake;
+  private readonly wakeShips: WakeShip[] = [];
   private placements = new Map<string, IslandPlacement>();
   /** The islands' decoded 1:4 terrain masks (land of the islands whose tiles are still loading). */
   private masks = new Map<string, DecodedMask>();
@@ -161,6 +165,7 @@ export class ArchipelagoLayer {
 
 
     this.shipBlobs = new BlobLayer(scene, "blob_ships", null, 0.45);
+    this.wake = new ShipWake(scene, SEA_LEVEL, registry);
     this.shipBlobs.mesh.alwaysSelectAsActiveMesh = true;
 
     this.ringMat = new StandardMaterial("arch_selection", scene);
@@ -444,6 +449,7 @@ export class ArchipelagoLayer {
     }
     this.shipBlobs.setEnabled(blobs && this.shipList.length > 0);
     let blob = 0;
+    this.wakeShips.length = 0;
     for (const [type, list] of byType) {
       const { inst, cargo, model } = this.shipInstances(type);
       const scale = baseScale * this.lengthRatio(type);
@@ -465,7 +471,10 @@ export class ArchipelagoLayer {
         this.shipStyles.set(s.id, style);
         inst.setColor(i, shipColor(style));
         // Sails fill while under way (the sway shader's sentinel).
-        if (sailing(s, p)) inst.colors[i * 4 + 3] = SAILING_ALPHA;
+        if (sailing(s, p)) {
+          inst.colors[i * 4 + 3] = SAILING_ALPHA;
+          if (p && this.bobbing && this.lod !== "far") this.wakeShips.push({ id: s.id, x: point.x, y: point.y, heading: p.heading, stern: 0.42 * scale, scale });
+        }
         // Crates on deck while carrying cargo, at the same matrix.
         if (cargo && s.cargo.length > 0) {
           cargo.matrices.set(inst.matrices.subarray(i * 16, i * 16 + 16), c * 16);
@@ -477,6 +486,7 @@ export class ArchipelagoLayer {
       cargo?.commit();
     }
     if (blobs && blob > 0) this.shipBlobs.mesh.thinInstanceBufferUpdated("matrix");
+    this.wake.frame(this.wakeShips, nowMs);
     this.placeRing();
   }
 

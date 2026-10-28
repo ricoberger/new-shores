@@ -23,6 +23,7 @@ import { depthFactor, type DistanceField, type IslandLand, landDistance } from "
 import { LIGHT, TERRAIN, WATER } from "../theme/palette";
 import { c3 } from "./palette";
 import { skyFill } from "./lighting";
+import { seaDeepRgb } from "./mapcolors";
 
 /** Ripple normal map size (texels) and how many tiles one repeat covers. */
 const RIPPLE_TEX = 64;
@@ -82,10 +83,19 @@ function rippleTexture(scene: Scene, h: Float32Array): RawTexture {
   return tex;
 }
 
+/**
+ * The deep sea's colour: the palette's deep a little toward the shallows
+ * and warmed (D-057 V2: a warmer sea under the golden-hour sun).
+ */
+export function seaDeep(): Color3 {
+  const [r, g, b] = seaDeepRgb();
+  return new Color3(r, g, b);
+}
+
 /** Gradient texture of a distance field: shallows near land, deep beyond. */
 function gradientTexture(scene: Scene, f: DistanceField): RawTexture {
   const shallows = c3(WATER.shallows);
-  const deep = c3(WATER.deep);
+  const deep = seaDeep();
   const sand = c3(TERRAIN.sand);
   const data = new Uint8Array(f.width * f.height * 4);
   for (let i = 0; i < f.width * f.height; i++) {
@@ -142,7 +152,7 @@ export class Sea {
   ) {
     this.mesh = new Mesh("sea", scene);
     this.material = skyFill(new StandardMaterial("sea", scene));
-    this.material.diffuseColor = c3(WATER.deep);
+    this.material.diffuseColor = seaDeep();
     this.material.specularPower = 40;
     const heights = rippleHeights();
     this.ripples = rippleTexture(scene, heights);
@@ -173,7 +183,7 @@ export class Sea {
     this.gradient?.dispose();
     this.gradient = this.field ? gradientTexture(this.scene, this.field) : null;
     this.material.diffuseTexture = this.gradient;
-    this.material.diffuseColor = this.gradient ? Color3.White() : c3(WATER.deep);
+    this.material.diffuseColor = this.gradient ? Color3.White() : seaDeep();
     this.rebuild();
   }
 

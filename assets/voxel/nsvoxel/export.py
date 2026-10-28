@@ -2,22 +2,27 @@
 Voxel grid → GLB through the deterministic writer (glb.py) and the
 manifest file entries the client reads (client/src/render/models.ts):
 vertex colours are palette roles × shade blended toward the role's shadow
-tone by the corner's occlusion; cloth voxels (a sway group) lower the
-alpha byte (the client's sway mask).
+tone by the corner's occlusion; the alpha byte carries the material's
+jitter class (nsvoxel/jitter.py), or on cloth voxels (a sway group) the
+sway weight (the client's sway mask).
 """
 
 import hashlib
 import math
 
-from . import glb, mesh, palette
+from . import glb, jitter, mesh, palette
 
 #: Share of the way to the shadow tone at full occlusion (level 3).
-AO_STRENGTH = 0.62
+AO_STRENGTH = 0.58
 #: Side faces' normals are tilted toward up by this much (normalise(n + k·up)):
 #: axis-aligned walls facing away from the sun would otherwise get only the
 #: cool sky fill and read as cold grey slabs. Rotation-safe, unlike a baked
 #: sun. Cloth (a sway group) uses the up normal (lit from both sides).
 SIDE_TILT = 0.5
+#: The sway group of leaf canopies (decor trees): ordinary normals, a sway
+#: weight rising from 0 at the canopy's bottom to CANOPY_SWAY at its top.
+CANOPY = "canopy"
+CANOPY_SWAY = 0.45
 
 _ROLES = None
 _SHADOWS = None
@@ -62,19 +67,20 @@ def build_tris(cells, w, d, scale, ao=True, offset=(0.0, 0.0, 0.0)):
     any_sway = False
     for corners, m, levels, axis, sign in mesh.triangles(mesh.greedy(cells, ao=ao)):
         pts = [to_recipe(p, w, d, scale, offset) for p in corners]
-        if len(m) > 2 or axis == 2:
+        canopy = len(m) > 2 and m[2] == CANOPY
+        if (len(m) > 2 and not canopy) or axis == 2:
             normal = (0.0, 0.0, 1.0)
         else:
             k = 1.0 / math.sqrt(1.0 + SIDE_TILT * SIDE_TILT)
             normal = (sign * k if axis == 0 else 0.0, sign * k if axis == 1 else 0.0, SIDE_TILT * k)
         tri_keys = []
         for lv in levels:
-            col = tuple(palette.to_byte(c) for c in corner_color(m, lv))
+            col = tuple(palette.to_byte(c) for c in corner_color(m, lv)) + (jitter.alpha_of(m[0]),)
             k = keys.get(col)
             if k is None:
                 k = len(keys)
                 keys[col] = k
-                colors[("v", 0, k)] = tuple(c / 255.0 for c in col)
+                colors[("v", 0, k)] = tuple(c / 255.0 for c in col[:3]) + (col[3],)
             tri_keys.append(k)
         tris.append((pts[0], pts[1], pts[2], "v", 0, None, normal))
         ao_keys.append(tuple(tri_keys))
@@ -82,7 +88,11 @@ def build_tris(cells, w, d, scale, ao=True, offset=(0.0, 0.0, 0.0)):
             any_sway = True
             lo, hi = groups[m[2]]
             h = hi - lo
-            sway.append(tuple(0.3 + 0.7 * math.sin(math.pi * ((c[2] - lo) / h if h else 0.5)) for c in corners))
+            if canopy:
+                # Leaves: still at the bottom of the canopy, CANOPY_SWAY at its top.
+                sway.append(tuple(CANOPY_SWAY * min(1.0, max(0.0, (c[2] - lo) / h if h else 1.0)) for c in corners))
+            else:
+                sway.append(tuple(0.3 + 0.7 * math.sin(math.pi * ((c[2] - lo) / h if h else 0.5)) for c in corners))
         else:
             sway.append(None)
     return tris, colors, ao_keys, (sway if any_sway else None)

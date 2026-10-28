@@ -9,7 +9,7 @@ import { Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
-import { BuildingLayer, RISE_MS, STAGE_SIZE, STAGES, stageMatrix, VISUAL_BUILD_MS } from "./buildings";
+import { BuildingLayer, RISE_MS, scaffoldClass, stageClass, STAGES, stageMatrix, VISUAL_BUILD_MS } from "./buildings";
 import { rotatedFootprint } from "../display/geometry";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb, placement } from "./models";
 
@@ -110,7 +110,8 @@ describe("BuildingLayer with models", () => {
     const paused = await colours(true);
     expect(paused.length).toBe(active.length);
     expect(paused[0]).toBeLessThan(active[0] as number);
-    expect(paused[3]).toBe(1);
+    // The alpha (the jitter class, render/jitter.ts) is not tinted.
+    expect(paused[3]).toBe(active[3]);
     scene.dispose();
   });
 
@@ -132,7 +133,7 @@ describe("BuildingLayer with models", () => {
     expect(off[0]).toBeCloseTo((on[0] as number) * 0.62, 5);
     expect(off[1]).toBeCloseTo((on[1] as number) * 0.62, 5);
     expect(off[2]).toBeCloseTo((on[2] as number) * 0.58, 5);
-    expect(off[3]).toBe(1);
+    expect(off[3]).toBe(on[3]);
     scene.dispose();
   });
 
@@ -269,7 +270,8 @@ describe("stageMatrix", () => {
       // A stage covers the rotated footprint, centred on it.
       const [w, h] = rotatedFootprint(def.width, def.height, rotation);
       const m = stageMatrix(0, entry, def, b);
-      const pts = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => Vector3.TransformCoordinates(new Vector3((sx * STAGE_SIZE) / 2, 0, (sz * STAGE_SIZE) / 2), m)));
+      const n = stageClass(def.width, def.height);
+      const pts = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => Vector3.TransformCoordinates(new Vector3((sx * n) / 2, 0, (sz * n) / 2), m)));
       const xs = pts.map((v) => v.x);
       const zs = pts.map((v) => v.z);
       expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(w, 6);
@@ -278,6 +280,16 @@ describe("stageMatrix", () => {
       expect((Math.max(...zs) + Math.min(...zs)) / 2).toBeCloseTo(p.cz, 6);
     });
   }
+
+  it("picks the footprint class nearest the footprint, so the stage voxels stretch little", () => {
+    expect([stageClass(1, 1), stageClass(2, 2), stageClass(3, 2), stageClass(4, 5), stageClass(3, 8), stageClass(12, 16)]).toEqual([2, 2, 2, 4, 4, 8]);
+    expect([scaffoldClass(3, 3), scaffoldClass(4, 6), scaffoldClass(6, 9), scaffoldClass(12, 16)]).toEqual([3, 3, 8, 8]);
+    for (const [w, h] of [[1, 1], [3, 4], [4, 6], [5, 6], [6, 9], [8, 12], [11, 14]] as const) {
+      const n = stageClass(w, h);
+      expect(Math.max(w, h) / n, `${w}×${h}`).toBeLessThanOrEqual(2);
+      expect(Math.min(w, h) / n, `${w}×${h}`).toBeGreaterThanOrEqual(0.5);
+    }
+  });
 
   it("differs between rotations (the stage is not world-fixed)", () => {
     const at = (rotation: 0 | 90) => rotationOf(stageMatrix(1, entry, def, { x: 0, y: 0, rotation }));

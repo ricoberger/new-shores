@@ -13,7 +13,7 @@ if VOXEL_DIR not in sys.path:
     sys.path.insert(0, VOXEL_DIR)
 
 import build  # noqa: E402
-from nsvoxel import config, content as content_mod, grid, model  # noqa: E402
+from nsvoxel import config, content as content_mod, glb, grid, model  # noqa: E402
 
 CONTENT = content_mod.load()
 
@@ -65,7 +65,32 @@ class BudgetTest(unittest.TestCase):
         self.assertEqual(model.budget_of("brig", "ship", CONTENT, ("attachment", "cargo")), config.BUDGET_SHIP_CARGO)
         self.assertEqual(model.budget_of("decor_tree_a", "decor", CONTENT), config.BUDGET_DECOR)
         self.assertEqual(model.budget_of("life_stage", "life", CONTENT), config.BUDGET_LIFE_STAGE)
+        self.assertEqual(model.budget_of("life_stage_4", "life", CONTENT), config.BUDGET_LIFE_STAGE)
+        self.assertEqual(model.budget_of("life_stage_scaffolding_8", "life", CONTENT), 2 * config.BUDGET_LIFE_STAGE)
         self.assertEqual(model.budget_of("life_cart", "life", CONTENT), config.BUDGET_LIFE)
+
+
+class JitterClassTest(unittest.TestCase):
+    def test_every_role_has_a_jitter_class_in_the_alpha_byte(self):
+        from nsvoxel import export, jitter, palette
+
+        roles, _ = palette.load()
+        self.assertEqual(sorted(roles), sorted(jitter.ROLE_CLASS))
+        for role, cls in jitter.ROLE_CLASS.items():
+            self.assertTrue(0 <= cls <= 7, role)
+            self.assertEqual(jitter.alpha_of(role), 255 - cls)
+        v = grid.Vox(3, 1)
+        v.set(0, 0, 0, grid.mat("stone"))
+        v.set(1, 0, 0, grid.mat("plaster"))
+        v.set(2, 0, 0, grid.mat("canvas", 1.0, "cloth"))
+        tris, colors, ao_keys, sway = export.build_tris(v.cells, 1, 1, 1 / 8)
+        data = glb.vertex_data(tris, {k: glb.color_bytes(c) for k, c in colors.items()}, ao_keys, sway)
+        alphas = {c[3] for c in data[2]}
+        self.assertIn(255 - jitter.STONE, alphas)
+        self.assertIn(255 - jitter.PLASTER, alphas)
+        # The cloth voxel sways: its alpha lies below the class codes.
+        self.assertTrue(any(a <= jitter.SWAY_ALPHA_MAX for a in alphas))
+        self.assertEqual(glb.sway_alpha(0.0), jitter.SWAY_ALPHA_MAX)
 
 
 class DeterminismTest(unittest.TestCase):

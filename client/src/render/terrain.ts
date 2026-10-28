@@ -1,32 +1,45 @@
 // Terrain (ART_DIRECTION §4; D-057 voxel style), render-only: the island's
 // ground as voxel columns (render/voxelterrain.ts) — 4 per tile with the
-// full models (near and mid LOD), 2 per tile with the lite models (far) —
-// in noise-tinted ground colours per terrain, a sand rim on the outermost
-// land column and two sand shelves stepping down into the sea. One full
-// mesh per chunk (display/chunks.ts, CHUNK × CHUNK tiles), culled per
-// chunk, and one lite mesh per island. The foam line (FoamLine) is a
-// separate animated strip off the coast at near LOD.
+// full models (near and mid LOD), 2 per tile with the lite models (far),
+// 1 per tile for the far view of the islands around the focused one
+// (render/farmesh.ts) — the coarser ones the near field downsampled, so
+// the coast does not jump at a LOD switch. The near/mid columns take
+// their top colours from the island's ground texture (one texel per
+// column: the smooth blend between tiles, pebbles, wet sand) and every
+// voxel a brightness jitter (render/groundshader.ts). One full mesh per
+// chunk (display/chunks.ts, CHUNK × CHUNK tiles), culled per chunk, and
+// one lite mesh per island. The coast water (CoastWater) — the pixel
+// shallows and the foam on the stepped coast — is a separate pair of
+// meshes at near and mid LOD.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
+import { RawTexture } from "@babylonjs/core/Materials/Textures/rawTexture";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
+import { Constants } from "@babylonjs/core/Engines/constants";
 import type { Island, Terrain } from "../api/client";
-import { type ChunkRect, islandChunks } from "../display/chunks";
-import { type CoastLoop, outwardNormal } from "../display/coastline";
-import { fbm } from "../display/noise";
+import { chunkAt, type ChunkRect, islandChunks } from "../display/chunks";
+import type { CoastLoop } from "../display/coastline";
+import { fbm, hash2 } from "../display/noise";
 import { TERRAIN, WATER } from "../theme/palette";
+import { addGround } from "./groundshader";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
-import { type Field, islandField, meshField, TERRAIN_VPT, tileRange } from "./voxelterrain";
+import type { RoadTile } from "./roads";
+import { type FieldBase, fieldBase, type FieldTile, paintFields, paintRoads, touchedChunks } from "./roadvoxels";
+import { downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, TERRAIN_VPT, tileRange } from "./voxelterrain";
 
 /** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
 export const SEA_LEVEL = -0.6;
 /** Columns per tile of the far (lite) terrain. */
 const LITE_VPT = 2;
+/** Columns per tile of the far view of the other islands (farmesh.ts). */
+export const FAR_VPT = 1;
+/** Colour levels per channel of the far view's columns (coarse: neighbours merge; a tile is a pixel or two there). */
+export const FAR_QUANT = 20;
 
 const SAND = c3(TERRAIN.sand);
 const GRASS_A = c3(TERRAIN.grass_a);
@@ -58,24 +71,6 @@ export function groundColor(terrain: Terrain | undefined, x: number, y: number, 
     default:
       return UNKNOWN_TERRAIN;
   }
-}
-
-/** Outward normals of a loop averaged over ±w points (weights w+1−|d|): steps and kinks blend into their neighbours. */
-export function smoothNormals(loop: CoastLoop, w: number): { x: number; y: number }[] {
-  const n = loop.length;
-  const normals = loop.map((_, k) => outwardNormal(loop, k));
-  return normals.map((_, k) => {
-    let x = 0;
-    let y = 0;
-    for (let d = -w; d <= w; d++) {
-      const q = normals[(k + d + n) % n] as { x: number; y: number };
-      const wt = w + 1 - Math.abs(d);
-      x += q.x * wt;
-      y += q.y * wt;
-    }
-    const len = Math.hypot(x, y) || 1;
-    return { x: x / len, y: y / len };
-  });
 }
 
 /** Mesh data under construction (positions, colours, normals, indices) with shared vertices by key. */
@@ -120,6 +115,22 @@ export class Builder {
   }
 }
 
+/** An island's built terrain: the meshes of both details, the near field (coast water) and the far view's mesh data. */
+export interface TerrainMeshes {
+  lite: Mesh[];
+  full: Mesh[];
+  /** The near/mid column field (4 per tile). */
+  field: Field | null;
+  /** The far view's columns (FAR_VPT per tile, island-local), merged with the other islands (farmesh.ts). */
+  far: Builder | null;
+  /** Paints the island's roads into the terrain; returns the chunks whose meshes were rebuilt. */
+  setRoads(tiles: readonly RoadTile[], fields?: readonly FieldTile[]): string[];
+  dispose(): void;
+}
+
+/** No terrain. */
+export const NO_TERRAIN: TerrainMeshes = { lite: [], full: [], field: null, far: null, setRoads: () => [], dispose: () => undefined };
+
 /**
  * The island's terrain in two details, both built once: `lite` (far LOD,
  * with the lite models; one mesh for the island under `liteParent`, the
@@ -135,14 +146,14 @@ export function buildTerrain(
   seed: number,
   parent: (chunk: string) => TransformNode,
   liteParent: TransformNode | null = null,
-): { lite: Mesh[]; full: Mesh[] } {
+): TerrainMeshes {
   const b = new TerrainBuild(scene, island, loops, seed, parent, liteParent);
   for (const c of islandChunks(island.width, island.height)) b.chunk(c);
   return b.finish();
 }
 
-function terrainMaterial(scene: Scene): StandardMaterial {
-  const material = skyFill(new StandardMaterial("terrain", scene));
+function terrainMaterial(scene: Scene, name: string): StandardMaterial {
+  const material = skyFill(new StandardMaterial(name, scene));
   material.specularColor = Color3.Black();
   material.backFaceCulling = false;
   return material;
@@ -150,160 +161,267 @@ function terrainMaterial(scene: Scene): StandardMaterial {
 
 /**
  * buildTerrain in steps (the incremental island build,
- * render/buildqueue.ts): the columns of each chunk in both details with
- * its full mesh (`chunk`, any order), then the island's one lite mesh
- * (`finish`). The result equals buildTerrain's but for the order of
- * vertices.
+ * render/buildqueue.ts): the fields and the ground texture first (the
+ * constructor), the full mesh of each chunk (`chunk`, any order), then
+ * the island's one lite mesh and the far view's data (`finish`). The
+ * result equals buildTerrain's but for the order of vertices.
  */
 export class TerrainBuild {
   private readonly material: StandardMaterial;
-  private readonly lite = new Builder();
-  private readonly meshes: Mesh[] = [];
-  /** The column fields of the full (4 per tile) and lite (2 per tile) terrain. */
+  private readonly texture: RawTexture;
+  /** The full meshes by chunk key. */
+  private readonly meshes = new Map<string, Mesh>();
+  private readonly rects: Map<string, ChunkRect>;
+  /** The near field without roads (setRoads repaints from it). */
+  private readonly base: FieldBase;
+  private roadKey = "";
+  /** The column fields of the full (4 per tile, textured) and lite (2 per tile, downsampled) terrain. */
   private readonly fields: { full: Field; lite: Field };
 
   constructor(
     private readonly scene: Scene,
     private readonly island: Island,
     loops: readonly CoastLoop[],
-    seed: number,
+    private readonly seed: number,
     private readonly parent: (chunk: string) => TransformNode,
     private readonly liteParent: TransformNode | null,
   ) {
-    this.material = terrainMaterial(scene);
-    this.fields = { full: islandField(island, loops, seed, TERRAIN_VPT), lite: islandField(island, loops, seed, LITE_VPT) };
+    const full: Field = { ...islandField(island, loops, seed, TERRAIN_VPT), textured: true };
+    // The lite tops sample the same ground texture (their colours need no vertex colour: they merge into large rectangles).
+    this.fields = { full, lite: { ...downsampleField(full, TERRAIN_VPT / LITE_VPT), textured: true } };
+    this.base = fieldBase(full);
+    this.rects = new Map(islandChunks(island.width, island.height).map((c) => [c.key, c]));
+    this.texture = new RawTexture(groundTexels(full), full.nx, full.ny, Constants.TEXTUREFORMAT_RGBA, scene, false, false, Texture.NEAREST_SAMPLINGMODE);
+    this.texture.name = `ground_${island.id}`;
+    this.texture.wrapU = Texture.CLAMP_ADDRESSMODE;
+    this.texture.wrapV = Texture.CLAMP_ADDRESSMODE;
+    this.material = addGround(terrainMaterial(scene, "terrain"), { texture: this.texture, width: full.nx, height: full.ny, vpt: TERRAIN_VPT });
   }
 
-  /** The columns of a chunk in both details, and its full mesh. */
+  /** The full mesh of a chunk (replacing one built before). */
   chunk(c: ChunkRect): void {
+    this.meshes.get(c.key)?.dispose();
+    this.meshes.delete(c.key);
     const b = new Builder();
     meshField(b, this.fields.full, ...tileRange(c.x, c.y, c.width, c.height, TERRAIN_VPT));
-    meshField(this.lite, this.fields.lite, ...tileRange(c.x, c.y, c.width, c.height, LITE_VPT));
     const mesh = b.mesh(`terrain_${this.island.id}_${c.key}`, this.scene, this.material, this.parent(c.key));
     if (!mesh) return;
     mesh.metadata = { chunk: c.key };
     mesh.freezeWorldMatrix();
-    this.meshes.push(mesh);
+    this.meshes.set(c.key, mesh);
   }
 
-  /** Disposes the meshes built so far (a replaced build). */
+  /**
+   * Paints the roads and the ground under the fields into the near field
+   * (render/roadvoxels.ts) and the ground texture; rebuilds the meshes of the built chunks whose columns
+   * changed height (or whose neighbours did) and returns their keys.
+   */
+  setRoads(tiles: readonly RoadTile[], fields: readonly FieldTile[] = []): string[] {
+    const key = `${tiles.map((t) => `${t.x},${t.y},${t.type ?? ""}`).join(";")}|${fields.map((t) => `${t.x},${t.y},${t.type}`).join(";")}`;
+    if (key === this.roadKey) return [];
+    this.roadKey = key;
+    const f = this.fields.full;
+    const changed = paintRoads(f, this.base, tiles, this.seed);
+    paintFields(f, this.base, fields, this.seed);
+    this.texture.update(groundTexels(f));
+    const out: string[] = [];
+    for (const k of touchedChunks(changed, f, (x, y) => chunkAt(x, y, this.island.width, this.island.height))) {
+      const c = this.rects.get(k);
+      if (!c || !this.meshes.has(k)) continue;
+      this.chunk(c);
+      out.push(k);
+    }
+    return out.sort();
+  }
+
+  /** Disposes what was built so far (a replaced build). */
   dispose(): void {
-    for (const m of this.meshes) m.dispose();
-    this.meshes.length = 0;
+    for (const m of this.meshes.values()) m.dispose();
+    this.meshes.clear();
+    this.texture.dispose();
+    this.material.dispose();
   }
 
-  /** The lite mesh; the full meshes built so far. */
-  finish(): { lite: Mesh[]; full: Mesh[] } {
-    const lite = this.lite.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.material, this.liteParent);
-    lite?.freezeWorldMatrix();
-    return { lite: lite ? [lite] : [], full: this.meshes };
+  /** The lite mesh and the far data; the full meshes built so far. */
+  finish(): TerrainMeshes {
+    const liteB = new Builder();
+    const lite = this.fields.lite;
+    meshField(liteB, lite, 0, 0, lite.nx, lite.ny);
+    const liteMesh = liteB.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.material, this.liteParent);
+    liteMesh?.freezeWorldMatrix();
+    const farF: Field = { ...downsampleField(this.fields.full, TERRAIN_VPT / FAR_VPT), quant: FAR_QUANT };
+    const far = new Builder();
+    meshField(far, farF, 0, 0, farF.nx, farF.ny);
+    const meshes = this.meshes;
+    return {
+      lite: liteMesh ? [liteMesh] : [],
+      get full() {
+        return [...meshes.values()];
+      },
+      field: this.fields.full,
+      far,
+      setRoads: (tiles, fields) => this.setRoads(tiles, fields),
+      dispose: () => {
+        liteMesh?.dispose();
+        this.dispose();
+      },
+    };
   }
 }
 
+/** Foam pattern texels (one row, wraps): each foam column samples one, the pattern steps along. */
+const FOAM_TEXELS = 64;
+/** Seconds per step of the foam pattern. */
+const FOAM_STEP_S = 0.45;
+/** Heights over the sea surface of the shallows and the foam. */
+const SHALLOWS_Y = SEA_LEVEL + 0.006;
+const FOAM_Y = SEA_LEVEL + 0.012;
+/** Shallow bands off the wet sand line (columns from the land, colour, alpha): lighter near the beach. */
+const SHALLOW_BANDS: readonly { from: number; to: number; color: Color3; alpha: number }[] = [
+  { from: 3, to: 4, color: Color3.Lerp(c3(WATER.shallows), c3(WATER.foam), 0.3), alpha: 0.55 },
+  { from: 5, to: 6, color: Color3.Lerp(c3(WATER.shallows), c3(TERRAIN.sand), 0.12), alpha: 0.42 },
+  { from: 7, to: 8, color: c3(WATER.shallows), alpha: 0.26 },
+];
 
-const FOAM_TEX_W = 128;
-const FOAM_TEX_H = 32;
-/** Foam band: from this far off the coastline (tiles, over the sand shelves) to FOAM_OUT, on the sea surface. */
-const FOAM_IN = 0.252;
-const FOAM_OUT = 0.91;
-const FOAM_Y = SEA_LEVEL + 0.015;
-
-/** Foam texture: a broken white band across v, varying along u (wraps in u). */
-function foamTexture(scene: Scene, seed: number): DynamicTexture {
-  const tex = new DynamicTexture("foam", { width: FOAM_TEX_W, height: FOAM_TEX_H }, scene, true);
-  tex.hasAlpha = true;
-  const ctx = tex.getContext() as CanvasRenderingContext2D;
-  const img = ctx.createImageData(FOAM_TEX_W, FOAM_TEX_H);
-  const foam = c3(WATER.foam);
-  for (let y = 0; y < FOAM_TEX_H; y++) {
-    for (let x = 0; x < FOAM_TEX_W; x++) {
-      const v = y / (FOAM_TEX_H - 1);
-      const band = Math.exp(-(((v - 0.42) / 0.2) ** 2)) + 0.35 * Math.exp(-(((v - 0.8) / 0.08) ** 2));
-      const breaks = smoothstep(0.25, 0.65, fbm((x / FOAM_TEX_W) * 8, v * 2, seed));
-      const a = Math.min(1, band * (0.3 + 0.5 * breaks));
-      const i = (y * FOAM_TEX_W + x) * 4;
-      img.data[i] = foam.r * 255;
-      img.data[i + 1] = foam.g * 255;
-      img.data[i + 2] = foam.b * 255;
-      img.data[i + 3] = a * 255;
-    }
+function foamTexture(scene: Scene, seed: number): RawTexture {
+  const data = new Uint8Array(FOAM_TEXELS * 4);
+  for (let x = 0; x < FOAM_TEXELS; x++) {
+    // Runs of foam and gaps: a coarse noise along the row.
+    const n = fbm(x / 5, 0.5, seed);
+    const a = n > 0.42 ? 235 : n > 0.34 ? 120 : 0;
+    data.set([255, 255, 255, a], x * 4);
   }
-  ctx.putImageData(img, 0, 0);
-  tex.update();
+  const tex = new RawTexture(data, FOAM_TEXELS, 1, Constants.TEXTUREFORMAT_RGBA, scene, false, false, Texture.NEAREST_SAMPLINGMODE);
+  tex.hasAlpha = true;
   tex.wrapU = Texture.WRAP_ADDRESSMODE;
   tex.wrapV = Texture.CLAMP_ADDRESSMODE;
   return tex;
 }
 
-/** The moving foam line along an island's coastline (near LOD). */
-export class FoamLine {
-  private readonly material: StandardMaterial;
-  private readonly texture: DynamicTexture;
-  private mesh: Mesh | null = null;
+/**
+ * The coast water of an island on the near field's column grid: the
+ * shallows as stepped bands of translucent turquoise off the wet sand
+ * line (near and mid LOD), and the foam — one pixel per column on the
+ * first water column, broken pixels on the next — that crawls along the
+ * coast in steps (near LOD). Both follow the stepped coast exactly.
+ */
+export class CoastWater {
+  private readonly shallowMaterial: StandardMaterial;
+  private readonly foamMaterial: StandardMaterial;
+  private readonly texture: RawTexture;
+  private shallows: Mesh | null = null;
+  private foam: Mesh | null = null;
 
   constructor(
     private readonly scene: Scene,
-    private readonly parent: TransformNode | null,
+    private readonly shallowParent: TransformNode | null,
+    private readonly foamParent: TransformNode | null,
     seed: number,
   ) {
-    this.material = skyFill(new StandardMaterial("foam", scene));
+    this.shallowMaterial = new StandardMaterial("shallows", scene);
+    this.shallowMaterial.disableLighting = true;
+    this.shallowMaterial.emissiveColor = Color3.White();
+    this.shallowMaterial.backFaceCulling = false;
+    this.foamMaterial = new StandardMaterial("foam", scene);
     this.texture = foamTexture(scene, seed);
-    this.material.diffuseTexture = this.texture;
-    this.material.useAlphaFromDiffuseTexture = true;
-    this.material.diffuseColor = Color3.White();
-    this.material.emissiveColor = c3(WATER.foam).scale(0.35);
-    this.material.specularColor = Color3.Black();
-    this.material.backFaceCulling = false;
+    this.foamMaterial.diffuseTexture = this.texture;
+    this.foamMaterial.useAlphaFromDiffuseTexture = true;
+    this.foamMaterial.disableLighting = true;
+    this.foamMaterial.emissiveColor = c3(WATER.foam).scale(0.95);
+    this.foamMaterial.backFaceCulling = false;
   }
 
-  /** Rebuilds the strip along the loops (island-local tiles). */
-  update(loops: readonly CoastLoop[]): void {
-    this.mesh?.dispose();
-    this.mesh = null;
-    const positions: number[] = [];
-    const uvs: number[] = [];
-    const indices: number[] = [];
-    for (const loop of loops) {
-      const n = loop.length;
-      if (n < 3) continue;
-      const first = positions.length / 3;
-      let along = 0;
-      const smooth = smoothNormals(loop, 3);
-      for (let k = 0; k <= n; k++) {
-        const p = loop[k % n] as CoastLoop[number];
-        if (k > 0) {
-          const q = loop[k - 1] as CoastLoop[number];
-          along += Math.hypot(p.x - q.x, p.y - q.y);
+  /** Rebuilds both meshes from a near field (its coast distances). */
+  update(f: Field | null, seed: number): void {
+    this.shallows?.dispose();
+    this.foam?.dispose();
+    this.shallows = null;
+    this.foam = null;
+    if (!f?.toLand) return;
+    const { nx, ny, s, x0, y0, toLand, h } = f;
+    // Shallows: per row, runs of columns of one band.
+    const sp: number[] = [];
+    const sc: number[] = [];
+    const si: number[] = [];
+    const bandOf = (k: number) => {
+      if (h[k] !== EMPTY) return -1;
+      const d = toLand[k] as number;
+      return SHALLOW_BANDS.findIndex((b) => d >= b.from && d <= b.to);
+    };
+    const rect = (xa: number, xb: number, ya: number, yb: number, y: number, pos: number[], idx: number[]) => {
+      const base = pos.length / 3;
+      pos.push(xa, y, -ya, xb, y, -ya, xb, y, -yb, xa, y, -yb);
+      idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
+    };
+    for (let j = 0; j < ny; j++) {
+      let i = 0;
+      while (i < nx) {
+        const band = bandOf(j * nx + i);
+        let e = i + 1;
+        while (e < nx && bandOf(j * nx + e) === band) e++;
+        if (band >= 0) {
+          rect(x0 + i * s, x0 + e * s, y0 + j * s, y0 + (j + 1) * s, SHALLOWS_Y, sp, si);
+          const b = SHALLOW_BANDS[band] as (typeof SHALLOW_BANDS)[number];
+          for (let q = 0; q < 4; q++) sc.push(b.color.r, b.color.g, b.color.b, b.alpha);
         }
-        const o = smooth[k % n] as { x: number; y: number };
-        positions.push(p.x + o.x * FOAM_IN, FOAM_Y, -(p.y + o.y * FOAM_IN), p.x + o.x * FOAM_OUT, FOAM_Y, -(p.y + o.y * FOAM_OUT));
-        const u = along / 3;
-        uvs.push(u, 0, u, 1);
-        if (k > 0) {
-          const v = first + k * 2;
-          indices.push(v - 2, v, v + 1, v - 2, v + 1, v - 1);
-        }
+        i = e;
       }
     }
-    if (indices.length === 0) return;
-    const mesh = new Mesh("foam", this.scene);
-    const data = new VertexData();
-    data.positions = positions;
-    data.uvs = uvs;
-    data.indices = indices;
-    data.normals = positions.map((_, i) => (i % 3 === 1 ? 1 : 0));
-    data.applyToMesh(mesh);
-    mesh.material = this.material;
-    mesh.parent = this.parent;
-    mesh.isPickable = false;
-    mesh.alphaIndex = 1;
-    this.mesh = mesh;
+    // Foam: one quad per column, its pattern texel by a hash of the column.
+    const fp: number[] = [];
+    const fi: number[] = [];
+    const fu: number[] = [];
+    for (let j = 0; j < ny; j++) {
+      for (let i = 0; i < nx; i++) {
+        const k = j * nx + i;
+        if (h[k] !== EMPTY) continue;
+        const d = toLand[k] as number;
+        if (d !== 3 && !(d === 4 && hash2(i, j, seed + 41) < 0.3)) continue;
+        rect(x0 + i * s, x0 + (i + 1) * s, y0 + j * s, y0 + (j + 1) * s, FOAM_Y, fp, fi);
+        // Neighbouring columns sample neighbouring texels: the pattern's runs and gaps travel along the coast.
+        const u = ((i + j + Math.floor(hash2(i, j, seed + 40) * 2)) % FOAM_TEXELS + 0.5) / FOAM_TEXELS;
+        fu.push(u, 0.5, u, 0.5, u, 0.5, u, 0.5);
+      }
+    }
+    const make = (name: string, pos: number[], idx: number[], material: StandardMaterial, parent: TransformNode | null, extra: (d: VertexData) => void) => {
+      if (idx.length === 0) return null;
+      const mesh = new Mesh(name, this.scene);
+      const data = new VertexData();
+      data.positions = pos;
+      data.indices = idx;
+      data.normals = pos.map((_, q) => (q % 3 === 1 ? 1 : 0));
+      extra(data);
+      data.applyToMesh(mesh);
+      mesh.material = material;
+      mesh.parent = parent;
+      mesh.isPickable = false;
+      mesh.freezeWorldMatrix();
+      return mesh;
+    };
+    this.shallows = make("shallows", sp, si, this.shallowMaterial, this.shallowParent, (d) => (d.colors = sc));
+    if (this.shallows) {
+      this.shallows.hasVertexAlpha = true;
+      this.shallows.alphaIndex = 1;
+    }
+    this.foam = make("foam", fp, fi, this.foamMaterial, this.foamParent, (d) => (d.uvs = fu));
+    if (this.foam) this.foam.alphaIndex = 2;
   }
 
-  /** Advances and pulls back the foam slowly (server time nowMs). */
+  /** Shallows at near and mid LOD (the foam's parent is the near node). */
+  setFar(far: boolean): void {
+    this.shallows?.setEnabled(!far);
+  }
+
+  /** Steps the foam pattern along (server time nowMs). */
   frame(nowMs: number): void {
-    const t = nowMs / 1000;
-    this.texture.uOffset = (t * 0.02) % 1;
-    this.texture.vOffset = Math.sin((t * 2 * Math.PI) / 7) * 0.12;
+    this.texture.uOffset = Math.floor(nowMs / 1000 / FOAM_STEP_S) / FOAM_TEXELS;
+  }
+
+  dispose(): void {
+    this.shallows?.dispose();
+    this.foam?.dispose();
+    this.texture.dispose();
+    this.shallowMaterial.dispose();
+    this.foamMaterial.dispose();
   }
 }

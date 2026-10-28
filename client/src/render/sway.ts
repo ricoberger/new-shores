@@ -1,7 +1,8 @@
 /**
  * Cloth sway (LIFE_LAYER §2): sails, drying cloth and flags move in the
  * vertex shader. The asset pipeline marks swaying vertices by lowering
- * their COLOR_0 alpha (weight = 1 − alpha; 0 everywhere else), so every
+ * their COLOR_0 alpha (weight = 1 − alpha, at most 245/255; the bytes
+ * 248..255 carry the rigid vertices' jitter class), so every
  * other vertex of a material with the plugin is untouched. The wind is
  * world-fixed (the smoke's WIND); a ship instance with the SAILING alpha
  * sentinel also bulges its sails forward. No game state is involved: the
@@ -20,6 +21,9 @@ export const swayClock = { t: 0, amp: 1 };
 const WRAP_MS = 600_000;
 /** Sway angular frequency (rad/s): 240 cycles per WRAP_MS. */
 const OMEGA = (2 * Math.PI * 240) / (WRAP_MS / 1000);
+
+/** Weights up to this are rigid (alpha bytes 248..255: the jitter classes, nsvoxel/jitter.py). */
+export const SWAY_MIN = 8.5 / 255;
 
 /** Instance alpha marking a sailing ship (reset to 1 in the shader). */
 export const SAILING_ALPHA = 0.5;
@@ -90,7 +94,9 @@ export class SwayPlugin extends MaterialPluginBase {
     return {
       CUSTOM_VERTEX_UPDATE_WORLDPOS: `
 #if defined(SWAY) && defined(VERTEXCOLOR)
-  float swayW = (1.0 - color.a) * swayAmp;
+  // Alpha bytes 248..255 are rigid (the jitter class, render/jitter.ts); sway weights start at 10/255.
+  float swayRaw = 1.0 - color.a;
+  float swayW = (swayRaw > ${SWAY_MIN.toFixed(4)} ? swayRaw : 0.0) * swayAmp;
   if (swayW > 0.0) {
     vec3 swayWind = vec3(${WX}, 0.0, ${WZ});
     float swayPh = swayTime * ${OMEGA.toFixed(5)} + dot(worldPos.xz, vec2(3.1, 2.3));

@@ -754,7 +754,7 @@ export class GameRenderer {
       const farMasked = this.farMask && this.lod === "far" && is.id !== focus;
       const useMask = !d?.hasTiles() || farMasked;
       d?.setShown(shown && !useMask, this.lod);
-      if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey) });
+      if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), tiles: d?.farTerrain() ?? null });
       // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
       if (showsLandmarks(is, this.lod, focus, useMask)) landmarks.push(is);
     }

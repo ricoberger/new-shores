@@ -18,6 +18,7 @@ import { BUILDINGS, TERRAIN } from "../theme/palette";
 import { setInstances } from "./instances";
 import { decorModel, modelMesh, type ModelRegistry } from "./models";
 import { c3 } from "./palette";
+import { addJitter, MODEL_VPT } from "./jitter";
 import { skyFill } from "./lighting";
 
 /** Tint of each known deposit kind (mixed into the mountain grey). */
@@ -60,7 +61,7 @@ export class OutcropLayer {
     private readonly parent: TransformNode | null,
     private readonly registry: ModelRegistry | null = null,
   ) {
-    this.material = skyFill(new StandardMaterial("outcrops", scene));
+    this.material = addJitter(skyFill(new StandardMaterial("outcrops", scene)), MODEL_VPT);
     this.material.specularColor = Color3.Black();
   }
 

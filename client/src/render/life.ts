@@ -18,6 +18,7 @@ import { CLS, VILLAGER_VARIANTS } from "../display/lifeplan";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
 import { BUILDINGS, WATER } from "../theme/palette";
+import { addJitter, LIFE_VPT } from "./jitter";
 import { skyFill } from "./lighting";
 import { lifeModel, type ModelData, type ModelRegistry } from "./models";
 import { c4, mix } from "./palette";
@@ -166,11 +167,17 @@ export class LifeLayer {
   ) {
     this.quality = quality;
     this.enabled = enabled;
-    this.material = skyFill(new StandardMaterial("life", scene));
+    this.material = addJitter(skyFill(new StandardMaterial("life", scene)), LIFE_VPT);
     this.material.specularColor = Color3.Black();
     for (const [id, def] of Object.entries(defs)) this.define(id, def);
     this.sink = {
       add: (cls, x, h, y, yaw, k = 1, color = WHITE, roll = 0) => {
+        const r = LIFE_ROUTES[cls];
+        if (r) {
+          const to = r(k, yaw);
+          this.classes.get(to.cls)?.push(this.origin.x + x, h, -(this.origin.y + y), to.yaw, to.k, color, roll);
+          return;
+        }
         this.classes.get(cls)?.push(this.origin.x + x, h, -(this.origin.y + y), yaw, k, color, roll);
       },
     };
@@ -316,10 +323,10 @@ function gull(lift: number): LifeGeometry {
   };
 }
 
-/** A cube puff (0.8 tiles, 12 triangles) in one colour: smoke. */
-function puff(color: Color4): LifeGeometry {
+/** A cube puff (`size` tiles, 12 triangles) in one colour: smoke. */
+function puff(color: Color4, size = 0.8): LifeGeometry {
   return (scene, name) => {
-    const m = CreateBox(name, { size: 0.8 }, scene);
+    const m = CreateBox(name, { size }, scene);
     m.setVerticesData("color", new Array(m.getTotalVertices()).fill([color.r, color.g, color.b, 1]).flat());
     return m;
   };
@@ -341,6 +348,26 @@ function villagers(tier: "settlers" | "citizens", color: Color4): Record<string,
   return out;
 }
 
+/**
+ * Voxel smoke (D-057 V2): the plan's puff of size k (× 0.8 tiles, the
+ * placeholder cube) is drawn as the puff variant nearest that size,
+ * scaled the rest of the way, so the puffs' voxels stay near the world's
+ * voxel size; quarter turns only, like the decor.
+ */
+export const SMOKE_SIZES = [2, 3, 4, 6].map((d) => d / 16);
+const SMOKE_BASE = 0.8;
+const smokeClass = (v: number) => `smoke_${v}`;
+
+export function smokeRoute(k: number, yaw: number): { cls: string; k: number; yaw: number } {
+  const size = SMOKE_BASE * k;
+  let v = 0;
+  for (let i = 1; i < SMOKE_SIZES.length; i++) if (Math.abs(Math.log((SMOKE_SIZES[i] as number) / size)) < Math.abs(Math.log((SMOKE_SIZES[v] as number) / size))) v = i;
+  return { cls: smokeClass(v), k: size / (SMOKE_SIZES[v] as number), yaw: Math.round(yaw / (Math.PI / 2)) * (Math.PI / 2) };
+}
+
+/** Classes the plan names that are drawn as another class (the smoke's size variants). */
+const LIFE_ROUTES: Readonly<Record<string, (k: number, yaw: number) => { cls: string; k: number; yaw: number }>> = { [CLS.smoke]: smokeRoute };
+
 /** The element classes of the life layer: placeholder and model (assets/voxel/recipes/_life.py). */
 export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
   [CLS.cart]: { geometry: box(0.46, 0.45, 1.0, TIMBER), model: { id: "life_cart" } },
@@ -348,7 +375,7 @@ export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
   [CLS.axle]: { geometry: box(0.57, 0.18, 0.18, TIMBER, true), model: { id: "life_cart_axle" } },
   ...villagers("settlers", c4(BUILDINGS.thatch)),
   ...villagers("citizens", c4(BUILDINGS.terracotta)),
-  [CLS.smoke]: { geometry: puff(SMOKE), particle: true },
+  ...Object.fromEntries(SMOKE_SIZES.map((d, v) => [smokeClass(v), { geometry: puff(SMOKE, d), particle: true, model: { id: "life_smoke", variant: v } }])),
   [CLS.boat]: { geometry: box(0.3, 0.12, 0.8, TIMBER), model: { id: "life_boat" } },
   [CLS.crate]: { geometry: box(0.24, 0.24, 0.24, TIMBER), model: { id: "life_crate" } },
   [CLS.sheep]: { geometry: box(0.12, 0.18, 0.18, c4(BUILDINGS.canvas)), model: { id: "life_sheep" } },

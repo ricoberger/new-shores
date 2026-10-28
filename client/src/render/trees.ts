@@ -22,8 +22,11 @@ import { BUILDINGS, TERRAIN, UI, WATER } from "../theme/palette";
 import { SHADOW_LEAN, skyFill } from "./lighting";
 import { bipyramid, cone, prism, type Tri, TriBuilder } from "./meshdata";
 import { decorModel, type ModelData, type ModelRegistry } from "./models";
+import type { DetailPlaced } from "./decorscatter";
 import { c3, SHADOW } from "./palette";
 import { BLOB_Y } from "./shadows";
+import { addJitter, MODEL_VPT } from "./jitter";
+import { addSway } from "./sway";
 
 const TRUNK = c3(BUILDINGS.timber);
 const FOREST = c3(TERRAIN.forest_floor);
@@ -83,7 +86,7 @@ const ROCK: Tri[] = (() => {
 const BUSH: Tri[] = bipyramid(5, 0.16, 0, 0.12, 0.28, FOREST.scale(1.1), 0.3);
 
 function decorMaterial(scene: Scene, name: string): StandardMaterial {
-  const m = skyFill(new StandardMaterial(name, scene));
+  const m = addJitter(skyFill(new StandardMaterial(name, scene)), MODEL_VPT);
   m.specularColor = Color3.Black();
   m.backFaceCulling = false;
   return m;
@@ -145,7 +148,8 @@ export class ModelMerger {
       this.colors[c] = (d.colors[v * 4] as number) * shade;
       this.colors[c + 1] = (d.colors[v * 4 + 1] as number) * shade;
       this.colors[c + 2] = (d.colors[v * 4 + 2] as number) * shade;
-      this.colors[c + 3] = 1;
+      // Alpha is the sway mask (canopies): kept.
+      this.colors[c + 3] = d.colors[v * 4 + 3] as number;
     }
     for (let i = 0; i < d.indices.length; i++) this.indices[this.ni + i] = base + (d.indices[i] as number);
     this.nv += vc;
@@ -207,7 +211,8 @@ export function decorMaterials(scene: Scene, name: string): DecorMaterials {
   shadowMaterial.specularColor = Color3.Black();
   shadowMaterial.disableLighting = true;
   shadowMaterial.backFaceCulling = false;
-  return { material: decorMaterial(scene, `decor_${name}`), scatterMaterial: decorMaterial(scene, `scatter_${name}`), shadowMaterial };
+  // The tree canopies sway in the wind (their vertex alpha, see sway.ts).
+  return { material: addSway(decorMaterial(scene, `decor_${name}`)), scatterMaterial: decorMaterial(scene, `scatter_${name}`), shadowMaterial };
 }
 
 /** Trees, stumps, their blob shadows and the ground scatter of one island or island chunk. */
@@ -219,12 +224,16 @@ export class Decoration {
   private trees: Mesh | null = null;
   private shadows: Mesh | null = null;
   private scatter: Mesh | null = null;
-  private count = { trees: 0, scatter: 0, stumps: 0, triangles: 0 };
+  /** The small ground detail (near LOD only). */
+  private detail: Mesh | null = null;
+  private count = { trees: 0, scatter: 0, stumps: 0, detail: 0, triangles: 0 };
   /** Index counts of the trees and their shadows: kept at far LOD (FAR_TREE_STRIDE) and all. */
   private ranges = { trees: { kept: 0, all: 0 }, shadows: { kept: 0, all: 0 } };
   private thinned = false;
   /** Far LOD (setFar): the meshes are not drawn. */
   private far = false;
+  /** Near LOD: the detail mesh is drawn. */
+  private near = true;
   /** The last build used a fallback for a decor model that has loaded since (or might load): rebuild on the next model refresh. */
   private fallback = false;
 
@@ -245,7 +254,8 @@ export class Decoration {
     this.trees?.dispose();
     this.shadows?.dispose();
     this.scatter?.dispose();
-    this.trees = this.shadows = this.scatter = null;
+    this.detail?.dispose();
+    this.trees = this.shadows = this.scatter = this.detail = null;
   }
 
   /** A decor model by ID (null: not available yet; marks the build as a fallback when the manifest lists it). */
@@ -262,10 +272,12 @@ export class Decoration {
     stumps: readonly Placed[] = [],
     heightAt: (x: number, y: number) => number = () => 0,
     stride = FAR_TREE_STRIDE,
+    detail: readonly DetailPlaced[] = [],
   ): void {
     this.trees?.dispose();
     this.shadows?.dispose();
     this.scatter?.dispose();
+    this.detail?.dispose();
     this.fallback = false;
     const t = new ModelMerger();
     const sh = new TriBuilder();
@@ -314,11 +326,20 @@ export class Decoration {
       for (const tri of tris) gp.add(tri, p.x, y, -p.y, p.scale, p.yaw);
     }
     g.addTris(gp);
-    this.count = { trees: trees.length, scatter: ground.length, stumps: stumps.length, triangles: t.triangles() + g.triangles() };
+    const dm = new ModelMerger();
+    let detailCount = 0;
+    for (const p of detail) {
+      const m = this.model(p.id);
+      if (!m) continue;
+      dm.add(m, p.x, heightAt(Math.floor(p.x), Math.floor(p.y)), -p.y, p.scale, p.yaw, 0.94 + 0.12 * ((p.yaw / (Math.PI * 2)) % 1));
+      detailCount++;
+    }
+    this.count = { trees: trees.length, scatter: ground.length, stumps: stumps.length, detail: detailCount, triangles: t.triangles() + g.triangles() + dm.triangles() };
     this.trees = t.build(`trees_${this.name}`, this.scene, this.material, this.parent);
     this.shadows = sh.build(`tree_shadows_${this.name}`, this.scene, this.shadowMaterial, this.parent, true);
     if (this.shadows) this.shadows.hasVertexAlpha = true;
     this.scatter = g.build(`scatter_${this.name}`, this.scene, this.scatterMaterial, this.parent);
+    this.detail = dm.build(`detail_${this.name}`, this.scene, this.scatterMaterial, this.parent);
     if (this.trees) this.trees.receiveShadows = false;
     const all = (m: Mesh | null) => m?.getTotalIndices() ?? 0;
     this.ranges = { trees: { kept: keptTrees, all: all(this.trees) }, shadows: { kept: keptShadows, all: all(this.shadows) } };
@@ -335,7 +356,14 @@ export class Decoration {
     this.trees?.setEnabled(!on);
     this.shadows?.setEnabled(!on);
     this.scatter?.setEnabled(!on);
+    this.detail?.setEnabled(!on && this.near);
     this.far = on;
+  }
+
+  /** The level of detail: the small ground detail only at near, the rest as setFar. */
+  setLod(lod: "near" | "mid" | "far"): void {
+    this.near = lod === "near";
+    this.setFar(lod === "far");
   }
 
   /** Far LOD: draw only the kept trees (and their shadows) — a toggle of the drawn index range. */
@@ -370,7 +398,7 @@ export class Decoration {
   }
 
   /** Trees, scatter items and stumps drawn and their triangles (tests and the perf notes). */
-  counts(): { trees: number; scatter: number; stumps: number; triangles: number } {
+  counts(): { trees: number; scatter: number; stumps: number; detail: number; triangles: number } {
     return this.count;
   }
 }

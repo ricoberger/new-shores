@@ -117,9 +117,19 @@ class CommittedTest(unittest.TestCase):
             for info in files_of(entry):
                 self.assertLessEqual(info["triangles"], config.BUDGET_DECOR, cid)
         for cid, entry in self.manifest["life"].items():
-            limit = config.BUDGET_LIFE_STAGE if cid.startswith(config.LIFE_STAGE_PREFIX) else config.BUDGET_LIFE
+            # Stages: BUDGET_LIFE_STAGE, more for the sized classes beyond 4 tiles (model.budget_of).
+            limit = model.budget_of(cid, "life", CONTENT)
+            self.assertGreaterEqual(limit, config.BUDGET_LIFE_STAGE if cid.startswith(config.LIFE_STAGE_PREFIX) else config.BUDGET_LIFE, cid)
             for info in files_of(entry):
                 self.assertLessEqual(info["triangles"], limit, cid)
+
+    def test_sway_groups_are_listed(self):
+        # The manifest lists each model's sway groups (the recipes' sail, flag and cloth voxels), the trees sway with "canopy".
+        self.assertIn("cloth", self.manifest["models"]["weaver_wool"]["sway"])
+        self.assertIn("sail", self.manifest["models"]["sloop"]["sway"])
+        self.assertEqual(self.manifest["decor"]["decor_tree_a"]["sway"], ["canopy"])
+        for entry in list(self.manifest["models"].values()) + list(self.manifest["decor"].values()):
+            self.assertEqual(entry.get("sway", []), sorted(set(entry.get("sway", []))))
 
     def test_models_fill_their_footprint_and_stand_on_the_ground(self):
         slack = model.FOOTPRINT_SLACK / config.VOXELS_PER_TILE

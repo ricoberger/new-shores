@@ -95,7 +95,7 @@ describe("rounded plateau outline", () => {
 });
 
 describe("plateau terraces", () => {
-  it("raise each level two voxel steps: one at the rim, two inside, the second level on top", () => {
+  it("raise each level four voxel steps: two at the rim, three, four inside, the second level on top", () => {
     const rows = ["ggggggggg", "gmmmmmmmg", "gmmmmmmmg", "gmmmmmmmg", "gmmmmmmmg", "gmmmmmmmg", "ggggggggg"];
     const island = grid(rows);
     const levels = plateauLevels(island, new Set());
@@ -106,12 +106,12 @@ describe("plateau terraces", () => {
     expect(f.s).toBeCloseTo(1 / TERRAIN_VPT);
     // Island tiles: tile x spans x … x + 1 (the columns are aligned with the tiles).
     const at = (x: number, y: number) => f.h[Math.floor(y / f.s) * f.nx + Math.floor(x / f.s)];
-    // Grass outside: no plateau column; level 1 inside its rim: 2 steps; the level-2 core: 4 steps.
+    // Grass outside: no plateau column; level 1 inside its rim: 4 steps; the level-2 core: 8 steps.
     expect(at(0.5, 0.5)).toBe(EMPTY);
-    expect(at(1.4, 3.5)).toBe(2);
-    expect(at(4.5, 3.5)).toBe(4);
-    expect(PLATEAU_STEP).toBeCloseTo(2 * VOXEL_STEP);
-    // Every step of the terrace is one voxel: neighbouring columns differ by at most one step.
+    expect(at(1.6, 3.5)).toBe(4);
+    expect(at(4.5, 3.5)).toBe(8);
+    expect(PLATEAU_STEP).toBeCloseTo(4 * VOXEL_STEP);
+    // The terraces step up by one or two voxels: neighbouring columns differ by at most two steps.
     let maxJump = 0;
     for (let j = 0; j < f.ny; j++) {
       for (let i = 0; i + 1 < f.nx; i++) {
@@ -120,6 +120,6 @@ describe("plateau terraces", () => {
         if (a !== EMPTY && b !== EMPTY) maxJump = Math.max(maxJump, Math.abs(a - b));
       }
     }
-    expect(maxJump).toBeLessThanOrEqual(1);
+    expect(maxJump).toBeLessThanOrEqual(2);
   });
 });

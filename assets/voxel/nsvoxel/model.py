@@ -123,6 +123,17 @@ def check_grid(v, ctx, needed):
     return problems
 
 
+def build_grid(recipe, kind, key, ctx):
+    """The grid of one output: the recipe's, or its cargo attachment's."""
+    fn = recipe["cargo"] if key and key[0] == "attachment" else recipe["build"]
+    return fn(ctx)
+
+
+def sway_groups(cells):
+    """The sway groups of a grid's cells (sorted; the manifest's `sway`)."""
+    return sorted({m[2] for m in cells.values() if len(m) > 2})
+
+
 def build_id(cid, kind, recipe, content):
     """(files, manifest entry, problems) of one content ID; files are (name, bytes, triangles, tri list for sheets)."""
     files = []
@@ -133,11 +144,12 @@ def build_id(cid, kind, recipe, content):
     anchors_v = None
     main_ctx = None
     infos = {}
+    sway = set()
     for fname, key, ctx in outputs(cid, kind, recipe, content):
         ctx.needs = needed
         ctx.smoke = "smoke" in needed
-        fn = recipe["cargo"] if key and key[0] == "attachment" else recipe["build"]
-        v = fn(ctx)
+        v = build_grid(recipe, kind, key, ctx)
+        sway |= set(sway_groups(v.cells))
         problems += [f"{fname}: {p}" for p in check_grid(v, ctx, needed if (key is None or key[0] != "attachment") else [])]
         if not v.cells:
             continue
@@ -177,6 +189,9 @@ def build_id(cid, kind, recipe, content):
     if union_lo is None:
         return files, None, problems or ["no files"]
     entry["bounds"] = {"min": [export._r(c) for c in union_lo], "max": [export._r(c) for c in union_hi]}
+    if sway:
+        # The sway groups the model's vertex alpha marks (cloth, sail, flag, canopy: render/sway.ts).
+        entry["sway"] = sorted(sway)
     ctx = main_ctx
     scale = 1.0 / ctx.vpt
     anchors = {k: export.anchor_gltf(p, ctx.W, ctx.D, scale, anchors_v.offset) for k, p in sorted(anchors_v.anchors.items())}
@@ -211,7 +226,11 @@ def budget_of(cid, kind, content, key=None):
     if kind == "decor":
         return config.BUDGET_DECOR
     if kind == "life":
-        return config.BUDGET_LIFE_STAGE if cid.startswith(config.LIFE_STAGE_PREFIX) else config.BUDGET_LIFE
+        if cid.startswith(config.LIFE_STAGE_PREFIX):
+            # Sized stages (life_stage_<n>, life_stage_scaffolding_<n>): the budget grows with the side beyond 4 tiles.
+            n = cid.rsplit("_", 1)[-1]
+            return int(config.BUDGET_LIFE_STAGE * max(1.0, int(n) / 4)) if n.isdigit() else config.BUDGET_LIFE_STAGE
+        return config.BUDGET_LIFE
     w, h = content_mod.footprint(content, cid)
     return config.BUDGET_PER_TILE[model_class(content, cid)] * w * h
 

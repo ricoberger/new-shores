@@ -20,7 +20,6 @@
 // and the harbour stay per island.
 import type { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
-import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay } from "../api/client";
@@ -38,9 +37,12 @@ import { footprintBox } from "./coords";
 import { buildingAnchor, type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
 import { OutcropLayer } from "./outcrops";
 import { footprintTiles, PlateauLayer } from "./plateaus";
-import { roadMaterial, RoadLayer, type RoadTile } from "./roads";
 import { FootprintShadows } from "./shadows";
-import { buildTerrain, FoamLine, TerrainBuild } from "./terrain";
+import { GROUND_JITTER, groundShade } from "./groundshader";
+import { jitterShade, setJitterLod } from "./jitter";
+import { type Builder, buildTerrain, CoastWater, NO_TERRAIN, TerrainBuild, type TerrainMeshes } from "./terrain";
+import { type DetailPlaced, scatterDetail } from "./decorscatter";
+import type { FieldTile } from "./roadvoxels";
 import { type DecorMaterials, decorMaterials, Decoration, FarTrees, TREE_MODELS } from "./trees";
 
 /** The state of an incremental first build (IslandDetail.startBuild). */
@@ -57,7 +59,6 @@ interface IslandBuild {
   currentKey: string | null;
   terrain: TerrainBuild | null;
   /** Prepared by the head for the chunk steps. */
-  roads: Map<string, RoadTile[]>;
   fields: Map<string, BuildingDisplay[]>;
   scatter: ScatterInput | null;
   areas: ThinningArea[];
@@ -69,6 +70,7 @@ interface DecorInput {
   trees: Placed[];
   ground: (Placed & { kind: ScatterKind })[];
   stumps: Placed[];
+  detail: DetailPlaced[];
 }
 
 const placedSig = (p: Placed) => `${p.x.toFixed(3)},${p.y.toFixed(3)},${p.variant},${p.scale.toFixed(3)},${p.yaw.toFixed(3)}`;
@@ -89,9 +91,6 @@ export class IslandDetail {
   private readonly fields: Chunked<FieldTiles, BuildingDisplay[]>;
   private readonly fieldDecor: Chunked<FieldDecor, BuildingDisplay[]>;
   private readonly decoration: Chunked<Decoration, DecorInput>;
-  private readonly roads: Chunked<RoadLayer, RoadTile[]>;
-  /** The road tiles of the island ("x,y"): road joins across a chunk's edge. */
-  private roadSet = new Set<string>();
   /** The chunk nodes (enabled while the chunk is in view). */
   private readonly chunkNodes = new Map<string, TransformNode>();
   /** The chunks in view (null: all). */
@@ -106,8 +105,9 @@ export class IslandDetail {
   private readonly buildingBlobs: FootprintShadows;
   private readonly outcrops: OutcropLayer;
   private readonly plateaus: PlateauLayer;
-  private foam: FoamLine | null = null;
-  private terrain: { lite: Mesh[]; full: Mesh[] } = { lite: [], full: [] };
+  /** Shallows (near and mid) and foam (near) on the stepped coast. */
+  private water: CoastWater | null = null;
+  private terrain: TerrainMeshes = NO_TERRAIN;
   /** Model detail (full at near and mid, lite at far): the terrain's column size follows it. */
   private detail: Detail = "full";
   /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
@@ -163,18 +163,9 @@ export class IslandDetail {
     this.farTrees = new FarTrees(scene, id, this.models, this.decorMaterials.material, registry);
     this.decoration = new Chunked(
       (k) => new Decoration(scene, `${id}_${k}`, this.chunkNode(k), registry, this.decorMaterials),
-      (l, d) => l.update(d.trees, d.ground, d.stumps, (x, y) => this.plateaus.heightAt(x, y)),
+      (l, d) => l.update(d.trees, d.ground, d.stumps, (x, y) => this.plateaus.heightAt(x, y), undefined, d.detail),
       (l) => l.dispose(),
-      (d) => `${d.trees.map(placedSig).join(";")}|${d.ground.map((p) => `${p.kind}${placedSig(p)}@${this.plateaus.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}|${d.stumps.map(placedSig).join(";")}`,
-    );
-    const roads = roadMaterial(scene);
-    const has = (x: number, y: number) => this.roadSet.has(`${x},${y}`);
-    this.roads = new Chunked(
-      (k) => new RoadLayer(scene, this.chunkNode(k), roads),
-      (l, tiles) => l.update(tiles, has),
-      (l) => l.dispose(),
-      // A tile's joins depend on its four neighbours (also across the chunk's edge).
-      (tiles) => tiles.map((t) => `${t.x},${t.y},${t.type ?? ""},${[has(t.x, t.y - 1), has(t.x, t.y + 1), has(t.x - 1, t.y), has(t.x + 1, t.y)].map(Number).join("")}`).join(";"),
+      (d) => `${d.trees.map(placedSig).join(";")}|${d.ground.map((p) => `${p.kind}${placedSig(p)}@${this.plateaus.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}|${d.stumps.map(placedSig).join(";")}|${d.detail.map((p) => `${p.id}${placedSig(p)}@${this.plateaus.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}`,
     );
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near, registry);
@@ -213,7 +204,7 @@ export class IslandDetail {
       this.terrainKey = "";
     }
     if (key === this.terrainKey) return;
-    for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
+    this.terrain.dispose();
     this.root.computeWorldMatrix(true);
     this.seed = islandSeed(statics.id, statics.revision);
     this.loops = coastline(statics);
@@ -222,13 +213,24 @@ export class IslandDetail {
     this.deposits = statics.deposits;
     this.statics = statics;
     this.updateRelief();
-    this.foam ??= new FoamLine(this.scene, this.near, this.seed);
-    this.foam.update(this.loops);
+    this.updateWater();
     this.terrainKey = key;
     this.statics = statics;
     // The decoration depends on the terrain too: rebuild with the next update.
     this.builtFrom = null;
     this.keys = null;
+  }
+
+  /** The coast water from the terrain's near field. */
+  private updateWater(): void {
+    this.water ??= new CoastWater(this.scene, this.root, this.near, this.seed);
+    this.water.update(this.terrain.field, this.seed);
+    this.water.setFar(this.lod === "far");
+  }
+
+  /** The far view's terrain columns (island-local, FAR_VPT per tile; null until built): the renderer merges them with the other islands'. */
+  farTerrain(): { key: string; data: Builder } | null {
+    return this.hasTiles() && this.terrain.far ? { key: this.terrainKey, data: this.terrain.far } : null;
   }
 
   /** Whether the island is drawn with its full tiles (terrain and layers built). */
@@ -264,7 +266,6 @@ export class IslandDetail {
       head: null,
       chunks: new Map(islandChunks(statics.width, statics.height).map((c) => [c.key, c])),
       terrain: null,
-      roads: new Map(),
       fields: new Map(),
       scatter: null,
       areas: [],
@@ -333,8 +334,8 @@ export class IslandDetail {
   /** The island-level steps of a build. */
   private *headSteps(b: IslandBuild): Generator<void, void, void> {
     const { statics, display, defs } = b;
-    for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
-    this.terrain = { lite: [], full: [] };
+    this.terrain.dispose();
+    this.terrain = NO_TERRAIN;
     this.root.computeWorldMatrix(true);
     this.seed = islandSeed(statics.id, statics.revision);
     this.loops = coastline(statics);
@@ -344,8 +345,6 @@ export class IslandDetail {
     this.farTrees.beginChunks();
     b.terrain = new TerrainBuild(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), this.root);
     yield;
-    this.foam ??= new FoamLine(this.scene, this.near, this.seed);
-    this.foam.update(this.loops);
     this.buildings.update(display.buildings, defs);
     yield;
     this.updateLife(display, defs);
@@ -358,8 +357,8 @@ export class IslandDetail {
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.plateaus.heightAt(x, y));
     yield;
     b.keys = layerKeys(display, defs);
-    this.roadSet = new Set(display.roads.map((t) => `${t.x},${t.y}`));
-    b.roads = byChunk(display.roads, (t) => t);
+    // The roads are voxel paths in the terrain: painted before its chunks are meshed.
+    b.terrain?.setRoads(display.roads, fieldTiles(display, defs));
     b.fields = this.fieldsByChunk(display);
     b.scatter = { width: statics.width, height: statics.height, terrain: statics.terrain, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
     b.areas = thinningAreas(display.buildings, defs);
@@ -368,7 +367,6 @@ export class IslandDetail {
   /** The steps of one chunk of a build: its terrain, its roads and fields, its trees and scatter, its far trees. */
   private *chunkSteps(b: IslandBuild, c: ChunkRect): Generator<void, void, void> {
     b.terrain?.chunk(c);
-    this.roads.updateOne(c.key, b.roads.get(c.key));
     this.fields.updateOne(c.key, b.fields.get(c.key));
     this.fieldDecor.updateOne(c.key, b.fields.get(c.key));
     yield;
@@ -377,9 +375,10 @@ export class IslandDetail {
       const stumps: Placed[] = [];
       const trees = scatterTrees(input, b.areas, TREE_MODELS.length, stumps);
       const ground = scatterGround(input);
+      const detail = scatterDetail(input);
       yield;
-      this.decoration.updateOne(c.key, trees.length + ground.length + stumps.length > 0 ? { trees, ground, stumps } : undefined);
-      this.decoration.get(c.key)?.setFar(this.lod === "far");
+      this.decoration.updateOne(c.key, trees.length + ground.length + stumps.length + detail.length > 0 ? { trees, ground, stumps, detail } : undefined);
+      this.decoration.get(c.key)?.setLod(this.lod);
       yield;
       this.farTrees.addTrees(trees);
     }
@@ -391,6 +390,7 @@ export class IslandDetail {
     this.build = null;
     if (b.terrain) this.terrain = b.terrain.finish();
     this.applyTerrainDetail();
+    this.updateWater();
     this.farTrees.finishChunks();
     this.terrainKey = `${b.statics.revision}|${b.statics.id}`;
     this.builtFrom = { display: b.display, defs: b.defs };
@@ -420,10 +420,11 @@ export class IslandDetail {
     const keys = layerKeys(display, defs);
     const old = defsChanged ? null : this.keys;
     this.keys = keys;
-    if (old?.roads !== keys.roads) {
-      this.rebuilds.roads++;
-      this.roadSet = new Set(display.roads.map((t) => `${t.x},${t.y}`));
-      this.chunkRebuilds.roads = this.roads.update(byChunk(display.roads, (t) => t), old === null);
+    if (old?.roads !== keys.roads || old?.layout !== keys.layout) {
+      if (old?.roads !== keys.roads) this.rebuilds.roads++;
+      // Colour-only for the fields: only height changes (roads) rebuild chunks.
+      this.chunkRebuilds.roads = this.terrain.setRoads(display.roads, fieldTiles(display, defs));
+      this.applyTerrainDetail();
     }
     if (old?.layout !== keys.layout) {
       this.rebuilds.layout++;
@@ -488,15 +489,16 @@ export class IslandDetail {
     const chunks = new Map<string, DecorInput>();
     const at = (k: string) => {
       let c = chunks.get(k);
-      if (!c) chunks.set(k, (c = { trees: [], ground: [], stumps: [] }));
+      if (!c) chunks.set(k, (c = { trees: [], ground: [], stumps: [], detail: [] }));
       return c;
     };
     const key = (p: Placed) => chunkAt(p.x, p.y, st.width, st.height);
     for (const p of trees) at(key(p)).trees.push(p);
     for (const p of scatterGround(input)) at(key(p)).ground.push(p);
     for (const p of stumps) at(key(p)).stumps.push(p);
+    for (const p of scatterDetail(input)) at(key(p)).detail.push(p);
     this.chunkRebuilds.decoration = this.decoration.update(chunks, force);
-    for (const d of this.decoration.values()) d.setFar(this.lod === "far");
+    for (const d of this.decoration.values()) d.setLod(this.lod);
     this.farTrees.setTrees(trees);
   }
 
@@ -590,9 +592,9 @@ export class IslandDetail {
     return [...out];
   }
 
-  /** Meshes casting into the sun shadow map: the buildings while shown at near LOD. */
+  /** Meshes casting into the sun shadow map: the buildings and trees while shown at near and mid LOD. */
   shadowCasters(): AbstractMesh[] {
-    if (!this.shown || this.lod !== "near") return [];
+    if (!this.shown || this.lod === "far") return [];
     const trees = [...this.decoration.entries()].filter(([k]) => this.visibleChunks === null || this.visibleChunks.has(k)).flatMap(([, d]) => d.casters());
     return [...this.buildings.meshes(), ...trees];
   }
@@ -606,9 +608,13 @@ export class IslandDetail {
     if (lod !== this.lod) {
       this.lod = lod;
       this.near.setEnabled(lod === "near");
-      for (const d of this.decoration.values()) d.setFar(lod === "far");
+      for (const d of this.decoration.values()) d.setLod(lod);
       this.plateaus.setFar(lod === "far");
+      this.water?.setFar(lod === "far");
     }
+    // The per-voxel jitter is below a pixel at far LOD (global: one LOD for the whole view).
+    setJitterLod(lod === "far");
+    groundShade.jitter = jitterShade.amount * GROUND_JITTER;
     this.farTrees.setShown(this.shown && this.lod === "far");
   }
 
@@ -648,7 +654,7 @@ export class IslandDetail {
     if (!this.shown) return false;
     const casters = this.buildings.frame(nowMs);
     if (this.lod !== "near") return casters;
-    this.foam?.frame(nowMs);
+    this.water?.frame(nowMs);
     this.construction.frame(nowMs);
     return casters;
   }
@@ -693,4 +699,9 @@ export class IslandDetail {
     return this.shown ? { x: this.root.position.x, y: -this.root.position.z } : null;
   }
 
+}
+
+/** The field tiles of a payload (their ground is painted into the terrain). */
+function fieldTiles(display: Pick<IslandDisplay, "buildings">, defs: ReadonlyMap<string, ContentBuilding>): FieldTile[] {
+  return display.buildings.filter((b) => defs.get(b.type)?.field).map((b) => ({ x: b.x, y: b.y, type: b.type }));
 }

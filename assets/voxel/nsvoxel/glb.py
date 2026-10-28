@@ -9,7 +9,7 @@ import json
 import math
 import struct
 
-from . import config
+from . import config, jitter
 from .palette import to_byte
 
 ARRAY_BUFFER = 34962
@@ -45,8 +45,8 @@ def _json_float(v):
 
 
 def sway_alpha(w):
-    """COLOR_0 alpha byte of a sway weight w ∈ [0, 1] (the client's cloth mask: 255 = rigid)."""
-    return 255 - int(round(max(0.0, min(1.0, w)) * 255))
+    """COLOR_0 alpha byte of a sway weight w ∈ [0, 1] (the client's cloth mask; 248..255 are rigid: the jitter classes, nsvoxel/jitter.py)."""
+    return min(jitter.SWAY_ALPHA_MAX, 255 - int(round(max(0.0, min(1.0, w)) * 255)))
 
 
 def vertex_data(tris, colors, ao=None, sway=None):
@@ -86,7 +86,8 @@ def vertex_data(tris, colors, ao=None, sway=None):
 
 
 def color_bytes(rgb):
-    return tuple(to_byte(c) for c in rgb) + (255,)
+    """RGBA bytes of a colour (r, g, b[, alpha byte]); without one alpha is 255 (rigid, no jitter class)."""
+    return tuple(to_byte(c) for c in rgb[:3]) + ((int(rgb[3]),) if len(rgb) > 3 else (255,))
 
 
 def write(name, tris, colors, ao=None, sway=None):

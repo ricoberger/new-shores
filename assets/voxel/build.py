@@ -83,7 +83,7 @@ def _job(args):
 def tri_list(v, ctx):
     """Triangles with corner colours of a grid (renderer input)."""
     tris, colors, ao_keys, _ = export.build_tris(v.cells, ctx.W, ctx.D, 1.0 / ctx.vpt, offset=v.offset)
-    return [((t[0], t[1], t[2]), [colors[("v", 0, k)] for k in ks], t[6]) for t, ks in zip(tris, ao_keys)]
+    return [((t[0], t[1], t[2]), [colors[("v", 0, k)][:3] for k in ks], t[6]) for t, ks in zip(tris, ao_keys)]
 
 
 def thumbnail(f, size=config.THUMB_PX):
@@ -248,8 +248,7 @@ def write_sheet(path, ids, cell=256, cols=4):
         for _, key, ctx in model.outputs(cid, kind, recipe, _CONTENT):
             ctx.needs = model.required_anchors(_CONTENT, cid) if kind in ("building", "field") else []
             ctx.smoke = "smoke" in ctx.needs
-            fn = recipe["cargo"] if key and key[0] == "attachment" else recipe["build"]
-            v = fn(ctx)
+            v = model.build_grid(recipe, kind, key, ctx)
             rows = render.render(tri_list(v, ctx), cell * 2)
             imgs.append(render.downsample(rows, cell * 2))
     rows, w, h = render.sheet(imgs, cols, cell)

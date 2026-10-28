@@ -38,16 +38,34 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   camera rotation, **shadows fall toward the camera's lower right** and the
   faces turned to the camera are lit — with our north-east-looking camera
   that is a sun in the north-west (`SUN_AZIMUTH`), not the compass
-  "south-west" of the first draft; colour ≈ `#FFF1D6`. The sky fill
-  (≈ `#9DB7D9` at ~35 %) is applied as the materials' ambient term so
-  shadows are never black. Other camera rotations are partly back-lit, as
+  "south-west" of the first draft; colour ≈ `#FFF1D6`, intensity 1.0,
+  38° elevation. The sky fill is applied as the materials' ambient term
+  so shadows are never black: the palette's sky (≈ `#9DB7D9`) leaned
+  38 % toward the sun's colour (a warm bounce off the sunlit ground) at
+  1.25 × the 35 % fill ratio (`render/lighting.ts` `skyFillColor`), so
+  the camera-facing walls, which get the fill only, read warm brown-grey
+  rather than slate blue. Other camera rotations are partly back-lit, as
   in Anno.
 - **Shadows:** soft blob/contact shadows under buildings, trees and ships
   at every quality (merged static mesh per island and layer — one draw
   call; thin instances cost ≈ 3× on software WebGL); a 1024 px PCF sun
-  shadow map on **high** quality only, redrawn only when casters change.
-  **Quality** follows the layout mode (desktop → high; tablets and phones →
-  low), overridable with `?quality=`.
+  shadow map on **high** quality only, cast by the buildings and trees of
+  the islands at near **and mid** LOD and redrawn only when casters
+  change. **Quality** follows the layout mode (desktop → high; tablets
+  and phones → low), overridable with `?quality=`.
+- **Per-voxel colour jitter (D-057 V2):** a material plugin
+  (`render/jitter.ts`) hashes each fragment's voxel — its position in the
+  model's own grid, so the pattern never crawls on moving or rising
+  models — and shifts the vertex colour's value in four steps and its
+  hue slightly along a warm–cool axis. The strength follows the material
+  class the asset build writes into the vertex alpha
+  (`nsvoxel/jitter.py`): stone ±8.5 %, roofs ±6.5 %, wood ±6 %, foliage
+  ±7 %, ground ±5 %, metal ±3 %, plaster ±2.5 %, glass and water none.
+  The terrain keeps its own column jitter at the ground strength. Off at
+  far LOD (a voxel is below a pixel) and with `?jitter=0` for A/B; WebGL 2
+  only.
+- **Previews** (ghosts, road drag, field paint) are pulled toward the
+  camera with a polygon offset so they never z-fight with the ground.
 - **Palette v1** (single source `assets/palette.json`; the voxel build's
   vertex colours, terrain materials and CSS variables all read it):
 
@@ -87,38 +105,67 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - The **world map** (other players, offers, expeditions) remains a 2D HTML
   screen (UI.md §5); it is not part of the 3D scene.
 
-## 4. Terrain and water — diorama islands (D-050)
+## 4. Terrain and water — diorama islands (D-050, D-057 V2)
 
 - **Continuous terrain, hidden grid.** The tile grid is not drawn; a
   subtle grid overlay fades in around the cursor (≈ 8 tiles) only while a
   build/road/field/move tool is active. Buildable ground stays **flat**.
-- **Voxel ground and coast (D-057):** the island is a column field at 4
-  columns per tile (one step = one voxel = 0.25 tile), greedy-meshed per
-  32×32-tile chunk with baked corner occlusion: land at height 0 in the
-  tile's ground colour, a pixel coastline (the smoothed coast sampled at
-  the column centres) with a sand rim column, two sand shelves stepping
-  under the sea and sides in the warm rock bands. The far tier is the
-  same field at 2 columns per tile. The foam line follows the smoothed
-  coast, on the shelf edge.
-- **Plateaus:** mountain/deposit clusters rise as voxel terraces — one
-  voxel at the rim, two inside per level (1–2 levels, rounded corners)
-  in rock bands with a moss cap — with voxel crags and boulders along the
-  step edges and on the deposits. Visual only: rules keep mountains
-  unbuildable; mines and quarries stand in a notch.
-- **Grass:** two-tone noise with dry patches. **Scatter** is clustered, not
-  uniform: rocks and bushes in clumps at the coast, forest edges and
-  plateau feet; open grass gets tufts and rare bushes only; everything
-  light with AO only in crevices. **Forest tiles:** voxel trees
-  (4 species, yaw in quarter turns so voxels stay on the grid), thinned
-  around buildings and roads and visibly thinned inside a lumberjack's
-  radius with cut stumps.
+- **Voxel ground (D-057 V2):** the island is a column field at 4
+  columns per tile, height steps of 1/8 tile, greedy-meshed per 32×32-tile
+  chunk with baked corner occlusion (`render/voxelterrain.ts`). The top
+  colour of each column comes from a per-island **ground texture** (one
+  texel per column, nearest sampling) through a material plugin
+  (`render/groundshader.ts`): grass blends smoothly between the two grass
+  tones and dry patches across tiles, with a per-voxel brightness jitter
+  in three steps; sides keep their vertex colours. Only the faces looking
+  straight up take the texture, so the triangle count stays that of the
+  greedy mesh.
+- **Coast:** a pixel coastline (the smoothed coast sampled at the column
+  centres) with a sand rim, a darker **wet-sand line** at the water,
+  **beach pebbles** in the sand and two shelves stepping under the sea;
+  cliffs and sides in **stepped rock bands** (lower, upper, ledge). The
+  shallows and the **foam** follow the stepped coast column by column
+  (pixel foam, not a smooth line).
+- **Far coast lines up with near:** the lite (2 columns per tile) and far
+  (1 per tile) terrain are the near field downsampled, and a built
+  island at far feeds its own far columns into the merged mask mesh, so
+  the coastline does not jump between LODs (tested). Islands without
+  tiles draw their 1:4 mask through the same field code.
+- **Plateaus:** mountain/deposit clusters rise as voxel terraces of four
+  steps per level (1–2 levels, rounded corners) in rock bands with a
+  moss cap, with voxel crags and boulders along the step edges and on the
+  deposits. Visual only: rules keep mountains unbuildable; mines and
+  quarries stand in a notch.
+- **Roads** are voxel paths painted into the terrain field per chunk
+  (`render/roadvoxels.ts`), one voxel below the grass: a two-column path
+  with arms to the neighbours and junctions, worn edges and jittered
+  stones; dirt for tier-1 roads, three-shade **cobbles with a kerb** for
+  the stone road. A road change repaints the field and rebuilds only the
+  touched chunks; carts and walkers walk on the sunk path.
+- **Field ground** is painted into the ground texture too (furrows for
+  crops, pasture, orchard grass) under the field models.
+- **Decor** (`assets/voxel/recipes/_decor.py`, `render/decorscatter.ts`):
+  four tree species with irregular noise canopies (lobes, rim holes, lit
+  tops, dark undersides) and branches — oak, beech, a conifer and birch —
+  three bushes (plain, berries, flowers), and small props at 16 voxels per
+  tile: flowers, mushrooms, ferns, reeds, pebbles, logs, stumps and
+  tufts. Density follows the terrain role: forest (mushrooms, ferns,
+  logs), meadow (tufts, flower patches by noise), beach (pebbles, reeds),
+  rock (pebbles). Yaw in quarter turns, so voxels stay on the grid. The
+  small detail is one merged mesh per chunk shown at near only; trees and
+  bushes are merged per chunk and culled with the chunk. Canopies **sway**
+  in the vertex shader (sway group `canopy`: weight 0 at the canopy's
+  bottom, 0.45 at the top). Trees are thinned around buildings and roads
+  and visibly inside a lumberjack's radius, with cut stumps.
 - **Water:** shallows→deep gradient by distance from the coast, slow noise
-  animation, subtle specular, foam line; the sea plane extends past the
-  camera bounds and fades into a warm haze — never a hard edge.
-  Unsettled islands show true colours at every zoom, like settled ones
-  (labels and settled badges tell them apart).
-- **Roads:** continuous strips with joins and a light border; dirt vs paved
-  readable.
+  animation, subtle specular; the deep is the palette's deep 12 % toward
+  the shallows and warmed (`render/mapcolors.ts` `seaDeepRgb`, shared with
+  the minimap). The sea plane extends past the camera bounds and fades
+  into a warm haze — never a hard edge. Unsettled islands show true
+  colours at every zoom, like settled ones (labels and settled badges
+  tell them apart).
+- **Minimap:** each land cell of an island's mask in its voxel ground
+  colour (sand, grass, forest floor, mountain rock) on the same sea.
 - All decoration is **render-only**: it never blocks placement, holds no
   state and is never pickable (tile picking is a ray against the ground
   plane).
@@ -272,11 +319,13 @@ lines.
 
 - **Colour:** palette roles only, each in a few named shades
   (`nsvoxel/mats.py`).
-  **Ambient occlusion baked into vertex colours** per quad corner,
-  blending toward the role's cooler shadow tone (`shadows` group);
-  side normals tilted toward up so walls turned from the sun stay warm;
-  cloth voxels (sails, flags, awnings) carry the sway mask in the alpha
-  byte.
+  **Ambient occlusion baked into vertex colours** per quad corner
+  (58 % of the way to the role's cooler shadow tone, `shadows` group);
+  side normals tilted toward up so walls turned from the sun stay warm.
+  The alpha byte carries the role's **jitter class** (255 − class,
+  `nsvoxel/jitter.py`; the shader's per-voxel jitter, §2) or, on cloth
+  and leaf voxels (sway groups `sail`, `flag`, `cloth`, `canopy`), the
+  sway weight (≤ 245); the manifest lists each model's sway groups.
 - **Fidelity:** the structure fills the footprint (not a cottage on a
   slab) and stands on the ground; front toward +y at rotation 0 (visual
   only, D-042); one material (vertex colours). Every building reads by
@@ -291,13 +340,12 @@ lines.
   scaffolding, stretched to the footprint) over 2.4 s (rise-in remains for
   fields and with `?life=0`); paused/unpaid = desaturated tint;
   not_connected/starved keep the status icon and lose smoke/walkers.
-- **Lively look (D-057 §3) — V2.** V1 makes voxel the only renderer with
-  the prototype's models and placeholders. The lively layer — per-voxel
-  colour jitter on every material, irregular canopies, crops as rows of
-  plants, richer ground scatter (flowers, mushrooms), uneven fence posts,
-  stepped rock layers at cliffs, voxel roads and foam on the stepped
-  coast, warm roof variety — and the recipes for the placeholder IDs are
-  the V2 sessions.
+- **Lively look (D-057 §3).** The recipes (V3, authoring above) bring
+  courses, frames, crop rows, uneven fences and a baked three-shade
+  jitter; the world (V2) adds the shader's per-voxel jitter on top of
+  every model material (§2), irregular swaying canopies and the richer
+  ground detail (§4), stepped rock bands, wet sand, pebbles and stepped
+  foam at the coast, voxel roads, and warmer light and sea.
 
 ### Pipeline and tooling
 
