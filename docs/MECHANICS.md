@@ -311,14 +311,14 @@ cycle:   seconds               at 100 % efficiency
 ### 6.1 Houses
 
 - A house belongs to a tier and has `residents` in `[floor, max]`
-  (provisional Settlers 2–8, Citizens 5–15, Merchants 9–25, Patricians
-  14–40). `floor` is the minimum that never leaves (D-009). Residents are
+  (Settlers 2–8, Citizens 5–15, Merchants 8–25, Patricians 12–40; tiers
+  3–4 provisional). `floor` is the minimum that never leaves (D-009). Residents are
   **whole numbers**; growth accumulates in a signed per-house accumulator
   that steps residents by ±1 when it reaches a full resident (each step is
   a boundary, since it changes consumption, taxes and workforce). The
   accumulator resets only at those steps and on upgrade, so splitting an
   advancement never changes it.
-- **Growth rate** = `growth_per_min × satisfaction × variety_multiplier` when
+- **Growth rate** = `growth_per_min × satisfaction` when
   `satisfaction ≥ growth_satisfaction_threshold` (content, provisional 0.5);
   **decline rate** = `decline_per_min × (threshold − satisfaction)` down to
   `floor` when below. Provisional constants (region.json): `growth_per_min`
@@ -326,7 +326,8 @@ cycle:   seconds               at 100 % efficiency
   −0.25/min at zero satisfaction. The rate is 0 at `max` while growing and
   at `floor` while declining.
 - **Upgrade** to the next tier is a player action on a house at `max`
-  residents with all required needs of the *current* tier satisfied (as
+  residents that passes the upgrade gate (§12: every required need of the
+  *current* tier, carried lower-tier needs included, at coverage ≥ 0.6, as
   evaluated on the settled world at that instant); it costs the next
   tier's house materials and requires the next tier to be unlocked (§12).
   The upgraded house keeps its ID and position and starts at its new tier's
@@ -398,8 +399,7 @@ covers 0.6 and both cover it fully. A need is either:
 **Satisfaction** of a house = weighted mean of its required needs'
 coverage (1 if the tier has no required needs; the normalised required
 weights sum to 1). There is no variety multiplier and no optional tax
-bonus: tax and growth scale with satisfaction alone (§6.1, §6.3 still
-name the old factors until their sections are revised).
+bonus: tax and growth scale with satisfaction alone.
 
 **Recipe inputs** may list alternative goods (`"good": ["charcoal",
 "coal"]`): a producer draws the first listed good that is not starved,
@@ -410,10 +410,9 @@ accepted by at most one input of a recipe.
 ### 6.3 Taxes
 
 - `tax_rate[tier]` gold per resident per minute (content, CONTENT §2;
-  currently Settlers 0.20, Citizens 0.48, Merchants 1.20, Patricians 2.80),
-  multiplied by `satisfaction`, by the `variety_multiplier` (§6.2) and by
-  `(1 + optional_tax_bonus × optional_fulfilment)`; each factor rounds
-  down.
+  Settlers 0.20, Citizens 0.80, Merchants 1.50, Patricians 2.70 — tuned
+  to the one-alternative baseline, D-056 amendment), multiplied by
+  `satisfaction`, rounding down.
 - Taxes only accrue from houses; nothing else creates gold (D-018).
 
 ## 7. Gold, upkeep and insolvency (D-017)
@@ -512,10 +511,14 @@ buildings (tavern and up) keep upkeep.
 
 ### 9.1 Ships
 
-- Types (provisional): *Sloop* (2 slots × 50, speed 1.0, build 2 min, tier 1),
-  *Brig* (4 × 50, 1.2, 5 min, tier 2), *Galleon* (6 × 60, 1.0, 10 min, tier 3).
-  Later: war ships (D-005). Defined in `ships.json`; a shipyard's
-  `shipyard.ships` lists what it can build.
+- Types (D-056): *Sloop* (2 slots × 50, speed 1.0, build 2 min, tier 2),
+  *Brig* (4 × 50, 1.0, 5 min, tier 3), *Galleon* (6 × 60, 1.0, 10 min,
+  tier 4); all sail at the same speed. Later: war ships (D-005). Defined
+  in `ships.json`; the shipyard (tier 2, no levels) offers the types
+  whose tier is unlocked (`ErrTierLocked` otherwise). The start ship is a
+  sloop; its **founding cargo** (start stock) is exempt from the slot
+  limit — slot checks apply only to player loading — and moves to the
+  Trading Post at founding (§10).
 - Shipyard build: one order at a time per shipyard (`shipyard_busy`);
   costs deducted at order time; cancel refunds 50 % materials; completion
   is a due moment (`ship_built`, §1.3) after the type's build time; the
@@ -714,8 +717,8 @@ house cost is paid. One alternative per category is enough.
 - Goods are conserved across island inventories, goods in transit and ship
   cargo; a ship is never at two islands; unloading never exceeds capacity;
   after `advance(w, t)` every due moment of `w` is strictly after `t`.
-- Variety never reduces fulfilment: adding a good to a category is
-  monotonic non-decreasing for tax and growth.
+- Adding a supplied alternative to a category never lowers its coverage,
+  the house's tax or growth (monotonic non-decreasing).
 - Unlocked tiers never shrink; quest completion is monotonic and each
   reward is credited at most once; summaries are deterministic for
   identical catch-ups.

@@ -1011,3 +1011,27 @@ curve, D-054's footprints):**
   generator loads the start stock onto the sloop regardless of its two
   slots, slot checks apply to player loading, and the stock moves to the
   Trading Post at founding (D-051) as today.
+- *As built (PR #34 S1; PRs #31/#32/#33 models M2/M3/M4):* sim schema 9,
+  content `old_coast-0.11.0`. Weighted shares with the loader default
+  (1.0 lone / 0.6 each), cumulative lower-tier categories at the reduced
+  rates, one `services` category per tier, `market_small` levels 1–3 via
+  the generalised `upgrade_building` (`upgrade_warehouse` /
+  `upgrade_trading_post` kept as deprecated aliases), the upgrade gate at
+  ≥ 0.6 (a sim constant, counting carried lower-tier needs too), recipe
+  input alternatives (charcoal | coal; a slot is never split), the
+  cheese / mead / leather_jerkins chains with their modules, `school`,
+  sloop 2 slots at tier 2, brig / galleon authored and tier-locked,
+  founding cargo exempt, unlock toast (live sessions only; an unlock
+  while away is a follow-up for the letter) and a five-quest tier-2
+  chain (shipyard → second sloop → tavern → school → cheese). Patricians
+  unlock without the church until it is authored; market level 3 costs
+  no bricks until bricks exist (C3). Reference game (dev seed): island 2
+  52, Citizens 30, first Citizen house 88, tools home 132 (quests 34 / 21
+  / 73 / 117) — the earlier unlock comes from the chapel now paying for
+  itself as a Settler service (built at 29 instead of 61) and the start
+  sloop founding island 2; Settler income is within ±2 % of before once
+  market and chapel stand, 15 % lower before the chapel. Models for
+  every tier-2/3/4 building and ship exist ahead of their content via
+  `assets/build/planned/tier{2,3,4}.json` (read beneath the content;
+  content wins); models folder 20.2 MiB of a 24 MiB limit (≈ 64–74
+  bytes/triangle; a quantised export is the follow-up).

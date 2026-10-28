@@ -209,11 +209,24 @@ detail does not** (D-048, refined by D-050):
   35/50/70/100 % until the footprint check passes; ≥ 150 tris) — this is
   the far-zoom tier. `make assets-check` rebuilds into a temp dir and
   compares (skipped on CI without Blender); `make assets-test` runs the
-  Python tests. GLBs and manifest are committed (5.3 MiB of an 8 MiB
-  ceiling) so the client builds without Blender or the kits.
-- **Budgets:** ≤ 6 000 tris per building, ≤ 2 500 per house, ≤ 300 per
-  field, sloop 1 500 + 150 cargo; houses' lite ≈ 120 tris, production
-  buildings' lite 14–25 % of full. Hero exceptions ×2 if ever needed.
+  Python tests. GLBs and manifest are committed (20.2 MiB of a 24 MiB
+  ceiling after the tier 2–4 models; a quantised export —
+  KHR_mesh_quantization — is the planned way to halve it, the current
+  writer spends ≈ 64–74 bytes per triangle) so the client builds without
+  Blender or the kits. Buildings that content does not define yet take
+  their footprint from `assets/build/planned/tier{2,3,4}.json`, read
+  beneath the content (content wins when both define an ID), so models
+  can be built a tier ahead of the content sessions.
+- **Budgets (D-054, area-scaled):** 1 500 tris per footprint tile for a
+  building, 625 per tile for a house, 75 per tile for a field, cap
+  72 000; ships 1 500 / 2 250 / 3 000 (+ 10 % cargo) for sloop / brig /
+  galleon; houses' lite ≈ 120 tris, other lites ≈ 25 % of full (≥ 150).
+  Built models sit at 5–20 % of budget; what matters is that the
+  **structure** fills the footprint (not a cottage on a slab) and that
+  every building reads by its good at mid zoom, with roof material and
+  colour varying inside the warm palette. A house tier reads richer than
+  the one below (Merchants two storeys + attic, half-timber, oriels;
+  Patricians three storeys, stone + plaster, glass, towers).
 - **Fidelity rules:** fill the footprint within ±0.3 tiles; front toward
   +y at rotation 0 (visual only, D-042); one material (vertex colours).
 - **Tier language:** Settlers = timber frame + thatch, single storey;

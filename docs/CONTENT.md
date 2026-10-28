@@ -593,7 +593,12 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
   ≤ 1 800. Goldens `bootstrap_merchants` / `bootstrap_patricians` once
   the tiers exist. With D-056 the tier-1/2 game runs its categories at
   0.6 until the second alternatives are built; the §12 tier-1/2 targets
-  stay and hold (see Bootstrap above).
+  stay and hold (see Bootstrap above). Two notes from S1: "Citizens
+  unlocked" is gated by the chapel being placed (both games pass 120
+  Settlers by minute 12), so the first-house time is the pacing check;
+  and Settler houses earn 15 % less than before D-056 until the chapel
+  stands (market alone covers 0.6 of the services category) — absorbed
+  by the margins.
 - Warehouse throughput at each level must cover a "typical" island at that
   tier with one warehouse ≈ 80 % load.
 - Tax income at each tier's unlock population must cover upkeep of the
