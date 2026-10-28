@@ -17,6 +17,13 @@ import (
 // fixtures; only offsets strictly before next_change_at are kept.
 var displayFixtureOffsetsMs = []int64{250, 1000, 5000, 30000, 300000}
 
+// displayFixtureOffsetsOverride keeps the fixtures of large worlds small:
+// a full Display of bootstrap_patricians is about 2.6 MB indented, so it
+// keeps a single sample.
+var displayFixtureOffsetsOverride = map[string][]int64{
+	"bootstrap_patricians": {250},
+}
+
 // DisplayFixture is the extrapolation fixture shared with the client tests
 // (server/testdata/display): the Display payload at the end of a scenario
 // and the payloads after advancing it by each sample offset.
@@ -78,7 +85,11 @@ func buildDisplayFixture(t *testing.T, name string) DisplayFixture {
 		limit = next.Sub(w.LastEvaluatedAt).Milliseconds()
 	}
 	fx := DisplayFixture{Scenario: name, Base: base, Samples: []DisplaySample{}}
-	for _, off := range displayFixtureOffsetsMs {
+	offsets := displayFixtureOffsetsMs
+	if o, ok := displayFixtureOffsetsOverride[name]; ok {
+		offsets = o
+	}
+	for _, off := range offsets {
 		if limit >= 0 && off >= limit {
 			continue
 		}
