@@ -57,63 +57,17 @@ BRICK = mat("terracotta", 0.9)
 
 # ---------------------------------------------------------------- colour jitter
 
-#: Per-voxel colour jitter by palette role: (share of voxels off the base
-#: shade, ± shade amount[, patch]). Three shades per material (darker,
-#: base, lighter) keep greedy meshing effective on the base runs. Roles on
-#: the largest planes (roofs, timber) jitter in 2 × 2 plan patches (tiles,
-#: board lengths) and stone at a low share over its coursed blocks: every
-#: off-shade patch splits the merged quads, and the models folder has a
-#: hard size limit (config.MODELS_FOLDER_LIMIT).
-JITTER = {
-    "plaster": (0.30, 0.045),
-    "ochre": (0.32, 0.05),
-    "timber": (0.30, 0.08, 2),
-    "thatch": (0.34, 0.06, 2),
-    "terracotta": (0.34, 0.07, 2),
-    "slate": (0.30, 0.07, 2),
-    "stone": (0.12, 0.05),
-    "brass": (0.12, 0.05),
-    "canvas": (0.18, 0.04),
-    "iron": (0.18, 0.08),
-    "window": (0.18, 0.08),
-    "dye-blue": (0.26, 0.06),
-    "grass-a": (0.16, 0.06),
-    "grass-b": (0.16, 0.06),
-    "road-dirt": (0.16, 0.05),
-    "road-paved": (0.18, 0.05),
-    "sand": (0.14, 0.04),
-    "tree-crown": (0.40, 0.08),
-    "wheat": (0.34, 0.07),
-    "wheat-mark": (0.30, 0.07),
-    "hemp": (0.34, 0.07),
-    "hemp-mark": (0.30, 0.07),
-    "pasture": (0.16, 0.06),
-    "pasture-mark": (0.16, 0.06),
-    "orchard": (0.24, 0.06),
-    "orchard-mark": (0.20, 0.06),
-    "flower": (0.20, 0.06),
-}
-DEFAULT_JITTER = (0.22, 0.05)
-
 
 def colour_jitter(v, seed=0, scale=1.0, ground=0.12):
     """
-    Per-voxel colour jitter on every material (D-057 §3): each voxel hashes
-    to its base shade or one step darker or lighter (share and step by role,
-    JITTER). Ground plates (z ≤ 0) get `ground` × the share — they are the
-    largest surfaces and their speckle costs the most quads. Call last.
+    Kept for the recipes' signature (D-057 V3b): the export is flat. The
+    per-voxel variety of every material is the client shader's
+    (client/src/render/jitter.ts; strength by the palette role's class,
+    nsvoxel/jitter.py), so a baked speckle would only split the greedy
+    quads and fill the models folder. Authored structure — courses, ridge
+    tiles, rows, quoins — stays in the recipes. `seed`, `scale` and
+    `ground` have no effect; returns `v` unchanged.
     """
-    out = {}
-    for (x, y, z), m in v.cells.items():
-        p, amt, *patch = JITTER.get(m[0], DEFAULT_JITTER)
-        p *= scale * (ground if z <= 0 else 1.0)
-        k = patch[0] if patch else 1
-        h = hash3(x // k, y // k, z, seed * 7 + 3)
-        if h < p / 2:
-            out[(x, y, z)] = shade_of(m, 1 - amt)
-        elif h < p:
-            out[(x, y, z)] = shade_of(m, 1 + amt)
-    v.cells.update(out)
     return v
 
 
