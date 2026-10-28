@@ -89,11 +89,11 @@ export function needAlternatives(content: (NeedContent & Partial<Pick<Content, "
 /**
  * The words of a house's `upgrade.reason` (the server's first failing gate
  * condition, shown as the disabled Upgrade button's tooltip): "needs_below_
- * threshold:food" names the category. Display only; an unknown reason is
+ * threshold:food:60" names the category (and the percent the hint shows). Display only; an unknown reason is
  * shown as it is.
  */
 export function upgradeReasonText(content: NeedContent, reason: string): string {
-  const [code, category] = reason.split(":", 2) as [string, string | undefined];
+  const [code, category] = reason.split(":") as [string, string | undefined];
   switch (code) {
     case "tier_locked":
       return "The next tier is not unlocked yet";

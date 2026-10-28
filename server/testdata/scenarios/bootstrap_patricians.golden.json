@@ -72291,7 +72291,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -72475,7 +72475,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -73187,7 +73187,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -121322,7 +121322,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -121410,7 +121410,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -121498,7 +121498,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -121586,7 +121586,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -123305,7 +123305,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -123357,7 +123357,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -123442,7 +123442,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -123525,7 +123525,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -124594,7 +124594,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -125582,7 +125582,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -126570,7 +126570,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -127558,7 +127558,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -129482,7 +129482,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -130605,7 +130605,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -130688,7 +130688,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -131723,7 +131723,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -131886,7 +131886,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -132049,7 +132049,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -132212,7 +132212,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -132486,7 +132486,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -132649,7 +132649,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -132812,7 +132812,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -132975,7 +132975,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -133138,7 +133138,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -133301,7 +133301,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -133464,7 +133464,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -133738,7 +133738,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -133901,7 +133901,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -134034,7 +134034,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -134117,7 +134117,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -134391,7 +134391,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -134554,7 +134554,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -134638,7 +134638,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -134801,7 +134801,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -135075,7 +135075,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -135238,7 +135238,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -135319,7 +135319,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -135429,7 +135429,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -135539,7 +135539,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -135702,7 +135702,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -135865,7 +135865,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -139154,7 +139154,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -139275,7 +139275,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -140299,7 +140299,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -140497,7 +140497,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -140616,7 +140616,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -140768,7 +140768,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -140924,7 +140924,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -141041,7 +141041,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -141129,7 +141129,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -141210,7 +141210,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:food"
+              "reason": "needs_below_threshold:food:60"
             },
             "residents": 15000,
             "residents_floor": 5000,
@@ -141298,7 +141298,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -141385,7 +141385,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -141437,7 +141437,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -141523,7 +141523,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -141610,7 +141610,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -141662,7 +141662,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -143250,7 +143250,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -144838,7 +144838,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -146426,7 +146426,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -146510,7 +146510,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,

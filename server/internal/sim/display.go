@@ -824,7 +824,9 @@ type UpgradeDisplay struct {
 }
 
 // Reasons of an UpgradeDisplay in gate order. A failing need is reported as
-// UpgradeNeedsBelowThreshold + ":" + the need's category.
+// UpgradeNeedsBelowThreshold + ":" + the need's category + ":" + the
+// effective threshold of that need as a whole percent (the gate, or less when
+// its alternatives cannot cover more).
 const (
 	UpgradeNoHouse             = "no_house"
 	UpgradeTierLocked          = "tier_locked"
@@ -853,7 +855,10 @@ func upgradeDisplay(w *World, c *content.Catalogue, is *Island, h *houseCalc) *U
 		if category == "" {
 			category = unmet.ID
 		}
-		return &UpgradeDisplay{Reason: UpgradeNeedsBelowThreshold + ":" + category}
+		// The percent the need must reach, rounded up so that the shown
+		// number is enough.
+		percent := ceilDiv(needGate(unmet)*100, 1_000_000)
+		return &UpgradeDisplay{Reason: fmt.Sprintf("%s:%s:%d", UpgradeNeedsBelowThreshold, category, percent)}
 	case errors.Is(err, ErrInsufficientGold), errors.Is(err, ErrInsufficientMaterials):
 		return &UpgradeDisplay{Reason: UpgradeCannotAfford}
 	}

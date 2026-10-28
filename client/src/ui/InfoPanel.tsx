@@ -179,7 +179,7 @@ const UPGRADE_HINTS: Record<string, string> = {
 };
 
 function upgradeHint(content: Content, model: DisplayState, island: IslandDisplay, b: BuildingDisplay, reason: string): string {
-  const [code, category] = reason.split(":", 2) as [string, string | undefined];
+  const [code, category, percent] = reason.split(":") as [string, string | undefined, string | undefined];
   const tiers = content.tiers;
   const next = tiers[(tiers.find((t) => t.house === b.type)?.index ?? -2) + 1];
   const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
@@ -187,7 +187,7 @@ function upgradeHint(content: Content, model: DisplayState, island: IslandDispla
     case "tier_locked":
       return next ? `${next.name} not unlocked` : "Next tier not unlocked";
     case "needs_below_threshold":
-      return category ? `Needs ${needCategory(content, category).name.toLowerCase()} ≥ 60 %` : "Needs not supplied";
+      return category ? `Needs ${needCategory(content, category).name.toLowerCase()}${percent ? ` ≥ ${percent} %` : ""}` : "Needs not supplied";
     case "cannot_afford": {
       // What the next house still costs beyond the gold and the island's stock, as the extrapolated display shows them.
       const cost = content.buildings.find((x) => x.id === next?.house)?.cost;

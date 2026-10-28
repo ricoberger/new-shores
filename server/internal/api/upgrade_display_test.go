@@ -65,7 +65,7 @@ func TestHouseUpgradeDisplayOverHTTP(t *testing.T) {
 				b.Transit = nil
 				b.Paused = b.Paused || b.Type == "fisher"
 			}
-		}, sim.UpgradeNeedsBelowThreshold + ":food", "needs_unmet"},
+		}, sim.UpgradeNeedsBelowThreshold + ":food:60", "needs_unmet"},
 		{"cannot_afford", func(w *sim.World, _ *sim.Building) {
 			w.Gold = 0
 			for _, m := range citizensCost.Materials {

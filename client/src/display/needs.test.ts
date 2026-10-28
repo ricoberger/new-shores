@@ -22,8 +22,8 @@ describe("upgrade reasons", () => {
   it("words the server's reason codes, naming the category of a need", () => {
     expect(upgradeReasonText(content, "tier_locked")).toBe("The next tier is not unlocked yet");
     expect(upgradeReasonText(content, "not_full")).toBe("The house is not full yet");
-    expect(upgradeReasonText(content, "needs_below_threshold:clothing")).toBe("Clothing is not supplied well enough");
-    expect(upgradeReasonText(null, "needs_below_threshold:clothing")).toBe("clothing is not supplied well enough");
+    expect(upgradeReasonText(content, "needs_below_threshold:clothing:60")).toBe("Clothing is not supplied well enough");
+    expect(upgradeReasonText(null, "needs_below_threshold:clothing:60")).toBe("clothing is not supplied well enough");
     expect(upgradeReasonText(content, "cannot_afford")).toBe("Not enough gold or materials");
     expect(upgradeReasonText(content, "no_house")).toBe("There is no house of a next tier");
     expect(upgradeReasonText(content, "something_new")).toBe("something_new");

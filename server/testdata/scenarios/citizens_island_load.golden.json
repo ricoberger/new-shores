@@ -2847,7 +2847,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:settlers_market_small"
+              "reason": "needs_below_threshold:settlers_market_small:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -2899,7 +2899,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:settlers_market_small"
+              "reason": "needs_below_threshold:settlers_market_small:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -2951,7 +2951,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:settlers_market_small"
+              "reason": "needs_below_threshold:settlers_market_small:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -3003,7 +3003,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:settlers_market_small"
+              "reason": "needs_below_threshold:settlers_market_small:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -3055,7 +3055,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:settlers_market_small"
+              "reason": "needs_below_threshold:settlers_market_small:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -3107,7 +3107,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:settlers_market_small"
+              "reason": "needs_below_threshold:settlers_market_small:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -3159,7 +3159,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:settlers_market_small"
+              "reason": "needs_below_threshold:settlers_market_small:60"
             },
             "residents": 8000,
             "residents_floor": 2000,

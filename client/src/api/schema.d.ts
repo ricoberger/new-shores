@@ -1861,8 +1861,10 @@ export interface components {
              * @description Present when `available` is false: `no_house` (no house of the
              *     next tier, or one of another footprint), `tier_locked` (the next
              *     tier is not unlocked), `not_full` (the house is below its maximum
-             *     residents), `needs_below_threshold:<category>` (a required need
-             *     of the named category is below the upgrade gate) or
+             *     residents), `needs_below_threshold:<category>:<percent>` (a required need
+             *     of the named category is below the upgrade gate, which is
+             *     <percent> as a whole percent: 60, or less for a need whose
+             *     alternatives cannot cover 60) or
              *     `cannot_afford` (the gold or materials of the next house are not
              *     covered). The first failing condition in this order.
              */

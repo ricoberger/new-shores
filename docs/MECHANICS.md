@@ -339,9 +339,10 @@ cycle:   seconds               at 100 % efficiency
   checked before `tier_locked`).
 - The display carries the gate for every house as `upgrade: {available,
   reason?}`, where `reason` is the first failing condition in gate order
-  (`no_house`, `tier_locked`, `not_full`, `needs_below_threshold:<category>`,
-  `cannot_afford`), so the client enables the Upgrade button from it and
-  computes no rule.
+  (`no_house`, `tier_locked`, `not_full`,
+  `needs_below_threshold:<category>:<percent>` with the need's effective
+  gate as a whole percent, `cannot_afford`), so the client enables the
+  Upgrade button from it and computes no rule.
 
 ### 6.2 Needs
 

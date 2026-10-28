@@ -3911,7 +3911,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -4018,7 +4018,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -4345,7 +4345,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:services"
+              "reason": "needs_below_threshold:services:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -6048,7 +6048,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:clothing"
+              "reason": "needs_below_threshold:clothing:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -6100,7 +6100,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:clothing"
+              "reason": "needs_below_threshold:clothing:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -6152,7 +6152,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:clothing"
+              "reason": "needs_below_threshold:clothing:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -6204,7 +6204,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:clothing"
+              "reason": "needs_below_threshold:clothing:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -6256,7 +6256,7 @@
             "throughput_factor_permille": 1000,
             "upgrade": {
               "available": false,
-              "reason": "needs_below_threshold:clothing"
+              "reason": "needs_below_threshold:clothing:60"
             },
             "residents": 8000,
             "residents_floor": 2000,
@@ -15674,7 +15674,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:services"
+                  "reason": "needs_below_threshold:services:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -15781,7 +15781,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:services"
+                  "reason": "needs_below_threshold:services:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -16108,7 +16108,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:services"
+                  "reason": "needs_below_threshold:services:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -17811,7 +17811,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -17863,7 +17863,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -17915,7 +17915,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -17967,7 +17967,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -18019,7 +18019,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -27437,7 +27437,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:services"
+                  "reason": "needs_below_threshold:services:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -27544,7 +27544,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:services"
+                  "reason": "needs_below_threshold:services:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -27871,7 +27871,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:services"
+                  "reason": "needs_below_threshold:services:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -29574,7 +29574,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -29626,7 +29626,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -29678,7 +29678,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -29730,7 +29730,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -29782,7 +29782,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -39200,7 +39200,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:services"
+                  "reason": "needs_below_threshold:services:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -39307,7 +39307,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:services"
+                  "reason": "needs_below_threshold:services:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -39634,7 +39634,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:services"
+                  "reason": "needs_below_threshold:services:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -41337,7 +41337,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -41389,7 +41389,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -41441,7 +41441,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -41493,7 +41493,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,
@@ -41545,7 +41545,7 @@
                 "throughput_factor_permille": 1000,
                 "upgrade": {
                   "available": false,
-                  "reason": "needs_below_threshold:clothing"
+                  "reason": "needs_below_threshold:clothing:60"
                 },
                 "residents": 8000,
                 "residents_floor": 2000,

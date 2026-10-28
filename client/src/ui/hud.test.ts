@@ -539,7 +539,7 @@ describe("HUD components", () => {
       const locked = button({ available: false, reason: "tier_locked" });
       expect(locked).toContain("disabled");
       expect(locked).toContain('title="The next tier is not unlocked yet"');
-      expect(button({ available: false, reason: "needs_below_threshold:food" })).toContain('title="food is not supplied well enough"');
+      expect(button({ available: false, reason: "needs_below_threshold:food:60" })).toContain('title="food is not supplied well enough"');
       // A payload without the block (older server) offers nothing.
       expect(button(undefined)).toContain("disabled");
     });
@@ -551,7 +551,9 @@ describe("HUD components", () => {
       };
       expect(hint({ available: true })).toBeUndefined();
       expect(hint({ available: false, reason: "not_full" })).toBe("House not full");
-      expect(hint({ available: false, reason: "needs_below_threshold:food" })).toBe("Needs food ≥ 60 %");
+      // The percent is the server's (the gate, or less for a need that cannot reach it).
+      expect(hint({ available: false, reason: "needs_below_threshold:food:60" })).toBe("Needs food ≥ 60 %");
+      expect(hint({ available: false, reason: "needs_below_threshold:services:36" })).toBe("Needs services ≥ 36 %");
       // The shipyard content of this panel has no tiers: the generic words.
       expect(hint({ available: false, reason: "tier_locked" })).toBe("Next tier not unlocked");
     });

@@ -1014,12 +1014,17 @@ func unmetRequiredNeed(w *World, c *content.Catalogue, is *Island, id int64) *co
 // count like the own ones. Nil when all pass.
 func unmetNeed(h *houseCalc) *content.Need {
 	for _, n := range h.needs {
-		if n.need.Kind != content.NeedOptional && n.fulfilment < min(upgradeGatePPM, needCap(n.need)) {
+		if n.need.Kind != content.NeedOptional && n.fulfilment < needGate(n.need) {
 			return n.need
 		}
 	}
 	return nil
 }
+
+// needGate is the fulfilment (ppm) a required need must reach for an
+// upgrade: the gate, or the most the need's alternatives can cover when that
+// is less.
+func needGate(n *content.Need) int64 { return min(upgradeGatePPM, needCap(n)) }
 
 // needCap is the highest fulfilment (ppm) a need can reach: the sum of the
 // shares of all its alternatives, at most 1 (D-056).
