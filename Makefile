@@ -12,9 +12,10 @@
 #                     database volume (0/false/no/unset keep it)
 #   make makefile-test  dry-run checks of the up/down targets
 #   make server-integration  Go integration tests (PostgreSQL + Redis)
-#   make assets       rebuild the models (Blender 5.2 + the CC0 kits, see README "Asset build")
-#   make assets-check rebuild into a temp dir and compare with client/public/models (skips without Blender)
-#   make assets-test  asset build unit tests (stdlib Python ≥ 3.11; part of `make check`)
+#   make assets       rebuild client/public/models (voxel GLBs, manifest.json, thumbs/) from
+#                     assets/voxel/recipes (Python 3 standard library, see README "Asset build")
+#   make assets-check rebuild into a temp dir and compare with client/public/models (byte for byte)
+#   make assets-test  asset build tests (Python 3 standard library; part of `make check`)
 #   make shots        PNGs of the game in .experiment/shots/<set>/ (fixtures showcase,
 #                     settled, dense-2x400 × near/mid/far × desktop/phone, fixed camera and
 #                     clock; 25–40 s). Needs the Playwright browsers, free ports 18080/4174.
@@ -32,17 +33,9 @@
 #                     with its longest frame and build queue; with STATS=1):
 #                     make shots FIXTURE=showcase VIEW=near DEVICE=desktop ROTATION=2
 #                     make shots FIXTURE=seafaring VIEW=far SEED=42
-#   make voxel        voxel art-style prototype: build client/public/models-voxel from
-#                     assets/voxel/recipes (Python 3 stdlib, no Blender; loaded with ?voxel=1;
-#                     .experiment/voxel/NOTES.md); make voxel-test runs its unit tests (part of
-#                     `make check`); make voxel-sheet RECIPE=fisher,house_settlers renders a
-#                     contact sheet to .experiment/voxel/sheets/<ids>.png; make voxel-compare
-#                     shoots settled near/mid/far, citizens near, showcase near, seafaring start
-#                     and dense-archipelago-8 far on desktop + phone with and without ?voxel=1 to
-#                     .experiment/voxel/shots/{current,voxel} and the sheet .experiment/voxel/compare.png
-#   make model-sheet  contact sheets of single recipes in .experiment/sheets (committed models
-#                     untouched; Blender 5.2 + NEW_SHORES_KITS_DIR); without RECIPE it lists
-#                     the recipe IDs: make model-sheet RECIPE=sawmill,sloop
+#   make model-sheet  contact sheet of single models (recipe or placeholder) in
+#                     .experiment/sheets/<ids>.png, committed models untouched; without RECIPE
+#                     it lists the model IDs: make model-sheet RECIPE=fisher,house_settlers
 #
 # TIME_SCALE sets world seconds per wall-clock second for `make dev`
 # (server --time-scale and client VITE_TIME_SCALE).
@@ -66,10 +59,9 @@ DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUM
 
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
 	client-install client-check client-lint client-typecheck client-test client-build dev preview \
-	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet \
-	voxel voxel-test voxel-sheet voxel-compare
+	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet
 
-check: server-check content-test client-check makefile-test assets-test voxel-test
+check: server-check content-test client-check makefile-test assets-test
 
 server-check: server-fmt server-vet server-lint server-test
 
@@ -105,11 +97,17 @@ client-test:
 client-build:
 	cd $(CLIENT_DIR) && npm run build
 
+# The voxel asset build (D-057; assets/voxel/build.py, Python 3 standard library).
+ASSETS_BUILD := python3 assets/voxel/build.py
+
 assets:
-	cd $(CLIENT_DIR) && npm run assets
+	$(ASSETS_BUILD)
 
 assets-check:
-	cd $(CLIENT_DIR) && npm run --silent assets -- --check
+	$(ASSETS_BUILD) --check
+
+assets-test:
+	python3 -m unittest discover -s assets/voxel/tests -t assets/voxel/tests
 
 # Screenshots of the game for polish work, see the header. The parameters
 # (FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED, CONTENT, QUERY, VOXEL, HOLD_TILES, SET)
@@ -117,50 +115,17 @@ assets-check:
 shots:
 	cd $(CLIENT_DIR) && npm run --silent shots
 
-# Contact sheet of single models without touching the committed ones: --only
-# rewrites the output directory (it would drop the other GLBs and shrink
-# manifest.json), so the GLBs go to .experiment/sheets/models and only the
-# sheets (<id>.png per recipe, all.png) are of interest (paths are relative to
-# the repository root, where the build runs). Unlike `make assets`
-# the sheets are not written to assets/build/out (the default of the build).
-RECIPE_IDS := $(sort $(basename $(notdir $(filter-out %/schema.json,$(wildcard assets/recipes/*.json)))))
+# Contact sheet of single models without touching the committed ones (the
+# build's --only writes no model files).
 SHEETS_OUT := .experiment/sheets
 
 model-sheet:
 ifeq ($(strip $(RECIPE)),)
-	@echo "usage: make model-sheet RECIPE=<id>[,<id>]   (sheets in $(SHEETS_OUT))"; echo "recipe IDs:"; printf '  %s\n' $(RECIPE_IDS)
+	@echo "usage: make model-sheet RECIPE=<id>[,<id>]   (sheet in $(SHEETS_OUT)/<ids>.png)"; echo "model IDs:"; $(ASSETS_BUILD) --list
 else
-	@for id in $(subst $(comma), ,$(RECIPE)); do \
-		case " $(RECIPE_IDS) " in *" $$id "*) ;; *) echo "model-sheet: unknown recipe '$$id'; run \`make model-sheet\` for the list"; exit 2;; esac; \
-	done
-	cd $(CLIENT_DIR) && npm run --silent assets -- --only $(RECIPE) --no-thumbs --out $(SHEETS_OUT)/models --sheets $(SHEETS_OUT)
+	@mkdir -p $(SHEETS_OUT)
+	$(ASSETS_BUILD) --only $(RECIPE) --sheet $(SHEETS_OUT)/$(subst $(comma),-,$(RECIPE)).png
 endif
-
-assets-test:
-	python3 -m unittest discover -s assets/build/tests -t assets/build/tests
-
-# Voxel art-style prototype (see the header).
-voxel:
-	python3 assets/voxel/build.py
-
-voxel-test:
-	python3 -m unittest discover -s assets/voxel/tests -t assets/voxel/tests
-
-voxel-sheet:
-	@mkdir -p .experiment/voxel/sheets
-	python3 assets/voxel/build.py --only $(RECIPE) --sheet .experiment/voxel/sheets/$(subst $(comma),-,$(RECIPE)).png
-
-VOXEL_SHOTS := settled:near,mid,far citizens:near showcase:near seafaring:start dense-archipelago-8:far
-
-voxel-compare:
-	@rm -rf .experiment/voxel/shots
-	@for v in current voxel; do \
-		for s in $(VOXEL_SHOTS); do \
-			$(MAKE) --no-print-directory shots FIXTURE=$${s%%:*} VIEW=$${s#*:} DEVICE=desktop,phone \
-				OUT=.experiment/voxel/shots/$$v STATS=1 $$( [ $$v = voxel ] && echo VOXEL=1 ) || exit 1; \
-		done; \
-	done
-	python3 assets/voxel/compare.py .experiment/voxel/shots/current .experiment/voxel/shots/voxel .experiment/voxel/compare.png
 
 # Needs TEST_DATABASE_URL/TEST_REDIS_URL or a running Docker (testcontainers);
 # skipped otherwise (failed when CI is set).

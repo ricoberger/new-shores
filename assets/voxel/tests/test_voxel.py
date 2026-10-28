@@ -1,4 +1,4 @@
-"""Voxel prototype pipeline tests (stdlib unittest; part of `make check` via `make voxel-test`)."""
+"""Voxel pipeline unit tests: meshing, grid helpers, export, recipes and placeholders (stdlib unittest; `make assets-test`)."""
 
 import os
 import sys
@@ -8,8 +8,7 @@ VOXEL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, VOXEL_DIR)
 
 import build  # noqa: E402
-from nsvoxel import export, grid, mesh, model  # noqa: E402
-from nsassets import content as content_mod  # noqa: E402
+from nsvoxel import content as content_mod, export, grid, mesh, model  # noqa: E402
 
 M = grid.mat("plaster")
 R = grid.mat("terracotta")
@@ -100,7 +99,7 @@ class ModelTest(unittest.TestCase):
         cls.recipes = model.recipe_modules()
 
     def built(self, cid):
-        kind = content_mod.kind_of(self.content, cid) if cid in content_mod.required_ids(self.content) else ("decor" if cid.startswith("decor_") else "life")
+        kind = build.kind_for(self.content, cid)
         recipe, _ = build.recipe_for(cid, kind, self.recipes)
         return model.build_id(cid, kind, recipe, self.content)
 
@@ -135,11 +134,6 @@ class ModelTest(unittest.TestCase):
         files, _, _ = self.built("house_settlers")
         v = files[0][3]
         self.assertEqual((v.w, v.d), (24, 24))
-
-
-class OutputTest(unittest.TestCase):
-    def test_committed_models_are_current(self):
-        self.assertEqual(build.main(["--check", "--jobs", "1"]), 0)
 
 
 class ExportTest(unittest.TestCase):

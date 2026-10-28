@@ -1,31 +1,22 @@
 """
-Voxel grid → GLB through the existing writer (assets/build/nsassets/glb.py)
-and the manifest entries the client reads unchanged
-(client/src/render/models.ts): vertex colours are palette roles × shade
-blended toward the role's shadow tone by the corner's occlusion; cloth
-voxels (a sway group) lower the alpha byte like the kit-bashed sails.
+Voxel grid → GLB through the deterministic writer (glb.py) and the
+manifest file entries the client reads (client/src/render/models.ts):
+vertex colours are palette roles × shade blended toward the role's shadow
+tone by the corner's occlusion; cloth voxels (a sway group) lower the
+alpha byte (the client's sway mask).
 """
 
 import hashlib
 import math
-import os
-import sys
 
-BUILD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "build")
-if BUILD_DIR not in sys.path:
-    sys.path.insert(0, BUILD_DIR)
-
-from nsassets import glb, palette  # noqa: E402
-
-from . import mesh  # noqa: E402
+from . import glb, mesh, palette
 
 #: Share of the way to the shadow tone at full occlusion (level 3).
 AO_STRENGTH = 0.62
 #: Side faces' normals are tilted toward up by this much (normalise(n + k·up)):
 #: axis-aligned walls facing away from the sun would otherwise get only the
-#: cool sky fill and read as cold grey slabs (the kit models' bevels and
-#: curved sails catch some sun). Rotation-safe, unlike a baked sun. Cloth
-#: (a sway group) uses the up normal like the kit sails (lit from both sides).
+#: cool sky fill and read as cold grey slabs. Rotation-safe, unlike a baked
+#: sun. Cloth (a sway group) uses the up normal (lit from both sides).
 SIDE_TILT = 0.5
 
 _ROLES = None

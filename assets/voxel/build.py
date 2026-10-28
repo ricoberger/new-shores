@@ -1,54 +1,59 @@
 #!/usr/bin/env python3
 """
-Voxel model build (prototype, .experiment/voxel/NOTES.md): every content
-model, decor and life model from assets/voxel/recipes (or an auto
-placeholder) into client/public/models-voxel/ with its own manifest and
-thumbnails; the client loads it with ?voxel=1.
+Voxel asset build (D-057; ART_DIRECTION §7): every content model, decor and
+life model from assets/voxel/recipes (or an automatic placeholder) into
+client/public/models/ with manifest.json and the build-card thumbnails.
+Python 3 standard library only; deterministic bytes.
 
-  python3 assets/voxel/build.py            build (parallel, deterministic)
-  python3 assets/voxel/build.py --check    verify the committed output is current
-  python3 assets/voxel/build.py --only fisher,house_settlers --sheet out.png
+  python3 assets/voxel/build.py            build (parallel)
+  python3 assets/voxel/build.py --check    rebuild into a temp dir and compare with the committed output
+  python3 assets/voxel/build.py --list     the model IDs (recipe or placeholder)
+  python3 assets/voxel/build.py --only fisher,house_settlers --sheet out.png   contact sheet only
 """
 
 import argparse
 import json
 import multiprocessing
 import os
+import shutil
 import sys
+import tempfile
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
 
-from nsvoxel import export, model, render  # noqa: E402
-from nsvoxel import auto  # noqa: E402
-from nsassets import config, content as content_mod  # noqa: E402
+from nsvoxel import auto, config, content as content_mod, export, model, render  # noqa: E402
 
-REPO = os.path.dirname(os.path.dirname(HERE))
-OUT_DIR = os.path.join(REPO, "client", "public", "models-voxel")
-#: The decor and life IDs the client asks for: those of today's manifest.
-CURRENT_MANIFEST = os.path.join(REPO, "client", "public", "models", "manifest.json")
-GENERATOR = "new-shores voxel build (prototype)"
-THUMB = 128
+OUT_DIR = config.MODELS_DIR
 
 
-def targets(content):
-    """[(id, kind)] of every model to build."""
-    with open(CURRENT_MANIFEST, encoding="utf-8") as f:
-        cur = json.load(f)
+def targets(content, recipes):
+    """[(id, kind)] of every model to build: the content IDs, then the decor and life recipes."""
     out = [(cid, content_mod.kind_of(content, cid)) for cid in content_mod.required_ids(content)]
-    out += [(cid, "decor") for cid in sorted(cur["decor"])]
-    out += [(cid, "life") for cid in sorted(cur["life"])]
+    out += [(cid, "decor") for cid in sorted(recipes) if cid.startswith(config.DECOR_PREFIX)]
+    out += [(cid, "life") for cid in sorted(recipes) if cid.startswith(config.LIFE_PREFIX)]
     return out
 
 
 def recipe_for(cid, kind, recipes):
+    """(recipe, placeholder?) of an ID: its recipe file, else the automatic placeholder of its kind (None: no placeholder)."""
     if cid in recipes:
         return recipes[cid], False
     fn = auto.pick(kind)
     if fn is None:
         return None, True
     return {"build": fn, "file": None}, True
+
+
+def kind_for(content, cid):
+    """The kind of an ID: content kind, or decor/life by prefix."""
+    if cid.startswith(config.DECOR_PREFIX):
+        return "decor"
+    if cid.startswith(config.LIFE_PREFIX):
+        return "life"
+    return content_mod.kind_of(content, cid)
 
 
 _RECIPES = None
@@ -81,34 +86,32 @@ def tri_list(v, ctx):
     return [((t[0], t[1], t[2]), [colors[("v", 0, k)] for k in ks], t[6]) for t, ks in zip(tris, ao_keys)]
 
 
-def thumbnail(f, size=THUMB):
+def thumbnail(f, size=config.THUMB_PX):
     _, _, _, v, ctx = f
     rows = render.render(tri_list(v, ctx), size * 2)
     return render.png(render.downsample(rows, size * 2), size, size)
 
 
-def main(argv=None):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true", help="fail when the output differs from the committed files")
-    ap.add_argument("--only", default="", help="comma-separated IDs (no manifest; with --sheet)")
-    ap.add_argument("--sheet", default="", help="write a contact sheet PNG of the built IDs")
+def parse(argv=None):
+    ap = argparse.ArgumentParser(description="Voxel asset build (client/public/models).")
+    ap.add_argument("--check", action="store_true", help="rebuild into a temp dir and fail when it differs from --out")
+    ap.add_argument("--list", action="store_true", help="print the model IDs (recipe or placeholder) and exit")
+    ap.add_argument("--only", default="", help="comma-separated IDs: build them without writing any output (with --sheet)")
+    ap.add_argument("--sheet", default="", help="write a contact sheet PNG of the --only IDs")
     ap.add_argument("--out", default=OUT_DIR)
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4)
-    args = ap.parse_args(argv)
+    return ap.parse_args(argv)
 
-    _init()
-    all_targets = targets(_CONTENT)
-    only = [s for s in args.only.split(",") if s]
-    chosen = [t for t in all_targets if not only or t[0] in only]
-    thumbs = not only
+
+def build_outputs(jobs_n, chosen, thumbs=True):
+    """(outputs {relative path: bytes}, stats, problems) of the chosen (id, kind) targets."""
     jobs = [(cid, kind, thumbs) for cid, kind in chosen]
-    if args.jobs <= 1:
+    if jobs_n <= 1:
         # In-process (tests: a spawned pool would re-import the test runner).
         results = [_job(j) for j in jobs]
     else:
-        with multiprocessing.Pool(args.jobs, initializer=_init) as pool:
+        with multiprocessing.Pool(jobs_n, initializer=_init) as pool:
             results = pool.map(_job, jobs, chunksize=1)
-
     problems = []
     entries = {}
     outputs = {}
@@ -117,88 +120,132 @@ def main(argv=None):
         problems += [f"{cid}: {p}" for p in probs]
         if entry is not None:
             entries[cid] = entry
-        for name, data, n in files:
+        for name, data, _ in files:
             outputs[name] = data
         if thumb is not None:
             outputs[f"thumbs/{cid}.png"] = thumb
-        stats.append((cid, kind, placeholder, [(n, name) for name, _, n in files], secs))
+        stats.append((cid, kind, placeholder, [n for _, _, n in files], secs))
+    placeholders = sorted(cid for cid, kind, placeholder, _, _ in stats if placeholder and kind not in ("decor", "life"))
+    outputs["manifest.json"] = manifest(entries, placeholders)
+    return outputs, stats, problems
 
-    if args.sheet:
-        write_sheet(args.sheet, [c for c, _ in chosen])
-    for line in sorted(stats):
-        cid, kind, placeholder, files, secs = line
-        tag = "auto" if placeholder else "recipe"
-        print(f"{cid:28s} {kind:8s} {tag:6s} " + " ".join(f"{n}" for n, _ in files) + f"  {secs:.1f}s")
-    if problems:
-        print("\n".join(problems), file=sys.stderr)
-        return 1
-    if only:
-        return 0
 
+def manifest(entries, placeholders):
+    """manifest.json bytes: the models, decor and life entries and the placeholder IDs."""
     decor = {k: v for k, v in entries.items() if v["kind"] == "decor"}
     life = {k: v for k, v in entries.items() if v["kind"] == "life"}
     models = {k: v for k, v in entries.items() if v["kind"] not in ("decor", "life")}
-    missing = sorted(cid for cid, kind, placeholder, _, _ in stats if placeholder and kind not in ("decor", "life"))
+    export.roles()
     doc = {
+        "version": config.MANIFEST_VERSION,
+        "generator": config.GENERATOR,
+        "palette_sha256": export.PALETTE_SHA,
+        "voxels_per_tile": config.VOXELS_PER_TILE,
+        "placeholders": placeholders,
+        "models": dict(sorted(models.items())),
         "decor": dict(sorted(decor.items())),
         "life": dict(sorted(life.items())),
-        "version": config.MANIFEST_VERSION,
-        "generator": GENERATOR,
-        "blender": None,
-        "palette_sha256": export.PALETTE_SHA or export.roles() and export.PALETTE_SHA,
-        "kit_scale": {},
-        "file_scale": {},
-        "missing_recipes": [],
-        "placeholders": missing,
-        "voxels_per_tile": 8,
-        "models": dict(sorted(models.items())),
     }
-    outputs["manifest.json"] = (json.dumps(doc, indent=2, sort_keys=True) + "\n").encode("utf-8")
-    return write_or_check(args.out, outputs, args.check)
+    return (json.dumps(doc, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
-def write_or_check(out_dir, outputs, check):
-    existing = set()
-    for root, _, names in os.walk(out_dir):
-        for n in names:
-            existing.add(os.path.relpath(os.path.join(root, n), out_dir))
-    stale = sorted(existing - set(outputs))
-    changed = []
-    for name, data in sorted(outputs.items()):
-        path = os.path.join(out_dir, name)
-        try:
-            with open(path, "rb") as f:
-                same = f.read() == data
-        except FileNotFoundError:
-            same = False
-        if same:
-            continue
-        changed.append(name)
-        if not check:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, "wb") as f:
-                f.write(data)
-    if check:
-        if changed or stale:
-            print(f"models-voxel out of date: {len(changed)} changed, {len(stale)} stale (run python3 assets/voxel/build.py)", file=sys.stderr)
-            for n in (changed + stale)[:20]:
-                print("  " + n, file=sys.stderr)
-            return 1
-        print(f"models-voxel current ({len(outputs)} files)")
+def main(argv=None):
+    args = parse(argv)
+    _init()
+    all_targets = targets(_CONTENT, _RECIPES)
+    if args.list:
+        for cid, kind in all_targets:
+            print(f"{cid:28s} {kind:8s} {'recipe' if cid in _RECIPES else 'auto'}")
         return 0
-    for n in stale:
-        os.remove(os.path.join(out_dir, n))
-    print(f"models-voxel: {len(changed)} written, {len(stale)} removed, {len(outputs)} files")
+    only = [s for s in args.only.split(",") if s]
+    if only:
+        known = {cid for cid, _ in all_targets}
+        unknown = [cid for cid in only if cid not in known]
+        if unknown:
+            print(f"unknown model ID(s): {', '.join(unknown)} (see --list)", file=sys.stderr)
+            return 2
+        problems = []
+        for cid in only:
+            kind = kind_for(_CONTENT, cid)
+            recipe, _ = recipe_for(cid, kind, _RECIPES)
+            problems += [f"{cid}: {p}" for p in model.build_id(cid, kind, recipe, _CONTENT)[2]]
+        if args.sheet:
+            write_sheet(args.sheet, only)
+            print(f"sheet: {args.sheet}")
+        if problems:
+            print("\n".join(problems), file=sys.stderr)
+            return 1
+        return 0
+
+    outputs, stats, problems = build_outputs(args.jobs, all_targets)
+    for cid, kind, placeholder, tris, secs in sorted(stats) if not args.check else []:
+        tag = "auto" if placeholder else "recipe"
+        print(f"{cid:28s} {kind:8s} {tag:6s} " + " ".join(str(n) for n in tris) + f"  {secs:.1f}s")
+    if problems:
+        print("\n".join(problems), file=sys.stderr)
+        return 1
+    if args.check:
+        tmp = tempfile.mkdtemp(prefix="ns-models-")
+        try:
+            write(tmp, outputs)
+            return compare(tmp, args.out)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+    write(args.out, outputs)
+    return 0
+
+
+def tree(root):
+    """{relative path: bytes} of every file below root (none when root is missing)."""
+    out = {}
+    for base, _, names in os.walk(root):
+        for n in names:
+            path = os.path.join(base, n)
+            with open(path, "rb") as f:
+                out[os.path.relpath(path, root).replace(os.sep, "/")] = f.read()
+    return out
+
+
+def write(out_dir, outputs):
+    """Writes the outputs into out_dir and removes every other file there (the build owns the folder)."""
+    existing = tree(out_dir)
+    changed = [n for n, data in sorted(outputs.items()) if existing.get(n) != data]
+    stale = sorted(set(existing) - set(outputs))
+    for name in changed:
+        path = os.path.join(out_dir, name)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(outputs[name])
+    for name in stale:
+        os.remove(os.path.join(out_dir, name))
+    print(f"{out_dir}: {len(changed)} written, {len(stale)} removed, {len(outputs)} files")
+
+
+def compare(built, committed):
+    """0 when the two folders hold the same files with the same bytes, else 1 (lists the differences)."""
+    a, b = tree(built), tree(committed)
+    changed = sorted(n for n in set(a) & set(b) if a[n] != b[n])
+    missing = sorted(set(a) - set(b))
+    stale = sorted(set(b) - set(a))
+    if changed or missing or stale:
+        print(
+            f"models out of date: {len(changed)} changed, {len(missing)} missing, {len(stale)} stale (run `make assets`)",
+            file=sys.stderr,
+        )
+        for n in (changed + missing + stale)[:20]:
+            print("  " + n, file=sys.stderr)
+        return 1
+    print(f"models current ({len(a)} files)")
     return 0
 
 
 def write_sheet(path, ids, cell=256, cols=4):
-    """A contact sheet of the given IDs (every variant/level and the lite level next to the full one)."""
+    """A contact sheet of the given IDs (every variant/level, attachments included)."""
     imgs = []
     for cid in ids:
-        kind = content_mod.kind_of(_CONTENT, cid) if cid in content_mod.required_ids(_CONTENT) else ("decor" if cid.startswith("decor_") else "life")
+        kind = kind_for(_CONTENT, cid)
         recipe, _ = recipe_for(cid, kind, _RECIPES)
-        for fname, key, ctx in model.outputs(cid, kind, recipe, _CONTENT):
+        for _, key, ctx in model.outputs(cid, kind, recipe, _CONTENT):
             ctx.needs = model.required_anchors(_CONTENT, cid) if kind in ("building", "field") else []
             ctx.smoke = "smoke" in ctx.needs
             fn = recipe["cargo"] if key and key[0] == "attachment" else recipe["build"]
@@ -206,6 +253,7 @@ def write_sheet(path, ids, cell=256, cols=4):
             rows = render.render(tri_list(v, ctx), cell * 2)
             imgs.append(render.downsample(rows, cell * 2))
     rows, w, h = render.sheet(imgs, cols, cell)
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     with open(path, "wb") as f:
         f.write(render.png(rows, w, h))
 

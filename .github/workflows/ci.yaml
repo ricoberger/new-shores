@@ -116,15 +116,26 @@ jobs:
       - name: build
         run: npm run build
 
-      # The asset build needs Blender 5.2 and the kits (not on the runner):
-      # the drift check skips and says so; the Python tests and Vitest's
-      # manifest/GLB consistency checks run without Blender.
+  assets:
+    name: assets
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'ci'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The voxel asset build (assets/voxel) is standard-library Python;
+      # the version is pinned so that the drift check compares bytes made
+      # by the same interpreter as the committed models.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14.7"
+
       - name: Asset build tests (Python)
-        working-directory: .
         run: make assets-test
 
-      - name: Asset drift check
-        working-directory: .
+      - name: Asset drift check (rebuild and compare)
         run: make assets-check
 
   integration:
@@ -175,7 +186,7 @@ jobs:
   unlabel:
     name: remove ci label
     if: always() && github.event_name == 'pull_request' && github.event.label.name == 'ci'
-    needs: [server, client, integration]
+    needs: [server, client, assets, integration]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write

@@ -57,7 +57,6 @@ export interface ModelEntry {
     [number, number, number] | undefined
   >;
   ship?: { length_tiles: number; masts: number; sail_scale: number };
-  budget_exception?: { reason: string };
 }
 
 /** Manifest decoration entry (trees, bushes, rocks, tufts, stumps, outcrops; IDs decor_*). */
@@ -80,7 +79,10 @@ export interface LifeEntry {
 export interface ModelManifest {
   version: number;
   palette_sha256: string;
-  missing_recipes: string[];
+  /** Voxels per tile of the full building models (assets/voxel). */
+  voxels_per_tile: number;
+  /** Content IDs whose model is the build's automatic placeholder (no recipe yet). */
+  placeholders: string[];
   models: Record<string, ModelEntry>;
   decor?: Record<string, DecorEntry>;
   life?: Record<string, LifeEntry>;

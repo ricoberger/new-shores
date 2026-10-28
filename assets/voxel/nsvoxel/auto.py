@@ -1,8 +1,8 @@
 """
 Auto voxel placeholders for every model without a recipe file: walls and a
 roof sized to the footprint (water rows become a pier), a sign board with
-the ID's first letters, the required anchors, so that the whole game can
-run with ?voxel=1 while only the evaluation set is hand-authored.
+the ID's first letters, the required anchors — so every building has a
+voxel model on day 1 and no island mixes styles (D-057 §2).
 """
 
 from . import parts as P

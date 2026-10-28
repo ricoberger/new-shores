@@ -50,7 +50,7 @@ function def(id: string, width: number, height: number): ContentBuilding {
   return { id, width, height, category: "production" } as unknown as ContentBuilding;
 }
 
-describe("committed models are consistent with the manifest (Blender-free)", () => {
+describe("committed models are consistent with the manifest", () => {
   const all = Object.entries(manifest.models).flatMap(([id, e]) => entryFiles(e).map((f) => [id, f] as const));
 
   it("every manifest file exists with its sha256, size and triangle count, within its budget", () => {
@@ -84,7 +84,8 @@ describe("committed models are consistent with the manifest (Blender-free)", () 
   it("the palette hash matches assets/palette.json and every tier 1–2 building, field and the sloop has a model", () => {
     const palette = readFileSync(join(REPO, "assets", "palette.json"));
     expect(manifest.palette_sha256).toBe(createHash("sha256").update(palette).digest("hex"));
-    expect(manifest.missing_recipes).toEqual([]);
+    expect(manifest.voxels_per_tile).toBe(8);
+    expect(Array.isArray(manifest.placeholders)).toBe(true);
     const buildings = JSON.parse(readFileSync(join(REPO, "content", "old_coast", "buildings.json"), "utf8")) as { id: string; tier: string; road?: unknown }[];
     const want = buildings.filter((b) => (b.tier === "settlers" || b.tier === "citizens") && !b.road).map((b) => b.id);
     for (const id of [...want, "sloop", "brig", "galleon"]) expect(manifest.models[id], id).toBeDefined();

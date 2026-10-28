@@ -2,29 +2,17 @@
 Recipes → model files: loads assets/voxel/recipes/<id>.py (or the
 auto-generated placeholder), builds every variant/level, meshes the full
 grid (8 voxels per tile) and the lite grid (downsampled 4×, 2 per tile),
-checks anchors, footprint and budget, and returns the files and the
-manifest entry in the format of assets/build (client/src/render/models.ts).
+checks anchors, footprint and the triangle budgets (config.py), and
+returns the files and the manifest entry (client/src/render/models.ts).
 """
 
 import importlib.util
 import os
 
-from . import export, grid
+from . import config, content as content_mod, export, grid
 from .grid import VPT
 
-VOXEL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RECIPES_DIR = os.path.join(VOXEL_DIR, "recipes")
-
-from nsassets import config, content as content_mod, pipeline  # noqa: E402  (export put assets/build on sys.path)
-
-#: The voxel models may use up to this multiple of the kit-bash triangle
-#: budgets (assets/build config); the build fails above it and reports the
-#: models over 1× (a prototype finding, NOTES.md).
-BUDGET_FACTOR = 2.0
-#: Downsampling of the buildings' lite (far) level: 4 → 2 voxels per tile,
-#: the far-budget mitigation (NOTES.md step 5: dense far 442k → 152k tris);
-#: NSVOXEL_LITE=2 builds the first try (4 per tile) for comparison.
-LITE_DOWNSAMPLE = int(os.environ.get("NSVOXEL_LITE", "4"))
+RECIPES_DIR = config.RECIPES_DIR
 
 #: Default voxel tolerance outside the footprint (overhanging eaves, a crane jib): 0.25 tile.
 FOOTPRINT_SLACK = 2
@@ -92,7 +80,7 @@ def required_anchors(content, cid):
 
 
 def outputs(cid, kind, recipe, content):
-    """(file name, key, Ctx) of every file of an ID; key as in assets/build pipeline.outputs."""
+    """(file name, key, Ctx) of every file of an ID; key None, ('variant', n), ('level', l) or ('attachment', name)."""
     scale = recipe.get("scale", VPT)
     if kind in ("decor", "life"):
         n = recipe.get("variants", 0)
@@ -156,18 +144,18 @@ def build_id(cid, kind, recipe, content):
         scale = 1.0 / ctx.vpt
         data, n, bounds = export.write_model(cid, v.cells, ctx.W, ctx.D, scale, offset=v.offset)
         budget = budget_of(cid, kind, content, key)
-        if n > budget * BUDGET_FACTOR:
-            problems.append(f"{fname}: {n} triangles over {BUDGET_FACTOR}× the budget {budget}")
+        if n > budget:
+            problems.append(f"{fname}: {n} triangles over the budget {budget}")
         info = export.file_info(fname, data, n, bounds, budget)
         files.append((fname, data, n, v, ctx))
         if kind == "building" and (key is None or key[0] in ("variant", "level")):
-            f = LITE_DOWNSAMPLE
+            f = config.LITE_DOWNSAMPLE
             lite_cells = grid.downsample(v.cells, f, keep=max(2, f ** 3 // 8))
             lname = fname[: -len(".glb")] + ".lite.glb"
             ldata, ln, lbounds = export.write_model(cid, lite_cells, ctx.W / f, ctx.D / f, scale * f)
-            lbudget = int(budget * config.LITE_FACTOR)
-            if ln > lbudget * BUDGET_FACTOR:
-                problems.append(f"{lname}: {ln} triangles over {BUDGET_FACTOR}× the lite budget {lbudget}")
+            lbudget = lite_budget_of(cid, content)
+            if ln > lbudget:
+                problems.append(f"{lname}: {ln} triangles over the lite budget {lbudget}")
             info["lite"] = export.file_info(lname, ldata, ln, lbounds, lbudget)
             files.append((lname, ldata, ln, None, ctx))
         infos[fname] = (key, info)
@@ -196,18 +184,39 @@ def build_id(cid, kind, recipe, content):
         return files, entry, problems
     if kind == "life":
         entry["anchors"] = anchors
-        entry["kit_sources"] = []
         return files, entry, problems
     if kind != "ship":
         entry["footprint"] = {"w": ctx.w, "h": ctx.h}
         anchors.setdefault("door", export.anchor_gltf((ctx.W / 2, ctx.D, 0), ctx.W, ctx.D, scale))
     anchors.setdefault("status", [0.0, export._r(union_hi[1] + config.STATUS_ABOVE), 0.0])
     entry["anchors"] = dict(sorted(anchors.items()))
-    entry["kit_sources"] = []
     if kind == "ship":
         entry["ship"] = dict(recipe["ship"])
     return files, entry, problems
 
 
-def budget_of(cid, kind, content, key):
-    return pipeline.budget_of({"id": cid, "kind": kind}, content, key)
+def model_class(content, cid):
+    """The budget class of a building or field: 'field', 'house' or 'building'."""
+    if content_mod.kind_of(content, cid) == "field":
+        return "field"
+    return "house" if content_mod.is_house(content, cid) else "building"
+
+
+def budget_of(cid, kind, content, key=None):
+    """Triangle budget of a full model file (config.py): per footprint tile for buildings and fields, flat for the rest."""
+    if key and key[0] == "attachment":
+        return config.BUDGET_SHIP_CARGO
+    if kind == "ship":
+        return config.BUDGET_SHIPS[cid]
+    if kind == "decor":
+        return config.BUDGET_DECOR
+    if kind == "life":
+        return config.BUDGET_LIFE_STAGE if cid.startswith(config.LIFE_STAGE_PREFIX) else config.BUDGET_LIFE
+    w, h = content_mod.footprint(content, cid)
+    return config.BUDGET_PER_TILE[model_class(content, cid)] * w * h
+
+
+def lite_budget_of(cid, content):
+    """Triangle budget of a building's lite file (per footprint tile)."""
+    w, h = content_mod.footprint(content, cid)
+    return config.LITE_BUDGET_PER_TILE[model_class(content, cid)] * w * h

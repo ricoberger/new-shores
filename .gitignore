@@ -9,8 +9,7 @@ assets/kits/*
 !assets/kits/README.md
 .DS_Store
 
-# Asset build output (contact sheets) and Python caches.
-assets/build/out/
+# Python caches (asset build).
 __pycache__/
 
 # Local experiments and scratch notes (renders, exploration scripts).

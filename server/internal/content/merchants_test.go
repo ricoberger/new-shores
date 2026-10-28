@@ -300,7 +300,7 @@ func TestClosedChains(t *testing.T) {
 	}
 }
 
-// plannedEntry is one entry of assets/build/planned/tier<N>.json.
+// plannedEntry is one entry of assets/voxel/planned/tier<N>.json.
 type plannedEntry struct {
 	ID         string `json:"id"`
 	Kind       string `json:"kind"`
@@ -313,7 +313,7 @@ type plannedEntry struct {
 
 // TestTierThreeMatchesPlannedModels: every tier-3 building of the content
 // has the footprint, water rows, deposit slot and smoke flag of its
-// planned model (assets/build/planned/tier3.json, PR #32), so the
+// planned model (assets/voxel/planned/tier3.json, PR #32), so the
 // committed models fit; boats only where content says so (the fisher and,
 // since tier 4, the oyster beds).
 func TestTierThreeMatchesPlannedModels(t *testing.T) {
@@ -321,7 +321,7 @@ func TestTierThreeMatchesPlannedModels(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := os.ReadFile(filepath.Join(repoRoot(t), "assets", "build", "planned", "tier3.json"))
+	data, err := os.ReadFile(filepath.Join(repoRoot(t), "assets", "voxel", "planned", "tier3.json"))
 	if err != nil {
 		t.Fatal(err)
 	}

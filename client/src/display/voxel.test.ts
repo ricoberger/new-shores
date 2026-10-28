@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { modelBase, voxelEnabled } from "./voxel";
+import { voxelEnabled } from "./voxel";
 
 describe("voxel prototype flag", () => {
   it("is on only with ?voxel=1", () => {
@@ -7,10 +7,5 @@ describe("voxel prototype flag", () => {
     expect(voxelEnabled("?stats=1&voxel=1")).toBe(true);
     expect(voxelEnabled("")).toBe(false);
     expect(voxelEnabled("?voxel=0")).toBe(false);
-  });
-
-  it("selects the model folder", () => {
-    expect(modelBase(false)).toBe("/models/");
-    expect(modelBase(true)).toBe("/models-voxel/");
   });
 });

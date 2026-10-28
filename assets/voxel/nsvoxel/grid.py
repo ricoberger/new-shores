@@ -1,5 +1,5 @@
 """
-The voxel grid of a model (prototype, .experiment/voxel/NOTES.md): a sparse
+The voxel grid of a model (D-057; ART_DIRECTION §7): a sparse
 map (x, y, z) → material with drawing helpers. 8 voxels per tile; x east,
 y toward the front of the building (+y, the road side; the water rows of a
 harbour building are the low y), z up from the ground (z = 0 is the first
