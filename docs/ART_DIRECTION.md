@@ -59,8 +59,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   models — and shifts the vertex colour's value in four steps and its
   hue slightly along a warm–cool axis. The strength follows the material
   class the asset build writes into the vertex alpha
-  (`nsvoxel/jitter.py`): stone ±8.5 %, roofs ±6.5 %, wood ±6 %, foliage
-  ±7 %, ground ±5 %, metal ±3 %, plaster ±2.5 %, glass and water none.
+  (`nsvoxel/jitter.py`; tuned in V3b once the recipes exported flat
+  colours): stone ±10.5 %, roofs ±8.5 %, wood ±7 %, foliage ±7 %,
+  ground ±6 %, metal ±3 %, plaster ±3.5 %, glass and water none.
   The terrain keeps its own column jitter at the ground strength. Off at
   far LOD (a voxel is below a pixel) and with `?jitter=0` for A/B; WebGL 2
   only.
@@ -269,8 +270,8 @@ Tier 1–2 recipes are written on the v2 parts in `nsvoxel/detail.py`
 (re-exported by `parts.py`, called as `P.<name>`); the v1 helpers stay
 for the placeholders. A recipe is a yard, one or two `P.building`s, the
 openings, the props that say what the building does, the anchors, then
-`P.scatter(...)` and `return P.colour_jitter(v, seed=…)` — about 40–70
-lines.
+`P.scatter(...)` and `return P.colour_jitter(v, seed=…)` (a no-op since
+V3b — kept for the signature) — about 40–70 lines.
 
 - **Building:** `b = P.building(v, x0, y0, x1, y1, style, along=…)`
   with style `settler` (pegged timber frame, plaster, thatch),
@@ -299,11 +300,13 @@ lines.
 - **Anchors:** everything `model.required_anchors` lists (cart, boat,
   berths, slip, pasture gate and animals, chimney/smoke) plus a door on
   buildings; the build fails without them.
-- **Colour jitter last:** `P.colour_jitter` gives every material three
-  shades by role (`JITTER`): per voxel on walls and props, 2 × 2 plan
-  patches on roofs and timber, a low share on stone and the ground plate.
-  Every off-shade patch splits merged quads, and the models folder has a
-  hard limit (`MODELS_FOLDER_LIMIT`) — prefer structure (courses, frames,
+- **No baked colour noise (V3b):** recipes export flat palette colours
+  and the shader jitters per voxel (§2). Authored shade *steps* that are
+  structure — coursed stone, roof courses, ridge tiles, furrows,
+  scorched ground — stay; random per-voxel shades do not (they split
+  merged quads: V3 measured 28 MB with full baked jitter vs 21 MB
+  without). The models folder has a hard limit (`MODELS_FOLDER_LIMIT`)
+  — prefer structure (courses, frames,
   props) over more speckle.
 - **Sway:** only sails, ship canvas and flags (`flag_*`, `P.cloth`); sacks,
   bales, awnings, washing and stretched sailcloth stay rigid.
@@ -341,9 +344,9 @@ lines.
   fields and with `?life=0`); paused/unpaid = desaturated tint;
   not_connected/starved keep the status icon and lose smoke/walkers.
 - **Lively look (D-057 §3).** The recipes (V3, authoring above) bring
-  courses, frames, crop rows, uneven fences and a baked three-shade
-  jitter; the world (V2) adds the shader's per-voxel jitter on top of
-  every model material (§2), irregular swaying canopies and the richer
+  courses, frames, crop rows, uneven fences and flat palette colours;
+  the world (V2) adds the shader's per-voxel jitter to every model
+  material (§2), irregular swaying canopies and the richer
   ground detail (§4), stepped rock bands, wet sand, pebbles and stepped
   foam at the coast, voxel roads, and warmer light and sea.
 
@@ -353,8 +356,12 @@ lines.
   standard library only, parallel, ≈ 3 s): recipe or placeholder →
   voxel grid → greedy-meshed quads (`nsvoxel/mesh.py`) with per-vertex
   colour and AO → our deterministic GLB writer (`nsvoxel/glb.py`; one
-  mesh, POSITION/NORMAL/COLOR_0, no UVs/textures, origin at the
-  footprint's ground centre) into `client/public/models/` with
+  mesh, **KHR_mesh_quantization**: POSITION int16 in voxel units with
+  the unit in the node scale, NORMAL int8, COLOR_0 uint8, 4-byte
+  padded, `extensionsRequired` set — ≈ 32 bytes per triangle, loaded
+  through Babylon's extension plugin and dequantised in `parseGlb`; no
+  UVs/textures, origin at the footprint's ground centre) into
+  `client/public/models/` with
   `manifest.json` and 128 px build-card thumbnails (`thumbs/`, a small
   software rasteriser, `nsvoxel/render.py`). The build owns the folder
   and removes stale files. GLBs, manifest and thumbnails are committed,
@@ -374,9 +381,9 @@ lines.
   brig 6 000, galleon 7 600, cargo 300; decor 580; life props 760,
   construction stages 2 100. Each is the prototype's densest model of its
   class with ≈ 50 % headroom; a model over its budget fails the build.
-  The committed GLBs are ≈ 19 MiB of a **24 MiB folder limit**; a
-  quantised export (KHR_mesh_quantization) is the planned way to shrink
-  them.
+  The committed GLBs are ≈ 12.9 MB (tiers 1–2 at full detail, tiers 3–4
+  as placeholders) of a **24 MiB folder limit**; what remains per
+  triangle is indices and AO/normal-split vertices.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at
   near/mid, lite chunks at far, both built once and toggled. Building

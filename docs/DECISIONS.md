@@ -1175,3 +1175,12 @@ system and tooling are untouched by the restyle); buying voxel packs
   Decision from both: **recipes export flat colours and the shader
   jitters** (V3b), cloth sway returns via manifest sway groups, the
   24 MiB limit stays.
+- *As built (PR #42 V3b/V3c):* recipes export flat colours
+  (`colour_jitter` a no-op; authored shade steps that are structure
+  stay), shader jitter retuned per class, sway groups on sailmaker /
+  linen weaver / warehouse L3 (manifest-driven tests); triangles −14 %
+  (dense mid 1.69 → 1.41 M). **Quantised export**: KHR_mesh_quantization
+  (int16 positions in voxel units, int8 normals, uint8 colours), loaded
+  with Babylon's plugin and dequantised in `parseGlb`; folder 20.5 →
+  12.9 MB (−37 %, ≈ 32 bytes/triangle — indices and AO-split vertices
+  are the rest), pixel-identical shots. Limit 24 MiB unchanged.
