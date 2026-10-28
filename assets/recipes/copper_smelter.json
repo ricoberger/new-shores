@@ -1,0 +1,33 @@
+{
+  "$schema": "./schema.json",
+  "id": "copper_smelter",
+  "kind": "building",
+  "notes": "Copper smelter (4×6): a plastered hall with a glowing doorway on the right; on the left a squat tapering warm-stone furnace on a plinth with a glowing mouth, a pouring channel to an ingot mould, a bellows shed and a tall brick stack (smoke anchor); stacks of green ingots (signature), a heap of green-brown copper ore, charcoal, a crate and a cart at the cart point.",
+  "anchors": {"door": [0.85, 0.14, 0], "chimney": [-0.72, -1.75, 3.13], "smoke": [-0.72, -1.75, 3.18], "cart": [0.2, 2.45, 0]},
+  "parts": [
+    {"name": "yard", "prim": "box", "size": [3.96, 5.96, 0.02], "open": ["bottom", "+x", "-x", "+y", "-y"], "position": [0, 0, 0], "role": "road-dirt", "shade": 0.88},
+    {"name": "hall plinth", "prim": "box", "size": [2.2, 3.1, 0.12], "open": ["bottom"], "position": [0.85, -1.38, 0], "role": "cliff-upper", "shade": 0.85, "bevel": 0.03},
+    {"name": "hall walls", "prim": "box", "size": [2.1, 3.0, 1.1], "open": ["bottom"], "position": [0.85, -1.38, 0.12], "role": "plaster", "shade": 0.95, "bevel": 0.02},
+    {"name": "hall top beam", "prim": "box", "size": [2.18, 3.08, 0.07], "open": ["bottom"], "position": [0.85, -1.38, 1.22], "role": "timber", "shade": 0.75},
+    {"name": "hall roof", "prim": "wedge", "size": [3.24, 2.34, 1.05], "position": [0.85, -1.38, 1.29], "rotation": [0, 0, 90], "role": "terracotta", "shade": 0.9},
+    {"name": "hall ridge", "prim": "box", "size": [0.12, 3.2, 0.08], "open": ["bottom"], "position": [0.85, -1.38, 2.3], "role": "terracotta", "shade": 0.72, "lod": "full"},
+    {"name": "hall doorway", "prim": "box", "size": [0.8, 0.06, 0.82], "open": ["bottom", "-y"], "position": [0.85, 0.14, 0.12], "role": "terracotta", "shade": 1.2},
+    {"name": "hall window", "prim": "box", "size": [0.05, 0.34, 0.3], "open": ["bottom"], "position": [1.92, -2.2, 0.55], "role": "terracotta", "repeat": {"count": 2, "step": [0, 1.1, 0]}},
+    {"name": "furnace base", "prim": "box", "size": [1.7, 1.7, 0.28], "open": ["bottom"], "position": [-0.72, -1.75, 0], "role": "cliff-upper", "shade": 0.85, "bevel": 0.03},
+    {"name": "furnace", "prim": "cylinder", "radius": 1.1, "height": 1.5, "radius_top": 0.75, "segments": 4, "caps": true, "position": [-0.72, -1.75, 0.28], "role": "rock-light"},
+    {"name": "stack", "prim": "cylinder", "radius": 0.42, "height": 1.35, "radius_top": 0.34, "segments": 4, "caps": true, "position": [-0.72, -1.75, 1.78], "role": "terracotta", "shade": 0.78},
+    {"name": "furnace mouth", "prim": "box", "size": [0.42, 0.06, 0.36], "open": ["bottom", "-y"], "position": [-0.72, -0.95, 0.3], "role": "terracotta", "shade": 1.2},
+    {"name": "pour channel", "prim": "box", "size": [0.16, 0.8, 0.04], "open": ["bottom"], "position": [-0.72, -0.55, 0.02], "role": "terracotta", "shade": 1.2},
+    {"name": "ingot mould", "prim": "box", "size": [0.5, 0.3, 0.06], "open": ["bottom"], "position": [-0.72, -0.05, 0], "role": "iron", "shade": 0.9},
+    {"name": "bellows", "prim": "box", "size": [0.55, 0.45, 0.26], "open": ["bottom"], "position": [-1.62, -1.55, 0.0], "role": "timber", "shade": 0.8},
+    {"name": "bellows roof", "prim": "box", "size": [0.75, 0.9, 0.05], "position": [-1.57, -1.55, 0.8], "rotation": [0, -12, 0], "role": "terracotta", "shade": 0.85, "lod": "full"},
+    {"name": "bellows post", "prim": "box", "size": [0.07, 0.07, 0.78], "open": ["bottom"], "position": [-1.87, -1.95, 0], "role": "timber", "shade": 0.8, "lod": "full", "repeat": {"count": 2, "step": [0, 0.8, 0]}},
+    {"name": "green ingots", "prim": "box", "size": [0.5, 0.26, 0.09], "open": ["bottom"], "position": [1.2, 1.2, 0.0], "role": "hemp", "shade": 0.78, "repeat": {"count": 3, "step": [0, 0, 0.09]}},
+    {"name": "green ingots", "prim": "box", "size": [0.5, 0.26, 0.09], "open": ["bottom"], "position": [1.2, 0.9, 0.0], "role": "hemp", "shade": 0.741, "lod": "full", "repeat": {"count": 2, "step": [0, 0, 0.09]}},
+    {"name": "copper ore", "prim": "cylinder", "radius": 0.5, "height": 0.36, "radius_top": 0.11, "segments": 7, "caps": true, "position": [-1.35, 1.2, 0], "role": "moss", "shade": 0.72},
+    {"name": "ore lump", "prim": "rock", "size": [0.16, 0.13, 0.12], "position": [-1.0, 1.55, 0.04], "role": "deposit-iron", "shade": 0.95, "lod": "full"},
+    {"name": "charcoal heap", "prim": "cylinder", "radius": 0.42, "height": 0.32, "radius_top": 0.092, "segments": 7, "caps": true, "position": [-1.35, 2.25, 0], "role": "slate", "shade": 0.6},
+    {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_A_big.gltf", "position": [1.55, 2.3, 0], "rotation": [0, 0, -10], "scale": 0.62, "simplify": {"collapse": 0.45}},
+    {"name": "cart", "kit": "kaykit_hexagon", "file": "Assets/gltf/units/neutral/cart.gltf", "position": [0.2, 2.45, 0.0], "rotation": [0, 0, 90.0], "scale": 0.42, "simplify": {"collapse": 0.15}, "lod": "full"}
+  ]
+}

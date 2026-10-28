@@ -130,8 +130,12 @@
         "Assets/gltf/units/neutral/cart.gltf": "b68beaca12fa74140d6a8ed095fc81afbe236220cacb9267313278e08462f2a0",
         "Assets/gltf/units/neutral/cart_merchant.bin": "3f830db9e5d84991590a5a44aaba423257f9a6c87873250e720f86983733d70c",
         "Assets/gltf/units/neutral/cart_merchant.gltf": "63d80ab1f6d70996ef1ac6e853080c923a3880ce6f1e90c91754ed8d054780a8",
+        "Assets/gltf/units/neutral/shield.bin": "c09b3c48a2dd24cf7146b1841891863d96d00f427969bea27a11d01c8f310068",
+        "Assets/gltf/units/neutral/shield.gltf": "baade10040feff0a84c8a309a1f7960f8769f76bf64be45917437e0b1771a8ba",
         "Assets/gltf/units/neutral/shovel.bin": "d55d66f0c27a10410832ca585d9780aa493793e314caaa250b6a18ea66e3589b",
         "Assets/gltf/units/neutral/shovel.gltf": "1a9d0e35115bb851e0ae0976b388694d606a39a6a5638ea2eab826b56e8c94f5",
+        "Assets/gltf/units/neutral/spear.bin": "be5be63e01584456753d51d70ab840c19c92952f3182bcb03846967425e0e7e1",
+        "Assets/gltf/units/neutral/spear.gltf": "286ba5b56952ccec9f0bf10b44c6c020c59fa0ec52d9250484f11f11a67d7193",
         "License.txt": "18c35a487baeffbdbe8256c0c7154a688321fe955b351c78773fab0a978cc02c"
       }
     },

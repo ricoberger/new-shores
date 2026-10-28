@@ -43,8 +43,8 @@ class SchemaTest(unittest.TestCase):
         self.assertIn("not listed in assets/kits/MANIFEST.json", errs[0])
 
     def test_wrong_id_fails(self):
-        errs = check(base(id="cathedral"), "recipes/cathedral.json")
-        self.assertTrue(any("'cathedral' is not a building or ship" in e for e in errs), errs)
+        errs = check(base(id="castle"), "recipes/castle.json")
+        self.assertTrue(any("'castle' is not a building or ship" in e for e in errs), errs)
         errs = check(base(), "recipes/church.json")
         self.assertTrue(any("file name must be chapel.json" in e for e in errs), errs)
         errs = check(base(id="road_dirt"), "recipes/road_dirt.json")
