@@ -21,6 +21,18 @@ CONTENT_DIR = os.path.join(REPO_ROOT, "content", "old_coast")
 #: CONTENT_DIR): footprints, kinds and levels are read from there, e.g. a
 #: content draft the models are fitted to before it lands (build.py --content).
 CONTENT_ENV = "NEW_SHORES_CONTENT_DIR"
+#: Planned footprints (D-056 model sessions): buildings and ships whose
+#: models are made before the content defines them. Every *.json in this
+#: directory except schema.json is read beneath the content (content wins
+#: per ID), so recipes validate and build before the content lands.
+PLANNED_DIR = os.path.join(BUILD_DIR, "planned")
+PLANNED_SCHEMA_PATH = os.path.join(PLANNED_DIR, "schema.json")
+#: Pasture modules (field IDs, else field types) → (animal, count): the
+#: life layer instances that many animals at the anchors <animal>_1 … and
+#: walks them in through the gate anchor (LIFE_LAYER §7; D-054 modules).
+PASTURE_ANIMALS = {"pasture": ("sheep", 3), "cattle_pasture": ("cattle", 3), "pig_pen": ("pig", 4)}
+#: Content tier IDs by tier number (planned entries give the number).
+TIER_NAMES = ("settlers", "citizens", "merchants", "patricians")
 MODELS_DIR = os.path.join(REPO_ROOT, "client", "public", "models")
 SHEETS_DIR = os.path.join(BUILD_DIR, "out")
 #: Build-card thumbnails (client/public/models/thumbs/<content id>.png), committed.
@@ -169,8 +181,8 @@ KIT_BUILDINGS = {
         name: ("kaykit_hexagon", f"{_HEX_BUILDINGS}blue/building_{name}_blue.gltf", 180.0)
         for name in (
             "archeryrange", "barracks", "blacksmith", "castle", "church", "docks", "home_A", "home_B", "lumbermill",
-            "market", "mine", "tavern", "tower_A", "tower_B", "tower_base", "tower_catapult", "watermill",
-            "well", "windmill",
+            "market", "mine", "stables", "tavern", "tower_A", "tower_B", "tower_base", "tower_catapult",
+            "watermill", "well", "windmill", "workshop",
         )
     },
     **{
@@ -201,6 +213,15 @@ BUDGET_BUILDING_CAP = 2 * 3 * 8 * BUDGET_BUILDING_PER_TILE
 BUDGET_EXCEPTION_FACTOR = 2
 BUDGET_SHIP = 1500
 BUDGET_ATTACHMENT = 150
+#: The D-056 ship ladder (CONTENT §8): the brig (4 slots) and the galleon
+#: (6 slots) are longer hulls than the sloop with more rigging, so their
+#: budgets grow with the class (the sloop keeps BUDGET_SHIP); their cargo
+#: attachments carry one prop per slot at the sloop's 75 triangles per
+#: prop (BUDGET_ATTACHMENT for its two crates). Constants per ship ID, not
+#: derived from the content's slot counts, so the models do not change
+#: when the balance does.
+BUDGET_SHIPS = {"brig": 2250, "galleon": 3000}
+BUDGET_SHIP_CARGO = {"brig": 300, "galleon": 450}
 #: Decoration pieces (kind "decor": trees, bushes, rocks, tufts, stumps,
 #: outcrops) are merged by the hundreds per island chunk: small budgets.
 BUDGET_DECOR = 300
@@ -259,15 +280,10 @@ COLOR_TOLERANCE = 1.0 / 255.0
 #: Default status anchor height above the model (tiles).
 STATUS_ABOVE = 0.25
 
-#: Content IDs that need a model: tier 1–2 buildings except roads (fields included) and these ships.
+#: Content IDs that need a model: tier 1–2 buildings except roads (fields
+#: included) and these ships (D-056 ship ladder); planned IDs always do.
 MODEL_TIERS = ("settlers", "citizens")
-MODEL_SHIPS = ("sloop",)
-#: Tier 1–2 content IDs whose models are still to come (the D-056 tier-2
-#: alternatives, made in their models session); the client draws the
-#: placeholder until then.
-MODEL_PENDING = frozenset(
-    {"dairy_farm", "cattle_pasture", "cheese_dairy", "apiary", "meadow", "meadery", "pig_farm", "pig_pen", "tannery", "school"}
-)
+MODEL_SHIPS = ("sloop", "brig", "galleon")
 
 #: Blender version the determinism guarantee holds for.
 BLENDER_MAJOR_MINOR = (5, 2)

@@ -12,7 +12,8 @@ Without Blender (stdlib Python ≥ 3.11):
     python3 assets/build/build.py pin        (writes the sha256 of every kit file the recipes use into MANIFEST.json)
 
 Options: --out DIR (GLBs + manifest), --sheets DIR, --thumbs DIR (build-card PNGs), --recipes DIR, --only id,id,
---content DIR (footprints, kinds and levels; default $NEW_SHORES_CONTENT_DIR or config.CONTENT_DIR),
+--content DIR (footprints, kinds and levels; default $NEW_SHORES_CONTENT_DIR or config.CONTENT_DIR; the planned
+footprints of assets/build/planned are read beneath it),
 --no-sheets, --no-thumbs, --check (GLBs, manifest and thumbnails).
 """
 
@@ -58,11 +59,23 @@ def load_inputs(args):
     return roles, palette_sha, content, manifest, recipes, only
 
 
+def missing_recipes(content, recipes):
+    """
+    (content IDs, planned IDs) that need a model and have no recipe: the
+    first go to the manifest's missing_recipes, the planned ones are only
+    warned about (their models may follow the planned file).
+    """
+    missing = sorted(set(content_mod.required_ids(content)) - set(recipes))
+    return [m for m in missing if not content_mod.is_planned(content, m)], [m for m in missing if content_mod.is_planned(content, m)]
+
+
 def cmd_validate(args):
     _, _, content, _, recipes, _ = load_inputs(args)
-    missing = sorted(set(content_mod.required_ids(content)) - set(recipes))
+    missing, planned = missing_recipes(content, recipes)
     for m in missing:
         log(f"warning: no recipe for {m}")
+    for m in planned:
+        log(f"warning: no recipe for planned {m}")
     log(f"validate: {len(recipes)} recipe(s) valid")
     return 0
 
@@ -127,10 +140,12 @@ def cmd_build(args):
         sheet_items.append((cid, files, roles))
         if not args.check:
             log(f"  {cid}: " + ", ".join(f"{f[0]} {len(f[2])} tris" for f in files))
-    missing = sorted(set(content_mod.required_ids(content)) - set(recipes))
+    missing, planned = missing_recipes(content, recipes)
     if only is None:
         for m in missing:
             log(f"warning: no recipe for {m}")
+        for m in planned:
+            log(f"warning: no recipe for planned {m}")
     if errors:
         log(f"assets: {len(errors)} problem(s):\n  " + "\n  ".join(errors))
         return 1
@@ -277,7 +292,7 @@ def main(argv):
         if args.command == "pin":
             return cmd_pin(args)
         return cmd_build(args)
-    except (recipes_mod.RecipeError, kits.KitError) as e:
+    except (recipes_mod.RecipeError, kits.KitError, content_mod.ContentError) as e:
         log(f"assets: {e}")
         return 1
 

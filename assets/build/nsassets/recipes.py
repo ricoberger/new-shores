@@ -105,7 +105,7 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
         for k in ("levels", "ship", "attachments", "budget_exception"):
             if k in recipe:
                 errors.append(f"{name}: {k} is not for life-layer elements")
-    if kind == "building" and content_mod.is_producer(content, cid):
+    if kind == "building" and content_mod.needs_smoke(content, cid):
         # The life layer's chimney smoke rises from these (LIFE_LAYER §2).
         missing = [k for k in ("chimney", "smoke") if k not in recipe.get("anchors", {})]
         if missing:
@@ -129,7 +129,7 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
             if k in recipe:
                 errors.append(f"{name}: {k} is not for decoration")
     if kind is None:
-        errors.append(f"{name}: id {cid!r} is not a building or ship in content/old_coast")
+        errors.append(f"{name}: id {cid!r} is not a building or ship in the content or assets/build/planned")
         return errors
     if os.path.splitext(os.path.basename(name))[0] != cid:
         errors.append(f"{name}: file name must be {cid}.json")
@@ -140,11 +140,11 @@ def check_recipe(recipe, name, schema, content, kit_files, roles):
     is_house = content_mod.is_house(content, cid)
     if is_house and len(recipe.get("variants", [])) != 3:
         errors.append(f"{name}: houses need exactly 3 variants")
-    levels = content_mod.warehouse_levels(content, cid)
+    levels = content_mod.levels(content, cid)
     if "levels" in recipe:
         want = {str(i) for i in range(1, levels + 1)}
         if set(recipe["levels"]) != want:
-            errors.append(f"{name}: levels must be {sorted(want)} (the content's Trading Post or Warehouse levels)")
+            errors.append(f"{name}: levels must be {sorted(want)} (the content's or planned levels)")
     if "variants" in recipe and "levels" in recipe:
         errors.append(f"{name}: variants and levels cannot be combined")
     if kind == "ship":

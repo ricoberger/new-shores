@@ -224,9 +224,9 @@ def budget_of(recipe, content, key):
     cid = recipe["id"]
     kind = recipe["kind"]
     if key and key[0] == "attachment":
-        return config.BUDGET_ATTACHMENT
+        return config.BUDGET_SHIP_CARGO.get(cid, config.BUDGET_ATTACHMENT)
     if kind == "ship":
-        return config.BUDGET_SHIP
+        return config.BUDGET_SHIPS.get(cid, config.BUDGET_SHIP)
     if kind == "decor":
         return config.BUDGET_DECOR
     if kind == "life":

@@ -3,17 +3,123 @@
 import json
 import os
 
-from . import config
+from . import config, schema as schema_mod
 
 
-def load(content_dir=None):
-    """Returns {"buildings": {id: def}, "ships": {id: def}} of content_dir (default: config.content_dir())."""
+class ContentError(Exception):
+    """A planned-footprints file is invalid (the message lists every problem)."""
+
+
+def load(content_dir=None, planned_dir=config.PLANNED_DIR):
+    """
+    Returns {"buildings": {id: def}, "ships": {id: def}} of content_dir
+    (default: config.content_dir()) with the planned footprints of
+    planned_dir beneath it (None: content only; see load_planned).
+    """
     content_dir = content_dir or config.content_dir()
     with open(os.path.join(content_dir, "buildings.json"), encoding="utf-8") as f:
         buildings = {b["id"]: b for b in json.load(f)}
     with open(os.path.join(content_dir, "ships.json"), encoding="utf-8") as f:
         ships = {s["id"]: s for s in json.load(f)}
-    return {"buildings": buildings, "ships": ships}
+    out = {"buildings": buildings, "ships": ships}
+    if planned_dir is not None:
+        merge_planned(out, load_planned(planned_dir))
+    return out
+
+
+def load_planned(planned_dir=config.PLANNED_DIR, schema_path=config.PLANNED_SCHEMA_PATH):
+    """
+    The planned entries of every *.json in planned_dir except schema.json
+    (file order, then entry order), validated against the planned schema;
+    an ID planned twice is an error. Returns [] without the directory.
+    """
+    if not os.path.isdir(planned_dir):
+        return []
+    with open(schema_path, encoding="utf-8") as f:
+        schema = json.load(f)
+    schema_mod.check_keywords(schema)
+    entries, errors, seen = [], [], {}
+    for fname in sorted(os.listdir(planned_dir)):
+        if not fname.endswith(".json") or fname == "schema.json":
+            continue
+        name = f"planned/{fname}"
+        try:
+            with open(os.path.join(planned_dir, fname), encoding="utf-8") as f:
+                doc = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
+            errors.append(f"{name}: cannot read: {e}")
+            continue
+        problems = schema_mod.validate(doc, schema)
+        if problems:
+            errors += [f"{name}: {p}" for p in problems]
+            continue
+        for i, e in enumerate(doc):
+            where = f"{name}[{i}] {e['id']!r}"
+            if e["id"] in seen:
+                errors.append(f"{where}: already planned in {seen[e['id']]}")
+                continue
+            seen[e["id"]] = name
+            if (e["kind"] == "ship") != (e["footprint"] is None):
+                errors.append(f"{where}: ships (and only ships) have footprint null")
+            if (e["kind"] == "ship") != ("slots" in e):
+                errors.append(f"{where}: ships (and only ships) have slots")
+            if "smoke" in e and e["kind"] not in ("producer", "farm"):
+                errors.append(f"{where}: smoke is only for producers and farms")
+            if e["kind"] in ("field", "ship") and e["water_tiles"]:
+                errors.append(f"{where}: {e['kind']}s have no water rows")
+            entries.append(e)
+    if errors:
+        raise ContentError(f"{len(errors)} planned-footprint problem(s):\n  " + "\n  ".join(errors))
+    return entries
+
+
+def planned_def(e):
+    """("buildings" | "ships", a content-shaped definition) of a planned entry, marked planned."""
+    tier = config.TIER_NAMES[e["tier"] - 1]
+    if e["kind"] == "ship":
+        return "ships", {"id": e["id"], "tier": tier, "slots": e["slots"], "planned": True}
+    d = {"id": e["id"], "tier": tier, "footprint": list(e["footprint"]), "planned": True, "smoke": e.get("smoke", False)}
+    if e["water_tiles"]:
+        d["water_tiles"] = e["water_tiles"]
+    if e["slot"]:
+        d["requires_deposit"] = e["slot"]
+    if e["kind"] == "house":
+        d["house"] = {}
+    elif e["kind"] in ("producer", "farm"):
+        d["recipe"] = {}
+    elif e["kind"] == "service":
+        d["service"] = {}
+    else:
+        d["field"] = {"type": e["id"]}
+    if "levels" in e:
+        d["planned_levels"] = e["levels"]
+    return ("buildings", d)
+
+
+def merge_planned(content, entries):
+    """
+    Adds planned entries beneath content (in place): an ID the content does
+    not define gets the planned definition; an ID it defines keeps the
+    content's, except that a planned `levels` count is added while the
+    content declares no levels for it.
+    """
+    for e in entries:
+        group, d = planned_def(e)
+        own = content["buildings"].get(e["id"]) or content["ships"].get(e["id"])
+        if own is None:
+            content[group][e["id"]] = d
+        elif "levels" in e and group == "buildings" and levels(content, e["id"]) == 0:
+            content["buildings"][e["id"]] = dict(own, planned_levels=e["levels"])
+    return content
+
+
+def is_planned(content, cid):
+    """Whether an ID comes from the planned footprints (the content does not define it yet)."""
+    return bool((content["buildings"].get(cid) or content["ships"].get(cid) or {}).get("planned"))
+
+
+def planned_ids(content):
+    return sorted(cid for group in ("buildings", "ships") for cid, d in content[group].items() if d.get("planned"))
 
 
 def kind_of(content, cid):
@@ -41,8 +147,20 @@ def is_house(content, cid):
 
 
 def is_producer(content, cid):
-    """Whether a building runs a production recipe (its model needs chimney and smoke anchors for the life layer's smoke)."""
+    """Whether a building runs a production recipe (cart point; see needs_smoke for the chimney)."""
     return "recipe" in content["buildings"].get(cid, {}) and "field" not in content["buildings"].get(cid, {})
+
+
+def needs_smoke(content, cid):
+    """
+    Whether a building's model needs chimney and smoke anchors for the life
+    layer's smoke: every content producer; a planned one only with smoke
+    true (producers that burn or cook).
+    """
+    if not is_producer(content, cid):
+        return False
+    b = content["buildings"][cid]
+    return bool(b["smoke"]) if b.get("planned") else True
 
 
 def life_anchors(content, cid):
@@ -51,7 +169,9 @@ def life_anchors(content, cid):
     chimney/smoke (D-054): a cart point for producers and storage, the boat's
     mooring for water-edge producers, one pier slot per berth of the Trading
     Post's top level, the slipway of a shipyard (where the hull under
-    construction stands), and a gate and three sheep for pastures.
+    construction stands), and for pasture modules a gate and the animal
+    positions of config.PASTURE_ANIMALS (by field ID, else field type:
+    three sheep, three cattle, four pigs).
     """
     b = content["buildings"].get(cid, {})
     out = []
@@ -63,8 +183,10 @@ def life_anchors(content, cid):
     out += [f"berth_{i}" for i in range(1, berths + 1)]
     if "shipyard" in b:
         out.append("slip")
-    if b.get("field", {}).get("type") == "pasture":
-        out += ["gate", "sheep_1", "sheep_2", "sheep_3"]
+    if "field" in b:
+        animals = config.PASTURE_ANIMALS.get(cid) or config.PASTURE_ANIMALS.get(b["field"].get("type"))
+        if animals:
+            out += ["gate"] + [f"{animals[0]}_{i}" for i in range(1, animals[1] + 1)]
     return out
 
 
@@ -81,12 +203,30 @@ def warehouse_levels(content, cid):
     return len((b.get("trading_post") or b.get("warehouse") or {}).get("levels", []))
 
 
+def levels(content, cid):
+    """
+    Number of model levels of a building (0: one model): a Trading Post's or
+    Warehouse's levels, a `levels` list of the building or of its service
+    block (market_small, D-056 §3; the content format is S1's), else a
+    planned levels count.
+    """
+    b = content["buildings"].get(cid, {})
+    n = warehouse_levels(content, cid)
+    for block in (b, b.get("service") or {}):
+        if not n and isinstance(block.get("levels"), list):
+            n = len(block["levels"])
+    return n or b.get("planned_levels", 0)
+
+
 def required_ids(content):
-    """Every content ID that needs a model: tier 1–2 buildings except roads (fields included) and the pending ones, and the listed ships."""
+    """
+    Every ID that needs a model: tier 1–2 buildings except roads (fields
+    included), the listed ships and every planned building and ship.
+    """
     ids = [
         b["id"]
         for b in content["buildings"].values()
-        if b.get("tier") in config.MODEL_TIERS and "road" not in b and b["id"] not in config.MODEL_PENDING
+        if (b.get("tier") in config.MODEL_TIERS or b.get("planned")) and "road" not in b
     ]
-    ids += [s for s in config.MODEL_SHIPS if s in content["ships"]]
+    ids += [s["id"] for s in content["ships"].values() if s["id"] in config.MODEL_SHIPS or s.get("planned")]
     return sorted(ids)
