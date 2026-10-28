@@ -78,7 +78,7 @@ func Generate(seed uint64, c *content.Catalogue) (*Archipelago, error) {
 
 func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 	rules := &c.Islands
-	plans, err := planComposition(newRNG(derive(sub, 1)), rules)
+	plans, err := planComposition(newRNG(derive(sub, 1)), newRNG(derive(sub, 4)), c)
 	if err != nil {
 		return nil, err
 	}

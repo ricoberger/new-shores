@@ -107,7 +107,7 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 		},
 		{
 			"building deposit not in pool", FileIslands,
-			[]string{`{ "id": "iron", "count": { "min": 2, "max": 4 } }`, `{ "id": "clay", "count": { "min": 2, "max": 4 } }`},
+			[]string{`{ "id": "iron", "count": { "min": 2, "max": 4 } }`, `{ "id": "peat", "count": { "min": 2, "max": 4 } }`},
 			[]string{FileBuildings, `building "iron_mine"`, `deposit "iron" is not in the deposit pool`},
 		},
 		{
@@ -122,7 +122,7 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 		},
 		{
 			"home requires an excluded deposit", FileIslands,
-			[]string{`"deposits_none": ["iron"]`, `"deposits_none": ["iron", "stone"]`},
+			[]string{`"deposits_none": ["iron", "clay", "salt", "coal"]`, `"deposits_none": ["iron", "clay", "salt", "coal", "stone"]`},
 			[]string{FileIslands, "home.deposits_none", "both required and excluded"},
 		},
 		{

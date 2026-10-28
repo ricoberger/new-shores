@@ -219,7 +219,7 @@ def levels(content, cid):
 
 def required_ids(content):
     """
-    Every ID that needs a model: tier 1–2 buildings except roads (fields
+    Every ID that needs a model: tier 1–3 buildings except roads (fields
     included), the listed ships and every planned building and ship.
     """
     ids = [

@@ -745,5 +745,410 @@
       "outputs": [{ "good": "tools", "amount": 1 }],
       "cycle_seconds": 60
     }
+  },
+  {
+    "id": "butcher",
+    "name": "Butcher",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 270, "planks": 6, "stone": 6, "bricks": 3 },
+    "upkeep_per_min": 3,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "merchants", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "pigs", "amount": 1 }, { "good": "salt", "amount": 1 }],
+      "outputs": [{ "good": "sausages", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "pastry_kitchen",
+    "name": "Pastry kitchen",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 320, "planks": 5, "stone": 9, "bricks": 3 },
+    "upkeep_per_min": 4,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "merchants", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "flour", "amount": 1 }, { "good": "apples", "amount": 1 }],
+      "outputs": [{ "good": "pies", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "hop_farm",
+    "name": "Hop farm",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 120, "planks": 6, "stone": 3 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 6 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "hops", "amount": 1 }],
+      "cycle_seconds": 60
+    },
+    "work_area": { "fertility": "hops" },
+    "fields": { "type": "hop_field", "required": 60, "max": 60 }
+  },
+  {
+    "id": "hop_field",
+    "name": "Hop field",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 3 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "hop_field", "farm": "hop_farm", "terrain": ["grass"], "fertility": "hops" }
+  },
+  {
+    "id": "brewery",
+    "name": "Brewery",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [5, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 330, "planks": 6, "stone": 9, "bricks": 3 },
+    "upkeep_per_min": 4,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "merchants", "amount": 10 },
+    "recipe": {
+      "inputs": [{ "good": "wheat", "amount": 1 }, { "good": "hops", "amount": 1 }],
+      "outputs": [{ "good": "beer", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "distillery",
+    "name": "Distillery",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [5, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 420, "planks": 6, "stone": 9, "bricks": 6 },
+    "upkeep_per_min": 4,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "merchants", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "cider", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
+      "outputs": [{ "good": "brandy", "amount": 1 }],
+      "cycle_seconds": 90
+    }
+  },
+  {
+    "id": "leather_works",
+    "name": "Leather works",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 270, "planks": 6, "stone": 6, "bricks": 3 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "pigs", "amount": 1 }],
+      "outputs": [{ "good": "leather", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "tailor",
+    "name": "Tailor",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 410, "planks": 5, "stone": 9, "bricks": 6 },
+    "upkeep_per_min": 5,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "merchants", "amount": 10 },
+    "recipe": {
+      "inputs": [{ "good": "wool_garments", "amount": 1 }, { "good": "leather", "amount": 1 }],
+      "outputs": [{ "good": "coats", "amount": 1 }],
+      "cycle_seconds": 90
+    }
+  },
+  {
+    "id": "woad_farm",
+    "name": "Woad farm",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 120, "planks": 6, "stone": 3 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 6 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "woad", "amount": 1 }],
+      "cycle_seconds": 90
+    },
+    "work_area": { "fertility": "woad" },
+    "fields": { "type": "woad_field", "required": 100, "max": 100 }
+  },
+  {
+    "id": "woad_field",
+    "name": "Woad field",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 1 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "woad_field", "farm": "woad_farm", "terrain": ["grass"], "fertility": "woad" }
+  },
+  {
+    "id": "dyer_works",
+    "name": "Dye works",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [5, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 470, "planks": 5, "stone": 12, "bricks": 6 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "woad", "amount": 1 }],
+      "outputs": [{ "good": "dye", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "dyer",
+    "name": "Dyer",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 410, "planks": 5, "stone": 9, "bricks": 6 },
+    "upkeep_per_min": 5,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "merchants", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "linen_garments", "amount": 1 }, { "good": "dye", "amount": 1 }],
+      "outputs": [{ "good": "dyed_garments", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "paper_mill",
+    "name": "Paper mill",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [4, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 300, "planks": 9, "stone": 6, "bricks": 3 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "wood", "amount": 1 }],
+      "outputs": [{ "good": "paper", "amount": 1 }],
+      "cycle_seconds": 30
+    }
+  },
+  {
+    "id": "printing_press",
+    "name": "Printing press",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 330, "planks": 6, "stone": 9, "bricks": 3 },
+    "upkeep_per_min": 6,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "merchants", "amount": 10 },
+    "recipe": {
+      "inputs": [{ "good": "paper", "amount": 1 }],
+      "outputs": [{ "good": "books", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "clay_pit",
+    "name": "Clay pit",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [4, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 60, "planks": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "requires_deposit": "clay",
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "clay", "amount": 1 }],
+      "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "rendering_house",
+    "name": "Rendering house",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 3],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 170, "planks": 5, "stone": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "pigs", "amount": 1 }],
+      "outputs": [{ "good": "tallow", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "soap_maker",
+    "name": "Soap maker",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 120, "planks": 6, "stone": 3 },
+    "upkeep_per_min": 3,
+    "pause_category": "need_goods",
+    "smoke": true,
+    "workforce": { "tier": "merchants", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "tallow", "amount": 1 }],
+      "outputs": [{ "good": "soap", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
+    "id": "salt_pans",
+    "name": "Salt pans",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [5, 9],
+    "water_tiles": 3,
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 180, "planks": 6, "stone": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 4 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "salt", "amount": 1 }],
+      "cycle_seconds": 120
+    }
+  },
+  {
+    "id": "salt_mine",
+    "name": "Salt mine",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 8],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 180, "planks": 6, "stone": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "requires_deposit": "salt",
+    "workforce": { "tier": "citizens", "amount": 10 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "brine", "amount": 1 }],
+      "cycle_seconds": 30
+    }
+  },
+  {
+    "id": "salt_works",
+    "name": "Salt works",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [4, 6],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 290, "planks": 5, "stone": 12 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "brine", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
+      "outputs": [{ "good": "salt", "amount": 1 }],
+      "cycle_seconds": 30
+    }
+  },
+  {
+    "id": "brickworks",
+    "name": "Brickworks",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 90, "planks": 9 },
+    "upkeep_per_min": 3,
+    "pause_category": "intermediate",
+    "smoke": true,
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "clay", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
+      "outputs": [{ "good": "bricks", "amount": 1 }],
+      "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "coal_mine",
+    "name": "Coal mine",
+    "region": "old_coast",
+    "tier": "merchants",
+    "footprint": [3, 8],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 180, "planks": 6, "stone": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "requires_deposit": "coal",
+    "workforce": { "tier": "citizens", "amount": 10 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "coal", "amount": 1 }],
+      "cycle_seconds": 45
+    }
   }
 ]

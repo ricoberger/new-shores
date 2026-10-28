@@ -190,7 +190,8 @@ class CommittedFootprintTest(unittest.TestCase):
         """D-056 M3: every tier-3 model has door and status; chimney and smoke exactly on the planned burners; a cart on every producer."""
         models = self.manifest["models"]
         buildings = LIVE_CONTENT["buildings"]
-        tier3 = [cid for cid in content.planned_ids(LIVE_CONTENT)
+        # Content (D-056 C3) or still planned (house, church, theatre until they are content).
+        tier3 = [cid for cid in content.required_ids(LIVE_CONTENT)
                  if buildings.get(cid, {}).get("tier") == "merchants" and "field" not in buildings[cid]]
         self.assertEqual(len(tier3), 23)
         smokers = sorted(cid for cid in tier3 if content.needs_smoke(LIVE_CONTENT, cid))

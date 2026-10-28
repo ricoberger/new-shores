@@ -25,7 +25,15 @@ var errPlan = errors.New("no resource assignment")
 // home rule's deposits and one of its fertilities first. It fails (and
 // the caller retries with another sub-seed) when a random choice leaves
 // the pools unassignable.
-func planComposition(r *rng, rules *content.IslandRules) ([]*plan, error) {
+//
+// Deposits are assigned per tier (depositTiers): the kinds of the first
+// tier that mines anything with r, interleaved with the fertilities as
+// before; the kinds of every later tier afterwards with late, appended to
+// the islands' slots (addDeposits). Adding a later tier's deposits to the
+// content therefore leaves the earlier composition, shapes and slots of
+// every seed as they were (D-056 C3: the tier-3 clay, salt and coal).
+func planComposition(r, late *rng, c *content.Catalogue) ([]*plan, error) {
+	rules := &c.Islands
 	var out []*plan
 	for _, sc := range rules.SizeClasses {
 		n := r.between(sc.Count.Min, sc.Count.Max)
@@ -38,13 +46,128 @@ func planComposition(r *rng, rules *content.IslandRules) ([]*plan, error) {
 		return nil, errPlan
 	}
 	out[home].home = true
-	if err := assignDeposits(r, rules, out); err != nil {
+	tiers := depositTiers(c)
+	if err := assignDeposits(r, rules, tiers[0], out); err != nil {
 		return nil, err
 	}
 	if err := assignFertilities(r, rules, out); err != nil {
 		return nil, err
 	}
+	for _, pool := range tiers[1:] {
+		if err := addDeposits(late, rules, pool, out); err != nil {
+			return nil, err
+		}
+	}
 	return out, nil
+}
+
+// depositTiers splits the deposit pool (in pool order) by the tier that
+// first uses a kind: the lowest tier of a building requiring it (a kind no
+// building requires counts to the first group). Groups are in tier order;
+// the first is never empty unless the pool is.
+func depositTiers(c *content.Catalogue) [][]content.PoolEntry {
+	tierOf := func(kind string) int {
+		best := -1
+		for _, b := range c.Buildings {
+			if b.RequiresDeposit != kind {
+				continue
+			}
+			if t := c.TierByID[b.Tier]; t != nil && (best < 0 || t.Index < best) {
+				best = t.Index
+			}
+		}
+		return best
+	}
+	byTier := map[int][]content.PoolEntry{}
+	var order []int
+	for _, e := range c.Islands.Deposits {
+		t := tierOf(e.ID)
+		if _, ok := byTier[t]; !ok {
+			order = append(order, t)
+		}
+		byTier[t] = append(byTier[t], e)
+	}
+	slices.Sort(order)
+	if len(order) > 1 && order[0] < 0 {
+		// Kinds without a building join the first tier that mines.
+		byTier[order[1]] = append(byTier[order[0]], byTier[order[1]]...)
+		order = order[1:]
+	}
+	out := [][]content.PoolEntry{nil}
+	for i, t := range order {
+		if i == 0 {
+			out[0] = byTier[t]
+			continue
+		}
+		out = append(out, byTier[t])
+	}
+	return out
+}
+
+// addDeposits assigns the deposit kinds of a later tier (pool): a total
+// within the pool's summed range and the islands' remaining room, split
+// per kind within its range; the home rule's kinds of the pool go to the
+// home candidate, every other slot to a random habitable island (not a
+// rock) with room that may carry the kind. The new slots are appended to
+// each island's slots (sorted among themselves), after the earlier tiers'.
+func addDeposits(r *rng, rules *content.IslandRules, pool []content.PoolEntry, islands []*plan) error {
+	room := func(p *plan) int { return p.class.Deposits.Max - len(p.deposits) }
+	capacity := 0
+	for _, p := range islands {
+		if !p.class.Rock {
+			capacity += max(0, room(p))
+		}
+	}
+	pr := poolRanges(pool)
+	n, ok := total(r, []content.Range{{Min: 0, Max: capacity}}, pr)
+	if !ok {
+		return errPlan
+	}
+	perKind, ok := distribute(r, n, pr)
+	if !ok {
+		return errPlan
+	}
+	added := make([][]string, len(islands))
+	put := func(i int, kind string) {
+		islands[i].deposits = append(islands[i].deposits, kind)
+		added[i] = append(added[i], kind)
+	}
+	var bag []string
+	for k, e := range pool {
+		left := perKind[k]
+		if slices.Contains(rules.Home.Deposits, e.ID) {
+			home := slices.IndexFunc(islands, func(p *plan) bool { return p.home })
+			if left < 1 || room(islands[home]) < 1 {
+				return errPlan
+			}
+			put(home, e.ID)
+			left--
+		}
+		for range left {
+			bag = append(bag, e.ID)
+		}
+	}
+	r.shuffle(len(bag), func(i, j int) { bag[i], bag[j] = bag[j], bag[i] })
+	for _, kind := range bag {
+		var cands []int
+		for i, p := range islands {
+			if p.class.Rock || room(p) < 1 || (p.home && slices.Contains(rules.Home.DepositsNone, kind)) {
+				continue
+			}
+			cands = append(cands, i)
+		}
+		if len(cands) == 0 {
+			return errPlan
+		}
+		put(cands[r.intn(len(cands))], kind)
+	}
+	for i, p := range islands {
+		if len(added[i]) > 1 {
+			// Only the slots added here are sorted: the earlier ones keep their places.
+			slices.Sort(p.deposits[len(p.deposits)-len(added[i]):])
+		}
+	}
+	return nil
 }
 
 // distribute splits total over len(ranges) counters within their ranges
@@ -101,15 +224,24 @@ func poolRanges(pool []content.PoolEntry) []content.Range {
 	return out
 }
 
-func assignDeposits(r *rng, rules *content.IslandRules, islands []*plan) error {
+// assignDeposits assigns the first tier's deposit kinds (pool) over the
+// islands within their slot ranges: the home rule's kinds and then any
+// allowed kind to the home candidate, a shuffled bag to the others.
+func assignDeposits(r *rng, rules *content.IslandRules, pool []content.PoolEntry, islands []*plan) error {
+	var homeKinds []string
+	for _, kind := range rules.Home.Deposits {
+		if slices.ContainsFunc(pool, func(e content.PoolEntry) bool { return e.ID == kind }) {
+			homeKinds = append(homeKinds, kind)
+		}
+	}
 	ranges := make([]content.Range, len(islands))
 	for i, p := range islands {
 		ranges[i] = p.class.Deposits
 		if p.home {
-			ranges[i].Min = max(ranges[i].Min, len(rules.Home.Deposits))
+			ranges[i].Min = max(ranges[i].Min, len(homeKinds))
 		}
 	}
-	pr := poolRanges(rules.Deposits)
+	pr := poolRanges(pool)
 	n, ok := total(r, ranges, pr)
 	if !ok {
 		return errPlan
@@ -120,7 +252,7 @@ func assignDeposits(r *rng, rules *content.IslandRules, islands []*plan) error {
 		return errPlan
 	}
 	left := map[string]int{}
-	for i, e := range rules.Deposits {
+	for i, e := range pool {
 		left[e.ID] = perKind[i]
 	}
 	take := func(p *plan, kind string) {
@@ -133,7 +265,7 @@ func assignDeposits(r *rng, rules *content.IslandRules, islands []*plan) error {
 		if !p.home {
 			continue
 		}
-		for _, kind := range rules.Home.Deposits {
+		for _, kind := range homeKinds {
 			if left[kind] < 1 {
 				return errPlan
 			}
@@ -141,7 +273,7 @@ func assignDeposits(r *rng, rules *content.IslandRules, islands []*plan) error {
 		}
 		for len(p.deposits) < perIsland[i] {
 			var allowed []string
-			for _, e := range rules.Deposits {
+			for _, e := range pool {
 				if left[e.ID] > 0 && !slices.Contains(rules.Home.DepositsNone, e.ID) {
 					allowed = append(allowed, e.ID)
 				}
@@ -153,7 +285,7 @@ func assignDeposits(r *rng, rules *content.IslandRules, islands []*plan) error {
 		}
 	}
 	var bag []string
-	for _, e := range rules.Deposits {
+	for _, e := range pool {
 		for range left[e.ID] {
 			bag = append(bag, e.ID)
 		}

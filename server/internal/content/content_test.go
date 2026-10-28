@@ -58,7 +58,10 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	wantIDs("goods", ids, "wood", "planks", "fish", "wool", "wool_garments", "sails",
 		"wheat", "flour", "bread", "apples", "cider", "hemp", "linen_garments", "stone", "iron_ore", "charcoal", "coal", "iron", "tools",
-		"milk", "cheese", "honey", "mead", "pigs", "leather_jerkins")
+		"milk", "cheese", "honey", "mead", "pigs", "leather_jerkins",
+		// Tier 3 (D-056 C3).
+		"hops", "woad", "clay", "brine", "salt", "leather", "tallow", "dye", "paper", "bricks",
+		"sausages", "pies", "beer", "brandy", "coats", "dyed_garments", "books", "soap")
 	ids = nil
 	for _, b := range c.Buildings {
 		ids = append(ids, b.ID)
@@ -68,7 +71,11 @@ func TestLoadOldCoast(t *testing.T) {
 		"house_citizens", "road_paved", "tavern", "school", "wheat_farm", "wheat_field", "mill", "bakery",
 		"dairy_farm", "cattle_pasture", "cheese_dairy", "orchard", "orchard_plot", "cidery", "apiary", "meadow", "meadery",
 		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
-		"charcoal_burner", "smelter", "toolmaker")
+		"charcoal_burner", "smelter", "toolmaker",
+		// Tier 3 (D-056 C3).
+		"butcher", "pastry_kitchen", "hop_farm", "hop_field", "brewery", "distillery", "leather_works", "tailor",
+		"woad_farm", "woad_field", "dyer_works", "dyer", "paper_mill", "printing_press", "clay_pit", "rendering_house",
+		"soap_maker", "salt_pans", "salt_mine", "salt_works", "brickworks", "coal_mine")
 	ids = nil
 	for _, tr := range c.Tiers {
 		ids = append(ids, tr.ID)

@@ -1,0 +1,161 @@
+package content
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+)
+
+// TestLoadMerchantsChains checks the tier-3 goods and production chains
+// (D-056 C3, CONTENT §5 and §7): one recipe per building with its inputs,
+// cycle, workforce, slot or fertility, cost and upkeep.
+func TestLoadMerchantsChains(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	types := map[string]string{
+		"hops": "raw", "woad": "raw", "clay": "raw", "brine": "raw", "salt": "intermediate", "leather": "intermediate",
+		"tallow": "intermediate", "dye": "intermediate", "paper": "intermediate", "bricks": "construction", "coal": "intermediate",
+		"sausages": "food", "pies": "food", "beer": "drink", "brandy": "drink", "coats": "clothing", "dyed_garments": "clothing",
+		"books": "comfort", "soap": "comfort",
+	}
+	for id, typ := range types {
+		if g := c.GoodByID[id]; g == nil || g.Type != typ {
+			t.Errorf("good %s = %+v, want type %s", id, g, typ)
+		}
+	}
+
+	type chain struct {
+		in, out   string
+		cycleMs   int64
+		wfTier    string
+		wf        Qty
+		fertility string
+		deposit   string
+		pause     string
+		// cost as "gold/planks/stone/bricks" in units, upkeep in gold/min.
+		cost   string
+		upkeep int64
+	}
+	chains := map[string]chain{
+		"butcher":         {"pigs,salt", "sausages", 60_000, "merchants", 8000, "", "", "need_goods", "270/6/6/3", 3},
+		"pastry_kitchen":  {"flour,apples", "pies", 60_000, "merchants", 8000, "", "", "need_goods", "320/5/9/3", 4},
+		"hop_farm":        {"", "hops", 60_000, "settlers", 6000, "hops", "", "intermediate", "120/6/3/0", 2},
+		"brewery":         {"wheat,hops", "beer", 60_000, "merchants", 10_000, "", "", "need_goods", "330/6/9/3", 4},
+		"distillery":      {"cider,charcoal|coal", "brandy", 90_000, "merchants", 8000, "", "", "need_goods", "420/6/9/6", 4},
+		"leather_works":   {"pigs", "leather", 60_000, "citizens", 8000, "", "", "intermediate", "270/6/6/3", 2},
+		"tailor":          {"wool_garments,leather", "coats", 90_000, "merchants", 10_000, "", "", "need_goods", "410/5/9/6", 5},
+		"woad_farm":       {"", "woad", 90_000, "settlers", 6000, "woad", "", "intermediate", "120/6/3/0", 2},
+		"dyer_works":      {"woad", "dye", 60_000, "citizens", 6000, "", "", "intermediate", "470/5/12/6", 3},
+		"dyer":            {"linen_garments,dye", "dyed_garments", 60_000, "merchants", 8000, "", "", "need_goods", "410/5/9/6", 5},
+		"paper_mill":      {"wood", "paper", 30_000, "citizens", 8000, "", "", "intermediate", "300/9/6/3", 2},
+		"printing_press":  {"paper", "books", 60_000, "merchants", 10_000, "", "", "need_goods", "330/6/9/3", 6},
+		"clay_pit":        {"", "clay", 45_000, "citizens", 8000, "", "clay", "intermediate", "60/6/0/0", 2},
+		"rendering_house": {"pigs", "tallow", 60_000, "citizens", 6000, "", "", "intermediate", "170/5/6/0", 2},
+		"soap_maker":      {"tallow", "soap", 60_000, "merchants", 8000, "", "", "need_goods", "120/6/3/0", 3},
+		"salt_pans":       {"", "salt", 120_000, "settlers", 4000, "", "", "intermediate", "180/6/6/0", 2},
+		"salt_mine":       {"", "brine", 30_000, "citizens", 10_000, "", "salt", "intermediate", "180/6/6/0", 2},
+		"salt_works":      {"brine,charcoal|coal", "salt", 30_000, "citizens", 8000, "", "", "intermediate", "290/5/12/0", 2},
+		"brickworks":      {"clay,charcoal|coal", "bricks", 45_000, "citizens", 8000, "", "", "intermediate", "90/9/0/0", 3},
+		"coal_mine":       {"", "coal", 45_000, "citizens", 10_000, "", "coal", "intermediate", "180/6/6/0", 2},
+	}
+	var tier3 []string
+	for _, b := range c.Buildings {
+		if b.Tier == "merchants" && b.Recipe != nil {
+			tier3 = append(tier3, b.ID)
+		}
+	}
+	if len(tier3) != len(chains) {
+		t.Errorf("tier-3 producers %v, want %d", tier3, len(chains))
+	}
+	for id, w := range chains {
+		b := c.BuildingByID[id]
+		if b == nil || b.Recipe == nil {
+			t.Errorf("%s missing", id)
+			continue
+		}
+		var ins []string
+		for _, in := range b.Recipe.Inputs {
+			ins = append(ins, strings.Join(in.Goods, "|"))
+			if in.Amount != 1000 {
+				t.Errorf("%s input %s amount %d", id, in.Good, in.Amount)
+			}
+		}
+		fert := ""
+		if b.WorkArea != nil {
+			fert = b.WorkArea.Fertility
+		}
+		mat := map[string]Qty{}
+		for _, m := range b.Cost.Materials {
+			mat[m.Good] = m.Amount / 1000
+		}
+		cost := fmt.Sprintf("%d/%d/%d/%d", b.Cost.Gold/1000, mat["planks"], mat["stone"], mat["bricks"])
+		if b.Tier != "merchants" || !b.RequiresRoad || strings.Join(ins, ",") != w.in || len(b.Recipe.Outputs) != 1 || b.Recipe.Outputs[0].Good != w.out ||
+			b.Recipe.Outputs[0].Amount != 1000 || b.Recipe.CycleMs != w.cycleMs || b.Workforce == nil || b.Workforce.Tier != w.wfTier || b.Workforce.Amount != w.wf ||
+			fert != w.fertility || b.RequiresDeposit != w.deposit || b.PauseCategory != w.pause || cost != w.cost || b.UpkeepPerMin != w.upkeep*1000 {
+			t.Errorf("%s = recipe %+v workforce %+v work area %+v deposit %q pause %q cost %s upkeep %d", id, b.Recipe, b.Workforce, b.WorkArea, b.RequiresDeposit, b.PauseCategory, cost, b.UpkeepPerMin)
+		}
+		// Every cycle divides 360 s so that rates are exact (MECHANICS §1.1).
+		if 360_000%b.Recipe.CycleMs != 0 {
+			t.Errorf("%s cycle %d ms does not divide 360 s", id, b.Recipe.CycleMs)
+		}
+	}
+	// Salt pans: the harbour-slot alternative of the salt chain (3 water rows, no boat loop).
+	if sp := c.BuildingByID["salt_pans"]; sp.WaterTiles != 3 || sp.Boat || sp.Coastal {
+		t.Errorf("salt_pans = %+v", sp)
+	}
+}
+
+// plannedEntry is one entry of assets/build/planned/tier<N>.json.
+type plannedEntry struct {
+	ID         string `json:"id"`
+	Kind       string `json:"kind"`
+	Tier       int    `json:"tier"`
+	Footprint  [2]int `json:"footprint"`
+	WaterTiles int    `json:"water_tiles"`
+	Slot       string `json:"slot"`
+	Smoke      bool   `json:"smoke"`
+}
+
+// TestTierThreeMatchesPlannedModels: every tier-3 building of the content
+// has the footprint, water rows, deposit slot and smoke flag of its
+// planned model (assets/build/planned/tier3.json, PR #32), so the
+// committed models fit; boats only where content says so (the fisher).
+func TestTierThreeMatchesPlannedModels(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(repoRoot(t), "assets", "build", "planned", "tier3.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var planned []plannedEntry
+	if err := json.Unmarshal(data, &planned); err != nil {
+		t.Fatal(err)
+	}
+	seen := map[string]bool{}
+	for _, p := range planned {
+		b := c.BuildingByID[p.ID]
+		if b == nil {
+			continue // authored in a later step (houses, services)
+		}
+		seen[p.ID] = true
+		if b.Tier != "merchants" || b.Width != p.Footprint[0] || b.Height != p.Footprint[1] || b.WaterTiles != p.WaterTiles ||
+			b.RequiresDeposit != p.Slot || b.Smoke != p.Smoke {
+			t.Errorf("%s: content %dx%d water %d slot %q smoke %v, planned %+v", p.ID, b.Width, b.Height, b.WaterTiles, b.RequiresDeposit, b.Smoke, p)
+		}
+	}
+	for _, b := range c.Buildings {
+		if b.Tier == "merchants" && !seen[b.ID] {
+			t.Errorf("%s is not in the planned tier-3 models", b.ID)
+		}
+		if b.Boat != (b.ID == "fisher") {
+			t.Errorf("%s boat = %v", b.ID, b.Boat)
+		}
+	}
+}

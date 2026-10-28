@@ -213,8 +213,8 @@ isle-02 "Mistle Haven" large at (444,215) 157x158 fertilities [hops woad] slots 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ccc........................................................................................................cc~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~ccc................................................................................................ff.fff.....cc~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~ccc.......................................................................................f......ff.fffffff......cc~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~ccc...............................................................m.........................ff......f.fffffff....ff.cc~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~cc................................................................mm........................ffff.f..fffffffffff..fff..cc~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~ccc...............................................................C.........................ff......f.fffffff....ff.cc~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~cc................................................................mC........................ffff.f..fffffffffff..fff..cc~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~ccc.................................................................mmm.......................fffffffffffffffffffffff.f..cc~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~cc..............................................................m..mmmmm.m.....................fffffffffffffffffffffffff...cc~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~cc.............................................................m.mmmmmmmm.m......................ffffffffffffffffffffffffffffcc~~~~~~~~~~~~~~
@@ -300,8 +300,8 @@ isle-02 "Mistle Haven" large at (444,215) 157x158 fertilities [hops woad] slots 
 ~~~~~~~~~~~~~~c.....................................................................f.............f..mmmmmmmmmmmmmmmmmmmmmmmmmmmfffffcc~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~c...................................................................................f....mmmmmmmmmmmmmmmmmmmmmmmmmmffffc~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~cc..................................................................................ff.mmmmmmmmmmmmmmmmmmmmmmmmmmmmfffcc~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~c......................................................................................mmmmmmmmmmmmmmmmmmmmmmmmmmfffcc~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~c.....................................................................................mmmmmmmmmmmmmmmmmmmmmmmmmmmfffc~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~c......................................................................................mmmmmmmmmmmmmmmmmmmmmmmmmCfffcc~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~c.....................................................................................mmmmmmmmmmmmmmmmmmmmmmmmmmCfffc~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~c.....................................................................................mmmmmmmmmmmmmmmmmmmmmmmmmmfffcc~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~cc.....................................................................................mmmmmmmmmmmmmmmmmmmmmmmmfffcc~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~c......................................................................................mmmmmmmmmmmmmmmmmmmmmmmffcc~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -558,8 +558,8 @@ isle-04 "Brine Water" medium at (472,0) 103x90 fertilities [apple hops] slots ir
 ~~~ccfffffffffffffffffffffffffffffffffffffffffff.m..m...........................c~~~~~~~~~~~~~~~~~~~~~~
 ~~~cfffffffffffffffffffffffffffffffffffffffffffmmmmmmmm.........................c~~~~~~~~~~~~~~~~~~~~~~
 ~~~cfffffffffffffffffffffffffffffffffffffffffmmmmmmmmmm.........................c~~~~~~~~~~~~~~~~~~~~~~
-~~~cfffffffffffffffffffffffffffffffffffffffmmmmmmmmmmm..........................c~~~~~~~~~~~~~~~~~~~~~~
-~~~ccfffffffffffffffffffffffffffffffffffffmmmmmmmmmm.m..........................cc~~~~~~~~~~~~~~~~~~~~~
+~~~cfffffffffffffffffffffffffffffffffffffffmmmmmmmmmmC..........................c~~~~~~~~~~~~~~~~~~~~~~
+~~~ccfffffffffffffffffffffffffffffffffffffmmmmmmmmmm.C..........................cc~~~~~~~~~~~~~~~~~~~~~
 ~~~~cfffffffffffffffffffffffffffffffffmmffmmmmmmmmmm.............................ccc~~~~~~~~~~~~~~~~~~~
 ~~~~cffffffffffffffffffffffffffffffffffmmmmmmmmmmmm................................ccc~~~~~~~~~~~~~~~~~
 ~~~~cfffffffffffffffffffffffffffffffffmmmmmmmmmmmmmm.................................ccc~~~~~~~~~~~~~~~
@@ -658,7 +658,7 @@ isle-05 "Seal Watch" medium at (712,201) 96x89 fertilities [wheat woad] slots ir
 ~~~~c........................................................mmmmmmmmmmmmmffffffffffffffff.c~~~~
 ~~~~c.........................................m...........mmmmmmmmmmmmmmmffffffffffffff....c~~~~
 ~~~~c................................mm.m.m.m.mmm.m.....mmmmmmmmmmmmmmmmmffffffffffff.f....c~~~~
-~~~cc.................................mmmmmmmmmmmmm.....mmmmmmmmmmmmmmmfmmffffffffff.......c~~~~
+~~~cc.................................CCmmmmmmmmmmm.....mmmmmmmmmmmmmmmfmmffffffffff.......c~~~~
 ~~~c..................................mmmmmmmmmmmmmm.....mmmmmmmmmmmmfffmmmfffffffff.......cc~~~
 ~~~c...................................mmmmmmmmmmmmmmm...mmmmmmmmfffffffmmmfff....ff........c~~~
 ~~~c...................................mmmmmmmmmmmmmmmmffffffmmmffffffffffmfff....ff........c~~~
@@ -721,8 +721,8 @@ isle-06 "Merrow's Cradle" medium at (0,361) 91x112 fertilities [hemp grapes] slo
 ~~~~~~~~~~~~~~~~~~ccfffffffffffffffffffffffffffffffffffffffffff...............cc~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~ccffffffffffffffffffffffffffffffffffffffffffff................cc~~~~~~~~~~
 ~~~~~~~~~~~~~~~cccffffffffffffffffffffffffffffffffffffmmmmfm....................cc~~~~~~~~~
-~~~~~~~~~~~~~~ccffffffffffffffffffffffffffffffffffffffmmmmmm.mmm.................cc~~~~~~~~
-~~~~~~~~~~~~~ccfffffffffffffffffffffffffffffffffffffffmmmmmmmmmm..................c~~~~~~~~
+~~~~~~~~~~~~~~ccffffffffffffffffffffffffffffffffffffffCmmmmm.mmm.................cc~~~~~~~~
+~~~~~~~~~~~~~ccfffffffffffffffffffffffffffffffffffffffCmmmmmmmmm..................c~~~~~~~~
 ~~~~~~~~~~~cccffffffffffffffffffffffffffffffffffffffffmmmmmmmmmmmm................cc~~~~~~~
 ~~~~~~~~~~ccffffffffffffffffffffffffffffffffffffffffmmmmmmmmmmmmmmmm...............cc~~~~~~
 ~~~~~~~~~ccffffffffffffffffffffffffffffffffffffffffffmmmmmmmmmmmmm..................cc~~~~~
@@ -730,7 +730,7 @@ isle-06 "Merrow's Cradle" medium at (0,361) 91x112 fertilities [hemp grapes] slo
 ~~~~~~ccfffffffffffffffffffffffffffffffffffffffffffffmmmmmmmmmmmmm....................c~~~~
 ~~~~~~cffffffffffffffffffffffffffffffffffffffffffffffmmmmmmmmmmmmm....................c~~~~
 ~~~~~ccffffffffffffffffffffffffffffffffffffffffffffff.mmmmmmmmmmmmm...................cc~~~
-~~~~~cffffffffffffffffffffffffffffffffffffffffffffffff.mmmmmmmmmmmm....................c~~~
+~~~~~cffffffffffffffffffffffffffffffffffffffffffffffff.mmmmmmmmCCmm....................c~~~
 ~~~~~cfffffffffffffffffffffffffffffffffffffffffffffff...mmmmmmm...m....................c~~~
 ~~~~~cffffffffffffffffffffffffffffffffffffffffffffff.....mmmmm.........................c~~~
 ~~~~ccffffffffffffffffffffffffffffffffffffffffffffff.....m.............................c~~~
@@ -1068,8 +1068,8 @@ isle-09 "Ropewalk Isle" small at (591,762) 63x58 fertilities [hemp grapes] slots
 ~~~c......................mmmmmmmmmmmmmmm...............c~~~~~~
 ~~~cc.....................mmmmmmmmmmmmmmmm.............cc~~~~~~
 ~~~~c......................mmmmmmmmmmmmmm.............cc~~~~~~~
-~~~~cc......................mmmmmmmmmmmmm.............c~~~~~~~~
-~~~~~cc......................mmmmmmmmmmmm............cc~~~~~~~~
+~~~~cc......................mmmmmmmmmmmmS.............c~~~~~~~~
+~~~~~cc......................mmmmmmmmmmmS............cc~~~~~~~~
 ~~~~~~c......................mmmmmmmmmmm............cc~~~~~~~~~
 ~~~~~~cc......................mmm..mmmmmm...........c~~~~~~~~~~
 ~~~~~~~cc......................m...mmm.............cc~~~~~~~~~~
@@ -1240,8 +1240,8 @@ isle-12 "Saltmarsh Holm" small at (791,497) 62x53 fertilities [apple woad grapes
 ~~~~~~~cc........................mmmmmm..................c~~~~
 ~~~~~~~~cc........................mmmmm..................c~~~~
 ~~~~~~~~~cc......................mmmmmmm................cc~~~~
-~~~~~~~~~~ccc.............m..m..mmmmmmmmm...............c~~~~~
-~~~~~~~~~~~~ccc...........m..mmmmmmmmmmmm...............c~~~~~
+~~~~~~~~~~ccc.............m..S..mmmmmmmmm...............c~~~~~
+~~~~~~~~~~~~ccc...........m..Smmmmmmmmmmm...............c~~~~~
 ~~~~~~~~~~~~~~c.....mmm...mm.mmmmmmmmm.................cc~~~~~
 ~~~~~~~~~~~~~~c....mmmm.mmmmmmmmmmmm......f............c~~~~~~
 ~~~~~~~~~~~~~~c.....mmmmmmmmmmmmmmm.......f...........cc~~~~~~

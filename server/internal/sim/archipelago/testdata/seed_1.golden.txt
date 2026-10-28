@@ -644,7 +644,7 @@ isle-05 "Saltmarsh Holm" medium at (637,684) 86x103 fertilities [apple hemp woad
 ~~~~~~~~~~~~~~~~c.................................................ffffffffffffffffc~~~
 ~~~~~~~~~~~~~~~~c.......................................................ffffffffffc~~~
 ~~~~~~~~~~~~~~~~c........m.m...........................................fffffffffffc~~~
-~~~~~~~~~~~~~~~~c...mm..mmmm...........................................ffff.ffffffc~~~
+~~~~~~~~~~~~~~~~c...SS..mmmm...........................................ffff.ffffffc~~~
 ~~~~~~~~~~~~~~~~c..mmmmmmmmmm.............................................fffffffcc~~~
 ~~~~~~~~~~~~~~~~c.mmmmmmmmm...............................................ffff...c~~~~
 ~~~~~~~~~~~~~~ccc.mmmmmmmmmm...............................................ff....c~~~~
@@ -749,7 +749,7 @@ isle-06 "Seal Watch" medium at (269,339) 102x104 fertilities [hops grapes] slots
 ~~~~ccfffffffffffffffffffffffffffffffffffff....mmmmmmmmmm.........................................c~~~
 ~~~~~cfffffffffffffffffffffffffffffffffffff......mmmmmmmmm.......................................cc~~~
 ~~~~~cfffffffffffffffffffffffffffffffffffff.....mmmmmmmmmm.......................................c~~~~
-~~~~~cfffffffffffffffffffffffffffffffffffff.mmmmmmmmmmmmmm.......................................c~~~~
+~~~~~cfffffffffffffffffffffffffffffffffffff.mCCmmmmmmmmmmm.......................................c~~~~
 ~~~~~cffffffffffffffffffffffffffffffffffffffmmmmmmmmmmmmmm.......................................c~~~~
 ~~~~~cffffffffffffffffffffffffffffffffffffffmmmmmmmmmmmmmm......................................cc~~~~
 ~~~~~cfffffffffffffffffffffffffffffffffffffmmmmmmmmmmmmmmI......................................c~~~~~
@@ -940,7 +940,7 @@ isle-08 "Tidewright Isle" medium at (223,55) 94x100 fertilities [wheat hemp] slo
 ~~~~cffffffffffffffffffffffffffffffff.....m..............................................c~~~~
 ~~~ccffffffffffffffffffffffffffffffff.....m..............................................c~~~~
 ~~~cffffffffffffffffffffffffffmmmm........IImm...........................................c~~~~
-~~~cffffffffffffffffffffffmmmmmmmmmm.mmm..mmmm...........................................c~~~~
+~~~cffffffffffffffffffffffCCmmmmmmmm.mmm..mmmm...........................................c~~~~
 ~~~cfffffffffffffffffffffffmmmmmmmmmmmmmmmmmmmm.m........................................c~~~~
 ~~~cfffffffffffffffffffffffmmmmmmmmmmmmmmmmmmmmmm........................................cc~~~
 ~~~cffffffffffffffffffffffmmmmmmmmmmmmmmmmmmmmmmm.........................................c~~~
@@ -1029,8 +1029,8 @@ isle-09 "Pewter Cove" small at (133,552) 65x59 fertilities [wheat apple hemp] sl
 ~~~~~cc.................mmmmmmmmmmm.fffffffffffffffffffff....c~~~
 ~~~~cc.................mmmmmmmmmmmm.mffffffffffffffffff.f....c~~~
 ~~~~c.................mmmmmmmmmmmmmmmmmfffffffffffffffff.....c~~~
-~~~~c..................mmmmmmmmmmmmmmmmfffffffffffffffff.....c~~~
-~~~cc...................mmmmmmmmmmmmmmmffffffffffffffffffff..c~~~
+~~~~c..................mmmmmmmmmmmmmmmCfffffffffffffffff.....c~~~
+~~~cc...................mmmmmmmmmmmmmmCffffffffffffffffffff..c~~~
 ~~~c....................mmmmmmmmmmmmmmmfffffffffffffffffff...c~~~
 ~~~c.....................mmmmmmmmmmmmffffffffffffffffffffff..c~~~
 ~~~c...................mmmmmmmmmmmmmmffffffffffffffffffffffffc~~~
