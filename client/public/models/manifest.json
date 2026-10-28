@@ -4062,7 +4062,7 @@
             ]
           },
           "budget": 4860,
-          "bytes": 174292,
+          "bytes": 202992,
           "lite": {
             "bounds": {
               "max": [
@@ -4077,14 +4077,14 @@
               ]
             },
             "budget": 405,
-            "bytes": 16848,
+            "bytes": 16752,
             "path": "house_citizens.v2.lite.glb",
-            "sha256": "07c8517bcd21c813d4acaa7de4c873ed7810389844ffdafdf83b81ab8a818efb",
-            "triangles": 266
+            "sha256": "8561370e1daa45a0e104e82046fec99ace424f47b7f330de5a41ec0cb70e142e",
+            "triangles": 264
           },
           "path": "house_citizens.v2.glb",
-          "sha256": "38895a7d10c376605f72727464e78aec0917ffd20f0856fa65e8828e612bfb6b",
-          "triangles": 3176
+          "sha256": "052431d9de9440398a1633f71a0858d75dc993a2e17544da5b5c6433bf72489d",
+          "triangles": 3726
         }
       ]
     },

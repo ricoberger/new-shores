@@ -22,7 +22,7 @@ Tools (experiment only, not product code):
 | B | Houses (settlers ×3, citizens ×3) | done (`b66eb30`) |
 | C | Tier-1 producers, fields, market, chapel, trading post, warehouse | done (`329c6ab`) |
 | D | Tier-2 producers incl. the 15 placeholders | done |
-| E | Tests, build, contact sheet, shots | open |
+| E | Tests, build, contact sheet, shots | done |
 
 ## A — parts library v2
 
@@ -135,6 +135,85 @@ patches and the scatter carry the ground), module grounds coarser. Result
 24.78 MB (margin 0.39 MB, 1.5 %). This rebuilt every v2 recipe (A–C
 outputs changed in the D commit). The limit will block tier 3+ at this
 detail — see open question 2.
+
+## E — tests, sheets, shots
+
+- `assets/voxel/tests/test_detail.py`: every settler/citizen building and
+  field has a recipe; anchors per the content flags (and smoke exactly on
+  smoking producers), footprint size, full and lite budgets, the lite
+  above a box; module animals (sheep, cattle, pigs); colour jitter on
+  every model; sway only on `weaver_wool` and `trading_post.l4`; three
+  distinct house variants per tier, citizen houses with more voxels and
+  glazing than any settler house and tiled roofs; helper determinism
+  (jitter, 2 × 2 roof patches), building/roof/chimney anchors, uneven
+  fence posts. Existing tests cover byte determinism, export profile,
+  folder size, footprint bounds.
+- `house_citizens` v2 (shop) gained side and back windows and a flower
+  bed so every citizen house out-glazes every settler house.
+- Contact sheet of all 40 tier 1–2 IDs (full + lite):
+  `sheets/e-contact.png`; per group `c-tier1.png`, `d-tier2.png`,
+  `d-new.png`, `b-*.png`.
+- `make shots` FIXTURE=showcase,settled,citizens VIEW=near,mid
+  DEVICE=desktop,phone → `.experiment/voxel-v3/shots/` (12 PNGs).
+- `docs/ART_DIRECTION.md` §7 "Recipe authoring at the D-057 §3 detail".
+
+Triangles (before = main 8ac04f3):
+
+| Model | Before | Full / budget | Lite / budget |
+|---|---|---|---|
+| apiary | 3048 (placeholder) | 6998 / 12500 | 388 / 1000 |
+| bakery | 3254 | 5092 / 10000 | 314 / 800 |
+| cattle_pasture | 148 (placeholder) | 3584 / 11480 | – |
+| chapel | 2950 | 3510 / 4500 | 228 / 360 |
+| charcoal_burner | 3388 | 4986 / 15000 | 358 / 1200 |
+| cheese_dairy | 3254 (placeholder) | 5054 / 10000 | 358 / 800 |
+| cidery | 2990 (placeholder) | 6616 / 15000 | 458 / 1200 |
+| dairy_farm | 3352 (placeholder) | 4362 / 10000 | 348 / 800 |
+| fisher | 4032 | 4718 / 12000 | 328 / 960 |
+| hemp_farm | 2330 (placeholder) | 2756 / 6000 | 192 / 480 |
+| hemp_field | 94 (placeholder) | 308 / 410 | – |
+| house_citizens.v0 | 3110 | 3944 / 4860 | 252 / 405 |
+| house_citizens.v1 | 3188 | 3974 / 4860 | 292 / 405 |
+| house_citizens.v2 | 2558 | 3726 / 4860 | 264 / 405 |
+| house_settlers.v0 | 2534 | 2874 / 4860 | 170 / 405 |
+| house_settlers.v1 | 2908 | 3234 / 4860 | 200 / 405 |
+| house_settlers.v2 | 2742 | 3072 / 4860 | 226 / 405 |
+| iron_mine | 4404 | 5926 / 12000 | 342 / 960 |
+| lumberjack | 2078 | 2770 / 4500 | 196 / 360 |
+| market.l1 | 5300 | 6884 / 15000 | 454 / 1200 |
+| market.l2 | 7776 | 9592 / 15000 | 566 / 1200 |
+| market.l3 | 8312 | 10068 / 15000 | 648 / 1200 |
+| meadery | 3196 (placeholder) | 5150 / 10000 | 394 / 800 |
+| meadow | 10 (placeholder) | 382 / 410 | – |
+| mill | 4132 | 5910 / 12000 | 468 / 960 |
+| orchard | 2362 | 4974 / 8000 | 420 / 640 |
+| orchard_plot | 270 | 328 / 410 | – |
+| pasture | 830 | 1524 / 3690 | – |
+| pig_farm | 2326 (placeholder) | 3196 / 6000 | 212 / 480 |
+| pig_pen | 54 (placeholder) | 1962 / 4920 | – |
+| quarry | 3252 | 5120 / 12000 | 330 / 960 |
+| sailmaker | 4202 (placeholder) | 6616 / 16000 | 530 / 1280 |
+| sawmill | 2498 | 4740 / 12000 | 314 / 960 |
+| school | 4270 (placeholder) | 9860 / 24000 | 670 / 1920 |
+| sheep_farm | 2054 | 2914 / 4500 | 176 / 360 |
+| shipyard | 5734 | 10318 / 48000 | 1022 / 3840 |
+| smelter | 2270 | 4540 / 12000 | 324 / 960 |
+| tannery | 2294 (placeholder) | 2870 / 6000 | 218 / 480 |
+| tavern | 5860 | 7246 / 12000 | 512 / 960 |
+| toolmaker | 2472 | 4488 / 8000 | 334 / 640 |
+| trading_post.l1 | 3616 | 5060 / 27000 | 360 / 2160 |
+| trading_post.l2 | 4180 | 5450 / 27000 | 448 / 2160 |
+| trading_post.l3 | 5400 | 6474 / 27000 | 444 / 2160 |
+| trading_post.l4 | 6988 | 8398 / 27000 | 588 / 2160 |
+| warehouse.l1 | 3830 | 5402 / 18000 | 340 / 1440 |
+| warehouse.l2 | 3986 | 4928 / 18000 | 304 / 1440 |
+| warehouse.l3 | 5636 | 7304 / 18000 | 506 / 1440 |
+| weaver_linen | 3300 (placeholder) | 5234 / 10000 | 332 / 800 |
+| weaver_wool | 2034 | 3280 / 6000 | 252 / 480 |
+| wheat_farm | 2802 | 4060 / 6000 | 298 / 480 |
+| wheat_field | 168 | 266 / 410 | – |
+
+Models folder: 24.81 MB of 25.17 MB (`du`: 25M; baseline 20.04 MB).
 
 ## Open questions
 
