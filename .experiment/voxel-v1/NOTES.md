@@ -13,7 +13,7 @@ rebased onto main (C4 #37 included). Supersedes #36.
 | 3 | Client: one render path | done |
 | 4 | Tests and fixtures | done |
 | 5 | Device numbers | open |
-| 6 | Docs | open |
+| 6 | Docs | done |
 
 ## Step 1 — pipeline
 
@@ -224,6 +224,23 @@ The old `BUDGET_FACTOR = 2.0` tolerance is gone: the budget is the limit.
 Folder: committed GLBs 19.1 MiB (manifest-listed bytes; thumbnails 0.54 MiB more; the kit-era folder was 20.3 MiB in total); limit 24 MiB
 (`MODELS_FOLDER_LIMIT`, the kit-era ceiling kept).
 
+## Step 6 — docs
+
+- `docs/ART_DIRECTION.md`: §7 rewritten as "Models — procedural voxels"
+  (authoring, look rules, pipeline and tooling, budgets, measured numbers,
+  the lively look of D-057 §3 marked **V2**); the LOD bullet (§3), the
+  terrain slab/plateau/forest bullets (§4), the KayKit/Blender mentions in
+  the intro, §1 and §2, and a task-breakdown entry (§9) updated so the
+  document does not describe deleted code.
+- `AGENTS.md`: a non-negotiable "art is procedural voxels — no kits, no
+  Blender" bullet, the Python asset-build convention, and
+  `make assets-test && make assets-check` in the verification block.
+- `README.md`: the asset-build section (Python only, recipes, budgets,
+  checks, model-sheet), the document index and repo-layout rows, and the
+  credits (no KayKit models any more).
+- `docs/ARCHITECTURE.md` §3: `assets/` and `client/public/models` in the
+  tree.
+
 ## Open questions
 
 1. **numpy.** The task asked for "Python + numpy, versions pinned" in CI.
@@ -239,3 +256,22 @@ Folder: committed GLBs 19.1 MiB (manifest-listed bytes; thumbnails 0.54 MiB more
    changes the GLB profile (V2).
 3. **`voxel-sheet` alias.** Dropped rather than kept as an alias of
    `model-sheet` (one name per target).
+4. **Docs outside the allowed list are stale.** `docs/ARCHITECTURE.md`
+   §5a (asset pipeline: Blender, kits), `docs/STATUS.md` (KayKit/Blender
+   build, "V1 next"), `docs/LIFE_LAYER.md` (kit inventory) and
+   `client/public/models` mentions in other docs still describe the kit
+   pipeline. Stricter reading taken: only the listed docs/sections were
+   edited. Alternative: a follow-up docs sync (or widen this PR) — §5a is
+   one paragraph.
+5. **ART_DIRECTION beyond the listed sections.** The task named the
+   pipeline, budgets, LOD, authoring and tooling sections; I also fixed
+   the KayKit/Blender/slab sentences in the intro, §1, §2, §4 and §9 of the
+   same file, because they describe deleted code. Alternative: leave them
+   for the V2 docs pass.
+6. **Field alignment fix (step 3).** The half-tile column offset and the
+   2-tile far-mask shift of the prototype were fixed rather than listed for
+   V2 (they are position bugs). Alternative: keep the prototype's
+   geometry byte-for-byte and fix in V2.
+7. **Device numbers are headless Chromium on the Mac**, not the iPhone; the
+   device run (`make preview HOST=<lan-ip>`, `?stats=1`) stays with the
+   owner (D-052).
