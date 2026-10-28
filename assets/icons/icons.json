@@ -213,7 +213,7 @@
       "source": "https://raw.githubusercontent.com/game-icons/icons/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/clothes.svg",
       "sha256": "b7b9b5b29567aa2e18a6931a47d537ef3f14b68045d71d603a120e3bc9380505"
     },
-    "need:market_small": {
+    "need:market": {
       "file": "shop.svg",
       "author": "Delapouite",
       "page": "https://game-icons.net/1x1/delapouite/shop.html",

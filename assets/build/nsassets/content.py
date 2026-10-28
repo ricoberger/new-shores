@@ -206,7 +206,7 @@ def levels(content, cid):
     """
     Number of model levels of a building (0: one model): a Trading Post's or
     Warehouse's levels, a `levels` list of the building or of its service
-    block (market_small, D-056 §3; the content format is S1's), else a
+    block (market, D-056 §3; the content format is S1's), else a
     planned levels count.
     """
     b = content["buildings"].get(cid, {})

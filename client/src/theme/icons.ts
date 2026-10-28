@@ -117,7 +117,7 @@ export const ICON_PATHS: Readonly<Record<string, string>> = {
   "need:clothing": P[28],
   "need:drink": P[27],
   "need:food": P[26],
-  "need:market_small": P[29],
+  "need:market": P[29],
   "need:services": P[29],
   "need:tavern": P[31],
   "status:input_starved": P[37],

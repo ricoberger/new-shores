@@ -55,7 +55,7 @@ const content = {
       },
     }),
     b("tavern", "Tavern", { width: 3, height: 3, category: "public", upkeep_per_min: 6_000, pause_category: "public", service: { radius: 14, levels: [{ radius: 14 }] } }),
-    b("market_small", "Small market", {
+    b("market", "Small market", {
       width: 4,
       height: 4,
       category: "public",
@@ -211,7 +211,7 @@ describe("fields in the HUD (D-051 part 4)", () => {
   it("shows a levelled market's level, radius and next level with its tier lock, with Upgrade in the footer (D-056)", () => {
     const model = fixture("settlers_grow");
     const island = model.islands[0]!;
-    const market = { ...island.buildings[0]!, id: 9_998, type: "market_small", level: 1, paused: false } as unknown as BuildingDisplay;
+    const market = { ...island.buildings[0]!, id: 9_998, type: "market", level: 1, paused: false } as unknown as BuildingDisplay;
     delete (market as { rates?: unknown }).rates;
     delete (market as { residents?: unknown }).residents;
     const t = text(panel(market, island, model));

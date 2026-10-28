@@ -26,7 +26,9 @@ interface ContentJson {
   recipe?: unknown;
 }
 
-const content = JSON.parse(readFileSync(join(CONTENT, "buildings.json"), "utf8")) as ContentJson[];
+// Content IDs retired since the pinned content (renamed, never reused): the fixtures use the new ID.
+const RENAMED: Readonly<Record<string, string>> = { market_small: "market" };
+const content = (JSON.parse(readFileSync(join(CONTENT, "buildings.json"), "utf8")) as ContentJson[]).map((b) => ({ ...b, id: RENAMED[b.id] ?? b.id }));
 
 /** The server's category rule (openapi ContentBuilding.category). */
 function category(b: ContentJson): string {

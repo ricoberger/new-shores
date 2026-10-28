@@ -432,7 +432,7 @@ const FIXTURE_DEFS: FixtureDef[] = [
       },
     },
   ],
-  ["market_small", "Small market", "settlers", "public", 3, 3, { service: { radius: 10 } }],
+  ["market", "Market", "settlers", "public", 3, 3, { service: { radius: 10 } }],
   ["chapel", "Chapel", "settlers", "public", 2, 2, { service: { radius: 10 } }],
   ["lumberjack", "Lumberjack", "settlers", "production", 2, 2, { work_area: { radius: 4, terrain: ["forest"] } }],
   ["sawmill", "Sawmill", "settlers", "production", 2, 2],
@@ -949,7 +949,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
   });
   for (let i = 0; i < 6; i++) placed.push(["house_settlers", 3 + 2 * i, 6, 0, house(i < 2 ? [5013] : [5013, 5014])]);
   for (let i = 0; i < 6; i++) placed.push(["house_citizens", 15 + 2 * i, 6, 0, house(i < 4 ? [5013, 5014, 5015] : [5014, 5015])]);
-  placed.push(["chapel", 27, 6, 0], ["market_small", 29, 5, 0], ["tavern", 32, 5, 0]);
+  placed.push(["chapel", 27, 6, 0], ["market", 29, 5, 0], ["tavern", 32, 5, 0]);
   // South of the first road (fronts up, rotation 180): production.
   ["lumberjack", "sawmill", "weaver_wool", "mill", "bakery", "cidery", "weaver_linen", "sailmaker", "charcoal_burner", "toolmaker"].forEach((t, i) =>
     placed.push([t, 3 + 2 * i, 9, 180, t === "sawmill" ? { paused: true, paused_reason: "player", status: "paused" } : {}]),

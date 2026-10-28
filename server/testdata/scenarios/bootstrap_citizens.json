@@ -126,7 +126,7 @@
     {
       "place": {
         "rotation": 90,
-        "type": "market_small",
+        "type": "market",
         "x": 16,
         "y": 109
       }

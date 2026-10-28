@@ -266,7 +266,7 @@ LITE_FACTOR = 0.25
 #: log the sum for the dense fixture's building mix against it.
 ISLAND_BUDGET_NEAR = 700_000
 #: Buildings that may declare a budget_exception (BUDGET_EXCEPTION_FACTOR).
-EXCEPTION_ALLOWED = ("trading_post", "warehouse", "shipyard", "chapel", "market_small")
+EXCEPTION_ALLOWED = ("trading_post", "warehouse", "shipyard", "chapel", "market")
 
 #: Footprint fit tolerance (tiles) and ship length tolerance.
 FOOTPRINT_TOLERANCE = 0.3

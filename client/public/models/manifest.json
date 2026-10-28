@@ -5670,7 +5670,7 @@
         }
       ]
     },
-    "market_small": {
+    "market": {
       "anchors": {
         "door": [
           0.0,
@@ -5731,7 +5731,7 @@
             ]
           },
           "budget": 45000,
-          "bytes": 239808,
+          "bytes": 239796,
           "lite": {
             "bounds": {
               "max": [
@@ -5746,13 +5746,13 @@
               ]
             },
             "budget": 11250,
-            "bytes": 67424,
-            "path": "market_small.l1.lite.glb",
-            "sha256": "2cb77c0949234ab6d297397956d8ff50e3852ec94428f39ac4b390e361dfc26e",
+            "bytes": 67412,
+            "path": "market.l1.lite.glb",
+            "sha256": "9703a461ee9e9314b433a619ed4142b3e41eb2d2c15d5380462ef184873a2555",
             "triangles": 744
           },
-          "path": "market_small.l1.glb",
-          "sha256": "8a6bef3c6a06a788f01f570d1fe34f784be7bd55c16ac31ddf462ef76b94a3ce",
+          "path": "market.l1.glb",
+          "sha256": "e142ab3e2d861bc5685396d16c88a8a5e3d6d866f69f661df18df23176c9fae1",
           "triangles": 3164
         },
         "2": {
@@ -5769,7 +5769,7 @@
             ]
           },
           "budget": 45000,
-          "bytes": 123496,
+          "bytes": 123484,
           "lite": {
             "bounds": {
               "max": [
@@ -5784,13 +5784,13 @@
               ]
             },
             "budget": 11250,
-            "bytes": 33396,
-            "path": "market_small.l2.lite.glb",
-            "sha256": "3d7be4d8eb41b28f83f3eef1cc9bdd859afb56b617f445d82cfe64a3aa1c6990",
+            "bytes": 33384,
+            "path": "market.l2.lite.glb",
+            "sha256": "7b08208c539e8d25d2f62e3ecb89cd9b0c657231b4cc795614eabbe3116b5c75",
             "triangles": 360
           },
-          "path": "market_small.l2.glb",
-          "sha256": "1df4a2139296c1fa82ea64b47e403acec09056c016c6675fb2701bd86d415f27",
+          "path": "market.l2.glb",
+          "sha256": "3a2ed32d04fe4200d33bd2d90895076050899e0a4c782a53a5250f921cfa53b3",
           "triangles": 1595
         },
         "3": {
@@ -5807,7 +5807,7 @@
             ]
           },
           "budget": 45000,
-          "bytes": 134064,
+          "bytes": 134052,
           "lite": {
             "bounds": {
               "max": [
@@ -5822,13 +5822,13 @@
               ]
             },
             "budget": 11250,
-            "bytes": 34784,
-            "path": "market_small.l3.lite.glb",
-            "sha256": "d452a1c58dd6d1ba8f019af98b85f1206e0957db1af418e7219547839045b86d",
+            "bytes": 34772,
+            "path": "market.l3.lite.glb",
+            "sha256": "a9f87306b9e9b6af80c4b25e33447866823efb58cadf8faa15e6949b689a1758",
             "triangles": 387
           },
-          "path": "market_small.l3.glb",
-          "sha256": "42cc3edd8832b1512f34fd7b50efe3dbf001fec5912058c90780d2f57ca43437",
+          "path": "market.l3.glb",
+          "sha256": "11b647a33e030ceaaf68bca6ad58e79051163048a513341a63de59be088de137",
           "triangles": 1794
         }
       }

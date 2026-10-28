@@ -24,7 +24,7 @@
     "kind": "required",
     "weight": 0.3,
     "category": "services",
-    "buildings": [{ "building": "market_small" }, { "building": "chapel" }]
+    "buildings": [{ "building": "market" }, { "building": "chapel" }]
   },
   {
     "id": "citizens_food",
@@ -70,7 +70,7 @@
     "weight": 0.4,
     "category": "services",
     "buildings": [
-      { "building": "market_small" },
+      { "building": "market" },
       { "building": "chapel" },
       { "building": "tavern" },
       { "building": "school" }

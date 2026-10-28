@@ -14,7 +14,7 @@ const read = <T>(file: string) => JSON.parse(readFileSync(join(repo, "content", 
 const content = {
   needs: read<{ id: string; name: string }[]>("needs.json"),
   need_categories: read<{ id: string; name: string; icon: string }[]>("need_categories.json"),
-  buildings: [{ id: "market_small", name: "Small market" }],
+  buildings: [{ id: "market", name: "Small market" }],
   tiers: read<{ id: string; name: string }[]>("tiers.json"),
 } as unknown as Content;
 
@@ -44,9 +44,9 @@ describe("need display names", () => {
     expect(needLabel(content, { id: "settlers_services", category: "services" })).toBe("Services");
     // Unknown need IDs (content drift): the category or building name.
     expect(needLabel(content, { id: "x_drink", category: "drink" })).toBe("Drink");
-    expect(needLabel(content, { id: "x_market", building: "market_small" })).toBe("Small market");
+    expect(needLabel(content, { id: "x_market", building: "market" })).toBe("Small market");
     expect(needLabel(null, { id: "x_food", category: "food" })).toBe("food");
-    expect(needLabel(null, { id: "x_market", building: "market_small" })).toBe("market_small");
+    expect(needLabel(null, { id: "x_market", building: "market" })).toBe("market");
     expect(needLabel(undefined, { id: "x" })).toBe("x");
   });
 
@@ -74,13 +74,13 @@ describe("need alternatives (D-056)", () => {
       { id: "cheese", name: "Cheese" },
     ],
     buildings: [
-      { id: "market_small", name: "Small market" },
+      { id: "market", name: "Small market" },
       { id: "chapel", name: "Chapel" },
       { id: "school", name: "School" },
     ],
     needs: [
       { id: "citizens_food", goods: [{ good: "bread", share: 600 }, { good: "cheese", share: 600 }] },
-      { id: "citizens_services", buildings: [{ building: "market_small" }, { building: "chapel" }, { building: "school" }, { building: "opera" }] },
+      { id: "citizens_services", buildings: [{ building: "market" }, { building: "chapel" }, { building: "school" }, { building: "opera" }] },
       { id: "settlers_food", goods: [{ good: "fish", share: 1000 }] },
     ],
   } as unknown as Content;

@@ -87,7 +87,7 @@
     }
   },
   {
-    "id": "market_small",
+    "id": "market",
     "name": "Market",
     "region": "old_coast",
     "tier": "settlers",

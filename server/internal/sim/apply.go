@@ -60,7 +60,7 @@ type UpgradeHouse struct {
 
 // UpgradeBuilding upgrades any upgradable building (D-056): a full house to
 // the next tier's house (as UpgradeHouse); a Trading Post, Warehouse or
-// public building with levels (market_small) to its next level, charged
+// public building with levels (market) to its next level, charged
 // like a placement; a level may need a tier unlocked. UpgradeHouse,
 // UpgradeWarehouse and UpgradeTradingPost are its deprecated aliases (the
 // latter two keep their building-kind check).

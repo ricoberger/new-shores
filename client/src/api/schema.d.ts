@@ -855,7 +855,7 @@ export interface components {
         /**
          * @description Upgrade a building (D-056): a full house to the next tier's house
          *     (as `upgrade_house`); a Trading Post, Warehouse or public building
-         *     with service levels (`market_small`) to its next level — the
+         *     with service levels (`market`) to its next level — the
          *     level's `cost` is charged like a placement and a level with a
          *     `tier` needs that tier unlocked (`tier_locked`).
          *     `upgrade_unavailable` for a building without a next level.

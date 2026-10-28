@@ -359,12 +359,12 @@ describe("inhabitants and animals", () => {
   const townDefs = new Map<string, ContentBuilding>([
     ...defs,
     ["house_settlers", { id: "house_settlers", width: 2, height: 2, tier: "settlers", category: "housing", house: {} } as unknown as ContentBuilding],
-    ["market_small", { id: "market_small", width: 3, height: 3, tier: "settlers", category: "public", service: { radius: 12 } } as unknown as ContentBuilding],
+    ["market", { id: "market", width: 3, height: 3, tier: "settlers", category: "public", service: { radius: 12 } } as unknown as ContentBuilding],
     ["sheep_farm", { id: "sheep_farm", width: 3, height: 3, tier: "settlers", category: "production", fields: {} } as unknown as ContentBuilding],
     ["pasture", { id: "pasture", width: 2, height: 2, tier: "settlers", category: "production", field: { type: "pasture", farm: "sheep_farm" } } as unknown as ContentBuilding],
   ]);
   const house = (id: number, x: number, residents: number) => ({ id, type: "house_settlers", x, y: -1, rotation: 0, status: "ok", residents: residents * 1000 }) as unknown as BuildingDisplay;
-  const market = { id: 50, type: "market_small", x: 4, y: 2, rotation: 0, status: "ok" } as unknown as BuildingDisplay;
+  const market = { id: 50, type: "market", x: 4, y: 2, rotation: 0, status: "ok" } as unknown as BuildingDisplay;
   const farm = (status = "ok") => ({ id: 60, type: "sheep_farm", x: 20, y: 2, rotation: 0, status }) as unknown as BuildingDisplay;
   const pasture = (id: number, active = true) => ({ id, type: "pasture", x: 23, y: 2 + (id - 61) * 2, rotation: 0, status: active ? "ok" : "not_adjacent", active, farm_id: 60 }) as unknown as BuildingDisplay;
   const frame = (b: BuildingDisplay[], now = 10_000, at = NEAR) => {

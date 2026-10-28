@@ -15,7 +15,7 @@
     "house": "house_citizens",
     "unlock": {
       "population": { "settlers": 120 },
-      "buildings": ["market_small", "chapel"]
+      "buildings": ["market", "chapel"]
     }
   },
   {

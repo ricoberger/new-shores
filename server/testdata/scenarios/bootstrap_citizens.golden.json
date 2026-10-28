@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_citizens",
-  "content_version": "old_coast-0.11.0",
+  "content_version": "old_coast-0.12.0",
   "boundary_count": 335,
   "totals": {
     "isle-01": {
@@ -11894,7 +11894,7 @@
         },
         "buildings": {
           "chapel": true,
-          "market_small": true
+          "market": true
         }
       },
       {
@@ -13637,7 +13637,7 @@
           },
           {
             "id": 5,
-            "type": "market_small",
+            "type": "market",
             "x": 16,
             "y": 109,
             "rotation": 90,

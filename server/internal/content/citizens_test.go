@@ -56,7 +56,7 @@ func TestLoadCitizensContent(t *testing.T) {
 		"citizens_food:food:bread=8000/cheese=6000:120000", "citizens_drink:drink:cider=6000/mead=5000:120000",
 		"citizens_clothing:clothing:linen_garments=5000/leather_jerkins=4000:120000",
 		// Services (D-056): one cumulative category, 0.6 per building.
-		"citizens_services:services:market_small=600000/chapel=600000/tavern=600000/school=600000:240000",
+		"citizens_services:services:market=600000/chapel=600000/tavern=600000/school=600000:240000",
 		// Lower-tier categories (D-056): 0.4 split 0.5 : 0.2.
 		"citizens_settlers_food:food:fish=4200:285714", "citizens_settlers_clothing:clothing:wool_garments=2100:114286",
 	}
@@ -65,7 +65,7 @@ func TestLoadCitizensContent(t *testing.T) {
 	}
 	// D-012: the Settlers' goods needs are unchanged; services (D-056)
 	// are market and chapel.
-	if n := c.NeedsByTier["settlers"]; len(n) != 3 || n[0].Goods[0].Good != "fish" || n[1].Goods[0].Good != "wool_garments" || needBuildings(n[2]) != "market_small=600000/chapel=600000" {
+	if n := c.NeedsByTier["settlers"]; len(n) != 3 || n[0].Goods[0].Good != "fish" || n[1].Goods[0].Good != "wool_garments" || needBuildings(n[2]) != "market=600000/chapel=600000" {
 		t.Errorf("settlers needs changed: %+v", n)
 	}
 
@@ -461,8 +461,8 @@ func TestBalanceChecklist(t *testing.T) {
 		population int64
 		public     []string
 	}{
-		{"settlers", 120, []string{"warehouse", "market_small", "chapel"}},
-		{"citizens", 400, []string{"warehouse", "market_small", "chapel", "tavern"}},
+		{"settlers", 120, []string{"warehouse", "market", "chapel"}},
+		{"citizens", 400, []string{"warehouse", "market", "chapel", "tavern"}},
 	} {
 		tier := c.TierByID[tc.tier]
 		counts := map[string]int64{}

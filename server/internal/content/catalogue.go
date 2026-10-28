@@ -471,7 +471,7 @@ type Road struct {
 }
 
 // Service marks a public building with a service radius (building needs).
-// Levels raise the radius (D-056: market_small 12 / 16 / 20); a service
+// Levels raise the radius (D-056: market 12 / 16 / 20); a service
 // without levels has one.
 type Service struct {
 	Levels []ServiceLevel

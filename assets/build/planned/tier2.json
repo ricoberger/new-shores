@@ -9,7 +9,7 @@
   {"id": "pig_pen", "kind": "module", "tier": 2, "footprint": [3, 4], "water_tiles": 0, "slot": null},
   {"id": "tannery", "kind": "producer", "tier": 2, "footprint": [3, 4], "water_tiles": 0, "slot": null, "smoke": true},
   {"id": "school", "kind": "service", "tier": 2, "footprint": [6, 8], "water_tiles": 0, "slot": null},
-  {"id": "market_small", "kind": "service", "tier": 1, "footprint": [5, 6], "water_tiles": 0, "slot": null, "levels": 3},
+  {"id": "market", "kind": "service", "tier": 1, "footprint": [5, 6], "water_tiles": 0, "slot": null, "levels": 3},
   {"id": "brig", "kind": "ship", "tier": 3, "footprint": null, "water_tiles": 0, "slot": null, "slots": 4},
   {"id": "galleon", "kind": "ship", "tier": 4, "footprint": null, "water_tiles": 0, "slot": null, "slots": 6}
 ]

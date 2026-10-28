@@ -25,7 +25,7 @@
         },
         "buildings": {
           "chapel": true,
-          "market_small": true
+          "market": true
         }
       },
       {
@@ -1768,7 +1768,7 @@
           },
           {
             "id": 5,
-            "type": "market_small",
+            "type": "market",
             "x": 16,
             "y": 109,
             "rotation": 90,
@@ -7776,7 +7776,7 @@
             },
             "buildings": {
               "chapel": true,
-              "market_small": true
+              "market": true
             }
           },
           {
@@ -9519,7 +9519,7 @@
               },
               {
                 "id": 5,
-                "type": "market_small",
+                "type": "market",
                 "x": 16,
                 "y": 109,
                 "rotation": 90,
@@ -15527,7 +15527,7 @@
             },
             "buildings": {
               "chapel": true,
-              "market_small": true
+              "market": true
             }
           },
           {
@@ -17270,7 +17270,7 @@
               },
               {
                 "id": 5,
-                "type": "market_small",
+                "type": "market",
                 "x": 16,
                 "y": 109,
                 "rotation": 90,
@@ -23278,7 +23278,7 @@
             },
             "buildings": {
               "chapel": true,
-              "market_small": true
+              "market": true
             }
           },
           {
@@ -25021,7 +25021,7 @@
               },
               {
                 "id": 5,
-                "type": "market_small",
+                "type": "market",
                 "x": 16,
                 "y": 109,
                 "rotation": 90,
@@ -31029,7 +31029,7 @@
             },
             "buildings": {
               "chapel": true,
-              "market_small": true
+              "market": true
             }
           },
           {
@@ -32772,7 +32772,7 @@
               },
               {
                 "id": 5,
-                "type": "market_small",
+                "type": "market",
                 "x": 16,
                 "y": 109,
                 "rotation": 90,

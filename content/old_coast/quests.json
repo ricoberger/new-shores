@@ -55,7 +55,7 @@
     "title": "A market square",
     "text": "Settlers want a market within reach of their houses. Build a small market and connect it to the road.",
     "objectives": [
-      { "kind": "connected", "type": "market_small" }
+      { "kind": "connected", "type": "market" }
     ],
     "rewards": { "gold": 25 },
     "prerequisites": ["intro_fish"]

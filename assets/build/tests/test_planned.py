@@ -79,7 +79,7 @@ class PlannedTest(unittest.TestCase):
         self.write("a.json", [
             entry("fisher", footprint=(9, 9)),
             entry("chapel", kind="service", tier=1, footprint=(9, 9), levels=3),
-            entry("market_small", kind="service", tier=1, footprint=(5, 6), levels=2),
+            entry("market", kind="service", tier=1, footprint=(5, 6), levels=2),
             entry("trading_post", kind="service", tier=1, footprint=(6, 9), levels=2),
         ])
         base = content.load(config.CONTENT_DIR, planned_dir=None)
@@ -89,9 +89,9 @@ class PlannedTest(unittest.TestCase):
         self.assertFalse(content.is_planned(c, "fisher"))
         self.assertEqual(content.levels(base, "chapel"), 0)
         self.assertEqual(content.levels(c, "chapel"), 3)
-        # The content's service levels (market_small, S1) win over the planned count.
-        self.assertEqual(content.levels(base, "market_small"), 3)
-        self.assertEqual(content.levels(c, "market_small"), 3)
+        # The content's service levels (market, S1) win over the planned count.
+        self.assertEqual(content.levels(base, "market"), 3)
+        self.assertEqual(content.levels(c, "market"), 3)
         self.assertEqual(content.levels(c, "trading_post"), content.levels(base, "trading_post"))
         self.assertEqual(content.required_ids(c), content.required_ids(base))
 

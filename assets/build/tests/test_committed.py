@@ -165,7 +165,7 @@ class CommittedFootprintTest(unittest.TestCase):
             want = {"gate"} | {f"{animal}_{i}" for i in range(1, n + 1)}
             self.assertEqual(set(models[cid]["anchors"]) - {"door", "status"}, want, cid)
         self.assertEqual(set(models["meadow"]["anchors"]), {"door", "status"})
-        self.assertEqual(sorted(models["market_small"]["levels"]), ["1", "2", "3"])
+        self.assertEqual(sorted(models["market"]["levels"]), ["1", "2", "3"])
         ships = {cid: models[cid] for cid in config.MODEL_SHIPS}
         self.assertEqual([ships[c]["ship"]["masts"] for c in config.MODEL_SHIPS], [3, 2, 3])
         lengths = [ships[c]["ship"]["length_tiles"] for c in config.MODEL_SHIPS]
