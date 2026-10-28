@@ -206,3 +206,68 @@ class CommittedFootprintTest(unittest.TestCase):
             self.assertEqual("chimney" in anchors, smoke, cid)
             self.assertEqual("smoke" in anchors, smoke, cid)
             self.assertEqual("cart" in anchors, content.is_producer(LIVE_CONTENT, cid), cid)
+
+
+@unittest.skipUnless(os.path.isfile(os.path.join(config.MODELS_DIR, "manifest.json")), "no committed models yet")
+class CommittedPlannedTest(unittest.TestCase):
+    """D-056 M4: every planned tier-4 building has a model at its planned footprint, strictly inside it, with its anchors."""
+
+    #: Strict fit: the planned models stay inside their footprint (the build allows FOOTPRINT_TOLERANCE).
+    INSIDE = 0.02
+
+    @classmethod
+    def setUpClass(cls):
+        with open(os.path.join(config.MODELS_DIR, "manifest.json"), encoding="utf-8") as f:
+            cls.manifest = json.load(f)
+        # The tier-4 buildings (the galleon is a planned tier-4 ship, M2).
+        cls.planned = {e["id"]: e for e in content.load_planned() if e["tier"] == 4 and e["kind"] != "ship"}
+
+    def test_the_planned_tier4_entries_resolve_beneath_the_content(self):
+        self.assertEqual(len(self.planned), 25)
+        self.assertLessEqual(set(self.planned), set(content.planned_ids(LIVE_CONTENT)))
+        for cid, b in self.planned.items():
+            self.assertTrue(LIVE_CONTENT["buildings"][cid].get("planned"), cid)
+            self.assertEqual(list(content.footprint(LIVE_CONTENT, cid)), b["footprint"], cid)
+
+    def test_every_planned_building_has_a_model_at_its_footprint(self):
+        models = self.manifest["models"]
+        for cid, b in self.planned.items():
+            self.assertIn(cid, models, cid)
+            w, h = b["footprint"]
+            entry = models[cid]
+            self.assertEqual(entry["footprint"], {"w": w, "h": h}, cid)
+            self.assertEqual(entry["kind"], "field" if b["kind"] == "field" else "building", cid)
+            mn, mx = entry["bounds"]["min"], entry["bounds"]["max"]
+            self.assertLessEqual(mx[0], w / 2 + self.INSIDE, cid)
+            self.assertGreaterEqual(mn[0], -w / 2 - self.INSIDE, cid)
+            self.assertLessEqual(mx[2], h / 2 + self.INSIDE, cid)
+            self.assertGreaterEqual(mn[2], -h / 2 - self.INSIDE, cid)
+        self.assertEqual(len(models["house_patricians"]["variants"]), 3)
+        self.assertNotIn("lite", models["vine_row"]["file"])
+        for cid in ("university", "cathedral"):
+            self.assertEqual(models[cid]["file"]["budget"], config.BUDGET_BUILDING_CAP, cid)
+
+    def test_planned_anchors(self):
+        models = self.manifest["models"]
+        for cid, b in self.planned.items():
+            anchors = models[cid].get("anchors", {})
+            w, h = b["footprint"]
+            # glTF axes: x, y up, z = −y of recipe space (the front edge is at z = −h / 2).
+            if b["kind"] != "field":
+                self.assertIn("door", anchors, cid)
+                self.assertIn("status", anchors, cid)
+                self.assertLessEqual(abs(anchors["door"][1]), 0.05, cid)
+            if b["kind"] in ("producer", "farm"):
+                self.assertIn("cart", anchors, cid)
+                self.assertLessEqual(abs(anchors["cart"][1]), 0.05, cid)
+            if b.get("smoke"):
+                self.assertIn("chimney", anchors, cid)
+                self.assertIn("smoke", anchors, cid)
+                self.assertGreater(anchors["smoke"][1], anchors["chimney"][1], cid)
+            else:
+                self.assertNotIn("smoke", anchors, cid)
+            if b["water_tiles"]:
+                # The boat moors on the water rows (recipe y < −h / 2 + water_tiles).
+                self.assertGreater(anchors["boat"][2], h / 2 - b["water_tiles"], cid)
+            else:
+                self.assertNotIn("boat", anchors, cid)

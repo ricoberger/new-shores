@@ -171,6 +171,32 @@ class DetailTest(unittest.TestCase):
         self.assertEqual(budget("theatre"), config.BUDGET_BUILDING_CAP)
         self.assertLessEqual(config.MODELS_FOLDER_LIMIT, 24 * 1024 * 1024)
 
+    def test_tier4_planned_footprints_get_area_budgets(self):
+        # D-056 M4 (assets/build/planned/tier4.json): the same constants, no new ones; lite files get a quarter.
+        def budget(cid, kind="building"):
+            return pipeline.budget_of({"id": cid, "kind": kind}, LIVE_CONTENT, None)
+
+        expected = {
+            "house_patricians": 9 * config.BUDGET_HOUSE_PER_TILE,
+            "fashion_house": 35 * config.BUDGET_BUILDING_PER_TILE,
+            "luthier": 25 * config.BUDGET_BUILDING_PER_TILE,
+            "glass_smelter": 24 * config.BUDGET_BUILDING_PER_TILE,
+            "gold_mine": 24 * config.BUDGET_BUILDING_PER_TILE,
+            "cattle_farm": 20 * config.BUDGET_BUILDING_PER_TILE,
+            "optician": 16 * config.BUDGET_BUILDING_PER_TILE,
+            "lace_maker": 15 * config.BUDGET_BUILDING_PER_TILE,
+            "thread_spinner": 12 * config.BUDGET_BUILDING_PER_TILE,
+            # The 6 × 9 winepress, the 6 × 12 oyster beds, the 12 × 12 university and the 12 × 16 cathedral stop at the cap.
+            "winepress": config.BUDGET_BUILDING_CAP,
+            "oyster_beds": config.BUDGET_BUILDING_CAP,
+            "university": config.BUDGET_BUILDING_CAP,
+            "cathedral": config.BUDGET_BUILDING_CAP,
+        }
+        for cid, limit in expected.items():
+            self.assertEqual(budget(cid), limit, cid)
+            self.assertEqual(pipeline.lite_budget({"id": cid, "kind": "building"}, LIVE_CONTENT, limit), limit // 4, cid)
+        self.assertEqual(budget("vine_row", "field"), config.BUDGET_FIELD)
+
     def test_sails_are_lit_from_both_sides(self):
         r = {"id": "sloop", "kind": "ship", "ship": {"length_tiles": 2.0, "masts": 1, "sail_scale": 1.0},
              "parts": [{"prim": "box", "size": [2.0, 0.5, 0.3], "role": "timber"},

@@ -41,8 +41,10 @@ THUMBS_DIR = os.path.join(MODELS_DIR, "thumbs")
 THUMB_PX = 128
 #: Ceiling of the committed models folder (GLBs listed in the manifest,
 #: bytes): raised from 8 MiB for the D-054 "structure, not slab" pass, where
-#: the 8 MiB were the binding limit of the large footprints.
-MODELS_FOLDER_LIMIT = 16 * 1024 * 1024
+#: the 8 MiB were the binding limit of the large footprints, and from
+#: 16 MiB for the tier-3/4 models (D-056 M3/M4); to be reduced again by a
+#: quantised export (KHR_mesh_quantization) — see the follow-up.
+MODELS_FOLDER_LIMIT = 24 * 1024 * 1024
 
 #: Environment variable that points to the kit root (default <repo>/assets/kits).
 KITS_ENV = "NEW_SHORES_KITS_DIR"
