@@ -2,6 +2,7 @@ package scenario
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -166,6 +167,48 @@ func (r *Report) AdvanceDuration() time.Duration { return r.advanceDuration }
 
 func (r *runner) display() (sim.DisplayState, error) {
 	return sim.Display(r.w, r.c, r.w.LastEvaluatedAt)
+}
+
+// initSnapshots prepares the snapshot bookkeeping of a run.
+func (r *runner) initSnapshots() {
+	r.lastAdv = -1
+	for i, st := range r.s.Steps {
+		if st.Advance != nil {
+			r.lastAdv = i
+		}
+	}
+	r.lastSlot = 0
+	r.tiers = sim.UnlockedTiers(r.w, r.c)
+	r.populated = map[string]bool{}
+	for tier, n := range sim.WorldPopulation(r.w, r.c) {
+		r.populated[tier] = n > 0
+	}
+}
+
+// wantSnapshot reports whether the advance step i records a snapshot
+// (Scenario.SnapshotEvery). Milestones are detected after every advance,
+// recorded or not, so that none is skipped.
+func (r *runner) wantSnapshot(i int) bool {
+	every := int64(r.s.SnapshotEvery)
+	if every <= 1 {
+		return true
+	}
+	milestone := false
+	if tiers := sim.UnlockedTiers(r.w, r.c); !slices.Equal(tiers, r.tiers) {
+		r.tiers, milestone = tiers, true
+	}
+	for tier, n := range sim.WorldPopulation(r.w, r.c) {
+		if n > 0 && !r.populated[tier] {
+			r.populated[tier], milestone = true, true
+		}
+	}
+	slot := int64(r.w.LastEvaluatedAt.Sub(r.s.Start) / (time.Duration(every) * time.Minute))
+	onGrid := slot > r.lastSlot
+	if onGrid {
+		r.lastSlot = slot
+	}
+	first := len(r.report.Snapshots) == 0
+	return first || milestone || onGrid || i == r.lastAdv
 }
 
 func (r *runner) snapshot(step, boundaries int) Snapshot {

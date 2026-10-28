@@ -104,7 +104,13 @@ new-shores/
   island, free seed step, Apply/Advance steps) and produces reports with
   totals, bottlenecks and snapshots; golden reports live in
   `server/testdata/scenarios` and are the shared fixtures for client display
-  tests.
+  tests. A scenario may set `snapshot_every` (simulated minutes, default 1):
+  the report then records a snapshot only at the first advance step, at the
+  first step reaching each multiple of the interval, at every milestone (a
+  tier unlocks, a tier gets its first residents) and at the last advance step
+  (boundary counts add up the skipped steps). The replay still advances step
+  by step, so the simulated game and every other part of the report are
+  unchanged; the long reference games use 10 to keep their goldens small.
 - Fixed-point integers; no `time.Now()`, no `math/rand` without the stored
   seed.
 - Migrations between `schema_version`s live here and are tested against stored
