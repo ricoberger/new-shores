@@ -544,6 +544,18 @@ describe("HUD components", () => {
       expect(button(undefined)).toContain("disabled");
     });
 
+    it("shows the upgrade reason as a short line under a disabled house Upgrade button, none when available", () => {
+      const hint = (upgrade: { available: boolean; reason?: string }) => {
+        const html = panel({ type: "house_settlers", residents: 8_000, residents_floor: 2_000, residents_max: 8_000, upgrade });
+        return html.match(/data-testid="info-upgrade-hint">(.*?)<\/span>/)?.[1];
+      };
+      expect(hint({ available: true })).toBeUndefined();
+      expect(hint({ available: false, reason: "not_full" })).toBe("House not full");
+      expect(hint({ available: false, reason: "needs_below_threshold:food" })).toBe("Needs food ≥ 60 %");
+      // The shipyard content of this panel has no tiers: the generic words.
+      expect(hint({ available: false, reason: "tier_locked" })).toBe("Next tier not unlocked");
+    });
+
     it("lists every ship type with speed, cargo and build time", () => {
       const html = panel({});
       expect(text(html)).not.toContain("Ships");

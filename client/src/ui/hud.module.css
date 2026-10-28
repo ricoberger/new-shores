@@ -898,6 +898,14 @@
 }
 
 /* Save / Delete stay visible below the scrolling body of a panel. */
+/* A house's Upgrade button with the reason it is disabled below it. */
+.upgradeGroup {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
 .panelFooter {
   flex: 0 0 auto;
   flex-wrap: wrap;

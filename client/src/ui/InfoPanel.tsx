@@ -172,6 +172,38 @@ function nextLevelOf(content: Content, b: BuildingDisplay): LevelDef | undefined
 }
 
 /** What the next level brings and costs (the Upgrade button itself is in the footer). */
+/** The short line under a disabled house Upgrade button, from the server's reason code; display only (the gate is the server's). */
+const UPGRADE_HINTS: Record<string, string> = {
+  not_full: "House not full",
+  no_house: "No higher tier",
+};
+
+function upgradeHint(content: Content, model: DisplayState, island: IslandDisplay, b: BuildingDisplay, reason: string): string {
+  const [code, category] = reason.split(":", 2) as [string, string | undefined];
+  const tiers = content.tiers;
+  const next = tiers[(tiers.find((t) => t.house === b.type)?.index ?? -2) + 1];
+  const goodName = (id: string) => content.goods.find((g) => g.id === id)?.name ?? id;
+  switch (code) {
+    case "tier_locked":
+      return next ? `${next.name} not unlocked` : "Next tier not unlocked";
+    case "needs_below_threshold":
+      return category ? `Needs ${needCategory(content, category).name.toLowerCase()} ≥ 60 %` : "Needs not supplied";
+    case "cannot_afford": {
+      // What the next house still costs beyond the gold and the island's stock, as the extrapolated display shows them.
+      const cost = content.buildings.find((x) => x.id === next?.house)?.cost;
+      const short: string[] = [];
+      if (cost && cost.gold > model.gold) short.push(`${Math.ceil((cost.gold - model.gold) / 1000)} gold`);
+      for (const [g, n] of Object.entries(cost?.materials ?? {})) {
+        const have = island.inventory[g]?.stock ?? 0;
+        if (n > have) short.push(`${Math.ceil((n - have) / 1000)} ${goodName(g).toLowerCase()}`);
+      }
+      return short.length > 0 ? `Costs ${short.join(", ")} more` : "Not enough gold or materials";
+    }
+    default:
+      return UPGRADE_HINTS[code] ?? upgradeReasonText(content, reason);
+  }
+}
+
 function UpgradePreview({
   building: b,
   island,
@@ -731,17 +763,24 @@ export function InfoPanel({
           </button>
         )}
         {b.residents !== undefined && (
-          // The server says whether the upgrade would succeed (D-027): enabled only then, the reason as the tooltip.
-          <button
-            type="button"
-            className={styles.button}
-            onClick={onUpgrade}
-            disabled={!b.upgrade?.available}
-            title={b.upgrade && !b.upgrade.available && b.upgrade.reason ? upgradeReasonText(content, b.upgrade.reason) : undefined}
-            data-testid="info-upgrade"
-          >
-            <Icon path={toolIcon("upgrade")} /> Upgrade
-          </button>
+          // The server says whether the upgrade would succeed (D-027): enabled only then, the reason as the tooltip and as a short line below.
+          <span className={styles.upgradeGroup}>
+            <button
+              type="button"
+              className={styles.button}
+              onClick={onUpgrade}
+              disabled={!b.upgrade?.available}
+              title={b.upgrade && !b.upgrade.available && b.upgrade.reason ? upgradeReasonText(content, b.upgrade.reason) : undefined}
+              data-testid="info-upgrade"
+            >
+              <Icon path={toolIcon("upgrade")} /> Upgrade
+            </button>
+            {b.upgrade && !b.upgrade.available && b.upgrade.reason && (
+              <span className={`${styles.small} ${styles.warn}`} data-testid="info-upgrade-hint">
+                {upgradeHint(content, model, island, b, b.upgrade.reason)}
+              </span>
+            )}
+          </span>
         )}
         {order && (
           <button type="button" className={styles.button} onClick={onCancelShipOrder} data-testid="shipyard-cancel">

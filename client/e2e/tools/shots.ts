@@ -612,10 +612,10 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
       await page.mouse.move(5, 400);
     },
   },
-  // A house selected (desktop).
+  // A house selected, desktop and phone.
   "house-card": {
     fixture: "settled",
-    device: "desktop",
+    device: ["desktop", "phone"],
     run: async (page) => {
       const t = await page.evaluate(() => {
         for (const is of window.__newShores!.getServer()!.display.islands) {
