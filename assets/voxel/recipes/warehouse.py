@@ -3,11 +3,16 @@ Warehouse (6 × 6, levels 1–3; D-057 §3): a timber-framed, thatched store
 with a wide two-leaf gate (1) that becomes a coursed-stone hall with
 dressed quoins, tiles and a loft door with a hoist (2) and gains a
 second, jettied hall and a yard crane (3); crates, sacks, barrels and a
-hand cart in the yard.
+hand cart in the yard; level 3 adds a striped awning over the hall's
+front and a flag on the second hall (cloth, they sway).
 """
 
 from nsvoxel import parts as P
 from nsvoxel.mats import CANVAS, PLASTER, TIMBER, TIMBER_DARK, TIMBER_LIGHT
+
+AWNING_A = P.cloth(CANVAS, "cloth")
+AWNING_B = P.cloth(P.mat("dye-blue", 1.1), "cloth")
+FLAG = P.mat("dye-blue", 1.0, "flag")
 
 
 def build(ctx):
@@ -47,6 +52,18 @@ def build(ctx):
         for z in range(10, 16):
             v.set(30, 35, z, P.mat("iron"))
         P.box_crate(v, 29, 34, 8)
+        # Striped awning over the front of the stone hall, a flag on the second hall's ridge.
+        for x in (8, 16):
+            v.box(x, 29, 1, x + 1, 30, 8, TIMBER)
+        for x in range(8, 17):
+            m = AWNING_A if (x // 2) % 2 == 0 else AWNING_B
+            for y in range(y1, 30):
+                v.set(x, y, 9 if y < 28 else 8, m)
+        px, py, pz = 11, 43, h.roof.ridge_z + 1
+        v.box(px, py, pz, px + 1, py + 1, pz + 8, TIMBER_DARK)
+        for i in range(5):
+            for z in (pz + 5, pz + 6):
+                v.set(px + 1 + i, py, z, FLAG)
     # Goods.
     n = 3 + 3 * lv
     spots = [(28, 30), (31, 30), (28, 33), (34, 30), (31, 33), (40, 30), (40, 34), (6, 30), (9, 30), (6, 34), (40, 38), (34, 40)]

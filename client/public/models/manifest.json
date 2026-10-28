@@ -7051,18 +7051,21 @@
           "budget": 1280,
           "bytes": 18160,
           "path": "sailmaker.lite.glb",
-          "sha256": "b90caf5bc195f0f0d784ec91a18afab787ffd19597526c0771a722e744945ad1",
+          "sha256": "8ea43943a9924e6165122d4b67611199494b451bffe4fdde1400dfeeab936df5",
           "triangles": 318
         },
         "path": "sailmaker.glb",
-        "sha256": "cbb2fc83f5e2554a5e05ff57f7e606ea8a6fc38993ac73aa6a2bd6a4e1adcf23",
+        "sha256": "5cbffe5e6cb0278581025849e77e8659dcae26a23b05b3fbff3fe09800b1a319",
         "triangles": 4634
       },
       "footprint": {
         "h": 8,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "sway": [
+        "cloth"
+      ]
     },
     "salt_mine": {
       "anchors": {
@@ -8809,14 +8812,14 @@
         ],
         "status": [
           0.0,
-          3.75,
+          4.375,
           0.0
         ]
       },
       "bounds": {
         "max": [
           3.0,
-          3.5,
+          4.125,
           3.0
         ],
         "min": [
@@ -8911,7 +8914,7 @@
           "bounds": {
             "max": [
               3.0,
-              3.25,
+              4.125,
               3.0
             ],
             "min": [
@@ -8921,12 +8924,12 @@
             ]
           },
           "budget": 18000,
-          "bytes": 249196,
+          "bytes": 254240,
           "lite": {
             "bounds": {
               "max": [
                 3.0,
-                3.5,
+                4.0,
                 3.0
               ],
               "min": [
@@ -8936,16 +8939,20 @@
               ]
             },
             "budget": 1440,
-            "bytes": 21212,
+            "bytes": 22228,
             "path": "warehouse.l3.lite.glb",
-            "sha256": "3a9611108bc7ebf5c294b561bdf9e7ba44448c2fac80880c5718c65fb5a6bb36",
-            "triangles": 388
+            "sha256": "6e52bfeae431db1bb41b564d7581394913226bc87c8f83ae2300ed49a60ad660",
+            "triangles": 408
           },
           "path": "warehouse.l3.glb",
-          "sha256": "0f8770abb5a7e65dc37f5b79f1c41b877a8661986369eda53391596ee3035c32",
-          "triangles": 4970
+          "sha256": "692c3857d59b11007b52656d730c227051c1762edec6b7b953fbda8fa92fdabc",
+          "triangles": 5110
         }
-      }
+      },
+      "sway": [
+        "cloth",
+        "flag"
+      ]
     },
     "weaver_linen": {
       "anchors": {
@@ -9001,7 +9008,7 @@
           ]
         },
         "budget": 10000,
-        "bytes": 190112,
+        "bytes": 194688,
         "lite": {
           "bounds": {
             "max": [
@@ -9016,20 +9023,23 @@
             ]
           },
           "budget": 800,
-          "bytes": 16932,
+          "bytes": 18476,
           "path": "weaver_linen.lite.glb",
-          "sha256": "c3f7bbcb67c425a8218da53021d789883fde5c413185b483b368e561fb35af9e",
-          "triangles": 290
+          "sha256": "d675a0abd59798af4358892542836a01f8b8748c96a6f53d84ac944d07d77dbc",
+          "triangles": 328
         },
         "path": "weaver_linen.glb",
-        "sha256": "46db702145df233792089b7ea5f691d361e14ab2386a7c431b56ce4f1e014eb0",
-        "triangles": 3918
+        "sha256": "32f225d5c47ad87e0625565708eba4627a94a3d7eb66f30be7d6cc128b85c470",
+        "triangles": 4032
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "sway": [
+        "cloth"
+      ]
     },
     "weaver_wool": {
       "anchors": {

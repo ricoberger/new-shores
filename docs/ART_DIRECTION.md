@@ -308,8 +308,11 @@ V3b — kept for the signature) — about 40–70 lines.
   without). The models folder has a hard limit (`MODELS_FOLDER_LIMIT`)
   — prefer structure (courses, frames,
   props) over more speckle.
-- **Sway:** only sails, ship canvas and flags (`flag_*`, `P.cloth`); sacks,
-  bales, awnings, washing and stretched sailcloth stay rigid.
+- **Sway:** sails, ship canvas, flags (`flag_*`) and hung or stretched
+  cloth marked with `P.cloth` — the wool and linen weavers' lines, the
+  sailmaker's sail on its frame, the warehouse's level 3 awning and flag;
+  sacks, bales, bolts and cart loads stay rigid. The list is LIFE_LAYER §7
+  (the tests read the manifest's `sway`).
 - **Lite:** the automatic lite (2 voxels/tile) must still read: keep
   jettied fronts and gable ends on 4-voxel block boundaries, roofs at
   least three voxels thick at the verges, and check the lite column of

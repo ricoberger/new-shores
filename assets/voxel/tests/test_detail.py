@@ -7,6 +7,7 @@ variants per tier with citizen houses richer than settler houses, and
 deterministic helpers (stdlib unittest).
 """
 
+import json
 import os
 import sys
 import unittest
@@ -22,12 +23,12 @@ from nsvoxel.grid import Vox  # noqa: E402
 
 CONTENT = content.load()
 TIERS = ("settlers", "citizens")
-#: Models allowed to carry a sway group (LIFE_LAYER §7: sails, ship canvas, flags).
 #: Roles with no authored shade steps (courses, stripes, rows): adjacent voxels of one role share one colour.
 FLAT_ROLES = ("plaster", "brass")
 #: Ground-plate roles (z = 0) that are one flat colour (grass keeps its two-grass patches as separate roles).
 FLAT_GROUND_ROLES = ("road-dirt", "sand")
-SWAY_ALLOWED = {"weaver_wool.glb", "trading_post.l4.glb"}
+#: Model files with a sway group among tiers 1–2 (LIFE_LAYER §7): hung cloth, sails on frames, awnings and flags.
+SWAY_ALLOWED = {"weaver_wool.glb", "weaver_linen.glb", "sailmaker.glb", "warehouse.l3.glb", "trading_post.l4.glb"}
 
 
 def tier_ids():
@@ -108,13 +109,19 @@ class TierDetailTest(unittest.TestCase):
             self.assertLess(differing / n, 0.02, kind)
 
     def test_cloth_sways_only_where_allowed(self):
+        manifest = json.load(open(os.path.join(config.MODELS_DIR, "manifest.json")))["models"]
         for cid in tier_ids():
-            files, _, _ = self.built(cid)
+            files, entry, _ = self.built(cid)
+            swaying = set()
             for f in files:
                 if f[3] is None:
                     continue
                 sway = any(len(m) > 2 for m in f[3].cells.values())
                 self.assertEqual(sway, f[0] in SWAY_ALLOWED, f[0])
+                swaying |= {m[2] for m in f[3].cells.values() if len(m) > 2}
+            # The manifest lists exactly the groups the cells carry.
+            self.assertEqual(entry.get("sway", []), sorted(swaying), cid)
+            self.assertEqual(manifest[cid].get("sway", []), sorted(swaying), cid)
 
     def test_three_house_variants_and_citizens_are_richer(self):
         stats = {}

@@ -2,14 +2,16 @@
 Sailmaker (4 × 8; D-057 §3): a long sail loft — coursed-stone ground
 floor with a jettied, timber-framed plaster loft, tiles, a loft door with
 a hoist and a chimney (smoke); a sail stretched on a frame to be sewn,
-canvas bolts, rope coils, a tar pot and a cart. The canvas is rigid
-(sway is for sails at sea and flags, LIFE_LAYER §7).
+canvas bolts, rope coils, a tar pot and a cart. The sail on its frame is
+cloth (it sways, LIFE_LAYER §7); bolts, ropes and the cart's load are rigid.
 """
 
 from nsvoxel import parts as P
 from nsvoxel.mats import CANVAS, IRON, PLASTER, STONE, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
 SAILCLOTH = P.mat("canvas", 1.06)
+SAIL = P.cloth(SAILCLOTH)
+SEAM = P.cloth(P.shade_of(SAILCLOTH, 0.92))
 ROPE = P.mat("canvas", 0.85)
 
 
@@ -36,10 +38,10 @@ def build(ctx):
     v.box(3, 52, 1, 4, 54, 4, TIMBER)
     v.box(27, 52, 1, 28, 54, 4, TIMBER)
     v.box(3, 42, 3, 28, 54, 4, TIMBER_LIGHT)
-    v.box(4, 43, 3, 27, 53, 4, SAILCLOTH)
+    v.box(4, 43, 3, 27, 53, 4, SAIL)
     for y in range(45, 53, 3):
         for x in range(5, 26):
-            v.set(x, y, 3, P.shade_of(SAILCLOTH, 0.92))
+            v.set(x, y, 3, SEAM)
     # Canvas bolts, rope coils, a tar pot, cart.
     for x in (22, 25):
         v.box(x, 38, 1, x + 2, 41, 3, CANVAS)
