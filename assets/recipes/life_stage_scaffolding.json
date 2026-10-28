@@ -1,9 +1,0 @@
-{
-  "$schema": "./schema.json",
-  "id": "life_stage_scaffolding",
-  "kind": "life",
-  "notes": "Life layer: the KayKit scaffolding (re-paletted, one tile wide) the client stands beside the construction stages of buildings with a footprint of 3×3 or more.",
-  "parts": [
-    {"name": "scaffolding", "kit": "kaykit_hexagon", "file": "Assets/gltf/buildings/neutral/building_scaffolding.gltf", "scale": 0.5, "simplify": {"dissolve": 4, "collapse": 0.45}}
-  ]
-}

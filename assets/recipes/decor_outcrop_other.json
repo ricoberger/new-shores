@@ -1,4 +1,0 @@
-{"$schema": "./schema.json", "id": "decor_outcrop_other", "kind": "decor", "notes": "Deposit outcrop (other): a cluster of KayKit Hexagon rock_single pieces tinted mountain.", "parts": [
-  {"kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/nature/rock_single_E.gltf", "scale": 0.9, "roles": {"Atlas/rock": "mountain"}},
-  {"kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/nature/rock_single_C.gltf", "position": [0.28, 0.18, 0], "rotation": [0, 0, 70], "scale": 0.75, "roles": {"Atlas/rock": {"role": "mountain", "shade": 0.92}}},
-  {"kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/nature/rock_single_D.gltf", "position": [-0.25, -0.2, 0], "rotation": [0, 0, 140], "scale": 0.8, "roles": {"Atlas/rock": {"role": "mountain", "shade": 1.06}}}]}

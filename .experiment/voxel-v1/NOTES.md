@@ -9,7 +9,7 @@ rebased onto main (C4 #37 included). Supersedes #36.
 | # | Step | State |
 |---|------|-------|
 | 1 | `assets/voxel` becomes the asset build | done |
-| 2 | Delete the kit assets | open |
+| 2 | Delete the kit assets | done |
 | 3 | Client: one render path | open |
 | 4 | Tests and fixtures | open |
 | 5 | Device numbers | open |
@@ -47,6 +47,21 @@ rebased onto main (C4 #37 included). Supersedes #36.
   0.1474); `WHEEL_AHEAD` follows (`client/src/display/lifeplan.ts`).
 - CI: a separate `assets` job (setup-python 3.14.7, pinned), runs
   `make assets-test` and `make assets-check` — no skip, no Blender.
+
+## Step 2 — kit assets
+
+- Deleted: `assets/recipes/` (123 kit-bash recipe JSONs + `schema.json`),
+  `assets/kits/MANIFEST.json` and `assets/kits/README.md`.
+- The kit GLBs and thumbnails were already replaced in step 1: the voxel
+  build writes the same file names into `client/public/models/` and removes
+  the rest (12 kit-only files: the merchants/patricians house variants
+  v0–v2 + lite, now single placeholder models).
+  `client/public/models/` holds only voxel output.
+- `assets/build/planned` is not deleted: it is the voxel pipeline's own
+  footprint source now (`assets/voxel/planned/`, moved in step 1; the
+  server's content tests read it).
+- `.gitignore` keeps an `assets/kits/*` ignore (local kit copies), the
+  `!MANIFEST.json`/`!README.md` exceptions are gone.
 
 ### Budgets (D-054 area scaling, re-based for voxels)
 

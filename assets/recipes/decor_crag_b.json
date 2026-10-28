@@ -1,2 +1,0 @@
-{"$schema": "./schema.json", "id": "decor_crag_b", "kind": "decor", "notes": "Crag on the plateaus (KayKit Hexagon mountain_B, warm rock): breaks the plateau tops and step edges into a jagged silhouette.", "parts": [
-  {"kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/nature/mountain_B.gltf", "scale": 0.2, "roles": {"Atlas/rock": "rock-light"}}]}

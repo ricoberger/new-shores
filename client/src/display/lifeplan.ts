@@ -40,7 +40,7 @@ const BOB = 0.018;
  * (ART_DIRECTION §5: carts and people ≈ 1 tile, readable at default zoom).
  */
 export const VILLAGER_SCALE = 1.7;
-/** Villager variants per tier (assets/recipes/life_villager_*.json). */
+/** Villager variants per tier (assets/voxel/recipes/_life.py villager tiers). */
 export const VILLAGER_VARIANTS = 3;
 
 /** Statuses with no deliveries: no cart and no walker (LIFE_LAYER §1, "no walkers = not connected or starved"). */

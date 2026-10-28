@@ -344,7 +344,7 @@ function villagers(tier: "settlers" | "citizens", color: Color4): Record<string,
   return out;
 }
 
-/** The element classes of the life layer: placeholder and model (assets/recipes/life_*.json). */
+/** The element classes of the life layer: placeholder and model (assets/voxel/recipes/_life.py). */
 export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
   [CLS.cart]: { geometry: box(0.46, 0.45, 1.0, TIMBER), model: { id: "life_cart" } },
   [CLS.cartLoaded]: { geometry: box(0.46, 0.7, 1.0, CANVAS), model: { id: "life_cart_merchant" } },
