@@ -1,4 +1,4 @@
-// Buildings: the kit-bashed models of the manifest (render/models.ts) and,
+// Buildings: the voxel models of the manifest (render/models.ts) and,
 // for content IDs without a model or until it has loaded, one procedural
 // low-poly placeholder per content ID drawn with thin instances sized to
 // the rotated footprint, with a door marker in the middle of the front
@@ -42,7 +42,7 @@ export const RISE_MS = 350;
 
 /**
  * Construction stages (LIFE_LAYER §6): a newly placed building shows the
- * KayKit stages A → B → C, a third of VISUAL_BUILD_MS each, then appears.
+ * voxel stages A → B → C, a third of VISUAL_BUILD_MS each, then appears.
  * A visual only (D-006: no construction timers; the building already
  * works). Fields and ?life=0 keep the rise-in.
  */
@@ -50,7 +50,7 @@ export const VISUAL_BUILD_MS = 2400;
 export const STAGES = 3;
 /** Footprint side (tiles, both sides) from which scaffolding stands beside the stages. */
 export const SCAFFOLD_MIN = 3;
-/** Width of the stage models (tiles at scale 1: the KayKit stages at the recipe's scale). */
+/** Width of the stage models (tiles at scale 1: the voxel stages, life_stage). */
 export const STAGE_SIZE = 1.4;
 const SCAFFOLD_SIZE = 2.6;
 const STAGE_MAX_Y = 1.6;

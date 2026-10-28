@@ -16,7 +16,6 @@
     "gen:api": "openapi-typescript ../server/api/openapi.yaml -o src/api/schema.d.ts",
     "gen:palette": "node scripts/gen-palette.mjs",
     "gen:hud-icons": "node scripts/gen-hud-icons.mjs",
-    "assets": "node scripts/assets.mjs",
     "shots": "node --experimental-strip-types --no-warnings=ExperimentalWarning e2e/tools/shots.ts"
   },
   "dependencies": {

@@ -20,7 +20,7 @@ describe("mask mesh", () => {
   const rows = Array.from({ length: 12 }, () => "wwwwggggffffwwww");
   const mask = fixtureMask(...rows);
 
-  it("builds ground at height 0 over the land cells and the slab down below the sea", () => {
+  it("builds ground at height 0 over the land cells and the sand shelves down below the sea", () => {
     expect(mask.width).toBe(4);
     expect(mask.height).toBe(3);
     const b = maskMeshData(mask, 7);
@@ -28,13 +28,16 @@ describe("mask mesh", () => {
     expect(b.indices.length % 3).toBe(0);
     for (const v of b.positions) expect(Number.isFinite(v)).toBe(true);
     const y = ys(b);
-    // Ground and rim at ~0, the cliff foot under the sea surface.
+    // Ground and rim at 0, the outer shelf's foot under the sea surface.
     expect(Math.max(...y)).toBeLessThan(0.05);
     expect(Math.min(...y)).toBeLessThan(SEA_LEVEL);
-    // The land spans tiles 4…12 in x (cells 1 and 2), the slab reaching a little beyond.
+    // The land spans tiles 4…12 in x (cells 1 and 2), the two shelves (one column per tile) two tiles beyond.
     const xs = b.positions.filter((_, i) => i % 3 === 0);
-    expect(Math.min(...xs)).toBeGreaterThan(3);
-    expect(Math.max(...xs)).toBeLessThan(13);
+    expect(Math.min(...xs)).toBe(2);
+    expect(Math.max(...xs)).toBe(14);
+    const land = b.positions.filter((_, i) => i % 3 === 0 && b.positions[i + 1] === 0);
+    expect(Math.min(...land)).toBe(4);
+    expect(Math.max(...land)).toBe(12);
     // Island-local z is −y: every vertex lies at or above the island's top edge's mirror.
     const zs = b.positions.filter((_, i) => i % 3 === 2);
     expect(Math.max(...zs)).toBeLessThanOrEqual(0.5);

@@ -9,7 +9,6 @@
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3, type Color4 } from "@babylonjs/core/Maths/math.color";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
-import { CreateIcoSphere } from "@babylonjs/core/Meshes/Builders/icoSphereBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
@@ -317,10 +316,10 @@ function gull(lift: number): LifeGeometry {
   };
 }
 
-/** A low-poly puff (unit diameter, flat-shaded) in one colour: smoke. */
+/** A cube puff (0.8 tiles, 12 triangles) in one colour: smoke. */
 function puff(color: Color4): LifeGeometry {
   return (scene, name) => {
-    const m = CreateIcoSphere(name, { radius: 0.5, subdivisions: 1, flat: true }, scene);
+    const m = CreateBox(name, { size: 0.8 }, scene);
     m.setVerticesData("color", new Array(m.getTotalVertices()).fill([color.r, color.g, color.b, 1]).flat());
     return m;
   };
@@ -342,7 +341,7 @@ function villagers(tier: "settlers" | "citizens", color: Color4): Record<string,
   return out;
 }
 
-/** The element classes of the life layer: placeholder and model (assets/recipes/life_*.json). */
+/** The element classes of the life layer: placeholder and model (assets/voxel/recipes/_life.py). */
 export const LIFE_CLASSES: Readonly<Record<string, LifeClassDef>> = {
   [CLS.cart]: { geometry: box(0.46, 0.45, 1.0, TIMBER), model: { id: "life_cart" } },
   [CLS.cartLoaded]: { geometry: box(0.46, 0.7, 1.0, CANVAS), model: { id: "life_cart_merchant" } },

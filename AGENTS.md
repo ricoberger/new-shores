@@ -44,6 +44,11 @@ the referenced documents before changing anything.
 - **Security:** authorise every request by the session's `player_id`;
   validate all inputs in Go against content and state; never log emails,
   tokens or payment details; never commit secrets.
+- **Art is procedural voxels (D-057):** every model (buildings, fields,
+  ships, decor, life props) comes from a Python recipe in
+  `assets/voxel/recipes` or the build's automatic placeholder. No kits, no
+  Blender, no bought or hand-made model files. Regenerate with
+  `make assets` and commit the output in `client/public/models`.
 - **Out of scope unless a decision says otherwise:** WASM builds of the sim,
   NPC traders, pause/speed controls, save/load, free camera elevation
   (azimuth rotation is in, D-051).
@@ -58,6 +63,8 @@ the referenced documents before changing anything.
   every new dependency in the PR description.
 - **TypeScript:** strict mode, `eslint`, `tsc --noEmit`, Vitest. Two-space
   indentation. Generated API types are not edited by hand.
+- **Asset build (Python):** standard library only (`assets/voxel`); four-space
+  indentation; budgets and limits live in `assets/voxel/nsvoxel/config.py`.
 - **Content:** JSON, two-space indentation, validated by `content/schema`.
   Balance numbers are provisional — change them freely but update
   `docs/CONTENT.md` tables in the same change.
@@ -82,6 +89,8 @@ cd server && gofmt -l . && go vet ./... && golangci-lint run && go test ./...
 cd client && npm run lint && npm run typecheck && npm test
 # content
 cd server && go test ./internal/content/...
+# assets (models)
+make assets-test && make assets-check
 ```
 
 State clearly which checks ran, passed, failed or were skipped. CI does not

@@ -2,8 +2,10 @@
 
 Status: **Agreed target** (D-048). This document is the visual brief for the
 art track; it does not change any game rule. Numbers (colours, budgets)
-live in `assets/palette.json` and the asset build script once those exist;
-this file explains the intent and the rules.
+live in `assets/palette.json` and the voxel asset build
+(`assets/voxel/nsvoxel/config.py`); this file explains the intent and the
+rules. Since D-057 the whole game is procedural voxels; D-050's kit-bashed
+look and its Blender pipeline are gone.
 
 ## 1. The feeling we are after
 
@@ -12,20 +14,21 @@ and terracotta roofs, deep green trees, turquoise shallows over sand turning
 to deep blue, a low warm sun with long soft shadows, and lots of small life
 — carts, people, boats, smoke, gulls.
 
-We cannot match its painterly textures with a flat-shaded kit, so **light,
-colour and silhouette carry the look, life carries the feeling, textured
-detail does not** (D-048, refined by D-050):
+We cannot match its painterly textures with flat-coloured voxels, so
+**light, colour and silhouette carry the look, life carries the feeling,
+textured detail does not** (D-048, refined by D-050 and D-057):
 
 1. **Light + colour first.** Strong warm key light, soft shadows, a
-   saturated warm palette, water and coast done well; flat-shaded models.
+   saturated warm palette, water and coast done well; flat-shaded voxel
+   models.
 2. **Life second.** Animated carts, walkers, smoke, sails, gulls, boats —
    every one of them derived from game state, so motion is also feedback.
 3. **No textured detail.** No photo textures, decals or wear maps. Detail
    comes from silhouette, colour, baked ambient occlusion and motion.
-4. **Chunky stylised shapes (D-050).** Exaggerated proportions — tall steep
-   roofs, fat chimneys, oversized doors — strong silhouettes, bevelled
-   edges; KayKit's shape language is the lead for buildings and nature.
-   Hero pieces may go further later (§7).
+4. **Chunky stylised shapes (D-050, D-057).** Exaggerated proportions —
+   tall steep roofs, fat chimneys, oversized doors — strong silhouettes,
+   built from voxels at 8 per tile; roofs as courses, window frames and
+   shutters, chimney pots. Hero pieces may go further later (§7).
 
 ## 2. Light, palette, time of day
 
@@ -45,8 +48,8 @@ detail does not** (D-048, refined by D-050):
   shadow map on **high** quality only, redrawn only when casters change.
   **Quality** follows the layout mode (desktop → high; tablets and phones →
   low), overridable with `?quality=`.
-- **Palette v1** (single source `assets/palette.json`; Blender re-palette,
-  terrain materials and CSS variables all read it):
+- **Palette v1** (single source `assets/palette.json`; the voxel build's
+  vertex colours, terrain materials and CSS variables all read it):
 
 | Role | Colours |
 |---|---|
@@ -67,13 +70,16 @@ detail does not** (D-048, refined by D-050):
   canvas: island outlines, ship dots, viewport rectangle; tap to jump)
   gives orientation.
 - **Zoom-based LOD** replaces the old view switch, and since D-050 every
-  level shows **real models**: near and mid = full models; far = the
-  ≈ 25 % decimated **lite** models (silhouette-preserving, footprint-
-  covering). There are no block or treetop stand-ins. Carts, status icons,
-  construction hulls and foam show at near only. Every island's geometry
-  is built once (both detail tiers) when it first appears; zooming only
-  toggles pre-built meshes — never rebuilds. Islands outside the frustum
-  are not rendered.
+  level shows **real models**: near and mid = full models (8 voxels per
+  tile); far = the **lite** models, the same voxel grid downsampled 4× to
+  2 voxels per tile (D-057 §2; footprint-covering by construction). The
+  focused island's terrain has a full (4 columns per tile) and a lite
+  (2 per tile) mesh; other islands at far are one coarse voxel mesh of
+  their 1:4 terrain mask (1 column per tile). There are no block or
+  treetop stand-ins. Carts, status icons, construction hulls and foam
+  show at near only. Every island's geometry is built once (both detail
+  tiers) when it first appears; zooming only toggles pre-built meshes —
+  never rebuilds. Islands outside the frustum are not rendered.
 - **Routes** are edited in a panel with island pickers; clicking an island
   in the world while the editor is open still adds it as a stop
   (shortcut). Ship drag-to-send works on the continuous map. Settling
@@ -86,21 +92,26 @@ detail does not** (D-048, refined by D-050):
 - **Continuous terrain, hidden grid.** The tile grid is not drawn; a
   subtle grid overlay fades in around the cursor (≈ 8 tiles) only while a
   build/road/field/move tool is active. Buildable ground stays **flat**.
-- **Slab:** the marching-squares coastline is extruded ≈ 0.6 tile down to
-  the water with a layered, rounded cliff profile in warm rock bands, an
-  AO-darkened underside and a sand rim on top; a coarser five-ring profile
-  at default zoom and far, the full profile when zoomed in (visibility
-  toggle, no rebuild). The foam line follows the slab.
-- **Plateaus:** mountain/deposit clusters rise as 1–2 rounded steps
-  (corners ≥ 0.5 tile) with the cliff profile, a moss cap on top and KayKit
-  crags/boulders along the step edges and on the deposits. Visual only:
-  rules keep mountains unbuildable; mines and quarries stand in a notch.
+- **Voxel ground and coast (D-057):** the island is a column field at 4
+  columns per tile (one step = one voxel = 0.25 tile), greedy-meshed per
+  32×32-tile chunk with baked corner occlusion: land at height 0 in the
+  tile's ground colour, a pixel coastline (the smoothed coast sampled at
+  the column centres) with a sand rim column, two sand shelves stepping
+  under the sea and sides in the warm rock bands. The far tier is the
+  same field at 2 columns per tile. The foam line follows the smoothed
+  coast, on the shelf edge.
+- **Plateaus:** mountain/deposit clusters rise as voxel terraces — one
+  voxel at the rim, two inside per level (1–2 levels, rounded corners)
+  in rock bands with a moss cap — with voxel crags and boulders along the
+  step edges and on the deposits. Visual only: rules keep mountains
+  unbuildable; mines and quarries stand in a notch.
 - **Grass:** two-tone noise with dry patches. **Scatter** is clustered, not
   uniform: rocks and bushes in clumps at the coast, forest edges and
   plateau feet; open grass gets tufts and rare bushes only; everything
-  light with AO only in crevices. **Forest tiles:** KayKit Forest trees
-  (4 species, smooth-shaded), thinned around buildings and roads and
-  visibly thinned inside a lumberjack's radius with cut stumps.
+  light with AO only in crevices. **Forest tiles:** voxel trees
+  (4 species, yaw in quarter turns so voxels stay on the grid), thinned
+  around buildings and roads and visibly thinned inside a lumberjack's
+  radius with cut stumps.
 - **Water:** shallows→deep gradient by distance from the coast, slow noise
   animation, subtle specular, foam line; the sea plane extends past the
   camera bounds and fades into a warm haze — never a hard edge.
@@ -124,7 +135,7 @@ detail does not** (D-048, refined by D-050):
 - **Life layer (shipped, PR #21; brief and as-built notes in
   `docs/LIFE_LAYER.md`):** carts (`cart`/`cart_merchant`) and **walkers**
   between a producer and its collector, spawned from the transfer timers;
-  **smoke** (solid low-poly puffs) from chimneys of producers with status
+  **smoke** (solid voxel-cube puffs) from chimneys of producers with status
   ok, density ∝ throughput × efficiency; **flags and sails** swaying;
   **gulls** and **fishing boats** at harbours and fishers; **strollers**
   (1 per 8 residents) on nearby roads; **sheep** wandering in active
@@ -160,104 +171,127 @@ detail does not** (D-048, refined by D-050):
   images with text); contrast ≥ 4.5:1; every panel keeps its structure and
   test IDs (used by `make shots`); bottom sheets use the same theme.
 
-## 7. Building and ship models — kit-bash by recipe (D-050, PR #15/#16)
+## 7. Models — procedural voxels (D-057)
 
-- **Kits (CC0, local, sha256-pinned in `assets/kits/MANIFEST.json`,
-  git-ignored): KayKit only, SOURCE editions.** **KayKit Medieval
-  Hexagon** (buildings: houses, market, church, tavern, blacksmith,
-  lumbermill, windmill, mine; units: `ship`, `boat`, `cart*`, animals;
-  harbour: `building_docks`, `building_shipyard`, `anchor`; props,
-  fences, construction stages) and **KayKit Forest Nature** (trees,
-  bushes, rocks, grass). The Quaternius kits (Medieval, Nature, Pirate)
-  have been removed from manifest, config and recipes. Kits resolve via
-  `NEW_SHORES_KITS_DIR` or a git-ignored `assets/kits` symlink; a missing
-  or changed file fails the build naming it.
-- **Colour mapping:** KayKit's 1024² gradient atlas is a grid of cells;
-  every UV triangle lies inside one cell, so faces are classified by cell
-  and gradient position and mapped to palette roles (walls → plaster,
-  timber frame → timber, team-colour cell → roof role per tier: thatch
-  for Settlers, terracotta for Citizens). The Pirate atlas is sampled per
-  face and snapped to named swatches. Only the blue KayKit files are used;
-  roofs are recoloured per recipe. Kit buildings face −y and are turned
-  180° (ours face +y).
-- **Richness without textures:** **ambient occlusion baked into vertex
-  colours**, darkening toward a cooler per-role shadow tone (`shadows`
-  palette group); **two-tone** lit/shadow hues; thatch normals tilted
-  toward up and extra chroma in shadow so sun-averted thatch slopes stay
-  warm; bevels on procedural parts; per-instance colour jitter on houses.
-- **Recipes as data:** `assets/recipes/<content_id>.json` (schema
-  `assets/recipes/schema.json`): whole kit buildings (`kit_building`), kit
-  pieces, procedural primitives (box, cylinder, wedge roof, sail, lathe)
-  with transforms in tiles and palette roles; exaggeration helpers (roof
-  ×1.3, chimney ×1.5); house `variants`, warehouse `levels`, ship data,
-  attachments, anchor points. Footprints come from content. Mapping used:
-  houses ← `home_A/B`, market ← `market`, chapel ← `church`, tavern ←
-  `tavern`, lumberjack/sawmill ← `lumbermill`, mill ← `windmill`,
-  smelter/toolmaker ← `blacksmith`, quarry/iron_mine ← `mine`, farms ←
-  `home` + fences + yard props, warehouse ← procedural barn + props,
-  shipyard ← procedural slipway + Pirate hull + `scaffolding`, fisher ←
-  hut + Pirate dock. Fields: pasture (fence + sheep), wheat (chunky rows),
-  orchard_plot (small tree), hemp (rows).
-- **Build:** `npm run assets` / `make assets` runs Blender 5.2 headless
-  (`assets/build/`): import, cell/atlas → palette mapping, decimation of
-  heavy pieces, merge, AO bake, origin at the footprint's ground centre,
-  validation (footprint fit ±0.3 tiles, triangle budgets, palette-only
-  colours), export by our deterministic GLB writer (one mesh,
-  POSITION/NORMAL/COLOR_0, no UVs/textures) to `client/public/models/` +
-  `manifest.json`, contact sheets to `assets/build/out/`. A **lite** model
-  per recipe is generated by decimation to ≈ 25 % (stepping up through
-  35/50/70/100 % until the footprint check passes; ≥ 150 tris) — this is
-  the far-zoom tier. `make assets-check` rebuilds into a temp dir and
-  compares (skipped on CI without Blender); `make assets-test` runs the
-  Python tests. GLBs and manifest are committed (20.2 MiB of a 24 MiB
-  ceiling after the tier 2–4 models; a quantised export —
-  KHR_mesh_quantization — is the planned way to halve it, the current
-  writer spends ≈ 64–74 bytes per triangle) so the client builds without
-  Blender or the kits. Buildings that content does not define yet take
-  their footprint from `assets/build/planned/tier{2,3,4}.json`, read
-  beneath the content (content wins when both define an ID), so models
-  can be built a tier ahead of the content sessions.
-- **Budgets (D-054, area-scaled):** 1 500 tris per footprint tile for a
-  building, 625 per tile for a house, 75 per tile for a field, cap
-  72 000; ships 1 500 / 2 250 / 3 000 (+ 10 % cargo) for sloop / brig /
-  galleon; houses' lite ≈ 120 tris, other lites ≈ 25 % of full (≥ 150).
-  Built models sit at 5–20 % of budget; what matters is that the
-  **structure** fills the footprint (not a cottage on a slab) and that
-  every building reads by its good at mid zoom, with roof material and
-  colour varying inside the warm palette. A house tier reads richer than
-  the one below (Merchants two storeys + attic, half-timber, oriels;
-  Patricians three storeys, stone + plaster, glass, towers).
-- **Fidelity rules:** fill the footprint within ±0.3 tiles; front toward
-  +y at rotation 0 (visual only, D-042); one material (vertex colours).
+Everything with a model — buildings, fields, ships, decor (trees, bushes,
+rocks, crags, outcrops, tufts, stumps), life-layer props (carts,
+villagers, boats, crates, sheep) and construction stages — is a voxel
+model generated by code. No kits, no Blender, no bought packs, no
+hand-made `.vox` files.
+
+### Authoring
+
+- **Recipes:** one Python file per content ID in `assets/voxel/recipes/`
+  (`<content_id>.py`) with `build(ctx)` returning a voxel grid; decor and
+  life props live in `_decor.py` / `_life.py`, ships in `_ships.py`.
+  `ctx` gives the footprint in tiles and voxels (`ctx.W × ctx.D`, from
+  content), the water rows, the variant or level, the tier and the
+  anchors the content needs. Optional `variants` (houses: 3 per tier,
+  picked by building-ID hash), `levels` (warehouse, trading post) and
+  `cargo` (ship attachment).
+- **Parts library:** `nsvoxel/parts.py` (yards, timber frames, stone
+  walls, windows with frames/sills/shutters, doors, gates, chimneys with
+  pots and the smoke anchor, dormers, roofs as courses with ridges,
+  fences, crates, barrels, logs, planks, hay, bushes, trees, signs,
+  awnings, `house()`); materials in `nsvoxel/mats.py` are palette roles ×
+  shade. A production building is typically 30–45 lines on the parts.
+- **Anchors** are set in voxels by the recipe (door, chimney/smoke, cart,
+  boat, berths, slip, pasture gate and animals; status defaults above the
+  model) and exported in glTF space; the build fails when an anchor the
+  content needs is missing (LIFE_LAYER, D-054).
+- **Placeholders:** a content ID without a recipe gets an automatic model
+  (`nsvoxel/auto.py`): walls and a tier-coloured roof sized to the
+  footprint, water rows as a pier, a sign board with the ID's first
+  letters, the anchors it needs; fields get their crop pattern. Every island is always one
+  style; the manifest lists them under `placeholders`. Ships have no
+  placeholder (a ship needs a recipe).
+- **Planned IDs:** buildings and ships that content does not define yet
+  take their footprint from `assets/voxel/planned/*.json`, read beneath
+  the content (content wins per ID), so models can be built a tier ahead
+  of the content sessions; `NEW_SHORES_CONTENT_DIR` points the build at
+  another content directory.
+- **Iterating:** `make model-sheet RECIPE=id[,id…]` renders a contact
+  sheet (front-left at the game's 30°, every variant, level and
+  attachment)
+  to `.experiment/sheets/` in about a second; without `RECIPE` it lists
+  the IDs. Review the sheet, then the game (`make shots`).
+
+### Look rules
+
+- **Colour:** palette roles only, each in a few named shades
+  (`nsvoxel/mats.py`).
+  **Ambient occlusion baked into vertex colours** per quad corner,
+  blending toward the role's cooler shadow tone (`shadows` group);
+  side normals tilted toward up so walls turned from the sun stay warm;
+  cloth voxels (sails, flags, awnings) carry the sway mask in the alpha
+  byte.
+- **Fidelity:** the structure fills the footprint (not a cottage on a
+  slab) and stands on the ground; front toward +y at rotation 0 (visual
+  only, D-042); one material (vertex colours). Every building reads by
+  its good at mid zoom (one readable signature prop per production
+  building); farms show a fenced yard and their field type.
 - **Tier language:** Settlers = timber frame + thatch, single storey;
-  Citizens = plaster + terracotta tiles, 1½–2 storeys (home_B + dormer);
-  Merchants = stone ground floor, gables, slate; Patricians = dressed
-  stone, ornament, towers. Houses get 3 variants per tier by building-ID
-  hash. One readable **signature prop** per production building; farms
-  show a fenced yard and their field type.
-- **States:** place = construction stages over 2.4 s (rise-in remains
-  for fields and with `?life=0`); paused/unpaid = desaturated tint;
+  Citizens = plaster + terracotta, 1½–2 storeys with dormers; Merchants =
+  stone ground floor, gables, slate, two storeys + attic; Patricians =
+  dressed stone, ornament, towers, three storeys. A house tier reads
+  richer than the one below.
+- **States:** place = construction stages (`life_stage` A→B→C and the
+  scaffolding, stretched to the footprint) over 2.4 s (rise-in remains for
+  fields and with `?life=0`); paused/unpaid = desaturated tint;
   not_connected/starved keep the status icon and lose smoke/walkers.
-- **Ships:** sloop from the KayKit `ship` (team colour → canvas sails,
-  hull in timber tones, ≈ 1 500 tris); cargo from KayKit crates when the
-  cargo list is non-empty; the large KayKit ship and sail recolours give
-  brig/galleon later. The fisher and shipyard jetties are procedural
-  planks dressed with KayKit `boat`, `barrel`, `bucket`.
+- **Lively look (D-057 §3) — V2.** V1 makes voxel the only renderer with
+  the prototype's models and placeholders. The lively layer — per-voxel
+  colour jitter on every material, irregular canopies, crops as rows of
+  plants, richer ground scatter (flowers, mushrooms), uneven fence posts,
+  stepped rock layers at cliffs, voxel roads and foam on the stepped
+  coast, warm roof variety — and the recipes for the placeholder IDs are
+  the V2 sessions.
+
+### Pipeline and tooling
+
+- **Build:** `make assets` runs `python3 assets/voxel/build.py` (Python 3
+  standard library only, parallel, ≈ 3 s): recipe or placeholder →
+  voxel grid → greedy-meshed quads (`nsvoxel/mesh.py`) with per-vertex
+  colour and AO → our deterministic GLB writer (`nsvoxel/glb.py`; one
+  mesh, POSITION/NORMAL/COLOR_0, no UVs/textures, origin at the
+  footprint's ground centre) into `client/public/models/` with
+  `manifest.json` and 128 px build-card thumbnails (`thumbs/`, a small
+  software rasteriser, `nsvoxel/render.py`). The build owns the folder
+  and removes stale files. GLBs, manifest and thumbnails are committed,
+  so the client builds without Python.
+- **Lite (far) tier:** buildings only; the full grid downsampled 4× (8 →
+  2 voxels per tile; a cell stays filled when ≥ 1/8 of its voxels are).
+  Fields, ships, decor and life props have no lite file.
+- **Checks:** `make assets-check` rebuilds into a temp dir and compares
+  byte for byte (CI runs it, no skip); `make assets-test` runs the
+  Python tests (`assets/voxel/tests`: determinism, manifest, one model
+  per content ID, placeholders, budgets, footprint fit, anchors, folder
+  size) and is part of `make check`. The client's Vitest suites check the
+  manifest against content and the life classes.
+- **Budgets (D-054 area scaling, re-based for voxels):** triangles per
+  footprint tile — buildings 500 (lite 40), houses 540 (lite 45), fields
+  410 — times the footprint area, no floor and no cap; ships sloop 2 800,
+  brig 6 000, galleon 7 600, cargo 300; decor 580; life props 760,
+  construction stages 2 100. Each is the prototype's densest model of its
+  class with ≈ 50 % headroom; a model over its budget fails the build.
+  The committed GLBs are ≈ 19 MiB of a **24 MiB folder limit**; a
+  quantised export (KHR_mesh_quantization) is the planned way to shrink
+  them.
 - **Rendering:** models merged per 16×16-tile chunk (one draw call per
   chunk and layer; thin instances only during rise-in); full chunks at
   near/mid, lite chunks at far, both built once and toggled. Building
   shadows are soft rounded outlines of the model bounds (merged per
   island); trees and ships keep discs. The placement ghost is the full
-  model, translucent, tinted by validity. Build-menu cards show 128 px
-  thumbnails rendered by the asset build (`client/public/models/thumbs/`,
-  byte-identical under `--check`). Loaded through `@babylonjs/loaders`
-  (glTF only). Dense town: ≈ 700 k triangles at near,
-  the 8-island archipelago ≈ 1.6 M at mid, 450 k at far — 60 fps on the
-  baseline device.
+  model, translucent, tinted by validity. Loaded through
+  `@babylonjs/loaders` (glTF only).
+- **Measured (D-057 V1, desktop, `make shots STATS=1`):** far at the cap
+  14 draws / 67 k triangles (8 islands) and 19 / 152 k (dense island) —
+  inside D-048's ≤ 40 / ≤ 250 k; dense island mid 1.41 M and near with
+  life 1.30 M, settled near 262 k. Near/mid are targets; the gate is the
+  device run (§8).
 - **Hero pass (later, optional):** church, harbourmaster, theatre, galleon
-  may exceed budgets ×2 and be replaced by hand-made or AI-generated GLBs
-  through the manifest after the same quantise-to-palette + AO step. AI
-  mesh services are a per-asset decision, never the default pipeline.
+  may get larger budgets (a `config.py` change with its reason); still
+  voxels from recipes.
 
 ## 8. Post-processing and sound
 
@@ -297,7 +331,8 @@ detail does not** (D-048, refined by D-050):
    26 draw calls, mid 33 / 17, far 41 / 15 (thin margin at near — profile
    on a real GPU before adding the life layer). Bundle 454 → 537 kB gzip.
 3. **Asset pipeline + models** — done (PR #15), **restyled to KayKit and
-   diorama islands (PR #16, D-050)**: kit manifest, recipe schema and
+   diorama islands (PR #16, D-050; both replaced by the voxel build in
+   D-057 V1)**: kit manifest, recipe schema and
    Blender build with deterministic GLB writer, AO/two-tone bake, all
    tier 1–2 recipes + fields + sloop from KayKit/Pirate, slab/plateau/
    scatter islands, real models at every zoom (lite at far), device-
@@ -307,6 +342,10 @@ detail does not** (D-048, refined by D-050):
    the dense fixture (was 26), bundle +7 kB gzip, models 7.55 MB. Open:
    fisher-boat loops and ship legs crossing land, stage models for
    fields, budget per *visible* island.
+5. **Voxel restyle V1 (D-057):** voxel is the only renderer — the
+   `assets/voxel` build replaces the Blender build, kit manifest and kit
+   recipes; slab terrain and `?voxel=1` removed; IDs without a recipe
+   get placeholders. V2: the lively look (§7) and recipes tier by tier.
 
 Each task ships screenshots at the gate; the reviewer compares against
 this document and the reference board (to be added under

@@ -1,4 +1,4 @@
-// Deposit outcrops (ART_DIRECTION §4, restyle): a KayKit rock cluster
+// Deposit outcrops (ART_DIRECTION §4, restyle): a voxel rock cluster
 // (the decor_outcrop_<kind> model, tinted per deposit kind in the asset
 // build) on every deposit tile of an island, standing on the plateau the
 // tile belongs to; until the model has loaded (or without one) a
@@ -51,7 +51,7 @@ function template(scene: Scene, kind: string): Mesh {
 }
 
 export class OutcropLayer {
-  /** Template per kind and whether it is the kit model (false: the procedural fallback). */
+  /** Template per kind and whether it is the voxel model (false: the procedural fallback). */
   private readonly templates = new Map<string, { mesh: Mesh; model: boolean }>();
   private readonly material: StandardMaterial;
 

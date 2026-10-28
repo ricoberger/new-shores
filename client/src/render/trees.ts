@@ -1,10 +1,10 @@
 // Trees and ground scatter (ART_DIRECTION §4, restyle) of one island at
-// near LOD: KayKit Forest trees (four species, decor_tree_a–d) on the
+// near LOD: voxel trees (four species, decor_tree_a–d) on the
 // forest tiles, a soft blob shadow under each, stumps of the felled trees
 // inside lumberjack radii (decor_stump_a/b), grass tufts, bushes and rocks
 // (decor_tuft_*, decor_bush_*, decor_rock_*) on grass, along the coast and
 // on the plateaus (at their height), and small procedural flowers —
-// placed by display/scatter.ts from the island seed. The kit pieces come
+// placed by display/scatter.ts from the island seed. The pieces come
 // from the asset manifest's decor models; until they have loaded (or
 // without them) the procedural low-poly trees, tufts and rocks stand in,
 // and the layer is rebuilt when they arrive (needsModels). Each layer is
@@ -121,6 +121,8 @@ export class ModelMerger {
 
   /** Adds one copy of world-oriented model data at (x, y, z), scaled by s, turned by yaw about y, colours × shade. */
   add(d: ModelData, x: number, y: number, z: number, s: number, yaw: number, shade = 1): void {
+    // Quarter turns only, so the voxels stay on the grid's axes.
+    yaw = Math.round(yaw / (Math.PI / 2)) * (Math.PI / 2);
     const vc = d.positions.length / 3;
     this.grow(vc, d.indices.length);
     const cos = Math.cos(yaw);

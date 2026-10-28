@@ -1,2 +1,0 @@
-{"$schema": "./schema.json", "id": "decor_tuft_a", "kind": "decor", "notes": "Grass tuft (KayKit Forest Grass_1_A, single-sided).", "parts": [
-  {"kit": "kaykit_forest", "file": "Assets/gltf/Color1/Grass_1_A_Singlesided_Color1.gltf", "scale": 1.4, "roles": {"Atlas/foliage": "grass-a"}}]}

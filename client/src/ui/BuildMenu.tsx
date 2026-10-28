@@ -36,7 +36,7 @@ interface Props {
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 
 /** Tier numeral (I, II, …) of a tier's position in the content tiers. */
-/** URL of a content ID's build-card thumbnail: 128 px PNGs rendered by the asset build (assets/build, `make assets`). */
+/** URL of a content ID's build-card thumbnail: 128 px PNGs rendered by the asset build (assets/voxel, `make assets`). */
 export function thumbUrl(id: string): string {
   return `/models/thumbs/${id}.png`;
 }

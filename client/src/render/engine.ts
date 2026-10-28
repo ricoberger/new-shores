@@ -729,7 +729,7 @@ export class GameRenderer {
 
   /**
    * Shows the layers of the current LOD for the islands in view. An
-   * island's detail (both model details, both slab profiles) is built the
+   * island's detail (both model and terrain details) is built the
    * first time it is in view with its tiles, so zooming and panning
    * afterwards only toggle pre-built geometry; an island in view is
    * brought up to date with its payload. An island without its tiles yet

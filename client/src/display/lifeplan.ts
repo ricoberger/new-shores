@@ -25,8 +25,8 @@ export const MAX_CARTS = 3;
 
 /** Road surface height (render/roads.ts ROAD_Y). */
 const ROAD_H = 0.02;
-/** Wheel pivots of the cart models (assets/recipes/life_cart*.json anchors, tiles: ahead of the centre, height). */
-export const WHEEL_AHEAD = 0.1474;
+/** Wheel pivots of the cart models (assets/voxel/recipes/_life.py wheel anchors, tiles: ahead of the centre, height). */
+export const WHEEL_AHEAD = 0.15;
 export const WHEEL_HEIGHT = 0.0969;
 /** Wheel radius (tiles): the spin per tile travelled. */
 const WHEEL_RADIUS = 0.09;
@@ -40,7 +40,7 @@ const BOB = 0.018;
  * (ART_DIRECTION §5: carts and people ≈ 1 tile, readable at default zoom).
  */
 export const VILLAGER_SCALE = 1.7;
-/** Villager variants per tier (assets/recipes/life_villager_*.json). */
+/** Villager variants per tier (assets/voxel/recipes/_life.py villager tiers). */
 export const VILLAGER_VARIANTS = 3;
 
 /** Statuses with no deliveries: no cart and no walker (LIFE_LAYER §1, "no walkers = not connected or starved"). */

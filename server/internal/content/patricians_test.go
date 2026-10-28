@@ -160,17 +160,17 @@ type modelManifest struct {
 
 // TestTierFourMatchesPlannedModels: every tier-4 building of the content
 // has the footprint, water rows, deposit slot and smoke flag of its
-// planned model (assets/build/planned/tier4.json) and of its built model
+// planned model (assets/voxel/planned/tier4.json) and of its built model
 // (client/public/models/manifest.json): chimney and smoke anchors exactly
 // on smoking producers, a boat anchor exactly on boat producers (the
 // oyster beds). grain_distillery is not planned: its model is the
-// distillery recipe with its own roof (D-041) and the distillery's 5x6.
+// voxel build's placeholder at the distillery's 5x6 (D-057 V1).
 func TestTierFourMatchesPlannedModels(t *testing.T) {
 	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := os.ReadFile(filepath.Join(repoRoot(t), "assets", "build", "planned", "tier4.json"))
+	data, err := os.ReadFile(filepath.Join(repoRoot(t), "assets", "voxel", "planned", "tier4.json"))
 	if err != nil {
 		t.Fatal(err)
 	}

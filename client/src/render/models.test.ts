@@ -38,6 +38,20 @@ const MODELS = join(__dirname, "..", "..", "public", "models");
 const REPO = join(__dirname, "..", "..", "..");
 const manifest = JSON.parse(readFileSync(join(MODELS, "manifest.json"), "utf8")) as ModelManifest;
 
+interface ContentJson {
+  id: string;
+  road?: unknown;
+  field?: unknown;
+  recipe?: unknown;
+  smoke?: boolean;
+  water_tiles?: number;
+  warehouse?: unknown;
+  trading_post?: { levels: { berths?: number }[] };
+  shipyard?: unknown;
+}
+const CONTENT_BUILDINGS = JSON.parse(readFileSync(join(REPO, "content", "old_coast", "buildings.json"), "utf8")) as ContentJson[];
+const CONTENT_SHIPS = JSON.parse(readFileSync(join(REPO, "content", "old_coast", "ships.json"), "utf8")) as { id: string }[];
+
 const engine = new NullEngine();
 const scene = new Scene(engine);
 afterAll(() => engine.dispose());
@@ -50,11 +64,15 @@ function def(id: string, width: number, height: number): ContentBuilding {
   return { id, width, height, category: "production" } as unknown as ContentBuilding;
 }
 
-describe("committed models are consistent with the manifest (Blender-free)", () => {
-  const all = Object.entries(manifest.models).flatMap(([id, e]) => entryFiles(e).map((f) => [id, f] as const));
+describe("committed models are consistent with the manifest", () => {
+  // Content models, decor and life props: every GLB the build writes.
+  const entries: [string, ModelEntry][] = [...Object.entries(manifest.models), ...Object.entries(manifest.decor ?? {}), ...Object.entries(manifest.life ?? {})].map(
+    ([id, e]) => [id, e as ModelEntry],
+  );
+  const all = entries.flatMap(([id, e]) => entryFiles(e).map((f) => [id, f] as const));
 
   it("every manifest file exists with its sha256, size and triangle count, within its budget", () => {
-    expect(all.length).toBeGreaterThan(30);
+    expect(all.length).toBeGreaterThan(200);
     for (const [, f] of all) {
       const data = readFileSync(join(MODELS, f.path));
       expect(createHash("sha256").update(data).digest("hex"), f.path).toBe(f.sha256);
@@ -81,18 +99,44 @@ describe("committed models are consistent with the manifest (Blender-free)", () 
     }
   });
 
-  it("the palette hash matches assets/palette.json and every tier 1–2 building, field and the sloop has a model", () => {
+  it("is the voxel build's manifest: the palette hash matches assets/palette.json and every content building, field and ship has a model or a placeholder", () => {
     const palette = readFileSync(join(REPO, "assets", "palette.json"));
     expect(manifest.palette_sha256).toBe(createHash("sha256").update(palette).digest("hex"));
-    expect(manifest.missing_recipes).toEqual([]);
-    const buildings = JSON.parse(readFileSync(join(REPO, "content", "old_coast", "buildings.json"), "utf8")) as { id: string; tier: string; road?: unknown }[];
-    const want = buildings.filter((b) => (b.tier === "settlers" || b.tier === "citizens") && !b.road).map((b) => b.id);
-    for (const id of [...want, "sloop", "brig", "galleon"]) expect(manifest.models[id], id).toBeDefined();
+    expect(manifest.voxels_per_tile).toBe(8);
+    const ids = [...CONTENT_BUILDINGS.filter((b) => !b.road).map((b) => b.id), ...CONTENT_SHIPS.map((s) => s.id)];
+    expect(Object.keys(manifest.models).sort()).toEqual([...ids].sort());
+    // Placeholders: content IDs whose model the build generated (no recipe yet); each still has a model entry.
+    expect(manifest.placeholders).toEqual([...manifest.placeholders].sort());
+    for (const id of manifest.placeholders) expect(manifest.models[id], id).toBeDefined();
+    expect(manifest.placeholders.length).toBeLessThan(ids.length);
     expect(manifest.models.house_settlers?.variants).toHaveLength(3);
     expect(manifest.models.house_citizens?.variants).toHaveLength(3);
     expect(Object.keys(manifest.models.warehouse?.levels ?? {})).toEqual(["1", "2", "3"]);
     expect(Object.keys(manifest.models.trading_post?.levels ?? {})).toEqual(["1", "2", "3", "4"]);
-    expect(manifest.models.sloop?.attachments?.cargo).toBeDefined();
+    for (const s of CONTENT_SHIPS) expect(manifest.models[s.id]?.attachments?.cargo, s.id).toBeDefined();
+  });
+
+  it("every building and field model has the anchors its content needs (door, status, smoke, carts, boats, berths, slip, pasture animals)", () => {
+    for (const b of CONTENT_BUILDINGS) {
+      if (b.road) continue;
+      const a: Record<string, unknown> = manifest.models[b.id]?.anchors ?? {};
+      expect(a.status, b.id).toBeDefined();
+      if (!b.field) expect(a.door, b.id).toBeDefined();
+      const producer = b.recipe !== undefined && !b.field;
+      // Chimney and smoke exactly on the producers that burn or cook (content `smoke`).
+      expect(a.smoke !== undefined, `${b.id} smoke`).toBe(producer && b.smoke === true);
+      expect(a.chimney !== undefined, `${b.id} chimney`).toBe(producer && b.smoke === true);
+      if (producer || b.warehouse || b.trading_post) expect(a.cart, b.id).toBeDefined();
+      expect(a.boat !== undefined, `${b.id} boat`).toBe(producer && (b.water_tiles ?? 0) > 0);
+      const berths = Math.max(0, ...(b.trading_post?.levels ?? []).map((l) => l.berths ?? 0));
+      for (let i = 1; i <= berths; i++) expect(a[`berth_${i}`], `${b.id} berth_${i}`).toBeDefined();
+      if (b.shipyard) expect(a.slip, b.id).toBeDefined();
+    }
+    for (const id of ["pasture", "cattle_pasture", "pig_pen"]) {
+      const a: Record<string, unknown> = manifest.models[id]?.anchors ?? {};
+      expect(a.gate, id).toBeDefined();
+      expect(Object.keys(a).filter((k) => /^(sheep|cattle|pig)_\d$/.test(k)).length, id).toBeGreaterThanOrEqual(3);
+    }
   });
 
   it("every ship's content length_tiles is its model's length (berth spacing and drawn size follow content)", () => {

@@ -1,9 +1,0 @@
-{
-  "$schema": "./schema.json",
-  "id": "life_crate",
-  "kind": "life",
-  "notes": "Life layer: one cargo crate (the KayKit small crate, simplified for instancing) stacked on a Trading Post's quay while a ship handles at its pier.",
-  "parts": [
-    {"name": "crate", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/crate_A_small.gltf", "scale": 0.5, "simplify": {"collapse": 0.5}}
-  ]
-}

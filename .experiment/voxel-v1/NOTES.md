@@ -1,0 +1,277 @@
+# D-057 V1 — voxel is the only renderer (clean cut)
+
+Branch `adhoc.20261028-171906-d-057-v1-voxel-is-the-only-renderer-clea`,
+based on the prototype branch (PR #36, `.experiment/voxel/NOTES.md`),
+rebased onto main (C4 #37 included). Supersedes #36.
+
+## Steps
+
+| # | Step | State |
+|---|------|-------|
+| 1 | `assets/voxel` becomes the asset build | done |
+| 2 | Delete the kit assets | done |
+| 3 | Client: one render path | done |
+| 4 | Tests and fixtures | done |
+| 5 | Device numbers | open |
+| 6 | Docs | done |
+
+## Step 1 — pipeline
+
+- `assets/voxel/build.py` writes `client/public/models/` (GLBs, `manifest.json`,
+  `thumbs/`); the build owns the folder and removes stale files.
+  `client/public/models-voxel/` is gone.
+- `make assets` / `make assets-check` (rebuild into a temp dir, byte
+  compare, lists changed/missing/stale) / `make assets-test`
+  (`assets/voxel/tests`, part of `make check`) / `make model-sheet
+  RECIPE=a,b` (sheet in `.experiment/sheets/<ids>.png`; without `RECIPE` the
+  ID list). `voxel`, `voxel-test`, `voxel-sheet` and `voxel-compare` are
+  dropped (no aliases); `compare.py` is deleted with `voxel-compare`.
+- Kept from nsassets (moved into `assets/voxel/nsvoxel/`): `glb.py`
+  (writer; `geometry.normal` inlined), `palette.py`, `content.py`
+  (content + planned loader, precedence, smoke/boat/pasture anchors),
+  `schema.py` (validator only). `config.py` is new and trimmed to what
+  the voxel build uses. `assets/build/planned/` → `assets/voxel/planned/`
+  (server tests updated: `merchants_test.go`, `patricians_test.go`).
+- Deleted: the Blender build (`assets/build/`: build.py, nsassets
+  pipeline/recipes/kits/blender_ops/atlas/validate/geometry, all its
+  tests), `client/scripts/assets.mjs` and the `npm run assets` script.
+- Decor/life IDs now come from the voxel recipe files (`decor_*`,
+  `life_*`), not from the old kit manifest.
+- Manifest: `missing_recipes` and `kit_sources` dropped; `placeholders`
+  (content IDs built by `auto.py`), `voxels_per_tile`, `generator`
+  added; `ModelManifest` in `client/src/render/models.ts` follows.
+- Rebase fix: the prototype's `market_small.py` recipe was orphaned by the
+  content rename `market_small` → `market` (#35); renamed to `market.py`
+  (5 × 6, levels 1–3 unchanged). A test now rejects orphan recipes.
+- Cart wheel anchors: the voxel carts have them at 0.15 tiles (kit
+  0.1474); `WHEEL_AHEAD` follows (`client/src/display/lifeplan.ts`).
+- CI: a separate `assets` job (setup-python 3.14.7, pinned), runs
+  `make assets-test` and `make assets-check` — no skip, no Blender.
+
+## Step 2 — kit assets
+
+- Deleted: `assets/recipes/` (123 kit-bash recipe JSONs + `schema.json`),
+  `assets/kits/MANIFEST.json` and `assets/kits/README.md`.
+- The kit GLBs and thumbnails were already replaced in step 1: the voxel
+  build writes the same file names into `client/public/models/` and removes
+  the rest (12 kit-only files: the merchants/patricians house variants
+  v0–v2 + lite, now single placeholder models).
+  `client/public/models/` holds only voxel output.
+- `assets/build/planned` is not deleted: it is the voxel pipeline's own
+  footprint source now (`assets/voxel/planned/`, moved in step 1; the
+  server's content tests read it).
+- `.gitignore` keeps an `assets/kits/*` ignore (local kit copies), the
+  `!MANIFEST.json`/`!README.md` exceptions are gone.
+
+## Step 3 — client: one render path
+
+- `display/voxel.ts` (`?voxel=1`, `VOXEL`, `modelBase`) and its test are
+  deleted; the voxel terrain, plateaus, far mask, decor yaw and cube
+  smoke puffs are the only code.
+- `render/terrain.ts`: the slab (`PROFILE`, `NEAR_PROFILE`,
+  `slabStrip`, `ProfileRing`, `fillCell`, `groundCell`, `GroundColors`,
+  `terrainColors`, `buildIslandMeshes`, `Builder.shaded`, `SLAB_REACH`)
+  is gone; `buildTerrain`/`TerrainBuild` build the voxel columns only
+  (`TerrainBuild.slab()` and its two build-queue steps removed).
+  The foam strip keeps the prototype's distances (0.252–0.91 tiles).
+- `render/plateaus.ts`: `stepProfile` and `fillTop` (the slab-profile
+  plateaus) deleted; `PLATEAU_STEP` 0.5; `plateauField` is the mesh.
+- `render/farmesh.ts`: the marching-squares + slab mask mesh deleted;
+  `maskMeshData` is the coarse voxel mask.
+- `render/trees.ts`: quarter-turn yaw always; `render/life.ts`: cube puffs.
+- Shots: `VOXEL=` removed from `make shots` / `e2e/tools/shots.ts` (presets
+  unchanged); `voxel-compare` went in step 1.
+- Comments that described kit-bashed models now say voxel (buildings,
+  models, trees, outcrops, archipelago, lod, island, chunks).
+- Minimap colours (palette-based 2D canvas from masks), ghost/field
+  previews (they draw the manifest model), harbour piers (part of the
+  trading post / harbour models) and construction stages (`life_stage`,
+  `life_stage_scaffolding`) were already on the voxel path: no change.
+
+**Fix (not new art): the voxel fields were offset.** The prototype's
+`islandField`/`plateauField` started the column grid at −0.5 (it assumed
+tile centres at integers), but island tiles span x … x + 1 (coastline,
+footprints, roads). Ground colours, the sand rim and the plateau columns
+were half a tile off their tiles, and the far mask mesh (1 column per
+tile, plus a −B/2 shift) was drawn 2 tiles north-west of the island's
+real position, so the far mask → full detail swap jumped. The grids now
+start at 0 (columns aligned with tiles); the mask test checks the land
+spans tiles 4…12 exactly. Alternative (stricter "prototype quality"):
+keep the offset and list it for V2 — rejected because it is a position
+bug, not a style choice.
+
+## Step 4 — tests
+
+Client (Vitest):
+- `render/models.test.ts`: the manifest is the voxel build's
+  (`voxels_per_tile`, palette hash); the model IDs are exactly the content
+  buildings (all tiers, no roads) and ships; placeholders are listed,
+  sorted and have entries; every building/field model has its anchors
+  (status, door; chimney + smoke exactly on content `smoke` producers;
+  cart on producers and storage; boat exactly on water-row producers;
+  berths, slip, pasture gate and animals); the file/profile/budget checks
+  now cover decor and life GLBs too.
+- `render/life.test.ts`: every modelled life class (carts, axle, villagers
+  with their variants, boat, crate, sheep) and the construction stages
+  (`life_stage` × STAGES, scaffolding) exist in the voxel manifest; the
+  layer test loads the voxel `life_cart`/`life_cart_axle`.
+- `render/sway.test.ts` (step 1): sway on the voxel ships, weaver_wool and
+  trading_post l4; none on placeholders.
+- `display/lifeplan.test.ts` (step 1): cart axles at the voxel wheel anchors.
+
+Pipeline (`make assets-test`, part of `make check`; 38 tests):
+- `test_committed.py`: `--check` rebuild (determinism against the
+  committed bytes), manifest header, one model per content ID,
+  placeholders = IDs without recipe, no orphan recipes, file hashes and
+  export profile, GLB folder size ≤ limit, thumbnails, per-tile budgets
+  per class (full and lite) and flat budgets, footprint fit and ground
+  contact, life anchors incl. smoke/boat flags, variants/levels/ships.
+- `test_pipeline.py`: a model over its full or lite budget fails the
+  build; budgets scale with the area per class; two parallel builds give
+  identical bytes; placeholders for every footprint kind (water rows,
+  smoke, levels + berths, slipway, house, field, pasture, service,
+  warehouse) with anchors and within budget; ships have no placeholder.
+- `test_planned.py`: planned loader validation, planned IDs beneath the
+  content (and their placeholders with anchors), content wins per ID,
+  `NEW_SHORES_CONTENT_DIR` override.
+- `test_voxel.py`: meshing, grid helpers, export, every recipe fits.
+
+## Step 5 — numbers (`make shots STATS=1`, headless Chromium on the M-series Mac)
+
+Commands: `make shots FIXTURE=<f> VIEW=<v> DEVICE=desktop,phone STATS=1
+OUT=.experiment/voxel-v1/shots` (PNGs there, git-ignored). "Kit" is the
+prototype's measurement of the kit renderer on the same views
+(`.experiment/voxel/NOTES.md` step 5, desktop); "proto" its `?voxel=1`
+numbers.
+
+| View | Device | Draws | Tris | Kit tris | Proto tris |
+|---|---|---|---|---|---|
+| far at the cap, 8 islands (dense-archipelago-8) | desktop | 14 | 66 710 | 59 868 | 67 116 |
+| far at the cap, 8 islands (dense-archipelago-8) | phone | 14 | 66 710 | – | – |
+| far at the cap, dense island (dense-2x400) | desktop | 19 | 152 200 | 166 322 | 151 980 |
+| far at the cap, dense island (dense-2x400) | phone | 19 | 152 200 | – | – |
+| mid, dense island (dense-2x400) | desktop | 52 | 1 410 520 | 876 765 | 1 410 642 |
+| mid, dense island (dense-2x400) | phone | 32 | 1 220 588 | – | – |
+| near with life, dense island (dense-2x400) | desktop | 49 | 1 300 474 | 843 338 | 1 302 090 |
+| near with life, dense island (dense-2x400) | phone | 43 | 1 236 416 | – | – |
+| far, settled | desktop | 11 | 188 560 | 213 355 | 190 894 |
+| mid, settled | desktop | 47 | 521 270 | – | – |
+| near with life, settled | desktop | 41 | 262 374 | 188 284 | 261 538 |
+
+Pan (`VIEW=pan`, 10 s real clock, desktop):
+
+| Fixture | Frames | Longest | p95 | > 50 ms | Max queue | Cold first frame / focus tiles | Warm |
+|---|---|---|---|---|---|---|---|
+| dense-2x400 | 601 | 17 ms | 17 ms | 0 | 2 | 190 / 454 ms | 76 / 291 ms |
+| dense-archipelago-8 | 599 | 33 ms | 17 ms | 0 | 8 | 202 / 478 ms | 111 / 338 ms |
+
+(Kit pan per the prototype: dense-2x400 longest 17 ms / queue 2;
+dense-archipelago-8 longest 133 ms with one frame > 50 ms / queue 7.)
+
+D-048 far budget (≤ 40 draws, ≤ 250k tris): met at the cap (14 / 67k
+and 19 / 152k). Draw calls equal the kit renderer's everywhere (the voxel
+path adds no meshes); near/mid on the dense island carry ~+55–60 %
+triangles (1.30M / 1.41M), inside the ≈ 1.6M envelope ART_DIRECTION §8
+records for the iPhone 15 Pro Max — **not verified on the device** (the
+gate stays `make preview HOST=<lan-ip>` with `?stats=1`; there is no
+`?voxel=1` any more). The numbers match the prototype's `?voxel=1` within
+0.5 % (the slab-only meshes are gone; the field alignment fix moves a few
+columns).
+
+### Visually rough spots for V2
+
+1. **Placeholders (66 IDs):** walls + roof + sign-letter models sized to
+   the footprint for every ID without a recipe — all 25 merchants and 26
+   patricians buildings (incl. `grain_distillery`, the tier-3/4 houses
+   with a single variant where the kits had three) and 15 citizens IDs
+   (apiary, cattle_pasture, cheese_dairy, cidery, dairy_farm, hemp_farm,
+   hemp_field, meadery, meadow, pig_farm, pig_pen, sailmaker, school,
+   tannery, weaver_linen).
+2. **Cloth sway:** only ships, `weaver_wool` and `trading_post` l4 carry
+   sway voxels; `sailmaker`, `weaver_linen`, `warehouse` l3 lost their
+   flags/cloth with the placeholders.
+3. **Roads:** still the smooth ribbons on the voxel ground (near).
+4. **Foam:** follows the smooth coastline while the shelves are stepped;
+   slightly off at near.
+5. **Ground colour:** per-column colour squares (quantised) instead of the
+   former smooth blend between tiles; field patterns unchanged.
+6. **Far mask:** a 1-column-per-tile staircase coast, coarser than the
+   focused island's lite terrain (2 per tile); heavier than the slab mask
+   (prototype: 77k vs 42k on settled far).
+7. **Construction stages:** three generic `life_stage` variants
+   stretched to the footprint; scaffolding generic.
+8. **Smoke puffs:** plain cubes.
+9. **Ghost previews:** many coplanar quads in the translucent model; may
+   z-fight on some GPUs (not seen in software WebGL).
+
+### Budgets (D-054 area scaling, re-based for voxels)
+
+Per footprint tile, prototype max × ~1.5 (`assets/voxel/nsvoxel/config.py`),
+enforced by the build (a model over budget fails it) and by
+`tests/test_committed.py`:
+
+| Class | Prototype max full / tile | Budget full / tile | Prototype max lite / tile | Budget lite / tile |
+|-------|---------------------------|--------------------|---------------------------|--------------------|
+| Buildings | 328 (chapel) | 500 | 26.0 | 40 |
+| Houses | 354 (house_citizens) | 540 | 28.9 | 45 |
+| Fields | 270 (orchard_plot) | 410 | — (no lite) | — |
+
+Flat budgets: ships sloop 2 800 / brig 6 000 / galleon 7 600 (prototype
+1 882 / 3 948 / 5 096), cargo 300 (192), decor 580 (384, decor_tree_a),
+life 760 (506, life_cart_merchant), construction stages 2 100 (1 370).
+The old `BUDGET_FACTOR = 2.0` tolerance is gone: the budget is the limit.
+
+Folder: committed GLBs 19.1 MiB (manifest-listed bytes; thumbnails 0.54 MiB more; the kit-era folder was 20.3 MiB in total); limit 24 MiB
+(`MODELS_FOLDER_LIMIT`, the kit-era ceiling kept).
+
+## Step 6 — docs
+
+- `docs/ART_DIRECTION.md`: §7 rewritten as "Models — procedural voxels"
+  (authoring, look rules, pipeline and tooling, budgets, measured numbers,
+  the lively look of D-057 §3 marked **V2**); the LOD bullet (§3), the
+  terrain slab/plateau/forest bullets (§4), the KayKit/Blender mentions in
+  the intro, §1 and §2, and a task-breakdown entry (§9) updated so the
+  document does not describe deleted code.
+- `AGENTS.md`: a non-negotiable "art is procedural voxels — no kits, no
+  Blender" bullet, the Python asset-build convention, and
+  `make assets-test && make assets-check` in the verification block.
+- `README.md`: the asset-build section (Python only, recipes, budgets,
+  checks, model-sheet), the document index and repo-layout rows, and the
+  credits (no KayKit models any more).
+- `docs/ARCHITECTURE.md` §3: `assets/` and `client/public/models` in the
+  tree.
+
+## Open questions
+
+1. **numpy.** The task asked for "Python + numpy, versions pinned" in CI.
+   The voxel pipeline is standard-library only (the prototype never used
+   numpy; numpy is not installed on the workstation). Stricter reading
+   taken: no new dependency (AGENTS.md: standard library first); CI pins
+   Python 3.14.7 only and AGENTS.md says Python 3 without numpy.
+   Alternative: add numpy (e.g. for a faster mesher) with a pinned
+   `requirements.txt` when a change actually uses it.
+2. **Folder limit.** Kept at 24 MiB (≈ 25 % headroom over 19.1 MiB). A
+   tighter limit (e.g. 20 MiB) would fail as soon as ~15 placeholders get
+   real recipes; a quantised export would shrink the files by ~50 % but
+   changes the GLB profile (V2).
+3. **`voxel-sheet` alias.** Dropped rather than kept as an alias of
+   `model-sheet` (one name per target).
+4. **Docs outside the allowed list are stale.** `docs/ARCHITECTURE.md`
+   §5a (asset pipeline: Blender, kits), `docs/STATUS.md` (KayKit/Blender
+   build, "V1 next"), `docs/LIFE_LAYER.md` (kit inventory) and
+   `client/public/models` mentions in other docs still describe the kit
+   pipeline. Stricter reading taken: only the listed docs/sections were
+   edited. Alternative: a follow-up docs sync (or widen this PR) — §5a is
+   one paragraph.
+5. **ART_DIRECTION beyond the listed sections.** The task named the
+   pipeline, budgets, LOD, authoring and tooling sections; I also fixed
+   the KayKit/Blender/slab sentences in the intro, §1, §2, §4 and §9 of the
+   same file, because they describe deleted code. Alternative: leave them
+   for the V2 docs pass.
+6. **Field alignment fix (step 3).** The half-tile column offset and the
+   2-tile far-mask shift of the prototype were fixed rather than listed for
+   V2 (they are position bugs). Alternative: keep the prototype's
+   geometry byte-for-byte and fix in V2.
+7. **Device numbers are headless Chromium on the Mac**, not the iPhone; the
+   device run (`make preview HOST=<lan-ip>`, `?stats=1`) stays with the
+   owner (D-052).

@@ -8,7 +8,8 @@ import { afterAll, describe, expect, it } from "vitest";
 import type { LifeAtLod, LifeBudget, LifePlan, LifeSink } from "../display/life";
 import { CLS, SEA_H } from "../display/lifeplan";
 import { LIFE_CLASSES, LifeLayer, writeMatrix } from "./life";
-import { type ModelData, ModelRegistry, parseGlb } from "./models";
+import { STAGES } from "./buildings";
+import { type ModelData, type ModelManifest, ModelRegistry, parseGlb } from "./models";
 import { SEA_LEVEL } from "./terrain";
 
 const MODELS = join(__dirname, "..", "..", "public", "models");
@@ -124,6 +125,24 @@ describe("LifeLayer with models", () => {
     // No attribute of the placeholder survives with its vertex count (it would break the draw).
     expect(life.classMesh(CLS.cart)?.mesh.getVerticesDataKinds()).not.toContain("uv");
     expect(scene.meshes.length).toBe(meshes);
+  });
+});
+
+describe("life models", () => {
+  it("every modelled life class and the construction stages have a voxel prop in the manifest, with their variants", () => {
+    const manifest = JSON.parse(readFileSync(join(MODELS, "manifest.json"), "utf8")) as ModelManifest;
+    const life = manifest.life ?? {};
+    const used = Object.values(LIFE_CLASSES).flatMap((d) => (d.model ? [d.model] : []));
+    expect(used.length).toBeGreaterThan(5);
+    for (const m of used) {
+      const e = life[m.id];
+      expect(e, m.id).toBeDefined();
+      if (m.variant !== undefined) expect(e?.variants?.[m.variant], `${m.id} v${m.variant}`).toBeDefined();
+      else expect(e?.file ?? e?.variants?.[0], m.id).toBeDefined();
+    }
+    // Construction stages A, B, C and the scaffolding (render/buildings.ts).
+    expect(life.life_stage?.variants).toHaveLength(STAGES);
+    expect(life.life_stage_scaffolding?.file).toBeDefined();
   });
 });
 

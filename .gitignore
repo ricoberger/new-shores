@@ -1,16 +1,12 @@
 # Local overrides of the Compose stack (credentials); never commit.
 deploy/.env
 
-# Third-party model kits (CC0 KayKit packs from kaylousberg.itch.io; tens of MB of
-# binaries and partly paid tiers). The asset build verifies them by checksum
-# against assets/kits/MANIFEST.json; recipes and generated GLBs are committed.
+# Local copies of the former third-party model kits (CC0 KayKit packs; not
+# used since D-057 V1, the voxel build needs no kits).
 assets/kits/*
-!assets/kits/MANIFEST.json
-!assets/kits/README.md
 .DS_Store
 
-# Asset build output (contact sheets) and Python caches.
-assets/build/out/
+# Python caches (asset build).
 __pycache__/
 
 # Local experiments and scratch notes (renders, exploration scripts).

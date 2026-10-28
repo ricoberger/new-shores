@@ -70,9 +70,19 @@ new-shores/
 ├── client/                     Vite + React + Babylon.js
 │   ├── src/api/                generated types (openapi-typescript), fetch/ws client
 │   ├── src/display/            extrapolation + display model
-│   ├── src/render/             Babylon scene, chunks, instancing, pickers
+│   ├── src/render/             Babylon scene, voxel terrain, chunks, instancing, pickers
 │   ├── src/ui/                 React HUD, panels, build menu, world map
+│   ├── public/models/          voxel GLBs + manifest.json + thumbs/ (generated, committed)
 │   └── e2e/tools/              `make shots` script (Playwright as a library)
+├── assets/
+│   ├── palette.json            colour source (client palette, voxel colours)
+│   ├── fonts/, icons/          pinned HUD fonts and icons
+│   └── voxel/                  voxel asset build (Python stdlib, D-057)
+│       ├── build.py            `make assets` / `assets-check` / `model-sheet`
+│       ├── nsvoxel/            grid, parts, mesher, GLB writer, placeholders, budgets
+│       ├── recipes/            one recipe per model ID; _decor, _life, _ships
+│       ├── planned/            footprints of IDs content does not define yet
+│       └── tests/              `make assets-test`
 ├── content/
 │   ├── schema/                 JSON Schema per entity
 │   └── old_coast/              tiers, goods, buildings, needs, ships, quests, islands, decorations

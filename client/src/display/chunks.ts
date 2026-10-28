@@ -12,7 +12,7 @@ export const CHUNK = 32;
 
 /**
  * Margin (tiles) around a chunk for the visibility test: the footprint is
- * the ground plane, and models, trees and the slab stand above or below
+ * the ground plane, and models, trees and the coast columns stand above or below
  * it and reach a little over the chunk's edge.
  */
 export const CHUNK_VIEW_MARGIN = 8;
@@ -24,7 +24,7 @@ export function chunkKey(cx: number, cy: number): string {
 
 /**
  * Key of the chunk holding island-local tile (or point) (x, y). Points
- * outside a width × height island (the slab's outer rings) go to the
+ * outside a width × height island (the coast's sand shelves) go to the
  * nearest edge chunk.
  */
 export function chunkAt(x: number, y: number, width = Infinity, height = Infinity): string {

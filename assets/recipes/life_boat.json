@@ -1,9 +1,0 @@
-{
-  "$schema": "./schema.json",
-  "id": "life_boat",
-  "kind": "life",
-  "notes": "Life layer: the fisher's rowing boat (the KayKit boat prop, as on the fisher's jetty) bow along +y, so the client turns it to its heading on the loop offshore.",
-  "parts": [
-    {"name": "boat", "kit": "kaykit_hexagon", "file": "Assets/gltf/decoration/props/boat.gltf", "scale": 0.45, "roles": {"Atlas/wood": {"role": "timber", "shade": 1.1}}}
-  ]
-}

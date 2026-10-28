@@ -64,12 +64,13 @@ describe("cloth sway", () => {
     expect((m.pluginManager?.getPlugin("Sway") as SwayPlugin).getCustomCode("fragment")).toBeNull();
   });
 
-  it("is marked on the sloop's sails, the cloth and the flags, nowhere else", () => {
-    for (const f of ["sloop.glb", "sailmaker.glb", "weaver_wool.glb", "weaver_linen.glb", "trading_post.l4.glb", "warehouse.l3.glb"]) {
+  it("is marked on the ships' sails, the cloth and the flags, nowhere else", () => {
+    // The voxel recipes with cloth (sway group); placeholders have none.
+    for (const f of ["sloop.glb", "brig.glb", "galleon.glb", "weaver_wool.glb", "trading_post.l4.glb"]) {
       const s = swaying(f);
       expect(s.n, f).toBeGreaterThan(0);
       expect(s.n, f).toBeLessThan(s.of);
     }
-    for (const f of ["house_settlers.v0.glb", "lumberjack.glb", "trading_post.l1.glb", "pasture.glb"]) expect(swaying(f).n, f).toBe(0);
+    for (const f of ["house_settlers.v0.glb", "lumberjack.glb", "trading_post.l1.glb", "pasture.glb", "sailmaker.glb"]) expect(swaying(f).n, f).toBe(0);
   });
 });
