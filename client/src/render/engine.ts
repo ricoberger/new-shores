@@ -33,6 +33,7 @@ import { type Quality, softwareRenderer } from "../display/quality";
 import { type ArchPoint, dockPoints, seaPoint, shipLengthRatio } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
+import { modelBase, VOXEL } from "../display/voxel";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
 import { ArchipelagoLayer, type ArchSelection, DOCK_STERN } from "./archipelago";
 import { CameraRig } from "./camera";
@@ -287,7 +288,7 @@ export class GameRenderer {
     this.rig = new CameraRig(this.scene, this.engine);
     const software = softwareRenderer(this.engine.getGlInfo().renderer);
     this.lighting = new SceneLighting(this.scene, this.rig.camera, quality, software && !forceFxaa, software);
-    this.models = new ModelRegistry(this.scene);
+    this.models = new ModelRegistry(this.scene, { base: modelBase(VOXEL) });
     this.models.onChange(() => {
       this.modelsDirty = true;
       this.modelLoads++;

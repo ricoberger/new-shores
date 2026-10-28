@@ -25,13 +25,18 @@
 #                     triangles and meshes of each shot's frame, first-frame and focused-island
 #                     full-tiles times since navigation; STATS=2: the active meshes by layer),
 #                     QUERY (extra URL parameters, e.g.
-#                     QUERY=farmask=0), HOLD_TILES=n (only the first n island tile requests are
+#                     QUERY=farmask=0), VOXEL=1 (the voxel prototype, ?voxel=1), HOLD_TILES=n (only the first n island tile requests are
 #                     answered: the lazy-loading look), VIEW=start (the opening camera, not a
 #                     default view), VIEW=pan (measurement on the GPU and the real clock: load
 #                     milestones cold and warm, then a 10 s far → mid pan through every island
 #                     with its longest frame and build queue; with STATS=1):
 #                     make shots FIXTURE=showcase VIEW=near DEVICE=desktop ROTATION=2
 #                     make shots FIXTURE=seafaring VIEW=far SEED=42
+#   make voxel        voxel art-style prototype: build client/public/models-voxel from
+#                     assets/voxel/recipes (Python 3 stdlib, no Blender; loaded with ?voxel=1;
+#                     .experiment/voxel/NOTES.md); make voxel-test runs its unit tests (part of
+#                     `make check`); make voxel-sheet RECIPE=fisher,house_settlers renders a
+#                     contact sheet to .experiment/voxel/sheets/<ids>.png
 #   make model-sheet  contact sheets of single recipes in .experiment/sheets (committed models
 #                     untouched; Blender 5.2 + NEW_SHORES_KITS_DIR); without RECIPE it lists
 #                     the recipe IDs: make model-sheet RECIPE=sawmill,sloop
@@ -58,9 +63,10 @@ DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUM
 
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
 	client-install client-check client-lint client-typecheck client-test client-build dev preview \
-	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet
+	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet \
+	voxel voxel-test voxel-sheet
 
-check: server-check content-test client-check makefile-test assets-test
+check: server-check content-test client-check makefile-test assets-test voxel-test
 
 server-check: server-fmt server-vet server-lint server-test
 
@@ -103,7 +109,7 @@ assets-check:
 	cd $(CLIENT_DIR) && npm run --silent assets -- --check
 
 # Screenshots of the game for polish work, see the header. The parameters
-# (FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED, CONTENT, QUERY, HOLD_TILES, SET)
+# (FIXTURE, VIEW, DEVICE, ROTATION, ISLAND, ZOOM, X, Y, OUT, HUD, PRESET, SEED, CONTENT, QUERY, VOXEL, HOLD_TILES, SET)
 # reach the script as environment variables; unknown values fail with the allowed list.
 shots:
 	cd $(CLIENT_DIR) && npm run --silent shots
@@ -129,6 +135,17 @@ endif
 
 assets-test:
 	python3 -m unittest discover -s assets/build/tests -t assets/build/tests
+
+# Voxel art-style prototype (see the header).
+voxel:
+	python3 assets/voxel/build.py
+
+voxel-test:
+	python3 -m unittest discover -s assets/voxel/tests -t assets/voxel/tests
+
+voxel-sheet:
+	@mkdir -p .experiment/voxel/sheets
+	python3 assets/voxel/build.py --only $(RECIPE) --sheet .experiment/voxel/sheets/$(subst $(comma),-,$(RECIPE)).png
 
 # Needs TEST_DATABASE_URL/TEST_REDIS_URL or a running Docker (testcontainers);
 # skipped otherwise (failed when CI is set).
