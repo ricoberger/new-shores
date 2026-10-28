@@ -1061,6 +1061,27 @@ curve, D-054's footprints):**
   other islands — which is the intended loop; C4 writes its reference
   game that way and `islands.json` stays until that is shown not to
   work (D-054 as built).
+- *As built (PR #37 C4, tier 4):* sim schema 11, content
+  `old_coast-0.13.0`. Every tier-4 chain, good, building, field and
+  deposit of CONTENT §5/§7 as written (`grain_distillery` as its own
+  building, fine_garments from dyed_garments + thread), `house_
+  patricians`, Patricians needs with three carried tiers, `university`
+  + `cathedral` in the ladder, `market` level 3 and Trading Post level 4,
+  galleon buildable, quartz / copper / gold deposits (gold exactly one
+  per archipelago, never home) in their own generator pass, `field.farm`
+  may be a list (the cattle pasture is shared by dairy and cattle
+  farms), quests gain `ship_count.type`, tier-4 quest chain ("glass
+  produced" = 30 glass in stock), dev fixture `patricians`. Reference
+  game `bootstrap_patricians` (extends bootstrap_merchants step for
+  step): Patricians unlocked 501 (≤ 900), first Patrician house 798
+  (≤ 960), every category ≥ 0.6 at 843 (≤ 1 800); build order and
+  island choice the only levers; tiers 1–3 byte-identical. **Island
+  area (closes D-054's provisional):** the four-tier city uses 59 % of
+  the home island (houses + public 8.8 %), 30 % of island 2 and 18 % of
+  the quartz island; nine islands untouched — `islands.json` stays.
+  Cost: the golden is 15 MB (0.7 MB in git) and the scenario package
+  replays each game once per test binary (`make check` 41 → 81 s); a
+  snapshot interval in the scenario format is the follow-up.
 
 ## D-057 Art style: procedural voxels replace the kit-bashed look
 

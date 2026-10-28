@@ -684,7 +684,7 @@ house cost is paid. One alternative per category is enough.
   island?}` (road types count tiles), `population {tier, min}`, `stock
   {good, min, island?}`, `connected {type}`, `route_exists` (a route with
   an assigned ship), `island_settled {count}`, `tier_unlocked {tier}`,
-  `ship_count {min}`, `satisfaction {tier, min}` (resident-weighted mean).
+  `ship_count {min, type?}` (optionally one ship type), `satisfaction {tier, min}` (resident-weighted mean).
   No quest ID appears in code.
 - A quest is active when its prerequisites are completed; completion is
   evaluated at every advancement boundary and after every command, happens
