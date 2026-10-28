@@ -461,26 +461,14 @@ STYLES = {
 
 def house(v, x0, y0, x1, y1, style="settler", along="x", wall=None, z0=1, height=None, roof=None, seed=0, hip=False):
     """
-    A whole building block in a tier style: walls (timber frame or rubble)
-    from z0 and a gable (or hipped) roof. Returns the height above the
-    ridge. The quickest way to a plausible building; recipes add doors,
-    windows, chimneys and props.
+    A whole building block in a tier style (v2, D-057 §3): a proud stone
+    plinth, walls (pegged timber frame or coursed stone with quoins) from z0
+    and a roof of courses with eaves and ridge (thatch, tiles or slate by
+    the roof material's role). Returns the height above the ridge. The
+    quickest way to a plausible building; recipes add doors, windows,
+    chimneys and props (`building` returns the parts for that).
     """
-    st = STYLES[style]
-    top = height or st["wall"]
-    infill = wall or (mat("plaster") if style != "citizen" else mat("ochre"))
-    if style in ("stone", "stonethatch"):
-        stone_wall(v, x0, y0, x1, y1, z0, top, STONE, seed)
-        quoins(v, x0, y0, x1, y1, z0, top)
-        gable_wall = STONE
-    else:
-        v.box(x0, y0, z0, x1, y1, z0 + 1, STONE_DARK)
-        timber_frame(v, x0, y0, x1, y1, z0 + 1, top, infill, TIMBER, spacing=5, braces=False, sill=False)
-        gable_wall = infill
-    r = roof or st["roof"]
-    if hip:
-        return v.hip(x0, x1, y0, y1, top, r, ov=1, rise=st["rise"], ridge=st["ridge"])
-    return v.gable(x0, x1, y0, y1, top, r, gable_wall, along=along, rise=st["rise"], ov=1, ridge=st["ridge"], seed=seed)
+    return building(v, x0, y0, x1, y1, style, along, wall=wall, z0=z0, height=height, roof=roof, seed=seed, hip=hip).top
 
 
 def windows(v, side, plane, a0, a1, z, every=6, w=2, h=2, skip=(), **kw):
@@ -497,3 +485,7 @@ def smoke(v, x, y, z0, z1, **kw):
     v.anchor("chimney", s[0], s[1], s[2] - 1)
     v.anchor("smoke", *s)
     return s
+
+
+from .detail import *  # noqa: E402,F401,F403  (the v2 helpers at D-057 §3 detail)
+from .detail import building  # noqa: E402
