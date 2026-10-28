@@ -19,7 +19,8 @@ func TestLoadCitizensContent(t *testing.T) {
 	types := map[string]string{
 		"wheat": "raw", "flour": "intermediate", "bread": "food", "apples": "raw", "cider": "drink", "hemp": "raw",
 		"linen_garments": "clothing", "stone": "construction", "iron_ore": "raw", "charcoal": "intermediate", "iron": "intermediate",
-		"tools": "construction",
+		"tools": "construction", "coal": "intermediate",
+		"milk": "raw", "cheese": "food", "honey": "raw", "mead": "drink", "pigs": "raw", "leather_jerkins": "clothing",
 	}
 	for id, typ := range types {
 		if g := c.GoodByID[id]; g == nil || g.Type != typ {
@@ -36,23 +37,35 @@ func TestLoadCitizensContent(t *testing.T) {
 			t.Errorf("%s kind %s", n.ID, n.Kind)
 		}
 		if n.IsGoods() {
-			got = append(got, fmt.Sprintf("%s:%s:%s:%d:%d", n.ID, n.Category, n.Goods[0].Good, n.Goods[0].PerResidentPerMin, n.Weight))
-			if len(n.Goods) != 1 || n.VarietyBonus != 100_000 || n.MaxExtraGoods != 2 {
-				t.Errorf("%s = %+v", n.ID, n)
+			var goods []string
+			for _, g := range n.Goods {
+				goods = append(goods, fmt.Sprintf("%s=%d", g.Good, g.PerResidentPerMin))
+				// One alternative fills the category; two share 0.6 each
+				// (D-056 amendment).
+				if want := map[bool]int64{true: ShareLone, false: ShareAlternative}[len(n.Goods) == 1]; g.Share != want {
+					t.Errorf("%s %s share %d, want %d", n.ID, g.Good, g.Share, want)
+				}
 			}
+			got = append(got, fmt.Sprintf("%s:%s:%s:%d", n.ID, n.Category, strings.Join(goods, "/"), n.Weight))
 		} else {
-			got = append(got, fmt.Sprintf("%s:%s:%d:%d", n.ID, n.Building, n.Radius, n.Weight))
+			got = append(got, fmt.Sprintf("%s:%s:%s:%d", n.ID, n.Category, needBuildings(n), n.Weight))
 		}
 	}
 	want := []string{
-		"citizens_food:food:bread:8:200000", "citizens_drink:drink:cider:6:200000", "citizens_clothing:clothing:linen_garments:5:200000",
-		"citizens_market_small:market_small:12:100000", "citizens_chapel:chapel:16:150000", "citizens_tavern:tavern:14:150000",
+		// Two alternatives per category from tier 2 (D-056 §5).
+		"citizens_food:food:bread=8000/cheese=6000:120000", "citizens_drink:drink:cider=6000/mead=5000:120000",
+		"citizens_clothing:clothing:linen_garments=5000/leather_jerkins=4000:120000",
+		// Services (D-056): one cumulative category, 0.6 per building.
+		"citizens_services:services:market_small=600000/chapel=600000/tavern=600000/school=600000:240000",
+		// Lower-tier categories (D-056): 0.4 split 0.5 : 0.2.
+		"citizens_settlers_food:food:fish=4200:285714", "citizens_settlers_clothing:clothing:wool_garments=2100:114286",
 	}
 	if !slices.Equal(got, want) || weights != WeightScale {
 		t.Errorf("citizens needs = %v (weights %d), want %v", got, weights, want)
 	}
-	// D-012: the Settlers' needs are unchanged.
-	if n := c.NeedsByTier["settlers"]; len(n) != 3 || n[0].Goods[0].Good != "fish" || n[1].Goods[0].Good != "wool_garments" || n[2].Building != "market_small" {
+	// D-012: the Settlers' goods needs are unchanged; services (D-056)
+	// are market and chapel.
+	if n := c.NeedsByTier["settlers"]; len(n) != 3 || n[0].Goods[0].Good != "fish" || n[1].Goods[0].Good != "wool_garments" || needBuildings(n[2]) != "market_small=600000/chapel=600000" {
 		t.Errorf("settlers needs changed: %+v", n)
 	}
 
@@ -63,8 +76,13 @@ func TestLoadCitizensContent(t *testing.T) {
 	if r := c.BuildingByID["road_paved"]; r.Road == nil || r.Road.MsPerTile != 600 || r.Tier != "citizens" {
 		t.Errorf("road_paved = %+v", r)
 	}
-	if tv := c.BuildingByID["tavern"]; tv.Service == nil || tv.Service.Radius != 14 || tv.PauseCategory != "public" || !tv.RequiresRoad {
+	if tv := c.BuildingByID["tavern"]; tv.Service == nil || tv.Service.RadiusAt(1) != 14 || tv.Upgradable() || tv.PauseCategory != "public" || !tv.RequiresRoad {
 		t.Errorf("tavern = %+v", tv)
+	}
+	// The second tier-2 service (D-056 §3).
+	if sc := c.BuildingByID["school"]; sc.Service == nil || sc.Service.RadiusAt(1) != 16 || sc.Upgradable() || sc.PauseCategory != "public" || !sc.RequiresRoad ||
+		sc.Tier != "citizens" || sc.Cost.Gold != 1_000_000 || sc.UpkeepPerMin != 4000 || sc.Width != 6 || sc.Height != 8 {
+		t.Errorf("school = %+v", sc)
 	}
 
 	type chain struct {
@@ -88,14 +106,21 @@ func TestLoadCitizensContent(t *testing.T) {
 		"quarry":          {"", "stone", 45_000, "settlers", 8000, "", "stone", "intermediate"},
 		"iron_mine":       {"", "iron_ore", 60_000, "settlers", 10_000, "", "iron", "intermediate"},
 		"charcoal_burner": {"wood", "charcoal", 45_000, "settlers", 4000, "", "", "intermediate"},
-		"smelter":         {"iron_ore,charcoal", "iron", 60_000, "settlers", 8000, "", "", "intermediate"},
+		"smelter":         {"iron_ore,charcoal|coal", "iron", 60_000, "settlers", 8000, "", "", "intermediate"},
 		"toolmaker":       {"iron", "tools", 60_000, "settlers", 8000, "", "", "intermediate"},
+		// D-056 tier-2 alternatives.
+		"dairy_farm":   {"", "milk", 60_000, "settlers", 6000, "", "", "intermediate"},
+		"cheese_dairy": {"milk", "cheese", 60_000, "citizens", 6000, "", "", "need_goods"},
+		"apiary":       {"", "honey", 90_000, "settlers", 4000, "", "", "intermediate"},
+		"meadery":      {"honey", "mead", 60_000, "citizens", 6000, "", "", "need_goods"},
+		"pig_farm":     {"", "pigs", 90_000, "settlers", 6000, "", "", "intermediate"},
+		"tannery":      {"pigs", "leather_jerkins", 60_000, "citizens", 8000, "", "", "need_goods"},
 	}
 	for id, w := range chains {
 		b := c.BuildingByID[id]
 		var ins []string
 		for _, in := range b.Recipe.Inputs {
-			ins = append(ins, in.Good)
+			ins = append(ins, strings.Join(in.Goods, "|"))
 		}
 		fert := ""
 		if b.WorkArea != nil {
@@ -442,10 +467,11 @@ func TestBalanceChecklist(t *testing.T) {
 		tier := c.TierByID[tc.tier]
 		counts := map[string]int64{}
 		for _, n := range c.NeedsByTier[tc.tier] {
-			if !n.IsGoods() {
+			// Lower-tier categories share the lower tier's chains.
+			if !n.IsGoods() || n.FromTier != "" {
 				continue
 			}
-			demand := tc.population * n.Goods[0].PerResidentPerMin
+			demand := tc.population * n.Goods[0].PerResidentPerMin / MilliPerUnit
 			capacity := chainCapacity(c, n.Goods[0].Good, demand, counts)
 			surplus := capacity*1000/demand - 1000
 			t.Logf("%s @%d: %s demand %d, capacity %d milli/min: surplus %d ‰", tc.tier, tc.population, n.Goods[0].Good, demand, capacity, surplus)
@@ -473,4 +499,14 @@ func TestBalanceChecklist(t *testing.T) {
 			t.Errorf("%s: workforce %d leaves less than 20 %% slack of %d", tc.tier, workforce, tc.population)
 		}
 	}
+}
+
+// needBuildings renders the building alternatives of a need as
+// "building=share/...".
+func needBuildings(n *Need) string {
+	var parts []string
+	for _, nb := range n.Buildings {
+		parts = append(parts, fmt.Sprintf("%s=%d", nb.Building, nb.Share))
+	}
+	return strings.Join(parts, "/")
 }

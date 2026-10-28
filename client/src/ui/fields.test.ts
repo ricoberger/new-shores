@@ -28,7 +28,10 @@ const b = (id: string, name: string, extra: Record<string, unknown> = {}) => ({
 });
 
 const content = {
-  tiers: [{ id: "settlers", name: "Settlers", index: 0 }],
+  tiers: [
+    { id: "settlers", name: "Settlers", index: 0 },
+    { id: "merchants", name: "Merchants", index: 2 },
+  ],
   goods: [{ id: "wool", name: "Wool" }],
   buildings: [
     b("pasture", "Pasture", { width: 2, height: 2, cost: { gold: 15_000, materials: {} }, field: { type: "pasture", farm: "sheep_farm", terrain: ["grass"] } }),
@@ -51,7 +54,17 @@ const content = {
         levels: [{ capacity: 300_000, throughput_per_min: 30_000, berths: 1 }, { capacity: 500_000, throughput_per_min: 55_000, berths: 2, cost: { gold: 300_000, materials: { planks: 20_000 } } }],
       },
     }),
-    b("tavern", "Tavern", { width: 3, height: 3, category: "public", upkeep_per_min: 6_000, pause_category: "public", service: { radius: 14 } }),
+    b("tavern", "Tavern", { width: 3, height: 3, category: "public", upkeep_per_min: 6_000, pause_category: "public", service: { radius: 14, levels: [{ radius: 14 }] } }),
+    b("market_small", "Small market", {
+      width: 4,
+      height: 4,
+      category: "public",
+      pause_category: "public",
+      service: {
+        radius: 12,
+        levels: [{ radius: 12 }, { radius: 16, tier: "merchants", cost: { gold: 1_000_000, materials: { planks: 15_000 } } }, { radius: 20, tier: "patricians", cost: { gold: 5_000_000, materials: {} } }],
+      },
+    }),
   ],
   ships: [],
   quests: [],
@@ -71,8 +84,7 @@ const panel = (building: BuildingDisplay, island: IslandDisplay, model: DisplayS
       onDemolish: () => {},
       onMove: () => {},
       onUpgrade: () => {},
-      onUpgradeWarehouse: () => {},
-      onUpgradeTradingPost: () => {},
+      onUpgradeBuilding: () => {},
       onSelectBuilding: () => {},
       onAddField: () => {},
       nowMs: 0,
@@ -194,6 +206,24 @@ describe("fields in the HUD (D-051 part 4)", () => {
     expect(text(html)).toContain("Radius14 tiles");
     expect(text(html)).toContain("Upkeep6.0 $/min");
     expect(text(panel({ ...tavern, paused: true }, island, model))).toContain("Upkeep0.0 $/min");
+  });
+
+  it("shows a levelled market's level, radius and next level with its tier lock, with Upgrade in the footer (D-056)", () => {
+    const model = fixture("settlers_grow");
+    const island = model.islands[0]!;
+    const market = { ...island.buildings[0]!, id: 9_998, type: "market_small", level: 1, paused: false } as unknown as BuildingDisplay;
+    delete (market as { rates?: unknown }).rates;
+    delete (market as { residents?: unknown }).residents;
+    const t = text(panel(market, island, model));
+    expect(t).toContain("Level1 / 3");
+    expect(t).toContain("Radius12 tiles");
+    expect(t).toContain("Upgrade to level 2");
+    expect(t).toContain("16 tiles radius");
+    expect(t).toContain("Needs Merchants");
+    expect(panel(market, island, model)).toContain('data-testid="service-upgrade-button"');
+    const top = text(panel({ ...market, level: 3 } as BuildingDisplay, island, model));
+    expect(top).toContain("Radius20 tiles");
+    expect(top).not.toContain("Upgrade to level");
   });
 
   it("shows the warehouse as rows, its producers and the next level, with Upgrade in the footer", () => {

@@ -42,9 +42,6 @@ func checkReferences(c *Catalogue) error {
 	if rules.GrowthThreshold < 0 || rules.GrowthThreshold > WeightScale {
 		col.add(FileRegion, rent, "rules.growth_satisfaction_threshold", "must be in [0, 1]")
 	}
-	if rules.OptionalTaxBonus < 0 {
-		col.add(FileRegion, rent, "rules.optional_tax_bonus", "must be >= 0")
-	}
 	// The reserve is the hysteresis between insolvency pauses and
 	// auto-resumes; without it a building can be paused and resumed every
 	// millisecond (MECHANICS §7).
@@ -83,9 +80,6 @@ func checkReferences(c *Catalogue) error {
 		}
 		for i, id := range t.Unlock.Buildings {
 			building(FileTiers, ent, fmt.Sprintf("unlock.buildings[%d]", i), id)
-		}
-		for i, id := range t.Unlock.GoodsDelivered {
-			good(FileTiers, ent, fmt.Sprintf("unlock.goods_delivered[%d]", i), id)
 		}
 		_, hasNeeds := c.NeedsByTier[t.ID]
 		if t.House == "" {
@@ -127,8 +121,19 @@ func checkReferences(c *Catalogue) error {
 			good(FileBuildings, ent, "cost."+m.Good, m.Good)
 		}
 		if r := b.Recipe; r != nil {
+			seen := map[string]bool{}
 			for i, in := range r.Inputs {
-				good(FileBuildings, ent, fmt.Sprintf("recipe.inputs[%d].good", i), in.Good)
+				for j, g := range in.Goods {
+					field := fmt.Sprintf("recipe.inputs[%d].good", i)
+					if len(in.Goods) > 1 {
+						field = fmt.Sprintf("recipe.inputs[%d].good[%d]", i, j)
+					}
+					good(FileBuildings, ent, field, g)
+					if seen[g] {
+						col.add(FileBuildings, ent, field, "good %q is accepted by more than one input", g)
+					}
+					seen[g] = true
+				}
 			}
 			for i, out := range r.Outputs {
 				good(FileBuildings, ent, fmt.Sprintf("recipe.outputs[%d].good", i), out.Good)
@@ -175,6 +180,27 @@ func checkReferences(c *Catalogue) error {
 					col.add(FileBuildings, ent, fmt.Sprintf("warehouse.levels[%d]", i), "throughput must be > 0")
 				}
 				checkLevelCost(col, ent, fmt.Sprintf("warehouse.levels[%d].cost", i), i, l.Cost)
+			}
+		}
+		if s := b.Service; s != nil {
+			for i, l := range s.Levels {
+				field := fmt.Sprintf("service.levels[%d]", i)
+				if l.Radius < 1 {
+					col.add(FileBuildings, ent, field+".radius", "must be >= 1")
+				}
+				if i > 0 && l.Radius < s.Levels[i-1].Radius {
+					col.add(FileBuildings, ent, field+".radius", "must not be below the previous level's")
+				}
+				checkLevelCost(col, ent, field+".cost", i, l.Cost)
+				switch {
+				case i == 0 && l.Tier != "":
+					col.add(FileBuildings, ent, field+".tier", "the first level has no tier condition")
+				case l.Tier != "":
+					tier(FileBuildings, ent, field+".tier", l.Tier)
+				}
+			}
+			if b.TradingPost != nil || b.Warehouse != nil {
+				col.add(FileBuildings, ent, "service", "a collector cannot be a public building")
 			}
 		}
 		if b.WaterTiles != 0 {
@@ -308,20 +334,36 @@ func checkReferences(c *Catalogue) error {
 					col.add(FileNeeds, ent, fmt.Sprintf("goods[%d].per_resident_per_min", i), "must be > 0")
 				}
 			}
-			if n.Building != "" {
-				building(FileNeeds, ent, "building", n.Building)
+			seenB := map[string]bool{}
+			for i, nb := range n.Buildings {
+				field := fmt.Sprintf("buildings[%d]", i)
+				checkNeedBuilding(c, col, ent, field, n, nb.Building)
+				if seenB[nb.Building] {
+					col.add(FileNeeds, ent, field+".building", "duplicate building %q", nb.Building)
+				}
+				seenB[nb.Building] = true
+				if nb.Share <= 0 || nb.Share > WeightScale {
+					col.add(FileNeeds, ent, field+".share", "must be in (0, 1]")
+				}
 			}
 			if n.IsGoods() || n.Category != "" {
 				if _, ok := c.NeedCategoryByID[n.Category]; !ok {
 					col.add(FileNeeds, ent, "category", "unknown need category %q (need_categories.json)", n.Category)
 				}
 			}
-			if n.VarietyBonus < 0 {
-				col.add(FileNeeds, ent, "variety_bonus", "must be >= 0")
+			for i, g := range n.Goods {
+				if g.Share <= 0 || g.Share > WeightScale {
+					col.add(FileNeeds, ent, fmt.Sprintf("goods[%d].share", i), "must be in (0, 1]")
+				}
+			}
+			if n.FromTier != "" {
+				checkFromTier(c, col, ent, n)
 			}
 			switch n.Kind {
 			case NeedRequired:
-				required += n.Weight
+				if n.FromTier == "" {
+					required += n.Weight
+				}
 			case NeedOptional:
 				if n.Weight <= 0 || n.Weight > WeightScale {
 					col.add(FileNeeds, ent, "weight", "optional weight must be in (0, 1]")
@@ -337,6 +379,55 @@ func checkReferences(c *Catalogue) error {
 		}
 	}
 	return col.err()
+}
+
+// checkFromTier validates a lower-tier category carried by a higher tier
+// (D-056): from_tier is a lower tier that has a required goods need of the
+// same category with the same goods, and the carried need is required.
+// The content test checks the reduced rates.
+func checkFromTier(c *Catalogue, col *collector, ent string, n *Need) {
+	from, own := c.TierByID[n.FromTier], c.TierByID[n.Tier]
+	if from == nil || own == nil || from.Index >= own.Index {
+		col.add(FileNeeds, ent, "from_tier", "must be a lower tier than %q", n.Tier)
+		return
+	}
+	if n.Kind != NeedRequired {
+		col.add(FileNeeds, ent, "kind", "a lower-tier category must be required")
+	}
+	for _, src := range c.NeedsByTier[n.FromTier] {
+		if src.Category != n.Category || src.FromTier != "" || src.Kind != NeedRequired {
+			continue
+		}
+		if len(src.Goods) != len(n.Goods) {
+			break
+		}
+		for i := range src.Goods {
+			if src.Goods[i].Good != n.Goods[i].Good {
+				col.add(FileNeeds, ent, "goods", "must list the goods of %q in its order", src.ID)
+				return
+			}
+		}
+		return
+	}
+	col.add(FileNeeds, ent, "category", "tier %q has no required goods need of category %q with the same goods", n.FromTier, n.Category)
+}
+
+// checkNeedBuilding validates an alternative of a building need: a public
+// building (service block) of the need's tier or a lower one (services
+// are cumulative, D-056).
+func checkNeedBuilding(c *Catalogue, col *collector, ent, field string, n *Need, id string) {
+	b, ok := c.BuildingByID[id]
+	switch {
+	case !ok:
+		col.add(FileNeeds, ent, field+".building", "unknown building %q", id)
+	case b.Service == nil:
+		col.add(FileNeeds, ent, field+".building", "%q is not a public building (no service block)", id)
+	default:
+		bt, nt := c.TierByID[b.Tier], c.TierByID[n.Tier]
+		if bt != nil && nt != nil && bt.Index > nt.Index {
+			col.add(FileNeeds, ent, field+".building", "%q is of tier %q, above the need's tier %q", id, b.Tier, n.Tier)
+		}
+	}
 }
 
 // checkFields validates the fields of farms (D-049, D-051 part 4): every

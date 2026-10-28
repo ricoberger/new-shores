@@ -839,9 +839,10 @@ func TestPropertyComposition(t *testing.T) {
 	for name, c := range cats {
 		// The recovery cases need towns that fall into insolvency again
 		// and again; they keep the never-pausable upkeep of the content
-		// before it was folded into the prices (legacyUpkeep), the random
-		// command cases run on the content as shipped.
-		rc := legacyUpkeep(c)
+		// before it was folded into the prices (legacyUpkeep) and the tax
+		// bonuses before D-056 (bonusTax); the random command cases run on
+		// the content as shipped.
+		rc := legacyUpkeep(bonusTax(c))
 		t.Run(name, func(t *testing.T) {
 			for seed := range uint64(propertyCases) {
 				p := newPropCase(t, c, 10_000+seed)
@@ -1004,7 +1005,7 @@ func fishWeaverCatalogue(base *content.Catalogue, reserveMs int64) *content.Cata
 	c.Region.Rules.AutoResumeMs = reserveMs
 	weaver := *base.BuildingByID["weaver_wool"]
 	rec := *weaver.Recipe
-	rec.Inputs = []content.GoodAmount{{Good: "fish", Amount: 1000}}
+	rec.Inputs = []content.RecipeInput{content.NewRecipeInput(1000, "fish")}
 	weaver.Recipe = &rec
 	c.BuildingByID = maps.Clone(base.BuildingByID)
 	c.BuildingByID["weaver_wool"] = &weaver
@@ -1158,7 +1159,7 @@ func TestPropertyResumeEligibility(t *testing.T) {
 		// Fish delivery at 90-110 % of the houses' demand for 2 hours,
 		// booked as granted so that conservation holds.
 		now := w.LastEvaluatedAt.UnixMilli()
-		rate := needRate(n, 10) * int64(90+p.rng.IntN(21)) / 100
+		rate := needRate(n, 10_000) * int64(90+p.rng.IntN(21)) / 100
 		seg := TransitSegment{Good: "fish", FromMs: now, ToMs: now + 7_200_000, RateSub: rate}
 		w.Islands[0].Building(houses[0]).Transit = []TransitSegment{seg}
 		p.l.flow("main", "fish").Granted += seg.RateSub * (seg.ToMs - seg.FromMs)

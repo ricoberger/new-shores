@@ -346,7 +346,7 @@ func step(is *Island, c *content.Catalogue, r *rates, now, dt int64, coarse bool
 			b.setBufferFine(out.Good, buf)
 		}
 		if p.connected {
-			for _, in := range p.def.Recipe.Inputs {
+			for _, in := range p.in {
 				amount := p.rate * in.Amount * dt
 				delta[in.Good] -= amount
 				l.flow(is.ID, in.Good).Consumed += amount

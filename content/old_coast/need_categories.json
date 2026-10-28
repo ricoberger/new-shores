@@ -3,5 +3,6 @@
   { "id": "drink", "name": "Drink", "icon": "need:drink" },
   { "id": "clothing", "name": "Clothing", "icon": "need:clothing" },
   { "id": "comfort", "name": "Comfort", "icon": "need:_fallback" },
-  { "id": "luxury", "name": "Luxury", "icon": "need:_fallback" }
+  { "id": "luxury", "name": "Luxury", "icon": "need:_fallback" },
+  { "id": "services", "name": "Services", "icon": "need:services" }
 ]

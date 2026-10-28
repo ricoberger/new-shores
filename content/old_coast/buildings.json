@@ -88,7 +88,7 @@
   },
   {
     "id": "market_small",
-    "name": "Small market",
+    "name": "Market",
     "region": "old_coast",
     "tier": "settlers",
     "footprint": [5, 6],
@@ -97,7 +97,13 @@
     "cost": { "gold": 250, "planks": 15 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "service": { "radius": 12 }
+    "service": {
+      "levels": [
+        { "radius": 12 },
+        { "radius": 16, "tier": "merchants", "cost": { "gold": 1000, "planks": 15, "stone": 30 } },
+        { "radius": 20, "tier": "patricians", "cost": { "gold": 5000, "planks": 15, "stone": 45 } }
+      ]
+    }
   },
   {
     "id": "chapel",
@@ -222,7 +228,7 @@
     "id": "shipyard",
     "name": "Shipyard",
     "region": "old_coast",
-    "tier": "settlers",
+    "tier": "citizens",
     "footprint": [8, 12],
     "water_tiles": 4,
     "coastal": false,
@@ -230,7 +236,7 @@
     "cost": { "gold": 300, "planks": 45 },
     "upkeep_per_min": 0,
     "pause_category": "never",
-    "shipyard": { "ships": ["sloop"] }
+    "shipyard": { "ships": ["sloop", "brig", "galleon"] }
   },
   {
     "id": "house_citizens",
@@ -270,6 +276,19 @@
     "upkeep_per_min": 2,
     "pause_category": "public",
     "service": { "radius": 14 }
+  },
+  {
+    "id": "school",
+    "name": "School",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [6, 8],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 1000, "planks": 15, "stone": 30 },
+    "upkeep_per_min": 4,
+    "pause_category": "public",
+    "service": { "radius": 16 }
   },
   {
     "id": "wheat_farm",
@@ -341,6 +360,56 @@
     }
   },
   {
+    "id": "dairy_farm",
+    "name": "Dairy farm",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 170, "planks": 5, "stone": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 6 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "milk", "amount": 1 }],
+      "cycle_seconds": 60
+    },
+    "fields": { "type": "cattle_pasture", "required": 5, "max": 5 }
+  },
+  {
+    "id": "cattle_pasture",
+    "name": "Cattle pasture",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [4, 7],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 30, "planks": 5 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "cattle_pasture", "farm": "dairy_farm", "terrain": ["grass"] }
+  },
+  {
+    "id": "cheese_dairy",
+    "name": "Cheese dairy",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 180, "planks": 6, "stone": 6 },
+    "upkeep_per_min": 3,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "milk", "amount": 1 }],
+      "outputs": [{ "good": "cheese", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
     "id": "orchard",
     "name": "Orchard",
     "region": "old_coast",
@@ -392,6 +461,56 @@
     }
   },
   {
+    "id": "apiary",
+    "name": "Apiary",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [5, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 290, "planks": 5, "stone": 12 },
+    "upkeep_per_min": 4,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 4 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "honey", "amount": 1 }],
+      "cycle_seconds": 90
+    },
+    "fields": { "type": "meadow", "required": 100, "max": 100 }
+  },
+  {
+    "id": "meadow",
+    "name": "Meadow",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [1, 1],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 1 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "meadow", "farm": "apiary", "terrain": ["grass"] }
+  },
+  {
+    "id": "meadery",
+    "name": "Meadery",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [4, 5],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 180, "planks": 6, "stone": 6 },
+    "upkeep_per_min": 3,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "citizens", "amount": 6 },
+    "recipe": {
+      "inputs": [{ "good": "honey", "amount": 1 }],
+      "outputs": [{ "good": "mead", "amount": 1 }],
+      "cycle_seconds": 60
+    }
+  },
+  {
     "id": "hemp_farm",
     "name": "Hemp farm",
     "region": "old_coast",
@@ -440,6 +559,56 @@
       "inputs": [{ "good": "hemp", "amount": 1 }],
       "outputs": [{ "good": "linen_garments", "amount": 1 }],
       "cycle_seconds": 45
+    }
+  },
+  {
+    "id": "pig_farm",
+    "name": "Pig farm",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 170, "planks": 5, "stone": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "intermediate",
+    "workforce": { "tier": "settlers", "amount": 6 },
+    "recipe": {
+      "inputs": [],
+      "outputs": [{ "good": "pigs", "amount": 1 }],
+      "cycle_seconds": 90
+    },
+    "fields": { "type": "pig_pen", "required": 5, "max": 5 }
+  },
+  {
+    "id": "pig_pen",
+    "name": "Pig pen",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": false,
+    "cost": { "gold": 20, "planks": 5 },
+    "upkeep_per_min": 0,
+    "pause_category": "never",
+    "field": { "type": "pig_pen", "farm": "pig_farm", "terrain": ["grass"] }
+  },
+  {
+    "id": "tannery",
+    "name": "Tannery",
+    "region": "old_coast",
+    "tier": "citizens",
+    "footprint": [3, 4],
+    "coastal": false,
+    "requires_road": true,
+    "cost": { "gold": 180, "planks": 6, "stone": 6 },
+    "upkeep_per_min": 2,
+    "pause_category": "need_goods",
+    "workforce": { "tier": "citizens", "amount": 8 },
+    "recipe": {
+      "inputs": [{ "good": "pigs", "amount": 1 }],
+      "outputs": [{ "good": "leather_jerkins", "amount": 1 }],
+      "cycle_seconds": 60
     }
   },
   {
@@ -529,7 +698,7 @@
     "pause_category": "intermediate",
     "workforce": { "tier": "settlers", "amount": 8 },
     "recipe": {
-      "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": "charcoal", "amount": 1 }],
+      "inputs": [{ "good": "iron_ore", "amount": 1 }, { "good": ["charcoal", "coal"], "amount": 1 }],
       "outputs": [{ "good": "iron", "amount": 1 }],
       "cycle_seconds": 60
     }

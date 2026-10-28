@@ -79,7 +79,9 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 				for _, n := range b.Needs {
 					needs = append(needs, n.Category+n.Building)
 				}
-				if want := []string{"food", "drink", "clothing", "market_small", "chapel", "tavern"}; !slices.Equal(needs, want) {
+				// Own categories with one services category, then the
+				// Settlers' food and clothing (cumulative tiers, D-056).
+				if want := []string{"food", "drink", "clothing", "services", "food", "clothing"}; !slices.Equal(needs, want) {
 					t.Errorf("needs = %v, want %v", needs, want)
 				}
 				if wantPopulation && *b.TaxRatePerMin <= 0 {
@@ -102,21 +104,26 @@ func TestCitizensUpgradeOverHTTP(t *testing.T) {
 	if res.status != http.StatusOK {
 		t.Fatalf("GET /world: %d %s", res.status, res.body)
 	}
-	// Right after the upgrade only market and chapel are in reach: the
-	// house stays at its floor (satisfaction below the growth threshold)
-	// but pays Citizens tax.
+	// Right after the upgrade only market and chapel are in reach (0.6
+	// each fills services, D-056: 0.24), plus the Settlers' fish and wool
+	// garments of the town (0.4 of satisfaction): 0.64, above the growth
+	// threshold; the house pays Citizens tax.
 	floor := check(res.body, true)
-	if *floor.SatisfactionPermille != 250 || *floor.GrowthRatePerMin != 0 {
+	if *floor.SatisfactionPermille != 640 || *floor.GrowthRatePerMin != 640 {
 		t.Errorf("floor house: satisfaction %d growth %d", *floor.SatisfactionPermille, *floor.GrowthRatePerMin)
 	}
 
-	// Supply every Citizens need: bread, cider and linen garments arrive
-	// (seeded into the stored world like a delivery), and a tavern is
-	// built over HTTP next to the house. After a clock advance the house
-	// is fully satisfied and grows.
+	// Supply every Citizens need with both alternatives (D-056: one fills
+	// 0.6): bread and cheese, cider and mead, linen garments and leather
+	// jerkins arrive (seeded into the stored world like a delivery), and a
+	// tavern is built over HTTP next to the house. After a clock advance
+	// the house is fully satisfied and grows.
 	ts.mutateWorld(func(world *sim.World) {
 		world.Gold += 1_000_000
-		for good, n := range map[string]sim.Qty{"bread": 50_000, "cider": 50_000, "linen_garments": 50_000, "stone": 20_000, "planks": 30_000} {
+		for good, n := range map[string]sim.Qty{
+			"bread": 50_000, "cheese": 50_000, "cider": 50_000, "mead": 50_000, "linen_garments": 50_000, "leather_jerkins": 50_000,
+			"stone": 20_000, "planks": 30_000,
+		} {
 			if err := sim.AddStock(world, c, islandID, good, n, nil); err != nil {
 				t.Fatal(err)
 			}

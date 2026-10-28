@@ -1,6 +1,6 @@
 {
   "name": "bootstrap_citizens_quests",
-  "description": "Tier-1/2 reference game with the intro quests (golden y): the plan of bootstrap_citizens in the same order, with a claim_quest step as soon as a quest of the intro chain is completed (goods to the start island) and every wait shortened to the whole minutes the plan needs. The quest rewards are the only change; island 2 is founded at minute 44 and the first Citizen house stands at minute 70.",
+  "description": "Tier-1/2 reference game with the intro quests (golden y): the plan of bootstrap_citizens in the same order, with a claim_quest step as soon as a quest is completed (goods to the start island; the intro chain and the tier-2 quests the plan completes: shipyard and second sloop) and every wait shortened to the whole minutes the plan needs. The quest rewards are the only change; island 2 is founded at minute 34 and the first Citizen house stands at minute 73.",
   "start": "2026-01-01T00:00:00Z",
   "seed": {
     "archipelago": 1053001,
@@ -686,6 +686,16 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "place": {
         "rotation": 0,
         "type": "lumberjack",
@@ -748,6 +758,57 @@
         ],
         "to": [
           28,
+          95
+        ],
+        "type": "road_dirt"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "place": {
+        "rotation": 0,
+        "type": "chapel",
+        "x": 30,
+        "y": 93
+      }
+    },
+    {
+      "road": {
+        "from": [
+          29,
+          95
+        ],
+        "to": [
+          29,
           95
         ],
         "type": "road_dirt"
@@ -924,6 +985,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "from": [
           12,
@@ -934,11 +1000,6 @@
           91
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -978,6 +1039,68 @@
     {
       "advance": {
         "duration": "1m"
+      }
+    },
+    {
+      "manual_shipment": {
+        "cargo": {
+          "planks": 40
+        },
+        "ship": 1,
+        "to": "isle-02"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "found_island": {
+        "island": "isle-02",
+        "rotation": 0,
+        "ship": 1,
+        "x": 104,
+        "y": 6
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
+      "road": {
+        "from": [
+          107,
+          15
+        ],
+        "island": "isle-02",
+        "to": [
+          107,
+          22
+        ],
+        "type": "road_dirt"
       }
     },
     {
@@ -1104,6 +1227,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "from": [
           69,
@@ -1143,11 +1271,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "road": {
         "from": [
           65,
@@ -1174,6 +1297,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "from": [
           81,
@@ -1184,11 +1312,6 @@
           69
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -1231,6 +1354,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "from": [
           44,
@@ -1259,118 +1387,10 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "order_ship": {
         "ship_type": "sloop",
         "x": 109,
         "y": 55
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "manual_shipment": {
-        "cargo": {
-          "planks": 40
-        },
-        "ship": 2,
-        "to": "isle-02"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "found_island": {
-        "island": "isle-02",
-        "rotation": 0,
-        "ship": 2,
-        "x": 104,
-        "y": 6
-      }
-    },
-    {
-      "road": {
-        "from": [
-          107,
-          15
-        ],
-        "island": "isle-02",
-        "to": [
-          107,
-          22
-        ],
-        "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "place": {
-        "rotation": 0,
-        "type": "chapel",
-        "x": 30,
-        "y": 93
-      }
-    },
-    {
-      "road": {
-        "from": [
-          29,
-          95
-        ],
-        "to": [
-          29,
-          95
-        ],
-        "type": "road_dirt"
       }
     },
     {
@@ -1454,13 +1474,19 @@
     },
     {
       "claim_quest": {
-        "quest": "intro_shipyard"
+        "island": "isle-01",
+        "quest": "intro_island2"
       }
     },
     {
       "claim_quest": {
         "island": "isle-01",
-        "quest": "intro_island2"
+        "quest": "citizens_shipyard"
+      }
+    },
+    {
+      "claim_quest": {
+        "quest": "citizens_sloop"
       }
     },
     {
@@ -1469,11 +1495,6 @@
         "type": "quarry",
         "x": 69,
         "y": 75
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -1508,6 +1529,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "fields": {
         "farm": [
           34,
@@ -1527,11 +1553,6 @@
             93
           ]
         ]
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -1720,12 +1741,7 @@
     {
       "assign_ship": {
         "route": 1,
-        "ship": 2
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
+        "ship": 1
       }
     },
     {
@@ -1786,6 +1802,11 @@
         "type": "house_settlers",
         "x": 106,
         "y": 24
+      }
+    },
+    {
+      "advance": {
+        "duration": "1m"
       }
     },
     {
@@ -1950,16 +1971,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "rotation": 0,
@@ -2007,11 +2018,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "road": {
         "from": [
           114,
@@ -2023,21 +2029,6 @@
           89
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {
@@ -2158,21 +2149,6 @@
       }
     },
     {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
-      }
-    },
-    {
       "place": {
         "island": "isle-02",
         "rotation": 0,
@@ -2210,6 +2186,11 @@
       }
     },
     {
+      "advance": {
+        "duration": "1m"
+      }
+    },
+    {
       "road": {
         "from": [
           99,
@@ -2221,11 +2202,6 @@
           24
         ],
         "type": "road_dirt"
-      }
-    },
-    {
-      "advance": {
-        "duration": "1m"
       }
     },
     {

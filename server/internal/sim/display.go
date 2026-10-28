@@ -136,8 +136,9 @@ type ShipDisplay struct {
 	RouteID   int64       `json:"route_id"`
 	StopIndex int         `json:"stop_index"`
 	Leg       *LegDisplay `json:"leg"`
-	// Cargo lists the occupied slots (milli-units), at most Slots entries;
-	// a good may occupy several slots.
+	// Cargo lists the occupied slots (milli-units), at most Slots entries
+	// except for the founding cargo of the start ship (D-056); a good may
+	// occupy several slots.
 	Cargo    []CargoDisplay `json:"cargo"`
 	Slots    int            `json:"slots"`
 	SlotSize Qty            `json:"slot_size"`
@@ -252,11 +253,10 @@ func (o *OptionalShipOrder) UnmarshalJSON(data []byte) error {
 // TierDisplay is the unlock state of a tier (MECHANICS §12). Population
 // values are milli-residents over the whole archipelago.
 type TierDisplay struct {
-	ID             string                       `json:"id"`
-	Unlocked       bool                         `json:"unlocked"`
-	Population     map[string]PopulationDisplay `json:"population"`
-	Buildings      map[string]bool              `json:"buildings"`
-	GoodsDelivered map[string]bool              `json:"goods_delivered"`
+	ID         string                       `json:"id"`
+	Unlocked   bool                         `json:"unlocked"`
+	Population map[string]PopulationDisplay `json:"population"`
+	Buildings  map[string]bool              `json:"buildings"`
 }
 
 // PopulationDisplay is a population unlock condition (milli-residents).
@@ -275,16 +275,16 @@ type WorkforceDisplay struct {
 
 // NeedDisplay is the state of one need of a house.
 type NeedDisplay struct {
-	ID                 string `json:"id"`
-	Kind               string `json:"kind"`
-	Category           string `json:"category,omitempty"`
+	ID       string `json:"id"`
+	Kind     string `json:"kind"`
+	Category string `json:"category,omitempty"`
+	// Building is the public building of a building need with a single
+	// alternative ("" for goods needs and services categories).
 	Building           string `json:"building,omitempty"`
 	FulfilmentPermille int64  `json:"fulfilment_permille"`
 	// Reason is one of ok, short_supply, no_supply (goods needs) or ok,
 	// out_of_range, not_connected, paused (building needs).
 	Reason string `json:"reason"`
-	// Variety is the number of extra goods supplied (goods needs).
-	Variety *int `json:"variety,omitempty"`
 	// Goods maps each acceptable good to the island-wide consumption rate of
 	// the tier's houses (milli-units per minute).
 	Goods map[string]Qty `json:"goods,omitempty"`
@@ -449,22 +449,21 @@ type BuildingDisplay struct {
 	WorkforceFactorPermille *int64             `json:"workforce_factor_permille,omitempty"`
 	Workforce               *BuildingWorkforce `json:"workforce,omitempty"`
 
-	// Warehouses.
+	// Collectors; Level also for public buildings with levels (D-056).
 	Level            *int   `json:"level,omitempty"`
 	Capacity         *Qty   `json:"capacity,omitempty"`
 	ThroughputPerMin *Qty   `json:"throughput_per_min,omitempty"`
 	LoadPermille     *int64 `json:"load_permille,omitempty"`
 
 	// Houses (residents in milli-residents, rates per minute).
-	Residents                 *Qty          `json:"residents,omitempty"`
-	ResidentsFloor            *Qty          `json:"residents_floor,omitempty"`
-	ResidentsMax              *Qty          `json:"residents_max,omitempty"`
-	GrowthProgressPermille    *int64        `json:"growth_progress_permille,omitempty"`
-	GrowthRatePerMin          *Qty          `json:"growth_rate_per_min,omitempty"`
-	SatisfactionPermille      *int64        `json:"satisfaction_permille,omitempty"`
-	VarietyMultiplierPermille *int64        `json:"variety_multiplier_permille,omitempty"`
-	TaxRatePerMin             *Qty          `json:"tax_rate_per_min,omitempty"`
-	Needs                     []NeedDisplay `json:"needs,omitempty"`
+	Residents              *Qty          `json:"residents,omitempty"`
+	ResidentsFloor         *Qty          `json:"residents_floor,omitempty"`
+	ResidentsMax           *Qty          `json:"residents_max,omitempty"`
+	GrowthProgressPermille *int64        `json:"growth_progress_permille,omitempty"`
+	GrowthRatePerMin       *Qty          `json:"growth_rate_per_min,omitempty"`
+	SatisfactionPermille   *int64        `json:"satisfaction_permille,omitempty"`
+	TaxRatePerMin          *Qty          `json:"tax_rate_per_min,omitempty"`
+	Needs                  []NeedDisplay `json:"needs,omitempty"`
 	// ServedBy lists the IDs of the buildings that currently fulfil one of the
 	// house's building needs (ascending, omitted when none).
 	ServedBy []int64 `json:"served_by,omitempty"`
@@ -555,7 +554,7 @@ func Display(w *World, c *content.Catalogue, now time.Time) (DisplayState, error
 		st := evaluateTier(cw, c, t, pop)
 		td := TierDisplay{
 			ID: t.ID, Unlocked: TierUnlocked(cw, c, t.ID),
-			Population: map[string]PopulationDisplay{}, Buildings: st.buildings, GoodsDelivered: st.goods,
+			Population: map[string]PopulationDisplay{}, Buildings: st.buildings,
 		}
 		for tier, v := range st.population {
 			td.Population[tier] = PopulationDisplay{Have: v[0], Need: v[1]}
@@ -767,6 +766,9 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, r *rates, now int
 				bd.ShipOrder.Order = &ShipOrderDisplay{Type: o.Type, OrderedAt: formatMs(o.OrderedAtMs), DueAt: formatMs(o.DueAtMs)}
 			}
 		}
+		if def.Service != nil && def.Upgradable() {
+			bd.Level = ptr(min(max(b.Level, 1), def.LevelCount()))
+		}
 		if def.Collector() {
 			level := min(max(b.Level, 1), def.LevelCount())
 			load := r.loads[b.ID]
@@ -804,16 +806,19 @@ func displayHouse(bd *BuildingDisplay, h *houseCalc) {
 	// 1 milli-resident per minute = 1000 accumulator units per ms.
 	bd.GrowthRatePerMin = ptr(h.growth / 1000)
 	bd.SatisfactionPermille = ptr(h.satisfaction / 1000)
-	bd.VarietyMultiplierPermille = ptr(h.variety / 1000)
 	bd.TaxRatePerMin = ptr(h.tax)
 	bd.Needs = []NeedDisplay{}
 	for _, n := range h.needs {
 		nd := NeedDisplay{
-			ID: n.need.ID, Kind: n.need.Kind, Category: n.need.Category, Building: n.need.Building,
+			ID: n.need.ID, Kind: n.need.Kind, Category: n.need.Category,
 			FulfilmentPermille: n.fulfilment / 1000, Reason: n.reason,
 		}
+		if len(n.need.Buildings) == 1 {
+			// A lone public building names the need; a services category
+			// with alternatives is named by its category.
+			nd.Building = n.need.Buildings[0].Building
+		}
 		if gs := n.goods; gs != nil {
-			nd.Variety = ptr(gs.variety)
 			nd.Goods = map[string]Qty{}
 			for i, g := range n.need.Goods {
 				nd.Goods[g.Good] = perMin(gs.cons[i])
@@ -830,7 +835,7 @@ func displayProducer(bd *BuildingDisplay, is *Island, c *content.Catalogue, p *p
 	b, rec := p.b, p.def.Recipe
 	bd.ThroughputFactorPermille = p.throughput
 	bd.Rates = &RatesDisplay{Inputs: map[string]Qty{}, Outputs: map[string]Qty{}}
-	for _, in := range rec.Inputs {
+	for _, in := range p.in {
 		rate := int64(0)
 		if p.connected {
 			rate = p.rate
@@ -867,7 +872,7 @@ func statusGoods(is *Island, p *producer, status string) []string {
 	var goods []string
 	switch status {
 	case StatusInputStarved:
-		for i, in := range p.def.Recipe.Inputs {
+		for i, in := range p.in {
 			if c := p.starveCap[i]; c >= 0 && c < p.tp {
 				goods = append(goods, in.Good)
 			}

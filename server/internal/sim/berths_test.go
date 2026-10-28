@@ -188,9 +188,11 @@ func TestStartAtSeaFounding(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := LaunchShipAtSea(w, c, "sloop", Pos{}, map[string]Qty{"planks": 250_000}); err == nil {
-		t.Error("launched a ship with more cargo than slots")
+	// The founding cargo is exempt from the slot limit (D-056).
+	if big, err := LaunchShipAtSea(w, c, "sloop", Pos{}, map[string]Qty{"planks": 250_000}); err != nil || len(big.Cargo) != 5 {
+		t.Errorf("five slots of founding cargo on a 4-slot sloop: %v", err)
 	}
+	w.Ships, w.NextShipID = w.Ships[:1], 2
 	expectErr(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0}, ErrShipNotIdle)
 	expectErr(t, w, c, SailShip{ShipID: s.ID, ToIslandID: "x"}, ErrRouteInvalid)
 	expectErr(t, w, c, SailShip{ShipID: 99, ToIslandID: "b"}, ErrShipNotFound)

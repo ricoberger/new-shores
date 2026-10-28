@@ -54,6 +54,7 @@ import { TopBar } from "./TopBar";
 import { warningEntries, WarningsPanel } from "./WarningsPanel";
 import { SideDock, type DockPanel } from "./SideDock";
 import { claimableCount } from "../display/quests";
+import { unlockToasts } from "../display/tiers";
 import { WorldOverlay } from "./WorldOverlay";
 import { StatsBadge } from "./StatsBadge";
 import { statsRequested } from "../dev/stats";
@@ -544,6 +545,14 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     );
   });
 
+  // Tier unlocks (D-056): a toast when a tier turns unlocked between two
+  // world models of this session.
+  const prevModel = useRef(model);
+  useEffect(() => {
+    for (const text of unlockToasts(prevModel.current, model, content)) toast(text);
+    prevModel.current = model;
+  }, [model, content, toast]);
+
   // Background request failures (GET world, content, island) are toasts too
   // (G.41); GameSync keeps retrying them.
   useEffect(
@@ -833,8 +842,7 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
             })
           }
           onUpgrade={() => void send({ type: "upgrade_house", island_id: islandId, building_id: selectedBuilding.id })}
-          onUpgradeWarehouse={() => void send({ type: "upgrade_warehouse", island_id: islandId, building_id: selectedBuilding.id })}
-          onUpgradeTradingPost={() => void send({ type: "upgrade_trading_post", island_id: islandId, building_id: selectedBuilding.id })}
+          onUpgradeBuilding={() => void send({ type: "upgrade_building", island_id: islandId, building_id: selectedBuilding.id })}
           onSelectBuilding={focus}
           onAddField={(fieldType, remove) => {
             setTool({ kind: "field", farmId: selectedBuilding.id, island: islandId, buildingType: fieldType, rotation: 0, ...(remove ? { remove: true } : {}) });

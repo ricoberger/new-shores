@@ -64,8 +64,9 @@ export interface paths {
          * @description Commands (`command.type`): `place_building`, `place_road`,
          *     `demolish`, `demolish_road`, `place_field`, `place_fields`,
          *     `demolish_fields`,
-         *     `set_paused`, `upgrade_house`, `upgrade_trading_post`,
-         *     `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
+         *     `set_paused`, `upgrade_building` (deprecated aliases
+         *     `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
+         *     `move_building`, and the ship and route commands `order_ship`,
          *     `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
          *     `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`,
          *     `sail_ship` and `found_island` (MECHANICS §8, §9).
@@ -593,7 +594,7 @@ export interface components {
             version?: number;
             command: components["schemas"]["Command"];
         };
-        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
+        Command: components["schemas"]["PlaceBuildingCommand"] | components["schemas"]["PlaceRoadCommand"] | components["schemas"]["DemolishCommand"] | components["schemas"]["DemolishRoadCommand"] | components["schemas"]["PlaceFieldCommand"] | components["schemas"]["PlaceFieldsCommand"] | components["schemas"]["DemolishFieldsCommand"] | components["schemas"]["SetPausedCommand"] | components["schemas"]["UpgradeHouseCommand"] | components["schemas"]["UpgradeBuildingCommand"] | components["schemas"]["UpgradeWarehouseCommand"] | components["schemas"]["UpgradeTradingPostCommand"] | components["schemas"]["MoveBuildingCommand"] | components["schemas"]["OrderShipCommand"] | components["schemas"]["CancelShipOrderCommand"] | components["schemas"]["ScrapShipCommand"] | components["schemas"]["CreateRouteCommand"] | components["schemas"]["UpdateRouteCommand"] | components["schemas"]["DeleteRouteCommand"] | components["schemas"]["AssignShipCommand"] | components["schemas"]["UnassignShipCommand"] | components["schemas"]["ManualShipmentCommand"] | components["schemas"]["SailShipCommand"] | components["schemas"]["FoundIslandCommand"] | components["schemas"]["ClaimQuestCommand"] | components["schemas"]["AckSummaryCommand"] | components["schemas"]["RerollArchipelagoCommand"] | components["schemas"]["RenameIslandCommand"] | components["schemas"]["RenameShipCommand"];
         /**
          * @description Credit the rewards of a completed quest once: gold to the world,
          *     goods to the island `island_id`, clamped to its free capacity
@@ -851,6 +852,31 @@ export interface components {
             building_id: number;
             paused: boolean;
         };
+        /**
+         * @description Upgrade a building (D-056): a full house to the next tier's house
+         *     (as `upgrade_house`); a Trading Post, Warehouse or public building
+         *     with service levels (`market_small`) to its next level — the
+         *     level's `cost` is charged like a placement and a level with a
+         *     `tier` needs that tier unlocked (`tier_locked`).
+         *     `upgrade_unavailable` for a building without a next level.
+         *     `upgrade_house`, `upgrade_warehouse` and `upgrade_trading_post`
+         *     are deprecated aliases (the latter two keep their building-kind
+         *     check).
+         */
+        UpgradeBuildingCommand: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "upgrade_building";
+            island_id: string;
+            /**
+             * Format: int64
+             * @description Building ID (unscaled integer identifier, from BuildingDisplay.id).
+             */
+            building_id: number;
+        };
+        /** @description Deprecated alias of `upgrade_building` for houses. */
         UpgradeHouseCommand: {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -870,7 +896,8 @@ export interface components {
          *     `warehouse.levels[i].cost`) is charged like a placement (gold from
          *     the world, materials from the island); its throughput changes at
          *     once. `upgrade_unavailable` for every other building (the Trading
-         *     Post has `upgrade_trading_post`) and at the last level.
+         *     Post has `upgrade_trading_post`) and at the last level. Deprecated
+         *     alias of `upgrade_building`.
          */
         UpgradeWarehouseCommand: {
             /**
@@ -891,7 +918,8 @@ export interface components {
          *     `trading_post.levels[i].cost`) is charged like a placement;
          *     capacity, throughput and berths change at once (ships waiting for
          *     a berth may be granted one at once). `upgrade_unavailable` for
-         *     every other building and at the last level.
+         *     every other building and at the last level. Deprecated alias of
+         *     `upgrade_building`.
          */
         UpgradeTradingPostCommand: {
             /**
@@ -1490,7 +1518,7 @@ export interface components {
             /** @description Index of the route stop the ship heads to (0-based count). */
             stop_index: number;
             leg: components["schemas"]["LegDisplay"] | null;
-            /** @description Occupied cargo slots (a good may occupy several slots). */
+            /** @description Occupied cargo slots (a good may occupy several slots). At most `slots` entries, except for the founding cargo of the start ship, which is exempt from the slot limit (D-056). */
             cargo: components["schemas"]["CargoDisplay"][];
             /** @description Cargo slots of the ship type (count). */
             slots: number;
@@ -1597,10 +1625,6 @@ export interface components {
             };
             /** @description Building unlock conditions keyed by building ID (true = built). */
             buildings: {
-                [key: string]: boolean;
-            };
-            /** @description Delivery unlock conditions keyed by good ID. */
-            goods_delivered: {
                 [key: string]: boolean;
             };
         };
@@ -1798,7 +1822,7 @@ export interface components {
             kind: "required" | "optional";
             /** @description Goods needs only. */
             category?: string;
-            /** @description Building needs only (content building ID). */
+            /** @description The public building of a building need with a single alternative (content building ID); absent for goods needs and services categories. */
             building?: string;
             /**
              * Format: int64
@@ -1807,8 +1831,6 @@ export interface components {
             fulfilment_permille: number;
             /** @enum {string} */
             reason: "ok" | "short_supply" | "no_supply" | "out_of_range" | "not_connected" | "paused";
-            /** @description Extra goods supplied in the category (count; goods needs only). */
-            variety?: number;
             /** @description Island-wide consumption of the tier's houses per acceptable good (milli-units per minute). */
             goods?: {
                 [key: string]: number;
@@ -1897,7 +1919,7 @@ export interface components {
              */
             workforce_factor_permille?: number;
             workforce?: components["schemas"]["BuildingWorkforce"];
-            /** @description Trading Post or Warehouse level (1-based). */
+            /** @description Trading Post, Warehouse or levelled public building level (1-based). */
             level?: number;
             /**
              * Format: int64
@@ -1955,11 +1977,6 @@ export interface components {
              * @description Satisfaction (permille).
              */
             satisfaction_permille?: number;
-            /**
-             * Format: int64
-             * @description Variety multiplier (permille; 1000 = ×1).
-             */
-            variety_multiplier_permille?: number;
             /**
              * Format: int64
              * @description Taxes of the house (milli-gold per minute).
@@ -2137,11 +2154,6 @@ export interface components {
             growth_satisfaction_threshold: number;
             /**
              * Format: int64
-             * @description Tax bonus of fully met optional needs (ppm).
-             */
-            optional_tax_bonus: number;
-            /**
-             * Format: int64
              * @description Gold reserve for auto-resume, as a duration of the building's or ship's upkeep (ms).
              */
             auto_resume_upkeep_ms: number;
@@ -2201,7 +2213,6 @@ export interface components {
                 [key: string]: number;
             };
             buildings: string[];
-            goods_delivered: string[];
         };
         ContentGood: {
             id: string;
@@ -2262,7 +2273,15 @@ export interface components {
             upkeep_per_min: number;
             pause_category: string;
             recipe?: {
-                inputs: components["schemas"]["ContentGoodAmount"][];
+                inputs: {
+                    good: string;
+                    goods: string[];
+                    /**
+                     * Format: int64
+                     * @description Milli-units per cycle.
+                     */
+                    amount: number;
+                }[];
                 outputs: components["schemas"]["ContentGoodAmount"][];
                 /**
                  * Format: int64
@@ -2344,8 +2363,31 @@ export interface components {
                 ms_per_tile: number;
             };
             service?: {
-                /** @description Service radius (tiles). */
+                /** @description Service radius at level 1 (tiles). */
                 radius: number;
+                /** @description Levels in order (D-056); a public building without levels has one. Later levels are reached by `upgrade_building`. */
+                levels: {
+                    /** @description Service radius (tiles). */
+                    radius: number;
+                    /** @description Tier that must be unlocked to upgrade into this level. */
+                    tier?: string;
+                    /**
+                     * @description Upgrade cost into this level (`upgrade_building`);
+                     *     absent on the first level, which the building cost
+                     *     places.
+                     */
+                    cost?: {
+                        /**
+                         * Format: int64
+                         * @description Gold cost (milli-gold).
+                         */
+                        gold: number;
+                        /** @description Material cost per good (milli-units). */
+                        materials: {
+                            [key: string]: number;
+                        };
+                    };
+                }[];
             };
             /**
              * @description Work radius. `radius`, `terrain` and `required_tiles` are present
@@ -2420,11 +2462,13 @@ export interface components {
             /** @description Player-facing name (1–32 printable characters), e.g. "Food" or "Market". */
             name: string;
             tier: string;
+            /** @description Set on a lower tier's goods category carried by this tier (cumulative tiers, D-056). */
+            from_tier?: string;
             /** @enum {string} */
             kind: "required" | "optional";
             /**
              * Format: int64
-             * @description Weight (ppm).
+             * @description Satisfaction weight (ppm, normalised; own-tier categories share 0.6 when the tier carries lower-tier categories).
              */
             weight: number;
             /** @description Goods needs only. */
@@ -2434,21 +2478,25 @@ export interface components {
                 good: string;
                 /**
                  * Format: int64
-                 * @description Consumption per resident (milli-units per minute).
+                 * @description Consumption per resident (micro-units per minute).
                  */
                 per_resident_per_min: number;
+                /**
+                 * Format: int64
+                 * @description Coverage of the category at full supply of this good (ppm, D-056).
+                 */
+                share: number;
             }[];
-            /**
-             * Format: int64
-             * @description Bonus per extra good (ppm; goods needs only).
-             */
-            variety_bonus?: number;
-            /** @description Maximum extra goods counted for variety (count; goods needs only). */
-            max_extra_goods?: number;
-            /** @description Building needs only (content building ID). */
-            building?: string;
-            /** @description Radius (tiles; building needs only). */
-            radius?: number;
+            /** @description Building (services) needs only (D-056) — the public buildings that serve the house within the radius of their level. */
+            buildings?: {
+                /** @description Content building ID. */
+                building: string;
+                /**
+                 * Format: int64
+                 * @description Coverage when the building serves the house (ppm).
+                 */
+                share: number;
+            }[];
         };
     };
     responses: {

@@ -10,11 +10,13 @@
 //   - durations (cycles, transfer delays, coarse step): milliseconds,
 //   - need weights, satisfaction-like ratios (growth threshold): parts per
 //     million,
-//   - variety and optional tax bonuses: parts per million,
+//   - need shares (coverage per alternative): parts per million,
 //   - growth and decline rates: milli-residents per minute,
 //   - ship speed: per-mille of the reference speed; the reference speed
 //     (region rule) in milli-tiles per minute.
 package content
+
+import "slices"
 
 // Qty is a fixed-point quantity in milli-units (1 unit = 1000).
 type Qty = int64
@@ -173,8 +175,6 @@ type Rules struct {
 	DeclinePerMin Qty
 	// GrowthThreshold is the satisfaction (ppm) from which houses grow.
 	GrowthThreshold int64
-	// OptionalTaxBonus is the tax bonus of fully met optional needs (ppm).
-	OptionalTaxBonus int64
 	// AutoResumeMs is the gold reserve, in milliseconds of a building's
 	// upkeep, required before an unpaid building is auto-resumed.
 	AutoResumeMs int64
@@ -216,9 +216,8 @@ type Tier struct {
 
 // Unlock lists the conditions to unlock a tier (MECHANICS §12).
 type Unlock struct {
-	Population     map[string]int64
-	Buildings      []string
-	GoodsDelivered []string
+	Population map[string]int64
+	Buildings  []string
 }
 
 // Good is a tradeable good.
@@ -326,9 +325,29 @@ type Cost struct {
 
 // Recipe is a production recipe (MECHANICS §4).
 type Recipe struct {
-	Inputs  []GoodAmount
+	Inputs  []RecipeInput
 	Outputs []GoodAmount
 	CycleMs int64
+}
+
+// RecipeInput is one input slot of a recipe. Good is its first (preferred)
+// good; Goods lists every accepted good in preference order, Good first
+// (D-056 §7: input alternatives such as ["charcoal", "coal"]). The amount
+// is the same for every alternative.
+type RecipeInput struct {
+	GoodAmount
+	Goods []string
+}
+
+// NewRecipeInput returns an input slot of amount accepting goods in
+// preference order.
+func NewRecipeInput(amount Qty, goods ...string) RecipeInput {
+	return RecipeInput{GoodAmount: GoodAmount{Good: goods[0], Amount: amount}, Goods: goods}
+}
+
+// Accepts reports whether the input slot accepts good.
+func (in RecipeInput) Accepts(good string) bool {
+	return slices.Contains(in.Goods, good)
 }
 
 // House marks a residential building of a tier.
@@ -380,8 +399,24 @@ func (b *Building) LevelCount() int {
 		return len(b.TradingPost.Levels)
 	case b.Warehouse != nil:
 		return len(b.Warehouse.Levels)
+	case b.Service != nil:
+		return len(b.Service.Levels)
 	}
 	return 0
+}
+
+// Upgradable reports whether the building has a later level to upgrade
+// into (upgrade_building): a Trading Post, a Warehouse or a public
+// building with levels (D-056).
+func (b *Building) Upgradable() bool { return b.LevelCount() > 1 }
+
+// LevelTier is the tier that must be unlocked to upgrade into a 1-based
+// level ("" when the level has no tier condition).
+func (b *Building) LevelTier(level int) string {
+	if b.Service == nil || level < 2 || level > len(b.Service.Levels) {
+		return ""
+	}
+	return b.Service.Levels[level-1].Tier
 }
 
 // clampLevel maps a stored level to a valid 0-based level index.
@@ -407,10 +442,13 @@ func (b *Building) LevelCost(level int) *Cost {
 	if level < 2 || level > b.LevelCount() {
 		return nil
 	}
-	if b.TradingPost != nil {
+	switch {
+	case b.TradingPost != nil:
 		return b.TradingPost.Levels[level-1].Cost
+	case b.Warehouse != nil:
+		return b.Warehouse.Levels[level-1].Cost
 	}
-	return b.Warehouse.Levels[level-1].Cost
+	return b.Service.Levels[level-1].Cost
 }
 
 // TradingPostLevelAt is the Trading Post level for a 1-based level
@@ -429,8 +467,26 @@ type Road struct {
 }
 
 // Service marks a public building with a service radius (building needs).
+// Levels raise the radius (D-056: market_small 12 / 16 / 20); a service
+// without levels has one.
 type Service struct {
+	Levels []ServiceLevel
+}
+
+// ServiceLevel is one level of a public building.
+type ServiceLevel struct {
 	Radius int
+	// Tier must be unlocked to upgrade into this level ("" none; always ""
+	// on the first level).
+	Tier string
+	// Cost is the upgrade cost into this level; nil for the first level
+	// (placed with the building cost), set for every later level.
+	Cost *Cost
+}
+
+// RadiusAt is the service radius at a 1-based level (clamped).
+func (s *Service) RadiusAt(level int) int {
+	return s.Levels[clampLevel(level, len(s.Levels))].Radius
 }
 
 // FarmFields is the fields block of a farm (D-049, D-051 part 4):
@@ -498,19 +554,32 @@ type Need struct {
 	Tier string
 	// Kind is NeedRequired or NeedOptional.
 	Kind string
-	// Weight in parts per million.
+	// Weight in parts per million, normalised by the loader (D-056): the
+	// tier's own required needs share OwnTierWeight, the lower-tier
+	// categories (FromTier set) the rest, equally per lower tier and then
+	// by their weights in that tier. A tier without lower tiers keeps its
+	// weights (they sum to 1).
 	Weight int64
+	// FromTier is set on a lower tier's goods category carried by a
+	// higher tier (cumulative tiers, D-056); "" for the tier's own needs.
+	FromTier string
 
-	// Category, Goods, VarietyBonus (ppm per extra good) and MaxExtraGoods
-	// are set for goods needs. Goods keep the file order.
-	Category      string
-	Goods         []NeedGood
-	VarietyBonus  int64
-	MaxExtraGoods int
+	// Category and Goods are set for goods needs. Goods keep the file
+	// order.
+	Category string
+	Goods    []NeedGood
 
-	// Building and Radius are set for building needs.
+	// Buildings are the alternatives of a building need (services, D-056):
+	// public buildings whose service radius reaches the house.
+	Buildings []NeedBuilding
+}
+
+// NeedBuilding is an alternative of a building need.
+type NeedBuilding struct {
 	Building string
-	Radius   int
+	// Share is the coverage (ppm) the building contributes when it serves
+	// the house (D-056; default as for goods).
+	Share int64
 }
 
 // NeedCategory is a goods-need category (need_categories.json): display
@@ -525,12 +594,31 @@ type NeedCategory struct {
 // NeedGood is an acceptable good of a goods need.
 type NeedGood struct {
 	Good string
-	// PerResidentPerMin in milli-units per resident per minute.
+	// PerResidentPerMin in micro-units per resident per minute (the
+	// cumulative-tier rates of D-056 have four decimal places).
 	PerResidentPerMin Qty
+	// Share is the coverage (ppm) the good contributes to its category at
+	// full supply (D-056).
+	Share int64
 }
+
+// Default need shares (D-056 as amended): an alternative without an
+// authored share covers its category alone (ShareLone) when it is the
+// category's only alternative, else ShareAlternative each.
+const (
+	ShareLone        int64 = WeightScale
+	ShareAlternative int64 = 600_000
+)
+
+// OwnTierWeight is the share of satisfaction (ppm) of a tier's own
+// required needs when the tier also carries lower-tier categories (D-056).
+const OwnTierWeight int64 = 600_000
 
 // IsGoods reports whether the need is a goods need.
 func (n *Need) IsGoods() bool { return len(n.Goods) > 0 }
+
+// IsBuilding reports whether n is a building (services) need.
+func (n *Need) IsBuilding() bool { return len(n.Buildings) > 0 }
 
 // MatchesTerrain reports whether terrain counts for the work area.
 func (wa *WorkArea) MatchesTerrain(terrain string) bool {

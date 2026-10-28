@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { Content, ContentBuilding, DisplayState } from "../api/client";
-import { depositText, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, populationTotals, tierUnlocked } from "./tiers";
+import { depositText, fertilityNeed, listedInBuildMenu, lockReason, missingFertilityText, populationTotals, tierUnlocked, unlockToasts } from "./tiers";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -31,18 +31,17 @@ describe("tiers", () => {
   it("lists the server's unmet unlock conditions as the lock reason", () => {
     const model = {
       tiers: [
-        { id: "settlers", unlocked: true, population: {}, buildings: {}, goods_delivered: {} },
+        { id: "settlers", unlocked: true, population: {}, buildings: {} },
         {
           id: "citizens",
           unlocked: false,
           population: { settlers: { have: 88_000, need: 120_000 } },
           buildings: { market_small: true, chapel: false },
-          goods_delivered: { fish: false },
         },
       ],
       islands: [],
     } as unknown as DisplayState;
-    expect(lockReason(model, content, "citizens")).toBe("Needs Citizens — Settlers 88/120, Chapel, deliver Fish");
+    expect(lockReason(model, content, "citizens")).toBe("Needs Citizens — Settlers 88/120, Chapel");
     expect(lockReason(model, content, "settlers")).toBeNull();
     expect(tierUnlocked(model, "citizens")).toBe(false);
     // Conditions met but not yet evaluated, or no model: just the tier.
@@ -76,6 +75,36 @@ describe("tiers", () => {
     expect(pop.get("citizens")).toBeGreaterThan(20_000);
     expect(pop.get("settlers")).toBeGreaterThan(0);
     expect(populationTotals(null).size).toBe(0);
+  });
+});
+
+describe("unlock toasts (D-056)", () => {
+  const state = (citizens: boolean) =>
+    ({
+      tiers: [
+        { id: "settlers", unlocked: true, population: {}, buildings: {} },
+        { id: "citizens", unlocked: citizens, population: {}, buildings: {} },
+      ],
+    }) as unknown as DisplayState;
+
+  it("toasts a tier that turned unlocked with its build-menu buildings", () => {
+    // wheat_farm is listed; house_citizens is upgrade-only.
+    expect(unlockToasts(state(false), state(true), content)).toEqual(["Citizens unlocked — 1 new building"]);
+  });
+
+  it("is silent on the first load, without a change and for a tier unknown before", () => {
+    expect(unlockToasts(null, state(true), content)).toEqual([]);
+    expect(unlockToasts(state(true), state(true), content)).toEqual([]);
+    expect(unlockToasts(state(false), state(false), content)).toEqual([]);
+    const settlersOnly = { tiers: [{ id: "settlers", unlocked: true, population: {}, buildings: {} }] } as unknown as DisplayState;
+    expect(unlockToasts(settlersOnly, state(true), content)).toEqual([]);
+  });
+
+  it("counts the shipped Citizens buildings", () => {
+    const shipped = (n: string) => JSON.parse(readFileSync(join(fixtureDir, "..", "..", "..", "content", "old_coast", `${n}.json`), "utf8")) as unknown;
+    const c = { tiers: shipped("tiers"), buildings: shipped("buildings") } as unknown as Content;
+    const want = (c.buildings as ContentBuilding[]).filter((b) => b.tier === "citizens" && !b.house && !b.field).length;
+    expect(unlockToasts(state(false), state(true), c)).toEqual([`Citizens unlocked — ${want} new buildings`]);
   });
 });
 

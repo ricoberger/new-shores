@@ -6,9 +6,7 @@
     "kind": "required",
     "weight": 0.5,
     "category": "food",
-    "goods": [{ "good": "fish", "per_resident_per_min": 0.010 }],
-    "variety_bonus": 0.10,
-    "max_extra_goods": 2
+    "goods": [{ "good": "fish", "per_resident_per_min": 0.010 }]
   },
   {
     "id": "settlers_clothing",
@@ -17,9 +15,7 @@
     "kind": "required",
     "weight": 0.2,
     "category": "clothing",
-    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.005 }],
-    "variety_bonus": 0.10,
-    "max_extra_goods": 2
+    "goods": [{ "good": "wool_garments", "per_resident_per_min": 0.005 }]
   },
   {
     "id": "settlers_market_small",
@@ -27,7 +23,6 @@
     "tier": "settlers",
     "kind": "required",
     "weight": 0.3,
-    "building": "market_grand",
-    "radius": 12
+    "buildings": [{ "building": "market_grand" }]
   }
 ]

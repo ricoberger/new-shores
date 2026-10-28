@@ -82,11 +82,11 @@ def warehouse_levels(content, cid):
 
 
 def required_ids(content):
-    """Every content ID that needs a model: tier 1–2 buildings except roads (fields included) and the listed ships."""
+    """Every content ID that needs a model: tier 1–2 buildings except roads (fields included) and the pending ones, and the listed ships."""
     ids = [
         b["id"]
         for b in content["buildings"].values()
-        if b.get("tier") in config.MODEL_TIERS and "road" not in b
+        if b.get("tier") in config.MODEL_TIERS and "road" not in b and b["id"] not in config.MODEL_PENDING
     ]
     ids += [s for s in config.MODEL_SHIPS if s in content["ships"]]
     return sorted(ids)

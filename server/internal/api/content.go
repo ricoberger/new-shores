@@ -108,7 +108,6 @@ type rulesJSON struct {
 	GrowthPerMin               int64 `json:"growth_per_min"`
 	DeclinePerMin              int64 `json:"decline_per_min"`
 	GrowthThresholdPpm         int64 `json:"growth_satisfaction_threshold"`
-	OptionalTaxBonusPpm        int64 `json:"optional_tax_bonus"`
 	AutoResumeUpkeepDurationMs int64 `json:"auto_resume_upkeep_ms"`
 	ShipHandlingBaseMs         int64 `json:"ship_handling_base_ms"`
 	ShipHandlingMsPerUnit      int64 `json:"ship_handling_ms_per_unit"`
@@ -129,9 +128,8 @@ type tierJSON struct {
 }
 
 type unlockJSON struct {
-	Population     map[string]int64 `json:"population"`
-	Buildings      []string         `json:"buildings"`
-	GoodsDelivered []string         `json:"goods_delivered"`
+	Population map[string]int64 `json:"population"`
+	Buildings  []string         `json:"buildings"`
 }
 
 type goodJSON struct {
@@ -150,10 +148,18 @@ type goodAmountJSON struct {
 	Amount int64  `json:"amount"`
 }
 
+// recipeInputJSON is a recipe input: good is the preferred good, goods
+// every accepted good in preference order (D-056 §7).
+type recipeInputJSON struct {
+	Good   string   `json:"good"`
+	Goods  []string `json:"goods"`
+	Amount int64    `json:"amount"`
+}
+
 type recipeJSON struct {
-	Inputs  []goodAmountJSON `json:"inputs"`
-	Outputs []goodAmountJSON `json:"outputs"`
-	CycleMs int64            `json:"cycle_ms"`
+	Inputs  []recipeInputJSON `json:"inputs"`
+	Outputs []goodAmountJSON  `json:"outputs"`
+	CycleMs int64             `json:"cycle_ms"`
 }
 
 type houseJSON struct {
@@ -186,8 +192,18 @@ type roadJSON struct {
 	MsPerTile int64 `json:"ms_per_tile"`
 }
 
+// serviceJSON is a public building: radius is the first level's, levels
+// lists every level (D-056, upgrade_building).
 type serviceJSON struct {
-	Radius int `json:"radius"`
+	Radius int                `json:"radius"`
+	Levels []serviceLevelJSON `json:"levels"`
+}
+
+type serviceLevelJSON struct {
+	Radius int    `json:"radius"`
+	Tier   string `json:"tier,omitempty"`
+	// Cost is the upgrade cost into the level (absent on the first level).
+	Cost *costJSON `json:"cost,omitempty"`
 }
 
 // workAreaJSON is a work area; a farm with fields (D-051 part 4) has no
@@ -247,7 +263,8 @@ type buildingJSON struct {
 
 type needGoodJSON struct {
 	Good              string `json:"good"`
-	PerResidentPerMin int64  `json:"per_resident_per_min"`
+	PerResidentPerMin int64  `json:"per_resident_per_min"` // micro-units
+	SharePpm          int64  `json:"share"`
 }
 
 // needCategoryJSON is a goods-need category: display data only.
@@ -259,17 +276,21 @@ type needCategoryJSON struct {
 }
 
 type needJSON struct {
-	ID              string         `json:"id"`
-	Name            string         `json:"name"`
-	Tier            string         `json:"tier"`
-	Kind            string         `json:"kind"`
-	WeightPpm       int64          `json:"weight"`
-	Category        string         `json:"category,omitempty"`
-	Goods           []needGoodJSON `json:"goods,omitempty"`
-	VarietyBonusPpm *int64         `json:"variety_bonus,omitempty"`
-	MaxExtraGoods   *int           `json:"max_extra_goods,omitempty"`
-	Building        string         `json:"building,omitempty"`
-	Radius          *int           `json:"radius,omitempty"`
+	ID        string         `json:"id"`
+	Name      string         `json:"name"`
+	Tier      string         `json:"tier"`
+	FromTier  string         `json:"from_tier,omitempty"`
+	Kind      string         `json:"kind"`
+	WeightPpm int64          `json:"weight"`
+	Category  string         `json:"category,omitempty"`
+	Goods     []needGoodJSON `json:"goods,omitempty"`
+	// Buildings are the alternatives of a building (services) need.
+	Buildings []needBuildingJSON `json:"buildings,omitempty"`
+}
+
+type needBuildingJSON struct {
+	Building string `json:"building"`
+	SharePpm int64  `json:"share"`
 }
 
 // buildingCategory derives the build-menu group of a building from its
@@ -310,7 +331,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 				TransferBaseMs: r.TransferBaseMs, UnconnectedBuffer: r.UnconnectedBuffer,
 				IterationCap: r.IterationCap, CoarseStepMs: r.CoarseStepMs,
 				GrowthPerMin: r.GrowthPerMin, DeclinePerMin: r.DeclinePerMin,
-				GrowthThresholdPpm: r.GrowthThreshold, OptionalTaxBonusPpm: r.OptionalTaxBonus,
+				GrowthThresholdPpm:         r.GrowthThreshold,
 				AutoResumeUpkeepDurationMs: r.AutoResumeMs,
 				ShipHandlingBaseMs:         r.ShipHandlingBaseMs, ShipHandlingMsPerUnit: r.ShipHandlingMsPerUnit,
 				ShipSpeedMilliTilesPerMin: r.ShipSpeedMilliTilesPerMin,
@@ -355,9 +376,8 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 			ResidentsFloor: t.ResidentsFloor, ResidentsMax: t.ResidentsMax,
 			TaxPerResidentPerMin: t.TaxPerResidentPerMin,
 			Unlock: unlockJSON{
-				Population:     map[string]int64{},
-				Buildings:      append([]string{}, t.Unlock.Buildings...),
-				GoodsDelivered: append([]string{}, t.Unlock.GoodsDelivered...),
+				Population: map[string]int64{},
+				Buildings:  append([]string{}, t.Unlock.Buildings...),
 			},
 		}
 		if t.House != "" {
@@ -393,7 +413,11 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit,
 	}
 	if r := b.Recipe; r != nil {
-		bj.Recipe = &recipeJSON{Inputs: goodAmounts(r.Inputs), Outputs: goodAmounts(r.Outputs), CycleMs: r.CycleMs}
+		ins := make([]recipeInputJSON, 0, len(r.Inputs))
+		for _, in := range r.Inputs {
+			ins = append(ins, recipeInputJSON{Good: in.Good, Goods: in.Goods, Amount: in.Amount})
+		}
+		bj.Recipe = &recipeJSON{Inputs: ins, Outputs: goodAmounts(r.Outputs), CycleMs: r.CycleMs}
 	}
 	if h := b.House; h != nil {
 		bj.House = &houseJSON{Tier: h.Tier}
@@ -424,7 +448,15 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		bj.Road = &roadJSON{MsPerTile: rd.MsPerTile}
 	}
 	if s := b.Service; s != nil {
-		bj.Service = &serviceJSON{Radius: s.Radius}
+		bj.Service = &serviceJSON{Radius: s.RadiusAt(1), Levels: []serviceLevelJSON{}}
+		for _, l := range s.Levels {
+			lj := serviceLevelJSON{Radius: l.Radius, Tier: l.Tier}
+			if l.Cost != nil {
+				cost := newCostJSON(*l.Cost)
+				lj.Cost = &cost
+			}
+			bj.Service.Levels = append(bj.Service.Levels, lj)
+		}
 	}
 	if wa := b.WorkArea; wa != nil {
 		bj.WorkArea = &workAreaJSON{Radius: wa.Radius, RequiredTiles: wa.RequiredTiles, Fertility: wa.Fertility}
@@ -456,17 +488,15 @@ func newCostJSON(c content.Cost) costJSON {
 }
 
 func newNeedJSON(n *content.Need) needJSON {
-	nj := needJSON{ID: n.ID, Name: n.Name, Tier: n.Tier, Kind: n.Kind, WeightPpm: n.Weight}
+	nj := needJSON{ID: n.ID, Name: n.Name, Tier: n.Tier, FromTier: n.FromTier, Kind: n.Kind, WeightPpm: n.Weight}
 	if n.IsGoods() {
 		nj.Category = n.Category
-		nj.VarietyBonusPpm = &n.VarietyBonus
-		nj.MaxExtraGoods = &n.MaxExtraGoods
 		for _, g := range n.Goods {
-			nj.Goods = append(nj.Goods, needGoodJSON{Good: g.Good, PerResidentPerMin: g.PerResidentPerMin})
+			nj.Goods = append(nj.Goods, needGoodJSON{Good: g.Good, PerResidentPerMin: g.PerResidentPerMin, SharePpm: g.Share})
 		}
-	} else {
-		nj.Building = n.Building
-		nj.Radius = &n.Radius
+	}
+	for _, nb := range n.Buildings {
+		nj.Buildings = append(nj.Buildings, needBuildingJSON{Building: nb.Building, SharePpm: nb.Share})
 	}
 	return nj
 }

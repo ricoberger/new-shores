@@ -206,3 +206,50 @@ func TestRenameIsland(t *testing.T) {
 		}
 	}
 }
+
+// TestStartSloopCarriesFoundingStock (D-056 §9): the start ship is a
+// 2-slot sloop; the founding stock (150 planks and 10 sails, four slots)
+// is exempt from the slot limit and lands in the home Trading Post. A
+// player load of more than two slots is rejected.
+func TestStartSloopCarriesFoundingStock(t *testing.T) {
+	c := catalogue(t)
+	w := newWorld(t, 1053001)
+	s := w.Ships[0]
+	def := c.ShipByID[s.Type]
+	if s.Type != "sloop" || def.Slots != 2 || len(s.Cargo) != 4 {
+		t.Fatalf("start ship %s (%d slots) cargo %+v", s.Type, def.Slots, s.Cargo)
+	}
+	aboard := map[string]sim.Qty{}
+	for _, sl := range s.Cargo {
+		aboard[sl.Good] += sl.Amount
+	}
+	for _, g := range c.Start.Goods {
+		if aboard[g.Good] != g.Amount {
+			t.Errorf("aboard %s = %d, want %d", g.Good, aboard[g.Good], g.Amount)
+		}
+	}
+	arrive(t, w)
+	found(t, w)
+	home := w.Islands[0]
+	if len(s.Cargo) != 0 || home.Inventory.Stock["sails"] != 10_000 || home.Inventory.Stock["planks"] == 0 {
+		t.Fatalf("after founding: cargo %+v stock %v", s.Cargo, home.Inventory.Stock)
+	}
+
+	// Three goods need three slots: rejected, world unchanged.
+	home.Inventory.Stock["fish"] = 10_000
+	before := encode(t, w)
+	cmd := sim.ManualShipment{ShipID: s.ID, ToIslandID: w.Islands[1].ID, Cargo: []sim.CargoAmount{
+		{Good: "planks", Amount: 10_000}, {Good: "sails", Amount: 5_000}, {Good: "fish", Amount: 5_000},
+	}}
+	if err := sim.Apply(w, c, cmd); !errors.Is(err, sim.ErrCargoExceedsSlots) {
+		t.Fatalf("three goods on a 2-slot sloop: %v", err)
+	}
+	if !bytes.Equal(before, encode(t, w)) {
+		t.Error("world changed on error")
+	}
+	// Two goods fit.
+	cmd.Cargo = cmd.Cargo[:2]
+	if err := sim.Apply(w, c, cmd); err != nil {
+		t.Fatalf("two goods: %v", err)
+	}
+}

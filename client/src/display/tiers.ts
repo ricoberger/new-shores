@@ -39,9 +39,6 @@ export function lockReason(model: DisplayState | null, content: Content, tierId:
   for (const [id, built] of Object.entries(tier.buildings)) {
     if (!built) parts.push(content.buildings.find((b) => b.id === id)?.name ?? id);
   }
-  for (const [id, delivered] of Object.entries(tier.goods_delivered)) {
-    if (!delivered) parts.push(`deliver ${content.goods.find((g) => g.id === id)?.name ?? id}`);
-  }
   return parts.length > 0 ? `${head} — ${parts.join(", ")}` : head;
 }
 
@@ -83,4 +80,24 @@ export function waterEdgeText(problem: "front" | "land", waterTiles: number): st
 
 export function depositText(kind: string): string {
   return `Must cover ${/^[aeiou]/i.test(kind) ? "an" : "a"} ${kind} deposit`;
+}
+
+/**
+ * Unlock toasts (D-056 §10): "Citizens unlocked — 15 new buildings" for
+ * every tier the server reports unlocked in next but not in prev (the
+ * tier_unlocked boundary as seen by the client). The count is the tier's
+ * buildings offered in the build menu (roads included, fields and
+ * upgrade-only houses not). No toasts without a previous model (the
+ * first load), so a returning player is not greeted with old unlocks.
+ */
+export function unlockToasts(prev: DisplayState | null, next: DisplayState | null, content: Content | null): string[] {
+  if (!prev || !next || !content) return [];
+  const out: string[] = [];
+  for (const t of next.tiers) {
+    if (!t.unlocked || tierUnlocked(prev, t.id) || !prev.tiers.some((p) => p.id === t.id)) continue;
+    const name = content.tiers.find((x) => x.id === t.id)?.name ?? t.id;
+    const n = content.buildings.filter((b) => b.tier === t.id && listedInBuildMenu(b, content)).length;
+    out.push(n > 0 ? `${name} unlocked — ${n} new building${n === 1 ? "" : "s"}` : `${name} unlocked`);
+  }
+  return out;
 }

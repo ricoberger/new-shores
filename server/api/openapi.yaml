@@ -145,8 +145,9 @@ paths:
         Commands (`command.type`): `place_building`, `place_road`,
         `demolish`, `demolish_road`, `place_field`, `place_fields`,
         `demolish_fields`,
-        `set_paused`, `upgrade_house`, `upgrade_trading_post`,
-        `upgrade_warehouse`, `move_building`, and the ship and route commands `order_ship`,
+        `set_paused`, `upgrade_building` (deprecated aliases
+        `upgrade_house`, `upgrade_trading_post`, `upgrade_warehouse`),
+        `move_building`, and the ship and route commands `order_ship`,
         `cancel_ship_order`, `scrap_ship`, `create_route`, `update_route`,
         `delete_route`, `assign_ship`, `unassign_ship`, `manual_shipment`,
         `sail_ship` and `found_island` (MECHANICS §8, §9).
@@ -1053,6 +1054,7 @@ components:
         - $ref: "#/components/schemas/DemolishFieldsCommand"
         - $ref: "#/components/schemas/SetPausedCommand"
         - $ref: "#/components/schemas/UpgradeHouseCommand"
+        - $ref: "#/components/schemas/UpgradeBuildingCommand"
         - $ref: "#/components/schemas/UpgradeWarehouseCommand"
         - $ref: "#/components/schemas/UpgradeTradingPostCommand"
         - $ref: "#/components/schemas/MoveBuildingCommand"
@@ -1084,6 +1086,7 @@ components:
           demolish_fields: "#/components/schemas/DemolishFieldsCommand"
           set_paused: "#/components/schemas/SetPausedCommand"
           upgrade_house: "#/components/schemas/UpgradeHouseCommand"
+          upgrade_building: "#/components/schemas/UpgradeBuildingCommand"
           upgrade_warehouse: "#/components/schemas/UpgradeWarehouseCommand"
           upgrade_trading_post: "#/components/schemas/UpgradeTradingPostCommand"
           move_building: "#/components/schemas/MoveBuildingCommand"
@@ -1393,9 +1396,34 @@ components:
           description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
         paused:
           type: boolean
+    UpgradeBuildingCommand:
+      type: object
+      additionalProperties: false
+      description: |
+        Upgrade a building (D-056): a full house to the next tier's house
+        (as `upgrade_house`); a Trading Post, Warehouse or public building
+        with service levels (`market_small`) to its next level — the
+        level's `cost` is charged like a placement and a level with a
+        `tier` needs that tier unlocked (`tier_locked`).
+        `upgrade_unavailable` for a building without a next level.
+        `upgrade_house`, `upgrade_warehouse` and `upgrade_trading_post`
+        are deprecated aliases (the latter two keep their building-kind
+        check).
+      required: [type, island_id, building_id]
+      properties:
+        type:
+          type: string
+          enum: [upgrade_building]
+        island_id:
+          type: string
+        building_id:
+          type: integer
+          format: int64
+          description: Building ID (unscaled integer identifier, from BuildingDisplay.id).
     UpgradeHouseCommand:
       type: object
       additionalProperties: false
+      description: Deprecated alias of `upgrade_building` for houses.
       required: [type, island_id, building_id]
       properties:
         type:
@@ -1416,7 +1444,8 @@ components:
         `warehouse.levels[i].cost`) is charged like a placement (gold from
         the world, materials from the island); its throughput changes at
         once. `upgrade_unavailable` for every other building (the Trading
-        Post has `upgrade_trading_post`) and at the last level.
+        Post has `upgrade_trading_post`) and at the last level. Deprecated
+        alias of `upgrade_building`.
       required: [type, island_id, building_id]
       properties:
         type:
@@ -1437,7 +1466,8 @@ components:
         `trading_post.levels[i].cost`) is charged like a placement;
         capacity, throughput and berths change at once (ships waiting for
         a berth may be granted one at once). `upgrade_unavailable` for
-        every other building and at the last level.
+        every other building and at the last level. Deprecated alias of
+        `upgrade_building`.
       required: [type, island_id, building_id]
       properties:
         type:
@@ -2200,7 +2230,7 @@ components:
             - $ref: "#/components/schemas/LegDisplay"
         cargo:
           type: array
-          description: Occupied cargo slots (a good may occupy several slots).
+          description: Occupied cargo slots (a good may occupy several slots). At most `slots` entries, except for the founding cargo of the start ship, which is exempt from the slot limit (D-056).
           items:
             $ref: "#/components/schemas/CargoDisplay"
         slots:
@@ -2363,7 +2393,7 @@ components:
     TierDisplay:
       type: object
       additionalProperties: false
-      required: [id, unlocked, population, buildings, goods_delivered]
+      required: [id, unlocked, population, buildings]
       properties:
         id:
           type: string
@@ -2377,11 +2407,6 @@ components:
         buildings:
           type: object
           description: Building unlock conditions keyed by building ID (true = built).
-          additionalProperties:
-            type: boolean
-        goods_delivered:
-          type: object
-          description: Delivery unlock conditions keyed by good ID.
           additionalProperties:
             type: boolean
     PopulationDisplay:
@@ -2661,7 +2686,7 @@ components:
           description: Goods needs only.
         building:
           type: string
-          description: Building needs only (content building ID).
+          description: The public building of a building need with a single alternative (content building ID); absent for goods needs and services categories.
         fulfilment_permille:
           type: integer
           format: int64
@@ -2669,9 +2694,6 @@ components:
         reason:
           type: string
           enum: [ok, short_supply, no_supply, out_of_range, not_connected, paused]
-        variety:
-          type: integer
-          description: Extra goods supplied in the category (count; goods needs only).
         goods:
           type: object
           description: Island-wide consumption of the tier's houses per acceptable good (milli-units per minute).
@@ -2771,7 +2793,7 @@ components:
           $ref: "#/components/schemas/BuildingWorkforce"
         level:
           type: integer
-          description: Trading Post or Warehouse level (1-based).
+          description: Trading Post, Warehouse or levelled public building level (1-based).
         capacity:
           type: integer
           format: int64
@@ -2834,10 +2856,6 @@ components:
           type: integer
           format: int64
           description: Satisfaction (permille).
-        variety_multiplier_permille:
-          type: integer
-          format: int64
-          description: Variety multiplier (permille; 1000 = ×1).
         tax_rate_per_min:
           type: integer
           format: int64
@@ -3086,7 +3104,7 @@ components:
       type: object
       additionalProperties: false
       required:
-        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, optional_tax_bonus, auto_resume_upkeep_ms, ship_handling_base_ms, ship_handling_ms_per_unit, ship_speed_milli_tiles_per_min, away_summary_ms, trial_resume_upkeep_ms]
+        [transfer_base_ms, unconnected_buffer, iteration_cap, coarse_step_ms, growth_per_min, decline_per_min, growth_satisfaction_threshold, auto_resume_upkeep_ms, ship_handling_base_ms, ship_handling_ms_per_unit, ship_speed_milli_tiles_per_min, away_summary_ms, trial_resume_upkeep_ms]
       properties:
         transfer_base_ms:
           type: integer
@@ -3115,10 +3133,6 @@ components:
           type: integer
           format: int64
           description: Satisfaction from which houses grow (ppm).
-        optional_tax_bonus:
-          type: integer
-          format: int64
-          description: Tax bonus of fully met optional needs (ppm).
         auto_resume_upkeep_ms:
           type: integer
           format: int64
@@ -3176,7 +3190,7 @@ components:
     ContentUnlock:
       type: object
       additionalProperties: false
-      required: [population, buildings, goods_delivered]
+      required: [population, buildings]
       properties:
         population:
           type: object
@@ -3186,10 +3200,6 @@ components:
             format: int64
             description: Residents (milli-residents).
         buildings:
-          type: array
-          items:
-            type: string
-        goods_delivered:
           type: array
           items:
             type: string
@@ -3285,7 +3295,27 @@ components:
             inputs:
               type: array
               items:
-                $ref: "#/components/schemas/ContentGoodAmount"
+                type: object
+                additionalProperties: false
+                required: [good, goods, amount]
+                description: |
+                  An input slot (D-056 §7): `good` is the preferred good,
+                  `goods` every accepted good in preference order (`good`
+                  first, e.g. `["charcoal", "coal"]`). The producer draws
+                  the first one that is not starved; `rates.inputs` of the
+                  building display names the good it draws.
+                properties:
+                  good:
+                    type: string
+                  goods:
+                    type: array
+                    minItems: 1
+                    items:
+                      type: string
+                  amount:
+                    type: integer
+                    format: int64
+                    description: Milli-units per cycle.
             outputs:
               type: array
               items:
@@ -3398,11 +3428,45 @@ components:
         service:
           type: object
           additionalProperties: false
-          required: [radius]
+          required: [radius, levels]
           properties:
             radius:
               type: integer
-              description: Service radius (tiles).
+              description: Service radius at level 1 (tiles).
+            levels:
+              type: array
+              description: Levels in order (D-056); a public building without levels has one. Later levels are reached by `upgrade_building`.
+              items:
+                type: object
+                additionalProperties: false
+                required: [radius]
+                properties:
+                  radius:
+                    type: integer
+                    description: Service radius (tiles).
+                  tier:
+                    type: string
+                    description: Tier that must be unlocked to upgrade into this level.
+                  cost:
+                    type: object
+                    additionalProperties: false
+                    required: [gold, materials]
+                    description: |
+                      Upgrade cost into this level (`upgrade_building`);
+                      absent on the first level, which the building cost
+                      places.
+                    properties:
+                      gold:
+                        type: integer
+                        format: int64
+                        description: Gold cost (milli-gold).
+                      materials:
+                        type: object
+                        description: Material cost per good (milli-units).
+                        additionalProperties:
+                          type: integer
+                          format: int64
+                          description: Amount (milli-units).
         work_area:
           type: object
           additionalProperties: false
@@ -3518,13 +3582,16 @@ components:
           description: Player-facing name (1–32 printable characters), e.g. "Food" or "Market".
         tier:
           type: string
+        from_tier:
+          type: string
+          description: Set on a lower tier's goods category carried by this tier (cumulative tiers, D-056).
         kind:
           type: string
           enum: [required, optional]
         weight:
           type: integer
           format: int64
-          description: Weight (ppm).
+          description: Satisfaction weight (ppm, normalised; own-tier categories share 0.6 when the tier carries lower-tier categories).
         category:
           type: string
           description: Goods needs only.
@@ -3534,24 +3601,30 @@ components:
           items:
             type: object
             additionalProperties: false
-            required: [good, per_resident_per_min]
+            required: [good, per_resident_per_min, share]
             properties:
               good:
                 type: string
               per_resident_per_min:
                 type: integer
                 format: int64
-                description: Consumption per resident (milli-units per minute).
-        variety_bonus:
-          type: integer
-          format: int64
-          description: Bonus per extra good (ppm; goods needs only).
-        max_extra_goods:
-          type: integer
-          description: Maximum extra goods counted for variety (count; goods needs only).
-        building:
-          type: string
-          description: Building needs only (content building ID).
-        radius:
-          type: integer
-          description: Radius (tiles; building needs only).
+                description: Consumption per resident (micro-units per minute).
+              share:
+                type: integer
+                format: int64
+                description: Coverage of the category at full supply of this good (ppm, D-056).
+        buildings:
+          type: array
+          description: Building (services) needs only (D-056) — the public buildings that serve the house within the radius of their level.
+          items:
+            type: object
+            additionalProperties: false
+            required: [building, share]
+            properties:
+              building:
+                type: string
+                description: Content building ID.
+              share:
+                type: integer
+                format: int64
+                description: Coverage when the building serves the house (ppm).

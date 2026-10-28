@@ -87,6 +87,7 @@ func LoadWithSchemas(dir, schemaDir string) (*Catalogue, error) {
 	if err := checkReferences(c); err != nil {
 		return nil, err
 	}
+	normaliseNeedWeights(c)
 	return c, nil
 }
 
@@ -230,7 +231,6 @@ type rawRegion struct {
 		GrowthPerMin           json.Number `json:"growth_per_min"`
 		DeclinePerMin          json.Number `json:"decline_per_min"`
 		GrowthThreshold        json.Number `json:"growth_satisfaction_threshold"`
-		OptionalTaxBonus       json.Number `json:"optional_tax_bonus"`
 		AutoResumeMinutes      json.Number `json:"auto_resume_upkeep_minutes"`
 		ShipHandlingBase       json.Number `json:"ship_handling_base_seconds"`
 		ShipHandlingPerUnit    json.Number `json:"ship_handling_seconds_per_unit"`
@@ -253,9 +253,8 @@ type rawTier struct {
 	Tax    json.Number `json:"tax_per_resident_per_min"`
 	House  string      `json:"house"`
 	Unlock struct {
-		Population     map[string]int64 `json:"population"`
-		Buildings      []string         `json:"buildings"`
-		GoodsDelivered []string         `json:"goods_delivered"`
+		Population map[string]int64 `json:"population"`
+		Buildings  []string         `json:"buildings"`
 	} `json:"unlock"`
 }
 
@@ -268,6 +267,13 @@ type rawGood struct {
 type rawGoodAmount struct {
 	Good   string      `json:"good"`
 	Amount json.Number `json:"amount"`
+}
+
+// rawRecipeInput is a recipe input whose good is one ID or a list of
+// alternatives in preference order (D-056 §7).
+type rawRecipeInput struct {
+	Good   json.RawMessage `json:"good"`
+	Amount json.Number     `json:"amount"`
 }
 
 type rawBuilding struct {
@@ -283,9 +289,9 @@ type rawBuilding struct {
 	Upkeep        json.Number            `json:"upkeep_per_min"`
 	PauseCategory string                 `json:"pause_category"`
 	Recipe        *struct {
-		Inputs       []rawGoodAmount `json:"inputs"`
-		Outputs      []rawGoodAmount `json:"outputs"`
-		CycleSeconds json.Number     `json:"cycle_seconds"`
+		Inputs       []rawRecipeInput `json:"inputs"`
+		Outputs      []rawGoodAmount  `json:"outputs"`
+		CycleSeconds json.Number      `json:"cycle_seconds"`
 	} `json:"recipe"`
 	House       *House `json:"house"`
 	TradingPost *struct {
@@ -307,6 +313,11 @@ type rawBuilding struct {
 	} `json:"road"`
 	Service *struct {
 		Radius int `json:"radius"`
+		Levels []struct {
+			Radius int                    `json:"radius"`
+			Tier   string                 `json:"tier"`
+			Cost   map[string]json.Number `json:"cost"`
+		} `json:"levels"`
 	} `json:"service"`
 	WorkArea *struct {
 		Radius        int      `json:"radius"`
@@ -361,14 +372,16 @@ type rawNeed struct {
 	Kind     string      `json:"kind"`
 	Weight   json.Number `json:"weight"`
 	Category string      `json:"category"`
+	FromTier string      `json:"from_tier"`
 	Goods    []struct {
 		Good              string      `json:"good"`
 		PerResidentPerMin json.Number `json:"per_resident_per_min"`
+		Share             json.Number `json:"share"`
 	} `json:"goods"`
-	VarietyBonus  json.Number `json:"variety_bonus"`
-	MaxExtraGoods int         `json:"max_extra_goods"`
-	Building      string      `json:"building"`
-	Radius        int         `json:"radius"`
+	Buildings []struct {
+		Building string      `json:"building"`
+		Share    json.Number `json:"share"`
+	} `json:"buildings"`
 }
 
 type rawQuest struct {
@@ -513,8 +526,7 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			GrowthPerMin:      col.fixed(FileRegion, ent, "rules.growth_per_min", region.Rules.GrowthPerMin, 3),
 			DeclinePerMin:     col.fixed(FileRegion, ent, "rules.decline_per_min", region.Rules.DeclinePerMin, 3),
 			// Ratios have at most 3 decimal places and are kept in ppm.
-			GrowthThreshold:  col.fixed(FileRegion, ent, "rules.growth_satisfaction_threshold", region.Rules.GrowthThreshold, 3) * 1000,
-			OptionalTaxBonus: col.fixed(FileRegion, ent, "rules.optional_tax_bonus", region.Rules.OptionalTaxBonus, 3) * 1000,
+			GrowthThreshold: col.fixed(FileRegion, ent, "rules.growth_satisfaction_threshold", region.Rules.GrowthThreshold, 3) * 1000,
 			// Minutes with 3 decimal places are milli-minutes; x60 gives ms.
 			AutoResumeMs:          col.fixed(FileRegion, ent, "rules.auto_resume_upkeep_minutes", region.Rules.AutoResumeMinutes, 3) * 60,
 			TrialResumeMs:         col.fixed(FileRegion, ent, "rules.trial_resume_upkeep_minutes", region.Rules.TrialResumeMinutes, 3) * 60,
@@ -542,9 +554,8 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			TaxPerResidentPerMin: col.fixed(FileTiers, ent, "tax_per_resident_per_min", t.Tax, 3),
 			House:                t.House,
 			Unlock: Unlock{
-				Population:     t.Unlock.Population,
-				Buildings:      t.Unlock.Buildings,
-				GoodsDelivered: t.Unlock.GoodsDelivered,
+				Population: t.Unlock.Population,
+				Buildings:  t.Unlock.Buildings,
 			},
 		}
 		if tier.ResidentsFloor > tier.ResidentsMax {
@@ -602,22 +613,31 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 		seenNeeds[rn.ID] = true
 		col.displayName(FileNeeds, ent, rn.Name)
 		n := &Need{
-			ID:            rn.ID,
-			Name:          rn.Name,
-			Tier:          rn.Tier,
-			Kind:          rn.Kind,
-			Weight:        col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),
-			Category:      rn.Category,
-			VarietyBonus:  col.fixed(FileNeeds, ent, "variety_bonus", rn.VarietyBonus, 3) * 1000,
-			MaxExtraGoods: rn.MaxExtraGoods,
-			Building:      rn.Building,
-			Radius:        rn.Radius,
+			ID:       rn.ID,
+			Name:     rn.Name,
+			Tier:     rn.Tier,
+			Kind:     rn.Kind,
+			Weight:   col.fixed(FileNeeds, ent, "weight", rn.Weight, 6),
+			Category: rn.Category,
+			FromTier: rn.FromTier,
+		}
+		for i, rb := range rn.Buildings {
+			// Shares have at most 3 decimal places and are kept in ppm.
+			nb := NeedBuilding{Building: rb.Building, Share: col.fixed(FileNeeds, ent, fmt.Sprintf("buildings[%d].share", i), rb.Share, 3) * 1000}
+			if rb.Share == "" {
+				nb.Share = defaultShare(len(rn.Buildings))
+			}
+			n.Buildings = append(n.Buildings, nb)
 		}
 		for i, g := range rn.Goods {
 			n.Goods = append(n.Goods, NeedGood{
 				Good:              g.Good,
-				PerResidentPerMin: col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].per_resident_per_min", i), g.PerResidentPerMin, 3),
+				PerResidentPerMin: col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].per_resident_per_min", i), g.PerResidentPerMin, 6),
+				Share:             col.fixed(FileNeeds, ent, fmt.Sprintf("goods[%d].share", i), g.Share, 3) * 1000,
 			})
+			if g.Share == "" {
+				n.Goods[i].Share = defaultShare(len(rn.Goods))
+			}
 		}
 		cat.NeedsByTier[n.Tier] = append(cat.NeedsByTier[n.Tier], n)
 	}
@@ -730,7 +750,15 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 			if a <= 0 {
 				col.add(file, ent, field, "must be > 0")
 			}
-			rec.Inputs = append(rec.Inputs, GoodAmount{Good: in.Good, Amount: a})
+			var goods []string
+			var one string
+			if err := json.Unmarshal(in.Good, &one); err == nil {
+				goods = []string{one}
+			} else if err := json.Unmarshal(in.Good, &goods); err != nil || len(goods) == 0 {
+				col.add(file, ent, fmt.Sprintf("recipe.inputs[%d].good", i), "must be a good ID or a non-empty list of good IDs")
+				goods = []string{""}
+			}
+			rec.Inputs = append(rec.Inputs, RecipeInput{GoodAmount: GoodAmount{Good: goods[0], Amount: a}, Goods: goods})
 		}
 		for i, out := range r.Outputs {
 			field := fmt.Sprintf("recipe.outputs[%d].amount", i)
@@ -785,7 +813,20 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		b.Road = &Road{MsPerTile: col.fixed(file, ent, "road.seconds_per_tile", r.SecondsPerTile, 3)}
 	}
 	if s := rb.Service; s != nil {
-		b.Service = &Service{Radius: s.Radius}
+		// A service has either one radius or levels (schema); the radius
+		// is the single level.
+		b.Service = &Service{}
+		if len(s.Levels) == 0 {
+			b.Service.Levels = []ServiceLevel{{Radius: s.Radius}}
+		}
+		for _, l := range s.Levels {
+			lvl := ServiceLevel{Radius: l.Radius, Tier: l.Tier}
+			if l.Cost != nil {
+				cost := decodeCost(col, file, ent, l.Cost, goods)
+				lvl.Cost = &cost
+			}
+			b.Service.Levels = append(b.Service.Levels, lvl)
+		}
 	}
 	if wf := rb.Workforce; wf != nil {
 		b.Workforce = &Workforce{Tier: wf.Tier, Amount: wf.Amount * MilliPerUnit}
@@ -837,4 +878,56 @@ func decodeCost(col *collector, file, ent string, raw map[string]json.Number, go
 		}
 	}
 	return cost
+}
+
+// normaliseNeedWeights turns the authored need weights into the
+// satisfaction weights (D-056 cumulative tiers): in a tier that carries
+// lower-tier categories its own required needs (weights summing to 1)
+// share OwnTierWeight, and every lower tier an equal part of the rest,
+// split by the authored weights of its categories. Rounding goes to the
+// last required need, so the required weights sum to exactly WeightScale.
+// Optional needs keep their weights (they have no effect).
+func normaliseNeedWeights(c *Catalogue) {
+	for _, needs := range c.NeedsByTier {
+		lowerSum := map[string]int64{}
+		var lowerTiers []string
+		for _, n := range needs {
+			if n.Kind != NeedRequired || n.FromTier == "" {
+				continue
+			}
+			if _, ok := lowerSum[n.FromTier]; !ok {
+				lowerTiers = append(lowerTiers, n.FromTier)
+			}
+			lowerSum[n.FromTier] += n.Weight
+		}
+		if len(lowerTiers) == 0 {
+			continue
+		}
+		perTier := (WeightScale - OwnTierWeight) / int64(len(lowerTiers))
+		var total int64
+		var last *Need
+		for _, n := range needs {
+			if n.Kind != NeedRequired {
+				continue
+			}
+			if n.FromTier == "" {
+				n.Weight = n.Weight * OwnTierWeight / WeightScale
+			} else {
+				n.Weight = n.Weight * perTier / lowerSum[n.FromTier]
+			}
+			total += n.Weight
+			last = n
+		}
+		last.Weight += WeightScale - total
+	}
+}
+
+// defaultShare is the share of an alternative without an authored one
+// (D-056 amendment): 1.0 for a lone alternative, 0.6 for each of two or
+// more.
+func defaultShare(alternatives int) int64 {
+	if alternatives == 1 {
+		return ShareLone
+	}
+	return ShareAlternative
 }

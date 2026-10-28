@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"maps"
+	"math/rand/v2"
 	"testing"
 	"time"
 
@@ -235,9 +236,10 @@ func TestBuildingNeedRadiusConnectionPaused(t *testing.T) {
 }
 
 // TestEqualShareWithStarvedGood: with fish in stock and bread starved with a
-// small arrival rate, both goods are supplied (variety 1); bread is consumed
-// at its arrival share and the shortfall is drawn from fish in list order, so
-// the food need is fulfilled.
+// small arrival rate, both goods are supplied; bread is consumed at its
+// arrival share and the shortfall is drawn from fish in list order. The
+// coverage (D-056) is fish's full share plus bread's share scaled by its
+// supply ratio: 0.6 + 0.6 x 0.5 = 0.9.
 func TestEqualShareWithStarvedGood(t *testing.T) {
 	c := varietyCatalogue(t)
 	w := newTown(t, c, 1_000)
@@ -247,23 +249,23 @@ func TestEqualShareWithStarvedGood(t *testing.T) {
 	now := w.LastEvaluatedAt.UnixMilli()
 	// 0.02 bread/min arriving, nothing in stock: starved regime with
 	// positive arrivals.
-	arrival := needRate(1000, 20) // 20 milli-units/min in sub-milli per ms
+	arrival := needRate(1000, 20_000) // 20 milli-units/min in sub-milli per ms
 	is.Building(houses[0]).Transit = []TransitSegment{{Good: "bread", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: arrival}}
 	is.Inventory.Starved = map[string]bool{"bread": true}
 
 	wr, _ := settleWorld(w, c, now)
 	r := wr.islands[0]
 	gs := r.goodsNeeds["settlers"][0]
-	if gs.need.ID != "settlers_food" || gs.m != 2 || gs.variety != 1 || gs.fulfilment != ppm {
-		t.Fatalf("food need = m %d variety %d fulfilment %d", gs.m, gs.variety, gs.fulfilment)
+	if gs.need.ID != "settlers_food" || gs.m != 2 || gs.fulfilment != 900_000 || !gs.short {
+		t.Fatalf("food need = m %d fulfilment %d short %v", gs.m, gs.fulfilment, gs.short)
 	}
 	// N = 10: nominal demand fish 0.1/2 = 0.05/min, bread 0.08/2 = 0.04/min.
 	// Bread gets its arrivals (0.02/min); the missing 0.02 bread/min are
 	// half of the bread demand, i.e. 0.025 fish/min drawn from fish.
-	if want := needRate(1000, 20); gs.cons[1] != want {
+	if want := needRate(1000, 20_000); gs.cons[1] != want {
 		t.Errorf("bread consumption %d, want %d", gs.cons[1], want)
 	}
-	if want := needRate(1000, 50) + needRate(1000, 25); gs.cons[0] != want {
+	if want := needRate(1000, 50_000) + needRate(1000, 25_000); gs.cons[0] != want {
 		t.Errorf("fish consumption %d, want %d", gs.cons[0], want)
 	}
 	ds := display(t, w, c)
@@ -273,22 +275,18 @@ func TestEqualShareWithStarvedGood(t *testing.T) {
 			food = n
 		}
 	}
-	if food.Reason != NeedOK || food.FulfilmentPermille != 1000 || *food.Variety != 1 || food.Goods["fish"] != 75 || food.Goods["bread"] != 20 {
+	if food.Reason != NeedShortSupply || food.FulfilmentPermille != 900 || food.Goods["fish"] != 75 || food.Goods["bread"] != 20 {
 		t.Errorf("food display = %+v", food)
 	}
-	// Variety +10 %: multiplier 1.1.
-	if b := buildingDisplay(t, ds, houses[0]); *b.VarietyMultiplierPermille != 1100 {
-		t.Errorf("variety multiplier %d", *b.VarietyMultiplierPermille)
-	}
 
-	// Without fish only the starved bread is supplied: fulfilment is the
-	// arrival share, 0.02 / 0.08 = 0.25.
+	// Without fish only the starved bread is supplied: its supply ratio is
+	// the arrival share, 0.02 / 0.08 = 0.25, so the coverage is 0.6 x 0.25.
 	is.Inventory.setFine("fish", 0)
 	is.Inventory.Starved = map[string]bool{"bread": true, "fish": true}
 	wr, _ = settleWorld(w, c, now)
 	gs = wr.islands[0].goodsNeeds["settlers"][0]
-	if gs.m != 1 || gs.variety != 0 || gs.fulfilment != 250_000 || gs.cons[0] != 0 {
-		t.Errorf("bread only: m %d variety %d fulfilment %d fish %d", gs.m, gs.variety, gs.fulfilment, gs.cons[0])
+	if gs.m != 1 || gs.fulfilment != 150_000 || gs.cons[0] != 0 {
+		t.Errorf("bread only: m %d fulfilment %d fish %d", gs.m, gs.fulfilment, gs.cons[0])
 	}
 }
 
@@ -447,8 +445,9 @@ func TestGrantWorkforce(t *testing.T) {
 // TestShortfallDrawsSlackOfStarvedGood (review round 1): both foods starved
 // with arrivals, fish 0.01/min (below its 0.05 demand) and bread 0.06/min
 // (above its 0.04 demand). The fish shortfall is drawn from the excess bread
-// arrivals: fulfilment = 0.01/0.1 + 0.06/0.08 = 0.85, the regimes are
-// stable and a split Advance equals a single one.
+// arrivals; the coverage counts each good's own supply ratio only (D-056):
+// 0.6 x 0.01/0.05 + 0.6 x 1 = 0.72, the regimes are stable and a split
+// Advance equals a single one.
 func TestShortfallDrawsSlackOfStarvedGood(t *testing.T) {
 	c := varietyCatalogue(t)
 	w := newTown(t, c, 1_000)
@@ -456,13 +455,13 @@ func TestShortfallDrawsSlackOfStarvedGood(t *testing.T) {
 	is := w.Islands[0]
 	now := w.LastEvaluatedAt.UnixMilli()
 	is.Building(hs[0]).Transit = []TransitSegment{
-		{Good: "fish", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, 10)},
-		{Good: "bread", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, 60)},
+		{Good: "fish", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, 10_000)},
+		{Good: "bread", FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, 60_000)},
 	}
 	is.Inventory.Starved = map[string]bool{"fish": true, "bread": true}
 	wr, _ := settleWorld(w, c, now)
 	gs := wr.islands[0].goodsNeeds["settlers"][0]
-	if gs.fulfilment != 850_000 || gs.cons[0] != needRate(1000, 10) || gs.cons[1] != needRate(1000, 60) {
+	if gs.fulfilment != 720_000 || gs.cons[0] != needRate(1000, 10_000) || gs.cons[1] != needRate(1000, 60_000) {
 		t.Errorf("fulfilment %d consumption %v", gs.fulfilment, gs.cons)
 	}
 	if !is.Inventory.Starved["fish"] || !is.Inventory.Starved["bread"] {
@@ -483,12 +482,12 @@ func TestShortfallDrawsSlackOfStarvedGood(t *testing.T) {
 	}
 
 	// With 0.08 bread/min the bread slack covers the fish shortfall
-	// (0.04 fish = 0.032 bread): bread leaves the starved regime and the
-	// need is fulfilled.
-	is.Building(hs[0]).Transit[1].RateSub = needRate(1000, 80)
+	// (0.04 fish = 0.032 bread): bread leaves the starved regime; the
+	// coverage stays 0.72 (fish still gets a fifth of its demand).
+	is.Building(hs[0]).Transit[1].RateSub = needRate(1000, 80_000)
 	wr, _ = settleWorld(w, c, now)
 	gs = wr.islands[0].goodsNeeds["settlers"][0]
-	if is.Inventory.Starved["bread"] || gs.fulfilment != ppm || gs.cons[1] != needRate(1000, 72) {
+	if is.Inventory.Starved["bread"] || gs.fulfilment != 720_000 || gs.cons[1] != needRate(1000, 72_000) {
 		t.Errorf("bread %v fulfilment %d consumption %v", is.Inventory.Starved, gs.fulfilment, gs.cons)
 	}
 }
@@ -593,5 +592,52 @@ func TestHouseOnIsolatedRoadStub(t *testing.T) {
 	mustAdvance(t, w, c, 12*time.Hour)
 	if hs := house(w, h); hs.Residents != 2000 || hs.Growth != 0 {
 		t.Errorf("after decline = %+v, want floor", hs)
+	}
+}
+
+// TestCoverageMonotoneProperty (D-056): over random arrival rates of
+// starved goods, the coverage of a category stays within [0, 1], is 0
+// without supply, and never falls when a further alternative comes into
+// stock; with both alternatives in stock it is full (0.6 + 0.6, capped).
+func TestCoverageMonotoneProperty(t *testing.T) {
+	c := varietyCatalogue(t)
+	rng := rand.New(rand.NewPCG(56, 1)) // #nosec G404 -- deterministic test data
+	for i := range 60 {
+		w := newTown(t, c, 1_000)
+		houses := placeHouses(t, w, c, 5)
+		is := w.Islands[0]
+		now := w.LastEvaluatedAt.UnixMilli()
+		var segs []TransitSegment
+		for _, g := range []string{"fish", "bread"} {
+			if rng.IntN(2) == 0 {
+				segs = append(segs, TransitSegment{Good: g, FromMs: now - 1, ToMs: now + 3_600_000, RateSub: needRate(1000, Qty(rng.IntN(120_000)))})
+			}
+		}
+		is.Building(houses[0]).Transit = segs
+		is.Inventory.Starved = map[string]bool{"fish": true, "bread": true}
+		food := func() int64 {
+			wr, _ := settleWorld(w, c, now)
+			return wr.islands[0].goodsNeeds["settlers"][0].fulfilment
+		}
+		prev := food()
+		if prev < 0 || prev > 1_000_000 || (len(segs) == 0 && prev != 0) {
+			t.Fatalf("case %d: coverage %d with arrivals %+v", i, prev, segs)
+		}
+		order := []string{"fish", "bread"}
+		if rng.IntN(2) == 0 {
+			order[0], order[1] = order[1], order[0]
+		}
+		for _, g := range order {
+			is.Inventory.setFine(g, 100_000*SubPerMilli)
+			delete(is.Inventory.Starved, g)
+			got := food()
+			if got < prev || got > 1_000_000 {
+				t.Fatalf("case %d: coverage %d -> %d after stocking %s (arrivals %+v)", i, prev, got, g, segs)
+			}
+			prev = got
+		}
+		if prev != 1_000_000 {
+			t.Fatalf("case %d: both alternatives in stock, coverage %d", i, prev)
+		}
 	}
 }

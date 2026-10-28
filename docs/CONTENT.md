@@ -519,8 +519,14 @@ decorations: [] }, prerequisites[] }`; objectives are `oneOf` the predicate
 kinds in MECHANICS §12a (`building_count`, `population`, `stock`,
 `connected`, `route_exists`, `island_settled`, `tier_unlocked`,
 `ship_count`, `satisfaction`). The intro chain is 12 linear quests
-(`intro_first_road` … `intro_citizen_house`) with rewards of 25–100 gold or
-30–45 planks; never stone, tools or sails (those are taught, not given).
+(`intro_home_island` … `intro_citizen_house`; island 2 is founded with
+the start sloop) with rewards of 25–100 gold or 30–45 planks; never
+stone, tools or sails (those are taught, not given). The tier-2 chain
+(D-056) is 5 linear quests branching off at `intro_settlers_120`
+(`citizens_shipyard`, `citizens_sloop`, `citizens_tavern`,
+`citizens_school`, `citizens_cheese`) with rewards of 50–100 gold; the
+shipyard quest's 10 sails for the first built sloop are the only sails
+(§8).
 Quests that reward goods must mention that excess beyond capacity is lost
 (content test).
 
@@ -529,11 +535,13 @@ Quests that reward goods must mention that excess beyond capacity is lost
 `need_categories.json` lists the display data per category: `{ id, name,
 icon }` (icon IDs from the HUD icon set; a test checks they exist).
 
-One entry per need: `{ id, name, tier, kind: required|optional, weight }` plus
-either a goods category — `category`, `goods[] {good,
-per_resident_per_min}`, `variety_bonus`, `max_extra_goods` — or a building
-need — `building`, `radius`. Required weights of a tier sum to exactly 1.
-See MECHANICS §6.2 for the semantics.
+One entry per need: `{ id, name, tier, from_tier?, kind:
+required|optional, weight, category }` plus either `goods[] {good,
+per_resident_per_min, share?}` or, for services, `buildings[] {building,
+share?}` (the radius is the building's service level). Shares default to
+1.0 for a lone alternative and 0.6 each otherwise (D-056). Required
+weights of a tier's own needs sum to exactly 1; `from_tier` marks a
+carried lower-tier category. See MECHANICS §6.2 for the semantics.
 
 ```json
 {
@@ -546,8 +554,6 @@ See MECHANICS §6.2 for the semantics.
     { "good": "cider", "per_resident_per_min": 0.006 },
     { "good": "mead",  "per_resident_per_min": 0.005 }
   ],
-  "variety_bonus": 0.10,
-  "max_extra_goods": 2,
   "kind": "required"
 }
 ```
@@ -569,12 +575,14 @@ See MECHANICS §6.2 for the semantics.
   Patricians. Checked by a generic content test over every tier with a
   house and by the goldens `bootstrap_settlers` and `bootstrap_citizens`
   (the tier 1–2 reference game from the starting stock: island 2 settled
-  at 59 min, Citizens unlocked by 62 min, the first Citizen house at
-  88 min, tools from island 2 on the home island by 141 min — on the
-  generated dev archipelago, seed 1053001, with the D-054 content since
-  PR #27; PR #25: 60 / 80 / 99 / 136; the hand-made islands: 100 / 139).
-  The island-2 margin (59 of 60; quests exactly 15 min earlier) is
-  deliberately tight: a change that slows the first hour must say so.
+  at 52 min by the start sloop, Citizens unlocked by 30 min, the first
+  Citizen house at 88 min, tools from island 2 on the home island by
+  132 min; with the quests 34 / 21 / 73 / 117 — on the generated dev
+  archipelago, seed 1053001, with the D-056 need model; before D-056:
+  59 / 62 / 88 / 141, quests 44 / 70; PR #25: 60 / 80 / 99 / 136; the
+  hand-made islands: 100 / 139). The first-house margin (88 of 100;
+  quests 15 min earlier) is the tight one: a change that slows the
+  first hours must say so.
   If a later change needs room, the first lever is the sloop's reference
   speed (legs are 3.4–4.3 min on the dev seed), not the targets.
 - **Tier 3–4 reference games (D-056, sim minutes from the starting
@@ -585,7 +593,7 @@ See MECHANICS §6.2 for the semantics.
   ≤ 1 800. Goldens `bootstrap_merchants` / `bootstrap_patricians` once
   the tiers exist. With D-056 the tier-1/2 game runs its categories at
   0.6 until the second alternatives are built; the §12 tier-1/2 targets
-  stay and are re-verified by the need-model session.
+  stay and hold (see Bootstrap above).
 - Warehouse throughput at each level must cover a "typical" island at that
   tier with one warehouse ≈ 80 % load.
 - Tax income at each tier's unlock population must cover upkeep of the
