@@ -94,3 +94,29 @@ are no road recipes. Construction uses the voxel `life_stage` a/b/c
   (settled/citizens/showcase × near/mid, desktop). Voxel buildings and
   forests read well on today's smooth terrain; the forest of voxel trees
   is the most convincing part.
+
+## Step 3: voxel world (`?voxel=1`, additive)
+
+Every change is behind `VOXEL` (display/voxel.ts); with the flag off the
+code paths are the old ones (all existing tests unchanged and green).
+
+| Area | File | Voxel behaviour |
+|---|---|---|
+| Ground + coast | `render/voxelterrain.ts` (new), `terrain.ts` `TerrainBuild` | column field at 4 columns/tile, 1 step = 1 voxel = 0.25 tile; land at 0, pixel coastline = smoothed coast sampled at column centres, sand rim column, two sand shelves (−1, −2 steps), sides down to −3 steps (below the sea at −0.6) in the slab's cliff bands; 2.5D greedy meshing per existing 32×32 chunk, neighbours read across chunk borders (no seams); top corners darkened per higher neighbour (baked AO, 0.09/corner); side normals tilted up 0.55 like the slab |
+| Ground colour | same | today's `groundColor` per tile, quantised to 1/48 per channel so equal neighbours merge |
+| Lite terrain (far, focused island) | `terrain.ts` | same field at 2 columns/tile into the one lite mesh |
+| Plateaus | `plateaus.ts` `plateauField` | terraces of the same columns: one voxel at the rim, two inside per level (level 1 → 1/2 steps, level 2 → 3/4); `PLATEAU_STEP` 0.5 (was 0.42) so decor/crags sit on the inner top. Every visible step is still one voxel |
+| Far mask (other islands) | `farmesh.ts` `voxelMaskData` | **replaced** by coarse voxel terrain: 1 column/tile over the 1:4 mask, same shelves |
+| Water, foam | unchanged | the shader sea is kept (warm teal shallows read well against the sand shelves); the foam strip still follows the smoothed coast, which lands on the shelf edge |
+| Decor | `trees.ts` `ModelMerger.add` | voxel decor models from models-voxel; yaw snapped to quarter turns so voxels stay grid-aligned |
+| Smoke | `life.ts` `puff` | cube puffs (12 tris) instead of the ico puff (80) |
+| Sails, life | unchanged | ship models carry the sail/flag sway groups (vertex alpha) like the kits, so the sway shader works as is |
+| Sun, lighting | unchanged | current sun + sky fill + baked AO |
+| Roads | unchanged | still today's flat ribbons on top of the voxel ground; a full restyle would draw them as 1-voxel paths |
+
+Palette check (v-step3a vs baseline): same warm greens/sand, the cliff
+bands are the slab's ISLAND roles; no cold greys besides the slate-free
+stone of the voxel buildings (stone #B9B2A4 is warm).
+
+Shots: `.experiment/shots/v-step3a` (settled/showcase near/mid/far),
+`v-step3b` (showcase/citizens near).

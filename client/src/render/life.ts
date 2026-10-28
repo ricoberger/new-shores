@@ -14,6 +14,7 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
 import type { Scene } from "@babylonjs/core/scene";
+import { VOXEL } from "../display/voxel";
 import { lifeAtLod, lifeBudget, type LifePlan, type LifeSink, type LifeStats } from "../display/life";
 import { CLS, VILLAGER_VARIANTS } from "../display/lifeplan";
 import type { Lod } from "../display/lod";
@@ -320,7 +321,8 @@ function gull(lift: number): LifeGeometry {
 /** A low-poly puff (unit diameter, flat-shaded) in one colour: smoke. */
 function puff(color: Color4): LifeGeometry {
   return (scene, name) => {
-    const m = CreateIcoSphere(name, { radius: 0.5, subdivisions: 1, flat: true }, scene);
+    // Voxel prototype: a cube puff (12 triangles instead of 80).
+    const m = VOXEL ? CreateBox(name, { size: 0.8 }, scene) : CreateIcoSphere(name, { radius: 0.5, subdivisions: 1, flat: true }, scene);
     m.setVerticesData("color", new Array(m.getTotalVertices()).fill([color.r, color.g, color.b, 1]).flat());
     return m;
   };

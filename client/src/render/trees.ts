@@ -24,6 +24,7 @@ import { bipyramid, cone, prism, type Tri, TriBuilder } from "./meshdata";
 import { decorModel, type ModelData, type ModelRegistry } from "./models";
 import { c3, SHADOW } from "./palette";
 import { BLOB_Y } from "./shadows";
+import { VOXEL } from "../display/voxel";
 
 const TRUNK = c3(BUILDINGS.timber);
 const FOREST = c3(TERRAIN.forest_floor);
@@ -121,6 +122,8 @@ export class ModelMerger {
 
   /** Adds one copy of world-oriented model data at (x, y, z), scaled by s, turned by yaw about y, colours × shade. */
   add(d: ModelData, x: number, y: number, z: number, s: number, yaw: number, shade = 1): void {
+    // Voxel prototype: quarter turns only, so the voxels stay on the grid's axes.
+    if (VOXEL) yaw = Math.round(yaw / (Math.PI / 2)) * (Math.PI / 2);
     const vc = d.positions.length / 3;
     this.grow(vc, d.indices.length);
     const cos = Math.cos(yaw);

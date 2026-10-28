@@ -29,6 +29,8 @@ import { fbm } from "../display/noise";
 import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
+import { VOXEL } from "../display/voxel";
+import { type Field, islandField, meshField, TERRAIN_VPT, tileRange } from "./voxelterrain";
 
 /**
  * The slab at far LOD (with the lite models): the same bands merged to
@@ -443,6 +445,9 @@ function terrainMaterial(scene: Scene): StandardMaterial {
   return material;
 }
 
+/** Columns per tile of the voxel prototype's far (lite) terrain. */
+const LITE_VPT = 2;
+
 /**
  * buildTerrain with chunk parents in steps (the incremental island build,
  * render/buildqueue.ts): the slab of each detail (`slab`), then the
@@ -456,6 +461,8 @@ export class TerrainBuild {
   private readonly full = new Map<string, Builder>();
   private readonly lite = new Builder();
   private readonly meshes: Mesh[] = [];
+  /** Voxel prototype (?voxel=1): the column fields of the full (4 per tile) and lite (2 per tile) terrain. */
+  private readonly voxel: { full: Field; lite: Field } | null;
 
   constructor(
     private readonly scene: Scene,
@@ -467,6 +474,7 @@ export class TerrainBuild {
   ) {
     this.material = terrainMaterial(scene);
     this.colors = terrainColors(seed);
+    this.voxel = VOXEL ? { full: islandField(island, loops, seed, TERRAIN_VPT), lite: islandField(island, loops, seed, LITE_VPT) } : null;
   }
 
   private builder(k: string): Builder {
@@ -477,6 +485,8 @@ export class TerrainBuild {
 
   /** The slab of one detail along every coast loop (full: into the chunks' builders). */
   slab(detail: "full" | "lite"): void {
+    // The voxel terrain's coast is part of its columns (chunk()).
+    if (this.voxel) return;
     const { width, height } = this.island;
     for (const loop of this.loops) {
       if (detail === "full") slabStrip((x, y) => this.builder(chunkAt(x, y, width, height)), loop, this.seed, this.colors.slab, PROFILE);
@@ -487,7 +497,11 @@ export class TerrainBuild {
   /** The ground of a chunk (cells whose top-left tile centre is in it) in both details, and its full mesh. */
   chunk(c: ChunkRect): void {
     const b = this.builder(c.key);
-    for (let j = c.y - 1; j < c.y + c.height - 1; j++) {
+    if (this.voxel) {
+      meshField(b, this.voxel.full, ...tileRange(c.x, c.y, c.width, c.height, TERRAIN_VPT));
+      meshField(this.lite, this.voxel.lite, ...tileRange(c.x, c.y, c.width, c.height, LITE_VPT));
+    }
+    for (let j = c.y - 1; !this.voxel && j < c.y + c.height - 1; j++) {
       for (let i = c.x - 1; i < c.x + c.width - 1; i++) {
         groundCell(this.lite, this.island, i, j, this.colors);
         groundCell(b, this.island, i, j, this.colors);
