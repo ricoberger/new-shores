@@ -106,6 +106,7 @@ def main(argv=None):
     ap.add_argument("ids")
     ap.add_argument("--cell", type=int, default=256)
     ap.add_argument("--cols", type=int, default=4, help="pairs per row")
+    ap.add_argument("--only", default="", help="comma-separated output indices per ID (e.g. 0,2)")
     a = ap.parse_args(argv)
     build._init()
     content, recipes = build._CONTENT, build._RECIPES
@@ -113,7 +114,9 @@ def main(argv=None):
     for cid in [s for s in a.ids.split(",") if s]:
         kind = build.kind_for(content, cid)
         recipe, _ = build.recipe_for(cid, kind, recipes)
-        for _, key, ctx in model.outputs(cid, kind, recipe, content):
+        for i, (_, key, ctx) in enumerate(model.outputs(cid, kind, recipe, content)):
+            if a.only and str(i) not in a.only.split(","):
+                continue
             p, probs = pair(cid, kind, recipe, key, ctx, content, a.cell)
             imgs += p
             problems += [f"{cid} {key}: {x}" for x in probs]

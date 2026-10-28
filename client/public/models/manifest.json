@@ -1236,7 +1236,7 @@
         ],
         "chimney": [
           1.25,
-          3.25,
+          3.375,
           1.0
         ],
         "door": [
@@ -1246,19 +1246,19 @@
         ],
         "smoke": [
           1.25,
-          3.375,
+          3.5,
           1.0
         ],
         "status": [
           0.0,
-          3.625,
+          3.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.375,
+          3.5,
           2.5
         ],
         "min": [
@@ -1271,7 +1271,7 @@
         "bounds": {
           "max": [
             2.0,
-            3.375,
+            3.5,
             2.5
           ],
           "min": [
@@ -1281,7 +1281,7 @@
           ]
         },
         "budget": 10000,
-        "bytes": 189424,
+        "bytes": 193016,
         "lite": {
           "bounds": {
             "max": [
@@ -1296,14 +1296,14 @@
             ]
           },
           "budget": 800,
-          "bytes": 20128,
+          "bytes": 18732,
           "path": "bakery.lite.glb",
-          "sha256": "96f6b4806e8098bbd5d268b8500cf480c1fd72fdf7b00b6a10ad2b89f81b04fa",
-          "triangles": 330
+          "sha256": "4657b63c6c1593616002202e8e1d2a0cd00c019def5290b40b664621e3dfb198",
+          "triangles": 312
         },
         "path": "bakery.glb",
-        "sha256": "1ef104757d3c9168fe2ca9e47e19a09b1dca9a13ab04b16eba9a52c5e60d2af0",
-        "triangles": 3558
+        "sha256": "fe8dec512e84fd5078070a1c8150a8c242bb5571233a66255b84022346614875",
+        "triangles": 3592
       },
       "footprint": {
         "h": 5,
@@ -2020,14 +2020,14 @@
         ],
         "status": [
           0.0,
-          2.625,
+          2.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.5,
-          2.375,
+          2.5,
           3.0
         ],
         "min": [
@@ -2040,7 +2040,7 @@
         "bounds": {
           "max": [
             2.5,
-            2.375,
+            2.5,
             3.0
           ],
           "min": [
@@ -2050,7 +2050,7 @@
           ]
         },
         "budget": 15000,
-        "bytes": 163312,
+        "bytes": 164384,
         "lite": {
           "bounds": {
             "max": [
@@ -2065,14 +2065,14 @@
             ]
           },
           "budget": 1200,
-          "bytes": 20592,
+          "bytes": 19740,
           "path": "charcoal_burner.lite.glb",
-          "sha256": "8151ed1b6e6fc119a11e8bc885e0fd0660f85103d6b18bec60648a3abd9aa1bc",
-          "triangles": 362
+          "sha256": "96f7d2c6d860b50a0044140ad57656c5a7b27a029bcc0ceae3933b800004675a",
+          "triangles": 346
         },
         "path": "charcoal_burner.glb",
-        "sha256": "291f1d5c1a4fce49c5256367359bc4d33de5ece23297abc8f05d3151aa16874e",
-        "triangles": 3356
+        "sha256": "8aa1927334149724e7fdc3ed7282d225a9908f4a0c57b36a05760a3e0f59dc55",
+        "triangles": 3372
       },
       "footprint": {
         "h": 6,
@@ -3950,14 +3950,14 @@
         ],
         "status": [
           0.0,
-          3.5,
+          3.875,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          3.25,
+          3.625,
           1.5
         ],
         "min": [
@@ -3976,7 +3976,7 @@
           "bounds": {
             "max": [
               1.5,
-              3.25,
+              3.375,
               1.5
             ],
             "min": [
@@ -3986,45 +3986,7 @@
             ]
           },
           "budget": 4860,
-          "bytes": 153236,
-          "lite": {
-            "bounds": {
-              "max": [
-                1.5,
-                3.0,
-                1.5
-              ],
-              "min": [
-                -1.5,
-                0.0,
-                -1.5
-              ]
-            },
-            "budget": 405,
-            "bytes": 15552,
-            "path": "house_citizens.v0.lite.glb",
-            "sha256": "aa1105692bc4cedd32ee41b0e4b99587d2018063ff711b14f7c48bae8d46f40f",
-            "triangles": 260
-          },
-          "path": "house_citizens.v0.glb",
-          "sha256": "550ebe1abaa017bfc4e3beb0ea9f3466b09264987c5da2fac6915fc44624dd15",
-          "triangles": 3110
-        },
-        {
-          "bounds": {
-            "max": [
-              1.5,
-              3.25,
-              1.5
-            ],
-            "min": [
-              -1.5,
-              0.0,
-              -1.5
-            ]
-          },
-          "budget": 4860,
-          "bytes": 156532,
+          "bytes": 240824,
           "lite": {
             "bounds": {
               "max": [
@@ -4039,20 +4001,20 @@
               ]
             },
             "budget": 405,
-            "bytes": 14796,
-            "path": "house_citizens.v1.lite.glb",
-            "sha256": "d6a582cc0b31298e527ad9be14bd6cc9746290011848e1a9029b497620a1ee64",
-            "triangles": 246
+            "bytes": 15492,
+            "path": "house_citizens.v0.lite.glb",
+            "sha256": "1b5cc422e3dd42dbd062bdd9b9dc7e79e3d23ad4ab8a0b9e0e705dec7542ce3c",
+            "triangles": 250
           },
-          "path": "house_citizens.v1.glb",
-          "sha256": "8388924ed1bf28ed308a6c7b9da253e076b20bdc08cb9b628ff73c78657015b9",
-          "triangles": 3188
+          "path": "house_citizens.v0.glb",
+          "sha256": "e7b1b33c2a4e936b89df3def226959adf6cb90cef803d5e170413c2ae2308bba",
+          "triangles": 4324
         },
         {
           "bounds": {
             "max": [
               1.5,
-              3.25,
+              3.625,
               1.5
             ],
             "min": [
@@ -4062,12 +4024,12 @@
             ]
           },
           "budget": 4860,
-          "bytes": 124160,
+          "bytes": 249544,
           "lite": {
             "bounds": {
               "max": [
                 1.5,
-                3.0,
+                3.5,
                 1.5
               ],
               "min": [
@@ -4077,14 +4039,52 @@
               ]
             },
             "budget": 405,
-            "bytes": 14728,
+            "bytes": 18212,
+            "path": "house_citizens.v1.lite.glb",
+            "sha256": "4fdafae4e6f0e5443074c52a4971b4d1fedb23854853326b89a7b46243d2fe13",
+            "triangles": 302
+          },
+          "path": "house_citizens.v1.glb",
+          "sha256": "cf7ce9a92080a6a3488c617df1aa22bd2fcd37c3e5ecb88abfaa733038457c3e",
+          "triangles": 4452
+        },
+        {
+          "bounds": {
+            "max": [
+              1.5,
+              3.5,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 4860,
+          "bytes": 204652,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                3.5,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 16388,
             "path": "house_citizens.v2.lite.glb",
-            "sha256": "fbda299e6943554e2f1e3957e2582c06c99dca631d80f31590a550e259764a56",
-            "triangles": 244
+            "sha256": "a6d0a086feaa92d1c7ed3976babac678c8968cad454c4a52b9c3741b66670892",
+            "triangles": 264
           },
           "path": "house_citizens.v2.glb",
-          "sha256": "3ed8fe4f4f5efab3eb4ef4a15c4f3b1ca29e4a0668399b93fb36a46b436cc509",
-          "triangles": 2558
+          "sha256": "a9afc9515d78c9869156e686687dde5e5eeaa1cc2ecc0acc20bd7a15991023d5",
+          "triangles": 3620
         }
       ]
     },
@@ -4235,14 +4235,14 @@
         ],
         "status": [
           0.0,
-          3.0,
+          3.5,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.75,
+          3.25,
           1.5
         ],
         "min": [
@@ -4261,7 +4261,7 @@
           "bounds": {
             "max": [
               1.5,
-              2.75,
+              3.125,
               1.5
             ],
             "min": [
@@ -4271,12 +4271,12 @@
             ]
           },
           "budget": 4860,
-          "bytes": 123904,
+          "bytes": 181824,
           "lite": {
             "bounds": {
               "max": [
                 1.5,
-                2.5,
+                3.0,
                 1.5
               ],
               "min": [
@@ -4286,20 +4286,20 @@
               ]
             },
             "budget": 405,
-            "bytes": 10408,
+            "bytes": 10724,
             "path": "house_settlers.v0.lite.glb",
-            "sha256": "365906f62ef0448d7069124e8de8dd8c6bc8a2c0eb18a482ae908f58c73ef5c4",
-            "triangles": 168
+            "sha256": "186bb964fffb1585ecc444ee02d5e36c8c28d79aa8e7cd8a8e83c079bfd2960c",
+            "triangles": 174
           },
           "path": "house_settlers.v0.glb",
-          "sha256": "93e93241549e39b7d365dc642ba5069a53e0c289a05e9c5ca66703653d6ade2b",
-          "triangles": 2534
+          "sha256": "287789e619ff2840c71fda1a89d7794bb9483a7afad689615bac38fbcb31a49c",
+          "triangles": 3320
         },
         {
           "bounds": {
             "max": [
               1.5,
-              2.625,
+              3.25,
               1.5
             ],
             "min": [
@@ -4309,12 +4309,12 @@
             ]
           },
           "budget": 4860,
-          "bytes": 140376,
+          "bytes": 205728,
           "lite": {
             "bounds": {
               "max": [
                 1.5,
-                2.5,
+                3.0,
                 1.5
               ],
               "min": [
@@ -4324,20 +4324,20 @@
               ]
             },
             "budget": 405,
-            "bytes": 11960,
+            "bytes": 11624,
             "path": "house_settlers.v1.lite.glb",
-            "sha256": "128b31e1f78da8eaa0690ac72a6e8a264a1b6473c24231044374f0d16128f822",
-            "triangles": 198
+            "sha256": "f739fb350df02ac97182e759b2fdf110c85cfa59bb98eaffbd1786c9ee3bd733",
+            "triangles": 184
           },
           "path": "house_settlers.v1.glb",
-          "sha256": "8d43a4781796f6ca10e65093b56bcf093934076a950c4f67321c0e8235ff535b",
-          "triangles": 2908
+          "sha256": "b199f3494e814a92e53c3ea2db7307fca3f22735fc348d9ee90fe9fb5f642812",
+          "triangles": 3734
         },
         {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              2.875,
               1.5
             ],
             "min": [
@@ -4347,7 +4347,7 @@
             ]
           },
           "budget": 4860,
-          "bytes": 133524,
+          "bytes": 200988,
           "lite": {
             "bounds": {
               "max": [
@@ -4362,14 +4362,14 @@
               ]
             },
             "budget": 405,
-            "bytes": 13696,
+            "bytes": 13148,
             "path": "house_settlers.v2.lite.glb",
-            "sha256": "019e6e56d785e0db9a85da51301ac3f4573e3e1d875ea31607deefc81ae1472b",
-            "triangles": 226
+            "sha256": "a22bfb97997d15c59b870757c53941fa51ff389fb25e950b28155002a91655b5",
+            "triangles": 228
           },
           "path": "house_settlers.v2.glb",
-          "sha256": "569eff012b818e7a7e59059fbd6dc2b96d3aad4ffc6dc1aef4f52895da4b51ed",
-          "triangles": 2742
+          "sha256": "c3f70c4393d8400c4cb1e3fe13a548ca1f53961452c8833217400c1fca9480ab",
+          "triangles": 3602
         }
       ]
     },
@@ -4427,7 +4427,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 204840,
+        "bytes": 205296,
         "lite": {
           "bounds": {
             "max": [
@@ -4442,14 +4442,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 19252,
+          "bytes": 19376,
           "path": "iron_mine.lite.glb",
-          "sha256": "6893d6bc4ed1b97bce90035e3b8787f60a843250248185d664c2ab755c73c272",
-          "triangles": 332
+          "sha256": "7525fd26a473c9dbecded86169f5ed5eb763907f9671fa14f23fe31731399fdf",
+          "triangles": 334
         },
         "path": "iron_mine.glb",
-        "sha256": "ce5a5e4416ff0b68d487f0999f5c534443289d34920032d30252839c8b9f508e",
-        "triangles": 4180
+        "sha256": "80e53856be0e533306912cb33f8a045519cb695e6bd5437f9fddd7487f050b18",
+        "triangles": 4186
       },
       "footprint": {
         "h": 8,
@@ -5137,7 +5137,7 @@
         ],
         "chimney": [
           -1.375,
-          2.375,
+          2.5,
           -1.25
         ],
         "door": [
@@ -5147,7 +5147,7 @@
         ],
         "smoke": [
           -1.375,
-          2.5,
+          2.625,
           -1.25
         ],
         "status": [
@@ -5182,7 +5182,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 202184,
+        "bytes": 205336,
         "lite": {
           "bounds": {
             "max": [
@@ -5197,14 +5197,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 26136,
+          "bytes": 27068,
           "path": "mill.lite.glb",
-          "sha256": "73c86363aafe85a66cf071d982bb6944a24348507659852d360b057a050f1c2c",
-          "triangles": 454
+          "sha256": "0ab60a3a812d88a619660519ca32a7079d042669c92b5c20bc426e1c6772cde5",
+          "triangles": 474
         },
         "path": "mill.glb",
-        "sha256": "3d4d8e72143bb3b9b20f52b8a5579e2296da7cbd82a83ddb168e148f64e24263",
-        "triangles": 3870
+        "sha256": "2375b1f432fec7dbe44242b6e1257c312a56a169ef0a956223388e8e400f6a78",
+        "triangles": 3924
       },
       "footprint": {
         "h": 6,
@@ -5305,7 +5305,7 @@
         ],
         "chimney": [
           0.625,
-          3.25,
+          3.375,
           0.875
         ],
         "door": [
@@ -5315,19 +5315,19 @@
         ],
         "smoke": [
           0.625,
-          3.375,
+          3.5,
           0.875
         ],
         "status": [
           0.0,
-          3.625,
+          3.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.375,
+          3.5,
           2.0
         ],
         "min": [
@@ -5340,7 +5340,7 @@
         "bounds": {
           "max": [
             2.0,
-            3.375,
+            3.5,
             2.0
           ],
           "min": [
@@ -5350,7 +5350,7 @@
           ]
         },
         "budget": 8000,
-        "bytes": 142268,
+        "bytes": 141156,
         "lite": {
           "bounds": {
             "max": [
@@ -5365,14 +5365,14 @@
             ]
           },
           "budget": 640,
-          "bytes": 19520,
+          "bytes": 21764,
           "path": "orchard.lite.glb",
-          "sha256": "66e400c8db9604117419dc18b23b6fd3389035747bfc0058a303abb7c9e93e47",
-          "triangles": 326
+          "sha256": "d59ab48944e1ef0e45ada258f61bd9daaba360e561a50240833528bad12d6a3a",
+          "triangles": 378
         },
         "path": "orchard.glb",
-        "sha256": "ba265d38e894eeb260adf23fb60a1a3badba9a4cdafe6c26e52bd4fc03f4ee13",
-        "triangles": 2806
+        "sha256": "85708e0925bd65de5c4d46aaaf131a18d65e33d04934e1746c30ff2a5cd52acc",
+        "triangles": 2784
       },
       "footprint": {
         "h": 4,
@@ -6118,7 +6118,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 144152,
+        "bytes": 144660,
         "lite": {
           "bounds": {
             "max": [
@@ -6135,12 +6135,12 @@
           "budget": 960,
           "bytes": 16592,
           "path": "quarry.lite.glb",
-          "sha256": "19871acf7ccfb3872f959b75450696a6b9100e06cc0df03723f67ff2d3590150",
+          "sha256": "69821417c8f1c849cfbc69012bd1db2d76db7f20811032a19c80030eb0da01b0",
           "triangles": 282
         },
         "path": "quarry.glb",
-        "sha256": "48c0ba4d165566b188bac5c56aa1d8e01fc8d21c03f5fc1840c9b2a13b512694",
-        "triangles": 2966
+        "sha256": "16866c62389d11769a7a926d6dbb880560d0882155e62b68a8e814db904356aa",
+        "triangles": 2976
       },
       "footprint": {
         "h": 8,
@@ -6636,7 +6636,7 @@
         ],
         "chimney": [
           0.375,
-          2.75,
+          2.875,
           1.875
         ],
         "door": [
@@ -6646,19 +6646,19 @@
         ],
         "smoke": [
           0.375,
-          2.875,
+          3.0,
           1.875
         ],
         "status": [
           0.0,
-          3.125,
+          3.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          2.875,
+          3.0,
           3.0
         ],
         "min": [
@@ -6671,7 +6671,7 @@
         "bounds": {
           "max": [
             2.0,
-            2.875,
+            3.0,
             3.0
           ],
           "min": [
@@ -6681,7 +6681,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 103904,
+        "bytes": 105532,
         "lite": {
           "bounds": {
             "max": [
@@ -6696,14 +6696,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 14340,
+          "bytes": 14556,
           "path": "sawmill.lite.glb",
-          "sha256": "dd3e965c82139954bfd454e78669f31f1dccacc5f2bd6e871000f32b7499cbd8",
-          "triangles": 256
+          "sha256": "967dd80c58ea3bbf289e9413971638c6ff099c11ac31eb180dd3fef0a5d1a256",
+          "triangles": 250
         },
         "path": "sawmill.glb",
-        "sha256": "27d4c8a33d83bee79ae8b70e17e75179aef524659a019b65dff428a725415535",
-        "triangles": 2236
+        "sha256": "dfbd865aa63846e624e830bbcf1f6b3ac0d896d87f213f66274ce461aa5e57eb",
+        "triangles": 2256
       },
       "footprint": {
         "h": 6,
@@ -6789,7 +6789,7 @@
         ],
         "chimney": [
           0.0,
-          2.625,
+          2.75,
           0.625
         ],
         "door": [
@@ -6799,19 +6799,19 @@
         ],
         "smoke": [
           0.0,
-          2.75,
+          2.875,
           0.625
         ],
         "status": [
           0.0,
-          3.0,
+          3.125,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.75,
+          2.875,
           1.5
         ],
         "min": [
@@ -6824,7 +6824,7 @@
         "bounds": {
           "max": [
             1.5,
-            2.75,
+            2.875,
             1.5
           ],
           "min": [
@@ -6834,12 +6834,12 @@
           ]
         },
         "budget": 4500,
-        "bytes": 83652,
+        "bytes": 84232,
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              3.0,
               1.5
             ],
             "min": [
@@ -6849,14 +6849,14 @@
             ]
           },
           "budget": 360,
-          "bytes": 9916,
+          "bytes": 11132,
           "path": "sheep_farm.lite.glb",
-          "sha256": "c0b2c74b0ee78835e54afa628f7183f4e6c75bd5578428e2ca09f6e4d8e6d914",
-          "triangles": 158
+          "sha256": "132bea797ff423d4088a95d6bdcc6acc1daa2628aaf91afe9c2de1c175bb3fec",
+          "triangles": 178
         },
         "path": "sheep_farm.glb",
-        "sha256": "e5f40110ac8fc055c00fdef33910c0ab852b57aac996e2544ab92751a8362e7e",
-        "triangles": 1758
+        "sha256": "73907877abb8e5a97c1e71ef1a63031d19ffcbf6a9c5c8e4ac54c5dbf8669ca1",
+        "triangles": 1766
       },
       "footprint": {
         "h": 3,
@@ -6908,7 +6908,7 @@
           ]
         },
         "budget": 48000,
-        "bytes": 274396,
+        "bytes": 274796,
         "lite": {
           "bounds": {
             "max": [
@@ -6929,8 +6929,8 @@
           "triangles": 842
         },
         "path": "shipyard.glb",
-        "sha256": "09ea61bbb00a50ba7ea5b96500acc03a0d937cca517fdb6deefa4b58516b1c92",
-        "triangles": 5394
+        "sha256": "b2b11f0368c1b85d62af0fb7ebfc36fd5637ade6935cf96c05c4fd79df90a9f6",
+        "triangles": 5400
       },
       "footprint": {
         "h": 12,
@@ -7143,7 +7143,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 148856,
+        "bytes": 148544,
         "lite": {
           "bounds": {
             "max": [
@@ -7158,14 +7158,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 19080,
+          "bytes": 19400,
           "path": "smelter.lite.glb",
-          "sha256": "344d18b127dc9544d9567fa866f7266bdc8a9154ceaf8b2e978da0b34da772be",
-          "triangles": 318
+          "sha256": "b6adbe5403a18d66885eed6fff1f7c9e29d1b42cc6a1410e558d2d67de69a6b0",
+          "triangles": 320
         },
         "path": "smelter.glb",
-        "sha256": "266d2974b0289ea235eb7836a1763f43cf3b659da27d9c1a8382d689baa61ad9",
-        "triangles": 2882
+        "sha256": "9e61e8a3fe360ab3bce2405ad6755c2cc1accf7f19d726405d7e306e4f9781b4",
+        "triangles": 2872
       },
       "footprint": {
         "h": 6,
@@ -7454,11 +7454,11 @@
           ]
         },
         "budget": 12000,
-        "bytes": 314928,
+        "bytes": 317028,
         "lite": {
           "bounds": {
             "max": [
-              2.5,
+              2.0,
               3.5,
               3.0
             ],
@@ -7469,14 +7469,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 29024,
+          "bytes": 28232,
           "path": "tavern.lite.glb",
-          "sha256": "c40fe4d1a3634ce65e4408a7ac6c17d434c95d5e0220f0b63a17a8d49125c162",
-          "triangles": 482
+          "sha256": "7046c6c876b1744d7123be8ace983615e855a747e3a39ed7005f04b81e1755bf",
+          "triangles": 462
         },
         "path": "tavern.glb",
-        "sha256": "1a2ba7c4367cbcee19a375d91c2503426e0079d19e1102d8196c06eef2b160f5",
-        "triangles": 6088
+        "sha256": "7260ca46395e6be69aff9da61a1740da52da708279e868dbb014386fde00771b",
+        "triangles": 6102
       },
       "footprint": {
         "h": 6,
@@ -7636,7 +7636,7 @@
         ],
         "chimney": [
           0.375,
-          3.25,
+          3.375,
           1.0
         ],
         "door": [
@@ -7646,19 +7646,19 @@
         ],
         "smoke": [
           0.375,
-          3.375,
+          3.5,
           1.0
         ],
         "status": [
           0.0,
-          3.625,
+          3.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.375,
+          3.5,
           2.0
         ],
         "min": [
@@ -7671,7 +7671,7 @@
         "bounds": {
           "max": [
             2.0,
-            3.375,
+            3.5,
             2.0
           ],
           "min": [
@@ -7681,7 +7681,7 @@
           ]
         },
         "budget": 8000,
-        "bytes": 150092,
+        "bytes": 153228,
         "lite": {
           "bounds": {
             "max": [
@@ -7696,14 +7696,14 @@
             ]
           },
           "budget": 640,
-          "bytes": 18312,
+          "bytes": 17940,
           "path": "toolmaker.lite.glb",
-          "sha256": "acd86dd30520b458c9fce6318784f0d21bd6bc56052acbed3f7a9ec1df887276",
-          "triangles": 292
+          "sha256": "c5a3ed249f22a65b407f1147aa3377c4bfe8ecd0759d979495475d5ecd69d4e8",
+          "triangles": 300
         },
         "path": "toolmaker.glb",
-        "sha256": "4ea9b0f62ebbb341f1dd84638605d8504b79ee8d1de58ec6bf702bcc7829b394",
-        "triangles": 2840
+        "sha256": "3b799c11c252b92b3539f31cf07baf770c46e7f8c26a853b03f464835d552129",
+        "triangles": 2868
       },
       "footprint": {
         "h": 4,
@@ -8181,11 +8181,11 @@
             "budget": 1440,
             "bytes": 20764,
             "path": "warehouse.l1.lite.glb",
-            "sha256": "b8ec5f81c8fd2fabffaf4416c08386f3d224abeac34397d7c2bb4c5356025af0",
+            "sha256": "2d7ac9e909da6cc5a79f25cab08b801fd712b16b3a1250f37e653939bd269143",
             "triangles": 346
           },
           "path": "warehouse.l1.glb",
-          "sha256": "6e72ac4346bea8486d4ddab74c91c2edf8e93a8b4d671346b68575b4a2bea4e6",
+          "sha256": "7ec9171d06c3263a4d6df64831a2ffde3a981385120798b1cf25b451759ccb4c",
           "triangles": 2754
         },
         "2": {
@@ -8202,7 +8202,7 @@
             ]
           },
           "budget": 18000,
-          "bytes": 180288,
+          "bytes": 180604,
           "lite": {
             "bounds": {
               "max": [
@@ -8219,18 +8219,18 @@
             "budget": 1440,
             "bytes": 21904,
             "path": "warehouse.l2.lite.glb",
-            "sha256": "382148e2f36623d0224d8a20ccc6f10b48ea96b76cc6605ce5ea15b40cf092c1",
+            "sha256": "22362c44bb0482d758b29b4f5cc3f7a70edd116f02caac9f93eaa8346d9890de",
             "triangles": 368
           },
           "path": "warehouse.l2.glb",
-          "sha256": "ed001c0450e0598f768e27f68e710299447fa696bb9c10626a63e44bec4a8fd3",
-          "triangles": 3336
+          "sha256": "de144aab6733e37027dcd0890be2f5866a15861fd8f8d97d6f25299c1611df52",
+          "triangles": 3342
         },
         "3": {
           "bounds": {
             "max": [
               3.0,
-              3.125,
+              3.25,
               3.0
             ],
             "min": [
@@ -8240,7 +8240,7 @@
             ]
           },
           "budget": 18000,
-          "bytes": 298768,
+          "bytes": 302456,
           "lite": {
             "bounds": {
               "max": [
@@ -8255,14 +8255,14 @@
               ]
             },
             "budget": 1440,
-            "bytes": 32092,
+            "bytes": 31444,
             "path": "warehouse.l3.lite.glb",
-            "sha256": "32af13298112df50721f9ded2081f33289f1e66d83f06cb421e3de6fe6e5076e",
-            "triangles": 544
+            "sha256": "ba840003ae60cf2174fe20547364823f920f8d20eb63cd9c1fbd3e0c14ea8050",
+            "triangles": 548
           },
           "path": "warehouse.l3.glb",
-          "sha256": "cbc769f859812bb8fcf04d3b475773f2f6ce940bb1fb3f745a63a170ea1705c2",
-          "triangles": 5550
+          "sha256": "d38394cb80a49cd0da4e57406e0c13c305ece88d89fb481c1de004fe3ba50851",
+          "triangles": 5586
         }
       }
     },
@@ -8359,7 +8359,7 @@
         ],
         "chimney": [
           0.25,
-          2.625,
+          2.75,
           1.125
         ],
         "door": [
@@ -8369,19 +8369,19 @@
         ],
         "smoke": [
           0.25,
-          2.75,
+          2.875,
           1.125
         ],
         "status": [
           0.0,
-          3.0,
+          3.125,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.75,
+          2.875,
           2.0
         ],
         "min": [
@@ -8394,7 +8394,7 @@
         "bounds": {
           "max": [
             1.5,
-            2.75,
+            2.875,
             2.0
           ],
           "min": [
@@ -8404,12 +8404,12 @@
           ]
         },
         "budget": 6000,
-        "bytes": 84276,
+        "bytes": 84236,
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              2.5,
+              3.0,
               2.0
             ],
             "min": [
@@ -8419,14 +8419,14 @@
             ]
           },
           "budget": 480,
-          "bytes": 12968,
+          "bytes": 13972,
           "path": "weaver_wool.lite.glb",
-          "sha256": "79df8a485081dc2004b519dc41264ec08ec125b0dae229d31df6ae88c3691e3a",
-          "triangles": 222
+          "sha256": "aaad88ea3e1f4f777ffd462aef7f39a8fb0f4bb714a9a13abe65d0ece87f1690",
+          "triangles": 240
         },
         "path": "weaver_wool.glb",
-        "sha256": "045311d0b5d6b44e8bd047a68665cef3cd3a9500271a92bd8d86784bf2e7ecd1",
-        "triangles": 1792
+        "sha256": "89421af98d3d398d09743f30e58fbc06271a0f28e043677c0cddd5519bde8d07",
+        "triangles": 1794
       },
       "footprint": {
         "h": 4,
@@ -8443,7 +8443,7 @@
         ],
         "chimney": [
           -0.875,
-          2.875,
+          3.0,
           -0.75
         ],
         "door": [
@@ -8453,19 +8453,19 @@
         ],
         "smoke": [
           -0.875,
-          3.0,
+          3.125,
           -0.75
         ],
         "status": [
           0.0,
-          3.75,
+          3.875,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          3.5,
+          3.625,
           2.0
         ],
         "min": [
@@ -8478,7 +8478,7 @@
         "bounds": {
           "max": [
             1.5,
-            3.5,
+            3.625,
             2.0
           ],
           "min": [
@@ -8488,12 +8488,12 @@
           ]
         },
         "budget": 6000,
-        "bytes": 203032,
+        "bytes": 200624,
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              3.5,
+              4.0,
               2.0
             ],
             "min": [
@@ -8503,14 +8503,14 @@
             ]
           },
           "budget": 480,
-          "bytes": 14928,
+          "bytes": 14176,
           "path": "wheat_farm.lite.glb",
-          "sha256": "d5cfc2671f4d6347a0383bb9d45958b00837d820c4e2ae5bfc79d202e563021e",
-          "triangles": 246
+          "sha256": "5826e2669de26cc561cf2f8a982ab4718741aef916e538aeb501143bac5cafd2",
+          "triangles": 228
         },
         "path": "wheat_farm.glb",
-        "sha256": "cbd6eb7b96e96cc26cdd50b1695ac066b043d4f679829f5f9bb67026cd2b88fc",
-        "triangles": 4042
+        "sha256": "a0a533734bddc524a41901d4cbf7c1298757c5fc22583f986ba5d6680bb76cfd",
+        "triangles": 4000
       },
       "footprint": {
         "h": 4,

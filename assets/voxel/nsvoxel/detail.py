@@ -52,6 +52,8 @@ Face = _p.Face
 
 #: Pale timber of the pegs at the joints of a frame.
 PEG = mat("timber", 1.3)
+#: Dressed stone (quoins, window surrounds): clearly paler than wall stone.
+DRESSED = mat("stone", 1.15)
 #: Brick (chimney stacks, ovens): terracotta in a darker, browner shade.
 BRICK = mat("terracotta", 0.9)
 
@@ -64,7 +66,7 @@ JITTER = {
     "plaster": (0.30, 0.045),
     "ochre": (0.32, 0.05),
     "timber": (0.36, 0.08),
-    "thatch": (0.46, 0.08),
+    "thatch": (0.40, 0.06),
     "terracotta": (0.40, 0.07),
     "slate": (0.36, 0.07),
     "stone": (0.26, 0.05),
@@ -190,7 +192,7 @@ def coursed_stone(v, x0, y0, x1, y1, z0, z1, m=STONE, seed=0, proud=0.05, core=T
                 a += n
 
 
-def dressed_quoins(v, x0, y0, x1, y1, z0, z1, m=STONE_LIGHT):
+def dressed_quoins(v, x0, y0, x1, y1, z0, z1, m=DRESSED):
     """Corner stones in alternating long/short courses of two voxels, in a paler dressed stone."""
     for z in range(z0, z1):
         long = (z // 2) % 2 == 0
@@ -203,12 +205,13 @@ def dressed_quoins(v, x0, y0, x1, y1, z0, z1, m=STONE_LIGHT):
                 v.set(cx, cy + dy * k, z, c)
 
 
-def half_timber(v, x0, y0, x1, y1, z0, z1, infill, frame=TIMBER, spacing=4, braces=True, rail=None, pegs=True, head=True, core=True):
+def half_timber(v, x0, y0, x1, y1, z0, z1, infill, frame=TIMBER, spacing=4, braces=True, rail=None, pegs=True, head=True, core=True, sill=True):
     """
     Half-timbered walls: infill panels between posts every `spacing` voxels
-    (corners included), a sill beam at z0, a head beam at z1 − 1, an
+    (corners included), a sill beam at z0 (sill=False: none, e.g. on a
+    jetty course), a head beam at z1 − 1, an
     optional mid rail at height `rail`, diagonal braces in the corner
-    panels and pale pegs where the timbers meet. The core is filled solid.
+    panels (braces: True, False or the sides that get them) and pale pegs where the timbers meet. The core is filled solid.
     """
     if core:
         fill(v, x0, y0, x1, y1, z0, z1, infill)
@@ -220,11 +223,11 @@ def half_timber(v, x0, y0, x1, y1, z0, z1, infill, frame=TIMBER, spacing=4, brac
         for a in posts:
             for z in range(z0, z1):
                 f.put(a, z, frame)
-        beams = [z0] + ([z1 - 1] if head else []) + ([rail] if rail else [])
+        beams = ([z0] if sill else []) + ([z1 - 1] if head else []) + ([rail] if rail else [])
         for z in beams:
             for a in range(a0, a1):
                 f.put(a, z, frame)
-        if braces and z1 - z0 >= 5:
+        if braces and (braces is True or side in braces) and z1 - z0 >= 5:
             lo = (rail if rail else z0) + 1
             hi = z1 - 1 if head else z1
             h = min(spacing - 1, hi - lo)
@@ -255,7 +258,9 @@ def casement(f, a, z, w=2, h=3, frame=TIMBER_LIGHT, glass=WINDOW, shutters=None,
     """
     A framed window: glass one voxel back with glazing bars (a transom
     when h ≥ 3, a mullion when w ≥ 3), the frame round it in the wall
-    plane, a sill one voxel proud below (`sill`, default the frame), an
+    plane (frame=None: none — the studs of a timber frame or the wall
+    itself frame it), a sill one voxel proud below (`sill`, default the
+    frame), an
     optional lintel one voxel proud above, open shutters one voxel proud
     either side (plank shades) and an optional flower box under the sill.
     """
@@ -264,8 +269,9 @@ def casement(f, a, z, w=2, h=3, frame=TIMBER_LIGHT, glass=WINDOW, shutters=None,
             if 0 <= i < w and 0 <= j < h:
                 f.put(a + i, z + j, None)
                 f.put(a + i, z + j, glass, out=-1)
-            else:
+            elif frame is not None:
                 f.put(a + i, z + j, frame)
+    frame = frame or TIMBER_LIGHT
     if bars:
         if h >= 3:
             for i in range(w):
@@ -426,7 +432,7 @@ def roof(v, x0, x1, y0, y1, z, kind="thatch", along="x", rise=None, ov=1, gable=
         zl = z + int(k * rise + 1e-9)
         zh = max(zl, z + int((k + 1) * rise + 1e-9) - 1)
         last = hi - lo <= 1 or (hip and ahi - alo <= 1)
-        shade = 1.0 if k % 2 == 0 else 0.92
+        shade = 1.0 if k % 2 == 0 else (0.95 if kind == "thatch" else 0.92)
         for zz in range(zl, zh + 1):
             for a in range(alo, ahi + 1):
                 verge = not hip and (a < a0 or a >= a1)
@@ -557,18 +563,22 @@ def roof_chimney(v, r, x, y, above=3, z0=1, anchor=False, **kw):
     return chimney_stack(v, x, y, z0, s + above, anchor=anchor, **kw)
 
 
-def dormer_on(v, r, x0, x1, side="y+", wall=PLASTER, kind="tiles", frame=TIMBER_LIGHT, course=2):
-    """A dormer on the front (y+) or back (y−) slope of an along-x Roof r: a wall with a framed window and its own little gable roof."""
+def dormer_on(v, r, x0, x1, side="y+", wall=PLASTER, kind="tiles", frame=TIMBER_LIGHT, course=2, h=4):
+    """
+    A dormer on the front (y+) or back (y−) slope of an along-x Roof r: a
+    front wall `course` courses up the slope with a framed window, cheeks
+    back into the roof and its own little gable roof (no ridge cap).
+    """
     hi0 = r.y1 + r.ov - 1
     lo0 = r.y0 - r.ov
     yf = hi0 - course if side == "y+" else lo0 + course
     zb = r.z + int(course * r.rise + 1e-9)
-    depth = 5
+    depth = h + 1
     ys = (yf - depth + 1, yf + 1) if side == "y+" else (yf, yf + depth)
-    v.box(x0, ys[0], zb, x1, ys[1], zb + 5, wall)
+    v.box(x0, ys[0], zb, x1, ys[1], zb + h, wall)
     f = Face(v, side, ys[1] - 1 if side == "y+" else ys[0])
-    casement(f, x0 + 1, zb + 1, x1 - x0 - 2, 3, frame, sill=frame)
-    roof(v, x0, x1, ys[0], ys[1] + (0 if side == "y+" else 0), zb + 5, kind, along="y", ov=1, gable=wall, eaves=False)
+    casement(f, x0 + 1, zb + 1, x1 - x0 - 2, h - 2, frame, sill=frame, bars=False)
+    roof(v, x0, x1, ys[0], ys[1], zb + h, kind, along="y", ov=1, gable=wall, eaves=False, cap=False)
 
 
 # ---------------------------------------------------------------- fences
@@ -589,7 +599,7 @@ def fence_cells(v, cells, z=1, kind="rail", every=4, seed=0, post=TIMBER, rail=T
     for i, (x, y) in enumerate(cells):
         is_post = i % every == 0 or i == n - 1
         if kind == "picket":
-            h = 2 + (1 if hash3(x, y, 78, seed) < 0.5 else 0) + (1 if is_post else 0)
+            h = 2 + (1 if is_post or hash3(x, y, 78, seed) < 0.25 else 0)
             c = post if is_post else shade_of(rail, 1.0 if hash3(x, y, 79, seed) < 0.6 else 0.88)
             v.box(x, y, z, x + 1, y + 1, z + h, c)
         elif kind == "wattle":
@@ -748,11 +758,10 @@ def log_stack(v, x, y, z, length=8, along="x", n=3):
 
 
 def cask(v, x, y, z, h=3, m=TIMBER_LIGHT, lid=None):
-    """A 2 × 2 barrel with iron hoops top and bottom and a lid (or contents) on top."""
+    """A 2 × 2 barrel with iron hoops (one when h < 5) and a lid (or contents) on top."""
     v.box(x, y, z, x + 2, y + 2, z + h, m)
-    v.box(x, y, z, x + 2, y + 2, z + 1, IRON)
-    if h >= 3:
-        v.box(x, y, z + h - 1, x + 2, y + 2, z + h, IRON)
+    for zz in ((z + 1, z + h - 2) if h >= 5 else (z + h // 2,)):
+        v.box(x, y, zz, x + 2, y + 2, zz + 1, IRON)
     v.set(x, y, z + h - 1, shade_of(m, 0.9))
     if lid is not None:
         v.box(x, y, z + h, x + 2, y + 2, z + h + 1, lid)
@@ -953,8 +962,8 @@ class Building:
 
 #: Tier styles of building(): wall top (one storey), roof kind, wall infill.
 STYLES_V2 = {
-    "settler": {"wall": 9, "roof": "thatch", "infill": PLASTER},
-    "citizen": {"wall": 15, "roof": "tiles", "infill": OCHRE},
+    "settler": {"wall": 10, "roof": "thatch", "infill": PLASTER},
+    "citizen": {"wall": 16, "roof": "tiles", "infill": OCHRE},
     "stone": {"wall": 10, "roof": "tiles", "infill": STONE},
     "stonethatch": {"wall": 9, "roof": "thatch", "infill": STONE},
 }
@@ -994,7 +1003,7 @@ def building(v, x0, y0, x1, y1, style="settler", along="x", wall=None, upper=Non
             jetty_course(v, x0, y0, x1, y1, mid)
             up = (x0 - 1, y0 - 1, x1 + 1, y1 + 1)
         upper_m = upper or infill
-        half_timber(v, up[0], up[1], up[2], up[3], mid + (1 if jetty else 0), top, upper_m, TIMBER, spacing=spacing, braces=braces, rail=None)
+        half_timber(v, up[0], up[1], up[2], up[3], mid + (1 if jetty else 0), top, upper_m, TIMBER, spacing=spacing, braces=braces, sill=not jetty)
         gable = upper_m
     else:
         coursed_stone(v, x0, y0, x1, y1, z0 + 1, top, infill if infill[0] == "stone" else STONE, seed)
