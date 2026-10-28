@@ -6,7 +6,10 @@
 // way, and at far LOD the islands other than the focused one
 // (ART_DIRECTION §2 budget); all of them are merged into one static mesh
 // (one draw call), rebuilt only when the set of islands drawn this way
-// changes. Render data only.
+// changes. An island whose tiles are built brings its own far columns
+// instead (MaskIsland.tiles: its near field downsampled to one column per
+// tile, render/terrain.ts), so its coast at far lines up with the one at
+// mid. Render data only.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -16,7 +19,7 @@ import type { Terrain } from "../api/client";
 import { coastline } from "../display/coastline";
 import { type DecodedMask, MASK_BLOCK, MASK_TERRAINS, MASK_WATER } from "../display/mask";
 import { skyFill } from "./lighting";
-import { Builder } from "./terrain";
+import { Builder, FAR_QUANT } from "./terrain";
 import { islandField, meshField } from "./voxelterrain";
 
 /** One island of the mask mesh. */
@@ -27,6 +30,8 @@ export interface MaskIsland {
   mask: DecodedMask;
   /** Decoration seed of the island (display/scatter.ts islandSeed). */
   seed: number;
+  /** The island's own far columns (island-local) when its tiles are built; drawn instead of the mask. */
+  tiles?: { key: string; data: Builder } | null;
 }
 
 /**
@@ -50,7 +55,7 @@ export function maskMeshData(mask: DecodedMask, seed: number): Builder {
     }
   }
   const pseudo = { width, height, terrain };
-  const f = islandField(pseudo, coastline(pseudo), seed, 1);
+  const f = { ...islandField(pseudo, coastline(pseudo), seed, 1), quant: FAR_QUANT };
   meshField(b, f, 0, 0, f.nx, f.ny);
   return b;
 }
@@ -71,7 +76,7 @@ export class MaskLayer {
 
   /** Draws exactly these islands from their masks (rebuilt only when the set or an island's inputs changed). */
   show(islands: readonly MaskIsland[]): void {
-    const keyOf = (is: MaskIsland) => `${is.seed}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`;
+    const keyOf = (is: MaskIsland) => (is.tiles ? `tiles:${is.tiles.key}` : `${is.seed}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`);
     const key = islands.map((is) => `${is.id}@${is.position.x},${is.position.y}#${keyOf(is)}`).join(";");
     if (key === this.key) return;
     this.key = key;
@@ -82,7 +87,7 @@ export class MaskLayer {
     for (const is of islands) {
       const k = keyOf(is);
       let c = this.cache.get(is.id);
-      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask, is.seed) }));
+      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: is.tiles?.data ?? maskMeshData(is.mask, is.seed) }));
       keep.add(is.id);
       parts.push({ data: c.data, x: is.position.x, y: is.position.y });
     }

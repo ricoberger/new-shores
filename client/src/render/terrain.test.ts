@@ -5,7 +5,8 @@ import { Scene } from "@babylonjs/core/scene";
 import { afterEach, describe, expect, it } from "vitest";
 import type { Island, Terrain } from "../api/client";
 import { coastline } from "../display/coastline";
-import { buildTerrain, SEA_LEVEL } from "./terrain";
+import { buildTerrain, CoastWater, SEA_LEVEL } from "./terrain";
+import { EMPTY } from "./voxelterrain";
 
 // The voxel terrain (D-057): ground columns at height 0, the coast's sand
 // shelves stepping down below the sea surface within half a tile of the
@@ -60,5 +61,35 @@ describe("island terrain", () => {
     expect(minY).toBeLessThan(SEA_LEVEL);
     expect(side).toBeGreaterThan(0);
     expect(lite[0]!.getTotalIndices() / 3).toBeLessThan(fullTris);
+  });
+
+  it("puts foam and stepped shallows on the sea columns off the wet sand line, on the column grid", () => {
+    engine = new NullEngine();
+    const scene = new Scene(engine);
+    const is = island();
+    const node = new TransformNode("chunk", scene);
+    const t = buildTerrain(scene, is, coastline(is), 7, () => node);
+    expect(t.far).not.toBeNull();
+    const water = new CoastWater(scene, null, null, 7);
+    water.update(t.field, 7);
+    const meshes = scene.meshes.filter((m) => m.name === "foam" || m.name === "shallows");
+    expect(meshes.map((m) => m.name).sort()).toEqual(["foam", "shallows"]);
+    const f = t.field!;
+    for (const m of meshes) {
+      const pos = m.getVerticesData(VertexBuffer.PositionKind)!;
+      for (let i = 0; i < pos.length; i += 3) {
+        // Above the sea surface, on column edges (quarter tiles).
+        expect(pos[i + 1]!).toBeGreaterThan(SEA_LEVEL);
+        expect((pos[i]! * 4) % 1).toBeCloseTo(0, 6);
+      }
+      // Every quad lies over sea columns (none over the land or the shelves).
+      for (let i = 0; i < pos.length; i += 12) {
+        const cx = Math.floor(((pos[i]! + pos[i + 6]!) / 2) * 4);
+        const cy = Math.floor((-(pos[i + 2]! + pos[i + 8]!) / 2) * 4);
+        expect(f.h[cy * f.nx + cx]).toBe(EMPTY);
+      }
+    }
+    water.dispose();
+    t.dispose();
   });
 });

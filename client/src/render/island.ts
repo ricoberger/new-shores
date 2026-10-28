@@ -20,7 +20,6 @@
 // and the harbour stay per island.
 import type { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
-import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay } from "../api/client";
@@ -40,7 +39,8 @@ import { OutcropLayer } from "./outcrops";
 import { footprintTiles, PlateauLayer } from "./plateaus";
 import { roadMaterial, RoadLayer, type RoadTile } from "./roads";
 import { FootprintShadows } from "./shadows";
-import { buildTerrain, FoamLine, TerrainBuild } from "./terrain";
+import { groundShade } from "./groundshader";
+import { type Builder, buildTerrain, CoastWater, NO_TERRAIN, TerrainBuild, type TerrainMeshes } from "./terrain";
 import { type DecorMaterials, decorMaterials, Decoration, FarTrees, TREE_MODELS } from "./trees";
 
 /** The state of an incremental first build (IslandDetail.startBuild). */
@@ -106,8 +106,9 @@ export class IslandDetail {
   private readonly buildingBlobs: FootprintShadows;
   private readonly outcrops: OutcropLayer;
   private readonly plateaus: PlateauLayer;
-  private foam: FoamLine | null = null;
-  private terrain: { lite: Mesh[]; full: Mesh[] } = { lite: [], full: [] };
+  /** Shallows (near and mid) and foam (near) on the stepped coast. */
+  private water: CoastWater | null = null;
+  private terrain: TerrainMeshes = NO_TERRAIN;
   /** Model detail (full at near and mid, lite at far): the terrain's column size follows it. */
   private detail: Detail = "full";
   /** Smoothed coastline of the static terrain and the decoration seed (island ID + revision). */
@@ -213,7 +214,7 @@ export class IslandDetail {
       this.terrainKey = "";
     }
     if (key === this.terrainKey) return;
-    for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
+    this.terrain.dispose();
     this.root.computeWorldMatrix(true);
     this.seed = islandSeed(statics.id, statics.revision);
     this.loops = coastline(statics);
@@ -222,13 +223,24 @@ export class IslandDetail {
     this.deposits = statics.deposits;
     this.statics = statics;
     this.updateRelief();
-    this.foam ??= new FoamLine(this.scene, this.near, this.seed);
-    this.foam.update(this.loops);
+    this.updateWater();
     this.terrainKey = key;
     this.statics = statics;
     // The decoration depends on the terrain too: rebuild with the next update.
     this.builtFrom = null;
     this.keys = null;
+  }
+
+  /** The coast water from the terrain's near field. */
+  private updateWater(): void {
+    this.water ??= new CoastWater(this.scene, this.root, this.near, this.seed);
+    this.water.update(this.terrain.field, this.seed);
+    this.water.setFar(this.lod === "far");
+  }
+
+  /** The far view's terrain columns (island-local, FAR_VPT per tile; null until built): the renderer merges them with the other islands'. */
+  farTerrain(): { key: string; data: Builder } | null {
+    return this.hasTiles() && this.terrain.far ? { key: this.terrainKey, data: this.terrain.far } : null;
   }
 
   /** Whether the island is drawn with its full tiles (terrain and layers built). */
@@ -333,8 +345,8 @@ export class IslandDetail {
   /** The island-level steps of a build. */
   private *headSteps(b: IslandBuild): Generator<void, void, void> {
     const { statics, display, defs } = b;
-    for (const m of [...this.terrain.lite, ...this.terrain.full]) m.dispose();
-    this.terrain = { lite: [], full: [] };
+    this.terrain.dispose();
+    this.terrain = NO_TERRAIN;
     this.root.computeWorldMatrix(true);
     this.seed = islandSeed(statics.id, statics.revision);
     this.loops = coastline(statics);
@@ -344,8 +356,6 @@ export class IslandDetail {
     this.farTrees.beginChunks();
     b.terrain = new TerrainBuild(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), this.root);
     yield;
-    this.foam ??= new FoamLine(this.scene, this.near, this.seed);
-    this.foam.update(this.loops);
     this.buildings.update(display.buildings, defs);
     yield;
     this.updateLife(display, defs);
@@ -391,6 +401,7 @@ export class IslandDetail {
     this.build = null;
     if (b.terrain) this.terrain = b.terrain.finish();
     this.applyTerrainDetail();
+    this.updateWater();
     this.farTrees.finishChunks();
     this.terrainKey = `${b.statics.revision}|${b.statics.id}`;
     this.builtFrom = { display: b.display, defs: b.defs };
@@ -608,7 +619,10 @@ export class IslandDetail {
       this.near.setEnabled(lod === "near");
       for (const d of this.decoration.values()) d.setFar(lod === "far");
       this.plateaus.setFar(lod === "far");
+      this.water?.setFar(lod === "far");
     }
+    // The per-voxel jitter is below a pixel at far LOD (global: one LOD for the whole view).
+    groundShade.jitter = lod === "far" ? 0 : 0.045;
     this.farTrees.setShown(this.shown && this.lod === "far");
   }
 
@@ -648,7 +662,7 @@ export class IslandDetail {
     if (!this.shown) return false;
     const casters = this.buildings.frame(nowMs);
     if (this.lod !== "near") return casters;
-    this.foam?.frame(nowMs);
+    this.water?.frame(nowMs);
     this.construction.frame(nowMs);
     return casters;
   }

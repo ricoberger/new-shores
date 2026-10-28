@@ -1,38 +1,68 @@
 // Voxel terrain (D-057; ART_DIRECTION §4), render data only. A height field of
 // square columns — 4 per tile at near/mid, fewer for the far meshes —
 // meshed with 2.5D greedy meshing: column tops merge into rectangles of
-// equal colour and corner occlusion, column sides become one quad per
-// voxel layer and run of equal neighbours. One height step is one voxel
-// (VOXEL_STEP tiles). The coast is the smoothed coastline sampled at the
-// column centres (a pixel coastline) with two sand shelves stepping down
-// toward the sea; plateaus (mountains) are terraces of the same columns.
+// equal height, corner occlusion and (unless the field is textured)
+// colour; column sides become one quad per run of equal neighbours and
+// band colour. One height step is one voxel of the models (VOXEL_STEP =
+// 1/8 tile). The coast is the smoothed coastline sampled at the column
+// centres (a pixel coastline): beach tiles lower their outermost column by
+// one step, then a sand shelf and the wet sand line step down toward the
+// sea; land that meets the sea without a beach drops in earth and rock
+// bands, darker toward the foot. Plateaus (mountains) are terraces of the
+// same columns (render/plateaus.ts).
+//
+// The near/mid field is *textured*: its top colours (the smooth blend of
+// the tiles' ground colours with beach pebbles and wet sand) go into the
+// island's ground texture (one texel per column, render/groundshader.ts),
+// so the tops merge regardless of colour; the far fields are the near
+// field downsampled (downsampleField) with the averaged colours as vertex
+// colours, so the far coast lines up with the near one by construction.
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { Island, Terrain } from "../api/client";
 import type { CoastLoop } from "../display/coastline";
-import { ISLAND, TERRAIN } from "../theme/palette";
+import { fbm, hash2 } from "../display/noise";
+import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { c3 } from "./palette";
 import { insideGrid } from "./plateaus";
 import { type Builder, groundColor } from "./terrain";
 
-/** Voxels per tile of the near/mid terrain (half the models' 8). */
+/** Columns per tile of the near/mid terrain (half the models' 8). */
 export const TERRAIN_VPT = 4;
-/** Height of one voxel step (tiles): one voxel of the terrain grid. */
-export const VOXEL_STEP = 1 / TERRAIN_VPT;
+/** Height of one voxel step (tiles): one voxel of the models (8 per tile). */
+export const VOXEL_STEP = 1 / 8;
 /** Empty column (sea). */
 export const EMPTY = -128;
 /** Lowest layer of the coast columns (steps): below the sea surface (SEA_LEVEL −0.6). */
-export const SEA_BOTTOM = -3;
+export const SEA_BOTTOM = -6;
+/** Beach: the outermost land column of a coast tile (steps). */
+export const RIM_H = -1;
+/** The sand shelf off the land (steps). */
+export const SHELF_H = -2;
+/** The wet sand line just above the sea surface (steps). */
+export const WET_H = -4;
+/** Coast distance (columns from the land) kept per column: the shelves, foam and shallows (CoastWater) read it. */
+export const COAST_REACH = 9;
 /** Darkening per occluded corner of a top face (0..3 corners). */
-const AO = 0.09;
-/** Upward tilt of the side normals (stylised soft lighting of the column sides). */
+const AO = 0.1;
+/** Upward tilt of the side normals (stylised soft lighting of the column sides; groundshader.ts tells tops by it). */
 const UP_TILT = 0.9;
-/** Colour quantisation of the column tops (per channel): equal neighbours merge. */
+/** Colour quantisation of untextured column tops (levels per channel): equal neighbours merge. */
 const QUANT = 48;
+
+/** Side kinds of a column (its walls' bands). */
+export const SIDE_EARTH = 0;
+export const SIDE_SAND = 1;
 
 const RIM = c3(ISLAND.sand_rim);
 const SAND = c3(TERRAIN.sand);
+const WET = Color3.Lerp(SAND, c3(WATER.shallows), 0.22).scale(0.8);
+const PEBBLE = c3(ISLAND.rock_light);
+const PEBBLE_DARK = c3(ISLAND.rock);
 const ROCK_GROUND = Color3.Lerp(c3(ISLAND.rock_light), c3(ISLAND.moss), 0.25);
-const BANDS = [c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
+/** Earth and rock bands of a grass edge over the sea, top to foot (darker at the base). */
+const EARTH_BANDS = [Color3.Lerp(c3(ISLAND.rock_deep), c3(TERRAIN.grass_a), 0.18), c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
+/** Sand walls of the beach steps, top to foot. */
+const SAND_BANDS = [SAND.scale(0.9), SAND.scale(0.86), WET.scale(0.95), WET.scale(0.85), Color3.Lerp(WET, c3(ISLAND.cliff_foot), 0.5)];
 
 /** A height field: column (i, j) covers x0 + i·s … x0 + (i+1)·s (island tiles: tile x spans x … x + 1, like the coastline), y likewise. */
 export interface Field {
@@ -44,53 +74,82 @@ export interface Field {
   s: number;
   /** Top height in steps (EMPTY: no column). */
   h: Int8Array;
-  /** Top colour, packed 0xRRGGBB (quantised). */
+  /** Top colour, packed 0xRRGGBB. */
   top: Uint32Array;
   /** Lowest step of every column's sides. */
   bottom: number;
-  /** Side colour of a layer (steps; the layer from z to z+1) of a column. */
-  side: (z: number, i: number, j: number) => Color3;
+  /** Side colour of a layer (steps; the layer from z to z+1) of a column of a side kind. */
+  side: (z: number, kind: number) => Color3;
+  /** Side kind per column (default 0). */
+  kind?: Uint8Array;
+  /** Tops take their colour from the ground texture (groundshader.ts): the vertex colour is the occlusion only. */
+  textured?: boolean;
+  /** Colour levels per channel of untextured tops (default QUANT). */
+  quant?: number;
+  /** Distance of sea columns to the land (columns, capped at COAST_REACH; 0 on land). */
+  toLand?: Uint8Array;
 }
 
-function pack(c: Color3): number {
-  const q = (v: number) => Math.max(0, Math.min(255, Math.round((Math.round(v * QUANT) / QUANT) * 255)));
+/** Packs a colour into 0xRRGGBB. */
+export function pack(c: { r: number; g: number; b: number }): number {
+  const q = (v: number) => Math.max(0, Math.min(255, Math.round(v * 255)));
   return (q(c.r) << 16) | (q(c.g) << 8) | q(c.b);
+}
+
+function quantised(p: number, levels = QUANT): number {
+  const q = (v: number) => Math.round((Math.round((v / 255) * levels) / levels) * 255);
+  return (q((p >> 16) & 255) << 16) | (q((p >> 8) & 255) << 8) | q(p & 255);
 }
 
 function unpack(p: number, k = 1): [number, number, number] {
   return [(((p >> 16) & 255) / 255) * k, (((p >> 8) & 255) / 255) * k, ((p & 255) / 255) * k];
 }
 
-/** Chebyshev distance (in columns, capped at cap) of every column to the nearest column where `on` is set. */
+/**
+ * Chebyshev distance (in columns, capped at cap) of every column to the
+ * nearest column where `on` is set: a two-pass chamfer transform (exact
+ * for the chessboard metric), linear in the number of columns.
+ */
 export function distanceTo(on: Uint8Array, nx: number, ny: number, cap: number): Uint8Array {
-  const d = new Uint8Array(nx * ny).fill(cap);
+  const big = 255;
+  const d = new Uint8Array(nx * ny).fill(big);
   for (let k = 0; k < nx * ny; k++) if (on[k]) d[k] = 0;
-  for (let pass = 0; pass < cap; pass++) {
-    const prev = d.slice();
-    for (let j = 0; j < ny; j++) {
-      for (let i = 0; i < nx; i++) {
-        let m = prev[j * nx + i] as number;
-        if (m === 0) continue;
-        for (let dj = -1; dj <= 1; dj++) {
-          for (let di = -1; di <= 1; di++) {
-            const a = i + di;
-            const b = j + dj;
-            if (a < 0 || b < 0 || a >= nx || b >= ny) continue;
-            m = Math.min(m, (prev[b * nx + a] as number) + 1);
-          }
-        }
-        d[j * nx + i] = Math.min(cap, m);
-      }
+  const at = (i: number, j: number) => (i < 0 || j < 0 || i >= nx || j >= ny ? big : (d[j * nx + i] as number));
+  for (let j = 0; j < ny; j++) {
+    for (let i = 0; i < nx; i++) {
+      const k = j * nx + i;
+      if (d[k] === 0) continue;
+      const m = Math.min(at(i - 1, j), at(i, j - 1), at(i - 1, j - 1), at(i + 1, j - 1)) + 1;
+      if (m < (d[k] as number)) d[k] = Math.min(big, m);
     }
   }
+  for (let j = ny - 1; j >= 0; j--) {
+    for (let i = nx - 1; i >= 0; i--) {
+      const k = j * nx + i;
+      if (d[k] === 0) continue;
+      const m = Math.min(at(i + 1, j), at(i, j + 1), at(i + 1, j + 1), at(i - 1, j + 1)) + 1;
+      if (m < (d[k] as number)) d[k] = Math.min(big, m);
+    }
+  }
+  for (let k = 0; k < nx * ny; k++) d[k] = Math.min(cap, d[k] as number);
   return d;
 }
 
+/** Side band colour of a layer z (steps below the ground are negative) of a coast column. */
+export function coastSide(z: number, kind: number): Color3 {
+  const bands = kind === SIDE_SAND ? SAND_BANDS : EARTH_BANDS;
+  return bands[Math.min(bands.length - 1, Math.max(0, -z - 1))] as Color3;
+}
+
 /**
- * The island's ground as a field at `vpt` columns per tile: land (inside
- * the smoothed coastline at the column centre) at height 0 in the tile's
- * ground colour with a sand rim on the outermost column, then two sand
- * shelves (−1, −2 steps) out into the sea.
+ * The island's ground as a field at `vpt` columns per tile. Land (inside
+ * the smoothed coastline at the column centre) at height 0, coloured by a
+ * bilinear blend of the tiles' ground colours (so tiles fade into each
+ * other) with a little low-frequency variation; beach tiles carry pebbles
+ * and lower their outermost column (RIM_H); off the land a sand shelf
+ * (SHELF_H) and the wet sand line (WET_H) step toward the sea. Grass and
+ * forest that meet the sea directly keep their height: the side walls drop
+ * in earth and rock bands (coastSide).
  */
 export function islandField(
   island: Pick<Island, "width" | "height" | "terrain">,
@@ -103,39 +162,137 @@ export function islandField(
   const nx = island.width * vpt;
   const ny = island.height * vpt;
   // Columns aligned with the tiles: column i lies in tile floor(i / vpt).
-  const x0 = 0;
-  const y0 = 0;
-  const inside = insideGrid(loops, x0 + s / 2, y0 + s / 2, s, nx, ny);
+  const inside = insideGrid(loops, s / 2, s / 2, s, nx, ny);
   const outside = new Uint8Array(nx * ny);
   for (let k = 0; k < nx * ny; k++) outside[k] = inside[k] ? 0 : 1;
-  const toLand = distanceTo(inside, nx, ny, 3);
+  const toLand = distanceTo(inside, nx, ny, COAST_REACH);
   const toSea = distanceTo(outside, nx, ny, 2);
   const h = new Int8Array(nx * ny).fill(EMPTY);
   const top = new Uint32Array(nx * ny);
+  const kind = new Uint8Array(nx * ny);
+  const { width, height, terrain } = island;
   const color = tile ?? ((t: Terrain | undefined, x: number, y: number) => groundColor(t, x, y, seed));
-  const { width, terrain } = island;
+  // The ground colour of every tile (a water tile takes the coast's sand: the smoothed coast bulges into it).
+  const tc = new Float32Array(width * height * 3);
+  const beach = new Uint8Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let t = terrain[y * width + x] as Terrain | undefined;
+      if (t === "water") t = "coast";
+      if (t === "coast") beach[y * width + x] = 1;
+      // Mountain ground left around the rounded plateaus: the plateau's warm rock, not the grey mountain role.
+      const c = t === "mountain" && !tile ? ROCK_GROUND.scale(0.96 + (0.08 * ((x * 7 + y * 13) % 5)) / 4) : color(t, x, y);
+      tc[(y * width + x) * 3] = c.r;
+      tc[(y * width + x) * 3 + 1] = c.g;
+      tc[(y * width + x) * 3 + 2] = c.b;
+    }
+  }
+  const tileAt = (x: number, y: number, ch: number) => tc[(Math.min(height - 1, Math.max(0, y)) * width + Math.min(width - 1, Math.max(0, x))) * 3 + ch] as number;
+  const col = { r: 0, g: 0, b: 0 };
   for (let j = 0; j < ny; j++) {
-    const ty = Math.min(island.height - 1, Math.floor(j / vpt));
+    const ty = Math.min(height - 1, Math.floor(j / vpt));
+    // Bilinear blend between tile centres (tile x's centre is x + 0.5).
+    const fy = (j + 0.5) / vpt - 0.5;
+    const y0 = Math.floor(fy);
+    const wy = fy - y0;
     for (let i = 0; i < nx; i++) {
       const k = j * nx + i;
       const tx = Math.min(width - 1, Math.floor(i / vpt));
       if (inside[k]) {
+        const isBeach = beach[ty * width + tx] === 1;
         h[k] = 0;
-        let t = terrain[ty * width + tx] as Terrain | undefined;
-        // A land column in a water tile (the smoothed coast bulges out): the coast's sand.
-        if (t === "water") t = "coast";
-        // Mountain ground left around the rounded plateaus: the plateau's warm rock, not the grey mountain role.
-        top[k] = pack(toSea[k] === 1 ? RIM : t === "mountain" && !tile ? ROCK_GROUND.scale(0.96 + 0.08 * ((tx * 7 + ty * 13) % 5) / 4) : color(t, tx, ty));
+        kind[k] = isBeach ? SIDE_SAND : SIDE_EARTH;
+        if (toSea[k] === 1 && isBeach) {
+          h[k] = RIM_H;
+          top[k] = pack(RIM.scale(0.97 + 0.06 * hash2(i, j, seed + 5)));
+          continue;
+        }
+        const fx = (i + 0.5) / vpt - 0.5;
+        const x0 = Math.floor(fx);
+        const wx = fx - x0;
+        for (const [ch, key] of [
+          [0, "r"],
+          [1, "g"],
+          [2, "b"],
+        ] as const) {
+          const a = tileAt(x0, y0, ch) * (1 - wx) + tileAt(x0 + 1, y0, ch) * wx;
+          const b = tileAt(x0, y0 + 1, ch) * (1 - wx) + tileAt(x0 + 1, y0 + 1, ch) * wx;
+          col[key] = a * (1 - wy) + b * wy;
+        }
+        // A little variation inside the tiles (low frequency: patches, not noise).
+        let f = 0.96 + 0.08 * fbm(i / (vpt * 1.7), j / (vpt * 1.7), seed + 77);
+        if (isBeach) {
+          // Pebbles and shell grit on the beach.
+          const p = hash2(i, j, seed + 11);
+          if (p < 0.035) {
+            const pc = p < 0.012 ? PEBBLE_DARK : PEBBLE;
+            col.r = pc.r;
+            col.g = pc.g;
+            col.b = pc.b;
+            f = 1;
+          }
+        }
+        top[k] = pack({ r: col.r * f, g: col.g * f, b: col.b * f });
       } else {
         const d = toLand[k] as number;
-        if (d >= 3) continue;
-        h[k] = -d;
-        top[k] = pack(SAND.scale(d === 1 ? 0.95 : 0.84));
+        if (d > 2) continue;
+        kind[k] = SIDE_SAND;
+        h[k] = d === 1 ? SHELF_H : WET_H;
+        top[k] = pack(d === 1 ? SAND.scale(0.93 + 0.05 * hash2(i, j, seed + 3)) : WET.scale(0.97 + 0.05 * hash2(i, j, seed + 4)));
       }
     }
   }
-  return { nx, ny, x0, y0, s, h, top, bottom: SEA_BOTTOM, side: (z) => BANDS[Math.min(BANDS.length - 1, Math.max(0, -z - 1))] as Color3 };
+  return { nx, ny, x0: 0, y0: 0, s, h, top, kind, toLand, bottom: SEA_BOTTOM, side: coastSide };
 }
+
+/**
+ * A field at 1/k of the columns (k × k columns → one): the column's height
+ * is the median of its block's (so it is land exactly when at least half
+ * of the block is), its colour the mean of the block's columns at that
+ * height, its side kind the first of them. The far meshes are the near
+ * field downsampled: their coast lines up with the near one.
+ */
+export function downsampleField(src: Field, k: number): Field {
+  const nx = Math.ceil(src.nx / k);
+  const ny = Math.ceil(src.ny / k);
+  const h = new Int8Array(nx * ny).fill(EMPTY);
+  const top = new Uint32Array(nx * ny);
+  const kind = new Uint8Array(nx * ny);
+  const hs: number[] = [];
+  for (let j = 0; j < ny; j++) {
+    for (let i = 0; i < nx; i++) {
+      hs.length = 0;
+      for (let b = j * k; b < Math.min(src.ny, j * k + k); b++) for (let a = i * k; a < Math.min(src.nx, i * k + k); a++) hs.push(src.h[b * src.nx + a] as number);
+      const sorted = [...hs].sort((p, q) => p - q);
+      const m = sorted[Math.floor(sorted.length / 2)] as number;
+      const o = j * nx + i;
+      h[o] = m;
+      if (m === EMPTY) continue;
+      let r = 0;
+      let g = 0;
+      let bl = 0;
+      let n = 0;
+      let first = -1;
+      for (let b = j * k; b < Math.min(src.ny, j * k + k); b++) {
+        for (let a = i * k; a < Math.min(src.nx, i * k + k); a++) {
+          const q = b * src.nx + a;
+          if (src.h[q] !== m) continue;
+          if (first < 0) first = q;
+          const p = src.top[q] as number;
+          r += (p >> 16) & 255;
+          g += (p >> 8) & 255;
+          bl += p & 255;
+          n++;
+        }
+      }
+      top[o] = (Math.round(r / n) << 16) | (Math.round(g / n) << 8) | Math.round(bl / n);
+      kind[o] = src.kind?.[first] ?? 0;
+    }
+  }
+  return { nx, ny, x0: src.x0, y0: src.y0, s: src.s * k, h, top, kind, bottom: src.bottom, side: src.side };
+}
+
+const sameColor = (a: { r: number; g: number; b: number }, b: { r: number; g: number; b: number }) => a.r === b.r && a.g === b.g && a.b === b.b;
 
 /** Adds a quad (a, b, c, d counter-clockwise seen from outside) with one normal and per-corner colours. */
 function quad(b: Builder, p: readonly (readonly [number, number, number])[], n: readonly [number, number, number], cols: readonly (readonly [number, number, number])[], flip: boolean): void {
@@ -159,13 +316,15 @@ function quad(b: Builder, p: readonly (readonly [number, number, number])[], n: 
  */
 export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: number, j1: number, step = VOXEL_STEP): void {
   const { nx, ny, h, top, s, x0, y0 } = f;
+  const textured = !!f.textured;
   const H = (i: number, j: number) => (i < 0 || j < 0 || i >= nx || j >= ny ? EMPTY : (h[j * nx + i] as number));
+  const K = (i: number, j: number) => (f.kind ? (f.kind[j * nx + i] as number) : 0);
   i0 = Math.max(0, i0);
   j0 = Math.max(0, j0);
   i1 = Math.min(nx, i1);
   j1 = Math.min(ny, j1);
   const w = i1 - i0;
-  // Tops: key per column (height, colour, corner occlusion); greedy rectangles.
+  // Tops: key per column (height, colour unless textured, corner occlusion); greedy rectangles.
   const keys: (string | null)[] = new Array(w * (j1 - j0)).fill(null);
   const occl: number[][] = new Array(w * (j1 - j0));
   for (let j = j0; j < j1; j++) {
@@ -187,7 +346,7 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
       }
       const k = (j - j0) * w + (i - i0);
       occl[k] = o;
-      keys[k] = `${hc}|${top[j * nx + i]}|${o.join("")}`;
+      keys[k] = `${hc}|${textured ? 0 : quantised(top[j * nx + i] as number, f.quant)}|${o.join("")}`;
     }
   }
   const used = new Uint8Array(w * (j1 - j0));
@@ -218,7 +377,8 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
       const xb = x0 + (i + rw) * s;
       const ya = y0 + j * s;
       const yb = y0 + (j + rh) * s;
-      const cols = o.map((n) => unpack(top[j * nx + i] as number, 1 - AO * n));
+      const base = textured ? 0xffffff : quantised(top[j * nx + i] as number, f.quant);
+      const cols = o.map((n) => unpack(base, 1 - AO * n));
       // Island-local: tile y runs along −z.
       quad(
         b,
@@ -234,7 +394,7 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
       );
     }
   }
-  // Sides: per direction, runs of columns along the edge with equal (own, neighbour) heights.
+  // Sides: per direction, runs of columns along the edge with equal (own, neighbour) heights and side kind.
   const tilt = (nx_: number, nz: number): [number, number, number] => {
     const l = Math.hypot(nx_, UP_TILT, nz);
     return [nx_ / l, UP_TILT / l, nz / l];
@@ -251,8 +411,8 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
       let runKey = "";
       const flush = (end: number) => {
         if (start < 0) return;
-        const [hc, hn] = runKey.split("|").map(Number) as [number, number];
-        emitSide(dir, a, start, end, hc, hn);
+        const [hc, hn, kd] = runKey.split("|").map(Number) as [number, number, number];
+        emitSide(dir, a, start, end, hc, hn, kd);
         start = -1;
       };
       for (let c = inner0; c <= inner1; c++) {
@@ -266,7 +426,7 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
             const nj = j + (dir === 2 ? 1 : dir === 3 ? -1 : 0);
             const hnRaw = H(ni, nj);
             const hn = hnRaw === EMPTY ? f.bottom : Math.max(hnRaw, f.bottom);
-            if (hn < hc) key = `${hc}|${hn}`;
+            if (hn < hc) key = `${hc}|${hn}|${K(i, j)}`;
           }
         }
         if (key !== runKey) {
@@ -277,14 +437,17 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
       }
     }
   };
-  const emitSide = (dir: 0 | 1 | 2 | 3, a: number, c0: number, c1: number, hc: number, hn: number) => {
-    for (let z = hn; z < hc; z++) {
-      const col = f.side(z, dir >= 2 ? c0 : a, dir >= 2 ? a : c0);
+  const emitSide = (dir: 0 | 1 | 2 | 3, a: number, c0: number, c1: number, hc: number, hn: number, kd: number) => {
+    // Layers of equal band colour merge into one quad; the wall's foot a little darker (baked occlusion of the step below).
+    let z = hn;
+    while (z < hc) {
+      const col = f.side(z, kd);
+      let z1 = z + 1;
+      while (z1 < hc && sameColor(f.side(z1, kd), col)) z1++;
       const cc: [number, number, number] = [col.r, col.g, col.b];
-      // The lowest layer of a wall a little darker at its foot (baked occlusion of the step below).
-      const lo: [number, number, number] = z === hn ? [col.r * 0.88, col.g * 0.88, col.b * 0.88] : cc;
+      const lo: [number, number, number] = z === hn ? [col.r * 0.86, col.g * 0.86, col.b * 0.86] : cc;
       const za = z * step;
-      const zb = (z + 1) * step;
+      const zb = z1 * step;
       let p: [number, number, number][];
       let n: [number, number, number];
       if (dir <= 1) {
@@ -311,6 +474,7 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
         n = tilt(0, dir === 2 ? -1 : 1);
       }
       quad(b, p, n, [lo, lo, cc, cc], false);
+      z = z1;
     }
   };
   for (const d of [0, 1, 2, 3] as const) sideRuns(d);
@@ -319,4 +483,17 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
 /** Columns of a tile rectangle (chunk) in a field at vpt columns per tile. */
 export function tileRange(x: number, y: number, w: number, hgt: number, vpt: number): [number, number, number, number] {
   return [x * vpt, y * vpt, (x + w) * vpt, (y + hgt) * vpt];
+}
+
+/** RGBA bytes of a field's top colours, row-major (row 0 = column row j = 0): the ground texture. */
+export function groundTexels(f: Field): Uint8Array {
+  const out = new Uint8Array(f.nx * f.ny * 4);
+  for (let k = 0; k < f.nx * f.ny; k++) {
+    const p = f.top[k] as number;
+    out[k * 4] = (p >> 16) & 255;
+    out[k * 4 + 1] = (p >> 8) & 255;
+    out[k * 4 + 2] = p & 255;
+    out[k * 4 + 3] = 255;
+  }
+  return out;
 }

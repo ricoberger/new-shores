@@ -3,8 +3,9 @@
 // mountain range in a second one). Each level's outline is the tile
 // contour rounded by Gaussian-like smoothing (corner radius ≥ 0.5 tile);
 // inside it the terrain columns (render/voxelterrain.ts, 4 per tile) step
-// up as terraces — one voxel at the rim, two inside — warm rock on the
-// first level, a moss cap on the second, banded rock sides. Voxel crags
+// up as terraces — two voxels at the rim, three, then four inside — warm
+// rock on the first level, a moss cap on the second, rock sides in bands
+// darkest at the foot. Voxel crags
 // and boulders (decor_crag_*, decor_rock_c) cluster along the level
 // edges and on the tops, so the silhouette is jagged. The rules do not
 // change (D-036): roads never go on mountains, and a building that covers
@@ -21,8 +22,9 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
 import { type CoastLoop, marchingSquares, traceLoops } from "../display/coastline";
-import { hash2 } from "../display/noise";
+import { fbm, hash2 } from "../display/noise";
 import { ISLAND } from "../theme/palette";
+import { addGround } from "./groundshader";
 import { skyFill } from "./lighting";
 import { decorModel, type ModelRegistry } from "./models";
 import { c3 } from "./palette";
@@ -31,11 +33,13 @@ import { ModelMerger } from "./trees";
 import { distanceTo, EMPTY, type Field, meshField, TERRAIN_VPT } from "./voxelterrain";
 
 /**
- * Height (tiles) of one plateau level: two voxel steps of 0.25 (see
- * plateauField; a literal, as voxelterrain.ts imports this module and its
+ * Height (tiles) of one plateau level: four voxel steps of 1/8 (see
+ * plateauField; literals, as voxelterrain.ts imports this module and its
  * constants are not initialised yet here).
  */
 export const PLATEAU_STEP = 0.5;
+/** Voxel steps of one plateau level. */
+const PLATEAU_STEPS = 4;
 /** Sample spacing (tiles) of the rounded outline. */
 const OUTLINE_STEP = 0.2;
 /** Plateau-top crag rows placed per step of the incremental build. */
@@ -200,10 +204,12 @@ export function insideGrid(loops: readonly (readonly { x: number; y: number }[])
 }
 
 /**
- * The plateau levels as terraces of terrain columns (4 per
- * tile) inside each level's rounded outline: one voxel step at the rim and
- * two inside (level 1 → 1, 2 steps; level 2 → 3, 4), so every visible step
- * is one voxel; PLATEAU_STEP is the two-step height of a level.
+ * The plateau levels as terraces of terrain columns (4 per tile, steps of
+ * one voxel, 1/8 tile) inside each level's rounded outline: the rim column
+ * two steps up, the next one three, the inside four (level 1 → 2, 3, 4;
+ * level 2 → 6, 7, 8), so the edge steps up like stacked rock; the sides
+ * in rock bands, darkest at each level's foot. PLATEAU_STEP is the
+ * four-step height of a level.
  */
 export function plateauField(width: number, height: number, levelLoops: readonly (readonly CoastLoop[])[]): Field {
   const vpt = TERRAIN_VPT;
@@ -213,21 +219,37 @@ export function plateauField(width: number, height: number, levelLoops: readonly
   const h = new Int8Array(nx * ny).fill(EMPTY);
   const top = new Uint32Array(nx * ny);
   const packed = (c: Color3) => (Math.round(c.r * 255) << 16) | (Math.round(c.g * 255) << 8) | Math.round(c.b * 255);
+  const steps = PLATEAU_STEPS;
   levelLoops.forEach((loops, k) => {
     const inside = insideGrid(loops, s / 2, s / 2, s, nx, ny);
     const out = new Uint8Array(nx * ny);
     for (let q = 0; q < nx * ny; q++) out[q] = inside[q] ? 0 : 1;
-    const d = distanceTo(out, nx, ny, 2);
+    const d = distanceTo(out, nx, ny, 3);
     const level = k + 1;
     for (let q = 0; q < nx * ny; q++) {
       if (!inside[q]) continue;
-      const rim = d[q] === 1;
-      h[q] = 2 * level - (rim ? 1 : 0);
-      top[q] = packed(rim ? ROCK_LIGHT : topColor(level));
+      const dq = d[q] as number;
+      h[q] = steps * level - (dq === 1 ? 2 : dq === 2 ? 1 : 0);
+      // Patches of lighter and darker rock or moss on the tops (three levels: neighbours still merge).
+      const n = fbm((q % nx) / 7, Math.floor(q / nx) / 7, 31 + level);
+      const patch = n < 0.36 ? 0.93 : n > 0.62 ? 1.06 : 1;
+      top[q] = packed((dq === 1 ? ROCK_LIGHT : dq === 2 ? Color3.Lerp(ROCK_LIGHT, topColor(level), 0.5) : topColor(level)).scale(patch));
     }
   });
-  const bands = [ROCK_LIGHT, ROCK, ROCK_DEEP, ROCK.scale(1.06)];
-  return { nx, ny, x0: 0, y0: 0, s, h, top, bottom: 0, side: (z) => bands[((z % 4) + 4) % 4] as Color3 };
+  // Bands per level, foot to top: deep rock, rock, rock, light rock (the moss cap's lip on the top level).
+  const bands = [ROCK_DEEP, ROCK, ROCK, ROCK_LIGHT];
+  const lip = Color3.Lerp(ROCK_LIGHT, MOSS, 0.55);
+  return {
+    nx,
+    ny,
+    x0: 0,
+    y0: 0,
+    s,
+    h,
+    top,
+    bottom: 0,
+    side: (z) => (z === 2 * steps - 1 ? lip : (bands[((z % steps) + steps) % steps] as Color3)),
+  };
 }
 
 export class PlateauLayer {
@@ -245,7 +267,8 @@ export class PlateauLayer {
     private readonly parent: TransformNode | null,
     private readonly registry: ModelRegistry | null = null,
   ) {
-    this.material = skyFill(new StandardMaterial("plateaus", scene));
+    // The per-voxel jitter of the terrain (no ground texture: the tops keep their vertex colours).
+    this.material = addGround(skyFill(new StandardMaterial("plateaus", scene)), { texture: null, width: 1, height: 1, vpt: TERRAIN_VPT });
     this.material.specularColor = Color3.Black();
     this.material.backFaceCulling = false;
   }

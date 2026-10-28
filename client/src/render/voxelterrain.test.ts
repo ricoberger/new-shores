@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { coastline } from "../display/coastline";
 import { Builder } from "./terrain";
-import { distanceTo, EMPTY, type Field, islandField, meshField, SEA_BOTTOM } from "./voxelterrain";
+import { distanceTo, downsampleField, EMPTY, type Field, islandField, meshField, RIM_H, SEA_BOTTOM, SHELF_H, WET_H } from "./voxelterrain";
 
 const flat = (nx: number, ny: number, h = 0): Field => ({
   nx,
@@ -18,11 +18,25 @@ const flat = (nx: number, ny: number, h = 0): Field => ({
 const tris = (b: Builder) => b.indices.length / 3;
 
 describe("voxel terrain", () => {
-  it("merges a flat field's tops into one quad and its rim into one quad per side and layer", () => {
+  it("merges a flat field's tops into one quad and its rim into one quad per side and band", () => {
     const b = new Builder();
     meshField(b, flat(8, 6), 0, 0, 8, 6);
-    // Top: 2 triangles; four sides × 2 layers (0 down to −2) × 2 triangles.
-    expect(tris(b)).toBe(2 + 4 * 2 * 2);
+    // Top: 2 triangles; four sides, one band (0 down to −2) × 2 triangles.
+    expect(tris(b)).toBe(2 + 4 * 2);
+    const banded = new Builder();
+    meshField(banded, { ...flat(8, 6), side: (z) => ({ r: z === -1 ? 0.5 : 0.3, g: 0.5, b: 0.5 }) as never }, 0, 0, 8, 6);
+    // Two bands: two quads per side.
+    expect(tris(banded)).toBe(2 + 4 * 2 * 2);
+  });
+
+  it("merges textured tops regardless of their colour, with the occlusion only in the vertex colour", () => {
+    const f = { ...flat(8, 6), textured: true };
+    for (let k = 0; k < f.top.length; k++) f.top[k] = k * 977;
+    const b = new Builder();
+    meshField(b, f, 0, 0, 8, 6);
+    expect(tris(b)).toBe(2 + 4 * 2);
+    // The top's vertices are white (the texture colours them).
+    expect(b.colors.slice(0, 4)).toEqual([1, 1, 1, 1]);
   });
 
   it("joins chunks without seams: the halves have the triangles of the whole", () => {
@@ -57,16 +71,62 @@ describe("voxel terrain", () => {
     expect(Math.min(...reds)).toBeLessThan(0.5);
   });
 
-  it("steps the coast down in two sand shelves around the land", () => {
-    const terrain = ["water", "water", "water", "water", "grass", "water", "water", "water", "water"];
-    const island = { width: 3, height: 3, terrain } as never;
-    const f = islandField(island, coastline({ width: 3, height: 3, terrain }), 7, 4);
-    const hs = new Set(Array.from(f.h));
-    expect(hs.has(0)).toBe(true);
-    expect(hs.has(-1)).toBe(true);
-    expect(hs.has(-2)).toBe(true);
-    expect(hs.has(EMPTY)).toBe(true);
-    expect(f.bottom).toBe(SEA_BOTTOM);
+  it("steps the coast down: beach rim, sand shelf, wet sand line; grass meets the shelf at full height", () => {
+    const at = (terrain: string[]) => {
+      const island = { width: 5, height: 5, terrain } as never;
+      return islandField(island, coastline({ width: 5, height: 5, terrain: terrain as never }), 7, 4);
+    };
+    const ring = (inner: string) => Array.from({ length: 25 }, (_, k) => (k % 5 === 0 || k % 5 === 4 || k < 5 || k >= 20 ? "water" : inner));
+    const beach = at(ring("coast"));
+    const hs = new Set(Array.from(beach.h));
+    for (const h of [0, RIM_H, SHELF_H, WET_H, EMPTY]) expect(hs.has(h)).toBe(true);
+    expect(beach.bottom).toBe(SEA_BOTTOM);
+    // The wet line is the outermost: every wet column is next to a shelf column, never next to land.
+    const grass = at(ring("grass"));
+    expect(new Set(Array.from(grass.h)).has(RIM_H)).toBe(false);
+    // The coast distances reach past the shelves (the shallows and foam read them).
+    expect(Math.max(...Array.from(grass.toLand!))).toBeGreaterThan(4);
+  });
+
+  it("downsamples the near field so the far coast lines up with it (no jump at the LOD switch)", () => {
+    // An irregular island: a blob with a bay, coast tiles on its rim.
+    const W = 14;
+    const H = 12;
+    const terrain: string[] = [];
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const d = Math.hypot((x - 6.5) / 5.5, (y - 5.5) / 4.5);
+        const bay = x > 8 && Math.abs(y - 5.5) < 1.5;
+        terrain.push(d > 1 || bay ? "water" : d > 0.8 ? "coast" : (x + y) % 5 === 0 ? "forest" : "grass");
+      }
+    }
+    const island = { width: W, height: H, terrain } as never;
+    const near = islandField(island, coastline({ width: W, height: H, terrain: terrain as never }), 3, 4);
+    for (const k of [2, 4]) {
+      const far = downsampleField(near, k);
+      expect(far.s).toBeCloseTo(near.s * k, 9);
+      let landNear = 0;
+      let landFar = 0;
+      for (let j = 0; j < far.ny; j++) {
+        for (let i = 0; i < far.nx; i++) {
+          let land = 0;
+          let n = 0;
+          for (let b = j * k; b < Math.min(near.ny, j * k + k); b++) {
+            for (let a = i * k; a < Math.min(near.nx, i * k + k); a++) {
+              n++;
+              if ((near.h[b * near.nx + a] as number) >= RIM_H) land++;
+            }
+          }
+          landNear += land;
+          const isLand = (far.h[j * far.nx + i] as number) >= RIM_H;
+          if (isLand) landFar += k * k;
+          // A far column is land exactly when at least half of its near columns are.
+          expect(isLand).toBe(land * 2 >= n);
+        }
+      }
+      // So the land's outline moves by less than a far column: the areas agree closely.
+      expect(Math.abs(landFar - landNear) / landNear).toBeLessThan(0.08);
+    }
   });
 
   it("measures Chebyshev distances", () => {
