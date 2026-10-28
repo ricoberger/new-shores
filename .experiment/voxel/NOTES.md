@@ -50,15 +50,47 @@ Findings so far
 
 | recipe | lines | time | notes |
 |---|---|---|---|
-| house_settlers (3 variants) | 77 | ~15 min | incl. 2 iterations on roof pitch and frame density |
-| house_citizens (3 variants) | 104 | ~10 min | jettied upper storey, balcony, shop front; 1 iteration (frame too dark, yard too grey) |
-| fisher | 75 | ~8 min | jetty on piles, smokehouse chimney, net racks |
-| market_small (l1–l3) | 115 | ~12 min | stalls + well; l2 timber hall, l3 stone hall with bell turret |
-| trading_post (l1–l4) | 118 | ~12 min | pier with bollards/berths, crane, storehouse grows, counting house |
-| _decor.py (19 ids) | 190 | ~15 min | trees ×4, bushes, rocks, crags, stumps, tufts, outcrops |
-| _life.py (10 ids) | 200 | ~15 min | villagers, carts + axle, sheep, boat, crate, stages, scaffolding |
-| _ships.py (3 ships + cargo) | 140 | ~12 min | one hull builder; sloop, brig, galleon |
+| house_settlers (3 variants) | 80 | ~15 min | incl. 2 iterations on roof pitch and frame density |
+| house_citizens (3 variants) | 90 | ~10 min | jettied upper storey, balcony, shop front; 1 iteration (frame too dark, yard too grey) |
+| fisher | 67 | ~8 min | jetty on piles, smokehouse chimney, net racks |
+| market_small (l1–l3) | 99 | ~12 min | stalls + well; l2 timber hall, l3 stone hall with bell turret |
+| trading_post (l1–l4) | 106 | ~12 min | pier with bollards/berths, crane, storehouse grows, counting house |
+| lumberjack | 35 | ~4 min | log cabin courses, log piles, chopping block |
+| sawmill | 33 | ~4 min | `P.house` + open saw shed, bench, stacks |
+| quarry | 38 | ~5 min | terraced pit faces, hoist, cut blocks, mason's hut |
+| chapel | 43 | ~5 min | stone nave, lancets, bell gable, churchyard wall |
+| tavern | 44 | ~5 min | jettied inn, hanging sign, beer garden |
+| warehouse (l1–l3) | 48 | ~5 min | grows thatch → stone, loft hoist, second hall + crane |
+| shipyard | 58 | ~6 min | slipway into the sea, open shed, crane, pitch kettle |
+| wheat_farm | 30 | ~4 min | barn + farmhouse, haystacks (1 fix: haystack below ground) |
+| wheat_field | 17 | ~1 min | furrows + rows |
+| sheep_farm | 26 | ~3 min | cottage + hurdle fold |
+| pasture | 25 | ~3 min | fence with gate, trough, sheep anchors |
+| orchard | 27 | ~3 min | cider house, apple crates, ladder, fruit trees |
+| orchard_plot | 13 | ~1 min | one fruit tree |
+| bakery | 33 | ~4 min | domed oven with chimney, bread stall |
+| mill | 48 | ~6 min | tapered tower, thatched cap, lattice sails |
+| weaver_wool | 35 | ~4 min | lean-to loom, swaying dyed cloth (sway group) |
+| charcoal_burner | 38 | ~4 min | earth kilns, billets |
+| iron_mine | 42 | ~5 min | rock hill with ore, timbered adit, rails, ore cart |
+| smelter | 35 | ~4 min | stepped furnace stack, glowing mouth |
+| toolmaker | 34 | ~4 min | forge lean-to, anvil, grindstone, tool rack |
+| _decor.py (19 ids) | 175 | ~15 min | trees ×4, bushes, rocks, crags, stumps, tufts, outcrops |
+| _life.py (10 ids) | 199 | ~15 min | villagers, carts + axle, sheep, boat, crate, stages, scaffolding |
+| _ships.py (3 ships + cargo) | 149 | ~12 min | one hull builder; sloop, brig, galleon |
+
+Times are wall-clock of this session including the contact-sheet check
+(`make voxel-sheet`, ≈1 s per recipe); the later recipes are faster
+because they use `P.house`, `P.windows` and `P.smoke` (whole-building
+helpers written after the first four).
+
+Roads are not models (island.ts draws them as a ground mesh), so there
+are no road recipes. Construction uses the voxel `life_stage` a/b/c
+(foundations → skeleton → rafters) and `life_stage_scaffolding`.
 
 ## Shots
 
-(see below, filled in per step)
+- step 2 (models only, today's terrain): `.experiment/shots/v-step2/`
+  (settled/citizens/showcase × near/mid, desktop). Voxel buildings and
+  forests read well on today's smooth terrain; the forest of voxel trees
+  is the most convincing part.
