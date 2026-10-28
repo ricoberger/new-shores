@@ -19,9 +19,9 @@ Tools (experiment only, not product code):
 | # | Group | State |
 |---|-------|-------|
 | A | Parts library v2 + `P.house` v2 | done |
-| B | Houses (settlers ×3, citizens ×3) | open |
-| C | Tier-1 producers, fields, market, chapel, trading post, warehouse | open |
-| D | Tier-2 producers incl. the 15 placeholders | open |
+| B | Houses (settlers ×3, citizens ×3) | done (`b66eb30`) |
+| C | Tier-1 producers, fields, market, chapel, trading post, warehouse | done (`329c6ab`) |
+| D | Tier-2 producers incl. the 15 placeholders | done |
 | E | Tests, build, contact sheet, shots | open |
 
 ## A — parts library v2
@@ -36,7 +36,7 @@ Helpers added:
 - **Jitter:** `colour_jitter(v, seed, scale, ground)` — per-voxel colour
   jitter on every material, three shades per material (darker / base /
   lighter) with a share and step per palette role (`JITTER`); ground
-  plates (z ≤ 0) at 0.6 × the share. Called last in a recipe.
+  plates (z ≤ 0) at a reduced share (see D: 0.12 ×). Called last.
 - **Ground:** `scatter` (tufts, flowers, pebbles on free ground cells),
   `edging`.
 - **Walls:** `plinth` (proud base course), `fill` (solid hidden core),
@@ -91,6 +91,51 @@ Fix in passing (inside `detail.py` only): `Vox.shed`'s `down` names the
 `lean_to(down=…)` takes the eave side and maps it. `Vox.shed` itself is
 unchanged (grid code is not in this session's files).
 
+## B — houses
+
+`house_settlers` v0 side gable with fence lines and cabbage rows, v1
+front gable with a thatched lean-to woodshed, wattle fence and a (rigid)
+washing line, v2 L-plan. `house_citizens` v0 townhouse with dormers, v1
+front gable with a balcony and a well, v2 hipped shop with a rigid awning
+and a trade sign. Citizen houses: coursed stone + quoins, jettied framed
+upper storey, tiles, dormers, brick chimneys with pots, flower boxes —
+clearly richer than the settler frame + thatch. Jettied fronts sit on
+lite block boundaries (x ≡ 3 / y ≡ 0 mod 4) so the lite keeps the
+infill colour.
+
+Helper tuning (detail.py): `DRESSED`, `casement(frame=None)`,
+`half_timber(braces=sides, sill=)`, `roof(cap=)`, ridge as a full course
+in alternating shades, `dormer_on` rewritten, `cask` one hoop when low,
+picket heights, `lean_to` side mapping.
+
+## C — tier 1
+
+All tier-1 recipes on the v2 parts. New helpers: `log_walls` (notched
+log cabin), `boarded` (vertical barn boards + battens), `stump`,
+`haystack`, `sheaf`, `sawhorse`, `stone_blocks`; `chimney_stack(pots=0)`;
+`soil_rows` / `crop_rows(furrow=)`; wheat plants 2–3 high.
+
+## D — tier 2 and the 15 placeholders
+
+Existing tier-2 recipes moved to the v2 parts; the 15 placeholders got
+recipes (cidery, hemp_farm, hemp_field, weaver_linen, sailmaker,
+dairy_farm, cattle_pasture, cheese_dairy, apiary, meadow, meadery,
+pig_farm, pig_pen, tannery, school). Modules: `cattle_pasture` anchors
+gate, cattle_1..3, door; `pig_pen` gate, pig_1..4, door.
+
+**Models-folder limit.** With per-voxel jitter at the A settings the
+folder reached 28.09 MB against `MODELS_FOLDER_LIMIT` 25.17 MB (24 MiB);
+the geometry itself costs little (no jitter: 21.18 MB, baseline 20.04 MB).
+Measured cost of the jitter per role (zeroing one role): timber 1.6 MB,
+terracotta 1.55, stone 1.1, thatch 1.05, ground 1.3, plaster/ochre 0.42.
+Fit (budget not changed): roofs (thatch, tiles, slate) and timber jitter
+in 2 × 2 plan patches (tile / board lengths) at shares 0.34 / 0.30, stone
+0.12 over its coursed blocks, ground plates at 0.12 × (the yard's 4 × 4
+patches and the scatter carry the ground), module grounds coarser. Result
+24.78 MB (margin 0.39 MB, 1.5 %). This rebuilt every v2 recipe (A–C
+outputs changed in the D commit). The limit will block tier 3+ at this
+detail — see open question 2.
+
 ## Open questions
 
 1. **Sailmaker cloth sway vs the client test.** The task asks for the
@@ -100,3 +145,14 @@ unchanged (grid code is not in this session's files).
    sailmaker's cloth stays rigid until that test changes; if V2 has lifted
    it by the rebase, the sway group goes in then. Alternative: edit the
    test in this PR (one line).
+
+2. **Models-folder limit vs D-057 §3 jitter.** Per-voxel jitter on every
+   surface does not fit 24 MiB once tier 1–2 are at the target detail.
+   Stricter reading taken: the limit holds, the jitter on the largest
+   planes is patchy (2 × 2) and sparser (stone, ground). Alternatives:
+   raise the limit (a budget/decision change), or export colour jitter as
+   a vertex-colour noise/texture in the client instead of geometry.
+3. **Shipyard berth.** The side pier reads as a fitting-out berth but has
+   no `berth_*` anchor: the content only asks for `slip`, and an extra
+   anchor might let the life layer moor ships there. Alternative: add
+   `berth_1` if the life layer wants it.
