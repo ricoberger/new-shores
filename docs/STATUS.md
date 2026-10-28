@@ -26,8 +26,8 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Decisions most relevant right now
 
-- **D-050** chunky stylised flat-shaded look, KayKit lead, real models at
-  every zoom, device-validated perf.
+- **D-057** procedural voxel art (supersedes D-050's kit-bash); warm
+  palette, real models at every zoom, device-validated perf stay.
 - **D-052** flows and perf validated by playtest on the device; no
   e2e/visual/perf suites; `make shots` PNGs in every look-changing PR.
 - **D-051**: complete — start at sea, Trading Post (capacity, berths) vs
@@ -52,9 +52,11 @@ in the sync after a task unless the task says otherwise; nobody adds the
      reference game written with the chains spread over ≥ 2 production
      islands (home island for houses) — `islands.json` changes only if
      that still does not fit (D-054/D-056 as built).
-   - **Art-style prototype (voxels)** running in parallel on its own
-     branch (do-not-merge PR) as evidence for a D-057 interview: look
-     side by side, phone fps, authoring effort per model.
+   - **D-057 voxel restyle** (decided; the prototype PR #36 is the
+     base): V1 clean cut — voxel the only renderer, Blender/kits/kit
+     models deleted; V2 lively terrain and decor; V3–V5 models tiers
+     1–2 / 3 / 4 + ships + life props; V6 polish round in the new look
+     with the tier 2–4 playtest. Runs alongside C4 (disjoint files).
    - Before deployment: quantised GLB export (KHR_mesh_quantization) to
      roughly halve the models folder (≈ 63 bytes/triangle today; limit
      24 MiB).
