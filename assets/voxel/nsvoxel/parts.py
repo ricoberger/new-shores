@@ -442,3 +442,58 @@ def awning(v, x0, x1, y, z, depth=3, m=None, alt=CANVAS):
     for k in range(depth):
         for x in range(x0, x1):
             v.set(x, y + 1 + k, z - k // 2, stripe if (x // 2) % 2 == 0 else alt)
+
+
+# ---------------------------------------------------------------- whole buildings
+
+#: Wall height (top z) and roof of the tier styles.
+STYLES = {
+    # settler: stone sill course, plaster in a timber frame, steep thatch
+    "settler": {"wall": 9, "roof": mat("thatch"), "ridge": mat("thatch", 0.86), "rise": 1.5},
+    # citizen: plaster/ochre timber frame on a stone course, terracotta at 45°
+    "citizen": {"wall": 11, "roof": mat("terracotta"), "ridge": mat("terracotta", 0.84), "rise": 1},
+    # stone: rubble walls with quoins, terracotta
+    "stone": {"wall": 10, "roof": mat("terracotta"), "ridge": mat("terracotta", 0.84), "rise": 1},
+    # workshop: rubble walls with a thatched roof
+    "stonethatch": {"wall": 9, "roof": mat("thatch"), "ridge": mat("thatch", 0.86), "rise": 1.5},
+}
+
+
+def house(v, x0, y0, x1, y1, style="settler", along="x", wall=None, z0=1, height=None, roof=None, seed=0, hip=False):
+    """
+    A whole building block in a tier style: walls (timber frame or rubble)
+    from z0 and a gable (or hipped) roof. Returns the height above the
+    ridge. The quickest way to a plausible building; recipes add doors,
+    windows, chimneys and props.
+    """
+    st = STYLES[style]
+    top = height or st["wall"]
+    infill = wall or (mat("plaster") if style != "citizen" else mat("ochre"))
+    if style in ("stone", "stonethatch"):
+        stone_wall(v, x0, y0, x1, y1, z0, top, STONE, seed)
+        quoins(v, x0, y0, x1, y1, z0, top)
+        gable_wall = STONE
+    else:
+        v.box(x0, y0, z0, x1, y1, z0 + 1, STONE_DARK)
+        timber_frame(v, x0, y0, x1, y1, z0 + 1, top, infill, TIMBER, spacing=5, braces=False, sill=False)
+        gable_wall = infill
+    r = roof or st["roof"]
+    if hip:
+        return v.hip(x0, x1, y0, y1, top, r, ov=1, rise=st["rise"], ridge=st["ridge"])
+    return v.gable(x0, x1, y0, y1, top, r, gable_wall, along=along, rise=st["rise"], ov=1, ridge=st["ridge"], seed=seed)
+
+
+def windows(v, side, plane, a0, a1, z, every=6, w=2, h=2, skip=(), **kw):
+    """A row of windows along a facade from a0 to a1, one every `every` voxels (positions in skip left out)."""
+    f = Face(v, side, plane)
+    for a in range(a0, a1 - w + 1, every):
+        if not any(s - w - 1 <= a <= s + 3 for s in skip):
+            window(f, a, z, w, h, **kw)
+
+
+def smoke(v, x, y, z0, z1, **kw):
+    """A chimney with the chimney and smoke anchors."""
+    s = chimney(v, x, y, z0, z1, **kw)
+    v.anchor("chimney", s[0], s[1], s[2] - 1)
+    v.anchor("smoke", *s)
+    return s

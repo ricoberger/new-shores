@@ -51,6 +51,13 @@ Findings so far
 | recipe | lines | time | notes |
 |---|---|---|---|
 | house_settlers (3 variants) | 77 | ~15 min | incl. 2 iterations on roof pitch and frame density |
+| house_citizens (3 variants) | 104 | ~10 min | jettied upper storey, balcony, shop front; 1 iteration (frame too dark, yard too grey) |
+| fisher | 75 | ~8 min | jetty on piles, smokehouse chimney, net racks |
+| market_small (l1–l3) | 115 | ~12 min | stalls + well; l2 timber hall, l3 stone hall with bell turret |
+| trading_post (l1–l4) | 118 | ~12 min | pier with bollards/berths, crane, storehouse grows, counting house |
+| _decor.py (19 ids) | 190 | ~15 min | trees ×4, bushes, rocks, crags, stumps, tufts, outcrops |
+| _life.py (10 ids) | 200 | ~15 min | villagers, carts + axle, sheep, boat, crate, stages, scaffolding |
+| _ships.py (3 ships + cargo) | 140 | ~12 min | one hull builder; sloop, brig, galleon |
 
 ## Shots
 
