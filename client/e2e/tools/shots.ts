@@ -38,6 +38,8 @@ const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<R
   seafaring: { island: "isle-01" }, // a new world: the start sloop at sea, nothing settled
   citizens: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } }, // town plus a bare wheat farm
   merchants: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } }, // citizens plus the tier-3 street end and a clay island
+  // town plus the full services ladder (university, cathedral), a Patrician house, the roast-beef chain and a quartz island (D-056 C4).
+  patricians: { island: "isle-01", targets: { near: { x: 263, y: 318 }, mid: { x: 262, y: 330, half: 36 } } },
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
   "archipelago-8x20": { island: null },
@@ -878,6 +880,42 @@ const PRESET_RUN: Record<Preset, { fixture: Fixture; device: Device | readonly D
   // The build menu of the merchants fixture on its Production tab, scrolled to the tier-3 end, desktop and phone.
   "merchant-build-menu": {
     fixture: "merchants",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      await page.getByTestId("dock-build").click();
+      await page.getByTestId("build-menu").waitFor({ state: "visible" });
+      await page.getByTestId("build-tab-production").click();
+      await page.evaluate(() => {
+        for (const el of document.querySelectorAll<HTMLElement>('[data-testid="build-menu"] *')) {
+          if (el.scrollWidth > el.clientWidth) el.scrollLeft = el.scrollWidth;
+          if (el.scrollHeight > el.clientHeight) el.scrollTop = el.scrollHeight;
+        }
+      });
+    },
+  },
+  // The Patrician house of the patricians fixture selected (D-056 C4), desktop and phone.
+  "patrician-house-card": {
+    fixture: "patricians",
+    device: ["desktop", "phone"],
+    run: async (page) => {
+      const t = await page.evaluate(() => {
+        for (const is of window.__newShores!.getServer()!.display.islands) {
+          const b = is.buildings.find((x) => x.type === "house_patricians");
+          if (b) return { island: is.id, x: b.x, y: b.y, ox: is.position.x, oy: is.position.y };
+        }
+        throw new Error("no Patrician house");
+      });
+      await setCamera(page, { x: t.ox + t.x + 1, y: t.oy + t.y + 1, half: HALF.near, rotation: 0 });
+      await settle(page);
+      const p = await tileAt(page, t.island, t.x + 1, t.y + 1);
+      await page.mouse.click(p.x, p.y);
+      await page.getByTestId("info-panel").waitFor({ state: "visible" });
+      await page.mouse.move(5, 400);
+    },
+  },
+  // The build menu of the patricians fixture on its Production tab, scrolled to the tier-4 end, desktop and phone.
+  "patrician-build-menu": {
+    fixture: "patricians",
     device: ["desktop", "phone"],
     run: async (page) => {
       await page.getByTestId("dock-build").click();
