@@ -192,6 +192,42 @@ func TestLoadMerchantsNeeds(t *testing.T) {
 	}
 }
 
+// TestMerchantsQuests pins the tier-3 quest chain (D-056 C3): church,
+// first Merchant house, both food and both drink alternatives, a brig
+// (the third ship: there is no per-type ship predicate) and stored
+// bricks, with modest gold rewards only.
+func TestMerchantsQuests(t *testing.T) {
+	c, err := Load(filepath.Join(repoRoot(t), "content", "old_coast"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{
+		"merchants_church": "tier_unlocked:merchants:0 connected:church:0",
+		"merchants_house":  "building_count:house_merchants:1",
+		"merchants_food":   "connected:butcher:0 connected:pastry_kitchen:0",
+		"merchants_drink":  "connected:brewery:0 connected:distillery:0",
+		"merchants_brig":   "ship_count::3",
+		"merchants_bricks": "stock:bricks:30000",
+	}
+	n := 0
+	for _, q := range c.Quests {
+		if !strings.HasPrefix(q.ID, "merchants_") {
+			continue
+		}
+		n++
+		var objs []string
+		for _, o := range q.Objectives {
+			objs = append(objs, fmt.Sprintf("%s:%s:%d", o.Kind, o.Building+o.Good+o.Tier, o.Min))
+		}
+		if got := strings.Join(objs, " "); got != want[q.ID] || len(q.Rewards.Goods) != 0 || q.Rewards.Gold < 100_000 || q.Rewards.Gold > 200_000 {
+			t.Errorf("%s = %s, rewards %+v", q.ID, got, q.Rewards)
+		}
+	}
+	if n != len(want) {
+		t.Errorf("%d merchants quests, want %d", n, len(want))
+	}
+}
+
 // TestClosedChains: every good of the shipped content has a producer (or
 // is in the starting stock) and a use: a recipe input, a need, or a
 // building or ship cost. The charcoal | coal alternative is real: coal has

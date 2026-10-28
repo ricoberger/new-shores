@@ -121,9 +121,9 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("tax %d vs upkeep %d milli-gold/min: margin below 20 %%", tax, upkeep)
 	}
 
-	// Quests (quests.json): the intro chain and the tier-2 chain (D-056
-	// §10), each linear; the tier-2 chain branches off at
-	// intro_settlers_120. Rewards in fixed point; only the shipyard quest
+	// Quests (quests.json): the intro chain, the tier-2 chain (D-056 §10)
+	// and the tier-3 chain (C3), each linear; the tier-2 chain branches off
+	// at intro_settlers_120, the tier-3 chain follows citizens_cheese. Rewards in fixed point; only the shipyard quest
 	// gives sails (for the first built sloop, CONTENT §8).
 	if len(c.Quests) < 10 || c.Quests[0].ID != "intro_home_island" || len(c.Quests[0].Prerequisites) != 0 ||
 		c.Quests[0].Objectives[0] != (Objective{Kind: ObjectiveIslandSettled, Min: 1}) || c.Quests[1].ID != "intro_first_road" {
@@ -136,8 +136,11 @@ func TestLoadOldCoast(t *testing.T) {
 		if !ok && chain == "citizens" {
 			want = "intro_settlers_120"
 		}
+		if !ok && chain == "merchants" {
+			want = "citizens_cheese"
+		}
 		prev[chain] = q.ID
-		if (chain != "intro" && chain != "citizens") || len(q.Prerequisites) != 1 || q.Prerequisites[0] != want || c.QuestByID[q.ID] != q || q.Index != i+1 {
+		if (chain != "intro" && chain != "citizens" && chain != "merchants") || len(q.Prerequisites) != 1 || q.Prerequisites[0] != want || c.QuestByID[q.ID] != q || q.Index != i+1 {
 			t.Errorf("quest %s: prerequisites %v (want %s), index %d", q.ID, q.Prerequisites, want, q.Index)
 		}
 		if len(q.Rewards.Goods) > 0 && !strings.Contains(q.Text, "capacity") {
@@ -149,7 +152,7 @@ func TestLoadOldCoast(t *testing.T) {
 			}
 		}
 	}
-	if prev["intro"] != "intro_citizen_house" || prev["citizens"] != "citizens_cheese" {
+	if prev["intro"] != "intro_citizen_house" || prev["citizens"] != "citizens_cheese" || prev["merchants"] != "merchants_bricks" {
 		t.Errorf("chains end at %v", prev)
 	}
 	if q := c.QuestByID["intro_planks"]; q.Rewards.Gold != 0 || len(q.Rewards.Goods) != 1 || q.Rewards.Goods[0] != (GoodAmount{"planks", 45_000}) {

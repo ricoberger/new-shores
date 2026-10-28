@@ -173,5 +173,68 @@
     ],
     "rewards": { "gold": 100 },
     "prerequisites": ["citizens_school"]
+  },
+  {
+    "id": "merchants_church",
+    "title": "A church for the merchants",
+    "text": "Merchants want a church besides the market, chapel, tavern and school. Build a church and connect it to the road. Merchant houses need bricks as well: dig clay on an island with clay deposits and fire it in a brickworks.",
+    "objectives": [
+      { "kind": "tier_unlocked", "tier": "merchants" },
+      { "kind": "connected", "type": "church" }
+    ],
+    "rewards": { "gold": 150 },
+    "prerequisites": ["citizens_cheese"]
+  },
+  {
+    "id": "merchants_house",
+    "title": "The first merchants",
+    "text": "Upgrade a full citizen house whose needs are all met into a merchant house. Its walls need bricks.",
+    "objectives": [
+      { "kind": "building_count", "type": "house_merchants", "min": 1 }
+    ],
+    "rewards": { "gold": 100 },
+    "prerequisites": ["merchants_church"]
+  },
+  {
+    "id": "merchants_food",
+    "title": "Sausages and pies",
+    "text": "Merchants eat sausages or pies, and both together feed them best. Have a butcher and a pastry kitchen at work, both connected to the Trading Post.",
+    "objectives": [
+      { "kind": "connected", "type": "butcher" },
+      { "kind": "connected", "type": "pastry_kitchen" }
+    ],
+    "rewards": { "gold": 150 },
+    "prerequisites": ["merchants_house"]
+  },
+  {
+    "id": "merchants_drink",
+    "title": "Beer and brandy",
+    "text": "Merchants drink beer or brandy, and both together please them best. Have a brewery and a distillery at work, both connected to the Trading Post.",
+    "objectives": [
+      { "kind": "connected", "type": "brewery" },
+      { "kind": "connected", "type": "distillery" }
+    ],
+    "rewards": { "gold": 150 },
+    "prerequisites": ["merchants_food"]
+  },
+  {
+    "id": "merchants_brig",
+    "title": "A brig for the routes",
+    "text": "A brig carries four loads where a sloop carries two. Order a brig at the shipyard.",
+    "objectives": [
+      { "kind": "ship_count", "min": 3 }
+    ],
+    "rewards": { "gold": 150 },
+    "prerequisites": ["merchants_drink"]
+  },
+  {
+    "id": "merchants_bricks",
+    "title": "Bricks for the theatre",
+    "text": "A theatre needs thirty bricks. Store thirty bricks in a Trading Post.",
+    "objectives": [
+      { "kind": "stock", "good": "bricks", "min": 30 }
+    ],
+    "rewards": { "gold": 200 },
+    "prerequisites": ["merchants_brig"]
   }
 ]
