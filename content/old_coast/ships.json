@@ -9,7 +9,8 @@
     "speed": 1.0,
     "build_seconds": 120,
     "cost": { "gold": 100, "planks": 20, "sails": 10 },
-    "upkeep_per_min": 1
+    "upkeep_per_min": 1,
+    "length_tiles": 2
   },
   {
     "id": "brig",
@@ -21,7 +22,8 @@
     "speed": 1.0,
     "build_seconds": 300,
     "cost": { "gold": 1500, "planks": 60, "sails": 20, "tools": 10 },
-    "upkeep_per_min": 4
+    "upkeep_per_min": 4,
+    "length_tiles": 2.6
   },
   {
     "id": "galleon",
@@ -33,6 +35,7 @@
     "speed": 1.0,
     "build_seconds": 600,
     "cost": { "gold": 6000, "planks": 120, "sails": 40, "tools": 30 },
-    "upkeep_per_min": 8
+    "upkeep_per_min": 8,
+    "length_tiles": 3.2
   }
 ]

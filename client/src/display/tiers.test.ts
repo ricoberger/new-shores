@@ -18,7 +18,7 @@ const content = {
   buildings: [
     { id: "house_settlers", name: "Settler house", tier: "settlers", house: { tier: "settlers" } },
     { id: "house_citizens", name: "Citizen house", tier: "citizens", house: { tier: "citizens" } },
-    { id: "market_small", name: "Small market", tier: "settlers" },
+    { id: "market", name: "Small market", tier: "settlers" },
     { id: "chapel", name: "Chapel", tier: "settlers" },
     { id: "wheat_farm", name: "Wheat farm", tier: "citizens", work_area: { radius: 4, terrain: ["grass"], required_tiles: 24, fertility: "wheat" } },
   ],
@@ -36,7 +36,7 @@ describe("tiers", () => {
           id: "citizens",
           unlocked: false,
           population: { settlers: { have: 88_000, need: 120_000 } },
-          buildings: { market_small: true, chapel: false },
+          buildings: { market: true, chapel: false },
         },
       ],
       islands: [],

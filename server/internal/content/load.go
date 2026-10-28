@@ -344,6 +344,8 @@ type rawBuilding struct {
 		Ships []string `json:"ships"`
 	} `json:"shipyard"`
 	RequiresDeposit string `json:"requires_deposit"`
+	Smoke           bool   `json:"smoke"`
+	Boat            bool   `json:"boat"`
 }
 
 type rawShip struct {
@@ -357,6 +359,7 @@ type rawShip struct {
 	BuildSeconds json.Number            `json:"build_seconds"`
 	Cost         map[string]json.Number `json:"cost"`
 	Upkeep       json.Number            `json:"upkeep_per_min"`
+	LengthTiles  json.Number            `json:"length_tiles"`
 }
 
 type rawNeedCategory struct {
@@ -656,6 +659,9 @@ func decode(raw map[string][]byte) (*Catalogue, error) {
 			UpkeepPerMin:  col.fixed(FileShips, ent, "upkeep_per_min", rs.Upkeep, 3),
 			Cost:          decodeCost(col, FileShips, ent, rs.Cost, cat.GoodByID),
 		}
+		if rs.LengthTiles != "" {
+			sh.LengthMilliTiles = col.fixed(FileShips, ent, "length_tiles", rs.LengthTiles, 3)
+		}
 		cat.Ships = append(cat.Ships, sh)
 		cat.ShipByID[sh.ID] = sh
 	}
@@ -729,6 +735,8 @@ func decodeBuilding(col *collector, ent string, rb rawBuilding, goods map[string
 		House:         rb.House,
 
 		RequiresDeposit: rb.RequiresDeposit,
+		Smoke:           rb.Smoke,
+		Boat:            rb.Boat,
 	}
 	if len(rb.Footprint) == 2 {
 		b.Width, b.Height = rb.Footprint[0], rb.Footprint[1]

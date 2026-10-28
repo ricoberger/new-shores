@@ -35,7 +35,7 @@ const defs = new Map<string, ContentBuilding>(
     ["house_settlers", 2, 2, "houses"],
     ["sawmill", 2, 2, "production"],
     ["temple", 2, 2, "public"],
-    ["market_small", 3, 3, "public"],
+    ["market", 3, 3, "public"],
   ].map(([id, w, h, category]) => [id as string, { id, width: w, height: h, category } as unknown as ContentBuilding]),
 );
 
@@ -169,7 +169,7 @@ describe("BuildingLayer with models", () => {
     layer.update([b(1, "house_settlers", 0)], defs);
     await loaded(reg);
     layer.refresh();
-    layer.update([b(1, "house_settlers", 0), b(2, "house_settlers", 4), b(3, "market_small", 8)], defs);
+    layer.update([b(1, "house_settlers", 0), b(2, "house_settlers", 4), b(3, "market", 8)], defs);
     await loaded(reg);
     layer.refresh();
     // The first frame requests the stage models; once loaded the stages run from the building's start.

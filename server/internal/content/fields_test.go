@@ -244,6 +244,8 @@ func TestShippedFields(t *testing.T) {
 		// D-056 tier-2 alternatives: pasture modules (CONTENT §7).
 		"dairy_farm": {"cattle_pasture", "citizens", "", 5, 4, 7, 30_000, 5}, "pig_farm": {"pig_pen", "citizens", "", 5, 3, 4, 20_000, 5},
 		"apiary": {"meadow", "citizens", "", 100, 1, 1, 1_000, 0},
+		// Tier 3 (D-056 C3): max = required.
+		"hop_farm": {"hop_field", "merchants", "hops", 60, 1, 1, 3_000, 0}, "woad_farm": {"woad_field", "merchants", "woad", 100, 1, 1, 1_000, 0},
 	}
 	farms := 0
 	for _, b := range c.Buildings {

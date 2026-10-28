@@ -1402,7 +1402,7 @@ components:
       description: |
         Upgrade a building (D-056): a full house to the next tier's house
         (as `upgrade_house`); a Trading Post, Warehouse or public building
-        with service levels (`market_small`) to its next level — the
+        with service levels (`market`) to its next level — the
         level's `cost` is charged like a placement and a level with a
         `tier` needs that tier unlocked (`tier_locked`).
         `upgrade_unavailable` for a building without a next level.
@@ -3053,6 +3053,13 @@ components:
           type: integer
           format: int64
           description: Speed factor (permille; 1000 = reference speed).
+        length_milli_tiles:
+          type: integer
+          format: int64
+          description: |
+            Hull length in milli-tiles (display only): the client draws the
+            ship and spaces the Trading Post's berths by it. Absent: the
+            reference length (2 000, the sloop).
         build_ms:
           type: integer
           format: int64
@@ -3516,6 +3523,17 @@ components:
           description: |
             Deposit kind the footprint must cover (absent for none); such a
             building may also stand on mountain tiles.
+        smoke:
+          type: boolean
+          description: |
+            The producer burns or cooks (display only): its model has chimney
+            and smoke anchors and the life layer draws smoke. Absent is false.
+        boat:
+          type: boolean
+          description: |
+            The water-edge producer works with a boat (the fisher; display
+            only): the life layer rows it out from the model's boat anchor.
+            Absent is false.
         fields:
           type: object
           additionalProperties: false

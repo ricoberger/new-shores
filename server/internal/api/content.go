@@ -81,6 +81,9 @@ type shipJSONOut struct {
 	BuildMs       int64    `json:"build_ms"`
 	Cost          costJSON `json:"cost"`
 	UpkeepPerMin  int64    `json:"upkeep_per_min"`
+	// LengthMilliTiles is the hull length (display only); absent when the
+	// content gives none.
+	LengthMilliTiles int64 `json:"length_milli_tiles,omitempty"`
 }
 
 type shipyardJSONOut struct {
@@ -259,6 +262,10 @@ type buildingJSON struct {
 	Field         *fieldJSON       `json:"field,omitempty"`
 	// RequiresDeposit is the deposit kind the footprint must cover.
 	RequiresDeposit string `json:"requires_deposit,omitempty"`
+	// Smoke marks a producer that burns or cooks (display only).
+	Smoke bool `json:"smoke,omitempty"`
+	// Boat marks a water-edge producer with a boat (display only).
+	Boat bool `json:"boat,omitempty"`
 }
 
 type needGoodJSON struct {
@@ -362,7 +369,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 	}
 	for _, sh := range c.Ships {
 		sj := shipJSONOut{
-			ID: sh.ID, Name: sh.Name, Tier: sh.Tier, Slots: sh.Slots, SlotSize: sh.SlotSize, SpeedPermille: sh.SpeedPermille,
+			ID: sh.ID, Name: sh.Name, Tier: sh.Tier, Slots: sh.Slots, SlotSize: sh.SlotSize, SpeedPermille: sh.SpeedPermille, LengthMilliTiles: sh.LengthMilliTiles,
 			BuildMs: sh.BuildMs, Cost: costJSON{Gold: sh.Cost.Gold, Materials: map[string]int64{}}, UpkeepPerMin: sh.UpkeepPerMin,
 		}
 		for _, m := range sh.Cost.Materials {
@@ -410,7 +417,7 @@ func newBuildingJSON(b *content.Building) buildingJSON {
 		ID: b.ID, Name: b.Name, Tier: b.Tier, Category: buildingCategory(b),
 		Width: b.Width, Height: b.Height, Coastal: b.Coastal, WaterTiles: b.WaterTiles, RequiresRoad: b.RequiresRoad,
 		Cost:         newCostJSON(b.Cost),
-		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit,
+		UpkeepPerMin: b.UpkeepPerMin, PauseCategory: b.PauseCategory, RequiresDeposit: b.RequiresDeposit, Smoke: b.Smoke, Boat: b.Boat,
 	}
 	if r := b.Recipe; r != nil {
 		ins := make([]recipeInputJSON, 0, len(r.Inputs))

@@ -30,7 +30,7 @@ import { buildingAt, lPath, missingDepositHint, missingRoadHint, type TilePos, t
 import { detailForLod, initialLod, type Lod, lodFor } from "../display/lod";
 import type { LifeStats } from "../display/life";
 import { type Quality, softwareRenderer } from "../display/quality";
-import { type ArchPoint, dockPoints, seaPoint } from "../display/ships";
+import { type ArchPoint, dockPoints, seaPoint, shipLengthRatio } from "../display/ships";
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
@@ -893,11 +893,14 @@ export class GameRenderer {
 
   // Data ----------------------------------------------------------------------
 
+  /** Hull length of each ship type relative to the reference ship (content). */
+  private shipLengths: ReadonlyMap<string, number> = new Map();
   /** The docks were laid with the model manifest (the berth anchors) at hand. */
   private docksAnchored = false;
 
   /** Pier and queue points of the ships at the Trading Posts (the berth anchors of the loaded models, else the front row). */
-  private docks(d: { islands: readonly IslandDisplay[] }) {
+  private docks(d: { islands: readonly IslandDisplay[]; ships: readonly { id: number; type: string }[] }) {
+    const types = new Map(d.ships.map((s) => [s.id, s.type]));
     return dockPoints(
       d.islands,
       this.defs,
@@ -906,6 +909,7 @@ export class GameRenderer {
         return entry ? buildingAnchor(entry, def, b, name) : null;
       },
       DOCK_STERN,
+      (id) => this.shipLengths.get(types.get(id) ?? "") ?? 1,
     );
   }
 
@@ -913,6 +917,8 @@ export class GameRenderer {
     if (snap.content !== this.lastContent && snap.content) {
       this.lastContent = snap.content;
       this.defs = new Map(snap.content.buildings.map((b) => [b.id, b]));
+      this.shipLengths = new Map(snap.content.ships.map((s) => [s.id, shipLengthRatio(s)]));
+      this.arch.setShipLengths(this.shipLengths);
       // The zoom-out cap of the region (an older server sends none: no cap).
       this.rig.setZoomCap((snap.content.region.camera as { max_half_extent?: number } | undefined)?.max_half_extent ?? null);
       this.lastServer = null; // rebuild with the new definitions

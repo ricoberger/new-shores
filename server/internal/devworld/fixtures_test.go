@@ -49,7 +49,7 @@ func TestFixtures(t *testing.T) {
 				if count(w, home, "trading_post") != 1 || len(w.Ships) != 1 || w.Ships[0].IslandID != home || w.Ships[0].State != sim.ShipIdle || len(w.Ships[0].Cargo) != 0 {
 					t.Errorf("default: home island not founded from the start ship: ships %+v", w.Ships)
 				}
-			case FixtureTown, FixtureSettled, FixtureCitizens:
+			case FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants:
 				for typ, n := range map[string]int{"lumberjack": 1, "sawmill": 1, "house_settlers": 4, "sheep_farm": 1, "pasture": 3} {
 					if got := count(w, home, typ); got != n {
 						t.Errorf("%s: %d %s, want %d", home, got, typ, n)
@@ -88,6 +88,9 @@ func TestFixtures(t *testing.T) {
 			}
 			if name == FixtureCitizens {
 				checkCitizens(t, c, w)
+			}
+			if name == FixtureMerchants {
+				checkMerchants(t, c, w)
 			}
 			if name == FixtureTown {
 				// settle's additions on top of town.
@@ -151,6 +154,77 @@ func checkCitizens(t *testing.T, c *content.Catalogue, w *sim.World) {
 	}
 }
 
+// checkMerchants: the merchants fixture's home town (tiers, services up
+// to the church, market level 2, Merchant houses, tier-3 workshops) and
+// the clay island founded by the brig, which sails "Bricks home".
+func checkMerchants(t *testing.T, c *content.Catalogue, w *sim.World) {
+	t.Helper()
+	if !sim.TierUnlocked(w, c, citizensTier) || !sim.TierUnlocked(w, c, merchantsTier) {
+		t.Fatal("citizens or merchants not unlocked")
+	}
+	home := w.Islands[0].ID
+	n := map[string]map[string]int{}
+	var market *sim.Building
+	for _, is := range w.Islands {
+		for _, b := range is.Buildings {
+			if n[is.ID] == nil {
+				n[is.ID] = map[string]int{}
+			}
+			n[is.ID][b.Type]++
+			if b.Type == "market" {
+				market = b
+			}
+			if b.Type == merchantsHouse && (b.House == nil || b.House.Residents < c.TierByID[merchantsTier].ResidentsFloor) {
+				t.Errorf("merchant house %d residents %+v", b.ID, b.House)
+			}
+		}
+	}
+	for typ, want := range map[string]int{"market": 1, "chapel": 1, "tavern": 1, "school": 1, "church": 1, merchantsHouse: 4, "butcher": 1, "pastry_kitchen": 1, "shipyard": 1} {
+		if n[home][typ] != want {
+			t.Errorf("%s: %d %s, want %d", home, n[home][typ], typ, want)
+		}
+	}
+	if market == nil || market.Level != 2 {
+		t.Errorf("market %+v, want level 2", market)
+	}
+	f := &fixture{c: c, w: w}
+	clay := f.nearestWithDeposit(home, merchantsDeposit)
+	if clay == "" || n[clay]["trading_post"] != 1 || n[clay]["clay_pit"] != 1 || n[clay]["brickworks"] != 1 {
+		t.Errorf("clay island %q: %v", clay, n[clay])
+	}
+	if len(w.Ships) != 2 || w.Ships[1].Type != merchantsShip || w.Ships[1].RouteID == 0 || len(w.Routes) != 1 || w.Routes[0].Name != "Bricks home" {
+		t.Errorf("ships %+v routes %+v", w.Ships, w.Routes)
+	}
+}
+
+// TestMerchantsFixtureNeedsClay: without a clay deposit in the
+// archipelago the merchants fixture is ErrFixtureSeed (HTTP 400 at the
+// dev reset) naming the fixture, the deposit, the seed and DevSeed.
+func TestMerchantsFixtureNeedsClay(t *testing.T) {
+	c := catalogue(t)
+	w, err := NewFixture(c, FixtureTown, DevSeed, start)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, is := range w.Islands {
+		for i := range is.Tiles {
+			if d := is.Tiles[i].Deposit; d != nil && d.Kind == merchantsDeposit {
+				is.Tiles[i].Deposit = nil
+			}
+		}
+	}
+	f := &fixture{c: c, w: w}
+	merchants(f)
+	if !errors.Is(f.err, ErrFixtureSeed) {
+		t.Fatalf("err = %v, want ErrFixtureSeed", f.err)
+	}
+	for _, want := range []string{"merchants", "clay", fmt.Sprintf("seed %d", DevSeed), fmt.Sprint(DevSeed)} {
+		if !strings.Contains(f.err.Error(), want) {
+			t.Errorf("error %q does not mention %q", f.err, want)
+		}
+	}
+}
+
 // TestFixturesOtherSeeds: the settled fixture (every layout step) builds
 // on other archipelagos as well, and so does the citizens fixture where
 // the home island has the wheat fertility (seed 3's has not: an error).
@@ -159,6 +233,11 @@ func TestFixturesOtherSeeds(t *testing.T) {
 	for _, seed := range []uint64{1, 2, 3, 42, 4711} {
 		if _, err := NewFixture(c, FixtureSettled, seed, start); err != nil {
 			t.Errorf("settled, seed %d: %v", seed, err)
+		}
+		if w, err := NewFixture(c, FixtureMerchants, seed, start); err != nil {
+			t.Errorf("merchants, seed %d: %v", seed, err)
+		} else {
+			checkMerchants(t, c, w)
 		}
 		w, err := NewFixture(c, FixtureCitizens, seed, start)
 		switch {

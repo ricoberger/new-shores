@@ -1,6 +1,6 @@
 {
   "$schema": "./schema.json",
-  "id": "market_small",
+  "id": "market",
   "kind": "building",
   "notes": "Market (5×6, D-054), three levels on a shared paved square. Level 1: the KayKit market hall with blue awnings at the back; in front a KayKit well, two awning stalls, crates, barrels and sacks, a bench by the road. Level 2: the KayKit hall gives way to a roofed timber hall over the centre of the square (open sides on six posts with braces, a hipped tiled terracotta roof with a lantern, goods tables and crates under it) ringed by eight awning stalls in two colours, blue as level 1 and ochre, the well and the bench by the road. Level 3: a stone market hall at the back (an arcade of stone piers, a plastered upper floor with windows and dormers, a hipped terracotta roof and a flag) with coloured awnings over goods tables in front of the arches, a small open roofed hall with goods tables in front on the right, awning stalls and the well.",
   "parts": [

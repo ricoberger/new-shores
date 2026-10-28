@@ -266,7 +266,7 @@ LITE_FACTOR = 0.25
 #: log the sum for the dense fixture's building mix against it.
 ISLAND_BUDGET_NEAR = 700_000
 #: Buildings that may declare a budget_exception (BUDGET_EXCEPTION_FACTOR).
-EXCEPTION_ALLOWED = ("trading_post", "warehouse", "shipyard", "chapel", "market_small")
+EXCEPTION_ALLOWED = ("trading_post", "warehouse", "shipyard", "chapel", "market")
 
 #: Footprint fit tolerance (tiles) and ship length tolerance.
 FOOTPRINT_TOLERANCE = 0.3
@@ -284,9 +284,9 @@ COLOR_TOLERANCE = 1.0 / 255.0
 #: Default status anchor height above the model (tiles).
 STATUS_ABOVE = 0.25
 
-#: Content IDs that need a model: tier 1–2 buildings except roads (fields
+#: Content IDs that need a model: tier 1–3 buildings except roads (fields
 #: included) and these ships (D-056 ship ladder); planned IDs always do.
-MODEL_TIERS = ("settlers", "citizens")
+MODEL_TIERS = ("settlers", "citizens", "merchants")
 MODEL_SHIPS = ("sloop", "brig", "galleon")
 
 #: Blender version the determinism guarantee holds for.

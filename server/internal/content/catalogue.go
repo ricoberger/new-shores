@@ -278,6 +278,13 @@ type Building struct {
 	// RequiresDeposit is the deposit kind at least one footprint tile must
 	// carry ("" for none). Such a building may also stand on mountain tiles.
 	RequiresDeposit string
+
+	// Smoke marks a producer that burns or cooks (display only: its model
+	// has chimney and smoke anchors and the life layer draws smoke).
+	Smoke bool
+	// Boat marks a water-edge producer that works with a boat (the
+	// fisher; display only: the life layer's boat loop).
+	Boat bool
 }
 
 // Shipyard marks a building that orders ships (one at a time) of the listed
@@ -298,6 +305,9 @@ type Ship struct {
 	SlotSize Qty
 	// SpeedPermille is the speed factor in per-mille (1000 = reference).
 	SpeedPermille int64
+	// LengthMilliTiles is the hull length in milli-tiles (display only:
+	// ship size and berth spacing); 0 when the content gives none.
+	LengthMilliTiles int64
 	// BuildMs is the shipyard build time.
 	BuildMs int64
 	// Cost is deducted at order time (gold from the world, materials from
@@ -467,7 +477,7 @@ type Road struct {
 }
 
 // Service marks a public building with a service radius (building needs).
-// Levels raise the radius (D-056: market_small 12 / 16 / 20); a service
+// Levels raise the radius (D-056: market 12 / 16 / 20); a service
 // without levels has one.
 type Service struct {
 	Levels []ServiceLevel

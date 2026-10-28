@@ -12,7 +12,7 @@
       "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
       "name": { "type": "string", "minLength": 1 },
       "type": {
-        "enum": ["raw", "construction", "intermediate", "food", "clothing", "drink", "luxury"]
+        "enum": ["raw", "construction", "intermediate", "food", "clothing", "drink", "comfort", "luxury"]
       }
     }
   }

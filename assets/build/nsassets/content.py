@@ -154,13 +154,12 @@ def is_producer(content, cid):
 def needs_smoke(content, cid):
     """
     Whether a building's model needs chimney and smoke anchors for the life
-    layer's smoke: every content producer; a planned one only with smoke
-    true (producers that burn or cook).
+    layer's smoke: a producer whose definition says `smoke: true` (it burns
+    or cooks; content buildings.json, else the planned entry).
     """
     if not is_producer(content, cid):
         return False
-    b = content["buildings"][cid]
-    return bool(b["smoke"]) if b.get("planned") else True
+    return bool(content["buildings"][cid].get("smoke", False))
 
 
 def life_anchors(content, cid):
@@ -207,7 +206,7 @@ def levels(content, cid):
     """
     Number of model levels of a building (0: one model): a Trading Post's or
     Warehouse's levels, a `levels` list of the building or of its service
-    block (market_small, D-056 §3; the content format is S1's), else a
+    block (market, D-056 §3; the content format is S1's), else a
     planned levels count.
     """
     b = content["buildings"].get(cid, {})
@@ -220,7 +219,7 @@ def levels(content, cid):
 
 def required_ids(content):
     """
-    Every ID that needs a model: tier 1–2 buildings except roads (fields
+    Every ID that needs a model: tier 1–3 buildings except roads (fields
     included), the listed ships and every planned building and ship.
     """
     ids = [

@@ -32,7 +32,7 @@ games tune the tax).
 
 | Unlocks | Requires |
 |---|---|
-| Citizens | 120 Settlers, `market_small`, `chapel` |
+| Citizens | 120 Settlers, `market`, `chapel` |
 | Merchants | 360 Citizens, `tavern` (D-056) |
 | Patricians | 1 200 Merchants, `church` (D-056) |
 | Islands | no tier gating — every island can be settled from the start (D-051) |
@@ -57,7 +57,7 @@ tier's **own** categories (weights relative within the tier).
 
 | Tier | Goods categories → acceptable goods | Building needs (radius) |
 |---|---|---|
-| Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | services 0.3: `market_small` 12, `chapel` 16 |
+| Settlers | food 0.5: **fish** 0.010 · clothing 0.2: **wool_garments** 0.005 | services 0.3: `market` 12, `chapel` 16 |
 | Citizens | food 0.2: bread 0.008 \| cheese 0.006 · drink 0.2: cider 0.006 \| mead 0.005 · clothing 0.2: linen_garments 0.005 \| leather_jerkins 0.004 | services 0.4: + `tavern` 14, `school` 16 |
 | Merchants | food 0.17: sausages 0.006 \| pies 0.005 · drink 0.17: beer 0.006 \| brandy 0.004 · clothing 0.17: coats 0.004 \| dyed_garments 0.004 · comfort 0.17: books 0.002 \| soap 0.003 | services 0.32: + `church` 20, `theatre` 24 |
 | Patricians | food 0.14: roast_beef 0.005 \| oysters 0.004 · drink 0.14: wine 0.004 \| grain_spirit 0.003 · clothing 0.14: fine_garments 0.003 \| lace 0.003 · comfort 0.14: candles 0.004 \| spectacles 0.002 · luxury 0.14: jewellery 0.001 \| instruments 0.001 | services 0.3: + `university` 24, `cathedral` 28 |
@@ -114,7 +114,7 @@ provisional.
 | wool_garments | `sheep_farm` (grass → wool, 90 s) [4 S], `weaver_wool` (wool → wool_garments, 90 s) [6 S] | 1 : 1 |
 
 Infrastructure: `trading_post` lvl 1 (founding), `warehouse` lvl 1,
-`road_dirt`, `market_small` lvl 1, `chapel`, `house_settlers`. The start
+`road_dirt`, `market` lvl 1, `chapel`, `house_settlers`. The start
 ship is a sloop; the shipyard unlocks at tier 2 (D-056).
 
 ### Tier 2 — Citizens
@@ -137,7 +137,7 @@ bootstrap rule (MECHANICS §4): the first Citizen house costs stone, so stone
 must be producible before any Citizen exists. Likewise bricks (tier 3) are
 made by Citizens and glass (tier 4) by Citizens.
 
-### Tier 3 — Merchants
+### Tier 3 — Merchants (implemented, content `old_coast-0.12.0`)
 
 | Category | Good | Chain | Ratio |
 |---|---|---|---|
@@ -156,11 +156,12 @@ made by Citizens and glass (tier 4) by Citizens.
 One recipe per building (D-041): `leather_works` is a separate building from
 `tannery` rather than a second recipe.
 
-Infrastructure: `trading_post` lvl 3, `market_small` lvl 2, `church`,
+Infrastructure: `trading_post` lvl 3, `market` lvl 2, `church`,
 `theatre`, `brig` (4 slots), `house_merchants`;
 `harbourmaster_office` (world map, expeditions, contracts) is an ONLINE
-feature, not a tier gate. Variety reserve (D-056): fur_coats (`trapper`,
-`furrier`), tableware (`potter`; `clay_pit` stays for bricks).
+feature, not a tier gate, and not authored yet. Variety reserve
+(D-056): fur_coats (`trapper`, `furrier`), tableware (`potter`;
+`clay_pit` stays for bricks).
 
 ### Tier 4 — Patricians
 
@@ -182,7 +183,7 @@ feature, not a tier gate. Variety reserve (D-056): fur_coats (`trapper`,
 (§11). Variety reserve (D-056): confectionery (`confectioner`), paintings
 (`mineral_quarry`, `studio`).
 
-Infrastructure: `trading_post` lvl 4, `market_small` lvl 3, `university`,
+Infrastructure: `trading_post` lvl 4, `market` lvl 3, `university`,
 `cathedral`, `galleon` (6 slots), `house_patricians`.
 
 ## 6. Catalogue totals
@@ -201,9 +202,10 @@ fills the house (D-056).
 
 ## 7. Buildings — reference table (D-054)
 
-**Status:** tiers 1–2 (the shipped set, content `old_coast-0.10.0`,
-PR #27/#28) are implemented exactly as listed; tiers 3–4 and the
-reserved tier-2 alternatives are the target for the content-depth tasks.
+**Status:** tiers 1–3 (the shipped set, content `old_coast-0.12.0`;
+tiers 1–2 since PR #27/#28, tier 3 since D-056 C3) are implemented
+exactly as listed, except the `(reserve)` rows and `harbourmaster_office`
+(an ONLINE feature); tier 4 is the target for the content-depth tasks.
 The pre-D-054 numbers survive only in `server/testdata/content/
 old_coast_pre_d054` for the hand-made scenarios and mechanics tests.
 
@@ -236,7 +238,7 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `road_dirt` | 1 | 1×1 | road | see text | 0 | — |  |
 | `trading_post` | 1 | 6×9, 3 water rows | Trading Pier 6×9 | see text | 0 | — | founding only; levels as below |
 | `warehouse` | 1 | 6×6 | Warehouse 6×6 | 50 / 6 | 0 | — | collector; radius and throughput per level |
-| `market_small` | 1 | 5×6 | Market | 250 / 15 | 0 | — | R, display "Market"; levels: lvl 1 radius 12; lvl 2 (tier 3) radius 16, 1000 gold / 15 planks / 30 stone; lvl 3 (tier 4) radius 20, 5000 gold / 15 planks / 45 stone / 15 bricks (D-056) |
+| `market` | 1 | 5×6 | Market | 250 / 15 | 0 | — | R (was `market_small` until D-056 C3; that ID is retired); levels: lvl 1 radius 12; lvl 2 (tier 3) radius 16, 1000 gold / 15 planks / 30 stone; lvl 3 (tier 4) radius 20, 5000 gold / 15 planks / 45 stone / 15 bricks (D-056) |
 | `chapel` | 1 | 3×3 | Shrine 3×3 | 100 / 6 | 0 | — | R, radius 16; the 6×10 church is tier 3 |
 | `lumberjack` | 1 | 3×3 | Woodcutter | 60 / 6 | 1 | 4 S | R, work radius 4 forest |
 | `sawmill` | 1 | 4×6 | Sawmill | 120 / 9 | 2 | 4 S | R |
@@ -357,8 +359,11 @@ its size with throughput (D-054); a reach rule would be a new decision.
 the founding stock (planks and sails fit its two slots, D-051).
 
 Ships live in `ships.json` (`{ id, name, tier, slots, slot_size, speed,
-build_seconds, cost, upkeep_per_min }`, schema under `content/schema/`);
-only `sloop` is authored so far. Ship positions and legs follow MECHANICS
+build_seconds, cost, upkeep_per_min, length_tiles? }`, schema under
+`content/schema/`); all three are authored. `length_tiles` is the hull
+length at model scale (sloop 2, brig 2.6, galleon 3.2; absent: 2), display
+only: the client draws each ship and spaces the Trading Post berths by it
+(MECHANICS §9.1). Ship positions and legs follow MECHANICS
 §9; the archipelago seed stores island positions in tile coordinates.
 
 ## 9. Islands (D-036, D-053)
@@ -470,11 +475,13 @@ it carries:
 | `service` | `radius` | public buildings |
 | `work_area` | `radius`, `fertility?` (island-wide tag the island must carry, else `no_fertility`); harvesters also `terrain[]`, `required_tiles` | farms (radius only), lumberjack, gatherers |
 | `fields` | `type` (a field building's `field.type`), `required`, `max` | farms (D-051 part 4) |
-| `field` | `type`, `farm` (the one farm type that owns it), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires exactly one farm whose `fields.type` matches | pasture, wheat_field, orchard_plot, hemp_field (reserved: pig_pen, meadow, cattle_pasture; later hop/woad/vineyard) |
+| `field` | `type`, `farm` (the one farm type that owns it), `terrain[]`, `fertility?` — 1×1 (crops) or a pasture module (`pasture` 3×3, `pig_pen` 3×4, `cattle_pasture` 4×7), small gold cost, no upkeep, `pause_category: never`, `requires_road: false`; validation requires exactly one farm whose `fields.type` matches | pasture, wheat_field, orchard_plot, hemp_field, pig_pen, meadow, cattle_pasture, hop_field, woad_field (later vine_row) |
 | `workforce` | `tier`, `amount` | producers only (D-035) |
 | `requires_deposit` | deposit type; the footprint must cover ≥ 1 tile with that deposit (`no_deposit`) and may cover mountain tiles | mines, quarries |
 | `slot` | typed deposit/harbour slots (D-036) — not yet implemented; `requires_deposit` is the interim rule | — |
 | `shipyard` | `ships[]` (ship IDs it can build) | shipyard |
+| `smoke` | boolean, absent false — display only: the model carries chimney/smoke anchors and the client draws smoke | producers whose model has a chimney: every shipped producer except hop_farm, woad_farm, leather_works, tailor, printing_press, clay_pit, salt_pans, salt_mine and coal_mine |
+| `boat` | boolean, absent false — display only: the client rows a boat out from the model's boat anchor and back; needs `water_tiles` | water-edge producers (fisher) |
 
 ```json
 {
@@ -498,7 +505,8 @@ it carries:
 
 `pause_category` ∈ `need_goods`, `public`, `intermediate`, `food_basic`,
 `never` drives the insolvency order (MECHANICS §7). Buildings accepting
-`charcoal` will list `"accepts": ["charcoal", "coal"]` on the input (tier 3).
+`charcoal` or `coal` list both as the input's good, `{ "good": ["charcoal",
+"coal"], "amount": 1 }` (tier 3: distillery, salt_works, brickworks).
 
 ### tiers.json and goods.json
 
@@ -573,7 +581,8 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
   Current staffing satisfies it: stone and tools [S] for Citizens, bricks
   [C] for Merchants, glass (quartz_quarry, glass_smelter) [C] for
   Patricians. Checked by a generic content test over every tier with a
-  house and by the goldens `bootstrap_settlers` and `bootstrap_citizens`
+  house and by the goldens `bootstrap_settlers`, `bootstrap_citizens`
+  and `bootstrap_merchants` (tier 3, below)
   (the tier 1–2 reference game from the starting stock: island 2 settled
   at 52 min by the start sloop, Citizens unlocked by 30 min, the first
   Citizen house at 88 min, tools from island 2 on the home island by
@@ -591,7 +600,13 @@ carried lower-tier category. See MECHANICS §6.2 for the semantics.
   category ≥ 0.6 ≤ 420; Patricians unlocked (1 200 Merchants + church)
   ≤ 900, first Patrician house ≤ 960, every Patrician category ≥ 0.6
   ≤ 1 800. Goldens `bootstrap_merchants` / `bootstrap_patricians` once
-  the tiers exist. With D-056 the tier-1/2 game runs its categories at
+  the tiers exist. `bootstrap_merchants` (D-056 C3) continues
+  `bootstrap_citizens` step for step (so the tier-1/2 times above are
+  unchanged) and holds the Merchant targets at 225 / 235 / 283 (the
+  last found on a ten-wait scan) with the build order alone; its home
+  island then uses 3 102 of 16 387 buildable tiles (19 %) for 144
+  Settlers, 285 Citizens and 75 Merchants.
+  With D-056 the tier-1/2 game runs its categories at
   0.6 until the second alternatives are built; the §12 tier-1/2 targets
   stay and hold (see Bootstrap above). Two notes from S1: "Citizens
   unlocked" is gated by the chapel being placed (both games pass 120

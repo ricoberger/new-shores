@@ -233,9 +233,9 @@ interface Gull {
   flap: number;
 }
 
-/** Whether a building is a fisher: a water-edge producer (not a Trading Post). */
-function isFisher(def: ContentBuilding | undefined): boolean {
-  return !!def && !!def.water_tiles && !!def.recipe && !def.trading_post;
+/** Whether a building rows a boat (content `boat`: the fisher; not salt pans, whose barge stays moored). */
+function hasBoat(def: ContentBuilding | undefined): boolean {
+  return !!def?.boat;
 }
 
 /**
@@ -386,15 +386,15 @@ export class IslandLife implements LifePlan {
     const coast: { x: number; y: number }[] = [];
     for (const b of display.buildings) {
       const def = defs.get(b.type);
-      if (!def || !(isFisher(def) || def.trading_post)) continue;
-      const boat = isFisher(def) ? this.smokeAnchor?.(b, def, "boat") : null;
+      if (!def || !(hasBoat(def) || def.trading_post)) continue;
+      const boat = hasBoat(def) ? this.smokeAnchor?.(b, def, "boat") : null;
       const moor = boat ?? pierPoint(def, b, 0, false);
       if (!moor) continue;
       const h = pierHeading(b.rotation);
       const ox = Math.cos(h);
       const oy = Math.sin(h);
       coast.push({ x: moor.x, y: moor.y });
-      if (isFisher(def) && b.status === "ok") {
+      if (hasBoat(def) && b.status === "ok") {
         this.boats.push({ cx: moor.x + ox * BOAT_OUT, cy: moor.y + oy * BOAT_OUT, ax: -oy, ay: ox, ox, oy, seed: hash01(b.id, "boat") });
       }
       // Crates on the quay beside every ship handling at the pier: back from the mooring point toward land.

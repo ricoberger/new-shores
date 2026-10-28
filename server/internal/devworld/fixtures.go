@@ -41,34 +41,44 @@ import (
 //     fields fit in one drag, with the gold and materials for them (the
 //     field painting shots). A seed whose home island lacks the wheat
 //     fertility is an error (DevSeed has it).
+//   - merchants: town plus the citizens and merchants tiers (granted),
+//     the services ladder up to the church with the market at level 2,
+//     four Merchant houses (seeded: houses of a later tier only appear by
+//     upgrading), a butcher, a pastry kitchen and a shipyard with a brig;
+//     the brig founds the nearest island with a clay deposit (Trading
+//     Post, street, clay pit on the slot, brickworks) and sails the route
+//     "Bricks home". A seed without a clay deposit is an error (every
+//     seed of the shipped content has one, DevSeed included).
 const (
 	FixtureDefault   = "default"
 	FixtureSeafaring = "seafaring"
 	FixtureTown      = "town"
 	FixtureSettled   = "settled"
 	FixtureCitizens  = "citizens"
+	FixtureMerchants = "merchants"
 )
 
 // ErrUnknownFixture reports a fixture name that NewFixture does not know.
 var ErrUnknownFixture = errors.New("unknown dev fixture")
 
 // ErrFixtureSeed reports a fixture that cannot be built on the seed's
-// archipelago (citizens: no wheat at home).
+// archipelago (citizens: no wheat at home; merchants: no clay deposit).
 var ErrFixtureSeed = errors.New("not available on this seed")
 
 // Fixtures lists the fixture names.
 func Fixtures() []string {
-	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens}
+	return []string{FixtureDefault, FixtureSeafaring, FixtureTown, FixtureSettled, FixtureCitizens, FixtureMerchants}
 }
 
 // History of the fixtures before now (world time): long enough for the
 // voyages from the spawn and between islands, the planks, the sloop and
 // the first fish the layouts need.
 const (
-	foundHistory    = 20 * time.Minute
-	townHistory     = foundHistory + 12*time.Minute
-	settledHistory  = townHistory + 60*time.Minute
-	citizensHistory = townHistory + 2*time.Minute
+	foundHistory     = 20 * time.Minute
+	townHistory      = foundHistory + 12*time.Minute
+	settledHistory   = townHistory + 60*time.Minute
+	citizensHistory  = townHistory + 2*time.Minute
+	merchantsHistory = townHistory + 60*time.Minute
 )
 
 // FixtureGold (milli-gold) is granted to the town and settled fixtures, so
@@ -101,6 +111,12 @@ func NewFixture(c *content.Catalogue, name string, seed uint64, now time.Time) (
 			foundHome(f)
 			town(f)
 			citizens(f)
+		})
+	case FixtureMerchants:
+		return replay(c, seed, now, merchantsHistory, func(f *fixture) {
+			foundHome(f)
+			town(f)
+			merchants(f)
 		})
 	}
 	return nil, fmt.Errorf("%w %q (known: %v)", ErrUnknownFixture, name, Fixtures())
@@ -301,6 +317,151 @@ func citizens(f *fixture) {
 	f.advance(time.Minute)
 }
 
+// The merchants fixture's tier, house, ship and deposit.
+const (
+	merchantsTier    = "merchants"
+	merchantsHouse   = "house_merchants"
+	merchantsShip    = "brig"
+	merchantsDeposit = "clay"
+	// merchantsGold (milli-gold) is granted on top of FixtureGold.
+	merchantsGold = 5_000_000
+)
+
+// merchants unlocks the citizens and merchants tiers (granted, like the
+// gold), builds the services up to the church and four seeded Merchant
+// houses on the home island, a butcher and a pastry kitchen, and a
+// shipyard whose brig founds the nearest island with a clay deposit and
+// then sails bricks home. Every charged placement gets its cost granted
+// first, and merchantsGold covers the larger upkeep (services, workshops,
+// the brig) for well over an hour.
+func merchants(f *fixture) {
+	if f.err != nil {
+		return
+	}
+	f.w.Gold += merchantsGold
+	for _, tier := range []string{citizensTier, merchantsTier} {
+		if !slices.Contains(f.w.UnlockedTiers, tier) {
+			f.w.UnlockedTiers = append(f.w.UnlockedTiers, tier)
+		}
+	}
+	home := f.home()
+	deposit := f.nearestWithDeposit(home, merchantsDeposit)
+	if deposit == "" {
+		f.err = fmt.Errorf("%w: the %s fixture needs an island with a %s deposit, but seed %d has none; use a seed with one (the dev seed %d has)",
+			ErrFixtureSeed, FixtureMerchants, merchantsDeposit, f.w.Seed, DevSeed)
+		return
+	}
+	market := f.placePaid(home, "market", f.streetEnd(home))
+	for _, typ := range []string{"chapel", "tavern", "school", "church"} {
+		f.placePaid(home, typ, f.streetEnd(home))
+	}
+	if f.err == nil {
+		f.grant(home, f.c.BuildingByID["market"].LevelCost(2))
+		f.apply(sim.UpgradeBuilding{IslandID: home, BuildingID: market})
+	}
+	f.seeded = true
+	for range 4 {
+		f.placeNear(home, merchantsHouse, f.streetEnd(home))
+	}
+	f.seeded = false
+	for _, typ := range []string{"butcher", "pastry_kitchen"} {
+		f.placePaid(home, typ, f.streetEnd(home))
+	}
+	yard := f.placePaid(home, "shipyard", f.streetEnd(home))
+	if f.err != nil {
+		return
+	}
+	brig := f.c.ShipByID[merchantsShip]
+	f.grant(home, &brig.Cost)
+	f.apply(sim.OrderShip{IslandID: home, BuildingID: yard, ShipType: merchantsShip})
+	f.advance(time.Duration(brig.BuildMs)*time.Millisecond + 10*time.Second)
+	if f.err == nil && (len(f.w.Ships) != 2 || f.w.Ships[1].Type != merchantsShip || f.w.Ships[1].State != sim.ShipIdle) {
+		f.err = errors.New("the brig is not idle after its build time")
+	}
+	if f.err != nil {
+		return
+	}
+	ship := f.w.Ships[1].ID
+	f.grant(home, &content.Cost{Materials: []content.GoodAmount{{Good: "planks", Amount: 60_000}}})
+	f.apply(sim.ManualShipment{ShipID: ship, ToIslandID: deposit, Cargo: []sim.CargoAmount{{Good: "planks", Amount: 60_000}}})
+	f.arrive(ship)
+	if f.err != nil {
+		return
+	}
+	site, ok := f.tradingPostSite(deposit)
+	if !ok {
+		f.err = fmt.Errorf("no trading post site on %s", deposit)
+		return
+	}
+	f.apply(sim.FoundIsland{ShipID: ship, IslandID: deposit, BuildingType: tradingPostType(f.c), X: site.X, Y: site.Y, Rotation: site.Rotation})
+	f.street(deposit, 8)
+	f.placePaid(deposit, "clay_pit", f.depositTile(deposit, merchantsDeposit))
+	f.placePaid(deposit, "brickworks", f.streetEnd(deposit))
+	f.advance(time.Minute)
+	f.apply(sim.CreateRoute{Name: "Bricks home", Stops: []sim.Stop{
+		{IslandID: deposit, Load: []sim.LoadRule{{Good: "bricks", MaxAmount: 50_000}}},
+		{IslandID: home, Unload: []string{"bricks"}},
+	}})
+	if f.err != nil {
+		return
+	}
+	f.apply(sim.AssignShip{ShipID: ship, RouteID: f.w.Routes[len(f.w.Routes)-1].ID})
+	f.advance(time.Minute)
+}
+
+// grant adds a cost's gold and materials to the world and the island's
+// stock (fixtures only).
+func (f *fixture) grant(island string, cost *content.Cost) {
+	if f.err != nil || cost == nil {
+		return
+	}
+	f.w.Gold += cost.Gold
+	inv := &f.w.Island(island).Inventory
+	if inv.Stock == nil {
+		inv.Stock = map[string]sim.Qty{}
+	}
+	for _, m := range cost.Materials {
+		inv.Stock[m.Good] += m.Amount
+	}
+}
+
+// placePaid is placeNear with the building's cost granted first.
+func (f *fixture) placePaid(island, typ string, anchor sim.Pos) int64 {
+	if def := f.c.BuildingByID[typ]; def != nil {
+		f.grant(island, &def.Cost)
+	}
+	return f.placeNear(island, typ, anchor)
+}
+
+// nearestWithDeposit returns the habitable island nearest to from (grid
+// gap, then ID) with a slot of the deposit kind; "" if there is none.
+func (f *fixture) nearestWithDeposit(from, kind string) string {
+	src := f.w.Island(from)
+	best, bestGap := "", -1
+	for _, is := range f.w.Islands {
+		sc := f.c.Islands.SizeClassByID[is.SizeClass]
+		if is.ID == from || sc == nil || sc.Rock || archipelago.DepositCounts(is)[kind] == 0 {
+			continue
+		}
+		if g := archipelago.Gap2(src, is); bestGap < 0 || g < bestGap {
+			best, bestGap = is.ID, g
+		}
+	}
+	return best
+}
+
+// depositTile returns the first tile (row-major) of a deposit kind on the
+// island.
+func (f *fixture) depositTile(island, kind string) sim.Pos {
+	is := f.w.Island(island)
+	for i, t := range is.Tiles {
+		if t.Deposit != nil && t.Deposit.Kind == kind {
+			return sim.Pos{X: i % is.Width, Y: i / is.Width}
+		}
+	}
+	return f.streetEnd(island)
+}
+
 // tradingPostType is the first building with a trading_post block.
 func tradingPostType(c *content.Catalogue) string {
 	if def := archipelago.TradingPost(c); def != nil {
@@ -325,6 +486,9 @@ type fixture struct {
 	ends map[string]sim.Pos
 	// spareForest keeps sites and roads off the forest (planner).
 	spareForest bool
+	// seeded places buildings with sim.PlaceFree (no cost, no tier or
+	// upgrade-only check): the merchants fixture's Merchant houses.
+	seeded bool
 }
 
 func (f *fixture) apply(cmd sim.Command) {
@@ -343,7 +507,13 @@ func (f *fixture) try(cmd sim.Command) bool {
 		return false
 	}
 	w := f.w.Clone()
-	if err := sim.Apply(w, f.c, cmd); err != nil {
+	var err error
+	if p, ok := cmd.(sim.PlaceBuilding); ok && f.seeded {
+		err = sim.PlaceFree(w, f.c, p, nil)
+	} else {
+		err = sim.Apply(w, f.c, cmd)
+	}
+	if err != nil {
 		return false
 	}
 	f.w = w

@@ -7,7 +7,7 @@ import { shipWhere } from "../ui/ShipsPanel";
 import { founderFor, pendingFoundingStep } from "./archipelago";
 import { serverTimeMs } from "./extrapolate";
 import { waterEdgeHint, waterRows } from "./geometry";
-import { anchorSlots, berthDock, dockPoints, islandAnchor, type ModelAnchor, pierHeading, pierPoint, shipPlacement } from "./ships";
+import { anchorSlots, berthDock, dockPoints, islandAnchor, type ModelAnchor, pierHeading, pierLayout, pierPoint, shipLengthRatio, shipPlacement } from "./ships";
 
 // The harbour displays of D-051 against the shared fixtures: water-edge
 // ghosts (the scenario's island rows and the shipped water_tiles), ships
@@ -205,6 +205,49 @@ describe("moorings at the Trading Post's pier", () => {
     // More ships than anchors, or no anchors at all: the caller falls back to the front row.
     expect(berthDock(pier, 0, 4, false, 2)).toBeNull();
     expect(berthDock([], 0, 0, false, 2)).toBeNull();
+  });
+
+  it("spaces the berths by ship length: no two moored hulls overlap at any Trading Post level, sterns on the pier front", () => {
+    // Drawn hulls: 0.444 lengths wide (the models' beam), a reference ship 5 tiles long with its stern 2.35 tiles behind the origin (DOCK_STERN).
+    const stern = 2.35;
+    const beam = (r: number) => 0.444 * 5 * r;
+    const ratios = [1, 1.3, 1.6]; // sloop, brig, galleon (length_tiles 2, 2.6, 3.2)
+    for (let berths = 1; berths <= 4; berths++) {
+      const combos: number[][] = [[]];
+      for (let k = 0; k < berths; k++) combos.splice(0, combos.length, ...combos.flatMap((c) => ratios.map((r) => [...c, r])));
+      for (const moored of combos) {
+        for (const rot of [0, 90]) {
+          const anchors = rot === 0 ? pier : pier.map((a) => ({ x: -a.y, y: a.x }));
+          const out = pierLayout(anchors, rot, moored, [1, 1.6], stern);
+          const docks = out.moored.map((d) => d!);
+          docks.forEach((d, i) => {
+            // Stern-first: the stern lies on the pier front (the anchors' line), the bow points out to sea.
+            const sx = d.point.x - Math.cos(d.heading) * stern * moored[i]!;
+            const sy = d.point.y - Math.sin(d.heading) * stern * moored[i]!;
+            expect(rot === 0 ? sy : -sx).toBeCloseTo(0);
+            expect(Math.cos(d.heading - pierHeading(rot))).toBeGreaterThan(0.3);
+          });
+          for (let a = 0; a < docks.length; a++) {
+            for (let b = a + 1; b < docks.length; b++) {
+              const gap = Math.hypot(docks[a]!.point.x - docks[b]!.point.x, docks[a]!.point.y - docks[b]!.point.y);
+              expect(gap, `${berths} berths ${moored} ships ${a}/${b}`).toBeGreaterThan((beam(moored[a]!) + beam(moored[b]!)) / 2);
+            }
+          }
+          // The queue waits beyond the longest moored bow.
+          const reach = Math.max(...moored) * 2 * stern;
+          for (const q of out.queued) expect(rot === 0 ? -q!.point.y : q!.point.x).toBeGreaterThan(reach + 1.6 * stern);
+        }
+      }
+    }
+    // Reference-length ships lie exactly on the anchors (unchanged from berthDock).
+    const sloops = pierLayout(pier, 0, [1, 1, 1, 1], [], 2).moored;
+    sloops.forEach((d, i) => expect(d).toEqual(berthDock(pier, 0, i, false, 2)));
+    expect(sloops[0]!.point.x - Math.cos(sloops[0]!.heading) * 2).toBeCloseTo(-0.75);
+    // A brig in the first slot pushes the third ship (same side) outwards.
+    const mixed = pierLayout(pier, 0, [1.3, 1, 1], [], 2).moored;
+    expect(mixed[2]!.point.x).toBeLessThan(sloops[2]!.point.x);
+    expect(shipLengthRatio({ length_milli_tiles: 2_600 })).toBeCloseTo(1.3);
+    expect(shipLengthRatio({})).toBe(1);
   });
 
   it("queues waiting ships bow out beyond the moored bows, centre first, the next row further out", () => {

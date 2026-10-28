@@ -855,7 +855,7 @@ export interface components {
         /**
          * @description Upgrade a building (D-056): a full house to the next tier's house
          *     (as `upgrade_house`); a Trading Post, Warehouse or public building
-         *     with service levels (`market_small`) to its next level — the
+         *     with service levels (`market`) to its next level — the
          *     level's `cost` is charged like a placement and a level with a
          *     `tier` needs that tier unlocked (`tier_locked`).
          *     `upgrade_unavailable` for a building without a next level.
@@ -2087,6 +2087,13 @@ export interface components {
             speed_permille: number;
             /**
              * Format: int64
+             * @description Hull length in milli-tiles (display only): the client draws the
+             *     ship and spaces the Trading Post's berths by it. Absent: the
+             *     reference length (2 000, the sloop).
+             */
+            length_milli_tiles?: number;
+            /**
+             * Format: int64
              * @description Build time at the shipyard (ms).
              */
             build_ms: number;
@@ -2421,6 +2428,17 @@ export interface components {
              *     building may also stand on mountain tiles.
              */
             requires_deposit?: string;
+            /**
+             * @description The producer burns or cooks (display only): its model has chimney
+             *     and smoke anchors and the life layer draws smoke. Absent is false.
+             */
+            smoke?: boolean;
+            /**
+             * @description The water-edge producer works with a boat (the fisher; display
+             *     only): the life layer rows it out from the model's boat anchor.
+             *     Absent is false.
+             */
+            boat?: boolean;
             /**
              * @description A farm that needs fields (D-049, D-051 part 4): efficiency =
              *     min(1, active fields / required). Fields are placed from the

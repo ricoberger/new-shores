@@ -57,7 +57,7 @@ export function constructionGoods(content: Pick<Content, "goods" | "buildings" |
 /** The worst unmet need of a tier on an island: its resident-weighted fulfilment and the most common reason. */
 export interface WorstNeed {
   id: string;
-  /** Goods category ("food") or the building asked for ("market_small"). */
+  /** Goods category ("food") or the building asked for ("market"). */
   category?: string;
   building?: string;
   fulfilmentPermille: number;

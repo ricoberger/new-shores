@@ -76,7 +76,7 @@
           "type": "integer",
           "minimum": 2,
           "maximum": 4,
-          "description": "Number of model levels (<id>.l<n>.glb). The only field read for an ID the content already defines, and only while the content declares no levels for it (market_small, D-056 §3)."
+          "description": "Number of model levels (<id>.l<n>.glb). The only field read for an ID the content already defines, and only while the content declares no levels for it (market, D-056 §3)."
         }
       }
     }

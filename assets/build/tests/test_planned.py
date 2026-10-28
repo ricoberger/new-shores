@@ -59,11 +59,15 @@ class PlannedTest(unittest.TestCase):
         self.assertFalse(content.is_planned(c, "sawmill"))
         self.assertEqual(content.ground_range(c, "pier_test"), config.GROUND_RANGE_WATER_EDGE)
         self.assertEqual(c["buildings"]["pier_test"]["requires_deposit"], "stone")
-        # Smoke only where planned (producers that burn or cook); every content producer has it.
+        # Smoke only where flagged (producers that burn or cook): planned or content `smoke: true`.
         self.assertTrue(content.needs_smoke(c, "cheese_test"))
         self.assertFalse(content.needs_smoke(c, "farm_test"))
         self.assertFalse(content.needs_smoke(c, "hall_test"))
         self.assertTrue(content.needs_smoke(c, "sawmill"))
+        c["buildings"]["sawmill"] = dict(c["buildings"]["sawmill"], smoke=False)
+        self.assertFalse(content.needs_smoke(c, "sawmill"))
+        c["buildings"]["sawmill"].pop("smoke")
+        self.assertFalse(content.needs_smoke(c, "sawmill"))
         self.assertEqual(content.life_anchors(c, "farm_test"), ["cart"])
         required = content.required_ids(c)
         for cid in ("cheese_test", "farm_test", "pen_test", "hall_test", "pier_test", "brig_test"):
@@ -75,7 +79,7 @@ class PlannedTest(unittest.TestCase):
         self.write("a.json", [
             entry("fisher", footprint=(9, 9)),
             entry("chapel", kind="service", tier=1, footprint=(9, 9), levels=3),
-            entry("market_small", kind="service", tier=1, footprint=(5, 6), levels=2),
+            entry("market", kind="service", tier=1, footprint=(5, 6), levels=2),
             entry("trading_post", kind="service", tier=1, footprint=(6, 9), levels=2),
         ])
         base = content.load(config.CONTENT_DIR, planned_dir=None)
@@ -85,9 +89,9 @@ class PlannedTest(unittest.TestCase):
         self.assertFalse(content.is_planned(c, "fisher"))
         self.assertEqual(content.levels(base, "chapel"), 0)
         self.assertEqual(content.levels(c, "chapel"), 3)
-        # The content's service levels (market_small, S1) win over the planned count.
-        self.assertEqual(content.levels(base, "market_small"), 3)
-        self.assertEqual(content.levels(c, "market_small"), 3)
+        # The content's service levels (market, S1) win over the planned count.
+        self.assertEqual(content.levels(base, "market"), 3)
+        self.assertEqual(content.levels(c, "market"), 3)
         self.assertEqual(content.levels(c, "trading_post"), content.levels(base, "trading_post"))
         self.assertEqual(content.required_ids(c), content.required_ids(base))
 
