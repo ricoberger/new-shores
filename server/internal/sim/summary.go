@@ -49,6 +49,9 @@ type AwayLog struct {
 	// them (about 60 bytes each; MarkSeen clears the list).
 	ShipsArrived int           `json:"ships_arrived,omitempty"`
 	Arrivals     []AwayArrival `json:"arrivals,omitempty"`
+	// TiersUnlocked lists the tiers unlocked since LastSeenAt in unlock
+	// order (the tier_unlocked boundaries).
+	TiersUnlocked []string `json:"tiers_unlocked,omitempty"`
 }
 
 // AwayFlow is the produced, consumed and lost amount of one good on one
@@ -81,6 +84,7 @@ func (l *AwayLog) clone() AwayLog {
 	if l.Arrivals != nil {
 		c.Arrivals = slices.Clone(l.Arrivals)
 	}
+	c.TiersUnlocked = slices.Clone(l.TiersUnlocked)
 	return c
 }
 
@@ -196,6 +200,38 @@ type AwaySummary struct {
 	Arrivals []AwayArrivalDisplay `json:"arrivals"`
 	// QuestsCompleted during the interval, by completion time.
 	QuestsCompleted []AwayQuest `json:"quests_completed"`
+	// TiersUnlocked lists the tiers unlocked during the interval in unlock
+	// order (a summary stored before this field existed has none).
+	TiersUnlocked []AwayTier `json:"tiers_unlocked"`
+}
+
+// AwayTier is a tier unlocked during the interval with the number of new
+// buildings it offers (TierBuildingCount).
+type AwayTier struct {
+	ID        string `json:"id"`
+	Buildings int    `json:"buildings"`
+}
+
+// TierBuildingCount is the number of buildings a tier adds to the build
+// menu: its buildings except the Trading Post (placed by founding), fields
+// (placed from their farm) and the houses of later tiers (reached by
+// upgrading). Roads count. It is what the unlock toast and the away letter
+// report.
+func TierBuildingCount(c *content.Catalogue, tier string) int {
+	first := ""
+	for _, t := range c.Tiers {
+		if t.Index == 0 {
+			first = t.ID
+		}
+	}
+	n := 0
+	for _, b := range c.Buildings {
+		if b.Tier != tier || b.TradingPost != nil || b.Field != nil || (b.House != nil && b.House.Tier != first) {
+			continue
+		}
+		n++
+	}
+	return n
 }
 
 // AwayPopulation is the residents of a tier before and after.
@@ -253,6 +289,10 @@ func ProduceSummary(w *World, c *content.Catalogue) *AwaySummary {
 		Population: map[string]AwayPopulation{}, Islands: []AwayIsland{},
 		AutoPaused: a.AutoPaused, AutoResumed: a.AutoResumed, StillUnpaid: []AwayUnpaid{},
 		ShipsArrived: a.ShipsArrived, Arrivals: []AwayArrivalDisplay{}, QuestsCompleted: []AwayQuest{},
+		TiersUnlocked: []AwayTier{},
+	}
+	for _, id := range a.TiersUnlocked {
+		s.TiersUnlocked = append(s.TiersUnlocked, AwayTier{ID: id, Buildings: TierBuildingCount(c, id)})
 	}
 	before := w.goldFine() - a.GoldDeltaSub
 	s.GoldBefore = max(before, 0) / GoldSubPerMilli
@@ -340,5 +380,6 @@ func (s *AwaySummary) clone() *AwaySummary {
 	c.StillUnpaid = slices.Clone(s.StillUnpaid)
 	c.Arrivals = slices.Clone(s.Arrivals)
 	c.QuestsCompleted = slices.Clone(s.QuestsCompleted)
+	c.TiersUnlocked = append([]AwayTier{}, s.TiersUnlocked...)
 	return &c
 }

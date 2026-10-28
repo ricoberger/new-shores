@@ -343,7 +343,8 @@
           "at": "2026-01-01T00:32:20.000Z"
         }
       ],
-      "quests_completed": []
+      "quests_completed": [],
+      "tiers_unlocked": []
     }
   ],
   "final": {
@@ -1340,7 +1341,8 @@
           "at": "2026-01-01T00:32:20.000Z"
         }
       ],
-      "quests_completed": []
+      "quests_completed": [],
+      "tiers_unlocked": []
     },
     "last_seen_at": "2026-01-01T00:30:00.000Z"
   }

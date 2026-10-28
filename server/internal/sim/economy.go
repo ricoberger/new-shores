@@ -475,6 +475,7 @@ func evaluateUnlocks(w *World, c *content.Catalogue) []string {
 			}
 		}
 		w.UnlockedTiers = all
+		w.Away.TiersUnlocked = append(w.Away.TiersUnlocked, unlocked...)
 	}
 	return unlocked
 }

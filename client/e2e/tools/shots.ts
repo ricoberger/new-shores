@@ -448,6 +448,7 @@ function awayOvernight(w: WorldResponse): void {
       return { ships_arrived: arrivals.length, arrivals };
     })(),
     quests_completed: [],
+    tiers_unlocked: [],
   };
 }
 

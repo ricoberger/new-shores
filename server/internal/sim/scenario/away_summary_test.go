@@ -1,8 +1,11 @@
 package scenario
 
 import (
+	"reflect"
 	"testing"
 	"time"
+
+	"github.com/ricoberger/new-shores/server/internal/sim"
 )
 
 // TestAwaySummary12h checks golden (z): the summary produced after a
@@ -72,4 +75,28 @@ func TestAwaySummary12h(t *testing.T) {
 	}
 	t.Logf("summary %s .. %s: gold %d -> %d, settlers %d -> %d, %d ship arrivals", sum.From, sum.To, sum.GoldBefore, sum.GoldAfter,
 		sum.Population["settlers"].Before, sum.Population["settlers"].After, sum.ShipsArrived)
+}
+
+// TestAwaySummaryTierUnlock checks golden away_unlock: Citizens unlock
+// inside the away interval and the summary lists the tier with the number
+// of buildings it adds to the build menu (the 19 Citizen buildings of the
+// pre-D-054 content minus the Citizen house, which is reached by
+// upgrading, and three fields).
+func TestAwaySummaryTierUnlock(t *testing.T) {
+	rep := runScenario(t, "away_unlock")
+	if len(rep.AwaySummaries) != 1 {
+		t.Fatalf("%d summaries", len(rep.AwaySummaries))
+	}
+	sum := rep.AwaySummaries[0]
+	want := []sim.AwayTier{{ID: "citizens", Buildings: 15}}
+	if !reflect.DeepEqual(sum.TiersUnlocked, want) {
+		t.Errorf("tiers unlocked %+v, want %+v", sum.TiersUnlocked, want)
+	}
+	if rep.Final.AwaySummary == nil || !reflect.DeepEqual(rep.Final.AwaySummary.TiersUnlocked, want) {
+		t.Errorf("display summary %+v", rep.Final.AwaySummary)
+	}
+	// A tier unlocked before the interval is not listed again.
+	if other := runScenario(t, "away_summary_12h").AwaySummaries[0]; len(other.TiersUnlocked) != 0 {
+		t.Errorf("away_summary_12h lists %+v", other.TiersUnlocked)
+	}
 }

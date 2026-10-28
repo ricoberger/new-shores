@@ -1377,6 +1377,14 @@ export interface components {
             arrivals: components["schemas"]["AwayArrival"][];
             /** @description Quests completed during the interval, by completion time. */
             quests_completed: components["schemas"]["AwayQuest"][];
+            /** @description Tiers unlocked during the interval (the tier_unlocked boundaries), in unlock order. */
+            tiers_unlocked: components["schemas"]["AwayTier"][];
+        };
+        AwayTier: {
+            /** @description Tier ID. */
+            id: string;
+            /** @description Buildings the tier adds to the build menu (content count; roads included, the Trading Post, fields and upgrade-only houses not). */
+            buildings: number;
         };
         AwayPopulation: {
             /**

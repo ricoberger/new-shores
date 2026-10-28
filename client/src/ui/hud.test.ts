@@ -319,6 +319,18 @@ describe("HUD components", () => {
     expect(html).toMatch(/<div class="[^"]*letterEnd[^"]*" data-testid="away-end"><span[^>]*>Your humble advisor/);
   });
 
+  it("lists the tiers unlocked while away with the server's building count", () => {
+    const model = fixture("away_unlock");
+    expect(model.away_summary?.tiers_unlocked).toEqual([{ id: "citizens", buildings: 15 }]);
+    const c = { ...content, tiers: [...content.tiers, { id: "citizens", name: "Citizens", index: 1 }] } as unknown as Content;
+    const html = renderToStaticMarkup(createElement(AwayDialog, { summary: model.away_summary!, content: c, islandName: (id: string) => id, timeZone: "UTC", onDismiss: () => {} }));
+    expect(html).toContain('data-testid="away-unlocks"');
+    expect(text(html)).toContain("Citizens unlocked — 15 new buildings");
+    // No unlock, no line.
+    const none = renderToStaticMarkup(createElement(AwayDialog, { summary: fixture("away_summary_12h").away_summary!, content, islandName: (id: string) => id, timeZone: "UTC", onDismiss: () => {} }));
+    expect(none).not.toContain("away-unlocks");
+  });
+
   describe("route editor", () => {
     const model = fixture("route_loop");
     const route = model.routes[0]!;

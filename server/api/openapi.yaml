@@ -1994,7 +1994,7 @@ components:
         includes the command that produced it: `gold_before` and
         `population.*.before` are the values at `from`. Goods in
         milli-units, gold in milli-gold, residents in milli-residents.
-      required: [id, from, to, gold_before, gold_after, population, islands, auto_paused, auto_resumed, still_unpaid, ships_arrived, arrivals, quests_completed]
+      required: [id, from, to, gold_before, gold_after, population, islands, auto_paused, auto_resumed, still_unpaid, ships_arrived, arrivals, quests_completed, tiers_unlocked]
       properties:
         id:
           type: integer
@@ -2053,6 +2053,23 @@ components:
           description: Quests completed during the interval, by completion time.
           items:
             $ref: "#/components/schemas/AwayQuest"
+        tiers_unlocked:
+          type: array
+          description: Tiers unlocked during the interval (the tier_unlocked boundaries), in unlock order.
+          items:
+            $ref: "#/components/schemas/AwayTier"
+    AwayTier:
+      type: object
+      additionalProperties: false
+      required: [id, buildings]
+      properties:
+        id:
+          type: string
+          description: Tier ID.
+        buildings:
+          type: integer
+          minimum: 0
+          description: Buildings the tier adds to the build menu (content count; roads included, the Trading Post, fields and upgrade-only houses not).
     AwayPopulation:
       type: object
       additionalProperties: false
