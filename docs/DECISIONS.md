@@ -1202,3 +1202,67 @@ system and tooling are untouched by the restyle); buying voxel packs
   MB of 24 MiB; all budgets hold (galleon at 99.6 %). Known trade-off:
   signature props face the default camera; back sides are plainer
   (V6 list).
+
+## D-058 Island shapes: skeleton coasts, ridge mountains, rivers with bridges, visual terraces, sea routing
+
+**Decision** (interview 2026-10-29; the Anno 117 Latium island atlas is
+the look reference — lobed coasts with bays and peninsulas, a rock
+spine, rivers to an estuary, islets, one or two flat plains): the
+archipelago generator and the terrain renderer are reworked. Rules stay
+flat; everything below is shape, not mechanics, except rivers as
+obstacles and sea routing.
+
+1. **Shapes from a skeleton.** An island is a trunk with 1–3 arms
+   (random walk / spline), a distance field around it and domain-warped
+   multi-octave noise, then the existing smoothing, connectivity and
+   site checks. New guarantee: every habitable island keeps **one
+   contiguous plain** (large ≈ 40×40, medium ≈ 24×24, small ≈ 14×14
+   grass/forest) besides ≥ 2 Trading Post sites and a shipyard site.
+   **Islets** (rocks, sand bars) lie inside the island's grid as
+   unbuildable water-adjacent land, decor only. No lakes for now.
+2. **Mountains as a ridge spine**: a branched polyline; height from the
+   distance to the spine (3–4 voxel levels); **cliff coast** where the
+   ridge meets the sea (rock, no harbour buildings; the generator
+   guarantees beach sites); peaks as crag models at local maxima; mines
+   in notches at the foot. Mountain tiles stay unbuildable (D-036). No
+   snow.
+3. **Rivers as obstacles with bridges.** River tiles are water inside
+   the land (1 tile wide, 2 at the mouth), unbuildable; a **road on a
+   river tile is a bridge** (same road type, rendered as an arched
+   voxel bridge). Source in the mountains, mouth in a bay; 1–2 on
+   large, 0–1 on medium, none on small islands. The plain and the
+   Trading Post sites stay connected by land or bridges. Fishing is
+   sea-only. River production slots (Anno's river buildings) remain a
+   later option; the chains do not need them (windmills, not water
+   mills).
+4. **Visual-only terraces.** The generator emits a `level` 0–2 per land
+   tile (coast low, inland higher, rivers stepping down with small
+   waterfalls); the client renders stepped terrain with cliffs and
+   ramps. **No tile loses buildability and no placement rule changes**:
+   a footprint across a level edge gets a stone plinth/cut, a road a
+   ramp, a field terraces. Supersedes D-053 §3's "no plateaus" and
+   refines D-024/D-036's flat rules (which keep holding for mechanics).
+5. **Sea routing.** Ship legs follow a path around land on a coarse sea
+   grid (pure, deterministic, computed in the sim; the path length sets
+   the ETA). Fisher-boat loops stay on water (client).
+6. **Re-roll** stays as D-053 §2 (until the first founding).
+7. Parameters (arms, plain sizes, river counts, level counts, islet
+   counts) are content in `islands.json`.
+
+- *Why:* the archipelago is the first thing a player sees; round blobs
+  with rock lumps read as artificial next to the voxel buildings, and
+  bays, ridges and rivers are what make Anno islands memorable without
+  touching the economy.
+- *Consequences:* schema bump (tile `level`, river and islet terrain,
+  no migration while undeployed); every seed's layout changes — goldens
+  and the four reference games regenerate and their targets must still
+  hold with the existing levers; the client terrain, far mesh, minimap,
+  roads (bridges, ramps), fields (terraces) and plateau code are
+  rewritten on the level data; an **island atlas** test tool renders
+  every island of a seed to PNG so shapes are judged before renderer
+  work; MECHANICS §10 and CONTENT §9 updated at "as built".
+- *Rejected:* hand-made island templates (no artist, no discovery);
+  rule elevation ("one level per building" — harder placement, touches
+  validation, fields and the reference games); lakes (later); river
+  slots (later option); re-roll after founding (discards the
+  settlement).

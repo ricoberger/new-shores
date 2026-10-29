@@ -26,6 +26,8 @@ in the sync after a task unless the task says otherwise; nobody adds the
 
 ## Decisions most relevant right now
 
+- **D-058** island shapes: skeleton coasts, ridge mountains, rivers with
+  bridges, visual-only terraces (no buildability lost), sea routing
 - **D-057** procedural voxel art (supersedes D-050's kit-bash); warm
   palette, real models at every zoom, device-validated perf stay.
 - **D-052** flows and perf validated by playtest on the device; no
@@ -47,7 +49,10 @@ in the sync after a task unless the task says otherwise; nobody adds the
      recipes~~ (#40), ~~V2 lively world~~ (#41), ~~V3b/c flat export,
      shader jitter, cloth sway, quantised GLBs~~ (#42), ~~V4 tier 3~~
      (#43), ~~V5 tier 4 + ships~~ (#44) merged — the restyle is
-     complete. Next: **V6** polish round in the new look
+     complete.
+   - **D-058 islands** (next): G1 generator + island atlas (checkpoint
+     review), G2 terrain renderer + bridges/terraces/rivers + sea
+     routing, one session/PR; then **V6** polish round in the new look
      with the tier 2–4 playtest (second chains, market levels, services
      ladder, unlock toasts, quest chains, long house cards, brig/galleon
      at the piers).
