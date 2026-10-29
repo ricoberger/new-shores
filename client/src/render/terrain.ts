@@ -3,7 +3,10 @@
 // full models (near and mid LOD), 2 per tile with the lite models (far),
 // 1 per tile for the far view of the islands around the focused one
 // (render/farmesh.ts) — the coarser ones the near field downsampled, so
-// the coast does not jump at a LOD switch. The near/mid columns take
+// the coast does not jump at a LOD switch. The terraces and rivers are
+// part of the field (render/terraces.ts); the rock is a layer of its own
+// at near and mid and baked into the lite and far columns. The near/mid
+// columns take
 // their top colours from the island's ground texture (one texel per
 // column: the smooth blend between tiles, pebbles, wet sand) and every
 // voxel a brightness jitter (render/groundshader.ts). One full mesh per
@@ -24,13 +27,14 @@ import type { Island, Terrain } from "../api/client";
 import { chunkAt, type ChunkRect, islandChunks } from "../display/chunks";
 import type { CoastLoop } from "../display/coastline";
 import { fbm, hash2 } from "../display/noise";
-import { TERRAIN, WATER } from "../theme/palette";
+import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { addGround } from "./groundshader";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 import type { RoadTile } from "./roads";
 import { type FieldBase, fieldBase, type FieldTile, paintFields, paintRoads, touchedChunks } from "./roadvoxels";
-import { downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, TERRAIN_VPT, tileRange } from "./voxelterrain";
+import { LEVEL_STEPS } from "./terraces";
+import { downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, snapHeights, TERRAIN_VPT, tileRange, withRock } from "./voxelterrain";
 
 /** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
 export const SEA_LEVEL = -0.6;
@@ -45,6 +49,7 @@ const SAND = c3(TERRAIN.sand);
 const GRASS_A = c3(TERRAIN.grass_a);
 const GRASS_B = c3(TERRAIN.grass_b);
 const DRY = c3(TERRAIN.dry);
+const ROCK = c3(ISLAND.rock_light);
 
 const smoothstep = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -65,7 +70,12 @@ export function groundColor(terrain: Terrain | undefined, x: number, y: number, 
     case "mountain":
       return TERRAIN_COLORS.mountain.scale(0.93 + 0.12 * n);
     case "coast":
+    case "islet":
       return SAND.scale(0.97 + 0.05 * n);
+    case "cliff":
+      return Color3.Lerp(GRASS_B, ROCK, 0.45).scale(0.95 + 0.08 * n);
+    case "river":
+      return Color3.Lerp(c3(WATER.shallows), c3(WATER.deep), 0.4);
     case "water":
       return TERRAIN_COLORS.water;
     default:
@@ -188,7 +198,8 @@ export class TerrainBuild {
   ) {
     const full: Field = { ...islandField(island, loops, seed, TERRAIN_VPT), textured: true };
     // The lite tops sample the same ground texture (their colours need no vertex colour: they merge into large rectangles).
-    this.fields = { full, lite: { ...downsampleField(full, TERRAIN_VPT / LITE_VPT), textured: true } };
+    // The lite terrain carries the rock (no rock layer at far LOD).
+    this.fields = { full, lite: { ...downsampleField(withRock(full, seed), TERRAIN_VPT / LITE_VPT), textured: true } };
     this.base = fieldBase(full);
     this.rects = new Map(islandChunks(island.width, island.height).map((c) => [c.key, c]));
     this.texture = new RawTexture(groundTexels(full), full.nx, full.ny, Constants.TEXTUREFORMAT_RGBA, scene, false, false, Texture.NEAREST_SAMPLINGMODE);
@@ -249,7 +260,8 @@ export class TerrainBuild {
     meshField(liteB, lite, 0, 0, lite.nx, lite.ny);
     const liteMesh = liteB.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.material, this.liteParent);
     liteMesh?.freezeWorldMatrix();
-    const farF: Field = { ...downsampleField(this.fields.full, TERRAIN_VPT / FAR_VPT), quant: FAR_QUANT };
+    // Whole terrace levels at far (no rims or ramps: fewer walls, ART_DIRECTION §2's far budget).
+    const farF: Field = { ...snapHeights(downsampleField(withRock(this.fields.full, this.seed), TERRAIN_VPT / FAR_VPT), LEVEL_STEPS), quant: FAR_QUANT };
     const far = new Builder();
     meshField(far, farF, 0, 0, farF.nx, farF.ny);
     const meshes = this.meshes;

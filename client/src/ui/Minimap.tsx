@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { DisplayState } from "../api/client";
+import type { DisplayState, Island } from "../api/client";
 import { archipelagoRect, type Rect } from "../display/camera";
 import { decodeMask, MASK_BLOCK, MASK_WATER } from "../display/mask";
 import { fromMinimap, islandsBounds, minimapCollapsedAtStart, minimapLandKey, minimapProjection, minimapSize, rememberMinimapCollapsed, toMinimap } from "../display/minimap";
 import type { GameRenderer } from "../render/engine";
-import { MAP_SEA, mapLandColor } from "../render/mapcolors";
+import { reliefOf } from "../render/terraces";
+import { MAP_SEA, mapLandColor, mapTileRgb } from "../render/mapcolors";
 import { toolIcon } from "../theme/iconSet";
 import { UI } from "../theme/palette";
 import { Compass } from "./Compass";
@@ -36,7 +37,8 @@ const VIEW = UI.map_view;
 
 /**
  * Minimap (D-048): a north-up 2D canvas of the islands' land (the voxel
- * ground colour of each cell's terrain, settled or not) from their 1:4 terrain masks (no tiles needed), ship dots and the camera's ground footprint (which
+ * ground colour of each cell's terrain, settled or not) from their 1:4 terrain masks (no tiles needed; once an island's tiles
+ * are loaded, from its tiles with their terraces, rivers and rock, D-058), ship dots and the camera's ground footprint (which
  * turns with the camera), with the compass (D-051) in its top-right
  * corner (on phones a toggle button like the side dock's opens it to its
  * right; collapsed, only the toggle shows, so the compass shows with the
@@ -62,7 +64,10 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
   // The land layer and the bounds are keyed by geometry, settlement and
   // the terrain masks, not by the model object that every extrapolated
   // update replaces.
-  const landKey = minimapLandKey(islands);
+  // Islands whose tiles are loaded draw their relief (terraces, rivers, rock) instead of the mask.
+  const statics = renderer?.islandStatics();
+  const tilesKey = statics ? [...statics.values()].map((s) => `${s.id}:${s.revision}`).join(",") : "";
+  const landKey = `${minimapLandKey(islands)}|${tilesKey}`;
   // The payload's archipelago bounds (D-053); the islands' own for an older payload without extent.
   const ab = model.archipelago.bounds;
   // eslint-disable-next-line react-hooks/exhaustive-deps -- landKey stands for the islands' geometry
@@ -82,6 +87,11 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
     ctx.fillStyle = SEA;
     ctx.fillRect(0, 0, c.width, c.height);
     for (const is of islands) {
+      const st = statics?.get(is.id);
+      if (st && st.width === is.width && st.height === is.height && st.terrain.length === st.width * st.height) {
+        drawTiles(ctx, m, is.position, st);
+        continue;
+      }
       const mask = decodeMask(is.terrain_mask, is.width, is.height);
       // One mask cell covers MASK_BLOCK × MASK_BLOCK tiles (clipped at the island's edge).
       for (let my = 0; my < mask.height; my++) {
@@ -189,6 +199,35 @@ export function Minimap({ renderer, model, viewport, collapsible, initiallyColla
       {!collapsed && view}
     </div>
   );
+}
+
+/** Draws an island's loaded tiles: one sample per minimap pixel (the tile at its centre), shaded by terrace level and rock. */
+function drawTiles(ctx: CanvasRenderingContext2D, m: ReturnType<typeof minimapProjection>, pos: { x: number; y: number }, st: Island): void {
+  const p = toMinimap(m, pos);
+  const q = toMinimap(m, { x: pos.x + st.width, y: pos.y + st.height });
+  const x0 = Math.floor(p.x);
+  const y0 = Math.floor(p.y);
+  const w = Math.max(1, Math.ceil(q.x) - x0);
+  const h = Math.max(1, Math.ceil(q.y) - y0);
+  const img = ctx.getImageData(x0, y0, w, h);
+  const r = reliefOf(st);
+  for (let j = 0; j < h; j++) {
+    for (let i = 0; i < w; i++) {
+      const pt = fromMinimap(m, { x: x0 + i + 0.5, y: y0 + j + 0.5 });
+      const tx = Math.floor(pt.x - pos.x);
+      const ty = Math.floor(pt.y - pos.y);
+      if (tx < 0 || ty < 0 || tx >= st.width || ty >= st.height) continue;
+      const t = ty * st.width + tx;
+      const c = mapTileRgb(st.terrain[t] as string, r.level[t] as number, r.rock[t] as number);
+      if (!c) continue;
+      const o = (j * w + i) * 4;
+      img.data[o] = Math.round(c[0] * 255);
+      img.data[o + 1] = Math.round(c[1] * 255);
+      img.data[o + 2] = Math.round(c[2] * 255);
+      img.data[o + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, x0, y0);
 }
 
 /** The session storage (null where there is none). */

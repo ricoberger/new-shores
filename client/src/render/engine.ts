@@ -398,6 +398,11 @@ export class GameRenderer {
     this.engine.dispose();
   }
 
+  /** The loaded static tiles of the islands (the minimap draws their relief; islands without tiles use their masks). */
+  islandStatics(): ReadonlyMap<string, Island> {
+    return this.sync.getSnapshot().islands;
+  }
+
   /** Called after every rendered frame (HTML overlays follow the camera). */
   onFrame(l: () => void): () => void {
     this.frameListeners.add(l);

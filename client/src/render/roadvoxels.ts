@@ -3,7 +3,8 @@
 // a path two columns wide (half a tile) along the tile's centre with an
 // arm to every road neighbour, so corners, T-junctions and crossings are
 // unions of the same columns, sunk one voxel below the grass; a column
-// of worn edge on both sides. Dirt roads are packed earth with jittered
+// of worn edge on both sides, on the flat ground of the tile's terrace
+// level (render/terraces.ts). Dirt roads are packed earth with jittered
 // stones; the paved road is cobbles in three shades with a kerb of light
 // stone. Heights and top colours change; the island's terrain mesh and
 // ground texture are rebuilt from them (render/terrain.ts).
@@ -76,12 +77,13 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
     const b = (p & 255) / 255;
     return pack({ r: r + (c.r - r) * t, g: g + (c.g - g) * t, b: b + (c.b - b) * t });
   };
+  const flat = (k: number) => (f.flat ? (f.flat[k] as number) : 0);
   for (const [k, kind] of road) {
-    // Only on the ground (never lower the beach or raise anything).
-    if ((base.h[k] as number) !== 0) continue;
+    // Only on the flat ground of the tile's level (never lower the beach, a ramp or a rim, or raise anything).
+    if ((base.h[k] as number) !== flat(k)) continue;
     const i = k % nx;
     const j = (k - i) / nx;
-    f.h[k] = ROAD_H;
+    f.h[k] = flat(k) + ROAD_H;
     const r = hash2(i, j, seed + 61);
     if (kind === 2) {
       // Cobbles: three shades, a dark joint now and then.
@@ -94,7 +96,7 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   }
   // Worn edges: the ground columns next to a road column.
   for (const [k, kind] of road) {
-    if ((f.h[k] as number) !== ROAD_H) continue;
+    if ((f.h[k] as number) !== flat(k) + ROAD_H) continue;
     const i = k % nx;
     const j = (k - i) / nx;
     for (const [di, dj] of [
@@ -107,7 +109,7 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
       const b = j + dj;
       if (a < 0 || b < 0 || a >= nx || b >= ny) continue;
       const q = b * nx + a;
-      if (road.has(q) || (base.h[q] as number) !== 0 || f.top[q] !== base.top[q]) continue;
+      if (road.has(q) || (base.h[q] as number) !== flat(q) || f.top[q] !== base.top[q]) continue;
       const w = hash2(a, b, seed + 63);
       if (kind === 2) f.top[q] = w < 0.75 ? pack(KERB.scale(0.95 + 0.08 * w)) : mix(base.top[q] as number, KERB, 0.5);
       else if (w < 0.85) f.top[q] = mix(base.top[q] as number, DIRT, 0.5 + 0.4 * w);
@@ -146,7 +148,8 @@ export function paintFields(f: Field, base: FieldBase, fields: readonly FieldTil
         const j = t.y * vpt + b;
         if (i < 0 || j < 0 || i >= f.nx || j >= f.ny) continue;
         const k = j * f.nx + i;
-        if ((f.h[k] as number) !== 0 || (base.h[k] as number) !== 0) continue;
+        const fl = f.flat ? (f.flat[k] as number) : 0;
+        if ((f.h[k] as number) !== fl || (base.h[k] as number) !== fl) continue;
         const r = hash2(i, j, seed + 71);
         const p = base.top[k] as number;
         const grass = new Color3(((p >> 16) & 255) / 255, ((p >> 8) & 255) / 255, (p & 255) / 255);

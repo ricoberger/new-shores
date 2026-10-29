@@ -8,8 +8,11 @@
 // centres (a pixel coastline): beach tiles lower their outermost column by
 // one step, then a sand shelf and the wet sand line step down toward the
 // sea; land that meets the sea without a beach drops in earth and rock
-// bands, darker toward the foot. Plateaus (mountains) are terraces of the
-// same columns (render/plateaus.ts).
+// bands, darker toward the foot. The terrace levels, ramps and rivers of
+// the relief (render/terraces.ts) set the land columns' heights; the rock
+// of mountains and islets is a field of its own at near and mid (its
+// notches follow the buildings) and baked into the lite and far fields
+// (withRock).
 //
 // The near/mid field is *textured*: its top colours (the smooth blend of
 // the tiles' ground colours with beach pebbles and wet sand) go into the
@@ -23,7 +26,7 @@ import type { CoastLoop } from "../display/coastline";
 import { fbm, hash2 } from "../display/noise";
 import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { c3 } from "./palette";
-import { insideGrid } from "./plateaus";
+import { insideGrid, LEVEL_STEPS, reliefColumns, type ReliefColumns, reliefOf, rockTop } from "./terraces";
 import { type Builder, groundColor } from "./terrain";
 
 /** Columns per tile of the near/mid terrain (half the models' 8). */
@@ -52,6 +55,10 @@ const QUANT = 48;
 /** Side kinds of a column (its walls' bands). */
 export const SIDE_EARTH = 0;
 export const SIDE_SAND = 1;
+/** A river column above a lower one: its wall is a waterfall. */
+export const SIDE_FALL = 2;
+/** Rock walls (the lite and far fields' baked rock). */
+export const SIDE_ROCK = 3;
 
 const RIM = c3(ISLAND.sand_rim);
 const SAND = c3(TERRAIN.sand);
@@ -63,6 +70,18 @@ const ROCK_GROUND = Color3.Lerp(c3(ISLAND.rock_light), c3(ISLAND.moss), 0.25);
 const EARTH_BANDS = [Color3.Lerp(c3(TERRAIN.road_dirt), c3(ISLAND.rock_deep), 0.3), c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
 /** Sand walls of the beach steps, top to foot. */
 const SAND_BANDS = [SAND.scale(0.9), SAND.scale(0.86), WET.scale(0.95), WET.scale(0.85), Color3.Lerp(WET, c3(ISLAND.cliff_foot), 0.5)];
+/** Terrace walls above the sea, per step within a level from its foot: rock at the foot, earth under the grass lip. */
+const TERRACE_BANDS = [c3(ISLAND.cliff_lower), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_upper), EARTH_BANDS[0] as Color3];
+/** Waterfall walls, foot to lip: foam, light water, foam, white water. */
+const FALL_BANDS = [c3(WATER.foam), Color3.Lerp(c3(WATER.shallows), c3(WATER.foam), 0.55), c3(WATER.foam).scale(0.96), Color3.Lerp(c3(WATER.shallows), c3(WATER.foam), 0.3)];
+/** Rock walls per step within a level from its foot. */
+const ROCK_BANDS = [c3(ISLAND.rock_deep), c3(ISLAND.rock), c3(ISLAND.rock), c3(ISLAND.rock_light)];
+/** River water (the tops of river columns). */
+const RIVER = Color3.Lerp(c3(WATER.shallows), c3(WATER.deep), 0.4);
+/** The bank colour a river tile lends the blend of its neighbours' ground. */
+const BANK = Color3.Lerp(c3(TERRAIN.grass_a), c3(TERRAIN.road_dirt), 0.35);
+/** Cliff tops: grass over rock. */
+const CLIFF_TOP = Color3.Lerp(c3(TERRAIN.grass_b), c3(ISLAND.rock_light), 0.45);
 
 /** A height field: column (i, j) covers x0 + i·s … x0 + (i+1)·s (island tiles: tile x spans x … x + 1, like the coastline), y likewise. */
 export interface Field {
@@ -88,6 +107,12 @@ export interface Field {
   quant?: number;
   /** Distance of sea columns to the land (columns, capped at COAST_REACH; 0 on land). */
   toLand?: Uint8Array;
+  /** The lowest step of a column's walls toward an empty neighbour (default: bottom). */
+  floor?: Int8Array;
+  /** The flat ground of each column's tile (steps; its terrace level): roads and field ground paint where the column stands at it (default 0). */
+  flat?: Int8Array;
+  /** The relief columns the field was built from (rock, rivers; withRock bakes the rock in). */
+  relief?: ReliefColumns;
 }
 
 /** Packs a colour into 0xRRGGBB. */
@@ -135,8 +160,12 @@ export function distanceTo(on: Uint8Array, nx: number, ny: number, cap: number):
   return d;
 }
 
-/** Side band colour of a layer z (steps below the ground are negative) of a coast column. */
+/** Side band colour of a layer z (steps below the ground are negative, terraces above it) of a coast, terrace, waterfall or rock column. */
 export function coastSide(z: number, kind: number): Color3 {
+  const p = ((z % LEVEL_STEPS) + LEVEL_STEPS) % LEVEL_STEPS;
+  if (kind === SIDE_FALL) return FALL_BANDS[p] as Color3;
+  if (kind === SIDE_ROCK && z >= 0) return ROCK_BANDS[p] as Color3;
+  if (z >= 0) return TERRACE_BANDS[p] as Color3;
   const bands = kind === SIDE_SAND ? SAND_BANDS : EARTH_BANDS;
   return bands[Math.min(bands.length - 1, Math.max(0, -z - 1))] as Color3;
 }
@@ -152,7 +181,7 @@ export function coastSide(z: number, kind: number): Color3 {
  * in earth and rock bands (coastSide).
  */
 export function islandField(
-  island: Pick<Island, "width" | "height" | "terrain">,
+  island: Pick<Island, "width" | "height" | "terrain" | "levels" | "heights">,
   loops: readonly CoastLoop[],
   seed: number,
   vpt = TERRAIN_VPT,
@@ -167,6 +196,7 @@ export function islandField(
   for (let k = 0; k < nx * ny; k++) outside[k] = inside[k] ? 0 : 1;
   const toLand = distanceTo(inside, nx, ny, COAST_REACH);
   const toSea = distanceTo(outside, nx, ny, 2);
+  const cols = reliefColumns(reliefOf(island), vpt, seed);
   const h = new Int8Array(nx * ny).fill(EMPTY);
   const top = new Uint32Array(nx * ny);
   const kind = new Uint8Array(nx * ny);
@@ -179,9 +209,16 @@ export function islandField(
     for (let x = 0; x < width; x++) {
       let t = terrain[y * width + x] as Terrain | undefined;
       if (t === "water") t = "coast";
-      if (t === "coast") beach[y * width + x] = 1;
-      // Mountain ground left around the rounded plateaus: the plateau's warm rock, not the grey mountain role.
-      const c = t === "mountain" && !tile ? ROCK_GROUND.scale(0.96 + (0.08 * ((x * 7 + y * 13) % 5)) / 4) : color(t, x, y);
+      if (t === "coast" || t === "islet") beach[y * width + x] = 1;
+      // Mountain ground left around the rounded rock: the rock's warm tone, not the grey mountain role; river tiles lend their banks a muddy grass.
+      const c =
+        t === "mountain" && !tile
+          ? ROCK_GROUND.scale(0.96 + (0.08 * ((x * 7 + y * 13) % 5)) / 4)
+          : t === "river" && !tile
+            ? BANK
+            : t === "cliff" && !tile
+              ? CLIFF_TOP.scale(0.96 + 0.06 * hash2(x, y, seed + 17))
+              : color(t, x, y);
       tc[(y * width + x) * 3] = c.r;
       tc[(y * width + x) * 3 + 1] = c.g;
       tc[(y * width + x) * 3 + 2] = c.b;
@@ -199,8 +236,16 @@ export function islandField(
       const k = j * nx + i;
       const tx = Math.min(width - 1, Math.floor(i / vpt));
       if (inside[k]) {
-        const isBeach = beach[ty * width + tx] === 1;
-        h[k] = 0;
+        const g = cols.ground[k] as number;
+        if (cols.river[k]) {
+          // River water below its banks; a waterfall wall where it drops.
+          h[k] = cols.riverH[k] as number;
+          kind[k] = cols.fall[k] ? SIDE_FALL : SIDE_EARTH;
+          top[k] = pack(RIVER.scale(0.96 + 0.06 * hash2(i, j, seed + 13)));
+          continue;
+        }
+        const isBeach = beach[ty * width + tx] === 1 && g === 0;
+        h[k] = g;
         kind[k] = isBeach ? SIDE_SAND : SIDE_EARTH;
         if (toSea[k] === 1 && isBeach) {
           h[k] = RIM_H;
@@ -242,7 +287,42 @@ export function islandField(
       }
     }
   }
-  return { nx, ny, x0: 0, y0: 0, s, h, top, kind, toLand, bottom: SEA_BOTTOM, side: coastSide };
+  return { nx, ny, x0: 0, y0: 0, s, h, top, kind, toLand, flat: cols.flat, relief: cols, bottom: SEA_BOTTOM, side: coastSide };
+}
+
+/**
+ * A copy of a field with its relief's rock stacked on the ground (the lite
+ * and far terrain, which draw no rock layer): rock columns rise by their
+ * rock height, take the rock's top colour and rock walls.
+ */
+export function withRock(f: Field, seed: number): Field {
+  const r = f.relief;
+  if (!r || r.nx !== f.nx || r.ny !== f.ny) return f;
+  const h = f.h.slice();
+  const top = f.top.slice();
+  const kind = (f.kind ?? new Uint8Array(f.nx * f.ny)).slice();
+  for (let k = 0; k < f.nx * f.ny; k++) {
+    const rk = r.rock[k] as number;
+    if (rk <= 0 || h[k] === EMPTY) continue;
+    h[k] = (h[k] as number) + rk;
+    top[k] = pack(rockTop(rk, k % f.nx, Math.floor(k / f.nx), seed));
+    kind[k] = SIDE_ROCK;
+  }
+  return { ...f, h, top, kind };
+}
+
+/**
+ * The field with its land heights (≥ 0 steps) rounded to multiples of
+ * `step` (the far terrain: whole terrace levels, no rims or ramps — fewer
+ * walls).
+ */
+export function snapHeights(f: Field, step: number): Field {
+  const h = f.h.slice();
+  for (let k = 0; k < h.length; k++) {
+    const v = h[k] as number;
+    if (v > 0) h[k] = Math.round(v / step) * step;
+  }
+  return { ...f, h };
 }
 
 /**
@@ -429,7 +509,7 @@ export function meshField(b: Builder, f: Field, i0: number, j0: number, i1: numb
             const ni = i + (dir === 0 ? 1 : dir === 1 ? -1 : 0);
             const nj = j + (dir === 2 ? 1 : dir === 3 ? -1 : 0);
             const hnRaw = H(ni, nj);
-            const hn = hnRaw === EMPTY ? f.bottom : Math.max(hnRaw, f.bottom);
+            const hn = hnRaw === EMPTY ? (f.floor ? (f.floor[j * nx + i] as number) : f.bottom) : Math.max(hnRaw, f.bottom);
             if (hn < hc) key = `${hc}|${hn}|${K(i, j)}`;
           }
         }

@@ -36,6 +36,10 @@ export interface Island {
   height: number;
   revision: string;
   terrain: IslandTiles["terrain"];
+  /** Terrace level per tile, one digit, row-major (D-058; absent or empty: all 0). Visual only. */
+  levels?: string;
+  /** Rock height of mountain, cliff and islet tiles above their level in terrace levels, one digit per tile (D-058; absent: 0). Visual only. */
+  heights?: string;
   fertilities: string[];
   deposits: DepositDisplay[];
 }
@@ -155,6 +159,8 @@ export function islandStatics(tiles: IslandTiles, display: Pick<IslandDisplay, "
     height: tiles.height,
     revision: tiles.revision,
     terrain: tiles.terrain,
+    levels: tiles.levels,
+    heights: tiles.heights,
     fertilities: [...display.fertilities],
     deposits: display.deposits.map((d) => ({ ...d })),
   };

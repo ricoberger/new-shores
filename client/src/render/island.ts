@@ -4,7 +4,7 @@
 // is world (position.x + x, 0, −(position.y + y)). Built lazily (when the
 // island is first shown) and rebuilt on payload changes while shown. Every
 // LOD draws the same voxel diorama (D-057): terrain (ground columns, sand
-// shelves, plateaus, outcrops), roads, contact shadows, the voxel models
+// shelves, terraces, rivers, rock, outcrops), roads, contact shadows, the voxel models
 // of buildings and fields, trees and ground scatter. The level of detail
 // only toggles pre-built geometry: the full models and the 4-per-tile
 // terrain at near and mid, the lite models and the 2-per-tile terrain at
@@ -16,7 +16,7 @@
 // roads and fields, and the merged building models — are built per chunk
 // (display/chunks.ts) under a node per chunk: the renderer culls them per
 // chunk (setVisibleChunks) and a payload change rebuilds only the chunks
-// whose inputs changed. Contact shadows, plateaus, outcrops, foam, icons
+// whose inputs changed. Contact shadows, rock, outcrops, foam, icons
 // and the harbour stay per island.
 import type { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
@@ -36,7 +36,7 @@ import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
 import { buildingAnchor, type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
 import { OutcropLayer } from "./outcrops";
-import { footprintTiles, PlateauLayer } from "./plateaus";
+import { footprintTiles, RockLayer } from "./terraces";
 import { FootprintShadows } from "./shadows";
 import { GROUND_JITTER, groundShade } from "./groundshader";
 import { jitterShade, setJitterLod } from "./jitter";
@@ -104,7 +104,7 @@ export class IslandDetail {
   private readonly construction: ConstructionLayer;
   private readonly buildingBlobs: FootprintShadows;
   private readonly outcrops: OutcropLayer;
-  private readonly plateaus: PlateauLayer;
+  private readonly rock: RockLayer;
   /** Shallows (near and mid) and foam (near) on the stepped coast. */
   private water: CoastWater | null = null;
   private terrain: TerrainMeshes = NO_TERRAIN;
@@ -163,15 +163,16 @@ export class IslandDetail {
     this.farTrees = new FarTrees(scene, id, this.models, this.decorMaterials.material, registry);
     this.decoration = new Chunked(
       (k) => new Decoration(scene, `${id}_${k}`, this.chunkNode(k), registry, this.decorMaterials),
-      (l, d) => l.update(d.trees, d.ground, d.stumps, (x, y) => this.plateaus.heightAt(x, y), undefined, d.detail),
+      (l, d) => l.update(d.trees, d.ground, d.stumps, (x, y) => this.rock.heightAt(x, y), undefined, d.detail),
       (l) => l.dispose(),
-      (d) => `${d.trees.map(placedSig).join(";")}|${d.ground.map((p) => `${p.kind}${placedSig(p)}@${this.plateaus.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}|${d.stumps.map(placedSig).join(";")}|${d.detail.map((p) => `${p.id}${placedSig(p)}@${this.plateaus.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}`,
+      (d) => `${d.trees.map(placedSig).join(";")}|${d.ground.map((p) => `${p.kind}${placedSig(p)}@${this.rock.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}|${d.stumps.map(placedSig).join(";")}|${d.detail.map((p) => `${p.id}${placedSig(p)}@${this.rock.heightAt(Math.floor(p.x), Math.floor(p.y))}`).join(";")}`,
     );
     this.icons = new IconLayer(scene, this.near);
     this.construction = new ConstructionLayer(scene, this.near, registry);
     this.buildingBlobs = new FootprintShadows(scene, `blob_buildings_${id}`, this.root, 0.55);
     this.outcrops = new OutcropLayer(scene, this.root, registry);
-    this.plateaus = new PlateauLayer(scene, this.root, registry);
+    this.rock = new RockLayer(scene, this.root, registry);
+    this.farTrees.setGround((x, y) => this.rock.heightAt(x, y));
     this.root.setEnabled(false);
   }
 
@@ -252,7 +253,7 @@ export class IslandDetail {
    * Starts the first build of the island in steps (the incremental build,
    * display/buildqueue.ts): what setStatics and update build at once, as
    * island-level head steps (terrain, buildings, icons, contact
-   * shadows, plateaus, …) and one step per chunk (its terrain, roads,
+   * shadows, rock, …) and one step per chunk (its terrain, roads,
    * fields, trees and scatter; the far trees and the lite terrain are
    * merged after the last). Until then hasTiles() is false (the renderer
    * draws the mask) and the island's node stays hidden. A running build is
@@ -353,8 +354,8 @@ export class IslandDetail {
     this.updateBlobs(display, defs);
     yield;
     const blocked = footprintTiles(display.buildings, defs);
-    yield* this.plateaus.steps(statics, this.seed, blocked);
-    this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.plateaus.heightAt(x, y));
+    yield* this.rock.steps(statics, this.seed, blocked);
+    this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.rock.heightAt(x, y));
     yield;
     b.keys = layerKeys(display, defs);
     // The roads are voxel paths in the terrain: painted before its chunks are meshed.
@@ -511,13 +512,13 @@ export class IslandDetail {
     return modelled.size === 0 ? display.buildings : display.buildings.filter((b) => !modelled.has(b.id));
   }
 
-  /** Plateaus and the deposit outcrops on them (mines and quarries keep their tiles at ground level). */
+  /** Rock and the deposit outcrops on it (mines and quarries keep their tiles at their level: a notch). */
   private updateRelief(): void {
     const st = this.statics;
     if (!st) return;
     const blocked = this.footprintTiles();
-    this.plateaus.update(st, this.seed, blocked);
-    this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.plateaus.heightAt(x, y));
+    this.rock.update(st, this.seed, blocked);
+    this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.rock.heightAt(x, y));
   }
 
   /** Tiles covered by a building footprint ("x,y"; outcrops stay out of them). */
@@ -609,7 +610,7 @@ export class IslandDetail {
       this.lod = lod;
       this.near.setEnabled(lod === "near");
       for (const d of this.decoration.values()) d.setLod(lod);
-      this.plateaus.setFar(lod === "far");
+      this.rock.setFar(lod === "far");
       this.water?.setFar(lod === "far");
     }
     // The per-voxel jitter is below a pixel at far LOD (global: one LOD for the whole view).
