@@ -150,20 +150,44 @@ describe("voxel smoke", () => {
   it("draws a puff as the size variant nearest it, scaled little, turned by quarters", () => {
     for (const k of [0.16, 0.25, 0.33, 0.5]) {
       const r = smokeRoute(k, 1.3);
-      expect(r.cls).toMatch(/^smoke_[0-3]$/);
+      expect(r.cls).toBe("smoke");
+      expect(r.variant).toBeGreaterThanOrEqual(0);
+      expect(r.variant).toBeLessThan(SMOKE_SIZES.length);
       expect(r.k).toBeGreaterThan(0.7);
       expect(r.k).toBeLessThan(1.45);
-      expect((SMOKE_SIZES[Number(r.cls.slice(-1))] as number) * r.k).toBeCloseTo(0.8 * k, 6);
+      expect((SMOKE_SIZES[r.variant] as number) * r.k).toBeCloseTo(0.8 * k, 6);
       expect(r.yaw).toBeCloseTo(Math.PI / 2, 6);
     }
-    expect(new Set([0.16, 0.25, 0.33, 0.5].map((k) => smokeRoute(k, 0).cls)).size).toBeGreaterThanOrEqual(3);
-    for (let v = 0; v < SMOKE_SIZES.length; v++) expect(LIFE_CLASSES[`smoke_${v}`]?.particle, `smoke_${v}`).toBe(true);
+    expect(new Set([0.16, 0.25, 0.33, 0.5].map((k) => smokeRoute(k, 0).variant)).size).toBeGreaterThanOrEqual(3);
+    expect(LIFE_CLASSES["smoke"]?.particle).toBe(true);
+    expect(LIFE_CLASSES["smoke"]?.variants?.count).toBe(SMOKE_SIZES.length);
   });
 
-  it("routes the plan's smoke class to the size variants", () => {
-    const life = new LifeLayer(new Scene(engine), LIFE_CLASSES, "high");
-    life.frame(0, [{ origin: { x: 0, y: 0 }, plan: { frame: (_n: number, sink: LifeSink) => (sink.add(CLS.smoke, 1, 1, 1, 0, 0.16), sink.add(CLS.smoke, 1, 1, 1, 0, 0.5), { instances: 0, particles: 2 }) } as never }], "near");
-    expect(Object.keys(life.counts()).sort()).toEqual(["smoke_0", "smoke_3"].sort());
+  it("draws every puff of every size in one mesh, the instance naming its variant", async () => {
+    const scene = new Scene(engine);
+    const reg = registry(scene);
+    await reg.loadManifest();
+    const life = new LifeLayer(scene, LIFE_CLASSES, "high", true, reg);
+    const meshes = scene.meshes.length;
+    const plan = { frame: (_n: number, sink: LifeSink) => (sink.add(CLS.smoke, 1, 1, 1, 0, 0.16), sink.add(CLS.smoke, 1, 1, 1, 0, 0.5), sink.add(CLS.smoke, 2, 1, 1, 0, 0.5), { instances: 0, particles: 3 }) } as never;
+    life.frame(0, [{ origin: { x: 0, y: 0 }, plan }], "near");
+    expect(life.counts()).toEqual({ smoke: 3 });
+    const mesh = life.classMesh("smoke")!.mesh;
+    expect(mesh.thinInstanceCount).toBe(3);
+    // The placeholders of all four variants, tagged.
+    const tags = new Set(Array.from(mesh.getVerticesData("lifeVar") as ArrayLike<number>));
+    expect([...tags].sort()).toEqual([0, 1, 2, 3]);
+    const placeholder = mesh.getTotalVertices();
+    for (let i = 0; i < 400 && reg.status().pending.length > 0; i++) await new Promise((r) => setTimeout(r, 5));
+    life.frame(0, [{ origin: { x: 0, y: 0 }, plan }], "near");
+    for (let i = 0; i < 200 && !life.classMesh("smoke")!.modelled; i++) {
+      await new Promise((r) => setTimeout(r, 5));
+      life.frame(0, [{ origin: { x: 0, y: 0 }, plan }], "near");
+    }
+    expect(life.classMesh("smoke")!.modelled).toBe(true);
+    expect(mesh.getTotalVertices()).not.toBe(placeholder);
+    expect(new Set(Array.from(mesh.getVerticesData("lifeVar") as ArrayLike<number>)).size).toBe(4);
+    expect(scene.meshes.length).toBe(meshes);
   });
 });
 

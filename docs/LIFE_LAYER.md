@@ -105,7 +105,9 @@ that name". All motion is procedural.
   not a rule. No cart/walker for paused, unconnected, starved or
   warehouse-full producers.
 - Smoke: solid low-poly puffs instead of particle quads (fits D-050);
-  only for `status == ok`; every producer recipe must declare
+  only for `status == ok`; all producers' puffs of all four sizes are one
+  instanced draw (the sizes share one mesh, the instance names its size;
+  `render/variants.ts`); every producer recipe must declare
   `anchors.smoke` or `chimney` (recipe test).
 - Sway: sails, ship canvas, `flag_*` and cloth marked in a recipe
   (`P.cloth`): the wool weaver's drying line, the linen weaver's hung
