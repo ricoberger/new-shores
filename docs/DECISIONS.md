@@ -1267,6 +1267,52 @@ obstacles and sea routing.
   slots (later option); re-roll after founding (discards the
   settlement).
 
+**As built** (#46, 2026-10-29; refines the decision above, which
+stands):
+
+- *Shapes:* skeleton + distance field + domain-warped fbm as decided;
+  every large/medium island also gets ≥ 1 bay (depth ≥ 15 % of its
+  span) and ≥ 1 peninsula; massifs cover 15–20 % of the land with
+  broad plateaus; **cliffs** (10–25 % of the shore) occur wherever
+  raised land (level ≥ 1) meets the sea, not only at the ridge;
+  rivers span ≥ 40 % of the island with meanders and a **2–3-tile
+  estuary** (§3's "1 wide, 2 at the mouth" refined); islets 6–15
+  tiles; bridges straight ≤ 2 river tiles, never along a river (no
+  separate error code). Rock sites keep their retries.
+- *Archipelago spacing* (Anno 117 map comparison): `spacing.min` 50,
+  `nearest_max` 120, new `strait_min` 24 (the 4-tile routing grid)
+  and `void_max` 150 — map extent ≈ 780×790 tiles (−34 %). New size
+  class **`scenic`**: 4–8 skerries of 4–12 tiles, islands of the world
+  without name/sites/fertilities, not settleable or a destination,
+  land for routing, minimap and far view.
+- *Renderer:* `terraces.ts` replaces `plateaus.ts` (bilinear
+  tile-centre levels, ½-tile steps, cliffs/ramps by noise zones);
+  mountains as tall ragged grey rock with crags, peaks, scree and a
+  rock cliff coast; rivers 2 columns wide with banks, sea-shader
+  water, waterfalls with foam pools; terrace walls with boulders,
+  ramps as beaten earth; plinths/ramps/arched bridges (`_decor.py`
+  lengths 1–2); skerry shallows follow the outline. Far view at the
+  cap: neighbours keep relief only while the mask layer stays under
+  100 k triangles (`MASK_TRIS`), nearest first — worst case 248 k.
+- *Routing:* 4-tile sea grid, per-leg waypoint `path` in the display
+  and `routes[].paths`; ETA from path length × speed; leg ends are the
+  Trading Post's harbour point (2 tiles off the water edge) or the
+  shore nearest the other end; the **founding voyage** is routed to
+  the site's harbour point (`sail_ship.site`) and docks at the berth,
+  and an island without Trading Post or shipyard has no berths; ships
+  are never on land (`TestSeaOnly` over the reference games); the
+  start ship spawns ≥ 40 tiles from land (first sail ≥ 40 s).
+- *Camera:* "Found settlement here" keeps the view if the whole island
+  is on screen, else frames the island.
+- Content `old_coast-0.14.0`, schema 11; `make island-atlas SEED=|
+  STATS=n`; shots targets derived from the settlement. Reference
+  games (sim min): citizens 45/29/85/127 (targets 60/90/100/150),
+  quests 27/67, merchants 213/262/298, patricians 629/718/788.
+- *Handed to V6:* massifs still show their level rims at mid zoom;
+  docked founder lies behind the Trading Post rather than along the
+  pier; draft route ribbons straight until saved; near/mid draws
+  ≈ 49/47; idle founder drawn at the island centre after a reload.
+
 ## D-059 Lumberjack plants its trees; ship speeds differ; one fixture list with a played world
 
 **Decision** (2026-10-29):
