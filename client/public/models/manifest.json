@@ -3671,6 +3671,123 @@
       },
       "kind": "building"
     },
+    "depot": {
+      "anchors": {
+        "cart": [
+          -0.1,
+          0.125,
+          -1.75
+        ],
+        "door": [
+          0.0,
+          0.0,
+          -2.0
+        ],
+        "status": [
+          0.0,
+          3.375,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          2.0,
+          3.125,
+          1.75
+        ],
+        "min": [
+          -2.0,
+          -0.375,
+          -2.125
+        ]
+      },
+      "footprint": {
+        "h": 4,
+        "w": 4
+      },
+      "kind": "building",
+      "levels": {
+        "1": {
+          "bounds": {
+            "max": [
+              2.0,
+              2.375,
+              1.75
+            ],
+            "min": [
+              -2.0,
+              -0.375,
+              -2.0
+            ]
+          },
+          "budget": 8000,
+          "bytes": 71640,
+          "lite": {
+            "bounds": {
+              "max": [
+                2.0,
+                2.5,
+                2.0
+              ],
+              "min": [
+                -2.0,
+                -0.5,
+                -2.0
+              ]
+            },
+            "budget": 640,
+            "bytes": 8004,
+            "path": "depot.l1.lite.glb",
+            "sha256": "092508e12083c96c6d1cc2dd03363dc770e683dfdca8d453391bb660c423e880",
+            "triangles": 220
+          },
+          "path": "depot.l1.glb",
+          "sha256": "ab88a5a9df38fea42acdcf428fddbbc0c31dfe337bc9b96d0a947ff6e97d79eb",
+          "triangles": 2310
+        },
+        "2": {
+          "bounds": {
+            "max": [
+              2.0,
+              3.125,
+              1.75
+            ],
+            "min": [
+              -2.0,
+              -0.375,
+              -2.125
+            ]
+          },
+          "budget": 8000,
+          "bytes": 115904,
+          "lite": {
+            "bounds": {
+              "max": [
+                2.0,
+                3.5,
+                2.0
+              ],
+              "min": [
+                -2.0,
+                -0.5,
+                -2.5
+              ]
+            },
+            "budget": 640,
+            "bytes": 12416,
+            "path": "depot.l2.lite.glb",
+            "sha256": "6dbcbdf9c1da6b71165ac9818231ce4be199cf1f326f330bd5cb96004497ab52",
+            "triangles": 326
+          },
+          "path": "depot.l2.glb",
+          "sha256": "6d39a7ee6ed341bb4f1507785eb66c14aebffbd556c69516dd51e9f098160a3a",
+          "triangles": 3794
+        }
+      },
+      "sway": [
+        "cloth"
+      ]
+    },
     "distillery": {
       "anchors": {
         "cart": [
