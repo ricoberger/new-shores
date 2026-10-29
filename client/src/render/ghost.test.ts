@@ -5,7 +5,7 @@ import type { StandardMaterial } from "@babylonjs/core/Materials/standardMateria
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { ContentBuilding } from "../api/client";
-import { ghostTint, PlacementGhost } from "./ghost";
+import { GHOST_LIFT, ghostTint, PlacementGhost } from "./ghost";
 import { type ModelData, ModelRegistry, parseGlb } from "./models";
 import { GHOST, GHOST_INVALID, GHOST_NO_ROAD } from "./palette";
 
@@ -89,7 +89,9 @@ describe("PlacementGhost", () => {
     expect(bare.kind()).toBe("box");
     // On a terrace (D-058) the box stands on the footprint's base.
     bare.show({ def: sawmill, island: { x: 0, y: 0 }, x: 0, y: 0, rotation: 0, base: 0.5 }, GHOST);
-    expect(scene.meshes.filter((m) => m.name === "ghost").at(-1)!.position.y).toBeCloseTo(0.8);
+    expect(scene.meshes.filter((m) => m.name === "ghost").at(-1)!.position.y).toBeCloseTo(0.8 + GHOST_LIFT, 4);
+    expect(GHOST_LIFT).toBeGreaterThan(0);
+    expect(GHOST_LIFT).toBeLessThan(0.03);
     scene.dispose();
   });
 
