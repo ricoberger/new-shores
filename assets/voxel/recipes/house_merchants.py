@@ -9,7 +9,8 @@ arrangement: v0 street-side eaves, an oriel over the door and two
 dormers (red tiles, dark timber, ochre); v1 gable to the street with a
 balcony, a loft door and hoist and a market lean-to (brown tiles, oak
 timber, plaster); v2 crow-stepped stone gables, a side oriel, a wall dormer with a hoist
-and a balcony (slate, ox-blood timber, warm plaster).
+and a balcony (dark red-brown tiles, ox-blood timber,
+warm plaster).
 """
 
 from nsvoxel import detail_v4 as V
@@ -20,8 +21,8 @@ from nsvoxel.mats import APPLE, CANVAS, DYE_BLUE, FLOWER, OCHRE, PLASTER, PLASTE
 VARIANTS = 3
 
 DRESSED = P.DRESSED
-#: Roof tiles per variant: red, brown, orange (all terracotta: warm).
-ROOFS = (mat("terracotta"), mat("terracotta", 0.8), mat("slate"))
+#: Roof tiles per variant: red, brown, deep red-brown (all terracotta: warm).
+ROOFS = (mat("terracotta"), mat("terracotta", 0.8), mat("terracotta", 0.66))
 #: Timber per variant: dark, oak, ox-blood paint.
 FRAMES = (TIMBER_DARK, TIMBER, mat("terracotta", 0.6))
 SHUTTERS = (DYE_BLUE, mat("grass-b", 0.75), mat("ochre", 0.8))
@@ -100,7 +101,7 @@ def build(ctx):
         P.fruit_tree(v, 20, 2, 1, seed=seed, trunk=4, r=2.6, fruit=APPLE)
     else:
         # Crow-stepped stone gables, a side oriel, a balcony over the shop, a wall dormer with a hoist.
-        b = V.townhouse(v, 4, 6, 20, 16, "x", ground=10, top=19, infill=PLASTER_WARM, frame=frame, roof=roof, kind="slate", rise=1.5, seed=seed, spacing=4, braces=False, gable_jetty=False)
+        b = V.townhouse(v, 4, 6, 20, 16, "x", ground=10, top=19, infill=PLASTER_WARM, frame=frame, roof=roof, rise=1.5, seed=seed, spacing=4, braces=False, gable_jetty=False)
         ux0, uy0, ux1, uy1 = b.upper
         for xs in ((ux0, ux0 + 1), (ux1 - 1, ux1)):
             P.coursed_stone(v, xs[0], uy0, xs[1], uy1, 11, 19, seed=seed, core=False)
@@ -118,7 +119,7 @@ def build(ctx):
             P.casement(b.face("x+", upper=True), a, 13, 2, 4, frame=DRESSED, sill=DRESSED, lintel=DRESSED)
         upper_windows(b.face("y-", upper=True), (7, 15), 13, shut, box=False)
         # Wall dormer: the front wall rises into the roof with a loft door and a hoist.
-        V.cross_gable(v, b, 9, 15, PLASTER_WARM, frame=frame, roof=roof, kind="slate", rise=1.5)
+        V.cross_gable(v, b, 9, 15, PLASTER_WARM, frame=frame, roof=roof, rise=1.5)
         W = P.Face(v, "y+", uy1 - 1)
         P.entrance(W, 11, 19, 2, 3, leaf=TIMBER, frame=frame, step=None, hinges=False)
         V.hoist(W, 11, 23, length=2, rope=3)

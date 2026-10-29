@@ -1,7 +1,7 @@
 """
 Brickworks (4 × 5; D-057 §3): a rectangular brick kiln with buttressed
 walls, arched fire holes and a tall square chimney (smoke), its top
-loaded with bricks under a slate cap; hacks of drying bricks under a long
+loaded with bricks under a dark tile cap; hacks of drying bricks under a long
 tiled shed, finished bricks in tall checkered stacks, a clay heap with a
 moulding table, a sand heap, barrows and a cart.
 """
@@ -27,7 +27,7 @@ def build(ctx):
         for y in (y0 + 2, y0 + 8, y1 - 3):
             v.box(x, y, 1, x + 1, y + 2, 7, P.shade_of(P.BRICK, 0.9))
     v.box(x0, y0, 10, x1, y1, 11, STONE_DARK)
-    P.roof(v, x0 + 2, x1 - 2, y0 + 2, y1 - 2, 11, "slate", hip=True, rise=0.8, ov=0, seed=seed)
+    P.roof(v, x0 + 2, x1 - 2, y0 + 2, y1 - 2, 11, "tiles", hip=True, rise=0.8, ov=0, seed=seed, m=mat("terracotta", 0.6))
     f = P.Face(v, "y+", y1 - 1)
     for a in (5, 9, 13):
         f.put(a, 1, GLOW)

@@ -2132,11 +2132,11 @@
           "budget": 800,
           "bytes": 10064,
           "path": "brickworks.lite.glb",
-          "sha256": "8bdf793f858c1fd352b3fa4bd03048edfa5e26c021fdf390a05508b2dfb5e4ef",
+          "sha256": "f93f8690f137e44a5d4807a47fc9a92b54cade9159869d5f5d93724c5be0a9d9",
           "triangles": 290
         },
         "path": "brickworks.glb",
-        "sha256": "885e56a2778e075b59728411a1313fb29a708c137b0b14d7f07275feac9cb49c",
+        "sha256": "14747d16484b3374b3a080560d8309598a3643677528abb49fc0410fe71f76cd",
         "triangles": 3858
       },
       "footprint": {
@@ -4333,7 +4333,7 @@
           ]
         },
         "budget": 15000,
-        "bytes": 184284,
+        "bytes": 183936,
         "lite": {
           "bounds": {
             "max": [
@@ -4350,12 +4350,12 @@
           "budget": 1200,
           "bytes": 15968,
           "path": "grain_distillery.lite.glb",
-          "sha256": "0addcc986ddbb8e552b1d53348d9b67088d447454d4446242fbd8f98781aa69a",
+          "sha256": "986a4b937d88a5d8369a756c3abba11f56822f17a608023a7685fc09a508a28c",
           "triangles": 450
         },
         "path": "grain_distillery.glb",
-        "sha256": "eb1b09f28b33509a7f459a0021e3f73882ad50bdbbbf8a9be78e4695ee007ddf",
-        "triangles": 6056
+        "sha256": "7639475517b35edbcb90c096dc662099b525822c2aa302a3114c2841827bc986",
+        "triangles": 6038
       },
       "footprint": {
         "h": 6,
@@ -4906,11 +4906,11 @@
             "budget": 405,
             "bytes": 11604,
             "path": "house_merchants.v2.lite.glb",
-            "sha256": "0f52775b0e146de13a0b064f831e3ea6cec55055173cefc8732c96342b434c25",
+            "sha256": "4beb1d9b7ec283fca65325d55c573610dea7d695b6c43fdb3bc9969d08754f16",
             "triangles": 294
           },
           "path": "house_merchants.v2.glb",
-          "sha256": "c45fdd003c9efcd0bc6c06e6c999cbc0fb81247fa1557593ad9c1b9d1d779f27",
+          "sha256": "32c7208f9fd73079a642b618892fed448a6a9177173aa08f03a17b07cf66800c",
           "triangles": 4270
         }
       ]
@@ -7049,13 +7049,13 @@
             ]
           },
           "budget": 360,
-          "bytes": 7816,
+          "bytes": 7828,
           "path": "rendering_house.lite.glb",
-          "sha256": "fd3cd67cc815d3cd4eb99b3d0d10750d00efea94a8f2b969ee32e94ea2cba323",
-          "triangles": 196
+          "sha256": "f0cafdc4fa2dea8d0cfe688dd2af98a173aacaa5f1b19b467ac89f96884990af",
+          "triangles": 198
         },
         "path": "rendering_house.glb",
-        "sha256": "941190dd113554a02adaabe47a02b6abb165caa13d2fc37cf3a05505c8eb37d4",
+        "sha256": "db82db405e691c7d52467ef0748de2d9088fc9f8ca45d299c53a611a5a0c00d8",
         "triangles": 2312
       },
       "footprint": {
@@ -7375,11 +7375,11 @@
           "budget": 960,
           "bytes": 13388,
           "path": "salt_works.lite.glb",
-          "sha256": "e986903d306afd7e510d41d7b27fe4bd1c4d9bca37f4e8dacbe65e4f3642f4d9",
+          "sha256": "6c9882a821a098e41e819584f11703f8616b6ee264a0969d393063161f2ab821",
           "triangles": 390
         },
         "path": "salt_works.glb",
-        "sha256": "aa4a894cdf4b9a0cef0205caa5fdd3cfcd00df46e260973bcc7431d41c78a67e",
+        "sha256": "05f1bc26662d7bb3d7f7919a4b9d55174b42c247723a2735c3bb308d3ce2130f",
         "triangles": 4328
       },
       "footprint": {
@@ -9494,11 +9494,11 @@
           "budget": 480,
           "bytes": 9216,
           "path": "woad_farm.lite.glb",
-          "sha256": "a7ff85953532286cf968ef83e33764eccd1d1c89b81b7d62a4736560b7771777",
+          "sha256": "2b56661905566ab399ae7f6be1de26ff2376a23aff9852f0d17b962d4789e3d0",
           "triangles": 234
         },
         "path": "woad_farm.glb",
-        "sha256": "2b429923e0a452c022043759fab39312f2342608e5dcafebaa0f23cd3b360730",
+        "sha256": "a8159cc1bf83d2703eabdaddcfbb120e942929cf384dbfa237bec4aa10100045",
         "triangles": 3848
       },
       "footprint": {
@@ -9546,10 +9546,10 @@
           ]
         },
         "budget": 410,
-        "bytes": 10328,
+        "bytes": 12572,
         "path": "woad_field.glb",
-        "sha256": "f6b715c10a8651ded765a543c78ee82233d971ce3cef1cd738d91a5594eb1b69",
-        "triangles": 274
+        "sha256": "abb05f7062b7e437d22113f19de2c5ae2e3a2e0600e1a31bceecd36448b1cea2",
+        "triangles": 328
       },
       "footprint": {
         "h": 1,

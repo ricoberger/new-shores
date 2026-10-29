@@ -1,7 +1,7 @@
 """
 Grain distillery (5 × 6; D-057 §3; the distillery class): a round still
 tower in brick courses with a copper dome, a brick stack (smoke), a
-barrel hall in coursed stone with a slate roof, and a malt loft — a
+barrel hall in coursed stone with a dark brown tile roof, and a malt loft — a
 framed ochre loft over an open threshing floor with a pyramid-roofed
 kiln vent and a hoist — sacks of grain, a cask rack and a cart.
 """
@@ -12,13 +12,17 @@ from nsvoxel.grid import mat
 from nsvoxel.mats import CANVAS, OCHRE, TIMBER, TIMBER_DARK, TIMBER_LIGHT, WHEAT
 
 
+#: Dark brown tile (no cold slate field, ART_DIRECTION).
+ROOF = mat("timber", 1.3)
+
+
 def build(ctx):
     v = ctx.vox()  # 40 × 48
     seed = 163
     P.yard(v, 0, 0, 40, 48, "dirt", seed=seed)
     P.yard(v, 0, 36, 40, 48, "paved", seed=seed)
-    # Barrel hall at the back along x: coursed stone, slate.
-    b = P.building(v, 14, 2, 38, 14, "stone", along="x", seed=seed, height=11, kind="slate")
+    # Barrel hall at the back along x: coursed stone, dark brown tiles.
+    b = P.building(v, 14, 2, 38, 14, "stone", along="x", seed=seed, height=11, roof=ROOF)
     f = b.face("y+")
     P.barn_gate(f, 26, 2, 6, 6)
     P.casement(f, 18, 3, 2, 3, frame=P.DRESSED, sill=P.DRESSED, lintel=P.DRESSED)
@@ -34,7 +38,7 @@ def build(ctx):
     P.timber_frame(v, x0, y0, x1, y1, 8, 15, OCHRE, frame=TIMBER_DARK)
     r = P.roof(v, x0, x1, y0, y1, 15, "tiles", along="x", rise=1.2, seed=seed, m=mat("terracotta", 1.08))
     v.box(24, 21, r.ridge_z - 1, 30, 25, r.ridge_z + 2, TIMBER_LIGHT)  # kiln vent
-    P.roof(v, 23, 31, 20, 26, r.ridge_z + 2, "slate", hip=True, rise=1.0, ov=0, seed=seed)
+    P.roof(v, 23, 31, 20, 26, r.ridge_z + 2, "tiles", hip=True, rise=1.0, ov=0, seed=seed, m=ROOF)
     F = P.Face(v, "y+", y1 - 1)
     P.entrance(F, 26, 10, 2, 4, step=None, hinges=False)
     V.hoist(F, 27, 14, length=2, rope=4, load=CANVAS)

@@ -68,8 +68,10 @@ lintels.
 ## B — farms, fields, mines, water
 
 - `hop_field`: two tall poles with bines (leaf runs, pale cones) per tile,
-  wires along the rows across tiles, hilled soil. `woad_field`: teal
-  rosette rows on ploughed soil, a few yellow flowers.
+  wires along the rows across tiles, hilled soil. `woad_field`: green
+  rosette rows on ploughed soil with yellow flower tops (review: woad
+  flowers yellow; its blue belongs on the dyer's cloth; the woad farm's
+  leaf baskets and mill bed are green too).
 - `hop_farm`: brick-coursed oast with a steep pyramid roof and white
   cowl + vane, framed stowage barn with a loft hoist, hop pockets, a
   picking bin heaped with cones, poles. `woad_farm`: stone farmhouse,
@@ -204,12 +206,12 @@ limit 24 MB).
 
 ## Open questions
 
-1. **Slate on one merchant house.** The task asks for tiled roofs varied
-   "within the warm palette"; ART_DIRECTION's tier language says
-   Merchants = slate. Taken: v0 red and v1 brown terracotta tiles, v2
-   slate (the crow-stepped stone house) — slate stays a minority accent
-   in a merchant quarter, not a dominant cold grey. Alternative: v2 in
-   orange tiles (`mat("terracotta", 1.14)`), a one-line change.
+1. **Slate on one merchant house** — resolved by review: no cold grey
+   roof fields (D-050 / ART_DIRECTION). v2 is dark red-brown tile
+   (`terracotta` ×0.66); rendering_house and salt_works use the same dark
+   tile, grain_distillery's barrel hall dark brown (`timber` ×1.3), the
+   brickworks kiln cap dark tile (×0.6). Grey stays an accent (chimneys,
+   stone). No tier-3 roof uses the slate role now.
 2. **Clay pit depth.** A pit cannot go below the ground plate (the model
    sits on the terrain), so it is terraced banks above ground opened to
    the camera side. Alternative: a client terrain cut-out — out of scope

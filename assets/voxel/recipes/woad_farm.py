@@ -9,7 +9,7 @@ from nsvoxel import parts as P
 from nsvoxel.grid import mat
 from nsvoxel.mats import CANVAS, STONE, STONE_DARK, STONE_LIGHT, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-LEAF = mat("shallows", 0.7)
+LEAF = mat("hemp", 0.82)
 BALL = mat("shallows", 0.5)
 
 

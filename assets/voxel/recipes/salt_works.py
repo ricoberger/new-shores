@@ -1,6 +1,6 @@
 """
 Salt works (4 × 6; D-057 §3): an open boiling house on stone piers with
-a slate roof and a ridge louvre for the steam, two big flat iron boiling
+a dark tile roof and a ridge louvre for the steam, two big flat iron boiling
 pans on brick furnaces with fire mouths, a tall brick stack (smoke); a
 raised timber brine cistern on legs feeding a trough, a coursed-stone
 salt store with red tiles, salt in sacks and moulds, a peat stack and a
@@ -16,6 +16,8 @@ SALT = mat("foam")
 BRINE = mat("shallows", 1.2)
 PEAT = mat("timber", 0.7)
 GLOW = mat("flower", 1.0)
+#: Dark warm tile (no cold slate field, ART_DIRECTION).
+ROOF = mat("terracotta", 0.66)
 
 
 def build(ctx):
@@ -23,16 +25,16 @@ def build(ctx):
     seed = 167
     P.yard(v, 0, 0, 32, 48, "dirt", seed=seed)
     P.yard(v, 0, 38, 32, 48, "paved", seed=seed)
-    # Boiling house: stone piers, a slate roof with a long louvre, open sides.
+    # Boiling house: stone piers, a dark tile roof with a long louvre, open sides.
     x0, x1, y0, y1 = 2, 24, 8, 30
     for x in (x0, 12, x1 - 1):
         for y in (y0, 19, y1 - 1):
             v.box(x, y, 1, x + 1, y + 1, 11, STONE)
     for y in (y0, y1 - 1):
         v.box(x0, y, 11, x1, y + 1, 12, TIMBER_DARK)
-    r = P.roof(v, x0, x1, y0, y1, 12, "slate", along="y", rise=0.9, ov=1, seed=seed)
+    r = P.roof(v, x0, x1, y0, y1, 12, "tiles", along="y", rise=0.9, ov=1, seed=seed, m=ROOF)
     v.box(10, 10, r.ridge_z, 16, 28, r.ridge_z + 2, TIMBER_LIGHT)
-    v.box(9, 9, r.ridge_z + 2, 17, 29, r.ridge_z + 3, mat("slate", 0.85))
+    v.box(9, 9, r.ridge_z + 2, 17, 29, r.ridge_z + 3, mat("terracotta", 0.56))
     # Two boiling pans on brick furnaces, fire mouths to the front and west.
     for py in (10, 20):
         v.box(4, py, 1, 22, py + 8, 3, P.BRICK)
