@@ -556,12 +556,15 @@ buildings (tavern and up) keep upkeep.
   archipelago tile coordinates), `travel_ms = max(1, ceil(distance_milli ×
   60 000 × 1000 / (speed_permille × ship_speed_milli_tiles_per_min)))`.
 - **Sea routing (D-058 §5):** a leg runs from the departure island's
-  harbour — 2 tiles out from the middle of its Trading Post's water edge;
-  an island without one: its water tile next to land nearest the other
-  end — to the arrival island's, around land: integer A* on a 4-tile sea
-  grid (a cell with any land is blocked), then string pulling with a
-  tile-exact line test that keeps 1 tile of water from land (no way
-  around: the straight line). The leg stores the polyline (`path`, shown
+  harbour — 2 tiles out from the middle of its Trading Post's water edge,
+  or the nearest open water tile (no land within 1 tile, outside the
+  footprint) when that one is not; an island without one: its water tile
+  next to land nearest the other end; a founding voyage (`sail_ship` with
+  the Trading Post's `site`): that site's harbour — to the arrival
+  island's, around land: integer A* on a 4-tile sea grid (a cell with
+  any land is blocked; an end in such a cell reaches the open grid over
+  water tiles), then string pulling with a tile-exact line test that
+  keeps 1 tile of water from land (no way around: the straight line). The leg stores the polyline (`path`, shown
   to the client) and its ETA is the sum of the segments' distances in
   the formula above; route loop times use the same paths.
   Constants in `region.json`: `ship_speed_tiles_per_min` (provisional 60)

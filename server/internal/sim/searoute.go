@@ -131,8 +131,9 @@ func (g *seaGrid) landAt(x, y int) bool {
 }
 
 // clear reports whether the segment a–b keeps seaClearance tiles from
-// land, tile by tile; the tiles within seaClearance of its end points are
-// exempt (a harbour in a narrow bay, a shore point next to land).
+// land, tile by tile; the tiles within seaClearance of its end points
+// need only be water themselves (a harbour in a narrow bay, a shore point
+// next to land).
 func (g *seaGrid) clear(a, b Pos) bool {
 	dx, dy := b.X-a.X, b.Y-a.Y
 	n := max(absInt(dx), absInt(dy))
@@ -142,6 +143,9 @@ func (g *seaGrid) clear(a, b Pos) bool {
 			x, y = a.X+divRound(dx*s, n), a.Y+divRound(dy*s, n)
 		}
 		if max(absInt(x-a.X), absInt(y-a.Y)) <= seaClearance || max(absInt(x-b.X), absInt(y-b.Y)) <= seaClearance {
+			if (x != a.X || y != a.Y) && (x != b.X || y != b.Y) && g.landAt(x, y) {
+				return false
+			}
 			continue
 		}
 		for oy := -seaClearance; oy <= seaClearance; oy++ {
@@ -229,14 +233,30 @@ func SeaRoute(islands []*Island, a, b Pos) []Pos {
 	if g.clear(a, b) {
 		return nil
 	}
-	cells := g.search(g.nearestSea(a), g.nearestSea(b))
+	// An end in a cell with land reaches the open grid through the water
+	// tiles (approach), never across land to the nearest sea cell.
+	inA, inB := g.approach(a), g.approach(b)
+	s, t := g.nearestSea(a), g.nearestSea(b)
+	if len(inA) > 0 {
+		last := inA[len(inA)-1]
+		s = g.cellOf(last.X, last.Y)
+	}
+	if len(inB) > 0 {
+		last := inB[len(inB)-1]
+		t = g.cellOf(last.X, last.Y)
+	}
+	cells := g.search(s, t)
 	if cells == nil {
 		return nil
 	}
-	pts := make([]Pos, 0, len(cells)+2)
+	pts := make([]Pos, 0, len(cells)+len(inA)+len(inB)+2)
 	pts = append(pts, a)
+	pts = append(pts, inA...)
 	for _, k := range cells {
 		pts = append(pts, g.centre(k))
+	}
+	for i := len(inB) - 1; i >= 0; i-- {
+		pts = append(pts, inB[i])
 	}
 	pts = append(pts, b)
 	// String pulling: from each kept point jump to the farthest point in sight.
@@ -257,6 +277,61 @@ func SeaRoute(islands []*Island, a, b Pos) []Pos {
 	return out
 }
 
+// approachReach bounds the water-tile search of approach (tiles,
+// Chebyshev from the end point).
+const approachReach = 6 * seaCell
+
+// approach is the shortest way (8 neighbours, no corner cutting) over
+// water tiles from an end point (excluded) to the first tile in a sea
+// cell (included); nil when the point's own cell is sea or no such tile
+// lies within approachReach. Ties break on the neighbour order (dy, then
+// dx ascending).
+func (g *seaGrid) approach(p Pos) []Pos {
+	if !g.land[g.cellOf(p.X, p.Y)] {
+		return nil
+	}
+	side := 2*approachReach + 1
+	from := make([]int, side*side)
+	for i := range from {
+		from[i] = -1
+	}
+	idx := func(x, y int) int { return (y-p.Y+approachReach)*side + x - p.X + approachReach }
+	water := func(x, y int) bool {
+		return absInt(x-p.X) <= approachReach && absInt(y-p.Y) <= approachReach && !g.landAt(x, y)
+	}
+	start := idx(p.X, p.Y)
+	from[start] = start
+	queue := []Pos{p}
+	for len(queue) > 0 {
+		q := queue[0]
+		queue = queue[1:]
+		if q != p && !g.land[g.cellOf(q.X, q.Y)] {
+			var out []Pos
+			for k := idx(q.X, q.Y); k != start; k = from[k] {
+				out = append(out, Pos{p.X + k%side - approachReach, p.Y + k/side - approachReach})
+			}
+			for i, j := 0, len(out)-1; i < j; i, j = i+1, j-1 {
+				out[i], out[j] = out[j], out[i]
+			}
+			return out
+		}
+		for dy := -1; dy <= 1; dy++ {
+			for dx := -1; dx <= 1; dx++ {
+				nx, ny := q.X+dx, q.Y+dy
+				if (dx == 0 && dy == 0) || !water(nx, ny) || from[idx(nx, ny)] >= 0 {
+					continue
+				}
+				if dx != 0 && dy != 0 && (!water(q.X+dx, q.Y) || !water(q.X, q.Y+dy)) {
+					continue
+				}
+				from[idx(nx, ny)] = idx(q.X, q.Y)
+				queue = append(queue, Pos{nx, ny})
+			}
+		}
+	}
+	return nil
+}
+
 // PathMs is the travel time along a polyline: the sum of its segments'
 // ceil(1000 × length) milli-tiles at the ship's speed (the arithmetic of
 // TravelMs; two points give TravelMs).
@@ -269,27 +344,77 @@ func PathMs(path []Pos, speedPermille, milliTilesPerMin int64) int64 {
 }
 
 // harbour is the point (archipelago tiles) in front of the water edge of
-// an island's Trading Post (its first building with berths); false
-// without one.
+// an island's Trading Post (its first building with berths, HarbourAt);
+// false without one.
 func harbour(c *content.Catalogue, is *Island) (Pos, bool) {
 	for _, b := range is.Buildings {
 		def := c.BuildingByID[b.Type]
 		if b.Berths <= 0 || def == nil {
 			continue
 		}
-		w, h := footprint(def, b.Rotation)
-		x, y := is.X+b.X, is.Y+b.Y
-		switch b.Rotation {
-		case 90:
-			return Pos{x + w - 1 + harbourOffset, y + h/2}, true
-		case 180:
-			return Pos{x + w/2, y + h - 1 + harbourOffset}, true
-		case 270:
-			return Pos{x - harbourOffset, y + h/2}, true
-		}
-		return Pos{x + w/2, y - harbourOffset}, true
+		return HarbourAt(is, def, b.X, b.Y, b.Rotation), true
 	}
 	return Pos{}, false
+}
+
+// harbourSearch bounds the search for open water around a harbour point
+// (tiles, Chebyshev).
+const harbourSearch = 12
+
+// HarbourAt is the harbour point (archipelago tiles) of a Trading Post of
+// def at (x, y) (island tiles) with the rotation: harbourOffset tiles
+// beyond the middle of its water edge. When that tile is not open water
+// (water with no land within one tile: a tight bay) it is the nearest open
+// water tile outside the footprint (Euclidean; ties: ring order), the
+// tile itself when there is none within harbourSearch. Tiles outside the
+// island's grid are water.
+func HarbourAt(is *Island, def *content.Building, x, y, rotation int) Pos {
+	w, h := footprint(def, rotation)
+	var p Pos
+	switch rotation {
+	case 90:
+		p = Pos{x + w - 1 + harbourOffset, y + h/2}
+	case 180:
+		p = Pos{x + w/2, y + h - 1 + harbourOffset}
+	case 270:
+		p = Pos{x - harbourOffset, y + h/2}
+	default:
+		p = Pos{x + w/2, y - harbourOffset}
+	}
+	land := func(tx, ty int) bool {
+		return tx >= 0 && ty >= 0 && tx < is.Width && ty < is.Height && len(is.Tiles) == is.Width*is.Height &&
+			is.Tiles[ty*is.Width+tx].Terrain != content.TerrainWater
+	}
+	open := func(tx, ty int) bool {
+		if tx >= x && ty >= y && tx < x+w && ty < y+h {
+			return false
+		}
+		for oy := -1; oy <= 1; oy++ {
+			for ox := -1; ox <= 1; ox++ {
+				if land(tx+ox, ty+oy) {
+					return false
+				}
+			}
+		}
+		return true
+	}
+	best, bestD := p, -1
+	for r := 0; r <= harbourSearch; r++ {
+		if bestD >= 0 && r*r > bestD {
+			break
+		}
+		for dy := -r; dy <= r; dy++ {
+			for dx := -r; dx <= r; dx++ {
+				if max(absInt(dx), absInt(dy)) != r || !open(p.X+dx, p.Y+dy) {
+					continue
+				}
+				if d := dx*dx + dy*dy; bestD < 0 || d < bestD {
+					best, bestD = Pos{p.X + dx, p.Y + dy}, d
+				}
+			}
+		}
+	}
+	return Pos{is.X + best.X, is.Y + best.Y}
 }
 
 // shore is the water tile of an island's grid next to its land that is

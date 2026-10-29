@@ -90,6 +90,9 @@ describe("ships at sea and at the pier", () => {
     const atSea = { ...s, state: "idle" as const, leg: null, island_id: "", position: from };
     expect(shipPlacement(atSea, islands, depart)).toEqual({ point: { x: from.x + 0.5, y: from.y + 0.5 }, heading: 0, atSea: true });
     expect(shipWhere(atSea, depart, (id) => id)).toBe("at sea");
+    // Arrived at the unsettled island (no berths): it stays where its leg ended, not on the island (D-058).
+    const arrived = { ...s, state: "idle" as const, leg: null, island_id: s.leg!.to_island_id };
+    expect(shipPlacement(arrived, islands, arrive, 0, undefined, undefined, end.point)).toEqual({ point: end.point, heading: 0, atSea: false });
   });
 
   it("names the ship at the pier and the one waiting for its berth", () => {

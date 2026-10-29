@@ -1737,9 +1737,13 @@ components:
         another island; it departs at once. At arrival it unloads like a
         manual shipment at a settled island (queueing for a berth); at an
         unsettled island everything stays aboard and the ship is idle
-        there, ready for `found_island`. Errors: `ship_not_found`,
-        `ship_not_idle`, `route_invalid` (unknown destination or the
-        ship's own island).
+        there, ready for `found_island`. With `site` (the client's chained
+        founding, D-051) the voyage ends at that Trading Post's harbour
+        point instead of the island's shore (D-058); the site is validated
+        like `found_island`'s (`island_already_settled`, `invalid_command`,
+        `unknown_building`, `tier_locked`, `out_of_bounds`, `not_on_water`,
+        `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
+        `route_invalid` (unknown destination or the ship's own island).
       required: [type, ship_id, to_island_id]
       properties:
         type:
@@ -1751,6 +1755,24 @@ components:
           description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
         to_island_id:
           type: string
+        site:
+          type: object
+          additionalProperties: false
+          description: The Trading Post the ship sails to found (island tiles).
+          required: [building_type, x, y, rotation]
+          properties:
+            building_type:
+              type: string
+            x:
+              type: integer
+              description: Left column of the rotated footprint (tiles).
+            y:
+              type: integer
+              description: Top row of the rotated footprint (tiles).
+            rotation:
+              type: integer
+              enum: [0, 90, 180, 270]
+              description: Degrees; 90 and 270 swap width and height.
     FoundIslandCommand:
       type: object
       additionalProperties: false

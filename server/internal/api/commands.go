@@ -209,9 +209,18 @@ type manualShipmentJSON struct {
 }
 
 type sailShipJSON struct {
-	Type       string  `json:"type"`
-	ShipID     *int64  `json:"ship_id"`
-	ToIslandID *string `json:"to_island_id"`
+	Type       string        `json:"type"`
+	ShipID     *int64        `json:"ship_id"`
+	ToIslandID *string       `json:"to_island_id"`
+	Site       *foundingSite `json:"site"`
+}
+
+// foundingSite is the Trading Post a sail_ship is bound to found.
+type foundingSite struct {
+	BuildingType *string `json:"building_type"`
+	X            *int    `json:"x"`
+	Y            *int    `json:"y"`
+	Rotation     *int    `json:"rotation"`
 }
 
 type claimQuestJSON struct {
@@ -777,7 +786,21 @@ func decodeSailShip(raw json.RawMessage) (sim.Command, error) {
 	case c.ToIslandID == nil:
 		return nil, missing("to_island_id")
 	}
-	return sim.SailShip{ShipID: *c.ShipID, ToIslandID: *c.ToIslandID}, nil
+	cmd := sim.SailShip{ShipID: *c.ShipID, ToIslandID: *c.ToIslandID}
+	if s := c.Site; s != nil {
+		switch {
+		case s.BuildingType == nil:
+			return nil, missing("site.building_type")
+		case s.X == nil:
+			return nil, missing("site.x")
+		case s.Y == nil:
+			return nil, missing("site.y")
+		case s.Rotation == nil:
+			return nil, missing("site.rotation")
+		}
+		cmd.Site = &sim.FoundingSite{BuildingType: *s.BuildingType, X: *s.X, Y: *s.Y, Rotation: *s.Rotation}
+	}
+	return cmd, nil
 }
 
 func decodeManualShipment(raw json.RawMessage) (sim.Command, error) {

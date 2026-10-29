@@ -26,6 +26,9 @@ func TestStartAtSeaOverHTTP(t *testing.T) {
 	ss.fails(t, `{"type":"sail_ship","ship_id":9,"to_island_id":"start"}`, http.StatusNotFound, "ship_not_found")
 	ss.fails(t, `{"type":"sail_ship","ship_id":1,"to_island_id":"atlantis"}`, http.StatusBadRequest, "route_invalid")
 	ss.failsSpec(t, `{"type":"sail_ship","ship_id":1}`, http.StatusBadRequest, "invalid_command", false)
+	// A founding voyage's site is validated like found_island's (D-058).
+	ss.failsSpec(t, `{"type":"sail_ship","ship_id":1,"to_island_id":"start","site":{"building_type":"trading_post","x":2,"y":0}}`, http.StatusBadRequest, "invalid_command", false)
+	ss.fails(t, `{"type":"sail_ship","ship_id":1,"to_island_id":"start","site":{"building_type":"trading_post","x":2,"y":4,"rotation":0}}`, http.StatusConflict, "not_on_water")
 
 	ss.ok(t, `{"type":"sail_ship","ship_id":1,"to_island_id":"start"}`)
 	v := ss.view(t)

@@ -339,8 +339,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     if (t.kind === "found") {
       const ship = model?.ships.find((s) => s.id === t.shipId);
       if (ship && !(ship.state === "idle" && ship.island_id === islandId)) {
-        // Two steps: sail now, found when the ship is idle at the island.
-        void sendCommand({ type: "sail_ship", ship_id: t.shipId, to_island_id: islandId }).then(({ ok }) => {
+        // Two steps: sail now (to the site's harbour, D-058), found when the ship is idle at the island.
+        const site = { building_type: t.buildingType, x, y, rotation: t.rotation };
+        void sendCommand({ type: "sail_ship", ship_id: t.shipId, to_island_id: islandId, site }).then(({ ok }) => {
           if (!ok) return;
           setPendingFound({ shipId: t.shipId, islandId, x, y, rotation: t.rotation });
           setTool((cur) => (cur === t ? NO_TOOL : cur));

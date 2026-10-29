@@ -432,9 +432,10 @@ export function legPath(
  * time clamped to [0, 1]) and at the destination's anchor after
  * arrive_at (until the next payload). Without a leg (idle,
  * anchored_unpaid) it lies at harbour berth `slot + 1` of its island (the
- * first berth is the anchor of the legs), or at the island centre plus
- * the spread offset of `slot` when the berths are unknown. Null when an
- * island is unknown.
+ * first berth is the anchor of the legs); at an island without berths
+ * (unsettled: the founding ship before found_island) at `arrived`, the
+ * end of its last leg, when known, else at the island centre plus the
+ * spread offset of `slot`. Null when an island is unknown.
  */
 export function shipPlacement(
   ship: Pick<ShipDisplay, "island_id" | "leg"> & { position?: ShipDisplay["position"] },
@@ -443,6 +444,7 @@ export function shipPlacement(
   slot = 0,
   berths?: Berths,
   dock?: Dock,
+  arrived?: ArchPoint,
 ): ShipPlacement | null {
   const leg = ship.leg;
   if (leg) {
@@ -469,6 +471,7 @@ export function shipPlacement(
     const berth = list[Math.min(list.length - 1, slot + 1)] as ArchPoint;
     return { point: berth, heading: 0, atSea: false };
   }
+  if (arrived) return { point: arrived, heading: 0, atSea: false };
   const a = islandAnchor(is);
   const o = spreadOffset(slot);
   return { point: { x: a.x + o.x, y: a.y + o.y }, heading: 0, atSea: false };

@@ -20,7 +20,7 @@ import type { Rect } from "../display/camera";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
 import { ribbonsShown } from "../display/routes";
-import { anchorSlots, type ArchPoint, berthAnchor, type Berths, type Dock, islandAnchor, type IslandPlacement, shipPlacement } from "../display/ships";
+import { anchorSlots, type ArchPoint, berthAnchor, type Berths, type Dock, islandAnchor, type IslandPlacement, seaPoint, shipPlacement } from "../display/ships";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
 import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
@@ -132,6 +132,8 @@ export class ArchipelagoLayer {
   /** Waiting ships bob at anchor (the life layer; off with ?life=0). */
   bobbing = true;
   private shipList: ShipDisplay[] = [];
+  /** Where each ship's last leg ended (its island and the path's last point): an idle ship at an island without berths stays there (D-058). */
+  private legEnds = new Map<number, { island: string; point: ArchPoint }>();
   private routes: RouteDisplay[] = [];
   private draft: string[] | null = null;
   private highlight: number | null = null;
@@ -232,6 +234,10 @@ export class ArchipelagoLayer {
     }
     this.layoutSea();
     this.shipList = [...ships];
+    for (const s of ships) {
+      const end = s.leg?.path?.[s.leg.path.length - 1];
+      if (s.leg && end) this.legEnds.set(s.id, { island: s.leg.to_island_id, point: seaPoint(end) });
+    }
     this.routes = [...routes];
     this.rebuildRoutes();
   }
@@ -460,7 +466,8 @@ export class ArchipelagoLayer {
       cargo?.resize(loaded);
       let c = 0;
       list.forEach((s, i) => {
-        const p = shipPlacement(s, this.placements, nowMs, slots.get(s.id) ?? 0, this.berths, this.docks.get(s.id));
+        const end = this.legEnds.get(s.id);
+        const p = shipPlacement(s, this.placements, nowMs, slots.get(s.id) ?? 0, this.berths, this.docks.get(s.id), end?.island === s.island_id ? end.point : undefined);
         const point = p?.point ?? { x: 0, y: 0 };
         this.shipPoints.set(s.id, point);
         const dock = this.docks.get(s.id);

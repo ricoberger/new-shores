@@ -732,6 +732,19 @@ type RenameShip struct {
 type SailShip struct {
 	ShipID     int64
 	ToIslandID string
+	// Site, when set, is the Trading Post the ship sails to found (the
+	// client's chained founding, D-051): the leg ends at its harbour point
+	// (HarbourAt) instead of the island's shore. It is validated like
+	// found_island's site; nil sails to the shore.
+	Site *FoundingSite
+}
+
+// FoundingSite is a Trading Post site of an unsettled island (island
+// tiles).
+type FoundingSite struct {
+	BuildingType string
+	X, Y         int
+	Rotation     int
 }
 
 func (OrderShip) isCommand()       {}
@@ -1069,16 +1082,28 @@ func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	if ship == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownShipType, s.Type)
 	}
+	site, hasSite, err := foundingHarbour(w, c, to, cmd.Site)
+	if err != nil {
+		return err
+	}
 	now := w.LastEvaluatedAt.UnixMilli()
 	leg := Leg{FromIsland: s.IslandID, ToIsland: to.ID, DepartAtMs: now}
 	switch from := w.Island(s.IslandID); {
 	case from != nil:
-		path, ms := travel(w, c, ship.SpeedPermille, from, to)
+		a, b := Ends(c, from, to)
+		if hasSite {
+			b = site
+		}
+		path, ms := Voyage(w, c, ship.SpeedPermille, a, b)
 		leg.ArriveAtMs, leg.Path = now+ms, path
 	case s.AtSea != nil:
 		p := *s.AtSea
 		leg.From = &p
-		path, ms := Voyage(w, c, ship.SpeedPermille, p, Arrival(c, p, to))
+		b := Arrival(c, p, to)
+		if hasSite {
+			b = site
+		}
+		path, ms := Voyage(w, c, ship.SpeedPermille, p, b)
 		leg.ArriveAtMs, leg.Path = now+ms, path
 	default:
 		return fmt.Errorf("%w: ship %d has no position", ErrShipNotIdle, s.ID)
@@ -1087,6 +1112,35 @@ func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	s.AtSea = nil
 	depart(s, leg, now)
 	return nil
+}
+
+// foundingHarbour validates the site a sail_ship is bound to found (as
+// found_island would, apart from the ship and its cargo) and returns its
+// harbour point; ok is false without a site.
+func foundingHarbour(w *World, c *content.Catalogue, is *Island, site *FoundingSite) (Pos, bool, error) {
+	if site == nil {
+		return Pos{}, false, nil
+	}
+	if settled(is, c) {
+		return Pos{}, false, fmt.Errorf("%w: %q", ErrIslandAlreadySettled, is.ID)
+	}
+	def := c.BuildingByID[site.BuildingType]
+	if def == nil {
+		return Pos{}, false, fmt.Errorf("%w: %q", ErrUnknownBuilding, site.BuildingType)
+	}
+	if def.TradingPost == nil {
+		return Pos{}, false, fmt.Errorf("%w: %s has no trading_post block", ErrInvalidCommand, def.ID)
+	}
+	if !TierUnlocked(w, c, def.Tier) {
+		return Pos{}, false, fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
+	}
+	if !validRotation(site.Rotation) {
+		return Pos{}, false, fmt.Errorf("%w: rotation %d", ErrInvalidCommand, site.Rotation)
+	}
+	if err := checkSite(is, c, is.occupancy(c), def, site.X, site.Y, site.Rotation, true); err != nil {
+		return Pos{}, false, err
+	}
+	return HarbourAt(is, def, site.X, site.Y, site.Rotation), true, nil
 }
 
 func scrapShip(w *World, c *content.Catalogue, cmd ScrapShip, l *Ledger) error {

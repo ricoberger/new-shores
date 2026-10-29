@@ -1158,9 +1158,13 @@ export interface components {
          *     another island; it departs at once. At arrival it unloads like a
          *     manual shipment at a settled island (queueing for a berth); at an
          *     unsettled island everything stays aboard and the ship is idle
-         *     there, ready for `found_island`. Errors: `ship_not_found`,
-         *     `ship_not_idle`, `route_invalid` (unknown destination or the
-         *     ship's own island).
+         *     there, ready for `found_island`. With `site` (the client's chained
+         *     founding, D-051) the voyage ends at that Trading Post's harbour
+         *     point instead of the island's shore (D-058); the site is validated
+         *     like `found_island`'s (`island_already_settled`, `invalid_command`,
+         *     `unknown_building`, `tier_locked`, `out_of_bounds`, `not_on_water`,
+         *     `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
+         *     `route_invalid` (unknown destination or the ship's own island).
          */
         SailShipCommand: {
             /**
@@ -1174,6 +1178,19 @@ export interface components {
              */
             ship_id: number;
             to_island_id: string;
+            /** @description The Trading Post the ship sails to found (island tiles). */
+            site?: {
+                building_type: string;
+                /** @description Left column of the rotated footprint (tiles). */
+                x: number;
+                /** @description Top row of the rotated footprint (tiles). */
+                y: number;
+                /**
+                 * @description Degrees; 90 and 270 swap width and height.
+                 * @enum {integer}
+                 */
+                rotation: 0 | 90 | 180 | 270;
+            };
         };
         /**
          * @description Settle an unsettled island (D-051): an idle ship there pays the
