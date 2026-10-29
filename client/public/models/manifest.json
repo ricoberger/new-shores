@@ -4924,14 +4924,14 @@
         ],
         "status": [
           0.0,
-          2.875,
+          6.0,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.625,
+          5.75,
           1.5
         ],
         "min": [
@@ -4940,26 +4940,17 @@
           -1.5
         ]
       },
-      "file": {
-        "bounds": {
-          "max": [
-            1.5,
-            2.625,
-            1.5
-          ],
-          "min": [
-            -1.5,
-            0.0,
-            -1.5
-          ]
-        },
-        "budget": 4860,
-        "bytes": 58804,
-        "lite": {
+      "footprint": {
+        "h": 3,
+        "w": 3
+      },
+      "kind": "building",
+      "variants": [
+        {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              4.875,
               1.5
             ],
             "min": [
@@ -4968,21 +4959,108 @@
               -1.5
             ]
           },
-          "budget": 405,
-          "bytes": 9456,
-          "path": "house_patricians.lite.glb",
-          "sha256": "42b14598935a025f019d71542ed0e53c6774ea51ac2436798433efd23a13a295",
-          "triangles": 240
+          "budget": 4860,
+          "bytes": 101364,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                4.5,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 12768,
+            "path": "house_patricians.v0.lite.glb",
+            "sha256": "67ab498a269559e7f35c42ce2e623adfd40480a945e37402e3a4aa4bbe7d38ab",
+            "triangles": 322
+          },
+          "path": "house_patricians.v0.glb",
+          "sha256": "3c74c2e6c763640cf6105b1f28adf1ee6ad65e3d32c9a5e8fca26d68e44a004a",
+          "triangles": 3388
         },
-        "path": "house_patricians.glb",
-        "sha256": "90a12a5db078120ef30215961a972d7c9ea5d027e206bda37a77c39e5ea03603",
-        "triangles": 1898
-      },
-      "footprint": {
-        "h": 3,
-        "w": 3
-      },
-      "kind": "building"
+        {
+          "bounds": {
+            "max": [
+              1.5,
+              4.25,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 4860,
+          "bytes": 77056,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                4.0,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 9020,
+            "path": "house_patricians.v1.lite.glb",
+            "sha256": "8d9748b33a64ae0a7dce126488bc0b99082dbc0d3955bb37564f64f08dc2c8af",
+            "triangles": 226
+          },
+          "path": "house_patricians.v1.glb",
+          "sha256": "8ff24c692d6db0810254d69422f4422dc052dc8beedffc65221245b697516a00",
+          "triangles": 2588
+        },
+        {
+          "bounds": {
+            "max": [
+              1.5,
+              5.75,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 4860,
+          "bytes": 105180,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                5.5,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 10852,
+            "path": "house_patricians.v2.lite.glb",
+            "sha256": "f6a43a57dd0e1e7b9c5779e853a2612b1e9097aa9d36361e3c2f0f5f84595fa7",
+            "triangles": 288
+          },
+          "path": "house_patricians.v2.glb",
+          "sha256": "bfb23de33c670422a66420ff15afa6e65fda46766bf9525a22f9e882c89371f8",
+          "triangles": 3568
+        }
+      ]
     },
     "house_settlers": {
       "anchors": {
@@ -9571,7 +9649,6 @@
     "gold_mine",
     "gold_smelter",
     "goldsmith",
-    "house_patricians",
     "lace_maker",
     "luthier",
     "malt_house",
