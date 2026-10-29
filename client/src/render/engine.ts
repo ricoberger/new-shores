@@ -768,6 +768,9 @@ export class GameRenderer {
       // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
       if (showsLandmarks(is, this.lod, focus, useMask)) landmarks.push(is);
     }
+    // Nearest the view first: they keep their own far columns within the mask mesh's budget.
+    const centre = new Map(islands.map((is) => [is.id, Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y)]));
+    masked.sort((a, b) => (centre.get(a.id) ?? 0) - (centre.get(b.id) ?? 0));
     this.mask.show(masked);
     this.landmarks.show(landmarks, this.defs);
     this.cullChunks(islands);
