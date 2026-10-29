@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { NetworkError, type Player } from "../api/client";
 import { authErrorText, currentPlayer, parseMailLink, verifyEmail } from "../api/auth";
 import { type FixtureId, FixtureSync, fixtureCamera, fixtureFromSearch } from "../dev/fixture";
+import { Almanac } from "../almanac/Almanac";
+import { isAlmanacPath } from "../almanac/route";
 import { App } from "./App";
 import appStyles from "./App.module.css";
 import styles from "./account.module.css";
@@ -33,6 +35,8 @@ const FIXTURE_PLAYER: Player = { id: "fixture", display_name: "Fixture", guest: 
  */
 export function Root() {
   const [fixture] = useState(() => (DEV_HOOKS ? fixtureFromSearch(globalThis.location?.search ?? "") : null));
+  // The public almanac (/almanac/…) needs no session and no world; a pathname check is the whole router.
+  if (isAlmanacPath(globalThis.location?.pathname ?? "")) return <Almanac />;
   return (
     <>
       {DEV_HOOKS && fixture ? <FixtureApp id={fixture} /> : <SessionRoot />}

@@ -79,6 +79,9 @@ export function StartScreen({ onPlayer, notice: incomingNotice, resetToken }: Pr
                 {error}
               </p>
             )}
+            <a href="/almanac" style={{ textAlign: "center", padding: "6px 0" }} data-testid="show-almanac">
+              Almanac
+            </a>
           </div>
         )}
       </div>
