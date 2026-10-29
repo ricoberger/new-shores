@@ -8395,6 +8395,78 @@
       },
       "kind": "building"
     },
+    "surgery": {
+      "anchors": {
+        "door": [
+          -0.25,
+          0.0,
+          -0.625
+        ],
+        "status": [
+          0.0,
+          3.125,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.5,
+          2.875,
+          1.5
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.5,
+            2.875,
+            1.5
+          ],
+          "min": [
+            -1.5,
+            0.0,
+            -1.5
+          ]
+        },
+        "budget": 4500,
+        "bytes": 85732,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.5,
+              3.0,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 360,
+          "bytes": 8716,
+          "path": "surgery.lite.glb",
+          "sha256": "9cf2962c3dab2f03cdad9b7e20bc4d791ab0128ac9b45df2499fb523b6ff432c",
+          "triangles": 218
+        },
+        "path": "surgery.glb",
+        "sha256": "0f9b1e48f8fc868bf5e751030d1a838fea719941f8ffa7f2695da596e0b17ac7",
+        "triangles": 2834
+      },
+      "footprint": {
+        "h": 3,
+        "w": 3
+      },
+      "kind": "building",
+      "sway": [
+        "cloth"
+      ]
+    },
     "tailor": {
       "anchors": {
         "cart": [
