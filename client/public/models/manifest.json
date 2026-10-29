@@ -8927,6 +8927,56 @@
         "flag"
       ]
     },
+    "tree_plot": {
+      "anchors": {
+        "door": [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        "status": [
+          0.0,
+          1.125,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          0.5,
+          0.875,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.5,
+            0.875,
+            0.5
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.5
+          ]
+        },
+        "budget": 410,
+        "bytes": 11896,
+        "path": "tree_plot.glb",
+        "sha256": "c14ae813a827551b9c60fc9eaac88e75c705fdc56610a68bd9cea097878a4235",
+        "triangles": 362
+      },
+      "footprint": {
+        "h": 1,
+        "w": 1
+      },
+      "kind": "field"
+    },
     "university": {
       "anchors": {
         "door": [

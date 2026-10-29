@@ -32,6 +32,15 @@ D060 = {
 }
 
 
+#: Anchors beyond door and status that a model declares (LIFE_LAYER §7, D-060).
+EXTRA_ANCHORS = {
+    "trading_pier": ("berth_1", "berth_2", "cart"),
+    "depot": ("cart",),
+}
+#: Model files that may carry a sway group (cloth).
+SWAY = {"surgery.glb": ["cloth"], "depot.l2.glb": ["cloth"]}
+
+
 def bounds_ok(v, lo, hi):
     """Whether every cell lies inside lo..hi (inclusive corners, voxels)."""
     return all(lo[i] <= k[i] <= hi[i] for k in v.cells for i in range(3))
@@ -121,6 +130,87 @@ class HelperTest(unittest.TestCase):
             return v.cells
 
         self.assertEqual(make(), make())
+
+
+class RecipeTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.recipes = model.recipe_modules()
+        cls.cache = {}
+
+    def ids(self):
+        return [cid for cid in D060 if cid in self.recipes]
+
+    def built(self, cid):
+        if cid not in self.cache:
+            kind = build.kind_for(CONTENT, cid)
+            recipe, placeholder = build.recipe_for(cid, kind, self.recipes)
+            self.assertFalse(placeholder, cid)
+            self.cache[cid] = model.build_id(cid, kind, recipe, CONTENT)
+        return self.cache[cid]
+
+    def test_footprints_are_the_fixed_ones(self):
+        for cid, (fp, water) in D060.items():
+            if cid not in CONTENT["buildings"]:
+                continue
+            self.assertEqual(content.footprint(CONTENT, cid), fp, cid)
+            self.assertEqual(CONTENT["buildings"][cid].get("water_tiles", 0), water, cid)
+
+    def test_budgets_footprint_and_anchors(self):
+        for cid in self.ids():
+            with self.subTest(cid=cid):
+                files, entry, problems = self.built(cid)
+                self.assertEqual(problems, [])
+                (w, h), water = D060[cid]
+                self.assertEqual(entry["footprint"], {"w": w, "h": h})
+                cls = model.model_class(CONTENT, cid)
+                self.assertEqual(cls, "field" if cid == "tree_plot" else "building")
+                for a in ("door", "status") + EXTRA_ANCHORS.get(cid, ()):
+                    self.assertIn(a, entry["anchors"], cid)
+                # No smoke on these models (content has no `smoke` for them).
+                self.assertNotIn("smoke", entry["anchors"])
+                for info in [entry.get("file")] + entry.get("variants", []) + list(entry.get("levels", {}).values()):
+                    if not info:
+                        continue
+                    self.assertLessEqual(info["triangles"], config.BUDGET_PER_TILE[cls] * w * h, info["path"])
+                    if "lite" in info:
+                        self.assertLessEqual(info["lite"]["triangles"], config.LITE_BUDGET_PER_TILE[cls] * w * h, info["path"])
+                        self.assertGreater(info["lite"]["triangles"], 60, info["path"])
+                for f in files:
+                    if f[3] is not None:
+                        self.assertEqual((f[3].w, f[3].d), (w * config.VOXELS_PER_TILE, h * config.VOXELS_PER_TILE), f[0])
+
+    def test_models_use_palette_roles_and_flat_sway_groups(self):
+        for cid in self.ids():
+            with self.subTest(cid=cid):
+                files, entry, _ = self.built(cid)
+                for f in files:
+                    if f[3] is None:
+                        continue
+                    self.assertTrue({m[0] for m in f[3].cells.values()} <= set(ROLES), f[0])
+                    self.assertEqual(model.sway_groups(f[3].cells), SWAY.get(f[0], []), f[0])
+
+    def test_builds_are_deterministic(self):
+        for cid in self.ids():
+            with self.subTest(cid=cid):
+                kind = build.kind_for(CONTENT, cid)
+                recipe, _ = build.recipe_for(cid, kind, self.recipes)
+                again = model.build_id(cid, kind, recipe, CONTENT)
+                for a, b in zip(self.built(cid)[0], again[0]):
+                    self.assertEqual(a[1], b[1], a[0])
+
+    def test_no_water_row_voxel_above_a_footprint_row_it_does_not_own(self):
+        # Piles under the water rows reach below the ground plate; nothing else does.
+        for cid in self.ids():
+            _, water = D060[cid]
+            files, _, _ = self.built(cid)
+            for f in files:
+                if f[3] is None:
+                    continue
+                land = water * config.VOXELS_PER_TILE
+                for (x, y, z) in f[3].cells:
+                    if z < 0:
+                        self.assertLess(y, land + 2, (cid, f[0], x, y, z))
 
 
 if __name__ == "__main__":
