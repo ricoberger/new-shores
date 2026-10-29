@@ -1,6 +1,6 @@
 import { type ReactNode, useRef } from "react";
 import type { BuildingDisplay, Content, DisplayState, IslandDisplay } from "../api/client";
-import { percent, perMin, seconds, units } from "../display/format";
+import { percent, perMin, seconds, speedFactor, units } from "../display/format";
 import { countdownWithUnit, orderTiming, shipName as shipNameOf } from "../display/ships";
 import { fieldBuildingOf, footprintText } from "../display/fields";
 import { needAlternatives, needCategory, needLabel, orderNeeds, upgradeReasonText } from "../display/needs";
@@ -678,7 +678,7 @@ export function InfoPanel({
                       <span key="cargo">
                         {t.slots}×{units(t.slot_size)} cargo
                       </span>,
-                      <span key="speed">{((t.speed_permille ?? 1000) / 1000).toFixed(1)}× speed</span>,
+                      <span key="speed">{speedFactor(t.speed_permille ?? 1000)}× speed</span>,
                       <span key="upkeep">{perMin(t.upkeep_per_min)} $/min upkeep</span>,
                     ]}
                   />

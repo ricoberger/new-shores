@@ -114,3 +114,20 @@ func TestLegEnds(t *testing.T) {
 		t.Fatalf("arrival from the south %v", got)
 	}
 }
+
+// TestShipSpeedsScaleVoyages (D-060): a ship's leg time is the reference
+// time over its content speed — on open sea the sloop (1.2) takes 5/6,
+// the galleon (0.85) 20/17 of the brig's (1.0) time.
+func TestShipSpeedsScaleVoyages(t *testing.T) {
+	c := shippedCatalogue(t)
+	w := &World{}
+	a, b := Pos{X: 0, Y: 0}, Pos{X: 300, Y: 400}
+	ms := map[string]int64{}
+	for _, id := range []string{"sloop", "brig", "galleon"} {
+		_, ms[id] = Voyage(w, c, c.ShipByID[id].SpeedPermille, a, b)
+	}
+	// 500 tiles at 60 tiles per minute: 500 s for the brig.
+	if ms["brig"] != 500_000 || ms["sloop"] != 416_667 || ms["galleon"] != 588_236 {
+		t.Errorf("voyage ms %v, want brig 500000, sloop 416667, galleon 588236", ms)
+	}
+}

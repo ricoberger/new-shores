@@ -352,9 +352,9 @@ its size with throughput (D-054); a reach rule would be a new decision.
 
 | ID | Tier | Slots × size | Speed | Build | Cost | Upkeep |
 |---|---|---|---|---|---|---|
-| `sloop` | 2 (start ship from tier 1) | 2 × 50 | 1.0 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
+| `sloop` | 2 (start ship from tier 1) | 2 × 50 | 1.2 | 2 min | 100 gold, 20 planks, 10 sails* | 1 |
 | `brig` | 3 | 4 × 50 | 1.0 | 5 min | 1 500 gold, 60 planks, 20 sails, 10 tools | 4 |
-| `galleon` | 4 | 6 × 60 | 1.0 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
+| `galleon` | 4 | 6 × 60 | 0.85 | 10 min | 6 000 gold, 120 planks, 40 sails, 30 tools | 8 |
 
 \*The sails for the first built sloop are the reward of the tier-2
 "Build a shipyard" quest (D-056); the start ship is a sloop and carries

@@ -229,7 +229,7 @@ func TestLoadOldCoast(t *testing.T) {
 	}
 	sloop := c.ShipByID["sloop"]
 	wantCost := Cost{Gold: 100_000, Materials: []GoodAmount{{"planks", 20_000}, {"sails", 10_000}}}
-	if sloop == nil || sloop.Tier != "citizens" || sloop.Slots != 2 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1000 ||
+	if sloop == nil || sloop.Tier != "citizens" || sloop.Slots != 2 || sloop.SlotSize != 50_000 || sloop.SpeedPermille != 1200 ||
 		sloop.BuildMs != 120_000 || sloop.UpkeepPerMin != 1_000 || sloop.Cost.Gold != wantCost.Gold ||
 		len(sloop.Cost.Materials) != 2 || sloop.Cost.Materials[0] != wantCost.Materials[0] || sloop.Cost.Materials[1] != wantCost.Materials[1] {
 		t.Errorf("sloop = %+v", sloop)
@@ -246,13 +246,15 @@ func TestLoadOldCoast(t *testing.T) {
 		size, gold     Qty
 		buildMs, upkep int64
 		tools          Qty
+		speed          int64
 	}{
-		{"brig", "merchants", 4, 50_000, 1_500_000, 300_000, 4_000, 10_000},
-		{"galleon", "patricians", 6, 60_000, 6_000_000, 600_000, 8_000, 30_000},
+		// D-060: the sloop is fast and light, the galleon slow and heavy.
+		{"brig", "merchants", 4, 50_000, 1_500_000, 300_000, 4_000, 10_000, 1000},
+		{"galleon", "patricians", 6, 60_000, 6_000_000, 600_000, 8_000, 30_000, 850},
 	} {
 		s := c.ShipByID[w.id]
 		if s == nil || s.Tier != w.tier || s.Slots != w.slots || s.SlotSize != w.size || s.Cost.Gold != w.gold || s.BuildMs != w.buildMs ||
-			s.UpkeepPerMin != w.upkep || s.SpeedPermille != 1000 || len(s.Cost.Materials) != 3 || s.Cost.Materials[2] != (GoodAmount{"tools", w.tools}) {
+			s.UpkeepPerMin != w.upkep || s.SpeedPermille != w.speed || len(s.Cost.Materials) != 3 || s.Cost.Materials[2] != (GoodAmount{"tools", w.tools}) {
 			t.Errorf("%s = %+v", w.id, s)
 		}
 	}
