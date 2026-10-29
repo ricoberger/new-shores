@@ -52,8 +52,10 @@ export const RIVER_DROP = 2;
 const RIVER_WATER = 0.7;
 /** Share of the level edges away from the sea that are ramps (noise threshold: higher, fewer). */
 const RAMP_NOISE = 0.57;
+/** Width (cover share) of the noise on terrace edges in and beside rock: ±EDGE_JAG/2 of a tile's half span, about one column. */
+const EDGE_JAG = 0.5;
 /** Noise erosion of the rock outline (bilinear share): ragged rims at column resolution. */
-const ROCK_EROSION = 0.3;
+const ROCK_EROSION = 0.5;
 /**
  * Rock steps per rock level of the generator (heights 1–4): a large
  * island's spine rises up to 32 steps (four tiles) above its terrace.
@@ -63,6 +65,8 @@ export const ROCK_STEPS = 8;
 const ROCK_SLOPE = 3;
 /** Amplitude (steps) of the low-frequency noise on the rock tops: uneven, not plates. */
 const ROCK_ROUGH = 7;
+/** Amplitude (steps) of the per-column height noise over the whole rock body (4 columns per tile): breaks the contour bands of the tile heights. */
+const ROCK_GRAIN = 4;
 /** Crag rows placed per step of the incremental build. */
 const CRAG_ROWS_PER_STEP = 24;
 
@@ -199,6 +203,13 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
   }
   const inside = new Uint8Array(n);
   const outside = new Uint8Array(n);
+  // Columns of rock tiles and of their neighbours: their terrace edges are noisy.
+  const rugged = new Uint8Array(n);
+  for (let k = 0; k < n; k++) {
+    const x = Math.floor((k % nx) / vpt);
+    const y = Math.floor(Math.floor(k / nx) / vpt);
+    for (let dy = -1; dy <= 1 && !rugged[k]; dy++) for (let dx = -1; dx <= 1; dx++) if (rocky(terrain[tile(x + dx, y + dy)])) rugged[k] = 1;
+  }
   // Terraces.
   for (let lv = 1; lv <= maxL; lv++) {
     const on = (x: number, y: number) => {
@@ -209,7 +220,9 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
       for (let i = 0; i < nx; i++) {
         const k = j * nx + i;
         const v = cover(on, (i + 0.5) / vpt, (j + 0.5) / vpt);
-        inside[k] = v >= 0.5 ? 1 : 0;
+        // Level edges in and beside the rock follow noise, up to a column off the tile border (the tile's level stays the truth for roads, fields and footprints).
+        const jag = rugged[k] ? EDGE_JAG * (fbm(((i + 0.5) / vpt) * 1.6, ((j + 0.5) / vpt) * 1.6, seed + 97 * lv) * 0.7 + hash2(i, j, seed + 101 * lv) * 0.3 - 0.5) : 0;
+        inside[k] = v >= 0.5 + jag ? 1 : 0;
         outside[k] = 1 - (inside[k] as number);
       }
     }
@@ -246,11 +259,23 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
         const fx = (i + 0.5) / vpt;
         const fy = (j + 0.5) / vpt;
         let v = cover(on, fx, fy);
-        if (v >= 0.5 && v < 0.5 + ROCK_EROSION) v -= ROCK_EROSION * (0.75 * fbm(fx * 0.9, fy * 0.9, seed + 53) + 0.25 * hash2(i, j, seed + 59));
+        // The outline follows noise (two columns deep), not the tile border.
+        if (v >= 0.5 && v < 0.5 + ROCK_EROSION) v -= ROCK_EROSION * (0.7 * fbm(fx * 1.3, fy * 1.3, seed + 53) + 0.3 * hash2(i, j, seed + 59));
         inside[k] = v >= 0.5 ? 1 : 0;
         outside[k] = 1 - (inside[k] as number);
       }
     }
+    // Coherent noise bites up to three columns into the outline, so long rim lines wander off the tile borders.
+    const d0 = distanceTo(outside, nx, ny, 4);
+    for (let k = 0; k < n; k++) {
+      const dk = d0[k] as number;
+      if (!inside[k] || dk > 3) continue;
+      const nz = fbm((((k % nx) + 0.5) / vpt) * 1.1, ((Math.floor(k / nx) + 0.5) / vpt) * 1.1, seed + 61);
+      if (nz > 0.5 + 0.12 * dk + (dk === 1 ? 0.06 : 0)) {
+        inside[k] = 0;
+      }
+    }
+    for (let k = 0; k < n; k++) outside[k] = 1 - (inside[k] as number);
     const d = distanceTo(outside, nx, ny, 12);
     for (let j = 0; j < ny; j++) {
       for (let i = 0; i < nx; i++) {
@@ -268,9 +293,15 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
         const blend = rk(x0, y0) * (1 - wx) * (1 - wy) + rk(x0 + 1, y0) * wx * (1 - wy) + rk(x0, y0 + 1) * (1 - wx) * wy + rk(x0 + 1, y0 + 1) * wx * wy;
         // Tops in pairs of steps (fewer contour walls), uneven at the scale of a tile or two.
         const rough = ROCK_ROUGH * (fbm(fx / 2.2, fy / 2.2, seed + 71) - 0.5);
-        const body = 2 * Math.round((blend * ROCK_STEPS + rough) / 2);
+        // Per-column grain at column resolution, and a half-step offset of the pair lattice that alternates per level (4 steps): the contours of the tile heights no longer line up.
+        const grain = ROCK_GRAIN * (0.85 * (fbm(fx * 1.7, fy * 1.7, seed + 83) - 0.5) + 0.15 * (hash2(i, j, seed + 89) - 0.5));
+        const raw = blend * ROCK_STEPS + rough + grain;
+        const off = Math.floor(raw / LEVEL_STEPS) & 1;
+        const body = 2 * Math.round((raw - off) / 2) + off;
         const dk = d[k] as number;
-        const flank = dk === 1 ? 1 + (hash2(i, j, seed + 79) < 0.4 ? 1 : 0) : 2 + ROCK_SLOPE * (dk - 2);
+        // The flank's rise varies per column (2–4 steps), so the walls are no uniform ramps.
+        const slope = ROCK_SLOPE + Math.round(2 * (fbm(fx * 1.5, fy * 1.5, seed + 91) - 0.5) + (hash2(i, j, seed + 93) - 0.5));
+        const flank = dk === 1 ? 1 + (hash2(i, j, seed + 79) < 0.4 ? 1 : 0) : 2 + slope * (dk - 2);
         rockH[k] = Math.max(1, Math.min(body, flank));
         rim[k] = dk;
       }
