@@ -143,7 +143,10 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   API's `levels`) lifts its columns by four steps (½ tile) per level,
   blended at tile centres so edges run on tile borders. A level edge by
   the sea is a cliff in earth and rock bands; inland edges are cliffs or,
-  in low-frequency noise zones, ramps of one step per column.
+  in low-frequency noise zones, ramps of one step per column in beaten
+  earth. The cliff band varies along an edge (rock over a dark foot, or
+  earth over rock) under a grass lip on its top step; rocks gather at the
+  foot of the walls (the ground scatter's "ledge" site).
 - **Rock:** mountain, cliff and islet tiles carry rock on their level:
   one height field per island, the tiles' `heights` blended between their
   centres at eight steps per height (a large island's spine up to 32

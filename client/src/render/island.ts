@@ -368,7 +368,7 @@ export class IslandDetail {
     // The roads are voxel paths in the terrain: painted before its chunks are meshed.
     b.terrain?.setRoads(display.roads, fieldTiles(display, defs));
     b.fields = this.fieldsByChunk(display);
-    b.scatter = { width: statics.width, height: statics.height, terrain: statics.terrain, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
+    b.scatter = { width: statics.width, height: statics.height, terrain: statics.terrain, levels: statics.levels, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
     b.areas = thinningAreas(display.buildings, defs);
   }
 
@@ -493,7 +493,7 @@ export class IslandDetail {
   private updateDecoration(display: IslandDisplay, defs: ReadonlyMap<string, ContentBuilding>, force = false): void {
     const st = this.statics;
     if (!st) return;
-    const input = { width: st.width, height: st.height, terrain: st.terrain, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
+    const input = { width: st.width, height: st.height, terrain: st.terrain, levels: st.levels, seed: this.seed, blocked: blockedTiles(display.buildings, display.roads, defs) };
     const stumps: Placed[] = [];
     const trees = scatterTrees(input, thinningAreas(display.buildings, defs), TREE_MODELS.length, stumps);
     const chunks = new Map<string, DecorInput>();

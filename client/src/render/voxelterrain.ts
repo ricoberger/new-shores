@@ -62,6 +62,8 @@ export const SIDE_FALL = 2;
 export const SIDE_ROCK = 3;
 /** Cliff coast: a rock face straight into the sea (no sand shelf), darker toward its foot. */
 export const SIDE_CLIFF = 4;
+/** Earth walls of the second terrace band variant (more earth, less rock; chosen per column by noise). */
+export const SIDE_EARTH_B = 5;
 
 const RIM = c3(ISLAND.sand_rim);
 const SAND = c3(TERRAIN.sand);
@@ -77,8 +79,18 @@ const CLIFF_FOOT = c3(ISLAND.cliff_foot);
 const EARTH_BANDS = [Color3.Lerp(c3(TERRAIN.road_dirt), c3(ISLAND.rock_deep), 0.3), c3(ISLAND.cliff_upper), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_lower), c3(ISLAND.cliff_foot)];
 /** Sand walls of the beach steps, top to foot. */
 const SAND_BANDS = [SAND.scale(0.9), SAND.scale(0.86), WET.scale(0.95), WET.scale(0.85), Color3.Lerp(WET, c3(ISLAND.cliff_foot), 0.5)];
-/** Terrace walls above the sea, per step within a level from its foot: rock at the foot, earth under the grass lip. */
-const TERRACE_BANDS = [c3(ISLAND.cliff_lower), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_upper), EARTH_BANDS[0] as Color3];
+/** The grass lip of a terrace wall: the turf hanging over its top step. */
+const GRASS_LIP = Color3.Lerp(c3(TERRAIN.grass_a), c3(TERRAIN.forest_floor), 0.45).scale(0.9);
+const EARTH = Color3.Lerp(c3(TERRAIN.road_dirt), c3(ISLAND.rock_deep), 0.3);
+/**
+ * Terrace walls, per step within a level from its foot, in two variants
+ * that alternate along an edge in low-frequency noise: rock at the foot
+ * and earth (A), or earth over a rock foot (B); the grass lip on top.
+ */
+const TERRACE_BANDS = [c3(ISLAND.rock_deep), c3(ISLAND.rock), c3(ISLAND.cliff_upper), GRASS_LIP];
+const TERRACE_BANDS_B = [c3(ISLAND.cliff_lower), EARTH.scale(0.9), EARTH, GRASS_LIP];
+/** Ramps (D-058): beaten earth. */
+const RAMP = Color3.Lerp(c3(TERRAIN.road_dirt), c3(TERRAIN.grass_a), 0.22);
 /** Waterfall walls, foot to lip: foam, light water, foam, white water. */
 const FALL_BANDS = [c3(WATER.foam), Color3.Lerp(c3(WATER.shallows), c3(WATER.foam), 0.55), c3(WATER.foam).scale(0.96), Color3.Lerp(c3(WATER.shallows), c3(WATER.foam), 0.3)];
 /** River water (the river beds' tops: the far fields' rivers): the river surface's colour (water.ts RIVER_WATER). */
@@ -173,7 +185,7 @@ export function coastSide(z: number, kind: number): Color3 {
   if (kind === SIDE_FALL) return FALL_BANDS[p] as Color3;
   if (kind === SIDE_ROCK && z >= 0) return rockStrata(z);
   if (kind === SIDE_CLIFF) return z >= 0 ? rockStrata(z) : Color3.Lerp(rockStrata(z), CLIFF_FOOT, Math.min(0.85, -z / 6));
-  if (z >= 0) return TERRACE_BANDS[p] as Color3;
+  if (z >= 0) return (kind === SIDE_EARTH_B ? TERRACE_BANDS_B : TERRACE_BANDS)[p] as Color3;
   const bands = kind === SIDE_SAND ? SAND_BANDS : EARTH_BANDS;
   return bands[Math.min(bands.length - 1, Math.max(0, -z - 1))] as Color3;
 }
@@ -284,7 +296,12 @@ export function islandField(
         }
         const isBeach = beach[ty * width + tx] === 1 && g === 0;
         h[k] = g;
-        kind[k] = isBeach ? SIDE_SAND : cliffLand[k] ? SIDE_CLIFF : SIDE_EARTH;
+        kind[k] = isBeach ? SIDE_SAND : cliffLand[k] ? SIDE_CLIFF : fbm(i / (vpt * 2.5), j / (vpt * 2.5), seed + 61) > 0.5 ? SIDE_EARTH_B : SIDE_EARTH;
+        if (g > 0 && g % LEVEL_STEPS !== 0) {
+          // A ramp: beaten earth.
+          top[k] = pack(RAMP.scale(0.94 + 0.1 * hash2(i, j, seed + 67)));
+          continue;
+        }
         if (toSea[k] === 1 && isBeach) {
           h[k] = RIM_H;
           top[k] = pack(RIM.scale(0.97 + 0.06 * hash2(i, j, seed + 5)));
