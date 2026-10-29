@@ -367,12 +367,14 @@ def cask_rack(v, x, y, z, n=3, along="x", tiers=2, length=4, m=TIMBER_LIGHT):
                 lying_cask(v, x + o, y, z + 1 + t * 2, "y", length, shade_of(m, 1.0 if (i + t) % 2 == 0 else 0.9))
 
 
-def trellis_row(v, x0, x1, y, z=1, h=5, every=6, seed=0, grapes=True, post=TIMBER, wire=TIMBER_DARK, along="x"):
+def trellis_row(v, x0, x1, y, z=1, h=5, every=6, seed=0, grapes=True, post=TIMBER, along="x"):
     """
     A vine row on a trellis from x0 to x1 (inclusive) at y: posts every
-    `every` cells, a wire along the top, vine stocks below and a leafy band
-    on the wire (two shades by stretch, ragged by hash) with grape bunches.
-    along="y" swaps the axes (the row runs along y at x = y).
+    `every` cells, vine stocks and a leafy hedge
+    three cells wide (the outer cells ragged by hash: shape, not colour)
+    from z + 2 to the top (one flat leaf colour), with grape
+    bunches hanging under the leaves on both sides. along="y" swaps the
+    axes (the row runs along y at x = y).
     """
 
     def put(a, b, zz, m):
@@ -383,21 +385,23 @@ def trellis_row(v, x0, x1, y, z=1, h=5, every=6, seed=0, grapes=True, post=TIMBE
 
     for a in range(x0, x1 + 1):
         is_post = (a - x0) % every == 0 or a == x1
+        leaf = VINE
         if is_post:
             for zz in range(z, z + h + 1):
                 put(a, y, zz, post)
-            continue
-        put(a, y, z + h, wire)
-        hsh = hash3(a, y, 41, seed)
-        put(a, y, z, TIMBER_DARK)
-        put(a, y, z + 1, shade_of(TIMBER, 1.1))
-        lo = z + 2 if hsh < 0.75 else z + 3
-        for zz in range(lo, z + h):
-            put(a, y, zz, VINE if ((a - x0) // 3) % 2 == 0 else shade_of(VINE, 0.88))
-        if hash3(a, y, 43, seed) < 0.55:
-            put(a, y, z + h + 1, shade_of(VINE, 1.1))
-        if grapes and hash3(a, y, 42, seed) < 0.3:
-            put(a, y, lo, GRAPE)
+        else:
+            put(a, y, z, TIMBER_DARK)
+            put(a, y, z + 1, shade_of(TIMBER, 1.1))
+            for zz in range(z + 2, z + h + 1):
+                put(a, y, zz, leaf)
+            if hash3(a, y, 44, seed) < 0.2:
+                put(a, y, z + h + 1, leaf)
+        for side in (-1, 1):
+            lo = z + 3 if hash3(a, y + side, 41, seed) < 0.5 else z + 2
+            for zz in range(lo, z + h):
+                put(a, y + side, zz, leaf)
+            if grapes and hash3(a, y + side, 42, seed) < 0.3:
+                put(a, y + side, lo - 1, GRAPE)
 
 
 # ---------------------------------------------------------------- machines

@@ -2456,9 +2456,9 @@
     "cattle_farm": {
       "anchors": {
         "cart": [
-          1.5,
+          1.25,
           0.125,
-          -2.3125
+          -2.375
         ],
         "door": [
           0.0,
@@ -2467,14 +2467,14 @@
         ],
         "status": [
           0.0,
-          3.625,
+          3.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.375,
+          3.0,
           2.5
         ],
         "min": [
@@ -2487,7 +2487,7 @@
         "bounds": {
           "max": [
             2.0,
-            3.375,
+            3.0,
             2.5
           ],
           "min": [
@@ -2497,12 +2497,12 @@
           ]
         },
         "budget": 10000,
-        "bytes": 92732,
+        "bytes": 133268,
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              3.0,
               2.5
             ],
             "min": [
@@ -2512,14 +2512,14 @@
             ]
           },
           "budget": 800,
-          "bytes": 11492,
+          "bytes": 11808,
           "path": "cattle_farm.lite.glb",
-          "sha256": "b8ad8e7c80bf32073fe59d3948510c525d7bec1e1aece9b27b239df932dacc66",
-          "triangles": 306
+          "sha256": "87e348a90661a588ec9a047bd0efc33a9725901c6171d5d58003705a8e860225",
+          "triangles": 300
         },
         "path": "cattle_farm.glb",
-        "sha256": "ae10fdc78b61d079614324de346784f8dd109ab64e4f2e0d0dff3a583455b85d",
-        "triangles": 2954
+        "sha256": "74925709c61a1ecf19dcd9823e83f23fcae766f4070a3d4fccaed06a198baee0",
+        "triangles": 4366
       },
       "footprint": {
         "h": 5,
@@ -3222,9 +3222,9 @@
     "copper_mine": {
       "anchors": {
         "cart": [
-          1.0,
+          -0.25,
           0.125,
-          -3.8125
+          -3.625
         ],
         "door": [
           0.0,
@@ -3233,14 +3233,14 @@
         ],
         "status": [
           0.0,
-          3.125,
+          3.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.875,
+          3.0,
           4.0
         ],
         "min": [
@@ -3253,7 +3253,7 @@
         "bounds": {
           "max": [
             1.5,
-            2.875,
+            3.0,
             4.0
           ],
           "min": [
@@ -3263,7 +3263,7 @@
           ]
         },
         "budget": 12000,
-        "bytes": 97640,
+        "bytes": 150624,
         "lite": {
           "bounds": {
             "max": [
@@ -3278,14 +3278,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 13724,
+          "bytes": 13416,
           "path": "copper_mine.lite.glb",
-          "sha256": "506a369d34c286174d0ff83acf6487271dbe1e547cf1b3730db7a8c80864aea4",
-          "triangles": 368
+          "sha256": "8f91ff2ec48f76851bf92aecfdd0ac05ac7c4b0c26bb65ac71147fc1e56415ac",
+          "triangles": 376
         },
         "path": "copper_mine.glb",
-        "sha256": "09fc24e39330a7c9e74eaaa3e4089d11f1e05f5725c8d7ed689cc9ff37d4a3a9",
-        "triangles": 2932
+        "sha256": "c44b7f658b68ab23243076e1cb1166714691b13f21583aeb33e26081e2884d8d",
+        "triangles": 5080
       },
       "footprint": {
         "h": 8,
@@ -4040,9 +4040,9 @@
     "gold_mine": {
       "anchors": {
         "cart": [
-          1.0,
+          0.625,
           0.125,
-          -3.8125
+          -3.5
         ],
         "door": [
           0.0,
@@ -4051,14 +4051,14 @@
         ],
         "status": [
           0.0,
-          3.125,
+          2.875,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.875,
+          2.625,
           4.0
         ],
         "min": [
@@ -4071,7 +4071,7 @@
         "bounds": {
           "max": [
             1.5,
-            2.875,
+            2.625,
             4.0
           ],
           "min": [
@@ -4081,12 +4081,12 @@
           ]
         },
         "budget": 12000,
-        "bytes": 98700,
+        "bytes": 151188,
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              2.5,
               4.0
             ],
             "min": [
@@ -4096,20 +4096,23 @@
             ]
           },
           "budget": 960,
-          "bytes": 12784,
+          "bytes": 13360,
           "path": "gold_mine.lite.glb",
-          "sha256": "84d591da863c67daf6eff48e82991d53ea4f2207d6783c161806e1b7e1eba9e5",
-          "triangles": 346
+          "sha256": "85af0fca97c8bd9fa711e03bc0211ad73b812d6551b4b878b27ffac2b7a85cde",
+          "triangles": 362
         },
         "path": "gold_mine.glb",
-        "sha256": "3a21acd918b8d2144d97d1a628e6432a94d324e9cff5e090f15da35dc818270e",
-        "triangles": 2960
+        "sha256": "063ade7cfb5bb31449bdff5c1dda7a2f644f0cb40f0d360a755751bc5fb5ceb2",
+        "triangles": 5196
       },
       "footprint": {
         "h": 8,
         "w": 3
       },
-      "kind": "building"
+      "kind": "building",
+      "sway": [
+        "flag"
+      ]
     },
     "gold_smelter": {
       "anchors": {
@@ -6269,14 +6272,14 @@
     "oyster_beds": {
       "anchors": {
         "boat": [
-          0.0,
+          0.8,
           0.05,
-          2.75
+          5.2
         ],
         "cart": [
-          2.5,
+          0.0,
           0.125,
-          -5.8125
+          -5.5
         ],
         "door": [
           0.0,
@@ -6285,19 +6288,19 @@
         ],
         "status": [
           0.0,
-          3.75,
+          2.875,
           0.0
         ]
       },
       "bounds": {
         "max": [
           3.0,
-          3.5,
-          6.0
+          2.625,
+          5.875
         ],
         "min": [
           -3.0,
-          -1.0,
+          -0.875,
           -6.0
         ]
       },
@@ -6305,39 +6308,39 @@
         "bounds": {
           "max": [
             3.0,
-            3.5,
-            6.0
+            2.625,
+            5.875
           ],
           "min": [
             -3.0,
-            -1.0,
+            -0.875,
             -6.0
           ]
         },
         "budget": 36000,
-        "bytes": 133544,
+        "bytes": 255912,
         "lite": {
           "bounds": {
             "max": [
               3.0,
-              3.5,
+              2.5,
               6.0
             ],
             "min": [
               -3.0,
-              0.0,
+              -0.5,
               -6.0
             ]
           },
           "budget": 2880,
-          "bytes": 15136,
+          "bytes": 25016,
           "path": "oyster_beds.lite.glb",
-          "sha256": "ec9bc85064b1ea78eac5ee01081b273b5b9b94a66068b08be9210bc6ef95be83",
-          "triangles": 414
+          "sha256": "cc97edc675718da32b3881544e3ceddaac6f764aec8cc4b806356f3bcd1865f1",
+          "triangles": 708
         },
         "path": "oyster_beds.glb",
-        "sha256": "f9d7be40bf98969eb7d43f3ab203a6b999c02da6bd95f18a91321578724ba50c",
-        "triangles": 4094
+        "sha256": "81c6501d16bde8f5c7c318688f97f62b62f99867cc74360cd11c869f648cb890",
+        "triangles": 8240
       },
       "footprint": {
         "h": 12,
@@ -6987,9 +6990,9 @@
     "quartz_quarry": {
       "anchors": {
         "cart": [
-          1.0,
+          -0.5,
           0.125,
-          -3.8125
+          -3.625
         ],
         "door": [
           0.0,
@@ -6998,14 +7001,14 @@
         ],
         "status": [
           0.0,
-          3.125,
+          2.375,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.875,
+          2.125,
           4.0
         ],
         "min": [
@@ -7018,7 +7021,7 @@
         "bounds": {
           "max": [
             1.5,
-            2.875,
+            2.125,
             4.0
           ],
           "min": [
@@ -7028,12 +7031,12 @@
           ]
         },
         "budget": 12000,
-        "bytes": 90052,
+        "bytes": 103080,
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              2.5,
               4.0
             ],
             "min": [
@@ -7043,14 +7046,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 11056,
+          "bytes": 11624,
           "path": "quartz_quarry.lite.glb",
-          "sha256": "2af63b76579eb90762fe354b807b4a0631f6633320d7822b80d1660dd334bb5f",
-          "triangles": 294
+          "sha256": "9c32e8847dc9bf45c974b90a4da914f15587355ab948d11f9f861d0a46bff1e2",
+          "triangles": 338
         },
         "path": "quartz_quarry.glb",
-        "sha256": "fe469fb55dfb00fd1785802a37a86449b93f6a1bf6ff6eab586b397bf163749b",
-        "triangles": 2736
+        "sha256": "39bb54610e46a468472a8217bc87a9d0ae02c74d89bf3a276f604784093894c2",
+        "triangles": 3494
       },
       "footprint": {
         "h": 8,
@@ -8848,14 +8851,14 @@
         ],
         "status": [
           0.0,
-          0.375,
+          1.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
           0.5,
-          0.125,
+          1.0,
           0.5
         ],
         "min": [
@@ -8868,7 +8871,7 @@
         "bounds": {
           "max": [
             0.5,
-            0.125,
+            1.0,
             0.5
           ],
           "min": [
@@ -8878,10 +8881,10 @@
           ]
         },
         "budget": 410,
-        "bytes": 1604,
+        "bytes": 14012,
         "path": "vine_row.glb",
-        "sha256": "af7295f818f6e34aaae497db562dbbdaa83d9041898f9084afcf85e0d8264a05",
-        "triangles": 10
+        "sha256": "b8b2e69e77b9a972adb4f6d263aec5ac6b7a515d5d0f3abace1560090d7f5760",
+        "triangles": 392
       },
       "footprint": {
         "h": 1,
@@ -8892,9 +8895,9 @@
     "vineyard": {
       "anchors": {
         "cart": [
-          1.5,
+          0.0,
           0.125,
-          -2.3125
+          -2.25
         ],
         "door": [
           0.0,
@@ -8903,14 +8906,14 @@
         ],
         "status": [
           0.0,
-          3.625,
+          3.125,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.375,
+          2.875,
           2.5
         ],
         "min": [
@@ -8923,7 +8926,7 @@
         "bounds": {
           "max": [
             2.0,
-            3.375,
+            2.875,
             2.5
           ],
           "min": [
@@ -8933,12 +8936,12 @@
           ]
         },
         "budget": 10000,
-        "bytes": 92272,
+        "bytes": 147508,
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              2.5,
               2.5
             ],
             "min": [
@@ -8948,14 +8951,14 @@
             ]
           },
           "budget": 800,
-          "bytes": 10432,
+          "bytes": 10280,
           "path": "vineyard.lite.glb",
-          "sha256": "1e0b72efa477eba6fdee0cddb49bab53e036a6c8922bfcde53a1188d9f652189",
-          "triangles": 280
+          "sha256": "ef418a649a2371d5d66ffbd5e2ed64c5dd24e26f6b568181feb73867ca5ab1f0",
+          "triangles": 276
         },
         "path": "vineyard.glb",
-        "sha256": "e3a7b74f0f76b655b23032752a48a55c06578d4f8d0950db3e309d57305582b9",
-        "triangles": 2948
+        "sha256": "c761561d8fb45ab4f3ce2519c8d20220a35d15b4648148ecdd7e371d1e0d6e10",
+        "triangles": 4740
       },
       "footprint": {
         "h": 5,
@@ -9640,27 +9643,20 @@
   "placeholders": [
     "candle_foundry",
     "cathedral",
-    "cattle_farm",
     "cooperage",
-    "copper_mine",
     "copper_smelter",
     "fashion_house",
     "glass_smelter",
-    "gold_mine",
     "gold_smelter",
     "goldsmith",
     "lace_maker",
     "luthier",
     "malt_house",
     "optician",
-    "oyster_beds",
     "oyster_house",
-    "quartz_quarry",
     "slaughterhouse",
     "thread_spinner",
     "university",
-    "vine_row",
-    "vineyard",
     "winepress"
   ],
   "version": 1,
