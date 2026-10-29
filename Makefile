@@ -36,6 +36,10 @@
 #   make model-sheet  contact sheet of single models (recipe or placeholder) in
 #                     .experiment/sheets/<ids>.png, committed models untouched; without RECIPE
 #                     it lists the model IDs: make model-sheet RECIPE=fisher,house_settlers
+#   make island-atlas SEED=<seed>[,<seed>]  PNG atlas of a seed's generated islands (tiles,
+#                     levels, rivers, plain, Trading Post/shipyard sites, deposits) and an
+#                     overview in .experiment/islands/atlas/<seed>/ (OUT= another directory);
+#                     STATS=<n> prints the generator statistics over seeds 1..n instead
 #
 # TIME_SCALE sets world seconds per wall-clock second for `make dev`
 # (server --time-scale and client VITE_TIME_SCALE).
@@ -59,7 +63,8 @@ DOWN_FLAGS = $(if $(filter 1,$(VOLUMES)),-v,$(if $(filter-out 0 false no,$(VOLUM
 
 .PHONY: check server-check server-fmt server-vet server-lint server-test content-test \
 	client-install client-check client-lint client-typecheck client-test client-build dev preview \
-	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet
+	server-integration up down logs makefile-test assets assets-check assets-test shots model-sheet \
+	island-atlas
 
 check: server-check content-test client-check makefile-test assets-test
 
@@ -114,6 +119,19 @@ assets-test:
 # reach the script as environment variables; unknown values fail with the allowed list.
 shots:
 	cd $(CLIENT_DIR) && npm run --silent shots
+
+# Island atlas (D-058): a build-tagged Go test writes the PNGs (standard
+# library only); OUT is resolved against the repository root.
+ATLAS_OUT := $(abspath $(or $(OUT),.experiment/islands/atlas))
+
+island-atlas:
+ifneq ($(strip $(STATS)),)
+	cd $(SERVER_DIR) && ATLAS_STATS=$(STATS) go test -count=1 -timeout 0 -tags atlas -run 'TestIslandAtlas$$' -v ./internal/sim/archipelago/
+else ifeq ($(strip $(SEED)),)
+	@echo "usage: make island-atlas SEED=<seed>[,<seed>] [OUT=<dir>]   or   make island-atlas STATS=<n>"; exit 2
+else
+	cd $(SERVER_DIR) && ATLAS_SEEDS=$(SEED) ATLAS_OUT=$(ATLAS_OUT) go test -count=1 -tags atlas -run 'TestIslandAtlas$$' -v ./internal/sim/archipelago/
+endif
 
 # Contact sheet of single models without touching the committed ones (the
 # build's --only writes no model files).
