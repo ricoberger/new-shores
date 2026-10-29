@@ -1266,3 +1266,111 @@ obstacles and sea routing.
   validation, fields and the reference games); lakes (later); river
   slots (later option); re-roll after founding (discards the
   settlement).
+
+## D-059 Lumberjack plants its trees; ship speeds differ; one fixture list with a played world
+
+**Decision** (2026-10-29):
+
+1. **Lumberjack as a farm.** The lumberjack loses its `work_area`
+   (forest within radius 4, 24 tiles) and gets `fields` like every
+   other farm: `tree_plot` 1×1 field buildings on grass (no fertility),
+   `required = max = 24`, painted like crops. Natural forest stays
+   terrain and decor: buildable as today, cleared by whatever is built
+   on it, no longer a rule input; the home-island guarantee drops
+   `forest` from `terrain`. Cost, rate and upkeep stay (D-054). The
+   `tree_plot` recipe shows planted rows (sapling → tree stages like
+   crops, LIFE_LAYER growth). Reference games rerun.
+2. **Ship speeds.** Sloop 1.2, brig 1.0, galleon 0.85 (content
+   `speed`; supersedes D-056's "equal speed"): small and fast for
+   founding and short hops, large and slow for bulk. ETA uses the
+   per-ship speed over the routed path length (D-058 §5).
+3. **Fixtures.** One server-side fixture list; in dev every fixture is
+   reachable by `?fixture=<name>` (the client calls `dev/reset` when
+   the parameter names a fixture the loaded world is not); client-only
+   fixtures are folded in (`dense-2x400` becomes a server fixture) or
+   dropped. New fixture **`played`**: a four-tier world produced by
+   replaying the `bootstrap_patricians` scenario to its end (routes,
+   quests, ships, all tiers — no hand placement), the default for
+   shots and playtests of the late game.
+
+- *Why:* a forest requirement makes the lumberjack the one producer
+  the player cannot place by plan; equal ship speeds make the galleon
+  strictly dominant; two fixture systems confuse everyone.
+- *Consequences:* content 0.15.0 (buildings, ships, islands home
+  rule), generator forest patches stay as decor, MECHANICS §4/§9/§10
+  and CONTENT §5/§8/§9 updated, ARCHITECTURE fixture list, `make
+  shots` presets; the `played` fixture depends on the scenario runner.
+- *Rejected:* a forester module next to the forest rule (two systems
+  for one good); large ships faster (removes the choice); keeping
+  client-only fixtures.
+
+## D-060 Civic services and the built harbour: city guard, fire station, surgery; quay, trading pier, depot
+
+**Decision** (2026-10-29):
+
+1. **Civic services are needs**, not incident responders. Three new
+   service categories with radius coverage (the D-056 services
+   mechanic, no new sim rule): *safety* — **city guard** (Citizens);
+   *fire protection* — **fire station** (Merchants); *health* —
+   **surgery** (Merchants). Uncovered houses lose satisfaction (and so
+   tax and the upgrade gate); nothing burns, nobody dies. Numbers
+   (radius, cost, share, upkeep) are content and provisional
+   (CONTENT §2/§7 tables).
+   *Later refinement, not now:* incidents ("fire in the quarter") as
+   seeded, time-bounded, tax-only events that are symmetric online and
+   offline — if ever added they must keep D-009.
+2. **Quay.** A road type on *shallow* water (water tiles ≤ 3 tiles
+   from the island's own land; derived from the tiles, no generator
+   field). Carts use it as a road; it counts as coast for water-edge
+   footprints, so harbour buildings stand on it; placing a building on
+   quay tiles replaces them. Stone cost, Citizens tier. D-036 stands:
+   the shallows band bounds the harbour area.
+3. **Trading pier** (+2 berths, water-edge, Citizens) and **depot**
+   (+island storage, water-edge, Citizens; Merchants level) extend the
+   harbour without Trading Post levels.
+4. **Repair crane and ship health are deferred** to the expeditions
+   decision (ONLINE.md): wear without a damage source is a chore, and
+   expeditions and later war ships (D-005) are the natural sources.
+
+- *Why:* the harbour picture the owner wants (Anno 117: quays with
+  buildings on them, piers into the bay) needs buildable water, which
+  D-051's water-edge rule almost gives; civic buildings give the city
+  its public face without random loss.
+- *Consequences:* six recipes (guard, fire station, surgery, quay
+  pieces straight/corner/end, pier, depot); content additions
+  (`needs.json` categories, `buildings.json`, road type `quay`,
+  services ladder note), sim: quay placement rule, coast test for
+  water-edge footprints, berth and capacity sources; MECHANICS §4/§6/
+  §9.3/§10, CONTENT §2/§5/§7, LIFE_LAYER anchors; reference games
+  rerun with the new needs in the gates.
+- *Rejected:* destructive incidents (D-009); crane with wear per tile
+  (chore); quay anywhere on water (unbounded harbours, D-036).
+
+## D-061 Translation: English and German from content locale files and a client catalogue
+
+**Decision** (2026-10-29): the game is translatable from the start of
+the next UI work. English is the source language and the key; German
+is the first translation.
+
+1. **Content:** player-facing text in content (`name`, descriptions,
+   quest titles/texts, island names, ship names list) stays English in
+   the main JSON and gets locale files `content/<region>/i18n/<lang>.
+   json` keyed by content ID and field; the loader validates
+   completeness (a missing key is a content error for shipped
+   languages) and the content payload carries the requested language
+   with English fallback.
+2. **Client:** one small message catalogue (own helper, no library
+   unless plural or gender rules force one — justify in the PR),
+   `client/src/i18n/<lang>.ts`, language from the browser then the
+   account setting, English fallback, a switch in the account menu;
+   numbers, units and durations formatted per locale. All UI strings
+   move to keys in one migration pass; afterwards a lint/test fails on
+   a hardcoded string in `client/src/ui` and `client/src/almanac`.
+3. **Server:** never sends prose — codes, IDs and numbers only (as
+   today); the away letter, quest texts and errors are composed in the
+   client.
+4. Order: after the almanac and the islands PRs merge, one
+   cross-cutting session; new sessions use keys from then on.
+
+- *Rejected:* server-side rendering of texts (one language per
+  world); a translation service dependency.
