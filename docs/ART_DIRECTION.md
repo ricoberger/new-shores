@@ -298,6 +298,27 @@ V3b — kept for the signature) — about 40–70 lines.
   `trough`, `well`, `tool_rack`, `ladder`, `sawhorse`, `haystack`,
   `sheaf`, `stone_blocks`, `lamp_post`, `flower_bed`. One signature prop
   per producer must read at mid zoom.
+- **Tier 4 (Patricians, V5):** `nsvoxel/detail_v5.py` (imported as
+  `Q`) adds parts on top of `P` without changing it: `Q.palazzo` (proud
+  plinth, ashlar ground floor, plastered upper storeys, string courses,
+  cornice, roof; `.face`, `.roof`, `.top`), `Q.ashlar`,
+  `Q.string_course`, `Q.cornice`, `Q.pilasters`; openings `Q.window`
+  (hood `key`, `pediment`, `cornice`), `Q.lancet`, `Q.rose_window`,
+  `Q.arcade`, `Q.colonnade`, `Q.balustrade`, `Q.grille`; `Q.tower`
+  (pyramid roof, finial), `Q.finial`, `Q.buttress`, `Q.dome`; props
+  `Q.heap`, `Q.lying_cask`, `Q.cask_rack`, `Q.trellis_row`, `Q.wheel`,
+  `Q.headframe`, `Q.furnace` (the tier-2 smelter stack with its
+  chimney/smoke anchors), `Q.bolts`, `Q.mannequin`, `Q.spinning_wheel`,
+  `Q.candle_rack`, `Q.shell_heap`, `Q.leafy_bank`; and named shades
+  (`Q.ASHLAR`, `Q.DRESSED`, `Q.GRAPE`, `Q.VINE`, `Q.GOLD`,
+  `Q.VERDIGRIS`, `Q.COPPER`, `Q.QUARTZ`, `Q.WAX`).
+- **Ships:** `recipes/_ships.py` builds all hulls with one `hull()`
+  (plank courses, wale, trim band, rail, deck courses, gunports,
+  bowsprit, stern cabin with windows, gallery and lanterns, forecastle)
+  and `mast()` (yards, top, shrouds, pennant); sails are sway group
+  `sail`, pennants `flag`. The cargo attachment places one prop per
+  cargo slot at the ship's `CARGO_SPOTS`; anchors are `status` and
+  `wake` (stern, waterline).
 - **Anchors:** everything `model.required_anchors` lists (cart, boat,
   berths, slip, pasture gate and animals, chimney/smoke) plus a door on
   buildings; the build fails without them.
