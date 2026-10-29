@@ -28,18 +28,25 @@ const DEVICE_OPTIONS = {
   phone: { ...devices["Pixel 5"], baseURL: BASE_URL, viewport: { width: 412, height: 915 }, deviceScaleFactor: 2.625 },
 };
 
-/** The island each fixture opens on and per-view camera targets of the visual spec. */
-const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<Record<View, { x: number; y: number; half?: number }>> }> = {
+type Target = { x: number; y: number; half?: number };
+
+/**
+ * The island each fixture opens on and per-view camera targets of the
+ * visual spec: fixed ones (client fixtures) or `town`, taken from the
+ * home settlement of the loaded world (server fixtures: the generated
+ * layout moves with the archipelago rules, D-058).
+ */
+const FIXTURE_INFO: Record<Fixture, { island: string | null; targets?: Partial<Record<View, Target>>; town?: { mid: number; shipyard?: boolean } }> = {
   showcase: { island: "showcase", targets: { near: { x: 22, y: 13, half: 10 } } },
-  // The home island of every generated archipelago (D-053), isle-01 at (193, 303) on the default seed:
+  // The home island of every generated archipelago (D-053), isle-01:
   // near on the street between the Trading Post and the sheep farm, mid over the settlement (settled: with the shipyard).
-  settled: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 282, y: 316, half: 36 } } },
-  town: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } },
+  settled: { island: "isle-01", town: { mid: 36, shipyard: true } },
+  town: { island: "isle-01", town: { mid: 32 } },
   seafaring: { island: "isle-01" }, // a new world: the start sloop at sea, nothing settled
-  citizens: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } }, // town plus a bare wheat farm
-  merchants: { island: "isle-01", targets: { near: { x: 261, y: 322 }, mid: { x: 263, y: 316, half: 32 } } }, // citizens plus the tier-3 street end and a clay island
+  citizens: { island: "isle-01", town: { mid: 32 } }, // town plus a bare wheat farm
+  merchants: { island: "isle-01", town: { mid: 32 } }, // citizens plus the tier-3 street end and a clay island
   // town plus the full services ladder (university, cathedral), a Patrician house, the roast-beef chain and a quartz island (D-056 C4).
-  patricians: { island: "isle-01", targets: { near: { x: 263, y: 318 }, mid: { x: 262, y: 330, half: 36 } } },
+  patricians: { island: "isle-01", town: { mid: 36 } },
   "dense-2x400": { island: "dense1" },
   "dense-archipelago-8": { island: "dense1", targets: { mid: { x: 87, y: 75 } } },
   "archipelago-8x20": { island: null },
@@ -204,6 +211,33 @@ async function islandCentre(page: Page, island: string | null, wanted?: string):
   return r.is;
 }
 
+/**
+ * Camera targets over the home settlement (archipelago tiles): near on the
+ * street between the Trading Post and the sheep farm, mid over the mean
+ * of the Trading Post and the houses (with the shipyard: and the
+ * shipyard); null without a Trading Post.
+ */
+async function townTargets(page: Page, island: string, t: { mid: number; shipyard?: boolean }): Promise<Partial<Record<View, Target>> | null> {
+  const r = await page.evaluate(
+    ([id, shipyard]) => {
+      const is = window.__newShores!.getServer()!.display.islands.find((i) => i.id === id);
+      const tp = is?.buildings.find((b) => b.type === "trading_post");
+      if (!is || !tp) return null;
+      // Footprint centres, roughly (a 2 × 2 building; the Trading Post 4 × 4).
+      const at = (b: { x: number; y: number }, size = 2) => ({ x: is.position.x + b.x + size / 2, y: is.position.y + b.y + size / 2 });
+      const post = at(tp, 4);
+      const sheep = is.buildings.find((b) => b.type === "sheep_farm");
+      const near = sheep ? { x: (post.x + at(sheep, 3).x) / 2, y: (post.y + at(sheep, 3).y) / 2 } : post;
+      const town = [post, ...is.buildings.filter((b) => b.type.startsWith("house_") || (shipyard && b.type === "shipyard")).map((b) => at(b))];
+      const mean = (v: number[]) => v.reduce((a, b) => a + b, 0) / v.length;
+      return { near, mid: { x: mean(town.map((p) => p.x)), y: mean(town.map((p) => p.y)) } };
+    },
+    [island, t.shipyard ?? false] as const,
+  );
+  if (!r) return null;
+  return { near: { x: Math.round(r.near.x), y: Math.round(r.near.y) }, mid: { x: Math.round(r.mid.x), y: Math.round(r.mid.y), half: t.mid } };
+}
+
 async function setCamera(page: Page, c: { x?: number; y?: number; half?: number; rotation?: number }): Promise<void> {
   await page.evaluate((v) => window.__newShores!.setCamera(v), c);
 }
@@ -253,6 +287,7 @@ async function shoot(page: Page, file: string, written: string[]): Promise<void>
 async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: Device, dir: string, written: string[]): Promise<void> {
   const info = FIXTURE_INFO[fixture];
   const here = await islandCentre(page, info.island, args.island);
+  const targets = info.town && info.island ? ((await townTargets(page, info.island, info.town)) ?? info.targets) : info.targets;
   for (const view of args.views) {
     if (view === "pan") {
       await pan(page, `${fixture}-${device}`);
@@ -269,7 +304,7 @@ async function takeViews(page: Page, args: ShotArgs, fixture: Fixture, device: D
     if (view === "far" && args.zoom === undefined && args.x === undefined) {
       await showArchipelago(page, args.rotation);
     } else {
-      const t = args.island ? undefined : info.targets?.[view];
+      const t = args.island ? undefined : targets?.[view];
       const half = args.zoom ?? t?.half ?? (view === "far" ? 100_000 : HALF[view]);
       // The mid half extent lies in the LOD hysteresis band (FAR_EXIT_HALF):
       // coming from far (a new world opens there, D-053; or VIEW=far,mid)
