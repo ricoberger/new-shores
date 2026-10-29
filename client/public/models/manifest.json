@@ -4003,6 +4003,75 @@
       },
       "kind": "building"
     },
+    "fire_station": {
+      "anchors": {
+        "door": [
+          0.25,
+          0.0,
+          -1.0
+        ],
+        "status": [
+          0.0,
+          4.625,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.625,
+          4.375,
+          2.0
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -2.0
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.625,
+            4.375,
+            2.0
+          ],
+          "min": [
+            -1.5,
+            0.0,
+            -2.0
+          ]
+        },
+        "budget": 6000,
+        "bytes": 113040,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.5,
+              4.0,
+              2.0
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -2.0
+            ]
+          },
+          "budget": 480,
+          "bytes": 11700,
+          "path": "fire_station.lite.glb",
+          "sha256": "c167cca64e4601178bd418e1c4662f161b41cfd6187e5306304466ea07a02bab",
+          "triangles": 308
+        },
+        "path": "fire_station.glb",
+        "sha256": "c721e1968118a6053429bc9690b5ded96aade939d0ac5129db8782569fecfe37",
+        "triangles": 3594
+      },
+      "footprint": {
+        "h": 4,
+        "w": 3
+      },
+      "kind": "building"
+    },
     "fisher": {
       "anchors": {
         "boat": [
