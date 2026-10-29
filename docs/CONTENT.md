@@ -69,7 +69,7 @@ tableware, confectionery, paintings.
 
 | Material | Tier | Chain | Slot / resource |
 |---|---|---|---|
-| `planks` | Settlers | `lumberjack` (forest) → `sawmill` | forest tiles |
+| `planks` | Settlers | `lumberjack` (24 `tree_plot`s, D-059) → `sawmill` | open land for the plots |
 | `stone` | Citizens | `quarry` | stone slot |
 | `tools` | Citizens | `iron_mine` (iron slot) + `charcoal` → `smelter` → `toolmaker` | iron slot; also ships |
 | `bricks` | Merchants | `clay_pit` (clay slot) + `charcoal` → `brickworks` | clay slot (shared with tableware) |
@@ -109,7 +109,7 @@ provisional.
 
 | Good | Chain | Ratio |
 |---|---|---|
-| planks | `lumberjack` (forest → wood, 30 s) [4 S], `sawmill` (wood → planks, 30 s) [4 S] | 1 : 1 |
+| planks | `lumberjack` (24 tree plots → wood, 30 s) [4 S], `sawmill` (wood → planks, 30 s) [4 S] | 1 : 1 |
 | fish | `fisher` (harbour slot → fish, 40 s) [4 S] | — |
 | wool_garments | `sheep_farm` (grass → wool, 90 s) [4 S], `weaver_wool` (wool → wool_garments, 90 s) [6 S] | 1 : 1 |
 
@@ -240,7 +240,8 @@ harbour buildings the water rows are the far end); upkeep in gold/min;
 | `warehouse` | 1 | 6×6 | Warehouse 6×6 | 50 / 6 | 0 | — | collector; radius and throughput per level |
 | `market` | 1 | 5×6 | Market | 250 / 15 | 0 | — | R (was `market_small` until D-056 C3; that ID is retired); levels: lvl 1 radius 12; lvl 2 (tier 3) radius 16, 1000 gold / 15 planks / 30 stone; lvl 3 (tier 4) radius 20, 5000 gold / 15 planks / 45 stone / 15 bricks (D-056) |
 | `chapel` | 1 | 3×3 | Shrine 3×3 | 100 / 6 | 0 | — | R, radius 16; the 6×10 church is tier 3 |
-| `lumberjack` | 1 | 3×3 | Woodcutter | 60 / 6 | 1 | 4 S | R, work radius 4 forest |
+| `lumberjack` | 1 | 3×3 + 24 `tree_plot` | Woodcutter | 60 / 6 | 1 | 4 S | R; plants its trees like a farm (D-059; was work radius 4 forest) |
+| `tree_plot` | 1 | 1×1 field | field tile | 1 g | 0 | — | lumberjack only; painted; grass or forest, no fertility (D-059) |
 | `sawmill` | 1 | 4×6 | Sawmill | 120 / 9 | 2 | 4 S | R |
 | `fisher` | 1 | 3×8, 3 water rows | Fishing Hut | 60 / 6 | 2 | 4 S | R |
 | `sheep_farm` | 1 | 3×3 + 3 `pasture` | Sheep Farm | 60 / 6 | 1 | 4 S | R, cycle 90 s |

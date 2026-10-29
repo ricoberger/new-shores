@@ -39,7 +39,7 @@ func TestLoadOldCoast(t *testing.T) {
 		t.Errorf("rules = %+v", rules)
 	}
 	if rules.ShipHandlingBaseMs != 10_000 || rules.ShipHandlingMsPerUnit != 200 || rules.ShipSpeedMilliTilesPerMin != 60_000 || rules.AwaySummaryMs != 900_000 ||
-		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.14.0" {
+		rules.TrialResumeMs != 1_800_000 || c.Region.Version != "old_coast-0.15.0" {
 		t.Errorf("ship rules = %+v, version %s", rules, c.Region.Version)
 	}
 	if c.Region.Camera.MaxHalfExtent != 120 {
@@ -70,7 +70,7 @@ func TestLoadOldCoast(t *testing.T) {
 		ids = append(ids, b.ID)
 	}
 	wantIDs("buildings", ids, "house_settlers", "road_dirt", "trading_post", "warehouse", "market", "chapel",
-		"lumberjack", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
+		"lumberjack", "tree_plot", "sawmill", "fisher", "sheep_farm", "pasture", "weaver_wool", "shipyard",
 		"house_citizens", "road_paved", "tavern", "school", "wheat_farm", "wheat_field", "mill", "bakery",
 		"dairy_farm", "cattle_pasture", "cheese_dairy", "orchard", "orchard_plot", "cidery", "apiary", "meadow", "meadery",
 		"hemp_farm", "hemp_field", "weaver_linen", "pig_farm", "pig_pen", "tannery", "sailmaker", "quarry", "iron_mine",
@@ -272,8 +272,9 @@ func TestLoadOldCoast(t *testing.T) {
 	if lj.Recipe.CycleMs != 30_000 || lj.Recipe.Outputs[0] != (GoodAmount{"wood", 1000}) || len(lj.Recipe.Inputs) != 0 {
 		t.Errorf("lumberjack recipe = %+v", lj.Recipe)
 	}
-	if lj.WorkArea == nil || lj.WorkArea.Radius != 4 || lj.WorkArea.RequiredTiles != 24 || !lj.WorkArea.MatchesTerrain("forest") {
-		t.Errorf("lumberjack work area = %+v", lj.WorkArea)
+	// D-059: the lumberjack plants tree plots like a farm (no work area).
+	if lj.WorkArea != nil || lj.Fields == nil || lj.Fields.Type != "tree_plot" || lj.Fields.Required != 24 || lj.Fields.Max != 24 {
+		t.Errorf("lumberjack work area = %+v, fields = %+v", lj.WorkArea, lj.Fields)
 	}
 	if f := c.BuildingByID["fisher"]; f.Recipe.CycleMs != 40_000 || f.WaterTiles != 3 || f.Coastal || !f.Boat || !f.Smoke {
 		t.Error("fisher recipe/water-edge mismatch")

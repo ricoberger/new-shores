@@ -22,7 +22,7 @@
   {
     "id": "intro_planks",
     "title": "Timber for the colony",
-    "text": "Every house and workshop needs planks. Build a lumberjack in the forest and a sawmill, and connect both to the Trading Post by road. The company sends planks to get you started. Goods beyond the Trading Post capacity of the island you choose are lost.",
+    "text": "Every house and workshop needs planks. Build a lumberjack, plant its tree plots from its panel, build a sawmill and connect both to the Trading Post by road. The company sends planks to get you started. Goods beyond the Trading Post capacity of the island you choose are lost.",
     "objectives": [
       { "kind": "connected", "type": "lumberjack" },
       { "kind": "connected", "type": "sawmill" }

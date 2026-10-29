@@ -27,7 +27,8 @@ import (
 //     founded from the start ship at its roomiest Trading Post site; the
 //     sloop idle there.
 //   - town: default plus FixtureGold, a street inland from the Trading
-//     Post, a connected lumberjack and sawmill, four settler houses (one
+//     Post, a connected lumberjack with its 24 tree plots painted in one
+//     place_fields drag (D-059) and a sawmill, four settler houses (one
 //     house and the sawmill moved once), the quests that layout completes
 //     claimed, and a sheep farm with its three 3x3 pastures painted in
 //     one place_fields drag (D-054).
@@ -54,10 +55,11 @@ import (
 //     Merchant houses and a Patrician house (seeded), the roast-beef chain
 //     on the home island (cattle farm with its five pastures, salt pans,
 //     slaughterhouse) and a galleon that founds the nearest island with a
-//     quartz deposit (Trading Post, street, lumberjack, charcoal burner,
-//     quartz quarry on the slot, glass smelter) and sails the route
-//     "Glass home". A seed without a quartz deposit is an error (every
-//     seed of the shipped content has two or more, DevSeed included).
+//     quartz deposit (Trading Post, street, lumberjack with its tree
+//     plots, charcoal burner, quartz quarry on the slot, glass smelter)
+//     and sails the route "Glass home". A seed without a quartz deposit
+//     is an error (every seed of the shipped content has two or more,
+//     DevSeed included).
 const (
 	FixtureDefault    = "default"
 	FixtureSeafaring  = "seafaring"
@@ -215,7 +217,7 @@ func town(f *fixture) {
 	f.w.Gold += FixtureGold
 	home := f.home()
 	f.street(home, 14)
-	f.placeNear(home, "lumberjack", f.forestAnchor(home, f.streetEnd(home)))
+	f.placeFarm(home, "lumberjack", f.forestAnchor(home, f.streetEnd(home)))
 	f.placeNear(home, "house_settlers", f.streetEnd(home))
 	f.placeNear(home, "sawmill", f.streetEnd(home))
 	f.advance(90 * time.Second)
@@ -349,8 +351,8 @@ const (
 // merchants unlocks the citizens and merchants tiers (granted, like the
 // gold), builds the services up to the church and four seeded Merchant
 // houses on the home island, a butcher and a pastry kitchen, and a
-// shipyard whose brig founds the nearest island with a clay deposit and
-// then sails bricks home. Every charged placement gets its cost granted
+// shipyard (placed first) whose brig founds the nearest island with a
+// clay deposit and then sails bricks home. Every charged placement gets its cost granted
 // first, and merchantsGold covers the larger upkeep (services, workshops,
 // the brig) for well over an hour.
 func merchants(f *fixture) {
@@ -370,6 +372,9 @@ func merchants(f *fixture) {
 			ErrFixtureSeed, FixtureMerchants, merchantsDeposit, f.w.Seed, DevSeed)
 		return
 	}
+	// The shipyard first: it needs a coast site a road reaches, which the
+	// town's later buildings could close off.
+	yard := f.placePaid(home, "shipyard", f.streetEnd(home))
 	market := f.placePaid(home, "market", f.streetEnd(home))
 	for _, typ := range []string{"chapel", "tavern", "school", "church"} {
 		f.placePaid(home, typ, f.streetEnd(home))
@@ -386,7 +391,6 @@ func merchants(f *fixture) {
 	for _, typ := range []string{"butcher", "pastry_kitchen"} {
 		f.placePaid(home, typ, f.streetEnd(home))
 	}
-	yard := f.placePaid(home, "shipyard", f.streetEnd(home))
 	if f.err != nil {
 		return
 	}
@@ -445,8 +449,8 @@ const (
 // house, and the roast-beef chain on the home island (cattle farm with
 // its pastures, salt pans on the coast, slaughterhouse); a shipyard's
 // galleon founds the nearest island with a quartz deposit, builds the
-// glass chain there (lumberjack, charcoal burner, quartz quarry on the
-// slot, glass smelter) and sails glass home. Every charged placement gets
+// glass chain there (lumberjack with its tree plots, charcoal burner,
+// quartz quarry on the slot, glass smelter) and sails glass home. Every charged placement gets
 // its cost granted first.
 func patricians(f *fixture) {
 	if f.err != nil {
@@ -520,7 +524,8 @@ func patricians(f *fixture) {
 	f.apply(sim.FoundIsland{ShipID: ship, IslandID: deposit, BuildingType: tradingPostType(f.c), X: site.X, Y: site.Y, Rotation: site.Rotation})
 	f.street(deposit, 8)
 	f.placePaid(deposit, "quartz_quarry", f.depositTile(deposit, patriciansDeposit))
-	f.placePaid(deposit, "lumberjack", f.forestAnchor(deposit, f.streetEnd(deposit)))
+	f.grantFarm(deposit, "lumberjack")
+	f.placeFarm(deposit, "lumberjack", f.forestAnchor(deposit, f.streetEnd(deposit)))
 	f.placePaid(deposit, "charcoal_burner", f.streetEnd(deposit))
 	f.placePaid(deposit, "glass_smelter", f.streetEnd(deposit))
 	f.advance(time.Minute)
@@ -549,6 +554,36 @@ func (f *fixture) grant(island string, cost *content.Cost) {
 	for _, m := range cost.Materials {
 		inv.Stock[m.Good] += m.Amount
 	}
+}
+
+// grantFarm grants a farm's cost and the cost of its required fields.
+func (f *fixture) grantFarm(island, typ string) {
+	def := f.c.BuildingByID[typ]
+	if def == nil {
+		return
+	}
+	f.grant(island, &def.Cost)
+	if def.Fields == nil {
+		return
+	}
+	if field := f.c.FieldByType[def.Fields.Type]; field != nil {
+		for range def.Fields.Required {
+			f.grant(island, &field.Cost)
+		}
+	}
+}
+
+// placeFarm places a farm at the site nearest to anchor where one drag
+// paints every required field (the drag is kept); a building without
+// fields (the pre-D-059 test content's lumberjack) is placeNear.
+func (f *fixture) placeFarm(island, typ string, anchor sim.Pos) int64 {
+	def := f.c.BuildingByID[typ]
+	if def == nil || def.Fields == nil {
+		return f.placeNear(island, typ, anchor)
+	}
+	return f.placeNearThen(island, typ, anchor, func(id int64) bool {
+		return f.paintFields(island, id, def.Fields.Type, def.Fields.Required)
+	})
 }
 
 // placePaid is placeNear with the building's cost granted first.
@@ -610,7 +645,8 @@ type fixture struct {
 	err error
 	// ends holds the town centre per island (street).
 	ends map[string]sim.Pos
-	// spareForest keeps sites and roads off the forest (planner).
+	// spareForest keeps sites and roads off the forest while other sites
+	// exist (planner): forest is scenery since D-059.
 	spareForest bool
 	// seeded places buildings with sim.PlaceFree (no cost, no tier or
 	// upgrade-only check): the merchants fixture's Merchant houses.
