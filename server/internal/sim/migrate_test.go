@@ -15,18 +15,19 @@ import (
 	"github.com/ricoberger/new-shores/server/internal/content"
 )
 
-// TestSchemaMigrationsRegistered: schema 10 (D-056 C3, market renamed)
-// registers no migration: envelopes of schema 1-9 (the game was not
+// TestSchemaMigrationsRegistered: schema 11 (D-058 terrain) registers no
+// migration: envelopes of schema 1-10 (the game was not
 // deployed), envelopes without a version and newer ones fail loudly with
 // ErrSchemaVersion.
 func TestSchemaMigrationsRegistered(t *testing.T) {
 	m := SchemaMigrations(catalogue(t))
-	if SchemaVersion != 10 || len(m) != 0 {
+	if SchemaVersion != 11 || len(m) != 0 {
 		t.Fatalf("SchemaVersion %d with %d migrations: add migration tests", SchemaVersion, len(m))
 	}
 	for _, raw := range []string{
 		`{"schema_version":0,"content_version":"x","world":{}}`,
-		`{"schema_version":11,"content_version":"x","world":{}}`,
+		`{"schema_version":12,"content_version":"x","world":{}}`,
+		`{"schema_version":10,"content_version":"old_coast-0.13.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"schema_version":9,"content_version":"old_coast-0.11.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"schema_version":8,"content_version":"old_coast-0.11.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
 		`{"schema_version":7,"content_version":"old_coast-0.10.0","world":{"last_evaluated_at":"2026-01-01T00:00:00Z","last_seen_at":"2026-01-01T00:00:00Z"}}`,
@@ -46,12 +47,18 @@ func TestSchemaMigrationsRegistered(t *testing.T) {
 
 // TestOldSchemaFixturesFailToLoad: worlds of schema 4 (radius fields), 5
 // (the hand-made dev archipelago), 6 (tiles in the state, before D-054),
-// 7 (ships without names) and 8 (market_small, before the tier-3 content)
-// are not migrated; they fail with ErrSchemaVersion and need a fresh
-// database (make down VOLUMES=1 && make up).
+// 7 (ships without names), 8 (market_small, before the tier-3 content)
+// and 10 (before the D-058 terrain) are not migrated; they fail with
+// ErrSchemaVersion and need a fresh database (make down VOLUMES=1 &&
+// make up).
 func TestOldSchemaFixturesFailToLoad(t *testing.T) {
 	files, err := filepath.Glob(filepath.Join("testdata", "schema[45678]_*.json"))
-	if err != nil || len(files) < 19 {
+	if err == nil {
+		var ten []string
+		ten, err = filepath.Glob(filepath.Join("testdata", "schema10_*.json"))
+		files = append(files, ten...)
+	}
+	if err != nil || len(files) < 23 {
 		t.Fatalf("old schema fixtures %v (%v)", files, err)
 	}
 	for _, f := range files {

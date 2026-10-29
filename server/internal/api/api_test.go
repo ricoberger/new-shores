@@ -856,7 +856,8 @@ func TestIslandTiles(t *testing.T) {
 	if err := json.Unmarshal(res.body, &is); err != nil {
 		t.Fatal(err)
 	}
-	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.9.0" {
+	if is.ID != testIsland || is.Width != 56 || is.Height != 40 || len(is.Terrain) != 56*40 || is.Revision != "old_coast-0.9.0" ||
+		len(is.Levels) != 56*40 || is.Levels != strings.Repeat("0", 56*40) || is.Heights != is.Levels {
 		t.Fatalf("island %s %dx%d terrain %d revision %s", is.ID, is.Width, is.Height, len(is.Terrain), is.Revision)
 	}
 	// Row 1 of the dev island starts with water then coast.

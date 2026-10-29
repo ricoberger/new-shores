@@ -37,6 +37,17 @@ func TestLoadIslands(t *testing.T) {
 			t.Errorf("%s fertilities = %+v, want 2-4", sc.ID, sc.Fertilities)
 		}
 	}
+	shapes := map[string]ShapeRules{
+		"large":  {Arms: Range{1, 3}, Plain: 40, Rivers: Range{1, 2}, Levels: 2, Islets: Range{3, 6}},
+		"medium": {Arms: Range{1, 3}, Plain: 24, Rivers: Range{0, 1}, Levels: 2, Islets: Range{2, 5}},
+		"small":  {Arms: Range{1, 2}, Plain: 14, Rivers: Range{0, 0}, Levels: 1, Islets: Range{2, 4}},
+		"rock":   {},
+	}
+	for _, sc := range r.SizeClasses {
+		if sc.Shape != shapes[sc.ID] {
+			t.Errorf("%s shape = %+v, want %+v (D-058)", sc.ID, sc.Shape, shapes[sc.ID])
+		}
+	}
 	for _, d := range r.Deposits {
 		if (d.ID == "stone" && d.Count.Min < 3) || (d.ID == "iron" && d.Count.Min < 2) {
 			t.Errorf("deposit %+v below the D-053 minimum", d)
@@ -134,6 +145,31 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 			"unknown home fertility", FileIslands,
 			[]string{`"fertilities_any": ["wheat", "apple"]`, `"fertilities_any": ["wheat", "olive"]`},
 			[]string{FileIslands, "home.fertilities_any", `"olive" is not in the pool`},
+		},
+		{
+			"rock with arms", FileIslands,
+			[]string{`"shape": { "arms": { "min": 0, "max": 0 }, "plain": 0`, `"shape": { "arms": { "min": 0, "max": 1 }, "plain": 0`},
+			[]string{FileIslands, `size class "rock"`, "shape", "no arms"},
+		},
+		{
+			"plain larger than a third of the size", FileIslands,
+			[]string{`"plain": 14`, `"plain": 22`},
+			[]string{FileIslands, `size class "small"`, "shape.plain"},
+		},
+		{
+			"too many rivers", FileIslands,
+			[]string{`"rivers": { "min": 1, "max": 2 }`, `"rivers": { "min": 1, "max": 3 }`},
+			[]string{FileIslands, `size class "large"`, "shape.rivers.max"},
+		},
+		{
+			"too many islets", FileIslands,
+			[]string{`"islets": { "min": 3, "max": 6 }`, `"islets": { "min": 3, "max": 9 }`},
+			[]string{FileIslands, `size class "large"`, "shape.islets.max"},
+		},
+		{
+			"empty arms range", FileIslands,
+			[]string{`"arms": { "min": 1, "max": 2 }`, `"arms": { "min": 2, "max": 1 }`},
+			[]string{FileIslands, `size class "small"`, "shape.arms", "empty"},
 		},
 		{
 			"too few names", FileIslands,

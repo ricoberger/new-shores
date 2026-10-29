@@ -52,17 +52,20 @@ func TerrainMask(is *Island) string {
 	return b.String()
 }
 
+// maskIndex maps a terrain to its mask character: islets count as coast
+// (sand and rock), cliffs as mountain, rivers as water (D-058; a river
+// never holds a block's majority but keeps the outline from growing).
 func maskIndex(terrain string) int {
 	switch terrain {
-	case content.TerrainCoast:
+	case content.TerrainCoast, content.TerrainIslet:
 		return 1
-	case content.TerrainMountain:
+	case content.TerrainMountain, content.TerrainCliff:
 		return 2
 	case content.TerrainForest:
 		return 3
 	case content.TerrainGrass:
 		return 4
 	default:
-		return 0 // water and unknown terrain
+		return 0 // water, river and unknown terrain
 	}
 }

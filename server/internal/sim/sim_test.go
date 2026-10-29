@@ -69,9 +69,9 @@ func varietyCatalogue(t testing.TB) *content.Catalogue {
 }
 
 // islandFromRows builds an island from ASCII rows ('~' water, 'c' coast,
-// '.' grass, 'f' forest, 'm' mountain).
+// '.' grass, 'f' forest, 'm' mountain, 'r' river, 'i' islet, 'k' cliff).
 func islandFromRows(id string, rows ...string) *Island {
-	terrain := map[rune]string{'~': "water", 'c': "coast", '.': "grass", 'f': "forest", 'm': "mountain"}
+	terrain := map[rune]string{'~': "water", 'c': "coast", '.': "grass", 'f': "forest", 'm': "mountain", 'r': "river", 'i': "islet", 'k': "cliff"}
 	var tiles []Tile
 	for _, r := range rows {
 		for _, ch := range r {

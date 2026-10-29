@@ -31,7 +31,8 @@ func (w *World) TerrainKey() TerrainKey {
 }
 
 // terrainDoc is the uncompressed terrain: per island one byte per tile
-// (row-major) and the deposits by tile index.
+// (row-major), the levels and heights as one digit per tile (omitted
+// when all are zero, D-058) and the deposits by tile index.
 type terrainDoc struct {
 	Islands []terrainIsland `json:"islands"`
 }
@@ -41,6 +42,8 @@ type terrainIsland struct {
 	Width    int              `json:"width"`
 	Height   int              `json:"height"`
 	Rows     string           `json:"rows"`
+	Levels   string           `json:"levels,omitempty"`
+	Heights  string           `json:"heights,omitempty"`
 	Deposits []terrainDeposit `json:"deposits,omitempty"`
 }
 
@@ -63,6 +66,12 @@ func terrainCode(name string) (byte, bool) {
 		return 'f', true
 	case content.TerrainMountain:
 		return 'm', true
+	case content.TerrainRiver:
+		return 'r', true
+	case content.TerrainIslet:
+		return 'i', true
+	case content.TerrainCliff:
+		return 'k', true
 	}
 	return 0, false
 }
@@ -80,8 +89,22 @@ func terrainName(code byte) (string, bool) {
 		return content.TerrainForest, true
 	case 'm':
 		return content.TerrainMountain, true
+	case 'r':
+		return content.TerrainRiver, true
+	case 'i':
+		return content.TerrainIslet, true
+	case 'k':
+		return content.TerrainCliff, true
 	}
 	return "", false
+}
+
+// digit decodes one level or height digit.
+func digit(b byte) (int, bool) {
+	if b < '0' || b > '9' {
+		return 0, false
+	}
+	return int(b - '0'), true
 }
 
 // EncodeTerrain returns the gzip-compressed terrain of the world's islands.
@@ -93,18 +116,32 @@ func EncodeTerrain(w *World) ([]byte, error) {
 			return nil, fmt.Errorf("encode terrain: island %q has %d tiles for %dx%d", is.ID, len(is.Tiles), is.Width, is.Height)
 		}
 		rows := make([]byte, len(is.Tiles))
+		levels := make([]byte, len(is.Tiles))
+		heights := make([]byte, len(is.Tiles))
+		var anyLevel, anyHeight bool
 		ti := terrainIsland{ID: is.ID, Width: is.Width, Height: is.Height}
 		for i, t := range is.Tiles {
 			code, ok := terrainCode(t.Terrain)
 			if !ok {
 				return nil, fmt.Errorf("encode terrain: island %q tile %d has unknown terrain %q", is.ID, i, t.Terrain)
 			}
+			if t.Level < 0 || t.Level > 9 || t.Height < 0 || t.Height > 9 {
+				return nil, fmt.Errorf("encode terrain: island %q tile %d has level %d height %d outside 0-9", is.ID, i, t.Level, t.Height)
+			}
 			rows[i] = code
+			levels[i], heights[i] = '0'+byte(t.Level), '0'+byte(t.Height) // #nosec G115 -- 0-9
+			anyLevel, anyHeight = anyLevel || t.Level != 0, anyHeight || t.Height != 0
 			if t.Deposit != nil {
 				ti.Deposits = append(ti.Deposits, terrainDeposit{Index: i, Deposit: *t.Deposit})
 			}
 		}
 		ti.Rows = string(rows)
+		if anyLevel {
+			ti.Levels = string(levels)
+		}
+		if anyHeight {
+			ti.Heights = string(heights)
+		}
 		doc.Islands = append(doc.Islands, ti)
 	}
 	data, err := json.Marshal(doc)
@@ -150,6 +187,9 @@ func AttachTerrain(w *World, data []byte) error {
 			return fmt.Errorf("decode terrain: island %q %dx%d (%d tiles) does not match %q %dx%d",
 				ti.ID, ti.Width, ti.Height, len(ti.Rows), is.ID, is.Width, is.Height)
 		}
+		if (ti.Levels != "" && len(ti.Levels) != len(ti.Rows)) || (ti.Heights != "" && len(ti.Heights) != len(ti.Rows)) {
+			return fmt.Errorf("decode terrain: island %q levels or heights do not match its %d tiles", ti.ID, len(ti.Rows))
+		}
 		tiles := make([]Tile, len(ti.Rows))
 		for i := range len(ti.Rows) {
 			name, ok := terrainName(ti.Rows[i])
@@ -157,6 +197,16 @@ func AttachTerrain(w *World, data []byte) error {
 				return fmt.Errorf("decode terrain: island %q tile %d has unknown code %q", ti.ID, i, ti.Rows[i])
 			}
 			tiles[i].Terrain = name
+			if ti.Levels != "" {
+				if tiles[i].Level, ok = digit(ti.Levels[i]); !ok {
+					return fmt.Errorf("decode terrain: island %q tile %d has level %q", ti.ID, i, ti.Levels[i])
+				}
+			}
+			if ti.Heights != "" {
+				if tiles[i].Height, ok = digit(ti.Heights[i]); !ok {
+					return fmt.Errorf("decode terrain: island %q tile %d has height %q", ti.ID, i, ti.Heights[i])
+				}
+			}
 		}
 		for _, d := range ti.Deposits {
 			if d.Index < 0 || d.Index >= len(tiles) {

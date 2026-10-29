@@ -22,7 +22,8 @@ var goldenSeeds = []uint64{1_053_001, 1, 42}
 // render writes an archipelago as text: the spawn and bounds, then per
 // island its identity, position, size, fertilities and deposit counts and
 // its tile map ('~' water, 'c' coast, '.' grass, 'f' forest, 'm' mountain,
-// 'I' iron and 'S' stone deposits, as in scenario documents).
+// 'r' river, 'i' islet, 'k' cliff, deposits by the upper-case initial of
+// their kind, as in scenario documents).
 func render(a *Archipelago) string {
 	var b strings.Builder
 	x0, y0, x1, y1 := Bounds(a.Islands)
@@ -56,6 +57,12 @@ func tileChar(t sim.Tile) byte {
 		return 'f'
 	case content.TerrainMountain:
 		return 'm'
+	case content.TerrainRiver:
+		return 'r'
+	case content.TerrainIslet:
+		return 'i'
+	case content.TerrainCliff:
+		return 'k'
 	}
 	return '.'
 }

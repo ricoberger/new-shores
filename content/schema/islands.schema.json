@@ -40,7 +40,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "size", "count", "fertilities", "deposits"],
+        "required": ["id", "name", "size", "count", "fertilities", "deposits", "shape"],
         "properties": {
           "id": { "$ref": "#/$defs/id" },
           "name": { "type": "string", "minLength": 1, "maxLength": 32 },
@@ -48,7 +48,20 @@
           "rock": { "description": "Resource rock: mountain and coast only, no fertility.", "type": "boolean" },
           "count": { "$ref": "#/$defs/range", "description": "Islands of the class per archipelago." },
           "fertilities": { "$ref": "#/$defs/range", "description": "Fertility tags per island." },
-          "deposits": { "$ref": "#/$defs/range", "description": "Deposit slots per island." }
+          "deposits": { "$ref": "#/$defs/range", "description": "Deposit slots per island." },
+          "shape": {
+            "description": "Shape parameters (D-058); a resource rock uses zeros.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["arms", "plain", "rivers", "levels", "islets"],
+            "properties": {
+              "arms": { "$ref": "#/$defs/range", "description": "Arms of the skeleton besides the trunk (0-3)." },
+              "plain": { "description": "Side in tiles of the guaranteed contiguous plain of grass/forest (0: none; at most size/3).", "type": "integer", "minimum": 0, "maximum": 128 },
+              "rivers": { "$ref": "#/$defs/range", "description": "Rivers per island (0-2)." },
+              "levels": { "description": "Highest terrace level of the land (0-2; visual only).", "type": "integer", "minimum": 0, "maximum": 2 },
+              "islets": { "$ref": "#/$defs/range", "description": "Islets (decor rocks and sand bars) per island (0-8)." }
+            }
+          }
         }
       }
     },

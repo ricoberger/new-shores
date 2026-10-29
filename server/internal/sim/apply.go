@@ -312,10 +312,17 @@ func lookupIsland(w *World, id string) (*Island, error) {
 	return is, nil
 }
 
+// Extra terrain a checkTiles caller allows besides the buildable terrain.
+const (
+	allowNone     = ""
+	allowMountain = content.TerrainMountain // deposit buildings
+	allowRiver    = content.TerrainRiver    // roads: a road on a river is a bridge (D-058)
+)
+
 // checkTiles validates that every tile is on the island, has buildable
-// terrain (mountain too with allowMountain, for deposit buildings) and
-// carries neither a building nor a road.
-func checkTiles(is *Island, occ []int64, tiles []Pos, allowMountain bool) error {
+// terrain (or the extra terrain also, e.g. mountain for deposit buildings,
+// river for roads) and carries neither a building nor a road.
+func checkTiles(is *Island, occ []int64, tiles []Pos, also string) error {
 	for _, p := range tiles {
 		if !is.InBounds(p.X, p.Y) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, p.X, p.Y)
@@ -323,7 +330,7 @@ func checkTiles(is *Island, occ []int64, tiles []Pos, allowMountain bool) error 
 	}
 	for _, p := range tiles {
 		i := is.index(p.X, p.Y)
-		if t := is.Tiles[i].Terrain; !buildableTerrain(t) && (!allowMountain || t != content.TerrainMountain) {
+		if t := is.Tiles[i].Terrain; !buildableTerrain(t) && (also == allowNone || t != also) {
 			return fmt.Errorf("%w: (%d,%d) is %s", ErrTerrain, p.X, p.Y, is.Tiles[i].Terrain)
 		}
 		if occ[i] != 0 || is.Roads[i] != "" {
@@ -514,7 +521,11 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 			tiles = append(tiles, Pos{tx, ty})
 		}
 	}
-	if err := checkTiles(is, occ, tiles, def.RequiresDeposit != ""); err != nil {
+	also := allowNone
+	if def.RequiresDeposit != "" {
+		also = allowMountain
+	}
+	if err := checkTiles(is, occ, tiles, also); err != nil {
 		return err
 	}
 	// Water-edge buildings (D-051): the front rows stand on free water.
@@ -637,7 +648,7 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 		}
 		seen[p] = true
 	}
-	if err := checkTiles(is, is.occupancy(c), cmd.Tiles, false); err != nil {
+	if err := checkTiles(is, is.occupancy(c), cmd.Tiles, allowRiver); err != nil {
 		return err
 	}
 	n := int64(len(cmd.Tiles))

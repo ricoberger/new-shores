@@ -42,7 +42,29 @@ type SizeClass struct {
 	// and deposit slots.
 	Fertilities Range
 	Deposits    Range
+	// Shape holds the shape parameters of the class (D-058).
+	Shape ShapeRules
 }
+
+// ShapeRules are the shape parameters of a size class (D-058,
+// islands.json "shape"): arms of the skeleton besides the trunk, the side
+// of the guaranteed contiguous plain (0: none), rivers, the highest
+// terrace level and islets per island.
+type ShapeRules struct {
+	Arms   Range
+	Plain  int
+	Rivers Range
+	Levels int
+	Islets Range
+}
+
+// Shape limits checked by the loader (D-058).
+const (
+	MaxArms   = 3
+	MaxRivers = 2
+	MaxLevel  = 2
+	MaxIslets = 8
+)
 
 // PoolEntry is a fertility or deposit of the generator's pool with the
 // number of times it appears per archipelago (fertility: islands carrying
@@ -110,6 +132,13 @@ type rawIslands struct {
 		Count       rawRange `json:"count"`
 		Fertilities rawRange `json:"fertilities"`
 		Deposits    rawRange `json:"deposits"`
+		Shape       struct {
+			Arms   rawRange `json:"arms"`
+			Plain  int      `json:"plain"`
+			Rivers rawRange `json:"rivers"`
+			Levels int      `json:"levels"`
+			Islets rawRange `json:"islets"`
+		} `json:"shape"`
 	} `json:"size_classes"`
 	Fertilities   []rawPoolEntry `json:"fertilities"`
 	Deposits      []rawPoolEntry `json:"deposits"`
@@ -145,6 +174,10 @@ func decodeIslands(col *collector, raw rawIslands, names []string) (IslandRules,
 			Count:       Range(sc.Count),
 			Fertilities: Range(sc.Fertilities),
 			Deposits:    Range(sc.Deposits),
+			Shape: ShapeRules{
+				Arms: Range(sc.Shape.Arms), Plain: sc.Shape.Plain, Rivers: Range(sc.Shape.Rivers),
+				Levels: sc.Shape.Levels, Islets: Range(sc.Shape.Islets),
+			},
 		}
 		r.SizeClasses = append(r.SizeClasses, c)
 		r.SizeClassByID[c.ID] = c
@@ -256,6 +289,7 @@ func checkIslands(c *Catalogue, col *collector) {
 		if sc.Size < 8 {
 			col.add(file, ent, "size", "must be >= 8")
 		}
+		checkShape(col, ent, sc, order)
 		if sc.Fertilities.Max > len(r.Fertilities) {
 			col.add(file, ent, "fertilities.max", "exceeds the %d entries of the fertility pool", len(r.Fertilities))
 		}
@@ -361,5 +395,35 @@ func checkIslands(c *Catalogue, col *collector) {
 	}
 	if len(c.IslandNames) < maxIslands {
 		col.add(FileIslandNames, "", "", "%d names for up to %d islands", len(c.IslandNames), maxIslands)
+	}
+}
+
+// checkShape validates the shape parameters of a size class (D-058): the
+// ranges are ordered and within the limits, the plain fits the class (at
+// most a third of its size) and a resource rock is a plain blob (no arms,
+// plain, rivers, terraces or islets).
+func checkShape(col *collector, ent string, sc *SizeClass, order func(ent, field string, rg Range)) {
+	const file = FileIslands
+	s := sc.Shape
+	order(ent, "shape.arms", s.Arms)
+	order(ent, "shape.rivers", s.Rivers)
+	order(ent, "shape.islets", s.Islets)
+	if s.Arms.Max > MaxArms {
+		col.add(file, ent, "shape.arms.max", "at most %d arms", MaxArms)
+	}
+	if s.Rivers.Max > MaxRivers {
+		col.add(file, ent, "shape.rivers.max", "at most %d rivers", MaxRivers)
+	}
+	if s.Islets.Max > MaxIslets {
+		col.add(file, ent, "shape.islets.max", "at most %d islets", MaxIslets)
+	}
+	if s.Levels < 0 || s.Levels > MaxLevel {
+		col.add(file, ent, "shape.levels", "must be in [0, %d]", MaxLevel)
+	}
+	if s.Plain < 0 || 3*s.Plain > sc.Size {
+		col.add(file, ent, "shape.plain", "must be in [0, size/3] (%d)", sc.Size/3)
+	}
+	if sc.Rock && (s.Arms.Max > 0 || s.Plain > 0 || s.Rivers.Max > 0 || s.Levels > 0 || s.Islets.Max > 0) {
+		col.add(file, ent, "shape", "a resource rock has no arms, plain, rivers, levels or islets")
 	}
 }

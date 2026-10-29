@@ -1,9 +1,9 @@
 {
   "size_classes": [
-    { "id": "large", "name": "Large", "size": 48, "count": { "min": 3, "max": 3 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
-    { "id": "medium", "name": "Medium", "size": 32, "count": { "min": 5, "max": 5 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
-    { "id": "small", "name": "Small", "size": 20, "count": { "min": 4, "max": 4 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 } },
-    { "id": "rock", "name": "Resource rock", "size": 10, "rock": true, "count": { "min": 0, "max": 2 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 2, "max": 4 } }
+    { "id": "large", "name": "Large", "size": 48, "count": { "min": 3, "max": 3 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 }, "shape": { "arms": { "min": 1, "max": 2 }, "plain": 14, "rivers": { "min": 0, "max": 1 }, "levels": 2, "islets": { "min": 0, "max": 2 } } },
+    { "id": "medium", "name": "Medium", "size": 32, "count": { "min": 5, "max": 5 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 }, "shape": { "arms": { "min": 1, "max": 2 }, "plain": 10, "rivers": { "min": 0, "max": 0 }, "levels": 1, "islets": { "min": 0, "max": 2 } } },
+    { "id": "small", "name": "Small", "size": 20, "count": { "min": 4, "max": 4 }, "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 }, "shape": { "arms": { "min": 0, "max": 1 }, "plain": 6, "rivers": { "min": 0, "max": 0 }, "levels": 1, "islets": { "min": 0, "max": 1 } } },
+    { "id": "rock", "name": "Resource rock", "size": 10, "rock": true, "count": { "min": 0, "max": 2 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 2, "max": 4 }, "shape": { "arms": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 0, "islets": { "min": 0, "max": 0 } } }
   ],
   "fertilities": [
     { "id": "wheat", "count": { "min": 3, "max": 5 } },

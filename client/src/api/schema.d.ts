@@ -1220,7 +1220,18 @@ export interface components {
              */
             revision: string;
             /** @description Terrain ID per tile, row-major (index = y × width + x). */
-            terrain: ("water" | "coast" | "grass" | "forest" | "mountain")[];
+            terrain: ("water" | "coast" | "grass" | "forest" | "mountain" | "river" | "islet" | "cliff")[];
+            /**
+             * @description Terrace level per tile as one digit, row-major (D-058: 0 at the
+             *     coast up to 2 inland; water 0). Visual only: no rule reads it.
+             */
+            levels: string;
+            /**
+             * @description Rock height of mountain tiles above their level in terrace
+             *     steps, one digit per tile, row-major (D-058; 0 elsewhere).
+             *     Visual only.
+             */
+            heights: string;
         };
         /** @description A tile carrying a deposit (infinite, D-036). */
         DepositDisplay: {
@@ -1726,7 +1737,8 @@ export interface components {
              *     one character per 4 × 4 block of tiles, row-major over
              *     ceil(width / 4) × ceil(height / 4) blocks, the block's majority
              *     terrain — `w` water, `c` coast, `m` mountain, `f` forest, `g`
-             *     grass; ties go to the earlier letter in that order (water wins
+             *     grass (islets count as coast, cliffs as mountain, rivers as
+             *     water); ties go to the earlier letter in that order (water wins
              *     every tie); edge blocks count only the tiles inside the island.
              *     The full rows: `GET /api/v1/world/islands/{island_id}/tiles`.
              */
