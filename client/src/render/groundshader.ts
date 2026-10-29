@@ -16,7 +16,7 @@
  * - multiplies a per-voxel brightness jitter in three steps (the hand-made
  *   voxel look) on every face, sides included.
  *
- * Without a texture (plateaus, the far meshes) only the jitter applies.
+ * Without a texture (the rock layer, the far meshes) only the jitter applies.
  * The jitter strength is global (groundShade.jitter): the renderer sets it
  * to 0 at far LOD, where a voxel is below a pixel and the jitter would
  * only shimmer. Render-only; no state.

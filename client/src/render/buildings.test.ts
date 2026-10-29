@@ -9,7 +9,7 @@ import { Matrix, Quaternion, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { afterAll, describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
-import { BuildingLayer, RISE_MS, scaffoldClass, stageClass, STAGES, stageMatrix, VISUAL_BUILD_MS } from "./buildings";
+import { BuildingLayer, mergeItems, RISE_MS, scaffoldClass, stageClass, STAGES, stageMatrix, VISUAL_BUILD_MS } from "./buildings";
 import { rotatedFootprint } from "../display/geometry";
 import { type ModelData, type ModelManifest, ModelRegistry, parseGlb, placement } from "./models";
 
@@ -280,6 +280,17 @@ describe("stageMatrix", () => {
       expect((Math.max(...zs) + Math.min(...zs)) / 2).toBeCloseTo(p.cz, 6);
     });
   }
+
+  it("stands a stage on the building's base (terraces, D-058)", () => {
+    const m = stageMatrix(0, entry, def, { x: 4, y: 6, rotation: 0 }, 0.5);
+    expect(Vector3.TransformCoordinates(Vector3.Zero(), m).y).toBeCloseTo(0.5, 6);
+  });
+
+  it("lifts merged model instances by their base", () => {
+    const data = { positions: new Float32Array([0, 0.25, 0]), normals: new Float32Array([0, 1, 0]), colors: new Float32Array([1, 1, 1, 1]), indices: new Uint32Array([0, 0, 0]) } as unknown as Parameters<typeof mergeItems>[0][number]["data"];
+    const v = mergeItems([{ data, cx: 1, cy: 0.5, cz: -1, yaw: 0, sx: 1, sz: 1, tint: [1, 1, 1, 1] }]);
+    expect(Array.from(v.positions!)).toEqual([1, 0.75, -1]);
+  });
 
   it("picks the footprint class nearest the footprint, so the stage voxels stretch little", () => {
     expect([stageClass(1, 1), stageClass(2, 2), stageClass(3, 2), stageClass(4, 5), stageClass(3, 8), stageClass(12, 16)]).toEqual([2, 2, 2, 4, 4, 8]);

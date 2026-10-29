@@ -30,7 +30,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, Terrain } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
 import { fbm, hash2 } from "../display/noise";
-import { ISLAND } from "../theme/palette";
+import { BUILDINGS, ISLAND } from "../theme/palette";
 import { addGround } from "./groundshader";
 import { skyFill } from "./lighting";
 import { decorModel, type ModelRegistry } from "./models";
@@ -59,6 +59,7 @@ const ROCK_LIGHT = c3(ISLAND.rock_light);
 const ROCK = c3(ISLAND.rock);
 const ROCK_DEEP = c3(ISLAND.rock_deep);
 const MOSS = c3(ISLAND.moss);
+const PLINTH = c3(BUILDINGS.stone);
 
 const CRAGS = ["decor_crag_a", "decor_crag_b", "decor_crag_c"] as const;
 const BOULDER = "decor_rock_c";
@@ -256,6 +257,26 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
   return { nx, ny, ground, flat, rock: rockH, river, riverH, fall };
 }
 
+/** A building's rotated footprint (tiles). */
+export interface FootprintRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/** The rotated footprints of the buildings (not roads; fields included): the plinths' rectangles. */
+export function footprintRects(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): FootprintRect[] {
+  const out: FootprintRect[] = [];
+  for (const b of buildings) {
+    const def = defs.get(b.type);
+    if (!def || def.category === "roads") continue;
+    const [w, h] = rotatedFootprint(def.width, def.height, b.rotation);
+    out.push({ x: b.x, y: b.y, w, h });
+  }
+  return out;
+}
+
 /** Tiles ("x,y") covered by building footprints (not roads or fields): kept at their ground, no crags or outcrops. */
 export function footprintTiles(buildings: readonly BuildingDisplay[], defs: ReadonlyMap<string, ContentBuilding>): Set<string> {
   const out = new Set<string>();
@@ -327,13 +348,42 @@ function rockSide(z: number): Color3 {
   return p === 0 ? ROCK_DEEP : p === LEVEL_STEPS - 1 ? ROCK_LIGHT : ROCK;
 }
 
+/** Plinth walls: dressed stone, a darker course every other step. */
+function plinthSide(z: number): Color3 {
+  return z % 2 === 0 ? PLINTH.scale(0.86) : PLINTH;
+}
+
+/**
+ * The plinths of building footprints (D-058): every column of a footprint
+ * below its base (the highest level under it; ramps and rims included)
+ * rises to it, as dressed stone. Returns the target height per column
+ * (steps; 0: none).
+ */
+export function plinthColumns(cols: ReliefColumns, r: Relief, rects: readonly { x: number; y: number; w: number; h: number }[]): Int8Array {
+  const out = new Int8Array(cols.nx * cols.ny);
+  const vpt = cols.nx / r.width;
+  for (const f of rects) {
+    let base = 0;
+    for (let y = f.y; y < f.y + f.h; y++) for (let x = f.x; x < f.x + f.w; x++) if (x >= 0 && y >= 0 && x < r.width && y < r.height) base = Math.max(base, (r.level[y * r.width + x] as number) * LEVEL_STEPS);
+    if (base === 0) continue;
+    for (let j = Math.max(0, f.y * vpt); j < Math.min(cols.ny, (f.y + f.h) * vpt); j++) {
+      for (let i = Math.max(0, f.x * vpt); i < Math.min(cols.nx, (f.x + f.w) * vpt); i++) {
+        const k = j * cols.nx + i;
+        if ((cols.ground[k] as number) < base && !cols.river[k]) out[k] = base;
+      }
+    }
+  }
+  return out;
+}
+
 /**
  * The rock of the relief as a field (near and mid): columns with rock
  * stand at ground + rock (EMPTY elsewhere; their walls go down to the
  * column's own ground, `floor`).
  */
-export function rockField(cols: ReliefColumns, seed: number): Field {
+export function rockField(cols: ReliefColumns, seed: number, plinth?: Int8Array): Field {
   const { nx, ny, ground, rock } = cols;
+  const kind = new Uint8Array(nx * ny);
   const h = new Int8Array(nx * ny).fill(EMPTY);
   const top = new Uint32Array(nx * ny);
   const floor = new Int8Array(nx * ny);
@@ -341,11 +391,18 @@ export function rockField(cols: ReliefColumns, seed: number): Field {
   for (let k = 0; k < nx * ny; k++) {
     const r = rock[k] as number;
     floor[k] = ground[k] as number;
+    const p = plinth ? (plinth[k] as number) : 0;
+    if (p > 0) {
+      h[k] = p;
+      top[k] = packed(PLINTH.scale(0.95 + 0.08 * hash2(k % nx, Math.floor(k / nx), seed + 41)));
+      kind[k] = 1;
+      continue;
+    }
     if (r <= 0) continue;
     h[k] = (ground[k] as number) + r;
     top[k] = packed(rockTop(r, k % nx, Math.floor(k / nx), seed));
   }
-  return { nx, ny, x0: 0, y0: 0, s: 1 / TERRAIN_VPT, h, top, floor, bottom: 0, side: (z) => rockSide(z) };
+  return { nx, ny, x0: 0, y0: 0, s: 1 / TERRAIN_VPT, h, top, kind, floor, bottom: 0, side: (z, kd) => (kd === 1 ? plinthSide(z) : rockSide(z)) };
 }
 
 /**
@@ -358,6 +415,8 @@ export class RockLayer {
   private readonly material: StandardMaterial;
   private mesh: Mesh | null = null;
   private crags: Mesh | null = null;
+  private bridgeMesh: Mesh | null = null;
+  private bridgeKey = "";
   private key = "";
   private relief: Relief | null = null;
   private blocked: ReadonlySet<string> = new Set();
@@ -375,23 +434,23 @@ export class RockLayer {
   }
 
   /** Rebuilds the rock of an island with the building footprints cut out and no crags on deposit tiles. */
-  update(island: Island, seed: number, blocked: ReadonlySet<string>): void {
-    const steps = this.steps(island, seed, blocked);
+  update(island: Island, seed: number, blocked: ReadonlySet<string>, plinths: readonly FootprintRect[] = []): void {
+    const steps = this.steps(island, seed, blocked, plinths);
     while (!steps.next().done);
   }
 
   /** update() in steps (the incremental island build): the columns, then the crags in bands of rows; meshed at the end. */
-  *steps(island: Island, seed: number, blocked: ReadonlySet<string>): Generator<void, void, void> {
+  *steps(island: Island, seed: number, blocked: ReadonlySet<string>, plinths: readonly FootprintRect[] = []): Generator<void, void, void> {
     const relief = reliefOf(island);
     this.relief = relief;
     this.blocked = blocked;
     const models = CRAGS.every((id) => decorModel(this.registry, id) !== null);
-    const key = `${island.id}|${island.revision}|${models}|${[...blocked].sort().join(";")}`;
+    const key = `${island.id}|${island.revision}|${models}|${[...blocked].sort().join(";")}|${plinths.map((p) => `${p.x},${p.y},${p.w},${p.h}`).join(";")}`;
     if (key === this.key) return;
     const cols = reliefColumns(relief, TERRAIN_VPT, seed, blocked);
     yield;
     const b = new Builder();
-    const f = rockField(cols, seed);
+    const f = rockField(cols, seed, plinthColumns(cols, relief, plinths));
     meshField(b, f, 0, 0, f.nx, f.ny);
     const rocks = new ModelMerger();
     if (models) {
@@ -407,11 +466,41 @@ export class RockLayer {
     this.crags?.setEnabled(!this.far);
   }
 
-  /** Far LOD: hides the rock (the lite terrain carries it) and the crags. */
+  /** Far LOD: hides the rock (the lite terrain carries it), the crags and the bridges. */
   setFar(far: boolean): void {
     this.far = far;
     this.mesh?.setEnabled(!far);
     this.crags?.setEnabled(!far);
+    this.bridgeMesh?.setEnabled(!far);
+  }
+
+  /**
+   * The bridges of the roads over the rivers (decor_bridge_1/2, a run of
+   * three or more tiles as pieces of two and one): centred on their run,
+   * along its axis, standing on the river's surface.
+   */
+  setBridges(runs: readonly BridgeRun[], name: string): void {
+    const one = decorModel(this.registry, "decor_bridge_1");
+    const two = decorModel(this.registry, "decor_bridge_2");
+    const key = `${one !== null}${two !== null}|${runs.map((b) => `${b.x},${b.y},${b.len}${b.axis}${b.level}`).join(";")}`;
+    if (key === this.bridgeKey) return;
+    this.bridgeKey = key;
+    this.bridgeMesh?.dispose();
+    this.bridgeMesh = null;
+    if (!one || !two || runs.length === 0) return;
+    const m = new ModelMerger();
+    for (const b of runs) {
+      const y = b.level - RIVER_DROP / 8;
+      for (let o = 0; o < b.len; ) {
+        const len = b.len - o >= 2 ? 2 : 1;
+        const along = o + len / 2;
+        if (b.axis === "x") m.add(len === 2 ? two : one, b.x + along, y, -(b.y + 0.5), 1, 0);
+        else m.add(len === 2 ? two : one, b.x + 0.5, y, -(b.y + along), 1, Math.PI / 2);
+        o += len;
+      }
+    }
+    this.bridgeMesh = m.build(`bridges_${name}`, this.scene, this.material, this.parent);
+    this.bridgeMesh?.setEnabled(!this.far);
   }
 
   /**
@@ -478,6 +567,158 @@ export class RockLayer {
 
   /** The rock meshes (sun shadow casters), if any. */
   meshes(): Mesh[] {
-    return [this.mesh, this.crags].filter((m): m is Mesh => m !== null);
+    return [this.mesh, this.crags, this.bridgeMesh].filter((m): m is Mesh => m !== null);
   }
+}
+
+/** The deck of a bridge above its river's banks (tiles): one voxel (render/models: decor_bridge_<n>, nsvoxel/terrain.py DECK_TOP). */
+export const BRIDGE_DECK = 0.125;
+
+/** Directions of a road ramp: toward the lower road neighbour. */
+const RAMP_DIRS = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+] as const;
+
+/** A straight bridge over a run of river road tiles: its first tile, length and axis. */
+export interface BridgeRun {
+  x: number;
+  y: number;
+  len: number;
+  axis: "x" | "y";
+  /** The deck's ground (tiles): the river's level. */
+  level: number;
+}
+
+/**
+ * Heights of an island's ground for what stands and moves on it (D-058):
+ * buildings on the highest level under their footprint (plinths fill the
+ * lower tiles), carts and walkers on the road surface — up the road ramps
+ * where a road climbs a level, over the bridges on river tiles.
+ */
+export class IslandGround {
+  private relief: Relief | null = null;
+  private roads = new Set<number>();
+  /** Per tile: the ramp direction (index into RAMP_DIRS), -1 none. */
+  private ramp: Int8Array = new Int8Array(0);
+  private bridgeTiles = new Set<number>();
+  private runs: BridgeRun[] = [];
+
+  /** Sets the relief (an island's statics). */
+  setRelief(r: Relief): void {
+    this.relief = r;
+    this.setRoads([...this.roads].map((t) => ({ x: t % r.width, y: Math.floor(t / r.width) })));
+  }
+
+  /** Sets the road tiles: ramps and bridges follow. */
+  setRoads(tiles: readonly { x: number; y: number }[]): void {
+    const r = this.relief;
+    if (!r) {
+      this.roads = new Set();
+      return;
+    }
+    const { width, height } = r;
+    this.roads = new Set(tiles.filter((t) => t.x >= 0 && t.y >= 0 && t.x < width && t.y < height).map((t) => t.y * width + t.x));
+    this.ramp = roadRamps(r, this.roads);
+    this.runs = bridgeRuns(r, this.roads);
+    this.bridgeTiles = new Set();
+    for (const b of this.runs) for (let i = 0; i < b.len; i++) this.bridgeTiles.add(b.axis === "x" ? b.y * width + b.x + i : (b.y + i) * width + b.x);
+  }
+
+  /** The bridges over the rivers. */
+  bridges(): readonly BridgeRun[] {
+    return this.runs;
+  }
+
+  /** The ramp direction of a road tile (RAMP_DIRS index, -1 none; tests and the road painter). */
+  rampAt(x: number, y: number): number {
+    const r = this.relief;
+    if (!r || x < 0 || y < 0 || x >= r.width || y >= r.height) return -1;
+    return this.ramp[y * r.width + x] ?? -1;
+  }
+
+  /** Ground of a tile (tiles): its terrace level. */
+  tile(x: number, y: number): number {
+    return this.relief ? groundY(this.relief, x, y) : 0;
+  }
+
+  /** The base of a footprint (tiles): the highest level under it. */
+  base(x: number, y: number, w: number, h: number): number {
+    let m = 0;
+    for (let ty = y; ty < y + h; ty++) for (let tx = x; tx < x + w; tx++) m = Math.max(m, this.tile(tx, ty));
+    return m;
+  }
+
+  /** The walking surface at an island-local point (tiles, y down): road ramps and bridge decks included. */
+  surface(fx: number, fy: number): number {
+    const r = this.relief;
+    if (!r) return 0;
+    const tx = Math.floor(fx);
+    const ty = Math.floor(fy);
+    if (tx < 0 || ty < 0 || tx >= r.width || ty >= r.height) return 0;
+    const t = ty * r.width + tx;
+    const lv = r.level[t] as number;
+    if (this.bridgeTiles.has(t)) return lv * LEVEL_HEIGHT + BRIDGE_DECK;
+    const d = this.ramp[t] ?? -1;
+    if (d >= 0) {
+      const [dx, dy] = RAMP_DIRS[d] as readonly [number, number];
+      // Distance (0..1) from the edge toward the lower neighbour.
+      const u = dx > 0 ? tx + 1 - fx : dx < 0 ? fx - tx : dy > 0 ? ty + 1 - fy : fy - ty;
+      return (lv - 1 + Math.min(1, Math.max(0, u))) * LEVEL_HEIGHT;
+    }
+    return lv * LEVEL_HEIGHT;
+  }
+}
+
+/** Per tile: the direction (RAMP_DIRS index) of a road tile toward a road neighbour one level lower (-1: none). */
+export function roadRamps(r: Relief, roads: ReadonlySet<number>): Int8Array {
+  const out = new Int8Array(r.width * r.height).fill(-1);
+  for (const t of roads) {
+    const x = t % r.width;
+    const y = Math.floor(t / r.width);
+    const lv = r.level[t] as number;
+    if (lv === 0 || r.terrain[t] === "river") continue;
+    for (let d = 0; d < RAMP_DIRS.length; d++) {
+      const [dx, dy] = RAMP_DIRS[d] as readonly [number, number];
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= r.width || ny >= r.height) continue;
+      const n = ny * r.width + nx;
+      if (roads.has(n) && (r.level[n] as number) === lv - 1 && r.terrain[n] !== "river") {
+        out[t] = d;
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * The bridges: maximal straight runs of road tiles on river tiles, along
+ * the axis their road neighbours lie on (x when a road continues east or
+ * west of the run, else y).
+ */
+export function bridgeRuns(r: Relief, roads: ReadonlySet<number>): BridgeRun[] {
+  const { width, height, terrain } = r;
+  const on = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && roads.has(y * width + x) && terrain[y * width + x] === "river";
+  const road = (x: number, y: number) => x >= 0 && y >= 0 && x < width && y < height && roads.has(y * width + x);
+  const seen = new Set<number>();
+  const out: BridgeRun[] = [];
+  for (const t of [...roads].sort((a, b) => a - b)) {
+    if (seen.has(t) || terrain[t] !== "river") continue;
+    const x = t % width;
+    const y = Math.floor(t / width);
+    // The axis: the road continues across the river along it.
+    let ex = x;
+    while (on(ex + 1, y)) ex++;
+    let ey = y;
+    while (on(x, ey + 1)) ey++;
+    const alongX = road(x - 1, y) || road(ex + 1, y) || (ex > x && !(road(x, y - 1) || road(x, ey + 1)));
+    const len = alongX ? ex - x + 1 : ey - y + 1;
+    for (let i = 0; i < len; i++) seen.add(alongX ? t + i : t + i * width);
+    out.push({ x, y, len, axis: alongX ? "x" : "y", level: (r.level[t] as number) * LEVEL_HEIGHT });
+  }
+  return out;
 }

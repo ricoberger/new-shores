@@ -452,10 +452,10 @@ export class GameRenderer {
 
   /** The life plans of the islands in view with their archipelago origins. */
   /** The shown islands' life plans, with the chunks in view (life spawns only there). */
-  private *lifeIslands(): Generator<{ origin: { x: number; y: number }; plan: IslandDetail["life"]; chunks: ReadonlySet<string> | null }> {
+  private *lifeIslands(): Generator<{ origin: { x: number; y: number }; plan: IslandDetail["life"]; chunks: ReadonlySet<string> | null; ground: (x: number, y: number) => number }> {
     for (const d of this.details.values()) {
       const o = d.lifeOrigin();
-      if (o) yield { origin: o, plan: d.life, chunks: d.chunksInView() };
+      if (o) yield { origin: o, plan: d.life, chunks: d.chunksInView(), ground: d.groundAt };
     }
   }
 
@@ -1092,7 +1092,28 @@ export class GameRenderer {
   /** Archipelago point on the ground under a render-pixel position. */
   private groundPoint(p: Point): ArchPoint | null {
     const g = this.rig.groundAt(p.x, p.y);
-    return g ? { x: g.x, y: -g.z } : null;
+    if (!g) return null;
+    let at: ArchPoint = { x: g.x, y: -g.z };
+    // On the terraces (D-058): the ray meets the ground at the height of the tile it hits — a few steps from the sea plane.
+    let h = 0;
+    for (let i = 0; i < 3; i++) {
+      const next = this.surfaceAt(at);
+      if (next === h) break;
+      h = next;
+      const q = this.rig.groundAt(p.x, p.y, h);
+      if (!q) break;
+      at = { x: q.x, y: -q.z };
+    }
+    return at;
+  }
+
+  /** The ground height (tiles) at an archipelago point: the walking surface of the island with tiles whose rectangle holds it, else 0. */
+  private surfaceAt(at: ArchPoint): number {
+    const id = this.arch.islandRectAt(at);
+    const pl = id ? this.arch.placement(id) : undefined;
+    const d = id ? this.details.get(id) : undefined;
+    if (!pl || !d) return 0;
+    return d.groundAt(at.x - pl.position.x, at.y - pl.position.y);
   }
 
   /** The island whose land is under (or within one tile of) a render-pixel position. */
@@ -1429,7 +1450,7 @@ export class GameRenderer {
         const def = this.defs.get(b.type);
         if (!def) return;
         const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-        marks.push({ cx: cx + island.position.x, cz: cz - island.position.y, w, h, kind });
+        marks.push({ cx: cx + island.position.x, cz: cz - island.position.y, w, h, kind, base: this.details.get(island.id)?.baseOf(b, def) ?? 0 });
       };
       const chainOf = (found: { b: BuildingDisplay; island: IslandDisplay } | undefined, selection = false) => {
         if (!found) return;
@@ -1518,6 +1539,7 @@ export class GameRenderer {
         y: t.y,
         rotation: tool.rotation,
         waterRows: waterRows(def, t.x, t.y, tool.rotation),
+        base: this.details.get(t.island)?.baseOf({ x: t.x, y: t.y, type: def.id, rotation: tool.rotation }, def) ?? 0,
         ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}),
       },
       color,
@@ -1553,7 +1575,15 @@ export class GameRenderer {
       this.setPaintStatus(null);
       return;
     }
-    const mark = (x: number, y: number, w: number, h: number, kind: PaintMark["kind"]): PaintMark => ({ cx: pl.position.x + x + w / 2, cz: -(pl.position.y + y + h / 2), w, h, kind });
+    const detail = this.details.get(drag.island);
+    const mark = (x: number, y: number, w: number, h: number, kind: PaintMark["kind"]): PaintMark => ({
+      cx: pl.position.x + x + w / 2,
+      cz: -(pl.position.y + y + h / 2),
+      w,
+      h,
+      kind,
+      base: detail?.baseOf({ x, y, type: "", rotation: 0 }, { width: w, height: h }) ?? 0,
+    });
     if (drag.mode === "place") {
       const p = this.paintPlanOf(drag);
       if (!p) {
@@ -1623,7 +1653,13 @@ export class GameRenderer {
         if (!results) return;
         const rejected = results.filter((r) => !r.ok);
         this.paintPreview.flash(
-          rejected.map((r) => ({ cx: pl.position.x + r.x + plan.w / 2, cz: -(pl.position.y + r.y + plan.h / 2), w: plan.w, h: plan.h })),
+          rejected.map((r) => ({
+            cx: pl.position.x + r.x + plan.w / 2,
+            cz: -(pl.position.y + r.y + plan.h / 2),
+            w: plan.w,
+            h: plan.h,
+            base: this.details.get(paint.island)?.baseOf({ x: r.x, y: r.y, type: "", rotation: 0 }, { width: plan.w, height: plan.h }) ?? 0,
+          })),
           performance.now(),
         );
       });
@@ -1669,7 +1705,7 @@ export class GameRenderer {
     else if (mouse) at = mouse;
     else if (isGhostTool(tool) && tool.pending) at = toArch(tool.pending.island, tool.pending);
     at ??= this.lastTouch ?? { x: this.rig.view().x, y: this.rig.view().y };
-    this.grid.set(at);
+    this.grid.set(at, this.surfaceAt(at));
   }
 
   /** Trees and ground scatter items built on the islands with detail (near-LOD decoration). */

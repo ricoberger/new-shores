@@ -67,6 +67,8 @@ export interface ShadowRect {
   w: number;
   h: number;
   height?: number;
+  /** The ground under the outline (tiles; terraces, D-058). */
+  base?: number;
 }
 
 /**
@@ -126,7 +128,8 @@ export function roundedShadows(
     const radius = Math.min(shadowRadius(r.w, r.h), ix, iz);
     const inset = Math.min(rim * 0.5, ix * 0.5, iz * 0.5);
     const base = positions.length / 3;
-    positions.push(cx, y, cz);
+    const ry = y + (r.base ?? 0);
+    positions.push(cx, ry, cz);
     colors.push(1, 1, 1, SHADOW_CORE);
     const rings: [number, number][] = [
       [-inset, SHADOW_CORE],
@@ -134,7 +137,7 @@ export function roundedShadows(
       [rim, 0],
     ];
     for (const [grow, alpha] of rings) {
-      ring(positions, cx, cz, ix + grow, iz + grow, Math.max(0.02, radius + grow), y);
+      ring(positions, cx, cz, ix + grow, iz + grow, Math.max(0.02, radius + grow), ry);
       for (let k = 0; k < n; k++) colors.push(1, 1, 1, alpha);
     }
     // Core: a fan from the centre to the inner ring (convex).

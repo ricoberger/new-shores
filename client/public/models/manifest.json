@@ -1,5 +1,73 @@
 {
   "decor": {
+    "decor_bridge_1": {
+      "bounds": {
+        "max": [
+          0.75,
+          0.5,
+          0.375
+        ],
+        "min": [
+          -0.75,
+          0.125,
+          -0.375
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.75,
+            0.5,
+            0.375
+          ],
+          "min": [
+            -0.75,
+            0.125,
+            -0.375
+          ]
+        },
+        "budget": 580,
+        "bytes": 4984,
+        "path": "decor_bridge_1.glb",
+        "sha256": "25f81eff03cbea8b150bc9ee11ae13ab68e2e539a8972b5bd137e9bef2bc3a2a",
+        "triangles": 116
+      },
+      "kind": "decor"
+    },
+    "decor_bridge_2": {
+      "bounds": {
+        "max": [
+          1.25,
+          0.625,
+          0.375
+        ],
+        "min": [
+          -1.25,
+          0.125,
+          -0.375
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.25,
+            0.625,
+            0.375
+          ],
+          "min": [
+            -1.25,
+            0.125,
+            -0.375
+          ]
+        },
+        "budget": 580,
+        "bytes": 8552,
+        "path": "decor_bridge_2.glb",
+        "sha256": "d27a0ebad870d431e4d6bacf62c79dcd5064c587d452225886b9abdbb2a8bfe2",
+        "triangles": 246
+      },
+      "kind": "decor"
+    },
     "decor_bush_a": {
       "bounds": {
         "max": [

@@ -4,7 +4,7 @@
 // island and revision look the same across reloads and clients. Trees
 // grow on forest tiles, tufts, flowers, rocks and bushes on grass, coast
 // and mountain tiles (bushes and rocks mostly along the coast and on the
-// plateaus); none of them on a building footprint, field or road tile,
+// rock); none of them on a building footprint, field or road tile,
 // and fewer within one tile of those. Inside the work radius of a
 // harvester whose work area includes forest the kept tree fraction
 // follows the server's efficiency (treeKeepFraction), the felled trees
@@ -155,7 +155,7 @@ export type ScatterSite = "open" | "coast" | "fringe" | "foot" | "mountain";
  * the grass; rocks and bushes cluster where nature would put them — the
  * coast edge, the forest fringe and the plateau feet — and stay off the
  * open grass (no single tiny rocks there; a rare bush). The plateau tops
- * carry their crags (render/plateaus.ts), so they get few.
+ * carry their crags (render/terraces.ts), so they get few.
  */
 const CHANCE: Record<ScatterKind, Record<ScatterSite, number>> = {
   tuft: { open: 0.4, coast: 0.1, fringe: 0.4, foot: 0.3, mountain: 0.05 },

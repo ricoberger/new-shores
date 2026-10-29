@@ -72,10 +72,10 @@ function patternTexture(scene: Scene, id: string): DynamicTexture {
   return tex;
 }
 
-function slabs(tiles: readonly TilePos[], y: number): Float32Array | null {
+function slabs(tiles: readonly TilePos[], y: number, ground: (x: number, y: number) => number): Float32Array | null {
   if (tiles.length === 0) return null;
   const out = new Float32Array(tiles.length * 16);
-  tiles.forEach((t, i) => out.set(Matrix.Translation(t.x + 0.5, y, -(t.y + 0.5)).asArray(), i * 16));
+  tiles.forEach((t, i) => out.set(Matrix.Translation(t.x + 0.5, y + ground(t.x, t.y), -(t.y + 0.5)).asArray(), i * 16));
   return out;
 }
 
@@ -102,6 +102,8 @@ export class FieldTiles {
     private readonly parent: TransformNode | null = null,
     /** Materials per field type, shared by an island's chunks. */
     private readonly materials = new Map<string, StandardMaterial>(),
+    /** The ground of a field tile (tiles; its terrace level, D-058). */
+    private readonly ground: (x: number, y: number) => number = () => 0,
   ) {}
 
   /** Disposes the meshes (the materials may be shared and stay). */
@@ -136,7 +138,7 @@ export class FieldTiles {
         mesh.parent = this.parent;
         this.meshes.set(id, mesh);
       }
-      setInstances(mesh, slabs(tiles, FIELD_Y));
+      setInstances(mesh, slabs(tiles, FIELD_Y, this.ground));
     }
   }
 }
@@ -149,6 +151,8 @@ export interface Mark {
   h: number;
   /** `farm`: the farm of the chain; `active` / `inactive`: its fields; `hover`: the row the list hovers. */
   kind: "farm" | "active" | "inactive" | "hover";
+  /** The ground under the footprint (tiles; terraces, D-058). */
+  base?: number;
 }
 
 const MARK_COLORS: Record<Mark["kind"], { color: Color3; alpha: number; y: number }> = {
@@ -185,7 +189,7 @@ export class FootprintMarks {
       }
       const out = new Float32Array(of.length * 16);
       of.forEach((m, i) => {
-        const t = Matrix.Scaling(m.w + 0.04, 1, m.h + 0.04).multiply(Matrix.Translation(m.cx, MARK_COLORS[kind].y, m.cz));
+        const t = Matrix.Scaling(m.w + 0.04, 1, m.h + 0.04).multiply(Matrix.Translation(m.cx, MARK_COLORS[kind].y + (m.base ?? 0), m.cz));
         out.set(t.asArray(), i * 16);
       });
       setInstances(mesh, out);
@@ -213,7 +217,8 @@ function ridge(height: number, half: number, color: Color3): Tri[] {
 }
 
 /** Decoration of one field tile per type (island-local tile x, y). */
-function decorate(b: TriBuilder, type: string, x: number, y: number): void {
+function decorate(b: TriBuilder, type: string, x: number, y: number, ground = 0): void {
+  const FY = FIELD_Y + ground;
   const cx = x + 0.5;
   const cz = -(y + 0.5);
   switch (type) {
@@ -224,26 +229,26 @@ function decorate(b: TriBuilder, type: string, x: number, y: number): void {
         [0.08, -0.92],
         [0.92, -0.92],
       ] as const) {
-        for (const t of POST) b.add(t, x + dx, FIELD_Y, -y + dz, 1, 0);
+        for (const t of POST) b.add(t, x + dx, FY, -y + dz, 1, 0);
       }
       // Two rails along the north and west edges (the neighbours draw the others).
       for (const h of [0.09, 0.16]) {
-        b.raw([x + 0.08, FIELD_Y + h, -y - 0.08], [x + 0.92, FIELD_Y + h, -y - 0.08], [x + 0.92, FIELD_Y + h + 0.025, -y - 0.08], RAIL_COLOR, [1, 1, 1], [0, 0, 1]);
-        b.raw([x + 0.08, FIELD_Y + h, -y - 0.08], [x + 0.92, FIELD_Y + h + 0.025, -y - 0.08], [x + 0.08, FIELD_Y + h + 0.025, -y - 0.08], RAIL_COLOR, [1, 1, 1], [0, 0, 1]);
+        b.raw([x + 0.08, FY + h, -y - 0.08], [x + 0.92, FY + h, -y - 0.08], [x + 0.92, FY + h + 0.025, -y - 0.08], RAIL_COLOR, [1, 1, 1], [0, 0, 1]);
+        b.raw([x + 0.08, FY + h, -y - 0.08], [x + 0.92, FY + h + 0.025, -y - 0.08], [x + 0.08, FY + h + 0.025, -y - 0.08], RAIL_COLOR, [1, 1, 1], [0, 0, 1]);
       }
       for (const [dx, dz, yaw] of [
         [0.35, -0.4, 0.3],
         [0.66, -0.65, 1.9],
       ] as const) {
-        for (const t of PASTURE_TUFT) b.add(t, x + dx, FIELD_Y, -y + dz, 1, yaw);
+        for (const t of PASTURE_TUFT) b.add(t, x + dx, FY, -y + dz, 1, yaw);
       }
       return;
     }
     case "wheat_field":
-      for (let r = 0; r < 4; r++) for (const t of WHEAT_ROW) b.add(t, cx, FIELD_Y, cz - 0.375 + r * 0.25, 1, 0);
+      for (let r = 0; r < 4; r++) for (const t of WHEAT_ROW) b.add(t, cx, FY, cz - 0.375 + r * 0.25, 1, 0);
       return;
     case "hemp_field":
-      for (let r = 0; r < 3; r++) for (const t of HEMP_ROW) b.add(t, cx, FIELD_Y, cz - 0.3 + r * 0.3, 1, 0);
+      for (let r = 0; r < 3; r++) for (const t of HEMP_ROW) b.add(t, cx, FY, cz - 0.3 + r * 0.3, 1, 0);
       return;
     case "orchard_plot":
       for (const [dx, dz] of [
@@ -252,7 +257,7 @@ function decorate(b: TriBuilder, type: string, x: number, y: number): void {
         [0.28, -0.72],
         [0.72, -0.72],
       ] as const) {
-        for (const t of ORCHARD_TREE) b.add(t, x + dx, FIELD_Y, -y + dz, 1, 0);
+        for (const t of ORCHARD_TREE) b.add(t, x + dx, FY, -y + dz, 1, 0);
       }
       return;
     default:
@@ -277,6 +282,8 @@ export class FieldDecor {
     private readonly scene: Scene,
     private readonly parent: TransformNode | null = null,
     material: StandardMaterial | null = null,
+    /** The ground of a field tile (tiles; its terrace level, D-058). */
+    private readonly ground: (x: number, y: number) => number = () => 0,
   ) {
     this.material = material ?? fieldDecorMaterial(scene);
   }
@@ -292,7 +299,7 @@ export class FieldDecor {
     const b = new TriBuilder();
     for (const f of buildings) {
       const type = defs.get(f.type)?.field?.type;
-      if (type) decorate(b, type, f.x, f.y);
+      if (type) decorate(b, type, f.x, f.y, this.ground(f.x, f.y));
     }
     this.mesh = b.build("field_decor", this.scene, this.material, this.parent);
   }

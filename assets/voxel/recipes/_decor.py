@@ -1,8 +1,9 @@
-"""Decor models (trees, bushes, rocks, crags, stumps, tufts, deposit outcrops) at 8 voxels per tile, centred on the origin."""
+"""Decor models (trees, bushes, rocks, crags, stumps, tufts, deposit outcrops, river bridges) at 8 voxels per tile, centred on the origin."""
 
 import math
 
 from nsvoxel.grid import hash3, mat, shade_of
+from nsvoxel.terrain import arch_bridge
 from nsvoxel.mats import CROWN, FOREST, ROCK, ROCK_DEEP, ROCK_LIGHT, MOSS, TIMBER, TIMBER_DARK, TIMBER_LIGHT, GRASS_A, GRASS_B, FLOWER, IRON_ORE, STONE, PLANK
 
 
@@ -306,6 +307,15 @@ def fern(seed):
     return b
 
 
+def bridge(tiles):
+    """An arched stone bridge over 1 or 2 river tiles (D-058): x along the road, its base at the river's surface."""
+
+    def b(ctx):
+        return arch_bridge(_v(ctx), tiles, seed=tiles)
+
+    return b
+
+
 def outcrop(m):
     """Deposit outcrop: a boulder cluster with veins of the deposit colour (tinted per kind by the client)."""
 
@@ -356,5 +366,7 @@ RECIPES = {
     "decor_outcrop_iron": {"build": outcrop(IRON_ORE)},
     "decor_outcrop_other": {"build": outcrop(STONE)},
     "decor_outcrop_stone": {"build": outcrop(mat("stone", 1.1))},
+    "decor_bridge_1": {"build": bridge(1)},
+    "decor_bridge_2": {"build": bridge(2)},
 }
 

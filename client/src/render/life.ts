@@ -24,6 +24,7 @@ import { lifeModel, type ModelData, type ModelRegistry } from "./models";
 import { c4, mix } from "./palette";
 
 const WHITE = [1, 1, 1, 1] as const;
+const FLAT = () => 0;
 
 /** Writes Scaling(k) · RotationX(roll) · RotationY(yaw) · Translation(x, y, z) (Babylon row-major) at index i. */
 export function writeMatrix(out: Float32Array, i: number, x: number, y: number, z: number, yaw: number, k: number, roll = 0): void {
@@ -156,6 +157,8 @@ export class LifeLayer {
   private enabled: boolean;
   private stats: LifeStats = { instances: 0, particles: 0 };
   private origin = { x: 0, y: 0 };
+  /** The ground of the island being drawn (island-local tiles → tiles). */
+  private ground: (x: number, y: number) => number = FLAT;
   private readonly sink: LifeSink;
 
   constructor(
@@ -172,6 +175,8 @@ export class LifeLayer {
     for (const [id, def] of Object.entries(defs)) this.define(id, def);
     this.sink = {
       add: (cls, x, h, y, yaw, k = 1, color = WHITE, roll = 0) => {
+        // On the island's ground (terraces, road ramps, bridges; D-058); boats stay on the sea.
+        if (cls !== CLS.boat) h += this.ground(x, y);
         const r = LIFE_ROUTES[cls];
         if (r) {
           const to = r(k, yaw);
@@ -223,15 +228,16 @@ export class LifeLayer {
    * island's instances within the budget of the device class, only what
    * the LOD shows.
    */
-  frame(nowMs: number, islands: Iterable<{ origin: { x: number; y: number }; plan: LifePlan; chunks?: ReadonlySet<string> | null }>, lod: Lod): void {
+  frame(nowMs: number, islands: Iterable<{ origin: { x: number; y: number }; plan: LifePlan; chunks?: ReadonlySet<string> | null; ground?: (x: number, y: number) => number }>, lod: Lod): void {
     for (const c of this.classes.values()) c.begin();
     let instances = 0;
     let particles = 0;
     const at = lifeAtLod(lod);
     if (this.enabled && (at.moving || at.smoke || at.props)) {
       const budget = lifeBudget(this.quality);
-      for (const { origin, plan, chunks = null } of islands) {
+      for (const { origin, plan, chunks = null, ground = FLAT } of islands) {
         this.origin = origin;
+        this.ground = ground;
         const s = plan.frame(nowMs, this.sink, at, budget, chunks);
         instances += s.instances;
         particles += s.particles;

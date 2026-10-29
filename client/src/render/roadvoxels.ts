@@ -4,7 +4,10 @@
 // arm to every road neighbour, so corners, T-junctions and crossings are
 // unions of the same columns, sunk one voxel below the grass; a column
 // of worn edge on both sides, on the flat ground of the tile's terrace
-// level (render/terraces.ts). Dirt roads are packed earth with jittered
+// level (render/terraces.ts); where a road tile meets a road neighbour one
+// level lower, the road climbs across the tile, one voxel per column (a
+// ramp cut into the terrace edge). River tiles carry bridges instead
+// (render/terraces.ts). Dirt roads are packed earth with jittered
 // stones; the paved road is cobbles in three shades with a kerb of light
 // stone. Heights and top colours change; the island's terrain mesh and
 // ground texture are rebuilt from them (render/terrain.ts).
@@ -13,7 +16,16 @@ import { hash2 } from "../display/noise";
 import { ISLAND, TERRAIN } from "../theme/palette";
 import { c3 } from "./palette";
 import type { RoadTile } from "./roads";
+import { LEVEL_STEPS } from "./terraces";
 import { type Field, pack, TERRAIN_VPT } from "./voxelterrain";
+
+/** Directions to a road neighbour (x, y). */
+const RAMP_DIRS = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+] as const;
 
 /** Height of a road column (steps): one voxel below the grass. */
 export const ROAD_H = -1;
@@ -78,12 +90,46 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
     return pack({ r: r + (c.r - r) * t, g: g + (c.g - g) * t, b: b + (c.b - b) * t });
   };
   const flat = (k: number) => (f.flat ? (f.flat[k] as number) : 0);
+  // A tile's level (steps) from the flat ground of its first column (-1 off the field).
+  const level = (x: number, y: number) => (x < 0 || y < 0 || x * vpt >= nx || y * vpt >= ny ? -1 : flat(y * vpt * nx + x * vpt));
+  const river = (k: number) => f.relief?.river[k] === 1;
+  // Road ramps (D-058): a road tile with a road neighbour one level lower climbs to it across the tile.
+  const rampOf = (x: number, y: number): readonly [number, number] | null => {
+    const lv = level(x, y);
+    if (lv <= 0) return null;
+    for (const d of RAMP_DIRS) {
+      const n = y * vpt * nx + x * vpt;
+      if (river(n)) return null;
+      const q = (y + d[1]) * vpt * nx + (x + d[0]) * vpt;
+      if (has(x + d[0], y + d[1]) && level(x + d[0], y + d[1]) === lv - LEVEL_STEPS && !river(q)) return d;
+    }
+    return null;
+  };
+  const ramps = new Map<string, readonly [number, number] | null>();
+  const painted = new Set<number>();
   for (const [k, kind] of road) {
-    // Only on the flat ground of the tile's level (never lower the beach, a ramp or a rim, or raise anything).
-    if ((base.h[k] as number) !== flat(k)) continue;
     const i = k % nx;
     const j = (k - i) / nx;
-    f.h[k] = flat(k) + ROAD_H;
+    const tx = Math.floor(i / vpt);
+    const ty = Math.floor(j / vpt);
+    const tk = `${tx},${ty}`;
+    if (!ramps.has(tk)) ramps.set(tk, rampOf(tx, ty));
+    const d = ramps.get(tk) ?? null;
+    const fl = flat(k);
+    const bh = base.h[k] as number;
+    let h: number;
+    if (d) {
+      // Columns from the lower edge: one step up per column, the tile's level at the far side.
+      const a = i - tx * vpt;
+      const b = j - ty * vpt;
+      const c = d[0] > 0 ? vpt - 1 - a : d[0] < 0 ? a : d[1] > 0 ? vpt - 1 - b : b;
+      h = fl - LEVEL_STEPS + Math.round(((c + 1) * LEVEL_STEPS) / vpt);
+    } else if (bh === fl || (fl > 0 && bh < fl && bh > fl - LEVEL_STEPS && !river(k))) {
+      // The flat ground of the tile's level, or down a terrace's own ramp (never the beach or a rim at level 0).
+      h = bh;
+    } else continue;
+    f.h[k] = h + ROAD_H;
+    painted.add(k);
     const r = hash2(i, j, seed + 61);
     if (kind === 2) {
       // Cobbles: three shades, a dark joint now and then.
@@ -96,7 +142,7 @@ export function paintRoads(f: Field, base: FieldBase, tiles: readonly RoadTile[]
   }
   // Worn edges: the ground columns next to a road column.
   for (const [k, kind] of road) {
-    if ((f.h[k] as number) !== flat(k) + ROAD_H) continue;
+    if (!painted.has(k)) continue;
     const i = k % nx;
     const j = (k - i) / nx;
     for (const [di, dj] of [

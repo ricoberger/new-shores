@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Terrain } from "../api/client";
 import { marchingSquares, traceLoops } from "../display/coastline";
-import { cover, groundY, insideGrid, insideLoops, LEVEL_HEIGHT, LEVEL_STEPS, reliefColumns, reliefOf, RIVER_DROP, rockField } from "./terraces";
+import { BRIDGE_DECK, bridgeRuns, cover, groundY, insideGrid, insideLoops, IslandGround, LEVEL_HEIGHT, LEVEL_STEPS, plinthColumns, reliefColumns, reliefOf, RIVER_DROP, roadRamps, rockField } from "./terraces";
 import { EMPTY, islandField, VOXEL_STEP, withRock } from "./voxelterrain";
 
 // The relief (D-058): terrace levels, rock and rivers as voxel columns.
@@ -124,6 +124,11 @@ describe("relief columns", () => {
     const k = 6 * f.nx + 10;
     expect(f.h[k]).toBe(0);
     expect(withRock(f, 1).h[k]).toBeGreaterThan(0);
+    // The far terrain: the rock in double levels, at most `tiers` (lower rock keeps its colour only).
+    const full = withRock(f, 1).h[k] as number;
+    expect(withRock(f, 1, { tiers: 1 }).h[k]).toBe(Math.min(2 * LEVEL_STEPS, Math.round(full / (2 * LEVEL_STEPS)) * 2 * LEVEL_STEPS));
+    expect(withRock(f, 1, { tiers: 0 }).h[k]).toBe(0);
+    expect(withRock(f, 1, { tiers: 0 }).top[k]).toBe(withRock(f, 1).top[k]);
   });
 });
 
@@ -154,5 +159,63 @@ describe("loops", () => {
       const grid = insideGrid(loops, x0, y0, g, nx, ny);
       for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) expect(grid[j * nx + i] === 1).toBe(insideLoops(loops, x0 + i * g, y0 + j * g));
     }
+  });
+});
+
+describe("island ground", () => {
+  // A level-1 strip (x 2–3) beside level 0, a river tile at (1, 2).
+  const rows = ["gggg", "gggg", "grgg"];
+  const lv = ["0011", "0011", "0011"];
+
+  it("puts buildings on the highest level under their footprint", () => {
+    const g = new IslandGround();
+    g.setRelief(reliefOf(island(rows, lv)));
+    expect(g.tile(0, 0)).toBe(0);
+    expect(g.tile(2, 0)).toBeCloseTo(LEVEL_HEIGHT);
+    expect(g.base(1, 0, 2, 2)).toBeCloseTo(LEVEL_HEIGHT);
+    expect(g.base(0, 0, 2, 2)).toBe(0);
+  });
+
+  it("ramps a road up a level across the upper tile and carries roads over rivers on bridges", () => {
+    const g = new IslandGround();
+    g.setRelief(reliefOf(island(rows, lv)));
+    g.setRoads([
+      { x: 1, y: 0 },
+      { x: 2, y: 0 },
+      { x: 0, y: 2 },
+      { x: 1, y: 2 },
+      { x: 2, y: 2 },
+    ]);
+    // (2, 0) climbs from the west edge (level 0) to its east edge (level 1).
+    expect(g.rampAt(2, 0)).toBe(1);
+    expect(g.surface(2.0, 0.5)).toBeCloseTo(0);
+    expect(g.surface(2.5, 0.5)).toBeCloseTo(LEVEL_HEIGHT / 2);
+    expect(g.surface(3.5, 0.5)).toBeCloseTo(LEVEL_HEIGHT);
+    // The river tile is a one-tile bridge along x.
+    expect(g.bridges()).toEqual([{ x: 1, y: 2, len: 1, axis: "x", level: 0 }]);
+    expect(g.surface(1.5, 2.5)).toBeCloseTo(BRIDGE_DECK);
+    // Off the roads: the tile's level.
+    expect(g.surface(3.5, 1.5)).toBeCloseTo(LEVEL_HEIGHT);
+  });
+
+  it("finds bridge runs along y and of two tiles", () => {
+    const r = reliefOf(island(["grg", "grg", "ggg"], ["000", "000", "000"]));
+    const runs = bridgeRuns(r, new Set([1, 4, 7]));
+    expect(runs).toEqual([{ x: 1, y: 0, len: 2, axis: "y", level: 0 }]);
+    expect(roadRamps(r, new Set([1, 4, 7])).every((d) => d === -1)).toBe(true);
+  });
+
+  it("raises plinths under footprints to their base (lower tiles and ramp columns)", () => {
+    const rel = reliefOf(island(rows, lv));
+    const c = reliefColumns(rel, 4, 1);
+    const p = plinthColumns(c, rel, [{ x: 1, y: 0, w: 2, h: 1 }]);
+    // Tile (1, 0) is level 0 under a footprint reaching level 1: its columns rise to 4 steps.
+    expect(p[1 * c.nx + 5]).toBe(LEVEL_STEPS);
+    // Outside the footprint: none.
+    expect(p[1 * c.nx + 1]).toBe(0);
+    expect(p[6 * c.nx + 5]).toBe(0);
+    const f = rockField(c, 1, p);
+    expect(f.h[1 * c.nx + 5]).toBe(LEVEL_STEPS);
+    expect(f.kind![1 * c.nx + 5]).toBe(1);
   });
 });

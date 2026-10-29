@@ -43,6 +43,8 @@ export interface GhostSpec {
    */
   waterRows?: { x: number; y: number; w: number; h: number } | null;
   def: ContentBuilding;
+  /** The ground under the footprint (tiles; the highest terrace level, D-058). */
+  base?: number;
   /** Archipelago position of the island's tile (0, 0). */
   island: ArchPoint;
   x: number;
@@ -110,13 +112,13 @@ export class PlacementGhost {
       const entry = this.registry?.entry(spec.def.id);
       if (!entry) return;
       const p = placement(entry, spec.def, { x: spec.x, y: spec.y, rotation: spec.rotation });
-      mesh.position.set(spec.island.x + p.cx, 0, -spec.island.y + p.cz);
+      mesh.position.set(spec.island.x + p.cx, spec.base ?? 0, -spec.island.y + p.cz);
       mesh.rotation.y = p.yaw;
       mesh.scaling.set(p.sx, 1, p.sz);
     } else {
       const [w, h] = rotatedFootprint(spec.def.width, spec.def.height, spec.rotation);
       this.box.scaling.set(w, 0.6, h);
-      this.box.position.set(spec.island.x + spec.x + w / 2, 0.3, -(spec.island.y + spec.y + h / 2));
+      this.box.position.set(spec.island.x + spec.x + w / 2, (spec.base ?? 0) + 0.3, -(spec.island.y + spec.y + h / 2));
     }
     this.shown.setEnabled(true);
     const rows = spec.waterRows ?? null;

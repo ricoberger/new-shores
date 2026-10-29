@@ -23,6 +23,8 @@ export interface PaintMark {
   h: number;
   /** `ok`: a field is expected; `bad`: a rule rejects it; `max`: beyond the farm's maximum; `remove`: a field a removal takes. */
   kind: "ok" | "bad" | "max" | "remove";
+  /** The ground under the mark (tiles; terraces, D-058). */
+  base?: number;
 }
 
 const LOOKS: Record<PaintMark["kind"] | "flash", { color: Color3; alpha: number; y: number; inset: number }> = {
@@ -40,7 +42,7 @@ function matrices(marks: readonly PaintMark[], y: number, inset: number): Float3
   if (marks.length === 0) return null;
   const out = new Float32Array(marks.length * 16);
   marks.forEach((m, i) => {
-    const t = Matrix.Scaling(Math.max(0.2, m.w - inset), 1, Math.max(0.2, m.h - inset)).multiply(Matrix.Translation(m.cx, y, m.cz));
+    const t = Matrix.Scaling(Math.max(0.2, m.w - inset), 1, Math.max(0.2, m.h - inset)).multiply(Matrix.Translation(m.cx, y + (m.base ?? 0), m.cz));
     out.set(t.asArray(), i * 16);
   });
   return out;

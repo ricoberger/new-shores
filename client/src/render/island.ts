@@ -36,7 +36,8 @@ import { IconLayer } from "./icons";
 import { footprintBox } from "./coords";
 import { buildingAnchor, type Detail, DEFAULT_MODEL_HEIGHT, type ModelRegistry, placement, statusHeight } from "./models";
 import { OutcropLayer } from "./outcrops";
-import { footprintTiles, RockLayer } from "./terraces";
+import { rotatedFootprint } from "../display/geometry";
+import { footprintRects, footprintTiles, IslandGround, reliefOf, RockLayer } from "./terraces";
 import { FootprintShadows } from "./shadows";
 import { GROUND_JITTER, groundShade } from "./groundshader";
 import { jitterShade, setJitterLod } from "./jitter";
@@ -105,6 +106,8 @@ export class IslandDetail {
   private readonly buildingBlobs: FootprintShadows;
   private readonly outcrops: OutcropLayer;
   private readonly rock: RockLayer;
+  /** Heights of the ground for buildings, fields and life (terraces, road ramps, bridges; D-058). */
+  readonly ground = new IslandGround();
   /** Shallows (near and mid) and foam (near) on the stepped coast. */
   private water: CoastWater | null = null;
   private terrain: TerrainMeshes = NO_TERRAIN;
@@ -147,14 +150,14 @@ export class IslandDetail {
     const fieldMaterials = new Map<string, StandardMaterial>();
     const fieldSig = (bs: BuildingDisplay[]) => bs.map((b) => `${b.id}:${b.type}:${b.x},${b.y}`).join(";");
     this.fields = new Chunked(
-      (k) => new FieldTiles(scene, this.chunkNode(k), fieldMaterials),
+      (k) => new FieldTiles(scene, this.chunkNode(k), fieldMaterials, (x, y) => this.ground.tile(x, y)),
       (l, bs) => l.update(bs, this.layerDefs),
       (l) => l.dispose(),
       fieldSig,
     );
     const decorMaterial = fieldDecorMaterial(scene);
     this.fieldDecor = new Chunked(
-      (k) => new FieldDecor(scene, this.chunkNode(k), decorMaterial),
+      (k) => new FieldDecor(scene, this.chunkNode(k), decorMaterial, (x, y) => this.ground.tile(x, y)),
       (l, bs) => l.update(bs, this.layerDefs),
       (l) => l.dispose(),
       fieldSig,
@@ -173,6 +176,7 @@ export class IslandDetail {
     this.outcrops = new OutcropLayer(scene, this.root, registry);
     this.rock = new RockLayer(scene, this.root, registry);
     this.farTrees.setGround((x, y) => this.rock.heightAt(x, y));
+    this.buildings.setBase((b, def) => this.baseOf(b, def));
     this.root.setEnabled(false);
   }
 
@@ -344,6 +348,8 @@ export class IslandDetail {
     this.statics = statics;
     this.layerDefs = defs;
     this.farTrees.beginChunks();
+    this.ground.setRelief(reliefOf(statics));
+    this.ground.setRoads(display.roads);
     b.terrain = new TerrainBuild(this.scene, statics, this.loops, this.seed, (k) => this.chunkNode(k), this.root);
     yield;
     this.buildings.update(display.buildings, defs);
@@ -354,7 +360,8 @@ export class IslandDetail {
     this.updateBlobs(display, defs);
     yield;
     const blocked = footprintTiles(display.buildings, defs);
-    yield* this.rock.steps(statics, this.seed, blocked);
+    yield* this.rock.steps(statics, this.seed, blocked, footprintRects(display.buildings, defs));
+    this.rock.setBridges(this.ground.bridges(), this.id);
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.rock.heightAt(x, y));
     yield;
     b.keys = layerKeys(display, defs);
@@ -423,6 +430,8 @@ export class IslandDetail {
     this.keys = keys;
     if (old?.roads !== keys.roads || old?.layout !== keys.layout) {
       if (old?.roads !== keys.roads) this.rebuilds.roads++;
+      this.ground.setRoads(display.roads);
+      this.rock.setBridges(this.ground.bridges(), this.id);
       // Colour-only for the fields: only height changes (roads) rebuild chunks.
       this.chunkRebuilds.roads = this.terrain.setRoads(display.roads, fieldTiles(display, defs));
       this.applyTerrainDetail();
@@ -504,7 +513,15 @@ export class IslandDetail {
   }
 
   /** Status icon height of a building: its model's status anchor (else the default). */
-  private readonly statusY = (b: { type: string }): number => statusHeight(this.registry?.entry(b.type));
+  private readonly statusY = (b: BuildingDisplay): number => statusHeight(this.registry?.entry(b.type)) + this.baseOf(b);
+
+  /** The ground a building stands on (tiles): the highest terrace level under its footprint (plinths fill the rest, D-058). */
+  baseOf(b: Pick<BuildingDisplay, "x" | "y" | "type" | "rotation">, def?: { width: number; height: number }): number {
+    const d = def ?? this.layerDefs?.get(b.type);
+    if (!d) return this.ground.tile(b.x, b.y);
+    const [w, h] = rotatedFootprint(d.width, d.height, b.rotation);
+    return this.ground.base(b.x, b.y, w, h);
+  }
 
   /** The payload without the fields drawn as models (the field layers draw the rest). */
   private unmodelledFields(display: IslandDisplay): IslandDisplay["buildings"] {
@@ -517,7 +534,9 @@ export class IslandDetail {
     const st = this.statics;
     if (!st) return;
     const blocked = this.footprintTiles();
-    this.rock.update(st, this.seed, blocked);
+    const built = this.builtFrom;
+    this.rock.update(st, this.seed, blocked, built ? footprintRects(built.display.buildings, built.defs) : []);
+    this.rock.setBridges(this.ground.bridges(), this.id);
     this.outcrops.update(this.deposits, this.seed, blocked, (x, y) => this.rock.heightAt(x, y));
   }
 
@@ -542,8 +561,8 @@ export class IslandDetail {
       const entry = this.registry?.entry(b.type);
       if (entry && entry.kind === "building") {
         const p = placement(entry, def, b);
-        rects.push({ ...p.rect, height: p.height });
-      } else rects.push(footprintBox(b.x, b.y, def.width, def.height, b.rotation));
+        rects.push({ ...p.rect, height: p.height, base: this.baseOf(b, def) });
+      } else rects.push({ ...footprintBox(b.x, b.y, def.width, def.height, b.rotation), base: this.baseOf(b, def) });
     }
     this.buildingBlobs.update(rects, BUILDING_SHADOW_RIM, BUILDING_HEIGHT);
   }
@@ -694,6 +713,9 @@ export class IslandDetail {
     const entry = this.registry?.entry(b.type);
     return entry ? buildingAnchor(entry, def, b, name) : null;
   };
+
+  /** The walking surface at an island-local point (tiles): the life layer's ground. */
+  readonly groundAt = (x: number, y: number): number => this.ground.surface(x, y);
 
   /** Island origin (archipelago tiles) while shown, for the life layer; null when hidden. */
   lifeOrigin(): { x: number; y: number } | null {

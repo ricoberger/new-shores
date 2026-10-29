@@ -253,8 +253,8 @@ export class CameraRig {
     return groundFootprint(this.view(), this.aspect());
   }
 
-  /** Ground point (Y = 0, world coordinates) under a render-pixel position, or null. */
-  groundAt(px: number, py: number): Vector3 | null {
+  /** Ground point (Y = 0, or the plane at `y`; world coordinates) under a render-pixel position, or null. */
+  groundAt(px: number, py: number, y = 0): Vector3 | null {
     const w = this.engine.getRenderWidth();
     const h = this.engine.getRenderHeight();
     this.scene.updateTransformMatrix();
@@ -264,7 +264,7 @@ export class CameraRig {
     const far = Vector3.Unproject(new Vector3(px, py, 1), w, h, Matrix.IdentityReadOnly, view, proj);
     const dy = far.y - near.y;
     if (Math.abs(dy) < 1e-9) return null;
-    const t = -near.y / dy;
+    const t = (y - near.y) / dy;
     return near.add(far.subtract(near).scale(t));
   }
 

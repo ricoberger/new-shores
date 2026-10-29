@@ -26,7 +26,7 @@ import type { CoastLoop } from "../display/coastline";
 import { fbm, hash2 } from "../display/noise";
 import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { c3 } from "./palette";
-import { insideGrid, LEVEL_STEPS, reliefColumns, type ReliefColumns, reliefOf, rockTop } from "./terraces";
+import { insideGrid, LEVEL_STEPS, reliefColumns, type ReliefColumns, reliefOf, RIVER_DROP, rockTop } from "./terraces";
 import { type Builder, groundColor } from "./terrain";
 
 /** Columns per tile of the near/mid terrain (half the models' 8). */
@@ -293,20 +293,29 @@ export function islandField(
 /**
  * A copy of a field with its relief's rock stacked on the ground (the lite
  * and far terrain, which draw no rock layer): rock columns rise by their
- * rock height, take the rock's top colour and rock walls.
+ * rock height, take the rock's top colour and rock walls. `tiers` (lite,
+ * far): the rock in double levels, at most that many (fewer contour walls;
+ * lower rock keeps its colour only); `flatRivers` (far): river columns at
+ * their banks' level, keeping their colour.
  */
-export function withRock(f: Field, seed: number): Field {
+export function withRock(f: Field, seed: number, opts: { tiers?: number; flatRivers?: boolean } = {}): Field {
   const r = f.relief;
   if (!r || r.nx !== f.nx || r.ny !== f.ny) return f;
   const h = f.h.slice();
   const top = f.top.slice();
   const kind = (f.kind ?? new Uint8Array(f.nx * f.ny)).slice();
+  const tier = 2 * LEVEL_STEPS;
   for (let k = 0; k < f.nx * f.ny; k++) {
-    const rk = r.rock[k] as number;
-    if (rk <= 0 || h[k] === EMPTY) continue;
+    if (opts.flatRivers && r.river[k]) {
+      h[k] = (r.riverH[k] as number) + RIVER_DROP;
+      continue;
+    }
+    const r0 = r.rock[k] as number;
+    if (r0 <= 0 || h[k] === EMPTY) continue;
+    const rk = opts.tiers === undefined ? r0 : Math.min(opts.tiers, Math.round(r0 / tier)) * tier;
     h[k] = (h[k] as number) + rk;
-    top[k] = pack(rockTop(rk, k % f.nx, Math.floor(k / f.nx), seed));
-    kind[k] = SIDE_ROCK;
+    top[k] = pack(rockTop(r0, k % f.nx, Math.floor(k / f.nx), seed));
+    if (rk > 0) kind[k] = SIDE_ROCK;
   }
   return { ...f, h, top, kind };
 }

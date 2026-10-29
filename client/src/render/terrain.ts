@@ -44,6 +44,8 @@ const LITE_VPT = 2;
 export const FAR_VPT = 1;
 /** Colour levels per channel of the far view's columns (coarse: neighbours merge; a tile is a pixel or two there). */
 export const FAR_QUANT = 20;
+/** Colour levels of the far view of an island with its tiles: coarser, as its terraces and rock already split the column tops (D-058; the far budget). */
+const RELIEF_QUANT = 12;
 
 const SAND = c3(TERRAIN.sand);
 const GRASS_A = c3(TERRAIN.grass_a);
@@ -199,7 +201,8 @@ export class TerrainBuild {
     const full: Field = { ...islandField(island, loops, seed, TERRAIN_VPT), textured: true };
     // The lite tops sample the same ground texture (their colours need no vertex colour: they merge into large rectangles).
     // The lite terrain carries the rock (no rock layer at far LOD).
-    this.fields = { full, lite: { ...downsampleField(withRock(full, seed), TERRAIN_VPT / LITE_VPT), textured: true } };
+    // Whole terrace levels and at most two rock tiers (no rims or ramps: fewer walls, D-048's far budget).
+    this.fields = { full, lite: { ...snapHeights(downsampleField(withRock(full, seed, { tiers: 2 }), TERRAIN_VPT / LITE_VPT), LEVEL_STEPS), textured: true } };
     this.base = fieldBase(full);
     this.rects = new Map(islandChunks(island.width, island.height).map((c) => [c.key, c]));
     this.texture = new RawTexture(groundTexels(full), full.nx, full.ny, Constants.TEXTUREFORMAT_RGBA, scene, false, false, Texture.NEAREST_SAMPLINGMODE);
@@ -260,8 +263,8 @@ export class TerrainBuild {
     meshField(liteB, lite, 0, 0, lite.nx, lite.ny);
     const liteMesh = liteB.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.material, this.liteParent);
     liteMesh?.freezeWorldMatrix();
-    // Whole terrace levels at far (no rims or ramps: fewer walls, ART_DIRECTION §2's far budget).
-    const farF: Field = { ...snapHeights(downsampleField(withRock(this.fields.full, this.seed), TERRAIN_VPT / FAR_VPT), LEVEL_STEPS), quant: FAR_QUANT };
+    // Whole terrace levels, one rock tier, rivers flat, coarser colours (no rims, ramps or channels: fewer walls and rectangles, D-048's far budget).
+    const farF: Field = { ...snapHeights(downsampleField(withRock(this.fields.full, this.seed, { tiers: 1, flatRivers: true }), TERRAIN_VPT / FAR_VPT), LEVEL_STEPS), quant: RELIEF_QUANT };
     const far = new Builder();
     meshField(far, farF, 0, 0, farF.nx, farF.ny);
     const meshes = this.meshes;

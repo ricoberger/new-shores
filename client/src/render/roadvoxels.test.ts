@@ -92,4 +92,20 @@ describe("field ground", () => {
     paintFields(f, base, [], 1);
     expect(Array.from(f.top)).toEqual(Array.from(base.top));
   });
+
+  it("climbs a level across the upper tile where a road meets a road one level lower (D-058 road ramps)", () => {
+    // Three tiles in a row: level 0, then 1, 1; the field's flat ground per tile is its level.
+    const f = flat(3, 1);
+    const flatH = new Int8Array(f.nx * f.ny);
+    for (let k = 0; k < flatH.length; k++) flatH[k] = Math.floor((k % f.nx) / TERRAIN_VPT) >= 1 ? 4 : 0;
+    f.flat = flatH;
+    f.h.set(flatH);
+    const base = fieldBase(f);
+    paintRoads(f, base, [0, 1, 2].map((x) => ({ x, y: 0, type: "road_dirt" })), 7);
+    const row = (j: number) => Array.from(f.h.slice(j * f.nx, (j + 1) * f.nx));
+    // The road columns (rows 1–2): level 0 sunk one voxel, the middle tile rising 1, 2, 3, 4 steps (minus the voxel), the last flat at level 1 (its east edge no road).
+    expect(row(1)).toEqual([0, -1, -1, -1, 0, 1, 2, 3, 3, 3, 3, 4]);
+    // Off the road the terrace edge stays a wall.
+    expect(row(0).slice(4, 8)).toEqual([4, 4, 4, 4]);
+  });
 });
