@@ -34,6 +34,7 @@ import { type ArchPoint, dockPoints, seaPoint, shipLengthRatio } from "../displa
 import { depositText, fertilityNeed, missingFertilityText, waterEdgeText } from "../display/tiers";
 import { WHEEL_ZOOM_RATE } from "../display/view";
 import { type IslandTile, isGhostTool, type Tool } from "../ui/tools";
+import { withIdleAtPier } from "./moorings";
 import { ArchipelagoLayer, type ArchSelection, DOCK_STERN } from "./archipelago";
 import { CameraRig } from "./camera";
 import { footprintBox } from "./coords";
@@ -927,10 +928,10 @@ export class GameRenderer {
   private docksAnchored = false;
 
   /** Pier and queue points of the ships at the Trading Posts (the berth anchors of the loaded models, else the front row). */
-  private docks(d: { islands: readonly IslandDisplay[]; ships: readonly { id: number; type: string }[] }) {
+  private docks(d: { islands: readonly IslandDisplay[]; ships: readonly { id: number; type: string; state?: string; island_id?: string; leg?: unknown }[] }) {
     const types = new Map(d.ships.map((s) => [s.id, s.type]));
     return dockPoints(
-      d.islands,
+      withIdleAtPier(d.islands, d.ships),
       this.defs,
       (b, def, name) => {
         const entry = this.models.entry(b.type);
