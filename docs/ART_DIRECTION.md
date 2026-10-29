@@ -360,6 +360,15 @@ V3b — kept for the signature) — about 40–70 lines.
   `Q.candle_rack`, `Q.shell_heap`, `Q.leafy_bank`; and named shades
   (`Q.ASHLAR`, `Q.DRESSED`, `Q.GRAPE`, `Q.VINE`, `Q.GOLD`,
   `Q.VERDIGRIS`, `Q.COPPER`, `Q.QUARTZ`, `Q.WAX`).
+- **Civic and harbour parts (D-060):** `nsvoxel/detail_d060.py`
+  (imported as `D`; the city guard, fire station, surgery, trading pier
+  and depot): `D.guard_box` (red-and-white striped sentry box, open on
+  one side), `D.crenellation` (a parapet ring of merlons, optional
+  capstones), `D.bell_turret` (posts, hung bell, ring beam, hipped tile
+  roof, finial), `D.barber_pole` (white/red/blue spiral post with a
+  brass ball), `D.mooring_ring` (iron ring and bolt on a quay face),
+  `D.loading_ramp` (plank wedge falling to a low edge, cleats, flank
+  rails). Their tests are `tests/test_d060.py`.
 - **Ships:** `recipes/_ships.py` builds all hulls with one `hull()`
   (plank courses, wale, trim band, rail, deck courses, gunports,
   bowsprit, stern cabin with windows, gallery and lanterns, forecastle)
