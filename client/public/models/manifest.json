@@ -3128,6 +3128,75 @@
       },
       "kind": "building"
     },
+    "city_guard": {
+      "anchors": {
+        "door": [
+          -0.375,
+          0.0,
+          -0.625
+        ],
+        "status": [
+          0.0,
+          2.625,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.5,
+          2.375,
+          1.5
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.5
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.5,
+            2.375,
+            1.5
+          ],
+          "min": [
+            -1.5,
+            0.0,
+            -1.5
+          ]
+        },
+        "budget": 4500,
+        "bytes": 87896,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.5,
+              2.5,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 360,
+          "bytes": 8972,
+          "path": "city_guard.lite.glb",
+          "sha256": "0d6768558be0c1730095dd44b2fc44879148781f5631daed6f199ea24c848a60",
+          "triangles": 228
+        },
+        "path": "city_guard.glb",
+        "sha256": "5ce8edea2dce4d0d003829cd16a1f11146b9cd667f10577695599015165d1bbf",
+        "triangles": 2890
+      },
+      "footprint": {
+        "h": 3,
+        "w": 3
+      },
+      "kind": "building"
+    },
     "clay_pit": {
       "anchors": {
         "cart": [

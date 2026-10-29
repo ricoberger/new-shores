@@ -1,3 +1,4 @@
 [
-  {"id": "tree_plot", "kind": "field", "tier": 1, "footprint": [1, 1], "water_tiles": 0, "slot": null}
+  {"id": "tree_plot", "kind": "field", "tier": 1, "footprint": [1, 1], "water_tiles": 0, "slot": null},
+  {"id": "city_guard", "kind": "service", "tier": 2, "footprint": [3, 3], "water_tiles": 0, "slot": null}
 ]
