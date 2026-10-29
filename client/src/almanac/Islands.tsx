@@ -12,7 +12,7 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
   return (
     <>
       <h2>Islands</h2>
-      <p className={styles.lead}>Every archipelago is generated; its islands come in these size classes. Every island can be settled from the start.</p>
+      <p className={styles.lead}>Every archipelago is generated; its islands come in these size classes. Every island can be settled from the start; skerries are scenery.</p>
       {v.sizeClasses.length === 0 && <p className={styles.small}>No island classes in the content.</p>}
       {v.sizeClasses.length > 0 && (
         <div className={styles.tableWrap}>
@@ -35,7 +35,7 @@ export function Islands({ idx, id }: { idx: Index; id?: string }) {
                   {has("count") && <td className={styles.num}>{range(s.count)}</td>}
                   {has("fertilities") && <td className={styles.num}>{range(s.fertilities)}</td>}
                   {has("deposits") && <td className={styles.num}>{range(s.deposits)}</td>}
-                  <td>{s.rock ? "Mines and the Trading Post only; no houses or fields" : ""}</td>
+                  <td>{s.rock ? "Mines and the Trading Post only; no houses or fields" : s.scenic ? "Scenery only (skerries); cannot be settled or sailed to" : ""}</td>
                 </tr>
               ))}
             </tbody>

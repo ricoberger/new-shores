@@ -176,7 +176,8 @@ describe("arithmetic of the tables", () => {
 describe("islands view", () => {
   it("renders the served size classes and nothing else when that is all there is", () => {
     const v = islandsView(loadContent("content/old_coast"));
-    expect(v.sizeClasses.map((s) => s.id)).toEqual(["large", "medium", "small", "rock"]);
+    expect(v.sizeClasses.map((s) => s.id)).toEqual(["large", "medium", "small", "rock", "scenic"]);
+    expect(v.sizeClasses.filter((s) => s.scenic).map((s) => s.id)).toEqual(["scenic"]);
     expect(v.basicOnly).toBe(true);
     expect(v.home).toEqual([]);
   });

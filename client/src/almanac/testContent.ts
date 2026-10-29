@@ -144,6 +144,6 @@ export function loadContent(dir: string): Content {
       cost: cost(s.cost),
       upkeep_per_min: m(s.upkeep_per_min),
     })),
-    size_classes: (read(d, "islands.json").size_classes as Raw[]).map((s) => ({ id: s.id, name: s.name, rock: !!s.rock })),
+    size_classes: (read(d, "islands.json").size_classes as Raw[]).map((s) => ({ id: s.id, name: s.name, rock: !!s.rock, scenic: !!s.scenic })),
   } as unknown as Content;
 }
