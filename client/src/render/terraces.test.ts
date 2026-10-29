@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Terrain } from "../api/client";
 import { marchingSquares, traceLoops } from "../display/coastline";
-import { BRIDGE_DECK, bridgeRuns, cover, groundY, insideGrid, insideLoops, IslandGround, LEVEL_HEIGHT, LEVEL_STEPS, plinthColumns, reliefColumns, reliefOf, RIVER_DROP, roadRamps, rockField } from "./terraces";
+import { BRIDGE_DECK, bridgeRuns, cover, groundY, insideGrid, insideLoops, IslandGround, LEVEL_HEIGHT, LEVEL_STEPS, plinthColumns, reliefColumns, reliefOf, RIVER_DROP, ROCK_STEPS, roadRamps, rockField } from "./terraces";
 import { EMPTY, islandField, VOXEL_STEP, withRock } from "./voxelterrain";
 
 // The relief (D-058): terrace levels, rock and rivers as voxel columns.
@@ -86,14 +86,21 @@ describe("relief columns", () => {
     expect(c.fall[col(1.5, 2.5)]).toBe(0);
   });
 
-  it("stacks rock with stepped rims, cut out under building footprints", () => {
+  it("raises rock from ragged rims to its blended height, uneven and cut out under building footprints", () => {
     const r = ["~~~~~~~~~", "~ggggggg~", "~gmmmmmg~", "~gmmmmmg~", "~gmmmmmg~", "~gmmmmmg~", "~gmmmmmg~", "~ggggggg~", "~~~~~~~~~"];
     const l = r.map((row) => row.replace(/./g, "0"));
     const h = r.map((row) => row.replace(/./g, (ch) => (ch === "m" ? "1" : "0")));
     const rel = reliefOf(island(r, l, h));
     const c = reliefColumns(rel, 4, 1);
     const centre = 18 * c.nx + 18;
-    expect(c.rock[centre]).toBe(LEVEL_STEPS);
+    // One rock level is ROCK_STEPS steps, roughened by noise (± ROCK_ROUGH / 2) in pairs of steps.
+    expect(c.rock[centre]! % 2).toBe(0);
+    expect(Math.abs(c.rock[centre]! - ROCK_STEPS)).toBeLessThanOrEqual(4);
+    // Uneven tops: the inner columns are not one plate.
+    const inner = new Set<number>();
+    for (let j = 12; j < 24; j++) for (let i = 12; i < 24; i++) inner.add(c.rock[j * c.nx + i]!);
+    expect(inner.size).toBeGreaterThan(1);
+    expect(c.rim[centre]).toBeGreaterThan(2);
     // No rock outside the mountain tiles (erosion only removes).
     for (let k = 0; k < c.rock.length; k++) {
       const tx = Math.floor((k % c.nx) / 4);
@@ -109,7 +116,7 @@ describe("relief columns", () => {
     expect(cut.rock[centre]).toBe(0);
     // The rock field stands on the ground; its walls reach down to it.
     const f = rockField(c, 1);
-    expect(f.h[centre]).toBe(LEVEL_STEPS);
+    expect(f.h[centre]).toBe(c.rock[centre]);
     expect(f.h[0]).toBe(EMPTY);
     expect(f.floor![centre]).toBe(0);
   });

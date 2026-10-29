@@ -144,12 +144,22 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   blended at tile centres so edges run on tile borders. A level edge by
   the sea is a cliff in earth and rock bands; inland edges are cliffs or,
   in low-frequency noise zones, ramps of one step per column.
-- **Rock:** mountain, cliff and islet tiles stack their rock height
-  (`heights`) on their level in rims of 2–4 steps, eroded by noise (never
-  outside rock tiles), with a moss cap and voxel crags on the rims and big
-  crags on the peaks; cut out under building footprints, so mines and
-  quarries stand in a notch. Its own layer at near and mid, baked into
-  the lite and far columns.
+- **Rock:** mountain, cliff and islet tiles carry rock on their level:
+  one height field per island, the tiles' `heights` blended between their
+  centres at eight steps per height (a large island's spine up to 32
+  steps, four tiles), rising three steps per column from a ragged rim
+  (noise at column resolution, never outside rock tiles) and roughened by
+  low-frequency noise in pairs of steps — uneven tops, not plates.
+  **Warm grey** rock with sandstone and ochre strata (the cliff bands)
+  in its walls, darker at the foot, moss only on the lowest rim; the
+  ground around it is grey **scree** with small boulders. A big crag
+  (`decor_peak_a/b`) stands on every peak, clusters of crags along the
+  ridges, a few on the flanks. Cut out under building footprints, so
+  mines and quarries stand in a notch. Its own layer at near and mid,
+  baked into the lite and far columns.
+- **Cliff coast:** cliff tiles drop to the sea as a rock face (strata,
+  darker toward the foot) without a sand shelf; the foam lies at its
+  foot and the shallows start further out.
 - **Rivers** are tile-exact channels two steps below their level; where
   a river drops a level a waterfall wall with foam bands falls to the
   next; at level 0 it meets the shelf in an estuary. **Bridges** are

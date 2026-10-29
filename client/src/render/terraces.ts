@@ -50,8 +50,17 @@ export const LEVEL_HEIGHT = 0.5;
 export const RIVER_DROP = 2;
 /** Share of the level edges away from the sea that are ramps (noise threshold: higher, fewer). */
 const RAMP_NOISE = 0.57;
-/** Noise erosion of the rock outline (bilinear share). */
-const ROCK_EROSION = 0.22;
+/** Noise erosion of the rock outline (bilinear share): ragged rims at column resolution. */
+const ROCK_EROSION = 0.3;
+/**
+ * Rock steps per rock level of the generator (heights 1–4): a large
+ * island's spine rises up to 32 steps (four tiles) above its terrace.
+ */
+export const ROCK_STEPS = 8;
+/** Rise of the rock per column inward from its rim (steps): steep flanks. */
+const ROCK_SLOPE = 3;
+/** Amplitude (steps) of the low-frequency noise on the rock tops: uneven, not plates. */
+const ROCK_ROUGH = 7;
 /** Crag rows placed per step of the incremental build. */
 const CRAG_ROWS_PER_STEP = 24;
 
@@ -59,10 +68,17 @@ const ROCK_LIGHT = c3(ISLAND.rock_light);
 const ROCK = c3(ISLAND.rock);
 const ROCK_DEEP = c3(ISLAND.rock_deep);
 const MOSS = c3(ISLAND.moss);
+const SANDSTONE = c3(ISLAND.cliff_upper);
+const OCHRE = c3(ISLAND.cliff_ledge);
+const FOOT = Color3.Lerp(ROCK_DEEP, c3(ISLAND.cliff_foot), 0.55);
+/** Strata of the rock walls by layer (steps): warm grey with sandstone and ochre bands. */
+const STRATA = [ROCK, ROCK, SANDSTONE, ROCK_LIGHT, ROCK, OCHRE, ROCK, ROCK_LIGHT, Color3.Lerp(SANDSTONE, ROCK, 0.5)];
 const PLINTH = c3(BUILDINGS.stone);
 
 const CRAGS = ["decor_crag_a", "decor_crag_b", "decor_crag_c"] as const;
+const PEAKS = ["decor_peak_a", "decor_peak_b"] as const;
 const BOULDER = "decor_rock_c";
+const SCREE = "decor_rock_b";
 
 /** The relief of an island per tile. */
 export interface Relief {
@@ -127,6 +143,8 @@ export interface ReliefColumns {
   flat: Int8Array;
   /** Rock height (steps) above the ground (0: none). */
   rock: Int8Array;
+  /** Distance (columns, capped) of a rock column to the rock's outline: 1 on the lowest rim (0: no rock). */
+  rim: Uint8Array;
   /** River columns (1) and their surface (steps). */
   river: Uint8Array;
   riverH: Int8Array;
@@ -203,29 +221,51 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
       }
     }
   }
-  // Rock: stacked levels with stepped rims, eroded by noise.
-  for (let q = 1; q <= maxR; q++) {
-    const on = (x: number, y: number) => {
+  // Rock: one height field over the rock tiles (their heights blended
+  // between the tile centres), rising steeply from a ragged rim and
+  // roughened by noise at column resolution — crags and gullies, not
+  // terraces.
+  const rim = new Uint8Array(n);
+  if (maxR > 0) {
+    const rk = (x: number, y: number) => {
       const t = tile(x, y);
-      return t >= 0 && (rock[t] as number) >= q && !blocked.has(`${x},${y}`);
+      return t < 0 || blocked.has(`${x},${y}`) ? 0 : (rock[t] as number);
     };
+    const on = (x: number, y: number) => rk(x, y) >= 1;
     for (let j = 0; j < ny; j++) {
       for (let i = 0; i < nx; i++) {
         const k = j * nx + i;
         const fx = (i + 0.5) / vpt;
         const fy = (j + 0.5) / vpt;
-        // Erosion only lowers the share: the noise is needed only near the outline.
         let v = cover(on, fx, fy);
-        if (v >= 0.5 && v < 0.5 + ROCK_EROSION) v -= ROCK_EROSION * fbm(fx * 0.9, fy * 0.9, seed + 53 * q);
+        if (v >= 0.5 && v < 0.5 + ROCK_EROSION) v -= ROCK_EROSION * (0.75 * fbm(fx * 0.9, fy * 0.9, seed + 53) + 0.25 * hash2(i, j, seed + 59));
         inside[k] = v >= 0.5 ? 1 : 0;
         outside[k] = 1 - (inside[k] as number);
       }
     }
-    const d = distanceTo(outside, nx, ny, 3);
-    for (let k = 0; k < n; k++) {
-      if (!inside[k]) continue;
-      const dk = d[k] as number;
-      rockH[k] = (rockH[k] as number) + LEVEL_STEPS - (dk === 1 ? 2 : dk === 2 ? 1 : 0);
+    const d = distanceTo(outside, nx, ny, 12);
+    for (let j = 0; j < ny; j++) {
+      for (let i = 0; i < nx; i++) {
+        const k = j * nx + i;
+        if (!inside[k]) continue;
+        const fx = (i + 0.5) / vpt;
+        const fy = (j + 0.5) / vpt;
+        // The tiles' heights blended between their centres.
+        const gx = fx - 0.5;
+        const gy = fy - 0.5;
+        const x0 = Math.floor(gx);
+        const y0 = Math.floor(gy);
+        const wx = gx - x0;
+        const wy = gy - y0;
+        const blend = rk(x0, y0) * (1 - wx) * (1 - wy) + rk(x0 + 1, y0) * wx * (1 - wy) + rk(x0, y0 + 1) * (1 - wx) * wy + rk(x0 + 1, y0 + 1) * wx * wy;
+        // Tops in pairs of steps (fewer contour walls), uneven at the scale of a tile or two.
+        const rough = ROCK_ROUGH * (fbm(fx / 2.2, fy / 2.2, seed + 71) - 0.5);
+        const body = 2 * Math.round((blend * ROCK_STEPS + rough) / 2);
+        const dk = d[k] as number;
+        const flank = dk === 1 ? 1 + (hash2(i, j, seed + 79) < 0.4 ? 1 : 0) : 2 + ROCK_SLOPE * (dk - 2);
+        rockH[k] = Math.max(1, Math.min(body, flank));
+        rim[k] = dk;
+      }
     }
   }
   // Rivers: tile-exact, below their level's ground.
@@ -235,6 +275,7 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
     river[k] = 1;
     riverH[k] = (level[t] as number) * LEVEL_STEPS - RIVER_DROP;
     rockH[k] = 0;
+    rim[k] = 0;
   }
   for (let j = 0; j < ny; j++) {
     for (let i = 0; i < nx; i++) {
@@ -254,7 +295,7 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
       }
     }
   }
-  return { nx, ny, ground, flat, rock: rockH, river, riverH, fall };
+  return { nx, ny, ground, flat, rock: rockH, rim, river, riverH, fall };
 }
 
 /** A building's rotated footprint (tiles). */
@@ -334,18 +375,33 @@ export function insideGrid(loops: readonly (readonly { x: number; y: number }[])
   return out;
 }
 
-/** Rock top colour by its height above the ground (steps): light rock low down, warmer rock higher, moss patches on the high tops. */
-export function rockTop(steps: number, i: number, j: number, seed: number): Color3 {
-  const n = fbm(i / 7, j / 7, seed + 31);
-  const patch = n < 0.36 ? 0.93 : n > 0.62 ? 1.06 : 1;
-  const c = steps < 2 * LEVEL_STEPS ? ROCK_LIGHT : steps < 3 * LEVEL_STEPS ? Color3.Lerp(ROCK_LIGHT, ROCK, 0.35) : Color3.Lerp(ROCK_LIGHT, MOSS, n > 0.5 ? 0.45 : 0.15);
-  return c.scale(patch);
+/**
+ * Rock top colour: warm grey, lighter higher up, with sandstone patches
+ * and darker grit; moss and grass only on the lowest rim (`rim` 1).
+ */
+export function rockTop(steps: number, rim: number, i: number, j: number, seed: number): Color3 {
+  const n = fbm(i / 6, j / 6, seed + 31);
+  const h = hash2(i, j, seed + 37);
+  if (rim === 1 && h < 0.55) return MOSS.scale(0.9 + 0.14 * n);
+  let c = Color3.Lerp(ROCK, ROCK_LIGHT, 0.25 + 0.6 * Math.min(1, steps / 24));
+  if (n > 0.68) c = Color3.Lerp(c, SANDSTONE, 0.4);
+  if (n < 0.3) c = Color3.Lerp(c, ROCK_DEEP, 0.35);
+  return c.scale(0.95 + 0.08 * n);
 }
 
-/** Side band of a rock wall layer z (steps above the ground's base): deep rock at each level's foot, rock, light rock at the lip. */
-function rockSide(z: number): Color3 {
-  const p = ((z % LEVEL_STEPS) + LEVEL_STEPS) % LEVEL_STEPS;
-  return p === 0 ? ROCK_DEEP : p === LEVEL_STEPS - 1 ? ROCK_LIGHT : ROCK;
+/** Rock strata of a wall layer z (steps; absolute, so the bands run level around a massif). */
+export function rockStrata(z: number): Color3 {
+  return STRATA[((z % STRATA.length) + STRATA.length) % STRATA.length] as Color3;
+}
+
+/** Side kinds of the rock field: plinth, and rock from ROCK_KIND on (ROCK_KIND + the column's ground, steps: its foot darkens). */
+const PLINTH_KIND = 1;
+const ROCK_KIND = 2;
+
+/** Rock wall layer z of a column standing on `ground` (steps): dark at the foot, strata above. */
+function rockSide(z: number, ground: number): Color3 {
+  const rel = z - ground;
+  return rel <= 0 ? FOOT : rel === 1 ? ROCK_DEEP : rockStrata(z);
 }
 
 /** Plinth walls: dressed stone, a darker course every other step. */
@@ -395,14 +451,15 @@ export function rockField(cols: ReliefColumns, seed: number, plinth?: Int8Array)
     if (p > 0) {
       h[k] = p;
       top[k] = packed(PLINTH.scale(0.95 + 0.08 * hash2(k % nx, Math.floor(k / nx), seed + 41)));
-      kind[k] = 1;
+      kind[k] = PLINTH_KIND;
       continue;
     }
     if (r <= 0) continue;
     h[k] = (ground[k] as number) + r;
-    top[k] = packed(rockTop(r, k % nx, Math.floor(k / nx), seed));
+    kind[k] = ROCK_KIND + Math.max(0, ground[k] as number);
+    top[k] = packed(rockTop(r, cols.rim[k] as number, k % nx, Math.floor(k / nx), seed));
   }
-  return { nx, ny, x0: 0, y0: 0, s: 1 / TERRAIN_VPT, h, top, kind, floor, bottom: 0, side: (z, kd) => (kd === 1 ? plinthSide(z) : rockSide(z)) };
+  return { nx, ny, x0: 0, y0: 0, s: 1 / TERRAIN_VPT, h, top, kind, floor, bottom: 0, side: (z, kd) => (kd === PLINTH_KIND ? plinthSide(z) : rockSide(z, kd - ROCK_KIND)) };
 }
 
 /**
@@ -419,7 +476,7 @@ export class RockLayer {
   private bridgeKey = "";
   private key = "";
   private relief: Relief | null = null;
-  private blocked: ReadonlySet<string> = new Set();
+  private cols: ReliefColumns | null = null;
   private far = false;
 
   constructor(
@@ -443,11 +500,11 @@ export class RockLayer {
   *steps(island: Island, seed: number, blocked: ReadonlySet<string>, plinths: readonly FootprintRect[] = []): Generator<void, void, void> {
     const relief = reliefOf(island);
     this.relief = relief;
-    this.blocked = blocked;
-    const models = CRAGS.every((id) => decorModel(this.registry, id) !== null);
+    const models = [...CRAGS, ...PEAKS].every((id) => decorModel(this.registry, id) !== null);
     const key = `${island.id}|${island.revision}|${models}|${[...blocked].sort().join(";")}|${plinths.map((p) => `${p.x},${p.y},${p.w},${p.h}`).join(";")}`;
     if (key === this.key) return;
     const cols = reliefColumns(relief, TERRAIN_VPT, seed, blocked);
+    this.cols = cols;
     yield;
     const b = new Builder();
     const f = rockField(cols, seed, plinthColumns(cols, relief, plinths));
@@ -504,65 +561,89 @@ export class RockLayer {
   }
 
   /**
-   * Crags and boulders: on the rim columns of every rock level (one
-   * candidate per ~1.2 tiles, seeded), larger ones on the peaks (tiles
-   * whose rock is the highest of their 5 × 5 neighbourhood).
+   * Crags and boulders (seeded per tile): a big crag on every peak (a
+   * tile whose rock is the highest of its 5 × 5 neighbourhood, ≥ 2
+   * levels) with smaller ones around it; clusters of two or three crags
+   * along the ridges (tiles at least as high as both neighbours on an
+   * axis, ≥ 2 levels); single crags and boulders on the flanks; scree
+   * (small boulders) on the ground at the rock's foot.
    */
   private *placeCrags(m: ModelMerger, cols: ReliefColumns, r: Relief, seed: number, free: (x: number, y: number) => boolean): Generator<void, void, void> {
     const crag = (k: number) => decorModel(this.registry, CRAGS[k % CRAGS.length] as string);
+    const peakModel = (k: number) => decorModel(this.registry, PEAKS[k % PEAKS.length] as string);
     const boulder = decorModel(this.registry, BOULDER);
+    const scree = decorModel(this.registry, SCREE);
     const vpt = TERRAIN_VPT;
     const { nx, ny, ground, rock } = cols;
     const at = (i: number, j: number) => (i < 0 || j < 0 || i >= nx || j >= ny ? 0 : (rock[j * nx + i] as number));
+    const rockAt = (x: number, y: number) => (x < 0 || y < 0 || x >= r.width || y >= r.height ? 0 : (r.rock[y * r.width + x] as number));
+    const s = seed + 977;
+    /** A model on column (i, j) of the rock (sunk a little into it). */
+    const put = (model: ReturnType<typeof crag>, i: number, j: number, scale: number, key: number) => {
+      if (!model || i < 0 || j < 0 || i >= nx || j >= ny) return;
+      const h = at(i, j);
+      if (h === 0) return;
+      m.add(model, (i + 0.5) / vpt, ((ground[j * nx + i] as number) + h) / 8 - 0.06, -(j + 0.5) / vpt, scale, hash2(i, j, s + key) * Math.PI * 2, 0.9 + 0.16 * hash2(j, i, s + key));
+    };
     for (let ty = 0; ty < r.height; ty++) {
       if (ty > 0 && ty % CRAG_ROWS_PER_STEP === 0) yield;
       for (let tx = 0; tx < r.width; tx++) {
-        const t = ty * r.width + tx;
-        const rk = r.rock[t] as number;
-        if (rk === 0 || !free(tx, ty)) continue;
-        // Peaks: the tile's rock is the highest around (≥ 2 levels).
+        const rk = rockAt(tx, ty);
+        if (!free(tx, ty)) continue;
+        const roll = hash2(tx, ty, s + 3);
+        const ci = tx * vpt + Math.floor(hash2(tx, ty, s + 4) * vpt);
+        const cj = ty * vpt + Math.floor(hash2(tx, ty, s + 5) * vpt);
+        if (rk === 0) {
+          // Scree: ground next to rock (a column of the tile beside a rock column).
+          if (roll > 0.3 || !scree) continue;
+          const k = cj * nx + ci;
+          if (at(ci, cj) > 0 || cols.river[k]) continue;
+          if (at(ci + 1, cj) === 0 && at(ci - 1, cj) === 0 && at(ci, cj + 1) === 0 && at(ci, cj - 1) === 0) continue;
+          m.add(roll < 0.12 && boulder ? boulder : scree, (ci + 0.5) / vpt, (ground[k] as number) / 8 - 0.02, -(cj + 0.5) / vpt, 0.55 + 0.4 * hash2(ty, tx, s + 1), hash2(tx, ty, s + 2) * Math.PI * 2, 0.9 + 0.15 * roll);
+          continue;
+        }
         let peak = rk >= 2;
         for (let dy = -2; dy <= 2 && peak; dy++) {
           for (let dx = -2; dx <= 2; dx++) {
-            const x = tx + dx;
-            const y = ty + dy;
-            if (x < 0 || y < 0 || x >= r.width || y >= r.height || (dx === 0 && dy === 0)) continue;
-            const o = r.rock[y * r.width + x] as number;
+            if (dx === 0 && dy === 0) continue;
+            const o = rockAt(tx + dx, ty + dy);
             if (o > rk || (o === rk && (dy < 0 || (dy === 0 && dx < 0)))) peak = false;
           }
         }
-        const s = seed + 977;
         if (peak) {
-          const i = tx * vpt + 2;
-          const j = ty * vpt + 2;
-          const model = crag(Math.floor(hash2(tx, ty, s + 6) * 30));
-          if (model) m.add(model, tx + 0.5, ((ground[j * nx + i] as number) + at(i, j)) / 8 - 0.03, -(ty + 0.5), 1.1 + 0.5 * hash2(tx, ty, s + 7), hash2(tx, ty, s + 8) * Math.PI * 2);
+          // The highest column of the tile carries the big crag.
+          let bi = tx * vpt;
+          let bj = ty * vpt;
+          for (let j = ty * vpt; j < (ty + 1) * vpt; j++) for (let i = tx * vpt; i < (tx + 1) * vpt; i++) if (at(i, j) > at(bi, bj)) [bi, bj] = [i, j];
+          put(peakModel(Math.floor(roll * 10)), bi, bj, 1.05 + 0.35 * hash2(tx, ty, s + 7), 8);
+          for (let q = 0; q < 2; q++) put(crag(q + Math.floor(roll * 9)), bi + Math.round((hash2(tx, ty, s + 20 + q) - 0.5) * 8), bj + Math.round((hash2(ty, tx, s + 20 + q) - 0.5) * 8), 0.8 + 0.4 * hash2(tx, ty, s + 24 + q), 9 + q);
           continue;
         }
-        if (hash2(tx, ty, s + 3) > 0.16) continue;
-        // A rim column of the tile: rock lower than a neighbour's by the rim step.
-        const i = tx * vpt + Math.floor(hash2(tx, ty, s + 4) * vpt);
-        const j = ty * vpt + Math.floor(hash2(tx, ty, s + 5) * vpt);
-        const h = at(i, j);
-        if (h === 0) continue;
-        const rim = at(i + 1, j) < h || at(i - 1, j) < h || at(i, j + 1) < h || at(i, j - 1) < h;
-        const roll = hash2(tx, ty, s + 9);
-        if (!rim && roll > 0.35) continue;
-        const model = roll < 0.7 ? crag(Math.floor(roll * 30)) : boulder;
-        if (!model) continue;
-        const scale = roll < 0.7 ? 0.55 + 0.55 * hash2(ty, tx, s + 1) : 0.8 + 0.4 * roll;
-        m.add(model, (i + 0.5) / vpt, ((ground[j * nx + i] as number) + h) / 8 - 0.03, -(j + 0.5) / vpt, scale, hash2(tx, ty, s + 2) * Math.PI * 2, 0.92 + 0.12 * roll);
+        const ridge = rk >= 2 && ((rockAt(tx - 1, ty) < rk && rockAt(tx + 1, ty) < rk) || (rockAt(tx, ty - 1) < rk && rockAt(tx, ty + 1) < rk));
+        if (ridge && roll < 0.3) {
+          const count = 2 + (roll < 0.08 ? 1 : 0);
+          for (let q = 0; q < count; q++) {
+            const i = tx * vpt + Math.floor(hash2(tx + q, ty, s + 30) * vpt);
+            const j = ty * vpt + Math.floor(hash2(tx, ty + q, s + 31) * vpt);
+            put(crag(q + Math.floor(roll * 30)), i, j, 0.85 + 0.5 * hash2(tx, ty, s + 32 + q), 11 + q);
+          }
+          continue;
+        }
+        if (roll > 0.07) continue;
+        put(roll < 0.045 ? crag(Math.floor(roll * 30)) : boulder, ci, cj, roll < 0.12 ? 0.7 + 0.5 * hash2(ty, tx, s + 1) : 0.8 + 0.4 * roll, 2);
       }
     }
   }
 
-  /** Height (tiles) at a tile where decoration and outcrops stand: its level plus its rock, the level alone where a footprint cut the rock out. */
+  /** Height (tiles) at a tile where decoration and outcrops stand: its centre column's ground plus rock (the rock is cut out under footprints). */
   heightAt(x: number, y: number): number {
     const r = this.relief;
+    const c = this.cols;
     if (!r || x < 0 || y < 0 || x >= r.width || y >= r.height) return 0;
-    const t = y * r.width + x;
-    const rk = this.blocked.has(`${x},${y}`) ? 0 : (r.rock[t] as number);
-    return ((r.level[t] as number) + rk) * LEVEL_HEIGHT;
+    if (!c) return (r.level[y * r.width + x] as number) * LEVEL_HEIGHT;
+    const vpt = c.nx / r.width;
+    const k = (y * vpt + (vpt >> 1)) * c.nx + x * vpt + (vpt >> 1);
+    return ((c.ground[k] as number) + (c.rock[k] as number)) / 8;
   }
 
   /** The rock meshes (sun shadow casters), if any. */
