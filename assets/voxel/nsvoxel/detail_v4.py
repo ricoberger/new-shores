@@ -36,8 +36,8 @@ from .mats import (
 
 Face = _p.Face
 
-#: Copper (kettles, vent hoods, still domes): brass in a deeper, redder shade.
-COPPER = mat("brass", 0.82)
+#: Copper (kettles, vent hoods, still domes): the iron deposit's red-brown, lightened.
+COPPER = mat("deposit-iron", 1.5)
 #: Copper gone green (old domes): the shallows' teal, darkened.
 VERDIGRIS = mat("shallows", 0.78)
 
@@ -396,3 +396,209 @@ def leafy_rows(v, x0, y0, x1, y1, leaf, top=None, flower=None, along="y", pitch=
                 v.set(x, y, h, top)
                 if flower is not None and hh < flowers:
                     v.set(x, y, h + 1, flower)
+
+
+# ---------------------------------------------------------------- round work pieces
+
+
+def _disc(cx, cy, r):
+    """Cells (x, y) of a disc of radius r centred on (cx, cy) (cell centres)."""
+    for x in range(math.floor(cx - r), math.ceil(cx + r) + 1):
+        for y in range(math.floor(cy - r), math.ceil(cy + r) + 1):
+            d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
+            if d <= r:
+                yield x, y, d
+
+
+def round_tower(v, cx, cy, r, z0, z1, m=STONE, course=None, seed=0):
+    """A solid round tower (still tower, oast, kiln) with every third course in the `course` shade."""
+    course = course or shade_of(m, 0.92)
+    for x, y, _ in _disc(cx, cy, r):
+        for z in range(z0, z1):
+            v.set(x, y, z, course if (z - z0) % 3 == 2 else m)
+
+
+def dome(v, cx, cy, r, z, m=None, rib=None, finial=BRASS, h=None):
+    """
+    A dome on a round drum at z: layers shrinking on a quarter circle of
+    height h (default r), every fourth radial line in the `rib` shade, a
+    finial on top. Returns the top z.
+    """
+    m = m or COPPER
+    h = h or r
+    zz = z
+    for k in range(h):
+        rr = r * math.sqrt(max(0.0, 1 - (k / h) ** 2))
+        if rr < 0.5:
+            break
+        for x, y, _ in _disc(cx, cy, rr):
+            ang = math.atan2(y + 0.5 - cy, x + 0.5 - cx)
+            on_rib = rib is not None and abs(math.sin(ang * 2)) < 0.2
+            v.set(x, y, z + k, rib if on_rib else m)
+        zz = z + k + 1
+    if finial is not None:
+        v.box(math.floor(cx), math.floor(cy), zz, math.floor(cx) + 1, math.floor(cy) + 1, zz + 2, finial)
+        zz += 2
+    return zz
+
+
+def cone_roof(v, cx, cy, r, z, m, rise=1.0, tip=None):
+    """A conical roof of radius r at z (rise voxels up per voxel in); returns the top z."""
+    k = 0
+    while True:
+        rr = r - k / rise
+        if rr < 0.5:
+            break
+        for x, y, d in _disc(cx, cy, rr):
+            v.set(x, y, z + k, m if (z + k) % 2 else shade_of(m, 0.9))
+        k += 1
+    if tip is not None:
+        v.set(math.floor(cx), math.floor(cy), z + k, tip)
+        k += 1
+    return z + k
+
+
+def vat(v, cx, cy, z, r=2.5, h=4, m=TIMBER, hoop=IRON, liquid=None, rim=None):
+    """An open round vat (dye, steeping, brewing): staves, two hoops, the liquid one below the rim."""
+    rim = rim or shade_of(m, 1.15)
+    for x, y, d in _disc(cx, cy, r):
+        wall = d > r - 1
+        for zz in range(z, z + h):
+            if wall:
+                hooped = zz in (z + 1, z + h - 2)
+                v.set(x, y, zz, hoop if hooped else (rim if zz == z + h - 1 else m))
+            elif zz < z + h - 1:
+                v.set(x, y, zz, m)
+            elif liquid is not None:
+                v.set(x, y, zz - 1, liquid)
+                v.set(x, y, zz, None)
+
+
+def kettle(v, cx, cy, z, r=2.5, h=4, m=None, hearth=None, rim=None, hearth_h=2):
+    """A copper on a brick hearth: the hearth a square of hearth_h courses, the round vessel above, a darker rim."""
+    m = m or COPPER
+    hearth = hearth or _d.BRICK
+    rim = rim or shade_of(m, 0.8)
+    rr = math.ceil(r)
+    v.box(math.floor(cx - rr), math.floor(cy - rr), z, math.ceil(cx + rr), math.ceil(cy + rr), z + hearth_h, hearth)
+    for x, y, d in _disc(cx, cy, r):
+        for zz in range(z + hearth_h, z + hearth_h + h):
+            v.set(x, y, zz, rim if (zz == z + hearth_h + h - 1 and d > r - 1) else m)
+    # The dark mouth of the fire under the vessel.
+    v.box(math.floor(cx) - 1, math.ceil(cy + rr) - 1, z, math.floor(cx) + 1, math.ceil(cy + rr), z + 1, IRON)
+    return z + hearth_h + h
+
+
+def hood(v, x0, y0, x1, y1, z, m=None, vent=2):
+    """A stepped vent hood (copper over a kettle): three shrinking layers and a square vent stack `vent` high."""
+    m = m or COPPER
+    for k in range(3):
+        v.box(x0 + k, y0 + k, z + k, x1 - k, y1 - k, z + k + 1, m)
+    cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
+    v.box(cx - 1, cy - 1, z + 3, cx + 1, cy + 1, z + 3 + vent, m)
+    v.box(cx - 2, cy - 2, z + 3 + vent, cx + 2, cy + 2, z + 4 + vent, shade_of(m, 0.8))
+    return z + 4 + vent
+
+
+# ---------------------------------------------------------------- frames, louvres, stacks
+
+
+def drying_frame(v, x0, x1, y, z, h, cloths, post=TIMBER, every=4, sway=True, drop=None):
+    """
+    A tall drying frame along x at y: posts every `every`, a top rail at
+    z + h, and lengths of cloth hanging from it (cycling `cloths`, each
+    `every − 1` wide, `drop` long; on the cloth sway group when sway).
+    """
+    drop = drop or max(3, h - 3)
+    for x in range(x0, x1 + 1, every):
+        v.box(x, y, z, x + 1, y + 1, z + h + 1, post)
+    v.box(x0, y, z + h, x1 + 1, y + 1, z + h + 1, shade_of(post, 1.2))
+    k = 0
+    for x in range(x0 + 1, x1, every):
+        c = cloths[k % len(cloths)]
+        k += 1
+        cm = _d.cloth(c) if sway else c
+        w = min(every - 1, x1 - x)
+        v.box(x, y, z + h - drop, x + w, y + 1, z + h, cm)
+
+
+def hide_frame(v, x, y, z, w, h, hide, frame=TIMBER, along="x"):
+    """A hide stretched in a square timber frame standing on two legs (the leather works)."""
+    if along == "x":
+        v.box(x, y, z, x + 1, y + 1, z + h + 2, frame)
+        v.box(x + w + 1, y, z, x + w + 2, y + 1, z + h + 2, frame)
+        v.box(x, y, z + 1, x + w + 2, y + 1, z + 2, frame)
+        v.box(x, y, z + h + 1, x + w + 2, y + 1, z + h + 2, frame)
+        v.box(x + 1, y, z + 2, x + w + 1, y + 1, z + h + 1, hide)
+        # Lacing knots at the corners.
+        for a, b in ((x + 1, z + 2), (x + w, z + 2), (x + 1, z + h), (x + w, z + h)):
+            v.set(a, y, b, shade_of(hide, 0.8))
+    else:
+        v.box(x, y, z, x + 1, y + 1, z + h + 2, frame)
+        v.box(x, y + w + 1, z, x + 1, y + w + 2, z + h + 2, frame)
+        v.box(x, y, z + 1, x + 1, y + w + 2, z + 2, frame)
+        v.box(x, y, z + h + 1, x + 1, y + w + 2, z + h + 2, frame)
+        v.box(x, y + 1, z + 2, x + 1, y + w + 1, z + h + 1, hide)
+        for a, b in ((y + 1, z + 2), (y + w, z + 2), (y + 1, z + h), (y + w, z + h)):
+            v.set(x, a, b, shade_of(hide, 0.8))
+
+
+def louvres(f, a0, a1, z0, z1, m=TIMBER_LIGHT, gap=None):
+    """Louvred wall on a face: alternating slats proud by one and dark gaps (drying halls)."""
+    gap = gap or TIMBER_DARK
+    for z in range(z0, z1):
+        for a in range(a0, a1):
+            if (z - z0) % 2 == 0:
+                f.put(a, z, m, out=1)
+                f.put(a, z, gap)
+            else:
+                f.put(a, z, gap)
+
+
+def brick_stack(v, x0, y0, x1, y1, z, h, m=None, alt=None):
+    """A hack of bricks: a block in alternating courses, the gaps between headers showing on top."""
+    m = m or _d.BRICK
+    alt = alt or shade_of(m, 0.86)
+    for zz in range(z, z + h):
+        for x in range(x0, x1):
+            for y in range(y0, y1):
+                v.set(x, y, zz, m if (zz + (x if zz % 2 else y)) % 2 else alt)
+
+
+def stack(v, x0, y0, x1, y1, z, h, m, band=None, every=2):
+    """A stack of sheets or books: a block with every `every`-th layer in the `band` shade."""
+    band = band or shade_of(m, 0.85)
+    for zz in range(z, z + h):
+        v.box(x0, y0, zz, x1, y1, zz + 1, band if (zz - z) % every == every - 1 else m)
+
+
+def hanging(v, x0, x1, y, z, items, every=2):
+    """Things hung from a rail at z along x at y (sides of meat, hams, bunches): `items` is a list of (material, length)."""
+    k = 0
+    for x in range(x0, x1, every):
+        m, n = items[k % len(items)]
+        k += 1
+        v.box(x, y, z - n, x + 1, y + 1, z, m)
+
+
+def still_tower(v, cx, cy, r, z1, wall=STONE, dome_m=None, rib=None, door_side="y+", seed=0):
+    """
+    The distillery's round still tower: a coursed round tower to z1 with a
+    dressed string course, small windows round it, a door, and a copper
+    dome with ribs and a finial. Returns the top z (the finial's top).
+    """
+    round_tower(v, cx, cy, r, 1, z1, wall, seed=seed)
+    for x, y, d in _disc(cx, cy, r + 0.6):
+        if d > r - 0.4:
+            v.set(x, y, z1 - 1, _d.DRESSED)
+    # Windows on the four axes, a door on the door side.
+    for (dx, dy) in ((0, 1), (1, 0), (-1, 0), (0, -1)):
+        x = math.floor(cx + dx * (r - 0.5))
+        y = math.floor(cy + dy * (r - 0.5))
+        v.box(x, y, z1 - 6, x + 1, y + 1, z1 - 3, WINDOW)
+        v.set(x, y, z1 - 7, _d.DRESSED)
+    if door_side == "y+":
+        y = math.floor(cy + r - 0.5)
+        v.box(math.floor(cx) - 1, y, 1, math.floor(cx) + 1, y + 1, 5, TIMBER)
+        v.box(math.floor(cx) - 2, y, 5, math.floor(cx) + 2, y + 1, 6, _d.DRESSED)
+    return dome(v, cx, cy, r + 0.4, z1, m=dome_m or COPPER, rib=rib or shade_of(dome_m or COPPER, 0.82), h=math.ceil(r * 0.9))

@@ -28,7 +28,7 @@ Tools (experiment only, not product code):
 |---|-------|-------|
 | A | Houses: `house_merchants` ×3 | done |
 | B | Farms, fields, mines, water | done |
-| C | Workshops | – |
+| C | Workshops | done |
 | D | Public: church, theatre | – |
 | E | Tests and output | – |
 
@@ -46,7 +46,11 @@ Tools (experiment only, not product code):
 - `heap` (conical heap of salt/coal/clay), `mine_hill` (iron_mine's hill
   with seam bands that read as stripes and slope contours), `terraces`
   (stepped pit banks, open toward the camera), `hop_pole`, `leafy_rows`.
-- Materials: `COPPER`, `VERDIGRIS`.
+- Round work pieces and frames: `round_tower`, `dome`, `cone_roof`,
+  `still_tower`, `vat`, `kettle`, `hood`, `drying_frame` (cloth sway),
+  `hide_frame`, `louvres`, `brick_stack`, `stack`, `hanging`.
+- Materials: `COPPER` (the iron deposit's red-brown ×1.5 — brass read as
+  olive), `VERDIGRIS`.
 
 ## A — houses
 
@@ -83,6 +87,39 @@ lintels.
   house, salt heap; coal — adit, tubs on rails, headframe with sheave
   wheel, winding house, coal heap, spoil tip.
 
+## C — workshops
+
+Camera note: the default view looks from the front-west — the visible
+facades are y+ (lower left) and x− (lower right). Signature parts sit on
+those sides (butcher's smoking shed, pastry oven, tailor's cutting shed,
+still towers on the west).
+
+- butcher: thatched hall with a shop hatch + counter, open smoking shed
+  with rows of hanging sides, louvre (smoke). pastry_kitchen: ochre
+  townhouse, shop front + awning, brick dome oven with flue (smoke).
+- brewery: stone kettle house, copper vent hood on the ridge (smoke),
+  arched door open on the kettle, cask yard lean-to with tiers of casks,
+  dray. distillery: round still tower + copper dome, stack, barrel hall
+  (red tiles). grain_distillery: brick still tower, slate barrel hall,
+  framed malt loft with kiln vent and hoist.
+- leather_works: hide frames as tall as the hut, tanning pits. tailor:
+  jettied gable townhouse, bolts in shop windows, wide signboard with
+  shears, cutting shed, washing line (sway). dyer: dye house, vat shed,
+  three tall drying frames (sway). dyer_works: open vat hall on tall
+  posts, four vats with dyed cloths over the rims, louvre (smoke), back
+  drying frames (sway).
+- paper_mill: drying hall with louvred loft, vat house (smoke), screw
+  press, paper stacks; no wheel. printing_press: open front bay on
+  posts with the press, type case, book/paper stacks, signboard.
+- rendering_house: iron kettle shed, tallow casks, brick stack.
+  soap_maker: copper kettle shed, racks and stacks of cakes. salt_works:
+  open boiling house with two pans, cistern, stack. brickworks: kiln with
+  fire holes and stack, green-brick hacks under a shed, brick stacks.
+- Shared test changed: `test_pipeline` used `grain_distillery` as its
+  example of an ID without a recipe; it now picks any building still
+  without one (none left once V5 lands) and checks that fisher and
+  grain_distillery get their recipes.
+
 ## Open questions
 
 1. **Slate on one merchant house.** The task asks for tiled roofs varied
@@ -98,3 +135,6 @@ lintels.
 3. **Salt mine output is brine.** The task asks for white seams and a
    heap; the mine shows rock salt (seams, tub, heap) and brine (casks,
    trough, whim over the brine shaft).
+4. **Copper colour.** No copper role in the palette; `COPPER` is the
+   iron deposit's red-brown lightened (×1.5). Alternatives: brass (reads
+   olive) or a new palette role (a palette change, out of scope).

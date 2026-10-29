@@ -145,11 +145,13 @@ class PlaceholderTest(unittest.TestCase):
         recipes = model.recipe_modules()
         required = content_mod.required_ids(CONTENT)
         self.assertIn("grain_distillery", required)
-        self.assertNotIn("grain_distillery", recipes)
-        _, placeholder = build.recipe_for("grain_distillery", "building", recipes)
-        self.assertTrue(placeholder)
-        _, placeholder = build.recipe_for("fisher", "building", recipes)
-        self.assertFalse(placeholder)
+        # A required building without a recipe gets the placeholder (any such ID; none once every tier is authored).
+        for cid in sorted(c for c in required if c not in recipes and content_mod.kind_of(CONTENT, c) == "building")[:1]:
+            _, placeholder = build.recipe_for(cid, "building", recipes)
+            self.assertTrue(placeholder, cid)
+        for cid in ("fisher", "grain_distillery"):
+            _, placeholder = build.recipe_for(cid, "building", recipes)
+            self.assertFalse(placeholder, cid)
 
 
 if __name__ == "__main__":
