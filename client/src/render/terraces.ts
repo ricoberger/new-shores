@@ -48,6 +48,8 @@ export const LEVEL_STEPS = 4;
 export const LEVEL_HEIGHT = 0.5;
 /** A river's surface below its level's ground (steps). */
 export const RIVER_DROP = 2;
+/** River blend (cover) from which a river tile's column is water, not bank: the two middle columns of a straight channel. */
+const RIVER_WATER = 0.7;
 /** Share of the level edges away from the sea that are ramps (noise threshold: higher, fewer). */
 const RAMP_NOISE = 0.57;
 /** Noise erosion of the rock outline (bilinear share): ragged rims at column resolution. */
@@ -148,6 +150,11 @@ export interface ReliefColumns {
   /** River columns (1) and their surface (steps). */
   river: Uint8Array;
   riverH: Int8Array;
+  /**
+   * Bank columns of river tiles (1): the edge of the channel one step
+   * below the level's ground (their `ground`), sand and pebbles.
+   */
+  bank: Uint8Array;
   /** Waterfall columns: a river column whose wall drops to a lower river column (1). */
   fall: Uint8Array;
 }
@@ -166,6 +173,7 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
   const rockH = new Int8Array(n);
   const river = new Uint8Array(n);
   const riverH = new Int8Array(n);
+  const bank = new Uint8Array(n);
   const fall = new Uint8Array(n);
   const tile = (x: number, y: number) => (x < 0 || y < 0 || x >= width || y >= height ? -1 : y * width + x);
   const land = (i: number) => i >= 0 && terrain[i] !== undefined && terrain[i] !== "water";
@@ -268,14 +276,28 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
       }
     }
   }
-  // Rivers: tile-exact, below their level's ground.
+  // Rivers: on their tiles, the water (RIVER_DROP below the level's
+  // ground) where the river's blend between the tile centres is high —
+  // at least the two middle columns, the corners of a stair rounded off
+  // by half a tile — and a bank one step down around it; the sea counts
+  // as river, so the mouth opens without banks.
+  const wet = (x: number, y: number) => {
+    const t = tile(x, y);
+    return t >= 0 && (terrain[t] === "river" || terrain[t] === "water");
+  };
   for (let k = 0; k < n; k++) {
     const t = colTile(k);
     if (t < 0 || terrain[t] !== "river") continue;
-    river[k] = 1;
-    riverH[k] = (level[t] as number) * LEVEL_STEPS - RIVER_DROP;
     rockH[k] = 0;
     rim[k] = 0;
+    const lv = (level[t] as number) * LEVEL_STEPS;
+    if (cover(wet, ((k % nx) + 0.5) / vpt, (Math.floor(k / nx) + 0.5) / vpt) >= RIVER_WATER) {
+      river[k] = 1;
+      riverH[k] = lv - RIVER_DROP;
+    } else {
+      bank[k] = 1;
+      ground[k] = lv - 1;
+    }
   }
   for (let j = 0; j < ny; j++) {
     for (let i = 0; i < nx; i++) {
@@ -295,7 +317,7 @@ export function reliefColumns(r: Relief, vpt: number, seed: number, blocked: Rea
       }
     }
   }
-  return { nx, ny, ground, flat, rock: rockH, rim, river, riverH, fall };
+  return { nx, ny, ground, flat, rock: rockH, rim, river, riverH, bank, fall };
 }
 
 /** A building's rotated footprint (tiles). */

@@ -86,6 +86,31 @@ describe("relief columns", () => {
     expect(c.fall[col(1.5, 2.5)]).toBe(0);
   });
 
+  it("cuts a river into two water columns between banks one step down, its stair corners rounded by half a tile", () => {
+    const r = ["~~~~~~~~", "~gggggg~", "~grrrgg~", "~gggrgg~", "~gggrgg~", "~gggggg~", "~~~~~~~~"];
+    const c = reliefColumns(reliefOf(island(r, r.map((row) => row.replace(/./g, "0")))), 4, 1);
+    const at = (i: number, j: number) => j * c.nx + i;
+    // A straight run (tile 3, 2; columns 12–15, rows 8–11): banks at the edges, water in the middle two rows.
+    for (const j of [8, 11]) {
+      expect(c.bank[at(13, j)]).toBe(1);
+      expect(c.river[at(13, j)]).toBe(0);
+      expect(c.ground[at(13, j)]).toBe(-1);
+    }
+    for (const j of [9, 10]) {
+      expect(c.river[at(13, j)]).toBe(1);
+      expect(c.riverH[at(13, j)]).toBe(-RIVER_DROP);
+    }
+    // The outer corner of the bend (tile 4, 2) carves its bank in by half a tile; its inner corner is water.
+    expect(c.river[at(18, 9)]).toBe(1);
+    expect(c.bank[at(19, 9)]).toBe(1);
+    expect(c.river[at(16, 11)]).toBe(1);
+    // No river or bank outside the river tiles.
+    for (let k = 0; k < c.river.length; k++) {
+      const t = r[Math.floor(Math.floor(k / c.nx) / 4)]![Math.floor((k % c.nx) / 4)];
+      if (t !== "r") expect(c.river[k]! + c.bank[k]!).toBe(0);
+    }
+  });
+
   it("raises rock from ragged rims to its blended height, uneven and cut out under building footprints", () => {
     const r = ["~~~~~~~~~", "~ggggggg~", "~gmmmmmg~", "~gmmmmmg~", "~gmmmmmg~", "~gmmmmmg~", "~gmmmmmg~", "~ggggggg~", "~~~~~~~~~"];
     const l = r.map((row) => row.replace(/./g, "0"));

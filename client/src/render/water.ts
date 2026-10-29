@@ -92,6 +92,67 @@ export function seaDeep(): Color3 {
   return new Color3(r, g, b);
 }
 
+/** River water (D-058): between the sea's shallows and deep, a little darker. */
+export const RIVER_WATER = Color3.Lerp(c3(WATER.shallows), seaDeep(), 0.6).scale(0.86);
+
+/**
+ * The river surfaces' material (D-058): the sea's — ripples, glints and
+ * specular — in the river colour; one per scene, driven by the Sea
+ * (quality, LOD, drift). River quads carry island tile coordinates as UVs.
+ */
+export class RiverWater {
+  readonly material: StandardMaterial;
+  private readonly ripples: RawTexture;
+  private readonly glints: RawTexture;
+
+  constructor(scene: Scene) {
+    this.material = skyFill(new StandardMaterial("river", scene));
+    this.material.diffuseColor = RIVER_WATER;
+    this.material.specularPower = 40;
+    this.material.backFaceCulling = false;
+    const heights = rippleHeights();
+    this.ripples = rippleTexture(scene, heights);
+    this.ripples.level = RIPPLE_LEVEL.near;
+    this.glints = glintTexture(scene, heights);
+    for (const t of [this.ripples, this.glints]) {
+      t.uScale = 1 / RIPPLE_TILES;
+      t.vScale = 1 / RIPPLE_TILES;
+    }
+    this.setQuality("low");
+  }
+
+  setQuality(q: Quality): void {
+    const high = q === "high";
+    this.material.bumpTexture = high ? this.ripples : null;
+    this.material.emissiveTexture = high ? null : this.glints;
+    this.material.specularColor = high ? c3(LIGHT.sun).scale(0.35) : Color3.Black();
+  }
+
+  setLod(lod: Lod): void {
+    this.ripples.level = RIPPLE_LEVEL[lod];
+  }
+
+  frame(nowMs: number): void {
+    const t = (nowMs / 1000) * RIPPLE_SPEED;
+    for (const tex of [this.ripples, this.glints]) {
+      tex.uOffset = t % 1;
+      tex.vOffset = (t * 0.63) % 1;
+    }
+  }
+}
+
+const riverWaters = new WeakMap<Scene, RiverWater>();
+
+/** The scene's river water (created on first use). */
+export function riverWater(scene: Scene): RiverWater {
+  let w = riverWaters.get(scene);
+  if (!w) {
+    w = new RiverWater(scene);
+    riverWaters.set(scene, w);
+  }
+  return w;
+}
+
 /** Gradient texture of a distance field: shallows near land, deep beyond. */
 function gradientTexture(scene: Scene, f: DistanceField): RawTexture {
   const shallows = c3(WATER.shallows);
@@ -170,11 +231,13 @@ export class Sea {
     this.material.bumpTexture = high ? this.ripples : null;
     this.material.emissiveTexture = high ? null : this.glints;
     this.material.specularColor = high ? c3(LIGHT.sun).scale(0.35) : Color3.Black();
+    riverWater(this.scene).setQuality(q);
   }
 
   /** Level of detail: the ripples calm down with the distance. */
   setLod(lod: Lod): void {
     this.ripples.level = RIPPLE_LEVEL[lod];
+    riverWater(this.scene).setLod(lod);
   }
 
   /** Recomputes the shallows→deep gradient from the islands' land (call on payload changes). */
@@ -221,5 +284,6 @@ export class Sea {
       tex.uOffset = t % 1;
       tex.vOffset = (t * 0.63) % 1;
     }
+    riverWater(this.scene).frame(nowMs);
   }
 }

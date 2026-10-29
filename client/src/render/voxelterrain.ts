@@ -26,6 +26,7 @@ import type { CoastLoop } from "../display/coastline";
 import { fbm, hash2 } from "../display/noise";
 import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { c3 } from "./palette";
+import { RIVER_WATER } from "./water";
 import { insideGrid, LEVEL_STEPS, reliefColumns, type ReliefColumns, reliefOf, RIVER_DROP, rockStrata, rockTop } from "./terraces";
 import { type Builder, groundColor } from "./terrain";
 
@@ -80,8 +81,10 @@ const SAND_BANDS = [SAND.scale(0.9), SAND.scale(0.86), WET.scale(0.95), WET.scal
 const TERRACE_BANDS = [c3(ISLAND.cliff_lower), c3(ISLAND.cliff_ledge), c3(ISLAND.cliff_upper), EARTH_BANDS[0] as Color3];
 /** Waterfall walls, foot to lip: foam, light water, foam, white water. */
 const FALL_BANDS = [c3(WATER.foam), Color3.Lerp(c3(WATER.shallows), c3(WATER.foam), 0.55), c3(WATER.foam).scale(0.96), Color3.Lerp(c3(WATER.shallows), c3(WATER.foam), 0.3)];
-/** River water (the tops of river columns). */
-const RIVER = Color3.Lerp(c3(WATER.shallows), c3(WATER.deep), 0.4);
+/** River water (the river beds' tops: the far fields' rivers): the river surface's colour (water.ts RIVER_WATER). */
+const RIVER = RIVER_WATER;
+/** River banks: damp sand. */
+const BANK_SAND = Color3.Lerp(SAND, c3(TERRAIN.road_dirt), 0.3);
 /** The bank colour a river tile lends the blend of its neighbours' ground. */
 const BANK = Color3.Lerp(c3(TERRAIN.grass_a), c3(TERRAIN.road_dirt), 0.35);
 /** Cliff tops: grass over rock. */
@@ -175,6 +178,14 @@ export function coastSide(z: number, kind: number): Color3 {
   return bands[Math.min(bands.length - 1, Math.max(0, -z - 1))] as Color3;
 }
 
+/** Whether a river column's surface is above a neighbouring river column's (a rapid of the estuary). */
+function riverStep(c: ReliefColumns, k: number): boolean {
+  const i = k % c.nx;
+  const h = c.riverH[k] as number;
+  for (const q of [i + 1 < c.nx ? k + 1 : -1, i > 0 ? k - 1 : -1, k + c.nx < c.nx * c.ny ? k + c.nx : -1, k - c.nx]) if (q >= 0 && c.river[q] && (c.riverH[q] as number) < h) return true;
+  return false;
+}
+
 /**
  * The island's ground as a field at `vpt` columns per tile. Land (inside
  * the smoothed coastline at the column centre) at height 0, coloured by a
@@ -206,6 +217,16 @@ export function islandField(
   const cliffLand = new Uint8Array(nx * ny);
   for (let k = 0; k < nx * ny; k++) if (inside[k] && island.terrain[Math.min(island.height - 1, Math.floor(Math.floor(k / nx) / vpt)) * island.width + Math.min(island.width - 1, Math.floor((k % nx) / vpt))] === "cliff") cliffLand[k] = 1;
   const toCliff = distanceTo(cliffLand, nx, ny, 5);
+  // Estuaries: level-0 river water near the sea steps down toward it (rapids), and the shelf in front of the mouth gives way to the sea.
+  const toSeaFar = distanceTo(outside, nx, ny, 8);
+  const riverLand = new Uint8Array(nx * ny);
+  for (let k = 0; k < nx * ny; k++) {
+    if (!inside[k] || !cols.river[k] || (cols.riverH[k] as number) !== -RIVER_DROP) continue;
+    riverLand[k] = 1;
+    const d = toSeaFar[k] as number;
+    if (d <= 6) cols.riverH[k] = d <= 3 ? -RIVER_DROP - 2 : -RIVER_DROP - 1;
+  }
+  const toRiver = distanceTo(riverLand, nx, ny, 3);
   const h = new Int8Array(nx * ny).fill(EMPTY);
   const top = new Uint32Array(nx * ny);
   const kind = new Uint8Array(nx * ny);
@@ -247,10 +268,18 @@ export function islandField(
       if (inside[k]) {
         const g = cols.ground[k] as number;
         if (cols.river[k]) {
-          // River water below its banks; a waterfall wall where it drops.
-          h[k] = cols.riverH[k] as number;
-          kind[k] = cols.fall[k] ? SIDE_FALL : SIDE_EARTH;
+          // The river bed one step under the water surface (RiverWater draws the surface at riverH; the far fields keep the bed's water colour); a waterfall wall where the river drops.
+          h[k] = (cols.riverH[k] as number) - 1;
+          kind[k] = cols.fall[k] || riverStep(cols, k) ? SIDE_FALL : SIDE_EARTH;
           top[k] = pack(RIVER.scale(0.96 + 0.06 * hash2(i, j, seed + 13)));
+          continue;
+        }
+        if (cols.bank[k]) {
+          // Banks: sand with pebbles, one step below the ground.
+          h[k] = g;
+          kind[k] = SIDE_EARTH;
+          const p = hash2(i, j, seed + 23);
+          top[k] = pack(p < 0.2 ? PEBBLE_DARK : p < 0.45 ? PEBBLE : BANK_SAND.scale(0.95 + 0.08 * hash2(j, i, seed + 29)));
           continue;
         }
         const isBeach = beach[ty * width + tx] === 1 && g === 0;
@@ -304,7 +333,7 @@ export function islandField(
           toLand[k] = Math.min(COAST_REACH, d + 2);
           continue;
         }
-        if (d > 2) continue;
+        if (d > 2 || (toRiver[k] as number) <= d) continue;
         kind[k] = SIDE_SAND;
         h[k] = d === 1 ? SHELF_H : WET_H;
         top[k] = pack(d === 1 ? SAND.scale(0.93 + 0.05 * hash2(i, j, seed + 3)) : WET.scale(0.97 + 0.05 * hash2(i, j, seed + 4)));
@@ -319,8 +348,8 @@ export function islandField(
  * and far terrain, which draw no rock layer): rock columns rise by their
  * rock height, take the rock's top colour and rock walls. `tiers` (lite,
  * far): the rock in double levels, at most that many (fewer contour walls;
- * lower rock keeps its colour only); `flatRivers` (far): river columns at
- * their banks' level, keeping their colour.
+ * lower rock keeps its colour only); `flatRivers` (far): river and bank
+ * columns at their level's ground, keeping their colour.
  */
 export function withRock(f: Field, seed: number, opts: { tiers?: number; flatRivers?: boolean } = {}): Field {
   const r = f.relief;
@@ -330,8 +359,9 @@ export function withRock(f: Field, seed: number, opts: { tiers?: number; flatRiv
   const kind = (f.kind ?? new Uint8Array(f.nx * f.ny)).slice();
   const tier = 2 * LEVEL_STEPS;
   for (let k = 0; k < f.nx * f.ny; k++) {
-    if (opts.flatRivers && r.river[k]) {
-      h[k] = (r.riverH[k] as number) + RIVER_DROP;
+    if (opts.flatRivers && (r.river[k] || r.bank[k])) {
+      // Rivers and banks at their level (estuary rapids included: no walls at far).
+      h[k] = (r.ground[k] as number) + (r.bank[k] ? 1 : 0);
       continue;
     }
     const r0 = r.rock[k] as number;

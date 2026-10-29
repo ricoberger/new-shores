@@ -137,8 +137,8 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   island's columns keep whole levels, one rock tier, flat rivers and 12
   colour levels, nearest the view first while the merged mesh stays
   within 100 k triangles (the others fall back to their mask); the
-  focused island's lite terrain keeps at most two rock tiers (D-048's
-  far budget).
+  focused island's lite terrain keeps at most two rock tiers and flat
+  rivers (D-048's far budget).
 - **Terraces (D-058):** each land tile's level (0–2, from the tiles
   API's `levels`) lifts its columns by four steps (½ tile) per level,
   blended at tile centres so edges run on tile borders. A level edge by
@@ -160,9 +160,13 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Cliff coast:** cliff tiles drop to the sea as a rock face (strata,
   darker toward the foot) without a sand shelf; the foam lies at its
   foot and the shallows start further out.
-- **Rivers** are tile-exact channels two steps below their level; where
-  a river drops a level a waterfall wall with foam bands falls to the
-  next; at level 0 it meets the shelf in an estuary. **Bridges** are
+- **Rivers** run on their tiles: water at least two columns wide, two
+  steps below the level, between banks of sand and pebbles one step down;
+  the bends' outer banks step in by half a tile. The surface is the sea's
+  material (ripples, glints) a little darker; at far the river beds carry
+  its colour. Where a river drops a level a waterfall wall with foam
+  bands falls into a foam pool; at level 0 the mouth loses its banks and
+  shelf and steps down in small rapids into the shallows. **Bridges** are
   voxel arch models (`decor_bridge_1/2`) over straight road runs of one
   or two river tiles, at the banks' level, hidden at far.
 - **Things on terraces:** buildings and fields stand on the highest
