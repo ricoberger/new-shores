@@ -3,7 +3,11 @@ import { getContent, type Content } from "../api/client";
 import styles from "./almanac.module.css";
 import { Buildings } from "./Buildings";
 import { Goods } from "./Goods";
+import { Islands } from "./Islands";
+import { Needs } from "./Needs";
 import { Overview } from "./Overview";
+import { Quests } from "./Quests";
+import { Ships } from "./Ships";
 import { buildIndex, search, searchEntries, type Index, type SectionId } from "./model";
 import { A } from "./parts";
 import { navigate, SECTIONS, routePath, useRoute, type Route } from "./route";
@@ -13,6 +17,10 @@ const PAGES: Partial<Record<SectionId, ComponentType<{ idx: Index; id?: string }
   overview: Overview,
   buildings: Buildings,
   goods: Goods,
+  needs: Needs,
+  ships: Ships,
+  quests: Quests,
+  islands: Islands,
 };
 
 interface ViewProps {

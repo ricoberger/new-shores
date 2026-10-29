@@ -43,9 +43,26 @@ describe("almanac rendering", () => {
     for (const g of content.goods) expect(html({ section: "goods" })).toContain(`href="/almanac/goods/${g.id}"`);
   });
 
+  it("renders needs, ships, quests and islands from content", () => {
+    const needs = html({ section: "needs" });
+    expect(needs).toContain("Per resident/min");
+    expect(needs).toContain("0.008");
+    expect(needs).toContain("60 %");
+    const ships = html({ section: "ships" });
+    for (const s of content.ships) expect(ships).toContain(`id="ship-${s.id}"`);
+    expect(ships).toContain("2 slots × 50");
+    const quests = html({ section: "quests" });
+    for (const q of content.quests) expect(quests.split(`id="quest-${q.id}"`).length - 1, q.id).toBe(1);
+    expect(quests).toContain("Lay 10 tiles of Dirt road");
+    const islands = html({ section: "islands" });
+    for (const c of content.size_classes) expect(islands).toContain(c.name);
+    expect(islands).toContain("not part of the served content");
+  });
+
   it("survives content without optional parts", () => {
     const empty = { region: {}, quests: [], tiers: [], goods: [], buildings: [], needs: [], need_categories: [], ships: [], size_classes: [] } as never;
-    expect(renderToStaticMarkup(createElement(AlmanacView, { content: empty, route: { section: "overview" } }))).toContain("Overview");
+    for (const section of ["overview", "buildings", "goods", "needs", "ships", "quests", "islands"] as const)
+      expect(() => renderToStaticMarkup(createElement(AlmanacView, { content: empty, route: { section } }))).not.toThrow();
   });
 });
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Content } from "../api/client";
 import { buildIndex, buildingGroups, buildingView, chain, goodView, islandsView, needsByTier, num, perMinute, search, searchEntries, shipView, tierViews, type ChainNode } from "./model";
-import { objectiveSentence, questViews } from "./quests";
+import { objectiveSentence, questViews } from "./questText";
 import { loadContent } from "./testContent";
 
 const DIRS = [
