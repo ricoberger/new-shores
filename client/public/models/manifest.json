@@ -2393,14 +2393,14 @@
         ],
         "status": [
           0.0,
-          5.625,
+          12.125,
           0.0
         ]
       },
       "bounds": {
         "max": [
           6.0,
-          5.375,
+          11.875,
           8.0
         ],
         "min": [
@@ -2413,7 +2413,7 @@
         "bounds": {
           "max": [
             6.0,
-            5.375,
+            11.875,
             8.0
           ],
           "min": [
@@ -2423,12 +2423,12 @@
           ]
         },
         "budget": 96000,
-        "bytes": 348668,
+        "bytes": 620136,
         "lite": {
           "bounds": {
             "max": [
               6.0,
-              5.5,
+              11.5,
               8.0
             ],
             "min": [
@@ -2438,14 +2438,14 @@
             ]
           },
           "budget": 7680,
-          "bytes": 36088,
+          "bytes": 85436,
           "path": "cathedral.lite.glb",
-          "sha256": "a6b97da9fdbbd7bf18ad3e4e864b6c24d86ab159defdff52ce149dddbb7dd5d6",
-          "triangles": 988
+          "sha256": "72b5a17fc1f8bb3a0c8b174773fdca86bb402022fb781c090dbd42397878428d",
+          "triangles": 2860
         },
         "path": "cathedral.glb",
-        "sha256": "9f04fee1703e1dee5f7323ee141d1268197300ef9e69ec72add11ebe6ace5c40",
-        "triangles": 10140
+        "sha256": "d85bd3b8f77480e853cdcf76e268614563fc6df1e2dd4b2b98615b1864575879",
+        "triangles": 21448
       },
       "footprint": {
         "h": 16,
@@ -8785,14 +8785,14 @@
         ],
         "status": [
           0.0,
-          5.625,
+          7.875,
           0.0
         ]
       },
       "bounds": {
         "max": [
           6.0,
-          5.375,
+          7.625,
           6.0
         ],
         "min": [
@@ -8805,7 +8805,7 @@
         "bounds": {
           "max": [
             6.0,
-            5.375,
+            7.625,
             6.0
           ],
           "min": [
@@ -8815,12 +8815,12 @@
           ]
         },
         "budget": 72000,
-        "bytes": 289864,
+        "bytes": 575432,
         "lite": {
           "bounds": {
             "max": [
               6.0,
-              5.5,
+              7.0,
               6.0
             ],
             "min": [
@@ -8830,20 +8830,23 @@
             ]
           },
           "budget": 5760,
-          "bytes": 28852,
+          "bytes": 52640,
           "path": "university.lite.glb",
-          "sha256": "2028e99fac4fff817771c8204224f092a0b04dbd028aa855947ee8c309422592",
-          "triangles": 792
+          "sha256": "93722f45a52c68ca265e6aad2bfe3dab0d387a80d5a10875d8605f934f9b8956",
+          "triangles": 1586
         },
         "path": "university.glb",
-        "sha256": "06266032de68df420cc7bff636f49026e67cec8c2e6e080722038ab6fc5c7f60",
-        "triangles": 8558
+        "sha256": "efa3b039c3ee20f4ffd0b928bb0c4ef3fffb5cf0d7ff1ecb15c8bdb9770c1efd",
+        "triangles": 19944
       },
       "footprint": {
         "h": 12,
         "w": 12
       },
-      "kind": "building"
+      "kind": "building",
+      "sway": [
+        "cloth"
+      ]
     },
     "vine_row": {
       "anchors": {
@@ -9643,10 +9646,7 @@
     }
   },
   "palette_sha256": "9cbacc44b66c0a6e54c8273c76df7a88f12f1ff98924f122f7508f1b62712a1a",
-  "placeholders": [
-    "cathedral",
-    "university"
-  ],
+  "placeholders": [],
   "version": 1,
   "voxels_per_tile": 8
 }
