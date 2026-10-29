@@ -19,6 +19,30 @@ describe("almanac rendering", () => {
     expect(out).not.toMatch(/undefined|NaN|\[object/);
   });
 
+  it("renders every building once on the buildings page and links goods to their pages", () => {
+    const out = html({ section: "buildings" });
+    for (const b of content.buildings) expect(out.split(`id="building-${b.id}"`).length - 1, b.id).toBe(1);
+    expect(out).toContain('href="/almanac/goods/planks"');
+    expect(out).toContain("Footprint");
+  });
+
+  it("renders a building page with levels and fields", () => {
+    expect(html({ section: "buildings", id: "trading_post" })).toContain("Berths");
+    const farm = html({ section: "buildings", id: "wheat_farm" });
+    expect(farm).toContain("Fields");
+    expect(farm).toContain("140 needed");
+  });
+
+  it("renders a good page with producers, consumers and the upstream chain", () => {
+    const out = html({ section: "goods", id: "bread" });
+    expect(out).toContain("Chain upstream");
+    expect(out).toContain("raw");
+    expect(out).toContain("Wheat");
+    expect(html({ section: "goods", id: "planks" })).toContain("construction");
+    expect(html({ section: "goods", id: "nonsense" })).toContain("There is no good");
+    for (const g of content.goods) expect(html({ section: "goods" })).toContain(`href="/almanac/goods/${g.id}"`);
+  });
+
   it("survives content without optional parts", () => {
     const empty = { region: {}, quests: [], tiers: [], goods: [], buildings: [], needs: [], need_categories: [], ships: [], size_classes: [] } as never;
     expect(renderToStaticMarkup(createElement(AlmanacView, { content: empty, route: { section: "overview" } }))).toContain("Overview");

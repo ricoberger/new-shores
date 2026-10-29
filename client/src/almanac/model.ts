@@ -437,7 +437,7 @@ export function goodView(idx: Index, g: ContentGood): GoodView {
 export interface ChainNode {
   good: string;
   /** Producer branches; empty for a raw good (or at the depth limit / on a cycle). */
-  via: { building: string; perMin: number; inputs: { goods: ChainNode[]; perMin: number }[] }[];
+  via: { building: string; perMin: number; site: string[]; inputs: { goods: ChainNode[]; perMin: number }[] }[];
   /** True when the node stopped because the good already appears above it. */
   cycle?: boolean;
 }
@@ -452,6 +452,11 @@ export function chain(idx: Index, good: string, path: string[] = [], depth = 8):
     via: idx.producers(good).map((b) => ({
       building: b.id,
       perMin: perMinute(b.recipe?.outputs.find((o) => o.good === good)?.amount ?? 0, b.recipe?.cycle_ms ?? 0),
+      site: [
+        ...(b.fields ? idx.modulesOf(b.id).map((m) => `${b.fields?.required} × ${m.name}`) : []),
+        ...(b.requires_deposit ? [`${titleCase(b.requires_deposit)} deposit`] : []),
+        ...(b.work_area?.fertility ? [`${titleCase(b.work_area.fertility)} fertility`] : []),
+      ],
       inputs: (b.recipe?.inputs ?? []).map((i) => ({
         perMin: perMinute(i.amount, b.recipe?.cycle_ms ?? 0),
         goods: (i.goods?.length ? i.goods : [i.good]).map((g) => chain(idx, g, next, depth - 1)),

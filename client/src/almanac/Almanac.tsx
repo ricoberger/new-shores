@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import { getContent, type Content } from "../api/client";
 import styles from "./almanac.module.css";
+import { Buildings } from "./Buildings";
+import { Goods } from "./Goods";
 import { Overview } from "./Overview";
 import { buildIndex, search, searchEntries, type Index, type SectionId } from "./model";
 import { A } from "./parts";
@@ -9,6 +11,8 @@ import { navigate, SECTIONS, routePath, useRoute, type Route } from "./route";
 /** Pages by section; a section without a page is not listed in the navigation. */
 const PAGES: Partial<Record<SectionId, ComponentType<{ idx: Index; id?: string }>>> = {
   overview: Overview,
+  buildings: Buildings,
+  goods: Goods,
 };
 
 interface ViewProps {
