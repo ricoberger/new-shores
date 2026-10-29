@@ -71,6 +71,17 @@ describe("voxel terrain", () => {
     expect(Math.min(...reds)).toBeLessThan(0.5);
   });
 
+  it("leaves out the corner occlusion of far tops, so a step ring merges into longer rectangles", () => {
+    const f = flat(8, 8);
+    // A one-column rim at +1 step all around the inner 6 × 6: the inner tops differ in occlusion at the edge.
+    for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) if (i === 0 || j === 0 || i === 7 || j === 7) f.h[j * 8 + i] = 1;
+    const shaded = new Builder();
+    meshField(shaded, f, 0, 0, 8, 8);
+    const plain = new Builder();
+    meshField(plain, { ...f, flatTops: true }, 0, 0, 8, 8);
+    expect(tris(plain)).toBeLessThan(tris(shaded));
+  });
+
   it("steps the coast down: beach rim, sand shelf, wet sand line; grass meets the shelf at full height", () => {
     const at = (terrain: string[]) => {
       const island = { width: 5, height: 5, terrain } as never;
