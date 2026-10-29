@@ -3,19 +3,42 @@ package archipelago
 import "slices"
 
 // Rivers (D-058 part 3): from a source on the ridge spine downhill to a
-// mouth in a concave stretch of beach, one tile wide, two at the mouth;
-// river tiles are water inside the land that a road crosses as a bridge.
+// mouth in a concave stretch of beach, one tile wide, widening to an
+// estuary; river tiles are water inside the land that a road crosses as
+// a bridge.
+
+// riverMinPct is the minimum length of a river, percent of the island's
+// span (the longer side of its bounding box).
+const riverMinPct = 40
 
 // riverTries bounds the source/mouth pairs tried per river.
-const riverTries = 12
+const riverTries = 20
 
-// rivers draws up to count rivers and returns their paths (source to
-// mouth; widened mouth tiles appended as -1-index).
-func (g *grid) rivers(r *rng, count, size int, dist, sea []int) [][]int {
+// river is one river: the main path from the source to the mouth and the
+// estuary tiles beside it (of: the main index each one widens).
+type river struct {
+	main     []int
+	side, of []int
+}
+
+// rivers draws up to count rivers (D-058 part 3, round 2): from a source
+// high on the massif along the cheapest noisy downhill path to a concave
+// beach at least 40 % of the island's span long, smoothed and given a
+// gentle low-frequency meander; the last 6-10 tiles widen to an estuary
+// of two to three tiles and the mouth opens into a small bay.
+func (g *grid) rivers(r *rng, count, size int, dist, sea []int) []river {
 	if count == 0 {
 		return nil
 	}
 	n := g.n
+	x0, y0, x1, y1 := n, n, 0, 0
+	for i, t := range g.t {
+		if t != tWater {
+			x0, y0, x1, y1 = min(x0, i%n), min(y0, i/n), max(x1, i%n), max(y1, i/n)
+		}
+	}
+	span := max(x1-x0, y1-y0) + 1
+	minLen := span * riverMinPct / 100
 	// Concavity of the beach: land tiles in a window around a coast tile
 	// (a bay has more land around it than a cape).
 	rad := max(4, size/16)
@@ -52,11 +75,11 @@ func (g *grid) rivers(r *rng, count, size int, dist, sea []int) [][]int {
 	meander := newFBM(r, n, max(4, size/8), size*3*10/100, 3)
 	wiggle := newNoise(r, n, max(3, size/24), 30)
 	inBay := make([]bool, len(g.t))
-	for _, i := range coast[:max(1, len(coast)*20/100)] {
+	for _, i := range coast[:max(1, len(coast)*25/100)] {
 		inBay[i] = true
 	}
 	near := make([]bool, len(g.t))
-	var out [][]int
+	var out []river
 	for range count {
 		for range riverTries {
 			source, ok := g.pick(r, func(i int) bool {
@@ -66,14 +89,13 @@ func (g *grid) rivers(r *rng, count, size int, dist, sea []int) [][]int {
 				break
 			}
 			cost, from := g.riverCosts(source, dist, sea, near, inBay, meander, wiggle)
-			// The mouth: one of the cheapest bays at least size/5 away.
 			var bays []int
 			for _, i := range coast {
 				apart := true
 				for _, o := range out {
-					apart = apart && cheb(i, o[0], n) >= size/4 && cheb(i, mouthOf(o), n) >= size/4
+					apart = apart && cheb(i, o.main[0], n) >= size/4 && cheb(i, o.main[len(o.main)-1], n) >= size/4
 				}
-				if inBay[i] && cost[i] >= 0 && !near[i] && apart && cheb(i, source, n) >= size/4 {
+				if inBay[i] && cost[i] >= 0 && !near[i] && apart && cheb(i, source, n) >= minLen*3/4 {
 					bays = append(bays, i)
 				}
 			}
@@ -86,7 +108,7 @@ func (g *grid) rivers(r *rng, count, size int, dist, sea []int) [][]int {
 			for i := mouth; i >= 0; i = from[i] {
 				rev = append(rev, i)
 			}
-			if len(rev) < size/6 {
+			if g.pathLen(rev) < minLen {
 				continue
 			}
 			path := make([]int, len(rev))
@@ -95,21 +117,20 @@ func (g *grid) rivers(r *rng, count, size int, dist, sea []int) [][]int {
 			}
 			onCurve := func(i int) bool {
 				t := g.t[i]
-				return !near[i] && (t == tGrass || t == tMountain) && dist[i] >= 2
+				return !near[i] && !g.harbour[i] && (t == tGrass || t == tMountain) && dist[i] >= 2
 			}
-			for _, sway := range [3]int{3, 6, 0} {
-				if c := g.curve(r, path, sway, onCurve); c != nil {
+			amp := max(2, size/20)
+			for _, a := range [4]int{amp, amp * 2 / 3, amp / 3, 0} {
+				if c := g.meander(r, path, a, onCurve); c != nil {
 					path = c
 					break
 				}
 			}
-			path = g.widenMouth(path)
-			for _, i := range path {
-				if i < 0 {
-					i = -1 - i
-				}
-				g.t[i] = tRiver
-				g.hgt[i] = 0
+			if g.pathLen(path) < minLen {
+				continue
+			}
+			rv := g.estuary(r, river{main: path})
+			for _, i := range append(slices.Clone(rv.main), rv.side...) {
 				x, y := i%n, i/n
 				for dy := -2; dy <= 2; dy++ {
 					for dx := -2; dx <= 2; dx++ {
@@ -119,11 +140,114 @@ func (g *grid) rivers(r *rng, count, size int, dist, sea []int) [][]int {
 					}
 				}
 			}
-			out = append(out, path)
+			out = append(out, rv)
 			break
 		}
 	}
 	return out
+}
+
+// pathLen approximates the length in tiles of a 4-connected path: the
+// straight distances between every fourth tile (a staircase counts as its
+// diagonal).
+func (g *grid) pathLen(path []int) int {
+	n := g.n
+	l2 := 0 // x16
+	for k := 0; k < len(path)-1; k += 4 {
+		a, b := path[k], path[min(k+4, len(path)-1)]
+		dx, dy := (a%n-b%n)*16, (a/n-b/n)*16
+		l2 += isqrt(dx*dx + dy*dy)
+	}
+	return l2 / 16
+}
+
+// estuary widens the last 6-10 tiles of a river to two tiles (the last
+// half of them to three), turns them into river tiles and opens the mouth
+// into a small bay: a disc of radius 2-3 around the mouth becomes sea,
+// the land around it beach (cliff beside mountains).
+func (g *grid) estuary(r *rng, rv river) river {
+	n := g.n
+	k := len(rv.main)
+	l := min(r.between(6, 10), k-2)
+	free := func(j int) bool {
+		t := g.t[j]
+		return (t == tGrass || t == tCoast || t == tForest) && !slices.Contains(rv.main, j) && !slices.Contains(rv.side, j)
+	}
+	sideA := r.intn(2)
+	for m := k - l; m < k; m++ {
+		a, b := rv.main[m-1], rv.main[m]
+		fx, fy := b%n-a%n, b/n-a/n
+		for s := range 2 {
+			if s != sideA && m < k-l/2 {
+				continue
+			}
+			px, py := -fy, fx
+			if s == 1 {
+				px, py = fy, -fx
+			}
+			x, y := b%n+px, b/n+py
+			if g.in(x, y) && free(y*n+x) {
+				rv.side = append(rv.side, y*n+x)
+				rv.of = append(rv.of, m)
+			}
+		}
+	}
+	for _, i := range rv.main {
+		g.t[i], g.hgt[i] = tRiver, 0
+	}
+	for _, i := range rv.side {
+		g.t[i], g.hgt[i] = tRiver, 0
+	}
+	// The mouth bay.
+	mouth := rv.main[k-1]
+	rad := r.between(2, 3)
+	mx, my := mouth%n, mouth/n
+	sea := make([]bool, len(g.t))
+	for y := my - rad; y <= my+rad; y++ {
+		for x := mx - rad; x <= mx+rad; x++ {
+			if !g.in(x, y) || (x-mx)*(x-mx)+(y-my)*(y-my) > rad*rad+rad {
+				continue
+			}
+			i := y*n + x
+			if t := g.t[i]; t != tWater && t != tCliff && t != tMountain {
+				g.t[i], g.hgt[i], g.lvl[i] = tWater, 0, 0
+				sea[i] = true
+			}
+		}
+	}
+	keep := func(list []int) []int {
+		return slices.DeleteFunc(list, func(i int) bool { return sea[i] })
+	}
+	// Estuary tiles beside a main tile the bay took turn to beach.
+	var side, of []int
+	for k, i := range rv.side {
+		switch {
+		case sea[i]:
+		case sea[rv.main[rv.of[k]]]:
+			g.t[i], g.lvl[i] = tCoast, 0
+		default:
+			side, of = append(side, i), append(of, rv.of[k])
+		}
+	}
+	rv.side, rv.of = side, of
+	rv.main = keep(rv.main)
+	for k, m := range rv.of {
+		rv.of[k] = min(m, len(rv.main)-1)
+	}
+	for i := range g.t {
+		if g.t[i] != tGrass && g.t[i] != tForest {
+			continue
+		}
+		x, y := i%n, i/n
+		for dy := -1; dy <= 1; dy++ {
+			for dx := -1; dx <= 1; dx++ {
+				if g.in(x+dx, y+dy) && sea[(y+dy)*n+x+dx] {
+					g.t[i], g.lvl[i] = tCoast, 0
+				}
+			}
+		}
+	}
+	return rv
 }
 
 // touches4 reports whether tile i has a 4-neighbour of terrain t.
@@ -135,16 +259,6 @@ func (g *grid) touches4(i int, t byte) bool {
 		}
 	}
 	return false
-}
-
-// mouthOf returns the mouth tile of a river path (its last main tile).
-func mouthOf(path []int) int {
-	for k := len(path) - 1; k >= 0; k-- {
-		if path[k] >= 0 {
-			return path[k]
-		}
-	}
-	return path[0]
 }
 
 func cheb(a, b, n int) int { return max(abs(a%n-b%n), abs(a/n-b/n)) }
@@ -179,7 +293,7 @@ func (g *grid) riverCosts(source int, dist, sea []int, near, bay []bool, meander
 			}
 			j := ny*n + nx
 			t := g.t[j]
-			if near[j] || (!bay[j] && ((t != tGrass && t != tMountain) || dist[j] < 2)) {
+			if near[j] || g.harbour[j] || (!bay[j] && ((t != tGrass && t != tMountain) || dist[j] < 2)) {
 				continue
 			}
 			// Downhill on the noisy height (the distance to the sea plus
@@ -208,37 +322,70 @@ func (g *grid) riverCosts(source int, dist, sea []int, near, bay []bool, meander
 	return cost, from
 }
 
-// curve smooths a river path into a winding curve: control points every
-// 7 tiles (stride), shifted sideways at random, joined by a Catmull-Rom
-// spline and rasterised 4-connected. Control points move up to
-// stride/sway tiles (sway 0: not at all). The source and the mouth
-// stay; nil when a curve tile is not ok (interior) or the curve fails to
+// meander smooths a river path and gives it a gentle meander: the path
+// (tile centres) is averaged over seventeen tiles, shifted sideways by
+// low-frequency value noise of up to amp tiles along its length (zero at
+// the source and the mouth), sampled every six tiles and joined by a
+// Catmull-Rom spline rasterised 4-connected. The source and the mouth
+// stay; nil when a curve tile is not ok (interior) or the curve does not
 // stay a simple chain.
-func (g *grid) curve(r *rng, path []int, sway int, ok func(i int) bool) []int {
+func (g *grid) meander(r *rng, path []int, amp int, ok func(i int) bool) []int {
 	n := g.n
-	const stride = 7
-	if len(path) < 2*stride {
+	const stride = 6
+	k := len(path)
+	if k < 3*stride {
 		return nil
 	}
 	type pt struct{ x, y int } // x16
+	px, py := make([]int, k), make([]int, k)
+	for m, i := range path {
+		px[m], py[m] = (i%n)*16+8, (i/n)*16+8
+	}
+	sx, sy := make([]int, k), make([]int, k)
+	for m := range k {
+		a, b := max(0, m-8), min(k-1, m+8)
+		w := min(m-a, b-m) // symmetric window: the ends stay
+		for j := m - w; j <= m+w; j++ {
+			sx[m] += px[j]
+			sy[m] += py[j]
+		}
+		sx[m] /= 2*w + 1
+		sy[m] /= 2*w + 1
+	}
+	// Lateral offset noise along the path: lattice every cell tiles.
+	cell := max(12, min(24, k/3))
+	lat := make([]int, k/cell+3)
+	for j := range lat {
+		lat[j] = r.between(-amp*16, amp*16)
+	}
+	offset := func(m int) int {
+		j, f := m/cell, (m%cell)*1024/cell
+		s := smoothstep(f)
+		v := (lat[j]*(1024-s) + lat[j+1]*s) / 1024
+		taper := min(m, k-1-m, stride) // ramps in over the first and last tiles
+		return v * taper / stride
+	}
 	var ctl []pt
-	for k := 0; k < len(path); k += stride {
-		i := path[k]
-		x, y := (i%n)*16+8, (i/n)*16+8
-		if k > 0 && sway > 0 {
-			x += r.between(-stride*16/sway, stride*16/sway)
-			y += r.between(-stride*16/sway, stride*16/sway)
+	for m := 0; m < k; m += stride {
+		x, y := sx[m], sy[m]
+		if m > 0 {
+			a, b := max(0, m-3), min(k-1, m+3)
+			tx, ty := sx[b]-sx[a], sy[b]-sy[a]
+			if l := isqrt(tx*tx + ty*ty); l > 0 {
+				o := offset(m)
+				x, y = x-ty*o/l, y+tx*o/l
+			}
 		}
 		ctl = append(ctl, pt{x, y})
 	}
-	last := path[len(path)-1]
+	last := path[k-1]
 	end := pt{(last%n)*16 + 8, (last/n)*16 + 8}
-	if len(path)%stride == 1 {
+	if (k-1)%stride == 0 {
 		ctl[len(ctl)-1] = end
 	} else {
 		ctl = append(ctl, end)
 	}
-	at := func(k int) pt { return ctl[min(max(k, 0), len(ctl)-1)] }
+	at := func(j int) pt { return ctl[min(max(j, 0), len(ctl)-1)] }
 	var out []int
 	add := func(x, y int) bool {
 		if !g.in(x, y) {
@@ -247,15 +394,18 @@ func (g *grid) curve(r *rng, path []int, sway int, ok func(i int) bool) []int {
 		i := y*n + x
 		if len(out) > 0 {
 			p := out[len(out)-1]
-			px, py := p%n, p/n
+			qx, qy := p%n, p/n
 			if p == i {
 				return true
 			}
-			if px != x && py != y {
+			if abs(qx-x) > 1 || abs(qy-y) > 1 {
+				return false
+			}
+			if qx != x && qy != y {
 				// A diagonal step: go round the corner that is ok.
-				c := py*n + x
+				c := qy*n + x
 				if !ok(c) {
-					c = y*n + px
+					c = y*n + qx
 				}
 				out = append(out, c)
 			}
@@ -263,11 +413,10 @@ func (g *grid) curve(r *rng, path []int, sway int, ok func(i int) bool) []int {
 		out = append(out, i)
 		return true
 	}
-	for k := 0; k+1 < len(ctl); k++ {
-		p0, p1, p2, p3 := at(k-1), at(k), at(k+1), at(k+2)
+	for j := 0; j+1 < len(ctl); j++ {
+		p0, p1, p2, p3 := at(j-1), at(j), at(j+1), at(j+2)
 		const steps = 64
 		for s := 0; s < steps; s++ {
-			// Catmull-Rom with t = s/steps.
 			t := s * 1024 / steps
 			t2 := t * t / 1024
 			t3 := t2 * t / 1024
@@ -283,68 +432,31 @@ func (g *grid) curve(r *rng, path []int, sway int, ok func(i int) bool) []int {
 		return nil
 	}
 	// The curve must run from the source to the mouth through ok tiles,
-	// 4-connected, without revisiting a tile.
-	seen := map[int]bool{}
-	pos := map[int]int{}
-	for k, i := range out {
-		pos[i] = k
+	// 4-connected, without touching itself.
+	pos := make(map[int]int, len(out))
+	for m, i := range out {
+		if _, dup := pos[i]; dup {
+			return nil
+		}
+		pos[i] = m
 	}
-	for k, i := range out {
-		// No touching itself: a 4-neighbour on the curve is the previous
-		// or next tile.
+	for m, i := range out {
 		for _, d := range dirs4() {
 			if g.in(i%n+d[0], i/n+d[1]) {
-				if m, on := pos[i+d[1]*n+d[0]]; on && abs(m-k) > 1 {
+				if o, on := pos[i+d[1]*n+d[0]]; on && abs(o-m) > 1 {
 					return nil
 				}
 			}
 		}
-		if seen[i] || (k > 0 && k < len(out)-1 && !ok(i)) {
+		if m > 0 && m < len(out)-1 && !ok(i) {
 			return nil
 		}
-		if k > 0 && abs(i%n-out[k-1]%n)+abs(i/n-out[k-1]/n) != 1 {
+		if m > 0 && abs(i%n-out[m-1]%n)+abs(i/n-out[m-1]/n) != 1 {
 			return nil
 		}
-		seen[i] = true
 	}
 	if out[0] != path[0] {
 		return nil
-	}
-	return out
-}
-
-// widenMouth makes the last three tiles of a path two wide: each gets its
-// neighbour on one side (perpendicular to the flow, the same side for
-// all) when that is grass or beach; the added tiles are appended as
-// -1-index.
-func (g *grid) widenMouth(path []int) []int {
-	n := g.n
-	k := len(path)
-	if k < 4 {
-		return path
-	}
-	out := path
-	for side := range 2 {
-		var add []int
-		for m := k - 3; m < k; m++ {
-			a, b := path[m-1], path[m]
-			fx, fy := b%n-a%n, b/n-a/n
-			px, py := -fy, fx
-			if side == 1 {
-				px, py = fy, -fx
-			}
-			x, y := b%n+px, b/n+py
-			if !g.in(x, y) {
-				continue
-			}
-			j := y*n + x
-			if (g.t[j] == tGrass || g.t[j] == tCoast) && !g.inPlain(x, y, 0) {
-				add = append(add, -1-j)
-			}
-		}
-		if len(add) >= 2 {
-			return append(out, add...)
-		}
 	}
 	return out
 }

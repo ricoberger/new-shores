@@ -32,6 +32,9 @@ type grid struct {
 	lvl, hgt []int
 	// plain is the reserved plain square (x, y, side; side 0: none).
 	plain [3]int
+	// harbour marks the stretches of coast kept as straight beach for
+	// harbour sites (no notches, no cliff); nil for rocks.
+	harbour []bool
 	// dep holds the deposit slot (1-based index into slots) per tile, 0 for
 	// none; nil until placeSlots places one.
 	dep   []int
@@ -498,11 +501,10 @@ func (g *grid) landing(r *rng) bool {
 	return true
 }
 
-// Shape parameters (percent): land of the size x size extent, mountain and
-// forest shares of the land.
+// Shape parameters (percent): land of the size x size extent of rocks,
+// mountain and forest shares of the land (habitable islands use the
+// bounds in habitable.go).
 const (
-	landMinPct     = 44
-	landMaxPct     = 60
 	rockMinPct     = 70
 	rockMaxPct     = 100
 	mountainMinPct = 4

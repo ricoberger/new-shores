@@ -55,14 +55,33 @@ func (v *view) free(x, y int) bool {
 	return v.open(x, y) && (!v.f.spareForest || v.is.Tile(x, y).Terrain != content.TerrainForest)
 }
 
-// passable reports whether a road may run over a tile: free land or a
-// river tile without a road or building (a bridge, D-058 part 3).
-func (v *view) passable(x, y int) bool {
+// step returns the tiles a road takes from (x, y) in direction d: the next
+// tile when land is ok there, or a straight bridge over one or two free
+// river tiles with ok land behind it (D-058 part 3: a road crosses a river
+// straight, never along it); nil when neither.
+func (v *view) step(x, y int, d [2]int, land func(x, y int) bool) []int {
 	is := v.is
-	if v.free(x, y) {
-		return true
+	var out []int
+	for k := 1; k <= 3; k++ {
+		nx, ny := x+d[0]*k, y+d[1]*k
+		if !is.InBounds(nx, ny) {
+			return nil
+		}
+		if land(nx, ny) {
+			return append(out, ny*is.Width+nx)
+		}
+		if k == 3 || is.Tile(nx, ny).Terrain != content.TerrainRiver || is.RoadAt(nx, ny) != "" || v.occ[ny*is.Width+nx] != 0 {
+			return nil
+		}
+		// No road beside the bridge (it would run along the river).
+		for _, s := range [2]int{-1, 1} {
+			if sx, sy := nx+d[1]*s, ny+d[0]*s; is.InBounds(sx, sy) && is.RoadAt(sx, sy) != "" {
+				return nil
+			}
+		}
+		out = append(out, ny*is.Width+nx)
 	}
-	return is.InBounds(x, y) && is.Tile(x, y).Terrain == content.TerrainRiver && is.RoadAt(x, y) == "" && v.occ[y*is.Width+x] == 0
+	return nil
 }
 
 // coversForest reports whether a footprint covers a forest tile.
@@ -484,7 +503,7 @@ func (f *fixture) roadPath(island string, x, y, w, h int) ([]sim.Pos, bool) {
 		}
 	}
 	v := f.view(is)
-	freeAt := func(px, py int) bool { return !inRect(px, py) && v.passable(px, py) }
+	freeAt := func(px, py int) bool { return !inRect(px, py) && v.free(px, py) }
 	if len(queue) == 0 {
 		if tp := f.tradingPost(island); tp != nil {
 			tw, th := dims(f.c.BuildingByID[tp.Type], tp.Rotation)
@@ -523,15 +542,17 @@ func (f *fixture) roadPath(island string, x, y, w, h int) ([]sim.Pos, bool) {
 		}
 		px, py := i%is.Width, i/is.Width
 		for _, d := range [4][2]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
-			nx, ny := px+d[0], py+d[1]
-			if !freeAt(nx, ny) {
+			run := v.step(px, py, d, freeAt)
+			if len(run) == 0 || slices.ContainsFunc(run, func(j int) bool { return prev[j] != -2 }) {
 				continue
 			}
-			j := ny*is.Width + nx
-			if prev[j] == -2 {
+			for k, j := range run {
 				prev[j] = i
-				queue = append(queue, j)
+				if k > 0 {
+					prev[j] = run[k-1]
+				}
 			}
+			queue = append(queue, run[len(run)-1])
 		}
 	}
 	return nil, false
@@ -539,7 +560,7 @@ func (f *fixture) roadPath(island string, x, y, w, h int) ([]sim.Pos, bool) {
 
 // reachable marks the tiles a road from the island's network (or, without
 // roads, from next to its Trading Post) can reach: road tiles and free
-// tiles connected to them.
+// tiles connected to them by land or straight bridges.
 func (f *fixture) reachable(island string) []bool {
 	is := f.w.Island(island)
 	v := f.view(is)
@@ -565,11 +586,12 @@ func (f *fixture) reachable(island string) []bool {
 	for k := 0; k < len(queue); k++ {
 		px, py := queue[k]%is.Width, queue[k]/is.Width
 		for _, d := range [4][2]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
-			nx, ny := px+d[0], py+d[1]
-			if v.passable(nx, ny) && !out[ny*is.Width+nx] {
-				out[ny*is.Width+nx] = true
-				queue = append(queue, ny*is.Width+nx)
+			run := v.step(px, py, d, v.free)
+			if len(run) == 0 || out[run[len(run)-1]] {
+				continue
 			}
+			out[run[len(run)-1]] = true // bridge tiles stay unmarked
+			queue = append(queue, run[len(run)-1])
 		}
 	}
 	return out

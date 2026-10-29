@@ -161,8 +161,8 @@ func buildableTerrain(t string) bool {
 	return t == content.TerrainCoast || t == content.TerrainGrass || t == content.TerrainForest
 }
 
-// plainReach finds the plains (side x side squares of grass/forest, D-058
-// part 1) and returns whether a footprint reaches one by land or bridges:
+// plainReach finds the plains (side x side squares of grass/forest on one
+// level, D-058 part 1) and returns whether a footprint reaches one by land or bridges:
 // one of its buildable tiles lies in a bridge component of a plain. ok is
 // false without a plain; side 0 needs none (every footprint reaches).
 func plainReach(is *sim.Island, side int) (func(Rect) bool, bool) {
@@ -182,7 +182,7 @@ func plainReach(is *sim.Island, side int) (func(Rect) bool, bool) {
 				continue
 			}
 			dp[i] = 1
-			if x > 0 && y > 0 {
+			if l := is.Tiles[i].Level; x > 0 && y > 0 && is.Tiles[i-1].Level == l && is.Tiles[i-w].Level == l && is.Tiles[i-w-1].Level == l {
 				dp[i] = 1 + min(dp[i-1], dp[i-w], dp[i-w-1])
 			}
 			if dp[i] >= side {

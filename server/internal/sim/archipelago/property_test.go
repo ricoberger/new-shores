@@ -153,8 +153,8 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 }
 
 // checkShape restates the D-058 shape rules of a habitable island: a
-// plain of the class's side; river and islet counts in range; islets of
-// 1-8 tiles at least two water tiles off the land; levels within range
+// plain of the class's side on one level; river and islet counts in
+// range; islets of 1-15 tiles at least two water tiles off the land; levels within range
 // and 0 on beaches; cliffs on the coast ring (next to the sea); deposits
 // on mountain tiles at the foot (next to buildable land); two disjoint
 // Trading Post sites and a shipyard site that reach the plain by land or
@@ -177,7 +177,7 @@ func checkShape(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island,
 		fail("%d islets, want %v", len(islets), sh.Islets)
 	}
 	for _, isl := range islets {
-		if len(isl) < 1 || len(isl) > 8 {
+		if len(isl) < 1 || len(isl) > 15 {
 			fail("islet of %d tiles", len(isl))
 		}
 		for _, i := range isl {
@@ -233,7 +233,8 @@ func checkShape(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island,
 	}
 }
 
-// largestSquare returns the side of the largest square of grass/forest.
+// largestSquare returns the side of the largest square of grass/forest
+// on one level.
 func largestSquare(is *sim.Island) int {
 	w := is.Width
 	dp := make([]int, len(is.Tiles))
@@ -243,7 +244,7 @@ func largestSquare(is *sim.Island) int {
 			continue
 		}
 		dp[i] = 1
-		if i%w > 0 && i >= w {
+		if l := tile.Level; i%w > 0 && i >= w && is.Tiles[i-1].Level == l && is.Tiles[i-w].Level == l && is.Tiles[i-w-1].Level == l {
 			dp[i] = 1 + min(dp[i-1], dp[i-w], dp[i-w-1])
 		}
 		best = max(best, dp[i])

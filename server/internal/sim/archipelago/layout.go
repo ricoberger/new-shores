@@ -19,7 +19,8 @@ func Gap2(a, b *sim.Island) int {
 // layoutTries bounds the candidate positions per island.
 const layoutTries = 400
 
-// layout places the islands (the largest first) one by one next to a
+// layout places the islands (the home candidate, then the largest first)
+// one by one next to a
 // random placed anchor: every candidate keeps the minimum gap to all
 // placed islands and is within the nearest-neighbour maximum of its
 // anchor, so every island has a neighbour in reach; of up to eight valid
@@ -30,7 +31,9 @@ func layout(r *rng, islands []*sim.Island, rules *content.IslandRules) error {
 	for i := range order {
 		order[i] = i
 	}
-	slices.SortStableFunc(order, func(a, b int) int { return islands[b].Width*islands[b].Height - islands[a].Width*islands[a].Height })
+	// The home candidate (islands[0]) goes first: it lies in the
+	// archipelago's core, next to the start ship's spawn.
+	slices.SortStableFunc(order[1:], func(a, b int) int { return islands[b].Width*islands[b].Height - islands[a].Width*islands[a].Height })
 	minGap, maxGap := rules.SpacingMin, rules.NearestMax
 	reach := (minGap + maxGap) / 2
 	var placed []*sim.Island

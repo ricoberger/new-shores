@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -62,8 +63,9 @@ func TestTerrainD058RoundTrip(t *testing.T) {
 }
 
 // TestTerrainD058Rules: buildings and fields stay off rivers, islets and
-// cliffs; a road may cross a river (a bridge, D-058 part 3) but not an
-// islet or a cliff.
+// cliffs; a road may cross a river (a bridge, D-058 part 3) straight
+// over at most two river tiles, never along it, and not an islet or a
+// cliff.
 func TestTerrainD058Rules(t *testing.T) {
 	c := catalogue(t)
 	tests := []struct {
@@ -75,6 +77,7 @@ func TestTerrainD058Rules(t *testing.T) {
 		{"road on an islet", PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{19, 0}}}, ErrTerrain},
 		{"road on a cliff", PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{18, 1}}}, ErrTerrain},
 		{"bridge", PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{9, 6}, {10, 6}, {11, 6}}}, nil},
+		{"road along a river", PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{10, 6}, {10, 7}}}, ErrTerrain},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -84,8 +87,34 @@ func TestTerrainD058Rules(t *testing.T) {
 			}
 		})
 	}
-	// A building cannot stand on a bridge, and the road keeps working.
+	// Bridges span at most two river tiles; a road joining a bridge from
+	// the side (along the river) is refused, the bridge stays.
+	for _, tt := range []struct {
+		wide int
+		want error
+	}{{2, nil}, {3, ErrTerrain}} {
+		w := d058World(t, c)
+		is := w.Islands[0]
+		for x := 10; x < 10+tt.wide; x++ {
+			for y := 5; y <= 8; y++ {
+				is.Tiles[is.index(x, y)].Terrain = content.TerrainRiver
+			}
+		}
+		var tiles []Pos
+		for x := 9; x <= 10+tt.wide; x++ {
+			tiles = append(tiles, Pos{X: x, Y: 6})
+		}
+		if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: tiles}); !errors.Is(err, tt.want) || (err != nil && !strings.Contains(err.Error(), "bridge")) {
+			t.Errorf("bridge over %d river tiles: %v, want %v", tt.wide, err, tt.want)
+		}
+	}
 	w := d058World(t, c)
+	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{9, 6}, {10, 6}, {11, 6}}})
+	if err := Apply(w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{10, 7}}}); !errors.Is(err, ErrTerrain) {
+		t.Errorf("road beside a bridge on the river: %v", err)
+	}
+	// A building cannot stand on a bridge, and the road keeps working.
+	w = d058World(t, c)
 	mustApply(t, w, c, PlaceRoad{IslandID: "main", Type: "road_dirt", Tiles: []Pos{{10, 7}}})
 	if err := Apply(w, c, PlaceBuilding{IslandID: "main", Type: "sawmill", X: 10, Y: 6}); !errors.Is(err, ErrTerrain) {
 		t.Errorf("building over a bridge: %v", err)

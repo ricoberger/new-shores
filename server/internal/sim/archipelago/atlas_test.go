@@ -175,6 +175,11 @@ func outline(img *image.RGBA, x0, y0, x1, y1, w int, c color.RGBA) {
 type islandStats struct {
 	buildable, plain, rivers, islets, mountain, cliff, coast, land int
 	levels                                                         [3]int
+	// cliffShore and beachShore count the cliff and beach tiles next to
+	// the sea; riverReach is the shortest river's reach (bounding box
+	// diagonal) in percent of the island's span; isletMax the largest
+	// islet.
+	cliffShore, beachShore, riverReach, isletMax int
 }
 
 func statsOf(is *sim.Island) islandStats {
@@ -200,32 +205,42 @@ func statsOf(is *sim.Island) islandStats {
 			s.levels[min(t.Level, 2)]++
 		}
 	}
-	s.plain = largestPlain(is)
-	s.rivers = countComponents(is, content.TerrainRiver)
-	s.islets = countComponents(is, content.TerrainIslet)
-	return s
-}
-
-// largestPlain returns the side of the largest square of grass/forest.
-func largestPlain(is *sim.Island) int {
-	w, h := is.Width, is.Height
-	dp := make([]int, w*h)
-	best := 0
-	for y := range h {
-		for x := range w {
-			t := is.Tiles[y*w+x].Terrain
-			if t != content.TerrainGrass && t != content.TerrainForest {
-				continue
-			}
-			v := 1
-			if x > 0 && y > 0 {
-				v = 1 + min(dp[y*w+x-1], dp[(y-1)*w+x], dp[(y-1)*w+x-1])
-			}
-			dp[y*w+x] = v
-			best = max(best, v)
+	for i, t := range is.Tiles {
+		if !touches(is, i, content.TerrainWater) {
+			continue
+		}
+		switch t.Terrain {
+		case content.TerrainCliff:
+			s.cliffShore++
+		case content.TerrainCoast:
+			s.beachShore++
 		}
 	}
-	return best
+	s.plain = largestSquare(is)
+	s.rivers = countComponents(is, content.TerrainRiver)
+	s.islets = countComponents(is, content.TerrainIslet)
+	x0, y0, x1, y1 := is.Width, is.Height, 0, 0
+	for i, t := range is.Tiles {
+		if t.Terrain != content.TerrainWater && t.Terrain != content.TerrainIslet {
+			x0, y0, x1, y1 = min(x0, i%is.Width), min(y0, i/is.Width), max(x1, i%is.Width), max(y1, i/is.Width)
+		}
+	}
+	span := max(x1-x0, y1-y0) + 1
+	s.riverReach = -1
+	for _, comp := range islandComponents(is, content.TerrainRiver) {
+		bx0, by0, bx1, by1 := is.Width, is.Height, 0, 0
+		for _, i := range comp {
+			bx0, by0, bx1, by1 = min(bx0, i%is.Width), min(by0, i/is.Width), max(bx1, i%is.Width), max(by1, i/is.Width)
+		}
+		reach := isqrt((bx1-bx0)*(bx1-bx0)+(by1-by0)*(by1-by0)) * 100 / span
+		if s.riverReach < 0 || reach < s.riverReach {
+			s.riverReach = reach
+		}
+	}
+	for _, comp := range islandComponents(is, content.TerrainIslet) {
+		s.isletMax = max(s.isletMax, len(comp))
+	}
+	return s
 }
 
 func countComponents(is *sim.Island, terrain string) int {
@@ -443,6 +458,10 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 		plainMin, plainSum                 int
 		rivers, islets, buildable, coast   map[int]int
 		buildSum, mtnSum, landSum, clifSum int
+		mtnMin, mtnMax                     int // percent of land
+		shoreMin, shoreMax, cliffShore     int // cliff share of the shore, percent
+		shoreSum, reachMin, isletMax       int
+		level2                             map[int]int // level-2 share of land, by tens of percent
 	}
 	per := map[string]*agg{}
 	archAttempts := map[int]int{}
@@ -473,7 +492,8 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 		for _, is := range a.Islands {
 			g := per[is.SizeClass]
 			if g == nil {
-				g = &agg{plainMin: 1 << 30, rivers: map[int]int{}, islets: map[int]int{}, buildable: map[int]int{}, coast: map[int]int{}}
+				g = &agg{plainMin: 1 << 30, rivers: map[int]int{}, islets: map[int]int{}, buildable: map[int]int{}, coast: map[int]int{},
+					mtnMin: 100, shoreMin: 100, reachMin: -1, level2: map[int]int{}}
 				per[is.SizeClass] = g
 			}
 			st := statsOf(is)
@@ -486,6 +506,17 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 			g.mtnSum += st.mountain
 			g.clifSum += st.cliff
 			g.landSum += st.land
+			mp := 100 * (st.mountain + st.cliff) / max(1, st.land)
+			g.mtnMin, g.mtnMax = min(g.mtnMin, mp), max(g.mtnMax, mp)
+			sp := 100 * st.cliffShore / max(1, st.cliffShore+st.beachShore)
+			g.shoreMin, g.shoreMax = min(g.shoreMin, sp), max(g.shoreMax, sp)
+			g.cliffShore += st.cliffShore
+			g.shoreSum += st.cliffShore + st.beachShore
+			if st.riverReach >= 0 && (g.reachMin < 0 || st.riverReach < g.reachMin) {
+				g.reachMin = st.riverReach
+			}
+			g.isletMax = max(g.isletMax, st.isletMax)
+			g.level2[10*st.levels[2]/max(1, st.levels[0]+st.levels[1]+st.levels[2])*10]++
 		}
 	}
 	// Shape retries: rerun buildIsland's loop for the plans of seed 1..min(n, 50).
@@ -538,6 +569,8 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 			sc.ID, g.islands, g.plainMin, g.plainSum/g.islands, sc.Shape.Plain, g.rivers, g.islets,
 			g.buildSum/g.islands, 100*g.buildSum/max(1, g.landSum), 100*g.mtnSum/max(1, g.landSum), 100*g.clifSum/max(1, g.landSum),
 			float64(sum)/float64(max(1, len(tries)-fails)), worst, fails, len(tries))
+		t.Logf("%-6s mountain+cliff %d-%d%% of land | cliff shore %d-%d%% (mean %d%%) | shortest river reach %d%% of span | largest islet %d | level-2 share histogram (%%) %v",
+			sc.ID, g.mtnMin, g.mtnMax, g.shoreMin, g.shoreMax, 100*g.cliffShore/max(1, g.shoreSum), g.reachMin, g.isletMax, g.level2)
 	}
 }
 

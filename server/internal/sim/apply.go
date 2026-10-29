@@ -340,6 +340,65 @@ func checkTiles(is *Island, occ []int64, tiles []Pos, also string) error {
 	return nil
 }
 
+// checkBridges validates the bridges of a road placement (D-058 part 3):
+// every river tile with a road afterwards — the new tiles and the bridges
+// next to them — must be a straight crossing: along one axis the river
+// run through it is at most two tiles long with buildable land at both
+// ends, and the road does not continue sideways from it (no road on the
+// river, or along it, off that axis). A bad bridge is an ErrTerrain (no
+// API error code of its own).
+func checkBridges(is *Island, tiles []Pos) error {
+	added := map[Pos]bool{}
+	for _, p := range tiles {
+		added[p] = true
+	}
+	road := func(x, y int) bool {
+		return is.InBounds(x, y) && (added[Pos{X: x, Y: y}] || is.Roads[is.index(x, y)] != "")
+	}
+	river := func(x, y int) bool {
+		return is.InBounds(x, y) && is.Tiles[is.index(x, y)].Terrain == content.TerrainRiver
+	}
+	land := func(x, y int) bool {
+		return is.InBounds(x, y) && buildableTerrain(is.Tiles[is.index(x, y)].Terrain)
+	}
+	straight := func(x, y int) bool {
+		for _, ax := range [2][2]int{{1, 0}, {0, 1}} {
+			a, b := 0, 0
+			for river(x-(a+1)*ax[0], y-(a+1)*ax[1]) && a < 2 {
+				a++
+			}
+			for river(x+(b+1)*ax[0], y+(b+1)*ax[1]) && b < 2 {
+				b++
+			}
+			if a+b+1 > 2 || !land(x-(a+1)*ax[0], y-(a+1)*ax[1]) || !land(x+(b+1)*ax[0], y+(b+1)*ax[1]) {
+				continue
+			}
+			if !road(x+ax[1], y+ax[0]) && !road(x-ax[1], y-ax[0]) {
+				return true
+			}
+		}
+		return false
+	}
+	check := map[Pos]bool{}
+	for _, p := range tiles {
+		for _, d := range [5][2]int{{0, 0}, {0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
+			q := Pos{X: p.X + d[0], Y: p.Y + d[1]}
+			if river(q.X, q.Y) && road(q.X, q.Y) {
+				check[q] = true
+			}
+		}
+	}
+	for _, p := range tiles { // command order: the first bad tile is reported
+		for _, d := range [5][2]int{{0, 0}, {0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
+			q := Pos{X: p.X + d[0], Y: p.Y + d[1]}
+			if check[q] && !straight(q.X, q.Y) {
+				return fmt.Errorf("%w: (%d,%d) is a river a bridge crosses only straight over at most two tiles", ErrTerrain, q.X, q.Y)
+			}
+		}
+	}
+	return nil
+}
+
 // checkCost validates that gold and the island's materials cover n times the
 // cost.
 func checkCost(w *World, is *Island, cost content.Cost, n int64) error {
@@ -649,6 +708,9 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 		seen[p] = true
 	}
 	if err := checkTiles(is, is.occupancy(c), cmd.Tiles, allowRiver); err != nil {
+		return err
+	}
+	if err := checkBridges(is, cmd.Tiles); err != nil {
 		return err
 	}
 	n := int64(len(cmd.Tiles))
