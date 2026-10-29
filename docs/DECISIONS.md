@@ -1184,3 +1184,21 @@ system and tooling are untouched by the restyle); buying voxel packs
   with Babylon's plugin and dequantised in `parseGlb`; folder 20.5 →
   12.9 MB (−37 %, ≈ 32 bytes/triangle — indices and AO-split vertices
   are the rest), pixel-identical shots. Limit 24 MiB unchanged.
+- *As built (PR #43 V4, PR #44 V5):* **every building of all four
+  tiers and all three ships has a recipe — no placeholders remain.**
+  V4: 27 tier-3 recipes (incl. `grain_distillery`) on `detail_v4.py`
+  (townhouse, oriel/balcony, round/still towers, domes, vats, drying
+  frames, terraces, hop poles), 3 `house_merchants` variants, church
+  and theatre in warm sandstone; sway on dyer, dyer_works, tailor. V5:
+  25 tier-4 recipes + ships on `detail_v5.py` (ashlar, palazzo,
+  cornices, arcades, towers, buttresses, shared `furnace`), 3
+  `house_patricians` variants, university cloister, two-tower
+  cathedral; one hull builder for sloop / brig / galleon (1 / 2 / 3
+  masts, rigging, sail sway groups, cargo props per 2 / 4 / 6 slots,
+  new `wake` anchor — unused by the client yet). Authoring on the v2
+  library: ≈ 0.5–1 min per workshop, 2–6 min per house or landmark.
+  Review rounds fixed cold roofs (slate → warm tile), a coral plaster,
+  roof variety per quarter and a teal woad field. Models folder 16.7
+  MB of 24 MiB; all budgets hold (galleon at 99.6 %). Known trade-off:
+  signature props face the default camera; back sides are plainer
+  (V6 list).

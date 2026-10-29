@@ -110,7 +110,9 @@ that name". All motion is procedural.
 - Sway: sails, ship canvas, `flag_*` and cloth marked in a recipe
   (`P.cloth`): the wool weaver's drying line, the linen weaver's hung
   sheets, the sailmaker's sail on its frame, the warehouse level 3 awning
-  and flag, the Trading Post level 4 flag — sacks, bales, bolts, cart
+  and flag, the Trading Post level 4 flag, the dyer's and dyer works'
+  hung cloth, the tailor's washing line, the lace maker's hung piece,
+  and the ships' sails — sacks, bales, bolts, cart
   loads and aprons stay rigid; shadows do not sway. The tests read the
   manifest's `sway` list (`test_detail.py` names the allowed files).
 - Harbour: fisher boat loop may cross land (same follow-up as ship

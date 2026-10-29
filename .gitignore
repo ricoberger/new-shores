@@ -1,11 +1,6 @@
 # Local overrides of the Compose stack (credentials); never commit.
 deploy/.env
 
-# Local copies of the former third-party model kits (CC0 KayKit packs; not
-# used since D-057 V1, the voxel build needs no kits).
-assets/kits/*
-.DS_Store
-
 # Python caches (asset build).
 __pycache__/
 
