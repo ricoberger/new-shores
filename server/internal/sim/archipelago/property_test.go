@@ -18,7 +18,8 @@ const propertySeeds = 200
 // independently of Verify where the rule is cheap to restate: the
 // composition (counts per size class, fertility and deposit ranges per
 // island and per archipelago), names and IDs, the buildable area, the
-// spacing, the home candidate, the founding sites and the spawn.
+// spacing, the home candidate, the founding sites and the spawn; and the
+// D-058 shapes (checkShape).
 func TestProperties(t *testing.T) {
 	if testing.Short() {
 		t.Skip("200 archipelagos")
@@ -96,6 +97,9 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 				buildable++
 			}
 		}
+		if !sc.Rock {
+			checkShape(t, c, seed, is, sc)
+		}
 		if sc.Rock {
 			if len(Sites(is, c, tp)) == 0 {
 				fail("rock %s has no Trading Post site", is.ID)
@@ -146,6 +150,147 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 	if !AtSea(a.Islands, a.Ship) || landWithin(a.Islands, a.Ship, ShipClearance) {
 		fail("ship at (%d,%d) within %d tiles of land", a.Ship.X, a.Ship.Y, ShipClearance)
 	}
+}
+
+// checkShape restates the D-058 shape rules of a habitable island: a
+// plain of the class's side; river and islet counts in range; islets of
+// 1-8 tiles at least two water tiles off the land; levels within range
+// and 0 on beaches; cliffs on the coast ring (next to the sea); deposits
+// on mountain tiles at the foot (next to buildable land); two disjoint
+// Trading Post sites and a shipyard site that reach the plain by land or
+// bridges.
+func checkShape(t *testing.T, c *content.Catalogue, seed uint64, is *sim.Island, sc *content.SizeClass) {
+	t.Helper()
+	fail := func(format string, args ...any) {
+		t.Helper()
+		t.Errorf("seed %d %s: %s", seed, is.ID, fmt.Sprintf(format, args...))
+	}
+	sh := sc.Shape
+	if p := largestSquare(is); p < sh.Plain {
+		fail("largest plain %d, want %d", p, sh.Plain)
+	}
+	if n := components(is, content.TerrainRiver); !sh.Rivers.Contains(n) {
+		fail("%d rivers, want %v", n, sh.Rivers)
+	}
+	islets := islandComponents(is, content.TerrainIslet)
+	if !sh.Islets.Contains(len(islets)) {
+		fail("%d islets, want %v", len(islets), sh.Islets)
+	}
+	for _, isl := range islets {
+		if len(isl) < 1 || len(isl) > 8 {
+			fail("islet of %d tiles", len(isl))
+		}
+		for _, i := range isl {
+			x, y := i%is.Width, i/is.Width
+			for dy := -2; dy <= 2; dy++ {
+				for dx := -2; dx <= 2; dx++ {
+					if is.InBounds(x+dx, y+dy) {
+						if tr := is.Tile(x+dx, y+dy).Terrain; tr != content.TerrainWater && tr != content.TerrainIslet {
+							fail("islet at (%d,%d) within two tiles of land", x, y)
+						}
+					}
+				}
+			}
+		}
+	}
+	for i, tile := range is.Tiles {
+		x, y := i%is.Width, i/is.Width
+		if tile.Level > sh.Levels || (tile.Terrain == content.TerrainCoast && tile.Level != 0) {
+			fail("%s at level %d at (%d,%d)", tile.Terrain, tile.Level, x, y)
+		}
+		if tile.Terrain == content.TerrainCliff && !nearSea(is, x, y) {
+			fail("cliff at (%d,%d) away from the sea", x, y)
+		}
+		if tile.Deposit != nil {
+			foot := false
+			for _, d := range dirs4() {
+				if is.InBounds(x+d[0], y+d[1]) && buildableTerrain(is.Tile(x+d[0], y+d[1]).Terrain) {
+					foot = true
+				}
+			}
+			if tile.Terrain != content.TerrainMountain || !foot {
+				fail("deposit at (%d,%d) on %s not at the ridge foot", x, y, tile.Terrain)
+			}
+		}
+	}
+	reach, ok := plainReach(is, sh.Plain)
+	if !ok {
+		fail("no plain")
+		return
+	}
+	var connected []Rect
+	for _, r := range Sites(is, c, TradingPost(c)) {
+		if reach(r) {
+			connected = append(connected, r)
+		}
+	}
+	if !hasDisjoint(connected, 2) {
+		fail("fewer than two disjoint Trading Post sites reach the plain")
+	}
+	yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil })
+	if yard != nil && !slices.ContainsFunc(Sites(is, c, yard), reach) {
+		fail("no shipyard site reaches the plain")
+	}
+}
+
+// largestSquare returns the side of the largest square of grass/forest.
+func largestSquare(is *sim.Island) int {
+	w := is.Width
+	dp := make([]int, len(is.Tiles))
+	best := 0
+	for i, tile := range is.Tiles {
+		if tile.Terrain != content.TerrainGrass && tile.Terrain != content.TerrainForest {
+			continue
+		}
+		dp[i] = 1
+		if i%w > 0 && i >= w {
+			dp[i] = 1 + min(dp[i-1], dp[i-w], dp[i-w-1])
+		}
+		best = max(best, dp[i])
+	}
+	return best
+}
+
+// islandComponents returns the 8-connected components of a terrain.
+func islandComponents(is *sim.Island, terrain string) [][]int {
+	seen := make([]bool, len(is.Tiles))
+	var out [][]int
+	for i, tile := range is.Tiles {
+		if tile.Terrain != terrain || seen[i] {
+			continue
+		}
+		seen[i] = true
+		comp := []int{i}
+		for k := 0; k < len(comp); k++ {
+			x, y := comp[k]%is.Width, comp[k]/is.Width
+			for dy := -1; dy <= 1; dy++ {
+				for dx := -1; dx <= 1; dx++ {
+					if !is.InBounds(x+dx, y+dy) {
+						continue
+					}
+					j := (y+dy)*is.Width + x + dx
+					if !seen[j] && is.Tiles[j].Terrain == terrain {
+						seen[j] = true
+						comp = append(comp, j)
+					}
+				}
+			}
+		}
+		out = append(out, comp)
+	}
+	return out
+}
+
+// nearSea reports whether a sea tile lies within one tile (8-neighbours).
+func nearSea(is *sim.Island, x, y int) bool {
+	for dy := -1; dy <= 1; dy++ {
+		for dx := -1; dx <= 1; dx++ {
+			if is.InBounds(x+dx, y+dy) && is.Tile(x+dx, y+dy).Terrain == content.TerrainWater {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func checkPool(t *testing.T, seed uint64, what string, pool []content.PoolEntry, got map[string]int) {

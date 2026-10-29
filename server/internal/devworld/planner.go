@@ -55,6 +55,16 @@ func (v *view) free(x, y int) bool {
 	return v.open(x, y) && (!v.f.spareForest || v.is.Tile(x, y).Terrain != content.TerrainForest)
 }
 
+// passable reports whether a road may run over a tile: free land or a
+// river tile without a road or building (a bridge, D-058 part 3).
+func (v *view) passable(x, y int) bool {
+	is := v.is
+	if v.free(x, y) {
+		return true
+	}
+	return is.InBounds(x, y) && is.Tile(x, y).Terrain == content.TerrainRiver && is.RoadAt(x, y) == "" && v.occ[y*is.Width+x] == 0
+}
+
 // coversForest reports whether a footprint covers a forest tile.
 func coversForest(is *sim.Island, x, y, w, h int) bool {
 	for ty := y; ty < y+h; ty++ {
@@ -185,20 +195,48 @@ func (f *fixture) streetEnd(island string) sim.Pos { return f.ends[island] }
 // centre of a town that spares the forest; from itself when there is
 // none.
 func (f *fixture) grassAnchor(island string, from sim.Pos) sim.Pos {
+	return f.openAnchor(island, from, 4, 50)
+}
+
+// fieldAnchor is grassAnchor for a farm's required fields: the nearest
+// tile whose surroundings hold room for them (river-cut and forested
+// D-058 islands have no such room next to every street).
+func (f *fixture) fieldAnchor(island string, from sim.Pos, farm *content.Building) sim.Pos {
+	n := 0
+	if farm.Fields != nil {
+		if field := f.c.FieldByType[farm.Fields.Type]; field != nil {
+			n = farm.Fields.Required * field.Width * field.Height
+		}
+	}
+	r := 4
+	for (2*r+1)*(2*r+1) < n*3/2 {
+		r++
+	}
+	return f.openAnchor(island, from, r, n*5/4)
+}
+
+// openAnchor returns the tile nearest to from whose surroundings
+// (Chebyshev radius r) hold at least n open tiles that are not forest;
+// from itself when there is none.
+func (f *fixture) openAnchor(island string, from sim.Pos, r, n int) sim.Pos {
 	is := f.w.Island(island)
 	v := f.view(is)
-	best, bestD := from, -1
-	for y := range is.Height {
-		for x := range is.Width {
-			n := 0
-			for ty := y - 4; ty <= y+4; ty++ {
-				for tx := x - 4; tx <= x+4; tx++ {
-					if v.open(tx, ty) && is.Tile(tx, ty).Terrain != content.TerrainForest {
-						n++
-					}
-				}
+	w, h := is.Width, is.Height
+	sat := make([]int, (w+1)*(h+1))
+	for y := range h {
+		for x := range w {
+			c := 0
+			if v.open(x, y) && is.Tile(x, y).Terrain != content.TerrainForest {
+				c = 1
 			}
-			if n < 50 {
+			sat[(y+1)*(w+1)+x+1] = c + sat[y*(w+1)+x+1] + sat[(y+1)*(w+1)+x] - sat[y*(w+1)+x]
+		}
+	}
+	best, bestD := from, -1
+	for y := range h {
+		for x := range w {
+			x0, y0, x1, y1 := max(0, x-r), max(0, y-r), min(w, x+r+1), min(h, y+r+1)
+			if sat[y1*(w+1)+x1]-sat[y0*(w+1)+x1]-sat[y1*(w+1)+x0]+sat[y0*(w+1)+x0] < n {
 				continue
 			}
 			if d := (x-from.X)*(x-from.X) + (y-from.Y)*(y-from.Y); bestD < 0 || d < bestD {
@@ -446,7 +484,7 @@ func (f *fixture) roadPath(island string, x, y, w, h int) ([]sim.Pos, bool) {
 		}
 	}
 	v := f.view(is)
-	freeAt := func(px, py int) bool { return !inRect(px, py) && v.free(px, py) }
+	freeAt := func(px, py int) bool { return !inRect(px, py) && v.passable(px, py) }
 	if len(queue) == 0 {
 		if tp := f.tradingPost(island); tp != nil {
 			tw, th := dims(f.c.BuildingByID[tp.Type], tp.Rotation)
@@ -528,7 +566,7 @@ func (f *fixture) reachable(island string) []bool {
 		px, py := queue[k]%is.Width, queue[k]/is.Width
 		for _, d := range [4][2]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
 			nx, ny := px+d[0], py+d[1]
-			if v.free(nx, ny) && !out[ny*is.Width+nx] {
+			if v.passable(nx, ny) && !out[ny*is.Width+nx] {
 				out[ny*is.Width+nx] = true
 				queue = append(queue, ny*is.Width+nx)
 			}

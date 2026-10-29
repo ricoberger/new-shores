@@ -173,6 +173,15 @@ func (g *grid) island(p *plan) *sim.Island {
 				tile.Terrain = content.TerrainForest
 			case tMountain:
 				tile.Terrain = content.TerrainMountain
+			case tRiver:
+				tile.Terrain = content.TerrainRiver
+			case tIslet:
+				tile.Terrain = content.TerrainIslet
+			case tCliff:
+				tile.Terrain = content.TerrainCliff
+			}
+			if g.lvl != nil {
+				tile.Level, tile.Height = g.lvl[i], g.hgt[i]
 			}
 			if s := g.depAt(i); s > 0 {
 				tile.Deposit = &sim.Deposit{Kind: g.slots[s-1].kind, Quantity: -1}

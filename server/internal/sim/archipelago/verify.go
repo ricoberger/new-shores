@@ -51,25 +51,6 @@ func sites(sc *sim.SiteChecker, is *sim.Island, def *content.Building) []Rect {
 	return out
 }
 
-// hasSite reports whether the building has a valid site on the island
-// (Sites is not empty), stopping at the first.
-func hasSite(chk *sim.SiteChecker, is *sim.Island, def *content.Building) bool {
-	for _, rot := range rotations() {
-		w, h := footprint(def, rot)
-		for y := 0; y+h <= is.Height; y++ {
-			for x := 0; x+w <= is.Width; x++ {
-				if def.WaterTiles > 0 && !waterEdgeHint(is, def, x, y, w, h, rot) {
-					continue
-				}
-				if chk.Valid(def, x, y, rot) {
-					return true
-				}
-			}
-		}
-	}
-	return false
-}
-
 // waterEdgeHint is a cheap necessary condition of a water-edge site: the
 // corner tile in the water rows is water and the opposite corner (in the
 // land rows) is not.
@@ -120,6 +101,8 @@ var (
 	ErrMineUnreachable  = errors.New("a deposit building footprint has no road neighbour")
 	ErrRockMines        = errors.New("a rock's deposits cannot be mined next to its trading post")
 	ErrSlotUnminable    = errors.New("a deposit slot has no valid site of its deposit building")
+	ErrNoPlain          = errors.New("no plain")
+	ErrShape            = errors.New("shape rule")
 )
 
 // verifyIsland checks the rules of one island on its own grid (D-053
@@ -135,6 +118,18 @@ func verifyIsland(is *sim.Island, c *content.Catalogue) error {
 		return fmt.Errorf("unknown size class %q", is.SizeClass)
 	}
 	chk := sim.NewSiteChecker(is, c)
+	// A habitable island's Trading Post and shipyard sites count when
+	// they reach the plain by land or bridges (D-058 part 3).
+	reach := func(Rect) bool { return true }
+	if !sc.Rock {
+		if err := verifyShape(is, sc); err != nil {
+			return err
+		}
+		var ok bool
+		if reach, ok = plainReach(is, sc.Shape.Plain); !ok {
+			return ErrNoPlain
+		}
+	}
 	if tp := TradingPost(c); tp != nil {
 		sites := sites(chk, is, tp)
 		switch {
@@ -142,7 +137,7 @@ func verifyIsland(is *sim.Island, c *content.Catalogue) error {
 			if !rockMinable(chk, is, c, sites) {
 				return ErrRockMines
 			}
-		case !disjoint(sites):
+		case !disjoint(slices.DeleteFunc(sites, func(r Rect) bool { return !reach(r) })):
 			return ErrTradingPostSites
 		}
 	}
@@ -153,11 +148,164 @@ func verifyIsland(is *sim.Island, c *content.Catalogue) error {
 				return fmt.Errorf("%w: %s slot at (%d,%d)", ErrSlotUnminable, s.kind, s.tiles[0].X, s.tiles[0].Y)
 			}
 		}
-		if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil && !hasSite(chk, is, yard) {
+		if yard := firstBuilding(c, func(b *content.Building) bool { return b.Shipyard != nil }); yard != nil && !slices.ContainsFunc(sites(chk, is, yard), reach) {
 			return ErrShipyardSite
 		}
 	}
 	return minesReachable(is, c)
+}
+
+// buildableTerrain reports whether a terrain is buildable (coast, grass,
+// forest; content.Terrain*).
+func buildableTerrain(t string) bool {
+	return t == content.TerrainCoast || t == content.TerrainGrass || t == content.TerrainForest
+}
+
+// plainReach finds the plains (side x side squares of grass/forest, D-058
+// part 1) and returns whether a footprint reaches one by land or bridges:
+// one of its buildable tiles lies in a bridge component of a plain. ok is
+// false without a plain; side 0 needs none (every footprint reaches).
+func plainReach(is *sim.Island, side int) (func(Rect) bool, bool) {
+	if side <= 0 {
+		return func(Rect) bool { return true }, true
+	}
+	w, h := is.Width, is.Height
+	comp := make([]int, w*h)
+	bridgeComponents(w, h, func(i int) bool { return buildableTerrain(is.Tiles[i].Terrain) },
+		func(i int) bool { return is.Tiles[i].Terrain == content.TerrainRiver }, comp, nil)
+	dp := make([]int, w*h)
+	plains := map[int]bool{}
+	for y := range h {
+		for x := range w {
+			i := y*w + x
+			if t := is.Tiles[i].Terrain; t != content.TerrainGrass && t != content.TerrainForest {
+				continue
+			}
+			dp[i] = 1
+			if x > 0 && y > 0 {
+				dp[i] = 1 + min(dp[i-1], dp[i-w], dp[i-w-1])
+			}
+			if dp[i] >= side {
+				plains[comp[i]] = true
+			}
+		}
+	}
+	if len(plains) == 0 {
+		return nil, false
+	}
+	return func(r Rect) bool {
+		for y := r.Y; y < r.Y+r.H; y++ {
+			for x := r.X; x < r.X+r.W; x++ {
+				if plains[comp[y*w+x]] && buildableTerrain(is.Tiles[y*w+x].Terrain) {
+					return true
+				}
+			}
+		}
+		return false
+	}, true
+}
+
+// verifyShape checks the D-058 shape rules of a habitable island: river
+// and islet counts in the size class's ranges, levels within its maximum,
+// beaches and water at level 0, rivers never rising towards the sea (a
+// river tile is no higher than the river tiles upstream, by breadth-first
+// distance from the sea), heights only on mountains, cliffs and islets.
+func verifyShape(is *sim.Island, sc *content.SizeClass) error {
+	sh := sc.Shape
+	if n := components(is, content.TerrainRiver); !sh.Rivers.Contains(n) {
+		return fmt.Errorf("%w: %d rivers outside %+v", ErrShape, n, sh.Rivers)
+	}
+	if n := components(is, content.TerrainIslet); !sh.Islets.Contains(n) {
+		return fmt.Errorf("%w: %d islets outside %+v", ErrShape, n, sh.Islets)
+	}
+	w := is.Width
+	var queue []int
+	dist := make([]int, len(is.Tiles))
+	for i, t := range is.Tiles {
+		dist[i] = -1
+		switch {
+		case t.Level < 0 || t.Level > sh.Levels:
+			return fmt.Errorf("%w: level %d at (%d,%d)", ErrShape, t.Level, i%w, i/w)
+		case (t.Terrain == content.TerrainWater || t.Terrain == content.TerrainCoast || t.Terrain == content.TerrainIslet) && t.Level != 0:
+			return fmt.Errorf("%w: %s at level %d at (%d,%d)", ErrShape, t.Terrain, t.Level, i%w, i/w)
+		case t.Height != 0 && t.Terrain != content.TerrainMountain && t.Terrain != content.TerrainCliff && t.Terrain != content.TerrainIslet:
+			return fmt.Errorf("%w: %s with height at (%d,%d)", ErrShape, t.Terrain, i%w, i/w)
+		}
+		if t.Terrain == content.TerrainRiver && touches(is, i, content.TerrainWater) {
+			dist[i] = 0
+			queue = append(queue, i)
+		}
+	}
+	for head := 0; head < len(queue); head++ {
+		i := queue[head]
+		x, y := i%w, i/w
+		for _, d := range dirs4() {
+			nx, ny := x+d[0], y+d[1]
+			if !is.InBounds(nx, ny) {
+				continue
+			}
+			j := ny*w + nx
+			if is.Tiles[j].Terrain != content.TerrainRiver {
+				continue
+			}
+			if dist[j] < 0 {
+				dist[j] = dist[i] + 1
+				queue = append(queue, j)
+			}
+			if dist[j] == dist[i]+1 && is.Tiles[j].Level < is.Tiles[i].Level {
+				return fmt.Errorf("%w: river rises towards the sea at (%d,%d)", ErrShape, x, y)
+			}
+		}
+	}
+	for i, t := range is.Tiles {
+		if t.Terrain == content.TerrainRiver && dist[i] < 0 {
+			return fmt.Errorf("%w: river at (%d,%d) does not reach the sea", ErrShape, i%w, i/w)
+		}
+	}
+	return nil
+}
+
+// touches reports whether tile i has a 4-neighbour of the terrain.
+func touches(is *sim.Island, i int, terrain string) bool {
+	x, y := i%is.Width, i/is.Width
+	for _, d := range dirs4() {
+		if is.InBounds(x+d[0], y+d[1]) && is.Tile(x+d[0], y+d[1]).Terrain == terrain {
+			return true
+		}
+	}
+	return false
+}
+
+// components counts the 4-connected components of a terrain.
+func components(is *sim.Island, terrain string) int {
+	seen := make([]bool, len(is.Tiles))
+	n := 0
+	var stack []int
+	for i, t := range is.Tiles {
+		if t.Terrain != terrain || seen[i] {
+			continue
+		}
+		n++
+		seen[i] = true
+		stack = append(stack[:0], i)
+		for len(stack) > 0 {
+			j := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+			x, y := j%is.Width, j/is.Width
+			for _, d := range dirs4() {
+				nx, ny := x+d[0], y+d[1]
+				if !is.InBounds(nx, ny) {
+					continue
+				}
+				k := ny*is.Width + nx
+				if !seen[k] && is.Tiles[k].Terrain == terrain {
+					seen[k] = true
+					stack = append(stack, k)
+				}
+			}
+		}
+	}
+	return n
 }
 
 // rockMinable reports whether one Trading Post site leaves, for every

@@ -11,6 +11,9 @@ const (
 	tGrass
 	tForest
 	tMountain
+	tRiver
+	tIslet
+	tCliff
 )
 
 // margin is the water border around an island's land: the water rows of a
@@ -20,7 +23,15 @@ const margin = 3
 // grid is an island under construction.
 type grid struct {
 	n int // width = height
-	t []byte
+	// pad is the water border around the land extent (margin for rocks,
+	// more for habitable islands, whose islets lie in it).
+	pad int
+	t   []byte
+	// lvl and hgt are the terrace level and rock height per tile (D-058;
+	// nil for rocks until set).
+	lvl, hgt []int
+	// plain is the reserved plain square (x, y, side; side 0: none).
+	plain [3]int
 	// dep holds the deposit slot (1-based index into slots) per tile, 0 for
 	// none; nil until placeSlots places one.
 	dep   []int
@@ -40,6 +51,9 @@ type scratch struct {
 	in    []bool
 	out   []int
 	front []int
+	// reject names the step that turned the last shape attempt down
+	// (statistics of the island atlas; never read by the generator).
+	reject string
 }
 
 // ints returns buf resized to n and zeroed.
@@ -70,7 +84,7 @@ func newGrid(n int, s *scratch) *grid {
 	}
 	s.t = s.t[:n*n]
 	clear(s.t)
-	return &grid{n: n, t: s.t, s: s}
+	return &grid{n: n, pad: margin, t: s.t, s: s}
 }
 
 func (g *grid) in(x, y int) bool { return x >= 0 && y >= 0 && x < g.n && y < g.n }
@@ -181,13 +195,13 @@ func landMass(r *rng, size int, rock bool, s *scratch) *grid {
 
 // smooth removes one-tile spurs and fills one-tile notches: a land tile
 // with fewer than two land 4-neighbours becomes water, a water tile with
-// three or more becomes land (inside the margin), until nothing changes
+// three or more becomes land (inside the pad), until nothing changes
 // (bounded).
 func (g *grid) smooth() {
 	for range 8 {
 		changed := false
-		for y := margin; y < g.n-margin; y++ {
-			for x := margin; x < g.n-margin; x++ {
+		for y := g.pad; y < g.n-g.pad; y++ {
+			for x := g.pad; x < g.n-g.pad; x++ {
 				i := y*g.n + x
 				// Inside the margin every neighbour is on the grid.
 				n := 0
@@ -407,83 +421,40 @@ func grow(r *rng, g *grid, start, size int, ok func(int) bool) []int {
 	return out
 }
 
-// shape builds the tiles of one island: land mass, coast ring, mountain
-// clusters with the deposit slots on their edge, forest patches and grass
-// elsewhere (rocks: a two-tile coast band around a mountain core). It
-// returns nil when the attempt does not fit (land outside the area
-// window, no room for the slots); the caller retries with a new sub-seed.
+// shape builds the tiles of one island. A habitable island is a
+// skeleton shape with a ridge, cliffs, a plain, rivers, forests, terrace
+// levels and islets (habitable, D-058); a rock is a blob with a two-tile
+// coast band around a mountain core. It returns nil when the attempt does
+// not fit (land outside the area window, no room for a feature or the
+// slots); the caller retries with a new sub-seed.
 func shape(r *rng, sc *content.SizeClass, deposits []string, gap int, s *scratch) *grid {
-	g := landMass(r, sc.Size, sc.Rock, s)
+	if !sc.Rock {
+		return habitable(r, sc, deposits, gap, s)
+	}
+	g := landMass(r, sc.Size, true, s)
 	land := g.landCount()
 	area := sc.Size * sc.Size
-	lo, hi := area*landMinPct/100, area*landMaxPct/100
-	if sc.Rock {
-		lo, hi = area*rockMinPct/100, area*rockMaxPct/100
-	}
-	if land < lo || land > hi {
+	if land < area*rockMinPct/100 || land > area*rockMaxPct/100 {
 		return nil
 	}
-	if sc.Rock {
-		dist := g.waterDistance(4)
-		for i, t := range g.t {
-			switch {
-			case t == tWater:
-			case dist[i] == 1:
-				g.t[i] = tCoast
-			default:
-				g.t[i] = tMountain
-			}
+	dist := g.waterDistance(4)
+	g.lvl, g.hgt = make([]int, len(g.t)), make([]int, len(g.t))
+	for i, t := range g.t {
+		switch {
+		case t == tWater:
+		case dist[i] == 1:
+			g.t[i] = tCoast
+		default:
+			g.t[i] = tMountain
+			g.hgt[i] = min(dist[i]-1, 3)
 		}
-		if !g.landing(r) {
-			return nil
-		}
-	} else {
-		dist := g.waterDistance(4)
-		for i, t := range g.t {
-			if t != tWater && dist[i] == 1 {
-				g.t[i] = tCoast
-			}
-		}
-		mountains := r.between(1, 2)
-		total := land * r.between(mountainMinPct, mountainMaxPct) / 100
-		for m := range mountains {
-			size := total / mountains
-			if m == 0 {
-				size += total % mountains
-			}
-			seed, ok := g.pick(r, func(i int) bool { return g.t[i] == tGrass && dist[i] >= 4 })
-			if !ok {
-				return nil
-			}
-			tiles := grow(r, g, seed, size, func(j int) bool { return g.t[j] == tGrass && dist[j] >= 3 })
-			for _, i := range tiles {
-				g.t[i] = tMountain
-			}
-		}
-		// Pockets of buildable land the mountains cut off become mountain
-		// (roads cannot reach them); forests only turn grass into forest,
-		// so the buildable land's connectivity is final here.
-		if !g.fillPockets(total) {
-			return nil
-		}
-		patches := r.between(1, 3)
-		forest := land * r.between(forestMinPct, forestMaxPct) / 100
-		for p := range patches {
-			size := forest / patches
-			if p == 0 {
-				size += forest % patches
-			}
-			seed, ok := g.pick(r, func(i int) bool { return g.t[i] == tGrass })
-			if !ok {
-				return nil
-			}
-			tiles := grow(r, g, seed, size, func(j int) bool { return g.t[j] == tGrass })
-			for _, i := range tiles {
-				g.t[i] = tForest
-			}
-		}
-		if !g.has(tGrass) || !g.has(tForest) {
-			return nil
+	}
+	if !g.landing(r) {
+		return nil
+	}
+	for i, t := range g.t {
+		if t == tCoast {
+			g.hgt[i] = 0
 		}
 	}
 	if !g.placeSlots(r, deposits, gap) {
