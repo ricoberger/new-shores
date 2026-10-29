@@ -5,7 +5,8 @@ Patrician block (`palazzo`: ashlar ground floor, plastered upper storeys,
 quoins, cornice, roof), framed windows with hoods and keystones, arcades
 and colonnades, balustrades, towers with pyramid roofs and finials,
 lancets, rose windows, buttresses, domes, heaps, lying casks and cask
-racks, vine trellis rows, a mine headframe with its wheel, and small
+racks, vine trellis rows, a mine headframe with its wheel, a battered
+blast furnace (the tier-2 smelter style), and small
 trade props (cloth bolts, mannequins, spinning wheels, candles).
 
 Recipes import it next to the parts library:
@@ -454,6 +455,47 @@ def headframe(v, x, y, z0, h, along="x", m=TIMBER, r=3):
         for zz in range(z0, top):
             v.set(x, y + r, zz, IRON if zz % 3 else TIMBER_DARK)
     return top + r
+
+
+def furnace(v, x0, y0, size=14, tiers=4, step=4, streak=None, glow=None, seed=0):
+    """
+    A battered blast furnace in the tier-2 smelter style: square tiers of
+    coursed stone narrowing upward from (x0, y0) (`size` wide, one voxel
+    in per tier, `step` high), dressed quoins, a sooty stack with its
+    `chimney`/`smoke` anchors and a glowing mouth on the +y face.
+    `streak` (a material) runs vertical stains down every fourth column
+    of the tiers (verdigris on a copper smelter). Returns (cx, cy, top z).
+    """
+    glow = glow or mat("flower", 1.0)
+    soot = mat("iron", 0.9)
+    for k in range(tiers):
+        a0, a1 = x0 + k, x0 + size - k
+        b0, b1 = y0 + k, y0 + size - k
+        z0, z1 = 1 + k * step, 1 + (k + 1) * step
+        P.coursed_stone(v, a0, b0, a1, b1, z0, z1, STONE if k % 2 == 0 else shade_of(STONE, 0.94), seed + k)
+        P.dressed_quoins(v, a0, b0, a1, b1, z0, z1)
+        if streak is not None:
+            for zz in range(z0, z1):
+                for xx in range(a0 + 2, a1 - 1, 4):
+                    if hash3(xx, zz, k, seed) < 0.75:
+                        v.set(xx, b1 - 1, zz, streak)
+                for yy in range(b0 + 2, b1 - 1, 4):
+                    if hash3(yy, zz, k + 9, seed) < 0.75:
+                        v.set(a0, yy, zz, streak)
+    cx, cy = x0 + size // 2, y0 + size // 2
+    zt = 1 + tiers * step
+    v.box(cx - 2, cy - 2, zt, cx + 2, cy + 2, zt + 9, STONE_DARK)
+    v.box(cx - 2, cy - 2, zt + 6, cx + 2, cy + 2, zt + 9, soot)
+    v.box(cx - 3, cy - 3, zt + 9, cx + 3, cy + 3, zt + 10, soot)
+    v.anchor("chimney", cx, cy, zt + 10)
+    v.anchor("smoke", cx, cy, zt + 11)
+    yf = y0 + size - 1
+    v.box(cx - 2, yf, 1, cx + 2, yf + 1, 4, None)
+    v.box(cx - 2, yf - 1, 1, cx + 2, yf, 4, glow)
+    v.box(cx - 3, yf, 4, cx + 3, yf + 1, 5, DRESSED)
+    v.box(cx - 3, yf, 1, cx - 2, yf + 1, 4, DRESSED)
+    v.box(cx + 2, yf, 1, cx + 3, yf + 1, 4, DRESSED)
+    return cx, cy, zt + 10
 
 
 # ---------------------------------------------------------------- trade props
