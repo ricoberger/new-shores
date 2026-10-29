@@ -4771,14 +4771,14 @@
         ],
         "status": [
           0.0,
-          2.875,
+          4.625,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.625,
+          4.375,
           1.5
         ],
         "min": [
@@ -4787,26 +4787,17 @@
           -1.5
         ]
       },
-      "file": {
-        "bounds": {
-          "max": [
-            1.5,
-            2.625,
-            1.5
-          ],
-          "min": [
-            -1.5,
-            0.0,
-            -1.5
-          ]
-        },
-        "budget": 4860,
-        "bytes": 53608,
-        "lite": {
+      "footprint": {
+        "h": 3,
+        "w": 3
+      },
+      "kind": "building",
+      "variants": [
+        {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              4.25,
               1.5
             ],
             "min": [
@@ -4815,21 +4806,108 @@
               -1.5
             ]
           },
-          "budget": 405,
-          "bytes": 8220,
-          "path": "house_merchants.lite.glb",
-          "sha256": "1e17e183ee16ed7eb9a43de0f50be83978a2ac83a94242e0096163fda7caec58",
-          "triangles": 210
+          "budget": 4860,
+          "bytes": 133536,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                4.0,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 10764,
+            "path": "house_merchants.v0.lite.glb",
+            "sha256": "c16f6d82ba38cf204a95126235b244a1b13a78eb966bdc5f72896293d90e8bcc",
+            "triangles": 266
+          },
+          "path": "house_merchants.v0.glb",
+          "sha256": "f512e0520247841818aa1d49ff6bdfb49b24d6f8d834d2fa0b2f0ef0c5c0c5b7",
+          "triangles": 4204
         },
-        "path": "house_merchants.glb",
-        "sha256": "5350e1b8ee3dc1aac6258cbfba59fa05d8188e927cfd04e3ee5179bb7ea47f36",
-        "triangles": 1760
-      },
-      "footprint": {
-        "h": 3,
-        "w": 3
-      },
-      "kind": "building"
+        {
+          "bounds": {
+            "max": [
+              1.5,
+              4.25,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 4860,
+          "bytes": 139932,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                4.0,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 11840,
+            "path": "house_merchants.v1.lite.glb",
+            "sha256": "c6a1457d0e12a264552941f4e84474bb9f8cc16e66c5146a5ebdee5e19360220",
+            "triangles": 304
+          },
+          "path": "house_merchants.v1.glb",
+          "sha256": "c10ab5a593e8393629f8db87294cb3188df00e3c8108e706742f226b997964ff",
+          "triangles": 4446
+        },
+        {
+          "bounds": {
+            "max": [
+              1.5,
+              4.375,
+              1.5
+            ],
+            "min": [
+              -1.5,
+              0.0,
+              -1.5
+            ]
+          },
+          "budget": 4860,
+          "bytes": 132812,
+          "lite": {
+            "bounds": {
+              "max": [
+                1.5,
+                4.0,
+                1.5
+              ],
+              "min": [
+                -1.5,
+                0.0,
+                -1.5
+              ]
+            },
+            "budget": 405,
+            "bytes": 11604,
+            "path": "house_merchants.v2.lite.glb",
+            "sha256": "0f52775b0e146de13a0b064f831e3ea6cec55055173cefc8732c96342b434c25",
+            "triangles": 294
+          },
+          "path": "house_merchants.v2.glb",
+          "sha256": "c45fdd003c9efcd0bc6c06e6c999cbc0fb81247fa1557593ad9c1b9d1d779f27",
+          "triangles": 4270
+        }
+      ]
     },
     "house_patricians": {
       "anchors": {
@@ -9496,7 +9574,6 @@
     "grain_distillery",
     "hop_farm",
     "hop_field",
-    "house_merchants",
     "house_patricians",
     "lace_maker",
     "leather_works",
