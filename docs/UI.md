@@ -436,3 +436,35 @@ good), **Expeditions** (ship picker, duration, ETA), **Contracts**,
   (`?fixture=dense-2x400`, dev builds only) runs at 27 draw calls
   (36 with the life layer; `?life=0` disables it, `?stats=1` shows live
   instance and particle counts).
+
+## 9. The Almanac (public reference)
+
+- **Route:** `/almanac/<section>[/<id>]` (sections `overview`, `buildings`,
+  `goods`, `needs`, `ships`, `quests`, `islands`; the ID is a content ID, a
+  tier for overview/needs, a size class for islands). No login and no
+  world: `Root` mounts the component tree of `client/src/almanac/` when
+  the pathname starts with `/almanac` (a pathname check and the History
+  API, no router library; back/forward work, links are real anchors), the
+  start screen carries an "Almanac" link, and the dev server, `vite
+  preview` and the Caddy `try_files … /index.html` fallback serve the
+  deep links. The tree takes only the content (`AlmanacView`) or fetches
+  it (`Almanac`), so the game can open it later.
+- **Generated at runtime** from `GET /api/v1/content`: nothing is
+  hardcoded (no tier, building or good names). `model.ts` turns the
+  payload into view models; the only arithmetic is the one of the
+  CONTENT tables (per-minute rates from cycle times, a full house's tax,
+  shares as percent). Unknown or missing fields render nothing.
+  `questText.ts` words every objective kind of MECHANICS §12a. Content
+  that the payload does not carry (island counts and pools, the schema
+  version) is read defensively and shown only when present.
+- **Look:** the HUD's parchment in a dark-wood frame, Cinzel headings,
+  brass accent; left navigation on desktop, sticky tabs on the phone;
+  a search box filters buildings, goods, ships, quests, tiers and island
+  classes by name; building and ship thumbnails come from
+  `/models/thumbs/<id>.png` with a fallback box. Headings per section,
+  `aria-current` on the section, the global focus ring, link colour from
+  the theme (≥ 4.5:1 on parchment).
+- **Tests:** Vitest on the view models against `content/old_coast` and the
+  `server/testdata/content` fixtures (every building, good, need, ship and
+  quest exactly once, every reference resolves, every quest condition
+  formats) and a rendering smoke test of every page.
