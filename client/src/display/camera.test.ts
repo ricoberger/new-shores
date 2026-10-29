@@ -7,6 +7,7 @@ import {
   FAR_REACH_HALF,
   fitHalfHeight,
   footprintScreenFraction,
+  frameIslandView,
   groundAtNdc,
   groundFootprint,
   MIN_HALF_HEIGHT,
@@ -188,5 +189,53 @@ describe("archipelagoRect", () => {
     expect(archipelagoRect({ bounds: { x: 5, y: -3, width: 10, height: 4 } })).toEqual({ minX: 5, minY: -3, maxX: 15, maxY: 1 });
     expect(archipelagoRect({ bounds: { x: 0, y: 0, width: 0, height: 0 } })).toBeNull();
     expect(archipelagoRect(undefined)).toBeNull();
+  });
+});
+
+describe("framing an island for founding (D-058 round 4)", () => {
+  const rect = { minX: 100, minY: 200, maxX: 160, maxY: 240 };
+  const aspect = 1.6;
+  const inside = (v: { x: number; y: number; half: number; rotation: number }) => {
+    // Every corner of the island maps inside the viewport (NDC within ±1).
+    const fp = groundFootprint(v, aspect);
+    const { right, up } = screenAxes(v.rotation);
+    const k = 1 / Math.sin(Math.PI / 6);
+    return [
+      [rect.minX, rect.minY],
+      [rect.maxX, rect.minY],
+      [rect.maxX, rect.maxY],
+      [rect.minX, rect.maxY],
+    ].every(([x, y]) => {
+      const dx = x! - v.x;
+      const dy = y! - v.y;
+      const u = (dx * right.x + dy * right.y) / (v.half * aspect);
+      const w = (dx * up.x + dy * up.y) / (k * k) / v.half;
+      return fp.length === 4 && Math.abs(u) <= 1 + 1e-9 && Math.abs(w) <= 1 + 1e-9;
+    });
+  };
+
+  it("keeps the camera when the island is wholly in view below the far zoom", () => {
+    const v = { x: 130, y: 220, half: 45, rotation: 0 };
+    expect(inside(v)).toBe(true);
+    expect(frameIslandView(v, aspect, rect)).toBeNull();
+  });
+
+  it("frames the whole island at the current heading when it is not in view or the camera is far out", () => {
+    for (const rotation of [0, 0.5, 1, 2.5]) {
+      for (const v of [
+        { x: 400, y: 400, half: 18, rotation },
+        { x: 130, y: 220, half: 10, rotation },
+        { x: 130, y: 220, half: FAR_ENTER_HALF + 100, rotation },
+      ]) {
+        const f = frameIslandView(v, aspect, rect)!;
+        expect(f).not.toBeNull();
+        expect(f.rotation).toBe(rotation);
+        expect(f.x).toBe(130);
+        expect(f.y).toBe(220);
+        expect(inside(f)).toBe(true);
+        // Fitted, not far out: 10 % margin only.
+        expect(inside({ ...f, half: f.half / 1.2 })).toBe(false);
+      }
+    }
   });
 });

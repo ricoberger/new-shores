@@ -69,9 +69,12 @@ UI shows the same numbers the server uses.
   and the free coast; no actions, ships or warnings). Founding is started
   from the ship panel's "Found settlement" or the unsettled-island panel's
   "Found settlement here" when a ship carries the Trading Post cost: the
-  ship sails there first (`sail_ship`), the founding is pending (shown on
-  that panel and the ship panel, cancellable, survives a reload) and the
-  Trading Post ghost opens on arrival. The world opens on the start sloop at sea with the first quest
+  Trading Post ghost opens (the camera stays when the island is wholly in
+  view below the far zoom, else frames the whole island at the current
+  heading, D-058); once it is placed the ship sails to that site's
+  harbour (`sail_ship` with the `site`), the founding is pending (shown
+  on that panel and the ship panel, cancellable, survives a reload) and
+  `found_island` follows on arrival. The world opens on the start sloop at sea with the first quest
   ("Choose your home island") as the hint.
   Hover shows a lightweight tooltip only; nothing is hover-only.
 - **Route ribbons** are drawn only for the selected ship's route or while

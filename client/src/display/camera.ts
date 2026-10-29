@@ -165,6 +165,42 @@ export function screenAxes(rotation: number): { right: ArchPoint; up: ArchPoint 
 }
 
 /**
+ * The camera for founding on an island (D-058 round 4): null — keep the
+ * camera — when the island's rectangle lies wholly in view below the far
+ * zoom; else a view centred on the island, at the current rotation, at
+ * the half extent that fits the rectangle (10 % margin) so that the player
+ * can pick a coast and zoom in to place.
+ */
+export function frameIslandView(v: CameraView, aspect: number, rect: Rect): CameraView | null {
+  const { right, up } = screenAxes(v.rotation);
+  const k = 1 / Math.sin(ELEVATION);
+  // Screen offsets (ortho units: u across, w up) of a ground point from a centre.
+  const screen = (p: ArchPoint, c: ArchPoint) => {
+    const dx = p.x - c.x;
+    const dy = p.y - c.y;
+    return { u: dx * right.x + dy * right.y, w: (dx * up.x + dy * up.y) / (k * k) };
+  };
+  const corners: ArchPoint[] = [
+    { x: rect.minX, y: rect.minY },
+    { x: rect.maxX, y: rect.minY },
+    { x: rect.maxX, y: rect.maxY },
+    { x: rect.minX, y: rect.maxY },
+  ];
+  const inView = corners.every((p) => {
+    const s = screen(p, v);
+    return Math.abs(s.u) <= v.half * aspect && Math.abs(s.w) <= v.half;
+  });
+  if (inView && v.half < FAR_ENTER_HALF) return null;
+  const c = { x: (rect.minX + rect.maxX) / 2, y: (rect.minY + rect.maxY) / 2 };
+  let half = 0;
+  for (const p of corners) {
+    const s = screen(p, c);
+    half = Math.max(half, Math.abs(s.u) / aspect, Math.abs(s.w));
+  }
+  return { x: c.x, y: c.y, half: Math.max(MIN_HALF_HEIGHT, half * 1.1), rotation: v.rotation };
+}
+
+/**
  * Ground point under a viewport position given in normalised device
  * coordinates (nx, ny in −1..1, ny up).
  */

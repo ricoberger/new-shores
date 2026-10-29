@@ -14,7 +14,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { SyncSnapshot } from "../api/sync";
-import { archipelagoRect, type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
+import { archipelagoRect, type CameraView, frameIslandView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
 import { fieldsUnder, type PaintDrag, paintAnchors, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
 import { servedRelated } from "../display/served";
@@ -632,6 +632,21 @@ export class GameRenderer {
     const p = this.arch.placement(id);
     if (!p) return;
     this.jump({ x: p.position.x + p.width / 2, y: p.position.y + p.height / 2 }, true);
+  }
+
+  /**
+   * Founding on an island (D-058 round 4): keeps the camera when the
+   * island is wholly in view below the far zoom, else frames the whole
+   * island at the current heading (frameIslandView).
+   */
+  frameIsland(id: string): void {
+    const p = this.arch.placement(id);
+    if (!p) return;
+    const v = frameIslandView(this.rig.view(), this.rig.aspect(), { minX: p.position.x, minY: p.position.y, maxX: p.position.x + p.width, maxY: p.position.y + p.height });
+    if (!v) return;
+    this.input.cancel();
+    this.onPointerCancel();
+    this.rig.animateTo({ x: v.x, y: v.y, half: v.half }, JUMP_MS, performance.now());
   }
 
   /** Jumps to a building (zooms in to the near default if farther out). */

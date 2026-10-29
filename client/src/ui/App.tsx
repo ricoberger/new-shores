@@ -278,16 +278,15 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     void demolish(islandId, b, false);
   };
 
-  /** The camera jumps to an island (tabs, island card, Enter). */
-  const goTo = (id: string) => rendererRef.current?.jumpToIsland(id);
-
   /**
-   * Founding (D-051): the camera jumps to the island with the Trading Post
-   * ghost; the player places it. A ship already idle there founds at once,
-   * any other sails there first (sail_ship) and founds on arrival.
+   * Founding (D-051): the Trading Post ghost opens; the camera stays when
+   * the island is in view, else frames the whole island (D-058 round 4) so
+   * that the player picks a coast and zooms in to place it. A ship already
+   * idle there founds at once, any other sails there first (sail_ship) and
+   * founds on arrival.
    */
   const startFounding = (ship: ShipDisplay, islandId: string = ship.island_id) => {
-    goTo(islandId);
+    rendererRef.current?.frameIsland(islandId);
     dispatch({ type: "clearSelection" });
     setPanel("none");
     setTool({ kind: "found", shipId: ship.id, buildingType: warehouseType, rotation: 0 });
