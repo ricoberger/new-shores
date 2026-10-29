@@ -8924,6 +8924,90 @@
       },
       "kind": "building"
     },
+    "trading_pier": {
+      "anchors": {
+        "berth_1": [
+          -0.75,
+          0.06,
+          1.85
+        ],
+        "berth_2": [
+          0.75,
+          0.06,
+          1.85
+        ],
+        "cart": [
+          -0.225,
+          0.125,
+          -1.5
+        ],
+        "door": [
+          -0.25,
+          0.0,
+          -2.0
+        ],
+        "status": [
+          0.0,
+          2.0,
+          0.0
+        ]
+      },
+      "bounds": {
+        "max": [
+          1.5,
+          1.75,
+          1.875
+        ],
+        "min": [
+          -1.5,
+          -1.0,
+          -2.0
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.5,
+            1.75,
+            1.875
+          ],
+          "min": [
+            -1.5,
+            -1.0,
+            -2.0
+          ]
+        },
+        "budget": 6000,
+        "bytes": 60392,
+        "lite": {
+          "bounds": {
+            "max": [
+              1.5,
+              1.5,
+              2.0
+            ],
+            "min": [
+              -1.5,
+              -1.0,
+              -2.0
+            ]
+          },
+          "budget": 480,
+          "bytes": 7276,
+          "path": "trading_pier.lite.glb",
+          "sha256": "5d98baff2db59ec65e29688bd22ba6c7a1a5ce2cf9f8eff1b7031461b313bcd5",
+          "triangles": 184
+        },
+        "path": "trading_pier.glb",
+        "sha256": "1450beac1c40182efd17e00ea9e4fcdd2279aa5d0568c6ffc5730b47649c1ddf",
+        "triangles": 1924
+      },
+      "footprint": {
+        "h": 4,
+        "w": 3
+      },
+      "kind": "building"
+    },
     "trading_post": {
       "anchors": {
         "berth_1": [
