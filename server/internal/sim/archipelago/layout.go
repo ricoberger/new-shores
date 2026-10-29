@@ -192,12 +192,18 @@ func AtSea(islands []*sim.Island, p sim.Pos) bool {
 	return true
 }
 
-// spawn returns the sea tile closest to the archipelago's centre
-// (Euclidean; ties by ring order) that is at least ShipClearance from
-// land.
+// spawn returns the sea tile inside the bounds closest to the home
+// candidate's centre (Euclidean; ties by ring order) that is at least
+// ShipClearance from land (AtSea): the start ship sails ShipClearance
+// tiles or more to its first island (D-058 round 4). A chamfer distance
+// field over the bounds skips the tiles clearly too near land before the
+// exact check.
 func spawn(islands []*sim.Island) (sim.Pos, bool) {
-	cx, cy := centre(islands)
+	home := islands[0]
+	cx, cy := home.X+home.Width/2, home.Y+home.Height/2
 	minX, minY, maxX, maxY := Bounds(islands)
+	near := nearLand(islands, minX, minY, maxX, maxY)
+	w := maxX - minX
 	limit := max(maxX-minX, maxY-minY)
 	var best sim.Pos
 	bestD := -1
@@ -213,6 +219,9 @@ func spawn(islands []*sim.Island) (sim.Pos, bool) {
 					continue
 				}
 				p := sim.Pos{X: cx + dx, Y: cy + dy}
+				if p.X < minX || p.Y < minY || p.X >= maxX || p.Y >= maxY || near[(p.Y-minY)*w+p.X-minX] {
+					continue
+				}
 				d := dx*dx + dy*dy
 				if (bestD < 0 || d < bestD) && AtSea(islands, p) {
 					best, bestD = p, d
@@ -221,4 +230,53 @@ func spawn(islands []*sim.Island) (sim.Pos, bool) {
 		}
 	}
 	return best, bestD >= 0
+}
+
+// nearLand marks the tiles of the bounds whose 5-7 chamfer distance to
+// land is below 0.95 ShipClearance: certainly nearer than ShipClearance
+// (the chamfer is within 2 % of the Euclidean distance).
+func nearLand(islands []*sim.Island, minX, minY, maxX, maxY int) []bool {
+	w, h := maxX-minX, maxY-minY
+	const inf = 1 << 30
+	d := make([]int, w*h)
+	for i := range d {
+		d[i] = inf
+	}
+	for _, is := range islands {
+		for y := range is.Height {
+			for x := range is.Width {
+				if is.Tile(x, y).Terrain != content.TerrainWater {
+					d[(is.Y+y-minY)*w+is.X+x-minX] = 0
+				}
+			}
+		}
+	}
+	relax := func(k, i, j, wt int) {
+		if i >= 0 && j >= 0 && i < w && j < h && d[j*w+i]+wt < d[k] {
+			d[k] = d[j*w+i] + wt
+		}
+	}
+	for j := range h {
+		for i := range w {
+			k := j*w + i
+			relax(k, i-1, j, 5)
+			relax(k, i, j-1, 5)
+			relax(k, i-1, j-1, 7)
+			relax(k, i+1, j-1, 7)
+		}
+	}
+	for j := h - 1; j >= 0; j-- {
+		for i := w - 1; i >= 0; i-- {
+			k := j*w + i
+			relax(k, i+1, j, 5)
+			relax(k, i, j+1, 5)
+			relax(k, i+1, j+1, 7)
+			relax(k, i-1, j+1, 7)
+		}
+	}
+	near := make([]bool, w*h)
+	for k, v := range d {
+		near[k] = v*100 < 95*5*ShipClearance
+	}
+	return near
 }

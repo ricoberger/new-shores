@@ -1,4 +1,4 @@
-seed 42 home isle-01 ship (395,408) bounds (0,0)-(763,722)
+seed 42 home isle-01 ship (461,320) bounds (0,0)-(763,722)
 
 isle-01 "Tidewright Isle" large at (283,206) 176x232 fertilities [wheat woad] slots iron 0 stone 1
 levels 33113/4560/3159 digest 5698ed02

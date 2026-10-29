@@ -25,8 +25,8 @@ type Archipelago struct {
 	Islands []*sim.Island
 	// Home is the ID of the guaranteed home candidate.
 	Home string
-	// Ship is the spawn position of the start ship: the archipelago's
-	// centre, nudged to the nearest sea tile ShipClearance tiles from land.
+	// Ship is the spawn position of the start ship: the sea tile nearest
+	// the home candidate that is ShipClearance tiles from land.
 	Ship sim.Pos
 }
 
@@ -35,8 +35,9 @@ type Archipelago struct {
 const MaxSeed uint64 = 1<<53 - 1
 
 // ShipClearance is the minimum Euclidean distance in tiles from the start
-// ship's spawn to the nearest land tile.
-const ShipClearance = 10
+// ship's spawn to the nearest land tile: its first voyage takes 40 s or
+// more (one tile per second, D-058 round 4).
+const ShipClearance = 40
 
 // Attempt bounds: the archipelago retries with derived sub-seeds, each
 // island shape with its own. A seed that exhausts them is a content error

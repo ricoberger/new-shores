@@ -1,4 +1,4 @@
-seed 1 home isle-01 ship (442,433) bounds (0,0)-(833,809)
+seed 1 home isle-01 ship (357,337) bounds (0,0)-(833,809)
 
 isle-01 "Cormorant Rock" large at (348,276) 195x215 fertilities [wheat woad grapes] slots iron 0 stone 2
 levels 27628/12012/2285 digest bf85e660

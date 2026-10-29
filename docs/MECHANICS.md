@@ -638,9 +638,11 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
   nearest neighbour ≤ 120, every strait (land to land, skerries
   included) ≥ 24 tiles of water, and no sea point inside the hull of the
   land lies more than 150 tiles from land (a layout with more open sea is
-  drawn again); the start ship spawns at the centre. The archipelago
-  may be **re-rolled** until the first founding (`reroll_archipelago`);
-  a settled island may be **renamed** by its owner (`rename_island`).
+  drawn again); the start ship spawns at the sea tile nearest the home
+  candidate that lies ≥ 40 tiles from any land (its first voyage takes
+  40 s or more). The archipelago may be **re-rolled** until the first
+  founding (`reroll_archipelago`); a settled island may be **renamed** by
+  its owner (`rename_island`).
 - **Shapes (D-058):** a habitable island grows from a skeleton (a trunk
   with 1–3 arms) through a distance field and warped noise; large and
   medium islands keep at least one bay ≥ 15 % of their span deep and one
