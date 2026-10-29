@@ -59,7 +59,7 @@ func TestIslandAtlas(t *testing.T) {
 			writePNG(t, filepath.Join(dir, fmt.Sprintf("%s-%s.png", is.ID, is.SizeClass)), img)
 		}
 		writePNG(t, filepath.Join(dir, "overview.png"), renderOverview(a, c))
-		t.Logf("seed %d: %d islands, %d buildable -> %s", seed, len(a.Islands), buildableArea(a.Islands), dir)
+		t.Logf("seed %d: %d islands, %d buildable -> %s", seed, len(a.Islands), buildableArea(Main(&c.Islands, a.Islands)), dir)
 	}
 }
 
@@ -411,7 +411,9 @@ func renderOverview(a *Archipelago, c *content.Catalogue) *image.RGBA {
 				img.SetRGBA(is.X+x-x0, is.Y+y-y0, tileColour(t, false))
 			}
 		}
-		drawText(img, is.X-x0, max(0, is.Y-y0-12), 2, color.RGBA{255, 255, 255, 255}, is.ID+" "+strings.ToUpper(is.Name))
+		if is.Name != "" {
+			drawText(img, is.X-x0, max(0, is.Y-y0-12), 2, color.RGBA{255, 255, 255, 255}, is.ID+" "+strings.ToUpper(is.Name))
+		}
 	}
 	fillRect(img, a.Ship.X-x0-3, a.Ship.Y-y0-3, a.Ship.X-x0+4, a.Ship.Y-y0+4, hex("#D7263D"))
 	_ = c
@@ -477,7 +479,8 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 	per := map[string]*agg{}
 	archAttempts := map[int]int{}
 	reasons := map[string]int{}
-	var areas []int
+	var areas, extents, voids []int
+	skerries, skerryTiles := 0, 0
 	for seed := uint64(1); seed <= uint64(n); seed++ {
 		attempts := 0
 		var a *Archipelago
@@ -499,8 +502,16 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 			t.Errorf("seed %d failed", seed)
 			continue
 		}
-		areas = append(areas, buildableArea(a.Islands))
-		for _, is := range a.Islands {
+		main := Main(&c.Islands, a.Islands)
+		areas = append(areas, buildableArea(main))
+		x0, y0, x1, y1 := Bounds(a.Islands)
+		extents = append(extents, max(x1-x0, y1-y0))
+		voids = append(voids, MaxVoid(main))
+		for _, is := range a.Islands[len(main):] {
+			skerries++
+			skerryTiles += statsOf(is).land
+		}
+		for _, is := range main {
 			g := per[is.SizeClass]
 			if g == nil {
 				g = &agg{plainMin: 1 << 30, rivers: map[int]int{}, islets: map[int]int{}, buildable: map[int]int{}, coast: map[int]int{},
@@ -559,6 +570,11 @@ func atlasStats(t *testing.T, c *content.Catalogue, n int) {
 		}
 	}
 	t.Logf("archipelago rejections: %v", reasons)
+	slices.Sort(extents)
+	slices.Sort(voids)
+	t.Logf("extent (longer side) min %d median %d max %d | open sea bound min %d median %d max %d (max %d) | skerries %d (mean %d tiles)",
+		extents[0], extents[len(extents)/2], extents[len(extents)-1], voids[0], voids[len(voids)/2], voids[len(voids)-1], c.Islands.VoidMax,
+		skerries, skerryTiles/max(1, skerries))
 	slices.Sort(areas)
 	t.Logf("seeds 1..%d: archipelago attempts histogram %v; buildable area min %d median %d max %d (target %d ±%d‰)",
 		n, archAttempts, areas[0], areas[len(areas)/2], areas[len(areas)-1], c.Islands.BuildableTarget, c.Islands.BuildableTolerance)

@@ -2497,7 +2497,7 @@ components:
     IslandDisplay:
       type: object
       additionalProperties: false
-      required: [id, name, size_class, rock, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source, fertilities, deposits, terrain_mask]
+      required: [id, name, size_class, rock, scenic, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source, fertilities, deposits, terrain_mask]
       properties:
         id:
           type: string
@@ -2510,6 +2510,9 @@ components:
         rock:
           type: boolean
           description: The island is a resource rock (mines only, no houses).
+        scenic:
+          type: boolean
+          description: The island is a skerry (D-058) - scenery only, no name, never settled and never a destination; land for sea routes.
         settled:
           type: boolean
           description: The island has a Trading Post (capacity > 0); unsettled islands accept only found_island.
@@ -3026,7 +3029,7 @@ components:
     ContentSizeClass:
       type: object
       additionalProperties: false
-      required: [id, name, rock]
+      required: [id, name, rock, scenic]
       properties:
         id:
           type: string
@@ -3036,6 +3039,9 @@ components:
         rock:
           type: boolean
           description: Resource rocks carry mines only (no fertility, no houses).
+        scenic:
+          type: boolean
+          description: Skerries (D-058) are scenery only - no sites, fertilities or deposits, not settleable, no name.
     ContentQuest:
       type: object
       additionalProperties: false

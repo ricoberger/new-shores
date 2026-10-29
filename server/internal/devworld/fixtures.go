@@ -682,7 +682,7 @@ func (f *fixture) neighbour(id string) string {
 	best, bestGap := "", -1
 	for _, is := range f.w.Islands {
 		sc := f.c.Islands.SizeClassByID[is.SizeClass]
-		if is.ID == id || sc == nil || sc.Rock {
+		if is.ID == id || sc == nil || sc.Rock || sc.Scenic {
 			continue
 		}
 		if g := archipelago.Gap2(from, is); bestGap < 0 || g < bestGap {

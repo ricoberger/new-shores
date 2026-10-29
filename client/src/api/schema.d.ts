@@ -1692,6 +1692,8 @@ export interface components {
             size_class: string;
             /** @description The island is a resource rock (mines only, no houses). */
             rock: boolean;
+            /** @description The island is a skerry (D-058) - scenery only, no name, never settled and never a destination; land for sea routes. */
+            scenic: boolean;
             /** @description The island has a Trading Post (capacity > 0); unsettled islands accept only found_island. */
             settled: boolean;
             /** @description Archipelago position. */
@@ -2078,6 +2080,8 @@ export interface components {
             name: string;
             /** @description Resource rocks carry mines only (no fertility, no houses). */
             rock: boolean;
+            /** @description Skerries (D-058) are scenery only - no sites, fertilities or deposits, not settleable, no name. */
+            scenic: boolean;
         };
         ContentQuest: {
             id: string;

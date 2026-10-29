@@ -310,9 +310,11 @@ type IslandDisplay struct {
 	Name string `json:"name"`
 	// SizeClass is the content size class of a generated island ("" for a
 	// hand-made one); Rock is true for a size class marked rock (a resource
-	// rock: mines only, D-053).
+	// rock: mines only, D-053); Scenic is true for a skerry (D-058: no
+	// sites, not settleable, no name; land for sea routing only).
 	SizeClass string `json:"size_class"`
 	Rock      bool   `json:"rock"`
+	Scenic    bool   `json:"scenic"`
 	// Settled is true when the island has a Trading Post; unsettled
 	// islands have capacity 0 and accept only FoundIsland.
 	Settled bool `json:"settled"`
@@ -716,7 +718,7 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, wr *worldRates, r
 		Fertilities: append([]string{}, is.Fertilities...), Deposits: IslandDeposits(is), TerrainMask: TerrainMask(is),
 	}
 	if sc := c.Islands.SizeClassByID[is.SizeClass]; sc != nil {
-		d.Rock = sc.Rock
+		d.Rock, d.Scenic = sc.Rock, sc.Scenic
 	}
 	for tier, p := range r.workforce {
 		d.Workforce[tier] = WorkforceDisplay{Available: p.available, Required: p.required, FactorPermille: p.factorPermille()}

@@ -714,12 +714,16 @@ export class GameRenderer {
     }
     const focus = focusedIsland(islands, v);
     this.cullChunks(islands);
-    // Tile priorities: the focused island, then the islands in view by distance from the view's centre.
+    // Tile priorities: the focused island, then the islands in view by distance from the view's centre, then the skerries.
     const dist = (is: IslandDisplay) => Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y);
-    const inView = islands
-      .filter((is) => this.visible.has(is.id))
-      .sort((a, b) => dist(a) - dist(b))
-      .map((is) => is.id);
+    // The skerries next (D-058): a few tiles each, too small for their 1:4 mask, they show on the far view and the minimap only with their tiles.
+    const inView = [
+      ...islands
+        .filter((is) => this.visible.has(is.id))
+        .sort((a, b) => dist(a) - dist(b))
+        .map((is) => is.id),
+      ...islands.filter((is) => is.scenic && !this.visible.has(is.id)).map((is) => is.id),
+    ];
     const priorityKey = `${focus}|${inView.join(",")}`;
     if (priorityKey !== this.priorityKey) {
       this.priorityKey = priorityKey;
@@ -759,7 +763,8 @@ export class GameRenderer {
       const farMasked = this.farMask && this.lod === "far" && is.id !== focus;
       const useMask = !d?.hasTiles() || farMasked;
       d?.setShown(shown && !useMask, this.lod);
-      if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), tiles: d?.farTerrain() ?? null });
+      // Only the islands in view: off-screen ones would only add triangles to the merged mesh (D-048's far budget, D-058's denser archipelago).
+      if (useMask && shown) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), tiles: d?.farTerrain() ?? null });
       // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
       if (showsLandmarks(is, this.lod, focus, useMask)) landmarks.push(is);
     }
@@ -1116,10 +1121,11 @@ export class GameRenderer {
     return d.groundAt(at.x - pl.position.x, at.y - pl.position.y);
   }
 
-  /** The island whose land is under (or within one tile of) a render-pixel position. */
+  /** The island whose land is under (or within one tile of) a render-pixel position; a skerry (D-058: scenery) counts as the sea. */
   private islandUnder(p: Point): string | null {
     const g = this.groundPoint(p);
-    return g ? this.arch.islandAt(g, this.sync.getSnapshot().islands) : null;
+    const id = g ? this.arch.islandAt(g, this.sync.getSnapshot().islands) : null;
+    return id && !this.displayIsland(id)?.scenic ? id : null;
   }
 
   /** The tile under a render-pixel position, on the island whose rectangle contains it (null over the open sea). */

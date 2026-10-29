@@ -58,9 +58,12 @@ func (v *view) free(x, y int) bool {
 // step returns the tiles a road takes from (x, y) in direction d: the next
 // tile when land is ok there, or a straight bridge over one or two free
 // river tiles with ok land behind it (D-058 part 3: a road crosses a river
-// straight, never along it); nil when neither.
+// straight, never along it); nil when neither. A new road tile never
+// touches the side of an existing bridge (sim: the bridge would no longer
+// be straight), and no bridge starts on a bridge.
 func (v *view) step(x, y int, d [2]int, land func(x, y int) bool) []int {
 	is := v.is
+	fromRiver := is.Tile(x, y).Terrain == content.TerrainRiver
 	var out []int
 	for k := 1; k <= 3; k++ {
 		nx, ny := x+d[0]*k, y+d[1]*k
@@ -68,9 +71,12 @@ func (v *view) step(x, y int, d [2]int, land func(x, y int) bool) []int {
 			return nil
 		}
 		if land(nx, ny) {
+			if is.RoadAt(nx, ny) == "" && v.besideBridge(nx, ny) {
+				return nil
+			}
 			return append(out, ny*is.Width+nx)
 		}
-		if k == 3 || is.Tile(nx, ny).Terrain != content.TerrainRiver || is.RoadAt(nx, ny) != "" || v.occ[ny*is.Width+nx] != 0 {
+		if k == 3 || fromRiver || is.Tile(nx, ny).Terrain != content.TerrainRiver || is.RoadAt(nx, ny) != "" || v.occ[ny*is.Width+nx] != 0 {
 			return nil
 		}
 		// No road beside the bridge (it would run along the river).
@@ -82,6 +88,18 @@ func (v *view) step(x, y int, d [2]int, land func(x, y int) bool) []int {
 		out = append(out, ny*is.Width+nx)
 	}
 	return nil
+}
+
+// besideBridge reports whether a 4-neighbour of the tile is a river tile
+// with a road (a bridge).
+func (v *view) besideBridge(x, y int) bool {
+	for _, d := range [4][2]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
+		nx, ny := x+d[0], y+d[1]
+		if v.is.InBounds(nx, ny) && v.is.Tile(nx, ny).Terrain == content.TerrainRiver && v.is.RoadAt(nx, ny) != "" {
+			return true
+		}
+	}
+	return false
 }
 
 // coversForest reports whether a footprint covers a forest tile.
@@ -268,13 +286,19 @@ func (f *fixture) openAnchor(island string, from sim.Pos, r, n int) sim.Pos {
 
 // forestAnchor returns the tile nearest to from whose surroundings
 // (Chebyshev radius 4) hold at least 30 free forest tiles, where a
-// lumberjack works at full efficiency; from itself when there is none.
+// lumberjack works at full efficiency, and that a road from the island's
+// network reaches (not across a river or up a cliff); from itself when
+// there is none.
 func (f *fixture) forestAnchor(island string, from sim.Pos) sim.Pos {
 	is := f.w.Island(island)
 	v := f.view(is)
+	reach := f.reachable(island)
 	best, bestD := from, -1
 	for y := range is.Height {
 		for x := range is.Width {
+			if !reach[y*is.Width+x] {
+				continue
+			}
 			n := 0
 			for ty := y - 4; ty <= y+4; ty++ {
 				for tx := x - 4; tx <= x+4; tx++ {

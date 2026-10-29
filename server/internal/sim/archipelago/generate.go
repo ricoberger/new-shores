@@ -112,6 +112,9 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 	for i, is := range a.Islands {
 		is.Name = names[i]
 	}
+	if a.Islands, err = skerries(newRNG(derive(sub, 50)), a.Islands, rules); err != nil {
+		return nil, err
+	}
 	ship, ok := spawn(a.Islands)
 	if !ok {
 		return nil, errors.New("no sea tile for the start ship")

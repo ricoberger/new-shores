@@ -2,6 +2,7 @@ package archipelago
 
 import (
 	"errors"
+	"fmt"
 	"slices"
 
 	"github.com/ricoberger/new-shores/server/internal/content"
@@ -27,14 +28,19 @@ const (
 
 // layout runs layoutRounds layouts (layoutOnce) and keeps the one with
 // the least sum of the distance of the home candidate's (islands[0])
-// centre to the centre of the bounds and the leg (origin to origin) to
-// its nearest habitable neighbour.
+// centre to the centre of the bounds and the distance (origin to origin)
+// to its nearest habitable neighbour. A layout with open sea farther
+// than VoidMax from land inside the islands' hull is dropped (D-058).
 func layout(r *rng, islands []*sim.Island, rules *content.IslandRules) error {
 	best := -1
 	var keep [][2]int
 	var err error
 	for range layoutRounds {
 		if err = layoutOnce(r, islands, rules); err != nil {
+			continue
+		}
+		if v := MaxVoid(islands); v > rules.VoidMax {
+			err = fmt.Errorf("open sea %d tiles from land (max %d)", v, rules.VoidMax)
 			continue
 		}
 		_, _, maxX, maxY := Bounds(islands)
@@ -52,7 +58,7 @@ func layout(r *rng, islands []*sim.Island, rules *content.IslandRules) error {
 		}
 		far := 0
 		if near > 0 {
-			// Legs run between the islands' origins (sim.TravelMs).
+			// A proxy of the leg (sim.Ends): the islands' origins.
 			ex, ey := islands[near].X-h.X, islands[near].Y-h.Y
 			far = isqrt(ex*ex + ey*ey)
 		}

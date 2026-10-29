@@ -502,12 +502,36 @@ func IsHomeCandidate(is *sim.Island, rules *content.IslandRules) bool {
 	return true
 }
 
+// verifySkerry checks a skerry (D-058): no name, fertility or deposit;
+// land of grass or sand only, SkerryTiles tiles.
+func verifySkerry(is *sim.Island, sc *content.SizeClass) error {
+	if is.Name != "" || len(is.Fertilities) > 0 {
+		return errors.New("a skerry has a name or fertilities")
+	}
+	n := 0
+	for _, t := range is.Tiles {
+		switch {
+		case t.Deposit != nil:
+			return errors.New("a skerry has a deposit")
+		case t.Terrain == content.TerrainWater:
+		case t.Terrain == content.TerrainGrass || t.Terrain == content.TerrainCoast:
+			n++
+		default:
+			return fmt.Errorf("a skerry has %s", t.Terrain)
+		}
+	}
+	if !SkerryTiles(sc).Contains(n) {
+		return fmt.Errorf("%d skerry tiles outside %+v", n, SkerryTiles(sc))
+	}
+	return nil
+}
+
 // Verify checks a generated archipelago against every rule of D-053 and
 // the content: the island count per size class, the per-island and
 // per-archipelago fertility and deposit ranges, the buildable area, the
-// spacing, the home candidate, the island checks (Trading Post and
-// shipyard sites, minable deposits), unique names and the start ship at
-// sea.
+// spacing, the straits and the open sea (D-058), the home candidate, the
+// island checks (Trading Post and shipyard sites, minable deposits),
+// unique names, the skerries and the start ship at sea.
 func Verify(a *Archipelago, c *content.Catalogue) error {
 	rules := &c.Islands
 	if len(a.Islands) == 0 {
@@ -528,6 +552,12 @@ func Verify(a *Archipelago, c *content.Catalogue) error {
 			return fmt.Errorf("duplicate island ID %q", is.ID)
 		}
 		ids[is.ID] = true
+		if sc.Scenic {
+			if err := verifySkerry(is, sc); err != nil {
+				return fmt.Errorf("%s: %w", is.ID, err)
+			}
+			continue
+		}
 		if names[is.Name] || content.CheckIslandName(is.Name) != nil {
 			return fmt.Errorf("%s: invalid or duplicate name %q", is.ID, is.Name)
 		}
@@ -577,12 +607,23 @@ func Verify(a *Archipelago, c *content.Catalogue) error {
 			return fmt.Errorf("deposit %s: %d slots, want %+v", e.ID, deps[e.ID], e.Count)
 		}
 	}
-	if n := buildableArea(a.Islands); !rules.BuildableRange().Contains(n) {
+	main := Main(rules, a.Islands)
+	if n := buildableArea(main); !rules.BuildableRange().Contains(n) {
 		return fmt.Errorf("buildable area %d outside %+v", n, rules.BuildableRange())
 	}
 	for i, is := range a.Islands {
+		for _, o := range a.Islands[i+1:] {
+			if g := landGap2(is, o, rules.StraitMin); g < rules.StraitMin*rules.StraitMin {
+				return fmt.Errorf("%s and %s: land closer than %d tiles", is.ID, o.ID, rules.StraitMin)
+			}
+		}
+	}
+	if v := MaxVoid(main); v > rules.VoidMax {
+		return fmt.Errorf("open sea %d tiles from land (max %d)", v, rules.VoidMax)
+	}
+	for i, is := range main {
 		nearest := -1
-		for j, o := range a.Islands {
+		for j, o := range main {
 			if i == j {
 				continue
 			}

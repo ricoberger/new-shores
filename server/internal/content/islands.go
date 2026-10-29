@@ -36,6 +36,11 @@ type SizeClass struct {
 	Size int
 	// Rock marks resource rocks: mountain and coast only, no fertility.
 	Rock bool
+	// Scenic marks skerries (D-058): rock with a grass or sand top of Size
+	// to ¾·Size² tiles, without sites, fertilities or deposits, not
+	// settleable and without a name; land for sea routing only. They do
+	// not count toward the islands, names or the buildable area.
+	Scenic bool
 	// Count is the number of islands of the class per archipelago.
 	Count Range
 	// Fertilities and Deposits are the per-island ranges of fertility tags
@@ -100,9 +105,15 @@ type IslandRules struct {
 	BuildableTarget    int
 	BuildableTolerance int64
 	// SpacingMin is the minimum gap between the grids of two islands,
-	// NearestMax the maximum gap from every island to its nearest one.
+	// NearestMax the maximum gap from every island to its nearest one
+	// (both without skerries). StraitMin is the minimum water between the
+	// land of any two islands (skerries included), VoidMax the maximum
+	// distance from a sea point inside the islands' convex hull to land
+	// (D-058).
 	SpacingMin int
 	NearestMax int
+	StraitMin  int
+	VoidMax    int
 	Home       HomeRule
 }
 
@@ -129,6 +140,7 @@ type rawIslands struct {
 		Name        string   `json:"name"`
 		Size        int      `json:"size"`
 		Rock        bool     `json:"rock"`
+		Scenic      bool     `json:"scenic"`
 		Count       rawRange `json:"count"`
 		Fertilities rawRange `json:"fertilities"`
 		Deposits    rawRange `json:"deposits"`
@@ -149,6 +161,8 @@ type rawIslands struct {
 	Spacing struct {
 		Min        int `json:"min"`
 		NearestMax int `json:"nearest_max"`
+		StraitMin  int `json:"strait_min"`
+		VoidMax    int `json:"void_max"`
 	} `json:"spacing"`
 	Home struct {
 		SizeClass       string   `json:"size_class"`
@@ -170,7 +184,7 @@ func decodeIslands(col *collector, raw rawIslands, names []string) (IslandRules,
 			continue
 		}
 		c := &SizeClass{
-			ID: sc.ID, Name: sc.Name, Size: sc.Size, Rock: sc.Rock,
+			ID: sc.ID, Name: sc.Name, Size: sc.Size, Rock: sc.Rock, Scenic: sc.Scenic,
 			Count:       Range(sc.Count),
 			Fertilities: Range(sc.Fertilities),
 			Deposits:    Range(sc.Deposits),
@@ -200,6 +214,7 @@ func decodeIslands(col *collector, raw rawIslands, names []string) (IslandRules,
 	r.BuildableTarget = raw.BuildableArea.Target
 	r.BuildableTolerance = col.fixed(file, "", "buildable_area.tolerance", raw.BuildableArea.Tolerance, 3)
 	r.SpacingMin, r.NearestMax = raw.Spacing.Min, raw.Spacing.NearestMax
+	r.StraitMin, r.VoidMax = raw.Spacing.StraitMin, raw.Spacing.VoidMax
 	r.Home = HomeRule{
 		SizeClass:       raw.Home.SizeClass,
 		Terrain:         slices.Clone(raw.Home.Terrain),
@@ -286,6 +301,10 @@ func checkIslands(c *Catalogue, col *collector) {
 		if sc.Rock && sc.Fertilities.Max > 0 {
 			col.add(file, ent, "fertilities", "a resource rock carries no fertility (max must be 0)")
 		}
+		if sc.Scenic {
+			checkScenic(col, ent, sc)
+			continue
+		}
 		if sc.Size < 8 {
 			col.add(file, ent, "size", "must be >= 8")
 		}
@@ -351,6 +370,9 @@ func checkIslands(c *Catalogue, col *collector) {
 	if r.SpacingMin < 1 || r.NearestMax < r.SpacingMin {
 		col.add(file, "", "spacing", "need 1 <= min <= nearest_max, got %d and %d", r.SpacingMin, r.NearestMax)
 	}
+	if r.StraitMin < 1 || r.VoidMax < 1 {
+		col.add(file, "", "spacing", "strait_min and void_max must be >= 1, got %d and %d", r.StraitMin, r.VoidMax)
+	}
 
 	h := r.Home
 	sc := r.SizeClassByID[h.SizeClass]
@@ -361,6 +383,8 @@ func checkIslands(c *Catalogue, col *collector) {
 		col.add(file, "", "home.size_class", "size class %q must have at least one island (count.min >= 1)", h.SizeClass)
 	case sc.Rock:
 		col.add(file, "", "home.size_class", "the home candidate cannot be a resource rock")
+	case sc.Scenic:
+		col.add(file, "", "home.size_class", "the home candidate cannot be a skerry")
 	case len(h.FertilitiesAny) > 0 && sc.Fertilities.Max < 1:
 		col.add(file, "", "home.fertilities_any", "size class %q carries no fertility", h.SizeClass)
 	case len(h.Deposits) > sc.Deposits.Max:
@@ -395,6 +419,31 @@ func checkIslands(c *Catalogue, col *collector) {
 	}
 	if len(c.IslandNames) < maxIslands {
 		col.add(FileIslandNames, "", "", "%d names for up to %d islands", len(c.IslandNames), maxIslands)
+	}
+}
+
+// Skerry size limits (Size: the smallest skerry in tiles, D-058).
+const (
+	MinScenicSize = 2
+	MaxScenicSize = 8
+)
+
+// checkScenic validates a skerry class (D-058): no resource rock, no
+// fertilities, deposits or shape parameters, a size in [MinScenicSize,
+// MaxScenicSize].
+func checkScenic(col *collector, ent string, sc *SizeClass) {
+	const file = FileIslands
+	if sc.Rock {
+		col.add(file, ent, "scenic", "a skerry is no resource rock")
+	}
+	if sc.Fertilities.Max > 0 || sc.Deposits.Max > 0 {
+		col.add(file, ent, "scenic", "a skerry carries no fertilities or deposits (max must be 0)")
+	}
+	if sc.Shape != (ShapeRules{}) {
+		col.add(file, ent, "shape", "a skerry has no arms, plain, rivers, levels or islets")
+	}
+	if sc.Size < MinScenicSize || sc.Size > MaxScenicSize {
+		col.add(file, ent, "size", "a skerry's size must be in [%d, %d]", MinScenicSize, MaxScenicSize)
 	}
 }
 

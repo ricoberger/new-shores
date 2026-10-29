@@ -171,6 +171,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
       capacity_source: null,
       size_class: "",
       rock: false,
+      scenic: false,
       ...NO_STATICS,
     });
     statics.set(id, {
@@ -710,6 +711,7 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     capacity_source: null,
     size_class: "",
     rock: false,
+    scenic: false,
     ...NO_STATICS,
   } as IslandDisplay;
   const statics: Island = { id, width, height, revision: "fixture", terrain, fertilities: ["wheat"], deposits: denseDeposits(width, height) };
@@ -818,6 +820,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
       capacity_source: null,
       size_class: "",
       rock: false,
+      scenic: false,
       ...NO_STATICS,
     } as IslandDisplay);
     statics.set(sp.id, { id: sp.id, width: sp.w, height: sp.h, revision: "fixture", terrain: terrain(sp.w, sp.h, 31 + i), fertilities: ["wheat"], deposits: [] });
@@ -1037,6 +1040,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     capacity_source: null,
     size_class: "",
     rock: false,
+    scenic: false,
     ...NO_STATICS,
   } as IslandDisplay;
   const statics: Island = {

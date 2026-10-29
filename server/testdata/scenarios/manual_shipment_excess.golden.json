@@ -349,6 +349,7 @@
         "name": "Start",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": true,
         "position": {
           "x": 0,
@@ -680,6 +681,7 @@
         "name": "Island 2",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": true,
         "position": {
           "x": 36,

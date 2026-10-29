@@ -18,7 +18,7 @@
     { "id": "iron", "count": { "min": 2, "max": 4 } }
   ],
   "buildable_area": { "target": 6550, "tolerance": 0.1 },
-  "spacing": { "min": 60, "nearest_max": 150 },
+  "spacing": { "min": 60, "nearest_max": 150, "strait_min": 24, "void_max": 1000 },
   "home": {
     "size_class": "large",
     "terrain": ["forest", "grass"],

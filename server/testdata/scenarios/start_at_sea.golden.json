@@ -194,6 +194,7 @@
         "name": "Home",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": true,
         "position": {
           "x": 0,
@@ -556,6 +557,7 @@
         "name": "Other",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": false,
         "position": {
           "x": 40,

@@ -19,7 +19,7 @@ const propertySeeds = 200
 // composition (counts per size class, fertility and deposit ranges per
 // island and per archipelago), names and IDs, the buildable area, the
 // spacing, the home candidate, the founding sites and the spawn; and the
-// D-058 shapes (checkShape).
+// D-058 shapes (checkShape), skerries, straits and open sea.
 func TestProperties(t *testing.T) {
 	if testing.Short() {
 		t.Skip("200 archipelagos")
@@ -64,6 +64,7 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 	deposits := map[string]int{}
 	seen := map[string]bool{}
 	buildable := 0
+	main := Main(rules, a.Islands)
 	for i, is := range a.Islands {
 		sc := rules.SizeClassByID[is.SizeClass]
 		if sc == nil {
@@ -73,6 +74,19 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 		perClass[sc.ID]++
 		if is.ID != IslandID(i) {
 			fail("island %d has ID %s", i, is.ID)
+		}
+		// Straits: land to land, skerries included (D-058).
+		for _, o := range a.Islands[i+1:] {
+			if g := landGap2(is, o, rules.StraitMin); g < rules.StraitMin*rules.StraitMin {
+				fail("%s and %s: land %d tiles apart, want >= %d", is.ID, o.ID, isqrt(g), rules.StraitMin)
+			}
+		}
+		if sc.Scenic {
+			checkSkerry(t, seed, is, sc)
+			if i < len(main) {
+				fail("skerry %s before an island", is.ID)
+			}
+			continue
 		}
 		if !names[is.Name] || seen[is.Name] {
 			fail("%s name %q not from the list or repeated", is.ID, is.Name)
@@ -111,7 +125,7 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 			fail("%s at (%d,%d)", is.ID, is.X, is.Y)
 		}
 		nearest := -1
-		for _, o := range a.Islands {
+		for _, o := range main {
 			if o == is {
 				continue
 			}
@@ -137,6 +151,9 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 	if !area.Contains(buildable) {
 		fail("buildable area %d outside %v", buildable, area)
 	}
+	if v := MaxVoid(main); v > rules.VoidMax {
+		fail("open sea %d tiles from land, want <= %d", v, rules.VoidMax)
+	}
 	if a.Home != a.Islands[0].ID || !IsHomeCandidate(a.Islands[0], rules) {
 		fail("home %s is not the first island or no candidate", a.Home)
 	}
@@ -149,6 +166,42 @@ func checkProperties(t *testing.T, c *content.Catalogue, seed uint64, names map[
 	}
 	if !AtSea(a.Islands, a.Ship) || landWithin(a.Islands, a.Ship, ShipClearance) {
 		fail("ship at (%d,%d) within %d tiles of land", a.Ship.X, a.Ship.Y, ShipClearance)
+	}
+}
+
+// checkSkerry restates the skerry rules (D-058): no name, fertilities or
+// deposits; SkerryTiles land tiles of one top (grass or sand) in one
+// 4-connected blob, raised (level 1-2) so that the sides are rock.
+func checkSkerry(t *testing.T, seed uint64, is *sim.Island, sc *content.SizeClass) {
+	t.Helper()
+	fail := func(format string, args ...any) {
+		t.Helper()
+		t.Errorf("seed %d skerry %s: %s", seed, is.ID, fmt.Sprintf(format, args...))
+	}
+	if is.Name != "" || len(is.Fertilities) > 0 || len(DepositCounts(is)) > 0 {
+		fail("name %q, fertilities %v, deposits %v", is.Name, is.Fertilities, DepositCounts(is))
+	}
+	tops := map[string]int{}
+	for _, tl := range is.Tiles {
+		if tl.Terrain == content.TerrainWater {
+			continue
+		}
+		tops[tl.Terrain]++
+		if tl.Level < 1 || tl.Level > 2 {
+			fail("land at level %d", tl.Level)
+		}
+	}
+	if len(tops) != 1 || (tops[content.TerrainGrass] == 0 && tops[content.TerrainCoast] == 0) {
+		fail("tops %v, want one of grass or coast", tops)
+	}
+	n := tops[content.TerrainGrass] + tops[content.TerrainCoast]
+	if !SkerryTiles(sc).Contains(n) {
+		fail("%d tiles, want %v", n, SkerryTiles(sc))
+	}
+	for top := range tops {
+		if c := islandComponents(is, top); len(c) != 1 {
+			fail("%d blobs", len(c))
+		}
 	}
 }
 

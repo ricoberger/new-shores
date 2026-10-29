@@ -838,6 +838,9 @@ func foundIsland(w *World, c *content.Catalogue, cmd FoundIsland, l *Ledger) err
 	if settled(is, c) {
 		return fmt.Errorf("%w: %q", ErrIslandAlreadySettled, is.ID)
 	}
+	if scenic(is, c) {
+		return fmt.Errorf("%w: %q is a skerry", ErrInvalidCommand, is.ID)
+	}
 	def := c.BuildingByID[cmd.BuildingType]
 	if def == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownBuilding, cmd.BuildingType)
@@ -953,6 +956,9 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 	if to == nil {
 		return fmt.Errorf("%w: unknown destination %q", ErrRouteInvalid, cmd.ToIslandID)
 	}
+	if scenic(to, c) {
+		return fmt.Errorf("%w: %q is a skerry", ErrRouteInvalid, to.ID)
+	}
 	if to == from {
 		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)
 	}
@@ -1037,6 +1043,13 @@ func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo m
 	return s, nil
 }
 
+// scenic reports whether an island is a skerry (D-058): land for sea
+// routing only, never a destination and never settled.
+func scenic(is *Island, c *content.Catalogue) bool {
+	sc := c.Islands.SizeClassByID[is.SizeClass]
+	return sc != nil && sc.Scenic
+}
+
 func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	s, err := idleShip(w, cmd.ShipID)
 	if err != nil {
@@ -1045,6 +1058,9 @@ func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	to := w.Island(cmd.ToIslandID)
 	if to == nil {
 		return fmt.Errorf("%w: unknown destination %q", ErrRouteInvalid, cmd.ToIslandID)
+	}
+	if scenic(to, c) {
+		return fmt.Errorf("%w: %q is a skerry", ErrRouteInvalid, to.ID)
 	}
 	if to.ID == s.IslandID {
 		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)

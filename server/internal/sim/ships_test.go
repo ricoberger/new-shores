@@ -741,3 +741,24 @@ func TestDueEventComposition(t *testing.T) {
 		t.Fatalf("wrong time: %v", err)
 	}
 }
+
+// TestSkerryNoDestination: a skerry (scenic size class, D-058) is land
+// for sea routing only: never a sail or shipment destination, never
+// founded, and marked scenic in the display.
+func TestSkerryNoDestination(t *testing.T) {
+	cc := *catalogue(t)
+	c := &cc
+	c.Islands.SizeClassByID = maps.Clone(c.Islands.SizeClassByID)
+	c.Islands.SizeClassByID["scenic"] = &content.SizeClass{ID: "scenic", Size: 4, Scenic: true}
+	w := shipWorld(t, c)
+	w.Island("b").SizeClass = "scenic"
+	s := builtSloop(t, w, c)
+	expectErr(t, w, c, SailShip{ShipID: s.ID, ToIslandID: "b"}, ErrRouteInvalid)
+	expectErr(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 1000}}}, ErrRouteInvalid)
+	s.IslandID = "b"
+	expectErr(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0}, ErrInvalidCommand)
+	ds := display(t, w, c)
+	if ds.Islands[0].Scenic || !ds.Islands[1].Scenic {
+		t.Errorf("scenic = %v, %v", ds.Islands[0].Scenic, ds.Islands[1].Scenic)
+	}
+}

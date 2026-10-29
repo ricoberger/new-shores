@@ -2,11 +2,12 @@
 // (display/mask.ts) instead of its full tiles — coarse voxel terrain, one
 // column per tile in the colour of its mask cell's terrain, with the
 // coast's sand shelves (render/voxelterrain.ts). No trees, buildings or
-// life. Every island whose full tiles have not arrived yet is drawn this
-// way, and at far LOD the islands other than the focused one
-// (ART_DIRECTION §2 budget); all of them are merged into one static mesh
-// (one draw call), rebuilt only when the set of islands drawn this way
-// changes. An island whose tiles are built brings its own far columns
+// life. Every island in view whose full tiles have not arrived yet is
+// drawn this way, and at far LOD the islands in view other than the
+// focused one (ART_DIRECTION §2 budget); all of them are merged into one
+// static mesh (one draw call), rebuilt only when the set of islands drawn
+// this way changes (off-screen islands are left out: D-058's denser
+// archipelago keeps D-048's far budget). An island whose tiles are built brings its own far columns
 // instead (MaskIsland.tiles: its near field downsampled to one column per
 // tile, render/terrain.ts), so its coast at far lines up with the one at
 // mid. Render data only.

@@ -44,8 +44,9 @@
         "properties": {
           "id": { "$ref": "#/$defs/id" },
           "name": { "type": "string", "minLength": 1, "maxLength": 32 },
-          "size": { "description": "Land extent in tiles (the island is about size x size).", "type": "integer", "minimum": 8, "maximum": 256 },
+          "size": { "description": "Land extent in tiles (the island is about size x size; at least 8). A skerry covers size to 3/4 size^2 tiles (2-8).", "type": "integer", "minimum": 2, "maximum": 256 },
           "rock": { "description": "Resource rock: mountain and coast only, no fertility.", "type": "boolean" },
+          "scenic": { "description": "Skerry (D-058): rock with a grass or sand top, no sites, fertilities or deposits, not settleable, no name; land for sea routing only and not counted toward the islands or the buildable area.", "type": "boolean" },
           "count": { "$ref": "#/$defs/range", "description": "Islands of the class per archipelago." },
           "fertilities": { "$ref": "#/$defs/range", "description": "Fertility tags per island." },
           "deposits": { "$ref": "#/$defs/range", "description": "Deposit slots per island." },
@@ -79,10 +80,12 @@
     "spacing": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["min", "nearest_max"],
+      "required": ["min", "nearest_max", "strait_min", "void_max"],
       "properties": {
-        "min": { "description": "Minimum gap in tiles between the grids of any two islands.", "type": "integer", "minimum": 1 },
-        "nearest_max": { "description": "Maximum gap in tiles from every island to its nearest neighbour.", "type": "integer", "minimum": 1 }
+        "min": { "description": "Minimum gap in tiles between the grids of any two islands (skerries excepted).", "type": "integer", "minimum": 1 },
+        "nearest_max": { "description": "Maximum gap in tiles from every island to its nearest neighbour (skerries excepted).", "type": "integer", "minimum": 1 },
+        "strait_min": { "description": "Minimum water in tiles between the land of any two islands, skerries included (D-058).", "type": "integer", "minimum": 1 },
+        "void_max": { "description": "Maximum distance in tiles from any sea point inside the islands' convex hull to the nearest land (D-058).", "type": "integer", "minimum": 1 }
       }
     },
     "home": {
