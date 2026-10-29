@@ -34,7 +34,7 @@ import { skyFill } from "./lighting";
 import type { RoadTile } from "./roads";
 import { type FieldBase, fieldBase, type FieldTile, paintFields, paintRoads, touchedChunks } from "./roadvoxels";
 import { LEVEL_STEPS } from "./terraces";
-import { downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
+import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
 import { riverWater } from "./water";
 
 /** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
@@ -357,7 +357,13 @@ export class CoastWater {
     this.foam = null;
     this.rivers = null;
     if (!f?.toLand) return;
-    const { nx, ny, s, x0, y0, toLand, h } = f;
+    const { nx, ny, s, x0, y0, h } = f;
+    // Shallows and foam by a round distance to the land (halos that follow the outline, D-058: skerries), never nearer than the field's own (cliffs push them out).
+    const land = new Uint8Array(nx * ny);
+    for (let k = 0; k < nx * ny; k++) if (f.toLand[k] === 0) land[k] = 1;
+    const round = roundDistanceTo(land, nx, ny, COAST_REACH);
+    const toLand = new Uint8Array(nx * ny);
+    for (let k = 0; k < nx * ny; k++) toLand[k] = Math.max(f.toLand[k] as number, round[k] as number);
     // Shallows: per row, runs of columns of one band.
     const sp: number[] = [];
     const sc: number[] = [];

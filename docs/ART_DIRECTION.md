@@ -179,7 +179,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   grid and picking follow the ground height. Boats stay on the sea.
 - **Skerries** (D-058) are tiny islands of rock with a grass or sand
   top: drawn like islands (minimap and far view included), never
-  labelled, focused or picked.
+  labelled, focused or picked. Their shallows, like every island's
+  coast water, lie at a round distance from the land (a 3-4 chamfer):
+  the halo follows the outline, not the tile grid.
 - **Roads** are voxel paths painted into the terrain field per chunk
   (`render/roadvoxels.ts`), one voxel below the grass: a two-column path
   with arms to the neighbours and junctions, worn edges and jittered

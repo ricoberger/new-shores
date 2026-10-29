@@ -150,6 +150,44 @@ function unpack(p: number, k = 1): [number, number, number] {
 }
 
 /**
+ * Round distance (columns, rounded, capped at cap) of every column to the
+ * nearest column where `on` is set: a two-pass 3-4 chamfer transform (an
+ * octagon, within 8 % of the Euclidean distance) — halos that follow an
+ * outline instead of the chessboard's squares.
+ */
+export function roundDistanceTo(on: Uint8Array, nx: number, ny: number, cap: number): Uint8Array {
+  const big = 3 * cap + 4;
+  const d = new Uint16Array(nx * ny).fill(big);
+  for (let k = 0; k < nx * ny; k++) if (on[k]) d[k] = 0;
+  const relax = (k: number, i: number, j: number, w: number) => {
+    if (i < 0 || j < 0 || i >= nx || j >= ny) return;
+    const v = (d[j * nx + i] as number) + w;
+    if (v < (d[k] as number)) d[k] = v;
+  };
+  for (let j = 0; j < ny; j++) {
+    for (let i = 0; i < nx; i++) {
+      const k = j * nx + i;
+      relax(k, i - 1, j, 3);
+      relax(k, i, j - 1, 3);
+      relax(k, i - 1, j - 1, 4);
+      relax(k, i + 1, j - 1, 4);
+    }
+  }
+  for (let j = ny - 1; j >= 0; j--) {
+    for (let i = nx - 1; i >= 0; i--) {
+      const k = j * nx + i;
+      relax(k, i + 1, j, 3);
+      relax(k, i, j + 1, 3);
+      relax(k, i + 1, j + 1, 4);
+      relax(k, i - 1, j + 1, 4);
+    }
+  }
+  const out = new Uint8Array(nx * ny);
+  for (let k = 0; k < nx * ny; k++) out[k] = Math.min(cap, Math.round((d[k] as number) / 3));
+  return out;
+}
+
+/**
  * Chebyshev distance (in columns, capped at cap) of every column to the
  * nearest column where `on` is set: a two-pass chamfer transform (exact
  * for the chessboard metric), linear in the number of columns.
