@@ -25,8 +25,8 @@ type Archipelago struct {
 	Islands []*sim.Island
 	// Home is the ID of the guaranteed home candidate.
 	Home string
-	// Ship is the spawn position of the start ship: the archipelago's
-	// centre, nudged to the nearest sea tile ShipClearance tiles from land.
+	// Ship is the spawn position of the start ship: the sea tile nearest
+	// the home candidate that is ShipClearance tiles from land.
 	Ship sim.Pos
 }
 
@@ -35,8 +35,9 @@ type Archipelago struct {
 const MaxSeed uint64 = 1<<53 - 1
 
 // ShipClearance is the minimum Euclidean distance in tiles from the start
-// ship's spawn to the nearest land tile.
-const ShipClearance = 10
+// ship's spawn to the nearest land tile: its first voyage takes 40 s or
+// more (one tile per second, D-058 round 4).
+const ShipClearance = 40
 
 // Attempt bounds: the archipelago retries with derived sub-seeds, each
 // island shape with its own. A seed that exhausts them is a content error
@@ -112,6 +113,9 @@ func try(seed, sub uint64, c *content.Catalogue) (*Archipelago, error) {
 	for i, is := range a.Islands {
 		is.Name = names[i]
 	}
+	if a.Islands, err = skerries(newRNG(derive(sub, 50)), a.Islands, rules); err != nil {
+		return nil, err
+	}
 	ship, ok := spawn(a.Islands)
 	if !ok {
 		return nil, errors.New("no sea tile for the start ship")
@@ -173,6 +177,15 @@ func (g *grid) island(p *plan) *sim.Island {
 				tile.Terrain = content.TerrainForest
 			case tMountain:
 				tile.Terrain = content.TerrainMountain
+			case tRiver:
+				tile.Terrain = content.TerrainRiver
+			case tIslet:
+				tile.Terrain = content.TerrainIslet
+			case tCliff:
+				tile.Terrain = content.TerrainCliff
+			}
+			if g.lvl != nil {
+				tile.Level, tile.Height = g.lvl[i], g.hgt[i]
 			}
 			if s := g.depAt(i); s > 0 {
 				tile.Deposit = &sim.Deposit{Kind: g.slots[s-1].kind, Quantity: -1}

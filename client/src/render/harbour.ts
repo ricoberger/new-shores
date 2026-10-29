@@ -52,22 +52,23 @@ export function harbourBerths(
 /**
  * Harbour berths of an island (local tiles): water tiles next to the coast
  * nearest the Trading Post's pier (its water rows, D-051), else a
- * shipyard, else the island centre, beside the buildings over the water
- * rather than on them. Ships at the island lie there; the first berth
- * anchors its legs and route ribbons.
+ * shipyard, beside the buildings over the water rather than on them.
+ * Ships at the island lie there; the first berth anchors its legs and
+ * route ribbons. None without either (an unsettled island: water next to
+ * its centre can be a river or a lake inland, D-058; the founding ship
+ * stays where its leg ended).
  */
 export function islandBerths(island: IslandDisplay, statics: Island, defs: ReadonlyMap<string, ContentBuilding>): TilePos[] {
   const harbour = island.buildings.find((b) => defs.get(b.type)?.trading_post) ?? island.buildings.find((b) => defs.get(b.type)?.shipyard);
+  if (!harbour) return [];
   let near = { x: statics.width / 2, y: statics.height / 2 };
-  if (harbour) {
-    const def = defs.get(harbour.type);
-    if (def) {
-      const pier = waterRows(def, harbour.x, harbour.y, harbour.rotation);
-      if (pier) near = { x: pier.x + pier.w / 2, y: pier.y + pier.h / 2 };
-      else {
-        const box = footprintBox(harbour.x, harbour.y, def.width, def.height, harbour.rotation);
-        near = { x: box.cx, y: -box.cz };
-      }
+  const def = defs.get(harbour.type);
+  if (def) {
+    const pier = waterRows(def, harbour.x, harbour.y, harbour.rotation);
+    if (pier) near = { x: pier.x + pier.w / 2, y: pier.y + pier.h / 2 };
+    else {
+      const box = footprintBox(harbour.x, harbour.y, def.width, def.height, harbour.rotation);
+      near = { x: box.cx, y: -box.cz };
     }
   }
   const overWater = island.buildings.filter((b) => (defs.get(b.type)?.water_tiles ?? 0) > 0);

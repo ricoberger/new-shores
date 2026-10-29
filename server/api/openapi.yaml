@@ -1737,9 +1737,13 @@ components:
         another island; it departs at once. At arrival it unloads like a
         manual shipment at a settled island (queueing for a berth); at an
         unsettled island everything stays aboard and the ship is idle
-        there, ready for `found_island`. Errors: `ship_not_found`,
-        `ship_not_idle`, `route_invalid` (unknown destination or the
-        ship's own island).
+        there, ready for `found_island`. With `site` (the client's chained
+        founding, D-051) the voyage ends at that Trading Post's harbour
+        point instead of the island's shore (D-058); the site is validated
+        like `found_island`'s (`island_already_settled`, `invalid_command`,
+        `unknown_building`, `tier_locked`, `out_of_bounds`, `not_on_water`,
+        `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
+        `route_invalid` (unknown destination or the ship's own island).
       required: [type, ship_id, to_island_id]
       properties:
         type:
@@ -1751,6 +1755,24 @@ components:
           description: Ship ID (unscaled integer identifier, from ShipDisplay.id).
         to_island_id:
           type: string
+        site:
+          type: object
+          additionalProperties: false
+          description: The Trading Post the ship sails to found (island tiles).
+          required: [building_type, x, y, rotation]
+          properties:
+            building_type:
+              type: string
+            x:
+              type: integer
+              description: Left column of the rotated footprint (tiles).
+            y:
+              type: integer
+              description: Top row of the rotated footprint (tiles).
+            rotation:
+              type: integer
+              enum: [0, 90, 180, 270]
+              description: Degrees; 90 and 270 swap width and height.
     FoundIslandCommand:
       type: object
       additionalProperties: false
@@ -1791,7 +1813,7 @@ components:
     IslandTiles:
       type: object
       additionalProperties: false
-      required: [id, width, height, revision, terrain]
+      required: [id, width, height, revision, terrain, levels, heights]
       properties:
         id:
           type: string
@@ -1812,7 +1834,20 @@ components:
           description: Terrain ID per tile, row-major (index = y × width + x).
           items:
             type: string
-            enum: [water, coast, grass, forest, mountain]
+            enum: [water, coast, grass, forest, mountain, river, islet, cliff]
+        levels:
+          type: string
+          description: |
+            Terrace level per tile as one digit, row-major (D-058: 0 at the
+            coast up to 2 inland; water 0). Visual only: no rule reads it.
+          pattern: "^[0-9]*$"
+        heights:
+          type: string
+          description: |
+            Rock height of mountain tiles above their level in terrace
+            steps, one digit per tile, row-major (D-058; 0 elsewhere).
+            Visual only.
+          pattern: "^[0-9]*$"
     DepositDisplay:
       type: object
       additionalProperties: false
@@ -2290,7 +2325,7 @@ components:
     LegDisplay:
       type: object
       additionalProperties: false
-      description: The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between. A leg from the sea has an empty `from_island_id` and its origin in `from_position`.
+      description: The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; in between it covers `path` at constant speed (linear in its length). A leg from the sea has an empty `from_island_id` and its origin in `from_position`.
       required: [from_island_id, from_position, to_island_id, depart_at, arrive_at]
       properties:
         from_island_id:
@@ -2309,6 +2344,11 @@ components:
         arrive_at:
           type: string
           description: Arrival, a scheduled ship_arrived (RFC 3339, UTC, ms).
+        path:
+          type: array
+          description: The voyage around land (D-058 §5, archipelago tiles) — the origin's harbour (or sea position), the waypoints, the destination's harbour (a Trading Post's water edge, else the shore nearest the other end); its length sets the travel time. Absent on legs from before sea routing.
+          items:
+            $ref: "#/components/schemas/SeaPosition"
     CargoDisplay:
       type: object
       additionalProperties: false
@@ -2323,7 +2363,7 @@ components:
     RouteDisplay:
       type: object
       additionalProperties: false
-      required: [id, name, stops, ship_ids, loop_ms, effects]
+      required: [id, name, stops, ship_ids, loop_ms, paths, effects]
       properties:
         id:
           type: integer
@@ -2346,6 +2386,13 @@ components:
           type: integer
           format: int64
           description: Duration of one loop at reference speed 1.0 (ms) — the handling time of every stop plus the travel time of every leg.
+        paths:
+          type: array
+          description: The voyage of every leg around land (D-058 §5, archipelago tiles), one per stop — stop i to stop i+1, the last back to the first — from harbour to harbour as a ship's leg `path`; empty for a leg that stays at its island. The route ribbon follows it.
+          items:
+            type: array
+            items:
+              $ref: "#/components/schemas/SeaPosition"
         effects:
           type: array
           description: >-
@@ -2479,7 +2526,7 @@ components:
     IslandDisplay:
       type: object
       additionalProperties: false
-      required: [id, name, size_class, rock, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source, fertilities, deposits, terrain_mask]
+      required: [id, name, size_class, rock, scenic, settled, position, width, height, inventory, roads, buildings, workforce, population, capacity_source, fertilities, deposits, terrain_mask]
       properties:
         id:
           type: string
@@ -2492,6 +2539,9 @@ components:
         rock:
           type: boolean
           description: The island is a resource rock (mines only, no houses).
+        scenic:
+          type: boolean
+          description: The island is a skerry (D-058) - scenery only, no name, never settled and never a destination; land for sea routes.
         settled:
           type: boolean
           description: The island has a Trading Post (capacity > 0); unsettled islands accept only found_island.
@@ -2567,7 +2617,8 @@ components:
             one character per 4 × 4 block of tiles, row-major over
             ceil(width / 4) × ceil(height / 4) blocks, the block's majority
             terrain — `w` water, `c` coast, `m` mountain, `f` forest, `g`
-            grass; ties go to the earlier letter in that order (water wins
+            grass (islets count as coast, cliffs as mountain, rivers as
+            water); ties go to the earlier letter in that order (water wins
             every tie); edge blocks count only the tiles inside the island.
             The full rows: `GET /api/v1/world/islands/{island_id}/tiles`.
           pattern: "^[wcmfg]*$"
@@ -3007,7 +3058,7 @@ components:
     ContentSizeClass:
       type: object
       additionalProperties: false
-      required: [id, name, rock]
+      required: [id, name, rock, scenic]
       properties:
         id:
           type: string
@@ -3017,6 +3068,9 @@ components:
         rock:
           type: boolean
           description: Resource rocks carry mines only (no fertility, no houses).
+        scenic:
+          type: boolean
+          description: Skerries (D-058) are scenery only - no sites, fertilities or deposits, not settleable, no name.
     ContentQuest:
       type: object
       additionalProperties: false

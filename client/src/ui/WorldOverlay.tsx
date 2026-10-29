@@ -116,22 +116,24 @@ export function WorldOverlay({ renderer, model, selectedShip, nowMs, onIsland, d
 
   return (
     <div ref={root} className={styles.archOverlay} data-testid="world-overlay">
-      {model.islands.map((is) => (
-        <button
-          key={is.id}
-          type="button"
-          className={styles.islandLabel}
-          style={{ visibility: "hidden" }}
-          ref={(el) => {
-            if (el) labels.current.set(is.id, el);
-            else labels.current.delete(is.id);
-          }}
-          onClick={() => onIsland(is.id)}
-          data-testid={`island-label-${is.id}`}
-        >
-          {is.name || is.id}
-        </button>
-      ))}
+      {model.islands
+        .filter((is) => !is.scenic)
+        .map((is) => (
+          <button
+            key={is.id}
+            type="button"
+            className={styles.islandLabel}
+            style={{ visibility: "hidden" }}
+            ref={(el) => {
+              if (el) labels.current.set(is.id, el);
+              else labels.current.delete(is.id);
+            }}
+            onClick={() => onIsland(is.id)}
+            data-testid={`island-label-${is.id}`}
+          >
+            {is.name || is.id}
+          </button>
+        ))}
       <div ref={badge} className={styles.etaBadge} style={{ visibility: "hidden" }} data-testid="ship-eta-badge">
         {ship ? shipWhere(ship, nowMs, islandName) : ""}
       </div>

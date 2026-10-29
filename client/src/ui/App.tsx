@@ -278,16 +278,15 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     void demolish(islandId, b, false);
   };
 
-  /** The camera jumps to an island (tabs, island card, Enter). */
-  const goTo = (id: string) => rendererRef.current?.jumpToIsland(id);
-
   /**
-   * Founding (D-051): the camera jumps to the island with the Trading Post
-   * ghost; the player places it. A ship already idle there founds at once,
-   * any other sails there first (sail_ship) and founds on arrival.
+   * Founding (D-051): the Trading Post ghost opens; the camera stays when
+   * the island is in view, else frames the whole island (D-058 round 4) so
+   * that the player picks a coast and zooms in to place it. A ship already
+   * idle there founds at once, any other sails there first (sail_ship) and
+   * founds on arrival.
    */
   const startFounding = (ship: ShipDisplay, islandId: string = ship.island_id) => {
-    goTo(islandId);
+    rendererRef.current?.frameIsland(islandId);
     dispatch({ type: "clearSelection" });
     setPanel("none");
     setTool({ kind: "found", shipId: ship.id, buildingType: warehouseType, rotation: 0 });
@@ -339,8 +338,9 @@ export function App({ player, onPlayerChange, onSessionEnded, onLoggedOut, sync:
     if (t.kind === "found") {
       const ship = model?.ships.find((s) => s.id === t.shipId);
       if (ship && !(ship.state === "idle" && ship.island_id === islandId)) {
-        // Two steps: sail now, found when the ship is idle at the island.
-        void sendCommand({ type: "sail_ship", ship_id: t.shipId, to_island_id: islandId }).then(({ ok }) => {
+        // Two steps: sail now (to the site's harbour, D-058), found when the ship is idle at the island.
+        const site = { building_type: t.buildingType, x, y, rotation: t.rotation };
+        void sendCommand({ type: "sail_ship", ship_id: t.shipId, to_island_id: islandId, site }).then(({ ok }) => {
           if (!ok) return;
           setPendingFound({ shipId: t.shipId, islandId, x, y, rotation: t.rotation });
           setTool((cur) => (cur === t ? NO_TOOL : cur));

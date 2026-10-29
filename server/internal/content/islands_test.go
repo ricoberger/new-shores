@@ -24,6 +24,7 @@ func TestLoadIslands(t *testing.T) {
 		"medium": {112, Range{5, 5}, false, Range{0, 4}},
 		"small":  {64, Range{4, 4}, false, Range{0, 4}},
 		"rock":   {16, Range{0, 2}, true, Range{2, 4}},
+		"scenic": {4, Range{4, 8}, false, Range{0, 0}},
 	}
 	if len(r.SizeClasses) != len(want) {
 		t.Fatalf("size classes = %d, want %d", len(r.SizeClasses), len(want))
@@ -33,8 +34,23 @@ func TestLoadIslands(t *testing.T) {
 		if !ok || sc.Size != w.size || sc.Count != w.count || sc.Rock != w.rock || sc.Deposits != w.deposits {
 			t.Errorf("size class %+v, want %+v", sc, w)
 		}
-		if !sc.Rock && sc.Fertilities != (Range{2, 4}) {
+		if sc.Scenic != (sc.ID == "scenic") {
+			t.Errorf("%s scenic = %v", sc.ID, sc.Scenic)
+		}
+		if !sc.Rock && !sc.Scenic && sc.Fertilities != (Range{2, 4}) {
 			t.Errorf("%s fertilities = %+v, want 2-4", sc.ID, sc.Fertilities)
+		}
+	}
+	shapes := map[string]ShapeRules{
+		"large":  {Arms: Range{1, 3}, Plain: 40, Rivers: Range{1, 2}, Levels: 2, Islets: Range{3, 6}},
+		"medium": {Arms: Range{1, 3}, Plain: 24, Rivers: Range{0, 1}, Levels: 2, Islets: Range{2, 5}},
+		"small":  {Arms: Range{1, 2}, Plain: 14, Rivers: Range{0, 0}, Levels: 1, Islets: Range{2, 4}},
+		"rock":   {},
+		"scenic": {},
+	}
+	for _, sc := range r.SizeClasses {
+		if sc.Shape != shapes[sc.ID] {
+			t.Errorf("%s shape = %+v, want %+v (D-058)", sc.ID, sc.Shape, shapes[sc.ID])
 		}
 	}
 	for _, d := range r.Deposits {
@@ -42,7 +58,7 @@ func TestLoadIslands(t *testing.T) {
 			t.Errorf("deposit %+v below the D-053 minimum", d)
 		}
 	}
-	if r.SpacingMin != 100 || r.NearestMax != 300 || r.BuildableTarget != 91_000 || r.BuildableTolerance != 100 || r.Home.SizeClass != "large" {
+	if r.SpacingMin != 50 || r.NearestMax != 120 || r.StraitMin != 24 || r.VoidMax != 150 || r.BuildableTarget != 91_000 || r.BuildableTolerance != 100 || r.Home.SizeClass != "large" {
 		t.Errorf("rules = %+v", r)
 	}
 	if len(c.IslandNames) < 40 {
@@ -134,6 +150,56 @@ func TestLoadRejectsUnsatisfiableIslands(t *testing.T) {
 			"unknown home fertility", FileIslands,
 			[]string{`"fertilities_any": ["wheat", "apple"]`, `"fertilities_any": ["wheat", "olive"]`},
 			[]string{FileIslands, "home.fertilities_any", `"olive" is not in the pool`},
+		},
+		{
+			"skerry with deposits", FileIslands,
+			[]string{`"scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }`, `"scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 1 }`},
+			[]string{FileIslands, `size class "scenic"`, "no fertilities or deposits"},
+		},
+		{
+			"skerry too large", FileIslands,
+			[]string{`"size": 4, "scenic": true`, `"size": 9, "scenic": true`},
+			[]string{FileIslands, `size class "scenic"`, "size", "[2, 8]"},
+		},
+		{
+			"skerry with levels", FileIslands,
+			[]string{`"size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "arms": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 0`, `"size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "fertilities": { "min": 0, "max": 0 }, "deposits": { "min": 0, "max": 0 }, "shape": { "arms": { "min": 0, "max": 0 }, "plain": 0, "rivers": { "min": 0, "max": 0 }, "levels": 1`},
+			[]string{FileIslands, `size class "scenic"`, "shape", "no arms"},
+		},
+		{
+			"home on a skerry", FileIslands,
+			[]string{`"size_class": "large"`, `"size_class": "scenic"`},
+			[]string{FileIslands, "home.size_class", "skerry"},
+		},
+		{
+			"no void limit", FileIslands,
+			[]string{`"void_max": 150`, `"void_max": 0`},
+			[]string{FileIslands, "spacing", "void_max"},
+		},
+		{
+			"rock with arms", FileIslands,
+			[]string{`"shape": { "arms": { "min": 0, "max": 0 }, "plain": 0`, `"shape": { "arms": { "min": 0, "max": 1 }, "plain": 0`},
+			[]string{FileIslands, `size class "rock"`, "shape", "no arms"},
+		},
+		{
+			"plain larger than a third of the size", FileIslands,
+			[]string{`"plain": 14`, `"plain": 22`},
+			[]string{FileIslands, `size class "small"`, "shape.plain"},
+		},
+		{
+			"too many rivers", FileIslands,
+			[]string{`"rivers": { "min": 1, "max": 2 }`, `"rivers": { "min": 1, "max": 3 }`},
+			[]string{FileIslands, `size class "large"`, "shape.rivers.max"},
+		},
+		{
+			"too many islets", FileIslands,
+			[]string{`"islets": { "min": 3, "max": 6 }`, `"islets": { "min": 3, "max": 9 }`},
+			[]string{FileIslands, `size class "large"`, "shape.islets.max"},
+		},
+		{
+			"empty arms range", FileIslands,
+			[]string{`"arms": { "min": 1, "max": 2 }`, `"arms": { "min": 2, "max": 1 }`},
+			[]string{FileIslands, `size class "small"`, "shape.arms", "empty"},
 		},
 		{
 			"too few names", FileIslands,

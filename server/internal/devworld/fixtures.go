@@ -329,7 +329,7 @@ func citizens(f *fixture) {
 		return
 	}
 	n := f.requiredFields(citizensFarm)
-	f.placeNearThen(home, citizensFarm, f.streetEnd(home), func(farm int64) bool {
+	f.placeNearThen(home, citizensFarm, f.fieldAnchor(home, f.streetEnd(home), def), func(farm int64) bool {
 		w, placed := f.fieldDrag(home, farm, def.Fields.Type)
 		return w != nil && placed == n
 	})
@@ -475,7 +475,7 @@ func patricians(f *fixture) {
 		for range farm.Fields.Required {
 			f.grant(home, &field.Cost)
 		}
-		f.placeNearThen(home, "cattle_farm", f.grassAnchor(home, f.streetEnd(home)), func(id int64) bool {
+		f.placeNearThen(home, "cattle_farm", f.fieldAnchor(home, f.streetEnd(home), farm), func(id int64) bool {
 			return f.paintFields(home, id, farm.Fields.Type, farm.Fields.Required)
 		})
 	}
@@ -682,7 +682,7 @@ func (f *fixture) neighbour(id string) string {
 	best, bestGap := "", -1
 	for _, is := range f.w.Islands {
 		sc := f.c.Islands.SizeClassByID[is.SizeClass]
-		if is.ID == id || sc == nil || sc.Rock {
+		if is.ID == id || sc == nil || sc.Rock || sc.Scenic {
 			continue
 		}
 		if g := archipelago.Gap2(from, is); bestGap < 0 || g < bestGap {

@@ -30,16 +30,16 @@
       }
     },
     "island": {
-      "description": "Diorama island slab and plateaus (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line; warm rock bands, crags and the moss cap of the mountain plateaus.",
+      "description": "Diorama island slab and plateaus (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line; warm grey mountain rock with sandstone and ochre strata (the cliff bands), crags and the moss on its lowest rim.",
       "colors": {
         "sand-rim": "#E2CC93",
         "cliff-upper": "#B79C76",
         "cliff-ledge": "#9E8A6C",
         "cliff-lower": "#877766",
         "cliff-foot": "#4F4A55",
-        "rock-light": "#B39878",
-        "rock": "#977C62",
-        "rock-deep": "#735F4E",
+        "rock-light": "#B5AD9F",
+        "rock": "#958D82",
+        "rock-deep": "#6C655E",
         "moss": "#7F9A55"
       }
     },
@@ -119,9 +119,9 @@
         "cliff-ledge": "#5C4D47",
         "cliff-lower": "#4E4343",
         "cliff-foot": "#2E2938",
-        "rock-light": "#68554F",
-        "rock": "#584541",
-        "rock-deep": "#433533",
+        "rock-light": "#5F5A5E",
+        "rock": "#4F4A4F",
+        "rock-deep": "#3A353C",
         "moss": "#4A5638"
       }
     },

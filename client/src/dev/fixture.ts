@@ -2,7 +2,7 @@
 // performance measurements. Imported only behind the dev/E2E guard, so
 // production builds tree-shake them away.
 //
-// ?fixture=archipelago-8x20: 8 islands and 20 ships (idle, on_route,
+// ?fixture=archipelago-8x20: 8 islands, 2 skerries and 20 ships (idle, on_route,
 // manual_leg, anchored_unpaid) on 3 routes; the camera starts with the
 // whole archipelago in view (far LOD).
 // ?fixture=dense-2x400: two islands, ≈ 400 buildings on the first one (plus
@@ -15,7 +15,8 @@
 // direction are part of the budget.
 // ?fixture=dense-archipelago-8: 8 islands at archipelago positions like
 // archipelago-8x20, two of them dense (the dense-2x400 town each), four
-// silhouette-only and two with 30 buildings, ships on legs and 2 routes;
+// silhouette-only and two with 30 buildings, two skerries, ships on legs
+// and 2 routes;
 // the camera starts on the first dense island (the far and mid LOD
 // budgets of the continuous world, D-048).
 // ?fixture=showcase: one island with every building, field and ship model
@@ -100,6 +101,62 @@ function terrain(width: number, height: number, seed: number): Terrain[] {
   return out;
 }
 
+/**
+ * Terrace levels and rock heights of a fixture island (D-058; Island.levels
+ * and Island.heights): `level` per land tile, rock tiles (mountain) `rock`
+ * levels above it; water and coast stay at level 0.
+ */
+function relief(width: number, height: number, terrain: readonly Terrain[], level: (x: number, y: number) => number, rock: (x: number, y: number) => number): Pick<Island, "levels" | "heights"> {
+  let levels = "";
+  let heights = "";
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const t = terrain[y * width + x];
+      const land = t !== "water" && t !== "coast";
+      levels += land ? String(level(x, y)) : "0";
+      heights += t === "mountain" ? String(rock(x, y)) : "0";
+    }
+  }
+  return { levels, heights };
+}
+
+/** The relief of a round fixture island (terrain()): a level-1 plateau inland, the central mountain 2 levels of rock on it. */
+function roundRelief(width: number, height: number, terrain: readonly Terrain[]): Pick<Island, "levels" | "heights"> {
+  const inland = (x: number, y: number) => Math.hypot((x + 0.5 - width / 2) / (width / 2 - 1), (y + 0.5 - height / 2) / (height / 2 - 1)) < 0.6;
+  return relief(width, height, terrain, (x, y) => (inland(x, y) ? 1 : 0), () => 2);
+}
+
+/**
+ * A skerry of the fixtures (D-058 scenic size class): a few rock tiles with a
+ * grass top in a water border, no name, never focused or a destination.
+ */
+function skerry(id: string, x: number, y: number): { display: IslandDisplay; statics: Island } {
+  const width = 8;
+  const height = 7;
+  const shape = ["........", "........", "...gg...", "..gggg..", "...gg...", "........", "........"];
+  const terrain: Terrain[] = shape.flatMap((row) => [...row].map((c): Terrain => (c === "g" ? "grass" : "water")));
+  const display = {
+    id,
+    name: "",
+    settled: false,
+    position: { x, y },
+    width,
+    height,
+    inventory: {},
+    roads: [],
+    buildings: [],
+    workforce: {},
+    population: {},
+    capacity_source: null,
+    size_class: "scenic",
+    rock: false,
+    scenic: true,
+    ...NO_STATICS,
+  } as IslandDisplay;
+  const statics: Island = { id, width, height, revision: "fixture", terrain, ...relief(width, height, terrain, (tx, ty) => (tx >= 3 && tx <= 4 && ty === 3 ? 2 : 1), () => 0), fertilities: [], deposits: [] };
+  return { display, statics };
+}
+
 interface Built {
   server: WorldResponse;
   islands: Map<string, Island>;
@@ -171,6 +228,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
       capacity_source: null,
       size_class: "",
       rock: false,
+      scenic: false,
       ...NO_STATICS,
     });
     statics.set(id, {
@@ -179,10 +237,16 @@ export function buildArchipelagoFixture(nowMs: number): Built {
       height: sp.h,
       revision: "fixture",
       terrain: terrain(sp.w, sp.h, 17 + i),
+      ...roundRelief(sp.w, sp.h, terrain(sp.w, sp.h, 17 + i)),
       fertilities: i % 2 === 0 ? ["wheat"] : ["apples", "hops"],
       deposits: i % 3 === 0 ? [{ x: Math.floor(sp.w / 2), y: Math.floor(sp.h / 2), kind: "stone" }] : [],
     });
   });
+  // Two skerries (D-058): land on the minimap and the far view, never a stop.
+  for (const sk of [skerry("skerry1", 125, 45), skerry("skerry2", 88, 135)]) {
+    islands.push(sk.display);
+    statics.set(sk.display.id, sk.statics);
+  }
   const settledIds = islands.filter((is) => is.settled).map((is) => is.id);
   const routeStops = [
     [settledIds[0], settledIds[1], settledIds[2]],
@@ -199,6 +263,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
     })),
     ship_ids: [],
     loop_ms: 600_000,
+    paths: stops.map(() => []),
     effects: [],
   }));
   const ships: ShipDisplay[] = [];
@@ -710,9 +775,14 @@ function denseIsland(id: string, name: string, width: number, height: number, co
     capacity_source: null,
     size_class: "",
     rock: false,
+    scenic: false,
     ...NO_STATICS,
   } as IslandDisplay;
-  const statics: Island = { id, width, height, revision: "fixture", terrain, fertilities: ["wheat"], deposits: denseDeposits(width, height) };
+  // The town stays on level 0; the forest belt and the headland below it are a level-1 terrace, the headland's rock 2 levels on it (D-058).
+  const below = belowTown(height);
+  const z = denseZones(width);
+  const terrace = (x: number, y: number) => (y > below && x > z.forest[0] && x < z.rock[1] && y < height - 3 ? 1 : 0);
+  const statics: Island = { id, width, height, revision: "fixture", terrain, ...relief(width, height, terrain, terrace, () => 2), fertilities: ["wheat"], deposits: denseDeposits(width, height) };
   return { display, statics };
 }
 
@@ -818,10 +888,17 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
       capacity_source: null,
       size_class: "",
       rock: false,
+      scenic: false,
       ...NO_STATICS,
     } as IslandDisplay);
-    statics.set(sp.id, { id: sp.id, width: sp.w, height: sp.h, revision: "fixture", terrain: terrain(sp.w, sp.h, 31 + i), fertilities: ["wheat"], deposits: [] });
+    const t = terrain(sp.w, sp.h, 31 + i);
+    statics.set(sp.id, { id: sp.id, width: sp.w, height: sp.h, revision: "fixture", terrain: t, ...roundRelief(sp.w, sp.h, t), fertilities: ["wheat"], deposits: [] });
   });
+  // Two skerries (D-058) between the towns.
+  for (const sk of [skerry("skerry1", 140, 128), skerry("skerry2", 60, 50)]) {
+    displays.push(sk.display);
+    statics.set(sk.display.id, sk.statics);
+  }
   const ids = [DENSE_ISLAND, DENSE_ISLAND_2, "isle5", "isle7", "isle4", "isle6"];
   const routes: RouteDisplay[] = [
     [DENSE_ISLAND, DENSE_ISLAND_2],
@@ -836,6 +913,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
     })),
     ship_ids: [],
     loop_ms: 900_000,
+    paths: stops.map(() => []),
     effects: [],
   }));
   const ships: ShipDisplay[] = [];
@@ -1037,6 +1115,7 @@ export function buildShowcaseFixture(nowMs: number): Built {
     capacity_source: null,
     size_class: "",
     rock: false,
+    scenic: false,
     ...NO_STATICS,
   } as IslandDisplay;
   const statics: Island = {
@@ -1045,6 +1124,8 @@ export function buildShowcaseFixture(nowMs: number): Built {
     height,
     revision: "fixture",
     terrain,
+    // The forest and the mountain on a level-1 terrace, the mountain's rock 2 levels on it (D-058).
+    ...relief(width, height, terrain, (x, y) => (y >= 20 && y <= 26 && ((x >= 3 && x <= 18) || (x >= 30 && x <= 38)) ? 1 : 0), (x, y) => (x >= 32 && x <= 36 && y >= 22 && y <= 25 ? 3 : 2)),
     fertilities: ["wheat", "apple", "hemp"],
     // Under the quarry and the iron mine: their outcrops stay hidden (the models sit on rock).
     deposits: [

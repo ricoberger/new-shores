@@ -40,15 +40,29 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "name", "size", "count", "fertilities", "deposits"],
+        "required": ["id", "name", "size", "count", "fertilities", "deposits", "shape"],
         "properties": {
           "id": { "$ref": "#/$defs/id" },
           "name": { "type": "string", "minLength": 1, "maxLength": 32 },
-          "size": { "description": "Land extent in tiles (the island is about size x size).", "type": "integer", "minimum": 8, "maximum": 256 },
+          "size": { "description": "Land extent in tiles (the island is about size x size; at least 8). A skerry covers size to 3/4 size^2 tiles (2-8).", "type": "integer", "minimum": 2, "maximum": 256 },
           "rock": { "description": "Resource rock: mountain and coast only, no fertility.", "type": "boolean" },
+          "scenic": { "description": "Skerry (D-058): rock with a grass or sand top, no sites, fertilities or deposits, not settleable, no name; land for sea routing only and not counted toward the islands or the buildable area.", "type": "boolean" },
           "count": { "$ref": "#/$defs/range", "description": "Islands of the class per archipelago." },
           "fertilities": { "$ref": "#/$defs/range", "description": "Fertility tags per island." },
-          "deposits": { "$ref": "#/$defs/range", "description": "Deposit slots per island." }
+          "deposits": { "$ref": "#/$defs/range", "description": "Deposit slots per island." },
+          "shape": {
+            "description": "Shape parameters (D-058); a resource rock uses zeros.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["arms", "plain", "rivers", "levels", "islets"],
+            "properties": {
+              "arms": { "$ref": "#/$defs/range", "description": "Arms of the skeleton besides the trunk (0-3)." },
+              "plain": { "description": "Side in tiles of the guaranteed contiguous plain of grass/forest (0: none; at most size/3).", "type": "integer", "minimum": 0, "maximum": 128 },
+              "rivers": { "$ref": "#/$defs/range", "description": "Rivers per island (0-2)." },
+              "levels": { "description": "Highest terrace level of the land (0-2; visual only).", "type": "integer", "minimum": 0, "maximum": 2 },
+              "islets": { "$ref": "#/$defs/range", "description": "Islets (decor rocks and sand bars) per island (0-8)." }
+            }
+          }
         }
       }
     },
@@ -66,10 +80,12 @@
     "spacing": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["min", "nearest_max"],
+      "required": ["min", "nearest_max", "strait_min", "void_max"],
       "properties": {
-        "min": { "description": "Minimum gap in tiles between the grids of any two islands.", "type": "integer", "minimum": 1 },
-        "nearest_max": { "description": "Maximum gap in tiles from every island to its nearest neighbour.", "type": "integer", "minimum": 1 }
+        "min": { "description": "Minimum gap in tiles between the grids of any two islands (skerries excepted).", "type": "integer", "minimum": 1 },
+        "nearest_max": { "description": "Maximum gap in tiles from every island to its nearest neighbour (skerries excepted).", "type": "integer", "minimum": 1 },
+        "strait_min": { "description": "Minimum water in tiles between the land of any two islands, skerries included (D-058).", "type": "integer", "minimum": 1 },
+        "void_max": { "description": "Maximum distance in tiles from any sea point inside the islands' convex hull to the nearest land (D-058).", "type": "integer", "minimum": 1 }
       }
     },
     "home": {

@@ -29,16 +29,16 @@ export const WATER = {
   haze: "#B9C9CB",
 } as const;
 
-/** Diorama island slab and plateaus (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line; warm rock bands, crags and the moss cap of the mountain plateaus. */
+/** Diorama island slab and plateaus (restyle): the sand rim on the land's edge and the layered cliff bands down to the sea, warm on top and cooler and darker toward the AO-darkened foot under the water line; warm grey mountain rock with sandstone and ochre strata (the cliff bands), crags and the moss on its lowest rim. */
 export const ISLAND = {
   sand_rim: "#E2CC93",
   cliff_upper: "#B79C76",
   cliff_ledge: "#9E8A6C",
   cliff_lower: "#877766",
   cliff_foot: "#4F4A55",
-  rock_light: "#B39878",
-  rock: "#977C62",
-  rock_deep: "#735F4E",
+  rock_light: "#B5AD9F",
+  rock: "#958D82",
+  rock_deep: "#6C655E",
   moss: "#7F9A55",
 } as const;
 
@@ -115,9 +115,9 @@ export const SHADOWS = {
   cliff_ledge: "#5C4D47",
   cliff_lower: "#4E4343",
   cliff_foot: "#2E2938",
-  rock_light: "#68554F",
-  rock: "#584541",
-  rock_deep: "#433533",
+  rock_light: "#5F5A5E",
+  rock: "#4F4A4F",
+  rock_deep: "#3A353C",
   moss: "#4A5638",
 } as const;
 

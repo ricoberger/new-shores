@@ -367,16 +367,18 @@ only: the client draws each ship and spaces the Trading Post berths by it
 (MECHANICS §9.1). Ship positions and legs follow MECHANICS
 §9; the archipelago seed stores island positions in tile coordinates.
 
-## 9. Islands (D-036, D-053)
+## 9. Islands (D-036, D-053, D-058)
 
 | Property | Value |
 |---|---|
 | Habitable islands per archipelago | 12: 3 large (≈ 192×192), 5 medium (≈ 112×112), 4 small (≈ 64×64) |
 | Resource rocks | 0–2 (≈ 16×16, mountain + coast; Trading Post and mines only) |
+| Skerries | 4–8 per archipelago (class `scenic`, 4–12 tiles of rock with a grass or sand top): scenery only — no sites, fertilities, deposits or name, not settleable, not a destination; land for routing, minimap and far view |
+| Shape per class | arms 1–3 (small 1–2); plain ≥ 40 / 24 / 14 tiles square; rivers 1–2 / 0–1 / 0; terrace levels 2 / 2 / 1; islets 3–6 / 2–5 / 2–4 (large / medium / small; rocks and skerries none) |
 | Fertilities per habitable island | 2–4 from the pool (wheat, apple, hemp 3–5 times per archipelago; hops, woad, grapes 2–5 times; provisional) |
 | Deposit slots per island | 0–4, typed (rocks 2–4); a slot is two deposit tiles on a mountain edge; per archipelago stone 3–6, iron 2–4, clay 2–4, salt 1–3, coal 1–3, quartz 2–4, copper 1–3, gold exactly 1; only stone on the home island |
 | Harbour area | proportional to coast length; ≥ 2 Trading Post sites per habitable island |
-| Spacing | ≥ 100 tiles between islands, nearest neighbour ≤ 300 |
+| Spacing | ≥ 50 tiles between islands, nearest neighbour ≤ 120, straits ≥ 24 tiles of water (land to land, skerries included), open sea ≤ 150 tiles from land |
 | Buildable area | 91 000 tiles (coast, grass, forest) per archipelago ± 10 % (≈ 48 % of the 189 696-tile land extents, the share the shape rules give: ≈ 17.7 k per large island, D-054; provisional) |
 | Names | from `island_names.json` (≥ 40 entries), unique per archipelago; renamable |
 
@@ -396,7 +398,7 @@ and house facade variants per tier.
 
 Content lives in `content/<region>/*.json`, one file per entity type
 (`region.json`, `start.json`, `tiers.json`, `goods.json`, `buildings.json`,
-`needs.json`, `ships.json`, `quests.json`; later `islands.json`,
+`needs.json`, `ships.json`, `quests.json`, `islands.json`; later
 `decorations.json`), with
 JSON Schemas (draft 2020-12, unknown fields rejected) under
 `content/schema/`. The server validates on startup and fails fast on broken
@@ -509,6 +511,32 @@ it carries:
 `charcoal` or `coal` list both as the input's good, `{ "good": ["charcoal",
 "coal"], "amount": 1 }` (tier 3: distillery, salt_works, brickworks;
 tier 4: grain_distillery, glass_smelter, copper_smelter, gold_smelter).
+
+### islands.json — archipelago generator parameters
+
+```json
+{
+  "size_classes": [
+    { "id": "large", "name": "Large", "size": 192, "count": { "min": 3, "max": 3 },
+      "fertilities": { "min": 2, "max": 4 }, "deposits": { "min": 0, "max": 4 },
+      "shape": { "arms": { "min": 1, "max": 3 }, "plain": 40, "rivers": { "min": 1, "max": 2 },
+                 "levels": 2, "islets": { "min": 3, "max": 6 } } },
+    { "id": "rock", "size": 16, "rock": true, "…": "…" },
+    { "id": "scenic", "name": "Skerry", "size": 4, "scenic": true, "count": { "min": 4, "max": 8 }, "…": "…" }
+  ],
+  "spacing": { "min": 50, "nearest_max": 120, "strait_min": 24, "void_max": 150 },
+  "fertilities": "…", "deposits": "…", "buildable_area": "…", "home": "…"
+}
+```
+
+`shape` (D-058) is required per class: `arms` ≤ 3, `rivers` ≤ 2,
+`levels` ≤ 2, `islets` ≤ 8, `plain` ≤ size / 3; a rock class has all
+zeros. A `scenic` class (skerries) is no rock, has no fertilities,
+deposits or shape (all zeros) and a `size` of 2–8: its skerries have
+`size` … ¾ · size² tiles; it can never be the home class. `spacing`:
+`min` and `nearest_max` apply between habitable islands and rocks
+(grid to grid), `strait_min` to every pair's land, `void_max` bounds the
+open sea inside the hull of the land.
 
 ### tiers.json and goods.json
 

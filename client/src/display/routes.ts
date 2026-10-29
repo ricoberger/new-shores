@@ -73,6 +73,8 @@ export function createdRouteId(before: readonly RouteDisplay[], after: readonly 
 export interface Ribbon {
   key: string;
   stops: string[];
+  /** The server's voyage of every leg (RouteDisplay.paths; the draft: known voyages between its stops, else none). */
+  paths: readonly (readonly SeaPos[] | undefined)[];
   colorIndex: number;
   /** Bright (the selected ship's or the edited route, the draft) or faint (the other routes while editing). */
   bright: boolean;
@@ -90,8 +92,46 @@ export function ribbonsShown(routes: readonly RouteDisplay[], highlight: number 
   const out: Ribbon[] = [];
   routes.forEach((r, i) => {
     if (!editing && r.id !== highlight) return;
-    out.push({ key: `route_${r.id}`, stops: r.stops.map((s) => s.island_id), colorIndex: i, bright: r.id === highlight });
+    out.push({ key: `route_${r.id}`, stops: r.stops.map((s) => s.island_id), paths: r.paths ?? [], colorIndex: i, bright: r.id === highlight });
   });
-  if (draft && draft.length > 0) out.push({ key: "draft", stops: [...draft], colorIndex: -1, bright: true });
+  if (draft && draft.length > 0) {
+    // The draft's legs follow the voyages the saved routes already know (either direction).
+    const known = new Map<string, readonly SeaPos[]>();
+    for (const r of routes) {
+      r.stops.forEach((s, i) => {
+        const path = r.paths?.[i];
+        const next = r.stops[(i + 1) % r.stops.length]?.island_id;
+        if (!path || path.length < 2 || next === undefined) return;
+        known.set(`${s.island_id}>${next}`, path);
+        if (!known.has(`${next}>${s.island_id}`)) known.set(`${next}>${s.island_id}`, [...path].reverse());
+      });
+    }
+    out.push({ key: "draft", stops: [...draft], paths: draft.map((s, i) => known.get(`${s}>${draft[(i + 1) % draft.length]}`)), colorIndex: -1, bright: true });
+  }
+  return out;
+}
+
+/** An archipelago tile position of the server (a path point). */
+export interface SeaPos {
+  x: number;
+  y: number;
+}
+
+/**
+ * The legs of a ribbon as polylines (archipelago tiles): stop i's anchor,
+ * the leg's voyage around land (tile centres; its harbour ends kept, so
+ * the short hop from the anchor to the harbour stays on the water), stop
+ * i+1's anchor. Without a voyage the straight line between the anchors.
+ * Stops without an anchor are skipped; repeated points are dropped.
+ */
+export function ribbonLegs(stops: readonly string[], paths: readonly (readonly SeaPos[] | undefined)[], anchor: (id: string) => { x: number; y: number } | null): { x: number; y: number }[][] {
+  const out: { x: number; y: number }[][] = [];
+  for (let i = 0; i < stops.length; i++) {
+    const a = anchor(stops[i] as string);
+    const b = anchor(stops[(i + 1) % stops.length] as string);
+    if (!a || !b) continue;
+    const pts = [a, ...(paths[i] ?? []).map((p) => ({ x: p.x + 0.5, y: p.y + 0.5 })), b];
+    out.push(pts.filter((p, j) => j === 0 || p.x !== pts[j - 1]!.x || p.y !== pts[j - 1]!.y));
+  }
   return out;
 }

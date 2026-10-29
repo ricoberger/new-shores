@@ -4,7 +4,7 @@
 // island and revision look the same across reloads and clients. Trees
 // grow on forest tiles, tufts, flowers, rocks and bushes on grass, coast
 // and mountain tiles (bushes and rocks mostly along the coast and on the
-// plateaus); none of them on a building footprint, field or road tile,
+// rock); none of them on a building footprint, field or road tile,
 // and fewer within one tile of those. Inside the work radius of a
 // harvester whose work area includes forest the kept tree fraction
 // follows the server's efficiency (treeKeepFraction), the felled trees
@@ -88,6 +88,8 @@ export interface ScatterInput {
   terrain: readonly string[];
   seed: number;
   blocked: ReadonlySet<string>;
+  /** Terrace level digits per tile (D-058; absent: flat): rocks gather at the foot of the terrace walls. */
+  levels?: string;
   /** Only the tiles of this rectangle (one chunk of the incremental build; the placements of the whole island's run inside it, in the same order). */
   rect?: { x: number; y: number; width: number; height: number };
 }
@@ -147,21 +149,21 @@ export function scatterTrees(input: ScatterInput, areas: readonly ThinningArea[]
 /** Ground scatter classes. */
 export type ScatterKind = "tuft" | "flower" | "rock" | "bush";
 
-/** Where a ground tile sits: open grass, the coast edge, a forest fringe, a plateau foot, or a plateau top. */
-export type ScatterSite = "open" | "coast" | "fringe" | "foot" | "mountain";
+/** Where a ground tile sits: open grass, the coast edge, a forest fringe, a plateau foot, a plateau top, or the foot of a terrace wall (D-058). */
+export type ScatterSite = "open" | "coast" | "fringe" | "foot" | "mountain" | "ledge";
 
 /**
  * Chance per tile of each class by site. Tufts and flowers spread over
  * the grass; rocks and bushes cluster where nature would put them — the
  * coast edge, the forest fringe and the plateau feet — and stay off the
  * open grass (no single tiny rocks there; a rare bush). The plateau tops
- * carry their crags (render/plateaus.ts), so they get few.
+ * carry their crags (render/terraces.ts), so they get few.
  */
 const CHANCE: Record<ScatterKind, Record<ScatterSite, number>> = {
-  tuft: { open: 0.4, coast: 0.1, fringe: 0.4, foot: 0.3, mountain: 0.05 },
-  flower: { open: 0.14, coast: 0, fringe: 0.1, foot: 0.06, mountain: 0 },
-  rock: { open: 0, coast: 0.07, fringe: 0.05, foot: 0.12, mountain: 0.05 },
-  bush: { open: 0.008, coast: 0.05, fringe: 0.14, foot: 0.06, mountain: 0.03 },
+  tuft: { open: 0.4, coast: 0.1, fringe: 0.4, foot: 0.3, mountain: 0.05, ledge: 0.35 },
+  flower: { open: 0.14, coast: 0, fringe: 0.1, foot: 0.06, mountain: 0, ledge: 0.06 },
+  rock: { open: 0, coast: 0.07, fringe: 0.05, foot: 0.12, mountain: 0.05, ledge: 0.16 },
+  bush: { open: 0.008, coast: 0.05, fringe: 0.14, foot: 0.06, mountain: 0.03, ledge: 0.05 },
 };
 
 /** Rocks and bushes only where a low-frequency noise is high: they come in clumps, not as an even sprinkle. */
@@ -169,7 +171,7 @@ const CLUMP_SCALE = 3.5;
 const CLUMP_THRESHOLD = 0.5;
 
 /** The site of a grass, coast or mountain tile (null for other terrain). */
-export function scatterSite(input: Pick<ScatterInput, "width" | "height" | "terrain">, x: number, y: number): ScatterSite | null {
+export function scatterSite(input: Pick<ScatterInput, "width" | "height" | "terrain" | "levels">, x: number, y: number): ScatterSite | null {
   const { width, height, terrain } = input;
   const t = terrain[y * width + x];
   if (t === "mountain") return "mountain";
@@ -187,7 +189,24 @@ export function scatterSite(input: Pick<ScatterInput, "width" | "height" | "terr
       else if ((n === "coast" || n === "water") && site === "open") site = "coast";
     }
   }
-  return site;
+  return site === "open" && wallSide(input, x, y) !== null ? "ledge" : site;
+}
+
+const SIDES = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+] as const;
+
+/** The side ([dx, dy]) on which a tile's 4-neighbour stands a terrace level higher (the foot of a wall), or null. */
+export function wallSide(input: Pick<ScatterInput, "width" | "height" | "terrain" | "levels">, x: number, y: number): readonly [number, number] | null {
+  const lv = input.levels;
+  if (!lv) return null;
+  const at = (tx: number, ty: number) => (tx < 0 || ty < 0 || tx >= input.width || ty >= input.height ? -1 : lv.charCodeAt(ty * input.width + tx) - 48);
+  const own = at(x, y);
+  for (const d of SIDES) if (at(x + d[0], y + d[1]) > own && input.terrain[(y + d[1]) * input.width + x + d[0]] !== "river") return d;
+  return null;
 }
 
 /** Tufts, flowers, rocks and bushes on the free grass, coast and mountain tiles (variant: 0 tuft, 1 flower, 2 rock, 3 bush). */
@@ -209,10 +228,13 @@ export function scatterGround(input: ScatterInput): (Placed & { kind: ScatterKin
           chance = valueNoise(x / CLUMP_SCALE, y / CLUMP_SCALE, s + 9) >= CLUMP_THRESHOLD ? chance * 2 : 0;
         }
         if (hash2(x, y, s) >= chance) return;
+        // At a terrace wall's foot the rocks lie against the wall.
+        const wall = site === "ledge" && kind === "rock" ? wallSide(input, x, y) : null;
+        const along = (d: number, h: number) => (d > 0 ? 0.82 : d < 0 ? 0.18 : 0.15 + 0.7 * h);
         out.push({
           kind,
-          x: x + 0.15 + 0.7 * hash2(x, y, s + 1),
-          y: y + 0.15 + 0.7 * hash2(x, y, s + 2),
+          x: x + (wall ? along(wall[0], hash2(x, y, s + 1)) : 0.15 + 0.7 * hash2(x, y, s + 1)),
+          y: y + (wall ? along(wall[1], hash2(x, y, s + 2)) : 0.15 + 0.7 * hash2(x, y, s + 2)),
           variant: v,
           scale: 0.75 + 0.5 * hash2(x, y, s + 3),
           yaw: hash2(x, y, s + 4) * Math.PI * 2,

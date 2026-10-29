@@ -545,7 +545,13 @@ type tilesResponse struct {
 	Height   int      `json:"height"`
 	Revision string   `json:"revision"`
 	Terrain  []string `json:"terrain"`
+	// Levels and Heights hold one digit per tile (D-058, visual only).
+	Levels  string `json:"levels"`
+	Heights string `json:"heights"`
 }
+
+// tileDigit is a level or height as one digit (clamped to 0-9).
+func tileDigit(v int) byte { return '0' + byte(min(max(v, 0), 9)) } // #nosec G115 -- clamped
 
 // tilesETag is the strong validator of an island's rows: terrain changes
 // only with the archipelago's seed and roll (D-053), so these and the
@@ -604,9 +610,12 @@ func (s *Server) getIslandTiles(w http.ResponseWriter, r *http.Request) {
 			ID: is.ID, Width: is.Width, Height: is.Height,
 			Revision: islandRevision(s.cfg.Catalogue, world), Terrain: make([]string, len(is.Tiles)),
 		}
+		levels, heights := make([]byte, len(is.Tiles)), make([]byte, len(is.Tiles))
 		for i, t := range is.Tiles {
 			resp.Terrain[i] = t.Terrain
+			levels[i], heights[i] = tileDigit(t.Level), tileDigit(t.Height)
 		}
+		resp.Levels, resp.Heights = string(levels), string(heights)
 		return false, nil
 	})
 	if err != nil {

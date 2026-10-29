@@ -87,6 +87,9 @@ describe("PlacementGhost", () => {
     const bare = new PlacementGhost(scene, null);
     bare.show({ def: sawmill, island: { x: 0, y: 0 }, x: 0, y: 0, rotation: 0 }, GHOST);
     expect(bare.kind()).toBe("box");
+    // On a terrace (D-058) the box stands on the footprint's base.
+    bare.show({ def: sawmill, island: { x: 0, y: 0 }, x: 0, y: 0, rotation: 0, base: 0.5 }, GHOST);
+    expect(scene.meshes.filter((m) => m.name === "ghost").at(-1)!.position.y).toBeCloseTo(0.8);
     scene.dispose();
   });
 

@@ -39,9 +39,10 @@ type contentPayload struct {
 }
 
 type sizeClassJSON struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Rock bool   `json:"rock"`
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Rock   bool   `json:"rock"`
+	Scenic bool   `json:"scenic"`
 }
 
 // questJSON is a quest of quests.json in content order. Objective targets
@@ -350,7 +351,7 @@ func newContentPayload(c *content.Catalogue) contentPayload {
 		Quests: []questJSON{}, SizeClasses: []sizeClassJSON{},
 	}
 	for _, sc := range c.Islands.SizeClasses {
-		p.SizeClasses = append(p.SizeClasses, sizeClassJSON{ID: sc.ID, Name: sc.Name, Rock: sc.Rock})
+		p.SizeClasses = append(p.SizeClasses, sizeClassJSON{ID: sc.ID, Name: sc.Name, Rock: sc.Rock, Scenic: sc.Scenic})
 	}
 	for _, q := range c.Quests {
 		qj := questJSON{

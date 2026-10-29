@@ -1,11 +1,11 @@
 /**
  * Flat colours of the voxel world for 2D views (the minimap, D-048): the
  * ground role each mask terrain is drawn with (render/terrain.ts
- * groundColor without its noise) and the warmed deep sea
+ * groundColor without its noise), the relief of loaded tiles and the warmed deep sea
  * (render/water.ts). Free of Babylon so that the HUD can import it.
  */
 import { MASK_COAST, MASK_FOREST, MASK_GRASS, MASK_MOUNTAIN } from "../display/mask";
-import { TERRAIN, WATER } from "../theme/palette";
+import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 
 export type Rgb = readonly [number, number, number];
 
@@ -44,4 +44,27 @@ const LAND: Record<number, string> = {
 /** The minimap colour of a land mask cell (display/mask.ts code): its voxel ground role. */
 export function mapLandColor(code: number): string {
   return LAND[code] ?? TERRAIN.grass_a;
+}
+
+const TILE: Record<string, Rgb> = {
+  coast: rgbOf(TERRAIN.sand),
+  islet: rgbOf(TERRAIN.sand),
+  grass: lerp(rgbOf(TERRAIN.grass_a), rgbOf(TERRAIN.grass_b), 0.5),
+  forest: rgbOf(TERRAIN.forest_floor),
+  mountain: rgbOf(ISLAND.rock_light),
+  cliff: lerp(rgbOf(TERRAIN.grass_b), rgbOf(ISLAND.rock_light), 0.45),
+  river: lerp(rgbOf(WATER.shallows), rgbOf(WATER.deep), 0.4),
+};
+
+/**
+ * The minimap colour (0..1 channels) of a loaded tile (D-058): its ground
+ * role as the voxel terrain draws it (rivers in river water, rock in the
+ * rock's tone), a little lighter per terrace level and per level of rock
+ * (null for the sea).
+ */
+export function mapTileRgb(terrain: string, level: number, rock: number): Rgb | null {
+  const base = rock > 0 && terrain === "islet" ? TILE.mountain! : TILE[terrain];
+  if (!base) return null;
+  const f = 1 + 0.06 * level + 0.05 * rock;
+  return [Math.min(1, base[0] * f), Math.min(1, base[1] * f), Math.min(1, base[2] * f)];
 }

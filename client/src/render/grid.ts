@@ -63,10 +63,11 @@ export class GridOverlay {
   }
 
   /** Shows the grid around an archipelago point (null: hidden). */
-  set(at: ArchPoint | null): void {
+  /** Shows the grid around a point at a ground height (tiles; the terrace under the pointer, D-058), or hides it. */
+  set(at: ArchPoint | null, ground = 0): void {
     this.shown = at !== null;
     this.mesh.setEnabled(this.shown);
-    if (at) this.mesh.position.set(Math.round(at.x), GRID_Y, -Math.round(at.y));
+    if (at) this.mesh.position.set(Math.round(at.x), GRID_Y + ground, -Math.round(at.y));
   }
 
   visible(): boolean {

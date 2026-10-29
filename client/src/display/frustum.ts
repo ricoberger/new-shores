@@ -71,12 +71,14 @@ export function visibleIslands(
  * "" without islands.
  */
 export function focusedIsland(
-  islands: readonly { id: string; position: { x: number; y: number }; width: number; height: number }[],
+  islands: readonly { id: string; position: { x: number; y: number }; width: number; height: number; scenic?: boolean }[],
   p: ArchPoint,
 ): string {
   let best = "";
   let bestD = Infinity;
   for (const is of islands) {
+    // Skerries (D-058) are scenery: never the focus.
+    if (is.scenic) continue;
     const r = islandRect(is);
     if (p.x >= r.minX - 1 && p.x <= r.maxX + 1 && p.y >= r.minY - 1 && p.y <= r.maxY + 1) return is.id;
     const d = Math.hypot(p.x - (r.minX + r.maxX) / 2, p.y - (r.minY + r.maxY) / 2);

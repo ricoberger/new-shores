@@ -22,7 +22,8 @@ var goldenSeeds = []uint64{1_053_001, 1, 42}
 // render writes an archipelago as text: the spawn and bounds, then per
 // island its identity, position, size, fertilities and deposit counts and
 // its tile map ('~' water, 'c' coast, '.' grass, 'f' forest, 'm' mountain,
-// 'I' iron and 'S' stone deposits, as in scenario documents).
+// 'r' river, 'i' islet, 'k' cliff, deposits by the upper-case initial of
+// their kind, as in scenario documents).
 func render(a *Archipelago) string {
 	var b strings.Builder
 	x0, y0, x1, y1 := Bounds(a.Islands)
@@ -31,6 +32,17 @@ func render(a *Archipelago) string {
 		deposits := DepositCounts(is)
 		fmt.Fprintf(&b, "\n%s %q %s at (%d,%d) %dx%d fertilities %v slots iron %d stone %d\n",
 			is.ID, is.Name, is.SizeClass, is.X, is.Y, is.Width, is.Height, is.Fertilities, deposits["iron"], deposits["stone"])
+		// Levels and heights as a digest (FNV-1a of the digit rows) with
+		// the tile count per level.
+		var levels [3]int
+		hash := uint32(2166136261)
+		for _, t := range is.Tiles {
+			levels[min(t.Level, 2)]++
+			for _, v := range [2]int{t.Level, t.Height} {
+				hash = (hash ^ uint32(v)) * 16777619 // #nosec G115 -- 0..9
+			}
+		}
+		fmt.Fprintf(&b, "levels %d/%d/%d digest %08x\n", levels[0], levels[1], levels[2], hash)
 		for y := range is.Height {
 			row := make([]byte, is.Width)
 			for x := range is.Width {
@@ -56,6 +68,12 @@ func tileChar(t sim.Tile) byte {
 		return 'f'
 	case content.TerrainMountain:
 		return 'm'
+	case content.TerrainRiver:
+		return 'r'
+	case content.TerrainIslet:
+		return 'i'
+	case content.TerrainCliff:
+		return 'k'
 	}
 	return '.'
 }

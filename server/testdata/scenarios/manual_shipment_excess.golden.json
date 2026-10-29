@@ -84,7 +84,7 @@
     },
     {
       "step": 5,
-      "at": "2026-01-01T00:03:20.000Z",
+      "at": "2026-01-01T00:03:35.000Z",
       "boundaries": 1,
       "inventory": {
         "island2": {},
@@ -100,7 +100,7 @@
         }
       },
       "statuses": {},
-      "gold": 873666,
+      "gold": 873416,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -119,7 +119,7 @@
     },
     {
       "step": 9,
-      "at": "2026-01-01T00:04:50.000Z",
+      "at": "2026-01-01T00:05:10.000Z",
       "boundaries": 1,
       "inventory": {
         "island2": {
@@ -144,7 +144,7 @@
         }
       },
       "statuses": {},
-      "gold": 672166,
+      "gold": 671833,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -160,7 +160,7 @@
     },
     {
       "step": 12,
-      "at": "2026-01-01T00:06:19.999Z",
+      "at": "2026-01-01T00:06:51.605Z",
       "boundaries": 0,
       "inventory": {
         "island2": {
@@ -185,7 +185,7 @@
         }
       },
       "statuses": {},
-      "gold": 670666,
+      "gold": 670139,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -204,7 +204,7 @@
     },
     {
       "step": 13,
-      "at": "2026-01-01T00:06:20.000Z",
+      "at": "2026-01-01T00:06:51.606Z",
       "boundaries": 1,
       "inventory": {
         "island2": {
@@ -229,7 +229,7 @@
         }
       },
       "statuses": {},
-      "gold": 670666,
+      "gold": 670139,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -249,7 +249,7 @@
     },
     {
       "step": 14,
-      "at": "2026-01-01T00:06:40.000Z",
+      "at": "2026-01-01T00:07:11.606Z",
       "boundaries": 0,
       "inventory": {
         "island2": {
@@ -274,7 +274,7 @@
         }
       },
       "statuses": {},
-      "gold": 670333,
+      "gold": 669806,
       "balance_rate_per_min": -1000,
       "population": {},
       "unlocked_tiers": [
@@ -304,9 +304,9 @@
     }
   ],
   "final": {
-    "evaluated_at": "2026-01-01T00:06:40.000Z",
+    "evaluated_at": "2026-01-01T00:07:11.606Z",
     "next_change_at": "2026-01-01T11:17:00.000Z",
-    "gold": 670333,
+    "gold": 669806,
     "balance_rate_per_min": -1000,
     "tax_rate_per_min": 0,
     "upkeep_rate_per_min": 1000,
@@ -349,6 +349,7 @@
         "name": "Start",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": true,
         "position": {
           "x": 0,
@@ -680,6 +681,7 @@
         "name": "Island 2",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": true,
         "position": {
           "x": 36,
@@ -941,6 +943,6 @@
       ]
     },
     "away_summary": null,
-    "last_seen_at": "2026-01-01T00:04:50.000Z"
+    "last_seen_at": "2026-01-01T00:05:10.000Z"
   }
 }

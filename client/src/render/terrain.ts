@@ -3,7 +3,10 @@
 // full models (near and mid LOD), 2 per tile with the lite models (far),
 // 1 per tile for the far view of the islands around the focused one
 // (render/farmesh.ts) — the coarser ones the near field downsampled, so
-// the coast does not jump at a LOD switch. The near/mid columns take
+// the coast does not jump at a LOD switch. The terraces and rivers are
+// part of the field (render/terraces.ts); the rock is a layer of its own
+// at near and mid and baked into the lite and far columns. The near/mid
+// columns take
 // their top colours from the island's ground texture (one texel per
 // column: the smooth blend between tiles, pebbles, wet sand) and every
 // voxel a brightness jitter (render/groundshader.ts). One full mesh per
@@ -24,13 +27,15 @@ import type { Island, Terrain } from "../api/client";
 import { chunkAt, type ChunkRect, islandChunks } from "../display/chunks";
 import type { CoastLoop } from "../display/coastline";
 import { fbm, hash2 } from "../display/noise";
-import { TERRAIN, WATER } from "../theme/palette";
+import { ISLAND, TERRAIN, WATER } from "../theme/palette";
 import { addGround } from "./groundshader";
 import { c3, TERRAIN_COLORS, UNKNOWN_TERRAIN } from "./palette";
 import { skyFill } from "./lighting";
 import type { RoadTile } from "./roads";
 import { type FieldBase, fieldBase, type FieldTile, paintFields, paintRoads, touchedChunks } from "./roadvoxels";
-import { downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, TERRAIN_VPT, tileRange } from "./voxelterrain";
+import { LEVEL_STEPS } from "./terraces";
+import { COAST_REACH, downsampleField, EMPTY, type Field, groundTexels, islandField, meshField, roundDistanceTo, snapHeights, TERRAIN_VPT, tileRange, VOXEL_STEP, withRock } from "./voxelterrain";
+import { riverWater } from "./water";
 
 /** Height of the sea surface: the coast's columns drop from the ground (0) to below it. */
 export const SEA_LEVEL = -0.6;
@@ -40,11 +45,14 @@ const LITE_VPT = 2;
 export const FAR_VPT = 1;
 /** Colour levels per channel of the far view's columns (coarse: neighbours merge; a tile is a pixel or two there). */
 export const FAR_QUANT = 20;
+/** Colour levels of the far view of an island with its tiles: coarser, as its terraces and rock already split the column tops (D-058; the far budget). */
+const RELIEF_QUANT = 12;
 
 const SAND = c3(TERRAIN.sand);
 const GRASS_A = c3(TERRAIN.grass_a);
 const GRASS_B = c3(TERRAIN.grass_b);
 const DRY = c3(TERRAIN.dry);
+const ROCK = c3(ISLAND.rock_light);
 
 const smoothstep = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -65,7 +73,12 @@ export function groundColor(terrain: Terrain | undefined, x: number, y: number, 
     case "mountain":
       return TERRAIN_COLORS.mountain.scale(0.93 + 0.12 * n);
     case "coast":
+    case "islet":
       return SAND.scale(0.97 + 0.05 * n);
+    case "cliff":
+      return Color3.Lerp(GRASS_B, ROCK, 0.45).scale(0.95 + 0.08 * n);
+    case "river":
+      return Color3.Lerp(c3(WATER.shallows), c3(WATER.deep), 0.4);
     case "water":
       return TERRAIN_COLORS.water;
     default:
@@ -188,7 +201,9 @@ export class TerrainBuild {
   ) {
     const full: Field = { ...islandField(island, loops, seed, TERRAIN_VPT), textured: true };
     // The lite tops sample the same ground texture (their colours need no vertex colour: they merge into large rectangles).
-    this.fields = { full, lite: { ...downsampleField(full, TERRAIN_VPT / LITE_VPT), textured: true } };
+    // The lite terrain carries the rock (no rock layer at far LOD).
+    // Whole terrace levels, at most two rock tiers and flat rivers (no rims, ramps or banks: fewer walls, D-048's far budget).
+    this.fields = { full, lite: { ...snapHeights(downsampleField(withRock(full, seed, { tiers: 2, flatRivers: true }), TERRAIN_VPT / LITE_VPT), LEVEL_STEPS), textured: true } };
     this.base = fieldBase(full);
     this.rects = new Map(islandChunks(island.width, island.height).map((c) => [c.key, c]));
     this.texture = new RawTexture(groundTexels(full), full.nx, full.ny, Constants.TEXTUREFORMAT_RGBA, scene, false, false, Texture.NEAREST_SAMPLINGMODE);
@@ -249,7 +264,8 @@ export class TerrainBuild {
     meshField(liteB, lite, 0, 0, lite.nx, lite.ny);
     const liteMesh = liteB.mesh(`terrain_lite_${this.island.id}_all`, this.scene, this.material, this.liteParent);
     liteMesh?.freezeWorldMatrix();
-    const farF: Field = { ...downsampleField(this.fields.full, TERRAIN_VPT / FAR_VPT), quant: FAR_QUANT };
+    // Whole terrace levels, one rock tier, rivers flat, coarser colours (no rims, ramps or channels: fewer walls and rectangles, D-048's far budget).
+    const farF: Field = { ...snapHeights(downsampleField(withRock(this.fields.full, this.seed, { tiers: 1, flatRivers: true }), TERRAIN_VPT / FAR_VPT), LEVEL_STEPS), quant: RELIEF_QUANT };
     const far = new Builder();
     meshField(far, farF, 0, 0, farF.nx, farF.ny);
     const meshes = this.meshes;
@@ -311,6 +327,7 @@ export class CoastWater {
   private readonly texture: RawTexture;
   private shallows: Mesh | null = null;
   private foam: Mesh | null = null;
+  private rivers: Mesh | null = null;
 
   constructor(
     private readonly scene: Scene,
@@ -335,10 +352,18 @@ export class CoastWater {
   update(f: Field | null, seed: number): void {
     this.shallows?.dispose();
     this.foam?.dispose();
+    this.rivers?.dispose();
     this.shallows = null;
     this.foam = null;
+    this.rivers = null;
     if (!f?.toLand) return;
-    const { nx, ny, s, x0, y0, toLand, h } = f;
+    const { nx, ny, s, x0, y0, h } = f;
+    // Shallows and foam by a round distance to the land (halos that follow the outline, D-058: skerries), never nearer than the field's own (cliffs push them out).
+    const land = new Uint8Array(nx * ny);
+    for (let k = 0; k < nx * ny; k++) if (f.toLand[k] === 0) land[k] = 1;
+    const round = roundDistanceTo(land, nx, ny, COAST_REACH);
+    const toLand = new Uint8Array(nx * ny);
+    for (let k = 0; k < nx * ny; k++) toLand[k] = Math.max(f.toLand[k] as number, round[k] as number);
     // Shallows: per row, runs of columns of one band.
     const sp: number[] = [];
     const sc: number[] = [];
@@ -383,6 +408,55 @@ export class CoastWater {
         fu.push(u, 0.5, u, 0.5, u, 0.5, u, 0.5);
       }
     }
+    // River surfaces (D-058): per row, runs of water columns of one height, at that height; foam pools under the waterfalls.
+    const rp: number[] = [];
+    const ri: number[] = [];
+    const ru: number[] = [];
+    const r = f.relief;
+    if (r && r.nx === nx && r.ny === ny) {
+      const surface = (k: number) => (r.river[k] ? (r.riverH[k] as number) : EMPTY);
+      for (let j = 0; j < ny; j++) {
+        let i = 0;
+        while (i < nx) {
+          const hk = surface(j * nx + i);
+          let e = i + 1;
+          while (e < nx && surface(j * nx + e) === hk) e++;
+          if (hk !== EMPTY) {
+            const xa = x0 + i * s;
+            const xb = x0 + e * s;
+            const ya = y0 + j * s;
+            const yb = y0 + (j + 1) * s;
+            rect(xa, xb, ya, yb, hk * VOXEL_STEP, rp, ri);
+            ru.push(xa, ya, xb, ya, xb, yb, xa, yb);
+          }
+          i = e;
+        }
+      }
+      for (let j = 0; j < ny; j++) {
+        for (let i = 0; i < nx; i++) {
+          const k = j * nx + i;
+          if (!r.river[k] || r.fall[k]) continue;
+          // Within two columns below a waterfall column.
+          let pool = false;
+          for (let dj = -2; dj <= 2 && !pool; dj++) {
+            for (let di = -2; di <= 2; di++) {
+              const a = i + di;
+              const b = j + dj;
+              if (a < 0 || b < 0 || a >= nx || b >= ny) continue;
+              const q = b * nx + a;
+              if (r.fall[q] && (r.riverH[q] as number) > (r.riverH[k] as number)) {
+                pool = true;
+                break;
+              }
+            }
+          }
+          if (!pool || hash2(i, j, seed + 43) < 0.2) continue;
+          rect(x0 + i * s, x0 + (i + 1) * s, y0 + j * s, y0 + (j + 1) * s, (r.riverH[k] as number) * VOXEL_STEP + 0.006, fp, fi);
+          const u = ((i + j + Math.floor(hash2(i, j, seed + 40) * 2)) % FOAM_TEXELS + 0.5) / FOAM_TEXELS;
+          fu.push(u, 0.5, u, 0.5, u, 0.5, u, 0.5);
+        }
+      }
+    }
     const make = (name: string, pos: number[], idx: number[], material: StandardMaterial, parent: TransformNode | null, extra: (d: VertexData) => void) => {
       if (idx.length === 0) return null;
       const mesh = new Mesh(name, this.scene);
@@ -405,11 +479,13 @@ export class CoastWater {
     }
     this.foam = make("foam", fp, fi, this.foamMaterial, this.foamParent, (d) => (d.uvs = fu));
     if (this.foam) this.foam.alphaIndex = 2;
+    this.rivers = make("rivers", rp, ri, riverWater(this.scene).material, this.shallowParent, (d) => (d.uvs = ru));
   }
 
   /** Shallows at near and mid LOD (the foam's parent is the near node). */
   setFar(far: boolean): void {
     this.shallows?.setEnabled(!far);
+    this.rivers?.setEnabled(!far);
   }
 
   /** Steps the foam pattern along (server time nowMs). */
@@ -420,6 +496,7 @@ export class CoastWater {
   dispose(): void {
     this.shallows?.dispose();
     this.foam?.dispose();
+    this.rivers?.dispose();
     this.texture.dispose();
     this.shallowMaterial.dispose();
     this.foamMaterial.dispose();

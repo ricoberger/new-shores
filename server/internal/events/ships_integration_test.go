@@ -195,7 +195,8 @@ func TestShipEventsWithTwoWorkers(t *testing.T) {
 	apply(sim.OrderShip{IslandID: "start", BuildingID: 2, ShipType: "sloop"})
 	advance(2 * time.Minute)
 	apply(sim.ManualShipment{ShipID: 1, ToIslandID: "island2", Cargo: []sim.CargoAmount{{Good: "planks", Amount: 50_000}}})
-	advance(2*time.Minute + 20*time.Second)
+	// The leg runs harbour to shore around land (D-058 §5); then 20 s of handling.
+	advance(time.UnixMilli(w.Ships[0].Leg.ArriveAtMs).Sub(w.LastEvaluatedAt) + 20*time.Second)
 	apply(sim.FoundIsland{ShipID: 1, IslandID: "island2", BuildingType: "trading_post", X: 2, Y: 0})
 	apply(sim.CreateRoute{Stops: []sim.Stop{
 		{IslandID: "start", Load: []sim.LoadRule{{Good: "planks", MaxAmount: 20_000}}},

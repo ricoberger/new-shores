@@ -79,4 +79,9 @@ describe("focusedIsland", () => {
     expect(focusedIsland(islands, { x: 40, y: 60 })).toBe("start");
     expect(focusedIsland([], { x: 0, y: 0 })).toBe("");
   });
+  it("never a skerry (D-058), not even under the target", () => {
+    const withSkerry = [...islands, { id: "skerry", position: { x: 60, y: 60 }, width: 10, height: 10, scenic: true }];
+    expect(focusedIsland(withSkerry, { x: 65, y: 65 })).toBe("island2");
+    expect(focusedIsland(withSkerry, { x: 10, y: 10 })).toBe("start");
+  });
 });

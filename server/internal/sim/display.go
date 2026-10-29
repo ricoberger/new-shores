@@ -173,6 +173,10 @@ type LegDisplay struct {
 	ToIslandID   string           `json:"to_island_id"`
 	DepartAt     string           `json:"depart_at"`
 	ArriveAt     string           `json:"arrive_at"`
+	// Path is the voyage around land (archipelago tiles, D-058 §5): the
+	// origin's harbour, the waypoints, the destination's harbour; the
+	// ship covers it at constant speed between DepartAt and ArriveAt.
+	Path []PositionDisplay `json:"path,omitempty"`
 }
 
 // CargoDisplay is one occupied cargo slot (milli-units).
@@ -190,6 +194,10 @@ type RouteDisplay struct {
 	// LoopMs is the duration of one loop at reference speed 1.0: the
 	// handling time of every stop plus the travel time of every leg.
 	LoopMs int64 `json:"loop_ms"`
+	// Paths is the voyage of every leg around land (archipelago tiles,
+	// D-058 §5), one per stop: stop i to stop i+1, the last back to the
+	// first; empty for a leg that stays at its island.
+	Paths [][]PositionDisplay `json:"paths"`
 	// Effects is the estimated net change per island and good of one loop
 	// and per minute (MECHANICS §9.2 estimate; stock availability ignored).
 	Effects []RouteEffectDisplay `json:"effects"`
@@ -306,9 +314,11 @@ type IslandDisplay struct {
 	Name string `json:"name"`
 	// SizeClass is the content size class of a generated island ("" for a
 	// hand-made one); Rock is true for a size class marked rock (a resource
-	// rock: mines only, D-053).
+	// rock: mines only, D-053); Scenic is true for a skerry (D-058: no
+	// sites, not settleable, no name; land for sea routing only).
 	SizeClass string `json:"size_class"`
 	Rock      bool   `json:"rock"`
+	Scenic    bool   `json:"scenic"`
 	// Settled is true when the island has a Trading Post; unsettled
 	// islands have capacity 0 and accept only FoundIsland.
 	Settled bool `json:"settled"`
@@ -657,6 +667,9 @@ func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
 		if l.From != nil {
 			d.Leg.FromPosition = &PositionDisplay{X: l.From.X, Y: l.From.Y}
 		}
+		for _, p := range l.Path {
+			d.Leg.Path = append(d.Leg.Path, PositionDisplay(p))
+		}
 	}
 	if p := s.AtSea; p != nil {
 		d.Position = &PositionDisplay{X: p.X, Y: p.Y}
@@ -674,7 +687,14 @@ func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
 }
 
 func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
-	d := RouteDisplay{ID: r.ID, Name: r.Name, Stops: []RouteStopDisplay{}, ShipIDs: []int64{}, LoopMs: routeLoopMs(w, c, r)}
+	loop, paths := routeLegs(w, c, r)
+	d := RouteDisplay{ID: r.ID, Name: r.Name, Stops: []RouteStopDisplay{}, ShipIDs: []int64{}, LoopMs: loop, Paths: make([][]PositionDisplay, len(paths))}
+	for i, path := range paths {
+		d.Paths[i] = make([]PositionDisplay, len(path))
+		for j, p := range path {
+			d.Paths[i][j] = PositionDisplay(p)
+		}
+	}
 	for _, st := range r.Stops {
 		sd := RouteStopDisplay{IslandID: st.IslandID, Load: []LoadRuleDisplay{}, Unload: append([]string{}, st.Unload...)}
 		for _, lr := range st.Load {
@@ -709,7 +729,7 @@ func displayIsland(w *World, is *Island, c *content.Catalogue, wr *worldRates, r
 		Fertilities: append([]string{}, is.Fertilities...), Deposits: IslandDeposits(is), TerrainMask: TerrainMask(is),
 	}
 	if sc := c.Islands.SizeClassByID[is.SizeClass]; sc != nil {
-		d.Rock = sc.Rock
+		d.Rock, d.Scenic = sc.Rock, sc.Scenic
 	}
 	for tier, p := range r.workforce {
 		d.Workforce[tier] = WorkforceDisplay{Available: p.available, Required: p.required, FactorPermille: p.factorPermille()}

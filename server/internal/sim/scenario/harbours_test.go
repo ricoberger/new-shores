@@ -221,6 +221,7 @@ func TestStartAtSea(t *testing.T) {
 	voyage := runScenario(t, "start_voyage")
 	vs := shipDisplay(t, voyage.Final, 1)
 	if vs.State != sim.ShipManualLeg || vs.Leg == nil || vs.Leg.FromIslandID != "" || vs.Leg.FromPosition == nil || vs.Leg.ToIslandID != "home" ||
+		!slices.Equal(vs.Leg.Path, []sim.PositionDisplay{{X: 20, Y: 20}, {X: 14, Y: 7}}) ||
 		len(voyage.Final.Quests.Active) != 1 || voyage.Final.Quests.Active[0].ID != "intro_home_island" {
 		t.Errorf("voyage ship %+v quests %+v", vs, voyage.Final.Quests)
 	}

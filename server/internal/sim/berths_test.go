@@ -7,19 +7,19 @@ import (
 )
 
 // berthWorld is shipWorld (island "a" settled with a level-1 Trading Post,
-// one berth; "b" unsettled at (6, 8)) plus two ships at sea west of "a"
-// carrying planks: ship 1 at (-12, 0) with 20 planks, ship 2 at (-13, 0)
-// with 50 planks. Both sail to "a" at t0: ship 1 arrives after 12 s,
-// ship 2 after 13 s.
+// one berth; "b" unsettled at (6, 8)) plus two ships at sea west of "a"'s
+// harbour (3, -1) carrying planks: ship 1 at (-9, -1) with 20 planks,
+// ship 2 at (-10, -1) with 50 planks. Both sail to "a" at t0: ship 1
+// arrives after 12 s, ship 2 after 13 s.
 func berthWorld(t *testing.T) (*World, *Ship, *Ship) {
 	t.Helper()
 	c := catalogue(t)
 	w := shipWorld(t, c)
-	s1, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -12, Y: 0}, map[string]Qty{"planks": 20_000})
+	s1, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -9, Y: -1}, map[string]Qty{"planks": 20_000})
 	if err != nil {
 		t.Fatal(err)
 	}
-	s2, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -13, Y: 0}, map[string]Qty{"planks": 50_000})
+	s2, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -10, Y: -1}, map[string]Qty{"planks": 50_000})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +115,7 @@ func TestBerthFIFOAndUpgrade(t *testing.T) {
 	w := shipWorld(t, c)
 	var ships []*Ship
 	for range 3 {
-		s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -10, Y: 0}, map[string]Qty{"planks": 10_000})
+		s, err := LaunchShipAtSea(w, c, "sloop", Pos{X: -7, Y: -1}, map[string]Qty{"planks": 10_000})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -199,9 +199,10 @@ func TestStartAtSeaFounding(t *testing.T) {
 	expectErr(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 1000}}}, ErrShipNotIdle)
 	start := w.LastEvaluatedAt.UnixMilli()
 	mustApply(t, w, c, SailShip{ShipID: s.ID, ToIslandID: "b"})
-	travel := TravelMs(6, 20, 6, 8, 1000, c.Region.Rules.ShipSpeedMilliTilesPerMin)
+	// To b's shore nearest the ship (no Trading Post there): (7, 14), in open water.
+	travel := TravelMs(6, 20, 7, 14, 1000, c.Region.Rules.ShipSpeedMilliTilesPerMin)
 	if s.State != ShipManualLeg || s.AtSea != nil || s.Leg == nil || s.Leg.From == nil || *s.Leg.From != (Pos{6, 20}) ||
-		s.Leg.FromIsland != "" || s.Leg.DepartAtMs != start || s.Leg.ArriveAtMs != start+travel {
+		s.Leg.FromIsland != "" || s.Leg.DepartAtMs != start || s.Leg.ArriveAtMs != start+travel || !slices.Equal(s.Leg.Path, []Pos{{6, 20}, {7, 14}}) {
 		t.Fatalf("sailing = %+v leg %+v", s, s.Leg)
 	}
 	if ds := display(t, w, c); ds.Ships[0].Leg == nil || ds.Ships[0].Leg.FromPosition == nil || *ds.Ships[0].Leg.FromPosition != (PositionDisplay{6, 20}) {

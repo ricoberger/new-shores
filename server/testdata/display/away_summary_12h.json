@@ -46,6 +46,7 @@
         "name": "Start",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": true,
         "position": {
           "x": 0,
@@ -703,6 +704,7 @@
         "name": "Island 2",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": false,
         "position": {
           "x": 72,
@@ -1007,7 +1009,7 @@
         {
           "ship_id": 1,
           "island_id": "island2",
-          "at": "2026-01-01T00:32:20.000Z"
+          "at": "2026-01-01T00:32:30.318Z"
         }
       ],
       "quests_completed": [],
@@ -1064,6 +1066,7 @@
             "name": "Start",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -1721,6 +1724,7 @@
             "name": "Island 2",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": false,
             "position": {
               "x": 72,
@@ -2025,7 +2029,7 @@
             {
               "ship_id": 1,
               "island_id": "island2",
-              "at": "2026-01-01T00:32:20.000Z"
+              "at": "2026-01-01T00:32:30.318Z"
             }
           ],
           "quests_completed": [],
@@ -2082,6 +2086,7 @@
             "name": "Start",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -2739,6 +2744,7 @@
             "name": "Island 2",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": false,
             "position": {
               "x": 72,
@@ -3043,7 +3049,7 @@
             {
               "ship_id": 1,
               "island_id": "island2",
-              "at": "2026-01-01T00:32:20.000Z"
+              "at": "2026-01-01T00:32:30.318Z"
             }
           ],
           "quests_completed": [],
@@ -3100,6 +3106,7 @@
             "name": "Start",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -3757,6 +3764,7 @@
             "name": "Island 2",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": false,
             "position": {
               "x": 72,
@@ -4061,7 +4069,7 @@
             {
               "ship_id": 1,
               "island_id": "island2",
-              "at": "2026-01-01T00:32:20.000Z"
+              "at": "2026-01-01T00:32:30.318Z"
             }
           ],
           "quests_completed": [],
@@ -4118,6 +4126,7 @@
             "name": "Start",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -4775,6 +4784,7 @@
             "name": "Island 2",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": false,
             "position": {
               "x": 72,
@@ -5079,7 +5089,7 @@
             {
               "ship_id": 1,
               "island_id": "island2",
-              "at": "2026-01-01T00:32:20.000Z"
+              "at": "2026-01-01T00:32:30.318Z"
             }
           ],
           "quests_completed": [],
@@ -5136,6 +5146,7 @@
             "name": "Start",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -5793,6 +5804,7 @@
             "name": "Island 2",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": false,
             "position": {
               "x": 72,
@@ -6097,7 +6109,7 @@
             {
               "ship_id": 1,
               "island_id": "island2",
-              "at": "2026-01-01T00:32:20.000Z"
+              "at": "2026-01-01T00:32:30.318Z"
             }
           ],
           "quests_completed": [],

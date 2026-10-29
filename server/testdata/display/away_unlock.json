@@ -46,6 +46,7 @@
         "name": "",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": true,
         "position": {
           "x": 0,
@@ -1580,6 +1581,7 @@
             "name": "",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -3114,6 +3116,7 @@
             "name": "",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -4648,6 +4651,7 @@
             "name": "",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -6182,6 +6186,7 @@
             "name": "",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -7716,6 +7721,7 @@
             "name": "",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,

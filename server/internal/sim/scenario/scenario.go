@@ -57,7 +57,8 @@ type Scenario struct {
 const maxSnapshotEvery = 7 * 24 * 60
 
 // Island is an ASCII island: one string per row, one character per tile
-// ('~' water, 'c' coast, '.' grass, 'f' forest, 'm' mountain, 'I' mountain
+// ('~' water, 'c' coast, '.' grass, 'f' forest, 'm' mountain, 'r' river,
+// 'i' islet, 'k' cliff (D-058), 'I' mountain
 // with an infinite iron deposit, 'S' mountain with an infinite stone
 // deposit). X, Y is the archipelago position in tiles (ship travel times);
 // Name the display name; Fertilities the island-wide fertility tags.
@@ -605,6 +606,12 @@ func parseIsland(spec Island) (*sim.Island, error) {
 				terrain = content.TerrainForest
 			case 'm', 'I', 'S':
 				terrain = content.TerrainMountain
+			case 'r':
+				terrain = content.TerrainRiver
+			case 'i':
+				terrain = content.TerrainIslet
+			case 'k':
+				terrain = content.TerrainCliff
 			default:
 				return nil, fmt.Errorf("island %q tile (%d,%d): unknown symbol %q", spec.ID, x, y, ch)
 			}

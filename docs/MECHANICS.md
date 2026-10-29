@@ -551,10 +551,22 @@ buildings (tavern and up) keep upkeep.
   slot); loading tops up partially filled slots first. `scrap_ship`
   unloads the cargo (capacity permitting; excess lost) and refunds 50 % of
   the ship's materials.
-- **Travel time** is one integer-only function:
+- **Travel time** is one integer-only function per straight segment:
   `distance_milli = ceil(1000 × √(dx² + dy²))` (integer square root over
   archipelago tile coordinates), `travel_ms = max(1, ceil(distance_milli ×
   60 000 × 1000 / (speed_permille × ship_speed_milli_tiles_per_min)))`.
+- **Sea routing (D-058 §5):** a leg runs from the departure island's
+  harbour — 2 tiles out from the middle of its Trading Post's water edge,
+  or the nearest open water tile (no land within 1 tile, outside the
+  footprint) when that one is not; an island without one: its water tile
+  next to land nearest the other end; a founding voyage (`sail_ship` with
+  the Trading Post's `site`): that site's harbour — to the arrival
+  island's, around land: integer A* on a 4-tile sea grid (a cell with
+  any land is blocked; an end in such a cell reaches the open grid over
+  water tiles), then string pulling with a tile-exact line test that
+  keeps 1 tile of water from land (no way around: the straight line). The leg stores the polyline (`path`, shown
+  to the client) and its ETA is the sum of the segments' distances in
+  the formula above; route loop times use the same paths.
   Constants in `region.json`: `ship_speed_tiles_per_min` (provisional 60)
   and `ship_handling_seconds` (provisional 20). The dev archipelago's two
   islands are 120 tiles apart → 2 min per sloop leg.
@@ -620,14 +632,49 @@ route: { name?, stops: [{island, load: [{good, max_amount}], unload: [{good}]}],
 
 - Each archipelago is generated from a **seed stored on the world**
   (D-053) by a pure function of seed and content: **12 habitable islands**
-  (3 large ≈ 48×48, 5 medium ≈ 32×32, 4 small ≈ 20×20) plus 0–2 resource
-  rocks (≈ 10×10, mountain and coast only). Each island gets fertilities
-  (2–4 from the pool; rocks none), typed deposit slots (0–4) and a
-  harbour area proportional to its coast; each habitable island has ≥ 2
-  valid Trading Post sites. Islands are ≥ 60 tiles apart, nearest
-  neighbour ≤ 150; the start ship spawns at the centre. The archipelago
-  may be **re-rolled** until the first founding (`reroll_archipelago`);
-  a settled island may be **renamed** by its owner (`rename_island`).
+  (3 large ≈ 192×192, 5 medium ≈ 112×112, 4 small ≈ 64×64 extents) plus
+  0–2 resource rocks (≈ 16×16, mountain and coast only) and 4–8
+  **skerries** (below). Each island gets fertilities (2–4 from the pool;
+  rocks none), typed deposit slots (0–4) and a harbour area proportional
+  to its coast; each habitable island has ≥ 2 valid Trading Post sites
+  and a shipyard site. Islands are ≥ 50 tiles apart (grid to grid),
+  nearest neighbour ≤ 120, every strait (land to land, skerries
+  included) ≥ 24 tiles of water, and no sea point inside the hull of the
+  land lies more than 150 tiles from land (a layout with more open sea is
+  drawn again); the start ship spawns at the sea tile nearest the home
+  candidate that lies ≥ 40 tiles from any land (its first voyage takes
+  40 s or more). The archipelago may be **re-rolled** until the first
+  founding (`reroll_archipelago`); a settled island may be **renamed** by
+  its owner (`rename_island`).
+- **Shapes (D-058):** a habitable island grows from a skeleton (a trunk
+  with 1–3 arms) through a distance field and warped noise; large and
+  medium islands keep at least one bay ≥ 15 % of their span deep and one
+  peninsula ≥ 10 % beyond the body. Each keeps **one contiguous plain** on
+  one terrace level (large ≥ 40×40, medium ≥ 24×24, small ≥ 14×14 grass)
+  that the Trading Post and shipyard sites reach by land or bridges.
+  - **Mountains** form a massif along a ridge spine (15–20 % of the land
+    on large and medium islands, ≈ 10 % on small); where the massif or a
+    higher terrace meets the sea the coast is **cliff** (10–25 % of the
+    shore; no harbour buildings — reserved beach sites keep the harbour
+    guarantee). Mountain and cliff tiles are unbuildable (D-036).
+  - **Rivers** (large 1–2, medium 0–1, small none) run from the
+    mountains to a bay, 1 tile wide and 2–3 at the estuary; river tiles
+    are unbuildable water inside the land. A **road on a river tile is a
+    bridge**: a straight crossing of at most 2 river tiles with buildable
+    land at both ends and no road beside it (`terrain` otherwise).
+    Fishing stays sea-only.
+  - **Islets** (2–15 tiles, rock with a grass top or bare) lie inside
+    an island's grid as unbuildable decor.
+  - **Terraces are visual only:** every land tile has a level 0–2 (coast
+    low, inland higher, rivers stepping down, the plain on one level) and
+    rock tiles a rock height. No tile loses buildability and no placement
+    rule reads them; the client draws plinths, ramps and waterfalls.
+- **Skerries** (size class `scenic`, D-058): 4–12 tiles of rock with a
+  grass or sand top, placed after the islands within the nearest
+  neighbour distance. They have no sites, fertilities, deposits or name,
+  do not count toward the 12 islands or the buildable area, cannot be
+  founded (`invalid_command`) or sailed to (`route_invalid`), and are
+  land for sea routing, the minimap and the far view.
 - **No gating** (D-051, supersedes D-039's unlock ladder): every island
   can be settled from the start; pacing comes from ships, Trading Posts
   and running a second settlement. Islands show their fertilities,

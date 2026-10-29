@@ -1,5 +1,73 @@
 {
   "decor": {
+    "decor_bridge_1": {
+      "bounds": {
+        "max": [
+          0.75,
+          0.5,
+          0.375
+        ],
+        "min": [
+          -0.75,
+          0.125,
+          -0.375
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.75,
+            0.5,
+            0.375
+          ],
+          "min": [
+            -0.75,
+            0.125,
+            -0.375
+          ]
+        },
+        "budget": 580,
+        "bytes": 4984,
+        "path": "decor_bridge_1.glb",
+        "sha256": "25f81eff03cbea8b150bc9ee11ae13ab68e2e539a8972b5bd137e9bef2bc3a2a",
+        "triangles": 116
+      },
+      "kind": "decor"
+    },
+    "decor_bridge_2": {
+      "bounds": {
+        "max": [
+          1.25,
+          0.625,
+          0.375
+        ],
+        "min": [
+          -1.25,
+          0.125,
+          -0.375
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            1.25,
+            0.625,
+            0.375
+          ],
+          "min": [
+            -1.25,
+            0.125,
+            -0.375
+          ]
+        },
+        "budget": 580,
+        "bytes": 8552,
+        "path": "decor_bridge_2.glb",
+        "sha256": "d27a0ebad870d431e4d6bacf62c79dcd5064c587d452225886b9abdbb2a8bfe2",
+        "triangles": 246
+      },
+      "kind": "decor"
+    },
     "decor_bush_a": {
       "bounds": {
         "max": [
@@ -131,7 +199,7 @@
         "budget": 580,
         "bytes": 10420,
         "path": "decor_crag_a.glb",
-        "sha256": "c76f60b5143ead4ecb49a718a682b48e74366d6d7b9af83b469cd9a5747f6779",
+        "sha256": "481c0d401c94f612749ae8e100f70e3f3a63db3c009891678e5c204dabc020cb",
         "triangles": 278
       },
       "kind": "decor"
@@ -165,7 +233,7 @@
         "budget": 580,
         "bytes": 10320,
         "path": "decor_crag_b.glb",
-        "sha256": "4e21758fec94af659e7380c2d8fe89380bd71dfe8235673c6482c943572fa0f7",
+        "sha256": "7d27a287f0a4434343dbea13991b53378da204124c11330151c144a35bfc91c1",
         "triangles": 280
       },
       "kind": "decor"
@@ -199,7 +267,7 @@
         "budget": 580,
         "bytes": 9356,
         "path": "decor_crag_c.glb",
-        "sha256": "447e401e6e92440e2ff904bb1425af4105210bd1c44380520c6d8e791a774422",
+        "sha256": "f8c1e3e781181815ec53f0a80e88097904fedf61ae4836b373924e5c9e5e088f",
         "triangles": 242
       },
       "kind": "decor"
@@ -437,7 +505,7 @@
         "budget": 580,
         "bytes": 9576,
         "path": "decor_outcrop_iron.glb",
-        "sha256": "0ccfeb3776c0d6303a4c295a07f7de0e57a2ef49d9c9538c582728f582c86166",
+        "sha256": "4840b1f59cc0241ac8a5891f5b703fd998ce21f114da295206fe456e99c99895",
         "triangles": 242
       },
       "kind": "decor"
@@ -471,7 +539,7 @@
         "budget": 580,
         "bytes": 9576,
         "path": "decor_outcrop_other.glb",
-        "sha256": "545549ac86aaeb33b00ca01913fcc717cd70da124067a2d6a4bbd0022f4a99fb",
+        "sha256": "e2dc314a1e18cb7d206ef5af0777af3748eef9aa998ef2c4086516b005e8cac8",
         "triangles": 242
       },
       "kind": "decor"
@@ -505,8 +573,76 @@
         "budget": 580,
         "bytes": 9576,
         "path": "decor_outcrop_stone.glb",
-        "sha256": "55264bd21a7d3bb66c86d798d53284ad86828d2edf1f096e9be83d5b346a8403",
+        "sha256": "d0f6572ca6dc56f05b3de8e824c9b12b4ec02a797ac47d7f59a0d8f3da926571",
         "triangles": 242
+      },
+      "kind": "decor"
+    },
+    "decor_peak_a": {
+      "bounds": {
+        "max": [
+          0.625,
+          1.5,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.625
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.625,
+            1.5,
+            0.5
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.625
+          ]
+        },
+        "budget": 580,
+        "bytes": 20264,
+        "path": "decor_peak_a.glb",
+        "sha256": "4265e081e17de58b6df0d3969fb26f443ec9507bdb524611327c66db383248f5",
+        "triangles": 566
+      },
+      "kind": "decor"
+    },
+    "decor_peak_b": {
+      "bounds": {
+        "max": [
+          0.625,
+          1.375,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.625
+        ]
+      },
+      "file": {
+        "bounds": {
+          "max": [
+            0.625,
+            1.375,
+            0.5
+          ],
+          "min": [
+            -0.5,
+            0.0,
+            -0.625
+          ]
+        },
+        "budget": 580,
+        "bytes": 19020,
+        "path": "decor_peak_b.glb",
+        "sha256": "d5df6260e222c0906f1f8a9678a2de2e0bc0e38de6e757e4891996f853ca0e6f",
+        "triangles": 532
       },
       "kind": "decor"
     },
@@ -539,7 +675,7 @@
         "budget": 580,
         "bytes": 3620,
         "path": "decor_pebbles_a.glb",
-        "sha256": "160acb0cb6c4d9a727f0c61609b632c432db8365c1b48404f52ff93d01cfe410",
+        "sha256": "caa8ded5aa4bc6ad20041a4dbd19066c1fb9076977c366e5c1726e55c4669b02",
         "triangles": 64
       },
       "kind": "decor"
@@ -573,7 +709,7 @@
         "budget": 580,
         "bytes": 3760,
         "path": "decor_pebbles_b.glb",
-        "sha256": "bcbc3f78b5be28fd821054fc54557b2b92eb0635fd5a4327af110d66fbad8c26",
+        "sha256": "72e0f3612a5c1eba84bfc70c695105d3680e286e1ca367e1497c3aadfb2d0a03",
         "triangles": 66
       },
       "kind": "decor"
@@ -641,7 +777,7 @@
         "budget": 580,
         "bytes": 4040,
         "path": "decor_rock_a.glb",
-        "sha256": "7c9715ed3ddb432b70816bce32808c90134251a2bb9da5e38309e26d584eb494",
+        "sha256": "520c5c6cef8309df47215e3cb45a3f97ba2ff6eb7a99d63e8f94a3e2febe47d7",
         "triangles": 82
       },
       "kind": "decor"
@@ -675,7 +811,7 @@
         "budget": 580,
         "bytes": 2684,
         "path": "decor_rock_b.glb",
-        "sha256": "a6bb4ed44b5ce8c063d633ee98e4cdb5d7c16e3f77d09b6365b31688b126c054",
+        "sha256": "3d3a0de4d20e6cacd0487199770a8f6857db3d382049faf762101d1aa1985304",
         "triangles": 38
       },
       "kind": "decor"
@@ -709,7 +845,7 @@
         "budget": 580,
         "bytes": 4776,
         "path": "decor_rock_c.glb",
-        "sha256": "d45590a5d8ee33b87c418c4a1d62818c0f9e85271a4f59143f33d48a82e80bbd",
+        "sha256": "58a64d7c3fda75a8a390d913f223a7aeb78db57c2b8057524094bd5ba53d3e80",
         "triangles": 114
       },
       "kind": "decor"
@@ -2742,11 +2878,11 @@
           "budget": 1200,
           "bytes": 11136,
           "path": "charcoal_burner.lite.glb",
-          "sha256": "5988b2d926895d1978c31300a73076d89a6a630a9cebb0195c79646d9697ade5",
+          "sha256": "60bc7dd37b058affed2e309310714880336194abb1895e5283baa3d3deff29d8",
           "triangles": 304
         },
         "path": "charcoal_burner.glb",
-        "sha256": "bcbdc7316c29823c758943fde5193dd1c60def378c5a65b5ef26e337c9bb025f",
+        "sha256": "444c54f1dcff63a3ac4dd746db0eec2efae7bdbaff739c655f6417b8ebf79ee4",
         "triangles": 4302
       },
       "footprint": {
@@ -3127,11 +3263,11 @@
           "budget": 960,
           "bytes": 14968,
           "path": "coal_mine.lite.glb",
-          "sha256": "48656b9001eb6fdf04ee09f1656f287a194902afeab883693266bcec653110cd",
+          "sha256": "f3efdde54bca6c7a4c677864600cb54b1b0f614fae508db1aec7174b5ed85ad2",
           "triangles": 408
         },
         "path": "coal_mine.glb",
-        "sha256": "2c917484e2a241a174f9abb1aad1447b4bfc55a00d62cdc105381306b1e8cba4",
+        "sha256": "cd51dd7c135315854fcfaf16ddd26a2e8a54184f0d26429e4c07475aa6b5562e",
         "triangles": 5582
       },
       "footprint": {
@@ -3285,11 +3421,11 @@
           "budget": 960,
           "bytes": 13416,
           "path": "copper_mine.lite.glb",
-          "sha256": "8f91ff2ec48f76851bf92aecfdd0ac05ac7c4b0c26bb65ac71147fc1e56415ac",
+          "sha256": "5674b8a3d66fe014f6bdf9617ed143ab73b28e528f44b5ebd6db0cc641e8c9a9",
           "triangles": 376
         },
         "path": "copper_mine.glb",
-        "sha256": "c44b7f658b68ab23243076e1cb1166714691b13f21583aeb33e26081e2884d8d",
+        "sha256": "73d8dc34a301f9f537ba456755a2203f8d2aa1777b6492d140d9c79d6a5a3502",
         "triangles": 5080
       },
       "footprint": {
@@ -3373,7 +3509,7 @@
           "triangles": 282
         },
         "path": "copper_smelter.glb",
-        "sha256": "9a813cfffba97d794bff39a68b90e791ab51d25d3926051598fa42b39376a8ee",
+        "sha256": "965700fa9e857754583461442e2e740bbc40bca102bd7495d775f7c405d1d9ca",
         "triangles": 3078
       },
       "footprint": {
@@ -4108,11 +4244,11 @@
           "budget": 960,
           "bytes": 13360,
           "path": "gold_mine.lite.glb",
-          "sha256": "85af0fca97c8bd9fa711e03bc0211ad73b812d6551b4b878b27ffac2b7a85cde",
+          "sha256": "24a90f7ad392a94ce1d6551d70b5e410a319635907f2ca979a522aca10218c6d",
           "triangles": 362
         },
         "path": "gold_mine.glb",
-        "sha256": "063ade7cfb5bb31449bdff5c1dda7a2f644f0cb40f0d360a755751bc5fb5ceb2",
+        "sha256": "ab8c9eaaf76c352a59c1a66a3cf4a6084c8085bbb38f5106a12d48a78d6abec4",
         "triangles": 5196
       },
       "footprint": {
@@ -5293,11 +5429,11 @@
           "budget": 960,
           "bytes": 12168,
           "path": "iron_mine.lite.glb",
-          "sha256": "ad79a5e1edb1146166f6bf42102f71e993ee546d35159e5be53cc4b41f3519a2",
+          "sha256": "2c109adb38414087305160a4d194b675376026af98ee595497648813c1dd3c1a",
           "triangles": 326
         },
         "path": "iron_mine.glb",
-        "sha256": "5804308e4332b970e275eda14f39ab829a6ace292888ca783515604ed21ad6eb",
+        "sha256": "5ae4411b0e3adc0be5a6fc1cd47c98735230828755935c5ce7d14fa80da05043",
         "triangles": 4948
       },
       "footprint": {
@@ -6987,11 +7123,11 @@
           "budget": 960,
           "bytes": 11696,
           "path": "quarry.lite.glb",
-          "sha256": "ae5318cc48589f86602992b73c2828b4b8411da0ef07ed0d56ee49bcbbdaa05e",
+          "sha256": "07191674df62ea5fe531f7dc98d03133fbab8b883076eafaa995b0b82f85e593",
           "triangles": 304
         },
         "path": "quarry.glb",
-        "sha256": "32bc133289af0c5fd04c8c13dc2604e8d857fa3e06bf50e01a513e88e9829d24",
+        "sha256": "8c3c611fa5512346f98e84646442475296b6b04a20cf75a4b925022317660ba1",
         "triangles": 3990
       },
       "footprint": {
@@ -7061,11 +7197,11 @@
           "budget": 960,
           "bytes": 11624,
           "path": "quartz_quarry.lite.glb",
-          "sha256": "9c32e8847dc9bf45c974b90a4da914f15587355ab948d11f9f861d0a46bff1e2",
+          "sha256": "83aa2c911b5433f4cf9897606880b186f0b25593cfb3bb1cd8858552b30704ce",
           "triangles": 338
         },
         "path": "quartz_quarry.glb",
-        "sha256": "39bb54610e46a468472a8217bc87a9d0ae02c74d89bf3a276f604784093894c2",
+        "sha256": "d1d6645596eb94ad79ab49a1f63c12317e9cec262b4d0d73b2689eb02d995692",
         "triangles": 3494
       },
       "footprint": {
@@ -7306,11 +7442,11 @@
           "budget": 960,
           "bytes": 14656,
           "path": "salt_mine.lite.glb",
-          "sha256": "e2fe33c9051992c2e08cd00cf2c54f9171ab1b2cd6b1b7a4fbd4ad3cc6ef3e6c",
+          "sha256": "3c46eb5301b807fcf1ffefe5a26ada90c897ab7d3aaa1bd8f7fcd0ddd64d51dd",
           "triangles": 388
         },
         "path": "salt_mine.glb",
-        "sha256": "4ad85142bf4783b006e874afe4048faa7ac89a2288e2a3022bc000a6c190b029",
+        "sha256": "bc9bdce2d71ed88ae227065ed61b4994957c7cf171ee915a59480c854a354ce0",
         "triangles": 5094
       },
       "footprint": {
@@ -8028,7 +8164,7 @@
           "triangles": 258
         },
         "path": "smelter.glb",
-        "sha256": "70464523eeb46c2225a7ce2b89e16f32ea9160707840d0db9e18566c821ffc85",
+        "sha256": "e5a10db7f4f6c0ff4104d108f48c94444b7e0dcedc46f240df74ed201d114923",
         "triangles": 3464
       },
       "footprint": {
@@ -9660,7 +9796,7 @@
       "kind": "field"
     }
   },
-  "palette_sha256": "9cbacc44b66c0a6e54c8273c76df7a88f12f1ff98924f122f7508f1b62712a1a",
+  "palette_sha256": "bbef71c2109fa8f9700b86b9d21f09f8a59573fffbf86e27b21877fdcaf21126",
   "placeholders": [],
   "version": 1,
   "voxels_per_tile": 8

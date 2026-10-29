@@ -173,7 +173,7 @@ interface Item {
  * by their yaw, stretched by the footprint scale, moved to the footprint
  * centre, colours × the paused tint.
  */
-export function mergeItems(items: readonly { data: ModelData; cx: number; cz: number; yaw: number; sx: number; sz: number; tint: readonly number[] }[]): VertexData {
+export function mergeItems(items: readonly { data: ModelData; cx: number; cy?: number; cz: number; yaw: number; sx: number; sz: number; tint: readonly number[] }[]): VertexData {
   let nv = 0;
   let ni = 0;
   for (const it of items) {
@@ -196,7 +196,7 @@ export function mergeItems(items: readonly { data: ModelData; cx: number; cz: nu
       const y = d.positions[i * 3 + 1] as number;
       const z = (d.positions[i * 3 + 2] as number) * it.sz;
       positions[(v + i) * 3] = x * c + z * s + it.cx;
-      positions[(v + i) * 3 + 1] = y;
+      positions[(v + i) * 3 + 1] = y + (it.cy ?? 0);
       positions[(v + i) * 3 + 2] = -x * s + z * c + it.cz;
       const nx = d.normals[i * 3] as number;
       const nz = d.normals[i * 3 + 2] as number;
@@ -232,12 +232,12 @@ export function riseScale(t: number): number {
  * placed at the footprint centre, so a stage faces where the building
  * will face.
  */
-export function stageMatrix(k: number, entry: ModelEntry, def: ContentBuilding, b: Pick<BuildingDisplay, "x" | "y" | "rotation">): Matrix {
+export function stageMatrix(k: number, entry: ModelEntry, def: ContentBuilding, b: Pick<BuildingDisplay, "x" | "y" | "rotation">, base = 0): Matrix {
   const p = placement(entry, def, b);
   const n = k < STAGES ? stageClass(def.width, def.height) : scaffoldClass(def.width, def.height);
   return Matrix.Scaling(def.width / n, 1, def.height / n)
     .multiply(Matrix.RotationY(p.yaw))
-    .multiply(Matrix.Translation(p.cx, 0, p.cz));
+    .multiply(Matrix.Translation(p.cx, base, p.cz));
 }
 
 export class BuildingLayer {
@@ -272,6 +272,8 @@ export class BuildingLayer {
   private risingItems: Item[] = [];
   /** Construction-stage instances by stage (0..2, STAGES: scaffolding) and footprint class (`k:n`; created when the model has loaded). */
   private readonly stageMeshes = new Map<string, ColoredInstances>();
+  /** The ground a building stands on (tiles; the highest terrace level under its footprint, D-058). */
+  private baseOf: (b: BuildingDisplay, def: ContentBuilding) => number = () => 0;
   /** Shows construction stages instead of the rise-in (the life layer; off with ?life=0). */
   stages = true;
 
@@ -348,6 +350,11 @@ export class BuildingLayer {
     return this.visibleChunks === null || this.visibleChunks.has(key);
   }
 
+  /** The ground of a building (terraces): used from the next draw on. */
+  setBase(f: (b: BuildingDisplay, def: ContentBuilding) => number): void {
+    this.baseOf = f;
+  }
+
   /** Redraws the last payload (a model finished loading or the detail changed). */
   refresh(): void {
     if (this.last) this.draw(this.last.buildings, this.last.defs);
@@ -414,7 +421,8 @@ export class BuildingLayer {
       if (def.field) continue;
       this.placeholderIds.add(b.type);
       const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-      const m = Matrix.Scaling(w, 1, h).multiply(Matrix.Translation(cx, 0, cz));
+      const base = this.baseOf(b, def);
+      const m = Matrix.Scaling(w, 1, h).multiply(Matrix.Translation(cx, base, cz));
       let arr = byType.get(b.type);
       if (!arr) byType.set(b.type, (arr = []));
       for (const v of m.asArray()) arr.push(v);
@@ -422,7 +430,7 @@ export class BuildingLayer {
       const [dx, dz, rot] = frontOffset(b.rotation);
       const ex = cx + dx * (w / 2 - 0.05);
       const ez = cz + dz * (h / 2 - 0.05);
-      const dm = Matrix.RotationY(rot).multiply(Matrix.Translation(ex, 0.15, ez));
+      const dm = Matrix.RotationY(rot).multiply(Matrix.Translation(ex, base + 0.15, ez));
       for (const v of dm.asArray()) doors.push(v);
     }
     for (const [id, mesh] of this.templates) {
@@ -461,14 +469,14 @@ export class BuildingLayer {
       chunks.delete(key);
     }
     for (const [key, items] of byChunk) {
-      const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}:${it.b.paused ? 1 : 0}${it.b.active === false ? "i" : ""}${this.tinted.has(it.b.id) ? "s" : ""}:${it.def.width}x${it.def.height}`).join(";");
+      const sig = items.map((it) => `${it.b.id}:${it.file.path}:${it.b.x},${it.b.y},${it.b.rotation}@${this.baseOf(it.b, it.def)}:${it.b.paused ? 1 : 0}${it.b.active === false ? "i" : ""}${this.tinted.has(it.b.id) ? "s" : ""}:${it.def.width}x${it.def.height}`).join(";");
       const old = chunks.get(key);
       if (old?.key === sig) continue;
       old?.mesh?.dispose();
       const data = mergeItems(
         items.map((it) => {
           const p = placement(it.entry, it.def, it.b);
-          return { data: it.data, cx: p.cx, cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b, this.tinted) };
+          return { data: it.data, cx: p.cx, cy: this.baseOf(it.b, it.def), cz: p.cz, yaw: p.yaw, sx: p.sx, sz: p.sz, tint: tintOf(it.b, this.tinted) };
         }),
       );
       const mesh = new Mesh(`models_${key}`, this.scene);
@@ -542,7 +550,7 @@ export class BuildingLayer {
         const s = riseScale((nowMs - (this.rising.get(it.b.id) ?? nowMs)) / RISE_MS);
         Matrix.Scaling(s * p.sx, s, s * p.sz)
           .multiply(Matrix.RotationY(p.yaw))
-          .multiply(Matrix.Translation(p.cx, 0, p.cz))
+          .multiply(Matrix.Translation(p.cx, this.baseOf(it.b, it.def), p.cz))
           .copyToArray(inst.matrices, i * 16);
         inst.setColor(i, tintOf(it.b, this.tinted));
       });
@@ -587,7 +595,7 @@ export class BuildingLayer {
       const k = Number(key.split(":")[0]);
       inst.resize(items.length);
       items.forEach((it, i) => {
-        stageMatrix(k, it.entry, it.def, it.b).copyToArray(inst.matrices, i * 16);
+        stageMatrix(k, it.entry, it.def, it.b, this.baseOf(it.b, it.def)).copyToArray(inst.matrices, i * 16);
         inst.setColor(i, tintOf(it.b, this.tinted));
       });
       inst.commit();
@@ -662,11 +670,11 @@ export class BuildingLayer {
     if (entry && entry.kind !== "ship") {
       const p = placement(entry, def, b);
       this.selection.scaling.set(p.rect.w + 0.1, p.height + 0.1, p.rect.h + 0.1);
-      this.selection.position.set(p.rect.cx, p.height / 2, p.rect.cz);
+      this.selection.position.set(p.rect.cx, this.baseOf(b, def) + p.height / 2, p.rect.cz);
     } else {
       const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
       this.selection.scaling.set(w + 0.1, 1.1, h + 0.1);
-      this.selection.position.set(cx, 0.5, cz);
+      this.selection.position.set(cx, this.baseOf(b, def) + 0.5, cz);
     }
     this.selection.setEnabled(true);
   }

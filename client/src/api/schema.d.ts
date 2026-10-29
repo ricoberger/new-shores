@@ -1158,9 +1158,13 @@ export interface components {
          *     another island; it departs at once. At arrival it unloads like a
          *     manual shipment at a settled island (queueing for a berth); at an
          *     unsettled island everything stays aboard and the ship is idle
-         *     there, ready for `found_island`. Errors: `ship_not_found`,
-         *     `ship_not_idle`, `route_invalid` (unknown destination or the
-         *     ship's own island).
+         *     there, ready for `found_island`. With `site` (the client's chained
+         *     founding, D-051) the voyage ends at that Trading Post's harbour
+         *     point instead of the island's shore (D-058); the site is validated
+         *     like `found_island`'s (`island_already_settled`, `invalid_command`,
+         *     `unknown_building`, `tier_locked`, `out_of_bounds`, `not_on_water`,
+         *     `terrain`, ...). Errors: `ship_not_found`, `ship_not_idle`,
+         *     `route_invalid` (unknown destination or the ship's own island).
          */
         SailShipCommand: {
             /**
@@ -1174,6 +1178,19 @@ export interface components {
              */
             ship_id: number;
             to_island_id: string;
+            /** @description The Trading Post the ship sails to found (island tiles). */
+            site?: {
+                building_type: string;
+                /** @description Left column of the rotated footprint (tiles). */
+                x: number;
+                /** @description Top row of the rotated footprint (tiles). */
+                y: number;
+                /**
+                 * @description Degrees; 90 and 270 swap width and height.
+                 * @enum {integer}
+                 */
+                rotation: 0 | 90 | 180 | 270;
+            };
         };
         /**
          * @description Settle an unsettled island (D-051): an idle ship there pays the
@@ -1220,7 +1237,18 @@ export interface components {
              */
             revision: string;
             /** @description Terrain ID per tile, row-major (index = y × width + x). */
-            terrain: ("water" | "coast" | "grass" | "forest" | "mountain")[];
+            terrain: ("water" | "coast" | "grass" | "forest" | "mountain" | "river" | "islet" | "cliff")[];
+            /**
+             * @description Terrace level per tile as one digit, row-major (D-058: 0 at the
+             *     coast up to 2 inland; water 0). Visual only: no rule reads it.
+             */
+            levels: string;
+            /**
+             * @description Rock height of mountain tiles above their level in terrace
+             *     steps, one digit per tile, row-major (D-058; 0 elsewhere).
+             *     Visual only.
+             */
+            heights: string;
         };
         /** @description A tile carrying a deposit (infinite, D-036). */
         DepositDisplay: {
@@ -1558,7 +1586,7 @@ export interface components {
             /** @description Row (archipelago tiles). */
             y: number;
         };
-        /** @description The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; interpolate linearly in between. A leg from the sea has an empty `from_island_id` and its origin in `from_position`. */
+        /** @description The ship handles cargo at the origin until `depart_at` and arrives at `arrive_at`; in between it covers `path` at constant speed (linear in its length). A leg from the sea has an empty `from_island_id` and its origin in `from_position`. */
         LegDisplay: {
             /** @description Origin island; empty for a leg from the sea. */
             from_island_id: string;
@@ -1569,6 +1597,8 @@ export interface components {
             depart_at: string;
             /** @description Arrival, a scheduled ship_arrived (RFC 3339, UTC, ms). */
             arrive_at: string;
+            /** @description The voyage around land (D-058 §5, archipelago tiles) — the origin's harbour (or sea position), the waypoints, the destination's harbour (a Trading Post's water edge, else the shore nearest the other end); its length sets the travel time. Absent on legs from before sea routing. */
+            path?: components["schemas"]["SeaPosition"][];
         };
         CargoDisplay: {
             good: string;
@@ -1593,6 +1623,8 @@ export interface components {
              * @description Duration of one loop at reference speed 1.0 (ms) — the handling time of every stop plus the travel time of every leg.
              */
             loop_ms: number;
+            /** @description The voyage of every leg around land (D-058 §5, archipelago tiles), one per stop — stop i to stop i+1, the last back to the first — from harbour to harbour as a ship's leg `path`; empty for a leg that stays at its island. The route ribbon follows it. */
+            paths: components["schemas"]["SeaPosition"][][];
             /** @description Estimated net effect of the route per island and good (display only; stock availability ignored). Per good, the stops are walked twice from stop 0 with an empty virtual hold H (the smallest slots × slot_size among the assigned ships, else among the catalogue's ship types); a stop first unloads the good aboard, then tops it up to min(max_amount, H). The sums of the second pass are per_loop. Sorted by the first stop of the island, then by good; pairs with per_loop 0 are omitted; [] when the route moves nothing. */
             effects: components["schemas"]["RouteEffectDisplay"][];
         };
@@ -1679,6 +1711,8 @@ export interface components {
             size_class: string;
             /** @description The island is a resource rock (mines only, no houses). */
             rock: boolean;
+            /** @description The island is a skerry (D-058) - scenery only, no name, never settled and never a destination; land for sea routes. */
+            scenic: boolean;
             /** @description The island has a Trading Post (capacity > 0); unsettled islands accept only found_island. */
             settled: boolean;
             /** @description Archipelago position. */
@@ -1726,7 +1760,8 @@ export interface components {
              *     one character per 4 × 4 block of tiles, row-major over
              *     ceil(width / 4) × ceil(height / 4) blocks, the block's majority
              *     terrain — `w` water, `c` coast, `m` mountain, `f` forest, `g`
-             *     grass; ties go to the earlier letter in that order (water wins
+             *     grass (islets count as coast, cliffs as mountain, rivers as
+             *     water); ties go to the earlier letter in that order (water wins
              *     every tie); edge blocks count only the tiles inside the island.
              *     The full rows: `GET /api/v1/world/islands/{island_id}/tiles`.
              */
@@ -2064,6 +2099,8 @@ export interface components {
             name: string;
             /** @description Resource rocks carry mines only (no fertility, no houses). */
             rock: boolean;
+            /** @description Skerries (D-058) are scenery only - no sites, fertilities or deposits, not settleable, no name. */
+            scenic: boolean;
         };
         ContentQuest: {
             id: string;

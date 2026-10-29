@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"maps"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -57,6 +58,14 @@ func shipWorld(t testing.TB, c *content.Catalogue) *World {
 	mustApply(t, w, c, PlaceRoad{IslandID: "a", Type: "road_dirt", Tiles: road})
 	mustApply(t, w, c, PlaceBuilding{IslandID: "a", Type: "shipyard", X: 6, Y: 1})
 	return w
+}
+
+// legOf is the leg between two islands of a test world at speed 1.0
+// departing at dep: the voyage between their harbours around land (D-058
+// §5, searoute_test.go checks the routing itself).
+func legOf(w *World, c *content.Catalogue, from, to string, dep int64) Leg {
+	path, ms := travel(w, c, 1000, w.Island(from), w.Island(to))
+	return Leg{FromIsland: from, ToIsland: to, DepartAtMs: dep, ArriveAtMs: dep + ms, Path: path}
 }
 
 // builtSloop orders a sloop at the shipyard (building 2) and advances until
@@ -255,7 +264,8 @@ func TestManualShipmentAndFounding(t *testing.T) {
 	mustApply(t, w, c, ManualShipment{ShipID: 1, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 50_000}, {"wood", 1_500}}})
 	// Handling: 10 s base + 0.2 s per unit loaded (51.5 units) = 20.3 s.
 	dep := start + 20_300
-	if handlingMs(c, 51_500) != 20_300 || s.State != ShipManualLeg || s.IslandID != "a" || *s.Leg != (Leg{FromIsland: "a", ToIsland: "b", DepartAtMs: dep, ArriveAtMs: dep + 10_000}) ||
+	leg := legOf(w, c, "a", "b", dep)
+	if handlingMs(c, 51_500) != 20_300 || s.State != ShipManualLeg || s.IslandID != "a" || !reflect.DeepEqual(*s.Leg, leg) ||
 		w.Islands[0].Inventory.Stock["planks"] != planks-50_000 {
 		t.Fatalf("ship %+v leg %+v", s, s.Leg)
 	}
@@ -270,7 +280,7 @@ func TestManualShipmentAndFounding(t *testing.T) {
 		t.Errorf("travelling ship at %q", s.IslandID)
 	}
 	// Arrival at the unsettled island: capacity 0, nothing unloads.
-	mustAdvance(t, w, c, 10*time.Second)
+	mustAdvance(t, w, c, time.Duration(leg.ArriveAtMs-dep)*time.Millisecond)
 	if s.State != ShipIdle || s.IslandID != "b" || s.Leg != nil || cargoAmounts(s)["planks"] != 50_000 {
 		t.Fatalf("after arrival: %+v", s)
 	}
@@ -391,7 +401,7 @@ func TestRouteValidationAndCRUD(t *testing.T) {
 	expectErr(t, w, c, DeleteRoute{RouteID: 9}, ErrRouteNotFound)
 	mustApply(t, w, c, DeleteRoute{RouteID: 1})
 	ds := display(t, w, c)
-	if len(ds.Routes) != 1 || ds.Routes[0].Name != "Wood" || len(ds.Routes[0].ShipIDs) != 1 || ds.Routes[0].LoopMs != 2*10_000+2*10_000 {
+	if len(ds.Routes) != 1 || ds.Routes[0].Name != "Wood" || len(ds.Routes[0].ShipIDs) != 1 || ds.Routes[0].LoopMs != 2*10_000+(legOf(w, c, "b", "a", 0).ArriveAtMs+legOf(w, c, "a", "b", 0).ArriveAtMs) {
 		t.Errorf("routes = %+v", ds.Routes)
 	}
 }
@@ -413,13 +423,14 @@ func TestRouteLoop(t *testing.T) {
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
 	// At b (stop 1): load 30 fish now, depart to a (stop 0) after the
 	// handling time (10 s + 30 units x 0.2 s = 16 s).
-	if s.State != ShipOnRoute || s.StopIndex != 0 || *s.Leg != (Leg{FromIsland: "b", ToIsland: "a", DepartAtMs: now + 16_000, ArriveAtMs: now + 26_000}) ||
+	leg := legOf(w, c, "b", "a", now+16_000)
+	if s.State != ShipOnRoute || s.StopIndex != 0 || !reflect.DeepEqual(*s.Leg, leg) ||
 		cargoAmounts(s)["fish"] != 30_000 || w.Island("b").Inventory.Stock["fish"] != 50_000 {
 		t.Fatalf("after assign: %+v %+v cargo %v", s, s.Leg, s.Cargo)
 	}
 	expectErr(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1}, ErrShipNotIdle)
 	expectErr(t, w, c, ScrapShip{ShipID: s.ID}, ErrShipNotIdle)
-	if ev := DueEvents(w); len(ev) != 1 || ev[0].Kind != DueShipArrived || ev[0].ShipID != s.ID || ev[0].At.UnixMilli() != now+26_000 {
+	if ev := DueEvents(w); len(ev) != 1 || ev[0].Kind != DueShipArrived || ev[0].ShipID != s.ID || ev[0].At.UnixMilli() != leg.ArriveAtMs {
 		t.Fatalf("due = %+v", ev)
 	}
 	toArrival := func() {
@@ -431,7 +442,7 @@ func TestRouteLoop(t *testing.T) {
 	woodA := w.Island("a").Inventory.Stock["wood"]
 	toArrival()
 	if got := cargoAmounts(s); got["fish"] != 0 || got["wood"] != 60_000 || s.StopIndex != 1 || s.Leg.ToIsland != "b" ||
-		s.Leg.DepartAtMs != now+26_000+28_000 || w.Island("a").Inventory.Stock["fish"] != 30_000 || w.Island("a").Inventory.Stock["wood"] != woodA-60_000 {
+		s.Leg.DepartAtMs != leg.ArriveAtMs+28_000 || w.Island("a").Inventory.Stock["fish"] != 30_000 || w.Island("a").Inventory.Stock["wood"] != woodA-60_000 {
 		t.Fatalf("at a: cargo %v stop %d leg %+v", got, s.StopIndex, s.Leg)
 	}
 	// Top-up: at the next visit of a only the missing wood is loaded.
@@ -482,8 +493,9 @@ func TestAssignAwayFromRoute(t *testing.T) {
 	mustApply(t, w, c, CreateRoute{Stops: []Stop{{IslandID: "c"}, {IslandID: "a"}}})
 	now := w.LastEvaluatedAt.UnixMilli()
 	mustApply(t, w, c, AssignShip{ShipID: s.ID, RouteID: 1})
-	want := TravelMs(6, 8, 30, 40, 1000, 60_000)
-	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{FromIsland: "b", ToIsland: "c", DepartAtMs: now, ArriveAtMs: now + want}) {
+	leg := legOf(w, c, "b", "c", now)
+	want := leg.ArriveAtMs - now
+	if s.IslandID != "" || s.StopIndex != 0 || !reflect.DeepEqual(*s.Leg, leg) {
 		t.Fatalf("positioning: %+v %+v", s, s.Leg)
 	}
 	// The route changes mid-leg so that c is no stop: at the arrival the
@@ -491,7 +503,7 @@ func TestAssignAwayFromRoute(t *testing.T) {
 	mustApply(t, w, c, UpdateRoute{RouteID: 1, Stops: []Stop{{IslandID: "a"}, {IslandID: "b"}}})
 	mustAdvance(t, w, c, time.Duration(want)*time.Millisecond)
 	arrive := now + want
-	if s.IslandID != "" || s.StopIndex != 0 || *s.Leg != (Leg{FromIsland: "c", ToIsland: "a", DepartAtMs: arrive, ArriveAtMs: arrive + TravelMs(30, 40, 0, 0, 1000, 60_000)}) {
+	if s.IslandID != "" || s.StopIndex != 0 || !reflect.DeepEqual(*s.Leg, legOf(w, c, "c", "a", arrive)) {
 		t.Fatalf("no matching stop: %+v %+v", s, s.Leg)
 	}
 }
@@ -605,7 +617,7 @@ func TestShipInsolvency(t *testing.T) {
 		t.Fatalf("paused ship %+v", s)
 	}
 	// It finishes its leg and anchors at a without unloading.
-	mustAdvance(t, w, c, 30*time.Second)
+	mustAdvance(t, w, c, time.Minute)
 	if s.State != ShipAnchoredUnpaid || s.IslandID != "a" || s.Leg != nil || cargoAmounts(s)["fish"] != 40_000 || w.Island("a").Inventory.Stock["fish"] != 0 {
 		t.Fatalf("anchored: %+v cargo %v", s, s.Cargo)
 	}
@@ -727,5 +739,26 @@ func TestDueEventComposition(t *testing.T) {
 	}
 	if _, err := ApplyDueEvent(cw, c, DueEvent{Kind: ev.Kind, At: ev.At.Add(time.Second)}); !errors.Is(err, ErrInvalidCommand) {
 		t.Fatalf("wrong time: %v", err)
+	}
+}
+
+// TestSkerryNoDestination: a skerry (scenic size class, D-058) is land
+// for sea routing only: never a sail or shipment destination, never
+// founded, and marked scenic in the display.
+func TestSkerryNoDestination(t *testing.T) {
+	cc := *catalogue(t)
+	c := &cc
+	c.Islands.SizeClassByID = maps.Clone(c.Islands.SizeClassByID)
+	c.Islands.SizeClassByID["scenic"] = &content.SizeClass{ID: "scenic", Size: 4, Scenic: true}
+	w := shipWorld(t, c)
+	w.Island("b").SizeClass = "scenic"
+	s := builtSloop(t, w, c)
+	expectErr(t, w, c, SailShip{ShipID: s.ID, ToIslandID: "b"}, ErrRouteInvalid)
+	expectErr(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 1000}}}, ErrRouteInvalid)
+	s.IslandID = "b"
+	expectErr(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0}, ErrInvalidCommand)
+	ds := display(t, w, c)
+	if ds.Islands[0].Scenic || !ds.Islands[1].Scenic {
+		t.Errorf("scenic = %v, %v", ds.Islands[0].Scenic, ds.Islands[1].Scenic)
 	}
 }

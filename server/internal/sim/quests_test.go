@@ -134,7 +134,7 @@ func TestQuestRouteShipAndIslands(t *testing.T) {
 		t.Fatalf("after the sloop: %v", w.Quests)
 	}
 	mustApply(t, w, c, ManualShipment{ShipID: s.ID, ToIslandID: "b", Cargo: []CargoAmount{{"planks", 30_000}}})
-	mustAdvance(t, w, c, 30*time.Second)
+	mustAdvance(t, w, c, time.Minute)
 	mustApply(t, w, c, FoundIsland{ShipID: s.ID, IslandID: "b", BuildingType: "trading_post", X: 1, Y: 0})
 	if !QuestCompleted(w, "islands") || completedAt(t, w, "islands") != w.LastEvaluatedAt {
 		t.Fatalf("after founding: %v", w.Quests)

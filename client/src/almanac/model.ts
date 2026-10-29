@@ -507,7 +507,7 @@ interface Range {
 }
 
 export interface IslandsView {
-  sizeClasses: { id: string; name: string; rock: boolean; size?: number; count?: Range; fertilities?: Range; deposits?: Range }[];
+  sizeClasses: { id: string; name: string; rock: boolean; scenic: boolean; size?: number; count?: Range; fertilities?: Range; deposits?: Range }[];
   /** Pools of the archipelago generator, only when the served content carries them. */
   fertilities: { id: string; count?: Range }[];
   deposits: { id: string; count?: Range }[];
@@ -535,6 +535,7 @@ export function islandsView(content: Content): IslandsView {
       id: s.id,
       name: s.name,
       rock: s.rock === true,
+      scenic: s.scenic === true,
       size: typeof x.size === "number" ? x.size : undefined,
       count: asRange(x.count),
       fertilities: asRange(x.fertilities),

@@ -3,7 +3,7 @@
 // forest tiles, a soft blob shadow under each, stumps of the felled trees
 // inside lumberjack radii (decor_stump_a/b), grass tufts, bushes and rocks
 // (decor_tuft_*, decor_bush_*, decor_rock_*) on grass, along the coast and
-// on the plateaus (at their height), and small procedural flowers —
+// on the rock (at its height; terraces lift everything), and small procedural flowers —
 // placed by display/scatter.ts from the island seed. The pieces come
 // from the asset manifest's decor models; until they have loaded (or
 // without them) the procedural low-poly trees, tufts and rocks stand in,
@@ -426,6 +426,8 @@ export class FarTrees {
   private pendingTrees: Placed[] = [];
   private trees: readonly Placed[] = [];
   private shown = false;
+  /** Ground height (tiles) under a tree's tile (the terrace levels, D-058). */
+  private ground: (x: number, y: number) => number = () => 0;
   /** Crown shape per tree variant: colour, radius and heights (from the decor model when loaded). */
   private readonly shapes = new Map<number, Tri[]>();
 
@@ -442,6 +444,11 @@ export class FarTrees {
     this.trees = trees;
     this.shapes.clear();
     this.build();
+  }
+
+  /** The ground height under the trees (tile → tiles), used from the next crowns on. */
+  setGround(f: (x: number, y: number) => number): void {
+    this.ground = f;
   }
 
   /** Starts an incremental build (display/buildqueue.ts): the chunks' trees follow with addTrees, the mesh with finishChunks. */
@@ -524,7 +531,8 @@ export class FarTrees {
   private addCrowns(b: TriBuilder, trees: readonly Placed[]): void {
     for (const p of trees) {
       const shade = 0.92 + 0.16 * ((p.yaw / (Math.PI * 2)) % 1);
-      for (const tri of this.shape(p.variant)) b.add(tri, p.x, 0, -p.y, p.scale, p.yaw, shade);
+      const y = this.ground(Math.floor(p.x), Math.floor(p.y));
+      for (const tri of this.shape(p.variant)) b.add(tri, p.x, y, -p.y, p.scale, p.yaw, shade);
     }
   }
 

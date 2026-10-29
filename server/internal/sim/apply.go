@@ -312,10 +312,17 @@ func lookupIsland(w *World, id string) (*Island, error) {
 	return is, nil
 }
 
+// Extra terrain a checkTiles caller allows besides the buildable terrain.
+const (
+	allowNone     = ""
+	allowMountain = content.TerrainMountain // deposit buildings
+	allowRiver    = content.TerrainRiver    // roads: a road on a river is a bridge (D-058)
+)
+
 // checkTiles validates that every tile is on the island, has buildable
-// terrain (mountain too with allowMountain, for deposit buildings) and
-// carries neither a building nor a road.
-func checkTiles(is *Island, occ []int64, tiles []Pos, allowMountain bool) error {
+// terrain (or the extra terrain also, e.g. mountain for deposit buildings,
+// river for roads) and carries neither a building nor a road.
+func checkTiles(is *Island, occ []int64, tiles []Pos, also string) error {
 	for _, p := range tiles {
 		if !is.InBounds(p.X, p.Y) {
 			return fmt.Errorf("%w: (%d,%d)", ErrOutOfBounds, p.X, p.Y)
@@ -323,11 +330,70 @@ func checkTiles(is *Island, occ []int64, tiles []Pos, allowMountain bool) error 
 	}
 	for _, p := range tiles {
 		i := is.index(p.X, p.Y)
-		if t := is.Tiles[i].Terrain; !buildableTerrain(t) && (!allowMountain || t != content.TerrainMountain) {
+		if t := is.Tiles[i].Terrain; !buildableTerrain(t) && (also == allowNone || t != also) {
 			return fmt.Errorf("%w: (%d,%d) is %s", ErrTerrain, p.X, p.Y, is.Tiles[i].Terrain)
 		}
 		if occ[i] != 0 || is.Roads[i] != "" {
 			return fmt.Errorf("%w: (%d,%d)", ErrOccupied, p.X, p.Y)
+		}
+	}
+	return nil
+}
+
+// checkBridges validates the bridges of a road placement (D-058 part 3):
+// every river tile with a road afterwards — the new tiles and the bridges
+// next to them — must be a straight crossing: along one axis the river
+// run through it is at most two tiles long with buildable land at both
+// ends, and the road does not continue sideways from it (no road on the
+// river, or along it, off that axis). A bad bridge is an ErrTerrain (no
+// API error code of its own).
+func checkBridges(is *Island, tiles []Pos) error {
+	added := map[Pos]bool{}
+	for _, p := range tiles {
+		added[p] = true
+	}
+	road := func(x, y int) bool {
+		return is.InBounds(x, y) && (added[Pos{X: x, Y: y}] || is.Roads[is.index(x, y)] != "")
+	}
+	river := func(x, y int) bool {
+		return is.InBounds(x, y) && is.Tiles[is.index(x, y)].Terrain == content.TerrainRiver
+	}
+	land := func(x, y int) bool {
+		return is.InBounds(x, y) && buildableTerrain(is.Tiles[is.index(x, y)].Terrain)
+	}
+	straight := func(x, y int) bool {
+		for _, ax := range [2][2]int{{1, 0}, {0, 1}} {
+			a, b := 0, 0
+			for river(x-(a+1)*ax[0], y-(a+1)*ax[1]) && a < 2 {
+				a++
+			}
+			for river(x+(b+1)*ax[0], y+(b+1)*ax[1]) && b < 2 {
+				b++
+			}
+			if a+b+1 > 2 || !land(x-(a+1)*ax[0], y-(a+1)*ax[1]) || !land(x+(b+1)*ax[0], y+(b+1)*ax[1]) {
+				continue
+			}
+			if !road(x+ax[1], y+ax[0]) && !road(x-ax[1], y-ax[0]) {
+				return true
+			}
+		}
+		return false
+	}
+	check := map[Pos]bool{}
+	for _, p := range tiles {
+		for _, d := range [5][2]int{{0, 0}, {0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
+			q := Pos{X: p.X + d[0], Y: p.Y + d[1]}
+			if river(q.X, q.Y) && road(q.X, q.Y) {
+				check[q] = true
+			}
+		}
+	}
+	for _, p := range tiles { // command order: the first bad tile is reported
+		for _, d := range [5][2]int{{0, 0}, {0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
+			q := Pos{X: p.X + d[0], Y: p.Y + d[1]}
+			if check[q] && !straight(q.X, q.Y) {
+				return fmt.Errorf("%w: (%d,%d) is a river a bridge crosses only straight over at most two tiles", ErrTerrain, q.X, q.Y)
+			}
 		}
 	}
 	return nil
@@ -514,7 +580,11 @@ func checkSite(is *Island, c *content.Catalogue, occ []int64, def *content.Build
 			tiles = append(tiles, Pos{tx, ty})
 		}
 	}
-	if err := checkTiles(is, occ, tiles, def.RequiresDeposit != ""); err != nil {
+	also := allowNone
+	if def.RequiresDeposit != "" {
+		also = allowMountain
+	}
+	if err := checkTiles(is, occ, tiles, also); err != nil {
 		return err
 	}
 	// Water-edge buildings (D-051): the front rows stand on free water.
@@ -637,7 +707,10 @@ func placeRoad(w *World, c *content.Catalogue, cmd PlaceRoad, l *Ledger) error {
 		}
 		seen[p] = true
 	}
-	if err := checkTiles(is, is.occupancy(c), cmd.Tiles, false); err != nil {
+	if err := checkTiles(is, is.occupancy(c), cmd.Tiles, allowRiver); err != nil {
+		return err
+	}
+	if err := checkBridges(is, cmd.Tiles); err != nil {
 		return err
 	}
 	n := int64(len(cmd.Tiles))

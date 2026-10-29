@@ -106,11 +106,12 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - The **world map** (other players, offers, expeditions) remains a 2D HTML
   screen (UI.md §5); it is not part of the 3D scene.
 
-## 4. Terrain and water — diorama islands (D-050, D-057 V2)
+## 4. Terrain and water — diorama islands (D-050, D-057 V2, D-058)
 
 - **Continuous terrain, hidden grid.** The tile grid is not drawn; a
   subtle grid overlay fades in around the cursor (≈ 8 tiles) only while a
-  build/road/field/move tool is active. Buildable ground stays **flat**.
+  build/road/field/move tool is active. Ground is flat within a terrace
+  level; the levels are visual only (D-058 §4).
 - **Voxel ground (D-057 V2):** the island is a column field at 4
   columns per tile, height steps of 1/8 tile, greedy-meshed per 32×32-tile
   chunk with baked corner occlusion (`render/voxelterrain.ts`). The top
@@ -130,13 +131,57 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Far coast lines up with near:** the lite (2 columns per tile) and far
   (1 per tile) terrain are the near field downsampled, and a built
   island at far feeds its own far columns into the merged mask mesh, so
-  the coastline does not jump between LODs (tested). Islands without
-  tiles draw their 1:4 mask through the same field code.
-- **Plateaus:** mountain/deposit clusters rise as voxel terraces of four
-  steps per level (1–2 levels, rounded corners) in rock bands with a
-  moss cap, with voxel crags and boulders along the step edges and on the
-  deposits. Visual only: rules keep mountains unbuildable; mines and
-  quarries stand in a notch.
+  the coastline does not jump between LODs (tested). Islands in view
+  without tiles draw their 1:4 mask through the same field code;
+  off-screen islands are left out of the merged mesh. At far a built
+  island's columns keep whole levels, one rock tier, flat rivers and 12
+  colour levels, nearest the view first while the merged mesh stays
+  within 100 k triangles (the others fall back to their mask); the
+  focused island's lite terrain keeps at most two rock tiers and flat
+  rivers (D-048's far budget).
+- **Terraces (D-058):** each land tile's level (0–2, from the tiles
+  API's `levels`) lifts its columns by four steps (½ tile) per level,
+  blended at tile centres so edges run on tile borders. A level edge by
+  the sea is a cliff in earth and rock bands; inland edges are cliffs or,
+  in low-frequency noise zones, ramps of one step per column in beaten
+  earth. The cliff band varies along an edge (rock over a dark foot, or
+  earth over rock) under a grass lip on its top step; rocks gather at the
+  foot of the walls (the ground scatter's "ledge" site).
+- **Rock:** mountain, cliff and islet tiles carry rock on their level:
+  one height field per island, the tiles' `heights` blended between their
+  centres at eight steps per height (a large island's spine up to 32
+  steps, four tiles), rising three steps per column from a ragged rim
+  (noise at column resolution, never outside rock tiles) and roughened by
+  low-frequency noise in pairs of steps — uneven tops, not plates.
+  **Warm grey** rock with sandstone and ochre strata (the cliff bands)
+  in its walls, darker at the foot, moss only on the lowest rim; the
+  ground around it is grey **scree** with small boulders. A big crag
+  (`decor_peak_a/b`) stands on every peak, clusters of crags along the
+  ridges, a few on the flanks. Cut out under building footprints, so
+  mines and quarries stand in a notch. Its own layer at near and mid,
+  baked into the lite and far columns.
+- **Cliff coast:** cliff tiles drop to the sea as a rock face (strata,
+  darker toward the foot) without a sand shelf; the foam lies at its
+  foot and the shallows start further out.
+- **Rivers** run on their tiles: water at least two columns wide, two
+  steps below the level, between banks of sand and pebbles one step down;
+  the bends' outer banks step in by half a tile. The surface is the sea's
+  material (ripples, glints) a little darker; at far the river beds carry
+  its colour. Where a river drops a level a waterfall wall with foam
+  bands falls into a foam pool; at level 0 the mouth loses its banks and
+  shelf and steps down in small rapids into the shallows. **Bridges** are
+  voxel arch models (`decor_bridge_1/2`) over straight road runs of one
+  or two river tiles, at the banks' level, hidden at far.
+- **Things on terraces:** buildings and fields stand on the highest
+  level under their footprint, lower columns filled with dressed-stone
+  plinths; a road tile next to a road one level lower ramps across the
+  upper tile (never on a river); carts, walkers, animals, the ghost, the
+  grid and picking follow the ground height. Boats stay on the sea.
+- **Skerries** (D-058) are tiny islands of rock with a grass or sand
+  top: drawn like islands (minimap and far view included), never
+  labelled, focused or picked. Their shallows, like every island's
+  coast water, lie at a round distance from the land (a 3-4 chamfer):
+  the halo follows the outline, not the tile grid.
 - **Roads** are voxel paths painted into the terrain field per chunk
   (`render/roadvoxels.ts`), one voxel below the grass: a two-column path
   with arms to the neighbours and junctions, worn edges and jittered
@@ -165,11 +210,14 @@ textured detail does not** (D-048, refined by D-050 and D-057):
   into a warm haze — never a hard edge. Unsettled islands show true
   colours at every zoom, like settled ones (labels and settled badges
   tell them apart).
-- **Minimap:** each land cell of an island's mask in its voxel ground
-  colour (sand, grass, forest floor, mountain rock) on the same sea.
+- **Minimap:** an island with loaded tiles is drawn per tile (terrain
+  colour, lighter per level and rock, rivers blue); the others each land
+  cell of their mask in its voxel ground colour (sand, grass, forest
+  floor, mountain rock) on the same sea. Skerries load their tiles right
+  after the islands in view (their mask is too coarse for them).
 - All decoration is **render-only**: it never blocks placement, holds no
-  state and is never pickable (tile picking is a ray against the ground
-  plane).
+  state and is never pickable (tile picking is a ray against the ground,
+  refined to the terrace height of the tile it hits).
 
 ## 5. Scale, camera, life layer
 

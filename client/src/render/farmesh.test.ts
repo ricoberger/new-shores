@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
+import { Scene } from "@babylonjs/core/scene";
+import { afterAll, describe, expect, it } from "vitest";
 import { decodeMask, encodeMask } from "../display/mask";
-import { maskMeshData, mergeParts } from "./farmesh";
-import { SEA_LEVEL } from "./terrain";
+import { MaskLayer, maskMeshData, mergeParts } from "./farmesh";
+import { Builder, SEA_LEVEL } from "./terrain";
 
 const NAMES: Record<string, string> = { w: "water", c: "coast", g: "grass", f: "forest", m: "mountain" };
 
@@ -68,5 +70,34 @@ describe("mask mesh", () => {
     expect(merged.positions[n * 3]).toBeCloseTo(a.positions[0]! + 100, 5);
     expect(merged.positions[n * 3 + 2]).toBeCloseTo(a.positions[2]! - 50, 5);
     expect(Math.max(...merged.indices)).toBe(2 * n - 1);
+  });
+});
+
+describe("mask layer budget (D-058)", () => {
+  const engine = new NullEngine();
+  afterAll(() => engine.dispose());
+  const mask = fixtureMask(...Array.from({ length: 12 }, () => "wwwwggggffffwwww"));
+  /** Far columns of a built island: `tris` triangles. */
+  const columns = (tris: number) => {
+    const b = new Builder();
+    for (let i = 0; i < tris * 3; i++) b.indices.push(0);
+    b.positions.push(0, 0, 0);
+    b.colors.push(1, 1, 1, 1);
+    b.normals.push(0, 1, 0);
+    return b;
+  };
+  const island = (id: string, x: number, tris: number) => ({ id, position: { x, y: 0 }, mask, seed: 7, tiles: { key: id, data: columns(tris) } });
+  const maskTris = maskMeshData(mask, 7).indices.length / 3;
+
+  it("keeps the far columns of the first islands while the mesh fits the budget, the rest their mask", () => {
+    const layer = new MaskLayer(new Scene(engine));
+    const islands = [island("a", 0, 1000), island("b", 40, 1000), island("c", 80, 1000)];
+    expect(maskTris).toBeLessThan(1000);
+    layer.show(islands, 1000 + 2 * maskTris);
+    expect(layer.tiled()).toEqual(["a"]);
+    expect(layer.triangles()).toBe(1000 + 2 * maskTris);
+    layer.show(islands, Infinity);
+    expect(layer.tiled()).toEqual(["a", "b", "c"]);
+    expect(layer.triangles()).toBe(3000);
   });
 });

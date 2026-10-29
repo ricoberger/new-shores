@@ -55,6 +55,53 @@ func (v *view) free(x, y int) bool {
 	return v.open(x, y) && (!v.f.spareForest || v.is.Tile(x, y).Terrain != content.TerrainForest)
 }
 
+// step returns the tiles a road takes from (x, y) in direction d: the next
+// tile when land is ok there, or a straight bridge over one or two free
+// river tiles with ok land behind it (D-058 part 3: a road crosses a river
+// straight, never along it); nil when neither. A new road tile never
+// touches the side of an existing bridge (sim: the bridge would no longer
+// be straight), and no bridge starts on a bridge.
+func (v *view) step(x, y int, d [2]int, land func(x, y int) bool) []int {
+	is := v.is
+	fromRiver := is.Tile(x, y).Terrain == content.TerrainRiver
+	var out []int
+	for k := 1; k <= 3; k++ {
+		nx, ny := x+d[0]*k, y+d[1]*k
+		if !is.InBounds(nx, ny) {
+			return nil
+		}
+		if land(nx, ny) {
+			if is.RoadAt(nx, ny) == "" && v.besideBridge(nx, ny) {
+				return nil
+			}
+			return append(out, ny*is.Width+nx)
+		}
+		if k == 3 || fromRiver || is.Tile(nx, ny).Terrain != content.TerrainRiver || is.RoadAt(nx, ny) != "" || v.occ[ny*is.Width+nx] != 0 {
+			return nil
+		}
+		// No road beside the bridge (it would run along the river).
+		for _, s := range [2]int{-1, 1} {
+			if sx, sy := nx+d[1]*s, ny+d[0]*s; is.InBounds(sx, sy) && is.RoadAt(sx, sy) != "" {
+				return nil
+			}
+		}
+		out = append(out, ny*is.Width+nx)
+	}
+	return nil
+}
+
+// besideBridge reports whether a 4-neighbour of the tile is a river tile
+// with a road (a bridge).
+func (v *view) besideBridge(x, y int) bool {
+	for _, d := range [4][2]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
+		nx, ny := x+d[0], y+d[1]
+		if v.is.InBounds(nx, ny) && v.is.Tile(nx, ny).Terrain == content.TerrainRiver && v.is.RoadAt(nx, ny) != "" {
+			return true
+		}
+	}
+	return false
+}
+
 // coversForest reports whether a footprint covers a forest tile.
 func coversForest(is *sim.Island, x, y, w, h int) bool {
 	for ty := y; ty < y+h; ty++ {
@@ -185,20 +232,48 @@ func (f *fixture) streetEnd(island string) sim.Pos { return f.ends[island] }
 // centre of a town that spares the forest; from itself when there is
 // none.
 func (f *fixture) grassAnchor(island string, from sim.Pos) sim.Pos {
+	return f.openAnchor(island, from, 4, 50)
+}
+
+// fieldAnchor is grassAnchor for a farm's required fields: the nearest
+// tile whose surroundings hold room for them (river-cut and forested
+// D-058 islands have no such room next to every street).
+func (f *fixture) fieldAnchor(island string, from sim.Pos, farm *content.Building) sim.Pos {
+	n := 0
+	if farm.Fields != nil {
+		if field := f.c.FieldByType[farm.Fields.Type]; field != nil {
+			n = farm.Fields.Required * field.Width * field.Height
+		}
+	}
+	r := 4
+	for (2*r+1)*(2*r+1) < n*3/2 {
+		r++
+	}
+	return f.openAnchor(island, from, r, n*5/4)
+}
+
+// openAnchor returns the tile nearest to from whose surroundings
+// (Chebyshev radius r) hold at least n open tiles that are not forest;
+// from itself when there is none.
+func (f *fixture) openAnchor(island string, from sim.Pos, r, n int) sim.Pos {
 	is := f.w.Island(island)
 	v := f.view(is)
-	best, bestD := from, -1
-	for y := range is.Height {
-		for x := range is.Width {
-			n := 0
-			for ty := y - 4; ty <= y+4; ty++ {
-				for tx := x - 4; tx <= x+4; tx++ {
-					if v.open(tx, ty) && is.Tile(tx, ty).Terrain != content.TerrainForest {
-						n++
-					}
-				}
+	w, h := is.Width, is.Height
+	sat := make([]int, (w+1)*(h+1))
+	for y := range h {
+		for x := range w {
+			c := 0
+			if v.open(x, y) && is.Tile(x, y).Terrain != content.TerrainForest {
+				c = 1
 			}
-			if n < 50 {
+			sat[(y+1)*(w+1)+x+1] = c + sat[y*(w+1)+x+1] + sat[(y+1)*(w+1)+x] - sat[y*(w+1)+x]
+		}
+	}
+	best, bestD := from, -1
+	for y := range h {
+		for x := range w {
+			x0, y0, x1, y1 := max(0, x-r), max(0, y-r), min(w, x+r+1), min(h, y+r+1)
+			if sat[y1*(w+1)+x1]-sat[y0*(w+1)+x1]-sat[y1*(w+1)+x0]+sat[y0*(w+1)+x0] < n {
 				continue
 			}
 			if d := (x-from.X)*(x-from.X) + (y-from.Y)*(y-from.Y); bestD < 0 || d < bestD {
@@ -211,13 +286,19 @@ func (f *fixture) grassAnchor(island string, from sim.Pos) sim.Pos {
 
 // forestAnchor returns the tile nearest to from whose surroundings
 // (Chebyshev radius 4) hold at least 30 free forest tiles, where a
-// lumberjack works at full efficiency; from itself when there is none.
+// lumberjack works at full efficiency, and that a road from the island's
+// network reaches (not across a river or up a cliff); from itself when
+// there is none.
 func (f *fixture) forestAnchor(island string, from sim.Pos) sim.Pos {
 	is := f.w.Island(island)
 	v := f.view(is)
+	reach := f.reachable(island)
 	best, bestD := from, -1
 	for y := range is.Height {
 		for x := range is.Width {
+			if !reach[y*is.Width+x] {
+				continue
+			}
 			n := 0
 			for ty := y - 4; ty <= y+4; ty++ {
 				for tx := x - 4; tx <= x+4; tx++ {
@@ -485,15 +566,17 @@ func (f *fixture) roadPath(island string, x, y, w, h int) ([]sim.Pos, bool) {
 		}
 		px, py := i%is.Width, i/is.Width
 		for _, d := range [4][2]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
-			nx, ny := px+d[0], py+d[1]
-			if !freeAt(nx, ny) {
+			run := v.step(px, py, d, freeAt)
+			if len(run) == 0 || slices.ContainsFunc(run, func(j int) bool { return prev[j] != -2 }) {
 				continue
 			}
-			j := ny*is.Width + nx
-			if prev[j] == -2 {
+			for k, j := range run {
 				prev[j] = i
-				queue = append(queue, j)
+				if k > 0 {
+					prev[j] = run[k-1]
+				}
 			}
+			queue = append(queue, run[len(run)-1])
 		}
 	}
 	return nil, false
@@ -501,7 +584,7 @@ func (f *fixture) roadPath(island string, x, y, w, h int) ([]sim.Pos, bool) {
 
 // reachable marks the tiles a road from the island's network (or, without
 // roads, from next to its Trading Post) can reach: road tiles and free
-// tiles connected to them.
+// tiles connected to them by land or straight bridges.
 func (f *fixture) reachable(island string) []bool {
 	is := f.w.Island(island)
 	v := f.view(is)
@@ -527,11 +610,12 @@ func (f *fixture) reachable(island string) []bool {
 	for k := 0; k < len(queue); k++ {
 		px, py := queue[k]%is.Width, queue[k]/is.Width
 		for _, d := range [4][2]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
-			nx, ny := px+d[0], py+d[1]
-			if v.free(nx, ny) && !out[ny*is.Width+nx] {
-				out[ny*is.Width+nx] = true
-				queue = append(queue, ny*is.Width+nx)
+			run := v.step(px, py, d, v.free)
+			if len(run) == 0 || out[run[len(run)-1]] {
+				continue
 			}
+			out[run[len(run)-1]] = true // bridge tiles stay unmarked
+			queue = append(queue, run[len(run)-1])
 		}
 	}
 	return out

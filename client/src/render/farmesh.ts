@@ -2,14 +2,16 @@
 // (display/mask.ts) instead of its full tiles — coarse voxel terrain, one
 // column per tile in the colour of its mask cell's terrain, with the
 // coast's sand shelves (render/voxelterrain.ts). No trees, buildings or
-// life. Every island whose full tiles have not arrived yet is drawn this
-// way, and at far LOD the islands other than the focused one
-// (ART_DIRECTION §2 budget); all of them are merged into one static mesh
-// (one draw call), rebuilt only when the set of islands drawn this way
-// changes. An island whose tiles are built brings its own far columns
-// instead (MaskIsland.tiles: its near field downsampled to one column per
-// tile, render/terrain.ts), so its coast at far lines up with the one at
-// mid. Render data only.
+// life. Every island in view whose full tiles have not arrived yet is
+// drawn this way, and at far LOD the islands in view other than the
+// focused one (ART_DIRECTION §2 budget); all of them are merged into one
+// static mesh (one draw call), rebuilt only when the set of islands drawn
+// this way changes (off-screen islands are left out). An island whose
+// tiles are built brings its own far columns instead (MaskIsland.tiles:
+// its near field downsampled to one column per tile, render/terrain.ts),
+// so its coast at far lines up with the one at mid — nearest the view
+// first, while the mesh stays within MASK_TRIS (D-058's relief within
+// D-048's far budget). Render data only.
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -21,6 +23,15 @@ import { type DecodedMask, MASK_BLOCK, MASK_TERRAINS, MASK_WATER } from "../disp
 import { skyFill } from "./lighting";
 import { Builder, FAR_QUANT } from "./terrain";
 import { islandField, meshField } from "./voxelterrain";
+
+/**
+ * Triangle budget of the mask mesh: islands with tiles use their own far
+ * columns (terraces, rock, rivers) nearest first while the whole mesh
+ * stays within it, the rest their coarser mask (D-048's far budget of
+ * 250 k at the zoom cap; the focused island's lite terrain, far trees and
+ * models take the rest; D-058).
+ */
+export const MASK_TRIS = 100_000;
 
 /** One island of the mask mesh. */
 export interface MaskIsland {
@@ -65,8 +76,10 @@ export class MaskLayer {
   private readonly material: StandardMaterial;
   private mesh: Mesh | null = null;
   private key = "";
-  /** Vertex data per island (island-local), by island ID and its inputs. */
+  /** Mask vertex data per island (island-local), by island ID and its mask inputs. */
   private readonly cache = new Map<string, { key: string; data: Builder }>();
+  /** Islands drawn from their own far columns in the current mesh. */
+  private fromTiles = new Set<string>();
 
   constructor(private readonly scene: Scene) {
     this.material = skyFill(new StandardMaterial("mask_terrain", scene));
@@ -74,24 +87,42 @@ export class MaskLayer {
     this.material.backFaceCulling = false;
   }
 
-  /** Draws exactly these islands from their masks (rebuilt only when the set or an island's inputs changed). */
-  show(islands: readonly MaskIsland[]): void {
-    const keyOf = (is: MaskIsland) => (is.tiles ? `tiles:${is.tiles.key}` : `${is.seed}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`);
+  /**
+   * Draws exactly these islands (rebuilt only when the set, an island's
+   * inputs or the choice of far columns changed). Islands come in order
+   * of priority (nearest the view first): those with tiles use them while
+   * the mesh stays within `budget` triangles, the others their mask.
+   */
+  show(islands: readonly MaskIsland[], budget = MASK_TRIS): void {
+    const keep = new Set<string>();
+    const masks = new Map<string, Builder>();
+    for (const is of islands) {
+      const k = `${is.seed}|${is.mask.width}x${is.mask.height}|${maskString(is.mask)}`;
+      let c = this.cache.get(is.id);
+      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: maskMeshData(is.mask, is.seed) }));
+      keep.add(is.id);
+      masks.set(is.id, c.data);
+    }
+    for (const id of this.cache.keys()) if (!keep.has(id)) this.cache.delete(id);
+    const tris = (b: Builder) => b.indices.length / 3;
+    let total = 0;
+    for (const b of masks.values()) total += tris(b);
+    const fromTiles = new Set<string>();
+    for (const is of islands) {
+      if (!is.tiles) continue;
+      const extra = tris(is.tiles.data) - tris(masks.get(is.id) as Builder);
+      if (total + extra > budget) continue;
+      total += extra;
+      fromTiles.add(is.id);
+    }
+    const keyOf = (is: MaskIsland) => (is.tiles && fromTiles.has(is.id) ? `tiles:${is.tiles.key}` : (this.cache.get(is.id)?.key ?? ""));
     const key = islands.map((is) => `${is.id}@${is.position.x},${is.position.y}#${keyOf(is)}`).join(";");
     if (key === this.key) return;
     this.key = key;
+    this.fromTiles = fromTiles;
     this.mesh?.dispose();
     this.mesh = null;
-    const parts: { data: Builder; x: number; y: number }[] = [];
-    const keep = new Set<string>();
-    for (const is of islands) {
-      const k = keyOf(is);
-      let c = this.cache.get(is.id);
-      if (!c || c.key !== k) this.cache.set(is.id, (c = { key: k, data: is.tiles?.data ?? maskMeshData(is.mask, is.seed) }));
-      keep.add(is.id);
-      parts.push({ data: c.data, x: is.position.x, y: is.position.y });
-    }
-    for (const id of this.cache.keys()) if (!keep.has(id)) this.cache.delete(id);
+    const parts = islands.map((is) => ({ data: is.tiles && fromTiles.has(is.id) ? is.tiles.data : (masks.get(is.id) as Builder), x: is.position.x, y: is.position.y }));
     const merged = mergeParts(parts);
     if (merged.indices.length === 0) return;
     const mesh = new Mesh("mask_terrain", this.scene);
@@ -111,6 +142,11 @@ export class MaskLayer {
   /** Islands drawn from their masks (tests and stats). */
   islands(): string[] {
     return this.key === "" ? [] : this.key.split(";").map((p) => p.slice(0, p.indexOf("@")));
+  }
+
+  /** Islands of the mesh drawn from their own far columns (tests and stats). */
+  tiled(): string[] {
+    return [...this.fromTiles];
   }
 
   /** Triangles of the merged mesh. */

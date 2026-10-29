@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { coastline } from "../display/coastline";
 import { Builder } from "./terrain";
-import { distanceTo, downsampleField, EMPTY, type Field, islandField, meshField, RIM_H, SEA_BOTTOM, SHELF_H, WET_H } from "./voxelterrain";
+import { distanceTo, downsampleField, EMPTY, type Field, islandField, meshField, RIM_H, roundDistanceTo, SEA_BOTTOM, SHELF_H, WET_H } from "./voxelterrain";
 
 const flat = (nx: number, ny: number, h = 0): Field => ({
   nx,
@@ -136,5 +136,21 @@ describe("voxel terrain", () => {
     expect(d[12]).toBe(0);
     expect(d[0]).toBe(2);
     expect(d[6]).toBe(1);
+  });
+});
+
+describe("round distance (D-058: halos that follow an outline)", () => {
+  it("grows an octagon around a point, not the chessboard's square, capped", () => {
+    const n = 21;
+    const on = new Uint8Array(n * n);
+    on[10 * n + 10] = 1;
+    const d = roundDistanceTo(on, n, n, 9);
+    const cheb = distanceTo(on, n, n, 9);
+    expect(d[10 * n + 15]).toBe(5);
+    // The diagonal is longer than the chessboard's: 5 steps out on both axes ≈ 7.
+    expect(cheb[15 * n + 15]).toBe(5);
+    expect(d[15 * n + 15]).toBe(7);
+    expect(d[0]).toBe(9);
+    expect(d[10 * n + 10]).toBe(0);
   });
 });

@@ -1,6 +1,6 @@
 // Deposit outcrops (ART_DIRECTION §4, restyle): a voxel rock cluster
 // (the decor_outcrop_<kind> model, tinted per deposit kind in the asset
-// build) on every deposit tile of an island, standing on the plateau the
+// build) on every deposit tile of an island, standing on the rock the
 // tile belongs to; until the model has loaded (or without one) a
 // procedural low-poly cluster in mountain grey tinted per kind. One
 // template mesh per kind with thin instances; turned and scaled per tile
@@ -79,7 +79,7 @@ export class OutcropLayer {
   /**
    * Rock clusters on the deposit tiles, except inside a building footprint
    * (`blocked` tile keys "x,y": mines and quarries are not pierced), at the
-   * ground height of their tile (plateaus).
+   * ground height of their tile (terrace level and rock, render/terraces.ts).
    */
   update(
     deposits: readonly { x: number; y: number; kind: string }[],

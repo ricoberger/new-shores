@@ -2,7 +2,7 @@
   "scenario": "tools_route",
   "base": {
     "evaluated_at": "2026-01-01T00:45:00.000Z",
-    "next_change_at": "2026-01-01T00:45:29.423Z",
+    "next_change_at": "2026-01-01T00:45:49.418Z",
     "gold": 8596199,
     "balance_rate_per_min": 6160,
     "tax_rate_per_min": 20160,
@@ -46,6 +46,7 @@
         "name": "Island 2",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": true,
         "position": {
           "x": 0,
@@ -146,7 +147,7 @@
             "in_transit_rate_per_min": 0
           },
           "tools": {
-            "stock": 1692,
+            "stock": 3928,
             "capacity": 300000,
             "in_transit": 733,
             "rate_per_min": 1000,
@@ -1641,6 +1642,7 @@
         "name": "Start",
         "size_class": "",
         "rock": false,
+        "scenic": false,
         "settled": true,
         "position": {
           "x": 72,
@@ -1741,7 +1743,7 @@
             "in_transit_rate_per_min": 0
           },
           "tools": {
-            "stock": 21363,
+            "stock": 23489,
             "capacity": 300000,
             "in_transit": 0,
             "rate_per_min": 0,
@@ -1822,20 +1824,33 @@
         "state": "on_route",
         "island_id": "",
         "route_id": 1,
-        "stop_index": 1,
+        "stop_index": 0,
         "leg": {
-          "from_island_id": "island2",
+          "from_island_id": "start",
           "from_position": null,
-          "to_island_id": "start",
-          "depart_at": "2026-01-01T00:43:29.423Z",
-          "arrive_at": "2026-01-01T00:45:29.423Z"
+          "to_island_id": "island2",
+          "depart_at": "2026-01-01T00:43:38.428Z",
+          "arrive_at": "2026-01-01T00:45:49.418Z",
+          "path": [
+            {
+              "x": 75,
+              "y": 94
+            },
+            {
+              "x": -2,
+              "y": 16
+            },
+            {
+              "x": -2,
+              "y": 0
+            },
+            {
+              "x": 3,
+              "y": -2
+            }
+          ]
         },
-        "cargo": [
-          {
-            "good": "tools",
-            "amount": 4362
-          }
-        ],
+        "cargo": [],
         "slots": 4,
         "slot_size": 50000,
         "upkeep_per_min": 1000,
@@ -1872,19 +1887,57 @@
         "ship_ids": [
           1
         ],
-        "loop_ms": 260000,
+        "loop_ms": 283171,
+        "paths": [
+          [
+            {
+              "x": 3,
+              "y": -2
+            },
+            {
+              "x": -2,
+              "y": 0
+            },
+            {
+              "x": -2,
+              "y": 20
+            },
+            {
+              "x": 75,
+              "y": 94
+            }
+          ],
+          [
+            {
+              "x": 75,
+              "y": 94
+            },
+            {
+              "x": -2,
+              "y": 16
+            },
+            {
+              "x": -2,
+              "y": 0
+            },
+            {
+              "x": 3,
+              "y": -2
+            }
+          ]
+        ],
         "effects": [
           {
             "island_id": "island2",
             "good": "tools",
             "per_loop": -50000,
-            "per_min": -11538
+            "per_min": -10594
           },
           {
             "island_id": "start",
             "good": "tools",
             "per_loop": 50000,
-            "per_min": 11538
+            "per_min": 10594
           }
         ]
       }
@@ -1942,7 +1995,7 @@
       "offset_ms": 250,
       "display": {
         "evaluated_at": "2026-01-01T00:45:00.250Z",
-        "next_change_at": "2026-01-01T00:45:29.423Z",
+        "next_change_at": "2026-01-01T00:45:49.418Z",
         "gold": 8596225,
         "balance_rate_per_min": 6160,
         "tax_rate_per_min": 20160,
@@ -1986,6 +2039,7 @@
             "name": "Island 2",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -2086,7 +2140,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 1696,
+                "stock": 3932,
                 "capacity": 300000,
                 "in_transit": 733,
                 "rate_per_min": 1000,
@@ -3581,6 +3635,7 @@
             "name": "Start",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 72,
@@ -3681,7 +3736,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 21363,
+                "stock": 23489,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -3762,20 +3817,33 @@
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
-            "stop_index": 1,
+            "stop_index": 0,
             "leg": {
-              "from_island_id": "island2",
+              "from_island_id": "start",
               "from_position": null,
-              "to_island_id": "start",
-              "depart_at": "2026-01-01T00:43:29.423Z",
-              "arrive_at": "2026-01-01T00:45:29.423Z"
+              "to_island_id": "island2",
+              "depart_at": "2026-01-01T00:43:38.428Z",
+              "arrive_at": "2026-01-01T00:45:49.418Z",
+              "path": [
+                {
+                  "x": 75,
+                  "y": 94
+                },
+                {
+                  "x": -2,
+                  "y": 16
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": 3,
+                  "y": -2
+                }
+              ]
             },
-            "cargo": [
-              {
-                "good": "tools",
-                "amount": 4362
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
@@ -3812,19 +3880,57 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 260000,
+            "loop_ms": 283171,
+            "paths": [
+              [
+                {
+                  "x": 3,
+                  "y": -2
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": -2,
+                  "y": 20
+                },
+                {
+                  "x": 75,
+                  "y": 94
+                }
+              ],
+              [
+                {
+                  "x": 75,
+                  "y": 94
+                },
+                {
+                  "x": -2,
+                  "y": 16
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": 3,
+                  "y": -2
+                }
+              ]
+            ],
             "effects": [
               {
                 "island_id": "island2",
                 "good": "tools",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10594
               },
               {
                 "island_id": "start",
                 "good": "tools",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10594
               }
             ]
           }
@@ -3882,7 +3988,7 @@
       "offset_ms": 1000,
       "display": {
         "evaluated_at": "2026-01-01T00:45:01.000Z",
-        "next_change_at": "2026-01-01T00:45:29.423Z",
+        "next_change_at": "2026-01-01T00:45:49.418Z",
         "gold": 8596302,
         "balance_rate_per_min": 6160,
         "tax_rate_per_min": 20160,
@@ -3926,6 +4032,7 @@
             "name": "Island 2",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -4026,7 +4133,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 1708,
+                "stock": 3944,
                 "capacity": 300000,
                 "in_transit": 733,
                 "rate_per_min": 1000,
@@ -5521,6 +5628,7 @@
             "name": "Start",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 72,
@@ -5621,7 +5729,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 21363,
+                "stock": 23489,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -5702,20 +5810,33 @@
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
-            "stop_index": 1,
+            "stop_index": 0,
             "leg": {
-              "from_island_id": "island2",
+              "from_island_id": "start",
               "from_position": null,
-              "to_island_id": "start",
-              "depart_at": "2026-01-01T00:43:29.423Z",
-              "arrive_at": "2026-01-01T00:45:29.423Z"
+              "to_island_id": "island2",
+              "depart_at": "2026-01-01T00:43:38.428Z",
+              "arrive_at": "2026-01-01T00:45:49.418Z",
+              "path": [
+                {
+                  "x": 75,
+                  "y": 94
+                },
+                {
+                  "x": -2,
+                  "y": 16
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": 3,
+                  "y": -2
+                }
+              ]
             },
-            "cargo": [
-              {
-                "good": "tools",
-                "amount": 4362
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
@@ -5752,19 +5873,57 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 260000,
+            "loop_ms": 283171,
+            "paths": [
+              [
+                {
+                  "x": 3,
+                  "y": -2
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": -2,
+                  "y": 20
+                },
+                {
+                  "x": 75,
+                  "y": 94
+                }
+              ],
+              [
+                {
+                  "x": 75,
+                  "y": 94
+                },
+                {
+                  "x": -2,
+                  "y": 16
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": 3,
+                  "y": -2
+                }
+              ]
+            ],
             "effects": [
               {
                 "island_id": "island2",
                 "good": "tools",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10594
               },
               {
                 "island_id": "start",
                 "good": "tools",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10594
               }
             ]
           }
@@ -5822,7 +5981,7 @@
       "offset_ms": 5000,
       "display": {
         "evaluated_at": "2026-01-01T00:45:05.000Z",
-        "next_change_at": "2026-01-01T00:45:29.423Z",
+        "next_change_at": "2026-01-01T00:45:49.418Z",
         "gold": 8596713,
         "balance_rate_per_min": 6160,
         "tax_rate_per_min": 20160,
@@ -5866,6 +6025,7 @@
             "name": "Island 2",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 0,
@@ -5966,7 +6126,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 1775,
+                "stock": 4011,
                 "capacity": 300000,
                 "in_transit": 733,
                 "rate_per_min": 1000,
@@ -7461,6 +7621,7 @@
             "name": "Start",
             "size_class": "",
             "rock": false,
+            "scenic": false,
             "settled": true,
             "position": {
               "x": 72,
@@ -7561,7 +7722,7 @@
                 "in_transit_rate_per_min": 0
               },
               "tools": {
-                "stock": 21363,
+                "stock": 23489,
                 "capacity": 300000,
                 "in_transit": 0,
                 "rate_per_min": 0,
@@ -7642,20 +7803,33 @@
             "state": "on_route",
             "island_id": "",
             "route_id": 1,
-            "stop_index": 1,
+            "stop_index": 0,
             "leg": {
-              "from_island_id": "island2",
+              "from_island_id": "start",
               "from_position": null,
-              "to_island_id": "start",
-              "depart_at": "2026-01-01T00:43:29.423Z",
-              "arrive_at": "2026-01-01T00:45:29.423Z"
+              "to_island_id": "island2",
+              "depart_at": "2026-01-01T00:43:38.428Z",
+              "arrive_at": "2026-01-01T00:45:49.418Z",
+              "path": [
+                {
+                  "x": 75,
+                  "y": 94
+                },
+                {
+                  "x": -2,
+                  "y": 16
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": 3,
+                  "y": -2
+                }
+              ]
             },
-            "cargo": [
-              {
-                "good": "tools",
-                "amount": 4362
-              }
-            ],
+            "cargo": [],
             "slots": 4,
             "slot_size": 50000,
             "upkeep_per_min": 1000,
@@ -7692,19 +7866,2050 @@
             "ship_ids": [
               1
             ],
-            "loop_ms": 260000,
+            "loop_ms": 283171,
+            "paths": [
+              [
+                {
+                  "x": 3,
+                  "y": -2
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": -2,
+                  "y": 20
+                },
+                {
+                  "x": 75,
+                  "y": 94
+                }
+              ],
+              [
+                {
+                  "x": 75,
+                  "y": 94
+                },
+                {
+                  "x": -2,
+                  "y": 16
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": 3,
+                  "y": -2
+                }
+              ]
+            ],
             "effects": [
               {
                 "island_id": "island2",
                 "good": "tools",
                 "per_loop": -50000,
-                "per_min": -11538
+                "per_min": -10594
               },
               {
                 "island_id": "start",
                 "good": "tools",
                 "per_loop": 50000,
-                "per_min": 11538
+                "per_min": 10594
+              }
+            ]
+          }
+        ],
+        "insolvency": {
+          "unpaid_buildings": 0,
+          "unpaid_ships": 0,
+          "unpaid_upkeep_per_min": 0,
+          "balance_if_resumed_per_min": 6160
+        },
+        "quests": {
+          "active": [
+            {
+              "id": "intro_planks",
+              "objectives": [
+                {
+                  "kind": "connected",
+                  "type": "lumberjack",
+                  "current": 1,
+                  "target": 1,
+                  "met": true
+                },
+                {
+                  "kind": "connected",
+                  "type": "sawmill",
+                  "current": 0,
+                  "target": 1,
+                  "met": false
+                }
+              ]
+            }
+          ],
+          "claimable": [
+            "intro_home_island",
+            "intro_first_road"
+          ],
+          "completed": [
+            {
+              "id": "intro_home_island",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            },
+            {
+              "id": "intro_first_road",
+              "completed_at": "2026-01-01T00:00:00.000Z",
+              "claimed": false
+            }
+          ]
+        },
+        "away_summary": null,
+        "last_seen_at": "2026-01-01T00:15:00.000Z"
+      }
+    },
+    {
+      "offset_ms": 30000,
+      "display": {
+        "evaluated_at": "2026-01-01T00:45:30.000Z",
+        "next_change_at": "2026-01-01T00:45:49.418Z",
+        "gold": 8599279,
+        "balance_rate_per_min": 6160,
+        "tax_rate_per_min": 20160,
+        "upkeep_rate_per_min": 14000,
+        "tiers": [
+          {
+            "id": "settlers",
+            "unlocked": true,
+            "population": {},
+            "buildings": {}
+          },
+          {
+            "id": "citizens",
+            "unlocked": true,
+            "population": {
+              "settlers": {
+                "have": 120000,
+                "need": 120000
+              }
+            },
+            "buildings": {
+              "chapel": true,
+              "market_small": true
+            }
+          }
+        ],
+        "archipelago": {
+          "seed": 0,
+          "roll": 0,
+          "rerollable": false,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 86,
+            "height": 104
+          }
+        },
+        "islands": [
+          {
+            "id": "island2",
+            "name": "Island 2",
+            "size_class": "",
+            "rock": false,
+            "scenic": false,
+            "settled": true,
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "width": 44,
+            "height": 18,
+            "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 9778,
+                "capacity": 300000,
+                "in_transit": 689,
+                "rate_per_min": 333,
+                "in_transit_rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "fish": {
+                "stock": 149270,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": -1200,
+                "in_transit_rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 683,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 733,
+                "capacity": 300000,
+                "in_transit": 433,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "planks": {
+                "stock": 100000,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "stone": {
+                "stock": 15000,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "tools": {
+                "stock": 4428,
+                "capacity": 300000,
+                "in_transit": 733,
+                "rate_per_min": 1000,
+                "in_transit_rate_per_min": 0
+              },
+              "wheat": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "wood": {
+                "stock": 19900,
+                "capacity": 300000,
+                "in_transit": 1300,
+                "rate_per_min": 666,
+                "in_transit_rate_per_min": 0
+              },
+              "wool": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "wool_garments": {
+                "stock": 74635,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": -600,
+                "in_transit_rate_per_min": 0
+              }
+            },
+            "roads": [
+              {
+                "x": 1,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 2,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 3,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 5,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 6,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 7,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 8,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 9,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 10,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 11,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 12,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 13,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 14,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 15,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 16,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 17,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 18,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 19,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 20,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 21,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 22,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 23,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 24,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 25,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 26,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 27,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 28,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 29,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 30,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 31,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 32,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 33,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 34,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 35,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 36,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 37,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 38,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 39,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 40,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 41,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 42,
+                "y": 4,
+                "type": "road_dirt"
+              },
+              {
+                "x": 2,
+                "y": 5,
+                "type": "road_dirt"
+              },
+              {
+                "x": 2,
+                "y": 6,
+                "type": "road_dirt"
+              },
+              {
+                "x": 2,
+                "y": 7,
+                "type": "road_dirt"
+              },
+              {
+                "x": 2,
+                "y": 8,
+                "type": "road_dirt"
+              },
+              {
+                "x": 2,
+                "y": 9,
+                "type": "road_dirt"
+              },
+              {
+                "x": 2,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 3,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 4,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 5,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 6,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 7,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 8,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 9,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 10,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 11,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 12,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 13,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 14,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 15,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 16,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 17,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 18,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 19,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 20,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 21,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 22,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 23,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 24,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 25,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 26,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 27,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 28,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 29,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 30,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 31,
+                "y": 10,
+                "type": "road_dirt"
+              },
+              {
+                "x": 20,
+                "y": 11,
+                "type": "road_dirt"
+              },
+              {
+                "x": 20,
+                "y": 12,
+                "type": "road_dirt"
+              }
+            ],
+            "buildings": [
+              {
+                "id": 1,
+                "type": "trading_post",
+                "x": 1,
+                "y": 0,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "level": 1,
+                "capacity": 300000,
+                "throughput_per_min": 30000,
+                "load_permille": 211,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
+              },
+              {
+                "id": 2,
+                "type": "market_small",
+                "x": 5,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000
+              },
+              {
+                "id": 3,
+                "type": "chapel",
+                "x": 17,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000
+              },
+              {
+                "id": 4,
+                "type": "house_settlers",
+                "x": 6,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  2
+                ]
+              },
+              {
+                "id": 5,
+                "type": "house_settlers",
+                "x": 8,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  2
+                ]
+              },
+              {
+                "id": 6,
+                "type": "house_settlers",
+                "x": 10,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  2
+                ]
+              },
+              {
+                "id": 7,
+                "type": "house_settlers",
+                "x": 12,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  2
+                ]
+              },
+              {
+                "id": 8,
+                "type": "house_settlers",
+                "x": 14,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  2
+                ]
+              },
+              {
+                "id": 9,
+                "type": "house_settlers",
+                "x": 16,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  2
+                ]
+              },
+              {
+                "id": 10,
+                "type": "house_settlers",
+                "x": 18,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": true
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 1000,
+                "tax_rate_per_min": 1600,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok"
+                  }
+                ],
+                "served_by": [
+                  2
+                ]
+              },
+              {
+                "id": 11,
+                "type": "house_settlers",
+                "x": 20,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small:60"
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 700,
+                "tax_rate_per_min": 1120,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
+                  }
+                ]
+              },
+              {
+                "id": 12,
+                "type": "house_settlers",
+                "x": 22,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small:60"
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 700,
+                "tax_rate_per_min": 1120,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
+                  }
+                ]
+              },
+              {
+                "id": 13,
+                "type": "house_settlers",
+                "x": 24,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small:60"
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 700,
+                "tax_rate_per_min": 1120,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
+                  }
+                ]
+              },
+              {
+                "id": 14,
+                "type": "house_settlers",
+                "x": 26,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small:60"
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 700,
+                "tax_rate_per_min": 1120,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
+                  }
+                ]
+              },
+              {
+                "id": 15,
+                "type": "house_settlers",
+                "x": 28,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small:60"
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 700,
+                "tax_rate_per_min": 1120,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
+                  }
+                ]
+              },
+              {
+                "id": 16,
+                "type": "house_settlers",
+                "x": 30,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small:60"
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 700,
+                "tax_rate_per_min": 1120,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
+                  }
+                ]
+              },
+              {
+                "id": 17,
+                "type": "house_settlers",
+                "x": 32,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small:60"
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 700,
+                "tax_rate_per_min": 1120,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
+                  }
+                ]
+              },
+              {
+                "id": 18,
+                "type": "house_settlers",
+                "x": 34,
+                "y": 2,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "upgrade": {
+                  "available": false,
+                  "reason": "needs_below_threshold:settlers_market_small:60"
+                },
+                "residents": 8000,
+                "residents_floor": 2000,
+                "residents_max": 8000,
+                "growth_progress_permille": 0,
+                "growth_rate_per_min": 0,
+                "satisfaction_permille": 700,
+                "tax_rate_per_min": 1120,
+                "needs": [
+                  {
+                    "id": "settlers_food",
+                    "kind": "required",
+                    "category": "food",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "fish": 1200
+                    }
+                  },
+                  {
+                    "id": "settlers_clothing",
+                    "kind": "required",
+                    "category": "clothing",
+                    "fulfilment_permille": 1000,
+                    "reason": "ok",
+                    "goods": {
+                      "wool_garments": 600
+                    }
+                  },
+                  {
+                    "id": "settlers_market_small",
+                    "kind": "required",
+                    "building": "market_small",
+                    "fulfilment_permille": 0,
+                    "reason": "out_of_range"
+                  }
+                ]
+              },
+              {
+                "id": 19,
+                "type": "shipyard",
+                "x": 20,
+                "y": 13,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "ship_order": null
+              },
+              {
+                "id": 21,
+                "type": "lumberjack",
+                "x": 32,
+                "y": 5,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "rates": {
+                  "inputs": {},
+                  "outputs": {
+                    "wood": 2000
+                  }
+                },
+                "cycle_seconds": 30,
+                "cycle_progress_permille": 0,
+                "transfer_delay_ms": 39000,
+                "assigned_warehouse_id": 1,
+                "road_distance": 29,
+                "cycle_rate_permille_per_min": 2000,
+                "workforce_factor_permille": 1000,
+                "workforce": {
+                  "tier": "settlers",
+                  "required": 4000
+                }
+              },
+              {
+                "id": 22,
+                "type": "charcoal_burner",
+                "x": 16,
+                "y": 11,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "rates": {
+                  "inputs": {
+                    "wood": 1333
+                  },
+                  "outputs": {
+                    "charcoal": 1333
+                  }
+                },
+                "cycle_seconds": 45,
+                "cycle_progress_permille": 800,
+                "transfer_delay_ms": 31000,
+                "assigned_warehouse_id": 1,
+                "road_distance": 21,
+                "cycle_rate_permille_per_min": 1333,
+                "workforce_factor_permille": 1000,
+                "workforce": {
+                  "tier": "settlers",
+                  "required": 4000
+                }
+              },
+              {
+                "id": 23,
+                "type": "iron_mine",
+                "x": 11,
+                "y": 7,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "rates": {
+                  "inputs": {},
+                  "outputs": {
+                    "iron_ore": 1000
+                  }
+                },
+                "cycle_seconds": 60,
+                "cycle_progress_permille": 500,
+                "transfer_delay_ms": 26000,
+                "assigned_warehouse_id": 1,
+                "road_distance": 16,
+                "cycle_rate_permille_per_min": 1000,
+                "workforce_factor_permille": 1000,
+                "workforce": {
+                  "tier": "settlers",
+                  "required": 10000
+                }
+              },
+              {
+                "id": 24,
+                "type": "smelter",
+                "x": 26,
+                "y": 11,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "rates": {
+                  "inputs": {
+                    "charcoal": 1000,
+                    "iron_ore": 1000
+                  },
+                  "outputs": {
+                    "iron": 1000
+                  }
+                },
+                "cycle_seconds": 60,
+                "cycle_progress_permille": 333,
+                "transfer_delay_ms": 41000,
+                "assigned_warehouse_id": 1,
+                "road_distance": 31,
+                "cycle_rate_permille_per_min": 1000,
+                "workforce_factor_permille": 1000,
+                "workforce": {
+                  "tier": "settlers",
+                  "required": 8000
+                }
+              },
+              {
+                "id": 25,
+                "type": "toolmaker",
+                "x": 29,
+                "y": 11,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "rates": {
+                  "inputs": {
+                    "iron": 1000
+                  },
+                  "outputs": {
+                    "tools": 1000
+                  }
+                },
+                "cycle_seconds": 60,
+                "cycle_progress_permille": 650,
+                "transfer_delay_ms": 44000,
+                "assigned_warehouse_id": 1,
+                "road_distance": 34,
+                "cycle_rate_permille_per_min": 1000,
+                "workforce_factor_permille": 1000,
+                "workforce": {
+                  "tier": "settlers",
+                  "required": 8000
+                }
+              }
+            ],
+            "workforce": {
+              "settlers": {
+                "available": 120000,
+                "required": 34000,
+                "factor_permille": 1000
+              }
+            },
+            "population": {
+              "settlers": 120000
+            },
+            "capacity_source": {
+              "building_id": 1,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
+            },
+            "fertilities": [],
+            "deposits": [
+              {
+                "x": 12,
+                "y": 7,
+                "kind": "iron"
+              },
+              {
+                "x": 13,
+                "y": 7,
+                "kind": "iron"
+              },
+              {
+                "x": 11,
+                "y": 8,
+                "kind": "iron"
+              },
+              {
+                "x": 12,
+                "y": 8,
+                "kind": "iron"
+              },
+              {
+                "x": 13,
+                "y": 8,
+                "kind": "iron"
+              },
+              {
+                "x": 14,
+                "y": 8,
+                "kind": "iron"
+              }
+            ],
+            "terrain_mask": "wgggggggggwggggggggfffgggmggggffggggggwgggggwwwwwwwwwww"
+          },
+          {
+            "id": "start",
+            "name": "Start",
+            "size_class": "",
+            "rock": false,
+            "scenic": false,
+            "settled": true,
+            "position": {
+              "x": 72,
+              "y": 96
+            },
+            "width": 14,
+            "height": 8,
+            "inventory": {
+              "apples": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "bread": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "charcoal": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "cider": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "fish": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "flour": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "hemp": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "iron": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "iron_ore": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "linen_garments": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "planks": {
+                "stock": 25000,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "sails": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "stone": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "tools": {
+                "stock": 23489,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "wheat": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "wood": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "wool": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              },
+              "wool_garments": {
+                "stock": 0,
+                "capacity": 300000,
+                "in_transit": 0,
+                "rate_per_min": 0,
+                "in_transit_rate_per_min": 0
+              }
+            },
+            "roads": [],
+            "buildings": [
+              {
+                "id": 20,
+                "type": "trading_post",
+                "x": 1,
+                "y": 0,
+                "rotation": 0,
+                "paused": false,
+                "paused_reason": "",
+                "status": "ok",
+                "efficiency_permille": 1000,
+                "throughput_factor_permille": 1000,
+                "level": 1,
+                "capacity": 300000,
+                "throughput_per_min": 30000,
+                "load_permille": 0,
+                "berths": {
+                  "total": 1,
+                  "busy": 0,
+                  "ships": [],
+                  "queue": []
+                }
+              }
+            ],
+            "workforce": {},
+            "population": {},
+            "capacity_source": {
+              "building_id": 20,
+              "type": "trading_post",
+              "level": 1,
+              "capacity": 300000
+            },
+            "fertilities": [],
+            "deposits": [],
+            "terrain_mask": "wggwgggw"
+          }
+        ],
+        "ships": [
+          {
+            "id": 1,
+            "type": "sloop",
+            "name": "Sloop 1",
+            "state": "on_route",
+            "island_id": "",
+            "route_id": 1,
+            "stop_index": 0,
+            "leg": {
+              "from_island_id": "start",
+              "from_position": null,
+              "to_island_id": "island2",
+              "depart_at": "2026-01-01T00:43:38.428Z",
+              "arrive_at": "2026-01-01T00:45:49.418Z",
+              "path": [
+                {
+                  "x": 75,
+                  "y": 94
+                },
+                {
+                  "x": -2,
+                  "y": 16
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": 3,
+                  "y": -2
+                }
+              ]
+            },
+            "cargo": [],
+            "slots": 4,
+            "slot_size": 50000,
+            "upkeep_per_min": 1000,
+            "paused": false,
+            "paused_reason": "",
+            "position": null,
+            "queued_at": null,
+            "berth_until": null
+          }
+        ],
+        "routes": [
+          {
+            "id": 1,
+            "name": "Tools home",
+            "stops": [
+              {
+                "island_id": "island2",
+                "load": [
+                  {
+                    "good": "tools",
+                    "max_amount": 50000
+                  }
+                ],
+                "unload": []
+              },
+              {
+                "island_id": "start",
+                "load": [],
+                "unload": [
+                  "tools"
+                ]
+              }
+            ],
+            "ship_ids": [
+              1
+            ],
+            "loop_ms": 283171,
+            "paths": [
+              [
+                {
+                  "x": 3,
+                  "y": -2
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": -2,
+                  "y": 20
+                },
+                {
+                  "x": 75,
+                  "y": 94
+                }
+              ],
+              [
+                {
+                  "x": 75,
+                  "y": 94
+                },
+                {
+                  "x": -2,
+                  "y": 16
+                },
+                {
+                  "x": -2,
+                  "y": 0
+                },
+                {
+                  "x": 3,
+                  "y": -2
+                }
+              ]
+            ],
+            "effects": [
+              {
+                "island_id": "island2",
+                "good": "tools",
+                "per_loop": -50000,
+                "per_min": -10594
+              },
+              {
+                "island_id": "start",
+                "good": "tools",
+                "per_loop": 50000,
+                "per_min": 10594
               }
             ]
           }

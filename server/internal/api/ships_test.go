@@ -191,11 +191,11 @@ func TestShipCommandsOverHTTP(t *testing.T) {
 	ss.fails(t, `{"type":"manual_shipment","ship_id":1,"to_island_id":"island2","cargo":[{"good":"planks","amount":220000}]}`, http.StatusConflict, "cargo_exceeds_slots")
 
 	ss.ok(t, `{"type":"manual_shipment","ship_id":1,"to_island_id":"island2","cargo":[{"good":"planks","amount":70000}]}`)
-	if s := ss.view(t).Ships[0]; s.State != "manual_leg" || s.Leg == nil || s.Leg.ArriveAt != "2026-10-19T12:05:24.000Z" {
+	if s := ss.view(t).Ships[0]; s.State != "manual_leg" || s.Leg == nil || s.Leg.ArriveAt != "2026-10-19T12:05:43.926Z" {
 		t.Fatalf("ship on leg %+v", s)
 	}
 	ss.fails(t, `{"type":"scrap_ship","ship_id":1}`, http.StatusConflict, "ship_not_idle")
-	ss.advance(2*time.Minute + 30*time.Second)
+	ss.advance(3 * time.Minute)
 	ss.fails(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":2,"y":4,"rotation":0}`, http.StatusConflict, "not_on_water")
 	ss.ok(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":2,"y":0,"rotation":0}`)
 	ss.fails(t, `{"type":"found_island","ship_id":1,"island_id":"island2","building_type":"trading_post","x":8,"y":0,"rotation":0}`, http.StatusConflict, "island_already_settled")
@@ -209,13 +209,14 @@ func TestShipCommandsOverHTTP(t *testing.T) {
 	ss.fails(t, `{"type":"assign_ship","ship_id":1,"route_id":1}`, http.StatusConflict, "ship_not_idle")
 	ss.fails(t, `{"type":"delete_route","route_id":1}`, http.StatusConflict, "route_in_use")
 	v = ss.view(t)
-	if len(v.Routes) != 1 || v.Routes[0].Name != "Route 1" || len(v.Routes[0].ShipIDs) != 1 || v.Routes[0].LoopMs != 2*10_000+2*120_000 {
+	// Loop: two handlings and the voyages between the Trading Posts' harbours around land (D-058 §5).
+	if len(v.Routes) != 1 || v.Routes[0].Name != "Route 1" || len(v.Routes[0].ShipIDs) != 1 || v.Routes[0].LoopMs != 2*10_000+286_388 {
 		t.Fatalf("routes %+v", v.Routes)
 	}
 	if s := v.Ships[0]; s.State != "on_route" || s.RouteID != 1 || len(s.Cargo) != 1 || s.Cargo[0].Amount != 10_000 {
 		t.Fatalf("assigned ship %+v", s)
 	}
-	ss.advance(2*time.Minute + 20*time.Second) // arrives at start, unloads, sails back
+	ss.advance(2*time.Minute + 50*time.Second) // arrives at start, unloads, sails back
 	if s := ss.view(t).Ships[0]; s.State != "on_route" || len(s.Cargo) != 0 || s.Leg == nil {
 		t.Fatalf("after arrival %+v", s)
 	}

@@ -22,7 +22,7 @@ interface Props {
  */
 export function ShipmentDialog({ ship, initialTo, model, content, onSend, onClose }: Props) {
   const here = model.islands.find((i) => i.id === ship.island_id);
-  const destinations = model.islands.filter((i) => i.id !== ship.island_id);
+  const destinations = model.islands.filter((i) => i.id !== ship.island_id && !i.scenic);
   const [to, setTo] = useState(destinations.find((i) => i.id === initialTo)?.id ?? destinations[0]?.id ?? "");
   const [amounts, setAmounts] = useState<Record<string, number>>({});
   const goods = content.goods.filter((g) => (here?.inventory[g.id]?.stock ?? 0) >= 1000);

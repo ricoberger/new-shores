@@ -36,6 +36,15 @@ const (
 	TerrainGrass    = "grass"
 	TerrainForest   = "forest"
 	TerrainMountain = "mountain"
+	// TerrainRiver is water inside the land (D-058): unbuildable, but a
+	// road may cross it (a bridge).
+	TerrainRiver = "river"
+	// TerrainIslet is a small land component off the coast (rocks, sand
+	// bars; D-058): decor only, unbuildable.
+	TerrainIslet = "islet"
+	// TerrainCliff is rocky coast where a ridge meets the sea (D-058):
+	// unbuildable, no harbour.
+	TerrainCliff = "cliff"
 )
 
 // Catalogue is the validated content of one region. It must be treated as

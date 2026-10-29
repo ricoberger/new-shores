@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
-import { blockedTiles, islandSeed, type Placed, layerKeys, NEAR_BLOCKED_KEEP, scatterGround, scatterSite, scatterTrees, thinningAreas, treeKeepFraction, TREES_PER_TILE } from "./scatter";
+import { blockedTiles, islandSeed, type Placed, layerKeys, NEAR_BLOCKED_KEEP, scatterGround, scatterSite, scatterTrees, thinningAreas, treeKeepFraction, TREES_PER_TILE, wallSide } from "./scatter";
 
 /** A width × height map of one terrain. */
 const map = (width: number, height: number, t: string) => ({ width, height, terrain: Array.from({ length: width * height }, () => t) });
@@ -88,6 +88,25 @@ describe("deterministic scatter", () => {
     for (let seed = 0; seed < 20; seed++) {
       expect(scatterGround({ ...map(20, 20, "grass"), seed, blocked: new Set() }).some((p) => p.kind === "rock")).toBe(false);
     }
+  });
+
+  it("gathers rocks at the foot of terrace walls, against the wall (D-058)", () => {
+    // 20 × 20 grass, the right half one level up: column 9 is the foot of the wall.
+    const m = map(20, 20, "grass");
+    const levels = Array.from({ length: 20 }, () => "0000000000" + "1111111111").join("");
+    expect(scatterSite({ ...m, levels }, 9, 5)).toBe("ledge");
+    expect(scatterSite({ ...m, levels }, 10, 5)).toBe("open");
+    expect(wallSide({ ...m, levels }, 9, 5)).toEqual([1, 0]);
+    let rocks = 0;
+    for (let seed = 0; seed < 20; seed++) {
+      for (const p of scatterGround({ ...m, levels, seed, blocked: new Set() })) {
+        if (p.kind !== "rock") continue;
+        rocks++;
+        expect(Math.floor(p.x)).toBe(9);
+        expect(p.x - 9).toBeGreaterThan(0.8);
+      }
+    }
+    expect(rocks).toBeGreaterThan(0);
   });
 
   it("keeps off buildings, fields and roads and thins next to them", () => {

@@ -1,8 +1,9 @@
-"""Decor models (trees, bushes, rocks, crags, stumps, tufts, deposit outcrops) at 8 voxels per tile, centred on the origin."""
+"""Decor models (trees, bushes, rocks, crags, stumps, tufts, deposit outcrops, river bridges) at 8 voxels per tile, centred on the origin."""
 
 import math
 
 from nsvoxel.grid import hash3, mat, shade_of
+from nsvoxel.terrain import arch_bridge
 from nsvoxel.mats import CROWN, FOREST, ROCK, ROCK_DEEP, ROCK_LIGHT, MOSS, TIMBER, TIMBER_DARK, TIMBER_LIGHT, GRASS_A, GRASS_B, FLOWER, IRON_ORE, STONE, PLANK
 
 
@@ -176,8 +177,37 @@ def crag(seed, h):
                     continue
                 hh = int(round(h * (1 - d * 0.75) - hash3(x, y, 1, seed) * 2.5))
                 for z in range(max(1, hh)):
-                    band = (z + int(hash3(x, y, 2, seed) * 2)) // 2 % 3
-                    m = (ROCK_LIGHT, ROCK, ROCK_DEEP)[band] if z < hh - 1 else ROCK_LIGHT
+                    band = (z + int(hash3(x, y, 2, seed) * 2)) // 2 % 4
+                    m = (ROCK_LIGHT, ROCK, SANDSTONE, ROCK_DEEP)[band] if z < hh - 1 else ROCK_LIGHT
+                    v.set(x, y, z, m)
+        return v
+
+    return b
+
+
+SANDSTONE = mat("cliff-upper")
+
+
+def peak(seed, r, h):
+    """
+    A big crag for the mountain peaks (D-058, about 1.2 tiles across): a
+    ragged spire of warm grey rock with sandstone strata, its top split
+    into two or three pinnacles.
+    """
+
+    def b(ctx):
+        v = _v(ctx)
+        tips = [(hash3(k, 0, 3, seed) * 2.4 - 1.2, hash3(k, 1, 3, seed) * 2.4 - 1.2) for k in range(3)]
+        for x in range(-r, r + 1):
+            for y in range(-r, r + 1):
+                d = math.sqrt(x * x + y * y) / (r + 0.5)
+                if d > 1:
+                    continue
+                tip = min(math.hypot(x - tx, y - ty) for tx, ty in tips) / (r + 0.5)
+                hh = int(round(h * (1 - d) ** 0.8 * (1 - 0.45 * tip) + 2 - noise3(x, y, 0, seed, 1.7) * 3))
+                for z in range(max(1, hh)):
+                    band = (z + int(noise3(x, y, z, seed + 5, 3) * 2)) % 5
+                    m = ROCK_LIGHT if z == hh - 1 else (ROCK, ROCK, SANDSTONE, ROCK_LIGHT, ROCK_DEEP)[band]
                     v.set(x, y, z, m)
         return v
 
@@ -306,6 +336,15 @@ def fern(seed):
     return b
 
 
+def bridge(tiles):
+    """An arched stone bridge over 1 or 2 river tiles (D-058): x along the road, its base at the river's surface."""
+
+    def b(ctx):
+        return arch_bridge(_v(ctx), tiles, seed=tiles)
+
+    return b
+
+
 def outcrop(m):
     """Deposit outcrop: a boulder cluster with veins of the deposit colour (tinted per kind by the client)."""
 
@@ -340,6 +379,8 @@ RECIPES = {
     "decor_crag_a": {"build": crag(1, 6)},
     "decor_crag_b": {"build": crag(2, 7)},
     "decor_crag_c": {"build": crag(3, 6)},
+    "decor_peak_a": {"build": peak(6, 4, 14)},
+    "decor_peak_b": {"build": peak(2, 4, 12)},
     "decor_stump_a": {"build": stump(2)},
     "decor_stump_b": {"build": stump(1)},
     "decor_tuft_a": {"build": tuft(0), "scale": 16},
@@ -356,5 +397,7 @@ RECIPES = {
     "decor_outcrop_iron": {"build": outcrop(IRON_ORE)},
     "decor_outcrop_other": {"build": outcrop(STONE)},
     "decor_outcrop_stone": {"build": outcrop(mat("stone", 1.1))},
+    "decor_bridge_1": {"build": bridge(1)},
+    "decor_bridge_2": {"build": bridge(2)},
 }
 

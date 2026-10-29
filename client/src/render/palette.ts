@@ -34,6 +34,10 @@ export const TERRAIN_COLORS: Record<Terrain, Color3> = {
   grass: c3(TERRAIN.grass_a),
   forest: c3(TERRAIN.forest_floor),
   mountain: c3(TERRAIN.mountain),
+  // D-058: rivers are water inside the land, islets sand and rock, cliffs rock.
+  river: c3(WATER.shallows),
+  islet: c3(TERRAIN.sand),
+  cliff: c3(TERRAIN.mountain),
 };
 
 /** Debug colour of a terrain value this client does not know (deliberately loud, not a palette role). */

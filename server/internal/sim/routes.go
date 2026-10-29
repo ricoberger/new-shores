@@ -221,20 +221,25 @@ func deleteRoute(w *World, cmd DeleteRoute) error {
 	return nil
 }
 
-// routeLoopMs is the loop time of a route at reference speed 1.0: the base
-// handling time of every stop (the per-unit part depends on the goods
-// moved and is not estimated) plus the travel time of every leg including
-// last -> first.
-func routeLoopMs(w *World, c *content.Catalogue, r *Route) int64 {
+// routeLegs returns the loop time of a route at reference speed 1.0 — the
+// base handling time of every stop (the per-unit part depends on the
+// goods moved and is not estimated) plus the travel time of every leg
+// including last -> first — and the voyage of every leg (stop i to stop
+// i+1, the last back to the first; nil for a leg that stays at its
+// island).
+func routeLegs(w *World, c *content.Catalogue, r *Route) (int64, [][]Pos) {
 	var total int64
+	paths := make([][]Pos, len(r.Stops))
 	for i, st := range r.Stops {
 		total += c.Region.Rules.ShipHandlingBaseMs
 		a, b := w.Island(st.IslandID), w.Island(r.Stops[(i+1)%len(r.Stops)].IslandID)
 		if a != nil && b != nil && a != b {
-			total += travelMs(c, 1000, a, b)
+			path, ms := travel(w, c, 1000, a, b)
+			total += ms
+			paths[i] = path
 		}
 	}
-	return total
+	return total, paths
 }
 
 // routeHold is the virtual hold of the route-effect estimate: the smallest

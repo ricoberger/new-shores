@@ -38,6 +38,9 @@ func planComposition(r *rng, late func(k int) *rng, c *content.Catalogue) ([]*pl
 	rules := &c.Islands
 	var out []*plan
 	for _, sc := range rules.SizeClasses {
+		if sc.Scenic {
+			continue // skerries come after the layout (skerries)
+		}
 		n := r.between(sc.Count.Min, sc.Count.Max)
 		for range n {
 			out = append(out, &plan{class: sc})

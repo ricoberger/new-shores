@@ -6,7 +6,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { Island, Terrain } from "../api/client";
 import { coastline } from "../display/coastline";
 import { buildTerrain, CoastWater, SEA_LEVEL } from "./terrain";
-import { EMPTY } from "./voxelterrain";
+import { RIVER_DROP } from "./terraces";
+import { EMPTY, islandField, VOXEL_STEP } from "./voxelterrain";
 
 // The voxel terrain (D-057): ground columns at height 0, the coast's sand
 // shelves stepping down below the sea surface within half a tile of the
@@ -91,5 +92,31 @@ describe("island terrain", () => {
     }
     water.dispose();
     t.dispose();
+  });
+
+  it("draws the river surfaces with the river water and a foam pool under a waterfall", () => {
+    engine = new NullEngine();
+    const scene = new Scene(engine);
+    // A river dropping from level 1 (x 2–3) to level 0 (x 1 and 4).
+    const rows = ["~~~~~~", "~gggg~", "~rrrr~", "~gggg~", "~~~~~~"];
+    const levels = ["000000", "001100", "001100", "001100", "000000"];
+    const terrain = rows.flatMap((r) => [...r].map((ch): Terrain => (ch === "~" ? "water" : ch === "r" ? "river" : "grass")));
+    const is = { width: 6, height: 5, terrain, levels: levels.join("") };
+    const f = islandField(is, coastline(is), 7);
+    const water = new CoastWater(scene, null, null, 7);
+    water.update(f, 7);
+    const rivers = scene.meshes.find((m) => m.name === "rivers")!;
+    expect(rivers.material?.name).toBe("river");
+    const ys = new Set<number>();
+    const pos = rivers.getVerticesData(VertexBuffer.PositionKind)!;
+    for (let i = 1; i < pos.length; i += 3) ys.add(Math.round(pos[i]! / VOXEL_STEP));
+    // The upper river's surface and the lower one's (its estuary steps further down toward the sea).
+    expect(ys.has(4 - RIVER_DROP)).toBe(true);
+    expect([...ys].some((y) => y <= -RIVER_DROP)).toBe(true);
+    // Foam on the lower river's surface next to the fall (above the sea).
+    const foam = scene.meshes.find((m) => m.name === "foam")!;
+    const fy = foam.getVerticesData(VertexBuffer.PositionKind)!.filter((_, i) => i % 3 === 1);
+    expect(fy.some((y) => y > SEA_LEVEL + 0.1)).toBe(true);
+    water.dispose();
   });
 });

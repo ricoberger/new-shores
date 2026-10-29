@@ -14,7 +14,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import type { BuildingDisplay, ContentBuilding, Island, IslandDisplay, WorldResponse } from "../api/client";
 import type { SyncSnapshot } from "../api/sync";
-import { archipelagoRect, type CameraView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
+import { archipelagoRect, type CameraView, frameIslandView, JUMP_MS, NEAR_DEFAULT_HALF_HEIGHT, seaMargin, snapRotation } from "../display/camera";
 import { farmChain, fieldHintText, fieldPlacementHint } from "../display/fields";
 import { fieldsUnder, type PaintDrag, paintAnchors, paintCountText, paintTiles, planPaint } from "../display/fieldpaint";
 import { servedRelated } from "../display/served";
@@ -398,6 +398,11 @@ export class GameRenderer {
     this.engine.dispose();
   }
 
+  /** The loaded static tiles of the islands (the minimap draws their relief; islands without tiles use their masks). */
+  islandStatics(): ReadonlyMap<string, Island> {
+    return this.sync.getSnapshot().islands;
+  }
+
   /** Called after every rendered frame (HTML overlays follow the camera). */
   onFrame(l: () => void): () => void {
     this.frameListeners.add(l);
@@ -447,10 +452,10 @@ export class GameRenderer {
 
   /** The life plans of the islands in view with their archipelago origins. */
   /** The shown islands' life plans, with the chunks in view (life spawns only there). */
-  private *lifeIslands(): Generator<{ origin: { x: number; y: number }; plan: IslandDetail["life"]; chunks: ReadonlySet<string> | null }> {
+  private *lifeIslands(): Generator<{ origin: { x: number; y: number }; plan: IslandDetail["life"]; chunks: ReadonlySet<string> | null; ground: (x: number, y: number) => number }> {
     for (const d of this.details.values()) {
       const o = d.lifeOrigin();
-      if (o) yield { origin: o, plan: d.life, chunks: d.chunksInView() };
+      if (o) yield { origin: o, plan: d.life, chunks: d.chunksInView(), ground: d.groundAt };
     }
   }
 
@@ -629,6 +634,21 @@ export class GameRenderer {
     this.jump({ x: p.position.x + p.width / 2, y: p.position.y + p.height / 2 }, true);
   }
 
+  /**
+   * Founding on an island (D-058 round 4): keeps the camera when the
+   * island is wholly in view below the far zoom, else frames the whole
+   * island at the current heading (frameIslandView).
+   */
+  frameIsland(id: string): void {
+    const p = this.arch.placement(id);
+    if (!p) return;
+    const v = frameIslandView(this.rig.view(), this.rig.aspect(), { minX: p.position.x, minY: p.position.y, maxX: p.position.x + p.width, maxY: p.position.y + p.height });
+    if (!v) return;
+    this.input.cancel();
+    this.onPointerCancel();
+    this.rig.animateTo({ x: v.x, y: v.y, half: v.half }, JUMP_MS, performance.now());
+  }
+
   /** Jumps to a building (zooms in to the near default if farther out). */
   jumpToBuilding(id: number): void {
     const found = this.findBuilding(id);
@@ -709,12 +729,16 @@ export class GameRenderer {
     }
     const focus = focusedIsland(islands, v);
     this.cullChunks(islands);
-    // Tile priorities: the focused island, then the islands in view by distance from the view's centre.
+    // Tile priorities: the focused island, then the islands in view by distance from the view's centre, then the skerries.
     const dist = (is: IslandDisplay) => Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y);
-    const inView = islands
-      .filter((is) => this.visible.has(is.id))
-      .sort((a, b) => dist(a) - dist(b))
-      .map((is) => is.id);
+    // The skerries next (D-058): a few tiles each, too small for their 1:4 mask, they show on the far view and the minimap only with their tiles.
+    const inView = [
+      ...islands
+        .filter((is) => this.visible.has(is.id))
+        .sort((a, b) => dist(a) - dist(b))
+        .map((is) => is.id),
+      ...islands.filter((is) => is.scenic && !this.visible.has(is.id)).map((is) => is.id),
+    ];
     const priorityKey = `${focus}|${inView.join(",")}`;
     if (priorityKey !== this.priorityKey) {
       this.priorityKey = priorityKey;
@@ -754,10 +778,14 @@ export class GameRenderer {
       const farMasked = this.farMask && this.lod === "far" && is.id !== focus;
       const useMask = !d?.hasTiles() || farMasked;
       d?.setShown(shown && !useMask, this.lod);
-      if (useMask) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), tiles: d?.farTerrain() ?? null });
+      // Only the islands in view: off-screen ones would only add triangles to the merged mesh (D-048's far budget, D-058's denser archipelago).
+      if (useMask && shown) masked.push({ id: is.id, position: is.position, mask: this.maskOf(is), seed: islandSeed(is.id, this.archipelagoKey), tiles: d?.farTerrain() ?? null });
       // At far LOD a settled island drawn from its mask keeps its Trading Post and shipyards.
       if (showsLandmarks(is, this.lod, focus, useMask)) landmarks.push(is);
     }
+    // Nearest the view first: they keep their own far columns within the mask mesh's budget.
+    const centre = new Map(islands.map((is) => [is.id, Math.hypot(is.position.x + is.width / 2 - v.x, is.position.y + is.height / 2 - v.y)]));
+    masked.sort((a, b) => (centre.get(a.id) ?? 0) - (centre.get(b.id) ?? 0));
     this.mask.show(masked);
     this.landmarks.show(landmarks, this.defs);
     this.cullChunks(islands);
@@ -1087,13 +1115,35 @@ export class GameRenderer {
   /** Archipelago point on the ground under a render-pixel position. */
   private groundPoint(p: Point): ArchPoint | null {
     const g = this.rig.groundAt(p.x, p.y);
-    return g ? { x: g.x, y: -g.z } : null;
+    if (!g) return null;
+    let at: ArchPoint = { x: g.x, y: -g.z };
+    // On the terraces (D-058): the ray meets the ground at the height of the tile it hits — a few steps from the sea plane.
+    let h = 0;
+    for (let i = 0; i < 3; i++) {
+      const next = this.surfaceAt(at);
+      if (next === h) break;
+      h = next;
+      const q = this.rig.groundAt(p.x, p.y, h);
+      if (!q) break;
+      at = { x: q.x, y: -q.z };
+    }
+    return at;
   }
 
-  /** The island whose land is under (or within one tile of) a render-pixel position. */
+  /** The ground height (tiles) at an archipelago point: the walking surface of the island with tiles whose rectangle holds it, else 0. */
+  private surfaceAt(at: ArchPoint): number {
+    const id = this.arch.islandRectAt(at);
+    const pl = id ? this.arch.placement(id) : undefined;
+    const d = id ? this.details.get(id) : undefined;
+    if (!pl || !d) return 0;
+    return d.groundAt(at.x - pl.position.x, at.y - pl.position.y);
+  }
+
+  /** The island whose land is under (or within one tile of) a render-pixel position; a skerry (D-058: scenery) counts as the sea. */
   private islandUnder(p: Point): string | null {
     const g = this.groundPoint(p);
-    return g ? this.arch.islandAt(g, this.sync.getSnapshot().islands) : null;
+    const id = g ? this.arch.islandAt(g, this.sync.getSnapshot().islands) : null;
+    return id && !this.displayIsland(id)?.scenic ? id : null;
   }
 
   /** The tile under a render-pixel position, on the island whose rectangle contains it (null over the open sea). */
@@ -1424,7 +1474,7 @@ export class GameRenderer {
         const def = this.defs.get(b.type);
         if (!def) return;
         const { cx, cz, w, h } = footprintBox(b.x, b.y, def.width, def.height, b.rotation);
-        marks.push({ cx: cx + island.position.x, cz: cz - island.position.y, w, h, kind });
+        marks.push({ cx: cx + island.position.x, cz: cz - island.position.y, w, h, kind, base: this.details.get(island.id)?.baseOf(b, def) ?? 0 });
       };
       const chainOf = (found: { b: BuildingDisplay; island: IslandDisplay } | undefined, selection = false) => {
         if (!found) return;
@@ -1513,6 +1563,7 @@ export class GameRenderer {
         y: t.y,
         rotation: tool.rotation,
         waterRows: waterRows(def, t.x, t.y, tool.rotation),
+        base: this.details.get(t.island)?.baseOf({ x: t.x, y: t.y, type: def.id, rotation: tool.rotation }, def) ?? 0,
         ...(moved ? { buildingId: moved.id, level: moved.level ?? 1 } : {}),
       },
       color,
@@ -1548,7 +1599,15 @@ export class GameRenderer {
       this.setPaintStatus(null);
       return;
     }
-    const mark = (x: number, y: number, w: number, h: number, kind: PaintMark["kind"]): PaintMark => ({ cx: pl.position.x + x + w / 2, cz: -(pl.position.y + y + h / 2), w, h, kind });
+    const detail = this.details.get(drag.island);
+    const mark = (x: number, y: number, w: number, h: number, kind: PaintMark["kind"]): PaintMark => ({
+      cx: pl.position.x + x + w / 2,
+      cz: -(pl.position.y + y + h / 2),
+      w,
+      h,
+      kind,
+      base: detail?.baseOf({ x, y, type: "", rotation: 0 }, { width: w, height: h }) ?? 0,
+    });
     if (drag.mode === "place") {
       const p = this.paintPlanOf(drag);
       if (!p) {
@@ -1618,7 +1677,13 @@ export class GameRenderer {
         if (!results) return;
         const rejected = results.filter((r) => !r.ok);
         this.paintPreview.flash(
-          rejected.map((r) => ({ cx: pl.position.x + r.x + plan.w / 2, cz: -(pl.position.y + r.y + plan.h / 2), w: plan.w, h: plan.h })),
+          rejected.map((r) => ({
+            cx: pl.position.x + r.x + plan.w / 2,
+            cz: -(pl.position.y + r.y + plan.h / 2),
+            w: plan.w,
+            h: plan.h,
+            base: this.details.get(paint.island)?.baseOf({ x: r.x, y: r.y, type: "", rotation: 0 }, { width: plan.w, height: plan.h }) ?? 0,
+          })),
           performance.now(),
         );
       });
@@ -1664,7 +1729,7 @@ export class GameRenderer {
     else if (mouse) at = mouse;
     else if (isGhostTool(tool) && tool.pending) at = toArch(tool.pending.island, tool.pending);
     at ??= this.lastTouch ?? { x: this.rig.view().x, y: this.rig.view().y };
-    this.grid.set(at);
+    this.grid.set(at, this.surfaceAt(at));
   }
 
   /** Trees and ground scatter items built on the islands with detail (near-LOD decoration). */

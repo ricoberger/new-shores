@@ -195,7 +195,7 @@ export function RouteEditor(p: Props) {
                 aria-label={`Stop ${i + 1}: island`}
                 data-testid={`route-stop-island-${i}`}
               >
-                {model.islands.map((is) => (
+                {model.islands.filter((is) => !is.scenic).map((is) => (
                   <option key={is.id} value={is.id}>
                     {is.name || is.id}
                     {is.settled ? "" : " (unsettled)"}
@@ -322,7 +322,7 @@ export function RouteEditor(p: Props) {
             <option value="">
               {draft.stops.length === 0 ? "+ first stop…" : "+ stop…"}
             </option>
-            {model.islands.map((is) => (
+            {model.islands.filter((is) => !is.scenic).map((is) => (
               <option key={is.id} value={is.id}>
                 {is.name || is.id}
                 {is.settled ? "" : " (unsettled)"}

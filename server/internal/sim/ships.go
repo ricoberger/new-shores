@@ -121,6 +121,10 @@ type Leg struct {
 	// From is the archipelago origin (tiles) of a leg that starts at sea;
 	// nil for a leg from an island.
 	From *Pos `json:"from,omitempty"`
+	// Path is the voyage (archipelago tiles, D-058 §5): from the origin's
+	// harbour (or From) around land to the destination's (Ends, SeaRoute);
+	// its length sets the travel time (PathMs).
+	Path []Pos `json:"path,omitempty"`
 }
 
 // Slot is one cargo slot holding Amount milli-units of Good.
@@ -137,6 +141,7 @@ func (s *Ship) clone() *Ship {
 			p := *l.From
 			l.From = &p
 		}
+		l.Path = slices.Clone(l.Path)
 		c.Leg = &l
 	}
 	if s.AtSea != nil {
@@ -232,39 +237,24 @@ const maxCoord = 1_000_000
 // identical on every platform; this is the single definition of the travel
 // time used by legs and loop times.
 func TravelMs(fromX, fromY, toX, toY int, speedPermille, milliTilesPerMin int64) int64 {
-	clamp := func(v int) int64 { return int64(min(max(v, -maxCoord), maxCoord)) }
-	dx, dy := clamp(toX)-clamp(fromX), clamp(toY)-clamp(fromY)
-	// dx^2 + dy^2 <= 8e12, times 1e6 <= 8e18 < 2^63.
-	d2 := uint64(dx*dx+dy*dy) * 1_000_000 // #nosec G115 -- non-negative
-	dist := isqrt(d2)
-	if dist*dist < d2 {
-		dist++
-	}
-	den := uint64(max(speedPermille, 1)) * uint64(max(milliTilesPerMin, 1)) // #nosec G115 -- positive
-	hi, lo := bits.Mul64(dist, msPerMinute*1000)
-	if hi >= den {
-		return 1<<63 - 1
-	}
-	q, r := bits.Div64(hi, lo, den)
-	if r > 0 {
-		q++
-	}
-	return max(int64(q), 1) // #nosec G115 -- q < 2^63 since dist*6e7 < 2^63
+	return milliToMs(distMilli(fromX, fromY, toX, toY), speedPermille, milliTilesPerMin)
 }
 
-// travelMs is TravelMs between two islands for a ship type.
-func travelMs(c *content.Catalogue, speedPermille int64, from, to *Island) int64 {
-	return TravelMs(from.X, from.Y, to.X, to.Y, speedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)
+// travel is the path and travel time between the harbours of two
+// islands for a ship type (voyage).
+func travel(w *World, c *content.Catalogue, speedPermille int64, from, to *Island) ([]Pos, int64) {
+	a, b := Ends(c, from, to)
+	return Voyage(w, c, speedPermille, a, b)
 }
 
-// shipTravel is the travel time of ship s between two islands.
-func shipTravel(w *World, c *content.Catalogue, s *Ship, from, to string) int64 {
+// shipTravel is the path and travel time of ship s between two islands.
+func shipTravel(w *World, c *content.Catalogue, s *Ship, from, to string) ([]Pos, int64) {
 	a, b := w.Island(from), w.Island(to)
 	def := c.ShipByID[s.Type]
 	if a == nil || b == nil || def == nil {
-		return 1
+		return nil, 1
 	}
-	return travelMs(c, def.SpeedPermille, a, b)
+	return travel(w, c, def.SpeedPermille, a, b)
 }
 
 // cargoAmounts returns the amount aboard per good.
@@ -391,7 +381,8 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 	if matched < 0 {
 		s.StopIndex = 0
 		to := r.Stops[0].IslandID
-		depart(s, Leg{FromIsland: island, ToIsland: to, DepartAtMs: now, ArriveAtMs: now + shipTravel(w, c, s, island, to)}, now)
+		path, ms := shipTravel(w, c, s, island, to)
+		depart(s, Leg{FromIsland: island, ToIsland: to, DepartAtMs: now, ArriveAtMs: now + ms, Path: path}, now)
 		return
 	}
 	stop := r.Stops[matched]
@@ -418,7 +409,8 @@ func handleStop(w *World, c *content.Catalogue, s *Ship, r *Route, island string
 	s.StopIndex = (matched + 1) % n
 	to := r.Stops[s.StopIndex].IslandID
 	dep := now + handlingMs(c, moved)
-	depart(s, Leg{FromIsland: island, ToIsland: to, DepartAtMs: dep, ArriveAtMs: dep + shipTravel(w, c, s, island, to)}, now)
+	path, ms := shipTravel(w, c, s, island, to)
+	depart(s, Leg{FromIsland: island, ToIsland: to, DepartAtMs: dep, ArriveAtMs: dep + ms, Path: path}, now)
 }
 
 // DueEvent is a pending due moment of a world: a shipyard order completes
@@ -740,6 +732,19 @@ type RenameShip struct {
 type SailShip struct {
 	ShipID     int64
 	ToIslandID string
+	// Site, when set, is the Trading Post the ship sails to found (the
+	// client's chained founding, D-051): the leg ends at its harbour point
+	// (HarbourAt) instead of the island's shore. It is validated like
+	// found_island's site; nil sails to the shore.
+	Site *FoundingSite
+}
+
+// FoundingSite is a Trading Post site of an unsettled island (island
+// tiles).
+type FoundingSite struct {
+	BuildingType string
+	X, Y         int
+	Rotation     int
 }
 
 func (OrderShip) isCommand()       {}
@@ -846,6 +851,9 @@ func foundIsland(w *World, c *content.Catalogue, cmd FoundIsland, l *Ledger) err
 	if settled(is, c) {
 		return fmt.Errorf("%w: %q", ErrIslandAlreadySettled, is.ID)
 	}
+	if scenic(is, c) {
+		return fmt.Errorf("%w: %q is a skerry", ErrInvalidCommand, is.ID)
+	}
 	def := c.BuildingByID[cmd.BuildingType]
 	if def == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownBuilding, cmd.BuildingType)
@@ -922,8 +930,8 @@ func assignShip(w *World, c *content.Catalogue, cmd AssignShip, l *Ledger) error
 			return fmt.Errorf("%w: route %d", ErrRouteInvalid, r.ID)
 		}
 		s.State, s.AtSea = ShipOnRoute, nil
-		depart(s, Leg{From: &Pos{p.X, p.Y}, ToIsland: to.ID, DepartAtMs: now,
-			ArriveAtMs: now + TravelMs(p.X, p.Y, to.X, to.Y, def.SpeedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)}, now)
+		path, ms := Voyage(w, c, def.SpeedPermille, *p, Arrival(c, *p, to))
+		depart(s, Leg{From: &Pos{p.X, p.Y}, ToIsland: to.ID, DepartAtMs: now, ArriveAtMs: now + ms, Path: path}, now)
 		return nil
 	}
 	arriveAt(w, c, s, s.IslandID, now, l)
@@ -960,6 +968,9 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 	to := w.Island(cmd.ToIslandID)
 	if to == nil {
 		return fmt.Errorf("%w: unknown destination %q", ErrRouteInvalid, cmd.ToIslandID)
+	}
+	if scenic(to, c) {
+		return fmt.Errorf("%w: %q is a skerry", ErrRouteInvalid, to.ID)
 	}
 	if to == from {
 		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)
@@ -1004,7 +1015,8 @@ func manualShipment(w *World, c *content.Catalogue, cmd ManualShipment, l *Ledge
 	setCargo(s, ship.SlotSize, amounts)
 	s.State = ShipManualLeg
 	dep := now + handlingMs(c, moved)
-	depart(s, Leg{FromIsland: from.ID, ToIsland: to.ID, DepartAtMs: dep, ArriveAtMs: dep + travelMs(c, ship.SpeedPermille, from, to)}, now)
+	path, ms := travel(w, c, ship.SpeedPermille, from, to)
+	depart(s, Leg{FromIsland: from.ID, ToIsland: to.ID, DepartAtMs: dep, ArriveAtMs: dep + ms, Path: path}, now)
 	clearRegimes(from)
 	return nil
 }
@@ -1044,6 +1056,13 @@ func LaunchShipAtSea(w *World, c *content.Catalogue, typ string, at Pos, cargo m
 	return s, nil
 }
 
+// scenic reports whether an island is a skerry (D-058): land for sea
+// routing only, never a destination and never settled.
+func scenic(is *Island, c *content.Catalogue) bool {
+	sc := c.Islands.SizeClassByID[is.SizeClass]
+	return sc != nil && sc.Scenic
+}
+
 func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	s, err := idleShip(w, cmd.ShipID)
 	if err != nil {
@@ -1053,6 +1072,9 @@ func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	if to == nil {
 		return fmt.Errorf("%w: unknown destination %q", ErrRouteInvalid, cmd.ToIslandID)
 	}
+	if scenic(to, c) {
+		return fmt.Errorf("%w: %q is a skerry", ErrRouteInvalid, to.ID)
+	}
 	if to.ID == s.IslandID {
 		return fmt.Errorf("%w: destination %q is the ship's island", ErrRouteInvalid, to.ID)
 	}
@@ -1060,15 +1082,29 @@ func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	if ship == nil {
 		return fmt.Errorf("%w: %q", ErrUnknownShipType, s.Type)
 	}
+	site, hasSite, err := foundingHarbour(w, c, to, cmd.Site)
+	if err != nil {
+		return err
+	}
 	now := w.LastEvaluatedAt.UnixMilli()
 	leg := Leg{FromIsland: s.IslandID, ToIsland: to.ID, DepartAtMs: now}
 	switch from := w.Island(s.IslandID); {
 	case from != nil:
-		leg.ArriveAtMs = now + travelMs(c, ship.SpeedPermille, from, to)
+		a, b := Ends(c, from, to)
+		if hasSite {
+			b = site
+		}
+		path, ms := Voyage(w, c, ship.SpeedPermille, a, b)
+		leg.ArriveAtMs, leg.Path = now+ms, path
 	case s.AtSea != nil:
 		p := *s.AtSea
 		leg.From = &p
-		leg.ArriveAtMs = now + TravelMs(p.X, p.Y, to.X, to.Y, ship.SpeedPermille, c.Region.Rules.ShipSpeedMilliTilesPerMin)
+		b := Arrival(c, p, to)
+		if hasSite {
+			b = site
+		}
+		path, ms := Voyage(w, c, ship.SpeedPermille, p, b)
+		leg.ArriveAtMs, leg.Path = now+ms, path
 	default:
 		return fmt.Errorf("%w: ship %d has no position", ErrShipNotIdle, s.ID)
 	}
@@ -1076,6 +1112,35 @@ func sailShip(w *World, c *content.Catalogue, cmd SailShip) error {
 	s.AtSea = nil
 	depart(s, leg, now)
 	return nil
+}
+
+// foundingHarbour validates the site a sail_ship is bound to found (as
+// found_island would, apart from the ship and its cargo) and returns its
+// harbour point; ok is false without a site.
+func foundingHarbour(w *World, c *content.Catalogue, is *Island, site *FoundingSite) (Pos, bool, error) {
+	if site == nil {
+		return Pos{}, false, nil
+	}
+	if settled(is, c) {
+		return Pos{}, false, fmt.Errorf("%w: %q", ErrIslandAlreadySettled, is.ID)
+	}
+	def := c.BuildingByID[site.BuildingType]
+	if def == nil {
+		return Pos{}, false, fmt.Errorf("%w: %q", ErrUnknownBuilding, site.BuildingType)
+	}
+	if def.TradingPost == nil {
+		return Pos{}, false, fmt.Errorf("%w: %s has no trading_post block", ErrInvalidCommand, def.ID)
+	}
+	if !TierUnlocked(w, c, def.Tier) {
+		return Pos{}, false, fmt.Errorf("%w: %s needs tier %s", ErrTierLocked, def.ID, def.Tier)
+	}
+	if !validRotation(site.Rotation) {
+		return Pos{}, false, fmt.Errorf("%w: rotation %d", ErrInvalidCommand, site.Rotation)
+	}
+	if err := checkSite(is, c, is.occupancy(c), def, site.X, site.Y, site.Rotation, true); err != nil {
+		return Pos{}, false, err
+	}
+	return HarbourAt(is, def, site.X, site.Y, site.Rotation), true, nil
 }
 
 func scrapShip(w *World, c *content.Catalogue, cmd ScrapShip, l *Ledger) error {
