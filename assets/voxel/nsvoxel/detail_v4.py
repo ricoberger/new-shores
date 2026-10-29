@@ -305,13 +305,15 @@ def heap(v, cx, cy, r=3.5, h=4, m=None, cap=None, seed=0, z=1, ragged=0.7):
                     v.set(x, y, z + zz, cap if (cap is not None and zz == h - 1) else m)
 
 
-def mine_hill(v, x0, x1, y0, y1, peak=14, seam=None, share=0.06, seed=0, moss=None, slope=0.9):
+def mine_hill(v, x0, x1, y0, y1, peak=14, seam=None, share=0.4, seed=0, moss=None, slope=0.9):
     """
     The rock hill a mine strip cuts into (after iron_mine): rock bands three
     voxels high in two shades, a pale top layer (moss on the high parts),
-    sloping down toward +y from `peak` and toward the sides; a hashed
-    `share` of the rock cells in the `seam` material (ore, salt, coal) in
-    lens-shaped runs along x so seams read as bands.
+    sloping down toward +y from `peak` and toward the sides. With a `seam`
+    material (ore, salt, coal), a hashed `share` of the bands carries a
+    seam: its upper two layers in the seam material in long runs with a few
+    gaps, so seams read as stripes on every face and as contour lines on
+    the slopes.
     """
     from .mats import MOSS, ROCK, ROCK_DEEP, ROCK_LIGHT
 
@@ -322,36 +324,39 @@ def mine_hill(v, x0, x1, y0, y1, peak=14, seam=None, share=0.06, seed=0, moss=No
         for y in range(y0, y1):
             h = int(peak - abs(x + 0.5 - cx) * 0.5 - max(0, y - mid) * slope + hash3(x // 2, y // 2, 0, seed) * 2)
             for z in range(max(1, h)):
-                if z == h - 1:
-                    m = moss if h > peak - 4 else ROCK_LIGHT
+                band = z // 3
+                in_seam = seam is not None and z % 3 != 0 and hash3(band, 0, 7, seed) < share and hash3(x // 4, y // 4, band, seed + 5) < 0.85
+                if z == h - 1 and h > peak - 4:
+                    m = moss
+                elif in_seam:
+                    m = seam
+                elif z == h - 1:
+                    m = ROCK_LIGHT
                 else:
-                    m = ROCK if (z // 3) % 2 else ROCK_DEEP
-                    # Seams: runs along x within a band (z // 3), hashed per run of 3.
-                    if seam is not None and hash3(x // 3, y, z // 3, seed + 5) < share * 4 and (z % 3) != 2:
-                        m = seam
+                    m = ROCK if band % 2 else ROCK_DEEP
                 v.set(x, y, z, m)
 
 
-def terraces(v, x0, y0, x1, y1, steps, m, edge=None, z=1, seed=0, open_side="y+"):
+def terraces(v, x0, y0, x1, y1, steps, m, edge=None, z=1, seed=0, open_sides=("y+",), step=2):
     """
-    Stepped banks round a pit floor (the pit dug into the ground reads as
-    terraces rising outward): `steps` rings, each one voxel wider and one
-    higher outward, from the floor rectangle x0..x1 × y0..y1 outward; the
-    `open_side` stays open (a ramp side). Ring tops get the `edge` shade.
+    Stepped banks round a pit floor (a pit dug into the ground reads as
+    terraces rising outward — the ground plate is the lowest a model
+    goes): `steps` rings, each `step` voxels wider and higher outward, from
+    the floor rectangle x0..x1 × y0..y1; the `open_sides` stay open (ramp
+    sides; open the sides toward the camera, y+ and x−, and the pit reads
+    as a pit). Every ring's top layer is the `edge` shade.
     """
     edge = edge or shade_of(m, 1.12)
     for k in range(1, steps + 1):
-        for x in range(x0 - k * 2, x1 + k * 2):
-            for y in range(y0 - k * 2, y1 + k * 2):
-                inside_prev = x0 - (k - 1) * 2 <= x < x1 + (k - 1) * 2 and y0 - (k - 1) * 2 <= y < y1 + (k - 1) * 2
+        for x in range(x0 - k * step, x1 + k * step):
+            for y in range(y0 - k * step, y1 + k * step):
+                inside_prev = x0 - (k - 1) * step <= x < x1 + (k - 1) * step and y0 - (k - 1) * step <= y < y1 + (k - 1) * step
                 if inside_prev:
                     continue
-                if open_side == "y+" and y >= y1:
+                if ("y+" in open_sides and y >= y1) or ("y-" in open_sides and y < y0) or ("x+" in open_sides and x >= x1) or ("x-" in open_sides and x < x0):
                     continue
-                if open_side == "y-" and y < y0:
-                    continue
-                for zz in range(z, z + k * 2):
-                    v.set(x, y, zz, m if zz < z + k * 2 - 1 else edge)
+                for zz in range(z, z + k * step):
+                    v.set(x, y, zz, m if zz < z + k * step - 1 else edge)
 
 
 # ---------------------------------------------------------------- crops

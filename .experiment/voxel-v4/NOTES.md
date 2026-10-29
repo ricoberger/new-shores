@@ -27,7 +27,7 @@ Tools (experiment only, not product code):
 | # | Group | State |
 |---|-------|-------|
 | A | Houses: `house_merchants` ×3 | done |
-| B | Farms, fields, mines, water | – |
+| B | Farms, fields, mines, water | done |
 | C | Workshops | – |
 | D | Public: church, theatre | – |
 | E | Tests and output | – |
@@ -43,6 +43,9 @@ Tools (experiment only, not product code):
 - `stepped_gable` — crow-stepped stone gable with coping on an along-x
   roof end.
 - `oriel`, `balcony`, `shop_front`, `face_awning`, `signboard`, `hoist`.
+- `heap` (conical heap of salt/coal/clay), `mine_hill` (iron_mine's hill
+  with seam bands that read as stripes and slope contours), `terraces`
+  (stepped pit banks, open toward the camera), `hop_pole`, `leafy_rows`.
 - Materials: `COPPER`, `VERDIGRIS`.
 
 ## A — houses
@@ -58,6 +61,28 @@ roof, balcony over a shop front, side oriel, wall dormer with a hoist
 (citizens 8 / 16), steeper roofs (rise 1.5), two-step entrances with
 lintels.
 
+## B — farms, fields, mines, water
+
+- `hop_field`: two tall poles with bines (leaf runs, pale cones) per tile,
+  wires along the rows across tiles, hilled soil. `woad_field`: teal
+  rosette rows on ploughed soil, a few yellow flowers.
+- `hop_farm`: brick-coursed oast with a steep pyramid roof and white
+  cowl + vane, framed stowage barn with a loft hoist, hop pockets, a
+  picking bin heaped with cones, poles. `woad_farm`: stone farmhouse,
+  edge-runner woad mill, open drying shed with shelves of woad balls.
+- `clay_pit`: the ground plate is the lowest a model goes, so the pit is
+  the yard floor with three terraces rising to the back and east (open
+  toward the camera, so it reads as a pit, not a mound); gantry hoist with
+  winch and bucket; drying shed with clay blocks; hut.
+- `salt_pans`: 3 × 2 basins on stone walls over the water rows in three
+  stages (sea, brine, white crystallising pans with raked ridges), plank
+  walk, jetty with a moored salt barge, `boat` beside it; on land a large
+  salt heap, hut, store shed, second heap.
+- `salt_mine` / `coal_mine`: `mine_hill` with white / black seams; salt —
+  adit, tub, horse whim over the brine shaft, brine trough and casks, pump
+  house, salt heap; coal — adit, tubs on rails, headframe with sheave
+  wheel, winding house, coal heap, spoil tip.
+
 ## Open questions
 
 1. **Slate on one merchant house.** The task asks for tiled roofs varied
@@ -66,3 +91,10 @@ lintels.
    slate (the crow-stepped stone house) — slate stays a minority accent
    in a merchant quarter, not a dominant cold grey. Alternative: v2 in
    orange tiles (`mat("terracotta", 1.14)`), a one-line change.
+2. **Clay pit depth.** A pit cannot go below the ground plate (the model
+   sits on the terrain), so it is terraced banks above ground opened to
+   the camera side. Alternative: a client terrain cut-out — out of scope
+   (no `client/src` / terrain changes).
+3. **Salt mine output is brine.** The task asks for white seams and a
+   heap; the mine shows rock salt (seams, tub, heap) and brine (casks,
+   trough, whim over the brine shaft).

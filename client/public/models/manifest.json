@@ -2990,9 +2990,9 @@
     "clay_pit": {
       "anchors": {
         "cart": [
-          1.5,
           0.125,
-          -2.8125
+          0.125,
+          -2.75
         ],
         "door": [
           0.0,
@@ -3001,14 +3001,14 @@
         ],
         "status": [
           0.0,
-          3.625,
+          2.625,
           0.0
         ]
       },
       "bounds": {
         "max": [
           2.0,
-          3.375,
+          2.375,
           3.0
         ],
         "min": [
@@ -3021,7 +3021,7 @@
         "bounds": {
           "max": [
             2.0,
-            3.375,
+            2.375,
             3.0
           ],
           "min": [
@@ -3031,12 +3031,12 @@
           ]
         },
         "budget": 12000,
-        "bytes": 104568,
+        "bytes": 89860,
         "lite": {
           "bounds": {
             "max": [
               2.0,
-              3.5,
+              2.0,
               3.0
             ],
             "min": [
@@ -3046,14 +3046,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 12444,
+          "bytes": 11436,
           "path": "clay_pit.lite.glb",
-          "sha256": "e442047a34d98cdeee4e2c589b0d12133cba69a0971502570f4091c7f65524db",
-          "triangles": 332
+          "sha256": "f68b1981f67871dd7a0b87b1e8b6d714a1fcc9cad33d58f9fe6de65d6677b3dc",
+          "triangles": 324
         },
         "path": "clay_pit.glb",
-        "sha256": "a483823c252472c2de1e530ea0cfb8615bd274529855ba0a2522c380d2cb103d",
-        "triangles": 3264
+        "sha256": "19b823282c720ed1c1fddadbe780a22750fd71f00629e5618e4e3986948deb7f",
+        "triangles": 3106
       },
       "footprint": {
         "h": 6,
@@ -3064,9 +3064,9 @@
     "coal_mine": {
       "anchors": {
         "cart": [
-          1.0,
+          -0.375,
           0.125,
-          -3.8125
+          -3.75
         ],
         "door": [
           0.0,
@@ -3075,14 +3075,14 @@
         ],
         "status": [
           0.0,
-          3.125,
+          3.375,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.875,
+          3.125,
           4.0
         ],
         "min": [
@@ -3095,7 +3095,7 @@
         "bounds": {
           "max": [
             1.5,
-            2.875,
+            3.125,
             4.0
           ],
           "min": [
@@ -3105,12 +3105,12 @@
           ]
         },
         "budget": 12000,
-        "bytes": 92048,
+        "bytes": 164736,
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              2.5,
               4.0
             ],
             "min": [
@@ -3120,14 +3120,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 10660,
+          "bytes": 14968,
           "path": "coal_mine.lite.glb",
-          "sha256": "91f4ab728b8a57ed66c5430e67d7adab3ec7bece2331924df10882642338cae4",
-          "triangles": 288
+          "sha256": "48656b9001eb6fdf04ee09f1656f287a194902afeab883693266bcec653110cd",
+          "triangles": 408
         },
         "path": "coal_mine.glb",
-        "sha256": "27a02aeb72df441bea088cc8fa586ea2ea070c119e495c507fd3a1137f692830",
-        "triangles": 2782
+        "sha256": "2c917484e2a241a174f9abb1aad1447b4bfc55a00d62cdc105381306b1e8cba4",
+        "triangles": 5582
       },
       "footprint": {
         "h": 8,
@@ -4494,9 +4494,9 @@
     "hop_farm": {
       "anchors": {
         "cart": [
-          1.0,
+          0.375,
           0.125,
-          -1.8125
+          -1.625
         ],
         "door": [
           0.0,
@@ -4505,14 +4505,14 @@
         ],
         "status": [
           0.0,
-          3.125,
+          4.25,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.875,
+          4.0,
           2.0
         ],
         "min": [
@@ -4525,7 +4525,7 @@
         "bounds": {
           "max": [
             1.5,
-            2.875,
+            4.0,
             2.0
           ],
           "min": [
@@ -4535,12 +4535,12 @@
           ]
         },
         "budget": 6000,
-        "bytes": 66892,
+        "bytes": 109900,
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              4.0,
               2.0
             ],
             "min": [
@@ -4550,14 +4550,14 @@
             ]
           },
           "budget": 480,
-          "bytes": 9580,
+          "bytes": 10980,
           "path": "hop_farm.lite.glb",
-          "sha256": "b8e98c277f8b4365cc5f40aacdfb59f247aa9851e0b7e8c18f526460ed914c5e",
-          "triangles": 250
+          "sha256": "f905e4ddc58bd6aee9f0826d6b90f302cc2983eeac9ed1979d796d9f4ece82d0",
+          "triangles": 286
         },
         "path": "hop_farm.glb",
-        "sha256": "94f3a0686a9845e25e1385c6cc736945f45e3a9c7d2b5b2ea90efd64b57a25e4",
-        "triangles": 2134
+        "sha256": "0d8147039d000d62ebc11aa7699eb0a44a222fd1fb7f789c676a5ff4506229d0",
+        "triangles": 3656
       },
       "footprint": {
         "h": 4,
@@ -4574,14 +4574,14 @@
         ],
         "status": [
           0.0,
-          0.375,
+          1.875,
           0.0
         ]
       },
       "bounds": {
         "max": [
           0.5,
-          0.125,
+          1.625,
           0.5
         ],
         "min": [
@@ -4594,7 +4594,7 @@
         "bounds": {
           "max": [
             0.5,
-            0.125,
+            1.625,
             0.5
           ],
           "min": [
@@ -4604,10 +4604,10 @@
           ]
         },
         "budget": 410,
-        "bytes": 1608,
+        "bytes": 12872,
         "path": "hop_field.glb",
-        "sha256": "f5101eb77d36305d014858685d8c87b55daca4faa771520add88ae93731c5b87",
-        "triangles": 10
+        "sha256": "c060399eeb1ae3109a1cc7d5c28d19b2604eb7f3910960943a2f5501027d1c42",
+        "triangles": 362
       },
       "footprint": {
         "h": 1,
@@ -7148,9 +7148,9 @@
     "salt_mine": {
       "anchors": {
         "cart": [
-          1.0,
+          -0.375,
           0.125,
-          -3.8125
+          -3.75
         ],
         "door": [
           0.0,
@@ -7159,14 +7159,14 @@
         ],
         "status": [
           0.0,
-          3.125,
+          2.625,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.875,
+          2.375,
           4.0
         ],
         "min": [
@@ -7179,7 +7179,7 @@
         "bounds": {
           "max": [
             1.5,
-            2.875,
+            2.375,
             4.0
           ],
           "min": [
@@ -7189,12 +7189,12 @@
           ]
         },
         "budget": 12000,
-        "bytes": 97736,
+        "bytes": 150768,
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              2.0,
               4.0
             ],
             "min": [
@@ -7204,14 +7204,14 @@
             ]
           },
           "budget": 960,
-          "bytes": 13148,
+          "bytes": 14656,
           "path": "salt_mine.lite.glb",
-          "sha256": "423b6a0e0fe59a94b07f638c3c94a6cecc495551c7741839fc1f73e7cb4c2b3d",
-          "triangles": 348
+          "sha256": "e2fe33c9051992c2e08cd00cf2c54f9171ab1b2cd6b1b7a4fbd4ad3cc6ef3e6c",
+          "triangles": 388
         },
         "path": "salt_mine.glb",
-        "sha256": "e684f479bfc930904198f058b97d00b621e75fd1ecbec7434db9848644917550",
-        "triangles": 2938
+        "sha256": "4ad85142bf4783b006e874afe4048faa7ac89a2288e2a3022bc000a6c190b029",
+        "triangles": 5094
       },
       "footprint": {
         "h": 8,
@@ -7222,14 +7222,14 @@
     "salt_pans": {
       "anchors": {
         "boat": [
-          0.0,
+          2.2,
           0.05,
-          2.25
+          1.8
         ],
         "cart": [
-          2.0,
+          0.0,
           0.125,
-          -4.3125
+          -3.75
         ],
         "door": [
           0.0,
@@ -7238,15 +7238,15 @@
         ],
         "status": [
           0.0,
-          3.375,
+          2.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
+          2.625,
           2.5,
-          3.125,
-          4.5
+          4.375
         ],
         "min": [
           -2.5,
@@ -7257,9 +7257,9 @@
       "file": {
         "bounds": {
           "max": [
+            2.625,
             2.5,
-            3.125,
-            4.5
+            4.375
           ],
           "min": [
             -2.5,
@@ -7268,29 +7268,29 @@
           ]
         },
         "budget": 22500,
-        "bytes": 96692,
+        "bytes": 163476,
         "lite": {
           "bounds": {
             "max": [
+              3.0,
               2.5,
-              3.5,
               4.5
             ],
             "min": [
               -2.5,
-              0.0,
+              -1.0,
               -4.5
             ]
           },
           "budget": 1800,
-          "bytes": 11380,
+          "bytes": 15764,
           "path": "salt_pans.lite.glb",
-          "sha256": "a97d18d7f5dcbedaef60078368aed0b9efe80cb1e4c9d7f84617d50132eb75a0",
-          "triangles": 312
+          "sha256": "0ac7272a3a4148d4b599440e425e100c146e8b89c1c831fc3bb2c62e4c9ca719",
+          "triangles": 442
         },
         "path": "salt_pans.glb",
-        "sha256": "6ba6d698dcac63716344089fd5e64d00275c5dc4b7cb2b5f29c72838784557da",
-        "triangles": 3012
+        "sha256": "61646ab24b44b5a731f98310cd9d1bdc8ccdec86ad9727d504ce1fb1a4c86b8b",
+        "triangles": 5438
       },
       "footprint": {
         "h": 9,
@@ -9427,9 +9427,9 @@
     "woad_farm": {
       "anchors": {
         "cart": [
-          1.0,
+          0.5,
           0.125,
-          -1.8125
+          -1.625
         ],
         "door": [
           0.0,
@@ -9438,14 +9438,14 @@
         ],
         "status": [
           0.0,
-          3.125,
+          2.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
           1.5,
-          2.875,
+          2.5,
           2.0
         ],
         "min": [
@@ -9458,7 +9458,7 @@
         "bounds": {
           "max": [
             1.5,
-            2.875,
+            2.5,
             2.0
           ],
           "min": [
@@ -9468,12 +9468,12 @@
           ]
         },
         "budget": 6000,
-        "bytes": 65664,
+        "bytes": 119212,
         "lite": {
           "bounds": {
             "max": [
               1.5,
-              3.0,
+              2.5,
               2.0
             ],
             "min": [
@@ -9483,14 +9483,14 @@
             ]
           },
           "budget": 480,
-          "bytes": 8912,
+          "bytes": 9216,
           "path": "woad_farm.lite.glb",
-          "sha256": "7c39811ec2a3a946daf66739590c0f4d0869b6eef7536f5591719f4a7a89cffe",
+          "sha256": "a7ff85953532286cf968ef83e33764eccd1d1c89b81b7d62a4736560b7771777",
           "triangles": 234
         },
         "path": "woad_farm.glb",
-        "sha256": "7a4352aa115f7e4ae3583370a77c58ab8bb0b6c2e1f3a310637a9f90d7d2d121",
-        "triangles": 2102
+        "sha256": "2b429923e0a452c022043759fab39312f2342608e5dcafebaa0f23cd3b360730",
+        "triangles": 3848
       },
       "footprint": {
         "h": 4,
@@ -9507,14 +9507,14 @@
         ],
         "status": [
           0.0,
-          0.375,
+          0.75,
           0.0
         ]
       },
       "bounds": {
         "max": [
           0.5,
-          0.125,
+          0.5,
           0.5
         ],
         "min": [
@@ -9527,7 +9527,7 @@
         "bounds": {
           "max": [
             0.5,
-            0.125,
+            0.5,
             0.5
           ],
           "min": [
@@ -9537,10 +9537,10 @@
           ]
         },
         "budget": 410,
-        "bytes": 1608,
+        "bytes": 10328,
         "path": "woad_field.glb",
-        "sha256": "9aea0543f700895839723fa200f5682d3e5a5ab03493783a7a9196f6b8097c38",
-        "triangles": 10
+        "sha256": "f6b715c10a8651ded765a543c78ee82233d971ce3cef1cd738d91a5594eb1b69",
+        "triangles": 274
       },
       "footprint": {
         "h": 1,
@@ -9558,8 +9558,6 @@
     "cathedral",
     "cattle_farm",
     "church",
-    "clay_pit",
-    "coal_mine",
     "cooperage",
     "copper_mine",
     "copper_smelter",
@@ -9572,8 +9570,6 @@
     "gold_smelter",
     "goldsmith",
     "grain_distillery",
-    "hop_farm",
-    "hop_field",
     "house_patricians",
     "lace_maker",
     "leather_works",
@@ -9587,8 +9583,6 @@
     "printing_press",
     "quartz_quarry",
     "rendering_house",
-    "salt_mine",
-    "salt_pans",
     "salt_works",
     "slaughterhouse",
     "soap_maker",
@@ -9598,9 +9592,7 @@
     "university",
     "vine_row",
     "vineyard",
-    "winepress",
-    "woad_farm",
-    "woad_field"
+    "winepress"
   ],
   "version": 1,
   "voxels_per_tile": 8
