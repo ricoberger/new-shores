@@ -19,8 +19,8 @@ import type { Island, IslandDisplay, RouteDisplay, ShipDisplay } from "../api/cl
 import type { Rect } from "../display/camera";
 import type { Lod } from "../display/lod";
 import type { Quality } from "../display/quality";
-import { ribbonsShown } from "../display/routes";
-import { anchorSlots, type ArchPoint, berthAnchor, type Berths, type Dock, islandAnchor, type IslandPlacement, seaPoint, shipPlacement } from "../display/ships";
+import { ribbonLegs, ribbonsShown } from "../display/routes";
+import { alongPath, anchorSlots, type ArchPoint, berthAnchor, type Berths, type Dock, islandAnchor, type IslandPlacement, seaPoint, shipPlacement } from "../display/ships";
 import { BlobLayer, blobMatrix } from "./shadows";
 import { Sea } from "./water";
 import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
@@ -310,7 +310,9 @@ export class ArchipelagoLayer {
     // In the editor every route but the edited one (and the draft) is translucent, also before the first stop is added.
     const editing = this.draft !== null;
     for (const l of lines) {
-      const pts = l.stops.map((id) => this.anchor(id)).filter((p): p is ArchPoint => p !== null);
+      // Each leg along its voyage around land (D-058), the loop closed back to the first stop.
+      const legs = ribbonLegs(l.stops, l.paths, (id) => this.anchor(id));
+      const pts = legs.flatMap((leg) => leg.slice(0, -1));
       if (pts.length < 2) continue;
       keep.add(l.key);
       const geomKey = JSON.stringify([pts, width]);
@@ -330,11 +332,10 @@ export class ArchipelagoLayer {
       const dim = editing && !l.bright;
       line.material.emissiveColor = l.color;
       line.material.alpha = dim ? 0.45 : 1;
-      for (let i = 0; i < pts.length; i++) {
-        const a = pts[i] as ArchPoint;
-        const b = pts[(i + 1) % pts.length] as ArchPoint;
-        if (a.x === b.x && a.y === b.y) continue;
-        arrows.push({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, heading: Math.atan2(b.y - a.y, b.x - a.x), bright: l.bright });
+      for (const leg of legs) {
+        if (leg.length < 2) continue;
+        const mid = alongPath(leg, 0.5);
+        arrows.push({ x: mid.point.x, y: mid.point.y, heading: mid.heading, bright: l.bright });
       }
     }
     for (const [key, line] of this.routeLines) {

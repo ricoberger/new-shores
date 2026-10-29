@@ -263,6 +263,7 @@ export function buildArchipelagoFixture(nowMs: number): Built {
     })),
     ship_ids: [],
     loop_ms: 600_000,
+    paths: stops.map(() => []),
     effects: [],
   }));
   const ships: ShipDisplay[] = [];
@@ -912,6 +913,7 @@ export function buildDenseArchipelagoFixture(nowMs: number): Built {
     })),
     ship_ids: [],
     loop_ms: 900_000,
+    paths: stops.map(() => []),
     effects: [],
   }));
   const ships: ShipDisplay[] = [];

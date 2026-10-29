@@ -80,10 +80,14 @@ UI shows the same numbers the server uses.
 - **Route ribbons** are drawn only for the selected ship's route or while
   the route editor is open. All ribbons are the selection yellow and as
   wide as the selection ring; in the editor the edited route and the
-  draft are opaque and the other routes translucent. Ships are always
-  drawn.
+  draft are opaque and the other routes translucent. Each leg follows
+  the server's voyage around land (`RouteDisplay.paths`, D-058; the
+  draft's legs those of the saved routes, else a straight line) from
+  pier anchor to harbour and back. Ships are always drawn.
 - **Ships** are low-poly instances: with a leg, lerped between the two
-  islands' pier anchors by `(now − depart_at) / (arrive_at − depart_at)`.
+  islands' pier anchors by `(now − depart_at) / (arrive_at − depart_at)`
+  along the leg's `path` (pier anchor, harbour, waypoints, harbour, pier
+  anchor).
   A ship handling at the Trading Post moors **stern-first at berth
   anchor i** of the Trading Post model (`berth_1..4` in the manifest; the
   middle pair first, bows fanned out to sea; PR #29) — the level unlocks

@@ -403,11 +403,14 @@ export function alongPath(pts: readonly ArchPoint[], f: number): { point: ArchPo
 
 /**
  * Polyline of a leg (archipelago tiles): the server's voyage around land
- * (`path`, D-058 §5) with its ends replaced by the visual anchors — the
- * origin `a` (sea position, pier slot or first berth) and the
- * destination's first berth; an end without berths (no Trading Post)
- * keeps the server's shore point. Without a path (older payloads) the
- * straight line between the berth anchors. Null when an island is unknown.
+ * (`path`, D-058 §5) between the visual anchors — the origin `a` (sea
+ * position, pier slot or first berth) and the destination's first berth;
+ * the server's harbour ends stay in (the hop from a pier to its harbour
+ * is on the water; a straight line from the pier to the first waypoint
+ * could cut a corner of land). An end without berths (no Trading Post)
+ * is the server's shore point. Without a path (older payloads) the
+ * straight line between the berth anchors. Repeated points are dropped.
+ * Null when an island is unknown.
  */
 export function legPath(
   leg: LegDisplay,
@@ -421,7 +424,8 @@ export function legPath(
   const a = leg.from_position ? seaPoint(leg.from_position) : (dock?.point ?? end(leg.from_island_id, path[0]));
   const b = end(leg.to_island_id, path[path.length - 1]);
   if (!a || !b) return null;
-  return [a, ...path.slice(1, -1).map(seaPoint), b];
+  const pts = [a, ...path.map(seaPoint), b];
+  return pts.filter((p, i) => i === 0 || p.x !== pts[i - 1]!.x || p.y !== pts[i - 1]!.y);
 }
 
 /**

@@ -136,9 +136,9 @@ describe("ship placement against the server fixtures", () => {
     const depart = serverTimeMs(leg.depart_at);
     const arrive = serverTimeMs(leg.arrive_at);
     expect(shipPlacement(ship, pl, depart - 1, 0, berths)!.point).toEqual(a);
-    // The berths replace the path's ends; the waypoints stay.
+    // The berths lead to and from the path's harbour ends (D-058: the hop from the pier to the harbour stays on the water); the waypoints stay.
     const pts = legPath(leg, pl, berths)!;
-    expect(pts).toEqual([a, ...leg.path!.slice(1, -1).map(seaPoint), b]);
+    expect(pts).toEqual([a, ...leg.path!.map(seaPoint), b]);
     const mid = shipPlacement(ship, pl, (depart + arrive) / 2, 0, berths)!.point;
     expect(mid).toEqual(alongPath(pts, 0.5).point);
     expect(shipPlacement(ship, pl, arrive + 1, 0, berths)!.point).toEqual(b);

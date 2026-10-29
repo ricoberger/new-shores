@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { Content, DisplayState } from "../api/client";
 import { cargoCoversWarehouse, depositCounts, foundingShips, islandSummary } from "./archipelago";
-import { createdRouteId, draftFromRoute, ribbonsShown, signedUnits, stopsFromDraft } from "./routes";
+import { createdRouteId, draftFromRoute, ribbonLegs, ribbonsShown, signedUnits, stopsFromDraft } from "./routes";
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "server", "testdata", "display");
 const fixture = (name: string) => (JSON.parse(readFileSync(join(fixtureDir, `${name}.json`), "utf8")) as { base: DisplayState }).base;
@@ -60,15 +60,27 @@ describe("route drafts", () => {
 });
 
 describe("route ribbons shown", () => {
-  const route = (id: number, stops: string[]) => ({ id, name: `r${id}`, stops: stops.map((island_id) => ({ island_id, load: [], unload: [] })), ship_ids: [] });
-  const routes = [route(1, ["a", "b"]), route(2, ["b", "c"])] as unknown as DisplayState["routes"];
+  // Route 1's legs a → b and b → a go around land; route 2 has no voyages (straight ribbons).
+  const voyage = [
+    { x: 10, y: 10 },
+    { x: 20, y: 30 },
+    { x: 40, y: 30 },
+  ];
+  const route = (id: number, stops: string[], paths: { x: number; y: number }[][] = stops.map(() => [])) => ({
+    id,
+    name: `r${id}`,
+    stops: stops.map((island_id) => ({ island_id, load: [], unload: [] })),
+    ship_ids: [],
+    paths,
+  });
+  const routes = [route(1, ["a", "b"], [voyage, [...voyage].reverse()]), route(2, ["b", "c"])] as unknown as DisplayState["routes"];
 
   it("draws none without a selected ship's route or the editor", () => {
     expect(ribbonsShown(routes, null, null)).toEqual([]);
   });
 
   it("draws only the selected ship's route, bright", () => {
-    expect(ribbonsShown(routes, 2, null)).toEqual([{ key: "route_2", stops: ["b", "c"], colorIndex: 1, bright: true }]);
+    expect(ribbonsShown(routes, 2, null)).toEqual([{ key: "route_2", stops: ["b", "c"], paths: [[], []], colorIndex: 1, bright: true }]);
   });
 
   it("draws every route while the editor is open: the edited one bright, the others faint, plus the draft", () => {
@@ -83,5 +95,37 @@ describe("route ribbons shown", () => {
       ["route_1", false],
       ["route_2", false],
     ]);
+  });
+});
+
+describe("route ribbons along the voyages (D-058)", () => {
+  const anchors: Record<string, { x: number; y: number }> = { a: { x: 9, y: 9 }, b: { x: 42, y: 31 }, c: { x: 80, y: 0 } };
+  const anchor = (id: string) => anchors[id] ?? null;
+  const voyage = [
+    { x: 10, y: 10 },
+    { x: 20, y: 30 },
+    { x: 40, y: 30 },
+  ];
+  const centres = voyage.map((p) => ({ x: p.x + 0.5, y: p.y + 0.5 }));
+
+  it("runs each leg from its stop's anchor along the voyage (harbour ends kept) to the next stop's anchor", () => {
+    const legs = ribbonLegs(["a", "b"], [voyage, [...voyage].reverse()], anchor);
+    expect(legs).toEqual([
+      [anchors.a, ...centres, anchors.b],
+      [anchors.b, ...[...centres].reverse(), anchors.a],
+    ]);
+    // Without a voyage: the straight line; a stop without an anchor drops its legs.
+    expect(ribbonLegs(["b", "c"], [], anchor)).toEqual([
+      [anchors.b, anchors.c],
+      [anchors.c, anchors.b],
+    ]);
+    expect(ribbonLegs(["a", "x"], [], anchor)).toEqual([]);
+  });
+
+  it("lets the draft follow the voyages its legs share with a saved route, in either direction", () => {
+    const route = { id: 1, name: "r1", stops: ["a", "b"].map((island_id) => ({ island_id, load: [], unload: [] })), ship_ids: [], paths: [voyage, []] };
+    const draft = ribbonsShown([route] as unknown as DisplayState["routes"], null, ["b", "a", "c"]).find((r) => r.key === "draft")!;
+    // b → a is the reverse of the saved a → b; a → c and c → b are unknown.
+    expect(draft.paths).toEqual([[...voyage].reverse(), undefined, undefined]);
   });
 });

@@ -194,6 +194,10 @@ type RouteDisplay struct {
 	// LoopMs is the duration of one loop at reference speed 1.0: the
 	// handling time of every stop plus the travel time of every leg.
 	LoopMs int64 `json:"loop_ms"`
+	// Paths is the voyage of every leg around land (archipelago tiles,
+	// D-058 §5), one per stop: stop i to stop i+1, the last back to the
+	// first; empty for a leg that stays at its island.
+	Paths [][]PositionDisplay `json:"paths"`
 	// Effects is the estimated net change per island and good of one loop
 	// and per minute (MECHANICS §9.2 estimate; stock availability ignored).
 	Effects []RouteEffectDisplay `json:"effects"`
@@ -683,7 +687,14 @@ func displayShip(s *Ship, c *content.Catalogue) ShipDisplay {
 }
 
 func displayRoute(w *World, c *content.Catalogue, r *Route) RouteDisplay {
-	d := RouteDisplay{ID: r.ID, Name: r.Name, Stops: []RouteStopDisplay{}, ShipIDs: []int64{}, LoopMs: routeLoopMs(w, c, r)}
+	loop, paths := routeLegs(w, c, r)
+	d := RouteDisplay{ID: r.ID, Name: r.Name, Stops: []RouteStopDisplay{}, ShipIDs: []int64{}, LoopMs: loop, Paths: make([][]PositionDisplay, len(paths))}
+	for i, path := range paths {
+		d.Paths[i] = make([]PositionDisplay, len(path))
+		for j, p := range path {
+			d.Paths[i][j] = PositionDisplay(p)
+		}
+	}
 	for _, st := range r.Stops {
 		sd := RouteStopDisplay{IslandID: st.IslandID, Load: []LoadRuleDisplay{}, Unload: append([]string{}, st.Unload...)}
 		for _, lr := range st.Load {

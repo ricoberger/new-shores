@@ -2363,7 +2363,7 @@ components:
     RouteDisplay:
       type: object
       additionalProperties: false
-      required: [id, name, stops, ship_ids, loop_ms, effects]
+      required: [id, name, stops, ship_ids, loop_ms, paths, effects]
       properties:
         id:
           type: integer
@@ -2386,6 +2386,13 @@ components:
           type: integer
           format: int64
           description: Duration of one loop at reference speed 1.0 (ms) — the handling time of every stop plus the travel time of every leg.
+        paths:
+          type: array
+          description: The voyage of every leg around land (D-058 §5, archipelago tiles), one per stop — stop i to stop i+1, the last back to the first — from harbour to harbour as a ship's leg `path`; empty for a leg that stays at its island. The route ribbon follows it.
+          items:
+            type: array
+            items:
+              $ref: "#/components/schemas/SeaPosition"
         effects:
           type: array
           description: >-

@@ -1623,6 +1623,8 @@ export interface components {
              * @description Duration of one loop at reference speed 1.0 (ms) — the handling time of every stop plus the travel time of every leg.
              */
             loop_ms: number;
+            /** @description The voyage of every leg around land (D-058 §5, archipelago tiles), one per stop — stop i to stop i+1, the last back to the first — from harbour to harbour as a ship's leg `path`; empty for a leg that stays at its island. The route ribbon follows it. */
+            paths: components["schemas"]["SeaPosition"][][];
             /** @description Estimated net effect of the route per island and good (display only; stock availability ignored). Per good, the stops are walked twice from stop 0 with an empty virtual hold H (the smallest slots × slot_size among the assigned ships, else among the catalogue's ship types); a stop first unloads the good aboard, then tops it up to min(max_amount, H). The sums of the second pass are per_loop. Sorted by the first stop of the island, then by good; pairs with per_loop 0 are omitted; [] when the route moves nothing. */
             effects: components["schemas"]["RouteEffectDisplay"][];
         };
