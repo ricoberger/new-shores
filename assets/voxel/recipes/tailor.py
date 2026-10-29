@@ -48,7 +48,7 @@ def build(ctx):
     v.box(5, 15, 4, 9, 18, 5, DYE_BLUE)
     for y in (12, 16):
         v.box(2, y, 1, 3, y + 2, 5, (GREEN, OCHRE)[y % 2])  # bolts standing on end
-    P.washing_line(v, 2, 10, 4, 7, [DYE_BLUE, RED, CANVAS, GREEN])
+    P.washing_line(v, 2, 10, 4, 7, [P.cloth(c) for c in (DYE_BLUE, RED, CANVAS, GREEN)])
     # Front: crates of bolts, a bench, the cart.
     for x in (2, 6):
         P.box_crate(v, x, 25, 1, contents=(DYE_BLUE if x == 2 else RED))

@@ -8066,7 +8066,7 @@
           ]
         },
         "budget": 10000,
-        "bytes": 155016,
+        "bytes": 154824,
         "lite": {
           "bounds": {
             "max": [
@@ -8081,20 +8081,23 @@
             ]
           },
           "budget": 800,
-          "bytes": 14092,
+          "bytes": 13980,
           "path": "tailor.lite.glb",
-          "sha256": "f9285beac2b582764e1bf45cfec270d9de5f125ba567855ce9a2887820547d39",
+          "sha256": "6be192c05978304ba9fff1293b9a26145cd99ce686206c7e2c067384238c57d3",
           "triangles": 370
         },
         "path": "tailor.glb",
-        "sha256": "d25ff16896ee877165fb50016df804027ce65d2f61445e42ecddd07391c11c7c",
+        "sha256": "b133f83b2889d52d2817c5967b07a24c9dd230fe9e5da251c3f93440dac419e3",
         "triangles": 4992
       },
       "footprint": {
         "h": 5,
         "w": 4
       },
-      "kind": "building"
+      "kind": "building",
+      "sway": [
+        "cloth"
+      ]
     },
     "tannery": {
       "anchors": {

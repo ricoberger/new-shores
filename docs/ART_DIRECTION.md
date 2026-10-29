@@ -321,6 +321,18 @@ V3b — kept for the signature) — about 40–70 lines.
 - **Budgets:** triangles per footprint tile and class
   (`nsvoxel/config.py`) and the folder limit are fixed; report a recipe
   that does not fit instead of raising them.
+- **Tier 3 parts (D-057 V4):** `nsvoxel/detail_v4.py`, imported as
+  `V` next to `P` (detail.py stays unchanged): `V.townhouse` (stone
+  ground floor to 9–10, jettied half-timber in any frame colour, jettied
+  framed gables), `cross_gable`, `stepped_gable`, `oriel`, `balcony`,
+  `shop_front`, `face_awning`, `signboard`, `hoist`; round pieces
+  `round_tower`, `still_tower`, `dome`, `cone_roof`, `vat`, `kettle`,
+  `hood` (`V.COPPER`); `drying_frame` (cloth sway), `hide_frame`,
+  `louvres`, `brick_stack`, `stack`, `hanging`; `heap`, `mine_hill`
+  (seam bands), `terraces` (a pit's banks — models never go below the
+  ground plate, so open them toward the camera, y+ and x−), `hop_pole`,
+  `leafy_rows`. The default view looks from the front-west: put
+  signature parts on the y+ and x− sides.
 
 ### Look rules
 

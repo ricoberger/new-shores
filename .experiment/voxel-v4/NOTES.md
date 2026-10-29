@@ -30,7 +30,7 @@ Tools (experiment only, not product code):
 | B | Farms, fields, mines, water | done |
 | C | Workshops | done |
 | D | Public: church, theatre | done |
-| E | Tests and output | – |
+| E | Tests and output | done |
 
 ## Helpers added (`nsvoxel/detail_v4.py`, imported as `V`)
 
@@ -137,6 +137,71 @@ still towers on the west).
 - Renderer note: a recess two voxels deep on the x− face shows only its
   side wall in the sheet's view; openings there are one voxel deep.
 
+## E — tests and output
+
+- `assets/voxel/tests/test_tier3.py`: recipe per tier-3 ID (+ grain
+  distillery), anchors per content flags (cart, chimney/smoke = content
+  `smoke`, boat on salt_pans, door, status), budgets full and lite,
+  footprint fit, structure in every quarter of the plot, flat plain
+  roles (< 5 % differing neighbours), sway only on dyer / dyer_works /
+  tailor, determinism, three distinct merchant houses bigger and taller
+  than any citizen house with three roofs; helper tests for detail_v4.
+- `make assets`, `make assets-check` (models current, 356 files),
+  `make check` after every group: passed.
+- Contact sheet: `sheets/tier3-contact.png` (full + lite, every model);
+  per group `a-houses.png`, `b-farms-mines-water.png`,
+  `c-workshops.png`, `d-public.png`.
+- Shots: `shots/merchants-{near,mid}-{desktop,phone}.png`. The fixture's
+  near view frames open grass (no buildings in frame); mid shows the
+  merchant town.
+
+### Triangles
+
+| Model | Full / budget | Lite / budget |
+|---|---|---|
+| house_merchants.v0 | 4204 / 4860 | 266 / 405 |
+| house_merchants.v1 | 4446 / 4860 | 304 / 405 |
+| house_merchants.v2 | 4270 / 4860 | 294 / 405 |
+| hop_farm | 3656 / 6000 | 286 / 480 |
+| hop_field | 362 / 410 | — / — |
+| woad_farm | 3848 / 6000 | 234 / 480 |
+| woad_field | 274 / 410 | — / — |
+| clay_pit | 3106 / 12000 | 324 / 960 |
+| salt_pans | 5438 / 22500 | 442 / 1800 |
+| salt_mine | 5094 / 12000 | 388 / 960 |
+| coal_mine | 5582 / 12000 | 408 / 960 |
+| butcher | 4090 / 10000 | 300 / 800 |
+| pastry_kitchen | 4752 / 10000 | 356 / 800 |
+| brewery | 6514 / 15000 | 456 / 1200 |
+| distillery | 6658 / 15000 | 434 / 1200 |
+| grain_distillery | 6056 / 15000 | 450 / 1200 |
+| leather_works | 2210 / 6000 | 210 / 480 |
+| tailor | 4992 / 10000 | 370 / 800 |
+| dyer | 4080 / 10000 | 376 / 800 |
+| dyer_works | 4722 / 12500 | 520 / 1000 |
+| paper_mill | 5140 / 12000 | 336 / 960 |
+| printing_press | 5168 / 10000 | 366 / 800 |
+| rendering_house | 2312 / 4500 | 196 / 360 |
+| soap_maker | 3314 / 6000 | 264 / 480 |
+| salt_works | 4328 / 12000 | 390 / 960 |
+| brickworks | 3858 / 10000 | 290 / 800 |
+| church | 12270 / 30000 | 792 / 2400 |
+| theatre | 19896 / 77000 | 1620 / 6160 |
+
+All within budget; none over. Models folder 16140 KB (was 14144 KB;
+limit 24 MB).
+
+### Time (wall clock)
+
+| Group | Time | Recipes |
+|---|---|---|
+| Reading, setup, helpers start | 05:33–05:36 | – |
+| A houses | ≈ 05:36–05:42 | 1 (×3 variants) |
+| B farms/fields/mines/water | 05:42–05:49 | 8 (≈ 1 min each) |
+| C workshops | 05:49–05:58 | 15 (≈ 0.6 min each) |
+| D public | 05:58–06:04 | 2 (≈ 3 min each) |
+| E tests, docs, sheets, shots | 06:04–06:12 | – |
+
 ## Open questions
 
 1. **Slate on one merchant house.** The task asks for tiled roofs varied
@@ -162,3 +227,10 @@ still towers on the west).
    (+y), the stage house is at the back; the seats are read from above.
    Alternative: stage to the street (the stage house would hide the
    seats from the default camera).
+7. **grain_distillery is a tier-4 (patrician) ID** authored here as the
+   distillery class's twin, as asked. If V5 also writes
+   `grain_distillery.py`, keep one (this one, or V5's) at merge.
+8. **LIFE_LAYER §7 sway list** still names the tier 1–2 cloth only; the
+   dyer, dyer_works and tailor cloth sways (manifest `sway`). The docs
+   rule here allows ART_DIRECTION §7 only, so LIFE_LAYER is not updated.
+9. **Shared test change:** `test_pipeline` placeholder example (see C).
