@@ -27,7 +27,7 @@ import { SEA_LEVEL as TERRAIN_SEA_LEVEL } from "./terrain";
 import { type DecodedMask, decodeMask, MASK_WATER, maskAt, maskTerrain } from "../display/mask";
 import { ColoredInstances, shipColor, shipMatrix, type ShipStyle, shipTemplate } from "./shipmesh";
 import { anchorBob, SAILING_ALPHA, sailing, waiting } from "./sway";
-import { type ModelRegistry, shipMeshes, shipModel } from "./models";
+import { type ModelRegistry, shipMeshes, shipModel, shipWakeSpec } from "./models";
 import { ARROW_BRIGHT, ARROW_DIM, HAZE, SELECTION } from "./palette";
 import { ShipWake, type WakeShip } from "./wake";
 
@@ -460,6 +460,7 @@ export class ArchipelagoLayer {
     for (const [type, list] of byType) {
       const { inst, cargo, model } = this.shipInstances(type);
       const scale = baseScale * this.lengthRatio(type);
+      const wakeSpec = shipWakeSpec(this.registry, type) ?? { stern: 0.42, beam: 0.18 };
       // A model's origin is its waterline (at the sea surface); the placeholder floats on y = SHIP_Y.
       const sy = model && this.lod !== "far" ? SEA_LEVEL : y;
       inst.resize(list.length);
@@ -481,7 +482,7 @@ export class ArchipelagoLayer {
         // Sails fill while under way (the sway shader's sentinel).
         if (sailing(s, p)) {
           inst.colors[i * 4 + 3] = SAILING_ALPHA;
-          if (p && this.bobbing && this.lod !== "far") this.wakeShips.push({ id: s.id, x: point.x, y: point.y, heading: p.heading, stern: 0.42 * scale, scale });
+          if (p && this.bobbing && this.lod !== "far") this.wakeShips.push({ id: s.id, x: point.x, y: point.y, heading: p.heading, stern: wakeSpec.stern * scale, beam: wakeSpec.beam * scale, scale });
         }
         // Crates on deck while carrying cargo, at the same matrix.
         if (cargo && s.cargo.length > 0) {
