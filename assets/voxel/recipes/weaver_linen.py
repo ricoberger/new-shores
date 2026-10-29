@@ -2,7 +2,8 @@
 Linen weaver (4 × 5; D-057 §3): a workshop with a coursed-stone ground
 floor, a jettied plaster upper storey and tiles (chimney with smoke), a
 loom with a white web under a tiled lean-to, linen bleaching on the
-grass in long white strips, a winding frame, bales of flax and a cart.
+grass hung in long white sheets on lines (cloth: they sway), a winding
+frame, bales of flax and a cart.
 """
 
 from nsvoxel import parts as P
@@ -10,6 +11,8 @@ from nsvoxel.mats import CANVAS, PLASTER, TIMBER, TIMBER_LIGHT
 
 LINEN = P.mat("plaster", 1.08)
 FLAX = P.mat("thatch", 1.15)
+SHEET = P.cloth(LINEN)
+SHEET_SHADE = P.cloth(P.shade_of(LINEN, 0.96))
 
 
 def build(ctx):
@@ -33,13 +36,15 @@ def build(ctx):
     v.box(23, 7, 6, 28, 13, 7, TIMBER_LIGHT)
     v.box(24, 8, 2, 27, 12, 3, TIMBER_LIGHT)
     v.box(24, 8, 3, 27, 12, 4, LINEN)
-    # Bleaching green: long white strips pegged on the grass.
+    # Bleaching green: long white sheets hung on lines between posts (swaying cloth).
     for y in (27, 31, 35):
         for x in range(4, 24):
-            v.set(x, y, 1, LINEN if (x // 6) % 2 == 0 else P.shade_of(LINEN, 0.96))
-            v.set(x, y + 1, 1, LINEN if (x // 6) % 2 == 0 else P.shade_of(LINEN, 0.96))
-        v.set(3, y, 1, TIMBER)
-        v.set(24, y + 1, 1, TIMBER)
+            c = SHEET if (x // 6) % 2 == 0 else SHEET_SHADE
+            for z in range(3, 6):
+                v.set(x, y, z, c)
+            v.set(x, y, 6, TIMBER_LIGHT)
+        for x in (3, 24):
+            v.box(x, y, 1, x + 1, y + 1, 7, TIMBER)
     # Winding frame, flax bales, cart.
     v.box(4, 19, 1, 5, 21, 4, TIMBER)
     v.box(8, 19, 1, 9, 21, 4, TIMBER)

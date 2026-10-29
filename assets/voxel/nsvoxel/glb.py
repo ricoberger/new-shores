@@ -1,8 +1,11 @@
 """
 GLB (binary glTF 2.0) writer and reader for the export profile: one mesh,
 one TRIANGLES primitive, one white material, POSITION / NORMAL / COLOR_0,
-no textures, UVs, animations or extensions. Deterministic bytes: the same
-triangles always give the same file.
+no textures, UVs or animations. The only extension is KHR_mesh_quantization
+(D-057 V3c, required): POSITION as int16 in units of the voxel grid (the
+node's scale is the unit, so every coordinate stays exact), NORMAL as
+normalized int8, COLOR_0 as normalized uint8, every element padded to four
+bytes. Deterministic bytes: the same triangles always give the same file.
 """
 
 import json
@@ -14,7 +17,9 @@ from .palette import to_byte
 
 ARRAY_BUFFER = 34962
 ELEMENT_ARRAY_BUFFER = 34963
+BYTE = 5120
 FLOAT = 5126
+SHORT = 5122
 UNSIGNED_BYTE = 5121
 UNSIGNED_SHORT = 5123
 UNSIGNED_INT = 5125
@@ -27,6 +32,11 @@ def normal(a, b, c):
     n = (uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx)
     length = math.sqrt(n[0] ** 2 + n[1] ** 2 + n[2] ** 2) or 1.0
     return (n[0] / length, n[1] / length, n[2] / length)
+
+
+EXTENSION = "KHR_mesh_quantization"
+#: Smallest position unit tried, as a fraction of the grid unit (half voxels: odd grids centred on the footprint).
+MIN_UNIT_DIVISOR = 8
 
 
 def to_gltf(p):
@@ -90,32 +100,55 @@ def color_bytes(rgb):
     return tuple(to_byte(c) for c in rgb[:3]) + ((int(rgb[3]),) if len(rgb) > 3 else (255,))
 
 
-def write(name, tris, colors, ao=None, sway=None):
-    """GLB bytes of the triangles; colors maps (role, shade) → (r, g, b) floats, with ao (role, shade, level) → (r, g, b); sway as in vertex_data."""
+def position_unit(positions, unit):
+    """The coarsest unit ≤ `unit` (halving) at which every position is an integer multiple; raises when none up to unit / 8 is."""
+    u = unit
+    while u >= unit / MIN_UNIT_DIVISOR - 1e-12:
+        if all(abs(c / u - round(c / u)) < 1e-3 for p in positions for c in p):
+            return u
+        u /= 2
+    raise ValueError(f"positions are not on the {unit} grid")
+
+
+def write(name, tris, colors, ao=None, sway=None, unit=1.0 / 8):
+    """
+    GLB bytes of the triangles; colors maps (role, shade) → (r, g, b) floats, with ao (role, shade, level) → (r, g, b); sway as in vertex_data;
+    unit is the grid's voxel size in tiles (the position quantum, halved when the positions need it).
+    """
     byte_colors = {k: color_bytes(v) for k, v in colors.items()}
     positions, normals, cols, indices = vertex_data(tris, byte_colors, ao, sway)
     n = len(positions)
-    pos_bin = b"".join(struct.pack("<3f", *p) for p in positions)
-    nor_bin = b"".join(struct.pack("<3f", *v) for v in normals)
+    u = position_unit(positions, unit)
+    ipos = [tuple(int(round(c / u)) for c in p) for p in positions]
+    if any(abs(c) > 32767 for p in ipos for c in p):
+        raise ValueError("position out of the int16 range")
+    inor = [tuple(int(round(c * 127)) for c in v) for v in normals]
+    pos_bin = b"".join(struct.pack("<4h", *p, 0) for p in ipos)
+    nor_bin = b"".join(struct.pack("<4b", *v, 0) for v in inor)
     col_bin = b"".join(struct.pack("<4B", *c) for c in cols)
     short = n < 65536
     idx_bin = b"".join(struct.pack("<H" if short else "<I", i) for i in indices)
     idx_bin += b"\x00" * ((4 - len(idx_bin) % 4) % 4)
     views, offset = [], 0
     blob = b""
-    for data, target in ((pos_bin, ARRAY_BUFFER), (nor_bin, ARRAY_BUFFER), (col_bin, ARRAY_BUFFER), (idx_bin, ELEMENT_ARRAY_BUFFER)):
-        views.append({"buffer": 0, "byteOffset": offset, "byteLength": len(data), "target": target})
+    for data, target, stride in ((pos_bin, ARRAY_BUFFER, 8), (nor_bin, ARRAY_BUFFER, 4), (col_bin, ARRAY_BUFFER, 4), (idx_bin, ELEMENT_ARRAY_BUFFER, None)):
+        view = {"buffer": 0, "byteOffset": offset, "byteLength": len(data), "target": target}
+        if stride:
+            view["byteStride"] = stride
+        views.append(view)
         blob += data
         offset += len(data)
     # The index view's byteLength excludes the padding.
     views[3]["byteLength"] = len(indices) * (2 if short else 4)
-    mn = [_json_float(min(p[i] for p in positions)) for i in range(3)] if positions else [0.0] * 3
-    mx = [_json_float(max(p[i] for p in positions)) for i in range(3)] if positions else [0.0] * 3
+    mn = [min(p[i] for p in ipos) for i in range(3)] if ipos else [0] * 3
+    mx = [max(p[i] for p in ipos) for i in range(3)] if ipos else [0] * 3
     doc = {
         "asset": {"version": "2.0", "generator": config.GENERATOR},
+        "extensionsUsed": [EXTENSION],
+        "extensionsRequired": [EXTENSION],
         "scene": 0,
         "scenes": [{"nodes": [0]}],
-        "nodes": [{"mesh": 0, "name": name}],
+        "nodes": [{"mesh": 0, "name": name, "scale": [_json_float(u)] * 3}],
         "meshes": [
             {
                 "name": name,
@@ -126,8 +159,8 @@ def write(name, tris, colors, ao=None, sway=None):
             {"name": "palette", "pbrMetallicRoughness": {"baseColorFactor": [1.0, 1.0, 1.0, 1.0], "metallicFactor": 0.0, "roughnessFactor": 1.0}}
         ],
         "accessors": [
-            {"bufferView": 0, "componentType": FLOAT, "count": n, "type": "VEC3", "min": mn, "max": mx},
-            {"bufferView": 1, "componentType": FLOAT, "count": n, "type": "VEC3"},
+            {"bufferView": 0, "componentType": SHORT, "count": n, "type": "VEC3", "min": mn, "max": mx},
+            {"bufferView": 1, "componentType": BYTE, "normalized": True, "count": n, "type": "VEC3"},
             {"bufferView": 2, "componentType": UNSIGNED_BYTE, "normalized": True, "count": n, "type": "VEC4"},
             {"bufferView": 3, "componentType": UNSIGNED_SHORT if short else UNSIGNED_INT, "count": len(indices), "type": "SCALAR"},
         ],
@@ -167,18 +200,26 @@ def read(data):
 
 
 def accessor_values(doc, binary, index):
-    """Values of an accessor as tuples (floats normalised for normalised integer types)."""
+    """
+    Values of an accessor as tuples: normalised integer types as floats in [−1, 1] / [0, 1], other integers as they are
+    (a POSITION is in the node's scale units: see node_scale).
+    """
     acc = doc["accessors"][index]
     view = doc["bufferViews"][acc["bufferView"]]
     comps = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4}[acc["type"]]
-    fmt, size = {FLOAT: ("f", 4), UNSIGNED_BYTE: ("B", 1), UNSIGNED_SHORT: ("H", 2), UNSIGNED_INT: ("I", 4)}[acc["componentType"]]
+    fmt, size = {BYTE: ("b", 1), FLOAT: ("f", 4), SHORT: ("h", 2), UNSIGNED_BYTE: ("B", 1), UNSIGNED_SHORT: ("H", 2), UNSIGNED_INT: ("I", 4)}[acc["componentType"]]
     start = view.get("byteOffset", 0) + acc.get("byteOffset", 0)
     stride = view.get("byteStride", comps * size)
     out = []
     for i in range(acc["count"]):
         v = struct.unpack_from("<" + fmt * comps, binary, start + i * stride)
         if acc.get("normalized"):
-            mx = {UNSIGNED_BYTE: 255.0, UNSIGNED_SHORT: 65535.0}[acc["componentType"]]
-            v = tuple(c / mx for c in v)
+            mx = {BYTE: 127.0, SHORT: 32767.0, UNSIGNED_BYTE: 255.0, UNSIGNED_SHORT: 65535.0}[acc["componentType"]]
+            v = tuple(max(c / mx, -1.0) for c in v)
         out.append(v)
     return out
+
+
+def node_scale(doc):
+    """The scale of the model's node (the POSITION unit in tiles)."""
+    return doc["nodes"][0].get("scale", [1.0, 1.0, 1.0])[0]

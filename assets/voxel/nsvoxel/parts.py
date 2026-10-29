@@ -74,19 +74,20 @@ def yard(v, x0, y0, x1, y1, kind="grass", z=0, seed=0):
     """The one-voxel ground plate of a yard (the footprint's plinth): grass, dirt, paved, sand or planks."""
     for x in range(x0, x1):
         for y in range(y0, y1):
-            # Patches of 4 × 4 voxels (one per half tile): enough variation to read as hand-placed, few enough to keep the greedy quads large.
+            # Patches of 4 × 4 voxels (one per half tile) between the two grasses; dirt and sand are one flat colour
+            # (D-057 V3b: the per-voxel variety is the client shader's).
             h = hash3(x // 4, y // 4, z, seed)
             if kind == "grass":
                 m = GRASS_A if h < 0.6 else GRASS_B
                 if hash3(x, y, z, seed + 1) < 0.015:
                     m = FLOWER
             elif kind == "dirt":
-                m = shade_of(DIRT, 1.0 if h < 0.65 else 0.93)
+                m = DIRT
             elif kind == "paved":
                 # Flagstones of 4 × 2 voxels in staggered rows.
                 m = shade_of(PAVED, (1.0, 0.95, 1.04)[int(hash3((x + (y // 2) % 2 * 2) // 4, y // 2, 3, seed) * 3)])
             elif kind == "sand":
-                m = shade_of(SAND, 1.0 if h < 0.7 else 0.96)
+                m = SAND
             elif kind == "planks":
                 m = shade_of(PLANK, 1.0 if (y // 2) % 2 == 0 else 0.9)
             else:
@@ -97,9 +98,7 @@ def yard(v, x0, y0, x1, y1, kind="grass", z=0, seed=0):
 def path(v, cells, kind="dirt", z=0, seed=0):
     """Overwrites ground cells (x, y) with a path material."""
     for x, y in cells:
-        h = hash3(x // 3, y // 3, 5, seed)
-        m = shade_of(DIRT if kind == "dirt" else PAVED, 1.0 if h < 0.75 else 0.92)
-        v.set(x, y, z, m)
+        v.set(x, y, z, DIRT if kind == "dirt" else PAVED)
 
 
 # ---------------------------------------------------------------- walls

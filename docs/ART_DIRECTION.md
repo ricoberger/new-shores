@@ -183,8 +183,9 @@ textured detail does not** (D-048, refined by D-050 and D-057):
 - **Life layer (shipped, PR #21; brief and as-built notes in
   `docs/LIFE_LAYER.md`):** carts (`cart`/`cart_merchant`) and **walkers**
   between a producer and its collector, spawned from the transfer timers;
-  **smoke** (solid voxel-cube puffs) from chimneys of producers with status
-  ok, density ∝ throughput × efficiency; **flags and sails** swaying;
+  **smoke** (voxel puffs in four sizes, 2/3/4/6 voxels at 16 per tile,
+  the nearest size to the plan's puff, quarter turns) from chimneys of
+  producers with status ok, density ∝ throughput × efficiency; **flags and sails** swaying;
   **gulls** and **fishing boats** at harbours and fishers; **strollers**
   (1 per 8 residents) on nearby roads; **sheep** wandering in active
   pastures; **quay crates** while a ship is handling; **construction
@@ -308,8 +309,11 @@ V3b — kept for the signature) — about 40–70 lines.
   without). The models folder has a hard limit (`MODELS_FOLDER_LIMIT`)
   — prefer structure (courses, frames,
   props) over more speckle.
-- **Sway:** only sails, ship canvas and flags (`flag_*`, `P.cloth`); sacks,
-  bales, awnings, washing and stretched sailcloth stay rigid.
+- **Sway:** sails, ship canvas, flags (`flag_*`) and hung or stretched
+  cloth marked with `P.cloth` — the wool and linen weavers' lines, the
+  sailmaker's sail on its frame, the warehouse's level 3 awning and flag;
+  sacks, bales, bolts and cart loads stay rigid. The list is LIFE_LAYER §7
+  (the tests read the manifest's `sway`).
 - **Lite:** the automatic lite (2 voxels/tile) must still read: keep
   jettied fronts and gable ends on 4-voxel block boundaries, roofs at
   least three voxels thick at the verges, and check the lite column of
@@ -339,9 +343,10 @@ V3b — kept for the signature) — about 40–70 lines.
   stone ground floor, gables, slate, two storeys + attic; Patricians =
   dressed stone, ornament, towers, three storeys. A house tier reads
   richer than the one below.
-- **States:** place = construction stages (`life_stage` A→B→C and the
-  scaffolding, stretched to the footprint) over 2.4 s (rise-in remains for
-  fields and with `?life=0`); paused/unpaid = desaturated tint;
+- **States:** place = construction stages (`life_stage[_n]` A→B→C by
+  footprint class — 2, 4 and 8 tiles per side, the nearest to the
+  footprint, stretched to fit — and the scaffolding in 3 and 8) over
+  2.4 s (rise-in remains for fields and with `?life=0`); paused/unpaid = desaturated tint;
   not_connected/starved keep the status icon and lose smoke/walkers.
 - **Lively look (D-057 §3).** The recipes (V3, authoring above) bring
   courses, frames, crop rows, uneven fences and flat palette colours;

@@ -25,6 +25,7 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { Scene } from "@babylonjs/core/scene";
 import "@babylonjs/loaders/glTF/2.0/glTFLoader";
+import "@babylonjs/loaders/glTF/2.0/Extensions/KHR_mesh_quantization";
 import type { BuildingDisplay, ContentBuilding } from "../api/client";
 import { rotatedFootprint } from "../display/geometry";
 import { addJitter, MODEL_VPT } from "./jitter";
@@ -293,7 +294,16 @@ export async function parseGlb(bytes: Uint8Array, scene: Scene): Promise<ModelDa
     const vertices = positions.length / 3;
     // COLOR_0 may come as RGB or RGBA; the layers use RGBA.
     const rgba = colors.length === vertices * 4 ? Float32Array.from(colors) : expandRgb(colors, vertices);
-    return { positions: Float32Array.from(positions), normals: Float32Array.from(normals), colors: rgba, indices: Uint32Array.from(indices) };
+    // KHR_mesh_quantization: POSITION is int16 in voxel units and the node's scale is the unit (tiles per voxel); dequantise here so every layer
+    // (merge, lite, instances) works on tile coordinates. The handedness root is the mesh's parent, not part of its own scaling.
+    const { x: sx, y: sy, z: sz } = mesh.scaling;
+    const scaled = Float32Array.from(positions);
+    for (let i = 0; i < scaled.length; i += 3) {
+      scaled[i] = (scaled[i] as number) * sx;
+      scaled[i + 1] = (scaled[i + 1] as number) * sy;
+      scaled[i + 2] = (scaled[i + 2] as number) * sz;
+    }
+    return { positions: scaled, normals: Float32Array.from(normals), colors: rgba, indices: Uint32Array.from(indices) };
   } finally {
     container.dispose();
   }

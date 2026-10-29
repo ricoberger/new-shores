@@ -107,8 +107,12 @@ that name". All motion is procedural.
 - Smoke: solid low-poly puffs instead of particle quads (fits D-050);
   only for `status == ok`; every producer recipe must declare
   `anchors.smoke` or `chimney` (recipe test).
-- Sway: sails, ship canvas and `flag_*` only — sacks, bales and aprons
-  stay rigid; shadows do not sway.
+- Sway: sails, ship canvas, `flag_*` and cloth marked in a recipe
+  (`P.cloth`): the wool weaver's drying line, the linen weaver's hung
+  sheets, the sailmaker's sail on its frame, the warehouse level 3 awning
+  and flag, the Trading Post level 4 flag — sacks, bales, bolts, cart
+  loads and aprons stay rigid; shadows do not sway. The tests read the
+  manifest's `sway` list (`test_detail.py` names the allowed files).
 - Harbour: fisher boat loop may cross land (same follow-up as ship
   legs); crates only at Trading Post piers; gulls by presence of a fisher
   or Trading Post, not by status; waiting ships bob at anchor.
