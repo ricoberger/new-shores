@@ -1,7 +1,7 @@
 """
 Goldsmith (4 × 4; D-057 §3, V5): a fine two-storey shop in deep ochre —
 ashlar ground floor with arched shop openings behind iron grilles,
-plastered upper storey with balconied windows, cornice, a tiled hipped
+plastered upper storey with balconied windows, cornice, a dark tiled hipped
 roof with a brass finial and a forge chimney (smoke) — a hanging sign of
 a gold ring on a wrought bracket, a striped awning over the door, a
 strongbox, a bench, a lamp and a cart.
@@ -13,7 +13,7 @@ from nsvoxel.grid import mat
 from nsvoxel.mats import BRASS, CANVAS, DYE_BLUE, IRON, TIMBER_DARK
 
 WALL = mat("ochre", 0.98)
-ROOF = mat("terracotta", 0.84)
+ROOF = mat("terracotta", 0.66)  # dark terracotta
 
 
 def ring(v, x, y, z, r=3):

@@ -1,5 +1,5 @@
 """
-Slaughterhouse (4 × 4; D-057 §3, V5): a low ashlar hall with a tiled
+Slaughterhouse (4 × 4; D-057 §3, V5): a low ashlar hall with a thatched
 roof and a scalding-kettle chimney (smoke), and beside it an open shed
 on posts with sides of beef hanging from a rail (red meat, pale fat;
 rigid, not cloth); a cattle pen with a trough at the front, a chopping
@@ -11,7 +11,7 @@ from nsvoxel import parts as P
 from nsvoxel.grid import mat
 from nsvoxel.mats import CANVAS, IRON, TIMBER, TIMBER_DARK, TIMBER_LIGHT
 
-ROOF = mat("terracotta", 0.88)
+ROOF = mat("thatch")
 MEAT = mat("terracotta", 1.18)
 FAT = mat("canvas", 0.95)
 
@@ -38,7 +38,7 @@ def build(ctx):
         P.casement(b.face("x-"), a, 5, 2, 2, frame=Q.DRESSED, sill=Q.DRESSED, bars=False)
     P.roof_chimney(v, b.roof, 6, 6, above=4, brick=True, anchor=True)
     # Open shed with hanging sides.
-    P.lean_to(v, 20, 30, 3, 17, 10, "tiles", down="x+", m=ROOF, seed=seed)
+    P.lean_to(v, 20, 30, 3, 17, 10, "thatch", down="x+", m=ROOF, seed=seed)
     v.box(20, 6, 9, 30, 7, 10, TIMBER_DARK)
     v.box(20, 12, 9, 30, 13, 10, TIMBER_DARK)
     for x in (21, 24, 27):

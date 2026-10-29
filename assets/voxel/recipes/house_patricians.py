@@ -4,10 +4,11 @@ house — three storeys: a dressed ashlar ground floor on a proud plinth,
 two plastered upper storeys with dressed quoins, string courses at the
 floor lines and a cornice; tall glazed windows in dressed frames with
 keystones or pediments, a panelled door under a hood, dormers, brick
-chimneys with pots and a tiled roof. Three variants: a corner tower with
-a pyramid roof (warm red tiles), a top-floor loggia under a hipped roof
-(deep red-brown), and a gable-fronted house with a ground-floor arcade
-and a belvedere turret (light orange tiles).
+chimneys with pots and a tiled roof. Three variants: an ochre townhouse
+with a corner tower and a pyramid roof (warm red tiles), a pale beige
+block with a top-floor loggia under a hipped roof (dark red-brown), and
+a cream gable-fronted house with a ground-floor arcade and a belvedere
+turret (light orange tiles).
 """
 
 from nsvoxel import detail_v5 as Q
@@ -19,10 +20,10 @@ VARIANTS = 3
 
 DOOR_RED = mat("terracotta", 0.72)
 DOOR_GREEN = mat("grass-b", 0.7)
-#: Roof colours per variant (warm palette: red tiles, deep red-brown, light orange).
-ROOFS = (mat("terracotta", 1.0), mat("terracotta", 0.8), mat("terracotta", 1.14))
+#: Roof colours per variant (warm palette: red tiles, the house set's dark red-brown, light orange).
+ROOFS = (mat("terracotta", 1.0), mat("terracotta", 0.66), mat("terracotta", 1.14))
 #: Upper-storey plaster per variant (flat colours).
-WALLS = (mat("ochre", 1.0), mat("terracotta", 1.32), PLASTER)
+WALLS = (mat("ochre", 1.0), mat("plaster", 0.93), PLASTER)
 
 
 def front_door(f, a, leaf, steps=3):

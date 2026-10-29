@@ -1,5 +1,5 @@
 """
-Cooperage (4 × 6; D-057 §3, V5): a barrel hall of ashlar under a tiled
+Cooperage (4 × 6; D-057 §3, V5): a barrel hall of ashlar under a thatched
 roof with its front open on posts — barrels on the floor inside, a
 firing basket and a chimney (smoke) — and in the yard barrels stacked
 two high, hoops leaning against the wall and stacked flat, stacks of
@@ -11,7 +11,7 @@ from nsvoxel import parts as P
 from nsvoxel.grid import mat
 from nsvoxel.mats import IRON, PLANK, TIMBER, TIMBER_DARK, TIMBER_LIGHT  # noqa: F401
 
-ROOF = mat("terracotta", 0.95)
+ROOF = mat("thatch")
 GLOW = mat("flower", 1.0)
 
 
@@ -41,7 +41,7 @@ def build(ctx):
         v.box(x, y1 - 1, 1, x + 1, y1, 11, TIMBER)
     v.box(x0, y1 - 1, 9, x1, y1, 11, TIMBER_DARK)
     v.box(x0 + 1, y0 + 1, 0, x1 - 1, y1 - 1, 1, mat("road-dirt", 0.9))
-    r = P.roof(v, x0, x1, y0, y1, 11, "tiles", along="x", m=ROOF, gable=Q.ASHLAR, seed=seed)
+    r = P.roof(v, x0, x1, y0, y1, 11, "thatch", along="x", m=ROOF, gable=Q.ASHLAR, seed=seed)
     P.roof_chimney(v, r, 6, 6, above=3, brick=True, anchor=True)
     # Inside: barrels on the floor, a firing basket under a half-made barrel.
     for x in (5, 9, 13):

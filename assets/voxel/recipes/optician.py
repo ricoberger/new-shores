@@ -2,7 +2,7 @@
 Optician (4 × 4; D-057 §3, V5): a fine two-storey shop — an ashlar
 ground floor with a wide glazed shop window under a cornice hood,
 plastered upper storey with pedimented windows, string course, cornice,
-tiled hipped roof with a chimney over the lens-grinding hearth (smoke) —
+brown-tiled hipped roof with a chimney over the lens-grinding hearth (smoke) —
 and a sign of brass spectacles on a wrought bracket; crates of glass
 blanks, a grinding wheel by the door, a bench, a lamp and a cart.
 """
@@ -13,7 +13,8 @@ from nsvoxel.grid import mat
 from nsvoxel.mats import BRASS, IRON, TIMBER_DARK, TIMBER_LIGHT, WINDOW
 
 WALL = mat("plaster", 1.0)
-ROOF = mat("terracotta", 0.9)
+ROOF = mat("timber", 1.3)  # brown tile
+RIDGE = mat("timber", 1.1)
 LENS = mat("shallows", 1.15)
 
 
@@ -33,7 +34,7 @@ def build(ctx):
     v = ctx.vox()  # 32 × 32
     seed = 117
     P.yard(v, 0, 0, 32, 32, "paved", seed=seed)
-    b = Q.palazzo(v, 3, 3, 29, 21, (8, 7), upper=WALL, roof=ROOF, along="x", hip=True, seed=seed)
+    b = Q.palazzo(v, 3, 3, 29, 21, (8, 7), upper=WALL, roof=ROOF, ridge=RIDGE, along="x", hip=True, seed=seed)
     f = b.face("y+")
     P.entrance(f, 6, 2, 3, 6, leaf=TIMBER_DARK, frame=Q.DRESSED, lintel=Q.DRESSED)
     Q.window(f, 12, 3, 8, 4, hood="cornice", surround=True)
