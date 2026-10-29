@@ -29,7 +29,7 @@ Tools (experiment only, not product code):
 | A | Houses: `house_merchants` ×3 | done |
 | B | Farms, fields, mines, water | done |
 | C | Workshops | done |
-| D | Public: church, theatre | – |
+| D | Public: church, theatre | done |
 | E | Tests and output | – |
 
 ## Helpers added (`nsvoxel/detail_v4.py`, imported as `V`)
@@ -120,6 +120,23 @@ still towers on the west).
   without one (none left once V5 lands) and checks that fisher and
   grain_distillery get their recipes.
 
+## D — public
+
+- church (6 × 10): warm sandstone (`cliff-upper` ×1.12, dressed ×1.28)
+  nave with buttresses and lancets, red tile roof, half-round apse with a
+  half-cone roof at the back, three-stage west tower at the front
+  (portal, clock, belfry openings with a bell, tiled spire, cross), west
+  porch, coped churchyard wall with a lych gate, gravestones, yews.
+- theatre (11 × 14): Roman theatre — a half-elliptic cavea toward the
+  street (tiers, a walkway, four radial stairs) behind an outer wall
+  with an arcade of arches and pilasters; paved orchestra; raised stage
+  with a niched front; a two-storey scaenae frons with columns,
+  entablatures, niches, three doors and a tile roof; end towers; back
+  portico; forecourt with statues and cypresses. Seats face the stage
+  (away from the camera); the arcade faces the street.
+- Renderer note: a recess two voxels deep on the x− face shows only its
+  side wall in the sheet's view; openings there are one voxel deep.
+
 ## Open questions
 
 1. **Slate on one merchant house.** The task asks for tiled roofs varied
@@ -138,3 +155,10 @@ still towers on the west).
 4. **Copper colour.** No copper role in the palette; `COPPER` is the
    iron deposit's red-brown lightened (×1.5). Alternatives: brass (reads
    olive) or a new palette role (a palette change, out of scope).
+5. **Warm stone.** The palette has no warm building stone; church and
+   theatre use the island's `cliff-upper` sandstone (an allowed role).
+   Alternative: `ochre`-tinted stone (reads as plaster) or a palette role.
+6. **Theatre orientation.** The cavea's outer arcade faces the street
+   (+y), the stage house is at the back; the seats are read from above.
+   Alternative: stage to the street (the stage house would hide the
+   seats from the default camera).

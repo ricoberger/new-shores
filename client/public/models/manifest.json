@@ -2843,14 +2843,14 @@
         ],
         "status": [
           0.0,
-          3.75,
+          8.5,
           0.0
         ]
       },
       "bounds": {
         "max": [
           3.0,
-          3.5,
+          8.25,
           5.0
         ],
         "min": [
@@ -2863,7 +2863,7 @@
         "bounds": {
           "max": [
             3.0,
-            3.5,
+            8.25,
             5.0
           ],
           "min": [
@@ -2873,12 +2873,12 @@
           ]
         },
         "budget": 30000,
-        "bytes": 143856,
+        "bytes": 364960,
         "lite": {
           "bounds": {
             "max": [
               3.0,
-              3.5,
+              7.5,
               5.0
             ],
             "min": [
@@ -2888,14 +2888,14 @@
             ]
           },
           "budget": 2400,
-          "bytes": 15064,
+          "bytes": 25176,
           "path": "church.lite.glb",
-          "sha256": "750c06995683f17ddca3470c1a29677a02381a384a8ca207219bc431093bdd98",
-          "triangles": 406
+          "sha256": "55e6aa71a292ecd9a1c350742f1dc765e2af764c0636a20f9471a85b0020cd5e",
+          "triangles": 792
         },
         "path": "church.glb",
-        "sha256": "b87bd9f398f511072c10130023a85dc3bfe77a8f9968a4dc2434d3fb91ee11bb",
-        "triangles": 4332
+        "sha256": "0b1940484217774bd16cb10422081a7de31c0efbd8b9be27f8058ea973fe4a94",
+        "triangles": 12270
       },
       "footprint": {
         "h": 10,
@@ -8258,14 +8258,14 @@
         ],
         "status": [
           0.0,
-          5.25,
+          4.875,
           0.0
         ]
       },
       "bounds": {
         "max": [
           5.5,
-          5.0,
+          4.625,
           7.0
         ],
         "min": [
@@ -8278,7 +8278,7 @@
         "bounds": {
           "max": [
             5.5,
-            5.0,
+            4.625,
             7.0
           ],
           "min": [
@@ -8288,12 +8288,12 @@
           ]
         },
         "budget": 77000,
-        "bytes": 298240,
+        "bytes": 590772,
         "lite": {
           "bounds": {
             "max": [
               5.5,
-              5.0,
+              4.5,
               7.0
             ],
             "min": [
@@ -8303,14 +8303,14 @@
             ]
           },
           "budget": 6160,
-          "bytes": 19320,
+          "bytes": 50868,
           "path": "theatre.lite.glb",
-          "sha256": "a9485ec97a6ffa437819e0bb7e80968b03a991787f89ca98e01d6aac66d187e6",
-          "triangles": 544
+          "sha256": "6f2b0754d78f0529469daf8d3f5e022f71173cf0bde069c2694ee45a9596eab5",
+          "triangles": 1620
         },
         "path": "theatre.glb",
-        "sha256": "d25d5cab6424b0dfabee904a3544263dfe6f165ef63ee9efa60ca09b5c47d959",
-        "triangles": 8784
+        "sha256": "86ab599f7f9f0a4b192df0bc7e8c99296a676933b081c3d26e5c4a9482a56b84",
+        "triangles": 19896
       },
       "footprint": {
         "h": 14,
@@ -9560,7 +9560,6 @@
     "candle_foundry",
     "cathedral",
     "cattle_farm",
-    "church",
     "cooperage",
     "copper_mine",
     "copper_smelter",
@@ -9578,7 +9577,6 @@
     "oyster_house",
     "quartz_quarry",
     "slaughterhouse",
-    "theatre",
     "thread_spinner",
     "university",
     "vine_row",
