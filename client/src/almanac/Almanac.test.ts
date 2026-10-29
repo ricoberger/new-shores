@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { StartScreen } from "../ui/StartScreen";
 import { AlmanacView } from "./Almanac";
 import { isAlmanacPath, parseRoute, routePath } from "./route";
 import { loadContent } from "./testContent";
@@ -63,6 +64,12 @@ describe("almanac rendering", () => {
     const empty = { region: {}, quests: [], tiers: [], goods: [], buildings: [], needs: [], need_categories: [], ships: [], size_classes: [] } as never;
     for (const section of ["overview", "buildings", "goods", "needs", "ships", "quests", "islands"] as const)
       expect(() => renderToStaticMarkup(createElement(AlmanacView, { content: empty, route: { section } }))).not.toThrow();
+  });
+});
+
+describe("entry points", () => {
+  it("links the almanac from the start screen", () => {
+    expect(renderToStaticMarkup(createElement(StartScreen, { onPlayer: () => undefined }))).toContain('href="/almanac"');
   });
 });
 
